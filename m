@@ -2,101 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77BC3516C5A
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 10:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01336516D21
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 11:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383851AbiEBIuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 04:50:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45450 "EHLO
+        id S1384015AbiEBJSB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 05:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383657AbiEBIuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 04:50:07 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C51329808
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 01:46:38 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id 15so11222828pgf.4
-        for <stable@vger.kernel.org>; Mon, 02 May 2022 01:46:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=MH9GoXRahu4SMmYhSvghO17RCo5GfuiftTiQ2WPDRzo=;
-        b=EiqWkFE+/Y4xWokxMjTLJ/kAeLVkzsMUCJvgY1cFzB1n6b57HewSvSg7GuxlhBN+Wp
-         La0gxFi+PEX33xD/1E7SV0dXpdcflvaBEWmhQl7elsFfN30jZs+43lkv0Y3DSLDnXS6n
-         Hk8nooZuAOt0JCCT6Ct9Bew4VE3wGudjx5ejwbiLQRAoDPoS+sRLKhqBMfzoPuET2Hde
-         8axIx1fhnvgeJyYioduWDJyJEkCrJPNTyCWh+lp55zFiTy6HAOYSa3fqR4h9ZTWiLctO
-         c094g2LO+6d1p6iDZHPBluyxFVU4ST3uGRjZJsicpmqQmzsZnRgq3cKrtI0sTB7C/IWn
-         yk1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=MH9GoXRahu4SMmYhSvghO17RCo5GfuiftTiQ2WPDRzo=;
-        b=LKG96aXRtogBgZ3pjzQzkcHeehUP+wy350UfP07hIQK6kuVy5q8PCW/Jsr/YHCRu18
-         g+DvJOHFrnhmfmAmLFhbx/5cblL/vBqNuEd7/9TQh6Getp9VFeqnHlOC6DivFjLs3+aU
-         pvO+6GCum/gb6cGGdxnMQcmJ48q++xsHCXdaYGfuM87OIbIgEvWEhoy1NfFP8QQTrMc4
-         BlZ3uuj0jhcZj9j9VnQLyIHf7kwxyr/GD7N7aaNZkxvfAoupjwT5t/mzIldvllwHHYAG
-         qZhyzulyyKTigLqBcUdGLx/SZMOFnB9PUhG61oj3m9Dj5WgwlXLMXoC4f9xaGkgZdpH9
-         VySA==
-X-Gm-Message-State: AOAM530mhDdBY/maQjrBw3YM5eMDCHpc3NjUpnojk5pGiGtPGBhApgdo
-        uXNWbrnTnfThvr21/MIuMJB2CLjFC006bMaiRhE=
-X-Google-Smtp-Source: ABdhPJwCRbivkRIsYQjpbBvaeLj08QjsHveG2QPhcDFKql5D4wa0lbFdW/BPFcznx6LV1Qe9wU8WMeDgWQl3uvHNI/Y=
-X-Received: by 2002:a63:5223:0:b0:39d:2318:f99d with SMTP id
- g35-20020a635223000000b0039d2318f99dmr8785633pgb.268.1651481197350; Mon, 02
- May 2022 01:46:37 -0700 (PDT)
+        with ESMTP id S234028AbiEBJSB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 05:18:01 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB0B369F3;
+        Mon,  2 May 2022 02:14:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651482873; x=1683018873;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=mrdpF69sgCUgjY0iIsOoVsoDaXbqkIBauMYAKitutdM=;
+  b=JNJYTZG8707V5b7Jy7pWVWbh+VGMqUgPve7/Su6NUyU00zEZxvlRxjH8
+   jbd12ck9w0WDdGtLkePR1M1Ly/Kkrwdhvq/IQgXzFcpTXnqmjHKvVjc5/
+   WNelm2BWICOXw1jsbUk2Z+xWfiha1bOruXmjv8oAbC4JBzNRY2Jw10whV
+   LJnLSX2DukS0ADPEmg8R1n4vx1qQOxNEmd69ewvPzlKHNhdEnZAyw6c3k
+   Yfm9oZz6OlX+EzJ2QGiXiAKIYkGh6l9m5qGkWvmU27c7TY6PH/HTyUYU+
+   KkpUHgJOOJlJWTJ9cQcQrZLX+/cFqvfu2On+I0eTupldqJ2J3r9kIKcNl
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10334"; a="247714633"
+X-IronPort-AV: E=Sophos;i="5.91,190,1647327600"; 
+   d="scan'208";a="247714633"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2022 02:14:32 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,190,1647327600"; 
+   d="scan'208";a="886465610"
+Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 02 May 2022 02:14:29 -0700
+Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nlS8T-0009RP-5Y;
+        Mon, 02 May 2022 09:14:29 +0000
+Date:   Mon, 2 May 2022 17:13:53 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, agross@kernel.org,
+        bjorn.andersson@linaro.org, joro@8bytes.org, will@kernel.org,
+        sricharan@codeaurora.org
+Cc:     kbuild-all@lists.01.org, linux-arm-msm@vger.kernel.org,
+        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        Xiaomeng Tong <xiam0nd.tong@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2] iommu: fix an incorrect NULL check on list iterator
+Message-ID: <202205021754.GETHfNnS-lkp@intel.com>
+References: <20220501131259.11529-1-xiam0nd.tong@gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a06:8d6:b0:4ac:283b:9c08 with HTTP; Mon, 2 May 2022
- 01:46:36 -0700 (PDT)
-Reply-To: adilnla372@gmail.com
-From:   =?UTF-8?B?TmHDr2xh?= <sanchez43florence@gmail.com>
-Date:   Mon, 2 May 2022 10:46:36 +0200
-Message-ID: <CAP_Nrfxk_HpWJ=o4BzGgtrsGpvd=DiLm18pACE0_jc4iykgSsA@mail.gmail.com>
-Subject: Hospital Message
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=7.9 required=5.0 tests=BAYES_50,DEAR_FRIEND,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220501131259.11529-1-xiam0nd.tong@gmail.com>
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:544 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4999]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [sanchez43florence[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [adilnla372[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  2.6 DEAR_FRIEND BODY: Dear Friend? That's not very dear!
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.5 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Xiaomeng,
+
+Thank you for the patch! Yet something to improve:
+
+[auto build test ERROR on joro-iommu/next]
+[also build test ERROR on v5.18-rc5 next-20220429]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Xiaomeng-Tong/iommu-fix-an-incorrect-NULL-check-on-list-iterator/20220501-211400
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/joro/iommu.git next
+config: arm-allmodconfig (https://download.01.org/0day-ci/archive/20220502/202205021754.GETHfNnS-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 11.3.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/99e334beef5d5be25ed19d3142d16000f0a1986d
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Xiaomeng-Tong/iommu-fix-an-incorrect-NULL-check-on-list-iterator/20220501-211400
+        git checkout 99e334beef5d5be25ed19d3142d16000f0a1986d
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.3.0 make.cross W=1 O=build_dir ARCH=arm SHELL=/bin/bash drivers/
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All errors (new ones prefixed by >>):
+
+   drivers/iommu/msm_iommu.c: In function 'qcom_iommu_of_xlate':
+>> drivers/iommu/msm_iommu.c:629:17: error: 'ret' undeclared (first use in this function); did you mean 'net'?
+     629 |                 ret = -ENODEV;
+         |                 ^~~
+         |                 net
+   drivers/iommu/msm_iommu.c:629:17: note: each undeclared identifier is reported only once for each function it appears in
+   drivers/iommu/msm_iommu.c:638:1: error: control reaches end of non-void function [-Werror=return-type]
+     638 | }
+         | ^
+   cc1: some warnings being treated as errors
+
+
+vim +629 drivers/iommu/msm_iommu.c
+
+f78ebca8ff3d61 Sricharan R   2016-06-13  614  
+f78ebca8ff3d61 Sricharan R   2016-06-13  615  static int qcom_iommu_of_xlate(struct device *dev,
+f78ebca8ff3d61 Sricharan R   2016-06-13  616  			       struct of_phandle_args *spec)
+f78ebca8ff3d61 Sricharan R   2016-06-13  617  {
+99e334beef5d5b Xiaomeng Tong 2022-05-01  618  	struct msm_iommu_dev *iommu = NULL, *iter;
+f78ebca8ff3d61 Sricharan R   2016-06-13  619  	unsigned long flags;
+f78ebca8ff3d61 Sricharan R   2016-06-13  620  
+f78ebca8ff3d61 Sricharan R   2016-06-13  621  	spin_lock_irqsave(&msm_iommu_lock, flags);
+99e334beef5d5b Xiaomeng Tong 2022-05-01  622  	list_for_each_entry(iter, &qcom_iommu_devices, dev_node)
+99e334beef5d5b Xiaomeng Tong 2022-05-01  623  		if (iter->dev->of_node == spec->np) {
+99e334beef5d5b Xiaomeng Tong 2022-05-01  624  			iommu = iter;
+f78ebca8ff3d61 Sricharan R   2016-06-13  625  			break;
+99e334beef5d5b Xiaomeng Tong 2022-05-01  626  		}
+f78ebca8ff3d61 Sricharan R   2016-06-13  627  
+99e334beef5d5b Xiaomeng Tong 2022-05-01  628  	if (!iommu) {
+f78ebca8ff3d61 Sricharan R   2016-06-13 @629  		ret = -ENODEV;
+f78ebca8ff3d61 Sricharan R   2016-06-13  630  		goto fail;
+f78ebca8ff3d61 Sricharan R   2016-06-13  631  	}
+f78ebca8ff3d61 Sricharan R   2016-06-13  632  
+bb5bdc5ab7f133 Xiaoke Wang   2022-04-28  633  	ret = insert_iommu_master(dev, &iommu, spec);
+f78ebca8ff3d61 Sricharan R   2016-06-13  634  fail:
+f78ebca8ff3d61 Sricharan R   2016-06-13  635  	spin_unlock_irqrestore(&msm_iommu_lock, flags);
+f78ebca8ff3d61 Sricharan R   2016-06-13  636  
+f78ebca8ff3d61 Sricharan R   2016-06-13  637  	return ret;
+f78ebca8ff3d61 Sricharan R   2016-06-13  638  }
+f78ebca8ff3d61 Sricharan R   2016-06-13  639  
+
 -- 
-My humble greetings,
-
-Dear friend, how are you. I have a charity fundraiser that I am
-Donate with your help. Try contacting me for more information.
-I'll tell you more about myself and my plans with this money when I am
-To hear from you.
-
-I'm waiting for your reply so I can give you more details.
+0-DAY CI Kernel Test Service
+https://01.org/lkp
