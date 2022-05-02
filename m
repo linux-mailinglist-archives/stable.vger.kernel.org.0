@@ -2,130 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29199516D58
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 11:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0B8D516D8B
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 11:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235746AbiEBJaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 05:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42400 "EHLO
+        id S1384301AbiEBJmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 05:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239143AbiEBJan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 05:30:43 -0400
-Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CB61A19B
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 02:27:14 -0700 (PDT)
-Received: by mail-yb1-xb34.google.com with SMTP id w187so25065807ybe.2
-        for <stable@vger.kernel.org>; Mon, 02 May 2022 02:27:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=ltdLotf7TOkPFkMNnpKMJjlXSXpBUKnlJRGRDLUcIj4=;
-        b=qIPSHcfmYdMwTD6fVw5m1B9TJ3ZV3bipXZAoGQXOd/wOpbhXEOL1zPGptpewETWzwt
-         N9IEcKAikZggznYWzPS0bNRivtkS3mMdR9Vpste8cUfyf1Dttuh4gep4PaxS5Qd5yD4E
-         o5TZoI6g7HWnC/cr335o3Tzc2DcK7cSWFnCJ3Ag4bep7/r5P0lDXj8h+X1XEf8SvZnGp
-         GAElIvGqfWUjDMFv5WUiLRMGuNo8T6WFYAJhzfhjQDmspmMWhGPz1xkpo0ZfUT7m+FG8
-         L6yi1tE/BB/gVn0xf3bxU0V3+pF581zznF/W90HgfU2ubtLRhgCo76gltHg/HE0cMh5S
-         Yb6A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=ltdLotf7TOkPFkMNnpKMJjlXSXpBUKnlJRGRDLUcIj4=;
-        b=ldbwUm2UB6VvM9In3XTHilIEFtm7vO4A/SC9GS0JwhWmbz/vqYOkBMl9DyGF0x4iVx
-         VmIdKBbMTPOYsif1XbUjffIA0w2XiZVhrBeefwZjYtAJnakfzvtmNyL8UdWDOKokgVLl
-         iuqnJjnnr3hAp2Qn4gbA2Z/xE0h/gEgJMrEh5xDK4EGXa5URLB+gNQl6wbBKEwlcVHF+
-         Y+rj+SYrHjB+bk19FWkPY8ddFEdsPnljUUobLTAi6rcGfzcM+tV6KI70nyPErGWb24al
-         plbF2pS/DfPvXMFwpDOmkHnlqnxtyX0K/n9+RaPhDpVEDUxGBTceZ5Ld82SOg2+VMum8
-         LKmA==
-X-Gm-Message-State: AOAM530xXaReu+vqaklQz3e2UyJSBZruYVa4rSJqS6XQrDVf+gTRsOAY
-        yUy2QCMuWyWotXzcxVuBj+AotpE00R3qm6SWicw=
-X-Google-Smtp-Source: ABdhPJxHzHbIUtlOnZPYpr+LAbnB1X5G1zqQJU2DhqFQuAP6NNEcEWmoQ9XhPwmgPlEzkurBviE2Ck0rE+maWSz9ZTw=
-X-Received: by 2002:a25:ea49:0:b0:623:1f19:4cf7 with SMTP id
- o9-20020a25ea49000000b006231f194cf7mr9817024ybe.371.1651483633074; Mon, 02
- May 2022 02:27:13 -0700 (PDT)
+        with ESMTP id S1384287AbiEBJm0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 05:42:26 -0400
+Received: from mail.marcansoft.com (marcansoft.com [IPv6:2a01:298:fe:f::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD7513D2E;
+        Mon,  2 May 2022 02:38:58 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: hector@marcansoft.com)
+        by mail.marcansoft.com (Postfix) with ESMTPSA id 302D5419B4;
+        Mon,  2 May 2022 09:38:50 +0000 (UTC)
+From:   Hector Martin <marcan@marcan.st>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     Hector Martin <marcan@marcan.st>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Rob Herring <robh@kernel.org>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 1/3] PCI: apple: GPIO handling nitfixes
+Date:   Mon,  2 May 2022 18:38:30 +0900
+Message-Id: <20220502093832.32778-2-marcan@marcan.st>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220502093832.32778-1-marcan@marcan.st>
+References: <20220502093832.32778-1-marcan@marcan.st>
 MIME-Version: 1.0
-Sender: ll1786535@gmail.com
-Received: by 2002:a05:7010:7e29:b0:28b:2c2f:de13 with HTTP; Mon, 2 May 2022
- 02:27:12 -0700 (PDT)
-From:   Lila Lucas <lila69148@gmail.com>
-Date:   Mon, 2 May 2022 11:27:12 +0200
-X-Google-Sender-Auth: rzEwTUaW_zCO_3uTTHBIJT0Gkys
-Message-ID: <CAG5cJ=wwk72LphSUWijKNUH9fBtT45fY0yAXdO5+j-bsukBcPQ@mail.gmail.com>
-Subject: HELLO
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=5.6 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
-        BAYES_50,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        FREEMAIL_ENVFROM_END_DIGIT,FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_8,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_MONEY_PERCENT,
-        T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no autolearn_force=no
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
         version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:b34 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [ll1786535[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [ll1786535[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  0.0 T_MONEY_PERCENT X% of a lot of money for you
-        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
-        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
-        *  1.7 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear
+- Use devm managed GPIO getter
+- GPIO ops can sleep in this context
 
-I am glad to know you, but God knows you better and he knows why he
-has directed me to you at this point in time so do not be surprised at
-all. My name is Mrs.Lila Lucas, a widow, i have been suffering from
-ovarian cancer disease. At this moment i am about to end the race like
-this because the illness has gotten to a very bad stage, without any
-family members and no child. I hope that you will not expose or betray
-this trust and confidence that I am about to entrust to you for the
-mutual benefit of the orphans and the less privileged ones. I have
-some funds I inherited from my late husband,the sum of ($11.000.000
-Eleven million dollars.) deposited in the Bank. Having known my
-present health status, I decided to entrust this fund to you believing
-that you will utilize it the way i am going to instruct
-herein.Therefore I need you to assist me and reclaim this money and
-use it for Charity works, for orphanages and giving justice and help
-to the poor, needy and to promote the words of God and the effort that
-the house of God will be maintained says The Lord." Jeremiah
-22:15-16.=E2=80=9C
+Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hector Martin <marcan@marcan.st>
+---
+ drivers/pci/controller/pcie-apple.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-It will be my great pleasure to compensate you with 35 % percent of
-the total money for your personal use, 5 % percent for any expenses
-that may occur during the international transfer process while 60% of
-the money will go to the charity project. All I require from you is
-sincerity and the ability to complete God's task without any failure.
-It will be my pleasure to see that the bank has finally released and
-transferred the fund into your bank account therein your country even
-before I die here in the hospital, because of my present health status
-everything needs to be processed rapidly as soon as possible. Please
-kindly respond quickly. Thanks and God bless you,
+diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+index a2c3c207a04b..e0c06c0ee731 100644
+--- a/drivers/pci/controller/pcie-apple.c
++++ b/drivers/pci/controller/pcie-apple.c
+@@ -516,8 +516,8 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
+ 	u32 stat, idx;
+ 	int ret, i;
+ 
+-	reset = gpiod_get_from_of_node(np, "reset-gpios", 0,
+-				       GPIOD_OUT_LOW, "PERST#");
++	reset = devm_gpiod_get_from_of_node(pcie->dev, np, "reset-gpios", 0,
++					    GPIOD_OUT_LOW, "PERST#");
+ 	if (IS_ERR(reset))
+ 		return PTR_ERR(reset);
+ 
+@@ -541,7 +541,7 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
+ 	rmw_set(PORT_APPCLK_EN, port->base + PORT_APPCLK);
+ 
+ 	/* Assert PERST# before setting up the clock */
+-	gpiod_set_value(reset, 1);
++	gpiod_set_value_cansleep(reset, 1);
+ 
+ 	ret = apple_pcie_setup_refclk(pcie, port);
+ 	if (ret < 0)
+@@ -552,7 +552,7 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
+ 
+ 	/* Deassert PERST# */
+ 	rmw_set(PORT_PERST_OFF, port->base + PORT_PERST);
+-	gpiod_set_value(reset, 0);
++	gpiod_set_value_cansleep(reset, 0);
+ 
+ 	/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
+ 	msleep(100);
+-- 
+2.35.1
 
-May God Bless you for your kind help.
-Yours sincerely sister Mrs. Lila Lucas.
