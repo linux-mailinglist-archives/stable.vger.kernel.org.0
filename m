@@ -2,102 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00007516E4D
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 12:43:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D223F516E88
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 13:08:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384617AbiEBKqn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 06:46:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52608 "EHLO
+        id S230421AbiEBLLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 07:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384723AbiEBKqc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 06:46:32 -0400
-Received: from mail-vk1-xa2d.google.com (mail-vk1-xa2d.google.com [IPv6:2607:f8b0:4864:20::a2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938F9220F1
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 03:42:47 -0700 (PDT)
-Received: by mail-vk1-xa2d.google.com with SMTP id t12so6429202vkt.5
-        for <stable@vger.kernel.org>; Mon, 02 May 2022 03:42:47 -0700 (PDT)
+        with ESMTP id S1384927AbiEBLJd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 07:09:33 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C21114080
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 04:06:05 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id cq17-20020a17090af99100b001dc0386cd8fso7072344pjb.5
+        for <stable@vger.kernel.org>; Mon, 02 May 2022 04:06:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=SUWQMmwZSct1NUq5pHL/uGOr0m/f9iWjJQkP63QJuAY=;
-        b=BaRuJlspYtNnmmra72ppn/I3QxjLdJPztd99ldK+5/DonI/zD1UHB/FJDq5b3hUEXY
-         6v1daVM85IMTfbaEGqriVH4QRKRv+UysCc3cg8Hmp175VFDfdYPyF8muzfmfgInBOhSc
-         akVdPARD1PBBWUlPjfskfuu6OsYE+9AjSflqZMDdfBC2pKuMhhQ4leYmQ1jhXE0tbX0k
-         0DNqWUSEtq64dCTX5hNj9dqAn0+S2L4dSzMvXfi3LaCbkdnGopvrN61yvM0wQ4r3sDTk
-         D5Moi2dVRhwO1c6n2YVH0xpS0iAgPbmDJMiS1OnaeWzoVmvcpGsBd2dP+lNURs888071
-         0W5w==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tw9t3xVx4kmM1kmVV7DIODfQqOAh9NnVSHOclrJ7TPs=;
+        b=hZfitWBZvGjxeBw6wfz6RTpGXoYdeGW7hzG1V7dMpmuaPJ6MDvmmscRpdaPkk6BZBJ
+         3W6d1mWBOnUermvG2uZaPVI3ZgYamktRSrhMXaRW07vzm5IFaojyhIJ0qCGyDxSTpzxb
+         WWlsAeVGKmMxik+4+VUMGDkIj+r1Zs630fo9ZxZSzxZhHkVbYaQ4PRloxnFiFCWqqR+o
+         csXJi4Ssw5QhgoaDLw3PJpMoW007klzvVuv52TDoQ46gK3XjN83Lfs7BUZqBRrdkWEJ2
+         F0wyMMaqmMXerVIRhFZqlXZEXo/8Q3b7HjDeh0dLhkrjMvBQLic5DuPf6trcNQg+Xq44
+         9iZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=SUWQMmwZSct1NUq5pHL/uGOr0m/f9iWjJQkP63QJuAY=;
-        b=boX2GMO1feTrEakzzHdj0yuNoPKFSc8+T1AAQIXc1HEN3q8UO66l9mQQmDazxsjGbw
-         uLkR+QA8QxmWJ1nL5e/T7l6GuhRlJ+9wrz9/SDIdf42diieUxkidT7VZXCL5DOV8j6fx
-         wQO1Q+bGe74XUc+E4NVr8sglBX4kR+Lxp69gDJ6EbKMCmArRwAV/y7jHO1DviBESyxXX
-         tGq8GFofcn9ZRuvBVkwg//3kyZuHZAeRXgruAX0uT5pIODo9ML4LBIrHbXTYbq2p2yyI
-         gqi1UlENJmv9X9Ds1oGK+6Bz4p4L6dzSShqXnsBRRCAIO5RxuSzqyQE8KBIQdXRdvVUq
-         KVxg==
-X-Gm-Message-State: AOAM532hPgGxk7++bA2StgKxfiFObw51ncw9o7MoYEnhkiYOvKf7CDrM
-        /1MD0kzYFy33r+x1KYtVnoalwS40PZ7gmAI7ZnE=
-X-Google-Smtp-Source: ABdhPJxpklhbVqRo93FQssvECh3GHdxlM97Y6YRwYP6qc6FyNYrnjKIdUqQEd6Ezhk5Vi5ZLxhsVNJhWRar/p7iNn58=
-X-Received: by 2002:a05:6122:1354:b0:351:bed1:611d with SMTP id
- f20-20020a056122135400b00351bed1611dmr252994vkp.26.1651488166594; Mon, 02 May
- 2022 03:42:46 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tw9t3xVx4kmM1kmVV7DIODfQqOAh9NnVSHOclrJ7TPs=;
+        b=W8Ab/Rwayw5IXdBAetKdaxMgPKb7zDs6tMgBZhGAGw5A0AN6ZdNu2AAPNFYV/sqWWQ
+         ZWb7MxnMJcMRsbS8kNXIfFB5h5Dtwv+sTZdJkLMALJ5rQZQ2IAo+V/M/4s/hGdok9WOD
+         SaIcDmzQnlGaWGg5/ry95omnmErCrSSanWDeVURLkRvXWxooREGVWqsYKjuVWhlxyFaw
+         UPUAOwf/lz53KXzdyXO27FuBRVMT7ZpWM26pj7aZcBTJVyMxqY1H3AfRt2JIfbA6az4e
+         ETFaNIoQe6XWqubgHSB9dJ1U12df/Qm32jXrTZwaWGpgWf+C6JaxwyfroAFtwZoOE+Yn
+         9Xdg==
+X-Gm-Message-State: AOAM5334QOkpz0T5F0LXjASPHg4POBPvg32v50t4KA753cecUNsEVVM/
+        ZoOmvi+XysODW1HkPQNwUG9OJuQgoBrJBKLhlII=
+X-Google-Smtp-Source: ABdhPJy/BiWCGU3MCjEOhM4bkv+0jaX5SWWEFENJzpgOtlFEE1aMs6ZFIDqak8FZMOGRx+9fwEsK7w==
+X-Received: by 2002:a17:90a:e008:b0:1d9:2f9a:b7f1 with SMTP id u8-20020a17090ae00800b001d92f9ab7f1mr17386320pjy.173.1651489564769;
+        Mon, 02 May 2022 04:06:04 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i10-20020aa78b4a000000b0050dc7628177sm4425004pfd.81.2022.05.02.04.06.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 May 2022 04:06:04 -0700 (PDT)
+Message-ID: <626fbb1c.1c69fb81.d713d.ac06@mx.google.com>
+Date:   Mon, 02 May 2022 04:06:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a05:6102:1347:0:0:0:0 with HTTP; Mon, 2 May 2022 03:42:46
- -0700 (PDT)
-Reply-To: jub47823@gmail.com
-From:   Julian Bikram <woloumarceline@gmail.com>
-Date:   Mon, 2 May 2022 10:42:46 +0000
-Message-ID: <CAKM2rXu8AD36LUfHJGJHqZmnjDoGzQenzc3tsQiQfUuzBa9-nQ@mail.gmail.com>
-Subject: Please can i have your attention
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:a2d listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4844]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [woloumarceline[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [jub47823[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.5 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.113-12-g24a08a16e1e1
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 120 runs,
+ 1 regressions (v5.10.113-12-g24a08a16e1e1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear ,
+stable-rc/queue/5.10 baseline: 120 runs, 1 regressions (v5.10.113-12-g24a08=
+a16e1e1)
+
+Regressions Summary
+-------------------
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
 
-Please can I have your attention and possibly help me for humanity's
-sake please. I am writing this message with a heavy heart filled with
-sorrows and sadness.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.113-12-g24a08a16e1e1/plan/baseline/
 
-Please if you can respond, i have an issue that i will be most
-grateful if you could help me deal with it please.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.113-12-g24a08a16e1e1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      24a08a16e1e140c0e27e9eb5a29747ad39fb0a00 =
 
-Julian
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/626ec359f8b7db84f3bf5fe1
+
+  Results:     90 PASS, 2 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
+-12-g24a08a16e1e1/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
+-12-g24a08a16e1e1/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220422.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/626ec359f8b7db84f3bf6003
+        failing since 54 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
+ fail: v5.10.103-105-gf074cce6ae0d)
+
+    2022-05-01T17:28:50.450341  <8>[   60.068855] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
+    2022-05-01T17:28:51.473953  /lava-6230012/1/../bin/lava-test-case   =
+
+ =20
