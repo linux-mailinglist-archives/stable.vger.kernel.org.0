@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEA5517A64
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:06:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCE0B517A5F
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:06:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230289AbiEBXHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 19:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37986 "EHLO
+        id S230240AbiEBXH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 19:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230240AbiEBXHv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:07:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888C52CCBA
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:04:21 -0700 (PDT)
+        with ESMTP id S230517AbiEBXHz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:07:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91808FD11
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:04:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C25061259
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CAF1C385AC;
-        Mon,  2 May 2022 23:04:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1B7F3B81A66
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C326EC385AE;
+        Mon,  2 May 2022 23:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651532660;
-        bh=uY7iCtQHDn6oW1cNrdiPVP+JA/Zh9mT+YIlSUsL5B1w=;
+        s=korg; t=1651532661;
+        bh=QD3m3TFiMMy4JywsY644ObzJ9I2YD5zq8ni//Zhf8zM=;
         h=Subject:To:Cc:From:Date:From;
-        b=CETpXatISAV9KHCflRM1rUr66S1xAx9D7u3cubVQgRkg0AwLx2t2OgUV3uIo++PGS
-         n4ydu2E6KuGocnaklM73QLe1tQPimxNhxHI4g+GM4L2lR1eE0WfdSFyMaeZ7bUL4Et
-         tV6qLCxeZIBTZu23Fr8SyS4kAtdRzx/OW6LGLA+o=
-Subject: FAILED: patch "[PATCH] perf symbol: Remove arch__symbols__fixup_end()" failed to apply to 5.15-stable tree
+        b=yeBVKcLm1mixENqFLtm9XSRSJ23XghMd+pPXtFENjoYMULsLbEeviOloWXpteabw4
+         H0wE9/J6vDFMbVmAHeELppN/vk8NyBWuMAh8KNHqaLTJAAWFtjCO7fnl+TNKjp6y2W
+         jr2eD2IojuiEjJ/B+sejyeHZuIaFciNuuatMok4I=
+Subject: FAILED: patch "[PATCH] perf symbol: Remove arch__symbols__fixup_end()" failed to apply to 5.10-stable tree
 To:     namhyung@kernel.org, acme@redhat.com, hca@linux.ibm.com,
         irogers@google.com, john.garry@huawei.com, jolsa@kernel.org,
         leo.yan@linaro.org, mark.rutland@arm.com,
@@ -37,8 +37,8 @@ To:     namhyung@kernel.org, acme@redhat.com, hca@linux.ibm.com,
         songliubraving@fb.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 01:04:19 +0200
-Message-ID: <1651532659139179@kroah.com>
+Date:   Tue, 03 May 2022 01:04:20 +0200
+Message-ID: <165153266062115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,7 +53,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
