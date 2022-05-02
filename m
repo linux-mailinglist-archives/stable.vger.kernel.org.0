@@ -2,171 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EECB5177B0
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 22:07:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55274517885
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 22:49:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235422AbiEBUKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 16:10:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S1347801AbiEBUwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 16:52:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231508AbiEBUKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 16:10:38 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E9D63E8
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 13:07:09 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id c11so3069914plg.13
-        for <stable@vger.kernel.org>; Mon, 02 May 2022 13:07:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=d+A1x3TcXGB0e4sYniw2KL6fjqxlxAfLYfJClQs9rQM=;
-        b=athx/oIP5VvTKsHWTLApZ2Iwac4Pu0srQh/jvv2h0WVnyF+vFZuNEHBDfcfpyktq9T
-         X6j+xGzbklbS9JTVwWSoW1fo0IexFHbG6P5OthB7sFi9GpgUDn8hy41cioYsowXzO1jC
-         Xwhf7uzv7MGH7TDtwCFJRdhFYJ8R8nEbDLtLLK6QNaJ/O5wllXxXjW299yNlp2dQh3lQ
-         COKDT+cZp+WlN3RlO1nI+wWyw8i0xSa8epcMsUNFGnbkzHFLL61s7zvTD5Pyw6sEhuo0
-         4voK3unjzL6rAAuKxEKK8ytaYGkACoHn0J6IMdY18I02XS6EMyiYEJcEhiDU5Z/NUf1Q
-         mwpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=d+A1x3TcXGB0e4sYniw2KL6fjqxlxAfLYfJClQs9rQM=;
-        b=OAqMq60SuvVf0eAgDyRCbUW3T1FdQAwJmfAi8s7U/UlIHzcfN0sH2DUR0peDcklhwZ
-         WTF5Zy4YTLsVYLu61dOfAGxcEAPhway1jbHa7O4XY0MkUrGoNYTyUE9Z9JOH1cTxqwAf
-         wHFitAGPgbIb6wO7yAxdgPA5nUSdSOr3l3XBsb4kVMyZfI8a+p+4JGYsv84PdnxhtfRJ
-         I7Hfl24DMs+OXC5XU+CpAcZkCkh6aFNcYmOaoMqQ3qMV+yHhC143zPr7stHqz3IOynop
-         qcybhq4X0In0PpdfJeEVNlsdM16XioORIxF/cCOJHDLw1AdyQKLn+ALKIa99xIqxDCMB
-         ebZg==
-X-Gm-Message-State: AOAM533PzHJoT738+C7KiN+KMyEF9wZ//udwovbNzJZL9xQ53lZloMli
-        GcpYOwiVDm4JR+JS+o7lV+ovaSJC8/rW51WQz/0=
-X-Google-Smtp-Source: ABdhPJwYd5BqdDuUSaAAZ+oXbl740OVWvI29Seig1B9W2L3kpdh9PQUBnOs7i3cas6mwN5hnjJSM7A==
-X-Received: by 2002:a17:902:c24c:b0:15c:fa6f:263c with SMTP id 12-20020a170902c24c00b0015cfa6f263cmr13718994plg.66.1651522028151;
-        Mon, 02 May 2022 13:07:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x15-20020a170902ec8f00b0015e8d4eb1d4sm5046483plg.30.2022.05.02.13.07.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 May 2022 13:07:07 -0700 (PDT)
-Message-ID: <627039eb.1c69fb81.e8e6d.c2a5@mx.google.com>
-Date:   Mon, 02 May 2022 13:07:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230295AbiEBUwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 16:52:34 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08C8660FD;
+        Mon,  2 May 2022 13:49:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651524544; x=1683060544;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=6fgOY4yRCD1pn9WhNnWd8R4cc1xx6y0cS6SMBeS9pjU=;
+  b=ZoSBuk+ikOWl81WIdF8Ib0iM6DShTEN0VcF+EI26MoT2TXvuvi0LZXoA
+   FgtCijuS0ecHYbycfrOgmssrn8yTYUn/d/JL72rPG2o/LEzf1NpI20SKT
+   NZucph9Gn297DEZ/Z8gyLgUCDMXzcjqHvzZ1Ar9z+x4zhmt7hMTA0ynqY
+   iWcmgwq0Ik0Az3LizBjWs3XBgmN2tzsoTTMf7fm0Ypn0jYufDqciSy8/T
+   o4FOhfNHc9NzUA7UiAZfBjvsWBePTUtSFcA60ghMY8Di3+WwXsqbBdMYh
+   ZakdjAJOBE1UQWuzePNm0EylawI4oPXdqG4XCXeHO5XBdIf8LcY29vVNK
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10335"; a="267200832"
+X-IronPort-AV: E=Sophos;i="5.91,193,1647327600"; 
+   d="scan'208";a="267200832"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2022 13:49:02 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,193,1647327600"; 
+   d="scan'208";a="733617541"
+Received: from kanliang-dev.jf.intel.com ([10.165.154.102])
+  by orsmga005.jf.intel.com with ESMTP; 02 May 2022 13:49:02 -0700
+From:   kan.liang@linux.intel.com
+To:     peterz@infradead.org, mingo@redhat.com,
+        linux-kernel@vger.kernel.org
+Cc:     ak@linux.intel.com, Kan Liang <kan.liang@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] perf/x86/intel: Update event constraints for ICL
+Date:   Mon,  2 May 2022 13:48:49 -0700
+Message-Id: <20220502204849.928128-1-kan.liang@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.15.37
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.15.y baseline: 81 runs, 2 regressions (v5.15.37)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 81 runs, 2 regressions (v5.15.37)
+From: Kan Liang <kan.liang@linux.intel.com>
 
-Regressions Summary
--------------------
+According to the latest event list, the event encoding 0x55
+INST_DECODED.DECODERS and 0x56 UOPS_DECODED.DEC0 are only available on
+the first 4 counters. Add them into the event constraints table.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
-      | 1          =
+Fixes: 6017608936c1 ("perf/x86/intel: Add Icelake support")
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ arch/x86/events/intel/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index ed70d04e2d62..80966acac525 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -276,7 +276,7 @@ static struct event_constraint intel_icl_event_constraints[] = {
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x03, 0x0a, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x1f, 0x28, 0xf),
+ 	INTEL_EVENT_CONSTRAINT(0x32, 0xf),	/* SW_PREFETCH_ACCESS.* */
+-	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x54, 0xf),
++	INTEL_EVENT_CONSTRAINT_RANGE(0x48, 0x56, 0xf),
+ 	INTEL_EVENT_CONSTRAINT_RANGE(0x60, 0x8b, 0xf),
+ 	INTEL_UEVENT_CONSTRAINT(0x04a3, 0xff),  /* CYCLE_ACTIVITY.STALLS_TOTAL */
+ 	INTEL_UEVENT_CONSTRAINT(0x10a3, 0xff),  /* CYCLE_ACTIVITY.CYCLES_MEM_ANY */
+-- 
+2.35.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.37/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.37
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4bf7f350c1638def0caa1835ad92948c15853916 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/626fcee7f159c6218975dc88
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-7/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-7/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/626fcee7f159c6218975d=
-c89
-        failing since 101 days (last pass: v5.15.14-70-g9cb47c4d3cbf, first=
- fail: v5.15.16) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/626fd114b6e8c538ad75dc7a
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
--kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.3=
-7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
--kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/626fd114b6e8c538ad75dca0
-        failing since 55 days (last pass: v5.15.26, first fail: v5.15.26-25=
-8-g7b9aacd770fa)
-
-    2022-05-02T12:39:39.263371  /lava-6235589/1/../bin/lava-test-case
-    2022-05-02T12:39:39.274295  <8>[   33.473355] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
