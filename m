@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E846E5175AD
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 19:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E34E5175F2
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 19:36:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386657AbiEBRWs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 13:22:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60988 "EHLO
+        id S244021AbiEBRjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 13:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378055AbiEBRWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:22:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A7DBA1B3
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:19:16 -0700 (PDT)
+        with ESMTP id S237053AbiEBRje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:39:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8050BE36
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:36:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D12E7613FB
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33AEBC385B1;
-        Mon,  2 May 2022 17:19:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E889613FB
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:36:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4A12C385B0;
+        Mon,  2 May 2022 17:36:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651511955;
-        bh=c5MuQ/JXRiVLbhhiyknX1S3uoFCryf9542M7F64eTww=;
+        s=korg; t=1651512963;
+        bh=7nrAjIv40xGIBdV5mzqAlzQpHVZbQSr/QVEnCtDPVbE=;
         h=Subject:To:Cc:From:Date:From;
-        b=fgjkD5Yz5Wh+9nwQC2Zk5ebKNd8zPp9nb9t1WwQkFhA1fy2v3LKBwohoUHISOZXkV
-         BP+xdZsy99+okYZiYh+jGvKbSz+9i4M8Hn7q+2y6SE+GZtQxLceMppKTjc8Xg4ghH/
-         P7CnsaRiTlRO6MU5BafJVkmINVP5lCDzdEsqTwqc=
-Subject: FAILED: patch "[PATCH] btrfs: zoned: use dedicated lock for data relocation" failed to apply to 5.15-stable tree
-To:     naohiro.aota@wdc.com, dsterba@suse.com, johannes.thumshirn@wdc.com
+        b=QM2mGeOm34Te/3GZ4YvYUHA6QrTTrtmqLL1Jd5UyLAVJo9TlY3AMZKKmGm9rNet4+
+         dzkc0UcO2OZskLuFw/Gkw0NHYa3uqC+taqX1qcR7BgH+T6HPzZrXEnfgZlNgp2ERaE
+         CFG3KMooxW5Efi2CKxbdMzQY8cbWTNnAsNg/Djno=
+Subject: FAILED: patch "[PATCH] kasan: prevent cpu_quarantine corruption when CPU offline and" failed to apply to 4.9-stable tree
+To:     qiang1.zhang@intel.com, akpm@linux-foundation.org,
+        andreyknvl@gmail.com, dvyukov@google.com, glider@google.com,
+        ryabinin.a.a@gmail.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 May 2022 19:19:10 +0200
-Message-ID: <165151195021699@kroah.com>
+Date:   Mon, 02 May 2022 19:36:02 +0200
+Message-ID: <1651512962156108@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,98 +62,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5f0addf7b89085f8e0a2593faa419d6111612b9b Mon Sep 17 00:00:00 2001
-From: Naohiro Aota <naohiro.aota@wdc.com>
-Date: Mon, 18 Apr 2022 16:15:03 +0900
-Subject: [PATCH] btrfs: zoned: use dedicated lock for data relocation
+From 31fa985b4196f8a66f027672e9bf2b81fea0417c Mon Sep 17 00:00:00 2001
+From: Zqiang <qiang1.zhang@intel.com>
+Date: Wed, 27 Apr 2022 12:41:56 -0700
+Subject: [PATCH] kasan: prevent cpu_quarantine corruption when CPU offline and
+ cache shrink occur at same time
 
-Currently, we use btrfs_inode_{lock,unlock}() to grant an exclusive
-writeback of the relocation data inode in
-btrfs_zoned_data_reloc_{lock,unlock}(). However, that can cause a deadlock
-in the following path.
+kasan_quarantine_remove_cache() is called in kmem_cache_shrink()/
+destroy().  The kasan_quarantine_remove_cache() call is protected by
+cpuslock in kmem_cache_destroy() to ensure serialization with
+kasan_cpu_offline().
 
-Thread A takes btrfs_inode_lock() and waits for metadata reservation by
-e.g, waiting for writeback:
+However the kasan_quarantine_remove_cache() call is not protected by
+cpuslock in kmem_cache_shrink().  When a CPU is going offline and cache
+shrink occurs at same time, the cpu_quarantine may be corrupted by
+interrupt (per_cpu_remove_cache operation).
 
-prealloc_file_extent_cluster()
-  - btrfs_inode_lock(&inode->vfs_inode, 0);
-  - btrfs_prealloc_file_range()
-  ...
-    - btrfs_replace_file_extents()
-      - btrfs_start_transaction
-      ...
-        - btrfs_reserve_metadata_bytes()
+So add a cpu_quarantine offline flags check in per_cpu_remove_cache().
 
-Thread B (e.g, doing a writeback work) needs to wait for the inode lock to
-continue writeback process:
+[akpm@linux-foundation.org: add comment, per Zqiang]
 
-do_writepages
-  - btrfs_writepages
-    - extent_writpages
-      - btrfs_zoned_data_reloc_lock(BTRFS_I(inode));
-        - btrfs_inode_lock()
+Link: https://lkml.kernel.org/r/20220414025925.2423818-1-qiang1.zhang@intel.com
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-The deadlock is caused by relying on the vfs_inode's lock. By using it, we
-introduced unnecessary exclusion of writeback and
-btrfs_prealloc_file_range(). Also, the lock at this point is useless as we
-don't have any dirty pages in the inode yet.
-
-Introduce fs_info->zoned_data_reloc_io_lock and use it for the exclusive
-writeback.
-
-Fixes: 35156d852762 ("btrfs: zoned: only allow one process to add pages to a relocation inode")
-CC: stable@vger.kernel.org # 5.16.x: 869f4cdc73f9: btrfs: zoned: encapsulate inode locking for zoned relocation
-CC: stable@vger.kernel.org # 5.16.x
-CC: stable@vger.kernel.org # 5.17
-Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
-index 4db17bd05a21..604a4d54cf0d 100644
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -1060,6 +1060,7 @@ struct btrfs_fs_info {
- 	 */
- 	spinlock_t relocation_bg_lock;
- 	u64 data_reloc_bg;
-+	struct mutex zoned_data_reloc_io_lock;
+diff --git a/mm/kasan/quarantine.c b/mm/kasan/quarantine.c
+index 08291ed33e93..0a9def8ce5e8 100644
+--- a/mm/kasan/quarantine.c
++++ b/mm/kasan/quarantine.c
+@@ -315,6 +315,13 @@ static void per_cpu_remove_cache(void *arg)
+ 	struct qlist_head *q;
  
- 	u64 nr_global_roots;
- 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index cebd7a78c964..20e70eb88465 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3156,6 +3156,7 @@ void btrfs_init_fs_info(struct btrfs_fs_info *fs_info)
- 	mutex_init(&fs_info->reloc_mutex);
- 	mutex_init(&fs_info->delalloc_root_mutex);
- 	mutex_init(&fs_info->zoned_meta_io_lock);
-+	mutex_init(&fs_info->zoned_data_reloc_io_lock);
- 	seqlock_init(&fs_info->profiles_lock);
- 
- 	INIT_LIST_HEAD(&fs_info->dirty_cowonly_roots);
-diff --git a/fs/btrfs/zoned.h b/fs/btrfs/zoned.h
-index cbf016a7bb5d..6dee76248cb4 100644
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -359,7 +359,7 @@ static inline void btrfs_zoned_data_reloc_lock(struct btrfs_inode *inode)
- 	struct btrfs_root *root = inode->root;
- 
- 	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
--		btrfs_inode_lock(&inode->vfs_inode, 0);
-+		mutex_lock(&root->fs_info->zoned_data_reloc_io_lock);
+ 	q = this_cpu_ptr(&cpu_quarantine);
++	/*
++	 * Ensure the ordering between the writing to q->offline and
++	 * per_cpu_remove_cache.  Prevent cpu_quarantine from being corrupted
++	 * by interrupt.
++	 */
++	if (READ_ONCE(q->offline))
++		return;
+ 	qlist_move_cache(q, &to_free, cache);
+ 	qlist_free_all(&to_free, cache);
  }
- 
- static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
-@@ -367,7 +367,7 @@ static inline void btrfs_zoned_data_reloc_unlock(struct btrfs_inode *inode)
- 	struct btrfs_root *root = inode->root;
- 
- 	if (btrfs_is_data_reloc_root(root) && btrfs_is_zoned(root->fs_info))
--		btrfs_inode_unlock(&inode->vfs_inode, 0);
-+		mutex_unlock(&root->fs_info->zoned_data_reloc_io_lock);
- }
- 
- #endif
 
