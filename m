@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA48E516E0F
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 12:21:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E2C2516E13
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 12:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbiEBKYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 06:24:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36258 "EHLO
+        id S1384462AbiEBK1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 06:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384506AbiEBKXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 06:23:48 -0400
+        with ESMTP id S1384709AbiEBK1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 06:27:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02EBE3D;
-        Mon,  2 May 2022 03:20:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1F751EC78;
+        Mon,  2 May 2022 03:23:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D83DB8136B;
-        Mon,  2 May 2022 10:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05879C385A4;
-        Mon,  2 May 2022 10:20:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A88B5B8136B;
+        Mon,  2 May 2022 10:23:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59356C385A4;
+        Mon,  2 May 2022 10:23:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651486817;
-        bh=H/4R1EpBq3eerMw2bv6Q6fjwZU5GW14BHJfL5BIi01c=;
+        s=k20201202; t=1651486997;
+        bh=ueMC1dLbT4Lmdji3cjlLiq75yL+TORpoXbr3pfSH5uQ=;
         h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ZkBM2DVEvOdESoOmys2DpmqzePhzFi2hk0IO6/HkOtTTHgGE+kdBjSTEvI3FQNHng
-         09NK8z2MBRIWYdOZDaADDLfPvdE41T8KDF7Q3wkRIETWvYcf08FLfHEQHqHPN+Ozs8
-         ++Zwp0blzkOJHpvMhPsb+rzgZlxFtZZAP4HHor9QuXECEFOSVO4cHRqJuHs1b8TIih
-         TkRh9st5lhW2i+huOxLs9SIHFa43KfASQDF9w3Gm4mBFPgUWcM9ZMPIgUH0BeBUXXN
-         TWmeRrOR8CBk1oOCclBPzExK23KpW0UsE1QIKkeHTrT9sfOhoHXoZgJAfLGtcFi7PZ
-         TlanNJnU6eEaQ==
+        b=uSABXWi3sciXzn1wUlJSSPRAfVub4lZTvP+xAkRL+LwhQcN2becnmeYjS6JvAYLnq
+         /kKb72D/OsxQLTC165YrAyjQX1f7ab+5Ii/N/ndvDqeLQ7L/p87HOEkmp5VIEmnWnj
+         c1x4rdmH6W4+z0HYXkHTAyYMmSEG9toZEpfCQE4DM+sIKAJg99y7sGRIf0N6BXbv44
+         Vx3KSgfJ0YDHez1WsXNx8+rqr4dAlCKFeQ0T0jvdlsBYGQ9BFg/uL01AcElbpUC/U5
+         6FAf2bDr6AlRrZT0+x3IhSrmQ14aHbJO9XHgHIMQEat6htIoK1mivRSZlc+eJTbXgd
+         nCh5rKHJLf2zA==
 Received: from sofa.misterjones.org ([185.219.108.64] helo=wait-a-minute.misterjones.org)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <maz@kernel.org>)
-        id 1nlTA6-008OSK-Dt; Mon, 02 May 2022 11:20:14 +0100
-Date:   Mon, 02 May 2022 11:20:13 +0100
-Message-ID: <87h768i6ci.wl-maz@kernel.org>
+        id 1nlTD0-008OTv-QZ; Mon, 02 May 2022 11:23:14 +0100
+Date:   Mon, 02 May 2022 11:23:14 +0100
+Message-ID: <87fslsi67h.wl-maz@kernel.org>
 From:   Marc Zyngier <maz@kernel.org>
 To:     Hector Martin <marcan@marcan.st>
 Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
@@ -47,10 +47,10 @@ Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Alyssa Rosenzweig <alyssa@rosenzweig.io>,
         Sven Peter <sven@svenpeter.dev>, linux-pci@vger.kernel.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] PCI: apple: GPIO handling nitfixes
-In-Reply-To: <20220502093832.32778-2-marcan@marcan.st>
+Subject: Re: [PATCH 2/3] PCI: apple: Probe all GPIOs for availability first
+In-Reply-To: <20220502093832.32778-3-marcan@marcan.st>
 References: <20220502093832.32778-1-marcan@marcan.st>
-        <20220502093832.32778-2-marcan@marcan.st>
+        <20220502093832.32778-3-marcan@marcan.st>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
  (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -70,59 +70,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 02 May 2022 10:38:30 +0100,
+On Mon, 02 May 2022 10:38:31 +0100,
 Hector Martin <marcan@marcan.st> wrote:
 > 
-> - Use devm managed GPIO getter
-> - GPIO ops can sleep in this context
+> If we're probing the PCI controller and some GPIOs are not available and
+> cause a probe defer, we can end up leaving some ports initialized and
+> not others and making a mess.
+> 
+> Check for PERST# GPIOs for all ports first, and just return
+> -EPROBE_DEFER if any are not ready yet, without bringing anything up.
 > 
 > Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
 > Cc: stable@vger.kernel.org
-
-Why the Cc: stable? I'd guess that at a push, the devm_*() usage help
-with potential memory leaks when the driver fails to probe, but it
-would be good to call that out in the commit message.
-
 > Signed-off-by: Hector Martin <marcan@marcan.st>
 > ---
->  drivers/pci/controller/pcie-apple.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
+>  drivers/pci/controller/pcie-apple.c | 24 ++++++++++++++++++++++++
+>  1 file changed, 24 insertions(+)
 > 
 > diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
-> index a2c3c207a04b..e0c06c0ee731 100644
+> index e0c06c0ee731..e3aa2d461739 100644
 > --- a/drivers/pci/controller/pcie-apple.c
 > +++ b/drivers/pci/controller/pcie-apple.c
-> @@ -516,8 +516,8 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
->  	u32 stat, idx;
->  	int ret, i;
+> @@ -507,6 +507,20 @@ static u32 apple_pcie_rid2sid_write(struct apple_pcie_port *port,
+>  	return readl_relaxed(port->base + PORT_RID2SID(idx));
+>  }
 >  
-> -	reset = gpiod_get_from_of_node(np, "reset-gpios", 0,
-> -				       GPIOD_OUT_LOW, "PERST#");
-> +	reset = devm_gpiod_get_from_of_node(pcie->dev, np, "reset-gpios", 0,
-> +					    GPIOD_OUT_LOW, "PERST#");
->  	if (IS_ERR(reset))
->  		return PTR_ERR(reset);
+> +static int apple_pcie_probe_port(struct device_node *np)
+> +{
+> +	struct gpio_desc *gd;
+> +
+> +	gd = gpiod_get_from_of_node(np, "reset-gpios", 0,
+> +				    GPIOD_OUT_LOW, "PERST#");
+> +	if (IS_ERR(gd)) {
+> +		return PTR_ERR(gd);
+> +	}
+> +
+> +	gpiod_put(gd);
+> +	return 0;
+> +}
+> +
+>  static int apple_pcie_setup_port(struct apple_pcie *pcie,
+>  				 struct device_node *np)
+>  {
+> @@ -797,8 +811,18 @@ static int apple_pcie_init(struct pci_config_window *cfg)
 >  
-> @@ -541,7 +541,7 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
->  	rmw_set(PORT_APPCLK_EN, port->base + PORT_APPCLK);
+>  static int apple_pcie_probe(struct platform_device *pdev)
+>  {
+> +	struct device *dev = &pdev->dev;
+> +	struct device_node *of_port;
+>  	int ret;
 >  
->  	/* Assert PERST# before setting up the clock */
-> -	gpiod_set_value(reset, 1);
-> +	gpiod_set_value_cansleep(reset, 1);
->  
->  	ret = apple_pcie_setup_refclk(pcie, port);
->  	if (ret < 0)
-> @@ -552,7 +552,7 @@ static int apple_pcie_setup_port(struct apple_pcie *pcie,
->  
->  	/* Deassert PERST# */
->  	rmw_set(PORT_PERST_OFF, port->base + PORT_PERST);
-> -	gpiod_set_value(reset, 0);
-> +	gpiod_set_value_cansleep(reset, 0);
->  
->  	/* Wait for 100ms after PERST# deassertion (PCIe r5.0, 6.6.1) */
->  	msleep(100);
-
-Otherwise:
+> +	/* Check for probe dependencies for all ports first */
+> +	for_each_child_of_node(dev->of_node, of_port) {
+> +		ret = apple_pcie_probe_port(of_port);
+> +		of_node_put(of_port);
+> +		if (ret)
+> +			return dev_err_probe(dev, ret, "Port %pOF probe fail\n", of_port);
+> +	}
+> +
+>  	ret = bus_register_notifier(&pci_bus_type, &apple_pcie_nb);
+>  	if (ret)
+>  		return ret;
 
 Acked-by: Marc Zyngier <maz@kernel.org>
 
