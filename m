@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B244A516DA0
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 11:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B56516DA5
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 11:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384279AbiEBJqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 05:46:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50046 "EHLO
+        id S233354AbiEBJtO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 05:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384387AbiEBJqh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 05:46:37 -0400
+        with ESMTP id S1384367AbiEBJtE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 05:49:04 -0400
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F240210FC3
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 02:42:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FED038BD
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 02:45:32 -0700 (PDT)
 Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id 5A9B65E5; Mon,  2 May 2022 11:42:51 +0200 (CEST)
-Date:   Mon, 2 May 2022 11:42:50 +0200
+        id 1F1CC5E5; Mon,  2 May 2022 11:45:31 +0200 (CEST)
+Date:   Mon, 2 May 2022 11:45:30 +0200
 From:   JoergRoedel <joro@8bytes.org>
 To:     =?iso-8859-1?Q?J=F6rg-Volker?= Peetz <jvpeetz@web.de>
 Cc:     SuraveeSuthikulpanit <suravee.suthikulpanit@amd.com>,
-        vasant.hedge@amd.com, WillDeacon <will@kernel.org>,
+        vasant.hegde@amd.com, WillDeacon <will@kernel.org>,
         stable@vger.kernel.org
 Subject: Re: Linux 5.17.5
-Message-ID: <Ym+nmt/aZoq1SUjV@8bytes.org>
+Message-ID: <Ym+oOjFrkdju5H6X@8bytes.org>
 References: <165106510338255@kroah.com>
  <a5c7406e-64b0-7522-fef0-27fec1ac6698@web.de>
 MIME-Version: 1.0
@@ -39,6 +39,8 @@ X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
+
+[now with Vasants correct email address]
 
 Hi Jörg,
 
