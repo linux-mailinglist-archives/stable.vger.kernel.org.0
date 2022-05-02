@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 368F7517583
+	by mail.lfdr.de (Postfix) with ESMTP id C4C11517585
 	for <lists+stable@lfdr.de>; Mon,  2 May 2022 19:10:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381800AbiEBROC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 13:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53634 "EHLO
+        id S1386577AbiEBROG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 13:14:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386638AbiEBRNw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:13:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FFB226F2
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:10:21 -0700 (PDT)
+        with ESMTP id S1386652AbiEBRNx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:13:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FB260F7
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:10:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C1B561365
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:10:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA665C385B0;
-        Mon,  2 May 2022 17:10:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9670D6123D
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:10:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA5FDC385AC;
+        Mon,  2 May 2022 17:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651511420;
-        bh=7h0/Z2UqkuTSi91gMIl548TxIBwouRpVB0k59XoSORs=;
+        s=korg; t=1651511421;
+        bh=kSz5oEmjZBTjn3WtQkwib/FtzVGU67WJWCUXIcpI9yI=;
         h=Subject:To:Cc:From:Date:From;
-        b=KB/r7lbmpPiatgY3WxedONJ0HboeNy+oGPdoai3YXWZmD+siT/Z/iDFSHgEH+5Umm
-         gGQhgpun61lUdwgbG6Ff/TCqSS90Ip+EN5iZsLasHWDCA2ZNUNgdLuc49Bx0FQSy2z
-         7NfDRpEI71w9qIE4YueAJtO8Cuexpfq4MfRzs+5U=
-Subject: FAILED: patch "[PATCH] netfilter: Update ip6_route_me_harder to consider L3 domain" failed to apply to 4.19-stable tree
+        b=dVondXkGL0xdG5Nqy8Ym0+jFXAhnN+j27DgDT6gsUoIyL1WvFsMvWPFSSFv87I6aP
+         AkV+chGiEtv7t492kmHukSyQUVPdbiNMcpqg+gncAo385fwZ083dZvBz0BohDPfmKZ
+         FAb5GQPmrT2k0ijWLtVwbWin0BGyVq3WZIESyjhM=
+Subject: FAILED: patch "[PATCH] netfilter: Update ip6_route_me_harder to consider L3 domain" failed to apply to 5.4-stable tree
 To:     martin@strongswan.org, dsahern@kernel.org, pablo@netfilter.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 02 May 2022 19:10:15 +0200
-Message-ID: <165151141511657@kroah.com>
+Message-ID: <1651511415124108@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
