@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7097A517A8D
+	by mail.lfdr.de (Postfix) with ESMTP id B9A79517A8F
 	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230423AbiEBXTe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 19:19:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58676 "EHLO
+        id S229470AbiEBXTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 19:19:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230239AbiEBXTd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:19:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EB12E9CF
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:15:52 -0700 (PDT)
+        with ESMTP id S231927AbiEBXTe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:19:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F772BB11
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:15:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2861C6125B
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:15:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E3A1C385AC;
-        Mon,  2 May 2022 23:15:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E673CB81A94
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:15:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F38CC385AE;
+        Mon,  2 May 2022 23:15:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651533351;
-        bh=Z2ADd7vzDt46UB6ZILgQsRX9R97JvMMttsEEA1Xwo1U=;
+        s=korg; t=1651533352;
+        bh=BEOxb57CTMF4Q5rHOOvl/fIgrZ6BKgb6yMz3VI0K27A=;
         h=Subject:To:Cc:From:Date:From;
-        b=wi29kQ8Yyoklk1X8Pxmo7N0JBlbYfuq13NV7OdshV2w7oGbhxZwvEtkQJrunraLcg
-         8pAn1BIns5q/PhpKNSwxc2ES3CLwvNb8eZT2IA0M1Qc5AnmFD2rFOIp83GYEXi93Mo
-         rsjiaZ4R5zOpxkK724UxkkutcBNDy4CL7AsFaKLg=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix mux cleanup after unregister tty device" failed to apply to 5.4-stable tree
+        b=ap6kktYPNi6E/7M0SodKRHJlVDTQ1s/pehMRZDJD+tBzwJXOt1IPWMiwTmIG90cUv
+         BShLt41xr/9sHWkTDLW1FGthNjfGgcX5bFYVaXALZij6W8GMhmZHIXflLhcN2l+a73
+         NfdTOmnz65/1ljpxHJ9LIhFwmSgUQDVGmvgm/gFw=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix mux cleanup after unregister tty device" failed to apply to 4.14-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 01:15:50 +0200
-Message-ID: <1651533350166212@kroah.com>
+Date:   Tue, 03 May 2022 01:15:51 +0200
+Message-ID: <1651533351183224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
