@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F3C5176ED
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7AE5176EF
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230297AbiEBS5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 14:57:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34196 "EHLO
+        id S230380AbiEBS5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 14:57:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbiEBS5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:57:07 -0400
+        with ESMTP id S230265AbiEBS5e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:57:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF0B26322
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:53:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871AC63B9
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:54:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 655DEB819C5
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050EEC385AC;
-        Mon,  2 May 2022 18:53:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38C69B81896
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:54:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6374C385A4;
+        Mon,  2 May 2022 18:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651517615;
-        bh=GASETZEdsWZhbh5Bqh0F1mEUrp2TWyL+Lktaf+7I8Yw=;
+        s=korg; t=1651517641;
+        bh=Z7Xo71p866tsmH3/lXabpBBD0BDrIxCdkZPjDp7uJZw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Bvsl8UF+l+DUihPvrLrRzj8Zlp1ZxyNbJ97P1OdMBg5j0tzGQfBy+/wMMTD7joLo6
-         GpwCjp27G/T3y91QYGLX91jw16OXXCzR9Jp5+mS61YKDAGUivlJBk9eNqohS0QsRuf
-         WLWC6MR+0iT2GYMFmJguvm6dSwvBZw1yeWwTnzI8=
-Subject: FAILED: patch "[PATCH] net/smc: Fix slab-out-of-bounds issue in fallback" failed to apply to 5.15-stable tree
-To:     guwen@linux.alibaba.com, kgraul@linux.ibm.com, kuba@kernel.org
+        b=u0cgy7lME/FMbSSrQSRGmcqWB/i7m34t1TA8YViFn6N1Vz+YNQEi/R1cECju4tq/1
+         gopFfCIiJfaA2t/LJRKWDhkREBK4+djPM6jqCcYUtgCkHVa98Cn69cQZKE9BXenZ+M
+         EgQaMupIT+i4/c0O7+wwzRmQEcxttg/BIqLwL2gs=
+Subject: FAILED: patch "[PATCH] scsi: target: pscsi: Set SCF_TREAT_READ_AS_NORMAL flag only" failed to apply to 5.15-stable tree
+To:     djeffery@redhat.com, loberman@redhat.com,
+        martin.petersen@oracle.com, scott.hamilton@atos.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 May 2022 20:53:26 +0200
-Message-ID: <165151760613175@kroah.com>
+Date:   Mon, 02 May 2022 20:54:01 +0200
+Message-ID: <165151764195148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,211 +60,76 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0558226cebee256aa3f8ec0cc5a800a10bf120a6 Mon Sep 17 00:00:00 2001
-From: Wen Gu <guwen@linux.alibaba.com>
-Date: Fri, 22 Apr 2022 15:56:19 +0800
-Subject: [PATCH] net/smc: Fix slab-out-of-bounds issue in fallback
+From 8be70a842f70c0fe8e00fd488b1966344fa10ff4 Mon Sep 17 00:00:00 2001
+From: David Jeffery <djeffery@redhat.com>
+Date: Wed, 27 Apr 2022 14:32:50 -0400
+Subject: [PATCH] scsi: target: pscsi: Set SCF_TREAT_READ_AS_NORMAL flag only
+ if there is valid data
 
-syzbot reported a slab-out-of-bounds/use-after-free issue,
-which was caused by accessing an already freed smc sock in
-fallback-specific callback functions of clcsock.
+With tape devices, the SCF_TREAT_READ_AS_NORMAL flag is used by the target
+subsystem to mark commands which have both data to return as well as sense
+data. But with pscsi, SCF_TREAT_READ_AS_NORMAL can be set even if there is
+no data to return. The SCF_TREAT_READ_AS_NORMAL flag causes the target core
+to call iscsit data-in callbacks even if there is no data, which iscsit
+does not support. This results in iscsit going into an error state
+requiring recovery and being unable to complete the command to the
+initiator.
 
-This patch fixes the issue by restoring fallback-specific
-callback functions to original ones and resetting clcsock
-sk_user_data to NULL before freeing smc sock.
+This issue can be resolved by fixing pscsi to only set
+SCF_TREAT_READ_AS_NORMAL if there is valid data to return alongside the
+sense data.
 
-Meanwhile, this patch introduces sk_callback_lock to make
-the access and assignment to sk_user_data mutually exclusive.
+Link: https://lore.kernel.org/r/20220427183250.291881-1-djeffery@redhat.com
+Fixes: bd81372065fa ("scsi: target: transport should handle st FM/EOM/ILI reads")
+Reported-by: Scott Hamilton <scott.hamilton@atos.net>
+Tested-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Signed-off-by: David Jeffery <djeffery@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-Reported-by: syzbot+b425899ed22c6943e00b@syzkaller.appspotmail.com
-Fixes: 341adeec9ada ("net/smc: Forward wakeup to smc socket waitqueue after fallback")
-Link: https://lore.kernel.org/r/00000000000013ca8105d7ae3ada@google.com/
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index d8433f17c5c9..fce16b9d6e1a 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -243,11 +243,27 @@ struct proto smc_proto6 = {
- };
- EXPORT_SYMBOL_GPL(smc_proto6);
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index ff292b75e23f..60dafe4c581b 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -588,7 +588,7 @@ static void pscsi_destroy_device(struct se_device *dev)
+ }
  
-+static void smc_fback_restore_callbacks(struct smc_sock *smc)
-+{
-+	struct sock *clcsk = smc->clcsock->sk;
-+
-+	write_lock_bh(&clcsk->sk_callback_lock);
-+	clcsk->sk_user_data = NULL;
-+
-+	smc_clcsock_restore_cb(&clcsk->sk_state_change, &smc->clcsk_state_change);
-+	smc_clcsock_restore_cb(&clcsk->sk_data_ready, &smc->clcsk_data_ready);
-+	smc_clcsock_restore_cb(&clcsk->sk_write_space, &smc->clcsk_write_space);
-+	smc_clcsock_restore_cb(&clcsk->sk_error_report, &smc->clcsk_error_report);
-+
-+	write_unlock_bh(&clcsk->sk_callback_lock);
-+}
-+
- static void smc_restore_fallback_changes(struct smc_sock *smc)
+ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+-			       unsigned char *req_sense)
++			       unsigned char *req_sense, int valid_data)
  {
- 	if (smc->clcsock->file) { /* non-accepted sockets have no file yet */
- 		smc->clcsock->file->private_data = smc->sk.sk_socket;
- 		smc->clcsock->file = NULL;
-+		smc_fback_restore_callbacks(smc);
+ 	struct pscsi_dev_virt *pdv = PSCSI_DEV(cmd->se_dev);
+ 	struct scsi_device *sd = pdv->pdv_sd;
+@@ -681,7 +681,7 @@ static void pscsi_complete_cmd(struct se_cmd *cmd, u8 scsi_status,
+ 		 * back despite framework assumption that a
+ 		 * check condition means there is no data
+ 		 */
+-		if (sd->type == TYPE_TAPE &&
++		if (sd->type == TYPE_TAPE && valid_data &&
+ 		    cmd->data_direction == DMA_FROM_DEVICE) {
+ 			/*
+ 			 * is sense data valid, fixed format,
+@@ -1032,6 +1032,7 @@ static void pscsi_req_done(struct request *req, blk_status_t status)
+ 	struct se_cmd *cmd = req->end_io_data;
+ 	struct scsi_cmnd *scmd = blk_mq_rq_to_pdu(req);
+ 	enum sam_status scsi_status = scmd->result & 0xff;
++	int valid_data = cmd->data_length - scmd->resid_len;
+ 	u8 *cdb = cmd->priv;
+ 
+ 	if (scsi_status != SAM_STAT_GOOD) {
+@@ -1039,12 +1040,11 @@ static void pscsi_req_done(struct request *req, blk_status_t status)
+ 			" 0x%02x Result: 0x%08x\n", cmd, cdb[0], scmd->result);
  	}
- }
  
-@@ -745,48 +761,57 @@ static void smc_fback_forward_wakeup(struct smc_sock *smc, struct sock *clcsk,
+-	pscsi_complete_cmd(cmd, scsi_status, scmd->sense_buffer);
++	pscsi_complete_cmd(cmd, scsi_status, scmd->sense_buffer, valid_data);
  
- static void smc_fback_state_change(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_state_change);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_state_change);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_data_ready(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_data_ready);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_data_ready);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_write_space(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_write_space);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_write_space);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_error_report(struct sock *clcsk)
- {
--	struct smc_sock *smc =
--		smc_clcsock_user_data(clcsk);
-+	struct smc_sock *smc;
- 
--	if (!smc)
--		return;
--	smc_fback_forward_wakeup(smc, clcsk, smc->clcsk_error_report);
-+	read_lock_bh(&clcsk->sk_callback_lock);
-+	smc = smc_clcsock_user_data(clcsk);
-+	if (smc)
-+		smc_fback_forward_wakeup(smc, clcsk,
-+					 smc->clcsk_error_report);
-+	read_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static void smc_fback_replace_callbacks(struct smc_sock *smc)
- {
- 	struct sock *clcsk = smc->clcsock->sk;
- 
-+	write_lock_bh(&clcsk->sk_callback_lock);
- 	clcsk->sk_user_data = (void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 
- 	smc_clcsock_replace_cb(&clcsk->sk_state_change, smc_fback_state_change,
-@@ -797,6 +822,8 @@ static void smc_fback_replace_callbacks(struct smc_sock *smc)
- 			       &smc->clcsk_write_space);
- 	smc_clcsock_replace_cb(&clcsk->sk_error_report, smc_fback_error_report,
- 			       &smc->clcsk_error_report);
-+
-+	write_unlock_bh(&clcsk->sk_callback_lock);
- }
- 
- static int smc_switch_to_fallback(struct smc_sock *smc, int reason_code)
-@@ -2370,17 +2397,20 @@ static void smc_tcp_listen_work(struct work_struct *work)
- 
- static void smc_clcsock_data_ready(struct sock *listen_clcsock)
- {
--	struct smc_sock *lsmc =
--		smc_clcsock_user_data(listen_clcsock);
-+	struct smc_sock *lsmc;
- 
-+	read_lock_bh(&listen_clcsock->sk_callback_lock);
-+	lsmc = smc_clcsock_user_data(listen_clcsock);
- 	if (!lsmc)
--		return;
-+		goto out;
- 	lsmc->clcsk_data_ready(listen_clcsock);
- 	if (lsmc->sk.sk_state == SMC_LISTEN) {
- 		sock_hold(&lsmc->sk); /* sock_put in smc_tcp_listen_work() */
- 		if (!queue_work(smc_tcp_ls_wq, &lsmc->tcp_listen_work))
- 			sock_put(&lsmc->sk);
- 	}
-+out:
-+	read_unlock_bh(&listen_clcsock->sk_callback_lock);
- }
- 
- static int smc_listen(struct socket *sock, int backlog)
-@@ -2412,10 +2442,12 @@ static int smc_listen(struct socket *sock, int backlog)
- 	/* save original sk_data_ready function and establish
- 	 * smc-specific sk_data_ready function
- 	 */
-+	write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 	smc->clcsock->sk->sk_user_data =
- 		(void *)((uintptr_t)smc | SK_USER_DATA_NOCOPY);
- 	smc_clcsock_replace_cb(&smc->clcsock->sk->sk_data_ready,
- 			       smc_clcsock_data_ready, &smc->clcsk_data_ready);
-+	write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 
- 	/* save original ops */
- 	smc->ori_af_ops = inet_csk(smc->clcsock->sk)->icsk_af_ops;
-@@ -2430,9 +2462,11 @@ static int smc_listen(struct socket *sock, int backlog)
- 
- 	rc = kernel_listen(smc->clcsock, backlog);
- 	if (rc) {
-+		write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 				       &smc->clcsk_data_ready);
- 		smc->clcsock->sk->sk_user_data = NULL;
-+		write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 		goto out;
- 	}
- 	sk->sk_max_ack_backlog = backlog;
-diff --git a/net/smc/smc_close.c b/net/smc/smc_close.c
-index 7bd1ef55b9df..31db7438857c 100644
---- a/net/smc/smc_close.c
-+++ b/net/smc/smc_close.c
-@@ -214,9 +214,11 @@ int smc_close_active(struct smc_sock *smc)
- 		sk->sk_state = SMC_CLOSED;
- 		sk->sk_state_change(sk); /* wake up accept */
- 		if (smc->clcsock && smc->clcsock->sk) {
-+			write_lock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			smc_clcsock_restore_cb(&smc->clcsock->sk->sk_data_ready,
- 					       &smc->clcsk_data_ready);
- 			smc->clcsock->sk->sk_user_data = NULL;
-+			write_unlock_bh(&smc->clcsock->sk->sk_callback_lock);
- 			rc = kernel_sock_shutdown(smc->clcsock, SHUT_RDWR);
- 		}
- 		smc_close_cleanup_listen(sk);
+ 	switch (host_byte(scmd->result)) {
+ 	case DID_OK:
+-		target_complete_cmd_with_length(cmd, scsi_status,
+-			cmd->data_length - scmd->resid_len);
++		target_complete_cmd_with_length(cmd, scsi_status, valid_data);
+ 		break;
+ 	default:
+ 		pr_debug("PSCSI Host Byte exception at cmd: %p CDB:"
 
