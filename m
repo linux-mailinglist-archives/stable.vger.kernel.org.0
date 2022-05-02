@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD397517A87
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:12:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A6A517A86
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 01:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230148AbiEBXPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 19:15:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41730 "EHLO
+        id S230223AbiEBXPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 19:15:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231229AbiEBXP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:15:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 587AC2F39F
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:11:55 -0700 (PDT)
+        with ESMTP id S230148AbiEBXPV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 19:15:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C532F38E
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 16:11:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D664CB81A99
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7662FC385A4;
-        Mon,  2 May 2022 23:11:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9785F612FC
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 23:11:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2261C385AC;
+        Mon,  2 May 2022 23:11:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651533112;
-        bh=HGWTc/9F7FIvQ9zQY+NjWhNclPO9udmQwo6U5AJvzkU=;
+        s=korg; t=1651533106;
+        bh=9H+1BBOTLk0UNZ/XSU3jsaYoce5uRQgO2jEaRcTytgc=;
         h=Subject:To:Cc:From:Date:From;
-        b=koyvOgX+PfAVgMoJTMEvFpOSzofbyFCmqP54JXsyJBcntumhqLY99x+2CQC1oE/id
-         gKyOEXEMYWmbQUW+AMxVytlOHzxBDQYIUrsYEMZEVN2iXXHv3YbyF8yQVV9StRW7RP
-         eWLZ3cWWL8AKxo9S9IDspSwOjfovyPsRZd+zRQfo=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix decoupled mux resource" failed to apply to 4.9-stable tree
+        b=oRmzJPet9zuOkMZjazh6TRY8mh6u3/VuAOL668Kki2pz8q7Ent1wZABsynHR58Gpd
+         2C/nGGAGdxw1ZQTP70KG+WfsbvbB80ZKyOl+OJySRjraJca9X+bwfUiTag/7+gBm+K
+         WtgprDvh0z7JAiGcyPn4z6Zz1OBVyT/WD/uG+x/4=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix decoupled mux resource" failed to apply to 4.14-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 03 May 2022 01:11:44 +0200
-Message-ID: <165153310450104@kroah.com>
+Message-ID: <165153310411238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
