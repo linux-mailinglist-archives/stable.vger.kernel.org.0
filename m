@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BDBC5175F4
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 19:36:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3005175F6
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 19:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244085AbiEBRjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 13:39:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44234 "EHLO
+        id S244052AbiEBRjh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 13:39:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244052AbiEBRjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:39:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6032DBE36
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:36:06 -0700 (PDT)
+        with ESMTP id S236975AbiEBRjg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 13:39:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E2EBE36
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 10:36:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0F92612E7
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:36:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A27BC385A4;
-        Mon,  2 May 2022 17:36:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2CB161411
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 17:36:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 441D2C385AC;
+        Mon,  2 May 2022 17:36:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651512965;
-        bh=cHtcjYvdEibSbgemMmevR5znaQOzudR37ltUL3a14hA=;
+        s=korg; t=1651512966;
+        bh=7sqUKp0gBjRcSuW2kjvo95RV3HnxWi5Jg821IzZCmes=;
         h=Subject:To:Cc:From:Date:From;
-        b=PXWD41Ircsose1PEQBsqpkiWrO5Vs0JjhuwgrYQPnTsRvN/wwW1oo9+DtGu3/QZ+8
-         VefsjZKme9khhepkW5/Il+jJ52aaVP9hfIkGe/961QYP1xVob2YhBQurdli7GDo2/A
-         CWMMSNtN1MQwBT/ychSqAY/5QXcihkOGMWZYQGyM=
-Subject: FAILED: patch "[PATCH] kasan: prevent cpu_quarantine corruption when CPU offline and" failed to apply to 4.14-stable tree
+        b=fjWhaClBTrNIzib/Jja9g51w8z0R3tFAiG0Vk1bsUEQZ/pNGvZUyysnm9vDp0F4EG
+         FaLxeV40ooGOKMkw+nDwF76giJZoP6tRdkFkM3rtz5Gp3GS2b4CyejITCu+CFDl1JX
+         0SygfNLC/Gdob61Tp4hdw408TtUbjesn+P6NhSss=
+Subject: FAILED: patch "[PATCH] kasan: prevent cpu_quarantine corruption when CPU offline and" failed to apply to 4.19-stable tree
 To:     qiang1.zhang@intel.com, akpm@linux-foundation.org,
         andreyknvl@gmail.com, dvyukov@google.com, glider@google.com,
         ryabinin.a.a@gmail.com, stable@vger.kernel.org,
         torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 02 May 2022 19:36:03 +0200
-Message-ID: <165151296311379@kroah.com>
+Date:   Mon, 02 May 2022 19:36:04 +0200
+Message-ID: <165151296450141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
