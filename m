@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7EB5176F5
-	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 270C95176F6
+	for <lists+stable@lfdr.de>; Mon,  2 May 2022 20:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230484AbiEBS6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 14:58:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34604 "EHLO
+        id S230522AbiEBS6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 14:58:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbiEBS6J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:58:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A85B63B9
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:54:39 -0700 (PDT)
+        with ESMTP id S231238AbiEBS6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 14:58:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F82CB7E1
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 11:54:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D1D16149A
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70D0BC385AC;
-        Mon,  2 May 2022 18:54:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D0E03B819C5
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 18:54:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88774C385AF;
+        Mon,  2 May 2022 18:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651517678;
-        bh=jjG5pM9SHTgchCh5vQR6V89QsErV2dRKqDef7naQDog=;
+        s=korg; t=1651517677;
+        bh=pc12KYDuts151jRSGXqDW3TFxOO+rBjlAhDLEQlJ2ek=;
         h=Subject:To:Cc:From:Date:From;
-        b=1Zx+aK6Xm5uxk9oT7v87i4tzGNUfCPldh57Qbazmm/7ViyY4lL7caFXTwaTkg6uqg
-         67FYU/YClwaGpzhAi4IwL42iJwCa5d2maIAcWedqhAoXhxIvYbtKIyvgpZXsL4ztXb
-         xGQZMNG7f9CkMMDN5z9oKIU/GUw/SlnJPYniVdUI=
-Subject: FAILED: patch "[PATCH] netfilter: nft_socket: only do sk lookups when indev is" failed to apply to 5.15-stable tree
+        b=LYrbmMVIZD9NkAW+/s+gfDPovtyEWsuhwYWJeW+gn3bDe8QR1Uk+2JaWnl1AvkSZI
+         qGwq040nZ92fMMQBnCkrB3nNl9ShzGWNwRNxSZUBoc5Mgbu/fW+g3HVELCNoQkoSlo
+         VCGWx0aYKhA11xgfE9/m1mTfPc8nRe/QZPkXXI84=
+Subject: FAILED: patch "[PATCH] netfilter: nft_socket: only do sk lookups when indev is" failed to apply to 5.10-stable tree
 To:     fw@strlen.de, pablo@netfilter.org, toiwoton@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 02 May 2022 20:54:36 +0200
-Message-ID: <1651517676231144@kroah.com>
+Message-ID: <165151767681209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
