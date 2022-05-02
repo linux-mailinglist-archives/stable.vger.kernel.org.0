@@ -2,240 +2,271 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 486B35179DC
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 00:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52028517A39
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 00:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233302AbiEBWVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 2 May 2022 18:21:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56102 "EHLO
+        id S229899AbiEBW6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 2 May 2022 18:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbiEBWVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 18:21:21 -0400
-Received: from mout.web.de (mout.web.de [212.227.17.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 022692AD
-        for <stable@vger.kernel.org>; Mon,  2 May 2022 15:17:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1651529860;
-        bh=J2mN6cayWguxLbNSpSdcOiiPNoLDjczpKUEz4t5MWSU=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=JQTzx8o5c7A3w3+8qjKZsMKn6fQoq8wF+wWhzTLMgQ0qNLHekq7H7no9EYPkSCH0c
-         gOcKrcNqwEr7AxM6O4wT7Qc97gUqbcT/I1AetIEFbLPY4kCIl+0mfl7NIXuC97SSVG
-         948vBRKTReaimjItwbo64nG2pAFqZ5rM85ZIBxqY=
-X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
-Received: from uruz.dynato.kyma ([79.245.218.86]) by smtp.web.de (mrweb106
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1Mx0Ij-1o1v6F0cPr-00yDtk; Tue, 03
- May 2022 00:17:40 +0200
-Received: from [127.0.0.1]
-        by uruz.dynato.kyma with esmtp (Exim 4.95)
-        (envelope-from <jvpeetz@web.de>)
-        id 1nleMO-0000oo-6m;
-        Tue, 03 May 2022 00:17:40 +0200
-Message-ID: <4bfd2811-69ec-e4ec-2957-7054a075aa50@web.de>
-Date:   Tue, 3 May 2022 00:17:40 +0200
+        with ESMTP id S229496AbiEBW6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 2 May 2022 18:58:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584871B784
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 15:54:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 199F5B81A56
+        for <stable@vger.kernel.org>; Mon,  2 May 2022 22:54:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C24C385AC;
+        Mon,  2 May 2022 22:54:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651532064;
+        bh=02kIkpHCKS3dDj/wUzI+A1jB1EHavHDrKeL/PU/f1Pk=;
+        h=Subject:To:Cc:From:Date:From;
+        b=gl0031oiUq7UGUHGBQK3jgZCQdL3v0HCM3kstynH2MLUq3MjVKxw0QBN4eT/5231k
+         NJoWiT3AkMZJBpXMEbWNaF+5HpKhi3wKTNJ46AR0s6P40x1Z5++8s4eBKxW/crvCSO
+         eOs+d4PW0w+uzcT1Wqllc6b/koL3FmBfWTe/1+sQ=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Do not create SPTEs for GFNs that exceed" failed to apply to 5.17-stable tree
+To:     seanjc@google.com, bgardon@google.com, dmatlack@google.com,
+        mlevitsk@redhat.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 May 2022 00:54:23 +0200
+Message-ID: <165153206313432@kroah.com>
 MIME-Version: 1.0
-Subject: Re: Linux 5.17.5
-Content-Language: en-US
-To:     JoergRoedel <joro@8bytes.org>
-Cc:     SuraveeSuthikulpanit <suravee.suthikulpanit@amd.com>,
-        vasant.hegde@amd.com, WillDeacon <will@kernel.org>,
-        stable@vger.kernel.org
-References: <165106510338255@kroah.com>
- <a5c7406e-64b0-7522-fef0-27fec1ac6698@web.de> <Ym+oOjFrkdju5H6X@8bytes.org>
-From:   =?UTF-8?Q?J=c3=b6rg-Volker_Peetz?= <jvpeetz@web.de>
-In-Reply-To: <Ym+oOjFrkdju5H6X@8bytes.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:jTCOUTabPQFA5X+RRA8fnUhTuvWkC3HYvpiSuMFLJo/DElea2qy
- EdheOQIk5jyxRX6cf+wrIRO+gyO1weRdOvV0OwiQ7LOZXC9jtd1UB7X+jPcTIA7Q+/8H9Ep
- iDcMlafdaf7mp0eJxaA7d198rZpAnyou/xEa9dkK2HxpYYqzyKiJWV8xApUCM+RbZa3BJF7
- R6I/TXKr2TCMk7wtyCwZg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:DcJPUSAu1SE=:Ec//4p3aBZNvFOw/vDc1+Y
- 0EKEfMuiC4WEetoRi16Kx4M2nUmSRz1uMkGEIgssI41WSoWofzra6ZjfKXsxQ5YZZ8W2eNi0i
- W1i738QVUvNTtsm+MB+z74n9p6hmAR/gmtMgQ731y7uvWnIBZ8zYfYN7sotHKiBs00IkPTY/K
- swJJecXwXPPch9K7OCXcuFHb/YW6Er8f7l7P2P1IzOexYWLFpZUFXXpalBKQFvevlReIwQWu6
- dAtIvoyZk3hjWxHcs6g2Ld+n/BTfTEmEz0AKpGssbrJnLbVR2JTcJMMHG+r26HeGl0Bjdv/Hd
- sHmA0I11buDpID1T9x9jbrzSZ9KxuXd1rvxsCdDBYGeYs4oshBiLvOiMjPGej5iFurV/KJYyh
- haHzsDCvwC30xVAJLWSc1keHfTt/qOVf9Hs+BBQVwssUcxgzKnx5SEZ+rRIAvfqYlszvW14fQ
- TzfhE1Ylv+Kz5PqVSss1od172GcceOgBycRf21/3EV+s+oUxsqrA1goPfOZz1z1bjlrwDETTc
- spC9K9m1yK9U4B69AmPWaUZLL7bYT0p1JfPqUy1MJY8zGyNOzz3m8uf4dJTBLQXpdDYePY7Wm
- cLph8oRrFYAt+VcafzfYrcUNbuYgXorjTZo/l9wNlZJB6J/jwZFZZkTsNQrGS/XGbJeyzZ8KL
- 1MUDiH0vToGfa01xxDQ0DcvSx+r2h0pEj5zHtuL6GopbwZTfpzTdSKe5SFiqTtmUTPZ1H50R6
- hP9+ftQsThjJmbcpWwcEGDlh+aR2Dppypv5QpdvDu6YXcEXRmMj49wkzPGmwQHZIxaqsmKQaO
- tCc4OsTDkHX4/iwFYZaBmzxXqoo0r/Ye36fny1sE9cejTz7Wdft551nHuY326KxsD7HMMu6lj
- 6u8WAtJ4nN9s6MnnlpIJccXV2TvNLYU8Ltu2br2jtNXO3p4vdVzMkEUdL2/TnvIQ1TTsEHCby
- by0k0SjXA19xEHOESMGfXgTSyK0ZU+tvNBDA/eJV2HfBvkmoUBY3kqI9z/BbisJcIYf4rz/zX
- M+PAFfYPooATbJn8uuHNjulJkpuXrT5iEvle6kpBTUz4U2J54uq3cjYrI75l5Wiexx8p2P383
- o+K03D82ZqlXS0=
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_MSPIKE_H3,
-        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-no, right at the first cold boot with the patched kernel the warning appea=
-red:
+The patch below does not apply to the 5.17-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-May  2 21:50:27 xxx kernel: WARNING: CPU: 0 PID: 1 at
-drivers/iommu/amd/init.c:851 amd_iommu_enable_interrupts+0x312/0x3f0
-May  2 21:50:27 xxx kernel: Modules linked in:
-May  2 21:50:27 xxx kernel: CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.17=
-.5 #2
-May  2 21:50:27 xxx kernel: Hardware name: Micro-Star International Co., L=
-td.
-MS-7C94/MAG B550M MORTAR (MS-7C94), BIOS 1.94 09/23/2021
-May  2 21:50:27 xxx kernel: RIP: 0010:amd_iommu_enable_interrupts+0x312/0x=
-3f0
-May  2 21:50:27 xxx kernel: Code: ff ff 49 8b 7f 18 89 04 24 e8 2a ff f6 f=
-f 8b
-04 24 e9 7b fd ff ff 0f 0b 4d 8b 3f 49 81 ff 90 15 4c 9f 0f 85 35 fd ff ff=
- eb 82
-<0f> 0b 4d 8b 3f 49 81 ff 90 15 4c 9f 0f 85 21 fd ff ff e9 6b ff ff
-May  2 21:50:27 xxx kernel: RSP: 0018:ffffb9ad4005fdd8 EFLAGS: 00010246
-May  2 21:50:27 xxx kernel: RAX: 00000015be386e7c RBX: 0000000000000000 RC=
-X:
-0000000000000000
-May  2 21:50:27 xxx kernel: RDX: 0000000000009e16 RSI: 0000000000009427 RD=
-I:
-00000015be37d066
-May  2 21:50:27 xxx kernel: RBP: 0000000080000000 R08: ffffffffffffffff R0=
-9:
-0000000000000000
-May  2 21:50:27 xxx kernel: R10: 00000000000000d1 R11: 0000000000000000 R1=
-2:
-000ffffffffffff8
-May  2 21:50:27 xxx kernel: R13: 0800000000000000 R14: 0008000000000000 R1=
-5:
-ffff9a4600190000
-May  2 21:50:27 xxx kernel: FS:  0000000000000000(0000)
-GS:ffff9a53f1e00000(0000) knlGS:0000000000000000
-May  2 21:50:27 xxx kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050=
-033
-May  2 21:50:27 xxx kernel: CR2: ffff9a51c9c01000 CR3: 0000000cc960a000 CR=
-4:
-0000000000750ef0
-May  2 21:50:27 xxx kernel: PKRU: 55555554
-May  2 21:50:27 xxx kernel: Call Trace:
-May  2 21:50:27 xxx kernel: <TASK>
-May  2 21:50:27 xxx kernel: iommu_go_to_state+0x10e0/0x138d
-May  2 21:50:27 xxx kernel: ? e820__memblock_setup+0x78/0x78
-May  2 21:50:27 xxx kernel: amd_iommu_init+0xa/0x20
-May  2 21:50:27 xxx kernel: pci_iommu_init+0x11/0x3a
-May  2 21:50:27 xxx kernel: do_one_initcall+0x47/0x180
-May  2 21:50:27 xxx kernel: kernel_init_freeable+0x162/0x1a7
-May  2 21:50:27 xxx kernel: ? rest_init+0xc0/0xc0
-May  2 21:50:27 xxx kernel: kernel_init+0x11/0x110
-May  2 21:50:27 xxx kernel: ret_from_fork+0x22/0x30
-May  2 21:50:27 xxx kernel: </TASK>
+thanks,
 
-For a cold boot I switch off the computer for ca. 30 seconds and switch it=
- on
-again. I booted into a console where I looked out for warnings with `dmesg=
- -l
-warn`. Then I tried to start X with `startx` but the screen got blocked. V=
-ia ssh
-I ordered `reboot`, a warm start. Then the warning didn't appear, I could =
-start
-X and work normally.
+greg k-h
 
-In 'kern.log' I also found this:
+------------------ original commit in Linus's tree ------------------
 
-May  2 21:53:27 xxx kernel: [drm:amdgpu_job_timedout [amdgpu]] *ERROR* rin=
-g gfx
-timeout, signaled seq=3D16, emitted seq=3D17
-May  2 21:53:27 xxx kernel: [drm:amdgpu_job_timedout [amdgpu]] *ERROR* Pro=
-cess
-information: process Xorg pid 1787 thread Xorg:cs0 pid 1788
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: GPU reset begin!
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: [drm:amdgpu_ring_test_hel=
-per
-[amdgpu]] *ERROR* ring kiq_2.1.0 test failed (-110)
-May  2 21:53:27 xxx kernel: [drm] free PSP TMR buffer
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: MODE2 reset
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: GPU reset succeed=
-ed,
-trying to resume
-May  2 21:53:27 xxx kernel: [drm] PCIE GART of 1024M enabled.
-May  2 21:53:27 xxx kernel: [drm] PTB located at 0x000000F400900000
-May  2 21:53:27 xxx kernel: [drm] PSP is resuming...
-May  2 21:53:27 xxx kernel: [drm] reserve 0x400000 from 0xf4ff800000 for P=
-SP TMR
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: RAS: optional ras=
- ta
-ucode is not available
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: RAP: optional rap=
- ta
-ucode is not available
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: SECUREDISPLAY:
-securedisplay ta ucode is not available
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: SMU is resuming..=
-.
-May  2 21:53:27 xxx kernel: amdgpu 0000:30:00.0: amdgpu: SMU is resumed
-successfully!
-May  2 21:53:27 xxx kernel: [drm] DMUB hardware initialized: version=3D0x0=
-101001F
-May  2 21:53:28 xxx kernel: [drm] kiq ring mec 2 pipe 1 q 0
-May  2 21:53:28 xxx kernel: amdgpu 0000:30:00.0: [drm:amdgpu_ring_test_hel=
-per
-[amdgpu]] *ERROR* ring kiq_2.1.0 test failed (-110)
-May  2 21:53:28 xxx kernel: [drm:amdgpu_gfx_enable_kcq.cold [amdgpu]] *ERR=
-OR*
-KCQ enable failed
-May  2 21:53:28 xxx kernel: [drm:amdgpu_device_ip_resume_phase2 [amdgpu]]
-*ERROR* resume of IP block <gfx_v9_0> failed -110
-May  2 21:53:28 xxx kernel: amdgpu 0000:30:00.0: amdgpu: GPU reset(2) fail=
-ed
-May  2 21:53:28 xxx kernel: amdgpu 0000:30:00.0: amdgpu: GPU reset end wit=
-h ret
-=3D -110
-May  2 21:53:38 xxx kernel: [drm:amdgpu_job_timedout [amdgpu]] *ERROR* rin=
-g gfx
-timeout, signaled seq=3D17, emitted seq=3D17
-May  2 21:53:38 xxx kernel: [drm:amdgpu_job_timedout [amdgpu]] *ERROR* Pro=
-cess
-information: process Xorg pid 1787 thread Xorg:cs0 pid 1788
-May  2 21:53:38 xxx kernel: amdgpu 0000:30:00.0: amdgpu: GPU reset begin!
+From 86931ff7207bc045fa5439ef97b31859613dc303 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Thu, 28 Apr 2022 23:34:16 +0000
+Subject: [PATCH] KVM: x86/mmu: Do not create SPTEs for GFNs that exceed
+ host.MAXPHYADDR
 
-Thanks for your help.
-Regards,
-J=C3=B6rg.
+Disallow memslots and MMIO SPTEs whose gpa range would exceed the host's
+MAXPHYADDR, i.e. don't create SPTEs for gfns that exceed host.MAXPHYADDR.
+The TDP MMU bounds its zapping based on host.MAXPHYADDR, and so if the
+guest, possibly with help from userspace, manages to coerce KVM into
+creating a SPTE for an "impossible" gfn, KVM will leak the associated
+shadow pages (page tables):
 
-JoergRoedel wrote on 02/05/2022 11:45:
-> [now with Vasants correct email address]
->
-> Hi J=C3=B6rg,
->
-> can you please try the attached patch? It should get rid of the WARNING
-> on your system.
->
-> Suravee, Vasant, can you please test review the patch and report whether
-> the GA log functionality is still working?
->
-> Thanks,
->
-> 	Joerg
->
->  From 4fee768d5c23715eae31fed3b41cdf045e099aef Mon Sep 17 00:00:00 2001
-> From: Joerg Roedel <jroedel@suse.de>
-> Date: Mon, 2 May 2022 11:37:43 +0200
-> Subject: [PATCH] iommu/amd: Do not poll GA_LOG_RUNNING mask at boot
->
-> On some hardware it takes more than a second for the hardware to get
-> the GA log into running state. This is too long to poll for in the AMD
-> IOMMU driver code.
->
-> Instead, check whehter initialization was successful before polling
-> the log for the first time.
->
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->   drivers/iommu/amd/amd_iommu_types.h |  3 +++
->   drivers/iommu/amd/init.c            | 13 ++-----------
->   drivers/iommu/amd/iommu.c           | 25 ++++++++++++++++++++++++-
->   3 files changed, 29 insertions(+), 12 deletions(-)
-<snip>
+  WARNING: CPU: 10 PID: 1122 at arch/x86/kvm/mmu/tdp_mmu.c:57
+                                kvm_mmu_uninit_tdp_mmu+0x4b/0x60 [kvm]
+  Modules linked in: kvm_intel kvm irqbypass
+  CPU: 10 PID: 1122 Comm: set_memory_regi Tainted: G        W         5.18.0-rc1+ #293
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:kvm_mmu_uninit_tdp_mmu+0x4b/0x60 [kvm]
+  Call Trace:
+   <TASK>
+   kvm_arch_destroy_vm+0x130/0x1b0 [kvm]
+   kvm_destroy_vm+0x162/0x2d0 [kvm]
+   kvm_vm_release+0x1d/0x30 [kvm]
+   __fput+0x82/0x240
+   task_work_run+0x5b/0x90
+   exit_to_user_mode_prepare+0xd2/0xe0
+   syscall_exit_to_user_mode+0x1d/0x40
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+   </TASK>
+
+On bare metal, encountering an impossible gpa in the page fault path is
+well and truly impossible, barring CPU bugs, as the CPU will signal #PF
+during the gva=>gpa translation (or a similar failure when stuffing a
+physical address into e.g. the VMCS/VMCB).  But if KVM is running as a VM
+itself, the MAXPHYADDR enumerated to KVM may not be the actual MAXPHYADDR
+of the underlying hardware, in which case the hardware will not fault on
+the illegal-from-KVM's-perspective gpa.
+
+Alternatively, KVM could continue allowing the dodgy behavior and simply
+zap the max possible range.  But, for hosts with MAXPHYADDR < 52, that's
+a (minor) waste of cycles, and more importantly, KVM can't reasonably
+support impossible memslots when running on bare metal (or with an
+accurate MAXPHYADDR as a VM).  Note, limiting the overhead by checking if
+KVM is running as a guest is not a safe option as the host isn't required
+to announce itself to the guest in any way, e.g. doesn't need to set the
+HYPERVISOR CPUID bit.
+
+A second alternative to disallowing the memslot behavior would be to
+disallow creating a VM with guest.MAXPHYADDR > host.MAXPHYADDR.  That
+restriction is undesirable as there are legitimate use cases for doing
+so, e.g. using the highest host.MAXPHYADDR out of a pool of heterogeneous
+systems so that VMs can be migrated between hosts with different
+MAXPHYADDRs without running afoul of the allow_smaller_maxphyaddr mess.
+
+Note that any guest.MAXPHYADDR is valid with shadow paging, and it is
+even useful in order to test KVM with MAXPHYADDR=52 (i.e. without
+any reserved physical address bits).
+
+The now common kvm_mmu_max_gfn() is inclusive instead of exclusive.
+The memslot and TDP MMU code want an exclusive value, but the name
+implies the returned value is inclusive, and the MMIO path needs an
+inclusive check.
+
+Fixes: faaf05b00aec ("kvm: x86/mmu: Support zapping SPTEs in the TDP MMU")
+Fixes: 524a1e4e381f ("KVM: x86/mmu: Don't leak non-leaf SPTEs when zapping all SPTEs")
+Cc: stable@vger.kernel.org
+Cc: Maxim Levitsky <mlevitsk@redhat.com>
+Cc: Ben Gardon <bgardon@google.com>
+Cc: David Matlack <dmatlack@google.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220428233416.2446833-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
+index e6cae6f22683..a335e7f1f69e 100644
+--- a/arch/x86/kvm/mmu.h
++++ b/arch/x86/kvm/mmu.h
+@@ -65,6 +65,30 @@ static __always_inline u64 rsvd_bits(int s, int e)
+ 	return ((2ULL << (e - s)) - 1) << s;
+ }
+ 
++/*
++ * The number of non-reserved physical address bits irrespective of features
++ * that repurpose legal bits, e.g. MKTME.
++ */
++extern u8 __read_mostly shadow_phys_bits;
++
++static inline gfn_t kvm_mmu_max_gfn(void)
++{
++	/*
++	 * Note that this uses the host MAXPHYADDR, not the guest's.
++	 * EPT/NPT cannot support GPAs that would exceed host.MAXPHYADDR;
++	 * assuming KVM is running on bare metal, guest accesses beyond
++	 * host.MAXPHYADDR will hit a #PF(RSVD) and never cause a vmexit
++	 * (either EPT Violation/Misconfig or #NPF), and so KVM will never
++	 * install a SPTE for such addresses.  If KVM is running as a VM
++	 * itself, on the other hand, it might see a MAXPHYADDR that is less
++	 * than hardware's real MAXPHYADDR.  Using the host MAXPHYADDR
++	 * disallows such SPTEs entirely and simplifies the TDP MMU.
++	 */
++	int max_gpa_bits = likely(tdp_enabled) ? shadow_phys_bits : 52;
++
++	return (1ULL << (max_gpa_bits - PAGE_SHIFT)) - 1;
++}
++
+ void kvm_mmu_set_mmio_spte_mask(u64 mmio_value, u64 mmio_mask, u64 access_mask);
+ void kvm_mmu_set_ept_masks(bool has_ad_bits, bool has_exec_only);
+ 
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index f9080ee50ffa..5f6225c384e6 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -2992,9 +2992,15 @@ static bool handle_abnormal_pfn(struct kvm_vcpu *vcpu, struct kvm_page_fault *fa
+ 		/*
+ 		 * If MMIO caching is disabled, emulate immediately without
+ 		 * touching the shadow page tables as attempting to install an
+-		 * MMIO SPTE will just be an expensive nop.
++		 * MMIO SPTE will just be an expensive nop.  Do not cache MMIO
++		 * whose gfn is greater than host.MAXPHYADDR, any guest that
++		 * generates such gfns is running nested and is being tricked
++		 * by L0 userspace (you can observe gfn > L1.MAXPHYADDR if
++		 * and only if L1's MAXPHYADDR is inaccurate with respect to
++		 * the hardware's).
+ 		 */
+-		if (unlikely(!shadow_mmio_value)) {
++		if (unlikely(!shadow_mmio_value) ||
++		    unlikely(fault->gfn > kvm_mmu_max_gfn())) {
+ 			*ret_val = RET_PF_EMULATE;
+ 			return true;
+ 		}
+diff --git a/arch/x86/kvm/mmu/spte.h b/arch/x86/kvm/mmu/spte.h
+index 73f12615416f..e4abeb5df1b1 100644
+--- a/arch/x86/kvm/mmu/spte.h
++++ b/arch/x86/kvm/mmu/spte.h
+@@ -201,12 +201,6 @@ static inline bool is_removed_spte(u64 spte)
+  */
+ extern u64 __read_mostly shadow_nonpresent_or_rsvd_lower_gfn_mask;
+ 
+-/*
+- * The number of non-reserved physical address bits irrespective of features
+- * that repurpose legal bits, e.g. MKTME.
+- */
+-extern u8 __read_mostly shadow_phys_bits;
+-
+ static inline bool is_mmio_spte(u64 spte)
+ {
+ 	return (spte & shadow_mmio_mask) == shadow_mmio_value &&
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index c472769e0300..edc68538819b 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -815,14 +815,15 @@ static inline bool __must_check tdp_mmu_iter_cond_resched(struct kvm *kvm,
+ 	return iter->yielded;
+ }
+ 
+-static inline gfn_t tdp_mmu_max_gfn_host(void)
++static inline gfn_t tdp_mmu_max_gfn_exclusive(void)
+ {
+ 	/*
+-	 * Bound TDP MMU walks at host.MAXPHYADDR, guest accesses beyond that
+-	 * will hit a #PF(RSVD) and never hit an EPT Violation/Misconfig / #NPF,
+-	 * and so KVM will never install a SPTE for such addresses.
++	 * Bound TDP MMU walks at host.MAXPHYADDR.  KVM disallows memslots with
++	 * a gpa range that would exceed the max gfn, and KVM does not create
++	 * MMIO SPTEs for "impossible" gfns, instead sending such accesses down
++	 * the slow emulation path every time.
+ 	 */
+-	return 1ULL << (shadow_phys_bits - PAGE_SHIFT);
++	return kvm_mmu_max_gfn() + 1;
+ }
+ 
+ static void __tdp_mmu_zap_root(struct kvm *kvm, struct kvm_mmu_page *root,
+@@ -830,7 +831,7 @@ static void __tdp_mmu_zap_root(struct kvm *kvm, struct kvm_mmu_page *root,
+ {
+ 	struct tdp_iter iter;
+ 
+-	gfn_t end = tdp_mmu_max_gfn_host();
++	gfn_t end = tdp_mmu_max_gfn_exclusive();
+ 	gfn_t start = 0;
+ 
+ 	for_each_tdp_pte_min_level(iter, root, zap_level, start, end) {
+@@ -923,7 +924,7 @@ static bool tdp_mmu_zap_leafs(struct kvm *kvm, struct kvm_mmu_page *root,
+ {
+ 	struct tdp_iter iter;
+ 
+-	end = min(end, tdp_mmu_max_gfn_host());
++	end = min(end, tdp_mmu_max_gfn_exclusive());
+ 
+ 	lockdep_assert_held_write(&kvm->mmu_lock);
+ 
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 547ba00ef64f..43174a8d9497 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -11995,8 +11995,12 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+ 				   struct kvm_memory_slot *new,
+ 				   enum kvm_mr_change change)
+ {
+-	if (change == KVM_MR_CREATE || change == KVM_MR_MOVE)
++	if (change == KVM_MR_CREATE || change == KVM_MR_MOVE) {
++		if ((new->base_gfn + new->npages - 1) > kvm_mmu_max_gfn())
++			return -EINVAL;
++
+ 		return kvm_alloc_memslot_metadata(kvm, new);
++	}
+ 
+ 	if (change == KVM_MR_FLAGS_ONLY)
+ 		memcpy(&new->arch, &old->arch, sizeof(old->arch));
+
