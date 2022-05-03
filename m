@@ -2,56 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 454DB518360
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 13:38:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54E04518497
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 14:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234543AbiECLlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 07:41:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47058 "EHLO
+        id S235548AbiECMvM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 08:51:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234537AbiECLlt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 07:41:49 -0400
+        with ESMTP id S235553AbiECMvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 08:51:10 -0400
 Received: from pegase2.c-s.fr (pegase2.c-s.fr [93.17.235.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E9734BBD;
-        Tue,  3 May 2022 04:38:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8473337A3C;
+        Tue,  3 May 2022 05:47:37 -0700 (PDT)
 Received: from localhost (mailhub3.si.c-s.fr [172.26.127.67])
-        by localhost (Postfix) with ESMTP id 4KsydL0Bgmz9sSS;
-        Tue,  3 May 2022 13:38:14 +0200 (CEST)
+        by localhost (Postfix) with ESMTP id 4Kt09M6wzyz9sSq;
+        Tue,  3 May 2022 14:47:35 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from pegase2.c-s.fr ([172.26.127.65])
         by localhost (pegase2.c-s.fr [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id zMKZwDGPS9yF; Tue,  3 May 2022 13:38:13 +0200 (CEST)
+        with ESMTP id ejinAxCPstkj; Tue,  3 May 2022 14:47:35 +0200 (CEST)
 Received: from messagerie.si.c-s.fr (messagerie.si.c-s.fr [192.168.25.192])
-        by pegase2.c-s.fr (Postfix) with ESMTP id 4KsydK6QMWz9sSN;
-        Tue,  3 May 2022 13:38:13 +0200 (CEST)
+        by pegase2.c-s.fr (Postfix) with ESMTP id 4Kt09M63lXz9sSn;
+        Tue,  3 May 2022 14:47:35 +0200 (CEST)
 Received: from localhost (localhost [127.0.0.1])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id C779F8B77B;
-        Tue,  3 May 2022 13:38:13 +0200 (CEST)
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id BCFA08B77B;
+        Tue,  3 May 2022 14:47:35 +0200 (CEST)
 X-Virus-Scanned: amavisd-new at c-s.fr
 Received: from messagerie.si.c-s.fr ([127.0.0.1])
         by localhost (messagerie.si.c-s.fr [127.0.0.1]) (amavisd-new, port 10023)
-        with ESMTP id Cpf1zNW_yYlA; Tue,  3 May 2022 13:38:13 +0200 (CEST)
+        with ESMTP id PPSTBfDhbT_i; Tue,  3 May 2022 14:47:35 +0200 (CEST)
 Received: from PO20335.IDSI0.si.c-s.fr (unknown [192.168.202.20])
-        by messagerie.si.c-s.fr (Postfix) with ESMTP id 836788B763;
-        Tue,  3 May 2022 13:38:13 +0200 (CEST)
+        by messagerie.si.c-s.fr (Postfix) with ESMTP id 71D648B763;
+        Tue,  3 May 2022 14:47:35 +0200 (CEST)
 Received: from PO20335.IDSI0.si.c-s.fr (localhost [127.0.0.1])
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 243Bc0Cp233681
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.16.1) with ESMTPS id 243ClKsA260150
         (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-        Tue, 3 May 2022 13:38:00 +0200
+        Tue, 3 May 2022 14:47:20 +0200
 Received: (from chleroy@localhost)
-        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 243Bbxdw233654;
-        Tue, 3 May 2022 13:37:59 +0200
+        by PO20335.IDSI0.si.c-s.fr (8.17.1/8.17.1/Submit) id 243ClJsP260148;
+        Tue, 3 May 2022 14:47:19 +0200
 X-Authentication-Warning: PO20335.IDSI0.si.c-s.fr: chleroy set sender to christophe.leroy@csgroup.eu using -f
 From:   Christophe Leroy <christophe.leroy@csgroup.eu>
 To:     gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        linux-kernel@vger.kernel.org, stable <stable@kernel.org>
-Subject: [PATCH] [Rebased for 5.15] eeprom: at25: Use DMA safe buffers
-Date:   Tue,  3 May 2022 13:37:47 +0200
-Message-Id: <17730b921128e87ffd05957f39664cd257ff5416.1651577811.git.christophe.leroy@csgroup.eu>
+        linux-kernel@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH] [Rebased for 5.4] mm, hugetlb: allow for "high" userspace addresses
+Date:   Tue,  3 May 2022 14:47:11 +0200
+Message-Id: <9367809ff3091ff451f9ab6fc029cef553c758fa.1651581958.git.christophe.leroy@csgroup.eu>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1651577866; l=5865; s=20211009; h=from:subject:message-id; bh=pW8owyfWKdYaDYoFV2R3ky1kZlLDiDTXUaDgUsQJ9d4=; b=Rwkd65lKIzgnII9V1R6jUiCfJiijJp55BHCKZB9Ayd6tfJslQ8R7vr4TmX5bnh5IZrwguQzhvuZI 5Ah9mOaTD/f7LqpB/cW9K058wrKh5xuS/lmgf5eUVgUzRv91PdaT
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1651582029; l=5089; s=20211009; h=from:subject:message-id; bh=ogEzEMBMkC2QXqa8vvpCE+RIFMurxIeQopO0YRX/1m8=; b=3s8YOQ5x6Ii/KDTsS52yKt5YsqtLHjwaSOFwU0sCrRqFZ7RP75/DEfYHa1IyPTgNvLBhB4sBDHsr R340SXK9CgQGwOPujyNH3CN9eFKDrb82aC8HkibpWpBXgVKPiBES
 X-Developer-Key: i=christophe.leroy@csgroup.eu; a=ed25519; pk=HIzTzUj91asvincQGOFx6+ZF5AoUuP9GdOtQChs7Mm0=
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
@@ -63,156 +68,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit 5b47b751b760ee1c74a51660fd096aa148a362cd
+This is backport for linux 5.4
 
-Reading EEPROM fails with following warning:
+commit 5f24d5a579d1eace79d505b148808a850b417d4c upstream.
 
-[   16.357496] ------------[ cut here ]------------
-[   16.357529] fsl_spi b01004c0.spi: rejecting DMA map of vmalloc memory
-[   16.357698] WARNING: CPU: 0 PID: 371 at include/linux/dma-mapping.h:326 fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.357775] CPU: 0 PID: 371 Comm: od Not tainted 5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty #109
-[   16.357806] NIP:  c03fbc9c LR: c03fbc9c CTR: 00000000
-[   16.357825] REGS: e68d9b20 TRAP: 0700   Not tainted  (5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty)
-[   16.357849] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002282  XER: 00000000
-[   16.357931]
-[   16.357931] GPR00: c03fbc9c e68d9be0 c26d06a0 00000039 00000001 c0d36364 c0e96428 00000027
-[   16.357931] GPR08: 00000001 00000000 00000023 3fffc000 24002282 100d3dd6 100a2ffc 00000000
-[   16.357931] GPR16: 100cd280 100b0000 00000000 aff54f7e 100d0000 100d0000 00000001 100cf328
-[   16.357931] GPR24: 100cf328 00000000 00000003 e68d9e30 c156b410 e67ab4c0 e68d9d38 c24ab278
-[   16.358253] NIP [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.358292] LR [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.358325] Call Trace:
-[   16.358336] [e68d9be0] [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8 (unreliable)
-[   16.358388] [e68d9c00] [c03fcb44] fsl_spi_bufs.isra.0+0x94/0x1a0
-[   16.358436] [e68d9c20] [c03fd970] fsl_spi_do_one_msg+0x254/0x3dc
-[   16.358483] [e68d9cb0] [c03f7e50] __spi_pump_messages+0x274/0x8a4
-[   16.358529] [e68d9ce0] [c03f9d30] __spi_sync+0x344/0x378
-[   16.358573] [e68d9d20] [c03fb52c] spi_sync+0x34/0x60
-[   16.358616] [e68d9d30] [c03b4dec] at25_ee_read+0x138/0x1a8
-[   16.358667] [e68d9e50] [c04a8fb8] bin_attr_nvmem_read+0x98/0x110
-[   16.358725] [e68d9e60] [c0204b14] kernfs_fop_read_iter+0xc0/0x1fc
-[   16.358774] [e68d9e80] [c0168660] vfs_read+0x284/0x410
-[   16.358821] [e68d9f00] [c016925c] ksys_read+0x6c/0x11c
-[   16.358863] [e68d9f30] [c00160e0] ret_from_syscall+0x0/0x28
-...
-[   16.359608] ---[ end trace a4ce3e34afef0cb5 ]---
-[   16.359638] fsl_spi b01004c0.spi: unable to map tx dma
+This is a fix for commit f6795053dac8 ("mm: mmap: Allow for "high"
+userspace addresses") for hugetlb.
 
-This is due to the AT25 driver using buffers on stack, which is not
-possible with CONFIG_VMAP_STACK.
+This patch adds support for "high" userspace addresses that are
+optionally supported on the system and have to be requested via a hint
+mechanism ("high" addr parameter to mmap).
 
-As mentionned in kernel Documentation (Documentation/spi/spi-summary.rst):
+Architectures such as powerpc and x86 achieve this by making changes to
+their architectural versions of hugetlb_get_unmapped_area() function.
+However, arm64 uses the generic version of that function.
 
-  - Follow standard kernel rules, and provide DMA-safe buffers in
-    your messages.  That way controller drivers using DMA aren't forced
-    to make extra copies unless the hardware requires it (e.g. working
-    around hardware errata that force the use of bounce buffering).
+So take into account arch_get_mmap_base() and arch_get_mmap_end() in
+hugetlb_get_unmapped_area().  To allow that, move those two macros out
+of mm/mmap.c into include/linux/sched/mm.h
 
-Modify the driver to use a buffer located in the at25 device structure
-which is allocated via kmalloc during probe.
+If these macros are not defined in architectural code then they default
+to (TASK_SIZE) and (base) so should not introduce any behavioural
+changes to architectures that do not define them.
 
-Protect writes in this new buffer with the driver's mutex.
+For the time being, only ARM64 is affected by this change.
 
-Fixes: b587b13a4f67 ("[PATCH] SPI eeprom driver")
-Cc: stable <stable@kernel.org>
+Catalin (ARM64) said
+ "We should have fixed hugetlb_get_unmapped_area() as well when we added
+  support for 52-bit VA. The reason for commit f6795053dac8 was to
+  prevent normal mmap() from returning addresses above 48-bit by default
+  as some user-space had hard assumptions about this.
+
+  It's a slight ABI change if you do this for hugetlb_get_unmapped_area()
+  but I doubt anyone would notice. It's more likely that the current
+  behaviour would cause issues, so I'd rather have them consistent.
+
+  Basically when arm64 gained support for 52-bit addresses we did not
+  want user-space calling mmap() to suddenly get such high addresses,
+  otherwise we could have inadvertently broken some programs (similar
+  behaviour to x86 here). Hence we added commit f6795053dac8. But we
+  missed hugetlbfs which could still get such high mmap() addresses. So
+  in theory that's a potential regression that should have bee addressed
+  at the same time as commit f6795053dac8 (and before arm64 enabled
+  52-bit addresses)"
+
+Link: https://lkml.kernel.org/r/ab847b6edb197bffdfe189e70fb4ac76bfe79e0d.1650033747.git.christophe.leroy@csgroup.eu
+Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
 Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/230a9486fc68ea0182df46255e42a51099403642.1648032613.git.christophe.leroy@csgroup.eu
+Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Steve Capper <steve.capper@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: <stable@vger.kernel.org>	[5.0.x]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/eeprom/at25.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ fs/hugetlbfs/inode.c     | 5 +++--
+ include/linux/sched/mm.h | 8 ++++++++
+ mm/mmap.c                | 8 --------
+ 3 files changed, 11 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-index 9193b812bc07..403243859dce 100644
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -30,6 +30,8 @@
-  */
+diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+index 358398b1fe0c..ca74ae4c0ad3 100644
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -208,6 +208,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	struct vm_area_struct *vma;
+ 	struct hstate *h = hstate_file(file);
+ 	struct vm_unmapped_area_info info;
++	const unsigned long mmap_end = arch_get_mmap_end(addr);
  
- #define	FM25_SN_LEN	8		/* serial number length */
-+#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
-+
- struct at25_data {
- 	struct spi_device	*spi;
- 	struct mutex		lock;
-@@ -38,6 +40,7 @@ struct at25_data {
- 	struct nvmem_config	nvmem_config;
- 	struct nvmem_device	*nvmem;
- 	u8 sernum[FM25_SN_LEN];
-+	u8 command[EE_MAXADDRLEN + 1];
- };
- 
- #define	AT25_WREN	0x06		/* latch the write enable */
-@@ -60,8 +63,6 @@ struct at25_data {
- 
- #define	FM25_ID_LEN	9		/* ID length */
- 
--#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
--
- /* Specs often allow 5 msec for a page write, sometimes 20 msec;
-  * it's important to recover from write timeouts.
-  */
-@@ -76,7 +77,6 @@ static int at25_ee_read(void *priv, unsigned int offset,
- {
- 	struct at25_data *at25 = priv;
- 	char *buf = val;
--	u8			command[EE_MAXADDRLEN + 1];
- 	u8			*cp;
- 	ssize_t			status;
- 	struct spi_transfer	t[2];
-@@ -90,12 +90,15 @@ static int at25_ee_read(void *priv, unsigned int offset,
- 	if (unlikely(!count))
+ 	if (len & ~huge_page_mask(h))
  		return -EINVAL;
+@@ -223,7 +224,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	if (addr) {
+ 		addr = ALIGN(addr, huge_page_size(h));
+ 		vma = find_vma(mm, addr);
+-		if (TASK_SIZE - len >= addr &&
++		if (mmap_end - len >= addr &&
+ 		    (!vma || addr + len <= vm_start_gap(vma)))
+ 			return addr;
+ 	}
+@@ -231,7 +232,7 @@ hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
+ 	info.flags = 0;
+ 	info.length = len;
+ 	info.low_limit = TASK_UNMAPPED_BASE;
+-	info.high_limit = TASK_SIZE;
++	info.high_limit = arch_get_mmap_end(addr);
+ 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
+ 	info.align_offset = 0;
+ 	return vm_unmapped_area(&info);
+diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+index 3a1d899019af..ab0da04ac9ee 100644
+--- a/include/linux/sched/mm.h
++++ b/include/linux/sched/mm.h
+@@ -133,6 +133,14 @@ static inline void mm_update_next_owner(struct mm_struct *mm)
+ #endif /* CONFIG_MEMCG */
  
--	cp = command;
-+	cp = at25->command;
- 
- 	instr = AT25_READ;
- 	if (at25->chip.flags & EE_INSTR_BIT3_IS_ADDR)
- 		if (offset >= (1U << (at25->addrlen * 8)))
- 			instr |= AT25_INSTR_BIT3;
+ #ifdef CONFIG_MMU
++#ifndef arch_get_mmap_end
++#define arch_get_mmap_end(addr)	(TASK_SIZE)
++#endif
 +
-+	mutex_lock(&at25->lock);
++#ifndef arch_get_mmap_base
++#define arch_get_mmap_base(addr, base) (base)
++#endif
 +
- 	*cp++ = instr;
+ extern void arch_pick_mmap_layout(struct mm_struct *mm,
+ 				  struct rlimit *rlim_stack);
+ extern unsigned long
+diff --git a/mm/mmap.c b/mm/mmap.c
+index ba78f1f1b1bd..d69a50a541f8 100644
+--- a/mm/mmap.c
++++ b/mm/mmap.c
+@@ -2077,14 +2077,6 @@ unsigned long unmapped_area_topdown(struct vm_unmapped_area_info *info)
+ }
  
- 	/* 8/16/24-bit address is written MSB first */
-@@ -114,7 +117,7 @@ static int at25_ee_read(void *priv, unsigned int offset,
- 	spi_message_init(&m);
- 	memset(t, 0, sizeof(t));
  
--	t[0].tx_buf = command;
-+	t[0].tx_buf = at25->command;
- 	t[0].len = at25->addrlen + 1;
- 	spi_message_add_tail(&t[0], &m);
- 
-@@ -122,8 +125,6 @@ static int at25_ee_read(void *priv, unsigned int offset,
- 	t[1].len = count;
- 	spi_message_add_tail(&t[1], &m);
- 
--	mutex_lock(&at25->lock);
+-#ifndef arch_get_mmap_end
+-#define arch_get_mmap_end(addr)	(TASK_SIZE)
+-#endif
 -
- 	/* Read it all at once.
- 	 *
- 	 * REVISIT that's potentially a problem with large chips, if
-@@ -151,7 +152,7 @@ static int fm25_aux_read(struct at25_data *at25, u8 *buf, uint8_t command,
- 	spi_message_init(&m);
- 	memset(t, 0, sizeof(t));
- 
--	t[0].tx_buf = &command;
-+	t[0].tx_buf = at25->command;
- 	t[0].len = 1;
- 	spi_message_add_tail(&t[0], &m);
- 
-@@ -161,6 +162,8 @@ static int fm25_aux_read(struct at25_data *at25, u8 *buf, uint8_t command,
- 
- 	mutex_lock(&at25->lock);
- 
-+	at25->command[0] = command;
-+
- 	status = spi_sync(at25->spi, &m);
- 	dev_dbg(&at25->spi->dev, "read %d aux bytes --> %d\n", len, status);
- 
+-#ifndef arch_get_mmap_base
+-#define arch_get_mmap_base(addr, base) (base)
+-#endif
+-
+ /* Get an address range which is currently unmapped.
+  * For shmat() with addr=0.
+  *
 -- 
 2.35.1
 
