@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6C645185BE
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:40:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB125185BF
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236291AbiECNoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236294AbiECNoO (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 3 May 2022 09:44:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236296AbiECNoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:44:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 221D81115A
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:40:40 -0700 (PDT)
+        with ESMTP id S236304AbiECNoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:44:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5014E1573B
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7CC0B81EC8
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:40:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53D32C385AF;
-        Tue,  3 May 2022 13:40:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D36D3B81ECE
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5532AC385B1;
+        Tue,  3 May 2022 13:40:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651585237;
-        bh=y55VSxSlk0aSXaZix1dKEEZNb/qSpYjCh4UGtR8nj/Q=;
+        s=korg; t=1651585238;
+        bh=QtpJkKa7NLcGdw2uUJWv0eBNSpJdMth8PnmnBW70qng=;
         h=Subject:To:Cc:From:Date:From;
-        b=K3O7aTEtdpZ+iCZyB+oxDdCpk+xP4AXyeBhPht+Kwru+/uEbL8y77LmXP8z/60qMa
-         ZHAZPww3slY/YA+U8bpr9mHH41HnB6cDCb8wcqxB2KR7/bF2s+yBv/mKYgwxtPMHXz
-         AvpSM6cofTUNtFWN+DQkWcaGoU/EIJWKklnYFPaM=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix invalid use of MSC in advanced option" failed to apply to 4.19-stable tree
+        b=k7AlKzooz3LPfzDCNRH9ENSbKmVDwjSeGnTvvyDEshWCViY+JgluSaA1x7inoh/D+
+         9G704C9WbcdFhEa7t851Ao6pLe76RAxyxjwkGQmOUUou2kGXGtXV4J0nLELiWg+T0R
+         Km2Tk63TPASqylCeaZYZhkVSiBhJxQGAcSPk7nl0=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix invalid use of MSC in advanced option" failed to apply to 4.9-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 15:40:34 +0200
-Message-ID: <16515852344664@kroah.com>
+Date:   Tue, 03 May 2022 15:40:35 +0200
+Message-ID: <165158523523414@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
