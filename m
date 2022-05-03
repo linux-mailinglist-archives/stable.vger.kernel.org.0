@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 640025189F4
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0FC5189F6
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:30:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239613AbiECQde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 12:33:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46844 "EHLO
+        id S232835AbiECQdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 12:33:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239604AbiECQde (ORCPT
+        with ESMTP id S239598AbiECQde (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:33:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48FA93CFDA
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 09:30:01 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0499E3CFE8
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 09:30:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEC15B81F52
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 16:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95BFBC385A4;
-        Tue,  3 May 2022 16:29:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9489D61735
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 16:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB1EC385A9;
+        Tue,  3 May 2022 16:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651595398;
-        bh=nGAGBee0gcrU7H9o12WYfuX+1yfHMguQB3wKkQpqxx4=;
+        s=korg; t=1651595401;
+        bh=KnEtZcpWAEKf8t1KDeLbzT0tgHFNQ/5M1G4Tfp2XfRM=;
         h=Subject:To:Cc:From:Date:From;
-        b=jn3XXceT8pMrUZVQq8iuTNdOobVjz3V/ujoyr6dc/XBslngfIg+6OWZ6ZzOsvSp1F
-         fzHRIKSJ5gXsQgQ1JzAnbRNXXKfBTRP4DP6NHB5XptRq+gYI8g+CL80ciu2/ARawx3
-         cFT3yVEY5iG51S1S7/SLk6HqMEyZl5BV4WWLHEYk=
-Subject: FAILED: patch "[PATCH] objtool: Fix type of reloc::addend" failed to apply to 4.19-stable tree
+        b=ES1w7p82zUxLDLdXU7ihH24ZfLbGt+/AYxvZelzc7zZ9GeJJc0rwy+c3O2va+1trb
+         Wmb/4f2dbroHhiahHPc3W/EI6HzhwFGEDMiyRJIWMOMeE7iVFbkJDp/rPVzP3yemy5
+         9O1wZ0RiJrqc+GFKX+kolSGyB5IqAbZBz5rOtz3k=
+Subject: FAILED: patch "[PATCH] objtool: Fix type of reloc::addend" failed to apply to 4.14-stable tree
 To:     peterz@infradead.org, jpoimboe@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 18:29:56 +0200
-Message-ID: <165159539615133@kroah.com>
+Date:   Tue, 03 May 2022 18:29:57 +0200
+Message-ID: <165159539722040@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
