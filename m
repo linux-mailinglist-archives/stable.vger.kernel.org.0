@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 741C3518EE2
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 22:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0BB518F0B
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 22:38:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233418AbiECUjX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 16:39:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47224 "EHLO
+        id S234410AbiECUlY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 16:41:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230391AbiECUjW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 16:39:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 0E71822511
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:35:48 -0700 (PDT)
+        with ESMTP id S230391AbiECUlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 16:41:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AFB8722511
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:37:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651610148;
+        s=mimecast20190719; t=1651610268;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-        bh=9WL0f505i8Pp1YtLZ1Tq4Pg7kENHqa7dCqxxwEudp7o=;
-        b=ZziI5oS0FfB9NsNccZXHkoQ15g3sOpCbMwWzcgkDBQbKA8OwY3v61dLbcFV//Pv01W7Cqg
-        0J7M8F37g1UrqUKJxuWnyf9V5V5VJcv8zDeTWdBTuQOb4tgN0SQj6BBtEs/xCahzdrgUr4
-        /Q8xC9szwTyZnJl2BIKU/pQWk4e2ayQ=
+        bh=NsLNAM8p1zbNymJVXW/N1RfIhmN1FizvTgfEAqRjhHA=;
+        b=TtiQVqVj0/NyrDohB7tv4mIBh8oIUUqXMrOajjgnragQhUPxIV1rzoeqF35DvcpJ67+MfP
+        YpblUR20bHuq6bwUOZV6V+kGHE0iStCS4W+2NYZuVVO54UljECv6ZVxwLwkhZHs7+iS28J
+        cklj7Z/cyeMP2HYFEC1RPjgMZqNqrbI=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-114-wpgLQa1GOV2RdNpNCMvw_Q-1; Tue, 03 May 2022 16:35:46 -0400
-X-MC-Unique: wpgLQa1GOV2RdNpNCMvw_Q-1
+ us-mta-319-9j9TrYmxNxaa0ZTX0aXAhw-1; Tue, 03 May 2022 16:37:46 -0400
+X-MC-Unique: 9j9TrYmxNxaa0ZTX0aXAhw-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F2E2B8D9A2D;
-        Tue,  3 May 2022 20:35:45 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 05F1210187E0;
+        Tue,  3 May 2022 20:37:46 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id EB3EF54CAF3;
-        Tue,  3 May 2022 20:35:45 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F31AC551E99;
+        Tue,  3 May 2022 20:37:45 +0000 (UTC)
 Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 243KZjRr011586;
-        Tue, 3 May 2022 16:35:45 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 243Kbjv6011673;
+        Tue, 3 May 2022 16:37:45 -0400
 Received: from localhost (mpatocka@localhost)
-        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 243KZj6w011582;
-        Tue, 3 May 2022 16:35:45 -0400
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 243Kbjx4011669;
+        Tue, 3 May 2022 16:37:45 -0400
 X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
-Date:   Tue, 3 May 2022 16:35:44 -0400 (EDT)
+Date:   Tue, 3 May 2022 16:37:45 -0400 (EDT)
 From:   Mikulas Patocka <mpatocka@redhat.com>
 X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 cc:     Mike Snitzer <msnitzer@redhat.com>, dm-devel@redhat.com,
         stable@vger.kernel.org
-Subject: [PATCH v4.9] dm: interlock pending dm_io and
+Subject: [PATCH v4.14] dm: interlock pending dm_io and
  dm_wait_for_bios_completion
-Message-ID: <alpine.LRH.2.02.2205031634520.11434@file01.intranet.prod.int.rdu2.redhat.com>
+Message-ID: <alpine.LRH.2.02.2205031635530.11434@file01.intranet.prod.int.rdu2.redhat.com>
 User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
@@ -66,12 +66,12 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 This is backport of the patch 9f6dc6337610 ("dm: interlock pending dm_io
-and dm_wait_for_bios_completion") for the kernel 4.9.
+and dm_wait_for_bios_completion") for the kernel 4.14.
 
 The bugs fixed by this patch can cause random crashing when reloading dm
 table, so it is eligible for stable backport.
 
-Note that the kernel 4.9 uses md->pending to count the number of
+Note that the kernel 4.14 uses md->pending to count the number of
 in-progress I/Os and md->pending is decremented after dm_stats_account_io,
 so the race condition doesn't really exist there (except for missing
 smp_rmb()).
@@ -88,9 +88,9 @@ Reviewed-by: Mike Snitzer <snitzer@kernel.org>
 
 Index: linux-stable/drivers/md/dm.c
 ===================================================================
---- linux-stable.orig/drivers/md/dm.c	2022-04-30 19:03:08.000000000 +0200
-+++ linux-stable/drivers/md/dm.c	2022-04-30 19:03:46.000000000 +0200
-@@ -2027,6 +2027,8 @@ static int dm_wait_for_completion(struct
+--- linux-stable.orig/drivers/md/dm.c	2022-04-30 19:16:55.000000000 +0200
++++ linux-stable/drivers/md/dm.c	2022-04-30 19:16:55.000000000 +0200
+@@ -2230,6 +2230,8 @@ static int dm_wait_for_completion(struct
  	}
  	finish_wait(&md->wait, &wait);
  
