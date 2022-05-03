@@ -2,56 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4678251903A
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 23:36:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAF5519079
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 23:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242923AbiECVhj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 17:37:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51158 "EHLO
+        id S243085AbiECVq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 17:46:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbiECVhi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 17:37:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A5F2F03B
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 14:34:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 476F0B82176
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 21:34:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A6D8C385A9;
-        Tue,  3 May 2022 21:34:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651613643;
-        bh=sN5FuOKqNd0XV4Nh0Le7UJ1EWbfgNf8PwkVQcOXZWhs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UthkOEc1attrGYiLizI9QSas2cCXLo7yZKned3biguUWuJRbxF1UJAb1M0AB/oB96
-         oOqiC2gU3Z1QbmwaCryFRRu+N75sf8rXMHZwpX4ERf8BzySnhmAqT0H1T3Q4+bdHHd
-         BYnUTfRZo4AmkynYUPOoQKhVkKcbKzpNuqYY22oUi5se3h5vjdVVuP5H9mUw+tlJ4Y
-         /lGjw4U6k3pkZbiyjpWGpJer+YqLEytyPVVVGsOoYsaxXAvVCBgbgTAEFuHPEJkRZT
-         b90rgGc4M27RTavZC2c7gX9XQoAIhMDQrJd7MkzCX17xUM0i6ReFiigo4MWSe11BKu
-         XGY9sw/PZHEJA==
-Date:   Tue, 3 May 2022 14:34:00 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>, Paul Menzel <pmenzel@molgen.mpg.de>,
-        stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        llvm@lists.linux.dev
-Subject: Re: Apply d799769188529abc6cbf035a10087a51f7832b6b to 5.17 and 5.15?
-Message-ID: <YnGfyLAkB3NG+Ms2@dev-arch.thelio-3990X>
-References: <Yl8pNxSGUgeHZ1FT@dev-arch.thelio-3990X>
- <877d7ig9oz.fsf@mpe.ellerman.id.au>
- <YmF0iajmlAg6Kj9I@dev-fedora.thelio-3990X>
+        with ESMTP id S243073AbiECVq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 17:46:57 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B6742CE08
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 14:43:23 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id d5so25021035wrb.6
+        for <stable@vger.kernel.org>; Tue, 03 May 2022 14:43:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=6wind.com; s=google;
+        h=message-id:date:mime-version:user-agent:reply-to:subject
+         :content-language:to:cc:references:from:organization:in-reply-to
+         :content-transfer-encoding;
+        bh=uy5Fap5RR/WBKFIkuBoAooqirYv43B4rsOc7Wy6ONxo=;
+        b=FwhHFbHH7CeB5CqxLA3bblkThOeyd9b+Oz4OxpRzpnCL36rp2yVff4gUv430blZdUK
+         meKx7UGEq7F/638J9PUYfGYXbYvbj4REBXX4saK+ZcBWeeK/M4hXn90YFaFYQZhxNBb+
+         M7DBtMBl58ibxtSUC/zIaX8ZYfJ4XSqzJd0lQRHENpLF3juW14+FNI2WTKe59abH8x2E
+         0DeukS7xuJky3hhRI28yA4prP3u+Ud6QgoN8eiKAGXbwLSxkhGcWH7pHcYbgZwQ4ntnS
+         3TpHgl09zPwA6gOOi4fKiqSDyWudB91MnM9PNME8r4NUvJKyJ7qeIaejS1H1oyf7uEgi
+         Djjw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:reply-to
+         :subject:content-language:to:cc:references:from:organization
+         :in-reply-to:content-transfer-encoding;
+        bh=uy5Fap5RR/WBKFIkuBoAooqirYv43B4rsOc7Wy6ONxo=;
+        b=5qn+wGcqPYtyagZOSvMJtlYyH+NosiOpthosvRijOWV8WlVwYowy1cjUPCtF9iU6b8
+         2ZMg+KcgzyJ03qvSIMWhLLkVNySA14WieEXVEn+3/pVuI7l6OgtLQ3vOibln2mc/FONV
+         N2okGKKca35gIvzzLYrlLWdf0AQuhfhYPPFbYsVVzwlPfJKomktfyiaubbUybDgCTtJK
+         Ea+BAXmpm2gydSpp3UayBR4DVcmqeObDPg00jFGvsVlojRCxFp3zI8xtDIME9aaFR3TW
+         Py6iINiess8ZDePwQXd3Ib9Wr32GISYQFG5TvEVlVQ4gfVsYPzQdeAVstcjyd0BElwh0
+         mHzQ==
+X-Gm-Message-State: AOAM531UFa9hdUYmE17vylwVEGMMjPJOTxwIKecxk+pGUmutb2xf5cvJ
+        4T46CCFPwmK7u5oxAbXejvtYdQ==
+X-Google-Smtp-Source: ABdhPJw5h1HjZ97You/3QSKl8KV/2f6gAxaDhOWZXi3Gr/syDFy2JPR69V8btFcDNn1ftkWX9ox9yg==
+X-Received: by 2002:adf:f8cf:0:b0:20a:dfae:aadd with SMTP id f15-20020adff8cf000000b0020adfaeaaddmr14323214wrq.429.1651614201673;
+        Tue, 03 May 2022 14:43:21 -0700 (PDT)
+Received: from ?IPV6:2a01:e0a:b41:c160:6419:6a6e:706d:bb0d? ([2a01:e0a:b41:c160:6419:6a6e:706d:bb0d])
+        by smtp.gmail.com with ESMTPSA id f11-20020adfc98b000000b0020c5253d910sm10972495wrh.92.2022.05.03.14.43.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 May 2022 14:43:20 -0700 (PDT)
+Message-ID: <86fce02b-7485-ebfa-b4ba-da9ebf7a11b7@6wind.com>
+Date:   Tue, 3 May 2022 23:43:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YmF0iajmlAg6Kj9I@dev-fedora.thelio-3990X>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Reply-To: nicolas.dichtel@6wind.com
+Subject: Re: [PATCH net v2] ping: fix address binding wrt vrf
+Content-Language: en-US
+To:     David Ahern <dsahern@kernel.org>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org
+References: <20220429075659.9967-1-nicolas.dichtel@6wind.com>
+ <20220429082021.10294-1-nicolas.dichtel@6wind.com>
+ <1238b102-f491-a917-3708-0df344015a5b@kernel.org>
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Organization: 6WIND
+In-Reply-To: <1238b102-f491-a917-3708-0df344015a5b@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,42 +81,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Apr 21, 2022 at 08:13:13AM -0700, Nathan Chancellor wrote:
-> On Thu, Apr 21, 2022 at 05:46:52PM +1000, Michael Ellerman wrote:
-> > Nathan Chancellor <nathan@kernel.org> writes:
-> > > Hi Greg, Sasha, and Michael,
-> > >
-> > > Commit d79976918852 ("powerpc/64: Add UADDR64 relocation support") fixes
-> > > a boot failure with CONFIG_RELOCATABLE=y kernels linked with recent
-> > > versions of ld.lld [1]. Additionally, it resolves a separate boot
-> > > failure that Paul Menzel reported [2] with ld.lld 13.0.0. Is this a
-> > > reasonable backport for 5.17 and 5.15? It applies cleanly, resolves both
-> > > problems, and does not appear to cause any other issues in my testing
-> > > for both trees but I was curious what Michael's opinion was, as I am far
-> > > from a PowerPC expert.
-> > >
-> > > This change does apply cleanly to 5.10 (I did not try earlier branches)
-> > > but there are other changes needed for ld.lld to link CONFIG_RELOCATABLE
-> > > kernels in that branch so to avoid any regressions, I think it is safe
-> > > to just focus on 5.15 and 5.17.
-> > 
-> > I considered tagging it for stable, but I wanted it to get a bit of
-> > testing first, it's a reasonably big patch.
-> > 
-> > I think we're reasonably confident it doesn't introduce any new bugs,
-> > but more testing time is always good.
-> > 
-> > So I guess I'd be inclined to wait another week or so before requesting
-> > a stable backport?
+Le 29/04/2022 à 16:31, David Ahern a écrit :
+> On 4/29/22 2:20 AM, Nicolas Dichtel wrote:
+>> When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
+>> instead of an IP raw socket. In this case, 'ping' is unable to bind its
+>> socket to a local address owned by a vrflite.
+>>
+>> Before the patch:
+>> $ sysctl -w net.ipv4.ping_group_range='0  2147483647'
+>> $ ip link add blue type vrf table 10
+>> $ ip link add foo type dummy
+>> $ ip link set foo master blue
+>> $ ip link set foo up
+>> $ ip addr add 192.168.1.1/24 dev foo
+>> $ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
+>> ping: bind: Cannot assign requested address
+>>
+>> CC: stable@vger.kernel.org
+>> Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
+>> Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+>> ---
+>>
+>> v1 -> v2:
+>>  add the tag "Cc: stable@vger.kernel.org" for correct stable submission
+>>
+>>  net/ipv4/ping.c | 4 +++-
+>>  1 file changed, 3 insertions(+), 1 deletion(-)
+>>
 > 
-> Sure, thanks for the response! I'll ping this thread on Monday, May 2nd,
-> so that we have two more RC releases to try and flush out any lingering
-> issues. If you do receive any reports of regressions, please let me
-> know.
+> please add a test case to fcnal-test.sh. Does ipv6 work ok?
+Indeed, ipv6 is missing.
 
-I decided to wait an extra day just to give people the opportunity to
-install -rc5 and run it through their tests. I have not heard of any
-reports yet, are there any further objections?
+I will add some test cases.
+Modifying the sysctl before the vrf tests produce a lot of failures:
 
-Cheers,
-Nathan
+With VRF
+
+SYSCTL: net.ipv4.raw_l3mdev_accept=1
+
+SYSCTL: net.ipv4.ping_group_range=0 2147483647
+
+TEST: ping out, VRF bind - ns-B IP                                        [ OK ]
+TEST: ping out, device bind - ns-B IP                                     [FAIL]
+TEST: ping out, vrf device + dev address bind - ns-B IP                   [FAIL]
+TEST: ping out, vrf device + dev address bind - ns-B IP                   [FAIL]
+TEST: ping out, vrf device + vrf address bind - ns-B IP                   [FAIL]
+TEST: ping out, VRF bind - ns-B loopback IP                               [ OK ]
+TEST: ping out, device bind - ns-B loopback IP                            [FAIL]
+TEST: ping out, vrf device + dev address bind - ns-B loopback IP          [FAIL]
+TEST: ping out, vrf device + dev address bind - ns-B loopback IP          [FAIL]
+TEST: ping out, vrf device + vrf address bind - ns-B loopback IP          [FAIL]
+
+
+Regards,
+Nicolas
+
+
