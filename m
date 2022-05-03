@@ -2,189 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B07C518AE7
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 19:19:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A08518BA9
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 19:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234201AbiECRWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 13:22:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37180 "EHLO
+        id S240832AbiECSB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 14:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232716AbiECRWc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 13:22:32 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8F422BEF;
-        Tue,  3 May 2022 10:18:55 -0700 (PDT)
-X-UUID: ce9a7978bb5e4c5490f9d6ec351fac8e-20220504
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.4,REQID:6ad70994-0b93-4c29-b97c-0c2157893154,OB:0,LO
-        B:0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACTI
-        ON:release,TS:0
-X-CID-META: VersionHash:faefae9,CLOUDID:ff1c912f-6199-437e-8ab4-9920b4bc5b76,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,File:nil,QS:0,BEC:nil
-X-UUID: ce9a7978bb5e4c5490f9d6ec351fac8e-20220504
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 16904984; Wed, 04 May 2022 01:18:50 +0800
-Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Wed, 4 May 2022 01:18:48 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
- mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.792.3 via Frontend Transport; Wed, 4 May 2022 01:18:48 +0800
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     <yf.wang@mediatek.com>
-CC:     <Libo.Kang@mediatek.com>, <Yong.Wu@mediatek.com>,
-        <iommu@lists.linux-foundation.org>, <isaacm@codeaurora.org>,
-        <joro@8bytes.org>, <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <matthias.bgg@gmail.com>,
-        <ning.li@mediatek.com>, <quic_c_gdjako@quicinc.com>,
-        <robin.murphy@arm.com>, <stable@vger.kernel.org>,
-        <sven@svenpeter.dev>, <will@kernel.org>,
-        <wsd_upstream@mediatek.com>
-Subject: Re: [PATCH 1/2] iommu/io-pgtable-arm-v7s: Add a quirk to support TTBR up to 35bit for MediaTek
-Date:   Wed, 4 May 2022 01:18:48 +0800
-Message-ID: <20220503171848.24992-1-miles.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220429143411.7640-2-yf.wang@mediatek.com>
-References: <20220429143411.7640-2-yf.wang@mediatek.com>
+        with ESMTP id S235852AbiECSBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 14:01:55 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A303E0C1
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 10:58:22 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id p7-20020a05600c358700b00393e80c59daso1628509wmq.0
+        for <stable@vger.kernel.org>; Tue, 03 May 2022 10:58:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=dOYR8QjdZgATKA6UBwH/KUtW42G01p9yge1qLJhO4VA=;
+        b=2G4ca3indE4WVUVZdzi1VwxN9ZXpEdj5iSjR/bW/Dk3GfDHM6VgMlBgr+bujomwANF
+         kaKEfiYYAdltxC4uzNsDflai41bm6ZSPjKfHsDRKMWJP/Ojc+g+rKwKOApmxcPaoaEBj
+         inBaFX4IGDZUoBbPy586HuAusgYgd2YX+gilB2uEqqt9CXWegaQYPexUVpCXTP7BPPFW
+         glYqlwpXQ3Q1IzV2JPZFOUT2M9morEg49dRWcHLmXrzx9QP+kqLqJwSZNBgAk/ezbIfk
+         rJGb3h8GNM3oQBEampVRVimcWQ+a8WzM/PTU5eR0zIVm03JCPkuwoSjLB1XKF7LoIzKv
+         YRCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dOYR8QjdZgATKA6UBwH/KUtW42G01p9yge1qLJhO4VA=;
+        b=A9pdFbgMhUNcv0SskKrWM0T08Z9YdFzTrCXm0EWMZG+suO4MG6ur4sCKr6Ko5RU49r
+         NuUMZBEVL2MvA+r1PqnQmcEpEEjxWetGQ5i371zfVTmzllBQxJScIrx3PuDcGWtt9DOj
+         OdB8udBViYCG3I45HtvtKwtRFT9ZQsBF5Y6zFwf13U/TaF61k4yAjoLphadBN4bE7c/C
+         UafMSWVhs1cqa7eQxkjj2TfBRf1ul0TiDjIkzIzij/sMT/XSWJtAXrcBnwyNkB26LsvC
+         e5uNKcoqj1EjXZv+X+/PHk5xcijWZNaiXJnYYigJOILSVk85FurNP/v4bWuYTu90uQXb
+         M68Q==
+X-Gm-Message-State: AOAM530mF+dVUAIPARfeIFBcOjDb3r1ss/qsNELHVg66YD3ZBVuV+X/6
+        OQf2Mnmf1CUzu7jcM+ntFNnn8/DB24tDVTfI/aat
+X-Google-Smtp-Source: ABdhPJwE/egX1BtaNhyp1zi5fvfjg5Q6CYvdmpsadJqS5649ep2o3+2q0v7+JSpbmZLPSy+ow9mN23UBI9y9YrgvbkU=
+X-Received: by 2002:a7b:cf02:0:b0:393:fbb0:7189 with SMTP id
+ l2-20020a7bcf02000000b00393fbb07189mr4247165wmg.197.1651600700690; Tue, 03
+ May 2022 10:58:20 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220502004952.3970800-1-tweek@google.com>
+In-Reply-To: <20220502004952.3970800-1-tweek@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 3 May 2022 13:58:09 -0400
+Message-ID: <CAHC9VhQJ1xH4iwSXFdQnCobJMv5Kniam3XWG8-UL=VcmdFwEcg@mail.gmail.com>
+Subject: Re: [PATCH v4] firmware_loader: use kernel credentials when reading firmware
+To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc:     Luis Chamberlain <mcgrof@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Qian Cai <quic_qiancai@quicinc.com>,
+        John Stultz <jstultz@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Alistair Delva <adelva@google.com>,
+        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi YF,
-
-> The calling to kmem_cache_alloc for level 2 page table allocation may
-> run in atomic context, and it fails sometimes when DMA32 zone runs out
-> of memory.
-> 
-> Since Mediatek IOMMU hardware support at most 35bit PA in page table,
-
-s/Mediatek/MediaTek/
-s/support/supports/
-
-> so add a quirk to allow the PA of level 2 pgtable support bit35.
-
-35bits PA, right?
-
+On Sun, May 1, 2022 at 8:50 PM Thi=C3=A9baud Weksteen <tweek@google.com> wr=
+ote:
 >
-> 
+> Device drivers may decide to not load firmware when probed to avoid
+> slowing down the boot process should the firmware filesystem not be
+> available yet. In this case, the firmware loading request may be done
+> when a device file associated with the driver is first accessed. The
+> credentials of the userspace process accessing the device file may be
+> used to validate access to the firmware files requested by the driver.
+> Ensure that the kernel assumes the responsibility of reading the
+> firmware.
+>
+> This was observed on Android for a graphic driver loading their firmware
+> when the device file (e.g. /dev/mali0) was first opened by userspace
+> (i.e. surfaceflinger). The security context of surfaceflinger was used
+> to validate the access to the firmware file (e.g.
+> /vendor/firmware/mali.bin).
+>
+> Previously, Android configurations were not setting up the
+> firmware_class.path command line argument and were relying on the
+> userspace fallback mechanism. In this case, the security context of the
+> userspace daemon (i.e. ueventd) was consistently used to read firmware
+> files. More Android devices are now found to set firmware_class.path
+> which gives the kernel the opportunity to read the firmware directly
+> (via kernel_read_file_from_path_initns). In this scenario, the current
+> process credentials were used, even if unrelated to the loading of the
+> firmware file.
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Cc: <stable@vger.kernel.org> # 5.10
+> ---
+> v4: Add stable to Cc
+> v3:
+>         - Add call to put_cred to avoid a memory leak. Confirmed that no =
+new
+>                 memory leak occurs on a Pixel 4a.
+>         - Update commit log.
+> v2: Add comment
+>
+>  drivers/base/firmware_loader/main.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 
-...snip...
+Reviewed-by: Paul Moore <paul@paul-moore.com>
 
->  
->  	phys = virt_to_phys(table);
-> -	if (phys != (arm_v7s_iopte)phys) {
-> +	if (phys != (arm_v7s_iopte)phys &&
-> +	    !(cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT)) {
-
-I have one question while reading this.
-
-If IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT is set, it means that the phys can be up to 35 bits.
-In aarch64, kmalloc() could return up to 52 bits PA (e.g., ARM64_PA_BITS_52=y)
-
-How do we guarantee that phys is safe (<= 35 bits) in this case?
-For example:
-When IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT is set, the platform guarantees its PAs are at most
-35 bits?
-
-
-Thanks,
-Miles
->  		/* Doesn't fit in PTE */
->  		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
->  		goto out_free;
-> @@ -457,9 +464,14 @@ static arm_v7s_iopte arm_v7s_install_table(arm_v7s_iopte *table,
->  					   arm_v7s_iopte curr,
->  					   struct io_pgtable_cfg *cfg)
->  {
-> +	phys_addr_t phys = virt_to_phys(table);
->  	arm_v7s_iopte old, new;
->  
-> -	new = virt_to_phys(table) | ARM_V7S_PTE_TYPE_TABLE;
-> +	new = phys | ARM_V7S_PTE_TYPE_TABLE;
-> +
-> +	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT)
-> +		new = to_iopte_mtk(phys, new, cfg);
-> +
->  	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_NS)
->  		new |= ARM_V7S_ATTR_NS_TABLE;
->  
-> @@ -778,6 +790,7 @@ static phys_addr_t arm_v7s_iova_to_phys(struct io_pgtable_ops *ops,
->  static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
->  						void *cookie)
->  {
-> +	slab_flags_t slab_flag = ARM_V7S_TABLE_SLAB_FLAGS;
->  	struct arm_v7s_io_pgtable *data;
->  
->  	if (cfg->ias > (arm_v7s_is_mtk_enabled(cfg) ? 34 : ARM_V7S_ADDR_BITS))
-> @@ -788,7 +801,8 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
->  
->  	if (cfg->quirks & ~(IO_PGTABLE_QUIRK_ARM_NS |
->  			    IO_PGTABLE_QUIRK_NO_PERMS |
-> -			    IO_PGTABLE_QUIRK_ARM_MTK_EXT))
-> +			    IO_PGTABLE_QUIRK_ARM_MTK_EXT |
-> +			    IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT))
->  		return NULL;
->  
->  	/* If ARM_MTK_4GB is enabled, the NO_PERMS is also expected. */
-> @@ -801,10 +815,12 @@ static struct io_pgtable *arm_v7s_alloc_pgtable(struct io_pgtable_cfg *cfg,
->  		return NULL;
->  
->  	spin_lock_init(&data->split_lock);
-> +	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT)
-> +		slab_flag = 0;
->  	data->l2_tables = kmem_cache_create("io-pgtable_armv7s_l2",
->  					    ARM_V7S_TABLE_SIZE(2, cfg),
->  					    ARM_V7S_TABLE_SIZE(2, cfg),
-> -					    ARM_V7S_TABLE_SLAB_FLAGS, NULL);
-> +					    slab_flag, NULL);
->  	if (!data->l2_tables)
->  		goto out_free_data;
->  
-> diff --git a/include/linux/io-pgtable.h b/include/linux/io-pgtable.h
-> index 86af6f0a00a2..7ed15ad4710c 100644
-> --- a/include/linux/io-pgtable.h
-> +++ b/include/linux/io-pgtable.h
-> @@ -74,17 +74,22 @@ struct io_pgtable_cfg {
->  	 *	to support up to 35 bits PA where the bit32, bit33 and bit34 are
->  	 *	encoded in the bit9, bit4 and bit5 of the PTE respectively.
->  	 *
-> +	 * IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT: (ARM v7s format) MediaTek IOMMUs
-> +	 *	extend the translation table support up to 35 bits PA, the
-> +	 *	encoding format is same with IO_PGTABLE_QUIRK_ARM_MTK_EXT.
-> +	 *
->  	 * IO_PGTABLE_QUIRK_ARM_TTBR1: (ARM LPAE format) Configure the table
->  	 *	for use in the upper half of a split address space.
->  	 *
->  	 * IO_PGTABLE_QUIRK_ARM_OUTER_WBWA: Override the outer-cacheability
->  	 *	attributes set in the TCR for a non-coherent page-table walker.
->  	 */
-> -	#define IO_PGTABLE_QUIRK_ARM_NS		BIT(0)
-> -	#define IO_PGTABLE_QUIRK_NO_PERMS	BIT(1)
-> -	#define IO_PGTABLE_QUIRK_ARM_MTK_EXT	BIT(3)
-> -	#define IO_PGTABLE_QUIRK_ARM_TTBR1	BIT(5)
-> -	#define IO_PGTABLE_QUIRK_ARM_OUTER_WBWA	BIT(6)
-> +	#define IO_PGTABLE_QUIRK_ARM_NS			BIT(0)
-> +	#define IO_PGTABLE_QUIRK_NO_PERMS		BIT(1)
-> +	#define IO_PGTABLE_QUIRK_ARM_MTK_EXT		BIT(3)
-> +	#define IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT	BIT(4)
-> +	#define IO_PGTABLE_QUIRK_ARM_TTBR1		BIT(5)
-> +	#define IO_PGTABLE_QUIRK_ARM_OUTER_WBWA		BIT(6)
->  	unsigned long			quirks;
->  	unsigned long			pgsize_bitmap;
->  	unsigned int			ias;
-> -- 
-> 2.18.0
-> 
-> 
+--=20
+paul-moore.com
