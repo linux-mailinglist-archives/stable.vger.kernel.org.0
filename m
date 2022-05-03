@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DAC5185A9
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:37:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F1E5185AA
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:38:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236267AbiECNl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 09:41:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58386 "EHLO
+        id S235703AbiECNla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 09:41:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235703AbiECNl3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:41:29 -0400
+        with ESMTP id S236269AbiECNla (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:41:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77FF2613C
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:37:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E429B2AC72
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:37:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94443B81EC8
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:37:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46D40C385A4;
-        Tue,  3 May 2022 13:37:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A24B6B81ECB
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:37:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41C94C385AE;
+        Tue,  3 May 2022 13:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651585074;
-        bh=8kM3wd5/SHPLmWERFXyaNujHgYp2oAXTT/yTrNTlsmw=;
+        s=korg; t=1651585075;
+        bh=iLaSFAcTOcF5W7mbpEdyDDP/7PGTzsMozvQw6SPu2VQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=AXCG1Ix4X/Cp4sljdSRx7gv19lQxJMehWyRhUT63hN7smhIWL5QBNAlg/yOJg8cDP
-         0jDzwWxJjCx2nnKzsnHJosIAmCdIEarp/gbAf1mP5lbENLBXWF18+IuXkZ59l/YUQ0
-         7311S3XC+Htluv5C04l6sjt+/izGeha7DWfZC2s8=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix reset fifo race condition" failed to apply to 4.14-stable tree
+        b=mFWEBDTrghARsRprPvrpdQPPLBoHr+JH5NnrizCg1II1XbQVBf8moce5wjjao+baM
+         9DmRhk49nO1rUH5VeLUaDgSZGCz/8diZ5JF406NbGfjf3q/k8e+7OAiD4QL6yh+ivc
+         xJhkWQ+8lIoQ6prizl6htoWnYSBR98B96rEePb58=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix reset fifo race condition" failed to apply to 4.9-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 15:37:51 +0200
-Message-ID: <1651585071255235@kroah.com>
+Date:   Tue, 03 May 2022 15:37:52 +0200
+Message-ID: <1651585072154162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
