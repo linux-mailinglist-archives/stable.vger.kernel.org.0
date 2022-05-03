@@ -2,127 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01FB2518C70
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 20:32:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6671518C9D
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 20:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240605AbiECSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 14:35:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53330 "EHLO
+        id S235501AbiECSzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 14:55:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241366AbiECSfv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 14:35:51 -0400
-Received: from mail-qv1-f43.google.com (mail-qv1-f43.google.com [209.85.219.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4D4C1D0C6
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 11:32:18 -0700 (PDT)
-Received: by mail-qv1-f43.google.com with SMTP id jt15so3661401qvb.8
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 11:32:18 -0700 (PDT)
+        with ESMTP id S234488AbiECSzG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 14:55:06 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F013B01E
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 11:51:32 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id fv2so16111455pjb.4
+        for <stable@vger.kernel.org>; Tue, 03 May 2022 11:51:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=VxjEyW43LtKyVdjWubu556ERRXzUTnucdzmYQwBMx6s=;
+        b=lvTOWhJIPHxiqZvZ9KSajY4w8OUzwTyIc7Ejh5IWJ41ie5UyP2gWrZjWva54TX2lWs
+         EV/+tUDhNF6rcIADPOtUHBeSD60+1OhUH+JtlCldomhIGY4BwNdJC0l+Rf8tLGWj5Kbd
+         tpTJ37ftvIy5BXHSWc3YkEhxqrR0a4S56f6VhwIyXqOVxqzuw+a/9q2TSCQtCSA3Bw6b
+         SL4C1NHm9p5Hn5A0wSPbK19+2GAkmokEAjUq8YgeaQcybFHI7NSuhxa9BwBv8O48DilM
+         2GrjZun8rYzESZ9uEM09xu+uvfdrmhSAXTsCWszEKg2wZsaTxztts3wlq9fKv57U84IF
+         ywzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=+o3H2wSew0BRA4vqTAN2Yx+wDwTltnzrE6YOchX4Xao=;
-        b=I6Xa5qIdpJlQ/tFyI9foJyBWyn2NPt3eeNGE/tQmeOF4TAlWtsaJyVavM3f6fTQ770
-         KlG1JBiZnMIpK8nfCTKM1JraUnI1gfh28HKnTFRu2AA+p20/prD1y1UuRISM5zqSkfRf
-         I2TFvtkRbrUy9m6hCT+YxLJ6kEol4MZYYdVtE5P43/td9w1VGiG8ocavMmAvgadDpAAS
-         JQ/zjbOsLuiwZphQZeXIOxne4LBxfDhrNaXvvRvdZtU2s/DFh2YoQ+1Dg3LzODk8t061
-         OKLl1uUcbcM8sGxb/XyLUyh8GgJ6q7UDXUpfp8PETCUbYfmdtqka7le0mQe/2xbuFqQI
-         b/ZA==
-X-Gm-Message-State: AOAM530U3G8+wJpwFnICrFvBFX4rN0CWL7M/0SlXK/sDl4Ol6NF6mDiR
-        pxG/EpeqVW8V58sEjlsikzFgUUAwK78U
-X-Google-Smtp-Source: ABdhPJwYXB+4mnODVKNOGfQ4/JnFfiz9n96ZB2gWIV2EhSPXMJ6znu5z3zyH2qA0O9C2o/JyHrUUvA==
-X-Received: by 2002:a05:6214:f6f:b0:45a:8bcf:8274 with SMTP id iy15-20020a0562140f6f00b0045a8bcf8274mr9082718qvb.14.1651602737583;
-        Tue, 03 May 2022 11:32:17 -0700 (PDT)
-Received: from localhost (pool-68-160-176-52.bstnma.fios.verizon.net. [68.160.176.52])
-        by smtp.gmail.com with ESMTPSA id v185-20020a372fc2000000b0069fc13ce252sm6430137qkh.131.2022.05.03.11.32.16
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=VxjEyW43LtKyVdjWubu556ERRXzUTnucdzmYQwBMx6s=;
+        b=k5LchB0cxlOt8L8+yuPCNZBUdwJujYQ2FQhHo5IKyPCkJ/kFnRzsHVkGLOnyC+X4SJ
+         7ukZki77LHgJ3j8k/ZPJBnweqciAeIXONDq4iT2TmbsQlnf/o3Oi/BowFFkMTnDLRUEE
+         I0E8gPC5UV3zQz0tJBWd6bfiPU086Hha7HG7jYBA63+VCLpfunCGoP14mPFXWB1erFJv
+         iZtwyJlaMF+Iu6bgZI4QnVXiARFG3CvLh68WiUtex1Z6U9pmyD+zjuRJexY2wUgtE23V
+         0wjeyaFHyGBRrCUMwxTDN19vNd72bcDkfPUa7L4D0PFb8FKyRgHMmcvQqF4dVip2i0Sk
+         mB8w==
+X-Gm-Message-State: AOAM530D8Z4oDG2i5AzBTUVuAk5ReRv9S4jHFueYGErAiZUxI/Fpa8qt
+        tgGuTVFuD7rEpAb110x1kWJNzfsBI/LBzDcKC3M=
+X-Google-Smtp-Source: ABdhPJyufhsqxWBY3PYpdRiHzVqx4rTbTI1213DSjzRE0Ln64CURlJ1Ua/HYBFsy9WaLyxD3y/dCZQ==
+X-Received: by 2002:a17:90b:352:b0:1c6:77e:a4f7 with SMTP id fh18-20020a17090b035200b001c6077ea4f7mr6190037pjb.77.1651603891995;
+        Tue, 03 May 2022 11:51:31 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i10-20020a170902c94a00b0015e8d4eb278sm298047pla.194.2022.05.03.11.51.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 11:32:17 -0700 (PDT)
-Date:   Tue, 3 May 2022 14:32:15 -0400
-From:   Mike Snitzer <snitzer@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Mikulas Patocka <mpatocka@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v5.10] dm: fix mempool NULL pointer race when completing
- IO
-Message-ID: <YnF1L4opPwLvBTLJ@redhat.com>
-References: <alpine.LRH.2.02.2204211407220.761@file01.intranet.prod.int.rdu2.redhat.com>
- <YmeUXC3DZGLPJlWw@kroah.com>
- <alpine.LRH.2.02.2204281155460.5963@file01.intranet.prod.int.rdu2.redhat.com>
- <Ymuj0Y2A6WHOi05c@kroah.com>
+        Tue, 03 May 2022 11:51:31 -0700 (PDT)
+Message-ID: <627179b3.1c69fb81.8e758.0dbb@mx.google.com>
+Date:   Tue, 03 May 2022 11:51:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ymuj0Y2A6WHOi05c@kroah.com>
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.15.37-172-g0797d89caf40
+X-Kernelci-Report-Type: test
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 121 runs,
+ 2 regressions (v5.15.37-172-g0797d89caf40)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Apr 29 2022 at  4:37P -0400,
-Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+stable-rc/queue/5.15 baseline: 121 runs, 2 regressions (v5.15.37-172-g0797d=
+89caf40)
 
-> On Thu, Apr 28, 2022 at 12:22:26PM -0400, Mikulas Patocka wrote:
-> > 
-> > 
-> > On Tue, 26 Apr 2022, Greg Kroah-Hartman wrote:
-> > 
-> > > On Thu, Apr 21, 2022 at 02:08:30PM -0400, Mikulas Patocka wrote:
-> > > > Hi
-> > > 
-> > > Not really needed in a changelog text :)
-> > > 
-> > > > This is backport of patches d208b89401e0 ("dm: fix mempool NULL pointer
-> > > > race when completing IO") and 9f6dc6337610 ("dm: interlock pending dm_io
-> > > > and dm_wait_for_bios_completion") for the kernel 5.10.
-> > > 
-> > > Can you just make these 2 different patches?
-> > > 
-> > > > 
-> > > > The bugs fixed by these patches can cause random crashing when reloading
-> > > > dm table, so it is eligible for stable backport.
-> > > > 
-> > > > This patch is different from the upstream patches because the code
-> > > > diverged significantly.
-> > > > 
-> > > 
-> > > This change is _VERY_ different.  I would need acks from the maintainers
-> > > of this code before I could accept this, along with a much more detailed
-> > > description of why the original commits will not work here as well.
-> > > 
-> > > Same for the other backports.
-> > 
-> > Regarding backporting of 9f6dc633:
-> > 
-> > My reasoning was that introducing "md->pending_io" in the backported 
-> > stable kernels is useless - it will just degrade performance by consuming 
-> > one more cache line per I/O without providing any gain.
-> > 
-> > In the upstream kernels, Mike needs that "md->pending_io" variable for 
-> > other reasons (the I/O accounting was reworked there in order to avoid 
-> > some spikes with dm-crypt), but there is no need for it in the stable 
-> > kernels.
-> > 
-> > In order to fix that race condition, all we need to do is to make sure 
-> > that dm_stats_account_io is called before bio_end_io_acct - and the patch 
-> > does that - it swaps them.
-> > 
-> > Do you still insist that this useless percpu variable must be added to the 
-> > stable kernels? If you do, I can make it, but I think it's better to just 
-> > swap those two functions.
-> 
-> I am no insisting on anything, I want the dm maintainers to agree that
-> this change is acceptable to take as it is not what is in Linus's tree.
-> Every time we take a "not upstream" commit, the odds are 90% that it
-> ends up being wrong, so I need extra review and assurances that it is
-> acceptable before I can apply it.
+Regressions Summary
+-------------------
 
-FYI, I've reviewed Mikulas's latest stable backport patches (not yet
-posted) and provided by Reviewed-by.  So once you see them you can
-trust I've looked at the changes and am fine with you picking them up.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
 
-Thanks,
-Mike
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.37-172-g0797d89caf40/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.37-172-g0797d89caf40
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0797d89caf40fcfa1f7b4bbc496dbf2324a97a57 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6271446e5ff9976ae2dc7b34
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.37-=
+172-g0797d89caf40/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.37-=
+172-g0797d89caf40/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beag=
+le-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220428.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6271446e5ff9976ae2dc7=
+b35
+        failing since 33 days (last pass: v5.15.31-2-g57d4301e22c2, first f=
+ail: v5.15.31-3-g4ae45332eb9c) =
+
+ =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6271477cf69712fc91dc7bb4
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.37-=
+172-g0797d89caf40/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.37-=
+172-g0797d89caf40/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
+eline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220428.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/6271477cf69712fc91dc7bda
+        failing since 56 days (last pass: v5.15.26-42-gc89c0807b943, first =
+fail: v5.15.26-257-g2b9a22cd5eb8)
+
+    2022-05-03T15:16:54.551516  /lava-6251192/1/../bin/lava-test-case   =
+
+ =20
