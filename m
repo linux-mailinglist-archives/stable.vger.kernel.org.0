@@ -2,174 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E48DC517F48
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 09:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 429AA517F6E
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 10:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232312AbiECICA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 04:02:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
+        id S232619AbiECILr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 04:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231992AbiECIB7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 04:01:59 -0400
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906C02B276
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 00:58:27 -0700 (PDT)
-Received: by mail-pf1-x42c.google.com with SMTP id v11so4652188pff.6
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 00:58:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kvUKmsKgM/FyCdpnhbcQrvY+ab8p9AoR0lvbClzAZ50=;
-        b=D5TI/yJYkooHgsC5pfbH5iIijCeaxZPjSIc58W7dCo12hu1ZF54hW6hohNs3IxpFE/
-         M9Yd55Vj/gQUjkuS2S1Dke7il9470h+niqc1IYFLLtDc6A6OqHXz4MTrTQTyh/qliHJR
-         4oZ3rRYAkbbEuQ8OMsdpss24M+x7moQO/mib0KSOSxG7qRzpK0+MWdGYqMnp5EKbY55H
-         LoE6vdTXUXde6LfZkp+qAxGqXkzzRWOBKbaSPkps346/J1Gsgf8t2FfPbcS5Jj5tEIZl
-         KGcXhQj8kHkTLPll+fh4h5YdsTkxaS2KJi7+rZNtFj/cBSZ18wqOMHJVGC9tSFG3ROf1
-         cz/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kvUKmsKgM/FyCdpnhbcQrvY+ab8p9AoR0lvbClzAZ50=;
-        b=OQmivXi/vZnTFfnofl34zVqMmhG9/bHbwOguqx/X5sEa6ZmKpcVxTGJmN9tbIowRjW
-         zbjsi27nsHMseC8fWPnMF1btCIk1uC28QJjvGuAXADzcBkq2fKzMY576QnJJZIAOe+Rp
-         rXx3DKtqG09w2T7FWZ5Obd18jWfMdJ58fK+9sX2z8iZVvWvnAshhu2ckrQ0RY5dVPi7z
-         9gYcaLQrWSRJbF7O9uIoHq2hNiRqfAa/lG/JpLQAYaaNiCp0VmUa3Tr0ajOOsgpvf3Uf
-         O6+kNzdW7/Vzr3gfdJDbZgpCf4vSENyRHUXsoQOee8ddnVO8sm7zKUa/g/O1Y2uq1zSx
-         Zqbw==
-X-Gm-Message-State: AOAM533V99b/UKvyrJPEoPcz2kRBITva53/CSfEt8Ijm8wy9AbnAL10m
-        bda/z4ZZzyJ5DnrtBAB6hohMv5sr/ELleGC8L+I=
-X-Google-Smtp-Source: ABdhPJwRLyx3Y5Yhv1Dxu0ADLSqT1UQQJgK3xiuM7DJBlnGDKnGoRQC9U/gBfcFewHWfrNd0zE1RJQ==
-X-Received: by 2002:a63:45:0:b0:3c2:3ed2:43c with SMTP id 66-20020a630045000000b003c23ed2043cmr5483095pga.276.1651564706861;
-        Tue, 03 May 2022 00:58:26 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id bn10-20020a056a00324a00b0050dc7628193sm5839952pfb.109.2022.05.03.00.58.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 00:58:26 -0700 (PDT)
-Message-ID: <6270e0a2.1c69fb81.c3564.e7d8@mx.google.com>
-Date:   Tue, 03 May 2022 00:58:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231615AbiECILm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 04:11:42 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE86020F5A;
+        Tue,  3 May 2022 01:08:10 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id AA8B71F38D;
+        Tue,  3 May 2022 08:08:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1651565289; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oST/6quGVTIG/7AvfcWNH38FZA1053Lg8E80M28hIlc=;
+        b=H4xE8wA5fckN+Z4Je/Ts5TWK5x0Uz8u2ZtsbUjkdnIsdPTEoS2rb3XyqaaQ3NNMm0seFjs
+        gFvLO+ko5yV89qhlCKe67iXUq0vHg/YEwpBbT1K4XfHawI0K4i3evBT0pAxNz79rwkQbh3
+        rooj+gisWI4p5shVnL5+zdtT4QEQeog=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1651565289;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=oST/6quGVTIG/7AvfcWNH38FZA1053Lg8E80M28hIlc=;
+        b=OUh3Dw3uztirtLxjjR2TiRQy1JFxB/x5riKuW6coGs3afgkOccgukgFNpjPpuafpPW95gC
+        2g9TmBdAHY777MAQ==
+Received: from localhost.localdomain (unknown [10.100.208.98])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 79BF72C142;
+        Tue,  3 May 2022 08:08:09 +0000 (UTC)
+From:   Jiri Slaby <jslaby@suse.cz>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiri Slaby <jslaby@suse.cz>, stable@vger.kernel.org
+Subject: [PATCH 2/7] serial: pch: don't overwrite xmit->buf[0] by x_char
+Date:   Tue,  3 May 2022 10:08:03 +0200
+Message-Id: <20220503080808.28332-1-jslaby@suse.cz>
+X-Mailer: git-send-email 2.36.0
+In-Reply-To: <20220503080613.27601-1-jslaby@suse.cz>
+References: <20220503080613.27601-1-jslaby@suse.cz>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.241-48-g07d29c81eb01
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 102 runs,
- 2 regressions (v4.19.241-48-g07d29c81eb01)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 102 runs, 2 regressions (v4.19.241-48-g07d29=
-c81eb01)
+When x_char is to be sent, the TX path overwrites whatever is in the
+circular buffer at offset 0 with x_char and sends it using
+pch_uart_hal_write(). I don't understand how this was supposed to work
+if xmit->buf[0] already contained some character. It must have been
+lost.
 
-Regressions Summary
--------------------
+Remove this whole pop_tx_x() concept and do the work directly in the
+callers. (Without printing anything using dev_dbg().)
 
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
-                  | 1          =
+Cc: <stable@vger.kernel.org>
+Fixes: 3c6a483275f4 (Serial: EG20T: add PCH_UART driver)
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+---
+ drivers/tty/serial/pch_uart.c | 27 +++++++--------------------
+ 1 file changed, 7 insertions(+), 20 deletions(-)
 
-rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
+diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
+index f872613a5e83..6cb631487383 100644
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -624,22 +624,6 @@ static int push_rx(struct eg20t_port *priv, const unsigned char *buf,
+ 	return 0;
+ }
+ 
+-static int pop_tx_x(struct eg20t_port *priv, unsigned char *buf)
+-{
+-	int ret = 0;
+-	struct uart_port *port = &priv->port;
+-
+-	if (port->x_char) {
+-		dev_dbg(priv->port.dev, "%s:X character send %02x (%lu)\n",
+-			__func__, port->x_char, jiffies);
+-		buf[0] = port->x_char;
+-		port->x_char = 0;
+-		ret = 1;
+-	}
+-
+-	return ret;
+-}
+-
+ static int dma_push_rx(struct eg20t_port *priv, int size)
+ {
+ 	int room;
+@@ -889,9 +873,10 @@ static unsigned int handle_tx(struct eg20t_port *priv)
+ 
+ 	fifo_size = max(priv->fifo_size, 1);
+ 	tx_empty = 1;
+-	if (pop_tx_x(priv, xmit->buf)) {
+-		pch_uart_hal_write(priv, xmit->buf, 1);
++	if (port->x_char) {
++		pch_uart_hal_write(priv, &port->x_char, 1);
+ 		port->icount.tx++;
++		port->x_char = 0;
+ 		tx_empty = 0;
+ 		fifo_size--;
+ 	}
+@@ -948,9 +933,11 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
+ 	}
+ 
+ 	fifo_size = max(priv->fifo_size, 1);
+-	if (pop_tx_x(priv, xmit->buf)) {
+-		pch_uart_hal_write(priv, xmit->buf, 1);
++
++	if (port->x_char) {
++		pch_uart_hal_write(priv, &port->x_char, 1);
+ 		port->icount.tx++;
++		port->x_char = 0;
+ 		fifo_size--;
+ 	}
+ 
+-- 
+2.36.0
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.241-48-g07d29c81eb01/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.241-48-g07d29c81eb01
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      07d29c81eb0153de2dbe22bbddbcc441405fc096 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-meson-gxl-s905x-libretech-cc | arm64 | lab-broonie   | gcc-10   | defconfig=
-                  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6270337ea434efdd8ddc7b6b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--48-g07d29c81eb01/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s90=
-5x-libretech-cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--48-g07d29c81eb01/arm64/defconfig/gcc-10/lab-broonie/baseline-meson-gxl-s90=
-5x-libretech-cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6270337ea434efdd8ddc7=
-b6c
-        failing since 13 days (last pass: v4.19.238-22-gb215381f8cf05, firs=
-t fail: v4.19.238-32-g4d86c9395c31a) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
-                  | regressions
------------------------------+-------+---------------+----------+----------=
-------------------+------------
-rk3399-gru-kevin             | arm64 | lab-collabora | gcc-10   | defconfig=
-+arm64-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/627036cce60a9677e1dc7b29
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--48-g07d29c81eb01/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--48-g07d29c81eb01/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/627036cce60a9677e1dc7b4f
-        failing since 57 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-05-02T19:53:33.731488  <8>[   35.672986] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>   =
-
- =20
