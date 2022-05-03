@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF55D518D13
+	by mail.lfdr.de (Postfix) with ESMTP id A60CC518D12
 	for <lists+stable@lfdr.de>; Tue,  3 May 2022 21:18:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238614AbiECTWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 15:22:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49956 "EHLO
+        id S238621AbiECTWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 15:22:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238223AbiECTWa (ORCPT
+        with ESMTP id S233000AbiECTWa (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 15:22:30 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0EE3FBC2;
-        Tue,  3 May 2022 12:18:54 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id x33so31984911lfu.1;
-        Tue, 03 May 2022 12:18:54 -0700 (PDT)
+Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EADB3FBCD;
+        Tue,  3 May 2022 12:18:56 -0700 (PDT)
+Received: by mail-lj1-x22e.google.com with SMTP id v4so23216335ljd.10;
+        Tue, 03 May 2022 12:18:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9bc+0+EW4/MtA3VPCNmrCMbEtcsIX6zc6mk0YffK+XQ=;
-        b=pt8TuWkpyhizyhHAeP7WwEJDda2SzwavZg/PQYYzrTW0rQjY4lGrO7hcWGKwo2HGR/
-         cz0bJBYVfCNzdvZoAFMJTtPdWfgGv+kVD94YHmxf+kelGaN85iUhs1DcSpB+XFEdxeCg
-         igrwdyoUTO3JSfB4h54KeQSvExm3Y51gIPgrFz++fIcR0kslzTdajTzi8cG6mChO38Fs
-         Xtm2d82Ut1bMXrPItmQ6cxEY5hrEAXlpwrKp6qXX+Q2fDKKoFvc5DMIYaMTXwz2XIora
-         CnMwXG8vQaqdW7EBLHCQLeQ/nY2slsqEHD/u2uYUQ+3ILINtxOO9bZHUds7SChs18AGS
-         PM8w==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=hPZZ6L003TnmtW8H/x7i4WT6RIl/IYaipngJo7yayTU=;
+        b=A+2rj5WtMqRotOgCKHaAVStTFpGM+M7jSVokWAn3Eqm/Q2mGy4mxIivEW/ZZomnKTc
+         2V/J2GV4Qx/VdiAe1xYRbOF8rqO3CBNQAxDSjP7zxQgh+pNPcm3kOS6YS9JIOvW8mhuF
+         cCJ2Dw8Wu+/6dLbaM7c/Y2N4UOFpSKGqlM68J3F3QxuDGNIY9nNaSP7kqNU34UujXJLQ
+         gT49GVM0q6UVJCuS1D2HWkBpSjoj9QJrOlAw5XuaOiA5MkOyLss3G9wOTlxkijUBLJki
+         RyOfnlkQCXk0GtyO8v8mHO2dCswfJ+HVmzf/psPHA7ekhswFqTor/I4fegL+pNmsJrIb
+         gc6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=9bc+0+EW4/MtA3VPCNmrCMbEtcsIX6zc6mk0YffK+XQ=;
-        b=Qb8MEjItg7ct/7rZ5cKWMViEFZCuIzC4aNzKVg0DGLzaaPWjQAkN1Bwn/z7sybzldp
-         FHG1qUckfqAHFwxSYouO+zINECUl8eT9kVu8H5uruLr2nU62QKq3RJuQM4CGVwXaKa58
-         DwgBbMq+y6Oo3oqt5g5K4vBEKDThYRq3kue0c+M1IG8QmwPCWXabXOf96wxyUF39s7WO
-         83IGH3kDy/GbSk4Aj30kEfxiwoQIxB5WguIol8o1H3N+BPBDdJr9HfAlnn2gNGickUa7
-         QC/HWcH9vp6V4CkTo6XHuKssYIgeOyklFOlE70ZmbhVP/oeQGYNRBaLHp6vmPEz64j4B
-         Qstw==
-X-Gm-Message-State: AOAM533BiVlijQL8Zn+tjEcixQVniIkqvxIWoWW/QSXruDP8cLKeixh8
-        RDALq+q7oEHKHQSFJkkUiL8MICku3iv+xw==
-X-Google-Smtp-Source: ABdhPJwkDqUgq2ftaH4ubSRBwqOVOhMhqJQ5FP0r3KtgqS2KFXxfQhdAJ74e3vpjltfVFU9vBjfBlg==
-X-Received: by 2002:a05:6512:3b81:b0:472:5e4e:19e0 with SMTP id g1-20020a0565123b8100b004725e4e19e0mr8952787lfv.426.1651605533113;
-        Tue, 03 May 2022 12:18:53 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=hPZZ6L003TnmtW8H/x7i4WT6RIl/IYaipngJo7yayTU=;
+        b=ztiGbhLNBSsV4l/14zXKRbrhOzqwA04Uq+lMhlvdo3bFLvB8sOt79y18ABXEr0qXxn
+         DUbN4x92zlniEZpBu+v4NDnPwjulJLUHaenp37KcR+G0nGrM7cKM3TtaWYRZeilA+HvG
+         0yL/YJzAEZsCRZLDXCG3XNYdEJ2RGtNo76fhX82ETOOwyjRtVchdqeYtLpaaIUv838FQ
+         C0zNPiqAYskhr3qIKeko6f/z7QgU4+WrcqWNHImiDAEFr1yXkoKv/q+Kn1pV4NExmdEt
+         LE682bKbfVhFJWICc8KHOn476G+jvttD2Y7s2b3fzAr5S4vYQvRlsyNug7w0VmLp/bBL
+         /xtQ==
+X-Gm-Message-State: AOAM530cNP18yP3TFSTeR0OryjfXolVWBttnioJ+r4jZQksi7ucmoBMy
+        cQ0jc++iyunVE3VbJH98uc97Ps3/7fU7Og==
+X-Google-Smtp-Source: ABdhPJztW7NQSSRQvzyO6RWdcB60/5Tm14fFc6PpPWt6xqff1gcu1P6/khkgAfeBSDtVyKh39Esy2A==
+X-Received: by 2002:a2e:a78f:0:b0:24f:53a4:fc with SMTP id c15-20020a2ea78f000000b0024f53a400fcmr7752252ljf.296.1651605534337;
+        Tue, 03 May 2022 12:18:54 -0700 (PDT)
 Received: from pc638.lan ([155.137.26.201])
-        by smtp.gmail.com with ESMTPSA id w10-20020ac254aa000000b0047255d21194sm1013894lfk.195.2022.05.03.12.18.52
+        by smtp.gmail.com with ESMTPSA id w10-20020ac254aa000000b0047255d21194sm1013894lfk.195.2022.05.03.12.18.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 12:18:52 -0700 (PDT)
+        Tue, 03 May 2022 12:18:53 -0700 (PDT)
 From:   "Uladzislau Rezki (Sony)" <urezki@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     RCU <rcu@vger.kernel.org>,
@@ -56,11 +56,19 @@ Cc:     RCU <rcu@vger.kernel.org>,
         Joel Fernandes <joel@joelfernandes.org>,
         Neeraj Upadhyay <neeraj.iitr10@gmail.com>,
         "Paul E . McKenney" <paulmck@kernel.org>,
-        "Uladzislau Rezki (Sony)" <urezki@gmail.com>
-Subject: [PATCH 0/2] RCU offloading vs scheduler latency(for 5.10 stable)
-Date:   Tue,  3 May 2022 21:18:41 +0200
-Message-Id: <20220503191843.155363-1-urezki@gmail.com>
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 1/2] rcu: [for 5.10 stable] Fix callbacks processing time limit retaining cond_resched()
+Date:   Tue,  3 May 2022 21:18:42 +0200
+Message-Id: <20220503191843.155363-2-urezki@gmail.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220503191843.155363-1-urezki@gmail.com>
+References: <20220503191843.155363-1-urezki@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -73,16 +81,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This port is for 5.10 kernel. See the motivation and explanation in the cover
-letter for the 5.15 port.
+From: Frederic Weisbecker <frederic@kernel.org>
 
-Frederic Weisbecker (2):
-  rcu: [for 5.10 stable] Fix callbacks processing time limit retaining cond_resched()
-  rcu: [for 5.10 stable] Apply callbacks processing time limit only on softirq
+commit 3e61e95e2d095e308616cba4ffb640f95a480e01 upstream.
 
- kernel/rcu/tree.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+The callbacks processing time limit makes sure we are not exceeding a
+given amount of time executing the queue.
 
+However its "continue" clause bypasses the cond_resched() call on
+rcuc and NOCB kthreads, delaying it until we reach the limit, which can
+be very long...
+
+Make sure the scheduler has a higher priority than the time limit.
+
+Motivation of backport:
+-----------------------
+
+1. The cfcdef5e30469 ("rcu: Allow rcu_do_batch() to dynamically adjust batch sizes")
+broke the default behaviour of "offloading rcu callbacks" setup. In that scenario
+after each callback the caller context was used to check if it has to be rescheduled
+giving a CPU time for others. After that change an "offloaded" setup can switch to
+time-based RCU callbacks processing, what can be long for latency sensitive workloads
+and SCHED_FIFO processes, i.e. callbacks are invoked for a long time with keeping
+preemption off and without checking cond_resched().
+
+2. Our devices which run Android and 5.10 kernel have some critical areas which
+are sensitive to latency. It is a low latency audio, 8k video, UI stack and so on.
+For example below is a trace that illustrates a delay of "irq/396-5-0072" RT task
+to complete IRQ processing:
+
+<snip>
+ rcuop/6-54  [000] d.h2  183.752989: irq_handler_entry:    irq=85 name=i2c_geni
+ rcuop/6-54  [000] d.h5  183.753007: sched_waking:         comm=irq/396-5-0072 pid=12675 prio=49 target_cpu=000
+ rcuop/6-54  [000] dNh6  183.753014: sched_wakeup:         irq/396-5-0072:12675 [49] success=1 CPU:000
+ rcuop/6-54  [000] dNh2  183.753015: irq_handler_exit:     irq=85 ret=handled
+ rcuop/6-54  [000] .N..  183.753018: rcu_invoke_callback:  rcu_preempt rhp=0xffffff88ffd440b0 func=__d_free.cfi_jt
+ rcuop/6-54  [000] .N..  183.753020: rcu_invoke_callback:  rcu_preempt rhp=0xffffff892ffd8400 func=inode_free_by_rcu.cfi_jt
+ rcuop/6-54  [000] .N..  183.753021: rcu_invoke_callback:  rcu_preempt rhp=0xffffff89327cd708 func=i_callback.cfi_jt
+ ...
+ rcuop/6-54  [000] .N..  183.755941: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c5a968 func=i_callback.cfi_jt
+ rcuop/6-54  [000] .N..  183.755942: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c4bd20 func=__d_free.cfi_jt
+ rcuop/6-54  [000] dN..  183.755944: rcu_batch_end:        rcu_preempt CBs-invoked=2112 idle=>c<>c<>c<>c<
+ rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      Start context switch
+ rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      End context switch
+ rcuop/6-54  [000] d..2  183.755959: sched_switch:         rcuop/6:54 [120] R ==> migration/0:16 [0]
+ ...
+ migratio-16 [000] d..2  183.756021: sched_switch:         migration/0:16 [0] S ==> irq/396-5-0072:12675 [49]
+<snip>
+
+The "irq/396-5-0072:12675" was delayed for ~3 milliseconds due to introduced side effect.
+Please note, on our Android devices we get ~70 000 callbacks registered to be invoked by
+the "rcuop/x" workers. This is during 1 seconds time interval and regular handset usage.
+Latencies bigger that 3 milliseconds affect our high-resolution audio streaming over the
+LDAC/Bluetooth stack.
+
+Fixes: cfcdef5e30469 ("rcu: Allow rcu_do_batch() to dynamically adjust batch sizes")
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Valentin Schneider <valentin.schneider@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>
+[UR: backport to 5.10-stable + commit update]
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
+---
+ kernel/rcu/tree.c | 28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
+
+diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
+index 844c35803739..f340df6ebd86 100644
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2490,10 +2490,22 @@ static void rcu_do_batch(struct rcu_data *rdp)
+ 		 * Stop only if limit reached and CPU has something to do.
+ 		 * Note: The rcl structure counts down from zero.
+ 		 */
+-		if (-rcl.len >= bl && !offloaded &&
+-		    (need_resched() ||
+-		     (!is_idle_task(current) && !rcu_is_callbacks_kthread())))
+-			break;
++		if (in_serving_softirq()) {
++			if (-rcl.len >= bl && (need_resched() ||
++					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
++				break;
++		} else {
++			local_bh_enable();
++			lockdep_assert_irqs_enabled();
++			cond_resched_tasks_rcu_qs();
++			lockdep_assert_irqs_enabled();
++			local_bh_disable();
++		}
++
++		/*
++		 * Make sure we don't spend too much time here and deprive other
++		 * softirq vectors of CPU cycles.
++		 */
+ 		if (unlikely(tlimit)) {
+ 			/* only call local_clock() every 32 callbacks */
+ 			if (likely((-rcl.len & 31) || local_clock() < tlimit))
+@@ -2501,14 +2513,6 @@ static void rcu_do_batch(struct rcu_data *rdp)
+ 			/* Exceeded the time limit, so leave. */
+ 			break;
+ 		}
+-		if (offloaded) {
+-			WARN_ON_ONCE(in_serving_softirq());
+-			local_bh_enable();
+-			lockdep_assert_irqs_enabled();
+-			cond_resched_tasks_rcu_qs();
+-			lockdep_assert_irqs_enabled();
+-			local_bh_disable();
+-		}
+ 	}
+ 
+ 	local_irq_save(flags);
 -- 
 2.30.2
 
