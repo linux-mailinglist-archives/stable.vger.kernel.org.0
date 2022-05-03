@@ -2,136 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D11FD517FEA
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 10:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29078518028
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 10:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232644AbiECIrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 04:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56512 "EHLO
+        id S233010AbiECI5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 04:57:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231823AbiECIrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 04:47:17 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4D5B35253
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 01:43:45 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id cq17-20020a17090af99100b001dc0386cd8fso1446301pjb.5
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 01:43:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1bNsEh1SjACZjMAGDs1bwieHXrpSGcsfQyvod2ejDOE=;
-        b=1uIW/MZZ7fkbxk3gBg9sZjAlauGJYlCWwrETjW7/PhAF3eQyDnRAoKFSn4t+K66VNK
-         FCHEshyDxwd6SvhDlLeF784p0tGle4+sB8D8AB93O9B+P2rJyXZ80Ih+dnwnzaut1a6E
-         3nT04MIWe3cNxrxK8BiJz04YPsFW7kATeNxtf3uf/to6YG9DioSfRE70rErI2nkroB7x
-         LSYKpdeHBCJLeY710YEiTiM5UlFqLlv5cYpBQJqbQmxiCMpEFhybWekcMwR9JMtTcwfr
-         TfSNTdAnHg7pS2AdUnPID53P8V87z43pBF6L+3rCvYMDzPIe/p8CvUdOzqwgN3VtpBn6
-         dyWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1bNsEh1SjACZjMAGDs1bwieHXrpSGcsfQyvod2ejDOE=;
-        b=Auh9llhLyOEB0taT0qLNrlpHmlGs478WrT04vDK9e2Bn0clhgHIF9B0HWQDfRBTmHA
-         oIihYscn+A+PlUkVka7V1DNJAzbztK6sgJVTGQ1rNbT8X/ENokbHQycATm9DIzZRzAkj
-         5dIPn8qig32PGK5rInHlzzlSDlusVQPlHvHgVI/oj8Fy9h3/JO5/V0CMhVPuboxUu3MR
-         e4i/XFjpukfdcW2M/WXVGt1ILQM7IgcLd2uQbes2e8LaqKcARB7GkmQ/+qbvUyKUWqKa
-         IkyYVXdXL9kgjzPxy0MU+bziSmDORhyjM4I8cFVYEvGNL/QwpU+uYBkUJMitb1ZZ/kxh
-         hpqw==
-X-Gm-Message-State: AOAM532NP7IgEvXiyFxxKkomlje+2hCo4J8DpPccOJMpZDIGR1qQPqmG
-        ddsDor7rq2XEY+Rxh63TyQcV0IxD34ZFfmwWwjw=
-X-Google-Smtp-Source: ABdhPJzzb5Ly0v7EpbuD0kmchW+6pFFqR4v0urJ0x2aTDUcNrB+R99TlKY8IGqruBlYokop0p1i52g==
-X-Received: by 2002:a17:902:d2c5:b0:15d:4128:21d5 with SMTP id n5-20020a170902d2c500b0015d412821d5mr15363932plc.165.1651567425188;
-        Tue, 03 May 2022 01:43:45 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y14-20020a634b0e000000b003c14af50626sm12074487pga.62.2022.05.03.01.43.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 01:43:44 -0700 (PDT)
-Message-ID: <6270eb40.1c69fb81.497cd.d7a7@mx.google.com>
-Date:   Tue, 03 May 2022 01:43:44 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S230464AbiECI5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 04:57:30 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3C320BFD;
+        Tue,  3 May 2022 01:53:54 -0700 (PDT)
+X-UUID: 3c2efbe4fa264e4b9cfaf02165c9a960-20220503
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.4,REQID:3ac4fcfd-5f2d-4bad-aa59-9ee3058359d0,OB:0,LO
+        B:0,IP:0,URL:8,TC:0,Content:-20,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,AC
+        TION:release,TS:-12
+X-CID-META: VersionHash:faefae9,CLOUDID:f3664ec7-85ee-4ac1-ac05-bd3f1e72e732,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,File:nil,QS:0,BEC:nil
+X-UUID: 3c2efbe4fa264e4b9cfaf02165c9a960-20220503
+Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
+        (envelope-from <yong.wu@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
+        with ESMTP id 874287507; Tue, 03 May 2022 16:53:47 +0800
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
+ Tue, 3 May 2022 16:53:45 +0800
+Received: from mhfsdcap04 (10.17.3.154) by mtkmbs11n2.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.2.792.3 via Frontend
+ Transport; Tue, 3 May 2022 16:53:44 +0800
+Message-ID: <015b314d693ec66429d1b5516cf9c5621665eea2.camel@mediatek.com>
+Subject: Re: [PATCH 2/2] iommu/mediatek: Enable allocating page table in
+ normal memory
+From:   Yong Wu <yong.wu@mediatek.com>
+To:     <yf.wang@mediatek.com>, Joerg Roedel <joro@8bytes.org>,
+        Will Deacon <will@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        "open list:MEDIATEK IOMMU DRIVER" <iommu@lists.linux-foundation.org>,
+        "moderated list:MEDIATEK IOMMU DRIVER" 
+        <linux-mediatek@lists.infradead.org>,
+        "moderated list:ARM/Mediatek SoC support" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "open list" <linux-kernel@vger.kernel.org>
+CC:     <wsd_upstream@mediatek.com>, Libo Kang <Libo.Kang@mediatek.com>,
+        Ning Li <ning.li@mediatek.com>, <stable@vger.kernel.org>
+Date:   Tue, 3 May 2022 16:53:44 +0800
+In-Reply-To: <20220429143411.7640-3-yf.wang@mediatek.com>
+References: <20220429143411.7640-1-yf.wang@mediatek.com>
+         <20220429143411.7640-3-yf.wang@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.113-120-gc58ff00a6fb1f
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.10 baseline: 98 runs,
- 1 regressions (v5.10.113-120-gc58ff00a6fb1f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 98 runs, 1 regressions (v5.10.113-120-gc58ff=
-00a6fb1f)
+Hi YF,
 
-Regressions Summary
--------------------
+Thanks very much for this patch. Nearly all the lastest SoC like
+mt8192/mt8195 support this.
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+On Fri, 2022-04-29 at 22:34 +0800, yf.wang@mediatek.com wrote:
+> From: Yunfei Wang <yf.wang@mediatek.com>
+> 
+> Add the quirk IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT support, so that
+> level 2 page table can allocate in normal memory.
 
+Could you help comment more detailedly here and in the title?, this
+patch just allows the level 2 pgtable PA up to 35bits, not only in
+ZONE_DMA32(GFP_DMA32).
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.113-120-gc58ff00a6fb1f/plan/baseline/
+> 
+> Signed-off-by: Ning Li <ning.li@mediatek.com>
+> Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+> Cc: <stable@vger.kernel.org> # 5.10.*
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.113-120-gc58ff00a6fb1f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c58ff00a6fb1fa477a8588759b03c74addf9d219 =
+If you add this for stable, Which commit do you need for "Fixes:" tag?
 
+It looks you add a new feature, rather than fixing a bug of the current
+kernel. I didn't get a issue report for this. If this is a bug, we need
+more information like under which condition/SoC the error will occur.
 
+The code is ok for me.
 
-Test Regressions
----------------- =
+Thanks.
 
+> ---
+>  drivers/iommu/mtk_iommu.c | 7 ++++++-
+>  1 file changed, 6 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+> index 6fd75a60abd6..27481f562df7 100644
+> --- a/drivers/iommu/mtk_iommu.c
+> +++ b/drivers/iommu/mtk_iommu.c
+> @@ -118,6 +118,7 @@
+>  #define WR_THROT_EN			BIT(6)
+>  #define HAS_LEGACY_IVRP_PADDR		BIT(7)
+>  #define IOVA_34_EN			BIT(8)
+> +#define PGTABLE_L2_PA_35_EN		BIT(9)
+>  
+>  #define MTK_IOMMU_HAS_FLAG(pdata, _x) \
+>  		((((pdata)->flags) & (_x)) == (_x))
+> @@ -401,6 +402,9 @@ static int mtk_iommu_domain_finalise(struct
+> mtk_iommu_domain *dom,
+>  		.iommu_dev = data->dev,
+>  	};
+>  
+> +	if (MTK_IOMMU_HAS_FLAG(data->plat_data, PGTABLE_L2_PA_35_EN))
+> +		dom->cfg.quirks |= IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT;
+> +
+>  	if (MTK_IOMMU_HAS_FLAG(data->plat_data, HAS_4GB_MODE))
+>  		dom->cfg.oas = data->enable_4GB ? 33 : 32;
+>  	else
+> @@ -1038,7 +1042,8 @@ static const struct mtk_iommu_plat_data
+> mt2712_data = {
+>  
+>  static const struct mtk_iommu_plat_data mt6779_data = {
+>  	.m4u_plat      = M4U_MT6779,
+> -	.flags         = HAS_SUB_COMM | OUT_ORDER_WR_EN | WR_THROT_EN,
+> +	.flags         = HAS_SUB_COMM | OUT_ORDER_WR_EN | WR_THROT_EN |
+> +			 PGTABLE_L2_PA_35_EN,
+>  	.inv_sel_reg   = REG_MMU_INV_SEL_GEN2,
+>  	.iova_region   = single_domain,
+>  	.iova_region_nr = ARRAY_SIZE(single_domain),
 
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6270b8a0caefe8efe9dc7b74
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--120-gc58ff00a6fb1f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--120-gc58ff00a6fb1f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6270b8a0caefe8efe9dc7b98
-        failing since 56 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-05-03T05:07:18.143118  /lava-6243099/1/../bin/lava-test-case   =
-
- =20
