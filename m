@@ -2,136 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29078518028
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 10:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EB65180D9
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 11:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233010AbiECI5c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 04:57:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35960 "EHLO
+        id S233360AbiECJXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 05:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230464AbiECI5a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 04:57:30 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E3C320BFD;
-        Tue,  3 May 2022 01:53:54 -0700 (PDT)
-X-UUID: 3c2efbe4fa264e4b9cfaf02165c9a960-20220503
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.4,REQID:3ac4fcfd-5f2d-4bad-aa59-9ee3058359d0,OB:0,LO
-        B:0,IP:0,URL:8,TC:0,Content:-20,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,AC
-        TION:release,TS:-12
-X-CID-META: VersionHash:faefae9,CLOUDID:f3664ec7-85ee-4ac1-ac05-bd3f1e72e732,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,File:nil,QS:0,BEC:nil
-X-UUID: 3c2efbe4fa264e4b9cfaf02165c9a960-20220503
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
-        (envelope-from <yong.wu@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 874287507; Tue, 03 May 2022 16:53:47 +0800
-Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.792.3;
- Tue, 3 May 2022 16:53:45 +0800
-Received: from mhfsdcap04 (10.17.3.154) by mtkmbs11n2.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.2.792.3 via Frontend
- Transport; Tue, 3 May 2022 16:53:44 +0800
-Message-ID: <015b314d693ec66429d1b5516cf9c5621665eea2.camel@mediatek.com>
-Subject: Re: [PATCH 2/2] iommu/mediatek: Enable allocating page table in
- normal memory
-From:   Yong Wu <yong.wu@mediatek.com>
-To:     <yf.wang@mediatek.com>, Joerg Roedel <joro@8bytes.org>,
-        Will Deacon <will@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        "open list:MEDIATEK IOMMU DRIVER" <iommu@lists.linux-foundation.org>,
-        "moderated list:MEDIATEK IOMMU DRIVER" 
-        <linux-mediatek@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list" <linux-kernel@vger.kernel.org>
-CC:     <wsd_upstream@mediatek.com>, Libo Kang <Libo.Kang@mediatek.com>,
-        Ning Li <ning.li@mediatek.com>, <stable@vger.kernel.org>
-Date:   Tue, 3 May 2022 16:53:44 +0800
-In-Reply-To: <20220429143411.7640-3-yf.wang@mediatek.com>
-References: <20220429143411.7640-1-yf.wang@mediatek.com>
-         <20220429143411.7640-3-yf.wang@mediatek.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        with ESMTP id S233355AbiECJXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 05:23:07 -0400
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025051F617;
+        Tue,  3 May 2022 02:19:35 -0700 (PDT)
+Received: by mail-lj1-x232.google.com with SMTP id s27so21284770ljd.2;
+        Tue, 03 May 2022 02:19:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9bGhXUxqXhqDJnMfPqCdUh/KYGhkwvQNfeXyR1CHA6A=;
+        b=NDwWz1tuXJzu3UcjgihQsidXGDZ2UyYgGkjRFTDgif39ppYK8RN//4NDGnDhp2l3g+
+         iGBaZPelj9g3G+ysWdhMWail3Lv4Oy0qflNTlx9XE8psT9pf/IxmwvIQvxRU38ez6Q7l
+         NRsh9i0fjmHnrEIv9aPeG9So151FVY8HwwSm+PYAuQh1xZzmzwLKqg2iSjfVgueL5953
+         R0M8zAwKdVOVyqRsY5XclK5YhPhOR2JgBEgnfch0DXCNYIDYyNND0AWOnMUo72i8QN3E
+         DwGDKXX71R/vtlqGMKE2sZMthhxJY5bt5uVRWkXyKw+/cwfw9Q2clwKON3k4A1GckR6J
+         T8nA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9bGhXUxqXhqDJnMfPqCdUh/KYGhkwvQNfeXyR1CHA6A=;
+        b=zOBjNueIYKc6CMC+o4iBrsReqquPw59RO5/KTpb4+JFugKJxzge1pjwGb9+wOWza4e
+         4ZalZcqSQ4oMGtVS7YuJQLvyQupIayibHIyKhPyywVdKH6m6/tgIBossTn94KP3KwBNT
+         HfNvDm6pe9YoRyyvO5i+x9qfftqOMX76i2j4vx97mHUtA2VWOMsMKnOWa3tUwX/RR0EG
+         ccvcYBh5n+X4rm6E5br1djexKT/bktNmInni8YtE4Bc8OHItlAqJrwkM3+G549+GbNC4
+         JAUuvw0vHY719s8rQfLc9Q6xFSEcCYifBfpYkZtjejrw5vGMnhaSd5emPGVwwARNIUcq
+         kBVw==
+X-Gm-Message-State: AOAM5331rvo8kfw7AN76VK0ZrpduL8zcb/nvTBSwt0XdWRyVMDT79Ddo
+        YAWsszbigHpKW5SO07Y7LC0=
+X-Google-Smtp-Source: ABdhPJwZiwmzm3upFPcxntpHnE/rzc6IG8PbGUiVityfKy/lw+4bQy3LfBoM6OOqZl7j+MGauT0ntQ==
+X-Received: by 2002:a2e:5cc8:0:b0:24f:1616:7d67 with SMTP id q191-20020a2e5cc8000000b0024f16167d67mr9347589ljb.368.1651569573132;
+        Tue, 03 May 2022 02:19:33 -0700 (PDT)
+Received: from pc638.lan ([155.137.26.201])
+        by smtp.gmail.com with ESMTPSA id l9-20020ac24a89000000b0047255d211c7sm906822lfp.246.2022.05.03.02.19.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 03 May 2022 02:19:32 -0700 (PDT)
+From:   Uladzislau Rezki <urezki@gmail.com>
+X-Google-Original-From: Uladzislau Rezki <urezki@pc638.lan>
+Date:   Tue, 3 May 2022 11:19:30 +0200
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     "Uladzislau Rezki (Sony)" <urezki@gmail.com>,
+        stable@vger.kernel.org, RCU <rcu@vger.kernel.org>
+Subject: Re: [PATCH 0/2] RCU offloading vs scheduler latency
+Message-ID: <YnDzohUAn1RF3fTP@pc638.lan>
+References: <20220502190833.3352-1-urezki@gmail.com>
+ <YnAw6gb5JNAIBXHf@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YnAw6gb5JNAIBXHf@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi YF,
-
-Thanks very much for this patch. Nearly all the lastest SoC like
-mt8192/mt8195 support this.
-
-On Fri, 2022-04-29 at 22:34 +0800, yf.wang@mediatek.com wrote:
-> From: Yunfei Wang <yf.wang@mediatek.com>
+> On Mon, May 02, 2022 at 09:08:31PM +0200, Uladzislau Rezki (Sony) wrote:
+> > Motivation of backport:
+> > -----------------------
+> >    
+> > 1. The cfcdef5e30469 ("rcu: Allow rcu_do_batch() to dynamically adjust batch sizes")
+> > broke the default behaviour of "offloading rcu callbacks" setup. In that scenario
+> > after each callback the caller context was used to check if it has to be rescheduled
+> > giving a CPU time for others. After that change an "offloaded" setup can switch to
+> > time-based RCU callbacks processing, what can be long for latency sensitive workloads
+> > and SCHED_FIFO processes, i.e. callbacks are invoked for a long time with keeping
+> > preemption off and without checking cond_resched().
+> >     
+> > 2. Our devices which run Android and 5.10 kernel have some critical areas which
+> > are sensitive to latency. It is a low latency audio, 8k video, UI stack and so on.
+> > For example below is a trace that illustrates a delay of "irq/396-5-0072" RT task
+> > to complete IRQ processing:
+> >     
+> > <snip>
+> >   rcuop/6-54  [000] d.h2  183.752989: irq_handler_entry:    irq=85 name=i2c_geni
+> >   rcuop/6-54  [000] d.h5  183.753007: sched_waking:         comm=irq/396-5-0072 pid=12675 prio=49 target_cpu=000
+> >   rcuop/6-54  [000] dNh6  183.753014: sched_wakeup:         irq/396-5-0072:12675 [49] success=1 CPU:000
+> >   rcuop/6-54  [000] dNh2  183.753015: irq_handler_exit:     irq=85 ret=handled
+> >   rcuop/6-54  [000] .N..  183.753018: rcu_invoke_callback:  rcu_preempt rhp=0xffffff88ffd440b0 func=__d_free.cfi_jt
+> >   rcuop/6-54  [000] .N..  183.753020: rcu_invoke_callback:  rcu_preempt rhp=0xffffff892ffd8400 func=inode_free_by_rcu.cfi_jt
+> >   rcuop/6-54  [000] .N..  183.753021: rcu_invoke_callback:  rcu_preempt rhp=0xffffff89327cd708 func=i_callback.cfi_jt
+> >   ...
+> >   rcuop/6-54  [000] .N..  183.755941: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c5a968 func=i_callback.cfi_jt
+> >   rcuop/6-54  [000] .N..  183.755942: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c4bd20 func=__d_free.cfi_jt
+> >   rcuop/6-54  [000] dN..  183.755944: rcu_batch_end:        rcu_preempt CBs-invoked=2112 idle=>c<>c<>c<>c<
+> >   rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      Start context switch
+> >   rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      End context switch
+> >   rcuop/6-54  [000] d..2  183.755959: sched_switch:         rcuop/6:54 [120] R ==> migration/0:16 [0]
+> >   ...
+> >   migratio-16 [000] d..2  183.756021: sched_switch:         migration/0:16 [0] S ==> irq/396-5-0072:12675 [49]
+> > <snip>
+> >     
+> > The "irq/396-5-0072:12675" was delayed for ~3 milliseconds due to introduced side effect.
+> > Please note, on our Android devices we get ~70 000 callbacks registered to be invoked by
+> > the "rcuop/x" workers. This is during 1 seconds time interval and regular handset usage.
+> > Latencies bigger that 3 milliseconds affect our high-resolution audio streaming over the
+> > LDAC/Bluetooth stack.
+> > 
+> > Two patches depend on each other.
 > 
-> Add the quirk IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT support, so that
-> level 2 page table can allocate in normal memory.
-
-Could you help comment more detailedly here and in the title?, this
-patch just allows the level 2 pgtable PA up to 35bits, not only in
-ZONE_DMA32(GFP_DMA32).
-
+> One meta-comment.  We can't apply changes to older kernels and not newer
+> ones, as you do not want to upgrade your kernel and suffer a regression.
+> This patch series comes from 5.17, but you are backporting to only 5.10.
+> What about 5.15?  I can't consider this series unless we have a series
+> also for 5.15 for that reason, we have to keep in sync otherwise things
+> get unmaintainable.
 > 
-> Signed-off-by: Ning Li <ning.li@mediatek.com>
-> Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-> Cc: <stable@vger.kernel.org> # 5.10.*
-
-If you add this for stable, Which commit do you need for "Fixes:" tag?
-
-It looks you add a new feature, rather than fixing a bug of the current
-kernel. I didn't get a issue report for this. If this is a bug, we need
-more information like under which condition/SoC the error will occur.
-
-The code is ok for me.
-
-Thanks.
-
-> ---
->  drivers/iommu/mtk_iommu.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> So, have a 5.15 backport as well?
 > 
-> diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-> index 6fd75a60abd6..27481f562df7 100644
-> --- a/drivers/iommu/mtk_iommu.c
-> +++ b/drivers/iommu/mtk_iommu.c
-> @@ -118,6 +118,7 @@
->  #define WR_THROT_EN			BIT(6)
->  #define HAS_LEGACY_IVRP_PADDR		BIT(7)
->  #define IOVA_34_EN			BIT(8)
-> +#define PGTABLE_L2_PA_35_EN		BIT(9)
->  
->  #define MTK_IOMMU_HAS_FLAG(pdata, _x) \
->  		((((pdata)->flags) & (_x)) == (_x))
-> @@ -401,6 +402,9 @@ static int mtk_iommu_domain_finalise(struct
-> mtk_iommu_domain *dom,
->  		.iommu_dev = data->dev,
->  	};
->  
-> +	if (MTK_IOMMU_HAS_FLAG(data->plat_data, PGTABLE_L2_PA_35_EN))
-> +		dom->cfg.quirks |= IO_PGTABLE_QUIRK_ARM_MTK_TTBR_EXT;
-> +
->  	if (MTK_IOMMU_HAS_FLAG(data->plat_data, HAS_4GB_MODE))
->  		dom->cfg.oas = data->enable_4GB ? 33 : 32;
->  	else
-> @@ -1038,7 +1042,8 @@ static const struct mtk_iommu_plat_data
-> mt2712_data = {
->  
->  static const struct mtk_iommu_plat_data mt6779_data = {
->  	.m4u_plat      = M4U_MT6779,
-> -	.flags         = HAS_SUB_COMM | OUT_ORDER_WR_EN | WR_THROT_EN,
-> +	.flags         = HAS_SUB_COMM | OUT_ORDER_WR_EN | WR_THROT_EN |
-> +			 PGTABLE_L2_PA_35_EN,
->  	.inv_sel_reg   = REG_MMU_INV_SEL_GEN2,
->  	.iova_region   = single_domain,
->  	.iova_region_nr = ARRAY_SIZE(single_domain),
+Yep, i can prepare a backport for 5.15 as well. So i can resend the patches 
+for 5.10 and 5.15 stable kernels, in total there will be 4 patches with two
+separate cover letters.
 
+Does it work for you?
+
+> Also, you forgot to cc: the developers of the patches in this 0/X email,
+> that just causes confusion for those that do not receive this message.
+> 
+Sorry, i missed that point in cover latter. So will update it with appropriate
+people on my next resend.
+
+Thanks!
+
+--
+Uladzislau Rezki
