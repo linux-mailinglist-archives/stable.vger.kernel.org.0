@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46EC75185AE
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8EC85185AC
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:39:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236244AbiECNnG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 09:43:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
+        id S236269AbiECNnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 09:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234324AbiECNnG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:43:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2302613C
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:39:34 -0700 (PDT)
+        with ESMTP id S234324AbiECNnF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:43:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1151F2613C
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A032061778
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17B0C385A4;
-        Tue,  3 May 2022 13:39:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1C9161764
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:39:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F89C385AF;
+        Tue,  3 May 2022 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651585173;
-        bh=itUxQfMsqGwOj1YLmem0yAlaA5mBRWEux3ChgwaVZzE=;
+        s=korg; t=1651585172;
+        bh=GjiVl+kISSzQ1X4FMBWMLkmZ7CEdaJI15i60Uxx0BAc=;
         h=Subject:To:Cc:From:Date:From;
-        b=wZhdymy3AIkb6Za8iK06ldQMcJB1p9feJffEIAK+j0RwUJk4l9bATHYi9v1PWXhsq
-         HC6f2xqQIBZg5AUfHKDFg+ucztnIXTGLBwHP0WYwboh0Sq0zB5uqVSZMSZhRflCj4E
-         /go08+dRy083Qk3Blfzzx4jFDzg4v6XjeoRMlLb4=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix missing update of modem controls after DLCI" failed to apply to 5.10-stable tree
+        b=Mh9jWGaQT+1l4+nc60nXisxrH587rmaRR1Oiu4w7Qt8TTcbPCu7jZkkJ6rIAI7I1J
+         jcefnes4adXanpTQOQW4odgq4PzCEy/0lXMgzdPGg5CRVuLaknpzsOlNoHfocLZJjl
+         UEuu/10mSPdUA500jF3b4vjKElqk/I89dcxcUa0g=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix missing update of modem controls after DLCI" failed to apply to 5.4-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 03 May 2022 15:39:30 +0200
-Message-ID: <1651585170137235@kroah.com>
+Message-ID: <165158517013494@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
