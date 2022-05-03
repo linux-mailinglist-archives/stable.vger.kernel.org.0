@@ -2,162 +2,295 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36BA2518713
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 16:45:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B855187DB
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 17:06:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237289AbiECOsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 10:48:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42350 "EHLO
+        id S235963AbiECPKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 11:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237298AbiECOsc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 10:48:32 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 773DC38DBC
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 07:44:59 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id x18so3964292plg.6
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 07:44:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=e8AVZNz1T1fbKBPaS1jbLfs2nSYwxCJeZrFfZY3AuXg=;
-        b=YgIR+HSs5Fl2nL+1avLDSIxzGwgrqQZg4BiwSjU0cu9k2bxpynzPGC6wvWGoMkvHfv
-         yMI9a0zmrILdE4gbdtT/4db5hjs7b+NxgPwkibcXWrjxuWgC0hV/jH5qF4vcbryjtJi/
-         KvzOXe86/hQ0c/8QofStHRq2f0dDshoXPcr9I=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=e8AVZNz1T1fbKBPaS1jbLfs2nSYwxCJeZrFfZY3AuXg=;
-        b=dbTvpyE5Veq2ZaVkq7lomgG0ULVbJi76IDTibTTJ71/a/OdsxeV2cTfRuGcWi9mjNw
-         c1vZWkBLT5ic26xQr3wTV+4GGV1Hm+xYO1FoiQGwxRGOagzv82LeOBym6Fa1jSKjJf6z
-         AfAvSK5MVCZBI4kwTvEof+V3a//v6Bgo9UosC5fmI6Ym6WSwrD7NZ47pVlwuO1kpa6Gd
-         u2Ms5bsWVKtoOCr8iFExiInm2pWrB7cez2ND2IsQ1OAPMkbcSgmSIJ/8pY7Y0buwG+mR
-         5c/6sAgJzU+dhnvK02eLEAMQmXw/d0PJNzM24VvEpI3QNHmXnJoZbMAp1WWuHY029Aeh
-         ZnYg==
-X-Gm-Message-State: AOAM530dBs3fFyODXbCAgzDXhORp2ZKqGnvWoWDU6PON5gtGckbKGbYk
-        HMo51Ji2ZCshafQNkJACS87kcQ==
-X-Google-Smtp-Source: ABdhPJxpqQbtuAURmpaH45+EofYX7rkQQIunIhDE2JG2HBB7V2ZaoSOsrzkTFHzKRa1O/qRfMqbtMA==
-X-Received: by 2002:a17:90a:b106:b0:1d9:7cde:7914 with SMTP id z6-20020a17090ab10600b001d97cde7914mr5052946pjq.56.1651589098978;
-        Tue, 03 May 2022 07:44:58 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id k4-20020a170902ba8400b0015e8d4eb230sm6387973pls.122.2022.05.03.07.44.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 07:44:58 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Raju Rangoju <rajur@chelsio.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: [PATCH] net: chelsio: cxgb4: Avoid potential negative array offset
-Date:   Tue,  3 May 2022 07:44:25 -0700
-Message-Id: <20220503144425.2858110-1-keescook@chromium.org>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S230190AbiECPKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 11:10:20 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C7735A9B;
+        Tue,  3 May 2022 08:06:46 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4Kt3Fw4K0Pz4xXk;
+        Wed,  4 May 2022 01:06:44 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1651590404;
+        bh=Dgg0y2YAJVCYq+A7nlozqofEZc1GspCWNF8o1AxIhDk=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=oOj5zvnan2Y/BMYEpzl5Az0MK3LSXnm9Hl0SuV96bsd1io91AjtKlq4SX1yV6iLvd
+         VPqPSG64Jl4UNBj9/Fhnb0iMsGHn6qOzrTiKdy99kLv6mUDg5ppeRtSEWiJCmZKzKW
+         LYaQC2WhJ9AJjpfRegXbTRn2gdmWqTZcRUSpWXQF0bo5zFdstIk7j9VNGQO3G2TgsH
+         3S29CDT+RNxq9v1fbWp+uO+1oATO/8o1WwIO9ZeHe92UfFt7xUcw8uJcRMKJIO3Cek
+         xwHV8E8EvrIyBohVYTVFefLXaxdmi7Sz5So1X4nVaLST8pOpH1Ebzzn/Byyy30yXne
+         00KbkEONIoFJQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Laurent Dufour <ldufour@linux.ibm.com>
+Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
+In-Reply-To: <20220401140634.65726-1-ldufour@linux.ibm.com>
+References: <20220401140634.65726-1-ldufour@linux.ibm.com>
+Date:   Wed, 04 May 2022 01:06:41 +1000
+Message-ID: <87r15aveny.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4431; h=from:subject; bh=+8uAMoqqS0Bcfw8fZYr6KoQkcNcm36Imb2FI1uAd3hw=; b=owEBbQKS/ZANAwAKAYly9N/cbcAmAcsmYgBicT/Jv8v/feIVKVuIyt5mmkMRPZzdczQGAeIED/S7 Sue6QWmJAjMEAAEKAB0WIQSlw/aPIp3WD3I+bhOJcvTf3G3AJgUCYnE/yQAKCRCJcvTf3G3AJnSlD/ 9g7H+DltIHtP9cfNn3f84D/otBGRybV39ENgfcteZPAekvVAxWbzFXVXjV1DCl2HYb6XH94aYgCCvl VjgPLaI2AgI1z6oeSF4FXEZ8Oj+pmwDMBZOwIXpViXgs7UbPQWvC88ax1BUlLCHKdz1cUtZoY/SohH lRdgXNPqyqFjAUyvop6yPb1TyhHTn6DgIzfF92/c/VwB0rgIci9AuoyQ6xSrrse11Q4Q9IVBGgsUSv IcJThpwqDXdsRe0KtlJf6dRV0aB9v9RX6kEvKrx5T4ovBu6XqgSgW5Kjj1XubGyevRDDyU0k/ttLPh Hpzhx+t9n/UC5k+gCFS3q+e1tGbaVF1LOASAs1nhCw7RnSCT/mekDTlJSKwLN+WxfPvQPjCMCF8wh9 Ra3Gb0Uezm2UiXIkAZ4FbQZPP5MR5zARIfUGmT4ChTTw84uORVP9rRBuv1xxBpuNg3HDmfYzu4/UJM ZDJit+SFwwho3EK2zZlweact3kjnuUzcR+v11rY52Ejxl/H/wf0BVWzmJS7nO3tjeIBLn9E86n5uP+ 3iInLzOk4swgV/dqvq/xjSvecKICXVVtvOgnP1pkYAkguEdt46US/lUJhZI/FMIH7uAcCTbH9ARg/A jTjJNdk3gEUCPfhSDLdbzKvYzfYIr95z2fYT1LAc6hfj/RdtVBlXjY9EhL7g==
-X-Developer-Key: i=keescook@chromium.org; a=openpgp; fpr=A5C3F68F229DD60F723E6E138972F4DFDC6DC026
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Using min_t(int, ...) as a potential array index implies to the compiler
-that negative offsets should be allowed. This is not the case, though.
-Replace min_t() with clamp_t(). Fixes the following warning exposed
-under future CONFIG_FORTIFY_SOURCE improvements:
+Laurent Dufour <ldufour@linux.ibm.com> writes:
+> RTAS runs in real mode (MSR[DR] and MSR[IR] unset) and in 32bits
+> mode (MSR[SF] unset).
 
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/rcupdate.h:29,
-                 from include/linux/rculist.h:11,
-                 from include/linux/pid.h:5,
-                 from include/linux/sched.h:14,
-                 from include/linux/delay.h:23,
-                 from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
- 2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-      |         ^~~~~~
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
- 2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-      |         ^~~~~~
+Probably also worth mentioning that it runs in big endian mode :)
 
-Additionally remove needless cast from u8[] to char * in last strim()
-call.
+It is specified in PAPR (R1-7.2.1-6).
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
-Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
-Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
-Cc: Raju Rangoju <rajur@chelsio.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+> The change in MSR is done in enter_rtas() in a relatively complex way,
+> since the MSR value could be hardcoded.
+>
+> Furthermore, a panic has been reported when hitting the watchdog interrupt
+> while running in RTAS, this leads to the following stack trace:
+>
+> [69244.027433][   C24] watchdog: CPU 24 Hard LOCKUP
+> [69244.027442][   C24] watchdog: CPU 24 TB:997512652051031, last heartbea=
+t TB:997504470175378 (15980ms ago)
+> [69244.027451][   C24] Modules linked in: chacha_generic(E) libchacha(E) =
+xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) li=
+bpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rn=
+g(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_=
+generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camel=
+lia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) alg=
+if_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rp=
+cgss(E)
+> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(=
+E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netl=
+ink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(=
+E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_=
+vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) con=
+figfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E)=
+ t10_pi(E)
+> [69244.027555][   C24]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf1=
+28mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) r=
+aid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) d=
+m_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
+> [69244.027587][   C24] Supported: No, Unreleased kernel
+> [69244.027600][   C24] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Taint=
+ed: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP=
+4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
+> [69244.027609][   C24] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0=
+000000000000000
+> [69244.027612][   C24] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G    =
+        E  X     (5.14.21-150400.71.1.bz196362_2-default)
+> [69244.027615][   C24] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 488000=
+02  XER: 20040020
+> [69244.027625][   C24] CFAR: 000000000000011c IRQMASK: 1
+> [69244.027625][   C24] GPR00: 0000000000000003 ffffffffffffffff 000000000=
+0000001 00000000000050dc
+> [69244.027625][   C24] GPR04: 000000001ffb6100 0000000000000020 000000000=
+0000001 000000001fb09010
+> [69244.027625][   C24] GPR08: 0000000020000000 0000000000000000 000000000=
+0000000 0000000000000000
+> [69244.027625][   C24] GPR12: 80040000072a40a8 c00000000ff8b680 000000000=
+0000007 0000000000000034
+> [69244.027625][   C24] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001=
+fbd1db0 000000001fb3f008
+> [69244.027625][   C24] GPR20: 000000001fb41018 ffffffffffffffff 000000000=
+000017f fffffffffffff68f
+> [69244.027625][   C24] GPR24: 000000001fb18fe8 000000001fb3e000 000000001=
+fb1adc0 000000001fb1cf40
+> [69244.027625][   C24] GPR28: 000000001fb26000 000000001fb460f0 000000001=
+fb17f18 000000001fb17000
+> [69244.027663][   C24] NIP [000000001fb41050] 0x1fb41050
+> [69244.027696][   C24] LR [000000001fb4104c] 0x1fb4104c
+> [69244.027699][   C24] Call Trace:
+> [69244.027701][   C24] Instruction dump:
+> [69244.027723][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
+XXX XXXXXXXX XXXXXXXX
+> [69244.027728][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
+XXX XXXXXXXX XXXXXXXX
+> [69244.027762][T87504] Oops: Unrecoverable System Reset, sig: 6 [#1]
+> [69244.028044][T87504] LE PAGE_SIZE=3D64K MMU=3DHash SMP NR_CPUS=3D2048 N=
+UMA pSeries
+> [69244.028089][T87504] Modules linked in: chacha_generic(E) libchacha(E) =
+xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) li=
+bpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rn=
+g(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_=
+generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camel=
+lia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) alg=
+if_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rp=
+cgss(E)
+> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(=
+E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netl=
+ink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(=
+E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_=
+vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) con=
+figfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E)=
+ t10_pi(E)
+> [69244.028171][T87504]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf1=
+28mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) r=
+aid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) d=
+m_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
+> [69244.028307][T87504] Supported: No, Unreleased kernel
+> [69244.028385][T87504] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Taint=
+ed: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP=
+4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
+> [69244.028408][T87504] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0=
+000000000000000
+> [69244.028418][T87504] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G    =
+        E  X     (5.14.21-150400.71.1.bz196362_2-default)
+> [69244.028429][T87504] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 488000=
+02  XER: 20040020
+> [69244.028444][T87504] CFAR: 000000000000011c IRQMASK: 1
+> [69244.028444][T87504] GPR00: 0000000000000003 ffffffffffffffff 000000000=
+0000001 00000000000050dc
+> [69244.028444][T87504] GPR04: 000000001ffb6100 0000000000000020 000000000=
+0000001 000000001fb09010
+> [69244.028444][T87504] GPR08: 0000000020000000 0000000000000000 000000000=
+0000000 0000000000000000
+> [69244.028444][T87504] GPR12: 80040000072a40a8 c00000000ff8b680 000000000=
+0000007 0000000000000034
+> [69244.028444][T87504] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001=
+fbd1db0 000000001fb3f008
+> [69244.028444][T87504] GPR20: 000000001fb41018 ffffffffffffffff 000000000=
+000017f fffffffffffff68f
+> [69244.028444][T87504] GPR24: 000000001fb18fe8 000000001fb3e000 000000001=
+fb1adc0 000000001fb1cf40
+> [69244.028444][T87504] GPR28: 000000001fb26000 000000001fb460f0 000000001=
+fb17f18 000000001fb17000
+> [69244.028534][T87504] NIP [000000001fb41050] 0x1fb41050
+> [69244.028543][T87504] LR [000000001fb4104c] 0x1fb4104c
+> [69244.028549][T87504] Call Trace:
+> [69244.028554][T87504] Instruction dump:
+> [69244.028561][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
+XXX XXXXXXXX XXXXXXXX
+> [69244.028575][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXX=
+XXX XXXXXXXX XXXXXXXX
+> [69244.028607][T87504] ---[ end trace 3ddec07f638c34a2 ]---
+>
+> This happens because MSR[RI] is unset when entering RTAS but there is no
+> valid reason to not set it here.
+>
+> RTAS is expected to be called with MSR[RI] as specified in PAPR+ section
+> "7.2.1 Machine State":
+>
+>  R1=E2=80=937.2.1=E2=80=939. If called with MSR[RI] equal to 1, then RTAS=
+ must protect its
+>  own critical regions from recursion by setting the MSRRI bit to 0 when in
+>  the critical regions.
+>
+> Fixing this by reviewing the way MSR is compute before calling RTAS. Now a
+> hardcoded value meaning real mode, 32 bits and Recoverable Interrupt is
+> loaded.
+>
+> In addition a check is added in do_enter_rtas() to detect calls made with
+> MSR[RI] unset, as we are forcing it on later.
+>
+> This patch has been tested on the following machines:
+> Power KVM Guest
+>   P8 S822L (host Ubuntu kernel 5.11.0-49-generic)
+> PowerVM LPAR
+>   P8 9119-MME (FW860.A1)
+>   p9 9008-22L (FW950.00)
+>   P10 9080-HEX (FW1010.00)
+>
+> Changes in V2:
+>  - Change comment in code to indicate NMI (Nick's comment)
+>  - Add reference to PAPR+ in the change log (Michael's comment)
+>
+> Cc: stable@vger.kernel.org
+> Suggested-by: Nicholas Piggin <npiggin@gmail.com>
+> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
+> ---
+>  arch/powerpc/kernel/entry_64.S | 20 ++++++++------------
+>  arch/powerpc/kernel/rtas.c     |  5 +++++
+>  2 files changed, 13 insertions(+), 12 deletions(-)
+>
+> diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_6=
+4.S
+> index 9581906b5ee9..65cb14b56f8d 100644
+> --- a/arch/powerpc/kernel/entry_64.S
+> +++ b/arch/powerpc/kernel/entry_64.S
+> @@ -330,22 +330,18 @@ _GLOBAL(enter_rtas)
+>  	clrldi	r4,r4,2			/* convert to realmode address */
+>         	mtlr	r4
+>=20=20
+> -	li	r0,0
+> -	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
+> -	andc	r0,r6,r0
+> -=09
+> -        li      r9,1
+> -        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
+> -	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
+> -	andc	r6,r0,r9
+=20
+One advantage of the old method is it can adapt to new MSR bits being
+set by the kernel.
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index e7b4e3ed056c..f119ec7323e5 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -2793,14 +2793,14 @@ int t4_get_raw_vpd_params(struct adapter *adapter, struct vpd_params *p)
- 		goto out;
- 	na = ret;
- 
--	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-+	memcpy(p->id, vpd + id, clamp_t(int, id_len, 0, ID_LEN));
- 	strim(p->id);
--	memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-+	memcpy(p->sn, vpd + sn, clamp_t(int, sn_len, 0, SERNUM_LEN));
- 	strim(p->sn);
--	memcpy(p->pn, vpd + pn, min_t(int, pn_len, PN_LEN));
-+	memcpy(p->pn, vpd + pn, clamp_t(int, pn_len, 0, PN_LEN));
- 	strim(p->pn);
--	memcpy(p->na, vpd + na, min_t(int, na_len, MACADDR_LEN));
--	strim((char *)p->na);
-+	memcpy(p->na, vpd + na, clamp_t(int, na_len, 0, MACADDR_LEN));
-+	strim(p->na);
- 
- out:
- 	vfree(vpd);
--- 
-2.32.0
+For example we used to use RTAS on powernv, and this code didn't need
+updating to cater to MSR_HV being set. We will probably never use RTAS
+on bare-metal again, so that's OK.
 
+But your change might break secure virtual machines, because it clears
+MSR_S whereas the old code didn't. I think SVMs did use RTAS, but I
+don't know whether it matters if it's called with MSR_S set or not?
+
+Not sure if anyone will remember, or has a working setup they can test.
+Maybe for now we just copy MSR_S from the kernel MSR the way the
+current code does.
+
+>  __enter_rtas:
+> -	sync				/* disable interrupts so SRR0/1 */
+> -	mtmsrd	r0			/* don't get trashed */
+> -
+>  	LOAD_REG_ADDR(r4, rtas)
+>  	ld	r5,RTASENTRY(r4)	/* get the rtas->entry value */
+>  	ld	r4,RTASBASE(r4)		/* get the rtas->base value */
+> +
+> +	/* RTAS runs in 32bits real mode but let MSR[]RI on as we may hit
+
+"32-bit big endian real mode"
+
+> +	 * NMI (SRESET or MCE). RTAS should disable RI in its critical
+> +	 * regions (as specified in PAPR+ section 7.2.1). */
+> +	LOAD_REG_IMMEDIATE(r6, MSR_ME|MSR_RI)
+> +
+> +	li      r0,0
+> +	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
+>=20=20=09
+>  	mtspr	SPRN_SRR0,r5
+>  	mtspr	SPRN_SRR1,r6
+> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
+> index 1f42aabbbab3..d7775b8c8853 100644
+> --- a/arch/powerpc/kernel/rtas.c
+> +++ b/arch/powerpc/kernel/rtas.c
+> @@ -49,6 +49,11 @@ void enter_rtas(unsigned long);
+>=20=20
+>  static inline void do_enter_rtas(unsigned long args)
+>  {
+> +	unsigned long msr;
+> +
+> +	msr =3D mfmsr();
+> +	BUG_ON(!(msr & MSR_RI));
+
+I'm not sure about this.
+
+We call RTAS in some low-level places, so if we ever hit this BUG_ON
+then it might cause us to crash badly, or recursively BUG.
+
+A WARN_ON_ONCE() might be safer?
+
+cheers
