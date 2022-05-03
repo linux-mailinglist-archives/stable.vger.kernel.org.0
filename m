@@ -2,147 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0FC5189F6
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:30:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9722C518A38
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232835AbiECQdf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 12:33:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
+        id S239688AbiECQp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 12:45:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239598AbiECQde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:33:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0499E3CFE8
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 09:30:02 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9489D61735
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 16:30:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEB1EC385A9;
-        Tue,  3 May 2022 16:30:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651595401;
-        bh=KnEtZcpWAEKf8t1KDeLbzT0tgHFNQ/5M1G4Tfp2XfRM=;
-        h=Subject:To:Cc:From:Date:From;
-        b=ES1w7p82zUxLDLdXU7ihH24ZfLbGt+/AYxvZelzc7zZ9GeJJc0rwy+c3O2va+1trb
-         Wmb/4f2dbroHhiahHPc3W/EI6HzhwFGEDMiyRJIWMOMeE7iVFbkJDp/rPVzP3yemy5
-         9O1wZ0RiJrqc+GFKX+kolSGyB5IqAbZBz5rOtz3k=
-Subject: FAILED: patch "[PATCH] objtool: Fix type of reloc::addend" failed to apply to 4.14-stable tree
-To:     peterz@infradead.org, jpoimboe@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 18:29:57 +0200
-Message-ID: <165159539722040@kroah.com>
+        with ESMTP id S231324AbiECQpZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:45:25 -0400
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A2E2B195;
+        Tue,  3 May 2022 09:41:52 -0700 (PDT)
+Received: by mail-oi1-x230.google.com with SMTP id v65so18711744oig.10;
+        Tue, 03 May 2022 09:41:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=DWGsTojyGQoSPIdCEDVzeXxH9jCGYkBR9JrUFgAvz6M=;
+        b=p767NOvM44rw4/Z1xJXqfTr4LYOq/GvY9Lw7UYjhoP+9u9avKmVoxs/2O/Wfq9cmhJ
+         BBHuhb897jNPkSzDbGcoeaGJnVNIqaL9iEK/BELMw87Grt3no7yCxXzEuEi8esgf3QmI
+         ytnHenRgWyoHBDXpcUPqN32TElN9llRMcSp9DpDk9TI6CqgK1fliIuJxkKTwCXpb/mUX
+         g3LW+QeThDOgP3kAF/JoR8pdj0ZGKYrxr5GsT5gENPpp1PsrPaYDuRbEOWftcXnDmJiF
+         LB37DalfuKyofh/XbMxcuwLhfxQN5/bicyz/SfRkPUrwz44Henks2SoMA4QEugdKcphc
+         uSDQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=DWGsTojyGQoSPIdCEDVzeXxH9jCGYkBR9JrUFgAvz6M=;
+        b=sT04GqMPjzDbU3/m672xBhtLwiAZdXJRVnYk6Xr+VqkKX0R+cKJtTetjBjXnQRVJCf
+         S97UmrWtRUPNWfLxeV7z9SXhWgjsP+Tkye9sbO3upO1/Ok29BkwypRS9eqJHi4gRctu+
+         PPBa/vTy3SJIapKGM8cAVzvtTFJCHYgacbhEj3Q/jNEu0rVA44O8fs+5NbczkstES11c
+         ZbPN3V8H3Cc5cjBSK7VdI4AvUYwNlSCSC/CGiST/3d9lMDS03dBXrkwzLj1AD6AjQuzi
+         nhIUdgk660Z2z1sxQfbDOqL1X/XzEE/K/+vbf6tSnOQBHInRbANokLkwro7Ll/4QK9wH
+         xdoA==
+X-Gm-Message-State: AOAM532d2Ku3WSD6+uv0FRyjLRsj0inEJ1bL9djhHSgw5WaVdz1xcsNZ
+        CqllqymWjAEV9mhsZrJt6mI=
+X-Google-Smtp-Source: ABdhPJxJQtL3i+X4QSSL5pl008gbPgE0+t0O5LHQEsorzC2juhySNzwgMdnPmSQ4NNbM+0aj0KlJcg==
+X-Received: by 2002:a05:6808:2107:b0:325:b9df:a6f8 with SMTP id r7-20020a056808210700b00325b9dfa6f8mr2233422oiw.164.1651596111758;
+        Tue, 03 May 2022 09:41:51 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id e10-20020aca130a000000b00325cda1ffa6sm3475308oii.37.2022.05.03.09.41.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 03 May 2022 09:41:50 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <fd8f1f86-1fb3-b4de-61f7-b7ec5aa2f95c@roeck-us.net>
+Date:   Tue, 3 May 2022 09:41:48 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 4.19 00/12] 4.19.241-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220429104048.459089941@linuxfoundation.org>
+ <20220503141652.GA3698419@roeck-us.net> <YnE7aX7p4iQvOrZf@kroah.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <YnE7aX7p4iQvOrZf@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/3/22 07:25, Greg Kroah-Hartman wrote:
+> On Tue, May 03, 2022 at 07:16:52AM -0700, Guenter Roeck wrote:
+>> On Fri, Apr 29, 2022 at 12:41:17PM +0200, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 4.19.241 release.
+>>> There are 12 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sun, 01 May 2022 10:40:41 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>
+>> No cc this time ?
+> 
+> You and Pavel said this, yet I see your response here:
+> 	https://lore.kernel.org/r/20220429234822.GB2444503@roeck-us.net
+> that you sent on Friday.
+> 
+> Did some old email get unstuck and resent somehow?
+> 
+> 4.19.241 was released on Sunday, I have not sent out new -rc
+> announcements yet.
+> 
+> confused,
+> 
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+No, it is me who is confused. I saw Pavel's e-mail, checked stable,
+found this announcement, and thought it was a new one since lore
+reordered it after Pavel's reply.
 
-thanks,
+The problem I reported is for v4.19.241-49-g667276a8c00e,
+but is also affects v4.14.y.queue and v4.9.y.queue.
 
-greg k-h
+Sorry for the noise.
 
------------------- original commit in Linus's tree ------------------
-
-From c087c6e7b551b7f208c0b852304f044954cf2bb3 Mon Sep 17 00:00:00 2001
-From: Peter Zijlstra <peterz@infradead.org>
-Date: Sun, 17 Apr 2022 17:03:40 +0200
-Subject: [PATCH] objtool: Fix type of reloc::addend
-
-Elf{32,64}_Rela::r_addend is of type: Elf{32,64}_Sword, that means
-that our reloc::addend needs to be long or face tuncation issues when
-we do elf_rebuild_reloc_section():
-
-  - 107:  48 b8 00 00 00 00 00 00 00 00   movabs $0x0,%rax        109: R_X86_64_64        level4_kernel_pgt+0x80000067
-  + 107:  48 b8 00 00 00 00 00 00 00 00   movabs $0x0,%rax        109: R_X86_64_64        level4_kernel_pgt-0x7fffff99
-
-Fixes: 627fce14809b ("objtool: Add ORC unwind table generation")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lkml.kernel.org/r/20220419203807.596871927@infradead.org
-
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 5f10653eb5c2..3f6785415894 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -559,12 +559,12 @@ static int add_dead_ends(struct objtool_file *file)
- 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
- 			insn = find_last_insn(file, reloc->sym->sec);
- 			if (!insn) {
--				WARN("can't find unreachable insn at %s+0x%x",
-+				WARN("can't find unreachable insn at %s+0x%lx",
- 				     reloc->sym->sec->name, reloc->addend);
- 				return -1;
- 			}
- 		} else {
--			WARN("can't find unreachable insn at %s+0x%x",
-+			WARN("can't find unreachable insn at %s+0x%lx",
- 			     reloc->sym->sec->name, reloc->addend);
- 			return -1;
- 		}
-@@ -594,12 +594,12 @@ static int add_dead_ends(struct objtool_file *file)
- 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
- 			insn = find_last_insn(file, reloc->sym->sec);
- 			if (!insn) {
--				WARN("can't find reachable insn at %s+0x%x",
-+				WARN("can't find reachable insn at %s+0x%lx",
- 				     reloc->sym->sec->name, reloc->addend);
- 				return -1;
- 			}
- 		} else {
--			WARN("can't find reachable insn at %s+0x%x",
-+			WARN("can't find reachable insn at %s+0x%lx",
- 			     reloc->sym->sec->name, reloc->addend);
- 			return -1;
- 		}
-diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
-index d7b99a737496..0cfe84ac4cdb 100644
---- a/tools/objtool/elf.c
-+++ b/tools/objtool/elf.c
-@@ -546,7 +546,7 @@ static struct section *elf_create_reloc_section(struct elf *elf,
- 						int reltype);
- 
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
--		  unsigned int type, struct symbol *sym, int addend)
-+		  unsigned int type, struct symbol *sym, long addend)
- {
- 	struct reloc *reloc;
- 
-diff --git a/tools/objtool/include/objtool/elf.h b/tools/objtool/include/objtool/elf.h
-index 22ba7e2b816e..9b36802ed86f 100644
---- a/tools/objtool/include/objtool/elf.h
-+++ b/tools/objtool/include/objtool/elf.h
-@@ -73,7 +73,7 @@ struct reloc {
- 	struct symbol *sym;
- 	unsigned long offset;
- 	unsigned int type;
--	int addend;
-+	long addend;
- 	int idx;
- 	bool jump_table_start;
- };
-@@ -135,7 +135,7 @@ struct elf *elf_open_read(const char *name, int flags);
- struct section *elf_create_section(struct elf *elf, const char *name, unsigned int sh_flags, size_t entsize, int nr);
- 
- int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
--		  unsigned int type, struct symbol *sym, int addend);
-+		  unsigned int type, struct symbol *sym, long addend);
- int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
- 			  unsigned long offset, unsigned int type,
- 			  struct section *insn_sec, unsigned long insn_off);
-
+Guenter
