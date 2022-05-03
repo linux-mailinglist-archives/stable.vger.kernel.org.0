@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68610518680
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 16:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C49BE5186B0
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 16:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236917AbiECOZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 10:25:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53262 "EHLO
+        id S237068AbiECOdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 10:33:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236933AbiECOZk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 10:25:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58F692DA96
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 07:22:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S234523AbiECOdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 10:33:35 -0400
+X-Greylist: delayed 353 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 03 May 2022 07:30:03 PDT
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D4F931513;
+        Tue,  3 May 2022 07:30:03 -0700 (PDT)
+Received: from quatroqueijos (unknown [179.93.188.62])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D484B81ED0
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 14:22:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F106C385A9;
-        Tue,  3 May 2022 14:22:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651587724;
-        bh=EcQbw2tBBUVek6ewt6jFTkuMql816FNECKUaO7t0uZA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xTwg8F2U65KgKlinKCUlIqCiH/VC7uGfL9VTCH+LfnO2wPWA9EBUrWjE9uWXhNIv9
-         fPK2XEmGTTt+bHNJymNFg2E6RIx8YWd8jHCnknIVaPZeQsu53QZm74Lxq4ND1lJkxh
-         uQGa63OOuV4pucZCJJI6wOBtP6OADCMOArlE2z5s=
-Date:   Tue, 3 May 2022 16:22:03 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Hillf Danton <hdanton@sina.com>,
-        syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Sean Paul <seanpaul@chromium.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Eric Anholt <eric@anholt.net>, Sam Ravnborg <sam@ravnborg.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: Re: [PATCH 4.19 1/1] drm/vgem: Close use-after-free race in
- vgem_gem_create
-Message-ID: <YnE6i83BK8kJhnz6@kroah.com>
-References: <20220502113857.2126299-1-ovidiu.panait@windriver.com>
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 8E4D43F615;
+        Tue,  3 May 2022 14:24:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1651587848;
+        bh=urSSftn1EDj1knk1ElcHxdDohl86j8X4oe+aGlRIn7k=;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+         Content-Type:In-Reply-To;
+        b=JSAFGChvVRJlWhFtOmDSUzU5iPEg9jxJVJ3EoTxrT7uemarA2MVaPJppywZa9+vRx
+         laRmYY3qofSKi55S/K3TVGlVie7O9aYMeRQcrmf3iuF6uodAnVA4Nhg+Y7+YO3+Vwz
+         zjvtVRIZyrdlji3rh+drhei3GDDrj3GmUyrR/5s9IW2dsKKg59uZmnA14+4j0iHGhC
+         kxqRZsAyPsVNJn1ZoM0yOe9d9vJVT9Iz5flbS6VcwbCKvWU7jaWJD5/8Rx6ATe4hRz
+         D9PTohYTT/WS4WQnAuEzn4rD+AyhkaS8ACslsqNaBFq2YzIdB71BGBtHkFohBXcjC7
+         y77rJJ2wHuF0g==
+Date:   Tue, 3 May 2022 11:24:01 -0300
+From:   Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, netdev@vger.kernel.org, kuba@kernel.org,
+        davem@davemloft.net, jiri@resnulli.us, xiyou.wangcong@gmail.com,
+        jhs@mojatatu.com, vladbu@mellanox.com
+Subject: Re: [PATCH 4.9.y] net: sched: prevent UAF on tc_ctl_tfilter when
+ temporarily dropping rtnl_lock
+Message-ID: <YnE7AbD1eYTBBVeE@quatroqueijos>
+References: <20220502204924.3456590-1-cascardo@canonical.com>
+ <YnEy2726cz98I6YC@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220502113857.2126299-1-ovidiu.panait@windriver.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+In-Reply-To: <YnEy2726cz98I6YC@kroah.com>
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -59,12 +57,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 02, 2022 at 02:38:57PM +0300, Ovidiu Panait wrote:
-> From: Daniel Vetter <daniel.vetter@ffwll.ch>
+On Tue, May 03, 2022 at 03:49:15PM +0200, Greg KH wrote:
+> On Mon, May 02, 2022 at 05:49:24PM -0300, Thadeu Lima de Souza Cascardo wrote:
+> > When dropping the rtnl_lock for looking up for a module, the device may be
+> > removed, releasing the qdisc and class memory. Right after trying to load
+> > the module, cl_ops->put is called, leading to a potential use-after-free.
+> > 
+> > Though commit e368fdb61d8e ("net: sched: use Qdisc rcu API instead of
+> > relying on rtnl lock") fixes this, it involves a lot of refactoring of the
+> > net/sched/ code, complicating its backport.
 > 
-> commit 4b848f20eda5974020f043ca14bacf7a7e634fc8 upstream.
+> What about 4.14.y?  We can not take a commit for 4.9.y with it also
+> being broken in 4.14.y, and yet fixed in 4.19.y, right?  Anyone who
+> updates from 4.9 to 4.14 will have a regression.
 > 
+> thanks,
+> 
+> greg k-h
 
-Both now queued up, thanks!
+4.14.y does not call cl_ops->put (the get/put and class refcount has been done
+with on 4.14.y). However, on the error path after the lock has been dropped,
+tcf_chain_put is called. But it does not touch the qdisc, but only the chain
+and block objects, which cannot be released on a race condition, as far as I
+was able to investigate.
 
-greg k-h
+Cascardo.
