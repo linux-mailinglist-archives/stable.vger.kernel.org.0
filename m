@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3191F5185C4
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 990C45185C5
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 15:41:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236301AbiECNor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 09:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33756 "EHLO
+        id S236315AbiECNos (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 09:44:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236296AbiECNom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:44:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F4118E17
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:41:10 -0700 (PDT)
+        with ESMTP id S236305AbiECNop (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 09:44:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75DFD1A819
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 06:41:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 925D66176D
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:41:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD739C385AF;
-        Tue,  3 May 2022 13:41:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F3D2B81EC8
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7316C385A9;
+        Tue,  3 May 2022 13:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651585269;
-        bh=gIYLUmaRouNzFlLE4GpbWoSU7Q3KxESr2Qy8CfEcChk=;
+        s=korg; t=1651585270;
+        bh=9kqDcOFHL8vDE2jbdVt+2eHh9OuOPLr18Uq3ra6a+NU=;
         h=Subject:To:Cc:From:Date:From;
-        b=WtwqqVCqi8m6dfhEZYvtj3p+Ey7b7JDWyu1M/Ikfy/g4XSBnVeB8aBbJLYeuEA39R
-         bRl/u20kfdsw47qBvFYjsV9AqII5WVy15MqsaAib59k+JfyvzdGOuiMOYdnxbYg5ka
-         yP4VNiWUNKmgw9XuFx87MCLmERSSjjmUXJNe5H/Y=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix software flow control handling" failed to apply to 4.14-stable tree
+        b=ICJbiHUMKRR8F79WBNJfDlaUJTlmY7on+015goHBp+vzsZF5qHemGZLsdOwoq2enJ
+         3Fu9zZ4++7Lm5ijGiVA89Xp39GzzNJsmr02AHijhI79hsNULU094xHN/vUJH1vWHpM
+         oxmWFvEFEd/resyx/5kNQ+nApEeXXCU+tOgOydYM=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix software flow control handling" failed to apply to 4.9-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 03 May 2022 15:41:07 +0200
-Message-ID: <165158526719781@kroah.com>
+Date:   Tue, 03 May 2022 15:41:08 +0200
+Message-ID: <165158526816122@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
