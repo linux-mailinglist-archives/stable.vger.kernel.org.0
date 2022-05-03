@@ -2,291 +2,411 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 006915189C0
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0194A5189F0
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:29:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239511AbiECQ1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 12:27:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38520 "EHLO
+        id S238949AbiECQdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 12:33:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239530AbiECQ1S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:27:18 -0400
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72EA139810;
-        Tue,  3 May 2022 09:23:43 -0700 (PDT)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 243GNU2C016049;
-        Tue, 3 May 2022 16:23:34 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=QbDAZ3ywxaqN5+EuRc/tQ++g4zZyRtPoHitnKnN499E=;
- b=Ha4Rb+ENG+UC3ZmX7Dfh1Pm6er0mOKa5MJSuwz3WdNvqwQlKGADvxYs87a1VtrxmI/6g
- 6SuLT2nkeOlAZrv9mo+0LQFxzp1/9lwSG2JZ8FjpXTMAUpz8Hghd69oz8gLeb3dg4SWc
- waGN2aQZH3WAnt/hLnL941KcCSIN2kaW9WB58l7f1FZT545gM87w49YKYOf5vSS0902l
- YT585lsJzdfvHo2gWFFEWTGkmB9PCZTYYFBMV+8GaGaXiHx3lCmiXMgqqa7T3BlDw1Bw
- SQ5Z0X2ESddnSjh9I5BaGn8hK88d2etRjrwUOHqVs5g3gM2UQuGnqjNS/vY829on8nML nA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fu7vg0011-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 May 2022 16:23:34 +0000
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 243GNXZt016127;
-        Tue, 3 May 2022 16:23:33 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fu7vg000q-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 May 2022 16:23:33 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 243G7Jfc017596;
-        Tue, 3 May 2022 16:23:32 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma03ams.nl.ibm.com with ESMTP id 3ftp7fs8hk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 03 May 2022 16:23:31 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 243GNT8B46858598
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 3 May 2022 16:23:29 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 843DAA404D;
-        Tue,  3 May 2022 16:23:29 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 40792A4040;
-        Tue,  3 May 2022 16:23:29 +0000 (GMT)
-Received: from [9.145.187.31] (unknown [9.145.187.31])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue,  3 May 2022 16:23:29 +0000 (GMT)
-Message-ID: <c33a2be3-d4b7-9b3b-c980-552f5de081be@linux.ibm.com>
-Date:   Tue, 3 May 2022 18:23:28 +0200
+        with ESMTP id S239592AbiECQdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:33:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C07C3CFE8
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 09:29:32 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A34FB81EB6
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 16:29:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 546C4C385A9;
+        Tue,  3 May 2022 16:29:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651595369;
+        bh=tjbEfhxrsS8eq2wPFIgYNJyNpW/19+nHmcXb06FqiJQ=;
+        h=Subject:To:Cc:From:Date:From;
+        b=GA24YuDhq2hht2mIm/OFBfw19hZDh3puRZuBfN63iYLh2xRaiuzUPqvnOqnlFQgT9
+         yjso+Lcwh0HJMgIwNE630mYEEgW1UsKRa9ufty7hhcK6GAVlI919bcAiy/+Lqiw8Uv
+         rLA/h5GO8dEd80CUlwVOHHz3yJ4iXcwjTdAqWkxs=
+Subject: FAILED: patch "[PATCH] objtool: Fix code relocs vs weak symbols" failed to apply to 5.10-stable tree
+To:     peterz@infradead.org, jpoimboe@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 03 May 2022 18:29:27 +0200
+Message-ID: <1651595367154254@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.8.1
-Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
-Content-Language: en-US
-To:     Michael Ellerman <mpe@ellerman.id.au>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
-References: <20220401140634.65726-1-ldufour@linux.ibm.com>
- <87r15aveny.fsf@mpe.ellerman.id.au>
-From:   Laurent Dufour <ldufour@linux.ibm.com>
-In-Reply-To: <87r15aveny.fsf@mpe.ellerman.id.au>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: gIP6E003y78wEZdLl11ihf2e-2gotX2E
-X-Proofpoint-GUID: ngfCArIVhjzGNI4ou5egb4iBwHK6Xfcv
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-03_07,2022-05-02_03,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 adultscore=0
- impostorscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015
- phishscore=0 priorityscore=1501 malwarescore=0 mlxscore=0 spamscore=0
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205030109
-X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks Michael for reviewing this.
 
-On 03/05/2022, 17:06:41, Michael Ellerman wrote:
-> Laurent Dufour <ldufour@linux.ibm.com> writes:
->> RTAS runs in real mode (MSR[DR] and MSR[IR] unset) and in 32bits
->> mode (MSR[SF] unset).
-> 
-> Probably also worth mentioning that it runs in big endian mode :)
-> 
-> It is specified in PAPR (R1-7.2.1-6).
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Sure!
+thanks,
 
-> 
->> The change in MSR is done in enter_rtas() in a relatively complex way,
->> since the MSR value could be hardcoded.
->>
->> Furthermore, a panic has been reported when hitting the watchdog interrupt
->> while running in RTAS, this leads to the following stack trace:
->>
->> [69244.027433][   C24] watchdog: CPU 24 Hard LOCKUP
->> [69244.027442][   C24] watchdog: CPU 24 TB:997512652051031, last heartbeat TB:997504470175378 (15980ms ago)
->> [69244.027451][   C24] Modules linked in: chacha_generic(E) libchacha(E) xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) libpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rng(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camellia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) algif_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rpcgss(E)
->> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netlink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) configfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E) t10_pi(E)
->> [69244.027555][   C24]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf128mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) raid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
->> [69244.027587][   C24] Supported: No, Unreleased kernel
->> [69244.027600][   C24] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
->> [69244.027609][   C24] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
->> [69244.027612][   C24] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
->> [69244.027615][   C24] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
->> [69244.027625][   C24] CFAR: 000000000000011c IRQMASK: 1
->> [69244.027625][   C24] GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
->> [69244.027625][   C24] GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
->> [69244.027625][   C24] GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
->> [69244.027625][   C24] GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
->> [69244.027625][   C24] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
->> [69244.027625][   C24] GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
->> [69244.027625][   C24] GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
->> [69244.027625][   C24] GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
->> [69244.027663][   C24] NIP [000000001fb41050] 0x1fb41050
->> [69244.027696][   C24] LR [000000001fb4104c] 0x1fb4104c
->> [69244.027699][   C24] Call Trace:
->> [69244.027701][   C24] Instruction dump:
->> [69244.027723][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->> [69244.027728][   C24] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->> [69244.027762][T87504] Oops: Unrecoverable System Reset, sig: 6 [#1]
->> [69244.028044][T87504] LE PAGE_SIZE=64K MMU=Hash SMP NR_CPUS=2048 NUMA pSeries
->> [69244.028089][T87504] Modules linked in: chacha_generic(E) libchacha(E) xxhash_generic(E) wp512(E) sha3_generic(E) rmd160(E) poly1305_generic(E) libpoly1305(E) michael_mic(E) md4(E) crc32_generic(E) cmac(E) ccm(E) algif_rng(E) twofish_generic(E) twofish_common(E) serpent_generic(E) fcrypt(E) des_generic(E) libdes(E) cast6_generic(E) cast5_generic(E) cast_common(E) camellia_generic(E) blowfish_generic(E) blowfish_common(E) algif_skcipher(E) algif_hash(E) gcm(E) algif_aead(E) af_alg(E) tun(E) rpcsec_gss_krb5(E) auth_rpcgss(E)
->> nfsv4(E) dns_resolver(E) rpadlpar_io(EX) rpaphp(EX) xsk_diag(E) tcp_diag(E) udp_diag(E) raw_diag(E) inet_diag(E) unix_diag(E) af_packet_diag(E) netlink_diag(E) nfsv3(E) nfs_acl(E) nfs(E) lockd(E) grace(E) sunrpc(E) fscache(E) netfs(E) af_packet(E) rfkill(E) bonding(E) tls(E) ibmveth(EX) crct10dif_vpmsum(E) rtc_generic(E) drm(E) drm_panel_orientation_quirks(E) fuse(E) configfs(E) backlight(E) ip_tables(E) x_tables(E) dm_service_time(E) sd_mod(E) t10_pi(E)
->> [69244.028171][T87504]  ibmvfc(EX) scsi_transport_fc(E) vmx_crypto(E) gf128mul(E) btrfs(E) blake2b_generic(E) libcrc32c(E) crc32c_vpmsum(E) xor(E) raid6_pq(E) dm_mirror(E) dm_region_hash(E) dm_log(E) sg(E) dm_multipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(E)
->> [69244.028307][T87504] Supported: No, Unreleased kernel
->> [69244.028385][T87504] CPU: 24 PID: 87504 Comm: drmgr Kdump: loaded Tainted: G            E  X    5.14.21-150400.71.1.bz196362_2-default #1 SLE15-SP4 (unreleased) 0d821077ef4faa8dfaf370efb5fdca1fa35f4e2c
->> [69244.028408][T87504] NIP:  000000001fb41050 LR: 000000001fb4104c CTR: 0000000000000000
->> [69244.028418][T87504] REGS: c00000000fc33d60 TRAP: 0100   Tainted: G            E  X     (5.14.21-150400.71.1.bz196362_2-default)
->> [69244.028429][T87504] MSR:  8000000002981000 <SF,VEC,VSX,ME>  CR: 48800002  XER: 20040020
->> [69244.028444][T87504] CFAR: 000000000000011c IRQMASK: 1
->> [69244.028444][T87504] GPR00: 0000000000000003 ffffffffffffffff 0000000000000001 00000000000050dc
->> [69244.028444][T87504] GPR04: 000000001ffb6100 0000000000000020 0000000000000001 000000001fb09010
->> [69244.028444][T87504] GPR08: 0000000020000000 0000000000000000 0000000000000000 0000000000000000
->> [69244.028444][T87504] GPR12: 80040000072a40a8 c00000000ff8b680 0000000000000007 0000000000000034
->> [69244.028444][T87504] GPR16: 000000001fbf6e94 000000001fbf6d84 000000001fbd1db0 000000001fb3f008
->> [69244.028444][T87504] GPR20: 000000001fb41018 ffffffffffffffff 000000000000017f fffffffffffff68f
->> [69244.028444][T87504] GPR24: 000000001fb18fe8 000000001fb3e000 000000001fb1adc0 000000001fb1cf40
->> [69244.028444][T87504] GPR28: 000000001fb26000 000000001fb460f0 000000001fb17f18 000000001fb17000
->> [69244.028534][T87504] NIP [000000001fb41050] 0x1fb41050
->> [69244.028543][T87504] LR [000000001fb4104c] 0x1fb4104c
->> [69244.028549][T87504] Call Trace:
->> [69244.028554][T87504] Instruction dump:
->> [69244.028561][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->> [69244.028575][T87504] XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX XXXXXXXX
->> [69244.028607][T87504] ---[ end trace 3ddec07f638c34a2 ]---
->>
->> This happens because MSR[RI] is unset when entering RTAS but there is no
->> valid reason to not set it here.
->>
->> RTAS is expected to be called with MSR[RI] as specified in PAPR+ section
->> "7.2.1 Machine State":
->>
->>  R1–7.2.1–9. If called with MSR[RI] equal to 1, then RTAS must protect its
->>  own critical regions from recursion by setting the MSRRI bit to 0 when in
->>  the critical regions.
->>
->> Fixing this by reviewing the way MSR is compute before calling RTAS. Now a
->> hardcoded value meaning real mode, 32 bits and Recoverable Interrupt is
->> loaded.
->>
->> In addition a check is added in do_enter_rtas() to detect calls made with
->> MSR[RI] unset, as we are forcing it on later.
->>
->> This patch has been tested on the following machines:
->> Power KVM Guest
->>   P8 S822L (host Ubuntu kernel 5.11.0-49-generic)
->> PowerVM LPAR
->>   P8 9119-MME (FW860.A1)
->>   p9 9008-22L (FW950.00)
->>   P10 9080-HEX (FW1010.00)
->>
->> Changes in V2:
->>  - Change comment in code to indicate NMI (Nick's comment)
->>  - Add reference to PAPR+ in the change log (Michael's comment)
->>
->> Cc: stable@vger.kernel.org
->> Suggested-by: Nicholas Piggin <npiggin@gmail.com>
->> Signed-off-by: Laurent Dufour <ldufour@linux.ibm.com>
->> ---
->>  arch/powerpc/kernel/entry_64.S | 20 ++++++++------------
->>  arch/powerpc/kernel/rtas.c     |  5 +++++
->>  2 files changed, 13 insertions(+), 12 deletions(-)
->>
->> diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
->> index 9581906b5ee9..65cb14b56f8d 100644
->> --- a/arch/powerpc/kernel/entry_64.S
->> +++ b/arch/powerpc/kernel/entry_64.S
->> @@ -330,22 +330,18 @@ _GLOBAL(enter_rtas)
->>  	clrldi	r4,r4,2			/* convert to realmode address */
->>         	mtlr	r4
->>  
->> -	li	r0,0
->> -	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
->> -	andc	r0,r6,r0
->> -	
->> -        li      r9,1
->> -        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
->> -	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
->> -	andc	r6,r0,r9
->  
-> One advantage of the old method is it can adapt to new MSR bits being
-> set by the kernel.
-> 
-> For example we used to use RTAS on powernv, and this code didn't need
-> updating to cater to MSR_HV being set. We will probably never use RTAS
-> on bare-metal again, so that's OK.
-> 
-> But your change might break secure virtual machines, because it clears
-> MSR_S whereas the old code didn't. I think SVMs did use RTAS, but I
-> don't know whether it matters if it's called with MSR_S set or not?
-> 
-> Not sure if anyone will remember, or has a working setup they can test.
-> Maybe for now we just copy MSR_S from the kernel MSR the way the
-> current code does.
+greg k-h
 
-I could update the code to deal with MSR[S], but I can't see how I would
-test that :/
+------------------ original commit in Linus's tree ------------------
 
-> 
->>  __enter_rtas:
->> -	sync				/* disable interrupts so SRR0/1 */
->> -	mtmsrd	r0			/* don't get trashed */
->> -
->>  	LOAD_REG_ADDR(r4, rtas)
->>  	ld	r5,RTASENTRY(r4)	/* get the rtas->entry value */
->>  	ld	r4,RTASBASE(r4)		/* get the rtas->base value */
->> +
->> +	/* RTAS runs in 32bits real mode but let MSR[]RI on as we may hit
-> 
-> "32-bit big endian real mode"
+From 4abff6d48dbcea8200c7ea35ba70c242d128ebf3 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Sun, 17 Apr 2022 17:03:36 +0200
+Subject: [PATCH] objtool: Fix code relocs vs weak symbols
 
-Yep!
+Occasionally objtool driven code patching (think .static_call_sites
+.retpoline_sites etc..) goes sideways and it tries to patch an
+instruction that doesn't match.
 
-> 
->> +	 * NMI (SRESET or MCE). RTAS should disable RI in its critical
->> +	 * regions (as specified in PAPR+ section 7.2.1). */
->> +	LOAD_REG_IMMEDIATE(r6, MSR_ME|MSR_RI)
->> +
->> +	li      r0,0
->> +	mtmsrd  r0,1                    /* disable RI before using SRR0/1 */
->>  	
->>  	mtspr	SPRN_SRR0,r5
->>  	mtspr	SPRN_SRR1,r6
->> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
->> index 1f42aabbbab3..d7775b8c8853 100644
->> --- a/arch/powerpc/kernel/rtas.c
->> +++ b/arch/powerpc/kernel/rtas.c
->> @@ -49,6 +49,11 @@ void enter_rtas(unsigned long);
->>  
->>  static inline void do_enter_rtas(unsigned long args)
->>  {
->> +	unsigned long msr;
->> +
->> +	msr = mfmsr();
->> +	BUG_ON(!(msr & MSR_RI));
-> 
-> I'm not sure about this.
-> 
-> We call RTAS in some low-level places, so if we ever hit this BUG_ON
-> then it might cause us to crash badly, or recursively BUG.
-> 
-> A WARN_ON_ONCE() might be safer?
+Much head-scatching and cursing later the problem is as outlined below
+and affects every section that objtool generates for us, very much
+including the ORC data. The below uses .static_call_sites because it's
+convenient for demonstration purposes, but as mentioned the ORC
+sections, .retpoline_sites and __mount_loc are all similarly affected.
 
-I'm afraid a BUG_ON is required here. Since MSR[RI] is set on RTAS exit so
-if it was not set when calling RTAS, that's a real issue and should
-generate unexpected behaviour.
+Consider:
 
-Do you have places in mind where RTAS could be called with !MSR[RI]?
+foo-weak.c:
 
-Cheers,
-Laurent.
+  extern void __SCT__foo(void);
+
+  __attribute__((weak)) void foo(void)
+  {
+	  return __SCT__foo();
+  }
+
+foo.c:
+
+  extern void __SCT__foo(void);
+  extern void my_foo(void);
+
+  void foo(void)
+  {
+	  my_foo();
+	  return __SCT__foo();
+  }
+
+These generate the obvious code
+(gcc -O2 -fcf-protection=none -fno-asynchronous-unwind-tables -c foo*.c):
+
+foo-weak.o:
+0000000000000000 <foo>:
+   0:   e9 00 00 00 00          jmpq   5 <foo+0x5>      1: R_X86_64_PLT32       __SCT__foo-0x4
+
+foo.o:
+0000000000000000 <foo>:
+   0:   48 83 ec 08             sub    $0x8,%rsp
+   4:   e8 00 00 00 00          callq  9 <foo+0x9>      5: R_X86_64_PLT32       my_foo-0x4
+   9:   48 83 c4 08             add    $0x8,%rsp
+   d:   e9 00 00 00 00          jmpq   12 <foo+0x12>    e: R_X86_64_PLT32       __SCT__foo-0x4
+
+Now, when we link these two files together, you get something like
+(ld -r -o foos.o foo-weak.o foo.o):
+
+foos.o:
+0000000000000000 <foo-0x10>:
+   0:   e9 00 00 00 00          jmpq   5 <foo-0xb>      1: R_X86_64_PLT32       __SCT__foo-0x4
+   5:   66 2e 0f 1f 84 00 00 00 00 00   nopw   %cs:0x0(%rax,%rax,1)
+   f:   90                      nop
+
+0000000000000010 <foo>:
+  10:   48 83 ec 08             sub    $0x8,%rsp
+  14:   e8 00 00 00 00          callq  19 <foo+0x9>     15: R_X86_64_PLT32      my_foo-0x4
+  19:   48 83 c4 08             add    $0x8,%rsp
+  1d:   e9 00 00 00 00          jmpq   22 <foo+0x12>    1e: R_X86_64_PLT32      __SCT__foo-0x4
+
+Noting that ld preserves the weak function text, but strips the symbol
+off of it (hence objdump doing that funny negative offset thing). This
+does lead to 'interesting' unused code issues with objtool when ran on
+linked objects, but that seems to be working (fingers crossed).
+
+So far so good.. Now lets consider the objtool static_call output
+section (readelf output, old binutils):
+
+foo-weak.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foo.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 .text + d
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foos.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 .text + 1d
+000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+So we have two patch sites, one in the dead code of the weak foo and one
+in the real foo. All is well.
+
+*HOWEVER*, when the toolchain strips unused section symbols it
+generates things like this (using new enough binutils):
+
+foo-weak.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x2c8 contains 1 entry:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foo.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x310 contains 2 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000200000002 R_X86_64_PC32          0000000000000000 foo + d
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+foos.o:
+
+Relocation section '.rela.static_call_sites' at offset 0x430 contains 4 entries:
+    Offset             Info             Type               Symbol's Value  Symbol's Name + Addend
+0000000000000000  0000000100000002 R_X86_64_PC32          0000000000000000 foo + 0
+0000000000000004  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+0000000000000008  0000000100000002 R_X86_64_PC32          0000000000000000 foo + d
+000000000000000c  0000000d00000002 R_X86_64_PC32          0000000000000000 __SCT__foo + 1
+
+And now we can see how that foos.o .static_call_sites goes side-ways, we
+now have _two_ patch sites in foo. One for the weak symbol at foo+0
+(which is no longer a static_call site!) and one at foo+d which is in
+fact the right location.
+
+This seems to happen when objtool cannot find a section symbol, in which
+case it falls back to any other symbol to key off of, however in this
+case that goes terribly wrong!
+
+As such, teach objtool to create a section symbol when there isn't
+one.
+
+Fixes: 44f6a7c0755d ("objtool: Fix seg fault with Clang non-section symbols")
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/20220419203807.655552918@infradead.org
+
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 0cfe84ac4cdb..ebf2ba5755c1 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -575,37 +575,180 @@ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+ 	return 0;
+ }
+ 
+-int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
+-			  unsigned long offset, unsigned int type,
+-			  struct section *insn_sec, unsigned long insn_off)
++/*
++ * Ensure that any reloc section containing references to @sym is marked
++ * changed such that it will get re-generated in elf_rebuild_reloc_sections()
++ * with the new symbol index.
++ */
++static void elf_dirty_reloc_sym(struct elf *elf, struct symbol *sym)
++{
++	struct section *sec;
++
++	list_for_each_entry(sec, &elf->sections, list) {
++		struct reloc *reloc;
++
++		if (sec->changed)
++			continue;
++
++		list_for_each_entry(reloc, &sec->reloc_list, list) {
++			if (reloc->sym == sym) {
++				sec->changed = true;
++				break;
++			}
++		}
++	}
++}
++
++/*
++ * Move the first global symbol, as per sh_info, into a new, higher symbol
++ * index. This fees up the shndx for a new local symbol.
++ */
++static int elf_move_global_symbol(struct elf *elf, struct section *symtab,
++				  struct section *symtab_shndx)
+ {
++	Elf_Data *data, *shndx_data = NULL;
++	Elf32_Word first_non_local;
+ 	struct symbol *sym;
+-	int addend;
++	Elf_Scn *s;
+ 
+-	if (insn_sec->sym) {
+-		sym = insn_sec->sym;
+-		addend = insn_off;
++	first_non_local = symtab->sh.sh_info;
+ 
+-	} else {
+-		/*
+-		 * The Clang assembler strips section symbols, so we have to
+-		 * reference the function symbol instead:
+-		 */
+-		sym = find_symbol_containing(insn_sec, insn_off);
+-		if (!sym) {
+-			/*
+-			 * Hack alert.  This happens when we need to reference
+-			 * the NOP pad insn immediately after the function.
+-			 */
+-			sym = find_symbol_containing(insn_sec, insn_off - 1);
++	sym = find_symbol_by_index(elf, first_non_local);
++	if (!sym) {
++		WARN("no non-local symbols !?");
++		return first_non_local;
++	}
++
++	s = elf_getscn(elf->elf, symtab->idx);
++	if (!s) {
++		WARN_ELF("elf_getscn");
++		return -1;
++	}
++
++	data = elf_newdata(s);
++	if (!data) {
++		WARN_ELF("elf_newdata");
++		return -1;
++	}
++
++	data->d_buf = &sym->sym;
++	data->d_size = sizeof(sym->sym);
++	data->d_align = 1;
++	data->d_type = ELF_T_SYM;
++
++	sym->idx = symtab->sh.sh_size / sizeof(sym->sym);
++	elf_dirty_reloc_sym(elf, sym);
++
++	symtab->sh.sh_info += 1;
++	symtab->sh.sh_size += data->d_size;
++	symtab->changed = true;
++
++	if (symtab_shndx) {
++		s = elf_getscn(elf->elf, symtab_shndx->idx);
++		if (!s) {
++			WARN_ELF("elf_getscn");
++			return -1;
+ 		}
+ 
+-		if (!sym) {
+-			WARN("can't find symbol containing %s+0x%lx", insn_sec->name, insn_off);
++		shndx_data = elf_newdata(s);
++		if (!shndx_data) {
++			WARN_ELF("elf_newshndx_data");
+ 			return -1;
+ 		}
+ 
+-		addend = insn_off - sym->offset;
++		shndx_data->d_buf = &sym->sec->idx;
++		shndx_data->d_size = sizeof(Elf32_Word);
++		shndx_data->d_align = 4;
++		shndx_data->d_type = ELF_T_WORD;
++
++		symtab_shndx->sh.sh_size += 4;
++		symtab_shndx->changed = true;
++	}
++
++	return first_non_local;
++}
++
++static struct symbol *
++elf_create_section_symbol(struct elf *elf, struct section *sec)
++{
++	struct section *symtab, *symtab_shndx;
++	Elf_Data *shndx_data = NULL;
++	struct symbol *sym;
++	Elf32_Word shndx;
++
++	symtab = find_section_by_name(elf, ".symtab");
++	if (symtab) {
++		symtab_shndx = find_section_by_name(elf, ".symtab_shndx");
++		if (symtab_shndx)
++			shndx_data = symtab_shndx->data;
++	} else {
++		WARN("no .symtab");
++		return NULL;
++	}
++
++	sym = malloc(sizeof(*sym));
++	if (!sym) {
++		perror("malloc");
++		return NULL;
++	}
++	memset(sym, 0, sizeof(*sym));
++
++	sym->idx = elf_move_global_symbol(elf, symtab, symtab_shndx);
++	if (sym->idx < 0) {
++		WARN("elf_move_global_symbol");
++		return NULL;
++	}
++
++	sym->name = sec->name;
++	sym->sec = sec;
++
++	// st_name 0
++	sym->sym.st_info = GELF_ST_INFO(STB_LOCAL, STT_SECTION);
++	// st_other 0
++	// st_value 0
++	// st_size 0
++	shndx = sec->idx;
++	if (shndx >= SHN_UNDEF && shndx < SHN_LORESERVE) {
++		sym->sym.st_shndx = shndx;
++		if (!shndx_data)
++			shndx = 0;
++	} else {
++		sym->sym.st_shndx = SHN_XINDEX;
++		if (!shndx_data) {
++			WARN("no .symtab_shndx");
++			return NULL;
++		}
++	}
++
++	if (!gelf_update_symshndx(symtab->data, shndx_data, sym->idx, &sym->sym, shndx)) {
++		WARN_ELF("gelf_update_symshndx");
++		return NULL;
++	}
++
++	elf_add_symbol(elf, sym);
++
++	return sym;
++}
++
++int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
++			  unsigned long offset, unsigned int type,
++			  struct section *insn_sec, unsigned long insn_off)
++{
++	struct symbol *sym = insn_sec->sym;
++	int addend = insn_off;
++
++	if (!sym) {
++		/*
++		 * Due to how weak functions work, we must use section based
++		 * relocations. Symbol based relocations would result in the
++		 * weak and non-weak function annotations being overlaid on the
++		 * non-weak function after linking.
++		 */
++		sym = elf_create_section_symbol(elf, insn_sec);
++		if (!sym)
++			return -1;
++
++		insn_sec->sym = sym;
+ 	}
+ 
+ 	return elf_add_reloc(elf, sec, offset, type, sym, addend);
+
