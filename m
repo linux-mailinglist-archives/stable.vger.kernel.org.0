@@ -2,102 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7CA0518964
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:11:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC1B9518983
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 18:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239078AbiECQPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 12:15:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
+        id S239300AbiECQUY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 12:20:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239206AbiECQPG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:15:06 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9BE4625292
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 09:11:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651594291;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=wp9YHmXDYvM0vTO+lxeqnR+ljJmF4tJFHnGldB3QeSU=;
-        b=HErmi5Tpoq5TWb1e+uFvevz2ou2hG2d0jEoaSMtnDPGDK0hUuQobpNE7EheSaqIHzxXv8R
-        kTbxvJChKdkfO1strbXRW3nz47OY6kw5jMmt4UvujHdiSVQXtKdP5uOhHqIThHekxe6U79
-        yBi22RJgTHW+PGTwVQj/wq1fnLv/wBM=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-425-f6rhiNxYNPe2GH_VsGVZzQ-1; Tue, 03 May 2022 12:11:13 -0400
-X-MC-Unique: f6rhiNxYNPe2GH_VsGVZzQ-1
-Received: by mail-qt1-f200.google.com with SMTP id w2-20020ac87e82000000b002f3a6e81a56so4570196qtj.14
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 09:11:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=wp9YHmXDYvM0vTO+lxeqnR+ljJmF4tJFHnGldB3QeSU=;
-        b=TK5/tkimxGqixzSIq4AFHybsZIiZkqPxtUaUNwBiEqkCechmsvtmpG09YUmfgKyT8L
-         G/2RXRaRbKMJ8cINMyPoi1Lm8aoROcdPQc7LptKwS5CcRg0TeRHMP34W3IrzPuNT4ypE
-         HYaD0d+8iSAtNQk340zfmabllK6HhbDwkW2JJsaw85M6S4MLDHgR27wOqdtqx6uV2jcm
-         nV+02T1GP+13HEdNYVGJz6RLBKVen3sDA6XZMbyDEFMHUM2VwQ6Q85SXhaK+Jj9Ia1pZ
-         Qp7qvVlNEd3BbEOWFvfigIMLc52srKPrY/cEKwz+pbgAvdBYgD81awXQit2J9lz8Kfjg
-         dTow==
-X-Gm-Message-State: AOAM531q6D18O4++uLm/qelg9czA6BHzdBdESaY+uPUaNv00VEV8oogs
-        QpSZ+cw4WeAx9uf8H4IWL9lblY6UyGoDlfSubF79Y2Rkwoc04upsbfIAOLqiZJ1UzWKyUEmXuKl
-        dQixb26yZ04KOLUJO
-X-Received: by 2002:a05:6214:1c8a:b0:443:bc78:25ef with SMTP id ib10-20020a0562141c8a00b00443bc7825efmr14197037qvb.2.1651594273449;
-        Tue, 03 May 2022 09:11:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy9Rhyqa7jIDuuJrIMnnrirw3u18xc4X+9oWAePPIds5Soeh/PXfrbwcmifKRoacw+7Ubd3rA==
-X-Received: by 2002:a05:6214:1c8a:b0:443:bc78:25ef with SMTP id ib10-20020a0562141c8a00b00443bc7825efmr14197011qvb.2.1651594273166;
-        Tue, 03 May 2022 09:11:13 -0700 (PDT)
-Received: from x1 (c-98-239-145-235.hsd1.wv.comcast.net. [98.239.145.235])
-        by smtp.gmail.com with ESMTPSA id f22-20020ac84716000000b002f39b99f679sm5846102qtp.19.2022.05.03.09.11.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 09:11:12 -0700 (PDT)
-Date:   Tue, 3 May 2022 12:11:11 -0400
-From:   Brian Masney <bmasney@redhat.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-arm-msm@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] crypto: qcom-rng - fix infinite loop on requests not
- multiple of WORD_SZ
-Message-ID: <YnFUH6nyVs8fBgED@x1>
-References: <20220503115010.1750296-1-omosnace@redhat.com>
+        with ESMTP id S239174AbiECQUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 12:20:23 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB4C1FA47;
+        Tue,  3 May 2022 09:16:51 -0700 (PDT)
+Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 243Fib6n015328;
+        Tue, 3 May 2022 16:16:43 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : in-reply-to : references : date : message-id : mime-version :
+ content-type; s=pp1; bh=pOQy/PjfoUASKQBsieVyMYXmR6G6qlGPQnBZNfJWYg8=;
+ b=BpF1tovUo0NLs4JjdkCQWqpadzsmAtsnb1063mBmad/i6o3krKlOAEYX1B40+CrCs2tG
+ JLhXySV7fx8Lm9j5lS/MxyBSmNK7CQqvR5TL3uWZ99UuXU7Ut6SfBCNbJnJ+bkef1gsu
+ WU2kAi+GBK1krUY+R1QPPeGWM1xyeA+v9BtYtGRhcpW9gbUzWVE9Lix279xmolKgsd04
+ KzVOIOs6c2D0eOpxSE9jrS95RtleBTYUGdjWK2T9CVaNA8z+qWuN4OEDGJekhoCFYOBr
+ WdYItzavFrISq5ujT3a+hqMAj7pYVsvFPlIq6MohP+eHs2yXGjYPr2Qnt1+NmIOxaFaF dA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fu7a8rp91-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 May 2022 16:16:42 +0000
+Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 243FqOZ1003505;
+        Tue, 3 May 2022 16:16:42 GMT
+Received: from ppma04wdc.us.ibm.com (1a.90.2fa9.ip4.static.sl-reverse.com [169.47.144.26])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3fu7a8rp8g-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 May 2022 16:16:42 +0000
+Received: from pps.filterd (ppma04wdc.us.ibm.com [127.0.0.1])
+        by ppma04wdc.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 243G6UXE005814;
+        Tue, 3 May 2022 16:16:41 GMT
+Received: from b03cxnp07029.gho.boulder.ibm.com (b03cxnp07029.gho.boulder.ibm.com [9.17.130.16])
+        by ppma04wdc.us.ibm.com with ESMTP id 3frvr9myq0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 03 May 2022 16:16:40 +0000
+Received: from b03ledav004.gho.boulder.ibm.com (b03ledav004.gho.boulder.ibm.com [9.17.130.235])
+        by b03cxnp07029.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 243GGeR631195406
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 May 2022 16:16:40 GMT
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 1DFFB7805E;
+        Tue,  3 May 2022 16:16:40 +0000 (GMT)
+Received: from b03ledav004.gho.boulder.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5932578066;
+        Tue,  3 May 2022 16:16:36 +0000 (GMT)
+Received: from localhost (unknown [9.160.48.141])
+        by b03ledav004.gho.boulder.ibm.com (Postfix) with ESMTPS;
+        Tue,  3 May 2022 16:16:35 +0000 (GMT)
+From:   Fabiano Rosas <farosas@linux.ibm.com>
+To:     Michael Ellerman <mpe@ellerman.id.au>,
+        Laurent Dufour <ldufour@linux.ibm.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
+In-Reply-To: <87r15aveny.fsf@mpe.ellerman.id.au>
+References: <20220401140634.65726-1-ldufour@linux.ibm.com>
+ <87r15aveny.fsf@mpe.ellerman.id.au>
+Date:   Tue, 03 May 2022 13:16:29 -0300
+Message-ID: <87levia8wy.fsf@linux.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220503115010.1750296-1-omosnace@redhat.com>
-User-Agent: Mutt/2.0.7 (2021-05-04)
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4QIy9T9IVO1N4-KCXdHIXyrKE1c93rvw
+X-Proofpoint-ORIG-GUID: YQ4p8xJgLWTLQN6qlQo2zo0ubGdZUdNr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-03_06,2022-05-02_03,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ malwarescore=0 priorityscore=1501 lowpriorityscore=0 phishscore=0
+ suspectscore=0 bulkscore=0 spamscore=0 mlxlogscore=852 adultscore=0
+ clxscore=1011 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205030109
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 03, 2022 at 01:50:10PM +0200, Ondrej Mosnacek wrote:
-> The commit referenced in the Fixes tag removed the 'break' from the else
-> branch in qcom_rng_read(), causing an infinite loop whenever 'max' is
-> not a multiple of WORD_SZ. This can be reproduced e.g. by running:
-> 
->     kcapi-rng -b 67 >/dev/null
-> 
-> There are many ways to fix this without adding back the 'break', but
-> they all seem more awkward than simply adding it back, so do just that.
-> 
-> Tested on a machine with Qualcomm Amberwing processor.
-> 
-> Fixes: a680b1832ced ("crypto: qcom-rng - ensure buffer for generate is completely filled")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Michael Ellerman <mpe@ellerman.id.au> writes:
 
-Reviewed-by: Brian Masney <bmasney@redhat.com>
+>> diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
+>> index 9581906b5ee9..65cb14b56f8d 100644
+>> --- a/arch/powerpc/kernel/entry_64.S
+>> +++ b/arch/powerpc/kernel/entry_64.S
+>> @@ -330,22 +330,18 @@ _GLOBAL(enter_rtas)
+>>  	clrldi	r4,r4,2			/* convert to realmode address */
+>>         	mtlr	r4
+>>  
+>> -	li	r0,0
+>> -	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
+>> -	andc	r0,r6,r0
+>> -	
+>> -        li      r9,1
+>> -        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
+>> -	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
+>> -	andc	r6,r0,r9
+>  
+> One advantage of the old method is it can adapt to new MSR bits being
+> set by the kernel.
+>
+> For example we used to use RTAS on powernv, and this code didn't need
+> updating to cater to MSR_HV being set. We will probably never use RTAS
+> on bare-metal again, so that's OK.
+>
+> But your change might break secure virtual machines, because it clears
+> MSR_S whereas the old code didn't. I think SVMs did use RTAS, but I
+> don't know whether it matters if it's called with MSR_S set or not?
+>
+> Not sure if anyone will remember, or has a working setup they can test.
+> Maybe for now we just copy MSR_S from the kernel MSR the way the
+> current code does.
 
-We should add '# 5.17+' to the end of the stable line.
-
+Would the kernel even be able to change the bit? I think only urfid can
+clear MSR_S.
