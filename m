@@ -2,90 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18449518DB5
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 22:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2000518F55
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 22:49:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235492AbiECUHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 16:07:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36216 "EHLO
+        id S241986AbiECUxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 16:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbiECUHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 16:07:34 -0400
-Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BB18403C6;
-        Tue,  3 May 2022 13:04:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20210309; h=Sender:In-Reply-To:
-        Content-Transfer-Encoding:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Reply-To:Content-ID:Content-Description;
-        bh=QwbxKW/u1C+Gw4rhvaiXK5OBQkHPMzPp/1lAC0EgVgY=; b=hXj3RdTJQJZS0m9a+3dmdiPVYD
-        9AKTxlTpaHHH1tc1UZSwB9gfZPqmaH0wTyJiwX+X6NaqIsC+O79vyuLbKIcmbsH27MRBPvYT5Y1nF
-        Gl6bSq+z3ErnocVhEJByW/YhiHi0FsUfD3d9ila4PNOUDiyefh778CeGp5qpDEbcgH9dPlCfyLW8Q
-        a1XWRMdD6YT00hXthG7QDbIVZXp3Yu1r/ZudW5qHaKwjC9xN4lvFEB/n8na/BAslEfYfS53d+JWaz
-        9XRD/fKaHQcuvfyUAI0UEwwefl+Gr0WzgBNLXKmA7zKmsbFqZIrKfIuTVqOmjCcriK/BDYjleZbPk
-        eKnzBIQg==;
-Received: from mcgrof by bombadil.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nlykU-007U4h-AT; Tue, 03 May 2022 20:03:54 +0000
-Date:   Tue, 3 May 2022 13:03:54 -0700
-From:   Luis Chamberlain <mcgrof@kernel.org>
-To:     =?iso-8859-1?Q?Thi=E9baud?= Weksteen <tweek@google.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Qian Cai <quic_qiancai@quicinc.com>,
-        John Stultz <jstultz@google.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Saravana Kannan <saravanak@google.com>,
-        Alistair Delva <adelva@google.com>,
-        Adam Shih <adamshih@google.com>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] firmware_loader: use kernel credentials when reading
- firmware
-Message-ID: <YnGKqjE+KydNnWRw@bombadil.infradead.org>
-References: <20220502004952.3970800-1-tweek@google.com>
+        with ESMTP id S240426AbiECUxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 16:53:20 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9708C31DFF
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 13:49:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651610985;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=CecfNV9/Gf/tZFMQOYjvzG77C3DI1n2KVz/51v6Mg2o=;
+        b=R4yk9U/CErTN2nhOwH9I87ut5PeMo8R7kD7fBekfycaUXoWheSICjl+0CTbfCp7Rc37uE7
+        6NWSvCGNAiPqTu0JFPXnaplE5oMD/KX4yVZ9B/1AeL8PxUaef42wT9NOdIcFjOZJnrwEGp
+        yvc1sHc5GpreMZNMkn4CcZJx9FMEEWs=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-629-6Wh5a0TBM6-jWPULLi87hg-1; Tue, 03 May 2022 16:34:52 -0400
+X-MC-Unique: 6Wh5a0TBM6-jWPULLi87hg-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1707386B8AD;
+        Tue,  3 May 2022 20:34:52 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0FBAF54CAF3;
+        Tue,  3 May 2022 20:34:52 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 243KYqdR011517;
+        Tue, 3 May 2022 16:34:52 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 243KYpdb011513;
+        Tue, 3 May 2022 16:34:51 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 3 May 2022 16:34:51 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     Mike Snitzer <msnitzer@redhat.com>, dm-devel@redhat.com,
+        stable@vger.kernel.org
+Subject: [PATCH v4.9] dm: fix mempool NULL pointer race when completing IO
+Message-ID: <alpine.LRH.2.02.2205031632560.11434@file01.intranet.prod.int.rdu2.redhat.com>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220502004952.3970800-1-tweek@google.com>
-Sender: Luis Chamberlain <mcgrof@infradead.org>
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 02, 2022 at 10:49:52AM +1000, Thiébaud Weksteen wrote:
-> Device drivers may decide to not load firmware when probed to avoid
-> slowing down the boot process should the firmware filesystem not be
-> available yet. In this case, the firmware loading request may be done
-> when a device file associated with the driver is first accessed. The
-> credentials of the userspace process accessing the device file may be
-> used to validate access to the firmware files requested by the driver.
-> Ensure that the kernel assumes the responsibility of reading the
-> firmware.
-> 
-> This was observed on Android for a graphic driver loading their firmware
-> when the device file (e.g. /dev/mali0) was first opened by userspace
-> (i.e. surfaceflinger). The security context of surfaceflinger was used
-> to validate the access to the firmware file (e.g.
-> /vendor/firmware/mali.bin).
-> 
-> Previously, Android configurations were not setting up the
-> firmware_class.path command line argument and were relying on the
-> userspace fallback mechanism. In this case, the security context of the
-> userspace daemon (i.e. ueventd) was consistently used to read firmware
-> files. More Android devices are now found to set firmware_class.path
-> which gives the kernel the opportunity to read the firmware directly
-> (via kernel_read_file_from_path_initns). In this scenario, the current
-> process credentials were used, even if unrelated to the loading of the
-> firmware file.
-> 
-> Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-> Cc: <stable@vger.kernel.org> # 5.10
+This is backport of the patch d208b89401e0 ("dm: fix mempool NULL pointer
+race when completing IO") for the kernel 4.9.
 
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+The bugs fixed by this patch can cause random crashing when reloading dm
+table, so it is eligible for stable backport.
 
-  Luis
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+
+---
+ drivers/md/dm.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+Index: linux-stable/drivers/md/dm.c
+===================================================================
+--- linux-stable.orig/drivers/md/dm.c	2022-04-30 18:51:49.000000000 +0200
++++ linux-stable/drivers/md/dm.c	2022-04-30 19:03:08.000000000 +0200
+@@ -524,20 +524,19 @@ static void start_io_acct(struct dm_io *
+ 				    false, 0, &io->stats_aux);
+ }
+ 
+-static void end_io_acct(struct dm_io *io)
++static void end_io_acct(struct mapped_device *md, struct bio *bio,
++			unsigned long start_time, struct dm_stats_aux *stats_aux)
+ {
+-	struct mapped_device *md = io->md;
+-	struct bio *bio = io->bio;
+-	unsigned long duration = jiffies - io->start_time;
++	unsigned long duration = jiffies - start_time;
+ 	int pending;
+ 	int rw = bio_data_dir(bio);
+ 
+-	generic_end_io_acct(rw, &dm_disk(md)->part0, io->start_time);
++	generic_end_io_acct(rw, &dm_disk(md)->part0, start_time);
+ 
+ 	if (unlikely(dm_stats_used(&md->stats)))
+ 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
+ 				    bio->bi_iter.bi_sector, bio_sectors(bio),
+-				    true, duration, &io->stats_aux);
++				    true, duration, stats_aux);
+ 
+ 	/*
+ 	 * After this is decremented the bio must not be touched if it is
+@@ -768,6 +767,8 @@ static void dec_pending(struct dm_io *io
+ 	int io_error;
+ 	struct bio *bio;
+ 	struct mapped_device *md = io->md;
++	unsigned long start_time = 0;
++	struct dm_stats_aux stats_aux;
+ 
+ 	/* Push-back supersedes any I/O errors */
+ 	if (unlikely(error)) {
+@@ -793,8 +794,10 @@ static void dec_pending(struct dm_io *io
+ 
+ 		io_error = io->error;
+ 		bio = io->bio;
+-		end_io_acct(io);
++		start_time = io->start_time;
++		stats_aux = io->stats_aux;
+ 		free_io(md, io);
++		end_io_acct(md, bio, start_time, &stats_aux);
+ 
+ 		if (io_error == DM_ENDIO_REQUEUE)
+ 			return;
+
