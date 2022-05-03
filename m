@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65B71518103
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 11:28:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB606518107
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 11:28:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233389AbiECJcB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 05:32:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35602 "EHLO
+        id S233393AbiECJc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 05:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233375AbiECJb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 05:31:59 -0400
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415A43630A
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 02:28:28 -0700 (PDT)
-Received: by mail-pg1-x52f.google.com with SMTP id 202so3345329pgc.9
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 02:28:28 -0700 (PDT)
+        with ESMTP id S233375AbiECJc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 05:32:28 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E48136318
+        for <stable@vger.kernel.org>; Tue,  3 May 2022 02:28:57 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id w17-20020a17090a529100b001db302efed6so1533409pjh.4
+        for <stable@vger.kernel.org>; Tue, 03 May 2022 02:28:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=8iUUEQ3Hqk76bDrERxaH9oyl3DtuYqYhn85GgrGw7gY=;
-        b=y8xE1McOEPLeA+26a/CIuvNHrLNXQjM0YhQSxy26IaMakomAgyYwWi6/KyBpJUlhNG
-         QolcB57hkNINvXk1tSTdPvvu9RRi+Z+6ru6hR89f1W9CMXazn9JkLAsztoIWO5BER+Xq
-         AkgfYIOCvGnd9CzwreFaoYBPW+JPPC/iyMFMFPHCiICL8CB1O1lZwVeAjSUOR39u+DCD
-         IW1MeiFFUdqwqASatXN0cXpU5DC2jsEPov5OG1xJKTlup41EnVWZarzL5MlQl0DE7ZrL
-         CE0jRwctuzs00nXgxBv+mGgPUkNMRnCs81qCRI7hILlfn+qUcezrMu5f3ZOxTSItcQxp
-         eVzA==
+        bh=KrFJ6qliNBLhdmZp+YWA7SbW1rW9R7K9Am6wTNJVrEQ=;
+        b=WNdk61iPBSZblreba/B/3/IY7uTeu+n2kwvavm3QWzDqspkvq6I1bKA5qfbNHYoM9c
+         ocdr3lVRxaRHrsRtiVqDuPdpnpdPMbUbOYNP1JLSYwL1xeKnC+uYuU50X2Uepv8QDDHx
+         aPYVQavDx1LByCvtLejFjF8eo4ObKwHnOfyvoDEvTzlJvSekpcOjwBF3CoPM3adfS7pr
+         D8wMbl+06LiM+z38qh0S00G68hYL9KLkG3OczVSkyX+QcAT0pqikhVQvbH1yqELGUlIe
+         v8owPVJFr5SpNLaxRoCUIIML/3wgKEAbDtaOUwnqUcpnPQ8wMUECnec6+rAx94dDEeF4
+         kisA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=8iUUEQ3Hqk76bDrERxaH9oyl3DtuYqYhn85GgrGw7gY=;
-        b=a73Kk5mux5b9Yaf0ufW8xBxxbcEteZxqJ7ztOCUnHCuAnBrNnJgxNzZtiA2f1OaF1H
-         5V2Gw7rh2mdRhYj4nYn492pjWhJR5HTpUUcZikiz7LBUlf6oqYx2b9pRc8gf6ajIS9Oj
-         Gs0gcra0T+45O3L/3J9ofH0h6EVfDt4r/GQd7SHLNvdB1mQLB+4kolxUdVFl65xIEpS2
-         qwCsGBvVbqYCx9aMs10bjcXKLPqEwvxxoR7Vq2AFtzRkix3VRGCgP0XFb7fTSlyrIMYP
-         udObiYIob/yzk7v2OIl1XpmtZ+dM9dygl26TZ+xjdQgeQ8BwsLb3JsLhzxNHenRx/XaP
-         dIGg==
-X-Gm-Message-State: AOAM532dIGwXTxQTFkb1eX6kuZjQZZCiTYGHnprkPbNOKE4j8s2Ra2ZP
-        tCgtfZnZls4VAGotlOecLvaEQniGbMGyP8gf/kc=
-X-Google-Smtp-Source: ABdhPJxbBPjLtU3ZA10kamW/jaD424fSyx+d9PQH4Ek5JQ20QyKssI2tOqWlgZDYP2JPDkuZ7fYIow==
-X-Received: by 2002:a63:8641:0:b0:3ab:4191:b85f with SMTP id x62-20020a638641000000b003ab4191b85fmr13008350pgd.380.1651570107611;
-        Tue, 03 May 2022 02:28:27 -0700 (PDT)
+        bh=KrFJ6qliNBLhdmZp+YWA7SbW1rW9R7K9Am6wTNJVrEQ=;
+        b=U6AnDqL65sT+fnfO5k43B6KEY34jFvVFLYXlswHrEu6A6VBB1Ro0EKLm9IN5C2Jgzr
+         YHtIAm2sPUQ+bD9EC9fjcJ9tN8y/2akKl2gRH0fW/g0ooDYwYguoev8qILpJSSGjMS88
+         GaocLgJKW1cROC7bcZsUNu2NOKE9LgAGLW/Rq5Mq0PrfkHASTtmoeO6FbHsXR+B7q8PQ
+         Fgjk9f80nFMBpvhiJk2ARZr7ovEj2bRiViPU2R4XK83MSXDIylakbjGdbe0qLjJR0h/o
+         gB0aEIG05r1dm0T6NemqbVA2DiiUjxD1mXgpi2qUDsQA5kXdKY6XpVMgQzPkPKHFXRks
+         GJEg==
+X-Gm-Message-State: AOAM533mdl5jOvdfJ6mo+xUKX3/yiBFzsLxoPEmbc4eH/3JMo4wZX6ti
+        XfIZPhVgmrtz/hrpfKHPgOP3/xD1m6ZrP8BSa8Q=
+X-Google-Smtp-Source: ABdhPJzdYmfA5bDt5wGndUYoUXX9CL+8nGI7gNLMOuNrvpA1NU/rgxPnwndd0faKXcZrCB5IXBfhaQ==
+X-Received: by 2002:a17:903:1c1:b0:15e:8cd0:46c9 with SMTP id e1-20020a17090301c100b0015e8cd046c9mr14955646plh.72.1651570136453;
+        Tue, 03 May 2022 02:28:56 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o18-20020a17090a9f9200b001dc37aef4ffsm991254pjp.48.2022.05.03.02.28.26
+        by smtp.gmail.com with ESMTPSA id i24-20020aa78b58000000b0050dc762818esm5933249pfd.104.2022.05.03.02.28.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 02:28:27 -0700 (PDT)
-Message-ID: <6270f5bb.1c69fb81.9f73f.2d94@mx.google.com>
-Date:   Tue, 03 May 2022 02:28:27 -0700 (PDT)
+        Tue, 03 May 2022 02:28:56 -0700 (PDT)
+Message-ID: <6270f5d8.1c69fb81.5cea9.ecdb@mx.google.com>
+Date:   Tue, 03 May 2022 02:28:56 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.241-49-g667276a8c00e
+X-Kernelci-Kernel: v4.9.312-38-g16e3f3f4add3b
 X-Kernelci-Report-Type: test
-X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Branch: queue/4.9
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y baseline: 52 runs,
- 1 regressions (v4.19.241-49-g667276a8c00e)
+Subject: stable-rc/queue/4.9 baseline: 75 runs,
+ 1 regressions (v4.9.312-38-g16e3f3f4add3b)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,30 +70,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 52 runs, 1 regressions (v4.19.241-49-g6672=
-76a8c00e)
+stable-rc/queue/4.9 baseline: 75 runs, 1 regressions (v4.9.312-38-g16e3f3f4=
+add3b)
 
 Regressions Summary
 -------------------
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-x360-14-G1-sona | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.241-49-g667276a8c00e/plan/baseline/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.312-38-g16e3f3f4add3b/plan/baseline/
 
   Test:     baseline
   Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.241-49-g667276a8c00e
+  Branch:   queue/4.9
+  Describe: v4.9.312-38-g16e3f3f4add3b
   URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
 able-rc.git
-  SHA:      667276a8c00ee222a9bcb8f6ebe880529a538bb2 =
+  SHA:      16e3f3f4add3ba6d76f1a9c42f064ebfe58d0f97 =
 
 
 
@@ -102,40 +102,32 @@ Test Regressions
 
 
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-x360-14-G1-sona | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
 
 
-  Details:     https://kernelci.org/test/plan/id/6270bcf267739af9f2dc7b34
+  Details:     https://kernelci.org/test/plan/id/6270c3652476d8e7b1dc7b24
 
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-41-49-g667276a8c00e/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-41-49-g667276a8c00e/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
-aseline-rk3399-gru-kevin.html
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.312-3=
+8-g16e3f3f4add3b/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-hp-x360-14-G1-sona.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.312-3=
+8-g16e3f3f4add3b/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
+a/baseline-hp-x360-14-G1-sona.html
   Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
+t-baseline/20220428.0/x86/rootfs.cpio.gz =
 
 
 
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6270bcf267739af9f2dc7b58
-        failing since 57 days (last pass: v4.19.232, first fail: v4.19.232-=
-45-g5da8d73687e7)
-
-    2022-05-03T05:25:51.301370  <8>[   35.639415] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-05-03T05:25:52.311901  /lava-6243324/1/../bin/lava-test-case
-    2022-05-03T05:25:52.320631  <8>[   36.659785] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+  * baseline.login: https://kernelci.org/test/case/id/6270c3652476d8e7b1dc7=
+b25
+        new failure (last pass: v4.9.312-35-g87deb3ca1e95) =
 
  =20
