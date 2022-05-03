@@ -2,174 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2BFF518D14
-	for <lists+stable@lfdr.de>; Tue,  3 May 2022 21:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA85518D39
+	for <lists+stable@lfdr.de>; Tue,  3 May 2022 21:37:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238658AbiECTWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 15:22:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
+        id S241797AbiECTlA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 15:41:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238334AbiECTWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 15:22:30 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 090253FBE1;
-        Tue,  3 May 2022 12:18:57 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id q14so23211982ljc.12;
-        Tue, 03 May 2022 12:18:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=XLpkmFyOpK5Of2qpVy8Hm5z5TQyIrTyYMzHRaxdG4ZA=;
-        b=b+Y4sclreDQ22DveYOaWdbKqHMx6qrIYkZQkj+fsbS6nfE7HB1ePp2HavxSBP6gPcS
-         5yuckNVAxjWTN/Ww4HOH8GyvOKk8FA54mJSpHFsGM17A8AkD7kRuAPPkPNJZKeCf/zHc
-         UiFaO979lOuCsNCniDwdH1Bpz8rI0Mpc8O14m/pGRa6lRz2EqIitsr5JqCLUhwXQLhg8
-         Oyky3ej2Ze1EXrPObWcDScT+6J+YO1kaIdu3BVFSScWkXaSPJ9Zu/Xi/P6a0L1dGPUyq
-         L2GZmrUY67YCcCLo2VCU9OYMC7mNyrpv2TMXQARJCiQqyupAV33Az4uwOXVctyV4+5xo
-         9WuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=XLpkmFyOpK5Of2qpVy8Hm5z5TQyIrTyYMzHRaxdG4ZA=;
-        b=4yJkK102a2Ziws2WQiz9UJ/E/1s7jIqMibAV/+HCdEgbTujqm+ohoVKjAmW6W6/Vy+
-         ItX3nkqmjWY7PbaC1A4b5FrXm7aYpAOiiqUAFAHtQ3MFcWoZh0YekpkvuIEkyk6tZ4Ga
-         wuDlkf3i8U/47bLEPgwOFXAJCty2z6oeKpCaEaSgkTLqwOMR3x+3YIFO142OnNJ4W4o9
-         IKNhmqbIBPOVpYtDfAthV/VQyuwOIC4wcUXUzhktNmFB8RuVqUUl6VpTv6R0mBHBaZlV
-         8bruY+NW5A9kJ6JH6f7RXFbuQxFJl32P/GwRZRE0n8mp2V/pDtftnW/aR4SOh7g9Ebbr
-         JLQg==
-X-Gm-Message-State: AOAM5333HKkGcQ2ccKUrRvdpsP+YQH0UWzzpuiyaQsC+9wVDgDk+2q4x
-        8EtyGXvoA2MknCBHSzoaoH32+QtpNhjwGw==
-X-Google-Smtp-Source: ABdhPJyGJGbBYjekouqNrog59Kd+aatzJbQ8k3QUxxEEqOaQrQGTkIWLINxDOFqb4SbT9f71mQCzNQ==
-X-Received: by 2002:a2e:9105:0:b0:24f:2558:8787 with SMTP id m5-20020a2e9105000000b0024f25588787mr10771212ljg.65.1651605535382;
-        Tue, 03 May 2022 12:18:55 -0700 (PDT)
-Received: from pc638.lan ([155.137.26.201])
-        by smtp.gmail.com with ESMTPSA id w10-20020ac254aa000000b0047255d21194sm1013894lfk.195.2022.05.03.12.18.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 12:18:54 -0700 (PDT)
-From:   "Uladzislau Rezki (Sony)" <urezki@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     RCU <rcu@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Neeraj Upadhyay <neeraj.iitr10@gmail.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 2/2] rcu: [for 5.10 stable] Apply callbacks processing time limit only on softirq
-Date:   Tue,  3 May 2022 21:18:43 +0200
-Message-Id: <20220503191843.155363-3-urezki@gmail.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20220503191843.155363-1-urezki@gmail.com>
-References: <20220503191843.155363-1-urezki@gmail.com>
+        with ESMTP id S229480AbiECTk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 15:40:59 -0400
+Received: from out03.mta.xmission.com (out03.mta.xmission.com [166.70.13.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27B9924597;
+        Tue,  3 May 2022 12:37:26 -0700 (PDT)
+Received: from in01.mta.xmission.com ([166.70.13.51]:56078)
+        by out03.mta.xmission.com with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nlyKo-00AaEh-5z; Tue, 03 May 2022 13:37:22 -0600
+Received: from ip68-227-174-4.om.om.cox.net ([68.227.174.4]:36796 helo=email.froward.int.ebiederm.org.xmission.com)
+        by in01.mta.xmission.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.93)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1nlyKn-007Sew-2a; Tue, 03 May 2022 13:37:21 -0600
+From:   "Eric W. Biederman" <ebiederm@xmission.com>
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, rjw@rjwysocki.net, mingo@kernel.org,
+        vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+        rostedt@goodmis.org, mgorman@suse.de, bigeasy@linutronix.de,
+        Will Deacon <will@kernel.org>, tj@kernel.org,
+        linux-pm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
+        linux-um@lists.infradead.org, Chris Zankel <chris@zankel.net>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        linux-xtensa@linux-xtensa.org, Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>, linux-ia64@vger.kernel.org,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
+References: <87k0b7v9yk.fsf_-_@email.froward.int.ebiederm.org>
+        <20220429214837.386518-6-ebiederm@xmission.com>
+        <20220502143750.GC17276@redhat.com>
+Date:   Tue, 03 May 2022 14:36:55 -0500
+In-Reply-To: <20220502143750.GC17276@redhat.com> (Oleg Nesterov's message of
+        "Mon, 2 May 2022 16:37:51 +0200")
+Message-ID: <87y1zio1bc.fsf@email.froward.int.ebiederm.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/27.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-XM-SPF: eid=1nlyKn-007Sew-2a;;;mid=<87y1zio1bc.fsf@email.froward.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.174.4;;;frm=ebiederm@xmission.com;;;spf=softfail
+X-XM-AID: U2FsdGVkX1+j7nUi9NCECp7X522Zs1J0RePdyckNPD8=
+X-SA-Exim-Connect-IP: 68.227.174.4
+X-SA-Exim-Mail-From: ebiederm@xmission.com
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
+X-Spam-DCC: XMission; sa06 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ***;Oleg Nesterov <oleg@redhat.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 521 ms - load_scoreonly_sql: 0.06 (0.0%),
+        signal_user_changed: 10 (1.9%), b_tie_ro: 8 (1.5%), parse: 1.09 (0.2%),
+         extract_message_metadata: 13 (2.4%), get_uri_detail_list: 1.50 (0.3%),
+         tests_pri_-1000: 7 (1.3%), tests_pri_-950: 1.44 (0.3%),
+        tests_pri_-900: 1.23 (0.2%), tests_pri_-90: 193 (37.1%), check_bayes:
+        183 (35.1%), b_tokenize: 8 (1.6%), b_tok_get_all: 8 (1.6%),
+        b_comp_prob: 2.7 (0.5%), b_tok_touch_all: 159 (30.5%), b_finish: 1.09
+        (0.2%), tests_pri_0: 280 (53.8%), check_dkim_signature: 1.08 (0.2%),
+        check_dkim_adsp: 3.2 (0.6%), poll_dns_idle: 0.90 (0.2%), tests_pri_10:
+        2.4 (0.5%), tests_pri_500: 9 (1.6%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: [PATCH v2 06/12] ptrace: Reimplement PTRACE_KILL by always
+ sending SIGKILL
+X-SA-Exim-Version: 4.2.1 (built Sat, 08 Feb 2020 21:53:50 +0000)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+Oleg Nesterov <oleg@redhat.com> writes:
 
-commit a554ba288845fd3f6f12311fd76a51694233458a upstream.
+> On 04/29, Eric W. Biederman wrote:
+>>
+>> Call send_sig_info in PTRACE_KILL instead of ptrace_resume.  Calling
+>> ptrace_resume is not safe to call if the task has not been stopped
+>> with ptrace_freeze_traced.
+>
+> Oh, I was never, never able to understand why do we have PTRACE_KILL
+> and what should it actually do.
+>
+> I suggested many times to simply remove it but OK, we probably can't
+> do this.
 
-Time limit only makes sense when callbacks are serviced in softirq mode
-because:
+I thought I remembered you suggesting fixing it in some other way.
 
-_ In case we need to get back to the scheduler,
-  cond_resched_tasks_rcu_qs() is called after each callback.
+I took at quick look in codesearch.debian.net and PTRACE_KILL is
+definitely in use. I find uses in gcc-10, firefox-esr_91.8,
+llvm_toolchain, qtwebengine.  At which point I stopped looking.
 
-_ In case some other softirq vector needs the CPU, the call to
-  local_bh_enable() before cond_resched_tasks_rcu_qs() takes care about
-  them via a call to do_softirq().
 
-Therefore, make sure the time limit only applies to softirq mode.
+>> --- a/kernel/ptrace.c
+>> +++ b/kernel/ptrace.c
+>> @@ -1238,7 +1238,7 @@ int ptrace_request(struct task_struct *child, long request,
+>>  	case PTRACE_KILL:
+>>  		if (child->exit_state)	/* already dead */
+>>  			return 0;
+>> -		return ptrace_resume(child, request, SIGKILL);
+>> +		return send_sig_info(SIGKILL, SEND_SIG_NOINFO, child);
+>
+> Note that currently ptrace(PTRACE_KILL) can never fail (yes, yes, it
+> is unsafe), but send_sig_info() can. If we do not remove PTRACE_KILL,
+> then I'd suggest
+>
+> 	case PTRACE_KILL:
+> 		if (!child->exit_state)
+> 			send_sig_info(SIGKILL);
+> 		return 0;
+>
+> to make this change a bit more compatible.
 
-Fixes: cfcdef5e30469 ("rcu: Allow rcu_do_batch() to dynamically adjust batch sizes")
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>
-[UR: backport to 5.10-stable]
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
----
- kernel/rcu/tree.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/kernel/rcu/tree.c b/kernel/rcu/tree.c
-index f340df6ebd86..b41009a283ca 100644
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2456,7 +2456,7 @@ static void rcu_do_batch(struct rcu_data *rdp)
- 	div = READ_ONCE(rcu_divisor);
- 	div = div < 0 ? 7 : div > sizeof(long) * 8 - 2 ? sizeof(long) * 8 - 2 : div;
- 	bl = max(rdp->blimit, pending >> div);
--	if (unlikely(bl > 100)) {
-+	if (in_serving_softirq() && unlikely(bl > 100)) {
- 		long rrn = READ_ONCE(rcu_resched_ns);
- 
- 		rrn = rrn < NSEC_PER_MSEC ? NSEC_PER_MSEC : rrn > NSEC_PER_SEC ? NSEC_PER_SEC : rrn;
-@@ -2494,6 +2494,18 @@ static void rcu_do_batch(struct rcu_data *rdp)
- 			if (-rcl.len >= bl && (need_resched() ||
- 					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
- 				break;
-+
-+			/*
-+			 * Make sure we don't spend too much time here and deprive other
-+			 * softirq vectors of CPU cycles.
-+			 */
-+			if (unlikely(tlimit)) {
-+				/* only call local_clock() every 32 callbacks */
-+				if (likely((-rcl.len & 31) || local_clock() < tlimit))
-+					continue;
-+				/* Exceeded the time limit, so leave. */
-+				break;
-+			}
- 		} else {
- 			local_bh_enable();
- 			lockdep_assert_irqs_enabled();
-@@ -2501,18 +2513,6 @@ static void rcu_do_batch(struct rcu_data *rdp)
- 			lockdep_assert_irqs_enabled();
- 			local_bh_disable();
- 		}
--
--		/*
--		 * Make sure we don't spend too much time here and deprive other
--		 * softirq vectors of CPU cycles.
--		 */
--		if (unlikely(tlimit)) {
--			/* only call local_clock() every 32 callbacks */
--			if (likely((-rcl.len & 31) || local_clock() < tlimit))
--				continue;
--			/* Exceeded the time limit, so leave. */
--			break;
--		}
- 	}
- 
- 	local_irq_save(flags);
--- 
-2.30.2
+Quite.  The only failure I can find from send_sig_info is if
+lock_task_sighand fails and PTRACE_KILL is deliberately ignoring errors
+when the target task has exited.
 
+ 	case PTRACE_KILL:
+ 		send_sig_info(SIGKILL);
+ 		return 0;
+
+I think that should suffice.
+
+
+> Also, please remove the note about PTRACE_KILL in
+> set_task_blockstep().
+
+Good catch, thank you.
+
+Eric
