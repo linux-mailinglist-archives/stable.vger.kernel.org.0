@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D04F51A72C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 686FE51A7DE
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354751AbiEDRCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
+        id S1355346AbiEDRG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355032AbiEDQ7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C444F49256;
-        Wed,  4 May 2022 09:51:13 -0700 (PDT)
+        with ESMTP id S1356062AbiEDREv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C8850076;
+        Wed,  4 May 2022 09:53:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A7B617BE;
-        Wed,  4 May 2022 16:51:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A04BC385A5;
-        Wed,  4 May 2022 16:51:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC63617D5;
+        Wed,  4 May 2022 16:53:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 870F7C385A5;
+        Wed,  4 May 2022 16:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683072;
-        bh=oOMJHf8M4puZp7SwS8w6iN5e33gggym1pDN1VfHle1c=;
+        s=korg; t=1651683222;
+        bh=NMC99gcqDM2guG2tRry0M7OaVR82LfisPaysCzoEjCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNYYSlYvloASe3RTk/zQgRUYtJ7QGAjlwGz5FM2tIEub2/aIjimv2jhDsvqBwfZui
-         kcgc2kY1ZKpsqq1bgzGHtO0x+pQFPDaHhy0L2cNlHT9FZVkEgwaFd+KCRSKnGcG0XS
-         m+/Ze+wJ1QCLXs+oeixKfP4uvypHW31GPTV05HFk=
+        b=QdPszhLigUAqn5bxNmBkHpm1un0YNoLcyHfCqEHjYns/g8OYcd/FDZ2kjOHVPh9lB
+         /YN2zvsofwhpyflVcrWUkyh7qoC4bCZxG3/KNIhV2tBGzqjZ69lKGtud0d1R3Ca71J
+         pERnd6I9sElkmFxSJc52BRygNok2C5E0D054vb3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/129] net: hns3: modify the return code of hclge_get_ring_chain_from_mbx
+Subject: [PATCH 5.15 075/177] pinctrl: mediatek: moore: Fix build error
 Date:   Wed,  4 May 2022 18:44:28 +0200
-Message-Id: <20220504153027.221242910@linuxfoundation.org>
+Message-Id: <20220504153059.785244126@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jie Wang <wangjie125@huawei.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 48009e9972974c52a5f649f761862dd67bce3d13 ]
+[ Upstream commit 87950929e2ff2236207bdbe14bff8230558b541b ]
 
-Currently, function hclge_get_ring_chain_from_mbx will return -ENOMEM if
-ring_num is bigger than HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM. It is better to
-return -EINVAL for the invalid parameter case.
+If EINT_MTK is m and PINCTRL_MTK_V2 is y, build fails:
 
-So this patch fixes it by return -EINVAL in this abnormal branch.
+drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_set_config':
+pinctrl-moore.c:(.text+0xa6c): undefined reference to `mtk_eint_set_debounce'
+drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_to_irq':
+pinctrl-moore.c:(.text+0xacc): undefined reference to `mtk_eint_find_irq'
 
-Fixes: 5d02a58dae60 ("net: hns3: fix for buffer overflow smatch warning")
-Signed-off-by: Jie Wang <wangjie125@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Select EINT_MTK for PINCTRL_MTK_V2 to fix this.
+
+Fixes: 8174a8512e3e ("pinctrl: mediatek: make MediaTek pinctrl v2 driver ready for buidling loadable module")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Link: https://lore.kernel.org/r/20220409105958.37412-1-yuehaibing@huawei.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/mediatek/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index 5d3996767256..2ea347b822db 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -173,7 +173,7 @@ static int hclge_get_ring_chain_from_mbx(
- 	ring_num = req->msg.ring_num;
+diff --git a/drivers/pinctrl/mediatek/Kconfig b/drivers/pinctrl/mediatek/Kconfig
+index 7040a7a7bd5d..246b0e951e1c 100644
+--- a/drivers/pinctrl/mediatek/Kconfig
++++ b/drivers/pinctrl/mediatek/Kconfig
+@@ -30,6 +30,7 @@ config PINCTRL_MTK_MOORE
+ 	select GENERIC_PINMUX_FUNCTIONS
+ 	select GPIOLIB
+ 	select OF_GPIO
++	select EINT_MTK
+ 	select PINCTRL_MTK_V2
  
- 	if (ring_num > HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM)
--		return -ENOMEM;
-+		return -EINVAL;
- 
- 	for (i = 0; i < ring_num; i++) {
- 		if (req->msg.param[i].tqp_index >= vport->nic.kinfo.rss_size) {
+ config PINCTRL_MTK_PARIS
 -- 
 2.35.1
 
