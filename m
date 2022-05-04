@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C946E51A807
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85B6951A720
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349090AbiEDRHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
+        id S236196AbiEDRCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355598AbiEDREb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31A84EF52;
-        Wed,  4 May 2022 09:53:10 -0700 (PDT)
+        with ESMTP id S1354588AbiEDQ6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2669D1B7B5;
+        Wed,  4 May 2022 09:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 659AE61899;
-        Wed,  4 May 2022 16:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B658AC385A4;
-        Wed,  4 May 2022 16:53:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6FE9B82554;
+        Wed,  4 May 2022 16:50:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFBBC385A5;
+        Wed,  4 May 2022 16:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683188;
-        bh=NEBsSG0/XWJf6FprfNFMo2p3cGJLwBZ8OJmNqMRtIGY=;
+        s=korg; t=1651683038;
+        bh=SKiGiE4LnzJUkdBzGlcrfDHQo6PAlOWLE1jcxhmrgjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ha7h/MMhWT/k7W9LcRI1xrrIvH6XeIepiF6lTTmnCGeoBGsvT3HKYkTYm8uhzJwoi
-         Iyafm///AApkf3nnLr62/pCEt/OV1ZqnTXg5owavHZ8FH1v1jhLzE5c6LEA5i2ESDm
-         Rjn/SXBXvnGBvCIZci1ANq2XGPQ48JG3toIaD7cE=
+        b=Eb0CG26bF+lTDy5mfkFD7rJLhSy++Y4S4oETW3XiBCY3z0H13Z4wJ3GjtIMlHK72W
+         3vJ2fODlh4lVEUJ0jXsUX4QSFIIvKWoJlbetIFWGQdN/sIlgrJlVXAnXgxFSCuSK63
+         J9kZ3JkXpuR7kAX2+rfQa6Wt15R5R+EyxKkMcvAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 5.15 041/177] riscv: patch_text: Fixup last cpu should be master
+        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 042/129] mtd: rawnand: fix ecc parameters for mt7622
 Date:   Wed,  4 May 2022 18:43:54 +0200
-Message-Id: <20220504153056.592587620@linuxfoundation.org>
+Message-Id: <20220504153024.502476406@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Chuanhong Guo <gch981213@gmail.com>
 
-commit 8ec1442953c66a1d8462cccd8c20b7ba561f5915 upstream.
+[ Upstream commit 9fe4e0d3cbfe90152137963cc024ecb63db6e8e6 ]
 
-These patch_text implementations are using stop_machine_cpuslocked
-infrastructure with atomic cpu_count. The original idea: When the
-master CPU patch_text, the others should wait for it. But current
-implementation is using the first CPU as master, which couldn't
-guarantee the remaining CPUs are waiting. This patch changes the
-last CPU as the master to solve the potential risk.
+According to the datasheet, mt7622 only has 5 ECC capabilities instead
+of 7, and the decoding error register is arranged  as follows:
++------+---------+---------+---------+---------+
+| Bits |  19:15  |  14:10  |   9:5   |   4:0   |
++------+---------+---------+---------+---------+
+| Name | ERRNUM3 | ERRNUM2 | ERRNUM1 | ERRNUM0 |
++------+---------+---------+---------+---------+
+This means err_mask should be 0x1f instead of 0x3f and the number of
+bits shifted in mtk_ecc_get_stats should be 5 instead of 8.
 
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: 043cb41a85de ("riscv: introduce interfaces to patch kernel code")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This commit introduces err_shift for the difference in this register
+and fix other existing parameters.
+
+Public MT7622 reference manual can be found on [0] and the info this
+commit is based on is from page 656 and page 660.
+
+[0]: https://wiki.banana-pi.org/Banana_Pi_BPI-R64#Documents
+
+Fixes: 98dea8d71931 ("mtd: nand: mtk: Support MT7622 NAND flash controller.")
+Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220402160315.919094-1-gch981213@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/patch.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/mtk_ecc.c | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
---- a/arch/riscv/kernel/patch.c
-+++ b/arch/riscv/kernel/patch.c
-@@ -104,7 +104,7 @@ static int patch_text_cb(void *data)
- 	struct patch_insn *patch = data;
- 	int ret = 0;
+diff --git a/drivers/mtd/nand/raw/mtk_ecc.c b/drivers/mtd/nand/raw/mtk_ecc.c
+index 75f1fa3d4d35..c115e03ede88 100644
+--- a/drivers/mtd/nand/raw/mtk_ecc.c
++++ b/drivers/mtd/nand/raw/mtk_ecc.c
+@@ -43,6 +43,7 @@
  
--	if (atomic_inc_return(&patch->cpu_count) == 1) {
-+	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
- 		ret =
- 		    patch_text_nosync(patch->addr, &patch->insn,
- 					    GET_INSN_LENGTH(patch->insn));
+ struct mtk_ecc_caps {
+ 	u32 err_mask;
++	u32 err_shift;
+ 	const u8 *ecc_strength;
+ 	const u32 *ecc_regs;
+ 	u8 num_ecc_strength;
+@@ -76,7 +77,7 @@ static const u8 ecc_strength_mt2712[] = {
+ };
+ 
+ static const u8 ecc_strength_mt7622[] = {
+-	4, 6, 8, 10, 12, 14, 16
++	4, 6, 8, 10, 12
+ };
+ 
+ enum mtk_ecc_regs {
+@@ -221,7 +222,7 @@ void mtk_ecc_get_stats(struct mtk_ecc *ecc, struct mtk_ecc_stats *stats,
+ 	for (i = 0; i < sectors; i++) {
+ 		offset = (i >> 2) << 2;
+ 		err = readl(ecc->regs + ECC_DECENUM0 + offset);
+-		err = err >> ((i % 4) * 8);
++		err = err >> ((i % 4) * ecc->caps->err_shift);
+ 		err &= ecc->caps->err_mask;
+ 		if (err == ecc->caps->err_mask) {
+ 			/* uncorrectable errors */
+@@ -449,6 +450,7 @@ EXPORT_SYMBOL(mtk_ecc_get_parity_bits);
+ 
+ static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
+ 	.err_mask = 0x3f,
++	.err_shift = 8,
+ 	.ecc_strength = ecc_strength_mt2701,
+ 	.ecc_regs = mt2701_ecc_regs,
+ 	.num_ecc_strength = 20,
+@@ -459,6 +461,7 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
+ 
+ static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
+ 	.err_mask = 0x7f,
++	.err_shift = 8,
+ 	.ecc_strength = ecc_strength_mt2712,
+ 	.ecc_regs = mt2712_ecc_regs,
+ 	.num_ecc_strength = 23,
+@@ -468,10 +471,11 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
+ };
+ 
+ static const struct mtk_ecc_caps mtk_ecc_caps_mt7622 = {
+-	.err_mask = 0x3f,
++	.err_mask = 0x1f,
++	.err_shift = 5,
+ 	.ecc_strength = ecc_strength_mt7622,
+ 	.ecc_regs = mt7622_ecc_regs,
+-	.num_ecc_strength = 7,
++	.num_ecc_strength = 5,
+ 	.ecc_mode_shift = 4,
+ 	.parity_bits = 13,
+ 	.pg_irq_sel = 0,
+-- 
+2.35.1
+
 
 
