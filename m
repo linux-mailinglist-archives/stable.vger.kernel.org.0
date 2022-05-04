@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5766E51A7ED
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:05:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B8251A6AA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354799AbiEDRFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:05:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55188 "EHLO
+        id S238473AbiEDQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:57:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355059AbiEDREF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D8594DF46;
-        Wed,  4 May 2022 09:52:41 -0700 (PDT)
+        with ESMTP id S1354144AbiEDQzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:55:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C730749C80;
+        Wed,  4 May 2022 09:49:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D480B827A6;
-        Wed,  4 May 2022 16:52:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E630AC385A4;
-        Wed,  4 May 2022 16:52:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B2061776;
+        Wed,  4 May 2022 16:49:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E7EC385AA;
+        Wed,  4 May 2022 16:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683147;
-        bh=W0ma7N9tFRN5uOzAAOel1RrPOTCwMohQRrM+WFEL8KE=;
+        s=korg; t=1651682989;
+        bh=Y1qldisk8Lv4E9gahULwsrbZv9Dzw/IFq3UUntaIz9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6PJnmIXfGhAVCNOnSk9HlxyNxF1Mm7y/IurzxR4XSOlMVozPD/lgZvHq1un2Ay6Z
-         hVlfe9pd5pzxNl7Vp4NHY70teZNx1EtEpAhfJRU4pP9M7x4QCsEzH1bZuYM2/JyB6A
-         qZ6DCX6Rm7+cgq56Ic2g4yAenfI5MtPJb2gm2jJ0=
+        b=0NJTaQnEejPJ19gpqbc55buQUNau0QKjdjOfduZKT/ixTovSU9v33M8FfVGAYIXxI
+         dYmYbs5gzuGeEKf84CKHnd9X2rFwRMCPyK3KM+CQpZqFTgX5dw4YWCQQUzsyZwdJW/
+         ZW8ez/9/MDh1GJjhdeF5Gro73fnKYzyFTdfKCDsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         Kees Cook <keescook@chromium.org>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 004/177] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
-Date:   Wed,  4 May 2022 18:43:17 +0200
-Message-Id: <20220504153054.132364124@linuxfoundation.org>
+Subject: [PATCH 5.10 006/129] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
+Date:   Wed,  4 May 2022 18:43:18 +0200
+Message-Id: <20220504153021.870007431@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/whiteheat.c
 +++ b/drivers/usb/serial/whiteheat.c
-@@ -584,9 +584,8 @@ static int firm_send_command(struct usb_
+@@ -599,9 +599,8 @@ static int firm_send_command(struct usb_
  		switch (command) {
  		case WHITEHEAT_GET_DTR_RTS:
  			info = usb_get_serial_port_data(port);
