@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 167C051A8C1
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C166151A8BD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356226AbiEDRQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:16:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
+        id S1355844AbiEDRLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355839AbiEDRIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49793517CC;
-        Wed,  4 May 2022 09:54:38 -0700 (PDT)
+        with ESMTP id S1356996AbiEDRJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3372248316;
+        Wed,  4 May 2022 09:56:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CAAD616B8;
-        Wed,  4 May 2022 16:54:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD40C385A4;
-        Wed,  4 May 2022 16:54:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5B2AB827A5;
+        Wed,  4 May 2022 16:56:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F636C385A5;
+        Wed,  4 May 2022 16:56:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683276;
-        bh=io5qK08uf7Ho5pIz2sIZ6RVCb9Wt3d3tyHRZDjUXifg=;
+        s=korg; t=1651683412;
+        bh=zDziTLnsss2snsLkpWMuxnhSovQWKHnxQj50ZFeHjpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdcALzLWeslAp+WWAav1mfycDQ8m5dnsur+/Z15ddv3cAYqiNLZ8WRzpeOa6bKN6R
-         tBAdSvIulzO9DlsZu1KPvytNCk5eXesVTnEjHIpNtwF4fUwlr5lvSOurdYC8r0sVDE
-         XF5XVNcmDbfruvGcQce8mYZJ6pA+ymXVJU1z1n34=
+        b=Fh23pTuqUtWIyaMGtycX2DpL/7Zla8iXFyN5eE3ofMi+kn40bwQLWj6XrIfQHph3b
+         xjJulM4qcRX+xDQOCQ+WiFlggwh/dXFgKZSGqd/wYANpMy4MOsc8ZbZ01yl5j7Mwxr
+         dIyV7cbjFOBWYcDreEug2OFN594o2l4bRNlc+YJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Hans Holmberg <hans.holmberg@wdc.com>
-Subject: [PATCH 5.15 142/177] zonefs: Clear inode information flags on inode creation
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 097/225] mtd: rawnand: Fix return value check of wait_for_completion_timeout
 Date:   Wed,  4 May 2022 18:45:35 +0200
-Message-Id: <20220504153105.971831088@linuxfoundation.org>
+Message-Id: <20220504153119.436595986@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,34 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 694852ead287a3433126e7ebda397b242dc99624 upstream.
+[ Upstream commit 084c16ab423a8890121b902b405823bfec5b4365 ]
 
-Ensure that the i_flags field of struct zonefs_inode_info is cleared to
-0 when initializing a zone file inode, avoiding seeing the flag
-ZONEFS_ZONE_OPEN being incorrectly set.
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 83738d87e3a0 ("mtd: sh_flctl: Add DMA capabilty")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220412083435.29254-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/zonefs/super.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/raw/sh_flctl.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -1155,6 +1155,7 @@ static struct inode *zonefs_alloc_inode(
- 	inode_init_once(&zi->i_vnode);
- 	mutex_init(&zi->i_truncate_mutex);
- 	zi->i_wr_refcnt = 0;
-+	zi->i_flags = 0;
+diff --git a/drivers/mtd/nand/raw/sh_flctl.c b/drivers/mtd/nand/raw/sh_flctl.c
+index 13df4bdf792a..8f89e2d3d817 100644
+--- a/drivers/mtd/nand/raw/sh_flctl.c
++++ b/drivers/mtd/nand/raw/sh_flctl.c
+@@ -384,7 +384,8 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 	dma_addr_t dma_addr;
+ 	dma_cookie_t cookie;
+ 	uint32_t reg;
+-	int ret;
++	int ret = 0;
++	unsigned long time_left;
  
- 	return &zi->i_vnode;
+ 	if (dir == DMA_FROM_DEVICE) {
+ 		chan = flctl->chan_fifo0_rx;
+@@ -425,13 +426,14 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 		goto out;
+ 	}
+ 
+-	ret =
++	time_left =
+ 	wait_for_completion_timeout(&flctl->dma_complete,
+ 				msecs_to_jiffies(3000));
+ 
+-	if (ret <= 0) {
++	if (time_left == 0) {
+ 		dmaengine_terminate_all(chan);
+ 		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
++		ret = -ETIMEDOUT;
+ 	}
+ 
+ out:
+@@ -441,7 +443,7 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 
+ 	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
+ 
+-	/* ret > 0 is success */
++	/* ret == 0 is success */
+ 	return ret;
  }
+ 
+@@ -465,7 +467,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
+ 
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
++		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
+ 			goto convert;	/* DMA success */
+ 
+ 	/* do polling transfer */
+@@ -524,7 +526,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
+ 
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
++		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
+ 			return;	/* DMA success */
+ 
+ 	/* do polling transfer */
+-- 
+2.35.1
+
 
 
