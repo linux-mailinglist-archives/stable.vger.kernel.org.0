@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9B7351A8AC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B709351A79A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355983AbiEDRNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
+        id S1354956AbiEDRGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356797AbiEDRJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:44 -0400
+        with ESMTP id S1355884AbiEDREp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB9A1A807;
-        Wed,  4 May 2022 09:55:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E92E49C8D;
+        Wed,  4 May 2022 09:53:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72F09B8278E;
-        Wed,  4 May 2022 16:55:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 226D5C385AA;
-        Wed,  4 May 2022 16:55:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D106AB827A5;
+        Wed,  4 May 2022 16:53:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A8D9C385BB;
+        Wed,  4 May 2022 16:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683337;
-        bh=MdhV4vMP/Ag3QWOmc6UiTASLX41bGZ/YGwSwW6Adsdc=;
+        s=korg; t=1651683205;
+        bh=vZgK6Y9PLhjhFdFkYNeKjuquI8/FQ9aIPBNEBrVREaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TXENfEro0bMF1nIpFtjGlDsPPGeniyrtQJN7guV8JCA2Loh9Rr7pbvBFuPkE5UU9P
-         S731tJDALYB0Av8YhUhGhEwvbzgzgnQwio79ZqRIC24NtQgdrsE59o6AttPb8wrczl
-         U6Zv47k5P4Ooq/enitEzfNx3row9SrnFiLxV4wIk=
+        b=ha051dtufBKCLdMXprHQhC1KHgjUlqbakIM9OBq/OSigPtDzyeHKwTOF5SZzDZNNz
+         vHjWbzk+HXpo0qWuzdF30lumSajapRtS/PKN7dxExC+Hn8wAC571HKVo5IgwakELNA
+         b8d/mVEW4rPeQwZuxGBqY8aYOeMUcNYWcws1xcC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.17 012/225] xhci: increase usb U3 -> U0 link resume timeout from 100ms to 500ms
+        stable@vger.kernel.org, Guillaume Giraudon <ggiraudon@prism19.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 057/177] arm64: dts: meson-sm1-bananapi-m5: fix wrong GPIO pin labeling for CON1
 Date:   Wed,  4 May 2022 18:44:10 +0200
-Message-Id: <20220504153111.358907655@linuxfoundation.org>
+Message-Id: <20220504153058.119528435@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Guillaume Giraudon <ggiraudon@prism19.com>
 
-commit 33597f0c48be0836854d43c577e35c8f8a765a7d upstream.
+[ Upstream commit 962dd65e575dde950ef0844568edc37cfb39f302 ]
 
-The first U3 wake signal by the host may be lost if the USB 3 connection is
-tunneled over USB4, with a runtime suspended USB4 host, and firmware
-implemented connection manager.
+The labels for lines 61 through 84 on the periphs-banks were offset by 2.
+2 lines are missing in the BOOT GPIO lines (contains 14, should be 16)
+Added 2 empty entries in BOOT to realigned the rest of GPIO labels
+to match the Banana Pi M5 schematics.
 
-Specs state the host must wait 100ms (tU3WakeupRetryDelay) before
-resending a U3 wake signal if device doesn't respond, leading to U3 -> U0
-link transition times around 270ms in the tunneled case.
+(Thanks to Neil Armstrong for the heads up on the position of the missing pins)
 
-Fixes: 0200b9f790b0 ("xhci: Wait until link state trainsits to U0 after setting USB_SS_PORT_LS_U0")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220408134823.2527272-4-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 976e920183e4 ("arm64: dts: meson-sm1: add Banana PI BPI-M5 board dts")
+Signed-off-by: Guillaume Giraudon <ggiraudon@prism19.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220411144427.874-1-ggiraudon@prism19.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-hub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci-hub.c
-+++ b/drivers/usb/host/xhci-hub.c
-@@ -1434,7 +1434,7 @@ int xhci_hub_control(struct usb_hcd *hcd
- 				}
- 				spin_unlock_irqrestore(&xhci->lock, flags);
- 				if (!wait_for_completion_timeout(&bus_state->u3exit_done[wIndex],
--								 msecs_to_jiffies(100)))
-+								 msecs_to_jiffies(500)))
- 					xhci_dbg(xhci, "missing U0 port change event for port %d-%d\n",
- 						 hcd->self.busnum, wIndex + 1);
- 				spin_lock_irqsave(&xhci->lock, flags);
+diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+index 5751c48620ed..cadba194b149 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
++++ b/arch/arm64/boot/dts/amlogic/meson-sm1-bananapi-m5.dts
+@@ -437,6 +437,7 @@ &gpio {
+ 		"",
+ 		"eMMC_RST#", /* BOOT_12 */
+ 		"eMMC_DS", /* BOOT_13 */
++		"", "",
+ 		/* GPIOC */
+ 		"SD_D0_B", /* GPIOC_0 */
+ 		"SD_D1_B", /* GPIOC_1 */
+-- 
+2.35.1
+
 
 
