@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57D6A51A9CB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9106C51A9BF
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357445AbiEDRTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+        id S1357114AbiEDRTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:19:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357995AbiEDRPf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DE3B562CD;
-        Wed,  4 May 2022 09:59:14 -0700 (PDT)
+        with ESMTP id S1357776AbiEDRPP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F94355480;
+        Wed,  4 May 2022 09:58:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D3AA6191D;
-        Wed,  4 May 2022 16:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8C37C385B1;
-        Wed,  4 May 2022 16:59:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14910B82552;
+        Wed,  4 May 2022 16:58:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B56D7C385B0;
+        Wed,  4 May 2022 16:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683553;
-        bh=XiXrLYDPNASD3Kn+XxkAPbrXD+joPr+uqv+/z8Ul8pk=;
+        s=korg; t=1651683537;
+        bh=QaZuhYaTIY1D8G4jnxZZ8Xzp6ltEEhBbagARWHW7sJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vEHuEYfvruqlMTBrmxqBOxC4RIubn4tMdBb+HNXlwLzBFMCd6VN8DIZ/RHsEJ0/Xs
-         pL6kDHWSB6W249c+P8aZIPk2c4htls7w4CoagsOoHqL3LWPf8SoepjWu6ffvEVOCeG
-         D1/6r20rLijE2AyBG5HiMZbLWeKc9RMYre/pfQF8=
+        b=VqwqD0gLyd8AeDNmTA8zwZw2s1sb4SyxUW6j9OMXYS4sCtNhxOhEIdHHtQTwXl99G
+         0oWxKIibLb2vQ0MAIwqkUJIEjf8NIeTDNuVjWMS6tbsHa19tY34hPHiyQQRfLdaBb3
+         q0Zg0iyp/oVV0xzOWYCK6+KwH7yARydu0ZgRfhR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 207/225] tty: n_gsm: fix malformed counter for out of frame data
-Date:   Wed,  4 May 2022 18:47:25 +0200
-Message-Id: <20220504153128.541649848@linuxfoundation.org>
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH 5.17 208/225] netfilter: nft_socket: only do sk lookups when indev is available
+Date:   Wed,  4 May 2022 18:47:26 +0200
+Message-Id: <20220504153128.615378365@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -52,35 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit a24b4b2f660b7ddf3f484b37600bba382cb28a9d upstream.
+commit 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 upstream.
 
-The gsm_mux field 'malformed' represents the number of malformed frames
-received. However, gsm1_receive() also increases this counter for any out
-of frame byte.
-Fix this by ignoring out of frame data for the malformed counter.
+Check if the incoming interface is available and NFT_BREAK
+in case neither skb->sk nor input device are set.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-7-daniel.starke@siemens.com
+Because nf_sk_lookup_slow*() assume packet headers are in the
+'in' direction, use in postrouting is not going to yield a meaningful
+result.  Same is true for the forward chain, so restrict the use
+to prerouting, input and output.
+
+Use in output work if a socket is already attached to the skb.
+
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nft_socket.c |   52 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2044,7 +2044,8 @@ static void gsm1_receive(struct gsm_mux
- 		}
- 		/* Any partial frame was a runt so go back to start */
- 		if (gsm->state != GSM_START) {
--			gsm->malformed++;
-+			if (gsm->state != GSM_SEARCH)
-+				gsm->malformed++;
- 			gsm->state = GSM_START;
- 		}
- 		/* A SOF in GSM_START means we are still reading idling or
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -53,6 +53,32 @@ nft_sock_get_eval_cgroupv2(u32 *dest, st
+ }
+ #endif
+ 
++static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
++{
++	const struct net_device *indev = nft_in(pkt);
++	const struct sk_buff *skb = pkt->skb;
++	struct sock *sk = NULL;
++
++	if (!indev)
++		return NULL;
++
++	switch (nft_pf(pkt)) {
++	case NFPROTO_IPV4:
++		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
++		break;
++#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
++	case NFPROTO_IPV6:
++		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
++		break;
++#endif
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
++
++	return sk;
++}
++
+ static void nft_socket_eval(const struct nft_expr *expr,
+ 			    struct nft_regs *regs,
+ 			    const struct nft_pktinfo *pkt)
+@@ -66,20 +92,7 @@ static void nft_socket_eval(const struct
+ 		sk = NULL;
+ 
+ 	if (!sk)
+-		switch(nft_pf(pkt)) {
+-		case NFPROTO_IPV4:
+-			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
+-		case NFPROTO_IPV6:
+-			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#endif
+-		default:
+-			WARN_ON_ONCE(1);
+-			regs->verdict.code = NFT_BREAK;
+-			return;
+-		}
++		sk = nft_socket_do_lookup(pkt);
+ 
+ 	if (!sk) {
+ 		regs->verdict.code = NFT_BREAK;
+@@ -197,6 +210,16 @@ static int nft_socket_dump(struct sk_buf
+ 	return 0;
+ }
+ 
++static int nft_socket_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain,
++					(1 << NF_INET_PRE_ROUTING) |
++					(1 << NF_INET_LOCAL_IN) |
++					(1 << NF_INET_LOCAL_OUT));
++}
++
+ static struct nft_expr_type nft_socket_type;
+ static const struct nft_expr_ops nft_socket_ops = {
+ 	.type		= &nft_socket_type,
+@@ -204,6 +227,7 @@ static const struct nft_expr_ops nft_soc
+ 	.eval		= nft_socket_eval,
+ 	.init		= nft_socket_init,
+ 	.dump		= nft_socket_dump,
++	.validate	= nft_socket_validate,
+ };
+ 
+ static struct nft_expr_type nft_socket_type __read_mostly = {
 
 
