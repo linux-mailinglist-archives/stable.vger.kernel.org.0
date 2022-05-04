@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E29751A79C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7148351A5E7
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355152AbiEDRFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:05:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53580 "EHLO
+        id S1353442AbiEDQvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:51:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355357AbiEDRER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81D804ECD5;
-        Wed,  4 May 2022 09:52:59 -0700 (PDT)
+        with ESMTP id S1353097AbiEDQvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD28EFD2B;
+        Wed,  4 May 2022 09:48:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20C54B827A9;
-        Wed,  4 May 2022 16:52:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA9CC385A5;
-        Wed,  4 May 2022 16:52:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FFE161744;
+        Wed,  4 May 2022 16:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E261C385A5;
+        Wed,  4 May 2022 16:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683177;
-        bh=touYmIpRMlAmSx5iLm7raW6VOjHJA2RLrzYNwqDKRrE=;
+        s=korg; t=1651682890;
+        bh=5HKhrFqmSPIq+BqSgu30j1FGtY9X74eIt1QMhVbVH1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rv82N9c4DoPGizo8YBukuPMjTd7iYg9Q3H/gyjNh+zksS6OQ3k5pPvF1QmjyZiwRO
-         QckHKsW8/J+IOKkOH0+0QV9i1MjI3wbC8Gh+RVT3l/+LwC4BOcppBz1mftmF8GWHCB
-         Wnrq+ESkxy9BmYS522VgWBoaE38OEN22CjomYZxY=
+        b=MOVA92uGzbYzpUeLxSA2E/ONONQ72c8UUb2IxEoWMH1O7dbGD3Pwe4au9egZn9rlO
+         CdZxIP5lOtE5ZJgKaaWxd/uyilRr8RjKw0REBMj6snbqoNbnwhaeyLApdrJQl4AVMD
+         wql8TXnlNtkBZFBBXi/aYGyiXKm6D30d6Df0mwbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 029/177] serial: imx: fix overrun interrupts in DMA mode
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        syzbot+8e8958586909d62b6840@syzkaller.appspotmail.com,
+        cruise k <cruise4k@gmail.com>, Kyungtae Kim <kt0755@gmail.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 01/84] floppy: disable FDRAWCMD by default
 Date:   Wed,  4 May 2022 18:43:42 +0200
-Message-Id: <20220504153055.653170499@linuxfoundation.org>
+Message-Id: <20220504152927.867768825@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,42 +59,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 3ee82c6e41f3d2212647ce0bc5a05a0f69097824 upstream.
+commit 233087ca063686964a53c829d547c7571e3f67bf upstream.
 
-Commit 76821e222c18 ("serial: imx: ensure that RX irqs are off if RX is
-off") accidentally enabled overrun interrupts unconditionally when
-deferring DMA enable until after the receiver has been enabled during
-startup.
+Minh Yuan reported a concurrency use-after-free issue in the floppy code
+between raw_cmd_ioctl and seek_interrupt.
 
-Fix this by using the DMA-initialised instead of DMA-enabled flag to
-determine whether overrun interrupts should be enabled.
+[ It turns out this has been around, and that others have reported the
+  KASAN splats over the years, but Minh Yuan had a reproducer for it and
+  so gets primary credit for reporting it for this fix   - Linus ]
 
-Note that overrun interrupts are already accounted for in
-imx_uart_clear_rx_errors() when using DMA since commit 41d98b5da92f
-("serial: imx-serial - update RX error counters when DMA is used").
+The problem is, this driver tends to break very easily and nowadays,
+nobody is expected to use FDRAWCMD anyway since it was used to
+manipulate non-standard formats.  The risk of breaking the driver is
+higher than the risk presented by this race, and accessing the device
+requires privileges anyway.
 
-Fixes: 76821e222c18 ("serial: imx: ensure that RX irqs are off if RX is off")
-Cc: stable@vger.kernel.org      # 4.17
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20220411081957.7846-1-johan@kernel.org
+Let's just add a config option to completely disable this ioctl and
+leave it disabled by default.  Distros shouldn't use it, and only those
+running on antique hardware might need to enable it.
+
+Link: https://lore.kernel.org/all/000000000000b71cdd05d703f6bf@google.com/
+Link: https://lore.kernel.org/lkml/CAKcFiNC=MfYVW-Jt9A3=FPJpTwCD2PL_ULNCpsCVE5s8ZeBQgQ@mail.gmail.com
+Link: https://lore.kernel.org/all/CAEAjamu1FRhz6StCe_55XY5s389ZP_xmCF69k987En+1z53=eg@mail.gmail.com
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Reported-by: syzbot+8e8958586909d62b6840@syzkaller.appspotmail.com
+Reported-by: cruise k <cruise4k@gmail.com>
+Reported-by: Kyungtae Kim <kt0755@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Tested-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/Kconfig  |   16 ++++++++++++++++
+ drivers/block/floppy.c |   43 ++++++++++++++++++++++++++++++++-----------
+ 2 files changed, 48 insertions(+), 11 deletions(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1438,7 +1438,7 @@ static int imx_uart_startup(struct uart_
- 	imx_uart_writel(sport, ucr1, UCR1);
+--- a/drivers/block/Kconfig
++++ b/drivers/block/Kconfig
+@@ -39,6 +39,22 @@ config BLK_DEV_FD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called floppy.
  
- 	ucr4 = imx_uart_readl(sport, UCR4) & ~(UCR4_OREN | UCR4_INVR);
--	if (!sport->dma_is_enabled)
-+	if (!dma_is_inited)
- 		ucr4 |= UCR4_OREN;
- 	if (sport->inverted_rx)
- 		ucr4 |= UCR4_INVR;
++config BLK_DEV_FD_RAWCMD
++	bool "Support for raw floppy disk commands (DEPRECATED)"
++	depends on BLK_DEV_FD
++	help
++	  If you want to use actual physical floppies and expect to do
++	  special low-level hardware accesses to them (access and use
++	  non-standard formats, for example), then enable this.
++
++	  Note that the code enabled by this option is rarely used and
++	  might be unstable or insecure, and distros should not enable it.
++
++	  Note: FDRAWCMD is deprecated and will be removed from the kernel
++	  in the near future.
++
++	  If unsure, say N.
++
+ config AMIGA_FLOPPY
+ 	tristate "Amiga floppy support"
+ 	depends on AMIGA
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3012,6 +3012,8 @@ static const char *drive_name(int type,
+ 		return "(null)";
+ }
+ 
++#ifdef CONFIG_BLK_DEV_FD_RAWCMD
++
+ /* raw commands */
+ static void raw_cmd_done(int flag)
+ {
+@@ -3223,6 +3225,35 @@ static int raw_cmd_ioctl(int cmd, void _
+ 	return ret;
+ }
+ 
++static int floppy_raw_cmd_ioctl(int type, int drive, int cmd,
++				void __user *param)
++{
++	int ret;
++
++	pr_warn_once("Note: FDRAWCMD is deprecated and will be removed from the kernel in the near future.\n");
++
++	if (type)
++		return -EINVAL;
++	if (lock_fdc(drive))
++		return -EINTR;
++	set_floppy(drive);
++	ret = raw_cmd_ioctl(cmd, param);
++	if (ret == -EINTR)
++		return -EINTR;
++	process_fd_request();
++	return ret;
++}
++
++#else /* CONFIG_BLK_DEV_FD_RAWCMD */
++
++static int floppy_raw_cmd_ioctl(int type, int drive, int cmd,
++				void __user *param)
++{
++	return -EOPNOTSUPP;
++}
++
++#endif
++
+ static int invalidate_drive(struct block_device *bdev)
+ {
+ 	/* invalidate the buffer track to force a reread */
+@@ -3410,7 +3441,6 @@ static int fd_locked_ioctl(struct block_
+ {
+ 	int drive = (long)bdev->bd_disk->private_data;
+ 	int type = ITYPE(UDRS->fd_device);
+-	int i;
+ 	int ret;
+ 	int size;
+ 	union inparam {
+@@ -3561,16 +3591,7 @@ static int fd_locked_ioctl(struct block_
+ 		outparam = UDRWE;
+ 		break;
+ 	case FDRAWCMD:
+-		if (type)
+-			return -EINVAL;
+-		if (lock_fdc(drive))
+-			return -EINTR;
+-		set_floppy(drive);
+-		i = raw_cmd_ioctl(cmd, (void __user *)param);
+-		if (i == -EINTR)
+-			return -EINTR;
+-		process_fd_request();
+-		return i;
++		return floppy_raw_cmd_ioctl(type, drive, cmd, (void __user *)param);
+ 	case FDTWADDLE:
+ 		if (lock_fdc(drive))
+ 			return -EINTR;
 
 
