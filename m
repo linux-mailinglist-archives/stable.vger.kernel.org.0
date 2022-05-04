@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BABD51A65A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 320F551A8F8
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354190AbiEDQzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51490 "EHLO
+        id S1344906AbiEDRM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353949AbiEDQxc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F5B47ADF;
-        Wed,  4 May 2022 09:48:56 -0700 (PDT)
+        with ESMTP id S1356829AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E58812CCBD;
+        Wed,  4 May 2022 09:55:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C7D161744;
-        Wed,  4 May 2022 16:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978AFC385A4;
-        Wed,  4 May 2022 16:48:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96BE0B8278E;
+        Wed,  4 May 2022 16:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39706C385A4;
+        Wed,  4 May 2022 16:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682935;
-        bh=IiuLVqn+41hK/TvtV51P7ny7tLaJWsoNCR7nCU1SY98=;
+        s=korg; t=1651683350;
+        bh=Lu2E1I2yiHFlJN+E/H9ofPZXowvZgsabxZMdN2uM2cI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoKmu9sgw/VyqHKJnSr3jTJCJ11YYYQSO9sdQDXTmXGjy349/HpLoDHhon19cVB+F
-         MxbIZR167MJib02cRlbwVXVA9McIeYA6cwVzM7H1OlKluE8l30RJWO4QwznaUAmv5G
-         EX9ygmDY2HaMoczZq3jT66N6QcwL66tH9Ykl16h4=
+        b=Z+Hk8NDOSpqEpCYOqI/TSDsg2c0L5tQgGBENlbjvURRjj1nrEEqR/9ojPHekju0iK
+         tSiNRVQmZs5Da1Uh05NGNg9giHIRreZ1gLwtlhHhzOx61C/MHQpSfPiJeOF2ElbVM8
+         WSpjCoH1mb7zRjZ9GYNZtFajskFP0Lp7zVnnnuu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaobing Luo <luoxiaobing0926@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 54/84] cpufreq: fix memory leak in sun50i_cpufreq_nvmem_probe
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable <stable@kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.17 037/225] serial: 8250: Correct the clock for EndRun PTP/1588 PCIe device
 Date:   Wed,  4 May 2022 18:44:35 +0200
-Message-Id: <20220504152931.594492818@linuxfoundation.org>
+Message-Id: <20220504153113.515763636@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaobing Luo <luoxiaobing0926@gmail.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 1aa24a8f3b5133dae4bc1e57427e345445f3e902 ]
+commit 637674fa40059cddcc3ad2212728965072f62ea3 upstream.
 
---------------------------------------------
-unreferenced object 0xffff000010742a00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294902015 (age 1187.652s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000b4dfebaa>] __kmalloc+0x338/0x474
-    [<00000000d6e716db>] sun50i_cpufreq_nvmem_probe+0xc4/0x36c
-    [<000000007d6082a0>] platform_probe+0x98/0x11c
-    [<00000000c990f549>] really_probe+0x234/0x5a0
-    [<000000002d9fecc6>] __driver_probe_device+0x194/0x224
-    [<00000000cf0b94fa>] driver_probe_device+0x64/0x13c
-    [<00000000f238e4cf>] __device_attach_driver+0xf8/0x180
-    [<000000006720e418>] bus_for_each_drv+0xf8/0x160
-    [<00000000df4f14f6>] __device_attach+0x174/0x29c
-    [<00000000782002fb>] device_initial_probe+0x20/0x30
-    [<00000000c2681b06>] bus_probe_device+0xfc/0x110
-    [<00000000964cf3bd>] device_add+0x5f0/0xcd0
-    [<000000004b9264e3>] platform_device_add+0x198/0x390
-    [<00000000fa82a9d0>] platform_device_register_full+0x178/0x210
-    [<000000009a5daf13>] sun50i_cpufreq_init+0xf8/0x168
-    [<000000000377cc7c>] do_one_initcall+0xe4/0x570
---------------------------------------------
+The EndRun PTP/1588 dual serial port device is based on the Oxford
+Semiconductor OXPCIe952 UART device with the PCI vendor:device ID set
+for EndRun Technologies and is therefore driven by a fixed 62.5MHz clock
+input derived from the 100MHz PCI Express clock.  The clock rate is
+divided by the oversampling rate of 16 as it is supplied to the baud
+rate generator, yielding the baud base of 3906250.
 
-if sun50i_cpufreq_get_efuse failed, then opp_tables leak.
+Replace the incorrect baud base of 4000000 with the right value of
+3906250 then, complementing commit 6cbe45d8ac93 ("serial: 8250: Correct
+the clock for OxSemi PCIe devices").
 
-Fixes: f328584f7bff ("cpufreq: Add sun50i nvmem based CPU scaling driver")
-Signed-off-by: Xiaobing Luo <luoxiaobing0926@gmail.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Cc: stable <stable@kernel.org>
+Fixes: 1bc8cde46a159 ("8250_pci: Added driver for Endrun Technologies PTP PCIe card.")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181515270.9383@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/sun50i-cpufreq-nvmem.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_pci.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/cpufreq/sun50i-cpufreq-nvmem.c b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-index 2deed8d8773f..75e1bf3a08f7 100644
---- a/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-@@ -98,8 +98,10 @@ static int sun50i_cpufreq_nvmem_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	ret = sun50i_cpufreq_get_efuse(&speed);
--	if (ret)
-+	if (ret) {
-+		kfree(opp_tables);
- 		return ret;
-+	}
- 
- 	snprintf(name, MAX_NAME_LEN, "speed%d", speed);
- 
--- 
-2.35.1
-
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -2667,7 +2667,7 @@ enum pci_board_num_t {
+ 	pbn_panacom2,
+ 	pbn_panacom4,
+ 	pbn_plx_romulus,
+-	pbn_endrun_2_4000000,
++	pbn_endrun_2_3906250,
+ 	pbn_oxsemi,
+ 	pbn_oxsemi_1_3906250,
+ 	pbn_oxsemi_2_3906250,
+@@ -3195,10 +3195,10 @@ static struct pciserial_board pci_boards
+ 	* signal now many ports are available
+ 	* 2 port 952 Uart support
+ 	*/
+-	[pbn_endrun_2_4000000] = {
++	[pbn_endrun_2_3906250] = {
+ 		.flags		= FL_BASE0,
+ 		.num_ports	= 2,
+-		.base_baud	= 4000000,
++		.base_baud	= 3906250,
+ 		.uart_offset	= 0x200,
+ 		.first_offset	= 0x1000,
+ 	},
+@@ -4115,7 +4115,7 @@ static const struct pci_device_id serial
+ 	*/
+ 	{	PCI_VENDOR_ID_ENDRUN, PCI_DEVICE_ID_ENDRUN_1588,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_endrun_2_4000000 },
++		pbn_endrun_2_3906250 },
+ 	/*
+ 	 * Quatech cards. These actually have configurable clocks but for
+ 	 * now we just use the default.
 
 
