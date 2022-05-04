@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF07C51A871
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038F851A74B
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350244AbiEDRLE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38862 "EHLO
+        id S1354901AbiEDRDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356777AbiEDRJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:43 -0400
+        with ESMTP id S1354861AbiEDQ7V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49CA81B7A5;
-        Wed,  4 May 2022 09:55:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3866C48392;
+        Wed,  4 May 2022 09:51:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 838F4B82737;
-        Wed,  4 May 2022 16:55:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8E1C385AA;
-        Wed,  4 May 2022 16:55:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3D5AB82552;
+        Wed,  4 May 2022 16:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA85C385A5;
+        Wed,  4 May 2022 16:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683332;
-        bh=HCoN8/Wq4Acpa5T6uG4M7Zn2PwaQBMq/3dfZoQIgsyM=;
+        s=korg; t=1651683062;
+        bh=lVaJWtKW0Ijh2nupS9UWR8XJmZlkiWdqTf0rNGERKtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1TB1MjEf7UdT5grUfqfBJ+g+Gt5AdO3NFCqe6bg1pIuZX3SZVfAy9SAKAh04u8Vp
-         zabLlq6Q/DH4tPaE+sCQCcMs+xhX7dpmacCYiLHq1UpKZI0WysNPKV/iLOv+OGvCVW
-         T7Qc4XbueO6K3czAD3uno/xVT91AtHMEubvny60Q=
+        b=TozoR50AMYQ+ZrqFdNK0INY6lnU134dVCr7quz9e2QE7CZfuXMLsgIz3GaN7zExXu
+         NZjk3a8Iy1O3yU5j0V1mtGF/bcBKJx9mowl8np9cvmQaH85dSHs3HWS0OQ858WLrGJ
+         EpocCaP22y6hX4B4UCmWRoIpYK1V++AzV0bhKbuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Tasos Sahanidis <tasos@tasossah.com>
-Subject: [PATCH 5.17 019/225] usb: core: Dont hold the device lock while sleeping in do_proc_control()
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 065/129] bpf, lwt: Fix crash when using bpf_skb_set_tunnel_key() from bpf_xmit lwt hook
 Date:   Wed,  4 May 2022 18:44:17 +0200
-Message-Id: <20220504153112.012598935@linuxfoundation.org>
+Message-Id: <20220504153026.441756298@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-commit 0543e4e8852ef5ff1809ae62f1ea963e2ab23b66 upstream.
+[ Upstream commit b02d196c44ead1a5949729be9ff08fe781c3e48a ]
 
-Since commit ae8709b296d8 ("USB: core: Make do_proc_control() and
-do_proc_bulk() killable") if a device has the USB_QUIRK_DELAY_CTRL_MSG
-quirk set, it will temporarily block all other URBs (e.g. interrupts)
-while sleeping due to a control.
+xmit_check_hhlen() observes the dst for getting the device hard header
+length to make sure a modified packet can fit. When a helper which changes
+the dst - such as bpf_skb_set_tunnel_key() - is called as part of the
+xmit program the accessed dst is no longer valid.
 
-This results in noticeable delays when, for example, a userspace usbfs
-application is sending URB interrupts at a high rate to a keyboard and
-simultaneously updates the lock indicators using controls. Interrupts
-with direction set to IN are also affected by this, meaning that
-delivery of HID reports (containing scancodes) to the usbfs application
-is delayed as well.
+This leads to the following splat:
 
-This patch fixes the regression by calling msleep() while the device
-mutex is unlocked, as was the case originally with usb_control_msg().
+ BUG: kernel NULL pointer dereference, address: 00000000000000de
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 0 PID: 798 Comm: ping Not tainted 5.18.0-rc2+ #103
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ RIP: 0010:bpf_xmit+0xfb/0x17f
+ Code: c6 c0 4d cd 8e 48 c7 c7 7d 33 f0 8e e8 42 09 fb ff 48 8b 45 58 48 8b 95 c8 00 00 00 48 2b 95 c0 00 00 00 48 83 e0 fe 48 8b 00 <0f> b7 80 de 00 00 00 39 c2 73 22 29 d0 b9 20 0a 00 00 31 d2 48 89
+ RSP: 0018:ffffb148c0bc7b98 EFLAGS: 00010282
+ RAX: 0000000000000000 RBX: 0000000000240008 RCX: 0000000000000000
+ RDX: 0000000000000010 RSI: 00000000ffffffea RDI: 00000000ffffffff
+ RBP: ffff922a828a4e00 R08: ffffffff8f1350e8 R09: 00000000ffffdfff
+ R10: ffffffff8f055100 R11: ffffffff8f105100 R12: 0000000000000000
+ R13: ffff922a828a4e00 R14: 0000000000000040 R15: 0000000000000000
+ FS:  00007f414e8f0080(0000) GS:ffff922afdc00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00000000000000de CR3: 0000000002d80006 CR4: 0000000000370ef0
+ Call Trace:
+  <TASK>
+  lwtunnel_xmit.cold+0x71/0xc8
+  ip_finish_output2+0x279/0x520
+  ? __ip_finish_output.part.0+0x21/0x130
 
-Fixes: ae8709b296d8 ("USB: core: Make do_proc_control() and do_proc_bulk() killable")
-Cc: stable <stable@kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
-Link: https://lore.kernel.org/r/3e299e2a-13b9-ddff-7fee-6845e868bc06@tasossah.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix by fetching the device hard header length before running the BPF code.
+
+Fixes: 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220420165219.1755407-1-eyal.birger@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/devio.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ net/core/lwt_bpf.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/devio.c
-+++ b/drivers/usb/core/devio.c
-@@ -1197,12 +1197,16 @@ static int do_proc_control(struct usb_de
+diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
+index 2f7940bcf715..3fd207fe1284 100644
+--- a/net/core/lwt_bpf.c
++++ b/net/core/lwt_bpf.c
+@@ -158,10 +158,8 @@ static int bpf_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 	return dst->lwtstate->orig_output(net, sk, skb);
+ }
  
- 		usb_unlock_device(dev);
- 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
-+
-+		/* Linger a bit, prior to the next control message. */
-+		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
-+			msleep(200);
- 		usb_lock_device(dev);
- 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, tbuf, actlen);
- 		if (!i && actlen) {
- 			if (copy_to_user(ctrl->data, tbuf, actlen)) {
- 				ret = -EFAULT;
--				goto recv_fault;
-+				goto done;
- 			}
- 		}
- 	} else {
-@@ -1219,6 +1223,10 @@ static int do_proc_control(struct usb_de
+-static int xmit_check_hhlen(struct sk_buff *skb)
++static int xmit_check_hhlen(struct sk_buff *skb, int hh_len)
+ {
+-	int hh_len = skb_dst(skb)->dev->hard_header_len;
+-
+ 	if (skb_headroom(skb) < hh_len) {
+ 		int nhead = HH_DATA_ALIGN(hh_len - skb_headroom(skb));
  
- 		usb_unlock_device(dev);
- 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
-+
-+		/* Linger a bit, prior to the next control message. */
-+		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
-+			msleep(200);
- 		usb_lock_device(dev);
- 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, NULL, 0);
- 	}
-@@ -1230,10 +1238,6 @@ static int do_proc_control(struct usb_de
- 	}
- 	ret = (i < 0 ? i : actlen);
+@@ -273,6 +271,7 @@ static int bpf_xmit(struct sk_buff *skb)
  
-- recv_fault:
--	/* Linger a bit, prior to the next control message. */
--	if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
--		msleep(200);
-  done:
- 	kfree(dr);
- 	usb_free_urb(urb);
+ 	bpf = bpf_lwt_lwtunnel(dst->lwtstate);
+ 	if (bpf->xmit.prog) {
++		int hh_len = dst->dev->hard_header_len;
+ 		__be16 proto = skb->protocol;
+ 		int ret;
+ 
+@@ -290,7 +289,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 			/* If the header was expanded, headroom might be too
+ 			 * small for L2 header to come, expand as needed.
+ 			 */
+-			ret = xmit_check_hhlen(skb);
++			ret = xmit_check_hhlen(skb, hh_len);
+ 			if (unlikely(ret))
+ 				return ret;
+ 
+-- 
+2.35.1
+
 
 
