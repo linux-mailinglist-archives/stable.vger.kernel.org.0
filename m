@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9FE51A735
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0067451A604
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354822AbiEDRCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35656 "EHLO
+        id S1353785AbiEDQwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355013AbiEDQ7h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67E0E4924D;
-        Wed,  4 May 2022 09:51:13 -0700 (PDT)
+        with ESMTP id S1353737AbiEDQwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C09E4706C;
+        Wed,  4 May 2022 09:48:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1D15B827A6;
-        Wed,  4 May 2022 16:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 673F1C385A4;
-        Wed,  4 May 2022 16:51:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ECB5B82553;
+        Wed,  4 May 2022 16:48:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00721C385A4;
+        Wed,  4 May 2022 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683070;
-        bh=vElSciYUSw5PYLIPgzAopPeCZT3L1Ns5W1UDzeUU2sY=;
+        s=korg; t=1651682910;
+        bh=BUOk1zYNp2SO4CFbYAyT2aAi+mKxa4j9bzGzbW0e+FA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVNTif88js8E9s3kabmXFXYvehqQ3nQKqolKZNVujEikvoPWoW+HAkDjPv2JZeCXB
-         Nd7WYfe5U2Rt3Sfw4h4dSmWTidImg8ihpo9bIE/QrzHEr/v249vA3hdd8Y6YcZCNIb
-         HhRSv+K/cE3CZhNGTSd6MxTRvTnQPp03cYYWaLMs=
+        b=p+GKl65dui3dXZR0sF4GRkrzThJSCAtC17IkCueEv85Or6ajJf07YF8y+zwMHqeb6
+         YkQHV0aW5uzRFczrUdBinUfdOfmJB5NCzs7lIr+GD+ntULZKKj37BZ8DVc6V4xOVJu
+         LnojNrua3KgpZt3gaZnOPWaqLV0fzHh6kH602Jmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/129] phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 16/84] iio: magnetometer: ak8975: Fix the error handling in ak8975_power_on()
 Date:   Wed,  4 May 2022 18:43:57 +0200
-Message-Id: <20220504153024.744039124@linuxfoundation.org>
+Message-Id: <20220504152928.939190636@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 388ec8f079f2f20d5cd183c3bc6f33cbc3ffd3ef ]
+commit 3a26787dacf04257a68b16315c984eb2c340bc5e upstream.
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+When the driver fails to enable the regulator 'vid', we will get the
+following splat:
 
-Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220407091857.230386-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[   79.955610] WARNING: CPU: 5 PID: 441 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   79.959641] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   79.967570] Call Trace:
+[   79.967773]  <TASK>
+[   79.967951]  regulator_put+0x1f/0x30
+[   79.968254]  devres_release_group+0x319/0x3d0
+[   79.968608]  i2c_device_probe+0x766/0x940
+
+Fix this by disabling the 'vdd' regulator when failing to enable 'vid'
+regulator.
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220409034849.3717231-2-zheyuma97@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/samsung/phy-exynos5250-sata.c | 1 +
+ drivers/iio/magnetometer/ak8975.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
-index 4dd7324d91b2..5077987570fd 100644
---- a/drivers/phy/samsung/phy-exynos5250-sata.c
-+++ b/drivers/phy/samsung/phy-exynos5250-sata.c
-@@ -190,6 +190,7 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
- 		return -EINVAL;
- 
- 	sata_phy->client = of_find_i2c_device_by_node(node);
-+	of_node_put(node);
- 	if (!sata_phy->client)
- 		return -EPROBE_DEFER;
- 
--- 
-2.35.1
-
+--- a/drivers/iio/magnetometer/ak8975.c
++++ b/drivers/iio/magnetometer/ak8975.c
+@@ -391,6 +391,7 @@ static int ak8975_power_on(const struct
+ 	if (ret) {
+ 		dev_warn(&data->client->dev,
+ 			 "Failed to enable specified Vid supply\n");
++		regulator_disable(data->vdd);
+ 		return ret;
+ 	}
+ 	/*
 
 
