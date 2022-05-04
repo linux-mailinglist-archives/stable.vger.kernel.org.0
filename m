@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C97251A7D5
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D256251A849
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355030AbiEDRFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:05:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53614 "EHLO
+        id S1355190AbiEDRKU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354998AbiEDRDs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:03:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7734D9E8;
-        Wed,  4 May 2022 09:52:38 -0700 (PDT)
+        with ESMTP id S1355522AbiEDRHs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:07:48 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70C8A51597;
+        Wed,  4 May 2022 09:54:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8150961794;
-        Wed,  4 May 2022 16:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA75C385AA;
-        Wed,  4 May 2022 16:52:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 93ED7CE2625;
+        Wed,  4 May 2022 16:54:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41BFC385A5;
+        Wed,  4 May 2022 16:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683139;
-        bh=Y0Bi39iTWz4cj+MRckiLDH8gQu2Z0CGTg8tiDnDMg9A=;
+        s=korg; t=1651683260;
+        bh=J+jBo16iQs/BiLfou3/SFc7FzOVPopt9RazhfTcTP6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DER4vhqKCqLjyjXHvOlC/b9x5qRYPIbjTH3xQhethf7F/+M2zHHp1fB8SsrGC8zdS
-         kxmsRjZcFjln8CyyXVrEFee4v2yaDFwNFduD5B6T34t/446dTAwUSbpgP8qsGJ+c42
-         2jutqw+T2w5KW9dPxBbp8wTDxnhxD6iu9o8AFe68=
+        b=YILkD6aLeVaMEsIkqRHcu8K3UsGcEtF02q5HTWlI/CLtC7pIM6YpAOS8Z7WkyTMe5
+         rQZF/w4AAmo350ZdyN22JQyOmyHWouLV3swc0BmDI+W9iAWjO9OYA2ip7H26cUDszX
+         h6/sF6mXFgz0qycR7Ri3MCdJa27/oGwP/SDyTLsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 127/129] tty: n_gsm: fix incorrect UA handling
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 126/177] tcp: fix F-RTO may not work correctly when receiving DSACK
 Date:   Wed,  4 May 2022 18:45:19 +0200
-Message-Id: <20220504153031.655306116@linuxfoundation.org>
+Message-Id: <20220504153104.380107754@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +56,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
+[ Upstream commit d9157f6806d1499e173770df1f1b234763de5c79 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
-acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
-discarded. Currently, all UA frame are handled in the same way regardless
-of the PF bit. This does not comply with the standard.
-Remove the UA case in gsm_queue() to process only UA frames with PF bit set
-to 1 to abide the standard.
+Currently DSACK is regarded as a dupack, which may cause
+F-RTO to incorrectly enter "loss was real" when receiving
+DSACK.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Packetdrill to demonstrate:
+
+// Enable F-RTO and TLP
+    0 `sysctl -q net.ipv4.tcp_frto=2`
+    0 `sysctl -q net.ipv4.tcp_early_retrans=3`
+    0 `sysctl -q net.ipv4.tcp_congestion_control=cubic`
+
+// Establish a connection
+   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+   +0 bind(3, ..., ...) = 0
+   +0 listen(3, 1) = 0
+
+// RTT 10ms, RTO 210ms
+  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
+   +0 > S. 0:0(0) ack 1 <...>
+ +.01 < . 1:1(0) ack 1 win 257
+   +0 accept(3, ..., ...) = 4
+
+// Send 2 data segments
+   +0 write(4, ..., 2000) = 2000
+   +0 > P. 1:2001(2000) ack 1
+
+// TLP
++.022 > P. 1001:2001(1000) ack 1
+
+// Continue to send 8 data segments
+   +0 write(4, ..., 10000) = 10000
+   +0 > P. 2001:10001(8000) ack 1
+
+// RTO
++.188 > . 1:1001(1000) ack 1
+
+// The original data is acked and new data is sent(F-RTO step 2.b)
+   +0 < . 1:1(0) ack 2001 win 257
+   +0 > P. 10001:12001(2000) ack 1
+
+// D-SACK caused by TLP is regarded as a dupack, this results in
+// the incorrect judgment of "loss was real"(F-RTO step 3.a)
++.022 < . 1:1(0) ack 2001 win 257 <sack 1001:2001,nop,nop>
+
+// Never-retransmitted data(3001:4001) are acked and
+// expect to switch to open state(F-RTO step 3.b)
+   +0 < . 1:1(0) ack 4001 win 257
++0 %{ assert tcpi_ca_state == 0, tcpi_ca_state }%
+
+Fixes: e33099f96d99 ("tcp: implement RFC5682 F-RTO")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Tested-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1650967419-2150-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/ipv4/tcp_input.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1817,7 +1817,6 @@ static void gsm_queue(struct gsm_mux *gs
- 		gsm_response(gsm, address, UA);
- 		gsm_dlci_close(dlci);
- 		break;
--	case UA:
- 	case UA|PF:
- 		if (cr == 0 || dlci == NULL)
- 			break;
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 6bd283b58bb8..dfd32cd3b95e 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3860,7 +3860,8 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
+ 		tcp_process_tlp_ack(sk, ack, flag);
+ 
+ 	if (tcp_ack_is_dubious(sk, flag)) {
+-		if (!(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP))) {
++		if (!(flag & (FLAG_SND_UNA_ADVANCED |
++			      FLAG_NOT_DUP | FLAG_DSACKING_ACK))) {
+ 			num_dupack = 1;
+ 			/* Consider if pure acks were aggregated in tcp_add_backlog() */
+ 			if (!(flag & FLAG_DATA))
+-- 
+2.35.1
+
 
 
