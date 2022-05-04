@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F55B51A75A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB9B51A8C2
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354129AbiEDRCa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S1353010AbiEDRMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355244AbiEDQ7t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157E049686;
-        Wed,  4 May 2022 09:51:24 -0700 (PDT)
+        with ESMTP id S1356839AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 685ED4093D;
+        Wed,  4 May 2022 09:55:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC300617C2;
-        Wed,  4 May 2022 16:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 457B7C385AF;
-        Wed,  4 May 2022 16:51:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D920A616B8;
+        Wed,  4 May 2022 16:55:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35F5CC385A5;
+        Wed,  4 May 2022 16:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683083;
-        bh=JSCa2iDFyLjNaathPK9LBYB8qEdrw+UHxwx06chyEuA=;
+        s=korg; t=1651683355;
+        bh=d9FRUiv783dU/wMy58x9p6NFoSQWCkLOfWCusjCDE3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp+4w2BnX4CDB9qWJH1EQr2oXNJXq7T9zSUa2OOnUYFMvLlKQN5+TAUBqXhMtbDvu
-         i/cUg/an+MABgzS1vJbdJTZpv9YmkaqmV04iCrXBwqp2IllCohGF3p6FHm8OtCn3cx
-         BC21GPiyo90R/GfcBrTbGBC4pBk8lIYzoR00pJLQ=
+        b=BwYEDfMAnpmRSMr9WUnlvAt0qtEfzua/ETnUm2h9URgMXplw6CP7gV53VYVl0rxtF
+         7TTpIf/fJmMFcF/nUbOhzfx4AhIyIAgz0JoIoWr72gW+7ZYjDb64IOIiLBERQoVb2p
+         vYtTpk3KOD6v8hmzficbepvVMyeh4UmPTYb93E30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 074/129] pinctrl: pistachio: fix use of irq_of_parse_and_map()
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.17 028/225] usb: dwc3: pci: add support for the Intel Meteor Lake-P
 Date:   Wed,  4 May 2022 18:44:26 +0200
-Message-Id: <20220504153027.095704950@linuxfoundation.org>
+Message-Id: <20220504153112.808856424@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit 0c9843a74a85224a89daa81fa66891dae2f930e1 ]
+commit 973e0f7a847ef13ade840d4c30729ce329a66895 upstream.
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+This patch adds the necessary PCI IDs for Intel Meteor Lake-P
+devices.
 
-Fixes: cefc03e5995e ("pinctrl: Add Pistachio SoC pin control driver")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Link: https://lore.kernel.org/r/20220424031430.3170759-1-lv.ruyi@zte.com.cn
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220425103518.44028-1-heikki.krogerus@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-pistachio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-pistachio.c b/drivers/pinctrl/pinctrl-pistachio.c
-index ec761ba2a2da..989a37fb402d 100644
---- a/drivers/pinctrl/pinctrl-pistachio.c
-+++ b/drivers/pinctrl/pinctrl-pistachio.c
-@@ -1374,10 +1374,10 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
- 		}
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -44,6 +44,8 @@
+ #define PCI_DEVICE_ID_INTEL_ADLM		0x54ee
+ #define PCI_DEVICE_ID_INTEL_ADLS		0x7ae1
+ #define PCI_DEVICE_ID_INTEL_RPLS		0x7a61
++#define PCI_DEVICE_ID_INTEL_MTLP		0x7ec1
++#define PCI_DEVICE_ID_INTEL_MTL			0x7e7e
+ #define PCI_DEVICE_ID_INTEL_TGL			0x9a15
+ #define PCI_DEVICE_ID_AMD_MR			0x163a
  
- 		irq = irq_of_parse_and_map(child, 0);
--		if (irq < 0) {
--			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
-+		if (!irq) {
-+			dev_err(pctl->dev, "No IRQ for bank %u\n", i);
- 			of_node_put(child);
--			ret = irq;
-+			ret = -EINVAL;
- 			goto err;
- 		}
+@@ -421,6 +423,12 @@ static const struct pci_device_id dwc3_p
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_RPLS),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
  
--- 
-2.35.1
-
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTLP),
++	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
++
++	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_MTL),
++	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
++
+ 	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_INTEL_TGL),
+ 	  (kernel_ulong_t) &dwc3_pci_intel_swnode, },
+ 
 
 
