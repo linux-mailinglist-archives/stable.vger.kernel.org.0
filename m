@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5502351A729
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B484E51A664
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348964AbiEDRCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39514 "EHLO
+        id S1345353AbiEDQzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354748AbiEDQ7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 653A0473A9;
-        Wed,  4 May 2022 09:50:58 -0700 (PDT)
+        with ESMTP id S1353889AbiEDQwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B1A04757C;
+        Wed,  4 May 2022 09:48:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A0E617C7;
-        Wed,  4 May 2022 16:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70970C385A4;
-        Wed,  4 May 2022 16:50:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 401F4B827A6;
+        Wed,  4 May 2022 16:48:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B83C385B0;
+        Wed,  4 May 2022 16:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683057;
-        bh=XGzZl/x6DuyN5GV6irKCEio/3JA41NUH4s4IYRbrICc=;
+        s=korg; t=1651682927;
+        bh=dpdC6tHpuWhfBpAtkD90g7ap4SOW4WqlZ/hC5cmZH+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GAI31Kh9HodgOOHnySVYbV36ZlH8oqrwaxdWXzI8ZmvJHVIJosRc7l8KW1wBkaipN
-         F8p/VLOHgT8lBjgPenam1BalavfWvC6QZxzvUfdpjA0yc9taGH/CvKt4VfCVb5k/Az
-         5OebXybDZj3NG5h+WkvNoZ+5iQ7FwuRHkXHtzGIk=
+        b=SMS/xmWbCcapFrey6djSMHUmgHw9pUZEC966dTA4cgrkQOkKQ9XxEjAZ6AvYK0QwC
+         8E50u++2JOZsZ1730dBkwzRXJJbjICPrmVMt/tAV9qZKQqci2gtxsT+9k7URObDWpn
+         wIgKFWYRiFbM4kg76SrkD6ogbkCDyu6teYuemjTE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Marc Zyngier <maz@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Weitao Wang <WeitaoWang-oc@zhaoxin.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/129] pinctrl: stm32: Do not call stm32_gpio_get() for edge triggered IRQs in EOI
-Date:   Wed,  4 May 2022 18:44:13 +0200
-Message-Id: <20220504153026.112064367@linuxfoundation.org>
+Subject: [PATCH 5.4 33/84] USB: Fix xhci event ring dequeue pointer ERDP update issue
+Date:   Wed,  4 May 2022 18:44:14 +0200
+Message-Id: <20220504152930.110168469@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,47 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
 
-[ Upstream commit e74200ebf7c4f6a7a7d1be9f63833ddba251effa ]
+[ Upstream commit e91ac20889d1a26d077cc511365cd7ff4346a6f3 ]
 
-The stm32_gpio_get() should only be called for LEVEL triggered interrupts,
-skip calling it for EDGE triggered interrupts altogether to avoid wasting
-CPU cycles in EOI handler. On this platform, EDGE triggered interrupts are
-the majority and LEVEL triggered interrupts are the exception no less, and
-the CPU cycles are not abundant.
+In some situations software handles TRB events slower than adding TRBs.
+If the number of TRB events to be processed in a given interrupt is exactly
+the same as the event ring size 256, then the local variable
+"event_ring_deq" that holds the initial dequeue position is equal to
+software_dequeue after handling all 256 interrupts.
 
-Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-To: linux-gpio@vger.kernel.org
-Link: https://lore.kernel.org/r/20220415215410.498349-1-marex@denx.de
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+It will cause driver to not update ERDP to hardware,
+
+Software dequeue pointer is out of sync with ERDP on interrupt exit.
+On the next interrupt, the event ring may full but driver will not
+update ERDP as software_dequeue is equal to ERDP.
+
+[  536.377115] xhci_hcd 0000:00:12.0: ERROR unknown event type 37
+[  566.933173] sd 8:0:0:0: [sdb] tag#27 uas_eh_abort_handler 0 uas-tag 7 inflight: CMD OUT
+[  566.933181] sd 8:0:0:0: [sdb] tag#27 CDB: Write(10) 2a 00 17 71 e6 78 00 00 08 00
+[  572.041186] xhci_hcd On some situataions,the0000:00:12.0: xHCI host not responding to stop endpoint command.
+[  572.057193] xhci_hcd 0000:00:12.0: Host halt failed, -110
+[  572.057196] xhci_hcd 0000:00:12.0: xHCI host controller not responding, assume dead
+[  572.057236] sd 8:0:0:0: [sdb] tag#26 uas_eh_abort_handler 0 uas-tag 6 inflight: CMD
+[  572.057240] sd 8:0:0:0: [sdb] tag#26 CDB: Write(10) 2a 00 38 eb cc d8 00 00 08 00
+[  572.057244] sd 8:0:0:0: [sdb] tag#25 uas_eh_abort_handler 0 uas-tag 5 inflight: CMD
+
+Hardware ERDP is updated mid event handling if there are more than 128
+events in an interrupt (half of ring size).
+Fix this by updating the software local variable at the same time as
+hardware ERDP.
+
+[commit message rewording -Mathias]
+
+Fixes: dc0ffbea5729 ("usb: host: xhci: update event ring dequeue pointer on purpose")
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220408134823.2527272-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/host/xhci-ring.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
-index e13723bb2be4..12d4d92c4a17 100644
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -311,6 +311,10 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
- 	struct stm32_gpio_bank *bank = d->domain->host_data;
- 	int level;
- 
-+	/* Do not access the GPIO if this is not LEVEL triggered IRQ. */
-+	if (!(bank->irq_type[d->hwirq] & IRQ_TYPE_LEVEL_MASK))
-+		return;
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 7fa27b403756..6cedae902adf 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -2932,6 +2932,8 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
+ 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
+ 			continue;
+ 		xhci_update_erst_dequeue(xhci, event_ring_deq);
++		event_ring_deq = xhci->event_ring->dequeue;
 +
- 	/* If level interrupt type then retrig */
- 	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
- 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
+ 		event_loop = 0;
+ 	}
+ 
 -- 
 2.35.1
 
