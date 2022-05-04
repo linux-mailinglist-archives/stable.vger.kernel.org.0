@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0030451A685
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 787FC51A870
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353887AbiEDQ4C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:56:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52180 "EHLO
+        id S1355690AbiEDRLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353809AbiEDQxR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F6A47ACD;
-        Wed,  4 May 2022 09:48:51 -0700 (PDT)
+        with ESMTP id S1356783AbiEDRJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45631D301;
+        Wed,  4 May 2022 09:55:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B9A161789;
-        Wed,  4 May 2022 16:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A99D1C385AA;
-        Wed,  4 May 2022 16:48:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8834DB82795;
+        Wed,  4 May 2022 16:55:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27785C385A5;
+        Wed,  4 May 2022 16:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682930;
-        bh=1Vi5lNYXaB4VTTLQ+lFez2oNueieHQTfkFWql+43bVk=;
+        s=korg; t=1651683333;
+        bh=lem5YP95kAeIWlgsI+/P+6ycbjzuQRCTrSpldXDPb4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJ5Ui6TUmAC0s5BJRo3kgonS+QHt5wUarKrDBtFMGO+cV2BWlUPYUmS3aiVaG5062
-         lCpcwR2pNBkFwbegX6/VN6A1EXaed4Xvm+4noiKTwXPBE5XTQLtRd2IWBwidLxOojQ
-         +dXc0zLDVqYgFN6VTI5RGj/3H3fC8kBJX/R+giMc=
+        b=Z8Eo7UfNmz+3kSvHxZbHRIicAO91K4s8kewPQtlApH62QeCkKcx+BKUxXDBSou//h
+         YaUTbn7/MPaSiOICNJ6MDMpBUd0nEKYYJFDpdsubwhUS5zPsErRJiJtCALQ1O6SaQZ
+         kDxWYdEbuKNFlQCOVoTXjPURxjzmUZTQJm8UuXpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/84] ARM: OMAP2+: Fix refcount leak in omap_gic_of_init
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Jack Pham <quic_jackp@quicinc.com>
+Subject: [PATCH 5.17 020/225] usb: typec: ucsi: Fix reuse of completion structure
 Date:   Wed,  4 May 2022 18:44:18 +0200
-Message-Id: <20220504152930.449088261@linuxfoundation.org>
+Message-Id: <20220504153112.118375389@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 
-[ Upstream commit 0f83e6b4161617014017a694888dd8743f46f071 ]
+commit e25adcca917d7e4cdc1dc6444d0692ffda7594bf upstream.
 
-The of_find_compatible_node() function returns a node pointer with
-refcount incremented, We should use of_node_put() on it when done
-Add the missing of_node_put() to release the refcount.
+The role swapping completion variable is reused, so it needs
+to be reinitialised every time. Otherwise it will be marked
+as done after the first time it's used and completing
+immediately.
 
-Fixes: fd1c07861491 ("ARM: OMAP4: Fix the init code to have OMAP4460 errata available in DT build")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Message-Id: <20220309104302.18398-1-linmq006@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/linux-usb/20220325203959.GA19752@jackp-linux.qualcomm.com/
+Fixes: 6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
+Cc: stable@vger.kernel.org
+Reported-and-suggested-by: Jack Pham <quic_jackp@quicinc.com>
+Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20220405134824.68067-2-heikki.krogerus@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-omap2/omap4-common.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/typec/ucsi/ucsi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/omap4-common.c b/arch/arm/mach-omap2/omap4-common.c
-index 5c3845730dbf..0b80f8bcd304 100644
---- a/arch/arm/mach-omap2/omap4-common.c
-+++ b/arch/arm/mach-omap2/omap4-common.c
-@@ -314,10 +314,12 @@ void __init omap_gic_of_init(void)
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -949,6 +949,8 @@ static int ucsi_dr_swap(struct typec_por
+ 	     role == TYPEC_HOST))
+ 		goto out_unlock;
  
- 	np = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-gic");
- 	gic_dist_base_addr = of_iomap(np, 0);
-+	of_node_put(np);
- 	WARN_ON(!gic_dist_base_addr);
++	reinit_completion(&con->complete);
++
+ 	command = UCSI_SET_UOR | UCSI_CONNECTOR_NUMBER(con->num);
+ 	command |= UCSI_SET_UOR_ROLE(role);
+ 	command |= UCSI_SET_UOR_ACCEPT_ROLE_SWAPS;
+@@ -985,6 +987,8 @@ static int ucsi_pr_swap(struct typec_por
+ 	if (cur_role == role)
+ 		goto out_unlock;
  
- 	np = of_find_compatible_node(NULL, NULL, "arm,cortex-a9-twd-timer");
- 	twd_base = of_iomap(np, 0);
-+	of_node_put(np);
- 	WARN_ON(!twd_base);
- 
- skip_errata_init:
--- 
-2.35.1
-
++	reinit_completion(&con->complete);
++
+ 	command = UCSI_SET_PDR | UCSI_CONNECTOR_NUMBER(con->num);
+ 	command |= UCSI_SET_PDR_ROLE(role);
+ 	command |= UCSI_SET_PDR_ACCEPT_ROLE_SWAPS;
 
 
