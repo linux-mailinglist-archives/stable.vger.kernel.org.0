@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C387751A644
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D8D51A960
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354025AbiEDQyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
+        id S236285AbiEDRMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354175AbiEDQxy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C764473B3;
-        Wed,  4 May 2022 09:49:11 -0700 (PDT)
+        with ESMTP id S1356872AbiEDRJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C265B43AF6;
+        Wed,  4 May 2022 09:56:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D15361720;
-        Wed,  4 May 2022 16:49:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A174DC385AA;
-        Wed,  4 May 2022 16:49:10 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 28AB9CE28AD;
+        Wed,  4 May 2022 16:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C89C385AF;
+        Wed,  4 May 2022 16:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682950;
-        bh=MHT2SeQdtx3XYjhw3wAw0mbMJj9Ahj3yxOPq+fIpods=;
+        s=korg; t=1651683367;
+        bh=+q2s/HQ66eGx5eZW7CMgSoE5sCjAqyFL5yBUXuzj48M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sW2YAVF+JuMlfjV3AKrwb+T3DRXU5sCfpHLx/+kJUGV3EQU3rxTUf0YP7IZ5fSt7G
-         DhZCivdIBlP47PYX5FdNcqU1LPqOxU3vRI/wQ9RjckWN+s080H6ehGTQ8JTIxYP2jf
-         TfD6WkWiRqqpJHUjXOZOHELEnLjKJPm0P/Le3uYI=
+        b=I8QCg4au/CBR3mUI0Y4wpvlu0S3VYpWfEaPYtnlg+Klu+46gtLMyVpT/CtCpLHbeJ
+         IvKwPzKDpOr/rojKtZ3XnItHlUz1rZ+HECA6gJJkd7ftwb3K4/YP+HCaUTOozOuafq
+         9alGbwXAwODvYZvTDRF24CwbRFzT18hgQSW9pO+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <cong.wang@bytedance.com>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 69/84] ip6_gre: Avoid updating tunnel->tun_hlen in __gre6_xmit()
+        stable@vger.kernel.org,
+        Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>,
+        Dusty Mabe <dustymabe@redhat.com>,
+        Salvatore Bonaccorso <carnil@debian.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Noah Meyerhans <noahm@debian.org>
+Subject: [PATCH 5.17 052/225] x86/pci/xen: Disable PCI/MSI[-X] masking for XEN_HVM guests
 Date:   Wed,  4 May 2022 18:44:50 +0200
-Message-Id: <20220504152932.856314841@linuxfoundation.org>
+Message-Id: <20220504153114.793472327@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit f40c064e933d7787ca7411b699504d7a2664c1f5 ]
+commit 7e0815b3e09986d2fe651199363e135b9358132a upstream.
 
-Do not update tunnel->tun_hlen in data plane code.  Use a local variable
-instead, just like "tunnel_hlen" in net/ipv4/ip_gre.c:gre_fb_xmit().
+When a XEN_HVM guest uses the XEN PIRQ/Eventchannel mechanism, then
+PCI/MSI[-X] masking is solely controlled by the hypervisor, but contrary to
+XEN_PV guests this does not disable PCI/MSI[-X] masking in the PCI/MSI
+layer.
 
-Co-developed-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This can lead to a situation where the PCI/MSI layer masks an MSI[-X]
+interrupt and the hypervisor grants the write despite the fact that it
+already requested the interrupt. As a consequence interrupt delivery on the
+affected device is not happening ever.
+
+Set pci_msi_ignore_mask to prevent that like it's done for XEN_PV guests
+already.
+
+Fixes: 809f9267bbab ("xen: map MSIs into pirqs")
+Reported-by: Jeremi Piotrowski <jpiotrowski@linux.microsoft.com>
+Reported-by: Dusty Mabe <dustymabe@redhat.com>
+Reported-by: Salvatore Bonaccorso <carnil@debian.org>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Noah Meyerhans <noahm@debian.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87tuaduxj5.ffs@tglx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/pci/xen.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 5dbc280d4385..e550db28aabb 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -730,6 +730,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		struct ip_tunnel_info *tun_info;
- 		const struct ip_tunnel_key *key;
- 		__be16 flags;
-+		int tun_hlen;
+--- a/arch/x86/pci/xen.c
++++ b/arch/x86/pci/xen.c
+@@ -467,7 +467,6 @@ static __init void xen_setup_pci_msi(voi
+ 		else
+ 			xen_msi_ops.setup_msi_irqs = xen_setup_msi_irqs;
+ 		xen_msi_ops.teardown_msi_irqs = xen_pv_teardown_msi_irqs;
+-		pci_msi_ignore_mask = 1;
+ 	} else if (xen_hvm_domain()) {
+ 		xen_msi_ops.setup_msi_irqs = xen_hvm_setup_msi_irqs;
+ 		xen_msi_ops.teardown_msi_irqs = xen_teardown_msi_irqs;
+@@ -481,6 +480,11 @@ static __init void xen_setup_pci_msi(voi
+ 	 * in allocating the native domain and never use it.
+ 	 */
+ 	x86_init.irqs.create_pci_msi_domain = xen_create_pci_msi_domain;
++	/*
++	 * With XEN PIRQ/Eventchannels in use PCI/MSI[-X] masking is solely
++	 * controlled by the hypervisor.
++	 */
++	pci_msi_ignore_mask = 1;
+ }
  
- 		tun_info = skb_tunnel_info(skb);
- 		if (unlikely(!tun_info ||
-@@ -748,9 +749,9 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		dsfield = key->tos;
- 		flags = key->tun_flags &
- 			(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
--		tunnel->tun_hlen = gre_calc_hlen(flags);
-+		tun_hlen = gre_calc_hlen(flags);
- 
--		gre_build_header(skb, tunnel->tun_hlen,
-+		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
- 				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
--- 
-2.35.1
-
+ #else /* CONFIG_PCI_MSI */
 
 
