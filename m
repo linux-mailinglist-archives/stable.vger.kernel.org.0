@@ -2,120 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84F4951A1D5
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:08:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B6051A23A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:31:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345387AbiEDOMX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 10:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57236 "EHLO
+        id S1351313AbiEDOfE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 10:35:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351046AbiEDOMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:12:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276ED419AA
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 07:08:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D60A9B825A3
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 14:08:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717E1C385A5;
-        Wed,  4 May 2022 14:08:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651673321;
-        bh=ayxDIg9bX26CQdCiP6cC/xwxLjJYB2Jy7ZrTx5J4Mic=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMqiiYZF2EjfAoNvuepPolaon676MbL/3ZfbJH6rSxP6na6Tj7rNepIMTgOmjh9i4
-         ZYDWXrNW9pdxm0THu7+OL67ZFwdADyl7hKzKW0S9gzI1G60zU01at0cG4fsXfqEoQu
-         iHTy/Yckkvp9N0DxQRN8ym/cl5hiWBm38EJd20s40noI7xmbboTKMye/InMbkcUpS7
-         +uYmcM5HMJIGrGH8W5cxLKegUNUv36DYVeWn+xwzZU2FSy5WB214aTubnQFoRTo6da
-         ekod6MqDaFSH0aivnWRKGmCO8Wzp+QNOGhB764UmsJWI+UkctlDyuIoFcNMifDH8oC
-         xhBU6ZzvQrMWA==
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.10 2/2] PCI: aardvark: Fix reading MSI interrupt number
-Date:   Wed,  4 May 2022 16:08:36 +0200
-Message-Id: <20220504140836.11115-2-kabel@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220504140836.11115-1-kabel@kernel.org>
-References: <20220504140836.11115-1-kabel@kernel.org>
+        with ESMTP id S1351342AbiEDOfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:35:04 -0400
+Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6512F1FA73;
+        Wed,  4 May 2022 07:31:28 -0700 (PDT)
+Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-e93bbb54f9so1321531fac.12;
+        Wed, 04 May 2022 07:31:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TkR4+Ak42lKAVTpIpmlEu7xaOxXFRRFm8b0SVx8aIK8=;
+        b=d2zsqe+LjRZ0/q16f0uNPNcEBQsGPHyHl9A0iFGxVxcMbgkkt4Xa3wd0mjcQRXY3Zf
+         I8DvLS/pYwPDXnZLSVXq2pUSf+2Gay7fwp6RWUyAdDligYkS5Gi/9UC3kMs0P1vy62hh
+         L4sNqfBh4j7Aytfg/zxgOgKEEFiPFovy/WDTdFiW+X3OQlWdiX4JYzDW5GzyEHM+Cn6A
+         KHzBPVZiavamj7r4LwMvWrVUEEymhn2KYE2VW33XsojyWNspLO/MTSUfg3fGjZ7iu6Jo
+         O8X5JJiSHlcAbYlzQuHpJdYP9dQ3Uq5V6QqhJqvZhzXJRA9u8vh7dKIO90bDfXclKfD2
+         vkTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TkR4+Ak42lKAVTpIpmlEu7xaOxXFRRFm8b0SVx8aIK8=;
+        b=CnoHycRPT6QSdt+AJ7aVKwh96B4AqPVe8HzwTPLDtBZjDHq1fyp3YCUCAqHefCCh7b
+         mD4vEWS+cbZ6Ui2s4pCyNIhVlY6SO03naK1JzEOjllGHvQ7NxPHlR1bsmGPXt4sEUc8r
+         /I5DLEnv/wnMeurLC/QdUOXf+umXS/JY/WXnZM58Oz2WxWJBTz6HlhdQwXKQo9ZIeRAY
+         mLfpCljY8jSMD5hglqemkx9CS1YirkppY14VmD5ETYAkzQaj5qsJLtGtIimjos+7EsCb
+         bByOQxdwTvMg9hHpGUK+ayeJMyQIs3tdXXHaRXb/OSaGicvZ7m4TCocMNXwqQ81gSz7b
+         zIug==
+X-Gm-Message-State: AOAM532cLxZwVq846EvP95vRcJmwyMjFJX7omWcqQ7l38yeGgEWcaklk
+        hQ8qqCaKtMyAcqvCbuK4LwU=
+X-Google-Smtp-Source: ABdhPJwVA7TMiQ/jxm7yXoFyx+nQCDbG+YJAW/Hdf84gmBHEKuw2CSOZUJoDpy3jnAbBLJiHIXgvWw==
+X-Received: by 2002:a05:6870:618e:b0:e5:c2f3:e009 with SMTP id a14-20020a056870618e00b000e5c2f3e009mr3871331oah.10.1651674687522;
+        Wed, 04 May 2022 07:31:27 -0700 (PDT)
+Received: from localhost.localdomain ([2804:14c:485:4b69:6ef3:840d:df28:4651])
+        by smtp.gmail.com with ESMTPSA id m9-20020a4ad509000000b0035eb4e5a6dasm6018832oos.48.2022.05.04.07.31.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 04 May 2022 07:31:27 -0700 (PDT)
+From:   Fabio Estevam <festevam@gmail.com>
+To:     kuba@kernel.org
+Cc:     davem@davemloft.net, andrew@lunn.ch, claudiu.beznea@microchip.com,
+        netdev@vger.kernel.org, o.rempel@pengutronix.de,
+        linux@armlinux.org.uk, Fabio Estevam <festevam@denx.de>,
+        stable@vger.kernel.org
+Subject: [PATCH net v2 1/2] net: phy: micrel: Do not use kszphy_suspend/resume for KSZ8061
+Date:   Wed,  4 May 2022 11:31:03 -0300
+Message-Id: <20220504143104.1286960-1-festevam@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 ]
+Since commit f1131b9c23fb ("net: phy: micrel: use
+kszphy_suspend()/kszphy_resume for irq aware devices") the following
+NULL pointer dereference is observed on a board with KSZ8061:
 
-In advk_pcie_handle_msi() the authors expect that when bit i in the W1C
-register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
-updated to contain the MSI number corresponding to index i.
+ # udhcpc -i eth0
+udhcpc: started, v1.35.0
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+pgd = f73cef4e
+[00000008] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in:
+CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
+Hardware name: Freescale i.MX6 SoloX (Device Tree)
+PC is at kszphy_config_reset+0x10/0x114
+LR is at kszphy_resume+0x24/0x64
+...
 
-Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
-always contains the number of the last received MSI, overall.
+The KSZ8061 phy_driver structure does not have the .probe/..driver_data
+fields, which means that priv is not allocated.
 
-Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
-number. Since Aardvark already forbids more than 32 interrupts and uses
-own allocated hwirq numbers, the msi_idx already corresponds to the
-received MSI number.
+This causes the NULL pointer dereference inside kszphy_config_reset().
 
-Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Fix the problem by using the generic suspend/resume functions as before.
+
+Another alternative would be to provide the .probe and .driver_data
+information into the structure, but to be on the safe side, let's
+just restore Ethernet functionality by using the generic suspend/resume.
+
+Cc: stable@vger.kernel.org
+Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
 ---
-As explained in https://lore.kernel.org/stable/20220503205434.25275-2-kabel@kernel.org/
-for 4.14, this needs to be applied ASAP to stable, since another commit was put into
-stable that breaks this driver.
+Changes since v1:
+- Explained why enphy_suspend/resume solution is preferred (Andrew).
 
-Thx :)
----
- drivers/pci/controller/pci-aardvark.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/net/phy/micrel.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 61c0e1090875..0c603e069f21 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1388,7 +1388,7 @@ static void advk_pcie_remove_irq_domain(struct advk_pcie *pcie)
- static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- {
- 	u32 msi_val, msi_mask, msi_status, msi_idx;
--	u16 msi_data;
-+	int virq;
- 
- 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
- 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
-@@ -1398,13 +1398,9 @@ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- 		if (!(BIT(msi_idx) & msi_status))
- 			continue;
- 
--		/*
--		 * msi_idx contains bits [4:0] of the msi_data and msi_data
--		 * contains 16bit MSI interrupt number
--		 */
- 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
--		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
--		generic_handle_irq(msi_data);
-+		virq = irq_find_mapping(pcie->msi_inner_domain, msi_idx);
-+		generic_handle_irq(virq);
- 	}
- 
- 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 685a0ab5453c..11cd073630e5 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -3021,8 +3021,8 @@ static struct phy_driver ksphy_driver[] = {
+ 	.config_init	= ksz8061_config_init,
+ 	.config_intr	= kszphy_config_intr,
+ 	.handle_interrupt = kszphy_handle_interrupt,
+-	.suspend	= kszphy_suspend,
+-	.resume		= kszphy_resume,
++	.suspend	= genphy_suspend,
++	.resume		= genphy_resume,
+ }, {
+ 	.phy_id		= PHY_ID_KSZ9021,
+ 	.phy_id_mask	= 0x000ffffe,
 -- 
-2.35.1
+2.25.1
 
