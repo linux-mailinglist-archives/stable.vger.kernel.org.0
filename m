@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91AD651A981
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C5551A992
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353753AbiEDRRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
+        id S1355919AbiEDRSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:18:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356256AbiEDRNk (ORCPT
+        with ESMTP id S1356264AbiEDRNk (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72804B848;
-        Wed,  4 May 2022 09:57:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FFF54BFDD;
+        Wed,  4 May 2022 09:57:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 761F4616AC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7976361920;
+        Wed,  4 May 2022 16:57:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAF4FC385A4;
         Wed,  4 May 2022 16:57:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF36C385AF;
-        Wed,  4 May 2022 16:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683461;
-        bh=twrLPXQvI09GptGJkdEq4Vl9zrLT/UgjaNtt1MPj0/g=;
+        s=korg; t=1651683462;
+        bh=eYtxATOhzuJEhHqHBa1TTh1+uYflDzuJ0v2jmBeLP1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ogn8O/bBO4SJxyfceGlXVw0lYRsiahe+Y5wRHeIqZgLWZa/pIxIDQB9DFxUu9jBMI
-         IViDpi4nCUlLkcmGKMtkX9Geb6gqRFNFQyroZKeo9i8I0xnzril/F76tnOapvyTPLU
-         sOVXaQjnBQXxL0NcBUXB/ziDVyhFxRRGszFQ2yNw=
+        b=urq9tNjieitvA6512pSdlJlzTusnZl0MysfECgsCYxEgyl9zl9kVWpSlaIvbcMNv6
+         JM2+3nrieQCYiwQWdqY/upHpeuSaMfMRvx/W3O+E8g0CveW9I6xeqMSKMhNhIIN9/t
+         uplsbfa7NFtjTpATxouteJGMN0QRNgCs2XXnPxrs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        William Tu <u9012063@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Doug Porter <dsp@fb.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 123/225] ip_gre, ip6_gre: Fix race condition on o_seqno in collect_md mode
-Date:   Wed,  4 May 2022 18:46:01 +0200
-Message-Id: <20220504153121.418030414@linuxfoundation.org>
+Subject: [PATCH 5.17 124/225] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
+Date:   Wed,  4 May 2022 18:46:02 +0200
+Message-Id: <20220504153121.494192883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -56,150 +57,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 31c417c948d7f6909cb63f0ac3298f3c38f8ce20 ]
+[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
 
-As pointed out by Jakub Kicinski, currently using TUNNEL_SEQ in
-collect_md mode is racy for [IP6]GRE[TAP] devices.  Consider the
-following sequence of events:
+I had this bug sitting for too long in my pile, it is time to fix it.
 
-1. An [IP6]GRE[TAP] device is created in collect_md mode using "ip link
-   add ... external".  "ip" ignores "[o]seq" if "external" is specified,
-   so TUNNEL_SEQ is off, and the device is marked as NETIF_F_LLTX (i.e.
-   it uses lockless TX);
-2. Someone sets TUNNEL_SEQ on outgoing skb's, using e.g.
-   bpf_skb_set_tunnel_key() in an eBPF program attached to this device;
-3. gre_fb_xmit() or __gre6_xmit() processes these skb's:
+Thanks to Doug Porter for reminding me of it!
 
-	gre_build_header(skb, tun_hlen,
-			 flags, protocol,
-			 tunnel_id_to_key32(tun_info->key.tun_id),
-			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
-					      : 0);   ^^^^^^^^^^^^^^^^^
+We had various attempts in the past, including commit
+0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
+but the issue is that TCP stack currently only generates
+EPOLLOUT from input path, when tp->snd_una has advanced
+and skb(s) cleaned from rtx queue.
 
-Since we are not using the TX lock (&txq->_xmit_lock), multiple CPUs may
-try to do this tunnel->o_seqno++ in parallel, which is racy.  Fix it by
-making o_seqno atomic_t.
+If a flow has a big RTT, and/or receives SACKs, it is possible
+that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
+and no more data can be sent until tp->snd_una finally advances.
 
-As mentioned by Eric Dumazet in commit b790e01aee74 ("ip_gre: lockless
-xmit"), making o_seqno atomic_t increases "chance for packets being out
-of order at receiver" when NETIF_F_LLTX is on.
+What is needed is to also check if POLLOUT needs to be generated
+whenever tp->snd_nxt is advanced, from output path.
 
-Maybe a better fix would be:
+This bug triggers more often after an idle period, as
+we do not receive ACK for at least one RTT. tcp_notsent_lowat
+could be a fraction of what CWND and pacing rate would allow to
+send during this RTT.
 
-1. Do not ignore "oseq" in external mode.  Users MUST specify "oseq" if
-   they want the kernel to allow sequencing of outgoing packets;
-2. Reject all outgoing TUNNEL_SEQ packets if the device was not created
-   with "oseq".
+In a followup patch, I will remove the bogus call
+to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
+from tcp_check_space(). Fact that we have decided to generate
+an EPOLLOUT does not mean the application has immediately
+refilled the transmit queue. This optimistic call
+might have been the reason the bug seemed not too serious.
 
-Unfortunately, that would break userspace.
+Tested:
 
-We could now make [IP6]GRE[TAP] devices always NETIF_F_LLTX, but let us
-do it in separate patches to keep this fix minimal.
+200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
 
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Fixes: 77a5196a804e ("gre: add sequence number for collect md mode.")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: William Tu <u9012063@gmail.com>
+$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
+$ cat bench_rr.sh
+SUM=0
+for i in {1..10}
+do
+ V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
+ echo $V
+ SUM=$(($SUM + $V))
+done
+echo SUM=$SUM
+
+Before patch:
+$ bench_rr.sh
+130000000
+80000000
+140000000
+140000000
+140000000
+140000000
+130000000
+40000000
+90000000
+110000000
+SUM=1140000000
+
+After patch:
+$ bench_rr.sh
+430000000
+590000000
+530000000
+450000000
+450000000
+350000000
+450000000
+490000000
+480000000
+460000000
+SUM=4680000000  # This is 410 % of the value before patch.
+
+Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Doug Porter <dsp@fb.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_tunnel.h | 2 +-
- include/net/ip_tunnels.h | 2 +-
- net/ipv4/ip_gre.c        | 6 +++---
- net/ipv6/ip6_gre.c       | 7 ++++---
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ include/net/tcp.h     |  1 +
+ net/ipv4/tcp_input.c  | 12 +++++++++++-
+ net/ipv4/tcp_output.c |  1 +
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
-index a38c4f1e4e5c..74b369bddf49 100644
---- a/include/net/ip6_tunnel.h
-+++ b/include/net/ip6_tunnel.h
-@@ -58,7 +58,7 @@ struct ip6_tnl {
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 9f459e8f1689..40c05972178b 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -620,6 +620,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
+ void tcp_reset(struct sock *sk, struct sk_buff *skb);
+ void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
+ void tcp_fin(struct sock *sk);
++void tcp_check_space(struct sock *sk);
  
- 	/* These fields used only by GRE */
- 	__u32 i_seqno;	/* The last seen seqno	*/
--	__u32 o_seqno;	/* The last output seqno */
-+	atomic_t o_seqno;	/* The last output seqno */
- 	int hlen;       /* tun_hlen + encap_hlen */
- 	int tun_hlen;	/* Precalculated header length */
- 	int encap_hlen; /* Encap header length (FOU,GUE) */
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index 0219fe907b26..3ec6146f8734 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -116,7 +116,7 @@ struct ip_tunnel {
- 
- 	/* These four fields used only by GRE */
- 	u32		i_seqno;	/* The last seen seqno	*/
--	u32		o_seqno;	/* The last output seqno */
-+	atomic_t	o_seqno;	/* The last output seqno */
- 	int		tun_hlen;	/* Precalculated header length */
- 
- 	/* These four fields used only by ERSPAN */
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index ca70b92e80d9..8cf86e42c1d1 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -464,7 +464,7 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 	/* Push GRE header. */
- 	gre_build_header(skb, tunnel->tun_hlen,
- 			 flags, proto, tunnel->parms.o_key,
--			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
- 
- 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
+ /* tcp_timer.c */
+ void tcp_init_xmit_timers(struct sock *);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index bfe4112e000c..525bf37c0fdb 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5437,7 +5437,17 @@ static void tcp_new_space(struct sock *sk)
+ 	INDIRECT_CALL_1(sk->sk_write_space, sk_stream_write_space, sk);
  }
-@@ -502,7 +502,7 @@ static void gre_fb_xmit(struct sk_buff *skb, struct net_device *dev,
- 		(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
- 	gre_build_header(skb, tunnel_hlen, flags, proto,
- 			 tunnel_id_to_key32(tun_info->key.tun_id),
--			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
  
- 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
+-static void tcp_check_space(struct sock *sk)
++/* Caller made space either from:
++ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
++ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
++ *
++ * We might be able to generate EPOLLOUT to the application if:
++ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
++ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
++ *    small enough that tcp_stream_memory_free() decides it
++ *    is time to generate EPOLLOUT.
++ */
++void tcp_check_space(struct sock *sk)
+ {
+ 	/* pairs with tcp_poll() */
+ 	smp_mb();
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 257780f93305..0b5eab685154 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -82,6 +82,7 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
  
-@@ -579,7 +579,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	}
+ 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
+ 		      tcp_skb_pcount(skb));
++	tcp_check_space(sk);
+ }
  
- 	gre_build_header(skb, 8, TUNNEL_SEQ,
--			 proto, 0, htonl(tunnel->o_seqno++));
-+			 proto, 0, htonl(atomic_fetch_inc(&tunnel->o_seqno)));
- 
- 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
- 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index d9e4ac94eab4..5136959b3dc5 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -766,7 +766,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
--				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
-+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
- 						      : 0);
- 
- 	} else {
-@@ -777,7 +777,8 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 
- 		gre_build_header(skb, tunnel->tun_hlen, flags,
- 				 protocol, tunnel->parms.o_key,
--				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
-+						      : 0);
- 	}
- 
- 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
-@@ -1055,7 +1056,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 	/* Push GRE header. */
- 	proto = (t->parms.erspan_ver == 1) ? htons(ETH_P_ERSPAN)
- 					   : htons(ETH_P_ERSPAN2);
--	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(t->o_seqno++));
-+	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(atomic_fetch_inc(&t->o_seqno)));
- 
- 	/* TooBig packet may have updated dst->dev's mtu */
- 	if (!t->parms.collect_md && dst && dst_mtu(dst) > dst->dev->mtu)
+ /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
 -- 
 2.35.1
 
