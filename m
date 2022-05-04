@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DEE51A943
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFB3851A610
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356127AbiEDRNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
+        id S1353699AbiEDQwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356694AbiEDRJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD9C315FCE;
-        Wed,  4 May 2022 09:55:23 -0700 (PDT)
+        with ESMTP id S1353754AbiEDQwN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D0E4738D;
+        Wed,  4 May 2022 09:48:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD685616F8;
-        Wed,  4 May 2022 16:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED0FAC385A4;
-        Wed,  4 May 2022 16:55:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 735FCB82552;
+        Wed,  4 May 2022 16:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C959C385AA;
+        Wed,  4 May 2022 16:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683323;
-        bh=SBKgIQI4y/NoN/43vWhJ0+9yEVbhLu4Z6iGuH4BhSzk=;
+        s=korg; t=1651682913;
+        bh=zL7m3jJKBlSnNR74+VWXMFcYh75Cfk2X59tlw/vprHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2Yf2R1tCFaa9DvOH1O2ZfFB5wSEtTsS+C/UUzIH0SgnXY1g4Kmf7tYzVgIMdiyhU
-         tE3EhbYX7zc/5Ohr8RcRa5zd5GEy7i0UPUi049oGRXFeNQhPVUUPLgCTsSbllZ3bAP
-         2+/sBW/wOb6jB+bjSVfdsPw0DwBs4uSNcIfjVSOA=
+        b=q3IJMgSvL/LLSt8S6IYbmIj5k5JeKMs+h5bGFCZmVpdX0JEefjV+CxGhqT97Ab52/
+         fP86/Cb881/puLfpn6gN7rDSWcI4Ga24Ya2KcSbbMfg6SygQpyEA6qMtscWHGF4FVG
+         WeoZFS4Y+X55DH76oiBQAl3EWQaj/kBPugcxW1W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        syzbot+8e8958586909d62b6840@syzkaller.appspotmail.com,
-        cruise k <cruise4k@gmail.com>, Kyungtae Kim <kt0755@gmail.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 002/225] floppy: disable FDRAWCMD by default
+        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
+Subject: [PATCH 5.4 19/84] usb: gadget: uvc: Fix crash when encoding data for usb request
 Date:   Wed,  4 May 2022 18:44:00 +0200
-Message-Id: <20220504153110.354775730@linuxfoundation.org>
+Message-Id: <20220504152929.126254575@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,141 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Dan Vacura <w36195@motorola.com>
 
-commit 233087ca063686964a53c829d547c7571e3f67bf upstream.
+commit 71d471e3faf90c9674cadc7605ac719e82cb7fac upstream.
 
-Minh Yuan reported a concurrency use-after-free issue in the floppy code
-between raw_cmd_ioctl and seek_interrupt.
+During the uvcg_video_pump() process, if an error occurs and
+uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+the current marker (queue->buf_used) of the active buffer (no longer
+active) is not reset. On the next iteration of uvcg_video_pump() the
+stale buf_used count will be used and the logic of min((unsigned
+int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+nbytes size, causing an invalid memory access.
 
-[ It turns out this has been around, and that others have reported the
-  KASAN splats over the years, but Minh Yuan had a reproducer for it and
-  so gets primary credit for reporting it for this fix   - Linus ]
+[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+...
+uvcg_queue_cancel() is called and the queue is cleared out, but the
+marker queue->buf_used is not reset.
+...
+[80802.262328][ T8682] Unable to handle kernel paging request at virtual
+address ffffffc03af9f000
+...
+...
+[80802.263138][ T8682] Call trace:
+[80802.263146][ T8682]  __memcpy+0x12c/0x180
+[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+[80802.263165][ T8682]  process_one_work+0x2cc/0x568
+[80802.263173][ T8682]  worker_thread+0x28c/0x518
+[80802.263181][ T8682]  kthread+0x160/0x170
+[80802.263188][ T8682]  ret_from_fork+0x10/0x18
+[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
 
-The problem is, this driver tends to break very easily and nowadays,
-nobody is expected to use FDRAWCMD anyway since it was used to
-manipulate non-standard formats.  The risk of breaking the driver is
-higher than the risk presented by this race, and accessing the device
-requires privileges anyway.
-
-Let's just add a config option to completely disable this ioctl and
-leave it disabled by default.  Distros shouldn't use it, and only those
-running on antique hardware might need to enable it.
-
-Link: https://lore.kernel.org/all/000000000000b71cdd05d703f6bf@google.com/
-Link: https://lore.kernel.org/lkml/CAKcFiNC=MfYVW-Jt9A3=FPJpTwCD2PL_ULNCpsCVE5s8ZeBQgQ@mail.gmail.com
-Link: https://lore.kernel.org/all/CAEAjamu1FRhz6StCe_55XY5s389ZP_xmCF69k987En+1z53=eg@mail.gmail.com
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Reported-by: syzbot+8e8958586909d62b6840@syzkaller.appspotmail.com
-Reported-by: cruise k <cruise4k@gmail.com>
-Reported-by: Kyungtae Kim <kt0755@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Tested-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Link: https://lore.kernel.org/r/20220331184024.23918-1-w36195@motorola.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/Kconfig  |   16 ++++++++++++++++
- drivers/block/floppy.c |   43 ++++++++++++++++++++++++++++++++-----------
- 2 files changed, 48 insertions(+), 11 deletions(-)
+ drivers/usb/gadget/function/uvc_queue.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/block/Kconfig
-+++ b/drivers/block/Kconfig
-@@ -33,6 +33,22 @@ config BLK_DEV_FD
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called floppy.
- 
-+config BLK_DEV_FD_RAWCMD
-+	bool "Support for raw floppy disk commands (DEPRECATED)"
-+	depends on BLK_DEV_FD
-+	help
-+	  If you want to use actual physical floppies and expect to do
-+	  special low-level hardware accesses to them (access and use
-+	  non-standard formats, for example), then enable this.
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -242,6 +242,8 @@ void uvcg_queue_cancel(struct uvc_video_
+ 		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
+ 	}
++	queue->buf_used = 0;
 +
-+	  Note that the code enabled by this option is rarely used and
-+	  might be unstable or insecure, and distros should not enable it.
-+
-+	  Note: FDRAWCMD is deprecated and will be removed from the kernel
-+	  in the near future.
-+
-+	  If unsure, say N.
-+
- config AMIGA_FLOPPY
- 	tristate "Amiga floppy support"
- 	depends on AMIGA
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -2984,6 +2984,8 @@ static const char *drive_name(int type,
- 		return "(null)";
- }
- 
-+#ifdef CONFIG_BLK_DEV_FD_RAWCMD
-+
- /* raw commands */
- static void raw_cmd_done(int flag)
- {
-@@ -3183,6 +3185,35 @@ static int raw_cmd_ioctl(int cmd, void _
- 	return ret;
- }
- 
-+static int floppy_raw_cmd_ioctl(int type, int drive, int cmd,
-+				void __user *param)
-+{
-+	int ret;
-+
-+	pr_warn_once("Note: FDRAWCMD is deprecated and will be removed from the kernel in the near future.\n");
-+
-+	if (type)
-+		return -EINVAL;
-+	if (lock_fdc(drive))
-+		return -EINTR;
-+	set_floppy(drive);
-+	ret = raw_cmd_ioctl(cmd, param);
-+	if (ret == -EINTR)
-+		return -EINTR;
-+	process_fd_request();
-+	return ret;
-+}
-+
-+#else /* CONFIG_BLK_DEV_FD_RAWCMD */
-+
-+static int floppy_raw_cmd_ioctl(int type, int drive, int cmd,
-+				void __user *param)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+#endif
-+
- static int invalidate_drive(struct block_device *bdev)
- {
- 	/* invalidate the buffer track to force a reread */
-@@ -3371,7 +3402,6 @@ static int fd_locked_ioctl(struct block_
- {
- 	int drive = (long)bdev->bd_disk->private_data;
- 	int type = ITYPE(drive_state[drive].fd_device);
--	int i;
- 	int ret;
- 	int size;
- 	union inparam {
-@@ -3522,16 +3552,7 @@ static int fd_locked_ioctl(struct block_
- 		outparam = &write_errors[drive];
- 		break;
- 	case FDRAWCMD:
--		if (type)
--			return -EINVAL;
--		if (lock_fdc(drive))
--			return -EINTR;
--		set_floppy(drive);
--		i = raw_cmd_ioctl(cmd, (void __user *)param);
--		if (i == -EINTR)
--			return -EINTR;
--		process_fd_request();
--		return i;
-+		return floppy_raw_cmd_ioctl(type, drive, cmd, (void __user *)param);
- 	case FDTWADDLE:
- 		if (lock_fdc(drive))
- 			return -EINTR;
+ 	/* This must be protected by the irqlock spinlock to avoid race
+ 	 * conditions between uvc_queue_buffer and the disconnection event that
+ 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
 
 
