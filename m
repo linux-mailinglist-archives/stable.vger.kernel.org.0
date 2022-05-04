@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6EF51A977
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5380B51A764
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353041AbiEDRMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38958 "EHLO
+        id S1354577AbiEDRDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356947AbiEDRJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D253A473A3;
-        Wed,  4 May 2022 09:56:37 -0700 (PDT)
+        with ESMTP id S1354488AbiEDRCF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:02:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4C94CD68;
+        Wed,  4 May 2022 09:52:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89DECB82737;
-        Wed,  4 May 2022 16:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42FBDC385A4;
-        Wed,  4 May 2022 16:56:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A234617C3;
+        Wed,  4 May 2022 16:52:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5655C385A4;
+        Wed,  4 May 2022 16:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683395;
-        bh=sCjBYryfbrDNUGqpThNG1E4jFTg2IH/IIsr3Om6bE/U=;
+        s=korg; t=1651683138;
+        bh=oLZiBmzCCSAKWuBDvcY+Z3V8jNlCc60+HGkO6tQErks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6/1ni9l1DxkjupGcSw0iZsWWzJTumbJUQz5gOdgtNGXm1YiRGbs00s78gvnFIMYo
-         2p4wZuHKu15SHthIbAiZeALFVPl36nkt/eTBRSXzV7ZUTWOysQ4SEP0x8nZVK+VziU
-         VzNiQT1Ry9wFbboHslwRXRKS69+3M8fIQFTvktWw=
+        b=o+Jq2XcdGhgexqwkSzgF22PMHT+xTqn4z5R2RiFgBNJO+iixoqFNyWrtmvVImhn4x
+         KeZ0kD78AS95Xnf58xRJaGmx0VtB78WdqnNrQD0cYUfXAUK+iYYV4Dwg6kmGF82wXl
+         yal9+XSEGmtgBw8pXK+uSucyrOhGgjIb2xAHcWAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 080/225] ARM: dts: dra7: Fix suspend warning for vpe powerdomain
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 126/129] tty: n_gsm: fix reset fifo race condition
 Date:   Wed,  4 May 2022 18:45:18 +0200
-Message-Id: <20220504153118.338546818@linuxfoundation.org>
+Message-Id: <20220504153031.563728783@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 8d2453d9a307c2eafd21242dd73f35f05fb7ce74 ]
+commit 73029a4d7161f8b6c0934553145ef574d2d0c645 upstream.
 
-We currently are getting the following warning after a system suspend:
+gsmtty_write() and gsm_dlci_data_output() properly guard the fifo access.
+However, gsm_dlci_close() and gsmtty_flush_buffer() modifies the fifo but
+do not guard this.
+Add a guard here to prevent race conditions on parallel writes to the fifo.
 
-Powerdomain (vpe_pwrdm) didn't enter target state 0
-
-Looks like this is because the STANDBYMODE bit for SMART_IDLE should
-not be used. The TRM "Table 12-348. VPE_SYSCONFIG" says that the value
-for SMART_IDLE is "0x2: Same behavior as bit-field value of 0x1". But
-if the SMART_IDLE value is used, PM_VPE_PWRSTST LASTPOWERSTATEENTERED
-bits always show value of 3.
-
-Let's fix the issue by dropping SMART_IDLE for vpe. And let's also add
-the missing the powerdomain for vpe.
-
-Fixes: 1a2095160594 ("ARM: dts: dra7: Add ti-sysc node for VPE")
-Cc: Benoit Parrot <bparrot@ti.com>
-Reported-by: Kevin Hilman <khilman@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-17-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 0a11bacffc1f..5733e3a4ea8e 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -4188,11 +4188,11 @@ target-module@1d0010 {			/* 0x489d0000, ap 27 30.0 */
- 			reg = <0x1d0010 0x4>;
- 			reg-names = "sysc";
- 			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>;
-+					<SYSC_IDLE_NO>;
- 			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
- 					<SYSC_IDLE_NO>,
- 					<SYSC_IDLE_SMART>;
-+			power-domains = <&prm_vpe>;
- 			clocks = <&vpe_clkctrl DRA7_VPE_VPE_CLKCTRL 0>;
- 			clock-names = "fck";
- 			#address-cells = <1>;
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1422,13 +1422,17 @@ static int gsm_control_wait(struct gsm_m
+ 
+ static void gsm_dlci_close(struct gsm_dlci *dlci)
+ {
++	unsigned long flags;
++
+ 	del_timer(&dlci->t1);
+ 	if (debug & 8)
+ 		pr_debug("DLCI %d goes closed.\n", dlci->addr);
+ 	dlci->state = DLCI_CLOSED;
+ 	if (dlci->addr != 0) {
+ 		tty_port_tty_hangup(&dlci->port, false);
++		spin_lock_irqsave(&dlci->lock, flags);
+ 		kfifo_reset(&dlci->fifo);
++		spin_unlock_irqrestore(&dlci->lock, flags);
+ 		/* Ensure that gsmtty_open() can return. */
+ 		tty_port_set_initialized(&dlci->port, 0);
+ 		wake_up_interruptible(&dlci->port.open_wait);
+@@ -3078,13 +3082,17 @@ static int gsmtty_chars_in_buffer(struct
+ static void gsmtty_flush_buffer(struct tty_struct *tty)
+ {
+ 	struct gsm_dlci *dlci = tty->driver_data;
++	unsigned long flags;
++
+ 	if (dlci->state == DLCI_CLOSED)
+ 		return;
+ 	/* Caution needed: If we implement reliable transport classes
+ 	   then the data being transmitted can't simply be junked once
+ 	   it has first hit the stack. Until then we can just blow it
+ 	   away */
++	spin_lock_irqsave(&dlci->lock, flags);
+ 	kfifo_reset(&dlci->fifo);
++	spin_unlock_irqrestore(&dlci->lock, flags);
+ 	/* Need to unhook this DLCI from the transmit queue logic */
+ }
+ 
 
 
