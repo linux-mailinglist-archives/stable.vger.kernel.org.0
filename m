@@ -2,126 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2866151B095
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 23:28:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F09551B15E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 23:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347336AbiEDVc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 17:32:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44220 "EHLO
+        id S233204AbiEDVzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 17:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347126AbiEDVc1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 17:32:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F27750E0B;
-        Wed,  4 May 2022 14:28:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BCD561967;
-        Wed,  4 May 2022 21:28:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0B2C385A4;
-        Wed,  4 May 2022 21:28:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651699729;
-        bh=k/SHTcjQ/PrI0QjQFYZgO+ymU5S0yqAqGxV95jD8MsQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=AdVKX9QSdZLa7TIJ3yvhHLml7315UPHCfxhawSuffcCTBVJotbhWHUzsROHlu2O5e
-         jPAZTuP4dm5QjDRzuEWnuSnugpo1wvvQtnrPNzLgJIyuOX+vtX94qcN0DwtZf8U4/m
-         ZBaXw3Hihi4m/X8rhkruZupoD+MYwjUK2HyN9s/HTQizW9b+zi6E3xpx6utfeTDtK/
-         Y66zF313//wPDhubvYbZGAlRpalOIzlLj2APkEM2lAU3mSTGcbcJD9XZbqCXuRxn6x
-         aXN4sHCVprdCf8uqq5ZDKQVixCM/+1Sh+YwzhAlpEPuNESC2X6aSnBfPlnoWXUWdzj
-         0FnwTqPfzpeyA==
-Date:   Wed, 4 May 2022 14:28:47 -0700
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     Chao Yu <chao@kernel.org>
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ming Yan <yanming@tju.edu.cn>, Chao Yu <chao.yu@oppo.com>
-Subject: Re: [PATCH] f2fs: fix to do sanity check for inline inode
-Message-ID: <YnLwDx1smguDQ6qC@google.com>
-References: <20220428024940.12102-1-chao@kernel.org>
+        with ESMTP id S230087AbiEDVzA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 17:55:00 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 869F550066;
+        Wed,  4 May 2022 14:51:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=3y9j8dX7DqQtw2AwMUgeK6pQJ/tWlNq2gUboEv9Ir24=; b=TBzPONHsZYX7vfy+FpCnz8t27p
+        Ts5ESA8SCTq65NjpalmkX49HSPxSsecP8gQC3JiWqKbB21DWJnWGNfLPvHsfIu3kMU6tpGQIUYElF
+        4Wjx6t31DRIuj5+D+D+9fJHJLsQ6s9f1FKwX08jd1n5lHJWYg58RuM/6PzzdtXTqsxu0=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1nmMtu-001GeY-2D; Wed, 04 May 2022 23:51:14 +0200
+Date:   Wed, 4 May 2022 23:51:14 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Fabio Estevam <festevam@gmail.com>
+Cc:     kuba@kernel.org, davem@davemloft.net, claudiu.beznea@microchip.com,
+        netdev@vger.kernel.org, o.rempel@pengutronix.de,
+        linux@armlinux.org.uk, Fabio Estevam <festevam@denx.de>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net v2 1/2] net: phy: micrel: Do not use
+ kszphy_suspend/resume for KSZ8061
+Message-ID: <YnL1Ugno+jk990ru@lunn.ch>
+References: <20220504143104.1286960-1-festevam@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220428024940.12102-1-chao@kernel.org>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220504143104.1286960-1-festevam@gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04/28, Chao Yu wrote:
-> As Yanming reported in bugzilla:
+On Wed, May 04, 2022 at 11:31:03AM -0300, Fabio Estevam wrote:
+> From: Fabio Estevam <festevam@denx.de>
 > 
-> https://bugzilla.kernel.org/show_bug.cgi?id=215895
+> Since commit f1131b9c23fb ("net: phy: micrel: use
+> kszphy_suspend()/kszphy_resume for irq aware devices") the following
+> NULL pointer dereference is observed on a board with KSZ8061:
 > 
-> I have encountered a bug in F2FS file system in kernel v5.17.
+>  # udhcpc -i eth0
+> udhcpc: started, v1.35.0
+> 8<--- cut here ---
+> Unable to handle kernel NULL pointer dereference at virtual address 00000008
+> pgd = f73cef4e
+> [00000008] *pgd=00000000
+> Internal error: Oops: 5 [#1] SMP ARM
+> Modules linked in:
+> CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
+> Hardware name: Freescale i.MX6 SoloX (Device Tree)
+> PC is at kszphy_config_reset+0x10/0x114
+> LR is at kszphy_resume+0x24/0x64
+> ...
 > 
-> The kernel message is shown below:
+> The KSZ8061 phy_driver structure does not have the .probe/..driver_data
+> fields, which means that priv is not allocated.
 > 
-> kernel BUG at fs/inode.c:611!
-> Call Trace:
->  evict+0x282/0x4e0
->  __dentry_kill+0x2b2/0x4d0
->  dput+0x2dd/0x720
->  do_renameat2+0x596/0x970
->  __x64_sys_rename+0x78/0x90
->  do_syscall_64+0x3b/0x90
+> This causes the NULL pointer dereference inside kszphy_config_reset().
 > 
-> The root cause is: fuzzed inode has both inline_data flag and encrypted
-> flag, so after it was deleted by rename(), during f2fs_evict_inode(),
-> it will cause inline data conversion due to flags confilction, then
-> page cache will be polluted and trigger panic in clear_inode().
+> Fix the problem by using the generic suspend/resume functions as before.
 > 
-> This patch tries to fix the issue by do more sanity checks for inline
-> data inode in sanity_check_inode().
+> Another alternative would be to provide the .probe and .driver_data
+> information into the structure, but to be on the safe side, let's
+> just restore Ethernet functionality by using the generic suspend/resume.
 > 
 > Cc: stable@vger.kernel.org
-> Reported-by: Ming Yan <yanming@tju.edu.cn>
-> Signed-off-by: Chao Yu <chao.yu@oppo.com>
-> ---
->  fs/f2fs/f2fs.h  | 7 +++++++
->  fs/f2fs/inode.c | 3 +--
->  2 files changed, 8 insertions(+), 2 deletions(-)
-> 
-> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-> index 27aa93caec06..64c511b498cc 100644
-> --- a/fs/f2fs/f2fs.h
-> +++ b/fs/f2fs/f2fs.h
-> @@ -4173,6 +4173,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
->   */
->  static inline bool f2fs_post_read_required(struct inode *inode)
->  {
-> +	/*
-> +	 * used by sanity_check_inode(), when disk layout fields has not
-> +	 * been synchronized to inmem fields.
-> +	 */
-> +	if (file_is_encrypt(inode) || file_is_verity(inode) ||
-> +			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
-> +		return true;
->  	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
->  		f2fs_compressed_file(inode);
->  }
-> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-> index 83639238a1fe..234b8ed02644 100644
-> --- a/fs/f2fs/inode.c
-> +++ b/fs/f2fs/inode.c
-> @@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
->  		}
->  	}
->  
-> -	if (f2fs_has_inline_data(inode) &&
-> -			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
-> +	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
+> Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
+> Signed-off-by: Fabio Estevam <festevam@denx.de>
 
-It seems f2fs_may_inline_data() is breaking the atomic write case. Please fix.
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
->  		set_sbi_flag(sbi, SBI_NEED_FSCK);
->  		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
->  			  __func__, inode->i_ino, inode->i_mode);
-> -- 
-> 2.25.1
+    Andrew
