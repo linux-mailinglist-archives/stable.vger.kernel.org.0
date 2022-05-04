@@ -2,91 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E19551A9D9
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2037351AAB1
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357683AbiEDRTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
+        id S1357587AbiEDRb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:31:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358236AbiEDRPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3A7456749
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:59:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ECC05B8279C
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:59:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90791C385AF;
-        Wed,  4 May 2022 16:59:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683566;
-        bh=Tude7ovqQu32WHj08xHlmW2eVvcdZfkZBmSoq4kTGSQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CaN99dRXNiEiv/ZYQIEaIBZjfw52k2j/ZlU/1ZZyaRqkzrMS1MueoSgTf2aEcICh6
-         HA/bByOHQKMszVMI1qdMXQiY3+LAajoRAZnuB4LeTLiguOyB10ly3B6f2fOBdWoG3y
-         I2gSoqhRlP5gEZQBeJXcNTT7QPplJOtyEm2G5qq2YbmOpb+pL2046n9SQUvy2xpqv+
-         +4ESnFx5iZvgiKt4GqxcpPHUVeIOi7wuOhSXJN/eQtek7g3iA9ZARyRCP9Fjc3+xyg
-         NRQYitWn4N8AdnFj0Mh677QgK/4pQVNn4SeMpEQNgyEi5N+7ktYi8qYwnyUCrSiSI6
-         1w16N+/0UZZJg==
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.17 19/19] PCI: aardvark: Update comment about link going down after link-up
-Date:   Wed,  4 May 2022 18:58:52 +0200
-Message-Id: <20220504165852.30089-20-kabel@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220504165852.30089-1-kabel@kernel.org>
-References: <20220504165852.30089-1-kabel@kernel.org>
+        with ESMTP id S1358355AbiEDRaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:30:12 -0400
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23A95A2F0;
+        Wed,  4 May 2022 10:03:19 -0700 (PDT)
+Received: by mail-ej1-x62b.google.com with SMTP id m20so4063607ejj.10;
+        Wed, 04 May 2022 10:03:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=XHhPMghoycQ7eZAcORj5/5ITHZkNT2/OH1GPvvsrfbQ=;
+        b=SqR7hHsK/RejCtFA8dwwMGr018xMpnEwTVqsiV1OYbcB7CXupjbHvoKgbg/XS3cM48
+         eRn7SF255AE4R9aFZ1TZyskUzN0tGBzef+NuVU3lq6n9LP+N26MW2elzZhT1xn5WA/Z2
+         JOBCA0yoFVNwZJ2fsfBU1+IJz+/64Yk2Lnb4zi+Hbt0ueXDvAtBIEj9aLzxwV/pDyVht
+         /DiAj4o9gUTbLwTj+fR5grv10T6aXHbOiVCWkNURcJMXeHGaaxJT+uKMZwu1rCEL9nB1
+         fn8iBwqTII2umXCBgpxJm8cX/0BnP+ffXKe+a8EBYqgTOrluF+tGriduCthmRw+ORgol
+         LAOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XHhPMghoycQ7eZAcORj5/5ITHZkNT2/OH1GPvvsrfbQ=;
+        b=A3az3PVv/pJfylb190646IewdeqhIXXSmaNl6qedmcYRo7eXhpn5mYhUTPPBiYzS8R
+         WHFGMkNhQtqGiZWl6z7DcWUOixYwA17mSNx3vRk6Oc67jvA5B3y0c5cPvQ77AKovAeha
+         f84BiB9f6JAer8rkas/eBg1tWHDTv8cmm43q4rCHIP2zmn8OGaDlRcKNf38f//vxNrAt
+         3ys8PnHxyZtqPzO8YhEjgnBIWyASDydj0pNOGHHZZ/DDC/fOckDTvCeVXQ8iENtJw1ck
+         OhElBzctHnKGZ38I6AxEHckFeTLI6fMU8L60dlEWLpPRpyA+B9FcEMI3/zEMNsDSluvz
+         L98A==
+X-Gm-Message-State: AOAM533murcH+ZVBtEgC2ETxkR9QikFZQCE+jPhZ9V4MMnaSeS0ILh4g
+        Lhe9T3909lLUaWrkOetWNNyUFUdBUjQFtoHA0f4=
+X-Google-Smtp-Source: ABdhPJyiH+Wiy/O6YKtXm4uAxJeiKTP6KgF0Vo2a0ftqHtuKiOruQ0+lsJyO5wgCdO9HKC9pOAWnN4nQ5NpbqPYsoOU=
+X-Received: by 2002:a17:906:a089:b0:6ef:e9e6:1368 with SMTP id
+ q9-20020a170906a08900b006efe9e61368mr21038453ejy.626.1651683797349; Wed, 04
+ May 2022 10:03:17 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20220504143104.1286960-1-festevam@gmail.com>
+In-Reply-To: <20220504143104.1286960-1-festevam@gmail.com>
+From:   Fabio Estevam <festevam@gmail.com>
+Date:   Wed, 4 May 2022 14:03:08 -0300
+Message-ID: <CAOMZO5DU8XRCGaYOcGeHimgupqMksyLXsjL=R8JHajSBs4KAeg@mail.gmail.com>
+Subject: Re: [PATCH net v2 1/2] net: phy: micrel: Do not use
+ kszphy_suspend/resume for KSZ8061
+To:     Jakub Kicinski <kuba@kernel.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        netdev <netdev@vger.kernel.org>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Fabio Estevam <festevam@denx.de>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 92f4ffecc4170ce29e67a1f8d51c168c3de95fb2 upstream.
+Hi Andrew,
 
-Update the comment about what happens when link goes down after we have
-checked for link-up. If a PIO request is done while link-down, we have
-a serious problem.
+On Wed, May 4, 2022 at 11:31 AM Fabio Estevam <festevam@gmail.com> wrote:
+>
+> From: Fabio Estevam <festevam@denx.de>
+>
+> Since commit f1131b9c23fb ("net: phy: micrel: use
+> kszphy_suspend()/kszphy_resume for irq aware devices") the following
+> NULL pointer dereference is observed on a board with KSZ8061:
+>
+>  # udhcpc -i eth0
+> udhcpc: started, v1.35.0
+> 8<--- cut here ---
+> Unable to handle kernel NULL pointer dereference at virtual address 00000008
+> pgd = f73cef4e
+> [00000008] *pgd=00000000
+> Internal error: Oops: 5 [#1] SMP ARM
+> Modules linked in:
+> CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
+> Hardware name: Freescale i.MX6 SoloX (Device Tree)
+> PC is at kszphy_config_reset+0x10/0x114
+> LR is at kszphy_resume+0x24/0x64
+> ...
+>
+> The KSZ8061 phy_driver structure does not have the .probe/..driver_data
+> fields, which means that priv is not allocated.
+>
+> This causes the NULL pointer dereference inside kszphy_config_reset().
+>
+> Fix the problem by using the generic suspend/resume functions as before.
+>
+> Another alternative would be to provide the .probe and .driver_data
+> information into the structure, but to be on the safe side, let's
+> just restore Ethernet functionality by using the generic suspend/resume.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
+> Signed-off-by: Fabio Estevam <festevam@denx.de>
+> ---
+> Changes since v1:
+> - Explained why enphy_suspend/resume solution is preferred (Andrew).
 
-Link: https://lore.kernel.org/r/20220110015018.26359-23-kabel@kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
----
- drivers/pci/controller/pci-aardvark.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+If this series gets applied, I plan to submit two patches targeting net-next to:
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 3cbaffe892a4..5be382b19d9a 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -998,8 +998,12 @@ static bool advk_pcie_valid_device(struct advk_pcie *pcie, struct pci_bus *bus,
- 		return false;
- 
- 	/*
--	 * If the link goes down after we check for link-up, nothing bad
--	 * happens but the config access times out.
-+	 * If the link goes down after we check for link-up, we have a problem:
-+	 * if a PIO request is executed while link-down, the whole controller
-+	 * gets stuck in a non-functional state, and even after link comes up
-+	 * again, PIO requests won't work anymore, and a reset of the whole PCIe
-+	 * controller is needed. Therefore we need to prevent sending PIO
-+	 * requests while the link is down.
- 	 */
- 	if (!pci_is_root_bus(bus) && !advk_pcie_link_up(pcie))
- 		return false;
--- 
-2.35.1
-
+1. Allow .probe to be called without .data_driver being passed
+2. Convert KSZ8061 to use .probe and kszphy_suspend/resume
