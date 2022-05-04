@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB6A751A8AA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A84F51A8F5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356089AbiEDRQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:16:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38588 "EHLO
+        id S1356105AbiEDRLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355953AbiEDRI5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5898E49F97;
-        Wed,  4 May 2022 09:54:45 -0700 (PDT)
+        with ESMTP id S1357170AbiEDRKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:01 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879F149684;
+        Wed,  4 May 2022 09:57:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD9BCB82792;
-        Wed,  4 May 2022 16:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9151DC385A5;
-        Wed,  4 May 2022 16:54:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7EBDECE28AD;
+        Wed,  4 May 2022 16:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD2CC385BF;
+        Wed,  4 May 2022 16:57:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683282;
-        bh=Gzzt0waAa8K+0dMB3qQiJ0MfV9GnsZLefeXzHn4bzdI=;
+        s=korg; t=1651683424;
+        bh=iTB9JNJEb9ck5CWcUWb4vwLwVA4YMk20n9F3/mIWVCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TNVAOVbbIfHFdXpklG10n0aJObAaGZehHqDQP+3rTVeZBd1aebXhOFC1JtimsDitQ
-         kul06CfHTPoacbiDlQydvAxAzustIO17ItYnixtTnJX0UG+IWY+5Q7Mv3d0H8Ufwef
-         tZCL59mwNkiVZI7P3qiz7Hk3doZuF1w/om/B5T68=
+        b=kuCxX4/lUage7gq4QyvziTXLAD9kGOutPuP+K05O8salhCB7nFmiVmkrz1fetXmLR
+         yh9ijn7Vt/+nJrn5SlAJ0BFNQKTZLSpCgkesEMsu0F8Rqs7Qp2V047DZtjjSI4TdB/
+         ltLfstYYQ1gMvxZe9P6weYY5ZWNXvRrhFVk0Ses0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoli Feng <xifeng@redhat.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 135/177] cifs: destage any unwritten data to the server before calling copychunk_write
+Subject: [PATCH 5.17 090/225] ARM: dts: am33xx-l4: Add missing touchscreen clock properties
 Date:   Wed,  4 May 2022 18:45:28 +0200
-Message-Id: <20220504153105.277538828@linuxfoundation.org>
+Message-Id: <20220504153118.928897792@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,56 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-[ Upstream commit f5d0f921ea362636e4a2efb7c38d1ead373a8700 ]
+[ Upstream commit c21a7434d6cc216a910dd35632617850f1751f4c ]
 
-because the copychunk_write might cover a region of the file that has not yet
-been sent to the server and thus fail.
+When adding support for TI magadc (Magnetic Stripe Reader and ADC), the
+MFD driver common to the touchscreen and the ADC got updated to ease the
+insertion of a new DT node for the ADC, with its own compatible, clocks,
+etc. Commit 235a96e92c16 ("mfd: ti_am335x_tscadc: Don't search the tree
+for our clock") removed one compatible specific information which was
+the clock name, because the clock was looked up from scratch in the DT
+while this hardware block was only fed by a single clock, already
+defined and properly filled in the DT.
 
-A simple way to reproduce this is:
-truncate -s 0 /mnt/testfile; strace -f -o x -ttT xfs_io -i -f -c 'pwrite 0k 128k' -c 'fcollapse 16k 24k' /mnt/testfile
+Problem is, this change was only validated with an am437x-based board,
+where the clocks are effectively correctly defined and referenced. But
+on am33xx, the ADC clock is also correctly defined but is not referenced
+with a clock phandle as it ought to be.
 
-the issue is that the 'pwrite 0k 128k' becomes rearranged on the wire with
-the 'fcollapse 16k 24k' due to write-back caching.
+The touchscreen bindings clearly state that the clocks/clock-names
+properties are mandatory, but they have been forgotten in one DTSI. This
+was probably not noticed in the first place because of the clock
+actually existing and the clk_get() call going through all the tree
+anyway.
 
-fcollapse is implemented in cifs.ko as a SMB2 IOCTL(COPYCHUNK_WRITE) call
-and it will fail serverside since the file is still 0b in size serverside
-until the writes have been destaged.
-To avoid this we must ensure that we destage any unwritten data to the
-server before calling COPYCHUNK_WRITE.
+Add the missing clock phandles in the am33xx touchscreen description.
 
-Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1997373
-Reported-by: Xiaoli Feng <xifeng@redhat.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Fixes: 235a96e92c16 ("mfd: ti_am335x_tscadc: Don't search the tree for our clock")
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Tested-by: H. Nikolaus Schaller <hns@goldelico.com>
+Message-Id: <20220314163445.79807-1-miquel.raynal@bootlin.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/am33xx-l4.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/cifs/smb2ops.c b/fs/cifs/smb2ops.c
-index db3ead52ec7c..0c1af2dd9069 100644
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1849,9 +1849,17 @@ smb2_copychunk_range(const unsigned int xid,
- 	int chunks_copied = 0;
- 	bool chunk_sizes_updated = false;
- 	ssize_t bytes_written, total_bytes_written = 0;
-+	struct inode *inode;
- 
- 	pcchunk = kmalloc(sizeof(struct copychunk_ioctl), GFP_KERNEL);
- 
-+	/*
-+	 * We need to flush all unwritten data before we can send the
-+	 * copychunk ioctl to the server.
-+	 */
-+	inode = d_inode(trgtfile->dentry);
-+	filemap_write_and_wait(inode->i_mapping);
-+
- 	if (pcchunk == NULL)
- 		return -ENOMEM;
- 
+diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
+index c9629cb5ccd1..7da42a5b959c 100644
+--- a/arch/arm/boot/dts/am33xx-l4.dtsi
++++ b/arch/arm/boot/dts/am33xx-l4.dtsi
+@@ -263,6 +263,8 @@ tscadc: tscadc@0 {
+ 				compatible = "ti,am3359-tscadc";
+ 				reg = <0x0 0x1000>;
+ 				interrupts = <16>;
++				clocks = <&adc_tsc_fck>;
++				clock-names = "fck";
+ 				status = "disabled";
+ 				dmas = <&edma 53 0>, <&edma 57 0>;
+ 				dma-names = "fifo0", "fifo1";
 -- 
 2.35.1
 
