@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D4C151A746
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238BF51A965
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354403AbiEDRCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37694 "EHLO
+        id S1356359AbiEDRMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355739AbiEDRAW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CFA4BFEB;
-        Wed,  4 May 2022 09:52:07 -0700 (PDT)
+        with ESMTP id S1356974AbiEDRJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF4D24755E;
+        Wed,  4 May 2022 09:56:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67B21B82792;
-        Wed,  4 May 2022 16:52:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFC6CC385A5;
-        Wed,  4 May 2022 16:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EE05616B8;
+        Wed,  4 May 2022 16:56:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F58FC385AA;
+        Wed,  4 May 2022 16:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683124;
-        bh=KZH1xWGTiQHhQuXbaqY8LRDPK3sJj3yy35T3wSnDssM=;
+        s=korg; t=1651683408;
+        bh=hmbtWVfyriMLSNG2cgnHPr6zR2rssfLG2hmu6gUSMOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19cVr0Bc/V57uvzpYYh8vtg8kaDt1uojMMwOKDcVGem8hhSrw/SrAYWdXhtDT5VBw
-         beM6hQkSEd0vOKBwQNmHBdCcRzhrZNPp8bUm6SdPFYhB4bpuGghfIhULhP84SqZAm7
-         d1XdVwRF6tVjpNOCiQ5eRR7LYsomZ4GfE/Z0ZEvA=
+        b=ukG7m3xvNMHP2iZwFctxTxxUJ2EjCoKNjQbIwb1cZiEaQ388NrMtoPxOgGL5ihPO/
+         GgRsg7NLsz7SUNTFEKciSEz7GUNoQLkJW07FIryQ5oamzA+IZD9PC0EgB1faxa3AaR
+         yHFexVShZ9QH4/GlNDka8QK0MYHdmxznVKnsCgT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 115/129] tty: n_gsm: fix restart handling via CLD command
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Weitao Wang <WeitaoWang-oc@zhaoxin.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 069/225] USB: Fix xhci event ring dequeue pointer ERDP update issue
 Date:   Wed,  4 May 2022 18:45:07 +0200
-Message-Id: <20220504153030.492380591@linuxfoundation.org>
+Message-Id: <20220504153117.726462014@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,165 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
 
-commit aa371e96f05dcb36a88298f5cb70aa7234d5e8b8 upstream.
+[ Upstream commit e91ac20889d1a26d077cc511365cd7ff4346a6f3 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.8.2 states that both sides will revert to
-the non-multiplexed mode via a close-down message (CLD). The usual program
-flow is as following:
-- start multiplex mode by sending AT+CMUX to the mobile
-- establish the control channel (DLCI 0)
-- establish user channels (DLCI >0)
-- terminate user channels
-- send close-down message (CLD)
-- revert to AT protocol (i.e. leave multiplexed mode)
+In some situations software handles TRB events slower than adding TRBs.
+If the number of TRB events to be processed in a given interrupt is exactly
+the same as the event ring size 256, then the local variable
+"event_ring_deq" that holds the initial dequeue position is equal to
+software_dequeue after handling all 256 interrupts.
 
-The AT protocol is out of scope of the n_gsm driver. However,
-gsm_disconnect() sends CLD if gsm_config() detects that the requested
-parameters require the mux protocol to restart. The next immediate action
-is to start the mux protocol by opening DLCI 0 again. Any responder side
-which handles CLD commands correctly forces us to fail at this point
-because AT+CMUX needs to be sent to the mobile to start the mux again.
-Therefore, remove the CLD command in this phase and keep both sides in
-multiplexed mode.
-Remove the gsm_disconnect() function as it become unnecessary and merge the
-remaining parts into gsm_cleanup_mux() to handle the termination order and
-locking correctly.
+It will cause driver to not update ERDP to hardware,
 
-Fixes: 71e077915396 ("tty: n_gsm: do not send/receive in ldisc close path")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-2-daniel.starke@siemens.com
+Software dequeue pointer is out of sync with ERDP on interrupt exit.
+On the next interrupt, the event ring may full but driver will not
+update ERDP as software_dequeue is equal to ERDP.
+
+[  536.377115] xhci_hcd 0000:00:12.0: ERROR unknown event type 37
+[  566.933173] sd 8:0:0:0: [sdb] tag#27 uas_eh_abort_handler 0 uas-tag 7 inflight: CMD OUT
+[  566.933181] sd 8:0:0:0: [sdb] tag#27 CDB: Write(10) 2a 00 17 71 e6 78 00 00 08 00
+[  572.041186] xhci_hcd On some situataions,the0000:00:12.0: xHCI host not responding to stop endpoint command.
+[  572.057193] xhci_hcd 0000:00:12.0: Host halt failed, -110
+[  572.057196] xhci_hcd 0000:00:12.0: xHCI host controller not responding, assume dead
+[  572.057236] sd 8:0:0:0: [sdb] tag#26 uas_eh_abort_handler 0 uas-tag 6 inflight: CMD
+[  572.057240] sd 8:0:0:0: [sdb] tag#26 CDB: Write(10) 2a 00 38 eb cc d8 00 00 08 00
+[  572.057244] sd 8:0:0:0: [sdb] tag#25 uas_eh_abort_handler 0 uas-tag 5 inflight: CMD
+
+Hardware ERDP is updated mid event handling if there are more than 128
+events in an interrupt (half of ring size).
+Fix this by updating the software local variable at the same time as
+hardware ERDP.
+
+[commit message rewording -Mathias]
+
+Fixes: dc0ffbea5729 ("usb: host: xhci: update event ring dequeue pointer on purpose")
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220408134823.2527272-2-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |   68 +++++++++++++++-------------------------------------
- 1 file changed, 20 insertions(+), 48 deletions(-)
+ drivers/usb/host/xhci-ring.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2040,49 +2040,35 @@ static void gsm_error(struct gsm_mux *gs
- 	gsm->io_error++;
- }
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index d0b6806275e0..f9707997969d 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -3141,6 +3141,7 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
+ 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
+ 			continue;
+ 		xhci_update_erst_dequeue(xhci, event_ring_deq);
++		event_ring_deq = xhci->event_ring->dequeue;
  
--static int gsm_disconnect(struct gsm_mux *gsm)
--{
--	struct gsm_dlci *dlci = gsm->dlci[0];
--	struct gsm_control *gc;
--
--	if (!dlci)
--		return 0;
--
--	/* In theory disconnecting DLCI 0 is sufficient but for some
--	   modems this is apparently not the case. */
--	gc = gsm_control_send(gsm, CMD_CLD, NULL, 0);
--	if (gc)
--		gsm_control_wait(gsm, gc);
--
--	del_timer_sync(&gsm->t2_timer);
--	/* Now we are sure T2 has stopped */
--
--	gsm_dlci_begin_close(dlci);
--	wait_event_interruptible(gsm->event,
--				dlci->state == DLCI_CLOSED);
--
--	if (signal_pending(current))
--		return -EINTR;
--
--	return 0;
--}
--
- /**
-  *	gsm_cleanup_mux		-	generic GSM protocol cleanup
-  *	@gsm: our mux
-+ *	@disc: disconnect link?
-  *
-  *	Clean up the bits of the mux which are the same for all framing
-  *	protocols. Remove the mux from the mux table, stop all the timers
-  *	and then shut down each device hanging up the channels as we go.
-  */
- 
--static void gsm_cleanup_mux(struct gsm_mux *gsm)
-+static void gsm_cleanup_mux(struct gsm_mux *gsm, bool disc)
- {
- 	int i;
- 	struct gsm_dlci *dlci = gsm->dlci[0];
- 	struct gsm_msg *txq, *ntxq;
- 
- 	gsm->dead = true;
-+	mutex_lock(&gsm->mutex);
-+
-+	if (dlci) {
-+		if (disc && dlci->state != DLCI_CLOSED) {
-+			gsm_dlci_begin_close(dlci);
-+			wait_event(gsm->event, dlci->state == DLCI_CLOSED);
-+		}
-+		dlci->dead = true;
-+	}
-+
-+	/* Finish outstanding timers, making sure they are done */
-+	del_timer_sync(&gsm->t2_timer);
- 
- 	spin_lock(&gsm_mux_lock);
- 	for (i = 0; i < MAX_MUX; i++) {
-@@ -2096,13 +2082,7 @@ static void gsm_cleanup_mux(struct gsm_m
- 	if (i == MAX_MUX)
- 		return;
- 
--	del_timer_sync(&gsm->t2_timer);
--	/* Now we are sure T2 has stopped */
--	if (dlci)
--		dlci->dead = true;
--
- 	/* Free up any link layer users */
--	mutex_lock(&gsm->mutex);
- 	for (i = 0; i < NUM_DLCI; i++)
- 		if (gsm->dlci[i])
- 			gsm_dlci_release(gsm->dlci[i]);
-@@ -2304,19 +2284,11 @@ static int gsm_config(struct gsm_mux *gs
- 
- 	/*
- 	 * Close down what is needed, restart and initiate the new
--	 * configuration
-+	 * configuration. On the first time there is no DLCI[0]
-+	 * and closing or cleaning up is not necessary.
- 	 */
--
--	if (need_close || need_restart) {
--		int ret;
--
--		ret = gsm_disconnect(gsm);
--
--		if (ret)
--			return ret;
--	}
--	if (need_restart)
--		gsm_cleanup_mux(gsm);
-+	if (need_close || need_restart)
-+		gsm_cleanup_mux(gsm, true);
- 
- 	gsm->initiator = c->initiator;
- 	gsm->mru = c->mru;
-@@ -2425,7 +2397,7 @@ static void gsmld_detach_gsm(struct tty_
- 	WARN_ON(tty != gsm->tty);
- 	for (i = 1; i < NUM_DLCI; i++)
- 		tty_unregister_device(gsm_tty_driver, base + i);
--	gsm_cleanup_mux(gsm);
-+	gsm_cleanup_mux(gsm, false);
- 	tty_kref_put(gsm->tty);
- 	gsm->tty = NULL;
- }
-@@ -2531,7 +2503,7 @@ static int gsmld_open(struct tty_struct
- 
- 	ret = gsmld_attach_gsm(tty, gsm);
- 	if (ret != 0) {
--		gsm_cleanup_mux(gsm);
-+		gsm_cleanup_mux(gsm, false);
- 		mux_put(gsm);
- 	}
- 	return ret;
+ 		/* ring is half-full, force isoc trbs to interrupt more often */
+ 		if (xhci->isoc_bei_interval > AVOID_BEI_INTERVAL_MIN)
+-- 
+2.35.1
+
 
 
