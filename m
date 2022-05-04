@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4175B51A80D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 848EC51A6BA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352087AbiEDRHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
+        id S1354206AbiEDQ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:58:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355413AbiEDRET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5E64EDC6;
-        Wed,  4 May 2022 09:53:02 -0700 (PDT)
+        with ESMTP id S1354074AbiEDQ5O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D38149FA9;
+        Wed,  4 May 2022 09:50:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2381FB827AC;
-        Wed,  4 May 2022 16:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C773AC385B0;
-        Wed,  4 May 2022 16:52:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D89546174C;
+        Wed,  4 May 2022 16:50:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31740C385A4;
+        Wed,  4 May 2022 16:50:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683175;
-        bh=GYqdHF/kWbxCt6a86UWjM3QOO2fhmQgGD64+8+8qvrI=;
+        s=korg; t=1651683000;
+        bh=x7xIzJvo8hUwDLxm/wNRMDrcSJap708f1jPagQ0MR4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2LG3dKeR0HCc96BFRvMCCasWjm6W63ykKDPF8XThabZ+VlVn9Koj+Q7MLCzIESTIT
-         zZ+oHK3Q4SI/aqfkVbMQf5vNFovkAOyzJquRVzL8Rcv6Dz7/1rSEKefh5DjSWHO/EE
-         r2qKEhqN0WMMxsYLKktdOaiRb64HEdkNayutnqp8=
+        b=hqJ1ntUxvk3VMYjhF1Ymb13QAoVjZr20j8GSOEBMAZT4xheqnNd40cFghLMh6U2G9
+         nlspqSOP4QYUaFTQeOcDBRZcgGNVPYqq7RB2wcKGMyF+zvt5oZZ8YSZLz0ccuqXm3u
+         0NPmxaj49Xay0pgdxfvvvTh2hQ4KWX9TbEoczUBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Pawel Laszczak <pawell@cadence.com>
-Subject: [PATCH 5.15 027/177] usb: cdns3: Fix issue for clear halt endpoint
-Date:   Wed,  4 May 2022 18:43:40 +0200
-Message-Id: <20220504153055.521161879@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.10 029/129] serial: 8250: Also set sticky MCR bits in console restoration
+Date:   Wed,  4 May 2022 18:43:41 +0200
+Message-Id: <20220504153023.590688263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit b3fa25de31fb7e9afebe9599b8ff32eda13d7c94 upstream.
+commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
 
-Path fixes bug which occurs during resetting endpoint in
-__cdns3_gadget_ep_clear_halt function. During resetting endpoint
-controller will change HW/DMA owned TRB. It set Abort flag in
-trb->control and will change trb->length field. If driver want
-to use the aborted trb it must update the changed field in
-TRB.
+Sticky MCR bits are lost in console restoration if console suspending
+has been disabled.  This currently affects the AFE bit, which works in
+combination with RTS which we set, so we want to make sure the UART
+retains control of its FIFO where previously requested.  Also specific
+drivers may need other bits in the future.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20220329084605.4022-1-pawell@cadence.com
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Cc: stable@vger.kernel.org # v4.0+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/cdns3/cdns3-gadget.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2684,6 +2684,7 @@ int __cdns3_gadget_ep_clear_halt(struct
- 	struct usb_request *request;
- 	struct cdns3_request *priv_req;
- 	struct cdns3_trb *trb = NULL;
-+	struct cdns3_trb trb_tmp;
- 	int ret;
- 	int val;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3311,7 +3311,7 @@ static void serial8250_console_restore(s
  
-@@ -2693,8 +2694,10 @@ int __cdns3_gadget_ep_clear_halt(struct
- 	if (request) {
- 		priv_req = to_cdns3_request(request);
- 		trb = priv_req->trb;
--		if (trb)
-+		if (trb) {
-+			trb_tmp = *trb;
- 			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+		}
- 	}
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+-	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
++	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
+ }
  
- 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
-@@ -2709,7 +2712,7 @@ int __cdns3_gadget_ep_clear_halt(struct
- 
- 	if (request) {
- 		if (trb)
--			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
-+			*trb = trb_tmp;
- 
- 		cdns3_rearm_transfer(priv_ep, 1);
- 	}
+ /*
 
 
