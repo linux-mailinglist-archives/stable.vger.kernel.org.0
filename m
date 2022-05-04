@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E501251A8F2
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B6CA51A8BA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356292AbiEDRL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55420 "EHLO
+        id S1347409AbiEDRQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355860AbiEDRIx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DBA522DA;
-        Wed,  4 May 2022 09:54:40 -0700 (PDT)
+        with ESMTP id S1355897AbiEDRIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD26E51E65;
+        Wed,  4 May 2022 09:54:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E7DA618A9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49C2E618B0;
+        Wed,  4 May 2022 16:54:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9660CC385B2;
         Wed,  4 May 2022 16:54:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DEDDC385A5;
-        Wed,  4 May 2022 16:54:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683279;
-        bh=9NY7USzhuSlp779ziJCCibr/+WvkaizSECqK6XQIv0w=;
+        s=korg; t=1651683280;
+        bh=J9fKvkWLHDd+6qz2ZBFVcWFT9ooivv7xE+aNdi+7aEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oDESZJTdSk/r8+q8QNFg7p7mtGX3gUTMc6gYXnm5iQNqfVJZittN1jKfhhs01tK5X
-         oIdZZIGiX2JDscuMzA52RKtbVoc3ixWhlVpEHcMqzV6pIZMYVSGJuDzAxGkr7Jb/r6
-         54O52x6b0qGRJUYJNdSvAl7iuxzF3BQVpFWljtA0=
+        b=NmwT8Lx7GbizdFnTwo5CXpFV/LQF98p4iPkgabP3LOkiR+ZUL79FOXXTHg9E3Ob+K
+         3TSnM/qRcCb88ZL8Moeeu9BESBDckGMi+nRzY9xRcUN2W2FddM5INYbTi987gX/G8l
+         twTmAGH/uiB2fIQpU9EZngz11MDpZ/Df8HprnLB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 132/177] ksmbd: set fixed sector size to FS_SECTOR_SIZE_INFORMATION
-Date:   Wed,  4 May 2022 18:45:25 +0200
-Message-Id: <20220504153104.981776277@linuxfoundation.org>
+Subject: [PATCH 5.15 133/177] bonding: do not discard lowest hash bit for non layer3+4 hashing
+Date:   Wed,  4 May 2022 18:45:26 +0200
+Message-Id: <20220504153105.084842283@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
 References: <20220504153053.873100034@linuxfoundation.org>
@@ -54,64 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: suresh kumar <suresh2514@gmail.com>
 
-[ Upstream commit 02655a70b7cc0f534531ee65fa72692f4d31a944 ]
+[ Upstream commit 49aefd131739df552f83c566d0665744c30b1d70 ]
 
-Currently ksmbd is using ->f_bsize from vfs_statfs() as sector size.
-If fat/exfat is a local share, ->f_bsize is a cluster size that is too
-large to be used as a sector size. Sector sizes larger than 4K cause
-problem occurs when mounting an iso file through windows client.
+Commit b5f862180d70 was introduced to discard lowest hash bit for layer3+4 hashing
+but it also removes last bit from non layer3+4 hashing
 
-The error message can be obtained using Mount-DiskImage command,
- the error is:
-"Mount-DiskImage : The sector size of the physical disk on which the
-virtual disk resides is not supported."
+Below script shows layer2+3 hashing will result in same slave to be used with above commit.
+$ cat hash.py
+#/usr/bin/python3.6
 
-This patch reports fixed 4KB sector size if ->s_blocksize is bigger
-than 4KB.
+h_dests=[0xa0, 0xa1]
+h_source=0xe3
+hproto=0x8
+saddr=0x1e7aa8c0
+daddr=0x17aa8c0
 
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+for h_dest in h_dests:
+    hash = (h_dest ^ h_source ^ hproto ^ saddr ^ daddr)
+    hash ^= hash >> 16
+    hash ^= hash >> 8
+    print(hash)
+
+print("with last bit removed")
+for h_dest in h_dests:
+    hash = (h_dest ^ h_source ^ hproto ^ saddr ^ daddr)
+    hash ^= hash >> 16
+    hash ^= hash >> 8
+    hash = hash >> 1
+    print(hash)
+
+Output:
+$ python3.6 hash.py
+522133332
+522133333   <-------------- will result in both slaves being used
+
+with last bit removed
+261066666
+261066666   <-------------- only single slave used
+
+Signed-off-by: suresh kumar <suresh2514@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/bonding/bond_main.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index a9fdb47c2791..1ed3046dd5b3 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -11,6 +11,7 @@
- #include <linux/statfs.h>
- #include <linux/ethtool.h>
- #include <linux/falloc.h>
-+#include <linux/mount.h>
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 46c3301a5e07..2e75b7e8f70b 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3817,14 +3817,19 @@ static bool bond_flow_dissect(struct bonding *bond, struct sk_buff *skb, const v
+ 	return true;
+ }
  
- #include "glob.h"
- #include "smb2pdu.h"
-@@ -4997,15 +4998,17 @@ static int smb2_get_info_filesystem(struct ksmbd_work *work,
- 	case FS_SECTOR_SIZE_INFORMATION:
- 	{
- 		struct smb3_fs_ss_info *info;
-+		unsigned int sector_size =
-+			min_t(unsigned int, path.mnt->mnt_sb->s_blocksize, 4096);
+-static u32 bond_ip_hash(u32 hash, struct flow_keys *flow)
++static u32 bond_ip_hash(u32 hash, struct flow_keys *flow, int xmit_policy)
+ {
+ 	hash ^= (__force u32)flow_get_u32_dst(flow) ^
+ 		(__force u32)flow_get_u32_src(flow);
+ 	hash ^= (hash >> 16);
+ 	hash ^= (hash >> 8);
++
+ 	/* discard lowest hash bit to deal with the common even ports pattern */
+-	return hash >> 1;
++	if (xmit_policy == BOND_XMIT_POLICY_LAYER34 ||
++		xmit_policy == BOND_XMIT_POLICY_ENCAP34)
++		return hash >> 1;
++
++	return hash;
+ }
  
- 		info = (struct smb3_fs_ss_info *)(rsp->Buffer);
+ /* Generate hash based on xmit policy. If @skb is given it is used to linearize
+@@ -3854,7 +3859,7 @@ static u32 __bond_xmit_hash(struct bonding *bond, struct sk_buff *skb, const voi
+ 			memcpy(&hash, &flow.ports.ports, sizeof(hash));
+ 	}
  
--		info->LogicalBytesPerSector = cpu_to_le32(stfs.f_bsize);
-+		info->LogicalBytesPerSector = cpu_to_le32(sector_size);
- 		info->PhysicalBytesPerSectorForAtomicity =
--				cpu_to_le32(stfs.f_bsize);
--		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(stfs.f_bsize);
-+				cpu_to_le32(sector_size);
-+		info->PhysicalBytesPerSectorForPerf = cpu_to_le32(sector_size);
- 		info->FSEffPhysicalBytesPerSectorForAtomicity =
--				cpu_to_le32(stfs.f_bsize);
-+				cpu_to_le32(sector_size);
- 		info->Flags = cpu_to_le32(SSINFO_FLAGS_ALIGNED_DEVICE |
- 				    SSINFO_FLAGS_PARTITION_ALIGNED_ON_DEVICE);
- 		info->ByteOffsetForSectorAlignment = 0;
+-	return bond_ip_hash(hash, &flow);
++	return bond_ip_hash(hash, &flow, bond->params.xmit_policy);
+ }
+ 
+ /**
+@@ -5012,7 +5017,7 @@ static u32 bond_sk_hash_l34(struct sock *sk)
+ 	/* L4 */
+ 	memcpy(&hash, &flow.ports.ports, sizeof(hash));
+ 	/* L3 */
+-	return bond_ip_hash(hash, &flow);
++	return bond_ip_hash(hash, &flow, BOND_XMIT_POLICY_LAYER34);
+ }
+ 
+ static struct net_device *__bond_sk_get_lower_dev(struct bonding *bond,
 -- 
 2.35.1
 
