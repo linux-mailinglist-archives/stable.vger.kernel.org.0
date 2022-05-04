@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C4B51A928
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C293151A87D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355786AbiEDRMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40662 "EHLO
+        id S1356136AbiEDRLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356876AbiEDRJr (ORCPT
+        with ESMTP id S1356878AbiEDRJr (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2406C44747;
-        Wed,  4 May 2022 09:56:15 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067F1443D5;
+        Wed,  4 May 2022 09:56:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6ADBB827A1;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 980A0B8279A;
+        Wed,  4 May 2022 16:56:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EDECC385AA;
         Wed,  4 May 2022 16:56:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E75AC385A4;
-        Wed,  4 May 2022 16:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683372;
-        bh=z8W341Ff4rmUGeYvixTSXtHcgH7Y0qDlJv67ciz3vJg=;
+        s=korg; t=1651683373;
+        bh=ErSJhNxNhAjFQyo0IYu55uUHakx8l73TBNY52bN65po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9TTw3vbD59G6y9KEer/ON4X3aaNkHwCPf9wgPOqFt/tRhv2G5fE6g+aCpiWZcGWe
-         Ri9AEtO1+frDCfiSBvdIdGGumBliIGWRgzUdA93vyR8rgCMMXtkD34JLMM2oEHufMn
-         MlaCnRhDqQfJ4GwBAFOBbbek1E+IuLF1dys7V5Do=
+        b=yMvjLezcr/4Q5Zfbil4uU772azvqDuh3Wu0XeE3B2vsoOAvrCeI82fze0PbD6GRAr
+         1uCQdgshiZ0xp2uuTuSPFCk55bJiZYQnfZhlMWozOzw5YCX1MPGBOXqsx+P6UGm4kY
+         MgyDQltjXkbWdfJlMOPLoD7d/kYrzN0RmNsLly/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.17 043/225] bus: mhi: host: pci_generic: Flush recovery worker during freeze
-Date:   Wed,  4 May 2022 18:44:41 +0200
-Message-Id: <20220504153113.980245250@linuxfoundation.org>
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Johan Hovold <johan@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.17 044/225] arm64: dts: imx8mm-venice: fix spi2 pin configuration
+Date:   Wed,  4 May 2022 18:44:42 +0200
+Message-Id: <20220504153114.054039224@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,37 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit c38f83bae4037023827c85e045841d0421f85034 upstream.
+commit dc900431337f5f861e3cc47ec5be5a69db40ee34 upstream.
 
-It is possible that the recovery work might be running while the freeze
-gets executed (during hibernation etc.,). Currently, we don't powerdown
-the stack if it is not up but if the recovery work completes after freeze,
-then the device will be up afterwards. This will not be a sane situation.
+Due to what looks like a copy-paste error, the ECSPI2_MISO pad is not
+muxed for SPI mode and causes reads from a slave-device connected to the
+SPI header to always return zero.
 
-So let's flush the recovery worker before trying to powerdown the device.
+Configure the ECSPI2_MISO pad for SPI mode on the gw71xx, gw72xx and
+gw73xx families of boards that got this wrong.
 
-Cc: stable@vger.kernel.org
-Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-Reported-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-Reviewed-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-Link: https://lore.kernel.org/r/20220408150039.17297-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Fixes: 6f30b27c5ef5 ("arm64: dts: imx8mm: Add Gateworks i.MX 8M Mini Development Kits")
+Cc: stable@vger.kernel.org      # 5.12
+Cc: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/pci_generic.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi |    2 +-
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi |    2 +-
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -1060,6 +1060,7 @@ static int __maybe_unused mhi_pci_freeze
- 	 * the intermediate restore kernel reinitializes MHI device with new
- 	 * context.
- 	 */
-+	flush_work(&mhi_pdev->recovery_work);
- 	if (test_and_clear_bit(MHI_PCI_DEV_STARTED, &mhi_pdev->status)) {
- 		mhi_power_down(mhi_cntrl, true);
- 		mhi_unprepare_after_power_down(mhi_cntrl);
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
+@@ -166,7 +166,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
+@@ -231,7 +231,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
+@@ -280,7 +280,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
 
 
