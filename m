@@ -2,77 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 973D651A334
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 17:08:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1BE51A349
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 17:09:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351796AbiEDPLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 11:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33154 "EHLO
+        id S1351946AbiEDPMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 11:12:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351606AbiEDPLd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 11:11:33 -0400
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE391D0FE
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 08:07:55 -0700 (PDT)
-Date:   Wed, 04 May 2022 15:07:46 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail2; t=1651676871;
-        bh=o10sw0tBjGYFqmRrH+fVUfT4lfywBEMkHYlcUAVI/y8=;
-        h=Date:To:From:Cc:Reply-To:Subject:Message-ID:In-Reply-To:
-         References:Feedback-ID:From:To:Cc:Date:Subject:Reply-To:
-         Feedback-ID:Message-ID;
-        b=kwN8druepZBT8H5u0V5ZB9bLgMb8VlorSd5rf3dcu6oO/rfFJCcRpWy69Q5Uz7DxL
-         MWJa6S7mIZ/1XnB1fNubnfhMnXoBDT0IFhYB1WaFbX9NulkkDLB9j8nsk8z9yHcVOo
-         lgWK1XbR3qjux36H+jMES5cS+u+LxFUI/bX3lEZfQ9ibzOezVQv7c+2fGXXFi49Nr2
-         GIB5BHt1b747lJVcrsH19lnAJImLzUYEO/97n8Pidp+PquDn4C9YwagmWRvQy5Am2P
-         mG4L7w7wNT0YIBftTz0bDoWwzX8NDUppVsv5STdmXYxq1OBXtqgUm1+d2yTw/8P65N
-         2SaOUAoJnfOCA==
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-From:   Jordan Leppert <jordanleppert@protonmail.com>
-Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "labre@posteo.de" <labre@posteo.de>,
-        "davem@davemloft.net" <davem@davemloft.net>
-Reply-To: Jordan Leppert <jordanleppert@protonmail.com>
-Subject: Crash on resume after suspend (5.17.5 and 5.15.36)
-Message-ID: <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
-In-Reply-To: <refZ3y2HAXztrRkMMmFbBaF7Dz1CctWgjchSdBtcSNlpk-TL0fqLepVVHfw9qXtIQF9uFzBvFdjQiiX9Jv2zW9oaWej952s1IYwu61d1REo=@protonmail.com>
-References: <refZ3y2HAXztrRkMMmFbBaF7Dz1CctWgjchSdBtcSNlpk-TL0fqLepVVHfw9qXtIQF9uFzBvFdjQiiX9Jv2zW9oaWej952s1IYwu61d1REo=@protonmail.com>
-Feedback-ID: 43610911:user:proton
+        with ESMTP id S1351966AbiEDPM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 11:12:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22E9C220EF;
+        Wed,  4 May 2022 08:08:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCE59B8263C;
+        Wed,  4 May 2022 15:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71A49C385A5;
+        Wed,  4 May 2022 15:08:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651676927;
+        bh=+j0OUKTRMVyAKDfkZwYch4G0nCOnoDspSMbkklbc/N4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Fjcu0R6daCQsfHq6QS5Oe/XBjGKiWjVhAdWoUIGQQLELST7JLnrBCcfia7tkrc5m1
+         exBTkr8PXHxbX/kzdbGsgzW4gW2cE3T591JI9jc+zm95PkZLN6ykixc0A3DCPJ6mVo
+         AJ2+Lu5Ad/JUMkOWWmkqeZH+hAOqARMLBglNG/h8=
+Date:   Wed, 4 May 2022 17:08:46 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Steve Capper <steve.capper@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] [Rebased for 5.4] mm, hugetlb: allow for "high"
+ userspace addresses
+Message-ID: <YnKW/h6yElTSBKB1@kroah.com>
+References: <9367809ff3091ff451f9ab6fc029cef553c758fa.1651581958.git.christophe.leroy@csgroup.eu>
+ <YnEyiYh/NIFJG16V@kroah.com>
+ <9853ade6-3f32-7811-474e-2da2361af16c@csgroup.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <9853ade6-3f32-7811-474e-2da2361af16c@csgroup.eu>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Wed, May 04, 2022 at 07:26:00AM +0000, Christophe Leroy wrote:
+> 
+> 
+> Le 03/05/2022 à 15:47, Greg KH a écrit :
+> > On Tue, May 03, 2022 at 02:47:11PM +0200, Christophe Leroy wrote:
+> >> This is backport for linux 5.4
+> >>
+> >> commit 5f24d5a579d1eace79d505b148808a850b417d4c upstream.
+> > 
+> > Now queued up, thanks.
+> > 
+> 
+> Looks like the robot has found a build failure, due to missing #include 
+> <linux/sched/mm.h>
+> 
+> However, looking into it in more details, I think  we should just apply 
+> the two following commits unmodified instead of modifying the original 
+> commit:
+> 
+> 885902531586 ("hugetlbfs: get unmapped area below TASK_UNMAPPED_BASE for 
+> hugetlbfs")
+> 5f24d5a579d1 ("mm, hugetlb: allow for "high" userspace addresses")
 
-A changed was added to both version 5.17.5 and 5.15.36 which causes my comp=
-uter to freeze when resuming after a suspend. This happens every time I sus=
-pend and then resume.
+Ok, thanks, I've done this now.
 
-I've bisected the change to commit: cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4=
-c (net: atlantic: invert deep par in pm functions, preventing null derefs)
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=
-=3Dlinux-5.17.y&id=3Dcbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c
-
-My computer details that might be relevant:
-OS: Arch Linux
-CPU: AMD 5950X
-GPU: AMD 6800XT
-
-As expected I have an Aquantia ethernet controller listed in lspci:
-
-05:00.0 Ethernet controller: Aquantia Corp. AQC107 NBase-T/IEEE 802.3bz Eth=
-ernet Controller [AQtion] (rev 02)
-
-Please let me know if there is any more info I can give that will help.
-
-Regards,
-Jordan
+greg k-h
