@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387D051A8EC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F03A451A905
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355701AbiEDRQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:16:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
+        id S1356527AbiEDRNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356035AbiEDRI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91020527E9;
-        Wed,  4 May 2022 09:54:50 -0700 (PDT)
+        with ESMTP id S1355826AbiEDRKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348314A91F;
+        Wed,  4 May 2022 09:57:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8F60B8278E;
-        Wed,  4 May 2022 16:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78E9CC385A5;
-        Wed,  4 May 2022 16:54:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8014B8279A;
+        Wed,  4 May 2022 16:57:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9C7C385AF;
+        Wed,  4 May 2022 16:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683287;
-        bh=xCx+GlsVxmY/H4CVNQZ7axuhJ5gW967unc+iX5+XCBQ=;
+        s=korg; t=1651683441;
+        bh=e+oxjEJlR1PMHd11JKjXVmZGlgC98O91GpA6vAZb0A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ANigu09cuqp4P+AcIcoCDKNY4qB2sII/n+I/dSmCXPvZzvX0MRKg6Hynt46SIYL5
-         I9Nykpzt/pJ2ZwUaYXrm/+7+9PEj7uRLxqmcHnjZALfz9JXbFfACBaYyhq20RGESmp
-         dCnTp8DKwFPBeS7dC9h9+HMSmH4L+39pTyoABOu8=
+        b=nS7JrE10OrN6b+JGFmFPVN2BqUK+PrZknazplH50d2INDz1NSc9MX3AEblp2DE75I
+         SJvhOHuncXCIT5e7BzIYk/zebDtsEuyVxFALt77O+BklSwVEE6xsOYoljFecfCjhpL
+         uW9rHzd4keEztQ3F0/EnCqn8PyDJoXbxliOJSvvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.15 153/177] ARM: dts: imx8mm-venice-gw{71xx,72xx,73xx}: fix OTG controller OC mode
-Date:   Wed,  4 May 2022 18:45:46 +0200
-Message-Id: <20220504153107.086817776@linuxfoundation.org>
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 109/225] sctp: check asoc strreset_chunk in sctp_generate_reconf_event
+Date:   Wed,  4 May 2022 18:45:47 +0200
+Message-Id: <20220504153120.352753278@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,81 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 4c79865f3e8a2db93ec1e844509edfebe5a6ae56 upstream.
+[ Upstream commit 165e3e17fe8fe6a8aab319bc6e631a2e23b9a857 ]
 
-The GW71xx, GW72xx and GW73xx boards have USB1 routed to a USB OTG
-connectors and USB2 routed to a USB hub.
+A null pointer reference issue can be triggered when the response of a
+stream reconf request arrives after the timer is triggered, such as:
 
-The OTG connector has a over-currently protection with an active-low
-pin and the USB1 to HUB connection has no over-current protection (as
-the HUB itself implements this for its downstream ports).
+  send Incoming SSN Reset Request --->
+  CPU0:
+   reconf timer is triggered,
+   go to the handler code before hold sk lock
+                            <--- reply with Outgoing SSN Reset Request
+  CPU1:
+   process Outgoing SSN Reset Request,
+   and set asoc->strreset_chunk to NULL
+  CPU0:
+   continue the handler code, hold sk lock,
+   and try to hold asoc->strreset_chunk, crash!
 
-Add proper dt nodes to specify the over-current pin polarity for USB1
-and disable over-current protection for USB2.
+In Ying Xu's testing, the call trace is:
 
-Fixes: 6f30b27c5ef5 ("arm64: dts: imx8mm: Add Gateworks i.MX 8M Mini Development Kits")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  [ ] BUG: kernel NULL pointer dereference, address: 0000000000000010
+  [ ] RIP: 0010:sctp_chunk_hold+0xe/0x40 [sctp]
+  [ ] Call Trace:
+  [ ]  <IRQ>
+  [ ]  sctp_sf_send_reconf+0x2c/0x100 [sctp]
+  [ ]  sctp_do_sm+0xa4/0x220 [sctp]
+  [ ]  sctp_generate_reconf_event+0xbd/0xe0 [sctp]
+  [ ]  call_timer_fn+0x26/0x130
+
+This patch is to fix it by returning from the timer handler if asoc
+strreset_chunk is already set to NULL.
+
+Fixes: 7b9438de0cd4 ("sctp: add stream reconf timer")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi |    2 ++
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi |    2 ++
- arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi |    2 ++
- 3 files changed, 6 insertions(+)
+ net/sctp/sm_sideeffect.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
-@@ -103,12 +103,14 @@
+diff --git a/net/sctp/sm_sideeffect.c b/net/sctp/sm_sideeffect.c
+index b3815b568e8e..463c4a58d2c3 100644
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -458,6 +458,10 @@ void sctp_generate_reconf_event(struct timer_list *t)
+ 		goto out_unlock;
+ 	}
  
- &usbotg1 {
- 	dr_mode = "otg";
-+	over-current-active-low;
- 	vbus-supply = <&reg_usb_otg1_vbus>;
- 	status = "okay";
- };
- 
- &usbotg2 {
- 	dr_mode = "host";
-+	disable-over-current;
- 	status = "okay";
- };
- 
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
-@@ -139,12 +139,14 @@
- 
- &usbotg1 {
- 	dr_mode = "otg";
-+	over-current-active-low;
- 	vbus-supply = <&reg_usb_otg1_vbus>;
- 	status = "okay";
- };
- 
- &usbotg2 {
- 	dr_mode = "host";
-+	disable-over-current;
- 	vbus-supply = <&reg_usb_otg2_vbus>;
- 	status = "okay";
- };
---- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
-@@ -166,12 +166,14 @@
- 
- &usbotg1 {
- 	dr_mode = "otg";
-+	over-current-active-low;
- 	vbus-supply = <&reg_usb_otg1_vbus>;
- 	status = "okay";
- };
- 
- &usbotg2 {
- 	dr_mode = "host";
-+	disable-over-current;
- 	vbus-supply = <&reg_usb_otg2_vbus>;
- 	status = "okay";
- };
++	/* This happens when the response arrives after the timer is triggered. */
++	if (!asoc->strreset_chunk)
++		goto out_unlock;
++
+ 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
+ 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
+ 			   asoc->state, asoc->ep, asoc,
+-- 
+2.35.1
+
 
 
