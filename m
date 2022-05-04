@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D22C51A5ED
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4C551A6DF
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353656AbiEDQv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50834 "EHLO
+        id S1354430AbiEDRA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353644AbiEDQv4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66D746B03;
-        Wed,  4 May 2022 09:48:17 -0700 (PDT)
+        with ESMTP id S1354601AbiEDQ6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 484EF1F629;
+        Wed,  4 May 2022 09:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 790526174B;
-        Wed,  4 May 2022 16:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCDC1C385A4;
-        Wed,  4 May 2022 16:48:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDD9AB82554;
+        Wed,  4 May 2022 16:50:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A49C385A5;
+        Wed,  4 May 2022 16:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682896;
-        bh=VtJerBDQCYbUCgpxXLdGU8t1nlWfii6eDosdmY9hF0w=;
+        s=korg; t=1651683042;
+        bh=7dpsaI8+DZ3trt2V0mBtNEbPk+Gy1oRkzaJHsKmOU9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=utthZ9CZETq++VVWtdVAXfYSkj14Xieers63trhoj4q/ITccm1B44xTneu4qADs1d
-         F+Ri0BmpLHpU82dlu3nSc1ON49h9bztPuU+6NfiPwuwySC8Ubk5bQrXTrT6V6+1o47
-         OqR70mK7rcplVXf6htRIU0SkPGni9iBggvZq8cm8=
+        b=Iq6ySQPBnQKL3Rrdu6Sx2XB25iK+3+3MwYHy6zuS6fyvbHtiOgb5DRgh2Khgn8UVc
+         bIaMrMG2s3glsNwFcFL0vFSxp7UhtGcetA5dppAvYjsPb9Td0KLf/w0Dj90vmBpNxV
+         KMLjfPmdcN4uwVPIEYWsPbsOWrKARKHbnYELZlDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 03/84] hamradio: remove needs_free_netdev to avoid UAF
-Date:   Wed,  4 May 2022 18:43:44 +0200
-Message-Id: <20220504152927.990766404@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 033/129] hex2bin: make the function hex_to_bin constant-time
+Date:   Wed,  4 May 2022 18:43:45 +0200
+Message-Id: <20220504153023.908308980@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 81b1d548d00bcd028303c4f3150fa753b9b8aa71 upstream.
+commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
 
-The former patch "defer 6pack kfree after unregister_netdev" reorders
-the kfree of two buffer after the unregister_netdev to prevent the race
-condition. It also adds free_netdev() function in sixpack_close(), which
-is a direct copy from the similar code in mkiss_close().
+The function hex2bin is used to load cryptographic keys into device
+mapper targets dm-crypt and dm-integrity.  It should take constant time
+independent on the processed data, so that concurrently running
+unprivileged code can't infer any information about the keys via
+microarchitectural convert channels.
 
-However, in sixpack driver, the flag needs_free_netdev is set to true in
-sp_setup(), hence the unregister_netdev() will free the netdev
-automatically. Therefore, as the sp is netdev_priv, use-after-free
-occurs.
+This patch changes the function hex_to_bin so that it contains no
+branches and no memory accesses.
 
-This patch removes the needs_free_netdev = true and just let the
-free_netdev to finish this deallocation task.
+Note that this shouldn't cause performance degradation because the size
+of the new function is the same as the size of the old function (on
+x86-64) - and the new function causes no branch misprediction penalties.
 
-Fixes: 0b9111922b1f ("hamradio: defer 6pack kfree after unregister_netdev")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20211111141402.7551-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
+i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
+sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
+powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
+no branches in the generated code.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/6pack.c |    1 -
- 1 file changed, 1 deletion(-)
+ include/linux/kernel.h |    2 +-
+ lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -311,7 +311,6 @@ static void sp_setup(struct net_device *
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -635,7 +635,7 @@ static inline char *hex_byte_pack_upper(
+ 	return buf;
+ }
+ 
+-extern int hex_to_bin(char ch);
++extern int hex_to_bin(unsigned char ch);
+ extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
+ extern char *bin2hex(char *dst, const void *src, size_t count);
+ 
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -22,15 +22,33 @@ EXPORT_SYMBOL(hex_asc_upper);
+  *
+  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
+  * input.
++ *
++ * This function is used to load cryptographic keys, so it is coded in such a
++ * way that there are no conditions or memory accesses that depend on data.
++ *
++ * Explanation of the logic:
++ * (ch - '9' - 1) is negative if ch <= '9'
++ * ('0' - 1 - ch) is negative if ch >= '0'
++ * we "and" these two values, so the result is negative if ch is in the range
++ *	'0' ... '9'
++ * we are only interested in the sign, so we do a shift ">> 8"; note that right
++ *	shift of a negative value is implementation-defined, so we cast the
++ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
++ *	the range '0' ... '9', 0 otherwise
++ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
++ *	in the range '0' ... '9', 0 otherwise
++ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
++ *	... '9', -1 otherwise
++ * the next line is similar to the previous one, but we need to decode both
++ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
++ *	lowercase to uppercase
+  */
+-int hex_to_bin(char ch)
++int hex_to_bin(unsigned char ch)
  {
- 	/* Finish setting up the DEVICE info. */
- 	dev->netdev_ops		= &sp_netdev_ops;
--	dev->needs_free_netdev	= true;
- 	dev->mtu		= SIXP_MTU;
- 	dev->hard_header_len	= AX25_MAX_HEADER_LEN;
- 	dev->header_ops 	= &ax25_header_ops;
+-	if ((ch >= '0') && (ch <= '9'))
+-		return ch - '0';
+-	ch = tolower(ch);
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return ch - 'a' + 10;
+-	return -1;
++	unsigned char cu = ch & 0xdf;
++	return -1 +
++		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
++		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+ }
+ EXPORT_SYMBOL(hex_to_bin);
+ 
 
 
