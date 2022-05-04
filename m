@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 787FC51A870
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7BB51A7FD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355690AbiEDRLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
+        id S232390AbiEDRHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356783AbiEDRJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E45631D301;
-        Wed,  4 May 2022 09:55:34 -0700 (PDT)
+        with ESMTP id S1355753AbiEDREl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 488F84F9D2;
+        Wed,  4 May 2022 09:53:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8834DB82795;
-        Wed,  4 May 2022 16:55:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27785C385A5;
-        Wed,  4 May 2022 16:55:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A066618A9;
+        Wed,  4 May 2022 16:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DFAC385A4;
+        Wed,  4 May 2022 16:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683333;
-        bh=lem5YP95kAeIWlgsI+/P+6ycbjzuQRCTrSpldXDPb4o=;
+        s=korg; t=1651683200;
+        bh=ND4TvuaQfIW/5AgPmtvCsaRACYMDAT08gszoo/ScmM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8Eo7UfNmz+3kSvHxZbHRIicAO91K4s8kewPQtlApH62QeCkKcx+BKUxXDBSou//h
-         YaUTbn7/MPaSiOICNJ6MDMpBUd0nEKYYJFDpdsubwhUS5zPsErRJiJtCALQ1O6SaQZ
-         kDxWYdEbuKNFlQCOVoTXjPURxjzmUZTQJm8UuXpE=
+        b=rblendjv+W8RZGlKRI/41EeHOwsNYwhjSxBWamVS9EIbN2CyosXh6qKl+8c3N+45m
+         htyKxrYccaw4HJfhMkoyB+drYGL/ouTuexmAieLgcUVbTKpCaeNWH78rWis7PsyaVB
+         gfJ1/O7G5QCm/+y8QS4hW1YjFmATtPJsQOqhnol4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jack Pham <quic_jackp@quicinc.com>
-Subject: [PATCH 5.17 020/225] usb: typec: ucsi: Fix reuse of completion structure
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 065/177] ARM: dts: at91: sama5d4_xplained: fix pinctrl phandle name
 Date:   Wed,  4 May 2022 18:44:18 +0200
-Message-Id: <20220504153112.118375389@linuxfoundation.org>
+Message-Id: <20220504153058.816269298@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-commit e25adcca917d7e4cdc1dc6444d0692ffda7594bf upstream.
+[ Upstream commit 5c8b49852910caffeebb1ce541fdd264ffc691b8 ]
 
-The role swapping completion variable is reused, so it needs
-to be reinitialised every time. Otherwise it will be marked
-as done after the first time it's used and completing
-immediately.
+Pinctrl phandle is for spi1 so rename it to reflect this.
 
-Link: https://lore.kernel.org/linux-usb/20220325203959.GA19752@jackp-linux.qualcomm.com/
-Fixes: 6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
-Cc: stable@vger.kernel.org
-Reported-and-suggested-by: Jack Pham <quic_jackp@quicinc.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220405134824.68067-2-heikki.krogerus@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Link: https://lore.kernel.org/r/20220331141323.194355-1-claudiu.beznea@microchip.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -949,6 +949,8 @@ static int ucsi_dr_swap(struct typec_por
- 	     role == TYPEC_HOST))
- 		goto out_unlock;
+diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+index d241c24f0d83..accb92cfac44 100644
+--- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+@@ -82,7 +82,7 @@ usart4: serial@fc010000 {
  
-+	reinit_completion(&con->complete);
-+
- 	command = UCSI_SET_UOR | UCSI_CONNECTOR_NUMBER(con->num);
- 	command |= UCSI_SET_UOR_ROLE(role);
- 	command |= UCSI_SET_UOR_ACCEPT_ROLE_SWAPS;
-@@ -985,6 +987,8 @@ static int ucsi_pr_swap(struct typec_por
- 	if (cur_role == role)
- 		goto out_unlock;
- 
-+	reinit_completion(&con->complete);
-+
- 	command = UCSI_SET_PDR | UCSI_CONNECTOR_NUMBER(con->num);
- 	command |= UCSI_SET_PDR_ROLE(role);
- 	command |= UCSI_SET_PDR_ACCEPT_ROLE_SWAPS;
+ 			spi1: spi@fc018000 {
+ 				pinctrl-names = "default";
+-				pinctrl-0 = <&pinctrl_spi0_cs>;
++				pinctrl-0 = <&pinctrl_spi1_cs>;
+ 				cs-gpios = <&pioB 21 0>;
+ 				status = "okay";
+ 			};
+@@ -140,7 +140,7 @@ pinctrl_macb0_phy_irq: macb0_phy_irq_0 {
+ 						atmel,pins =
+ 							<AT91_PIOE 1 AT91_PERIPH_GPIO AT91_PINCTRL_PULL_UP_DEGLITCH>;
+ 					};
+-					pinctrl_spi0_cs: spi0_cs_default {
++					pinctrl_spi1_cs: spi1_cs_default {
+ 						atmel,pins =
+ 							<AT91_PIOB 21 AT91_PERIPH_GPIO AT91_PINCTRL_NONE>;
+ 					};
+-- 
+2.35.1
+
 
 
