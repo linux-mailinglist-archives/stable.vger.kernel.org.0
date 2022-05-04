@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 359D451AA02
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA83951A9FD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351855AbiEDRUv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S1357221AbiEDRUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358129AbiEDRPl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8811E4CD41
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:59:25 -0700 (PDT)
+        with ESMTP id S1358302AbiEDRPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0154656774
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:59:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5474618E8
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:59:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 327DAC385B2;
-        Wed,  4 May 2022 16:59:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D651B827A5
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C43D4C385A5;
+        Wed,  4 May 2022 16:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683544;
-        bh=8Kz0AHTYKKMmIPrMWht6F9muzIs/wf89SBBBTdyr5p0=;
+        s=k20201202; t=1651683546;
+        bh=UWDm9xI2RTamqcKQzMcsaj1UBvOgw5ActiMZo6Shzg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgbdDZ8belbhmfhSWf4+7owtJoQ11bEOTLdfPhxXDLDXpYnD6uFjjlKmOtwClUgtr
-         CoIrqK5ALMEk2D1nkGwi2d4CSz93Wxdbmtr4gmxdQEuAqDXhoz2scLvPoZbFWQ66tB
-         Z8TnI0FMfNis4pI/pHRwc/FnN6pj8p+DVlNBJAGVWNMydXDqNP+793QmCRsrLfIn1Y
-         kVQBDRD1XHgp23MpIL1cf+WNYQJglYEeU/J70RKJ38eENM06BbimXvnEjqtlSm/lum
-         GFD9fI8+pFCwOdpJszYK51mE1PYELPh0QA6Y6E6Qn1hXucrl3H6oinOwSpU5gCmtkd
-         TLx/7FQa2XI3w==
+        b=ExY69+gN14ypL5nadD3wToQ2ytyFt7wJEe52t60cF9BfmKjc0zEOyFlLOisJ2mz/g
+         sGARtmf8sFeHkYYFWVjlQIUPEr+xyFH+TaGq3sUlfWYP5LqERBzYu0FGh493+nljEj
+         VGtYLxz9Oy86IT5gS9ZgZezSYdJoHaVNo/HjbJ/BT+WTQPvY6ZzrX9rEg3rh6fSZyS
+         FtgY/V+M8K/hAH78V2ffGKeKxtMtLbV7b+DRcK8IEk3AktdGOR9wg5UD3XzKFeGkAs
+         825/tzRnntquuO0ZiZ5J1b/dRVfD92B7OxMlK+MIcYho7x3JdQz2JH/Tv8gPb5ZSTW
+         P7y+ZpOA/ZcJg==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.17 05/19] PCI: aardvark: Make msi_domain_info structure a static driver structure
-Date:   Wed,  4 May 2022 18:58:38 +0200
-Message-Id: <20220504165852.30089-6-kabel@kernel.org>
+Subject: [PATCH 5.17 06/19] PCI: aardvark: Use dev_fwnode() instead of of_node_to_fwnode(dev->of_node)
+Date:   Wed,  4 May 2022 18:58:39 +0200
+Message-Id: <20220504165852.30089-7-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165852.30089-1-kabel@kernel.org>
 References: <20220504165852.30089-1-kabel@kernel.org>
@@ -55,68 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 26bcd54e4a5cd51ec12d06fdc30e22863ed4c422 upstream.
+commit 222af78532fa299cd9b1008e49c347b7f5a45c17 upstream.
 
-Make Aardvark's msi_domain_info structure into a private driver structure.
-Domain info is same for every potential instatination of a controller.
+Use simple
+  dev_fwnode(dev)
+instead of
+  struct device_node *node = dev->of_node;
+  of_node_to_fwnode(node)
+especially since the node variable is not used elsewhere in the function.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-8-kabel@kernel.org
+Link: https://lore.kernel.org/r/20220110015018.26359-9-kabel@kernel.org
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 7577aa9d1734..4bd51ae0e745 100644
+index 4bd51ae0e745..2c2259d1af5e 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -274,7 +274,6 @@ struct advk_pcie {
- 	raw_spinlock_t irq_lock;
- 	struct irq_domain *msi_domain;
- 	struct irq_domain *msi_inner_domain;
--	struct msi_domain_info msi_domain_info;
- 	DECLARE_BITMAP(msi_used, MSI_IRQ_NUM);
- 	struct mutex msi_used_lock;
- 	u16 msi_msg;
-@@ -1286,20 +1285,20 @@ static struct irq_chip advk_msi_irq_chip = {
- 	.name = "advk-MSI",
- };
- 
-+static struct msi_domain_info advk_msi_domain_info = {
-+	.flags	= MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
-+		  MSI_FLAG_MULTI_PCI_MSI,
-+	.chip	= &advk_msi_irq_chip,
-+};
-+
+@@ -1294,7 +1294,6 @@ static struct msi_domain_info advk_msi_domain_info = {
  static int advk_pcie_init_msi_irq_domain(struct advk_pcie *pcie)
  {
  	struct device *dev = &pcie->pdev->dev;
- 	struct device_node *node = dev->of_node;
--	struct msi_domain_info *msi_di;
+-	struct device_node *node = dev->of_node;
  	phys_addr_t msi_msg_phys;
  
  	mutex_init(&pcie->msi_used_lock);
- 
--	msi_di = &pcie->msi_domain_info;
--	msi_di->flags = MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
--		MSI_FLAG_MULTI_PCI_MSI;
--	msi_di->chip = &advk_msi_irq_chip;
--
- 	msi_msg_phys = virt_to_phys(&pcie->msi_msg);
- 
- 	advk_writel(pcie, lower_32_bits(msi_msg_phys),
-@@ -1315,7 +1314,8 @@ static int advk_pcie_init_msi_irq_domain(struct advk_pcie *pcie)
+@@ -1313,7 +1312,7 @@ static int advk_pcie_init_msi_irq_domain(struct advk_pcie *pcie)
+ 		return -ENOMEM;
  
  	pcie->msi_domain =
- 		pci_msi_create_irq_domain(of_node_to_fwnode(node),
--					  msi_di, pcie->msi_inner_domain);
-+					  &advk_msi_domain_info,
-+					  pcie->msi_inner_domain);
+-		pci_msi_create_irq_domain(of_node_to_fwnode(node),
++		pci_msi_create_irq_domain(dev_fwnode(dev),
+ 					  &advk_msi_domain_info,
+ 					  pcie->msi_inner_domain);
  	if (!pcie->msi_domain) {
- 		irq_domain_remove(pcie->msi_inner_domain);
- 		return -ENOMEM;
 -- 
 2.35.1
 
