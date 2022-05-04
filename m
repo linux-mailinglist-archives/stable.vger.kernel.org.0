@@ -2,94 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6BEE519603
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 05:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B12519687
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 06:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235181AbiEDDgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 23:36:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41794 "EHLO
+        id S239627AbiEDEaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 00:30:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344218AbiEDDgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 23:36:36 -0400
-Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D9E21CB03
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 20:33:01 -0700 (PDT)
-Received: by mail-io1-xd2f.google.com with SMTP id f4so324869iov.2
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 20:33:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=MD7nPH76Zo4gzIjG6XroEYb+307Sv2T97DW30QPZNvQ=;
-        b=GCl3tUY0CxUSs2045e7bW3K3OMlsoVKLkDorqwMDkmosI+DarqkAsVZ4JutaruMtaq
-         VqOHlcJ06uzrO/wmARYsqy4RSsfaqwdhzD3Op9C9DJ5u3WeNoYMrxGWQJqnxWPKqFL+m
-         QRzSecp35sYjpDFlnSHnjh/mzL55frzR8ayJsgdjMS8lI8QEEt6j4UwSDAa+YE+WH32M
-         rV3TlIsrbFgDRyNTLm2bHTDSK86J1SDHWbQss+MyAldJlcz7OomuzVdYQ23f3ar+122V
-         j7OlhJvOkCtMEdVkoOKHFBAlv4QIa6gkZRCnrkWY8IjFhbXMImgVlCcrzHCLhXwUXHth
-         NoIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=MD7nPH76Zo4gzIjG6XroEYb+307Sv2T97DW30QPZNvQ=;
-        b=dKWVIXNdOehqanCWQxrnbdc98j9jQ9fquAt4C93YrYCGfRSe5xjdeqcMQ4ixn6vU5g
-         YRQU8y/S05VQ8H452AEAVYRpjFgnsRgu1CBuw3IAigqQc8BZosiiOFXL9vU2mOEryyXD
-         6BDKuaYxNSW1UXZ12eOU8hB1MftXdyK9VsbdxwSfbNoL9uYqUZG3ZVnZ2MBgCZu7/kfx
-         OKNsHr/N29Y7YnFiRKOAKLnbTBQSJoSJez86XIDuWGGzONp+dC9rJGCUNWir1pgOKAFz
-         vj3sOn/0rpnG7+qzOx5f5Co5rkpDOcSoStWgVD+tKAfapasre1GgVlKLWKlWGkr2Qmos
-         lqvg==
-X-Gm-Message-State: AOAM530EQmwzRJSqsY7wa+DoaCOhK0PHed2hCVoKXTlSYESAy2MablEa
-        uVi2PRWnoCyrMDaDmQX+wux06A==
-X-Google-Smtp-Source: ABdhPJy7vKJ/E6XbgDQRiEIsUnMlj/99SQ3gJhSHQZ0B1pirVzABIhS85iAuFB/rJZ2xJyY7/WLvCg==
-X-Received: by 2002:a6b:2b0b:0:b0:65a:4c08:7063 with SMTP id r11-20020a6b2b0b000000b0065a4c087063mr6885026ior.92.1651635180562;
-        Tue, 03 May 2022 20:33:00 -0700 (PDT)
-Received: from google.com (194.225.68.34.bc.googleusercontent.com. [34.68.225.194])
-        by smtp.gmail.com with ESMTPSA id v18-20020a056e0213d200b002cbed258dcfsm3913760ilj.0.2022.05.03.20.32.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 20:32:59 -0700 (PDT)
-Date:   Wed, 4 May 2022 03:32:56 +0000
-From:   Oliver Upton <oupton@google.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvm@vger.kernel.org, kvmarm@lists.cs.columbia.edu,
-        linux-arm-kernel@lists.infradead.org, kernel@android.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: arm64: vgic-v3: Consistently populate
- ID_AA64PFR0_EL1.GIC
-Message-ID: <YnHz6Cw5ONR2e+KA@google.com>
-References: <20220503211424.3375263-1-maz@kernel.org>
+        with ESMTP id S1344197AbiEDEaB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 00:30:01 -0400
+Received: from gandalf.ozlabs.org (gandalf.ozlabs.org [150.107.74.76])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED39026572;
+        Tue,  3 May 2022 21:26:25 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4KtP0b5m2Pz4xXS;
+        Wed,  4 May 2022 14:26:23 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
+        s=201909; t=1651638383;
+        bh=SHPPJp31BCnVfYWr5+Sk/nt5ENYH5SkiNTeqxa7MWkY=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+        b=oS+qcGOuDQsWFo5a/KFL13iKvl/FHlFSIqRQKe87QF1I/wEAhS4BFyWU1iX+/MWV1
+         1XRjbEhK9RIFQt/ElLafy/ZRjoiDjT04awFIpDkCUW8PPrmvvR6HDpOdi0lhO51K29
+         D3clEdBXPs3Lzv3ZXmyTGqsn9b6zZuI7/Ugor4vJRONuRUh8xNPQYM0pDnWJ+xqLm8
+         zOHiQ41XsurZ3lZo5onLRtJZyvJRGDH5j7psEXFXaGEwhpnTk0g7qPYfiFg2L+TedW
+         SELKCGQxj5bluHY3tuQFqy+K6kHqCe8s1LAtTqw/HD3HL9xfQYXJy5bFilIXxT/E3N
+         lAw47u2nlVsnQ==
+From:   Michael Ellerman <mpe@ellerman.id.au>
+To:     Fabiano Rosas <farosas@linux.ibm.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>
+Cc:     linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
+In-Reply-To: <87levia8wy.fsf@linux.ibm.com>
+References: <20220401140634.65726-1-ldufour@linux.ibm.com>
+ <87r15aveny.fsf@mpe.ellerman.id.au> <87levia8wy.fsf@linux.ibm.com>
+Date:   Wed, 04 May 2022 14:26:17 +1000
+Message-ID: <87k0b1vs7q.fsf@mpe.ellerman.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220503211424.3375263-1-maz@kernel.org>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 03, 2022 at 10:14:24PM +0100, Marc Zyngier wrote:
-> When adding support for the slightly wonky Apple M1, we had to
-> populate ID_AA64PFR0_EL1.GIC==1 to present something to the guest,
-> as the HW itself doesn't advertise the feature.
-> 
-> However, we gated this on the in-kernel irqchip being created.
-> This causes some trouble for QEMU, which snapshots the state of
-> the registers before creating a virtual GIC, and then tries to
-> restore these registers once the GIC has been created.  Obviously,
-> between the two stages, ID_AA64PFR0_EL1.GIC has changed value,
-> and the write fails.
-> 
-> The fix is to actually emulate the HW, and always populate the
-> field if the HW is capable of it.
-> 
-> Fixes: 562e530fd770 ("KVM: arm64: Force ID_AA64PFR0_EL1.GIC=1 when exposing a virtual GICv3")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Reported-by: Peter Maydell <peter.maydell@linaro.org>
+Fabiano Rosas <farosas@linux.ibm.com> writes:
+> Michael Ellerman <mpe@ellerman.id.au> writes:
+>>> diff --git a/arch/powerpc/kernel/entry_64.S b/arch/powerpc/kernel/entry_64.S
+>>> index 9581906b5ee9..65cb14b56f8d 100644
+>>> --- a/arch/powerpc/kernel/entry_64.S
+>>> +++ b/arch/powerpc/kernel/entry_64.S
+>>> @@ -330,22 +330,18 @@ _GLOBAL(enter_rtas)
+>>>  	clrldi	r4,r4,2			/* convert to realmode address */
+>>>         	mtlr	r4
+>>>  
+>>> -	li	r0,0
+>>> -	ori	r0,r0,MSR_EE|MSR_SE|MSR_BE|MSR_RI
+>>> -	andc	r0,r6,r0
+>>> -	
+>>> -        li      r9,1
+>>> -        rldicr  r9,r9,MSR_SF_LG,(63-MSR_SF_LG)
+>>> -	ori	r9,r9,MSR_IR|MSR_DR|MSR_FE0|MSR_FE1|MSR_FP|MSR_RI|MSR_LE
+>>> -	andc	r6,r0,r9
+>>  
+>> One advantage of the old method is it can adapt to new MSR bits being
+>> set by the kernel.
+>>
+>> For example we used to use RTAS on powernv, and this code didn't need
+>> updating to cater to MSR_HV being set. We will probably never use RTAS
+>> on bare-metal again, so that's OK.
+>>
+>> But your change might break secure virtual machines, because it clears
+>> MSR_S whereas the old code didn't. I think SVMs did use RTAS, but I
+>> don't know whether it matters if it's called with MSR_S set or not?
+>>
+>> Not sure if anyone will remember, or has a working setup they can test.
+>> Maybe for now we just copy MSR_S from the kernel MSR the way the
+>> current code does.
+>
+> Would the kernel even be able to change the bit? I think only urfid can
+> clear MSR_S.
 
-Reviewed-by: Oliver Upton <oupton@google.com>
+Good point :)
+
+cheers
