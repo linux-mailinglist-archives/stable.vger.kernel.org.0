@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A18F751A8B0
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C97251A7D5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351597AbiEDRM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
+        id S1355030AbiEDRFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356944AbiEDRJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:50 -0400
+        with ESMTP id S1354998AbiEDRDs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:03:48 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5EF4739E;
-        Wed,  4 May 2022 09:56:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB7734D9E8;
+        Wed,  4 May 2022 09:52:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9676616B8;
-        Wed,  4 May 2022 16:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45116C385A5;
-        Wed,  4 May 2022 16:56:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8150961794;
+        Wed,  4 May 2022 16:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA75C385AA;
+        Wed,  4 May 2022 16:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683396;
-        bh=psSx/hJhNkKZta6oyg74GJXmr7g/fVmHB0hUjFTOrEs=;
+        s=korg; t=1651683139;
+        bh=Y0Bi39iTWz4cj+MRckiLDH8gQu2Z0CGTg8tiDnDMg9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRLt3g2pYlLuFxs2/LxC/W0ZWOaBUAQT6AqslWEcRcHDJwiBTzqU4JzXynLAwTP8e
-         m2G77Z90y45lOeku3EgTRz4hs7Cc0XjqJNhxHfxEyngfzhHeU/IAUCinkCKxfoWmrU
-         p5P7uSSi3cOYFU0QyFvro1orpOwOmOqVNXILwb5k=
+        b=DER4vhqKCqLjyjXHvOlC/b9x5qRYPIbjTH3xQhethf7F/+M2zHHp1fB8SsrGC8zdS
+         kxmsRjZcFjln8CyyXVrEFee4v2yaDFwNFduD5B6T34t/446dTAwUSbpgP8qsGJ+c42
+         2jutqw+T2w5KW9dPxBbp8wTDxnhxD6iu9o8AFe68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 081/225] phy: ti: omap-usb2: Fix error handling in omap_usb2_enable_clocks
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 127/129] tty: n_gsm: fix incorrect UA handling
 Date:   Wed,  4 May 2022 18:45:19 +0200
-Message-Id: <20220504153118.397717447@linuxfoundation.org>
+Message-Id: <20220504153031.655306116@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 3588060befff75ff39fab7122b94c6fb3148fcda ]
+commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare.
-Make sure that the clock is unprepared on exit by changing clk_disable
-to clk_disable_unprepare.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
+acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
+discarded. Currently, all UA frame are handled in the same way regardless
+of the PF bit. This does not comply with the standard.
+Remove the UA case in gsm_queue() to process only UA frames with PF bit set
+to 1 to abide the standard.
 
-Fixes: ed31ee7cf1fe ("phy: ti: usb2: Fix logic on -EPROBE_DEFER")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220318105748.19532-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/ti/phy-omap-usb2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/phy/ti/phy-omap-usb2.c b/drivers/phy/ti/phy-omap-usb2.c
-index 3a505fe5715a..31a775877f6e 100644
---- a/drivers/phy/ti/phy-omap-usb2.c
-+++ b/drivers/phy/ti/phy-omap-usb2.c
-@@ -215,7 +215,7 @@ static int omap_usb2_enable_clocks(struct omap_usb *phy)
- 	return 0;
- 
- err1:
--	clk_disable(phy->wkupclk);
-+	clk_disable_unprepare(phy->wkupclk);
- 
- err0:
- 	return ret;
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1817,7 +1817,6 @@ static void gsm_queue(struct gsm_mux *gs
+ 		gsm_response(gsm, address, UA);
+ 		gsm_dlci_close(dlci);
+ 		break;
+-	case UA:
+ 	case UA|PF:
+ 		if (cr == 0 || dlci == NULL)
+ 			break;
 
 
