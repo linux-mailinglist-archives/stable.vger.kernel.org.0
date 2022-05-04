@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4F351A989
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56D5251A9E5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352523AbiEDRRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:17:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
+        id S1357842AbiEDRUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356484AbiEDRNr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B14553A4C
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:04 -0700 (PDT)
+        with ESMTP id S1357221AbiEDROz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8CB5468A
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D584FB8278E
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 776BFC385B2;
-        Wed,  4 May 2022 16:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D18FD618AC
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19302C385A4;
+        Wed,  4 May 2022 16:58:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683482;
-        bh=QMlm+XKrgNssklGI1kRhG/3Xj9lrO8dQUWeFrK4o3jI=;
+        s=k20201202; t=1651683484;
+        bh=kWAwzPURj2XYfOmd1yFnRxRQncDV2MGmFePQPf5OKGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1X9jLeSPBGKSRm+Zn3r1tB4v/6hT48Qfo8RZ0jRp8c8FxRb3St6hm8EsgpcDcj20
-         cW/fF5PsNASopi2NkIszN6mLcwdRanC4EzRbrfHHZSXVXhBlhutHpZ4/hQg4saWH1C
-         tIl7tU1hYl8MnW2HzJ1ClTwmg0ooa9ayD09AC4WRKtmMazXd9dv7Hou5qqH9uPlg8e
-         yNLIKnahImKFBJjEmXAUkbwcnsNxVmiEOUvFC3UNsx2e8l5JXwZnldnnDDvsJbb2ox
-         cIIyuO1/3Dj4QYslDUrU8S01UGV0YqrCFQI/kEBlNDSj1etFraAyKfO5UAx2YQi1Sf
-         gz71j5zr8+mhg==
+        b=NpdCDXmBUkM0Cn0xKZWCTtxKAiDsdKVkQrAgBGiUmJ5CCgOGp7kYdKCX5f8Wx3Jcf
+         BcN9fiYztoGQ+WUIv/zbCTHx6fHTFifekKPdXVetTdl/dgIGSnS51Yf0ltPMuMQiy/
+         miUsXljQN7TZWEIGqR5D8eyVsma/1UB5UvJYJVdHKXPNsvOVf38NtwDo49CMAnHwFM
+         6bJdaISKUbn/lQZkHANbbJqpLYkaA69kFbZRISIdQQWwbeOUl/Zm3/1hjd4O3JUOIB
+         /9TxDKQnEBxkjYaLFP7fHnq9c9hNabx0+dvkmUFiSkg1YI3jGrk/KJXW7e5TZjCdzU
+         enLtIyZVKTRXA==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.15 02/30] PCI: pci-bridge-emul: Add definitions for missing capabilities registers
-Date:   Wed,  4 May 2022 18:57:27 +0200
-Message-Id: <20220504165755.30002-3-kabel@kernel.org>
+Subject: [PATCH 5.15 03/30] PCI: aardvark: Add support for DEVCAP2, DEVCTL2, LNKCAP2 and LNKCTL2 registers on emulated bridge
+Date:   Wed,  4 May 2022 18:57:28 +0200
+Message-Id: <20220504165755.30002-4-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165755.30002-1-kabel@kernel.org>
 References: <20220504165755.30002-1-kabel@kernel.org>
@@ -57,75 +57,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 8ea673a8b30b4a32516b8adabb15e2a68ff02ec8 upstream.
+commit 1d3e170344dff2cef8827db6c09909b78cbc11d7 upstream.
 
-pci-bridge-emul driver already allocates buffer for capabilities up to the
-PCI_EXP_SLTSTA2 register, but does not define bit access behavior for these
-registers. Add these missing definitions.
+PCI aardvark hardware supports access to DEVCAP2, DEVCTL2, LNKCAP2 and
+LNKCTL2 configuration registers of PCIe core via PCIE_CORE_PCIEXP_CAP.
+Export them via emulated software root bridge.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-3-kabel@kernel.org
+Link: https://lore.kernel.org/r/20211130172913.9727-4-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/pci-bridge-emul.c | 43 +++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ drivers/pci/controller/pci-aardvark.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pci/pci-bridge-emul.c b/drivers/pci/pci-bridge-emul.c
-index 0a4e71301537..c994ebec2360 100644
---- a/drivers/pci/pci-bridge-emul.c
-+++ b/drivers/pci/pci-bridge-emul.c
-@@ -270,6 +270,49 @@ struct pci_bridge_reg_behavior pcie_cap_regs_behavior[PCI_CAP_PCIE_SIZEOF / 4] =
- 		.ro = GENMASK(15, 0) | PCI_EXP_RTSTA_PENDING,
- 		.w1c = PCI_EXP_RTSTA_PME,
- 	},
-+
-+	[PCI_EXP_DEVCAP2 / 4] = {
-+		/*
-+		 * Device capabilities 2 register has reserved bits [30:27].
-+		 * Also bits [26:24] are reserved for non-upstream ports.
-+		 */
-+		.ro = BIT(31) | GENMASK(23, 0),
-+	},
-+
-+	[PCI_EXP_DEVCTL2 / 4] = {
-+		/*
-+		 * Device control 2 register is RW. Bit 11 is reserved for
-+		 * non-upstream ports.
-+		 *
-+		 * Device status 2 register is reserved.
-+		 */
-+		.rw = GENMASK(15, 12) | GENMASK(10, 0),
-+	},
-+
-+	[PCI_EXP_LNKCAP2 / 4] = {
-+		/* Link capabilities 2 register has reserved bits [30:25] and 0. */
-+		.ro = BIT(31) | GENMASK(24, 1),
-+	},
-+
-+	[PCI_EXP_LNKCTL2 / 4] = {
-+		/*
-+		 * Link control 2 register is RW.
-+		 *
-+		 * Link status 2 register has bits 5, 15 W1C;
-+		 * bits 10, 11 reserved and others are RO.
-+		 */
-+		.rw = GENMASK(15, 0),
-+		.w1c = (BIT(15) | BIT(5)) << 16,
-+		.ro = (GENMASK(14, 12) | GENMASK(9, 6) | GENMASK(4, 0)) << 16,
-+	},
-+
-+	[PCI_EXP_SLTCAP2 / 4] = {
-+		/* Slot capabilities 2 register is reserved. */
-+	},
-+
-+	[PCI_EXP_SLTCTL2 / 4] = {
-+		/* Both Slot control 2 and Slot status 2 registers are reserved. */
-+	},
- };
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index 6277b3f3031a..708734afc254 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -876,8 +876,13 @@ advk_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
  
- /*
+ 	case PCI_EXP_DEVCAP:
+ 	case PCI_EXP_DEVCTL:
++	case PCI_EXP_DEVCAP2:
++	case PCI_EXP_DEVCTL2:
++	case PCI_EXP_LNKCAP2:
++	case PCI_EXP_LNKCTL2:
+ 		*value = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
+ 		return PCI_BRIDGE_EMUL_HANDLED;
++
+ 	default:
+ 		return PCI_BRIDGE_EMUL_NOT_HANDLED;
+ 	}
+@@ -891,10 +896,6 @@ advk_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
+ 	struct advk_pcie *pcie = bridge->data;
+ 
+ 	switch (reg) {
+-	case PCI_EXP_DEVCTL:
+-		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
+-		break;
+-
+ 	case PCI_EXP_LNKCTL:
+ 		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
+ 		if (new & PCI_EXP_LNKCTL_RL)
+@@ -916,6 +917,12 @@ advk_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
+ 		advk_writel(pcie, new, PCIE_ISR0_REG);
+ 		break;
+ 
++	case PCI_EXP_DEVCTL:
++	case PCI_EXP_DEVCTL2:
++	case PCI_EXP_LNKCTL2:
++		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
++		break;
++
+ 	default:
+ 		break;
+ 	}
 -- 
 2.35.1
 
