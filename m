@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0250751A6D9
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:57:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A333451A5F0
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353838AbiEDRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38282 "EHLO
+        id S1353633AbiEDQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:51:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354584AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1C719039;
-        Wed,  4 May 2022 09:50:38 -0700 (PDT)
+        with ESMTP id S1353631AbiEDQvx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86592F3B4;
+        Wed,  4 May 2022 09:48:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9415B82554;
-        Wed,  4 May 2022 16:50:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 832A6C385A5;
-        Wed,  4 May 2022 16:50:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 529F36174C;
+        Wed,  4 May 2022 16:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2C3C385A4;
+        Wed,  4 May 2022 16:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683035;
-        bh=LN4KYRcCDF5ZUy/Iuw4eM2izh6Ti+dL1/kE1TDFqV5Y=;
+        s=korg; t=1651682895;
+        bh=EHjp78b+jP6LO64HOUaw59Cd7UestUx/qGjCreGcY4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CPssmFekfXRnQh/xKM8gfvcgvb4yKFHMmFSXwDu82unoVg7xfm60PO7+8fv8gs+dz
-         fbhnrerRSIbH2ezMmPtkUuBiFfnt4SV7rZh01GWM40a93jfzVR0WC04KtuBADX3ysR
-         0/chu7uqLyTTsQhbNVy1HEn8x3iZfXdZH1qNBNM4=
+        b=bKsBAZnlaLVFmfJPUhFGRYNNiksRz8Rgknn2bau6BFN/AlNMFcdjrXrnkRsGLphlf
+         /eSMcZdTK5FYJTaHm34v84gsihkYebTtJ6zlTvxjqPPoqHPrLoTooBoFLrjT0kh5Gl
+         lHWaVBg6Pxbg0rhh3Bjz0YtCnwgf55OfMTP0m9vA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Wang Qing <wangqing@vivo.com>
-Subject: [PATCH 5.10 031/129] arch_topology: Do not set llc_sibling if llc_id is invalid
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 02/84] hamradio: defer 6pack kfree after unregister_netdev
 Date:   Wed,  4 May 2022 18:43:43 +0200
-Message-Id: <20220504153023.778112812@linuxfoundation.org>
+Message-Id: <20220504152927.930466007@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
+commit 0b9111922b1f399aba6ed1e1b8f2079c3da1aed8 upstream.
 
-When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
-will set llc_sibling 0xff(...), this is misleading.
+There is a possible race condition (use-after-free) like below
 
-Don't set llc_sibling(default 0) if we don't know the cache topology.
+ (USE)                       |  (FREE)
+  dev_queue_xmit             |
+   __dev_queue_xmit          |
+    __dev_xmit_skb           |
+     sch_direct_xmit         | ...
+      xmit_one               |
+       netdev_start_xmit     | tty_ldisc_kill
+        __netdev_start_xmit  |  6pack_close
+         sp_xmit             |   kfree
+          sp_encaps          |
+                             |
 
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
+According to the patch "defer ax25 kfree after unregister_netdev", this
+patch reorder the kfree after the unregister_netdev to avoid the possible
+UAF as the unregister_netdev() is well synchronized and won't return if
+there is a running routine.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/arch_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/hamradio/6pack.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -515,7 +515,7 @@ void update_siblings_masks(unsigned int
- 	for_each_online_cpu(cpu) {
- 		cpu_topo = &cpu_topology[cpu];
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -679,9 +679,11 @@ static void sixpack_close(struct tty_str
+ 	del_timer_sync(&sp->tx_t);
+ 	del_timer_sync(&sp->resync_t);
  
--		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
-+		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
- 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
- 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
- 		}
+-	/* Free all 6pack frame buffers. */
++	/* Free all 6pack frame buffers after unreg. */
+ 	kfree(sp->rbuff);
+ 	kfree(sp->xbuff);
++
++	free_netdev(sp->dev);
+ }
+ 
+ /* Perform I/O control on an active 6pack channel. */
 
 
