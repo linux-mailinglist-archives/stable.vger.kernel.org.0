@@ -2,119 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2037351AAB1
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:29:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29FD651ACA5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 20:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357587AbiEDRb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:31:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34512 "EHLO
+        id S1354498AbiEDSZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 14:25:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358355AbiEDRaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:30:12 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A23A95A2F0;
-        Wed,  4 May 2022 10:03:19 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id m20so4063607ejj.10;
-        Wed, 04 May 2022 10:03:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XHhPMghoycQ7eZAcORj5/5ITHZkNT2/OH1GPvvsrfbQ=;
-        b=SqR7hHsK/RejCtFA8dwwMGr018xMpnEwTVqsiV1OYbcB7CXupjbHvoKgbg/XS3cM48
-         eRn7SF255AE4R9aFZ1TZyskUzN0tGBzef+NuVU3lq6n9LP+N26MW2elzZhT1xn5WA/Z2
-         JOBCA0yoFVNwZJ2fsfBU1+IJz+/64Yk2Lnb4zi+Hbt0ueXDvAtBIEj9aLzxwV/pDyVht
-         /DiAj4o9gUTbLwTj+fR5grv10T6aXHbOiVCWkNURcJMXeHGaaxJT+uKMZwu1rCEL9nB1
-         fn8iBwqTII2umXCBgpxJm8cX/0BnP+ffXKe+a8EBYqgTOrluF+tGriduCthmRw+ORgol
-         LAOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XHhPMghoycQ7eZAcORj5/5ITHZkNT2/OH1GPvvsrfbQ=;
-        b=A3az3PVv/pJfylb190646IewdeqhIXXSmaNl6qedmcYRo7eXhpn5mYhUTPPBiYzS8R
-         WHFGMkNhQtqGiZWl6z7DcWUOixYwA17mSNx3vRk6Oc67jvA5B3y0c5cPvQ77AKovAeha
-         f84BiB9f6JAer8rkas/eBg1tWHDTv8cmm43q4rCHIP2zmn8OGaDlRcKNf38f//vxNrAt
-         3ys8PnHxyZtqPzO8YhEjgnBIWyASDydj0pNOGHHZZ/DDC/fOckDTvCeVXQ8iENtJw1ck
-         OhElBzctHnKGZ38I6AxEHckFeTLI6fMU8L60dlEWLpPRpyA+B9FcEMI3/zEMNsDSluvz
-         L98A==
-X-Gm-Message-State: AOAM533murcH+ZVBtEgC2ETxkR9QikFZQCE+jPhZ9V4MMnaSeS0ILh4g
-        Lhe9T3909lLUaWrkOetWNNyUFUdBUjQFtoHA0f4=
-X-Google-Smtp-Source: ABdhPJyiH+Wiy/O6YKtXm4uAxJeiKTP6KgF0Vo2a0ftqHtuKiOruQ0+lsJyO5wgCdO9HKC9pOAWnN4nQ5NpbqPYsoOU=
-X-Received: by 2002:a17:906:a089:b0:6ef:e9e6:1368 with SMTP id
- q9-20020a170906a08900b006efe9e61368mr21038453ejy.626.1651683797349; Wed, 04
- May 2022 10:03:17 -0700 (PDT)
+        with ESMTP id S1376897AbiEDSZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 14:25:33 -0400
+Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E06F1A05D
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 10:50:33 -0700 (PDT)
+Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
+        by mail.itouring.de (Postfix) with ESMTPSA id 9A640124EC0;
+        Wed,  4 May 2022 19:50:31 +0200 (CEST)
+Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
+        by tux.applied-asynchrony.com (Postfix) with ESMTP id 54AA0F01600;
+        Wed,  4 May 2022 19:50:31 +0200 (CEST)
+Subject: Re: Crash on resume after suspend (5.17.5 and 5.15.36)
+To:     Jordan Leppert <jordanleppert@protonmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "labre@posteo.de" <labre@posteo.de>,
+        "davem@davemloft.net" <davem@davemloft.net>
+References: <refZ3y2HAXztrRkMMmFbBaF7Dz1CctWgjchSdBtcSNlpk-TL0fqLepVVHfw9qXtIQF9uFzBvFdjQiiX9Jv2zW9oaWej952s1IYwu61d1REo=@protonmail.com>
+ <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
+From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
+Organization: Applied Asynchrony, Inc.
+Message-ID: <0e53891e-418f-ce94-2204-060c35b32a2d@applied-asynchrony.com>
+Date:   Wed, 4 May 2022 19:50:31 +0200
 MIME-Version: 1.0
-References: <20220504143104.1286960-1-festevam@gmail.com>
-In-Reply-To: <20220504143104.1286960-1-festevam@gmail.com>
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Wed, 4 May 2022 14:03:08 -0300
-Message-ID: <CAOMZO5DU8XRCGaYOcGeHimgupqMksyLXsjL=R8JHajSBs4KAeg@mail.gmail.com>
-Subject: Re: [PATCH net v2 1/2] net: phy: micrel: Do not use
- kszphy_suspend/resume for KSZ8061
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        netdev <netdev@vger.kernel.org>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Fabio Estevam <festevam@denx.de>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrew,
+On 2022-05-04 17:07, Jordan Leppert wrote:
+> Hi,
+> 
+> A changed was added to both version 5.17.5 and 5.15.36 which causes my computer to freeze when resuming after a suspend. This happens every time I suspend and then resume.
+> 
+> I've bisected the change to commit: cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c (net: atlantic: invert deep par in pm functions, preventing null derefs)
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.17.y&id=cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c
+> 
+> My computer details that might be relevant:
+> OS: Arch Linux
+> CPU: AMD 5950X
+> GPU: AMD 6800XT
+> 
+> As expected I have an Aquantia ethernet controller listed in lspci:
+> 
+> 05:00.0 Ethernet controller: Aquantia Corp. AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion] (rev 02)
+> 
+> Please let me know if there is any more info I can give that will help.
+> 
+> Regards,
+> Jordan
+> 
 
-On Wed, May 4, 2022 at 11:31 AM Fabio Estevam <festevam@gmail.com> wrote:
->
-> From: Fabio Estevam <festevam@denx.de>
->
-> Since commit f1131b9c23fb ("net: phy: micrel: use
-> kszphy_suspend()/kszphy_resume for irq aware devices") the following
-> NULL pointer dereference is observed on a board with KSZ8061:
->
->  # udhcpc -i eth0
-> udhcpc: started, v1.35.0
-> 8<--- cut here ---
-> Unable to handle kernel NULL pointer dereference at virtual address 00000008
-> pgd = f73cef4e
-> [00000008] *pgd=00000000
-> Internal error: Oops: 5 [#1] SMP ARM
-> Modules linked in:
-> CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
-> Hardware name: Freescale i.MX6 SoloX (Device Tree)
-> PC is at kszphy_config_reset+0x10/0x114
-> LR is at kszphy_resume+0x24/0x64
-> ...
->
-> The KSZ8061 phy_driver structure does not have the .probe/..driver_data
-> fields, which means that priv is not allocated.
->
-> This causes the NULL pointer dereference inside kszphy_config_reset().
->
-> Fix the problem by using the generic suspend/resume functions as before.
->
-> Another alternative would be to provide the .probe and .driver_data
-> information into the structure, but to be on the safe side, let's
-> just restore Ethernet functionality by using the generic suspend/resume.
->
-> Cc: stable@vger.kernel.org
-> Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
-> Signed-off-by: Fabio Estevam <festevam@denx.de>
-> ---
-> Changes since v1:
-> - Explained why enphy_suspend/resume solution is preferred (Andrew).
+Just a quick note that I have the same issue (same card model); since recently
+(5.15.36) the hang after resume is 100% reliable. IIRC it used to be hit-and-miss
+before that. I'm currently building .38 with the mentioned commit reverted and
+will report back. Thanks for bringing this up.
 
-If this series gets applied, I plan to submit two patches targeting net-next to:
-
-1. Allow .probe to be called without .data_driver being passed
-2. Convert KSZ8061 to use .probe and kszphy_suspend/resume
+-h
