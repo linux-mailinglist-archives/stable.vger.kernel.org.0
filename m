@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0C8D51A863
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91AD651A981
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355920AbiEDRKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
+        id S1353753AbiEDRRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356411AbiEDRJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC5C3527E1;
-        Wed,  4 May 2022 09:55:05 -0700 (PDT)
+        with ESMTP id S1356256AbiEDRNk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72804B848;
+        Wed,  4 May 2022 09:57:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66861B8278E;
-        Wed,  4 May 2022 16:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B0B2C385A5;
-        Wed,  4 May 2022 16:55:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 761F4616AC;
+        Wed,  4 May 2022 16:57:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF36C385AF;
+        Wed,  4 May 2022 16:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683303;
-        bh=7fgymN/1pIGsyJtMpwE+5+9FXwZ5z4P08NGmcaC4cGI=;
+        s=korg; t=1651683461;
+        bh=twrLPXQvI09GptGJkdEq4Vl9zrLT/UgjaNtt1MPj0/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUCJ5DtZfSrYQj23VLUHYpu1zHTlkJI7Sj2+YuN5nfarlSeg4Twq6oJx9RoXsIJCO
-         mRp0Ic58o2Wzkm09UdD+i7EWgVm1T9C4d7TIBzZs4AqvEuYItUj+lSMjI9ccLRKsWo
-         oKmBPiE+D/Qn5z90AYvj9E4p2ojzqw7xYpfcqT6w=
+        b=Ogn8O/bBO4SJxyfceGlXVw0lYRsiahe+Y5wRHeIqZgLWZa/pIxIDQB9DFxUu9jBMI
+         IViDpi4nCUlLkcmGKMtkX9Geb6gqRFNFQyroZKeo9i8I0xnzril/F76tnOapvyTPLU
+         sOVXaQjnBQXxL0NcBUXB/ziDVyhFxRRGszFQ2yNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 168/177] tty: n_gsm: fix wrong signal octets encoding in MSC
+        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+        Peilin Ye <peilin.ye@bytedance.com>,
+        William Tu <u9012063@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 123/225] ip_gre, ip6_gre: Fix race condition on o_seqno in collect_md mode
 Date:   Wed,  4 May 2022 18:46:01 +0200
-Message-Id: <20220504153108.599900560@linuxfoundation.org>
+Message-Id: <20220504153121.418030414@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,82 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-commit 317f86af7f5d19f286ed2d181cbaef4a188c7f19 upstream.
+[ Upstream commit 31c417c948d7f6909cb63f0ac3298f3c38f8ce20 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. The value of the modem status command (MSC) frame
-contains an address field, control signal and optional break signal octet.
-The address field is encoded as described in chapter 5.2.1.2 with only one
-octet (may be extended to more in future versions of the standard). Whereas
-the control signal and break signal octet are always one byte each. This is
-strange at first glance as it makes the EA bit redundant. However, the same
-two octets are also encoded as header in convergence layer type 2 as
-described in chapter 5.5.2. No header length field is given and the only
-way to test if there is an optional break signal octet is via the EA flag
-which extends the control signal octet with a break signal octet. Now it
-becomes obvious how the EA bit for those two octets shall be encoded in the
-MSC frame. The current implementation treats the signal octet different for
-MSC frame and convergence layer type 2 header even though the standard
-describes it for both in the same way.
-Use the EA bit to encode the signal octets not only in the convergence
-layer type 2 header but also in the MSC frame in the same way with either
-1 or 2 bytes in case of an optional break signal. Adjust the receiving path
-accordingly in gsm_control_modem().
+As pointed out by Jakub Kicinski, currently using TUNNEL_SEQ in
+collect_md mode is racy for [IP6]GRE[TAP] devices.  Consider the
+following sequence of events:
 
-Fixes: 3ac06b905655 ("tty: n_gsm: Fix for modems with brk in modem status control")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-13-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+1. An [IP6]GRE[TAP] device is created in collect_md mode using "ip link
+   add ... external".  "ip" ignores "[o]seq" if "external" is specified,
+   so TUNNEL_SEQ is off, and the device is marked as NETIF_F_LLTX (i.e.
+   it uses lockless TX);
+2. Someone sets TUNNEL_SEQ on outgoing skb's, using e.g.
+   bpf_skb_set_tunnel_key() in an eBPF program attached to this device;
+3. gre_fb_xmit() or __gre6_xmit() processes these skb's:
+
+	gre_build_header(skb, tun_hlen,
+			 flags, protocol,
+			 tunnel_id_to_key32(tun_info->key.tun_id),
+			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
+					      : 0);   ^^^^^^^^^^^^^^^^^
+
+Since we are not using the TX lock (&txq->_xmit_lock), multiple CPUs may
+try to do this tunnel->o_seqno++ in parallel, which is racy.  Fix it by
+making o_seqno atomic_t.
+
+As mentioned by Eric Dumazet in commit b790e01aee74 ("ip_gre: lockless
+xmit"), making o_seqno atomic_t increases "chance for packets being out
+of order at receiver" when NETIF_F_LLTX is on.
+
+Maybe a better fix would be:
+
+1. Do not ignore "oseq" in external mode.  Users MUST specify "oseq" if
+   they want the kernel to allow sequencing of outgoing packets;
+2. Reject all outgoing TUNNEL_SEQ packets if the device was not created
+   with "oseq".
+
+Unfortunately, that would break userspace.
+
+We could now make [IP6]GRE[TAP] devices always NETIF_F_LLTX, but let us
+do it in separate patches to keep this fix minimal.
+
+Suggested-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 77a5196a804e ("gre: add sequence number for collect md mode.")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: William Tu <u9012063@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |   18 +++++-------------
- 1 file changed, 5 insertions(+), 13 deletions(-)
+ include/net/ip6_tunnel.h | 2 +-
+ include/net/ip_tunnels.h | 2 +-
+ net/ipv4/ip_gre.c        | 6 +++---
+ net/ipv6/ip6_gre.c       | 7 ++++---
+ 4 files changed, 9 insertions(+), 8 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1083,7 +1083,6 @@ static void gsm_control_modem(struct gsm
- {
- 	unsigned int addr = 0;
- 	unsigned int modem = 0;
--	unsigned int brk = 0;
- 	struct gsm_dlci *dlci;
- 	int len = clen;
- 	int slen;
-@@ -1113,17 +1112,8 @@ static void gsm_control_modem(struct gsm
- 			return;
- 	}
- 	len--;
--	if (len > 0) {
--		while (gsm_read_ea(&brk, *dp++) == 0) {
--			len--;
--			if (len == 0)
--				return;
--		}
--		modem <<= 7;
--		modem |= (brk & 0x7f);
--	}
- 	tty = tty_port_tty_get(&dlci->port);
--	gsm_process_modem(tty, dlci, modem, slen);
-+	gsm_process_modem(tty, dlci, modem, slen - len);
- 	if (tty) {
- 		tty_wakeup(tty);
- 		tty_kref_put(tty);
-@@ -2895,8 +2885,10 @@ static int gsmtty_modem_update(struct gs
- 	int len = 2;
+diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
+index a38c4f1e4e5c..74b369bddf49 100644
+--- a/include/net/ip6_tunnel.h
++++ b/include/net/ip6_tunnel.h
+@@ -58,7 +58,7 @@ struct ip6_tnl {
  
- 	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
--	modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
--	if (brk) {
-+	if (!brk) {
-+		modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
-+	} else {
-+		modembits[1] = gsm_encode_modem(dlci) << 1;
- 		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
- 		len++;
+ 	/* These fields used only by GRE */
+ 	__u32 i_seqno;	/* The last seen seqno	*/
+-	__u32 o_seqno;	/* The last output seqno */
++	atomic_t o_seqno;	/* The last output seqno */
+ 	int hlen;       /* tun_hlen + encap_hlen */
+ 	int tun_hlen;	/* Precalculated header length */
+ 	int encap_hlen; /* Encap header length (FOU,GUE) */
+diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
+index 0219fe907b26..3ec6146f8734 100644
+--- a/include/net/ip_tunnels.h
++++ b/include/net/ip_tunnels.h
+@@ -116,7 +116,7 @@ struct ip_tunnel {
+ 
+ 	/* These four fields used only by GRE */
+ 	u32		i_seqno;	/* The last seen seqno	*/
+-	u32		o_seqno;	/* The last output seqno */
++	atomic_t	o_seqno;	/* The last output seqno */
+ 	int		tun_hlen;	/* Precalculated header length */
+ 
+ 	/* These four fields used only by ERSPAN */
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index ca70b92e80d9..8cf86e42c1d1 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -464,7 +464,7 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	/* Push GRE header. */
+ 	gre_build_header(skb, tunnel->tun_hlen,
+ 			 flags, proto, tunnel->parms.o_key,
+-			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
++			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
+ 
+ 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
+ }
+@@ -502,7 +502,7 @@ static void gre_fb_xmit(struct sk_buff *skb, struct net_device *dev,
+ 		(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
+ 	gre_build_header(skb, tunnel_hlen, flags, proto,
+ 			 tunnel_id_to_key32(tun_info->key.tun_id),
+-			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
++			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
+ 
+ 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
+ 
+@@ -579,7 +579,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
  	}
+ 
+ 	gre_build_header(skb, 8, TUNNEL_SEQ,
+-			 proto, 0, htonl(tunnel->o_seqno++));
++			 proto, 0, htonl(atomic_fetch_inc(&tunnel->o_seqno)));
+ 
+ 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
+ 
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index d9e4ac94eab4..5136959b3dc5 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -766,7 +766,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 		gre_build_header(skb, tun_hlen,
+ 				 flags, protocol,
+ 				 tunnel_id_to_key32(tun_info->key.tun_id),
+-				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
++				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
+ 						      : 0);
+ 
+ 	} else {
+@@ -777,7 +777,8 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 
+ 		gre_build_header(skb, tunnel->tun_hlen, flags,
+ 				 protocol, tunnel->parms.o_key,
+-				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
++				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
++						      : 0);
+ 	}
+ 
+ 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
+@@ -1055,7 +1056,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
+ 	/* Push GRE header. */
+ 	proto = (t->parms.erspan_ver == 1) ? htons(ETH_P_ERSPAN)
+ 					   : htons(ETH_P_ERSPAN2);
+-	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(t->o_seqno++));
++	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(atomic_fetch_inc(&t->o_seqno)));
+ 
+ 	/* TooBig packet may have updated dst->dev's mtu */
+ 	if (!t->parms.collect_md && dst && dst_mtu(dst) > dst->dev->mtu)
+-- 
+2.35.1
+
 
 
