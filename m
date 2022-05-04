@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A333451A5F0
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D786351A7E4
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353633AbiEDQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:51:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
+        id S232463AbiEDRFh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353631AbiEDQvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:53 -0400
+        with ESMTP id S1355444AbiEDRE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B86592F3B4;
-        Wed,  4 May 2022 09:48:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9B54EA23;
+        Wed,  4 May 2022 09:53:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 529F36174C;
-        Wed,  4 May 2022 16:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2C3C385A4;
-        Wed,  4 May 2022 16:48:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 940B3617DE;
+        Wed,  4 May 2022 16:53:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1A6CC385A4;
+        Wed,  4 May 2022 16:52:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682895;
-        bh=EHjp78b+jP6LO64HOUaw59Cd7UestUx/qGjCreGcY4I=;
+        s=korg; t=1651683180;
+        bh=RxD54wOIf+gtesh7VHfBEjiXkcaf7g6pr7I4+AwcUM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bKsBAZnlaLVFmfJPUhFGRYNNiksRz8Rgknn2bau6BFN/AlNMFcdjrXrnkRsGLphlf
-         /eSMcZdTK5FYJTaHm34v84gsihkYebTtJ6zlTvxjqPPoqHPrLoTooBoFLrjT0kh5Gl
-         lHWaVBg6Pxbg0rhh3Bjz0YtCnwgf55OfMTP0m9vA=
+        b=I6nlNeODBqhzd3ClvX6epppH5w1bJRUuwozvWubRaaPse6vTYd3y4xaEjWFCqf7Ax
+         Q5u/kHw1z1HVXjg4go7dj6PQVnvR/MB87CAEgB9Ty9bbpDgtazB6sD1S1yw1tPc9/T
+         ly23VCySTQ98NVmKwxqEGTzkkFFZeFWgOiL53+mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 02/84] hamradio: defer 6pack kfree after unregister_netdev
-Date:   Wed,  4 May 2022 18:43:43 +0200
-Message-Id: <20220504152927.930466007@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.15 031/177] serial: 8250: Also set sticky MCR bits in console restoration
+Date:   Wed,  4 May 2022 18:43:44 +0200
+Message-Id: <20220504153055.785959388@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 0b9111922b1f399aba6ed1e1b8f2079c3da1aed8 upstream.
+commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
 
-There is a possible race condition (use-after-free) like below
+Sticky MCR bits are lost in console restoration if console suspending
+has been disabled.  This currently affects the AFE bit, which works in
+combination with RTS which we set, so we want to make sure the UART
+retains control of its FIFO where previously requested.  Also specific
+drivers may need other bits in the future.
 
- (USE)                       |  (FREE)
-  dev_queue_xmit             |
-   __dev_queue_xmit          |
-    __dev_xmit_skb           |
-     sch_direct_xmit         | ...
-      xmit_one               |
-       netdev_start_xmit     | tty_ldisc_kill
-        __netdev_start_xmit  |  6pack_close
-         sp_xmit             |   kfree
-          sp_encaps          |
-                             |
-
-According to the patch "defer ax25 kfree after unregister_netdev", this
-patch reorder the kfree after the unregister_netdev to avoid the possible
-UAF as the unregister_netdev() is well synchronized and won't return if
-there is a running routine.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Cc: stable@vger.kernel.org # v4.0+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/6pack.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_port.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -679,9 +679,11 @@ static void sixpack_close(struct tty_str
- 	del_timer_sync(&sp->tx_t);
- 	del_timer_sync(&sp->resync_t);
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3340,7 +3340,7 @@ static void serial8250_console_restore(s
  
--	/* Free all 6pack frame buffers. */
-+	/* Free all 6pack frame buffers after unreg. */
- 	kfree(sp->rbuff);
- 	kfree(sp->xbuff);
-+
-+	free_netdev(sp->dev);
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+-	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
++	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
  }
  
- /* Perform I/O control on an active 6pack channel. */
+ /*
 
 
