@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 710ED51AA37
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 581B251AA25
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356968AbiEDRWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
+        id S1356660AbiEDRVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357315AbiEDRO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F25546BF
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:27 -0700 (PDT)
+        with ESMTP id S1357562AbiEDRPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C065520A
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9995B827AB
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6255FC385A4;
-        Wed,  4 May 2022 16:58:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 720BCB827A6
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03E4BC385B1;
+        Wed,  4 May 2022 16:58:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683495;
-        bh=vEFTJ4KiSUnrW3Wao7CHJ7hn1a2w3DGOihGNYeCKfb8=;
+        s=k20201202; t=1651683497;
+        bh=gsEZEd7giI+LOqW8G4A/YdRs0EkIF3FQhEY2WEZh+KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U3mGJJdrJO6rBM3v0BTZfnGLj78R6WHVxZ1vfFwRwyAkHGOf0w3/7qhOSFAIUJVzi
-         10SwQOCSe8+nmo4vFWuF+tbwTYkDiFClgo2vbcq8gAL+j5AOB16iyHBGJLegp+Pl3c
-         CEVHakH618B9YyiDMm9TIe3KKnPGOSqlRVs1X+A51LUPp5KacqOlX2Qq5fKu94Sb2V
-         jEyOSFcS8MJEOosPOzjtr0wK+feS94TMcxpZG9sK+TX2h7MZq5ZaE8nXidwnq0XGdZ
-         yYUFDv+Ja+aPrO5EzsrF4mEkCoNoIx7hE0fTWf8diknN75BsHLQvzutmhxJyLFNBtT
-         GI+9LzYsmCAGg==
+        b=jenRXMichO5huic1PJfD6w0K9Wgwu3QWyDCXCHbjkZa/VEUeesWoeXcf+076RMBI6
+         gKGPkfQl0tQpyD54BfsK8UTatQQuLh0cGaj2RnRW2peCEqYu+rVe6mlI5gyKWp6Ca9
+         65q20wK5HEF+oW3AG2+4TBzm+khblREbQaRlqsPnt5lcnl6IOfYHtmcju90oKGjOCg
+         2SxPVhcQNIQvJD50lyop9Kci0+47BYt3YKhuY4LrkcEg4LYFdXBcCXn9cy4JGiAFef
+         i8j7gTpZypwIcTPdHAe0Iovgk+BWJBY9ns6dRNUmD6V6eDVQYKHTjOKSS5H+YZVmAS
+         R+T87143pPKaw==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.15 10/30] PCI: aardvark: Disable link training when unbinding driver
-Date:   Wed,  4 May 2022 18:57:35 +0200
-Message-Id: <20220504165755.30002-11-kabel@kernel.org>
+Subject: [PATCH 5.15 11/30] PCI: aardvark: Disable common PHY when unbinding driver
+Date:   Wed,  4 May 2022 18:57:36 +0200
+Message-Id: <20220504165755.30002-12-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165755.30002-1-kabel@kernel.org>
 References: <20220504165755.30002-1-kabel@kernel.org>
@@ -57,37 +57,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 759dec2e3dfdbd261c41d2279f04f2351c971a49 upstream.
+commit fdbbe242c15a8f2cd0e3ad8a56cd0a447b771d0d upstream.
 
-Disable link training circuit in driver unbind sequence. We want to
-leave link training in the same state as it was before the driver was
-probed.
+Disable the PCIe PHY when unbinding driver. This should save some power.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-11-kabel@kernel.org
+Link: https://lore.kernel.org/r/20211130172913.9727-12-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pci/controller/pci-aardvark.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 78bc57d57926..3f6919564434 100644
+index 3f6919564434..ae0219ae730a 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1725,6 +1725,11 @@ static int advk_pcie_remove(struct platform_device *pdev)
- 	if (pcie->reset_gpio)
- 		gpiod_set_value_cansleep(pcie->reset_gpio, 1);
- 
-+	/* Disable link training */
-+	val = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	val &= ~LINK_TRAINING_EN;
-+	advk_writel(pcie, val, PCIE_CORE_CTRL0_REG);
-+
- 	/* Disable outbound address windows mapping */
+@@ -1734,6 +1734,9 @@ static int advk_pcie_remove(struct platform_device *pdev)
  	for (i = 0; i < OB_WIN_COUNT; i++)
  		advk_pcie_disable_ob_win(pcie, i);
+ 
++	/* Disable phy */
++	advk_pcie_disable_phy(pcie);
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
