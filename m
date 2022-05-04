@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC14951A72B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4EDB51A7EC
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238498AbiEDRCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
+        id S1354614AbiEDRHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354578AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BBA18E23;
-        Wed,  4 May 2022 09:50:35 -0700 (PDT)
+        with ESMTP id S1355146AbiEDREK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C80E4E398;
+        Wed,  4 May 2022 09:52:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E911CB8279F;
-        Wed,  4 May 2022 16:50:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D300C385AA;
-        Wed,  4 May 2022 16:50:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AA8861866;
+        Wed,  4 May 2022 16:52:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656B4C385A4;
+        Wed,  4 May 2022 16:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683032;
-        bh=VGWrJMBsSJWCvY6Eyia1YHHjBx1J6WcAmycKjTLapLU=;
+        s=korg; t=1651683158;
+        bh=i7xwsbu5TwVV7LEcO/fxEVPFFz50UckmDWfEvZRy3mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h0DSob0j8pvFza690DqTFXDE5rt7XdGWt5O1SfzKIW/EK1V3Jz4lFcwd/T8uQ80Xl
-         H2howAacZk7jrrON+owjGrPWaWujnU+4ktCxylG2vRgwDjGrXWOSTlwIgC+1tI1hM3
-         7geymiR0aZBHrRhoe2kYtX5wVvtE+xYls/B7HIpA=
+        b=PSW6ZVtI+IVVO5Srz0WwCWJX40WO7P0dlQgdxtT4/gF1YmvwMCSg/lq730tSXWxUU
+         ay3n+/JVr7EsnHjGZ+z+UNZBwUSgDUTPr03XJAUH9Rt8wYUgRwS6tV+FRMzOUfESRU
+         P5JXnN8ezFDKRWS9biZ3lcM2u4W8jpzkY8AsHCuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.10 023/129] usb: dwc3: core: Fix tx/rx threshold settings
-Date:   Wed,  4 May 2022 18:43:35 +0200
-Message-Id: <20220504153023.099065718@linuxfoundation.org>
+Subject: [PATCH 5.15 023/177] usb: dwc3: core: Fix tx/rx threshold settings
+Date:   Wed,  4 May 2022 18:43:36 +0200
+Message-Id: <20220504153055.283856732@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -72,7 +72,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/dwc3/core.c
 +++ b/drivers/usb/dwc3/core.c
-@@ -1277,10 +1277,10 @@ static void dwc3_get_properties(struct d
+@@ -1268,10 +1268,10 @@ static void dwc3_get_properties(struct d
  	u8			lpm_nyet_threshold;
  	u8			tx_de_emphasis;
  	u8			hird_threshold;
@@ -84,8 +84,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	u8			rx_max_burst_prd = 0;
 +	u8			tx_thr_num_pkt_prd = 0;
 +	u8			tx_max_burst_prd = 0;
- 
- 	/* default to highest possible threshold */
- 	lpm_nyet_threshold = 0xf;
+ 	u8			tx_fifo_resize_max_num;
+ 	const char		*usb_psy_name;
+ 	int			ret;
 
 
