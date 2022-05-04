@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C963351A860
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D872B51A8D0
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355877AbiEDRKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
+        id S1355474AbiEDRRb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356385AbiEDRJM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F6D4A3C5;
-        Wed,  4 May 2022 09:55:05 -0700 (PDT)
+        with ESMTP id S1356217AbiEDRMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:12:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C1F4BB9F;
+        Wed,  4 May 2022 09:57:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD784618A8;
-        Wed,  4 May 2022 16:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18204C385A4;
-        Wed,  4 May 2022 16:55:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 279A1B8279C;
+        Wed,  4 May 2022 16:57:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9707C385A5;
+        Wed,  4 May 2022 16:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683304;
-        bh=Hkp8DQehoNPd3+uQxjKYuRBfz4VL9KbFU2WrwH6PcyU=;
+        s=korg; t=1651683463;
+        bh=Q2C5inpbwXkip8RIc27d3PPInrJu334OGMsTnrhAdOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlhrGh7tQEFZgIapDeruJSzynthwjN2cnbBd+/7Eky/mAkQvw2jzPCsmqv1x7U4ud
-         9auPz1G22M+y7MVdA0D0+yOWz8+FEQIMahU6Sv218KJ66Dmm+kx+x5zTkI1WSgXO0N
-         kaSSZRePaIgSs2m5K3VHii4STU1tFmw4uACU/D54=
+        b=RLpgb2M6oo70BGPf6BxFDj2IYLz20rEHjbY4Nqy+T7A/xw1u5UalnQKmyz9GM7Pz5
+         vDQv5qZyygszRQmAkyJYAklAwPo0cnJaHlV2toMkuQC2iVjjOFBIPzcIqljL2UjAmy
+         dxXpwZaNWSNM1wJG2p1sz5f69pnleNksZyW3ZWgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 169/177] tty: n_gsm: fix missing tty wakeup in convergence layer type 2
-Date:   Wed,  4 May 2022 18:46:02 +0200
-Message-Id: <20220504153108.699326364@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Francesco Ruggeri <fruggeri@arista.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 125/225] tcp: make sure treq->af_specific is initialized
+Date:   Wed,  4 May 2022 18:46:03 +0200
+Message-Id: <20220504153121.569182104@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 1adf6fee58ca25fb6720b8d34c919dcf5425cc9c upstream.
+[ Upstream commit ba5a4fdd63ae0c575707030db0b634b160baddd7 ]
 
-gsm_control_modem() informs the virtual tty that more data can be written
-after receiving a control signal octet via modem status command (MSC).
-However, gsm_dlci_data() fails to do the same after receiving a control
-signal octet from the convergence layer type 2 header.
-Add tty_wakeup() in gsm_dlci_data() for convergence layer type 2 to fix
-this.
+syzbot complained about a recent change in TCP stack,
+hitting a NULL pointer [1]
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-14-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+tcp request sockets have an af_specific pointer, which
+was used before the blamed change only for SYNACK generation
+in non SYNCOOKIE mode.
+
+tcp requests sockets momentarily created when third packet
+coming from client in SYNCOOKIE mode were not using
+treq->af_specific.
+
+Make sure this field is populated, in the same way normal
+TCP requests sockets do in tcp_conn_request().
+
+[1]
+TCP: request_sock_TCPv6: Possible SYN flooding on port 20002. Sending cookies.  Check SNMP counters.
+general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 1 PID: 3695 Comm: syz-executor864 Not tainted 5.18.0-rc3-syzkaller-00224-g5fd1fe4807f9 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:tcp_create_openreq_child+0xe16/0x16b0 net/ipv4/tcp_minisocks.c:534
+Code: 48 c1 ea 03 80 3c 02 00 0f 85 e5 07 00 00 4c 8b b3 28 01 00 00 48 b8 00 00 00 00 00 fc ff df 49 8d 7e 08 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 c9 07 00 00 48 8b 3c 24 48 89 de 41 ff 56 08 48
+RSP: 0018:ffffc90000de0588 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888076490330 RCX: 0000000000000100
+RDX: 0000000000000001 RSI: ffffffff87d67ff0 RDI: 0000000000000008
+RBP: ffff88806ee1c7f8 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff87d67f00 R11: 0000000000000000 R12: ffff88806ee1bfc0
+R13: ffff88801b0e0368 R14: 0000000000000000 R15: 0000000000000000
+FS:  00007f517fe58700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffcead76960 CR3: 000000006f97b000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ tcp_v6_syn_recv_sock+0x199/0x23b0 net/ipv6/tcp_ipv6.c:1267
+ tcp_get_cookie_sock+0xc9/0x850 net/ipv4/syncookies.c:207
+ cookie_v6_check+0x15c3/0x2340 net/ipv6/syncookies.c:258
+ tcp_v6_cookie_check net/ipv6/tcp_ipv6.c:1131 [inline]
+ tcp_v6_do_rcv+0x1148/0x13b0 net/ipv6/tcp_ipv6.c:1486
+ tcp_v6_rcv+0x3305/0x3840 net/ipv6/tcp_ipv6.c:1725
+ ip6_protocol_deliver_rcu+0x2e9/0x1900 net/ipv6/ip6_input.c:422
+ ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:464
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:473
+ dst_input include/net/dst.h:461 [inline]
+ ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ipv6_rcv+0x27f/0x3b0 net/ipv6/ip6_input.c:297
+ __netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5405
+ __netif_receive_skb+0x24/0x1b0 net/core/dev.c:5519
+ process_backlog+0x3a0/0x7c0 net/core/dev.c:5847
+ __napi_poll+0xb3/0x6e0 net/core/dev.c:6413
+ napi_poll net/core/dev.c:6480 [inline]
+ net_rx_action+0x8ec/0xc60 net/core/dev.c:6567
+ __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+ invoke_softirq kernel/softirq.c:432 [inline]
+ __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
+ sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1097
+
+Fixes: 5b0b9e4c2c89 ("tcp: md5: incorrect tcp_header_len for incoming connections")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Francesco Ruggeri <fruggeri@arista.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/net/tcp.h     | 1 +
+ net/ipv4/syncookies.c | 8 +++++++-
+ net/ipv6/syncookies.c | 3 ++-
+ 3 files changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1586,6 +1586,7 @@ static void gsm_dlci_data(struct gsm_dlc
- 		tty = tty_port_tty_get(port);
- 		if (tty) {
- 			gsm_process_modem(tty, dlci, modem, slen);
-+			tty_wakeup(tty);
- 			tty_kref_put(tty);
- 		}
- 		fallthrough;
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 40c05972178b..a3fe2f9bc01c 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -480,6 +480,7 @@ int __cookie_v4_check(const struct iphdr *iph, const struct tcphdr *th,
+ 		      u32 cookie);
+ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb);
+ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
++					    const struct tcp_request_sock_ops *af_ops,
+ 					    struct sock *sk, struct sk_buff *skb);
+ #ifdef CONFIG_SYN_COOKIES
+ 
+diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
+index 2cb3b852d148..f33c31dd7366 100644
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -281,6 +281,7 @@ bool cookie_ecn_ok(const struct tcp_options_received *tcp_opt,
+ EXPORT_SYMBOL(cookie_ecn_ok);
+ 
+ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
++					    const struct tcp_request_sock_ops *af_ops,
+ 					    struct sock *sk,
+ 					    struct sk_buff *skb)
+ {
+@@ -297,6 +298,10 @@ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
+ 		return NULL;
+ 
+ 	treq = tcp_rsk(req);
++
++	/* treq->af_specific might be used to perform TCP_MD5 lookup */
++	treq->af_specific = af_ops;
++
+ 	treq->syn_tos = TCP_SKB_CB(skb)->ip_dsfield;
+ #if IS_ENABLED(CONFIG_MPTCP)
+ 	treq->is_mptcp = sk_is_mptcp(sk);
+@@ -364,7 +369,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 
+ 	ret = NULL;
+-	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops, sk, skb);
++	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops,
++				     &tcp_request_sock_ipv4_ops, sk, skb);
+ 	if (!req)
+ 		goto out;
+ 
+diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
+index d1b61d00368e..9cc123f000fb 100644
+--- a/net/ipv6/syncookies.c
++++ b/net/ipv6/syncookies.c
+@@ -170,7 +170,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 
+ 	ret = NULL;
+-	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops, sk, skb);
++	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops,
++				     &tcp_request_sock_ipv6_ops, sk, skb);
+ 	if (!req)
+ 		goto out;
+ 
+-- 
+2.35.1
+
 
 
