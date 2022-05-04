@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 486A251A707
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F5B551A910
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354684AbiEDRBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38250 "EHLO
+        id S1355407AbiEDRLf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355641AbiEDRAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:19 -0400
+        with ESMTP id S1356973AbiEDRJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5E644BB96;
-        Wed,  4 May 2022 09:51:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD6BB47542;
+        Wed,  4 May 2022 09:56:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A228D617A6;
-        Wed,  4 May 2022 16:51:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2F17C385A4;
-        Wed,  4 May 2022 16:51:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 47ED461808;
+        Wed,  4 May 2022 16:56:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87E60C385AA;
+        Wed,  4 May 2022 16:56:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683118;
-        bh=bk8oiHo7fAjLCDCB+GgK+zQPJnwtXBeitJ/3OLXIcW4=;
+        s=korg; t=1651683405;
+        bh=TWdPe4Xc82lbZV5izywkdR/TuTC561cxN6pB2TDCNhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLFPcbfLakokdhPhOs2vV855XKojdSES34R3eUiYJf6DGsUeaVprX4uHutIntmmCf
-         oXc2vMrTy4vsDxFd3OMkf+TJW8HTFEc5PMyF2mh0Zn7e7js95bz1K19MfQPenazrCi
-         rquMDkZ0QATMjx8AW+B0JvjUm5rXzsHBrlSxntao=
+        b=qJ2KTlvWGPo1pWO+at1BCtOSt37M0zGxx+gDXQLjeXEKhVoO0/LKTeBwC0tooWi3P
+         NIxz8cUJFjEE+KkOKWzJvz4iFUD9dlt61eKm92SHaVPaq56uBdPXNDg7/ggSFw1NMm
+         4C8kTulk5OWw3zGuIZcZABZ4ch5l/m1sk/Kn6CZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 122/129] tty: n_gsm: fix wrong DLCI release order
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 076/225] phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
 Date:   Wed,  4 May 2022 18:45:14 +0200
-Message-Id: <20220504153031.140574826@linuxfoundation.org>
+Message-Id: <20220504153118.115217172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit deefc58bafb4841df7f0a0d85d89a1c819db9743 upstream.
+[ Upstream commit 388ec8f079f2f20d5cd183c3bc6f33cbc3ffd3ef ]
 
-The current DLCI release order starts with the control channel followed by
-the user channels. Reverse this order to keep the control channel open
-until all user channels have been released.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-9-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220407091857.230386-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/phy/samsung/phy-exynos5250-sata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2073,8 +2073,8 @@ static void gsm_cleanup_mux(struct gsm_m
- 	/* Finish outstanding timers, making sure they are done */
- 	del_timer_sync(&gsm->t2_timer);
+diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
+index 9ec234243f7c..6c305a3fe187 100644
+--- a/drivers/phy/samsung/phy-exynos5250-sata.c
++++ b/drivers/phy/samsung/phy-exynos5250-sata.c
+@@ -187,6 +187,7 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  
--	/* Free up any link layer users */
--	for (i = 0; i < NUM_DLCI; i++)
-+	/* Free up any link layer users and finally the control channel */
-+	for (i = NUM_DLCI - 1; i >= 0; i--)
- 		if (gsm->dlci[i])
- 			gsm_dlci_release(gsm->dlci[i]);
- 	mutex_unlock(&gsm->mutex);
+ 	sata_phy->client = of_find_i2c_device_by_node(node);
++	of_node_put(node);
+ 	if (!sata_phy->client)
+ 		return -EPROBE_DEFER;
+ 
+-- 
+2.35.1
+
 
 
