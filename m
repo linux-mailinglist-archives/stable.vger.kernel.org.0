@@ -2,57 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BD1C51A739
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D68451A846
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354855AbiEDRDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:03:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38278 "EHLO
+        id S1357364AbiEDRKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355790AbiEDRAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4ECD4C414;
-        Wed,  4 May 2022 09:52:10 -0700 (PDT)
+        with ESMTP id S1355330AbiEDRHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:07:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6312515AD;
+        Wed,  4 May 2022 09:54:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A3EFB827A1;
-        Wed,  4 May 2022 16:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E03F2C385A4;
-        Wed,  4 May 2022 16:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35B21B827A3;
+        Wed,  4 May 2022 16:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B09C1C385AA;
+        Wed,  4 May 2022 16:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683123;
-        bh=lxOCNLhoXuv1p/yYbOt/qn66HbF114gIdpkYgvRyQOI=;
+        s=korg; t=1651683263;
+        bh=jzTDHvzUt0+FK1GCavcbHjEPmG6peMf7tUCHzlPx87o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ByThSz51YQJeoKp3V3/apWHP8kEXspZgbCXW/bb5roYfo64bzWtNg3wXuBfEfnb81
-         4DBpa4uBnd51gRLBRBtq9vEIdm4lnyGZ+F4q+8APh1hKNKOaHCcdehORKIdNaDHJxA
-         V/WSEgevkZFoBtwI8lX7dJaUQRfO95bU1OWBGokI=
+        b=dztredkygGwxoDANQyVnRCTj91DDwGWTMKyOH0Ul3Iq0z6e4ykVsnxm5slmM6cPDV
+         Cs0FUb1SPB96mLrXWbLWGi+xry08sU/NFys3Kg08fQbjr0z+4sVn6OQMVTPQfEZuF4
+         wWtadlXT/pNGoY8eH74Z0y6A3mwVTHGRqKTnDv+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 114/129] perf symbol: Update symbols__fixup_end()
+        stable@vger.kernel.org,
+        Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 113/177] netfilter: conntrack: fix udp offload timeout sysctl
 Date:   Wed,  4 May 2022 18:45:06 +0200
-Message-Id: <20220504153030.353188622@linuxfoundation.org>
+Message-Id: <20220504153103.316252337@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,85 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
 
-commit 8799ebce84d672aae1dc3170510f6a3e66f96b11 upstream.
+[ Upstream commit 626873c446f7559d5af8b48cefad903ffd85cf4e ]
 
-Now arch-specific functions all do the same thing.  When it fixes the
-symbol address it needs to check the boundary between the kernel image
-and modules.  For the last symbol in the previous region, it cannot
-know the exact size as it's discarded already.  Thus it just uses a
-small page size (4096) and rounds it up like the last symbol.
+`nf_flowtable_udp_timeout` sysctl option is available only
+if CONFIG_NFT_FLOW_OFFLOAD enabled. But infra for this flow
+offload UDP timeout was added under CONFIG_NF_FLOW_TABLE
+config option. So, if you have CONFIG_NFT_FLOW_OFFLOAD
+disabled and CONFIG_NF_FLOW_TABLE enabled, the
+`nf_flowtable_udp_timeout` is not present in sysfs.
+Please note, that TCP flow offload timeout sysctl option
+is present even CONFIG_NFT_FLOW_OFFLOAD is disabled.
 
-Fixes: 3cf6a32f3f2a4594 ("perf symbols: Fix symbol size calculation condition")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20220416004048.1514900-3-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I suppose it was a typo in commit that adds UDP flow offload
+timeout and CONFIG_NF_FLOW_TABLE should be used instead.
+
+Fixes: 975c57504da1 ("netfilter: conntrack: Introduce udp offload timeout configuration")
+Signed-off-by: Volodymyr Mytnyk <volodymyr.mytnyk@plvision.eu>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol.c |   29 +++++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_standalone.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -217,8 +217,8 @@ again:
- 	}
- }
- 
--void symbols__fixup_end(struct rb_root_cached *symbols,
--			bool is_kallsyms __maybe_unused)
-+/* Update zero-sized symbols using the address of the next symbol */
-+void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms)
- {
- 	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
- 	struct symbol *curr, *prev;
-@@ -232,8 +232,29 @@ void symbols__fixup_end(struct rb_root_c
- 		prev = curr;
- 		curr = rb_entry(nd, struct symbol, rb_node);
- 
--		if (prev->end == prev->start || prev->end != curr->start)
--			arch__symbols__fixup_end(prev, curr);
-+		/*
-+		 * On some architecture kernel text segment start is located at
-+		 * some low memory address, while modules are located at high
-+		 * memory addresses (or vice versa).  The gap between end of
-+		 * kernel text segment and beginning of first module's text
-+		 * segment is very big.  Therefore do not fill this gap and do
-+		 * not assign it to the kernel dso map (kallsyms).
-+		 *
-+		 * In kallsyms, it determines module symbols using '[' character
-+		 * like in:
-+		 *   ffffffffc1937000 T hdmi_driver_init  [snd_hda_codec_hdmi]
-+		 */
-+		if (prev->end == prev->start) {
-+			/* Last kernel/module symbol mapped to end of page */
-+			if (is_kallsyms && (!strchr(prev->name, '[') !=
-+					    !strchr(curr->name, '[')))
-+				prev->end = roundup(prev->end + 4096, 4096);
-+			else
-+				prev->end = curr->start;
-+
-+			pr_debug4("%s sym:%s end:%#" PRIx64 "\n",
-+				  __func__, prev->name, prev->end);
-+		}
- 	}
- 
- 	/* Last entry */
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 3e1afd10a9b6..55aa55b252b2 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -823,7 +823,7 @@ static struct ctl_table nf_ct_sysctl_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec_jiffies,
+ 	},
+-#if IS_ENABLED(CONFIG_NFT_FLOW_OFFLOAD)
++#if IS_ENABLED(CONFIG_NF_FLOW_TABLE)
+ 	[NF_SYSCTL_CT_PROTO_TIMEOUT_UDP_OFFLOAD] = {
+ 		.procname	= "nf_flowtable_udp_timeout",
+ 		.maxlen		= sizeof(unsigned int),
+-- 
+2.35.1
+
 
 
