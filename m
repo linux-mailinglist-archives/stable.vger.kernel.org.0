@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 210E651A732
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 129FA51A847
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354575AbiEDRDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
+        id S1354585AbiEDRKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354452AbiEDRA3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1FA4BFF1;
-        Wed,  4 May 2022 09:52:18 -0700 (PDT)
+        with ESMTP id S1355415AbiEDRHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:07:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EE9517E3;
+        Wed,  4 May 2022 09:54:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A58561852;
-        Wed,  4 May 2022 16:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3703C385A4;
-        Wed,  4 May 2022 16:52:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 538D8616F8;
+        Wed,  4 May 2022 16:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F97C385AA;
+        Wed,  4 May 2022 16:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683135;
-        bh=tSw8xM9a6f1U+wpCg+E1lnJk6d+d0qTv4HVG5LNkj/8=;
+        s=korg; t=1651683268;
+        bh=0IiNxe8NdBPwEW6lbGtCQxmIXK0QG7FV5Fx/37V/jR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Vspvvx/ILU5j44DyznFbRuut8M5cxT0ZAYUWe+ynF/oU7Tj5tn+fqDzTsaUyrorD
-         9iD7r+oUnMua9m1jQ+F+ieP7N+epme+kC3pFKLZ7AXIapAT1pLMX4+RzxNK3VYqWhl
-         rlJnGzFqeFEd4C/ZUNzVFD6j28v/nGL//4Cwnl7k=
+        b=vIRvtHUzlS8WbXYj7CXBnsP7COCxm0N7ESmba+HMT2yfksEaDZ8WsNhMbNa3hr739
+         +Rh3oyVbC3arU1yB3Z97dbwxAtZ6a2KMBhiOf/GcCTA4knRqkntojBuwI1mg/Ntodg
+         UuIRgFAlGghfcSLo9cecw9XfnVnMIv/JQTCRJ6+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 118/129] tty: n_gsm: fix wrong signal octet encoding in convergence layer type 2
-Date:   Wed,  4 May 2022 18:45:10 +0200
-Message-Id: <20220504153030.715325998@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 118/177] net: fec: add missing of_node_put() in fec_enet_init_stop_mode()
+Date:   Wed,  4 May 2022 18:45:11 +0200
+Message-Id: <20220504153103.737095476@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 06d5afd4d640eea67f5623e76cd5fc03359b7f3c upstream.
+[ Upstream commit d2b52ec056d5bddb055c8f21d7489a23548d0838 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.5.2 describes that the signal octet in
-convergence layer type 2 can be either one or two bytes. The length is
-encoded in the EA bit. This is set 1 for the last byte in the sequence.
-gsmtty_modem_update() handles this correctly but gsm_dlci_data_output()
-fails to set EA to 1. There is no case in which we encode two signal octets
-as there is no case in which we send out a break signal.
-Therefore, always set the EA bit to 1 for the signal octet to fix this.
+Put device node in error path in fec_enet_init_stop_mode().
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-5-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8a448bf832af ("net: ethernet: fec: move GPR register offset and bit into DT")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220426125231.375688-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    2 +-
+ drivers/net/ethernet/freescale/fec_main.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -818,7 +818,7 @@ static int gsm_dlci_data_output(struct g
- 			break;
- 		case 2:	/* Unstructed with modem bits.
- 		Always one byte as we never send inline break data */
--			*dp++ = gsm_encode_modem(dlci);
-+			*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
- 			break;
- 		}
- 		WARN_ON(kfifo_out_locked(&dlci->fifo, dp , len, &dlci->lock) != len);
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index a3e87e10ee6b..67eb9b671244 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3726,7 +3726,7 @@ static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
+ 					 ARRAY_SIZE(out_val));
+ 	if (ret) {
+ 		dev_dbg(&fep->pdev->dev, "no stop mode property\n");
+-		return ret;
++		goto out;
+ 	}
+ 
+ 	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
+-- 
+2.35.1
+
 
 
