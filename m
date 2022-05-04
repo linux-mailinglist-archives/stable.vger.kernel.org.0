@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0263E51AA0F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5F8451A9DD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244836AbiEDRVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:21:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
+        id S1357717AbiEDRTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358040AbiEDRPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405E7562E3;
-        Wed,  4 May 2022 09:59:17 -0700 (PDT)
+        with ESMTP id S1358461AbiEDRP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50A8B56F94;
+        Wed,  4 May 2022 09:59:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C05A61967;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D57E617D5;
+        Wed,  4 May 2022 16:59:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D87C385AA;
         Wed,  4 May 2022 16:59:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C71C385A5;
-        Wed,  4 May 2022 16:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683555;
-        bh=Go232h95Z5ei0fBbv7KolevNCDDnJEtR9DJmlTejwtk=;
+        s=korg; t=1651683556;
+        bh=YNzF9xjRS80J4lFfefcu9mSYjDmspER1haIhkaJBhzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBKzASGNnT5DhBTsoIzEhmgj+OpnuNY03pOwZxVweMblCIO59H7dGbTvukao3Dmpt
-         kQTovxkkC/9c2kYdrsobze0heXkF8GyagA3zRKg5NT+t3/30sL+2JQBjv/QoAJm0XM
-         N40hMDE1QsLQNKQ0ifpDH0cbJnoW7jvlErT3lKKc=
+        b=1XJBtt5YgLYHECq1EVikF001CBHYcR/3zNy6Buj8Y91RXaCeJA5bPo0GInaz25zTC
+         gdp8cQ7hcIZjkrDsv+5yXnVMCCQaZFnkVDhaPA3hgKTpi7tlINXQga1hYZ9Zg/WYh6
+         BRwV9B2/I2K9pquHTZHWHQqRb8YxHYUBLVsM8i8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 218/225] tty: n_gsm: fix missing update of modem controls after DLCI open
-Date:   Wed,  4 May 2022 18:47:36 +0200
-Message-Id: <20220504153129.361232105@linuxfoundation.org>
+Subject: [PATCH 5.17 219/225] tty: n_gsm: fix broken virtual tty handling
+Date:   Wed,  4 May 2022 18:47:37 +0200
+Message-Id: <20220504153129.436268194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,40 +54,217 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 48473802506d2d6151f59e0e764932b33b53cb3b upstream.
+commit a8c5b8255f8a9acd58a4b15ff1c14cd6effd114b upstream.
 
-Currently the peer is not informed about the initial state of the modem
-control lines after a new DLCI has been opened.
-Fix this by sending the initial modem control line states after DLCI open.
+Dynamic virtual tty registration was introduced to allow the user to handle
+these cases with uevent rules. The following commits relate to this:
+Commit 5b87686e3203 ("tty: n_gsm: Modify gsmtty driver register method when config requester")
+Commit 0b91b5332368 ("tty: n_gsm: Save dlci address open status when config requester")
+Commit 46292622ad73 ("tty: n_gsm: clean up indenting in gsm_queue()")
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+However, the following behavior can be seen with this implementation:
+- n_gsm ldisc is activated via ioctl
+- all configuration parameters are set to their default value (initiator=0)
+- the mux gets activated and attached and gsmtty0 is being registered in
+  in gsm_dlci_open() after DLCI 0 was established (DLCI 0 is the control
+  channel)
+- the user configures n_gsm via ioctl GSMIOC_SETCONF as initiator
+- this re-attaches the n_gsm mux
+- no new gsmtty devices are registered in gsmld_attach_gsm() because the
+  mux is already active
+- the initiator side registered only the control channel as gsmtty0
+  (which should never happen) and no user channel tty
+
+The commits above make it impossible to operate the initiator side as no
+user channel tty is or will be available.
+On the other hand, this behavior will make it also impossible to allow DLCI
+parameter negotiation on responder side in the future. The responder side
+first needs to provide a device for the application before the application
+can set its parameters of the associated DLCI via ioctl.
+Note that the user application is still able to detect a link establishment
+without relaying to uevent by waiting for DTR open on responder side. This
+is the same behavior as on a physical serial interface. And on initiator
+side a tty hangup can be detected if a link establishment request failed.
+
+Revert the commits above completely to always register all user channels
+and no control channel after mux attachment. No other changes are made.
+
+Fixes: 5b87686e3203 ("tty: n_gsm: Modify gsmtty driver register method when config requester")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220420101346.3315-1-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220422071025.5490-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/n_gsm.c |   87 ++++++++--------------------------------------------
+ 1 file changed, 15 insertions(+), 72 deletions(-)
 
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -370,6 +370,7 @@ static const u8 gsm_fcs8[256] = {
- #define GOOD_FCS	0xCF
+@@ -272,10 +272,6 @@ static DEFINE_SPINLOCK(gsm_mux_lock);
  
- static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len);
-+static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk);
+ static struct tty_driver *gsm_tty_driver;
  
- /**
-  *	gsm_fcs_add	-	update FCS
-@@ -1483,6 +1484,9 @@ static void gsm_dlci_open(struct gsm_dlc
- 		pr_debug("DLCI %d goes open.\n", dlci->addr);
- 	/* Register gsmtty driver,report gsmtty dev add uevent for user */
- 	tty_register_device(gsm_tty_driver, dlci->addr, NULL);
-+	/* Send current modem state */
-+	if (dlci->addr)
-+		gsmtty_modem_update(dlci, 0);
- 	wake_up(&dlci->gsm->event);
+-/* Save dlci open address */
+-static int addr_open[256] = { 0 };
+-/* Save dlci open count */
+-static int addr_cnt;
+ /*
+  *	This section of the driver logic implements the GSM encodings
+  *	both the basic and the 'advanced'. Reliable transport is not
+@@ -1185,7 +1181,6 @@ static void gsm_control_rls(struct gsm_m
  }
  
+ static void gsm_dlci_begin_close(struct gsm_dlci *dlci);
+-static void gsm_dlci_close(struct gsm_dlci *dlci);
+ 
+ /**
+  *	gsm_control_message	-	DLCI 0 control processing
+@@ -1204,28 +1199,15 @@ static void gsm_control_message(struct g
+ {
+ 	u8 buf[1];
+ 	unsigned long flags;
+-	struct gsm_dlci *dlci;
+-	int i;
+-	int address;
+ 
+ 	switch (command) {
+ 	case CMD_CLD: {
+-		if (addr_cnt > 0) {
+-			for (i = 0; i < addr_cnt; i++) {
+-				address = addr_open[i];
+-				dlci = gsm->dlci[address];
+-				gsm_dlci_close(dlci);
+-				addr_open[i] = 0;
+-			}
+-		}
++		struct gsm_dlci *dlci = gsm->dlci[0];
+ 		/* Modem wishes to close down */
+-		dlci = gsm->dlci[0];
+ 		if (dlci) {
+ 			dlci->dead = true;
+ 			gsm->dead = true;
+-			gsm_dlci_close(dlci);
+-			addr_cnt = 0;
+-			gsm_response(gsm, 0, UA|PF);
++			gsm_dlci_begin_close(dlci);
+ 		}
+ 		}
+ 		break;
+@@ -1459,8 +1441,6 @@ static void gsm_dlci_close(struct gsm_dl
+ 		wake_up_interruptible(&dlci->port.open_wait);
+ 	} else
+ 		dlci->gsm->dead = true;
+-	/* Unregister gsmtty driver,report gsmtty dev remove uevent for user */
+-	tty_unregister_device(gsm_tty_driver, dlci->addr);
+ 	wake_up(&dlci->gsm->event);
+ 	/* A DLCI 0 close is a MUX termination so we need to kick that
+ 	   back to userspace somehow */
+@@ -1482,8 +1462,6 @@ static void gsm_dlci_open(struct gsm_dlc
+ 	dlci->state = DLCI_OPEN;
+ 	if (debug & 8)
+ 		pr_debug("DLCI %d goes open.\n", dlci->addr);
+-	/* Register gsmtty driver,report gsmtty dev add uevent for user */
+-	tty_register_device(gsm_tty_driver, dlci->addr, NULL);
+ 	/* Send current modem state */
+ 	if (dlci->addr)
+ 		gsmtty_modem_update(dlci, 0);
+@@ -1794,7 +1772,6 @@ static void gsm_queue(struct gsm_mux *gs
+ 	struct gsm_dlci *dlci;
+ 	u8 cr;
+ 	int address;
+-	int i, j, k, address_tmp;
+ 
+ 	if (gsm->fcs != GOOD_FCS) {
+ 		gsm->bad_fcs++;
+@@ -1826,11 +1803,6 @@ static void gsm_queue(struct gsm_mux *gs
+ 		else {
+ 			gsm_response(gsm, address, UA|PF);
+ 			gsm_dlci_open(dlci);
+-			/* Save dlci open address */
+-			if (address) {
+-				addr_open[addr_cnt] = address;
+-				addr_cnt++;
+-			}
+ 		}
+ 		break;
+ 	case DISC|PF:
+@@ -1841,33 +1813,8 @@ static void gsm_queue(struct gsm_mux *gs
+ 			return;
+ 		}
+ 		/* Real close complete */
+-		if (!address) {
+-			if (addr_cnt > 0) {
+-				for (i = 0; i < addr_cnt; i++) {
+-					address = addr_open[i];
+-					dlci = gsm->dlci[address];
+-					gsm_dlci_close(dlci);
+-					addr_open[i] = 0;
+-				}
+-			}
+-			dlci = gsm->dlci[0];
+-			gsm_dlci_close(dlci);
+-			addr_cnt = 0;
+-			gsm_response(gsm, 0, UA|PF);
+-		} else {
+-			gsm_response(gsm, address, UA|PF);
+-			gsm_dlci_close(dlci);
+-			/* clear dlci address */
+-			for (j = 0; j < addr_cnt; j++) {
+-				address_tmp = addr_open[j];
+-				if (address_tmp == address) {
+-					for (k = j; k < addr_cnt; k++)
+-						addr_open[k] = addr_open[k+1];
+-					addr_cnt--;
+-					break;
+-				}
+-			}
+-		}
++		gsm_response(gsm, address, UA|PF);
++		gsm_dlci_close(dlci);
+ 		break;
+ 	case UA|PF:
+ 		if (cr == 0 || dlci == NULL)
+@@ -2451,19 +2398,17 @@ static int gsmld_attach_gsm(struct tty_s
+ 	else {
+ 		/* Don't register device 0 - this is the control channel and not
+ 		   a usable tty interface */
+-		if (gsm->initiator) {
+-			base = mux_num_to_base(gsm); /* Base for this MUX */
+-			for (i = 1; i < NUM_DLCI; i++) {
+-				struct device *dev;
++		base = mux_num_to_base(gsm); /* Base for this MUX */
++		for (i = 1; i < NUM_DLCI; i++) {
++			struct device *dev;
+ 
+-				dev = tty_register_device(gsm_tty_driver,
++			dev = tty_register_device(gsm_tty_driver,
+ 							base + i, NULL);
+-				if (IS_ERR(dev)) {
+-					for (i--; i >= 1; i--)
+-						tty_unregister_device(gsm_tty_driver,
+-									base + i);
+-					return PTR_ERR(dev);
+-				}
++			if (IS_ERR(dev)) {
++				for (i--; i >= 1; i--)
++					tty_unregister_device(gsm_tty_driver,
++								base + i);
++				return PTR_ERR(dev);
+ 			}
+ 		}
+ 	}
+@@ -2485,10 +2430,8 @@ static void gsmld_detach_gsm(struct tty_
+ 	int i;
+ 
+ 	WARN_ON(tty != gsm->tty);
+-	if (gsm->initiator) {
+-		for (i = 1; i < NUM_DLCI; i++)
+-			tty_unregister_device(gsm_tty_driver, base + i);
+-	}
++	for (i = 1; i < NUM_DLCI; i++)
++		tty_unregister_device(gsm_tty_driver, base + i);
+ 	tty_kref_put(gsm->tty);
+ 	gsm->tty = NULL;
+ }
 
 
