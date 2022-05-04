@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50F1151A8A2
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6AD51A932
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356228AbiEDRNj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:39 -0400
+        id S1356480AbiEDRNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:45 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355496AbiEDRKW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:22 -0400
+        with ESMTP id S1356509AbiEDRJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACEAE4B1C1;
-        Wed,  4 May 2022 09:57:21 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C070F5372E;
+        Wed,  4 May 2022 09:55:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1242CB827A7;
-        Wed,  4 May 2022 16:57:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFF2EC385A4;
-        Wed,  4 May 2022 16:57:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 687EFB827A3;
+        Wed,  4 May 2022 16:55:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A3A1C385AF;
+        Wed,  4 May 2022 16:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683438;
-        bh=zz26hhqDq8pETqvsCjaNHUXGZEqIHwexiYIsyKCbkNw=;
+        s=korg; t=1651683311;
+        bh=NyBwdZm7ykRxzUtmVqHq3ACRJ6KDv4OPUpqmtzgH9OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKeYi1BUuWy4a297vwJaLMgQ0KpqOXm4OzvkAJF92kxAJ1wRT0sY8Dp7Cw3++uLcX
-         Ibhn5tOX9U8Eorh0MUm24b2bonZqfFLD3tM8iM6QmyxCWNHgERecUIEC85cBFmQmkN
-         POhpeEbERsupnzyEGt4qir+/KI2PMFqI+QIMxWF0=
+        b=NuTn81ChmWQJulGcXgXm7iEv+AWsf8UFlxQfkdZzIOrqGrYzUDhzKeNfdQBZqvqq2
+         CJzSCzI7+d3Rrdhl3hRM5JI/K3C/BZM4CnobU4bTgr6CY1VffX0r5Y0EimBJXHBzXn
+         JlPzrBXlyCiFO6CiXKOExNK2ANJJrI1xFhoEZqtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 118/225] net: hns3: add return value for mailbox handling in PF
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.15 163/177] tty: n_gsm: fix insufficient txframe size
 Date:   Wed,  4 May 2022 18:45:56 +0200
-Message-Id: <20220504153121.045608626@linuxfoundation.org>
+Message-Id: <20220504153108.090989874@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,100 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit c59d606296842409a6e5a4828235b0bd46b12bc4 ]
+commit 535bf600de75a859698892ee873521a48d289ec1 upstream.
 
-Currently, there are some querying mailboxes sent from VF to PF,
-and VF will wait the PF's handling result. For mailbox
-HCLGE_MBX_GET_QID_IN_PF and HCLGE_MBX_GET_RSS_KEY, it may fail
-when the input parameter is invalid, but the prototype of their
-handler function is void. In this case, PF always return success
-to VF, which may cause the VF get incorrect result.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.7.2 states that the maximum frame size
+(N1) refers to the length of the information field (i.e. user payload).
+However, 'txframe' stores the whole frame including frame header, checksum
+and start/end flags. We also need to consider the byte stuffing overhead.
+Define constant for the protocol overhead and adjust the 'txframe' size
+calculation accordingly to reserve enough space for a complete mux frame
+including byte stuffing for advanced option mode. Note that no byte
+stuffing is applied to the start and end flag.
+Also use MAX_MTU instead of MAX_MRU as this buffer is used for data
+transmission.
 
-Fixes it by adding return value for these function.
-
-Fixes: 63b1279d9905 ("net: hns3: check queue id range before using")
-Fixes: 532cfc0df1e4 ("net: hns3: add a check for index in hclge_get_rss_key()")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-8-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/tty/n_gsm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index 53f939923c28..7998ca617a92 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -594,9 +594,9 @@ static int hclge_set_vf_mtu(struct hclge_vport *vport,
- 	return hclge_set_vport_mtu(vport, mtu);
- }
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -73,6 +73,8 @@ module_param(debug, int, 0600);
+  */
+ #define MAX_MRU 1500
+ #define MAX_MTU 1500
++/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
++#define PROT_OVERHEAD 7
+ #define	GSM_NET_TX_TIMEOUT (HZ*10)
  
--static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
--				     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
--				     struct hclge_respond_to_vf_msg *resp_msg)
-+static int hclge_get_queue_id_in_pf(struct hclge_vport *vport,
-+				    struct hclge_mbx_vf_to_pf_cmd *mbx_req,
-+				    struct hclge_respond_to_vf_msg *resp_msg)
- {
- 	struct hnae3_handle *handle = &vport->nic;
- 	struct hclge_dev *hdev = vport->back;
-@@ -606,17 +606,18 @@ static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
- 	if (queue_id >= handle->kinfo.num_tqps) {
- 		dev_err(&hdev->pdev->dev, "Invalid queue id(%u) from VF %u\n",
- 			queue_id, mbx_req->mbx_src_vfid);
--		return;
-+		return -EINVAL;
+ /*
+@@ -2199,7 +2201,7 @@ static struct gsm_mux *gsm_alloc_mux(voi
+ 		kfree(gsm);
+ 		return NULL;
  	}
- 
- 	qid_in_pf = hclge_covert_handle_qid_global(&vport->nic, queue_id);
- 	memcpy(resp_msg->data, &qid_in_pf, sizeof(qid_in_pf));
- 	resp_msg->len = sizeof(qid_in_pf);
-+	return 0;
- }
- 
--static void hclge_get_rss_key(struct hclge_vport *vport,
--			      struct hclge_mbx_vf_to_pf_cmd *mbx_req,
--			      struct hclge_respond_to_vf_msg *resp_msg)
-+static int hclge_get_rss_key(struct hclge_vport *vport,
-+			     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
-+			     struct hclge_respond_to_vf_msg *resp_msg)
- {
- #define HCLGE_RSS_MBX_RESP_LEN	8
- 	struct hclge_dev *hdev = vport->back;
-@@ -634,13 +635,14 @@ static void hclge_get_rss_key(struct hclge_vport *vport,
- 		dev_warn(&hdev->pdev->dev,
- 			 "failed to get the rss hash key, the index(%u) invalid !\n",
- 			 index);
--		return;
-+		return -EINVAL;
- 	}
- 
- 	memcpy(resp_msg->data,
- 	       &rss_cfg->rss_hash_key[index * HCLGE_RSS_MBX_RESP_LEN],
- 	       HCLGE_RSS_MBX_RESP_LEN);
- 	resp_msg->len = HCLGE_RSS_MBX_RESP_LEN;
-+	return 0;
- }
- 
- static void hclge_link_fail_parse(struct hclge_dev *hdev, u8 link_fail_code)
-@@ -816,10 +818,10 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
- 					"VF fail(%d) to set mtu\n", ret);
- 			break;
- 		case HCLGE_MBX_GET_QID_IN_PF:
--			hclge_get_queue_id_in_pf(vport, req, &resp_msg);
-+			ret = hclge_get_queue_id_in_pf(vport, req, &resp_msg);
- 			break;
- 		case HCLGE_MBX_GET_RSS_KEY:
--			hclge_get_rss_key(vport, req, &resp_msg);
-+			ret = hclge_get_rss_key(vport, req, &resp_msg);
- 			break;
- 		case HCLGE_MBX_GET_LINK_MODE:
- 			hclge_get_link_mode(vport, req);
--- 
-2.35.1
-
+-	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
++	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
+ 	if (gsm->txframe == NULL) {
+ 		kfree(gsm->buf);
+ 		kfree(gsm);
 
 
