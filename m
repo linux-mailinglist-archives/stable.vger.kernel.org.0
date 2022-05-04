@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD9D51AA2D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 250B051A9E6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355703AbiEDRWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
+        id S1357865AbiEDRUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357464AbiEDRPD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F5954F89;
-        Wed,  4 May 2022 09:58:37 -0700 (PDT)
+        with ESMTP id S1357216AbiEDROz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC1254690;
+        Wed,  4 May 2022 09:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 368236191D;
-        Wed,  4 May 2022 16:58:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796AEC385B2;
-        Wed,  4 May 2022 16:58:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 232B56179D;
+        Wed,  4 May 2022 16:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A661C385AA;
+        Wed,  4 May 2022 16:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683515;
-        bh=pDO7J4hTnTMkiO1iaE8XoV4Bd3P1yn/V95cI8h/LSFw=;
+        s=korg; t=1651683504;
+        bh=DosKk7dVzX8SYgoTdF/LccHpUnW5A2jQ9D2iz4RgMQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SaFdAr0TX4z6/1KRBWHYRsncW7FNpOHpKQ7zmGryhc4QZwU5g+4X3PXINTXJBPNE2
-         Ez12JfdwfLu9Q+SS+ndT/4YnJ6oYz4KAP3g2zYMtRUjX5IODHebFrXND0oesab3PZ9
-         99X82VMeYMptQPfLRoyVfwAe9Jyf/OTthCXyWQ0w=
+        b=EBVG1XaU9mhV6W9L6NF/N53eJ21v4B7jTuTVvBCaUXP2pb7Mdpzf9j3nsiJ75oFZ+
+         ALL4husBt/Htpr7mNjRjZktkM89TnI9q9w3szLwAXOLzQ7eOHC6zh2yyKw/YeCC0SA
+         UpXavzGoj2XJG+pwgrlAOIz+kn9GCrdJz/6b5jME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Woody Suwalski <wsuwalski@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.17 178/225] Revert "ACPI: processor: idle: fix lockup regression on 32-bit ThinkPad T40"
-Date:   Wed,  4 May 2022 18:46:56 +0200
-Message-Id: <20220504153126.224223525@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 179/225] Revert "block: inherit request start time from bio for BLK_CGROUP"
+Date:   Wed,  4 May 2022 18:46:57 +0200
+Message-Id: <20220504153126.455057466@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -56,38 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Tejun Heo <tj@kernel.org>
 
-commit 20e582e16af24b074e583f9551fad557882a3c9d upstream.
+commit 4cddeacad6d4b23493a108d0705e7d2ab89ba5a3 upstream.
 
-This reverts commit bfe55a1f7fd6bfede16078bf04c6250fbca11588.
+This reverts commit 0006707723233cb2a9a23ca19fc3d0864835704c. It has a
+couple problems:
 
-This was presumably misdiagnosed as an inability to use C3 at
-all when I suspect the real problem is just misconfiguration of
-C3 vs. ARB_DIS.
+* bio_issue_time() is stored in bio->bi_issue truncated to 51 bits. This
+  overflows in slightly over 26 days. Setting rq->io_start_time_ns with it
+  means that io duration calculation would yield >26days after 26 days of
+  uptime. This, for example, confuses kyber making it cause high IO
+  latencies.
 
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
-Tested-by: Woody Suwalski <wsuwalski@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+* rq->io_start_time_ns should record the time that the IO is issued to the
+  device so that on-device latency can be measured. However,
+  bio_issue_time() is set before the bio goes through the rq-qos controllers
+  (wbt, iolatency, iocost), so when the bio gets throttled in any of the
+  mechanisms, the measured latencies make no sense - on-device latencies end
+  up higher than request-alloc-to-completion latencies.
+
+We'll need a smarter way to avoid calling ktime_get_ns() repeatedly
+back-to-back. For now, let's revert the commit.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Cc: stable@vger.kernel.org # v5.16+
+Link: https://lore.kernel.org/r/YmmeOLfo5lzc+8yI@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/processor_idle.c |    5 -----
- 1 file changed, 5 deletions(-)
+ block/blk-mq.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -96,11 +96,6 @@ static const struct dmi_system_id proces
- 	  DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK Computer Inc."),
- 	  DMI_MATCH(DMI_PRODUCT_NAME,"L8400B series Notebook PC")},
- 	 (void *)1},
--	/* T40 can not handle C3 idle state */
--	{ set_max_cstate, "IBM ThinkPad T40", {
--	  DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
--	  DMI_MATCH(DMI_PRODUCT_NAME, "23737CU")},
--	 (void *)2},
- 	{},
- };
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -1122,14 +1122,7 @@ void blk_mq_start_request(struct request
+ 	trace_block_rq_issue(rq);
  
+ 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
+-		u64 start_time;
+-#ifdef CONFIG_BLK_CGROUP
+-		if (rq->bio)
+-			start_time = bio_issue_time(&rq->bio->bi_issue);
+-		else
+-#endif
+-			start_time = ktime_get_ns();
+-		rq->io_start_time_ns = start_time;
++		rq->io_start_time_ns = ktime_get_ns();
+ 		rq->stats_sectors = blk_rq_sectors(rq);
+ 		rq->rq_flags |= RQF_STATS;
+ 		rq_qos_issue(q, rq);
 
 
