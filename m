@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B2251A8A6
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2AE4651A8CC
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355605AbiEDRMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40512 "EHLO
+        id S1348730AbiEDRL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357320AbiEDRKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:06 -0400
+        with ESMTP id S1355853AbiEDRIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3254A932;
-        Wed,  4 May 2022 09:57:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FAED49FA5;
+        Wed,  4 May 2022 09:54:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73474618D7;
-        Wed,  4 May 2022 16:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C600DC385A5;
-        Wed,  4 May 2022 16:57:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6284061899;
+        Wed,  4 May 2022 16:54:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C09C385A5;
+        Wed,  4 May 2022 16:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683434;
-        bh=fiEjsMwi+sx83CopIVwfDXjNiCaih6WW+Reo85LpXa0=;
+        s=korg; t=1651683277;
+        bh=U7F8eZYEpVTSmb/J39TUf2NGEuMLVkqIGrd2moRZY9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuA83JlATmvj+/jJjzJURhnjuffKtc02qLVBuKh9OJcQnTCh9oK8gdqnFD0HwfknM
-         crRAOuQj+gLk4EVNLGCmg5cO5jE6C8kR2CFYjeQtg4cv3g+yEVY5eD11AF8mhxZJOG
-         NBiItB2OVBuuBhZTkxl4NkTQ4/79n1TuCZqg4IME=
+        b=lavSqlHe99BIe9cu1Gz+Ba0Tup3OL4UCtCmNDE6zrXFlTAvye4RkwcOOf1tCysYQZ
+         GKVshGeF3FhwK/1ZLQMJMbnrZHlslC0HxsvZVZ+J/PanndhPgvIuN5O3qcf61labS1
+         HP3Xd0k8pSF1r3mYkkdBMkeNxbbKen1Zcxxem8D0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 085/225] phy: mapphone-mdm6600: Fix PM error handling in phy_mdm6600_probe
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 130/177] arch: xtensa: platforms: Fix deadlock in rs_close()
 Date:   Wed,  4 May 2022 18:45:23 +0200
-Message-Id: <20220504153118.619333350@linuxfoundation.org>
+Message-Id: <20220504153104.791464567@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit d644e0d79829b1b9a14beedbdb0dc1256fc3677d ]
+[ Upstream commit eb5adc70754d26a260f8b42d39db42da0d0af500 ]
 
-The pm_runtime_enable will increase power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable(). And use pm_runtime_dont_use_autosuspend() to
-undo pm_runtime_use_autosuspend()
-In the PM Runtime docs:
-    Drivers in ->remove() callback should undo the runtime PM changes done
-    in ->probe(). Usually this means calling pm_runtime_disable(),
-    pm_runtime_dont_use_autosuspend() etc.
+There is a deadlock in rs_close(), which is shown
+below:
 
-We should do this in error handling.
+   (Thread 1)              |      (Thread 2)
+                           | rs_open()
+rs_close()                 |  mod_timer()
+ spin_lock_bh() //(1)      |  (wait a time)
+ ...                       | rs_poll()
+ del_timer_sync()          |  spin_lock() //(2)
+ (wait timer to stop)      |  ...
 
-Fixes: f7f50b2a7b05 ("phy: mapphone-mdm6600: Add runtime PM support for n_gsm on USB suspend")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220301024615.31899-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+We hold timer_lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need timer_lock in position (2) of thread 2.
+As a result, rs_close() will block forever.
+
+This patch deletes the redundant timer_lock in order to
+prevent the deadlock. Because there is no race condition
+between rs_close, rs_open and rs_poll.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Message-Id: <20220407154430.22387-1-duoming@zju.edu.cn>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/motorola/phy-mapphone-mdm6600.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/xtensa/platforms/iss/console.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/phy/motorola/phy-mapphone-mdm6600.c b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-index 5172971f4c36..3cd4d51c247c 100644
---- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
-+++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-@@ -629,7 +629,8 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
- cleanup:
- 	if (error < 0)
- 		phy_mdm6600_device_power_off(ddata);
--
-+	pm_runtime_disable(ddata->dev);
-+	pm_runtime_dont_use_autosuspend(ddata->dev);
- 	return error;
+diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
+index 81d7c7e8f7e9..10b79d3c74e0 100644
+--- a/arch/xtensa/platforms/iss/console.c
++++ b/arch/xtensa/platforms/iss/console.c
+@@ -36,24 +36,19 @@ static void rs_poll(struct timer_list *);
+ static struct tty_driver *serial_driver;
+ static struct tty_port serial_port;
+ static DEFINE_TIMER(serial_timer, rs_poll);
+-static DEFINE_SPINLOCK(timer_lock);
+ 
+ static int rs_open(struct tty_struct *tty, struct file * filp)
+ {
+-	spin_lock_bh(&timer_lock);
+ 	if (tty->count == 1)
+ 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+-	spin_unlock_bh(&timer_lock);
+ 
+ 	return 0;
  }
+ 
+ static void rs_close(struct tty_struct *tty, struct file * filp)
+ {
+-	spin_lock_bh(&timer_lock);
+ 	if (tty->count == 1)
+ 		del_timer_sync(&serial_timer);
+-	spin_unlock_bh(&timer_lock);
+ }
+ 
+ 
+@@ -73,8 +68,6 @@ static void rs_poll(struct timer_list *unused)
+ 	int rd = 1;
+ 	unsigned char c;
+ 
+-	spin_lock(&timer_lock);
+-
+ 	while (simc_poll(0)) {
+ 		rd = simc_read(0, &c, 1);
+ 		if (rd <= 0)
+@@ -87,7 +80,6 @@ static void rs_poll(struct timer_list *unused)
+ 		tty_flip_buffer_push(port);
+ 	if (rd)
+ 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+-	spin_unlock(&timer_lock);
+ }
+ 
  
 -- 
 2.35.1
