@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EF7251A99E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F5A51A9E8
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356313AbiEDRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:18:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59140 "EHLO
+        id S1357868AbiEDRUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357179AbiEDROw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 236AD541B5;
-        Wed,  4 May 2022 09:58:23 -0700 (PDT)
+        with ESMTP id S1357202AbiEDROz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C2F54695;
+        Wed,  4 May 2022 09:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44A04617D5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03461B827A3;
+        Wed,  4 May 2022 16:58:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACCCC385A4;
         Wed,  4 May 2022 16:58:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 924F6C385A4;
-        Wed,  4 May 2022 16:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683487;
-        bh=0wa8R2ae7L5HvBja6cgYpwoZNRFRA5di92a2dlL7/Zo=;
+        s=korg; t=1651683488;
+        bh=fl/SlIFa21XcUiuyoHk/hrTxohmhSV+w9p9Ll/WaPjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZmx8dLKHRPBEAa1mru26cd9X7A5jc5jiMit9YTKnS9Oppjv+t1N7vfD+33AqsHQA
-         EVc03MmN3TvsaMSufzpw39nX0EpFRR0jHp6YPoj9cLGQc+X6tKBj4v/gIpEX9B+W3u
-         oaQVPxsN69j7qd2dxovvSzYWrvCtFpqv/LdGQ3zw=
+        b=w+K6ksNO9lWs1rsQYL+PuR3I+s4ppijYuj4EgSzvWcRcMeFh3IE9OSMFFJRbGvIzu
+         x9PekTSY4j/cyCSukWaL8fP8+G9uHr73iiqsnTmBKHuf5gv6QA44DjBWRh5hSGuYpL
+         RbsGRJw2Dw1AEXY8pOEG84i900KXFIhLGaQu0Rkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 162/225] ASoC: Intel: sof_es8336: Add a quirk for Huawei Matebook D15
-Date:   Wed,  4 May 2022 18:46:40 +0200
-Message-Id: <20220504153124.439720094@linuxfoundation.org>
+Subject: [PATCH 5.17 163/225] Input: cypress-sf - register a callback to disable the regulators
+Date:   Wed,  4 May 2022 18:46:41 +0200
+Message-Id: <20220504153124.529765225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -55,47 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab@kernel.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit c7cb4717f641db68e8117635bfcf62a9c27dc8d3 ]
+[ Upstream commit fd0a4b39870d49ff15f6966470185409e261f20f ]
 
-Based on experimental tests, Huawei Matebook D15 actually uses
-both gpio0 and gpio1: the first one controls the speaker, while
-the other one controls the headphone.
+When the driver fails to probe, we will get the following splat:
 
-Also, the headset is mapped as MIC1, instead of MIC2.
+[   19.311970] ------------[ cut here ]------------
+[   19.312566] WARNING: CPU: 3 PID: 375 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   19.317591] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   19.328831] Call Trace:
+[   19.329112]  <TASK>
+[   19.329369]  regulator_bulk_free+0x82/0xe0
+[   19.329860]  devres_release_group+0x319/0x3d0
+[   19.330357]  i2c_device_probe+0x766/0x940
 
-So, add a quirk for it.
+Fix this by adding a callback that will deal with the disabling when the
+driver fails to probe.
 
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/d678aef9fc9a07aced611aa7cb8c9b800c649e5a.1649357263.git.mchehab@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220409022629.3493557-1-zheyuma97@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/sof_es8336.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/input/keyboard/cypress-sf.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/sound/soc/intel/boards/sof_es8336.c b/sound/soc/intel/boards/sof_es8336.c
-index 28d7670b8f8f..b18951a8f309 100644
---- a/sound/soc/intel/boards/sof_es8336.c
-+++ b/sound/soc/intel/boards/sof_es8336.c
-@@ -252,6 +252,15 @@ static const struct dmi_system_id sof_es8336_quirk_table[] = {
- 					SOF_ES8336_TGL_GPIO_QUIRK |
- 					SOF_ES8336_ENABLE_DMIC)
- 	},
-+	{
-+		.callback = sof_es8336_quirk_cb,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "HUAWEI"),
-+			DMI_MATCH(DMI_BOARD_NAME, "BOHB-WAX9-PCB-B2"),
-+		},
-+		.driver_data = (void *)(SOF_ES8336_HEADPHONE_GPIO |
-+					SOC_ES8336_HEADSET_MIC1)
-+	},
- 	{}
- };
+diff --git a/drivers/input/keyboard/cypress-sf.c b/drivers/input/keyboard/cypress-sf.c
+index c28996028e80..9a23eed6a4f4 100644
+--- a/drivers/input/keyboard/cypress-sf.c
++++ b/drivers/input/keyboard/cypress-sf.c
+@@ -61,6 +61,14 @@ static irqreturn_t cypress_sf_irq_handler(int irq, void *devid)
+ 	return IRQ_HANDLED;
+ }
  
++static void cypress_sf_disable_regulators(void *arg)
++{
++	struct cypress_sf_data *touchkey = arg;
++
++	regulator_bulk_disable(ARRAY_SIZE(touchkey->regulators),
++			       touchkey->regulators);
++}
++
+ static int cypress_sf_probe(struct i2c_client *client)
+ {
+ 	struct cypress_sf_data *touchkey;
+@@ -121,6 +129,12 @@ static int cypress_sf_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
++	error = devm_add_action_or_reset(&client->dev,
++					 cypress_sf_disable_regulators,
++					 touchkey);
++	if (error)
++		return error;
++
+ 	touchkey->input_dev = devm_input_allocate_device(&client->dev);
+ 	if (!touchkey->input_dev) {
+ 		dev_err(&client->dev, "Failed to allocate input device\n");
 -- 
 2.35.1
 
