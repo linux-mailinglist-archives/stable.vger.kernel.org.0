@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1044351A963
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 498AB51A73F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355951AbiEDRNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38958 "EHLO
+        id S1353891AbiEDRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356801AbiEDRJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F271E3C5;
-        Wed,  4 May 2022 09:55:41 -0700 (PDT)
+        with ESMTP id S1354757AbiEDQ7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB52473A7;
+        Wed,  4 May 2022 09:50:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4A4B82552;
-        Wed,  4 May 2022 16:55:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BCF1C385A4;
-        Wed,  4 May 2022 16:55:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31F74617A6;
+        Wed,  4 May 2022 16:50:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A323C385A5;
+        Wed,  4 May 2022 16:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683339;
-        bh=c8j9sThsQt1nXao1ztdPXjEAbh1QS7CoMekdvJqvNuM=;
+        s=korg; t=1651683056;
+        bh=0gbObnZmdg3X7SuNnDkKe2xmN0OZyeNQ6+n97FTWnzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YBPic7mbUopE2qH2aI3oC/Fa5aNCHif9yfD7huv78xA80U77JYWf/g6WJLcgG3wbd
-         dMXyngAMFYsjoOdimkamZTwZez6EepfTx4d9XBaPkzCPPgj076uBxxrzzveQZPd27X
-         Qzm5iLpOQ4yOBFUIZ7BMiDnkC7ICtYm/eAafmopw=
+        b=r2pFBxZFjm+FPAzmh2SjD0krVccVhM3TpPns/TRYHnTCP0rnKW2wsOt5Aaaal6BNa
+         hyA6wfdi9z6w0bGoUm7oqKtCH6nQa4hILmjVKDsz4E11EXF+dd5iGl5umOQ5oFi1kS
+         FB+QOUE8Fk9vNHfqT9nFxJVnrAWNGTKbihX0OV8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.17 014/225] iio: scd4x: check return of scd4x_write_and_fetch
+        stable@vger.kernel.org, Oleksandr Ocheretnyi <oocheret@cisco.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 060/129] mtd: fix part field data corruption in mtd_info
 Date:   Wed,  4 May 2022 18:44:12 +0200
-Message-Id: <20220504153111.533116882@linuxfoundation.org>
+Message-Id: <20220504153026.005036487@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Oleksandr Ocheretnyi <oocheret@cisco.com>
 
-commit f50232193e61cf89a73130b5e843fef30763c428 upstream.
+[ Upstream commit 37c5f9e80e015d0df17d0c377c18523002986851 ]
 
-Clang static analysis reports this problem
-scd4x.c:474:10: warning: The left operand of '==' is a
-  garbage value
-  if (val == 0xff) {
-      ~~~ ^
-val is only set from a successful call to scd4x_write_and_fetch()
-So check it's return.
+Commit 46b5889cc2c5 ("mtd: implement proper partition handling")
+started using "mtd_get_master_ofs()" in mtd callbacks to determine
+memory offsets by means of 'part' field from mtd_info, what previously
+was smashed accessing 'master' field in the mtd_set_dev_defaults() method.
+That provides wrong offset what causes hardware access errors.
 
-Fixes: 49d22b695cbb ("drivers: iio: chemical: Add support for Sensirion SCD4x CO2 sensor")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Link: https://lore.kernel.org/r/20220301025223.223223-1-trix@redhat.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Just make 'part', 'master' as separate fields, rather than using
+union type to avoid 'part' data corruption when mtd_set_dev_defaults()
+is called.
+
+Fixes: 46b5889cc2c5 ("mtd: implement proper partition handling")
+Signed-off-by: Oleksandr Ocheretnyi <oocheret@cisco.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220417184649.449289-1-oocheret@cisco.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/chemical/scd4x.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/linux/mtd/mtd.h | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/chemical/scd4x.c b/drivers/iio/chemical/scd4x.c
-index 20d4e7584e92..37143b5526ee 100644
---- a/drivers/iio/chemical/scd4x.c
-+++ b/drivers/iio/chemical/scd4x.c
-@@ -471,12 +471,15 @@ static ssize_t calibration_forced_value_store(struct device *dev,
- 	ret = scd4x_write_and_fetch(state, CMD_FRC, arg, &val, sizeof(val));
- 	mutex_unlock(&state->lock);
+diff --git a/include/linux/mtd/mtd.h b/include/linux/mtd/mtd.h
+index 157357ec1441..fc41fecfe44f 100644
+--- a/include/linux/mtd/mtd.h
++++ b/include/linux/mtd/mtd.h
+@@ -388,10 +388,8 @@ struct mtd_info {
+ 	/* List of partitions attached to this MTD device */
+ 	struct list_head partitions;
  
-+	if (ret)
-+		return ret;
-+
- 	if (val == 0xff) {
- 		dev_err(dev, "forced calibration has failed");
- 		return -EINVAL;
- 	}
+-	union {
+-		struct mtd_part part;
+-		struct mtd_master master;
+-	};
++	struct mtd_part part;
++	struct mtd_master master;
+ };
  
--	return ret ?: len;
-+	return len;
- }
- 
- static IIO_DEVICE_ATTR_RW(calibration_auto_enable, 0);
+ static inline struct mtd_info *mtd_get_master(struct mtd_info *mtd)
 -- 
-2.36.0
+2.35.1
 
 
 
