@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FD551A663
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04CBC51A700
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354185AbiEDQzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
+        id S1354664AbiEDRBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354408AbiEDQyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD2BE4924B;
-        Wed,  4 May 2022 09:49:28 -0700 (PDT)
+        with ESMTP id S1355500AbiEDRAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EEB54B841;
+        Wed,  4 May 2022 09:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F26F7B827A9;
-        Wed,  4 May 2022 16:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A41C385B1;
-        Wed,  4 May 2022 16:49:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C00DB617A6;
+        Wed,  4 May 2022 16:51:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11482C385B1;
+        Wed,  4 May 2022 16:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682966;
-        bh=5E/l/N1Kx3Pl2s6qM0ow1LbGNNft0GWY5gRu3tHdUaU=;
+        s=korg; t=1651683095;
+        bh=VCtRyXg3Pr3WcgZ2FulUzVHz7WGeADVI97kfVAKFyaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPiu3FmNXxR/z0S5IhKKp833lK+Lq0iABlpm3VXYr+r2edM15bKEuCDDFeqw9e2VV
-         lL6DO4QEcqRL1Vmv5UdDcyQ+EiTLyfHuzNcMecXkrMoEv0vlNLAxIG5Zw/CX3RrsSz
-         3dXslraPZr2/TxW2P92wZV5hHrk9nOA7338nLwTQ=
+        b=KCvZRBIYJjwA3meAkOH+szscu1TlwW2YOn5FSESa2SpeFJNj6Fycxv3tMOHw/1rVX
+         JJtEEFh/PzgR5PghQ1ld3RRAWOHqIIIAOrdUMoNek2GCGsqiadgDNw6uxAhbQ0dD3v
+         f5DZszMp7JIzGL0+ChZSuwznWwhdJ6iyeAMmpsIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Doug Porter <dsp@fb.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 58/84] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
+Subject: [PATCH 5.10 087/129] net: bcmgenet: hide status block before TX timestamping
 Date:   Wed,  4 May 2022 18:44:39 +0200
-Message-Id: <20220504152931.892966382@linuxfoundation.org>
+Message-Id: <20220504153027.919756294@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,143 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jonathan Lemon <jonathan.lemon@gmail.com>
 
-[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
+[ Upstream commit acac0541d1d65e81e599ec399d34d184d2424401 ]
 
-I had this bug sitting for too long in my pile, it is time to fix it.
+The hardware checksum offloading requires use of a transmit
+status block inserted before the outgoing frame data, this was
+updated in '9a9ba2a4aaaa ("net: bcmgenet: always enable status blocks")'
 
-Thanks to Doug Porter for reminding me of it!
+However, skb_tx_timestamp() assumes that it is passed a raw frame
+and PTP parsing chokes on this status block.
 
-We had various attempts in the past, including commit
-0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
-but the issue is that TCP stack currently only generates
-EPOLLOUT from input path, when tp->snd_una has advanced
-and skb(s) cleaned from rtx queue.
+Fix this by calling __skb_pull(), which hides the TSB before calling
+skb_tx_timestamp(), so an outgoing PTP packet is parsed correctly.
 
-If a flow has a big RTT, and/or receives SACKs, it is possible
-that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
-and no more data can be sent until tp->snd_una finally advances.
+As the data in the skb has already been set up for DMA, and the
+dma_unmap_* calls use a separately stored address, there is no
+no effective change in the data transmission.
 
-What is needed is to also check if POLLOUT needs to be generated
-whenever tp->snd_nxt is advanced, from output path.
-
-This bug triggers more often after an idle period, as
-we do not receive ACK for at least one RTT. tcp_notsent_lowat
-could be a fraction of what CWND and pacing rate would allow to
-send during this RTT.
-
-In a followup patch, I will remove the bogus call
-to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
-from tcp_check_space(). Fact that we have decided to generate
-an EPOLLOUT does not mean the application has immediately
-refilled the transmit queue. This optimistic call
-might have been the reason the bug seemed not too serious.
-
-Tested:
-
-200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
-
-$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
-$ cat bench_rr.sh
-SUM=0
-for i in {1..10}
-do
- V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
- echo $V
- SUM=$(($SUM + $V))
-done
-echo SUM=$SUM
-
-Before patch:
-$ bench_rr.sh
-130000000
-80000000
-140000000
-140000000
-140000000
-140000000
-130000000
-40000000
-90000000
-110000000
-SUM=1140000000
-
-After patch:
-$ bench_rr.sh
-430000000
-590000000
-530000000
-450000000
-450000000
-350000000
-450000000
-490000000
-480000000
-460000000
-SUM=4680000000  # This is 410 % of the value before patch.
-
-Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Doug Porter <dsp@fb.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220424165307.591145-1-jonathan.lemon@gmail.com
+Fixes: d03825fba459 ("net: bcmgenet: add skb_tx_timestamp call")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/tcp.h     |  1 +
- net/ipv4/tcp_input.c  | 12 +++++++++++-
- net/ipv4/tcp_output.c |  1 +
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index b686a21a8593..9237362e5606 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -603,6 +603,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
- void tcp_reset(struct sock *sk);
- void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
- void tcp_fin(struct sock *sk);
-+void tcp_check_space(struct sock *sk);
- 
- /* tcp_timer.c */
- void tcp_init_xmit_timers(struct sock *);
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index c0fcfa296468..f84047aec63c 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5230,7 +5230,17 @@ static void tcp_new_space(struct sock *sk)
- 	sk->sk_write_space(sk);
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index a2062144d7ca..9ffdaa84ba12 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1987,6 +1987,11 @@ static struct sk_buff *bcmgenet_add_tsb(struct net_device *dev,
+ 	return skb;
  }
  
--static void tcp_check_space(struct sock *sk)
-+/* Caller made space either from:
-+ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
-+ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
-+ *
-+ * We might be able to generate EPOLLOUT to the application if:
-+ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
-+ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
-+ *    small enough that tcp_stream_memory_free() decides it
-+ *    is time to generate EPOLLOUT.
-+ */
-+void tcp_check_space(struct sock *sk)
++static void bcmgenet_hide_tsb(struct sk_buff *skb)
++{
++	__skb_pull(skb, sizeof(struct status_64));
++}
++
+ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
  {
- 	if (sock_flag(sk, SOCK_QUEUE_SHRUNK)) {
- 		sock_reset_flag(sk, SOCK_QUEUE_SHRUNK);
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 139e962d1aef..67493ec6318a 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -81,6 +81,7 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+@@ -2093,6 +2098,8 @@ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	}
  
- 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
- 		      tcp_skb_pcount(skb));
-+	tcp_check_space(sk);
- }
+ 	GENET_CB(skb)->last_cb = tx_cb_ptr;
++
++	bcmgenet_hide_tsb(skb);
+ 	skb_tx_timestamp(skb);
  
- /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
+ 	/* Decrement total BD count and advance our write pointer */
 -- 
 2.35.1
 
