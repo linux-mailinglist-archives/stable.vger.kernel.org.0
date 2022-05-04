@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 033FA51A5F6
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF40A51A6F5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353667AbiEDQwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50834 "EHLO
+        id S1354483AbiEDRAd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353657AbiEDQwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E393947044;
-        Wed,  4 May 2022 09:48:23 -0700 (PDT)
+        with ESMTP id S1354605AbiEDQ6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2F32314C;
+        Wed,  4 May 2022 09:50:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60078B827A1;
-        Wed,  4 May 2022 16:48:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1203C385AA;
-        Wed,  4 May 2022 16:48:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E02A617BD;
+        Wed,  4 May 2022 16:50:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B74C385A4;
+        Wed,  4 May 2022 16:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682902;
-        bh=Y1qldisk8Lv4E9gahULwsrbZv9Dzw/IFq3UUntaIz9k=;
+        s=korg; t=1651683046;
+        bh=humWjBXg5Qfpu/Xg7rjSgbiOYu3/AmTCV30mt2Nvlxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SamySnADRAPaE7I+uPUBHDB1hJQkPbqT2K9YeAUezIfH6Fcx+4r9nELaJvEejNdjP
-         0Ix1iSlnHItqMOqMVaf1k5fQnj51rzPTgVugGqwaZho0Ys41BokbFsDSC5vjFkvFWV
-         +9xolKwqMtOSFBYWoErHuNgztyCAdVedll6GgDhg=
+        b=1NcIegnK9TrAg7GTU+RKDTQ5uk1aG4DzrHyAEJxQrcAfs5kjl9zUwej3cYwX6iDzX
+         JxFfYmmtfV7nfW/ZCLpW610x9J4BhYsYmxQoRoycav69haRtwIBnFnxyQkr5MiZqjo
+         dGxyOljmE8AzZj549JOEdjE5KfnHcwH+AnCS1I98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 08/84] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Rik van Riel <riel@surriel.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 037/129] iocost: dont reset the inuse weight of under-weighted debtors
 Date:   Wed,  4 May 2022 18:43:49 +0200
-Message-Id: <20220504152928.328055478@linuxfoundation.org>
+Message-Id: <20220504153024.146447116@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Tejun Heo <tj@kernel.org>
 
-commit e23e50e7acc8d8f16498e9c129db33e6a00e80eb upstream.
+commit 8c936f9ea11ec4e35e288810a7503b5c841a355f upstream.
 
-The sizeof(struct whitehat_dr_info) can be 4 bytes under CONFIG_AEABI=n
-due to "-mabi=apcs-gnu", even though it has a single u8:
+When an iocg is in debt, its inuse weight is owned by debt handling and
+should stay at 1. This invariant was broken when determining the amount of
+surpluses at the beginning of donation calculation - when an iocg's
+hierarchical weight is too low, the iocg is excluded from donation
+calculation and its inuse is reset to its active regardless of its
+indebtedness, triggering warnings like the following:
 
-whiteheat_private {
-        __u8                       mcr;                  /*     0     1 */
+ WARNING: CPU: 5 PID: 0 at block/blk-iocost.c:1416 iocg_kick_waitq+0x392/0x3a0
+ ...
+ RIP: 0010:iocg_kick_waitq+0x392/0x3a0
+ Code: 00 00 be ff ff ff ff 48 89 4d a8 e8 98 b2 70 00 48 8b 4d a8 85 c0 0f 85 4a fe ff ff 0f 0b e9 43 fe ff ff 0f 0b e9 4d fe ff ff <0f> 0b e9 50 fe ff ff e8 a2 ae 70 00 66 90 0f 1f 44 00 00 55 48 89
+ RSP: 0018:ffffc90000200d08 EFLAGS: 00010016
+ ...
+  <IRQ>
+  ioc_timer_fn+0x2e0/0x1470
+  call_timer_fn+0xa1/0x2c0
+ ...
 
-        /* size: 4, cachelines: 1, members: 1 */
-        /* padding: 3 */
-        /* last cacheline: 4 bytes */
-};
+As this happens only when an iocg's hierarchical weight is negligible, its
+impact likely is limited to triggering the warnings. Fix it by skipping
+resetting inuse of under-weighted debtors.
 
-The result is technically harmless, as both the source and the
-destinations are currently the same allocation size (4 bytes) and don't
-use their padding, but if anything were to ever be added after the
-"mcr" member in "struct whiteheat_private", it would be overwritten. The
-structs both have a single u8 "mcr" member, but are 4 bytes in padded
-size. The memcpy() destination was explicitly targeting the u8 member
-(size 1) with the length of the whole structure (size 4), triggering
-the memcpy buffer overflow warning:
-
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/spinlock.h:62,
-                 from include/linux/mmzone.h:8,
-                 from include/linux/gfp.h:6,
-                 from include/linux/slab.h:15,
-                 from drivers/usb/serial/whiteheat.c:17:
-In function 'fortify_memcpy_chk',
-    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
-include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
-  328 |                         __write_overflow_field(p_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Instead, just assign the one byte directly.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220421001234.2421107-1-keescook@chromium.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Rik van Riel <riel@surriel.com>
+Fixes: c421a3eb2e27 ("blk-iocost: revamp debt handling")
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lore.kernel.org/r/YmjODd4aif9BzFuO@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/whiteheat.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ block/blk-iocost.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -599,9 +599,8 @@ static int firm_send_command(struct usb_
- 		switch (command) {
- 		case WHITEHEAT_GET_DTR_RTS:
- 			info = usb_get_serial_port_data(port);
--			memcpy(&info->mcr, command_info->result_buffer,
--					sizeof(struct whiteheat_dr_info));
--				break;
-+			info->mcr = command_info->result_buffer[0];
-+			break;
- 		}
- 	}
- exit:
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -2257,7 +2257,17 @@ static void ioc_timer_fn(struct timer_li
+ 				iocg->hweight_donating = hwa;
+ 				iocg->hweight_after_donation = new_hwi;
+ 				list_add(&iocg->surplus_list, &surpluses);
+-			} else {
++			} else if (!iocg->abs_vdebt) {
++				/*
++				 * @iocg doesn't have enough to donate. Reset
++				 * its inuse to active.
++				 *
++				 * Don't reset debtors as their inuse's are
++				 * owned by debt handling. This shouldn't affect
++				 * donation calculuation in any meaningful way
++				 * as @iocg doesn't have a meaningful amount of
++				 * share anyway.
++				 */
+ 				TRACE_IOCG_PATH(inuse_shortage, iocg, &now,
+ 						iocg->inuse, iocg->active,
+ 						iocg->hweight_inuse, new_hwi);
 
 
