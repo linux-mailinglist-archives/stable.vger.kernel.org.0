@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D92851A7AB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C358A51A6F3
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244663AbiEDRHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51462 "EHLO
+        id S1354596AbiEDRAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355704AbiEDREj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4E2B4F45A;
-        Wed,  4 May 2022 09:53:15 -0700 (PDT)
+        with ESMTP id S1354836AbiEDQ7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4BCB4833F;
+        Wed,  4 May 2022 09:51:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 55CDE616F8;
-        Wed,  4 May 2022 16:53:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACA1FC385AA;
-        Wed,  4 May 2022 16:53:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 202E16179D;
+        Wed,  4 May 2022 16:51:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70104C385AA;
+        Wed,  4 May 2022 16:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683194;
-        bh=2AHMO1rt09lcgtSq7YM7IIDJOOXaAVwLycWd1FnTCxA=;
+        s=korg; t=1651683063;
+        bh=hNhfB4e2sNzIplw0oD6sriKi2qhMVvrnPGvyqCDnNgg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1i7ZbIGgTpEcOjXxyGJne/zTlTB3TvrK+iNXRhJ0MQcEMvyvlXFpdEU42y45RlSp
-         1HPDfGgTSXtv5P6I4Z75MI2c+IvPXohVQ2wUXhXyopC7ojFwBHbKo6pK7hIelqZmWL
-         TdjNBDGCpz2bVZz0EzLFMdrK0E7DT2G3JKjJAlyI=
+        b=y3KQX+PkmPoEjLMMhDNYK5UHzmwd3qzooeTTZ3Wm5Kjd42DqUkoaS1I6MIOkmK2lf
+         4zxHZrS+Y3YRXt96cOmzREIKhfiOLblZ5IyvZnvDhG12RAJGici3HmVbbcMqt+Qs2l
+         DTtsRCnPbuyR3c3RUO8pLJgx2PXb1/U0jiq87zOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        syzbot+53ce4a4246d0fe0fee34@syzkaller.appspotmail.com
-Subject: [PATCH 5.15 047/177] video: fbdev: udlfb: properly check endpoint type
+        stable@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/129] bus: ti-sysc: Make omap3 gpt12 quirk handling SoC specific
 Date:   Wed,  4 May 2022 18:44:00 +0200
-Message-Id: <20220504153057.147274575@linuxfoundation.org>
+Message-Id: <20220504153024.927099612@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit aaf7dbe07385e0b8deb7237eca2a79926bbc7091 ]
+[ Upstream commit a12315d6d27093392b6c634e1d35a59f1d1f7a59 ]
 
-syzbot reported warning in usb_submit_urb, which is caused by wrong
-endpoint type.
+On beagleboard revisions A to B4 we need to use gpt12 as the system timer.
+However, the quirk handling added for gpt12 caused a regression for system
+suspend for am335x as the PM coprocessor needs the timers idled for
+suspend.
 
-This driver uses out bulk endpoint for communication, so
-let's check if this endpoint is present and bail out early if not.
+Let's make the gpt12 quirk specific to omap34xx, other SoCs don't need
+it. Beagleboard revisions C and later no longer need to use the gpt12
+related quirk. Then at some point, if we decide to drop support for the old
+beagleboard revisions A to B4, we can also drop the gpt12 related quirks
+completely.
 
-Fail log:
-
-usb 1-1: BOGUS urb xfer, pipe 3 != type 1
-WARNING: CPU: 0 PID: 4822 at drivers/usb/core/urb.c:493 usb_submit_urb+0xd27/0x1540 drivers/usb/core/urb.c:493
-Modules linked in:
-CPU: 0 PID: 4822 Comm: kworker/0:3 Tainted: G        W         5.13.0-syzkaller #0
-...
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:usb_submit_urb+0xd27/0x1540 drivers/usb/core/urb.c:493
-...
-Call Trace:
- dlfb_submit_urb+0x89/0x160 drivers/video/fbdev/udlfb.c:1969
- dlfb_set_video_mode+0x21f0/0x2950 drivers/video/fbdev/udlfb.c:315
- dlfb_ops_set_par+0x2a3/0x840 drivers/video/fbdev/udlfb.c:1110
- dlfb_usb_probe.cold+0x113e/0x1f4a drivers/video/fbdev/udlfb.c:1732
- usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
-
-Fixes: 88e58b1a42f8 ("Staging: add udlfb driver")
-Reported-and-tested-by: syzbot+53ce4a4246d0fe0fee34@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Fixes: 3ff340e24c9d ("bus: ti-sysc: Fix gpt12 system timer issue with reserved status")
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Suggested-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/udlfb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/bus/ti-sysc.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/udlfb.c b/drivers/video/fbdev/udlfb.c
-index 90f48b71fd8f..d9eec1b60e66 100644
---- a/drivers/video/fbdev/udlfb.c
-+++ b/drivers/video/fbdev/udlfb.c
-@@ -1649,8 +1649,9 @@ static int dlfb_usb_probe(struct usb_interface *intf,
- 	const struct device_attribute *attr;
- 	struct dlfb_data *dlfb;
- 	struct fb_info *info;
--	int retval = -ENOMEM;
-+	int retval;
- 	struct usb_device *usbdev = interface_to_usbdev(intf);
-+	struct usb_endpoint_descriptor *out;
- 
- 	/* usb initialization */
- 	dlfb = kzalloc(sizeof(*dlfb), GFP_KERNEL);
-@@ -1664,6 +1665,12 @@ static int dlfb_usb_probe(struct usb_interface *intf,
- 	dlfb->udev = usb_get_dev(usbdev);
- 	usb_set_intfdata(intf, dlfb);
- 
-+	retval = usb_find_common_endpoints(intf->cur_altsetting, NULL, &out, NULL, NULL);
-+	if (retval) {
-+		dev_err(&intf->dev, "Device should have at lease 1 bulk endpoint!\n");
-+		goto error;
-+	}
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 18f0650c5d40..ac559c262033 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -3130,13 +3130,27 @@ static int sysc_check_disabled_devices(struct sysc *ddata)
+  */
+ static int sysc_check_active_timer(struct sysc *ddata)
+ {
++	int error;
 +
- 	dev_dbg(&intf->dev, "console enable=%d\n", console);
- 	dev_dbg(&intf->dev, "fb_defio enable=%d\n", fb_defio);
- 	dev_dbg(&intf->dev, "shadow enable=%d\n", shadow);
-@@ -1673,6 +1680,7 @@ static int dlfb_usb_probe(struct usb_interface *intf,
- 	if (!dlfb_parse_vendor_descriptor(dlfb, intf)) {
- 		dev_err(&intf->dev,
- 			"firmware not recognized, incompatible device?\n");
-+		retval = -ENODEV;
- 		goto error;
- 	}
+ 	if (ddata->cap->type != TI_SYSC_OMAP2_TIMER &&
+ 	    ddata->cap->type != TI_SYSC_OMAP4_TIMER)
+ 		return 0;
  
-@@ -1686,8 +1694,10 @@ static int dlfb_usb_probe(struct usb_interface *intf,
++	/*
++	 * Quirk for omap3 beagleboard revision A to B4 to use gpt12.
++	 * Revision C and later are fixed with commit 23885389dbbb ("ARM:
++	 * dts: Fix timer regression for beagleboard revision c"). This all
++	 * can be dropped if we stop supporting old beagleboard revisions
++	 * A to B4 at some point.
++	 */
++	if (sysc_soc->soc == SOC_3430)
++		error = -ENXIO;
++	else
++		error = -EBUSY;
++
+ 	if ((ddata->cfg.quirks & SYSC_QUIRK_NO_RESET_ON_INIT) &&
+ 	    (ddata->cfg.quirks & SYSC_QUIRK_NO_IDLE))
+-		return -ENXIO;
++		return error;
  
- 	/* allocates framebuffer driver structure, not framebuffer memory */
- 	info = framebuffer_alloc(0, &dlfb->udev->dev);
--	if (!info)
-+	if (!info) {
-+		retval = -ENOMEM;
- 		goto error;
-+	}
- 
- 	dlfb->info = info;
- 	info->par = dlfb;
+ 	return 0;
+ }
 -- 
 2.35.1
 
