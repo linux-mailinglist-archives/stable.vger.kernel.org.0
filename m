@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C89D251A7A2
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D6051A683
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242764AbiEDRGV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
+        id S244716AbiEDQz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356006AbiEDREu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79B350044;
-        Wed,  4 May 2022 09:53:39 -0700 (PDT)
+        with ESMTP id S1353934AbiEDQxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF4247AD0;
+        Wed,  4 May 2022 09:48:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5ECD3B8278E;
-        Wed,  4 May 2022 16:53:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D79C385AA;
-        Wed,  4 May 2022 16:53:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD9961744;
+        Wed,  4 May 2022 16:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A91F5C385A4;
+        Wed,  4 May 2022 16:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683218;
-        bh=mG562RSlp1GIUX/9eUaCxfRcLCFqQjtL0AeviNxO6YI=;
+        s=korg; t=1651682932;
+        bh=deIqDv/0Rt/scr+yTil7UlSkLsq1Meot7xNX2NjZ+m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PtufCUmOKslV8c3IG/LvM+9l6VirxWoGKodQJdSIyAmw0NGiCaqr1PMhVHNsf26G8
-         gx+2kugw1rwiVKu3A+0IqeBL0xcc/+rQqtGTMfZbsuq34MpIIwcnyZHvzZ3FUMqvhi
-         gvAu60mdvvE5IKNveG72K02EN+2Y4t/WZXuIczas=
+        b=OgkjNjJItPEO3bcCeg7VrO5T5KMDPJUpq5zAOMhxhvgq1+YlqbVsc1fg3bDy9flae
+         SOdgM6nMnyeCA/UxRX7Z5uSv4W8SFh0RAEVdav17+mMNzcP/qH0j4fvmk1XmbGU5/t
+         TUgpeYXCOzinZ8FsiB/PG+3yNC1Mz7JVuVATjhgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
         Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/177] ARM: dts: am3517-evm: Fix misc pinmuxing
+Subject: [PATCH 5.4 43/84] ARM: dts: am3517-evm: Fix misc pinmuxing
 Date:   Wed,  4 May 2022 18:44:24 +0200
-Message-Id: <20220504153059.391179111@linuxfoundation.org>
+Message-Id: <20220504152930.858173332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 49 insertions(+), 5 deletions(-)
 
 diff --git a/arch/arm/boot/dts/am3517-evm.dts b/arch/arm/boot/dts/am3517-evm.dts
-index 0d2fac98ce7d..c8b80f156ec9 100644
+index a1fd3e63e86e..3db30ce134b9 100644
 --- a/arch/arm/boot/dts/am3517-evm.dts
 +++ b/arch/arm/boot/dts/am3517-evm.dts
-@@ -161,6 +161,8 @@ pwm11: dmtimer-pwm@11 {
+@@ -160,6 +160,8 @@ pwm11: dmtimer-pwm@11 {
  
  	/* HS USB Host PHY on PORT 1 */
  	hsusb1_phy: hsusb1_phy {
@@ -87,7 +87,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  		compatible = "usb-nop-xceiv";
  		reset-gpios = <&gpio2 25 GPIO_ACTIVE_LOW>; /* gpio_57 */
  		#phy-cells = <0>;
-@@ -168,7 +170,9 @@ hsusb1_phy: hsusb1_phy {
+@@ -167,7 +169,9 @@ hsusb1_phy: hsusb1_phy {
  };
  
  &davinci_emac {
@@ -98,7 +98,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  };
  
  &davinci_mdio {
-@@ -193,6 +197,8 @@ dpi_out: endpoint {
+@@ -192,6 +196,8 @@ dpi_out: endpoint {
  };
  
  &i2c2 {
@@ -107,7 +107,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  	clock-frequency = <400000>;
  	/* User DIP swithes [1:8] / User LEDS [1:2] */
  	tca6416: gpio@21 {
-@@ -205,6 +211,8 @@ tca6416: gpio@21 {
+@@ -204,6 +210,8 @@ tca6416: gpio@21 {
  };
  
  &i2c3 {
@@ -116,7 +116,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  	clock-frequency = <400000>;
  };
  
-@@ -223,6 +231,8 @@ &mmc3 {
+@@ -222,6 +230,8 @@ &mmc3 {
  };
  
  &usbhshost {
@@ -125,7 +125,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  	port1-mode = "ehci-phy";
  };
  
-@@ -231,8 +241,35 @@ &usbhsehci {
+@@ -230,8 +240,35 @@ &usbhsehci {
  };
  
  &omap3_pmx_core {
@@ -163,7 +163,7 @@ index 0d2fac98ce7d..c8b80f156ec9 100644
  
  	leds_pins: pinmux_leds_pins {
  		pinctrl-single,pins = <
-@@ -300,8 +337,6 @@ OMAP3_CORE1_IOPAD(0x20ba, PIN_OUTPUT | MUX_MODE4)	/* gpmc_ncs6.gpio_57 */
+@@ -299,8 +336,6 @@ OMAP3_CORE1_IOPAD(0x20ba, PIN_OUTPUT | MUX_MODE4)	/* gpmc_ncs6.gpio_57 */
  };
  
  &omap3_pmx_core2 {
