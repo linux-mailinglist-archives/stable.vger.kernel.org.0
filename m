@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC37851A9EE
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0263E51AA0F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358004AbiEDRUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
+        id S244836AbiEDRVF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358179AbiEDRPo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EDA356422;
-        Wed,  4 May 2022 09:59:26 -0700 (PDT)
+        with ESMTP id S1358040AbiEDRPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 405E7562E3;
+        Wed,  4 May 2022 09:59:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E666AB82737;
-        Wed,  4 May 2022 16:59:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ECBBC385A5;
-        Wed,  4 May 2022 16:59:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C05A61967;
+        Wed,  4 May 2022 16:59:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3C71C385A5;
+        Wed,  4 May 2022 16:59:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683563;
-        bh=1uPF9iPeVnkugtdDgv3+RKTt3xBCZr5qK5UDqcizsRk=;
+        s=korg; t=1651683555;
+        bh=Go232h95Z5ei0fBbv7KolevNCDDnJEtR9DJmlTejwtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nocz6JQgrPRNrDySsJMCrC4fItPrMolqyT1lgWQzz0ZN5sGSXku6Ql05oKAVtkx5J
-         GTv8lHkxiDDdykJmsqlM17rvPttXAUKgzTwK4QAnS5LPIZOmlJOUyJqivS6BVCwhNO
-         b3PTlCiQM9ofPz4eqyf4yylkQIe1knli8f4e49bY=
+        b=FBKzASGNnT5DhBTsoIzEhmgj+OpnuNY03pOwZxVweMblCIO59H7dGbTvukao3Dmpt
+         kQTovxkkC/9c2kYdrsobze0heXkF8GyagA3zRKg5NT+t3/30sL+2JQBjv/QoAJm0XM
+         N40hMDE1QsLQNKQ0ifpDH0cbJnoW7jvlErT3lKKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 217/225] tty: n_gsm: fix incorrect UA handling
-Date:   Wed,  4 May 2022 18:47:35 +0200
-Message-Id: <20220504153129.286283053@linuxfoundation.org>
+Subject: [PATCH 5.17 218/225] tty: n_gsm: fix missing update of modem controls after DLCI open
+Date:   Wed,  4 May 2022 18:47:36 +0200
+Message-Id: <20220504153129.361232105@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,36 +54,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
+commit 48473802506d2d6151f59e0e764932b33b53cb3b upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
-acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
-discarded. Currently, all UA frame are handled in the same way regardless
-of the PF bit. This does not comply with the standard.
-Remove the UA case in gsm_queue() to process only UA frames with PF bit set
-to 1 to abide the standard.
+Currently the peer is not informed about the initial state of the modem
+control lines after a new DLCI has been opened.
+Fix this by sending the initial modem control line states after DLCI open.
 
 Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220420101346.3315-1-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/tty/n_gsm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -1865,7 +1865,6 @@ static void gsm_queue(struct gsm_mux *gs
- 			}
- 		}
- 		break;
--	case UA:
- 	case UA|PF:
- 		if (cr == 0 || dlci == NULL)
- 			break;
+@@ -370,6 +370,7 @@ static const u8 gsm_fcs8[256] = {
+ #define GOOD_FCS	0xCF
+ 
+ static int gsmld_output(struct gsm_mux *gsm, u8 *data, int len);
++static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk);
+ 
+ /**
+  *	gsm_fcs_add	-	update FCS
+@@ -1483,6 +1484,9 @@ static void gsm_dlci_open(struct gsm_dlc
+ 		pr_debug("DLCI %d goes open.\n", dlci->addr);
+ 	/* Register gsmtty driver,report gsmtty dev add uevent for user */
+ 	tty_register_device(gsm_tty_driver, dlci->addr, NULL);
++	/* Send current modem state */
++	if (dlci->addr)
++		gsmtty_modem_update(dlci, 0);
+ 	wake_up(&dlci->gsm->event);
+ }
+ 
 
 
