@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B6CA51A8BA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 057FC51A8FF
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347409AbiEDRQp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:16:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
+        id S1355641AbiEDRLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355897AbiEDRIz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD26E51E65;
-        Wed,  4 May 2022 09:54:41 -0700 (PDT)
+        with ESMTP id S1357080AbiEDRJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1CC248E65;
+        Wed,  4 May 2022 09:57:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49C2E618B0;
-        Wed,  4 May 2022 16:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9660CC385B2;
-        Wed,  4 May 2022 16:54:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DC53618E5;
+        Wed,  4 May 2022 16:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8DBBC385B0;
+        Wed,  4 May 2022 16:57:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683280;
-        bh=J9fKvkWLHDd+6qz2ZBFVcWFT9ooivv7xE+aNdi+7aEU=;
+        s=korg; t=1651683422;
+        bh=mXFV1eCLSb36iBuzyVOfOeBZf521incMvf/E8Kl5D/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmwT8Lx7GbizdFnTwo5CXpFV/LQF98p4iPkgabP3LOkiR+ZUL79FOXXTHg9E3Ob+K
-         3TSnM/qRcCb88ZL8Moeeu9BESBDckGMi+nRzY9xRcUN2W2FddM5INYbTi987gX/G8l
-         twTmAGH/uiB2fIQpU9EZngz11MDpZ/Df8HprnLB8=
+        b=AuDjUHl+mvtxNMmKrCOdo4vAmJgeKUcof42AGy+5Vg8lhmh46Rs1g0xseKHZw9Xcm
+         cesxTXTJGKRhe1JzRpBY2oQ4OkWvO+AHRQX+SO2dKAQKrdkrrdpqJyzrF2ckgi+K9W
+         FNkzk0SF9e0GCbjJMq4e8r7fhA2Ff31ZDRjODpWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, suresh kumar <suresh2514@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Taniya Das <quic_tdas@quicinc.com>,
+        Mike Tipton <quic_mdtipton@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 133/177] bonding: do not discard lowest hash bit for non layer3+4 hashing
+Subject: [PATCH 5.17 088/225] interconnect: qcom: sdx55: Drop IP0 interconnects
 Date:   Wed,  4 May 2022 18:45:26 +0200
-Message-Id: <20220504153105.084842283@linuxfoundation.org>
+Message-Id: <20220504153118.796575762@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +59,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: suresh kumar <suresh2514@gmail.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 49aefd131739df552f83c566d0665744c30b1d70 ]
+[ Upstream commit 2fb251c265608636fc961b7d38e1a03937e57371 ]
 
-Commit b5f862180d70 was introduced to discard lowest hash bit for layer3+4 hashing
-but it also removes last bit from non layer3+4 hashing
+Similar to the sc7180 commit, let's drop the IP0 interconnects here
+because the IP0 resource is also used in the clk-rpmh driver on sdx55.
+It's bad to have the clk framework and interconnect framework control
+the same RPMh resource without any coordination. The rpmh driver in the
+kernel doesn't aggregate resources between clients either, so leaving
+control to clk-rpmh avoids any issues with unused interconnects turning
+off IP0 behind the back of the clk framework.
 
-Below script shows layer2+3 hashing will result in same slave to be used with above commit.
-$ cat hash.py
-#/usr/bin/python3.6
-
-h_dests=[0xa0, 0xa1]
-h_source=0xe3
-hproto=0x8
-saddr=0x1e7aa8c0
-daddr=0x17aa8c0
-
-for h_dest in h_dests:
-    hash = (h_dest ^ h_source ^ hproto ^ saddr ^ daddr)
-    hash ^= hash >> 16
-    hash ^= hash >> 8
-    print(hash)
-
-print("with last bit removed")
-for h_dest in h_dests:
-    hash = (h_dest ^ h_source ^ hproto ^ saddr ^ daddr)
-    hash ^= hash >> 16
-    hash ^= hash >> 8
-    hash = hash >> 1
-    print(hash)
-
-Output:
-$ python3.6 hash.py
-522133332
-522133333   <-------------- will result in both slaves being used
-
-with last bit removed
-261066666
-261066666   <-------------- only single slave used
-
-Signed-off-by: suresh kumar <suresh2514@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Alex Elder <elder@linaro.org>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Taniya Das <quic_tdas@quicinc.com>
+Cc: Mike Tipton <quic_mdtipton@quicinc.com>
+Fixes: b2150cab9a97 ("clk: qcom: rpmh: add support for SDX55 rpmh IPA clock")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220412220033.1273607-3-swboyd@chromium.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_main.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/interconnect/qcom/sdx55.c | 21 ---------------------
+ 1 file changed, 21 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
-index 46c3301a5e07..2e75b7e8f70b 100644
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3817,14 +3817,19 @@ static bool bond_flow_dissect(struct bonding *bond, struct sk_buff *skb, const v
- 	return true;
- }
+diff --git a/drivers/interconnect/qcom/sdx55.c b/drivers/interconnect/qcom/sdx55.c
+index 03d604f84cc5..e3ac25a997b7 100644
+--- a/drivers/interconnect/qcom/sdx55.c
++++ b/drivers/interconnect/qcom/sdx55.c
+@@ -18,7 +18,6 @@
+ #include "icc-rpmh.h"
+ #include "sdx55.h"
  
--static u32 bond_ip_hash(u32 hash, struct flow_keys *flow)
-+static u32 bond_ip_hash(u32 hash, struct flow_keys *flow, int xmit_policy)
- {
- 	hash ^= (__force u32)flow_get_u32_dst(flow) ^
- 		(__force u32)flow_get_u32_src(flow);
- 	hash ^= (hash >> 16);
- 	hash ^= (hash >> 8);
-+
- 	/* discard lowest hash bit to deal with the common even ports pattern */
--	return hash >> 1;
-+	if (xmit_policy == BOND_XMIT_POLICY_LAYER34 ||
-+		xmit_policy == BOND_XMIT_POLICY_ENCAP34)
-+		return hash >> 1;
-+
-+	return hash;
- }
+-DEFINE_QNODE(ipa_core_master, SDX55_MASTER_IPA_CORE, 1, 8, SDX55_SLAVE_IPA_CORE);
+ DEFINE_QNODE(llcc_mc, SDX55_MASTER_LLCC, 4, 4, SDX55_SLAVE_EBI_CH0);
+ DEFINE_QNODE(acm_tcu, SDX55_MASTER_TCU_0, 1, 8, SDX55_SLAVE_LLCC, SDX55_SLAVE_MEM_NOC_SNOC, SDX55_SLAVE_MEM_NOC_PCIE_SNOC);
+ DEFINE_QNODE(qnm_snoc_gc, SDX55_MASTER_SNOC_GC_MEM_NOC, 1, 8, SDX55_SLAVE_LLCC);
+@@ -40,7 +39,6 @@ DEFINE_QNODE(xm_pcie, SDX55_MASTER_PCIE, 1, 8, SDX55_SLAVE_ANOC_SNOC);
+ DEFINE_QNODE(xm_qdss_etr, SDX55_MASTER_QDSS_ETR, 1, 8, SDX55_SLAVE_SNOC_CFG, SDX55_SLAVE_EMAC_CFG, SDX55_SLAVE_USB3, SDX55_SLAVE_AOSS, SDX55_SLAVE_SPMI_FETCHER, SDX55_SLAVE_QDSS_CFG, SDX55_SLAVE_PDM, SDX55_SLAVE_SNOC_MEM_NOC_GC, SDX55_SLAVE_TCSR, SDX55_SLAVE_CNOC_DDRSS, SDX55_SLAVE_SPMI_VGI_COEX, SDX55_SLAVE_QPIC, SDX55_SLAVE_OCIMEM, SDX55_SLAVE_IPA_CFG, SDX55_SLAVE_USB3_PHY_CFG, SDX55_SLAVE_AOP, SDX55_SLAVE_BLSP_1, SDX55_SLAVE_SDCC_1, SDX55_SLAVE_CNOC_MSS, SDX55_SLAVE_PCIE_PARF, SDX55_SLAVE_ECC_CFG, SDX55_SLAVE_AUDIO, SDX55_SLAVE_AOSS, SDX55_SLAVE_PRNG, SDX55_SLAVE_CRYPTO_0_CFG, SDX55_SLAVE_TCU, SDX55_SLAVE_CLK_CTL, SDX55_SLAVE_IMEM_CFG);
+ DEFINE_QNODE(xm_sdc1, SDX55_MASTER_SDCC_1, 1, 8, SDX55_SLAVE_AOSS, SDX55_SLAVE_IPA_CFG, SDX55_SLAVE_ANOC_SNOC, SDX55_SLAVE_AOP, SDX55_SLAVE_AUDIO);
+ DEFINE_QNODE(xm_usb3, SDX55_MASTER_USB3, 1, 8, SDX55_SLAVE_ANOC_SNOC);
+-DEFINE_QNODE(ipa_core_slave, SDX55_SLAVE_IPA_CORE, 1, 8);
+ DEFINE_QNODE(ebi, SDX55_SLAVE_EBI_CH0, 1, 4);
+ DEFINE_QNODE(qns_llcc, SDX55_SLAVE_LLCC, 1, 16, SDX55_SLAVE_EBI_CH0);
+ DEFINE_QNODE(qns_memnoc_snoc, SDX55_SLAVE_MEM_NOC_SNOC, 1, 8, SDX55_MASTER_MEM_NOC_SNOC);
+@@ -82,7 +80,6 @@ DEFINE_QNODE(xs_sys_tcu_cfg, SDX55_SLAVE_TCU, 1, 8);
+ DEFINE_QBCM(bcm_mc0, "MC0", true, &ebi);
+ DEFINE_QBCM(bcm_sh0, "SH0", true, &qns_llcc);
+ DEFINE_QBCM(bcm_ce0, "CE0", false, &qxm_crypto);
+-DEFINE_QBCM(bcm_ip0, "IP0", false, &ipa_core_slave);
+ DEFINE_QBCM(bcm_pn0, "PN0", false, &qhm_snoc_cfg);
+ DEFINE_QBCM(bcm_sh3, "SH3", false, &xm_apps_rdwr);
+ DEFINE_QBCM(bcm_sh4, "SH4", false, &qns_memnoc_snoc, &qns_sys_pcie);
+@@ -219,22 +216,6 @@ static const struct qcom_icc_desc sdx55_system_noc = {
+ 	.num_bcms = ARRAY_SIZE(system_noc_bcms),
+ };
  
- /* Generate hash based on xmit policy. If @skb is given it is used to linearize
-@@ -3854,7 +3859,7 @@ static u32 __bond_xmit_hash(struct bonding *bond, struct sk_buff *skb, const voi
- 			memcpy(&hash, &flow.ports.ports, sizeof(hash));
- 	}
- 
--	return bond_ip_hash(hash, &flow);
-+	return bond_ip_hash(hash, &flow, bond->params.xmit_policy);
- }
- 
- /**
-@@ -5012,7 +5017,7 @@ static u32 bond_sk_hash_l34(struct sock *sk)
- 	/* L4 */
- 	memcpy(&hash, &flow.ports.ports, sizeof(hash));
- 	/* L3 */
--	return bond_ip_hash(hash, &flow);
-+	return bond_ip_hash(hash, &flow, BOND_XMIT_POLICY_LAYER34);
- }
- 
- static struct net_device *__bond_sk_get_lower_dev(struct bonding *bond,
+-static struct qcom_icc_bcm *ipa_virt_bcms[] = {
+-	&bcm_ip0,
+-};
+-
+-static struct qcom_icc_node *ipa_virt_nodes[] = {
+-	[MASTER_IPA_CORE] = &ipa_core_master,
+-	[SLAVE_IPA_CORE] = &ipa_core_slave,
+-};
+-
+-static const struct qcom_icc_desc sdx55_ipa_virt = {
+-	.nodes = ipa_virt_nodes,
+-	.num_nodes = ARRAY_SIZE(ipa_virt_nodes),
+-	.bcms = ipa_virt_bcms,
+-	.num_bcms = ARRAY_SIZE(ipa_virt_bcms),
+-};
+-
+ static const struct of_device_id qnoc_of_match[] = {
+ 	{ .compatible = "qcom,sdx55-mc-virt",
+ 	  .data = &sdx55_mc_virt},
+@@ -242,8 +223,6 @@ static const struct of_device_id qnoc_of_match[] = {
+ 	  .data = &sdx55_mem_noc},
+ 	{ .compatible = "qcom,sdx55-system-noc",
+ 	  .data = &sdx55_system_noc},
+-	{ .compatible = "qcom,sdx55-ipa-virt",
+-	  .data = &sdx55_ipa_virt},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, qnoc_of_match);
 -- 
 2.35.1
 
