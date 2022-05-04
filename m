@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B41051A78A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8C8151A659
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355253AbiEDRGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54710 "EHLO
+        id S1354164AbiEDQzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356039AbiEDREv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:51 -0400
+        with ESMTP id S1354068AbiEDQxt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:49 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CBBC4FC6B;
-        Wed,  4 May 2022 09:53:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB7346B3D;
+        Wed,  4 May 2022 09:49:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27241B827A3;
-        Wed,  4 May 2022 16:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E1D0C385A4;
-        Wed,  4 May 2022 16:53:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B211B827A0;
+        Wed,  4 May 2022 16:49:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76DFC385AA;
+        Wed,  4 May 2022 16:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683219;
-        bh=TJj4Yiloi+OzkR9APGeJI/DYk4NVRmMyNOzm9Hso+HI=;
+        s=korg; t=1651682940;
+        bh=NhFhnzI0gdPcL+Y4/SDdfwLcqHDIn6Qbw2CnLVHsIJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4KDnImGYHHoN8GzVBSj+oSR68fEzxaWgw8Sw3asY83ggWhZZ9R0zF4zX5T2AvmeP
-         SAa8Pr99LlF5BS+4Pj9lEf/iqhZoKSRzXldU8nLZ5r+q58qNHXRJtjVrJ1xKgL76/5
-         sBIP8hzuo3i8lqW89h/RxLfTevTu/3HF2PjIT7Ag=
+        b=sa0j9RD3jWfq775bDv9iFKm3y+ZzJje9UvFquC9/txsCJ+1x8RtBfQTzdozPDc1eQ
+         dQwQW/cNma46sW2P56JmDQbPe54jrxD1Z0dr0SAsn5ykdFKE6faCNxOB/EUfghYz1s
+         qwcmDCx5rh2bSlCv3qaRFKlPdbZNFes7fmf5xOe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 072/177] ARM: dts: logicpd-som-lv: Fix wrong pinmuxing on OMAP35
-Date:   Wed,  4 May 2022 18:44:25 +0200
-Message-Id: <20220504153059.492121633@linuxfoundation.org>
+Subject: [PATCH 5.4 45/84] ipvs: correctly print the memory size of ip_vs_conn_tab
+Date:   Wed,  4 May 2022 18:44:26 +0200
+Message-Id: <20220504152931.009523556@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,102 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit 46ff3df87215ff42c0cd2c4bdb7d74540384a69c ]
+[ Upstream commit eba1a872cb73314280d5448d934935b23e30b7ca ]
 
-The pinout of the OMAP35 and DM37 variants of the SOM-LV are the
-same, but the macros which define the pinmuxing are different
-between OMAP3530 and DM3730.  The pinmuxing was correct for
-for the DM3730, but wrong for the OMAP3530.  Since the boot loader
-was correctly pin-muxing the pins, this was not obvious. As the
-bootloader not guaranteed to pinmux all the pins any more, this
-causes an issue, so the pinmux needs to be moved from a common
-file to their respective board files.
+The memory size of ip_vs_conn_tab changed after we use hlist
+instead of list.
 
-Fixes: f8a2e3ff7103 ("ARM: dts: Add minimal support for LogicPD OMAP35xx SOM-LV devkit")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Message-Id: <20220303171818.11060-1-aford173@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 731109e78415 ("ipvs: use hlist instead of list")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Julian Anastasov <ja@ssi.bg>
+Acked-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv.dtsi            | 15 ---------------
- 3 files changed, 30 insertions(+), 15 deletions(-)
+ net/netfilter/ipvs/ip_vs_conn.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-index 2a0a98fe67f0..3240c67e0c39 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom OMAP35xx SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3430", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3430_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3430_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3430_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3430_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3430_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3430_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-index a604d92221a4..c757f0d7781c 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom DM3730 SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3630", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv.dtsi b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-index b56524cc7fe2..55b619c99e24 100644
---- a/arch/arm/boot/dts/logicpd-som-lv.dtsi
-+++ b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-@@ -265,21 +265,6 @@ OMAP3_WKUP_IOPAD(0x2a0c, PIN_OUTPUT | MUX_MODE4)	/* sys_boot1.gpio_3 */
- 	};
- };
+diff --git a/net/netfilter/ipvs/ip_vs_conn.c b/net/netfilter/ipvs/ip_vs_conn.c
+index d1524ca4b90e..a189079a6ea5 100644
+--- a/net/netfilter/ipvs/ip_vs_conn.c
++++ b/net/netfilter/ipvs/ip_vs_conn.c
+@@ -1421,7 +1421,7 @@ int __init ip_vs_conn_init(void)
+ 	pr_info("Connection hash table configured "
+ 		"(size=%d, memory=%ldKbytes)\n",
+ 		ip_vs_conn_tab_size,
+-		(long)(ip_vs_conn_tab_size*sizeof(struct list_head))/1024);
++		(long)(ip_vs_conn_tab_size*sizeof(*ip_vs_conn_tab))/1024);
+ 	IP_VS_DBG(0, "Each connection entry needs %zd bytes at least\n",
+ 		  sizeof(struct ip_vs_conn));
  
--&omap3_pmx_core2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&hsusb2_2_pins>;
--	hsusb2_2_pins: pinmux_hsusb2_2_pins {
--		pinctrl-single,pins = <
--			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
--			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
--			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
--			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
--			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
--			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
--		>;
--	};
--};
--
- &uart2 {
- 	interrupts-extended = <&intc 73 &omap3_pmx_core OMAP3_UART2_RX>;
- 	pinctrl-names = "default";
 -- 
 2.35.1
 
