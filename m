@@ -2,101 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8110851971B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 07:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77DED51973B
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 08:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344771AbiEDGDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 02:03:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34586 "EHLO
+        id S239742AbiEDGNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 02:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344788AbiEDGDM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 02:03:12 -0400
-Received: from gandalf.ozlabs.org (mail.ozlabs.org [IPv6:2404:9400:2221:ea00::3])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5AF2AE12;
-        Tue,  3 May 2022 22:59:36 -0700 (PDT)
-Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        with ESMTP id S232965AbiEDGNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 02:13:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 597D014006;
+        Tue,  3 May 2022 23:09:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.ozlabs.org (Postfix) with ESMTPSA id 4KtR433QQ5z4xXS;
-        Wed,  4 May 2022 15:59:31 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ellerman.id.au;
-        s=201909; t=1651643971;
-        bh=C8XFNo0MACWuzzd3GeNsre8CYszj5XfLhRDPTpa0WTs=;
-        h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-        b=odIvWeIo7sy+7E938rOqDN4nNheG/V9tcPuj5+9aZeDCrqs4lBdqW90f3DZ4ygj33
-         fpNG17LjwHCdAf5yhIgbY+W0xg1LyDy8uFe3x2H07adoJikyiKiCv+wP2cokE0mY3Z
-         byt94S3010u4Tb+68MPxaG44Rs5IrNHuR0x2U/Pj2r6ffil2jRl5zPOehqBe4xWigQ
-         H+GcrF8y1ffJQUj+FUGBoO4b3xxXqhS+8p/4Da5U5jXmbLjni7Dj4DjwkuCjBWg3Lk
-         cOPOa5PtbIQQNisaEDy93H1ABL8cGgtUtPJqakI6OJUl6z19edrlKIckmN+dE0yoRe
-         EOrYRG8c/Nz2w==
-From:   Michael Ellerman <mpe@ellerman.id.au>
-To:     Laurent Dufour <ldufour@linux.ibm.com>
-Cc:     linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH v2] powerpc/rtas: Keep MSR[RI] set when calling RTAS
-In-Reply-To: <c33a2be3-d4b7-9b3b-c980-552f5de081be@linux.ibm.com>
-References: <20220401140634.65726-1-ldufour@linux.ibm.com>
- <87r15aveny.fsf@mpe.ellerman.id.au>
- <c33a2be3-d4b7-9b3b-c980-552f5de081be@linux.ibm.com>
-Date:   Wed, 04 May 2022 15:59:29 +1000
-Message-ID: <87ee19vnwe.fsf@mpe.ellerman.id.au>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1B3D6122E;
+        Wed,  4 May 2022 06:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D33EC385A4;
+        Wed,  4 May 2022 06:09:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651644575;
+        bh=N6t+QKrUH1bipYHnngO3FWlGNQptDbFS7bpC/zRcyR4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ocl16qj/RVszFhnHrjRHyWhFSbhZezxnhP2jdAguVrCxdDy/HgrQry5cFItiSyyCr
+         B3/zZ8TjM/zLrt4tNY7l/+MdP/sKDBMzbB7u9d8egBR0xgU63q8cNNYTMfi77fBc8I
+         tuULaFMw0TDqDUF5gFGUMOuHRvXyCX9I01Gjb4UZVqeG2zVR8tBtvUJiG7sq7EzOhI
+         4j1yfwmUTs0PBvwBPqOHJmcqleJKOQgEw0Dbx2vK71pwadwsPryxaIikVi+RGReFE/
+         YWtBaaJkoVhOBtw/VVm9USTe69NfxmBMuQD10j0PglSlSfDQtyDF2oeJXviRKBObIp
+         k42XFAY5V+ypw==
+From:   Chao Yu <chao@kernel.org>
+To:     jaegeuk@kernel.org
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>
+Subject: [PATCH v3] f2fs: fix deadloop in foreground GC
+Date:   Wed,  4 May 2022 14:09:22 +0800
+Message-Id: <20220504060922.3527354-1-chao@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Laurent Dufour <ldufour@linux.ibm.com> writes:
-> On 03/05/2022, 17:06:41, Michael Ellerman wrote:
->> Laurent Dufour <ldufour@linux.ibm.com> writes:
-...
->>> diff --git a/arch/powerpc/kernel/rtas.c b/arch/powerpc/kernel/rtas.c
->>> index 1f42aabbbab3..d7775b8c8853 100644
->>> --- a/arch/powerpc/kernel/rtas.c
->>> +++ b/arch/powerpc/kernel/rtas.c
->>> @@ -49,6 +49,11 @@ void enter_rtas(unsigned long);
->>>  
->>>  static inline void do_enter_rtas(unsigned long args)
->>>  {
->>> +	unsigned long msr;
->>> +
->>> +	msr = mfmsr();
->>> +	BUG_ON(!(msr & MSR_RI));
->> 
->> I'm not sure about this.
->> 
->> We call RTAS in some low-level places, so if we ever hit this BUG_ON
->> then it might cause us to crash badly, or recursively BUG.
->> 
->> A WARN_ON_ONCE() might be safer?
->
-> I'm afraid a BUG_ON is required here. Since MSR[RI] is set on RTAS exit so
-> if it was not set when calling RTAS, that's a real issue and should
-> generate unexpected behaviour.
->
-> Do you have places in mind where RTAS could be called with !MSR[RI]?
+As Yanming reported in bugzilla:
 
-The main one I can think of is if someone is using
-CONFIG_UDBG_RTAS_CONSOLE, then udbg_rtascon_putc() is wired up as
-udbg_putc() and that might be called from anywhere, including xmon.
+https://bugzilla.kernel.org/show_bug.cgi?id=215914
 
-There's also RTAS calls in low-level xics interrupt code, that might get
-called during panic/crash.
+The root cause is: in a very small sized image, it's very easy to
+exceed threshold of foreground GC, if we calculate free space and
+dirty data based on section granularity, in corner case,
+has_not_enough_free_secs() will always return true, result in
+deadloop in f2fs_gc().
 
-I don't expect any of those places to be called with MSR[RI] unset, but
-I'm worried that if we're already crashing and for some reason MSR[RI]
-is unset, then that BUG_ON will just make things worse.
+So this patch refactors has_not_enough_free_secs() as below to fix
+this issue:
+1. calculate needed space based on block granularity, and separate
+all blocks to two parts, section part, and block part, comparing
+section part to free section, and comparing block part to free space
+in openned log.
+2. account F2FS_DIRTY_NODES, F2FS_DIRTY_IMETA and F2FS_DIRTY_DENTS
+as node block consumer;
+3. account F2FS_DIRTY_DENTS as data block consumer;
 
-eg. imagine taking a BUG_ON() for every character we try to print as
-part of an oops.
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+---
+v3:
+- fix incorrect calculation of 'need_upper' variable.
+ fs/f2fs/segment.h | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-Admittedly CONFIG_UDBG_RTAS_CONSOLE is old and probably not used much
-anymore, but I'm still a bit paranoid :)
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index 8a591455d796..b1951bd30efa 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -575,11 +575,10 @@ static inline int reserved_sections(struct f2fs_sb_info *sbi)
+ 	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
+ }
+ 
+-static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
++static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi,
++			unsigned int node_blocks, unsigned int dent_blocks)
+ {
+-	unsigned int node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
+-					get_pages(sbi, F2FS_DIRTY_DENTS);
+-	unsigned int dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++
+ 	unsigned int segno, left_blocks;
+ 	int i;
+ 
+@@ -605,19 +604,28 @@ static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
+ static inline bool has_not_enough_free_secs(struct f2fs_sb_info *sbi,
+ 					int freed, int needed)
+ {
+-	int node_secs = get_blocktype_secs(sbi, F2FS_DIRTY_NODES);
+-	int dent_secs = get_blocktype_secs(sbi, F2FS_DIRTY_DENTS);
+-	int imeta_secs = get_blocktype_secs(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
++					get_pages(sbi, F2FS_DIRTY_DENTS) +
++					get_pages(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++	unsigned int node_secs = total_node_blocks / BLKS_PER_SEC(sbi);
++	unsigned int dent_secs = total_dent_blocks / BLKS_PER_SEC(sbi);
++	unsigned int node_blocks = total_node_blocks % BLKS_PER_SEC(sbi);
++	unsigned int dent_blocks = total_dent_blocks % BLKS_PER_SEC(sbi);
++	unsigned int free, need_lower, need_upper;
+ 
+ 	if (unlikely(is_sbi_flag_set(sbi, SBI_POR_DOING)))
+ 		return false;
+ 
+-	if (free_sections(sbi) + freed == reserved_sections(sbi) + needed &&
+-			has_curseg_enough_space(sbi))
++	free = free_sections(sbi) + freed;
++	need_lower = node_secs + dent_secs + reserved_sections(sbi) + needed;
++	need_upper = need_lower + (node_blocks ? 1 : 0) + (dent_blocks ? 1 : 0);
++
++	if (free > need_upper)
+ 		return false;
+-	return (free_sections(sbi) + freed) <=
+-		(node_secs + 2 * dent_secs + imeta_secs +
+-		reserved_sections(sbi) + needed);
++	else if (free <= need_lower)
++		return true;
++	return !has_curseg_enough_space(sbi, node_blocks, dent_blocks);
+ }
+ 
+ static inline bool f2fs_is_checkpoint_ready(struct f2fs_sb_info *sbi)
+-- 
+2.25.1
 
-cheers
