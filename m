@@ -2,57 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 948CD51A853
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6667351A8C0
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355541AbiEDRK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
+        id S1356519AbiEDRNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356091AbiEDRJB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC40B52B02;
-        Wed,  4 May 2022 09:54:52 -0700 (PDT)
+        with ESMTP id S1355804AbiEDRKn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2AA54B1DE;
+        Wed,  4 May 2022 09:57:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF20DB827A9;
-        Wed,  4 May 2022 16:54:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A9AC385A5;
-        Wed,  4 May 2022 16:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD70617DE;
+        Wed,  4 May 2022 16:57:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CCAC385A5;
+        Wed,  4 May 2022 16:57:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683289;
-        bh=tdbDFul+h7mHIZGjR6d9RK6uqNXvSudKR0hDLEN0/i8=;
+        s=korg; t=1651683442;
+        bh=gSE5A4YaWsvMLRbnfY3/2NQrQvAcUJ4VQcT4jNwcRbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1F3vRRt/wFf8oBlygRyovfa5X5Xpl1UNnLr6zPSQdvbn2ccCTudssr6su7YrUjxw
-         FPY3IIbwHIUzJyFeNoxf/DoZjne0eAqrCj6iA4EOHLFxLogQqQh8+PnnlD64WIQi0P
-         YRXFMOdGmaXzjRfzGV64HEMZjLjD/twHgmnfJPyc=
+        b=sIjXUXBGNsBgyAfBQjB+xHNtnIWzDmmaBi8ZvZ8rbWE7QF1ryjDl7Nbn9g7jFmmTT
+         BX9QXNbzwuPNNRUr8rIJsZdzFODHYKdjpAHxXiCjVj1wwXaxEuZ5dRRbg9JX5lKudv
+         I2HbOgwan+FQ/PftJ9Q5BRXsOivfgSiUfVCwB+10=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
-        John Garry <john.garry@huawei.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 155/177] perf symbol: Pass is_kallsyms to symbols__fixup_end()
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Denys Drozdov <denys.drozdov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 110/225] ARM: dts: imx6ull-colibri: fix vqmmc regulator
 Date:   Wed,  4 May 2022 18:45:48 +0200
-Message-Id: <20220504153107.284095273@linuxfoundation.org>
+Message-Id: <20220504153120.427793544@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,99 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namhyung Kim <namhyung@kernel.org>
+From: Max Krummenacher <max.krummenacher@toradex.com>
 
-commit 838425f2defe5262906b698752d28fd2fca1aac2 upstream.
+[ Upstream commit 45974e4276a8d6653394f66666fc57d8ffa6de9a ]
 
-The symbol fixup is necessary for symbols in kallsyms since they don't
-have size info.  So we use the next symbol's address to calculate the
-size.  Now it's also used for user binaries because sometimes they miss
-size for hand-written asm functions.
+The correct spelling for the property is gpios. Otherwise, the regulator
+will neither reserve nor control any GPIOs. Thus, any SD/MMC card which
+can use UHS-I modes will fail.
 
-There's a arch-specific function to handle kallsyms differently but
-currently it cannot distinguish kallsyms from others.  Pass this
-information explicitly to handle it properly.  Note that those arch
-functions will be moved to the generic function so I didn't added it to
-the arch-functions.
-
-Fixes: 3cf6a32f3f2a4594 ("perf symbols: Fix symbol size calculation condition")
-Signed-off-by: Namhyung Kim <namhyung@kernel.org>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Garry <john.garry@huawei.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-s390@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Link: https://lore.kernel.org/r/20220416004048.1514900-2-namhyung@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c2e4987e0e02 ("ARM: dts: imx6ull: add Toradex Colibri iMX6ULL support")
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Denys Drozdov <denys.drozdov@toradex.com>
+Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol-elf.c |    2 +-
- tools/perf/util/symbol.c     |    7 ++++---
- tools/perf/util/symbol.h     |    2 +-
- 3 files changed, 6 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/imx6ull-colibri.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/symbol-elf.c
-+++ b/tools/perf/util/symbol-elf.c
-@@ -1290,7 +1290,7 @@ dso__load_sym_internal(struct dso *dso,
- 	 * For misannotated, zeroed, ASM function sizes.
- 	 */
- 	if (nr > 0) {
--		symbols__fixup_end(&dso->symbols);
-+		symbols__fixup_end(&dso->symbols, false);
- 		symbols__fixup_duplicate(&dso->symbols);
- 		if (kmap) {
- 			/*
---- a/tools/perf/util/symbol.c
-+++ b/tools/perf/util/symbol.c
-@@ -217,7 +217,8 @@ again:
- 	}
- }
+diff --git a/arch/arm/boot/dts/imx6ull-colibri.dtsi b/arch/arm/boot/dts/imx6ull-colibri.dtsi
+index 7f35a06dff95..951a2a6c5a65 100644
+--- a/arch/arm/boot/dts/imx6ull-colibri.dtsi
++++ b/arch/arm/boot/dts/imx6ull-colibri.dtsi
+@@ -37,7 +37,7 @@ reg_module_3v3_avdd: regulator-module-3v3-avdd {
  
--void symbols__fixup_end(struct rb_root_cached *symbols)
-+void symbols__fixup_end(struct rb_root_cached *symbols,
-+			bool is_kallsyms __maybe_unused)
- {
- 	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
- 	struct symbol *curr, *prev;
-@@ -1456,7 +1457,7 @@ int __dso__load_kallsyms(struct dso *dso
- 	if (kallsyms__delta(kmap, filename, &delta))
- 		return -1;
- 
--	symbols__fixup_end(&dso->symbols);
-+	symbols__fixup_end(&dso->symbols, true);
- 	symbols__fixup_duplicate(&dso->symbols);
- 
- 	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
-@@ -1648,7 +1649,7 @@ int dso__load_bfd_symbols(struct dso *ds
- #undef bfd_asymbol_section
- #endif
- 
--	symbols__fixup_end(&dso->symbols);
-+	symbols__fixup_end(&dso->symbols, false);
- 	symbols__fixup_duplicate(&dso->symbols);
- 	dso->adjust_symbols = 1;
- 
---- a/tools/perf/util/symbol.h
-+++ b/tools/perf/util/symbol.h
-@@ -192,7 +192,7 @@ void __symbols__insert(struct rb_root_ca
- 		       bool kernel);
- void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
- void symbols__fixup_duplicate(struct rb_root_cached *symbols);
--void symbols__fixup_end(struct rb_root_cached *symbols);
-+void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
- void maps__fixup_end(struct maps *maps);
- 
- typedef int (*mapfn_t)(u64 start, u64 len, u64 pgoff, void *data);
+ 	reg_sd1_vmmc: regulator-sd1-vmmc {
+ 		compatible = "regulator-gpio";
+-		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
++		gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_snvs_reg_sd>;
+ 		regulator-always-on;
+-- 
+2.35.1
+
 
 
