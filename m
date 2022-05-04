@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59F9851A90E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A437651A84D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356246AbiEDRLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
+        id S1355172AbiEDRKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357158AbiEDRKA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A9A4925D;
-        Wed,  4 May 2022 09:57:07 -0700 (PDT)
+        with ESMTP id S1355768AbiEDRIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74D651E5D;
+        Wed,  4 May 2022 09:54:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B873618D7;
-        Wed,  4 May 2022 16:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1218C385AF;
-        Wed,  4 May 2022 16:57:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E6561852;
+        Wed,  4 May 2022 16:54:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E698C385A5;
+        Wed,  4 May 2022 16:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683426;
-        bh=TJj4Yiloi+OzkR9APGeJI/DYk4NVRmMyNOzm9Hso+HI=;
+        s=korg; t=1651683272;
+        bh=uU32vsAIlQhNOwiz7baeDmqduhS8jWk8Pq/Li7uhVgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kh5lyCRkijuOgYSoHPWijriHMbVaI+YtjkD1ZV1FQ0rra/fBxDVUlpjc63Z2EqIoo
-         Z75ntbNJ7blbSrVRQSXnexzHJc94GaBDnuE5btwwHIlpSZB+yHvwegoYgYpwSw3Oen
-         ZxY9ftbkUNYTBtALMBhpn4fB7yAIdrSWVaNselVA=
+        b=loGFp8N1zl16aS2O2slP2NLm6Z+oA9woLfHTQoJUMa82d7GQA0Hx22ZHrwMvcqT8z
+         176GBZCwvPhyOL5pUVsMxHlsEUld4wcS52Iu2gHV4IkTiBKPLsu18Rj7AaWdob1hmo
+         y2g581J/WrBq7KRsRPnSlCfb0ybMMnyPJ7Inc9Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org,
+        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 092/225] ARM: dts: logicpd-som-lv: Fix wrong pinmuxing on OMAP35
-Date:   Wed,  4 May 2022 18:45:30 +0200
-Message-Id: <20220504153119.065008180@linuxfoundation.org>
+Subject: [PATCH 5.15 138/177] selftest/vm: verify mmap addr in mremap_test
+Date:   Wed,  4 May 2022 18:45:31 +0200
+Message-Id: <20220504153105.576914812@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +57,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Sidhartha Kumar <sidhartha.kumar@oracle.com>
 
-[ Upstream commit 46ff3df87215ff42c0cd2c4bdb7d74540384a69c ]
+[ Upstream commit 9c85a9bae267f6b5e5e374d0d023bbbe9db096d3 ]
 
-The pinout of the OMAP35 and DM37 variants of the SOM-LV are the
-same, but the macros which define the pinmuxing are different
-between OMAP3530 and DM3730.  The pinmuxing was correct for
-for the DM3730, but wrong for the OMAP3530.  Since the boot loader
-was correctly pin-muxing the pins, this was not obvious. As the
-bootloader not guaranteed to pinmux all the pins any more, this
-causes an issue, so the pinmux needs to be moved from a common
-file to their respective board files.
+Avoid calling mmap with requested addresses that are less than the
+system's mmap_min_addr.  When run as root, mmap returns EACCES when
+trying to map addresses < mmap_min_addr.  This is not one of the error
+codes for the condition to retry the mmap in the test.
 
-Fixes: f8a2e3ff7103 ("ARM: dts: Add minimal support for LogicPD OMAP35xx SOM-LV devkit")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Message-Id: <20220303171818.11060-1-aford173@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Rather than arbitrarily retrying on EACCES, don't attempt an mmap until
+addr > vm.mmap_min_addr.
+
+Add a munmap call after an alignment check as the mappings are retained
+after the retry and can reach the vm.max_map_count sysctl.
+
+Link: https://lkml.kernel.org/r/20220420215721.4868-1-sidhartha.kumar@oracle.com
+Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv.dtsi            | 15 ---------------
- 3 files changed, 30 insertions(+), 15 deletions(-)
+ tools/testing/selftests/vm/mremap_test.c | 41 +++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-index 2a0a98fe67f0..3240c67e0c39 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom OMAP35xx SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3430", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3430_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3430_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3430_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3430_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3430_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3430_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-index a604d92221a4..c757f0d7781c 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom DM3730 SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3630", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv.dtsi b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-index b56524cc7fe2..55b619c99e24 100644
---- a/arch/arm/boot/dts/logicpd-som-lv.dtsi
-+++ b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-@@ -265,21 +265,6 @@ OMAP3_WKUP_IOPAD(0x2a0c, PIN_OUTPUT | MUX_MODE4)	/* sys_boot1.gpio_3 */
- 	};
- };
+diff --git a/tools/testing/selftests/vm/mremap_test.c b/tools/testing/selftests/vm/mremap_test.c
+index 0624d1bd71b5..2b3b4f15185f 100644
+--- a/tools/testing/selftests/vm/mremap_test.c
++++ b/tools/testing/selftests/vm/mremap_test.c
+@@ -6,6 +6,7 @@
  
--&omap3_pmx_core2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&hsusb2_2_pins>;
--	hsusb2_2_pins: pinmux_hsusb2_2_pins {
--		pinctrl-single,pins = <
--			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
--			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
--			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
--			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
--			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
--			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
--		>;
--	};
--};
--
- &uart2 {
- 	interrupts-extended = <&intc 73 &omap3_pmx_core OMAP3_UART2_RX>;
- 	pinctrl-names = "default";
+ #include <errno.h>
+ #include <stdlib.h>
++#include <stdio.h>
+ #include <string.h>
+ #include <sys/mman.h>
+ #include <time.h>
+@@ -64,6 +65,35 @@ enum {
+ 	.expect_failure = should_fail				\
+ }
+ 
++/* Returns mmap_min_addr sysctl tunable from procfs */
++static unsigned long long get_mmap_min_addr(void)
++{
++	FILE *fp;
++	int n_matched;
++	static unsigned long long addr;
++
++	if (addr)
++		return addr;
++
++	fp = fopen("/proc/sys/vm/mmap_min_addr", "r");
++	if (fp == NULL) {
++		ksft_print_msg("Failed to open /proc/sys/vm/mmap_min_addr: %s\n",
++			strerror(errno));
++		exit(KSFT_SKIP);
++	}
++
++	n_matched = fscanf(fp, "%llu", &addr);
++	if (n_matched != 1) {
++		ksft_print_msg("Failed to read /proc/sys/vm/mmap_min_addr: %s\n",
++			strerror(errno));
++		fclose(fp);
++		exit(KSFT_SKIP);
++	}
++
++	fclose(fp);
++	return addr;
++}
++
+ /*
+  * Returns the start address of the mapping on success, else returns
+  * NULL on failure.
+@@ -72,8 +102,15 @@ static void *get_source_mapping(struct config c)
+ {
+ 	unsigned long long addr = 0ULL;
+ 	void *src_addr = NULL;
++	unsigned long long mmap_min_addr;
++
++	mmap_min_addr = get_mmap_min_addr();
++
+ retry:
+ 	addr += c.src_alignment;
++	if (addr < mmap_min_addr)
++		goto retry;
++
+ 	src_addr = mmap((void *) addr, c.region_size, PROT_READ | PROT_WRITE,
+ 			MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
+ 			-1, 0);
+@@ -91,8 +128,10 @@ static void *get_source_mapping(struct config c)
+ 	 * alignment in the tests.
+ 	 */
+ 	if (((unsigned long long) src_addr & (c.src_alignment - 1)) ||
+-			!((unsigned long long) src_addr & c.src_alignment))
++			!((unsigned long long) src_addr & c.src_alignment)) {
++		munmap(src_addr, c.region_size);
+ 		goto retry;
++	}
+ 
+ 	if (!src_addr)
+ 		goto error;
 -- 
 2.35.1
 
