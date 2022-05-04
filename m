@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C896B51A9EB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD9D51AA2D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357943AbiEDRUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55650 "EHLO
+        id S1355703AbiEDRWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:22:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357455AbiEDRPC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B63954BFB;
-        Wed,  4 May 2022 09:58:36 -0700 (PDT)
+        with ESMTP id S1357464AbiEDRPD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F5954F89;
+        Wed,  4 May 2022 09:58:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C94B4B82416;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 368236191D;
+        Wed,  4 May 2022 16:58:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 796AEC385B2;
         Wed,  4 May 2022 16:58:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79736C385A4;
-        Wed,  4 May 2022 16:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683514;
-        bh=L7DYpejEYREcuXWD29M7l9A1VyzsjUx/u8M06UpSmMU=;
+        s=korg; t=1651683515;
+        bh=pDO7J4hTnTMkiO1iaE8XoV4Bd3P1yn/V95cI8h/LSFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6vzjX4N2rSPw2BOzd2qwbGHwi6wBU/P54hKntcLFXd3jYRZP0PotnFfA/xGM0JJO
-         HGi/MyfrDTWQIDMiLHh1/bC+C0w+mpS7/KTL/LuKQuLy6TBAo1YGurOCCHwrXWStF8
-         ZrKJaBrf+akiuFZK6woCm315TCE6GeW0BKLy+SjA=
+        b=SaFdAr0TX4z6/1KRBWHYRsncW7FNpOHpKQ7zmGryhc4QZwU5g+4X3PXINTXJBPNE2
+         Ez12JfdwfLu9Q+SS+ndT/4YnJ6oYz4KAP3g2zYMtRUjX5IODHebFrXND0oesab3PZ9
+         99X82VMeYMptQPfLRoyVfwAe9Jyf/OTthCXyWQ0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 177/225] bfq: Fix warning in bfqq_request_over_limit()
-Date:   Wed,  4 May 2022 18:46:55 +0200
-Message-Id: <20220504153126.156084152@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Woody Suwalski <wsuwalski@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.17 178/225] Revert "ACPI: processor: idle: fix lockup regression on 32-bit ThinkPad T40"
+Date:   Wed,  4 May 2022 18:46:56 +0200
+Message-Id: <20220504153126.224223525@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,64 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 09df6a75fffa68169c5ef9bef990cd7ba94f3eef upstream.
+commit 20e582e16af24b074e583f9551fad557882a3c9d upstream.
 
-People are occasionally reporting a warning bfqq_request_over_limit()
-triggering reporting that BFQ's idea of cgroup hierarchy (and its depth)
-does not match what generic blkcg code thinks. This can actually happen
-when bfqq gets moved between BFQ groups while bfqq_request_over_limit()
-is running. Make sure the code is safe against BFQ queue being moved to
-a different BFQ group.
+This reverts commit bfe55a1f7fd6bfede16078bf04c6250fbca11588.
 
-Fixes: 76f1df88bbc2 ("bfq: Limit number of requests consumed by each cgroup")
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/all/CAJCQCtTw_2C7ZSz7as5Gvq=OmnDiio=HRkQekqWpKot84sQhFA@mail.gmail.com/
-Reported-by: Chris Murphy <lists@colorremedies.com>
-Reported-by: "yukuai (C)" <yukuai3@huawei.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220407140738.9723-1-jack@suse.cz
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This was presumably misdiagnosed as an inability to use C3 at
+all when I suspect the real problem is just misconfiguration of
+C3 vs. ARB_DIS.
+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
+Tested-by: Woody Suwalski <wsuwalski@gmail.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/acpi/processor_idle.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -569,7 +569,7 @@ static bool bfqq_request_over_limit(stru
- 	struct bfq_entity *entity = &bfqq->entity;
- 	struct bfq_entity *inline_entities[BFQ_LIMIT_INLINE_DEPTH];
- 	struct bfq_entity **entities = inline_entities;
--	int depth, level;
-+	int depth, level, alloc_depth = BFQ_LIMIT_INLINE_DEPTH;
- 	int class_idx = bfqq->ioprio_class - 1;
- 	struct bfq_sched_data *sched_data;
- 	unsigned long wsum;
-@@ -578,15 +578,21 @@ static bool bfqq_request_over_limit(stru
- 	if (!entity->on_st_or_in_serv)
- 		return false;
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -96,11 +96,6 @@ static const struct dmi_system_id proces
+ 	  DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK Computer Inc."),
+ 	  DMI_MATCH(DMI_PRODUCT_NAME,"L8400B series Notebook PC")},
+ 	 (void *)1},
+-	/* T40 can not handle C3 idle state */
+-	{ set_max_cstate, "IBM ThinkPad T40", {
+-	  DMI_MATCH(DMI_SYS_VENDOR, "IBM"),
+-	  DMI_MATCH(DMI_PRODUCT_NAME, "23737CU")},
+-	 (void *)2},
+ 	{},
+ };
  
-+retry:
-+	spin_lock_irq(&bfqd->lock);
- 	/* +1 for bfqq entity, root cgroup not included */
- 	depth = bfqg_to_blkg(bfqq_group(bfqq))->blkcg->css.cgroup->level + 1;
--	if (depth > BFQ_LIMIT_INLINE_DEPTH) {
-+	if (depth > alloc_depth) {
-+		spin_unlock_irq(&bfqd->lock);
-+		if (entities != inline_entities)
-+			kfree(entities);
- 		entities = kmalloc_array(depth, sizeof(*entities), GFP_NOIO);
- 		if (!entities)
- 			return false;
-+		alloc_depth = depth;
-+		goto retry;
- 	}
- 
--	spin_lock_irq(&bfqd->lock);
- 	sched_data = entity->sched_data;
- 	/* Gather our ancestors as we need to traverse them in reverse order */
- 	level = 0;
 
 
