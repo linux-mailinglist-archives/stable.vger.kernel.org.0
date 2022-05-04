@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE52751A6FA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85E9451A608
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245451AbiEDRBD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
+        id S1346179AbiEDQwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354681AbiEDQ67 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:59 -0400
+        with ESMTP id S1353732AbiEDQwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EBB4093D;
-        Wed,  4 May 2022 09:50:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4079947056;
+        Wed,  4 May 2022 09:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50FEB617A6;
-        Wed,  4 May 2022 16:50:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0DCC385A5;
-        Wed,  4 May 2022 16:50:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBB2061771;
+        Wed,  4 May 2022 16:48:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A49C385A5;
+        Wed,  4 May 2022 16:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683052;
-        bh=TJj4Yiloi+OzkR9APGeJI/DYk4NVRmMyNOzm9Hso+HI=;
+        s=korg; t=1651682909;
+        bh=gdTM5hy+TRGp+10HhYbWtMpiP8eyq3P5BofsxZqDWhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P86s2H8yiVdMjo+9HcAUIDYjYkAB51HygT6STGV4W3NaIT6LbuHhVtINxE6dlnIiF
-         QndU0BKRWw21SEecaE8AZGmxh9+4uG5Dgbi5UxNE5Lq5ocEDLv3YH0foYBwvF7B6FR
-         lP6GnKE5Am3d8H2MVin5gEqatFDtnavIVkwEO3OA=
+        b=amt5omZQdWiIKtPsPMLx30OD2CeoG/96679BE9UFlG30W5lAyEuwLcPmOpEA/dxh9
+         ZsHxeCjX1Bwb5SBhW4E6EoXST10qz0VCNZn2ifHrUXjhuoit4/HMLUd0xDAG/PU3ls
+         yd/V3GmF/o5bUD2h5gyQSytvtp0F1dQO6EuEV4RY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/129] ARM: dts: logicpd-som-lv: Fix wrong pinmuxing on OMAP35
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 27/84] hex2bin: make the function hex_to_bin constant-time
 Date:   Wed,  4 May 2022 18:44:08 +0200
-Message-Id: <20220504153025.620267806@linuxfoundation.org>
+Message-Id: <20220504152929.700822760@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 46ff3df87215ff42c0cd2c4bdb7d74540384a69c ]
+commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
 
-The pinout of the OMAP35 and DM37 variants of the SOM-LV are the
-same, but the macros which define the pinmuxing are different
-between OMAP3530 and DM3730.  The pinmuxing was correct for
-for the DM3730, but wrong for the OMAP3530.  Since the boot loader
-was correctly pin-muxing the pins, this was not obvious. As the
-bootloader not guaranteed to pinmux all the pins any more, this
-causes an issue, so the pinmux needs to be moved from a common
-file to their respective board files.
+The function hex2bin is used to load cryptographic keys into device
+mapper targets dm-crypt and dm-integrity.  It should take constant time
+independent on the processed data, so that concurrently running
+unprivileged code can't infer any information about the keys via
+microarchitectural convert channels.
 
-Fixes: f8a2e3ff7103 ("ARM: dts: Add minimal support for LogicPD OMAP35xx SOM-LV devkit")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Message-Id: <20220303171818.11060-1-aford173@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch changes the function hex_to_bin so that it contains no
+branches and no memory accesses.
+
+Note that this shouldn't cause performance degradation because the size
+of the new function is the same as the size of the old function (on
+x86-64) - and the new function causes no branch misprediction penalties.
+
+I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
+i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
+sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
+powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
+no branches in the generated code.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts | 15 +++++++++++++++
- arch/arm/boot/dts/logicpd-som-lv.dtsi            | 15 ---------------
- 3 files changed, 30 insertions(+), 15 deletions(-)
+ include/linux/kernel.h |    2 +-
+ lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-index 2a0a98fe67f0..3240c67e0c39 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom OMAP35xx SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3430", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3430_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3430_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3430_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3430_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3430_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3430_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-index a604d92221a4..c757f0d7781c 100644
---- a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-+++ b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
-@@ -11,3 +11,18 @@ / {
- 	model = "LogicPD Zoom DM3730 SOM-LV Development Kit";
- 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3630", "ti,omap3";
- };
-+
-+&omap3_pmx_core2 {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hsusb2_2_pins>;
-+	hsusb2_2_pins: pinmux_hsusb2_2_pins {
-+		pinctrl-single,pins = <
-+			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
-+			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
-+			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
-+			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
-+			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
-+			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
-+		>;
-+	};
-+};
-diff --git a/arch/arm/boot/dts/logicpd-som-lv.dtsi b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-index b56524cc7fe2..55b619c99e24 100644
---- a/arch/arm/boot/dts/logicpd-som-lv.dtsi
-+++ b/arch/arm/boot/dts/logicpd-som-lv.dtsi
-@@ -265,21 +265,6 @@ OMAP3_WKUP_IOPAD(0x2a0c, PIN_OUTPUT | MUX_MODE4)	/* sys_boot1.gpio_3 */
- 	};
- };
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -627,7 +627,7 @@ static inline char *hex_byte_pack_upper(
+ 	return buf;
+ }
  
--&omap3_pmx_core2 {
--	pinctrl-names = "default";
--	pinctrl-0 = <&hsusb2_2_pins>;
--	hsusb2_2_pins: pinmux_hsusb2_2_pins {
--		pinctrl-single,pins = <
--			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
--			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
--			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
--			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
--			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
--			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
--		>;
--	};
--};
--
- &uart2 {
- 	interrupts-extended = <&intc 73 &omap3_pmx_core OMAP3_UART2_RX>;
- 	pinctrl-names = "default";
--- 
-2.35.1
-
+-extern int hex_to_bin(char ch);
++extern int hex_to_bin(unsigned char ch);
+ extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
+ extern char *bin2hex(char *dst, const void *src, size_t count);
+ 
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -21,15 +21,33 @@ EXPORT_SYMBOL(hex_asc_upper);
+  *
+  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
+  * input.
++ *
++ * This function is used to load cryptographic keys, so it is coded in such a
++ * way that there are no conditions or memory accesses that depend on data.
++ *
++ * Explanation of the logic:
++ * (ch - '9' - 1) is negative if ch <= '9'
++ * ('0' - 1 - ch) is negative if ch >= '0'
++ * we "and" these two values, so the result is negative if ch is in the range
++ *	'0' ... '9'
++ * we are only interested in the sign, so we do a shift ">> 8"; note that right
++ *	shift of a negative value is implementation-defined, so we cast the
++ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
++ *	the range '0' ... '9', 0 otherwise
++ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
++ *	in the range '0' ... '9', 0 otherwise
++ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
++ *	... '9', -1 otherwise
++ * the next line is similar to the previous one, but we need to decode both
++ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
++ *	lowercase to uppercase
+  */
+-int hex_to_bin(char ch)
++int hex_to_bin(unsigned char ch)
+ {
+-	if ((ch >= '0') && (ch <= '9'))
+-		return ch - '0';
+-	ch = tolower(ch);
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return ch - 'a' + 10;
+-	return -1;
++	unsigned char cu = ch & 0xdf;
++	return -1 +
++		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
++		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+ }
+ EXPORT_SYMBOL(hex_to_bin);
+ 
 
 
