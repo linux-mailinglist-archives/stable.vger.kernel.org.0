@@ -2,52 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F76351A651
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CAB451A74C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349717AbiEDQzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52242 "EHLO
+        id S1354868AbiEDRDA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354421AbiEDQyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:22 -0400
+        with ESMTP id S1355691AbiEDRAU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B9F48E57;
-        Wed,  4 May 2022 09:49:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0089C4BFC8;
+        Wed,  4 May 2022 09:52:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F0D617A5;
-        Wed,  4 May 2022 16:49:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70341C385A4;
-        Wed,  4 May 2022 16:49:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADB3B617C4;
+        Wed,  4 May 2022 16:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E85D4C385AF;
+        Wed,  4 May 2022 16:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682969;
-        bh=DKYLV+LZxiUOMb7u0bnXMz4p/6ql4ov5ZJDiPdMji7E=;
+        s=korg; t=1651683122;
+        bh=B3OU/Dc5PItCyg7JoGSjeRsJh2nM50qhJ13FxIdp3lY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4u4leVXQXS1chPChhgAZmGOVDqRekV8unfxn9NkAFxr6dwHZsvTL5pzOa3c5lZ+G
-         jFITvSYcSi+f0mTjGT+xz30Qsmau5e/w2BxgEQwISzX98PESh+Z1x/ZojSVVspjnYr
-         Rp3UF/ime+eVsLLzUdWUjqPoAqe3drkmbo/ffACk=
+        b=LHSGODLy+CSA5K6g/bn13r9/COaFzSZBHyftxdqza+ToK3p/HVbXBCGTACk1qBrOe
+         AcoDqjj+AJpwrixSrXHLse4Je0ceeiwdSQtXjWiiur0hNOO/JAN6B/QMWK34F7aSXR
+         YouNCvIGaiOQicSpPTD52xAQZoyoGzVU2GNq8YFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Shijie Hu <hushijie3@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Will Deacon <will@kernel.org>,
-        Xiaoming Ni <nixiaoming@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        yangerkun <yangerkun@huawei.com>, ChenGang <cg.chen@huawei.com>,
-        Chen Jie <chenjie6@huawei.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 5.4 83/84] hugetlbfs: get unmapped area below TASK_UNMAPPED_BASE for hugetlbfs
-Date:   Wed,  4 May 2022 18:45:04 +0200
-Message-Id: <20220504152934.001472741@linuxfoundation.org>
+        stable@vger.kernel.org, Namhyung Kim <namhyung@kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Ingo Molnar <mingo@kernel.org>, Jiri Olsa <jolsa@kernel.org>,
+        John Garry <john.garry@huawei.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Will Deacon <will@kernel.org>, linux-s390@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 113/129] perf symbol: Pass is_kallsyms to symbols__fixup_end()
+Date:   Wed,  4 May 2022 18:45:05 +0200
+Message-Id: <20220504153030.273179134@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,151 +67,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shijie Hu <hushijie3@huawei.com>
+From: Namhyung Kim <namhyung@kernel.org>
 
-commit 885902531586d5a20a74099c1357bfdc982befe3 upstream.
+commit 838425f2defe5262906b698752d28fd2fca1aac2 upstream.
 
-In a 32-bit program, running on arm64 architecture.  When the address
-space below mmap base is completely exhausted, shmat() for huge pages will
-return ENOMEM, but shmat() for normal pages can still success on no-legacy
-mode.  This seems not fair.
+The symbol fixup is necessary for symbols in kallsyms since they don't
+have size info.  So we use the next symbol's address to calculate the
+size.  Now it's also used for user binaries because sometimes they miss
+size for hand-written asm functions.
 
-For normal pages, the calling trace of get_unmapped_area() is:
+There's a arch-specific function to handle kallsyms differently but
+currently it cannot distinguish kallsyms from others.  Pass this
+information explicitly to handle it properly.  Note that those arch
+functions will be moved to the generic function so I didn't added it to
+the arch-functions.
 
-	=> mm->get_unmapped_area()
-	if on legacy mode,
-		=> arch_get_unmapped_area()
-			=> vm_unmapped_area()
-	if on no-legacy mode,
-		=> arch_get_unmapped_area_topdown()
-			=> vm_unmapped_area()
-
-For huge pages, the calling trace of get_unmapped_area() is:
-
-	=> file->f_op->get_unmapped_area()
-		=> hugetlb_get_unmapped_area()
-			=> vm_unmapped_area()
-
-To solve this issue, we only need to make hugetlb_get_unmapped_area() take
-the same way as mm->get_unmapped_area().  Add *bottomup() and *topdown()
-for hugetlbfs, and check current mm->get_unmapped_area() to decide which
-one to use.  If mm->get_unmapped_area is equal to
-arch_get_unmapped_area_topdown(), hugetlb_get_unmapped_area() calls
-topdown routine, otherwise calls bottomup routine.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Shijie Hu <hushijie3@huawei.com>
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 3cf6a32f3f2a4594 ("perf symbols: Fix symbol size calculation condition")
+Signed-off-by: Namhyung Kim <namhyung@kernel.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Song Liu <songliubraving@fb.com>
 Cc: Will Deacon <will@kernel.org>
-Cc: Xiaoming Ni <nixiaoming@huawei.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: yangerkun <yangerkun@huawei.com>
-Cc: ChenGang <cg.chen@huawei.com>
-Cc: Chen Jie <chenjie6@huawei.com>
-Link: http://lkml.kernel.org/r/20200518065338.113664-1-hushijie3@huawei.com
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Christophe Leroy <christophe.leroy@csgroup.eu>
+Cc: linux-s390@vger.kernel.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Link: https://lore.kernel.org/r/20220416004048.1514900-2-namhyung@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c |   67 ++++++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 59 insertions(+), 8 deletions(-)
+ tools/perf/util/symbol-elf.c |    2 +-
+ tools/perf/util/symbol.c     |    7 ++++---
+ tools/perf/util/symbol.h     |    2 +-
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -38,6 +38,7 @@
- #include <linux/uio.h>
- 
- #include <linux/uaccess.h>
-+#include <linux/sched/mm.h>
- 
- static const struct super_operations hugetlbfs_ops;
- static const struct address_space_operations hugetlbfs_aops;
-@@ -201,13 +202,60 @@ out:
- 
- #ifndef HAVE_ARCH_HUGETLB_UNMAPPED_AREA
- static unsigned long
-+hugetlb_get_unmapped_area_bottomup(struct file *file, unsigned long addr,
-+		unsigned long len, unsigned long pgoff, unsigned long flags)
-+{
-+	struct hstate *h = hstate_file(file);
-+	struct vm_unmapped_area_info info;
-+
-+	info.flags = 0;
-+	info.length = len;
-+	info.low_limit = current->mm->mmap_base;
-+	info.high_limit = TASK_SIZE;
-+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
-+	info.align_offset = 0;
-+	return vm_unmapped_area(&info);
-+}
-+
-+static unsigned long
-+hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
-+		unsigned long len, unsigned long pgoff, unsigned long flags)
-+{
-+	struct hstate *h = hstate_file(file);
-+	struct vm_unmapped_area_info info;
-+
-+	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
-+	info.length = len;
-+	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
-+	info.high_limit = current->mm->mmap_base;
-+	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
-+	info.align_offset = 0;
-+	addr = vm_unmapped_area(&info);
-+
-+	/*
-+	 * A failed mmap() very likely causes application failure,
-+	 * so fall back to the bottom-up function here. This scenario
-+	 * can happen with large stack limits and large mmap()
-+	 * allocations.
-+	 */
-+	if (unlikely(offset_in_page(addr))) {
-+		VM_BUG_ON(addr != -ENOMEM);
-+		info.flags = 0;
-+		info.low_limit = current->mm->mmap_base;
-+		info.high_limit = TASK_SIZE;
-+		addr = vm_unmapped_area(&info);
-+	}
-+
-+	return addr;
-+}
-+
-+static unsigned long
- hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
- 		unsigned long len, unsigned long pgoff, unsigned long flags)
- {
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct hstate *h = hstate_file(file);
--	struct vm_unmapped_area_info info;
- 
- 	if (len & ~huge_page_mask(h))
- 		return -EINVAL;
-@@ -228,13 +276,16 @@ hugetlb_get_unmapped_area(struct file *f
- 			return addr;
+--- a/tools/perf/util/symbol-elf.c
++++ b/tools/perf/util/symbol-elf.c
+@@ -1245,7 +1245,7 @@ int dso__load_sym(struct dso *dso, struc
+ 	 * For misannotated, zeroed, ASM function sizes.
+ 	 */
+ 	if (nr > 0) {
+-		symbols__fixup_end(&dso->symbols);
++		symbols__fixup_end(&dso->symbols, false);
+ 		symbols__fixup_duplicate(&dso->symbols);
+ 		if (kmap) {
+ 			/*
+--- a/tools/perf/util/symbol.c
++++ b/tools/perf/util/symbol.c
+@@ -217,7 +217,8 @@ again:
  	}
- 
--	info.flags = 0;
--	info.length = len;
--	info.low_limit = TASK_UNMAPPED_BASE;
--	info.high_limit = TASK_SIZE;
--	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
--	info.align_offset = 0;
--	return vm_unmapped_area(&info);
-+	/*
-+	 * Use mm->get_unmapped_area value as a hint to use topdown routine.
-+	 * If architectures have special needs, they should define their own
-+	 * version of hugetlb_get_unmapped_area.
-+	 */
-+	if (mm->get_unmapped_area == arch_get_unmapped_area_topdown)
-+		return hugetlb_get_unmapped_area_topdown(file, addr, len,
-+				pgoff, flags);
-+	return hugetlb_get_unmapped_area_bottomup(file, addr, len,
-+			pgoff, flags);
  }
+ 
+-void symbols__fixup_end(struct rb_root_cached *symbols)
++void symbols__fixup_end(struct rb_root_cached *symbols,
++			bool is_kallsyms __maybe_unused)
+ {
+ 	struct rb_node *nd, *prevnd = rb_first_cached(symbols);
+ 	struct symbol *curr, *prev;
+@@ -1456,7 +1457,7 @@ int __dso__load_kallsyms(struct dso *dso
+ 	if (kallsyms__delta(kmap, filename, &delta))
+ 		return -1;
+ 
+-	symbols__fixup_end(&dso->symbols);
++	symbols__fixup_end(&dso->symbols, true);
+ 	symbols__fixup_duplicate(&dso->symbols);
+ 
+ 	if (dso->kernel == DSO_SPACE__KERNEL_GUEST)
+@@ -1651,7 +1652,7 @@ int dso__load_bfd_symbols(struct dso *ds
+ #undef bfd_asymbol_section
  #endif
  
+-	symbols__fixup_end(&dso->symbols);
++	symbols__fixup_end(&dso->symbols, false);
+ 	symbols__fixup_duplicate(&dso->symbols);
+ 	dso->adjust_symbols = 1;
+ 
+--- a/tools/perf/util/symbol.h
++++ b/tools/perf/util/symbol.h
+@@ -192,7 +192,7 @@ void __symbols__insert(struct rb_root_ca
+ 		       bool kernel);
+ void symbols__insert(struct rb_root_cached *symbols, struct symbol *sym);
+ void symbols__fixup_duplicate(struct rb_root_cached *symbols);
+-void symbols__fixup_end(struct rb_root_cached *symbols);
++void symbols__fixup_end(struct rb_root_cached *symbols, bool is_kallsyms);
+ void maps__fixup_end(struct maps *maps);
+ 
+ typedef int (*mapfn_t)(u64 start, u64 len, u64 pgoff, void *data);
 
 
