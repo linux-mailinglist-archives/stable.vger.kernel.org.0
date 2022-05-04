@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C1A851A6EC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E15DB51A8F7
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354604AbiEDRA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
+        id S1355985AbiEDRMU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355617AbiEDRAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFA24BB83;
-        Wed,  4 May 2022 09:51:56 -0700 (PDT)
+        with ESMTP id S1356958AbiEDRJv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BBB473B2;
+        Wed,  4 May 2022 09:56:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6349FB827AB;
-        Wed,  4 May 2022 16:51:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6E2C385AF;
-        Wed,  4 May 2022 16:51:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44A72617A6;
+        Wed,  4 May 2022 16:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFBCC385AA;
+        Wed,  4 May 2022 16:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683115;
-        bh=ajlyHJlXLFrefqDuXU+8CxL6cuBrNIB29dSZeCj6OZs=;
+        s=korg; t=1651683402;
+        bh=++xBQbxL3Ke9frkNEa1dCEr1e2uSlVluJFZQcYF6dU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGJOJGwQP/yVY0YGYMeuj7BYKX7ef47nKhKMEpxX4F7fnx8En8DRoUFpf3Im7aYIF
-         tyX/Hr0mEelRCV95nelyWM7J75nFFUgYv8sOvPvch7Fp2Q/w2nxM6N8s/H06tRfKvn
-         VMJ5eEBIOTUKwsKT0DHaxdJLWdV8Av8/pUNzDSqQ=
+        b=T1yTxdlaBQQzDiNH5xScP2UbOnT5vXiBf2Gwc3rXKktqMm2Q2ssVsCxVLDyO8eNXv
+         4UHczNnVXthGuuRpb02YA6isLCdol9rbfSx8IEO9C6hciCUVKSmbj3hR/l9cOn2cbc
+         6vvp162vz7NJLmLk1IMr2uLBWN2Tgcz/Bjqh3J4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 119/129] tty: n_gsm: fix malformed counter for out of frame data
+        stable@vger.kernel.org,
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 073/225] arm64: dts: imx8mq-tqma8mq: change the spi-nor tx
 Date:   Wed,  4 May 2022 18:45:11 +0200
-Message-Id: <20220504153030.815398172@linuxfoundation.org>
+Message-Id: <20220504153117.948907197@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
 
-commit a24b4b2f660b7ddf3f484b37600bba382cb28a9d upstream.
+[ Upstream commit c7b45c79fb279e539346919a5c196e417925719e ]
 
-The gsm_mux field 'malformed' represents the number of malformed frames
-received. However, gsm1_receive() also increases this counter for any out
-of frame byte.
-Fix this by ignoring out of frame data for the malformed counter.
+This fixes the qspi read command by importing the changes from commit
+04aa946d57b2 ("arm64: dts: imx8: change the spi-nor tx").
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-7-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b186b8b6e770 ("arm64: dts: freescale: add initial device tree for TQMa8Mx with i.MX8M")
+Signed-off-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq-tqma8mq.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1968,7 +1968,8 @@ static void gsm1_receive(struct gsm_mux
- 		}
- 		/* Any partial frame was a runt so go back to start */
- 		if (gsm->state != GSM_START) {
--			gsm->malformed++;
-+			if (gsm->state != GSM_SEARCH)
-+				gsm->malformed++;
- 			gsm->state = GSM_START;
- 		}
- 		/* A SOF in GSM_START means we are still reading idling or
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-tqma8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-tqma8mq.dtsi
+index 8aedcddfeab8..2c63b01e93e0 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-tqma8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq-tqma8mq.dtsi
+@@ -253,7 +253,7 @@ flash0: flash@0 {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+ 		spi-max-frequency = <84000000>;
+-		spi-tx-bus-width = <4>;
++		spi-tx-bus-width = <1>;
+ 		spi-rx-bus-width = <4>;
+ 	};
+ };
+-- 
+2.35.1
+
 
 
