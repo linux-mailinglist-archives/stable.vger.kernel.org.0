@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5468B51A787
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C10151A687
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354981AbiEDRGx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S1353927AbiEDQ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:56:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356188AbiEDRE4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA093506D8;
-        Wed,  4 May 2022 09:53:55 -0700 (PDT)
+        with ESMTP id S1354154AbiEDQxx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB1D483A2;
+        Wed,  4 May 2022 09:49:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DECE61851;
-        Wed,  4 May 2022 16:53:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 756ACC385AA;
-        Wed,  4 May 2022 16:53:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EDFF61771;
+        Wed,  4 May 2022 16:49:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFCAC385AF;
+        Wed,  4 May 2022 16:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683234;
-        bh=nsZz5+pdxffZ9Z677SF946zV6Eemk9KbJF3/1KY+Mcs=;
+        s=korg; t=1651682948;
+        bh=QYfJ4jy1pgwenIxzQh04z03IUEVKov1C1SpEawfBfwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4lYLlZb7s5aFWnkZcQW06TVtkxEZMP8rVHZsTXoWhcWDdKMJNBISdDe5ILQ9Ph38
-         0sCN0mY3Krft87FyoTCYmumSQFFYOZSb5qzOCMOrO5Qi902JYpw11vYPZYX34KC1JY
-         MnCHZ7HCMAuL68TBdPlVydK3+lKAO4j3WcfYr0P0=
+        b=rUVYtX+ze2P4xidoB9AT84jQr3RQgyj5NLODRop8XUjlZovIpJfc+rbItByzWJbSg
+         ovyuSLnMvO8D7U7IHxeppEbD0Q4twWnH0r6e7lazAxke8RKLgsytHissV6puesj7QP
+         jYpmo1Vl8V01cCDfYbcGFh5Po8ODf5JNsLXOpIpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martynas Pumputis <m@lambda.lt>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/177] wireguard: device: check for metadata_dst with skb_valid_dst()
+Subject: [PATCH 5.4 59/84] bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
 Date:   Wed,  4 May 2022 18:44:40 +0200
-Message-Id: <20220504153100.893774300@linuxfoundation.org>
+Message-Id: <20220504152931.950244281@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,101 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 45ac774c33d834fe9d4de06ab5f1022fe8cd2071 ]
+[ Upstream commit fff8c10368e64e7f8960f149375c12ca5f3b30af ]
 
-When we try to transmit an skb with md_dst attached through wireguard
-we hit a null pointer dereference in wg_xmit() due to the use of
-dst_mtu() which calls into dst_blackhole_mtu() which in turn tries to
-dereference dst->dev.
+This code is really spurious.
+It always returns an ERR_PTR, even when err is known to be 0 and calls
+put_device() after a successful device_register() call.
 
-Since wireguard doesn't use md_dsts we should use skb_valid_dst(), which
-checks for DST_METADATA flag, and if it's set, then falls back to
-wireguard's device mtu. That gives us the best chance of transmitting
-the packet; otherwise if the blackhole netdev is used we'd get
-ETH_MIN_MTU.
+It is likely that the return statement in the normal path is missing.
+Add 'return rdev;' to fix it.
 
- [  263.693506] BUG: kernel NULL pointer dereference, address: 00000000000000e0
- [  263.693908] #PF: supervisor read access in kernel mode
- [  263.694174] #PF: error_code(0x0000) - not-present page
- [  263.694424] PGD 0 P4D 0
- [  263.694653] Oops: 0000 [#1] PREEMPT SMP NOPTI
- [  263.694876] CPU: 5 PID: 951 Comm: mausezahn Kdump: loaded Not tainted 5.18.0-rc1+ #522
- [  263.695190] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
- [  263.695529] RIP: 0010:dst_blackhole_mtu+0x17/0x20
- [  263.695770] Code: 00 00 00 0f 1f 44 00 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 8b 47 10 48 83 e0 fc 8b 40 04 85 c0 75 09 48 8b 07 <8b> 80 e0 00 00 00 c3 66 90 0f 1f 44 00 00 48 89 d7 be 01 00 00 00
- [  263.696339] RSP: 0018:ffffa4a4422fbb28 EFLAGS: 00010246
- [  263.696600] RAX: 0000000000000000 RBX: ffff8ac9c3553000 RCX: 0000000000000000
- [  263.696891] RDX: 0000000000000401 RSI: 00000000fffffe01 RDI: ffffc4a43fb48900
- [  263.697178] RBP: ffffa4a4422fbb90 R08: ffffffff9622635e R09: 0000000000000002
- [  263.697469] R10: ffffffff9b69a6c0 R11: ffffa4a4422fbd0c R12: ffff8ac9d18b1a00
- [  263.697766] R13: ffff8ac9d0ce1840 R14: ffff8ac9d18b1a00 R15: ffff8ac9c3553000
- [  263.698054] FS:  00007f3704c337c0(0000) GS:ffff8acaebf40000(0000) knlGS:0000000000000000
- [  263.698470] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  263.698826] CR2: 00000000000000e0 CR3: 0000000117a5c000 CR4: 00000000000006e0
- [  263.699214] Call Trace:
- [  263.699505]  <TASK>
- [  263.699759]  wg_xmit+0x411/0x450
- [  263.700059]  ? bpf_skb_set_tunnel_key+0x46/0x2d0
- [   263.700382]  ? dev_queue_xmit_nit+0x31/0x2b0
- [  263.700719]  dev_hard_start_xmit+0xd9/0x220
- [  263.701047]  __dev_queue_xmit+0x8b9/0xd30
- [  263.701344]  __bpf_redirect+0x1a4/0x380
- [  263.701664]  __dev_queue_xmit+0x83b/0xd30
- [  263.701961]  ? packet_parse_headers+0xb4/0xf0
- [  263.702275]  packet_sendmsg+0x9a8/0x16a0
- [  263.702596]  ? _raw_spin_unlock_irqrestore+0x23/0x40
- [  263.702933]  sock_sendmsg+0x5e/0x60
- [  263.703239]  __sys_sendto+0xf0/0x160
- [  263.703549]  __x64_sys_sendto+0x20/0x30
- [  263.703853]  do_syscall_64+0x3b/0x90
- [  263.704162]  entry_SYSCALL_64_after_hwframe+0x44/0xae
- [  263.704494] RIP: 0033:0x7f3704d50506
- [  263.704789] Code: 48 c7 c0 ff ff ff ff eb b7 66 2e 0f 1f 84 00 00 00 00 00 90 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 11 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 72 c3 90 55 48 83 ec 30 44 89 4c 24 2c 4c 89
- [  263.705652] RSP: 002b:00007ffe954b0b88 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- [  263.706141] RAX: ffffffffffffffda RBX: 0000558bb259b490 RCX: 00007f3704d50506
- [  263.706544] RDX: 000000000000004a RSI: 0000558bb259b7b2 RDI: 0000000000000003
- [  263.706952] RBP: 0000000000000000 R08: 00007ffe954b0b90 R09: 0000000000000014
- [  263.707339] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffe954b0b90
- [  263.707735] R13: 000000000000004a R14: 0000558bb259b7b2 R15: 0000000000000001
- [  263.708132]  </TASK>
- [  263.708398] Modules linked in: bridge netconsole bonding [last unloaded: bridge]
- [  263.708942] CR2: 00000000000000e0
-
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Link: https://github.com/cilium/cilium/issues/19428
-Reported-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/ef2b9576350bba4c8e05e669e9535e9e2a415763.1650551719.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireguard/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bus/sunxi-rsb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireguard/device.c b/drivers/net/wireguard/device.c
-index a46067c38bf5..5eaef79c06e1 100644
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -19,6 +19,7 @@
- #include <linux/if_arp.h>
- #include <linux/icmp.h>
- #include <linux/suspend.h>
-+#include <net/dst_metadata.h>
- #include <net/icmp.h>
- #include <net/rtnetlink.h>
- #include <net/ip_tunnels.h>
-@@ -152,7 +153,7 @@ static netdev_tx_t wg_xmit(struct sk_buff *skb, struct net_device *dev)
- 		goto err_peer;
- 	}
+diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
+index 1bb00a959c67..9b1a5e62417c 100644
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -224,6 +224,8 @@ static struct sunxi_rsb_device *sunxi_rsb_device_create(struct sunxi_rsb *rsb,
  
--	mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
-+	mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
+ 	dev_dbg(&rdev->dev, "device %s registered\n", dev_name(&rdev->dev));
  
- 	__skb_queue_head_init(&packets);
- 	if (!skb_is_gso(skb)) {
++	return rdev;
++
+ err_device_add:
+ 	put_device(&rdev->dev);
+ 
 -- 
 2.35.1
 
