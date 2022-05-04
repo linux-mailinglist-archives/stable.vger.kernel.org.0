@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ECE351A6AB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 157F651A790
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354340AbiEDQ5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
+        id S1355117AbiEDRFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354368AbiEDQ5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:00 -0400
+        with ESMTP id S1355187AbiEDREL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786DC49F2F;
-        Wed,  4 May 2022 09:49:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F86E4E3B4;
+        Wed,  4 May 2022 09:52:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9E83B827A2;
-        Wed,  4 May 2022 16:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4818CC385AF;
-        Wed,  4 May 2022 16:49:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D3B86B827A6;
+        Wed,  4 May 2022 16:52:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856CFC385A5;
+        Wed,  4 May 2022 16:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682993;
-        bh=+5sO8A4SCcVNYHESQuZJ1neYMuO5NHBNZuzxle12Owg=;
+        s=korg; t=1651683167;
+        bh=8VMbv6k1Ez79dhZYetnG2VPw/IkmhQKJA3RVyKVyfcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w2Dv46GYthw7zt++gIo+jYqh98JNrfDb4ukycJiZrJKU9+9I/I/WQUGl9kmsGDAsM
-         SGxZwsBm0UThn27kVDfbmM7az/ZqNREwHJUlGGN8b7ApPkxnKuNfXh8vs1vRXnlWgj
-         KWTYfu+j94bg0s3OXobivhlPKkVrO3G2W8x9F23g=
+        b=vH+Sq0PucGVPAe4GXbcizUedEtpVssK982POQKKlpYION6+HAprDHQq+sFxlcz4z1
+         srtMqS9LZc1bwikUe9AlZLRXSB2PVtYuEnM1KN8XbjKybHOza23Fn3OfRAepcGs17N
+         A5IxbI5hComWYmOmliLYI0lRMNSD5kCTWY3g1124=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
         stable <stable@kernel.org>
-Subject: [PATCH 5.10 010/129] xhci: Enable runtime PM on second Alderlake controller
+Subject: [PATCH 5.15 009/177] xhci: Enable runtime PM on second Alderlake controller
 Date:   Wed,  4 May 2022 18:43:22 +0200
-Message-Id: <20220504153022.161471590@linuxfoundation.org>
+Message-Id: <20220504153054.435490606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -77,9 +77,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
 +#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
  
+ #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
  #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
-@@ -261,7 +262,8 @@ static void xhci_pci_quirks(struct devic
+@@ -266,7 +267,8 @@ static void xhci_pci_quirks(struct devic
  	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
  	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
  	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
