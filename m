@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D30551A858
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E28851A937
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355617AbiEDRKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54974 "EHLO
+        id S237054AbiEDRQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356196AbiEDRJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C16D52E58;
-        Wed,  4 May 2022 09:54:58 -0700 (PDT)
+        with ESMTP id S1355700AbiEDRLn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4586C4B84F;
+        Wed,  4 May 2022 09:57:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BFC161851;
-        Wed,  4 May 2022 16:54:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65725C385A4;
-        Wed,  4 May 2022 16:54:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4148E61931;
+        Wed,  4 May 2022 16:57:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83C0AC385B0;
+        Wed,  4 May 2022 16:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683297;
-        bh=ekEKJfgW6dGACF/UjxglVYNmCt1DGFIUTNvzoJhvRww=;
+        s=korg; t=1651683453;
+        bh=/A+odwv5Yvew3AOTh02sjc0/Z7SqTQ27aOwXw5tyGf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV1V50fYjhaOk65nRy/93JNITVyfjJpj9/aD+cc30FelNT7iiD5hOaeqBDdlraUEC
-         6kT6shrrT8/u0Mnx8IAfDFb33HySsQ7Hsftewc9NkbKIom5eIGvTnn8qmlMNpIaxLv
-         tbm/LKtBelgO48VNh6uCSG6SXUOGPM8SGZYUUULk=
+        b=D6T/1G2m9kGJT17n+ITDhN7kxkknbV9u9qlSb17HimpYEwRvk7N5nAEjMZZ8imMHv
+         iE9Twp2vgbkXHJtB5SMAujXpsxKi4opuK2jzsSqtRxC5JKC0tDlq9MeklrHpU8AgXb
+         o34+1OORKedsDsKJwFg02Pdr6vGF7V46OPEkiA38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 151/177] btrfs: fix leaked plug after failure syncing log on zoned filesystems
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 106/225] pinctrl: stm32: Keep pinctrl block clock enabled when LEVEL IRQ requested
 Date:   Wed,  4 May 2022 18:45:44 +0200
-Message-Id: <20220504153106.857561670@linuxfoundation.org>
+Message-Id: <20220504153120.111947447@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +59,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 50ff57888d0b13440e7f4cde05dc339ee8d0f1f8 upstream.
+[ Upstream commit 05d8af449d93e04547b4c6b328e39c890bc803f4 ]
 
-On a zoned filesystem, if we fail to allocate the root node for the log
-root tree while syncing the log, we end up returning without finishing
-the IO plug we started before, resulting in leaking resources as we
-have started writeback for extent buffers of a log tree before. That
-allocation failure, which typically is either -ENOMEM or -ENOSPC, is not
-fatal and the fsync can safely fallback to a full transaction commit.
+The current EOI handler for LEVEL triggered interrupts calls clk_enable(),
+register IO, clk_disable(). The clock manipulation requires locking which
+happens with IRQs disabled in clk_enable_lock(). Instead of turning the
+clock on and off all the time, enable the clock in case LEVEL interrupt is
+requested and keep the clock enabled until all LEVEL interrupts are freed.
+The LEVEL interrupts are an exception on this platform and seldom used, so
+this does not affect the common case.
 
-So release the IO plug if we fail to allocate the extent buffer for the
-root of the log root tree when syncing the log on a zoned filesystem.
+This simplifies the LEVEL interrupt handling considerably and also fixes
+the following splat found when using preempt-rt:
+ ------------[ cut here ]------------
+ WARNING: CPU: 0 PID: 0 at kernel/locking/rtmutex.c:2040 __rt_mutex_trylock+0x37/0x62
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.109-rt65-stable-standard-00068-g6a5afc4b1217 #85
+ Hardware name: STM32 (Device Tree Support)
+ [<c010a45d>] (unwind_backtrace) from [<c010766f>] (show_stack+0xb/0xc)
+ [<c010766f>] (show_stack) from [<c06353ab>] (dump_stack+0x6f/0x84)
+ [<c06353ab>] (dump_stack) from [<c01145e3>] (__warn+0x7f/0xa4)
+ [<c01145e3>] (__warn) from [<c063386f>] (warn_slowpath_fmt+0x3b/0x74)
+ [<c063386f>] (warn_slowpath_fmt) from [<c063b43d>] (__rt_mutex_trylock+0x37/0x62)
+ [<c063b43d>] (__rt_mutex_trylock) from [<c063c053>] (rt_spin_trylock+0x7/0x16)
+ [<c063c053>] (rt_spin_trylock) from [<c036a2f3>] (clk_enable_lock+0xb/0x80)
+ [<c036a2f3>] (clk_enable_lock) from [<c036ba69>] (clk_core_enable_lock+0x9/0x18)
+ [<c036ba69>] (clk_core_enable_lock) from [<c034e9f3>] (stm32_gpio_get+0x11/0x24)
+ [<c034e9f3>] (stm32_gpio_get) from [<c034ef43>] (stm32_gpio_irq_trigger+0x1f/0x48)
+ [<c034ef43>] (stm32_gpio_irq_trigger) from [<c014aa53>] (handle_fasteoi_irq+0x71/0xa8)
+ [<c014aa53>] (handle_fasteoi_irq) from [<c0147111>] (generic_handle_irq+0x19/0x22)
+ [<c0147111>] (generic_handle_irq) from [<c014752d>] (__handle_domain_irq+0x55/0x64)
+ [<c014752d>] (__handle_domain_irq) from [<c0346f13>] (gic_handle_irq+0x53/0x64)
+ [<c0346f13>] (gic_handle_irq) from [<c0100ba5>] (__irq_svc+0x65/0xc0)
+ Exception stack(0xc0e01f18 to 0xc0e01f60)
+ 1f00:                                                       0000300c 00000000
+ 1f20: 0000300c c010ff01 00000000 00000000 c0e00000 c0e07714 00000001 c0e01f78
+ 1f40: c0e07758 00000000 ef7cd0ff c0e01f68 c010554b c0105542 40000033 ffffffff
+ [<c0100ba5>] (__irq_svc) from [<c0105542>] (arch_cpu_idle+0xc/0x1e)
+ [<c0105542>] (arch_cpu_idle) from [<c063be95>] (default_idle_call+0x21/0x3c)
+ [<c063be95>] (default_idle_call) from [<c01324f7>] (do_idle+0xe3/0x1e4)
+ [<c01324f7>] (do_idle) from [<c01327b3>] (cpu_startup_entry+0x13/0x14)
+ [<c01327b3>] (cpu_startup_entry) from [<c0a00c13>] (start_kernel+0x397/0x3d4)
+ [<c0a00c13>] (start_kernel) from [<00000000>] (0x0)
+ ---[ end trace 0000000000000002 ]---
 
-Fixes: 3ddebf27fcd3a9 ("btrfs: zoned: reorder log node allocation on zoned filesystem")
-CC: stable@vger.kernel.org # 5.15+
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Power consumption measured on STM32MP157C DHCOM SoM is not increased or
+is below noise threshold.
+
+Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+To: linux-gpio@vger.kernel.org
+Reviewed-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20220421140827.214088-1-marex@denx.de
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3216,6 +3216,7 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 			ret = btrfs_alloc_log_tree_node(trans, log_root_tree);
- 			if (ret) {
- 				mutex_unlock(&fs_info->tree_root->log_mutex);
-+				blk_finish_plug(&plug);
- 				goto out;
- 			}
- 		}
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index df1d6b466fb7..f7c9459f6628 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -225,6 +225,13 @@ static void stm32_gpio_free(struct gpio_chip *chip, unsigned offset)
+ 	pinctrl_gpio_free(chip->base + offset);
+ }
+ 
++static int stm32_gpio_get_noclk(struct gpio_chip *chip, unsigned int offset)
++{
++	struct stm32_gpio_bank *bank = gpiochip_get_data(chip);
++
++	return !!(readl_relaxed(bank->base + STM32_GPIO_IDR) & BIT(offset));
++}
++
+ static int stm32_gpio_get(struct gpio_chip *chip, unsigned offset)
+ {
+ 	struct stm32_gpio_bank *bank = gpiochip_get_data(chip);
+@@ -232,7 +239,7 @@ static int stm32_gpio_get(struct gpio_chip *chip, unsigned offset)
+ 
+ 	clk_enable(bank->clk);
+ 
+-	ret = !!(readl_relaxed(bank->base + STM32_GPIO_IDR) & BIT(offset));
++	ret = stm32_gpio_get_noclk(chip, offset);
+ 
+ 	clk_disable(bank->clk);
+ 
+@@ -316,7 +323,7 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
+ 		return;
+ 
+ 	/* If level interrupt type then retrig */
+-	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
++	level = stm32_gpio_get_noclk(&bank->gpio_chip, d->hwirq);
+ 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
+ 	    (level == 1 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_HIGH))
+ 		irq_chip_retrigger_hierarchy(d);
+@@ -358,6 +365,7 @@ static int stm32_gpio_irq_request_resources(struct irq_data *irq_data)
+ {
+ 	struct stm32_gpio_bank *bank = irq_data->domain->host_data;
+ 	struct stm32_pinctrl *pctl = dev_get_drvdata(bank->gpio_chip.parent);
++	unsigned long flags;
+ 	int ret;
+ 
+ 	ret = stm32_gpio_direction_input(&bank->gpio_chip, irq_data->hwirq);
+@@ -371,6 +379,10 @@ static int stm32_gpio_irq_request_resources(struct irq_data *irq_data)
+ 		return ret;
+ 	}
+ 
++	flags = irqd_get_trigger_type(irq_data);
++	if (flags & IRQ_TYPE_LEVEL_MASK)
++		clk_enable(bank->clk);
++
+ 	return 0;
+ }
+ 
+@@ -378,6 +390,9 @@ static void stm32_gpio_irq_release_resources(struct irq_data *irq_data)
+ {
+ 	struct stm32_gpio_bank *bank = irq_data->domain->host_data;
+ 
++	if (bank->irq_type[irq_data->hwirq] & IRQ_TYPE_LEVEL_MASK)
++		clk_disable(bank->clk);
++
+ 	gpiochip_unlock_as_irq(&bank->gpio_chip, irq_data->hwirq);
+ }
+ 
+-- 
+2.35.1
+
 
 
