@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAB7351A810
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B0351A5F8
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355269AbiEDRHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S1353679AbiEDQwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355356AbiEDRER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D3D4ECD0;
-        Wed,  4 May 2022 09:52:59 -0700 (PDT)
+        with ESMTP id S1353622AbiEDQwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545774704B;
+        Wed,  4 May 2022 09:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC04FB82792;
-        Wed,  4 May 2022 16:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912D3C385A5;
-        Wed,  4 May 2022 16:52:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3FAF61786;
+        Wed,  4 May 2022 16:48:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFB3C385A5;
+        Wed,  4 May 2022 16:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683171;
-        bh=50t13TWnJkWNJqSYvgR68ZzAcfdUER8rrkJF4QqlJCI=;
+        s=korg; t=1651682903;
+        bh=MgNU/KErX9XYknk3zj2PDYvQIh2K7GS2hYAzr7pzkmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dgCb10JE1oABvSPJJld3Zq+/VbLzgWBP71vAfJBhMHE7PIEw1mRojZJGrSVlUCRIJ
-         sBoKhb5fHfvPG8/4mmPH1YIMMMbjoY/zxgZ4DlG1PZSaHB2mR8kThS2JbdUZot9C9I
-         eNQJmnWu4TEdwLpI4RdjX783j40ishixaKJ0ykgk=
+        b=MOgtY2MWMmMgijbus5AUO9zU7QSMfcG7fcFG4iQ1/hGXcxcVatp1q8XmzRFrs/176
+         I3XTmAEkKAJVcBYbBCucl+5PJR42i+n3QNsY6rKi+OkMMIN4GauLjD8lPyf4V5RbVQ
+         GB5Nxk6hW2njWo8KsXWyvmQ6nj7ahUjP3apdsNfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Subject: [PATCH 5.15 036/177] bus: mhi: host: pci_generic: Flush recovery worker during freeze
-Date:   Wed,  4 May 2022 18:43:49 +0200
-Message-Id: <20220504153056.192191908@linuxfoundation.org>
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 09/84] USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
+Date:   Wed,  4 May 2022 18:43:50 +0200
+Message-Id: <20220504152928.395537118@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Bruno Thomsen <bruno.thomsen@gmail.com>
 
-commit c38f83bae4037023827c85e045841d0421f85034 upstream.
+commit 35a923a0b329c343e9e81d79518e2937eba06fcd upstream.
 
-It is possible that the recovery work might be running while the freeze
-gets executed (during hibernation etc.,). Currently, we don't powerdown
-the stack if it is not up but if the recovery work completes after freeze,
-then the device will be up afterwards. This will not be a sane situation.
+Wireless reading of water and heat meters using 868 MHz wM-Bus mode C1.
 
-So let's flush the recovery worker before trying to powerdown the device.
+The two different product IDs allow detection of dongle antenna
+solution:
+- Internal antenna
+- External antenna using SMA connector
 
+https://www.kamstrup.com/en-en/water-solutions/water-meter-reading/usb-meter-reader
+
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Link: https://lore.kernel.org/r/20220414081202.5591-1-bruno.thomsen@gmail.com
 Cc: stable@vger.kernel.org
-Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
-Reported-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-Reviewed-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
-Link: https://lore.kernel.org/r/20220408150039.17297-1-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/mhi/pci_generic.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/bus/mhi/pci_generic.c
-+++ b/drivers/bus/mhi/pci_generic.c
-@@ -1020,6 +1020,7 @@ static int __maybe_unused mhi_pci_freeze
- 	 * the intermediate restore kernel reinitializes MHI device with new
- 	 * context.
- 	 */
-+	flush_work(&mhi_pdev->recovery_work);
- 	if (test_and_clear_bit(MHI_PCI_DEV_STARTED, &mhi_pdev->status)) {
- 		mhi_power_down(mhi_cntrl, true);
- 		mhi_unprepare_after_power_down(mhi_cntrl);
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -195,6 +195,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
+ 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
+ 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
++	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
++	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
+ 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
+ 	{ USB_DEVICE(0x1843, 0x0200) }, /* Vaisala USB Instrument Cable */
+ 	{ USB_DEVICE(0x18EF, 0xE00F) }, /* ELV USB-I2C-Interface */
 
 
