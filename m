@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A89BD51A820
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58ABD51A6F2
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355574AbiEDRIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        id S1354619AbiEDRBF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354719AbiEDRFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A6BB5133A;
-        Wed,  4 May 2022 09:54:15 -0700 (PDT)
+        with ESMTP id S1355519AbiEDRAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9F1F4B846;
+        Wed,  4 May 2022 09:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 864B0B8278E;
-        Wed,  4 May 2022 16:54:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21897C385A4;
-        Wed,  4 May 2022 16:54:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0C2B617BD;
+        Wed,  4 May 2022 16:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A90FC385B3;
+        Wed,  4 May 2022 16:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683253;
-        bh=cQKzmDC6nWwnIM5+CUyyN+OnLwgvDDKKjIundLrhefs=;
+        s=korg; t=1651683106;
+        bh=ySZ75yxQ9rSlMS/LBm0D7/joJG1yatqRZc8qRvexBFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z9PNxSHs48N/RQsVC7yDiQ85GSwCTgC1ySt07ZIDxZDB31GLxdFmefdX3IVKy6ha
-         6KUeRl+3iN4XoW1UK1wUh+5J71HA9mA3IKCJXh62zgIPV9rQw6Ze2ybpcGfTA96Y8/
-         868haQD6JCOb12BkUnntuVcogJX2uweUoflQPygg=
+        b=TV0F6pQwOl/H5KJzRyE8UCAmkuzfwh0jG9OtU2OkEdXfPSu1dh5ZH4JhRbWEgUzwt
+         Kn1phYokUVstDcgMRgKl71TAUWSuwvWZcc/vqcoorOua3jkTjM/Cm6Ew2+RewollFn
+         lG4vLIoQuN2V1CT8Ty2XQL1OrFEzGbNzpyi8hnWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/177] net: hns3: add return value for mailbox handling in PF
-Date:   Wed,  4 May 2022 18:44:49 +0200
-Message-Id: <20220504153101.716777921@linuxfoundation.org>
+Subject: [PATCH 5.10 098/129] tcp: fix F-RTO may not work correctly when receiving DSACK
+Date:   Wed,  4 May 2022 18:44:50 +0200
+Message-Id: <20220504153028.695363982@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,98 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-[ Upstream commit c59d606296842409a6e5a4828235b0bd46b12bc4 ]
+[ Upstream commit d9157f6806d1499e173770df1f1b234763de5c79 ]
 
-Currently, there are some querying mailboxes sent from VF to PF,
-and VF will wait the PF's handling result. For mailbox
-HCLGE_MBX_GET_QID_IN_PF and HCLGE_MBX_GET_RSS_KEY, it may fail
-when the input parameter is invalid, but the prototype of their
-handler function is void. In this case, PF always return success
-to VF, which may cause the VF get incorrect result.
+Currently DSACK is regarded as a dupack, which may cause
+F-RTO to incorrectly enter "loss was real" when receiving
+DSACK.
 
-Fixes it by adding return value for these function.
+Packetdrill to demonstrate:
 
-Fixes: 63b1279d9905 ("net: hns3: check queue id range before using")
-Fixes: 532cfc0df1e4 ("net: hns3: add a check for index in hclge_get_rss_key()")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+// Enable F-RTO and TLP
+    0 `sysctl -q net.ipv4.tcp_frto=2`
+    0 `sysctl -q net.ipv4.tcp_early_retrans=3`
+    0 `sysctl -q net.ipv4.tcp_congestion_control=cubic`
+
+// Establish a connection
+   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
+   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
+   +0 bind(3, ..., ...) = 0
+   +0 listen(3, 1) = 0
+
+// RTT 10ms, RTO 210ms
+  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
+   +0 > S. 0:0(0) ack 1 <...>
+ +.01 < . 1:1(0) ack 1 win 257
+   +0 accept(3, ..., ...) = 4
+
+// Send 2 data segments
+   +0 write(4, ..., 2000) = 2000
+   +0 > P. 1:2001(2000) ack 1
+
+// TLP
++.022 > P. 1001:2001(1000) ack 1
+
+// Continue to send 8 data segments
+   +0 write(4, ..., 10000) = 10000
+   +0 > P. 2001:10001(8000) ack 1
+
+// RTO
++.188 > . 1:1001(1000) ack 1
+
+// The original data is acked and new data is sent(F-RTO step 2.b)
+   +0 < . 1:1(0) ack 2001 win 257
+   +0 > P. 10001:12001(2000) ack 1
+
+// D-SACK caused by TLP is regarded as a dupack, this results in
+// the incorrect judgment of "loss was real"(F-RTO step 3.a)
++.022 < . 1:1(0) ack 2001 win 257 <sack 1001:2001,nop,nop>
+
+// Never-retransmitted data(3001:4001) are acked and
+// expect to switch to open state(F-RTO step 3.b)
+   +0 < . 1:1(0) ack 4001 win 257
++0 %{ assert tcpi_ca_state == 0, tcpi_ca_state }%
+
+Fixes: e33099f96d99 ("tcp: implement RFC5682 F-RTO")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Tested-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1650967419-2150-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_mbx.c         | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ net/ipv4/tcp_input.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index c256305a2212..4a5b11b6fed3 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -593,9 +593,9 @@ static int hclge_set_vf_mtu(struct hclge_vport *vport,
- 	return hclge_set_vport_mtu(vport, mtu);
- }
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index c25a95c74128..2e267b2e33e5 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -3814,7 +3814,8 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
+ 		tcp_process_tlp_ack(sk, ack, flag);
  
--static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
--				     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
--				     struct hclge_respond_to_vf_msg *resp_msg)
-+static int hclge_get_queue_id_in_pf(struct hclge_vport *vport,
-+				    struct hclge_mbx_vf_to_pf_cmd *mbx_req,
-+				    struct hclge_respond_to_vf_msg *resp_msg)
- {
- 	struct hnae3_handle *handle = &vport->nic;
- 	struct hclge_dev *hdev = vport->back;
-@@ -605,17 +605,18 @@ static void hclge_get_queue_id_in_pf(struct hclge_vport *vport,
- 	if (queue_id >= handle->kinfo.num_tqps) {
- 		dev_err(&hdev->pdev->dev, "Invalid queue id(%u) from VF %u\n",
- 			queue_id, mbx_req->mbx_src_vfid);
--		return;
-+		return -EINVAL;
- 	}
- 
- 	qid_in_pf = hclge_covert_handle_qid_global(&vport->nic, queue_id);
- 	memcpy(resp_msg->data, &qid_in_pf, sizeof(qid_in_pf));
- 	resp_msg->len = sizeof(qid_in_pf);
-+	return 0;
- }
- 
--static void hclge_get_rss_key(struct hclge_vport *vport,
--			      struct hclge_mbx_vf_to_pf_cmd *mbx_req,
--			      struct hclge_respond_to_vf_msg *resp_msg)
-+static int hclge_get_rss_key(struct hclge_vport *vport,
-+			     struct hclge_mbx_vf_to_pf_cmd *mbx_req,
-+			     struct hclge_respond_to_vf_msg *resp_msg)
- {
- #define HCLGE_RSS_MBX_RESP_LEN	8
- 	struct hclge_dev *hdev = vport->back;
-@@ -631,13 +632,14 @@ static void hclge_get_rss_key(struct hclge_vport *vport,
- 		dev_warn(&hdev->pdev->dev,
- 			 "failed to get the rss hash key, the index(%u) invalid !\n",
- 			 index);
--		return;
-+		return -EINVAL;
- 	}
- 
- 	memcpy(resp_msg->data,
- 	       &hdev->vport[0].rss_hash_key[index * HCLGE_RSS_MBX_RESP_LEN],
- 	       HCLGE_RSS_MBX_RESP_LEN);
- 	resp_msg->len = HCLGE_RSS_MBX_RESP_LEN;
-+	return 0;
- }
- 
- static void hclge_link_fail_parse(struct hclge_dev *hdev, u8 link_fail_code)
-@@ -812,10 +814,10 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
- 					"VF fail(%d) to set mtu\n", ret);
- 			break;
- 		case HCLGE_MBX_GET_QID_IN_PF:
--			hclge_get_queue_id_in_pf(vport, req, &resp_msg);
-+			ret = hclge_get_queue_id_in_pf(vport, req, &resp_msg);
- 			break;
- 		case HCLGE_MBX_GET_RSS_KEY:
--			hclge_get_rss_key(vport, req, &resp_msg);
-+			ret = hclge_get_rss_key(vport, req, &resp_msg);
- 			break;
- 		case HCLGE_MBX_GET_LINK_MODE:
- 			hclge_get_link_mode(vport, req);
+ 	if (tcp_ack_is_dubious(sk, flag)) {
+-		if (!(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP))) {
++		if (!(flag & (FLAG_SND_UNA_ADVANCED |
++			      FLAG_NOT_DUP | FLAG_DSACKING_ACK))) {
+ 			num_dupack = 1;
+ 			/* Consider if pure acks were aggregated in tcp_add_backlog() */
+ 			if (!(flag & FLAG_DATA))
 -- 
 2.35.1
 
