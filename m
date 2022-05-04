@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 597EC51A785
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD14851A8D4
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240526AbiEDRG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
+        id S1355416AbiEDRM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356073AbiEDREw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B16DF50443;
-        Wed,  4 May 2022 09:53:45 -0700 (PDT)
+        with ESMTP id S1356819AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F3021809;
+        Wed,  4 May 2022 09:55:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D5A461505;
-        Wed,  4 May 2022 16:53:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 832F5C385AF;
-        Wed,  4 May 2022 16:53:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2047617DE;
+        Wed,  4 May 2022 16:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461BBC385A4;
+        Wed,  4 May 2022 16:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683224;
-        bh=9aKAC8bS8AJ3whFajoPKnF48+NJXL61N8ubLWROvCB0=;
+        s=korg; t=1651683346;
+        bh=jY/z4a730pmHURkZV1MCag3s0fgPGWCDRkatCxnWXwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AXQAiLyxgnnqP4hw+6yurCBMlIK5zCk50T86KI6xc7PLZ1ZiCFxg9i7rzy5jgy7QA
-         hMME7zrfAoyoODPsvGOho4bdcEEZUaeED+wHg+gJt9DH28I82XLHjqrPWkLSxcUQkp
-         nY77Zhq7hQfqxgaEqYFTjQonVd/YwJdNt24leEx8=
+        b=KQ7KogwtH18JTee1Mj1E3E4V1Xh3gvGyHDbRUBx0+uTk9UZ1BI8X7l/3xm4s99oUI
+         JMtmWZYew98iJGOcdW4ldfEObg8p3M0h5MOQVj9rwNbwb0qnljqfhmcKeFQi3ztGRz
+         MZI9PdpuMpEcFQ7u5qMyNMhZqRchgmfMNNJsLkA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksandr Ocheretnyi <oocheret@cisco.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/177] mtd: fix part field data corruption in mtd_info
-Date:   Wed,  4 May 2022 18:44:30 +0200
-Message-Id: <20220504153059.970955149@linuxfoundation.org>
+        stable@vger.kernel.org, Todd Kjos <tkjos@google.com>,
+        stable <stable@kernel.org>,
+        Alessandro Astone <ales.astone@gmail.com>
+Subject: [PATCH 5.17 033/225] binder: Address corner cases in deferred copy and fixup
+Date:   Wed,  4 May 2022 18:44:31 +0200
+Message-Id: <20220504153113.195603183@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Ocheretnyi <oocheret@cisco.com>
+From: Alessandro Astone <ales.astone@gmail.com>
 
-[ Upstream commit 37c5f9e80e015d0df17d0c377c18523002986851 ]
+commit 2d1746e3fda0c3612143d7c06f8e1d1830c13e23 upstream.
 
-Commit 46b5889cc2c5 ("mtd: implement proper partition handling")
-started using "mtd_get_master_ofs()" in mtd callbacks to determine
-memory offsets by means of 'part' field from mtd_info, what previously
-was smashed accessing 'master' field in the mtd_set_dev_defaults() method.
-That provides wrong offset what causes hardware access errors.
+When handling BINDER_TYPE_FDA object we are pushing a parent fixup
+with a certain skip_size but no scatter-gather copy object, since
+the copy is handled standalone.
+If BINDER_TYPE_FDA is the last children the scatter-gather copy
+loop will never stop to skip it, thus we are left with an item in
+the parent fixup list. This will trigger the BUG_ON().
 
-Just make 'part', 'master' as separate fields, rather than using
-union type to avoid 'part' data corruption when mtd_set_dev_defaults()
-is called.
+This is reproducible in android when playing a video.
+We receive a transaction that looks like this:
+    obj[0] BINDER_TYPE_PTR, parent
+    obj[1] BINDER_TYPE_PTR, child
+    obj[2] BINDER_TYPE_PTR, child
+    obj[3] BINDER_TYPE_FDA, child
 
-Fixes: 46b5889cc2c5 ("mtd: implement proper partition handling")
-Signed-off-by: Oleksandr Ocheretnyi <oocheret@cisco.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220417184649.449289-1-oocheret@cisco.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 09184ae9b575 ("binder: defer copies of pre-patched txn data")
+Acked-by: Todd Kjos <tkjos@google.com>
+Cc: stable <stable@kernel.org>
+Signed-off-by: Alessandro Astone <ales.astone@gmail.com>
+Link: https://lore.kernel.org/r/20220415120015.52684-2-ales.astone@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mtd/mtd.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/android/binder.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/mtd/mtd.h b/include/linux/mtd/mtd.h
-index 88227044fc86..8a2c60235ebb 100644
---- a/include/linux/mtd/mtd.h
-+++ b/include/linux/mtd/mtd.h
-@@ -394,10 +394,8 @@ struct mtd_info {
- 	/* List of partitions attached to this MTD device */
- 	struct list_head partitions;
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2295,6 +2295,7 @@ static int binder_do_deferred_txn_copies
+ {
+ 	int ret = 0;
+ 	struct binder_sg_copy *sgc, *tmpsgc;
++	struct binder_ptr_fixup *tmppf;
+ 	struct binder_ptr_fixup *pf =
+ 		list_first_entry_or_null(pf_head, struct binder_ptr_fixup,
+ 					 node);
+@@ -2349,7 +2350,11 @@ static int binder_do_deferred_txn_copies
+ 		list_del(&sgc->node);
+ 		kfree(sgc);
+ 	}
+-	BUG_ON(!list_empty(pf_head));
++	list_for_each_entry_safe(pf, tmppf, pf_head, node) {
++		BUG_ON(pf->skip_size == 0);
++		list_del(&pf->node);
++		kfree(pf);
++	}
+ 	BUG_ON(!list_empty(sgc_head));
  
--	union {
--		struct mtd_part part;
--		struct mtd_master master;
--	};
-+	struct mtd_part part;
-+	struct mtd_master master;
- };
- 
- static inline struct mtd_info *mtd_get_master(struct mtd_info *mtd)
--- 
-2.35.1
-
+ 	return ret > 0 ? -EINVAL : ret;
 
 
