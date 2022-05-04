@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D361251A94A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1A4151A8FB
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352205AbiEDRLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
+        id S245717AbiEDRQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357203AbiEDRKC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC32249693;
-        Wed,  4 May 2022 09:57:09 -0700 (PDT)
+        with ESMTP id S1355789AbiEDRIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 432BA51E6F;
+        Wed,  4 May 2022 09:54:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B171B827A3;
-        Wed,  4 May 2022 16:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE30C385A4;
-        Wed,  4 May 2022 16:57:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B930618A8;
+        Wed,  4 May 2022 16:54:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 971B3C385A5;
+        Wed,  4 May 2022 16:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683427;
-        bh=2R5kitwa1y1l5S4KPY9jcoJ/BPm7iTyVBAWu2sovui0=;
+        s=korg; t=1651683273;
+        bh=V4+udKpGUEb7EfiAhVQ52/X71aaDypSDTq4SjL343KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pfO8fNY7sUOimOUHZIvY3qPnWMdgCj40a7aGpyMGmPGBuSYUohS5e692gF3m+kBs
-         cQA51qXV1hNGiuAHmdNbIZnvQel7vFZN7hjkyQHt/WlB2Gdf57MXXng0nxqPbHyjnz
-         AECXJfwU+TrNh7aXh5nxpIfxupJ3zzkFZ0mhhA3w=
+        b=TPKuDyl1lseDGwXW1Uo4SrFDNkuDjK64zlTaoafn73/2n5QFNom5N/ZiMBAzUhZee
+         RApL548aEjYC+7EGYchD6h+M8herj2PhipFDn87IriGC0tjWs34hGLE+f3wXUQgCOY
+         C48Xhj8zigkNandxiycMzfIMZIjDWjZcpSYIM0Dw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 093/225] pinctrl: qcom: sm6350: fix order of UFS & SDC pins
-Date:   Wed,  4 May 2022 18:45:31 +0200
-Message-Id: <20220504153119.135109608@linuxfoundation.org>
+Subject: [PATCH 5.15 139/177] selftest/vm: verify remap destination address in mremap_test
+Date:   Wed,  4 May 2022 18:45:32 +0200
+Message-Id: <20220504153105.675996205@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +57,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Weiss <luca.weiss@fairphone.com>
+From: Sidhartha Kumar <sidhartha.kumar@oracle.com>
 
-[ Upstream commit ef0beba1a5fb0c693ddf7d31246bd96c925ffd00 ]
+[ Upstream commit 18d609daa546c919fd36b62a7b510c18de4b4af8 ]
 
-In other places the SDC and UFS pins have been swapped but this was
-missed in the PINCTRL_PIN definitions. Fix that.
+Because mremap does not have a MAP_FIXED_NOREPLACE flag, it can destroy
+existing mappings.  This causes a segfault when regions such as text are
+remapped and the permissions are changed.
 
-Fixes: 7d74b55afd27 ("pinctrl: qcom: Add SM6350 pinctrl driver")
-Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
-Link: https://lore.kernel.org/r/20220318183004.858707-5-luca.weiss@fairphone.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Verify the requested mremap destination address does not overlap any
+existing mappings by using mmap's MAP_FIXED_NOREPLACE flag.  Keep
+incrementing the destination address until a valid mapping is found or
+fail the current test once the max address is reached.
+
+Link: https://lkml.kernel.org/r/20220420215721.4868-2-sidhartha.kumar@oracle.com
+Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/qcom/pinctrl-sm6350.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ tools/testing/selftests/vm/mremap_test.c | 42 ++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/qcom/pinctrl-sm6350.c b/drivers/pinctrl/qcom/pinctrl-sm6350.c
-index 4d37b817b232..a91a86628f2f 100644
---- a/drivers/pinctrl/qcom/pinctrl-sm6350.c
-+++ b/drivers/pinctrl/qcom/pinctrl-sm6350.c
-@@ -264,14 +264,14 @@ static const struct pinctrl_pin_desc sm6350_pins[] = {
- 	PINCTRL_PIN(153, "GPIO_153"),
- 	PINCTRL_PIN(154, "GPIO_154"),
- 	PINCTRL_PIN(155, "GPIO_155"),
--	PINCTRL_PIN(156, "SDC1_RCLK"),
--	PINCTRL_PIN(157, "SDC1_CLK"),
--	PINCTRL_PIN(158, "SDC1_CMD"),
--	PINCTRL_PIN(159, "SDC1_DATA"),
--	PINCTRL_PIN(160, "SDC2_CLK"),
--	PINCTRL_PIN(161, "SDC2_CMD"),
--	PINCTRL_PIN(162, "SDC2_DATA"),
--	PINCTRL_PIN(163, "UFS_RESET"),
-+	PINCTRL_PIN(156, "UFS_RESET"),
-+	PINCTRL_PIN(157, "SDC1_RCLK"),
-+	PINCTRL_PIN(158, "SDC1_CLK"),
-+	PINCTRL_PIN(159, "SDC1_CMD"),
-+	PINCTRL_PIN(160, "SDC1_DATA"),
-+	PINCTRL_PIN(161, "SDC2_CLK"),
-+	PINCTRL_PIN(162, "SDC2_CMD"),
-+	PINCTRL_PIN(163, "SDC2_DATA"),
- };
+diff --git a/tools/testing/selftests/vm/mremap_test.c b/tools/testing/selftests/vm/mremap_test.c
+index 2b3b4f15185f..e3ce33a9954e 100644
+--- a/tools/testing/selftests/vm/mremap_test.c
++++ b/tools/testing/selftests/vm/mremap_test.c
+@@ -10,6 +10,7 @@
+ #include <string.h>
+ #include <sys/mman.h>
+ #include <time.h>
++#include <stdbool.h>
  
- #define DECLARE_MSM_GPIO_PINS(pin) \
+ #include "../kselftest.h"
+ 
+@@ -65,6 +66,30 @@ enum {
+ 	.expect_failure = should_fail				\
+ }
+ 
++/*
++ * Returns false if the requested remap region overlaps with an
++ * existing mapping (e.g text, stack) else returns true.
++ */
++static bool is_remap_region_valid(void *addr, unsigned long long size)
++{
++	void *remap_addr = NULL;
++	bool ret = true;
++
++	/* Use MAP_FIXED_NOREPLACE flag to ensure region is not mapped */
++	remap_addr = mmap(addr, size, PROT_READ | PROT_WRITE,
++					 MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
++					 -1, 0);
++
++	if (remap_addr == MAP_FAILED) {
++		if (errno == EEXIST)
++			ret = false;
++	} else {
++		munmap(remap_addr, size);
++	}
++
++	return ret;
++}
++
+ /* Returns mmap_min_addr sysctl tunable from procfs */
+ static unsigned long long get_mmap_min_addr(void)
+ {
+@@ -112,8 +137,8 @@ static void *get_source_mapping(struct config c)
+ 		goto retry;
+ 
+ 	src_addr = mmap((void *) addr, c.region_size, PROT_READ | PROT_WRITE,
+-			MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
+-			-1, 0);
++					MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
++					-1, 0);
+ 	if (src_addr == MAP_FAILED) {
+ 		if (errno == EPERM || errno == EEXIST)
+ 			goto retry;
+@@ -180,9 +205,20 @@ static long long remap_region(struct config c, unsigned int threshold_mb,
+ 	if (!((unsigned long long) addr & c.dest_alignment))
+ 		addr = (void *) ((unsigned long long) addr | c.dest_alignment);
+ 
++	/* Don't destroy existing mappings unless expected to overlap */
++	while (!is_remap_region_valid(addr, c.region_size) && !c.overlapping) {
++		/* Check for unsigned overflow */
++		if (addr + c.dest_alignment < addr) {
++			ksft_print_msg("Couldn't find a valid region to remap to\n");
++			ret = -1;
++			goto out;
++		}
++		addr += c.dest_alignment;
++	}
++
+ 	clock_gettime(CLOCK_MONOTONIC, &t_start);
+ 	dest_addr = mremap(src_addr, c.region_size, c.region_size,
+-			MREMAP_MAYMOVE|MREMAP_FIXED, (char *) addr);
++					  MREMAP_MAYMOVE|MREMAP_FIXED, (char *) addr);
+ 	clock_gettime(CLOCK_MONOTONIC, &t_end);
+ 
+ 	if (dest_addr == MAP_FAILED) {
 -- 
 2.35.1
 
