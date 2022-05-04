@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1351551A973
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CFC51A738
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355177AbiEDRMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39888 "EHLO
+        id S1354471AbiEDRDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356855AbiEDRJq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34AA41325;
-        Wed,  4 May 2022 09:56:01 -0700 (PDT)
+        with ESMTP id S1355404AbiEDRAC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 409684B402;
+        Wed,  4 May 2022 09:51:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C491A61851;
-        Wed,  4 May 2022 16:56:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C95AC385A5;
-        Wed,  4 May 2022 16:56:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAE9861811;
+        Wed,  4 May 2022 16:51:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38215C385A5;
+        Wed,  4 May 2022 16:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683361;
-        bh=+J6mkW7g7FZT8T1bJ9fP3KdetTDCgArgqcBdHrc4ShY=;
+        s=korg; t=1651683090;
+        bh=MAiGjYL2OG/xAAB6sKyAI75CanTT2wYUIKRLSJy6lhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UAucvXpYbpmvldG4iJ0xOw/Z3wwLfeQgKaqJB/fFYRENh88UATYFpRm33KNZDKrNN
-         JMUOTcZCnTZd2h+tRRzu+Uj6GyNb88iKN1ZFvY6tyjG4wvas07Ms/a5O0w0RS1amRv
-         bEuxTa3BlhZm6MouXBNpNWPHjIvKTd4CI0kkLZpk=
+        b=jj8xPB5ZrEkSVgZLnOg/6TEtLxVzb1Z78fLh8xJI0oH0NKbYsTYByeLruEOCOIfy6
+         oELZCLjaFoEf5/BCzn89lA9orjLlxJslkBtrQvEqHgwFBok1lrY94vSlgNfkF9OKMg
+         PwFKPpCeX1ad7qz0EXoCjjpaWIecGKPpaIco46hI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 048/225] hex2bin: fix access beyond string end
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 094/129] net: fec: add missing of_node_put() in fec_enet_init_stop_mode()
 Date:   Wed,  4 May 2022 18:44:46 +0200
-Message-Id: <20220504153114.387555140@linuxfoundation.org>
+Message-Id: <20220504153028.392897634@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit e4d8a29997731b3bb14059024b24df9f784288d0 upstream.
+[ Upstream commit d2b52ec056d5bddb055c8f21d7489a23548d0838 ]
 
-If we pass too short string to "hex2bin" (and the string size without
-the terminating NUL character is even), "hex2bin" reads one byte after
-the terminating NUL character.  This patch fixes it.
+Put device node in error path in fec_enet_init_stop_mode().
 
-Note that hex_to_bin returns -1 on error and hex2bin return -EINVAL on
-error - so we can't just return the variable "hi" or "lo" on error.
-This inconsistency may be fixed in the next merge window, but for the
-purpose of fixing this bug, we just preserve the existing behavior and
-return -1 and -EINVAL.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Fixes: b78049831ffe ("lib: add error checking to hex2bin")
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8a448bf832af ("net: ethernet: fec: move GPR register offset and bit into DT")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220426125231.375688-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/hexdump.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/lib/hexdump.c
-+++ b/lib/hexdump.c
-@@ -63,10 +63,13 @@ EXPORT_SYMBOL(hex_to_bin);
- int hex2bin(u8 *dst, const char *src, size_t count)
- {
- 	while (count--) {
--		int hi = hex_to_bin(*src++);
--		int lo = hex_to_bin(*src++);
-+		int hi, lo;
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 166bc3f3b34c..d8bdaf2e5365 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3529,7 +3529,7 @@ static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
+ 					 ARRAY_SIZE(out_val));
+ 	if (ret) {
+ 		dev_dbg(&fep->pdev->dev, "no stop mode property\n");
+-		return ret;
++		goto out;
+ 	}
  
--		if ((hi < 0) || (lo < 0))
-+		hi = hex_to_bin(*src++);
-+		if (unlikely(hi < 0))
-+			return -EINVAL;
-+		lo = hex_to_bin(*src++);
-+		if (unlikely(lo < 0))
- 			return -EINVAL;
- 
- 		*dst++ = (hi << 4) | lo;
+ 	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
+-- 
+2.35.1
+
 
 
