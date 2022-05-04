@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40AEA51A7C4
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8A0051A64F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354578AbiEDRHA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
+        id S1353947AbiEDQy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355938AbiEDREr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 280014FC50;
-        Wed,  4 May 2022 09:53:35 -0700 (PDT)
+        with ESMTP id S1354117AbiEDQxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05844831E;
+        Wed,  4 May 2022 09:49:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE932B827AC;
-        Wed,  4 May 2022 16:53:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6A4C385A5;
-        Wed,  4 May 2022 16:53:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A94761775;
+        Wed,  4 May 2022 16:49:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FA3C385AA;
+        Wed,  4 May 2022 16:49:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683213;
-        bh=mmNb0QQ6+Ixfyf+1ANzPjL3xuEFqItZxzDmgCCM79dA=;
+        s=korg; t=1651682945;
+        bh=gjcUHRuosnRAQAIEo2at6PXscj2jLOjPPqadUR14v30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UMhjjl8EtzJYpjAMp5uDeIrLdDs6E6p6ME1zkfpRN1ZkteKtZWINlvk7ruF/jBfD4
-         XM/p/M05sODC/jaLkEikWtPwRhoKK6uGVQII2TnU4WrGV+RcYMeb7Pc7f4Ydf9Ah/1
-         Ela3WeBlnG3PX6adVy/8smuWxxHZMEDMprce0SJ8=
+        b=I8QO7a34nRpgqQh8ub3OeqSa8HzP2eNZwt3fRF0NIYBIqsLMLkcESw2VN4zxHQiXp
+         pBYTl90Iyrv4/7KEpDUtwG95y1L+9QnvQfyIDJ59+yymIawKJsXYH37E2ln69al/w/
+         +N89u+i1uDCkgv/GoF8Ouzxg8nHPq9pJR/JytlJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Fabien Dessenne <fabien.dessenne@foss.st.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Marc Zyngier <maz@kernel.org>,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 078/177] pinctrl: stm32: Do not call stm32_gpio_get() for edge triggered IRQs in EOI
+Subject: [PATCH 5.4 50/84] sctp: check asoc strreset_chunk in sctp_generate_reconf_event
 Date:   Wed,  4 May 2022 18:44:31 +0200
-Message-Id: <20220504153100.054423299@linuxfoundation.org>
+Message-Id: <20220504152931.303190399@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,47 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit e74200ebf7c4f6a7a7d1be9f63833ddba251effa ]
+[ Upstream commit 165e3e17fe8fe6a8aab319bc6e631a2e23b9a857 ]
 
-The stm32_gpio_get() should only be called for LEVEL triggered interrupts,
-skip calling it for EDGE triggered interrupts altogether to avoid wasting
-CPU cycles in EOI handler. On this platform, EDGE triggered interrupts are
-the majority and LEVEL triggered interrupts are the exception no less, and
-the CPU cycles are not abundant.
+A null pointer reference issue can be triggered when the response of a
+stream reconf request arrives after the timer is triggered, such as:
 
-Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: linux-stm32@st-md-mailman.stormreply.com
-Cc: linux-arm-kernel@lists.infradead.org
-To: linux-gpio@vger.kernel.org
-Link: https://lore.kernel.org/r/20220415215410.498349-1-marex@denx.de
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+  send Incoming SSN Reset Request --->
+  CPU0:
+   reconf timer is triggered,
+   go to the handler code before hold sk lock
+                            <--- reply with Outgoing SSN Reset Request
+  CPU1:
+   process Outgoing SSN Reset Request,
+   and set asoc->strreset_chunk to NULL
+  CPU0:
+   continue the handler code, hold sk lock,
+   and try to hold asoc->strreset_chunk, crash!
+
+In Ying Xu's testing, the call trace is:
+
+  [ ] BUG: kernel NULL pointer dereference, address: 0000000000000010
+  [ ] RIP: 0010:sctp_chunk_hold+0xe/0x40 [sctp]
+  [ ] Call Trace:
+  [ ]  <IRQ>
+  [ ]  sctp_sf_send_reconf+0x2c/0x100 [sctp]
+  [ ]  sctp_do_sm+0xa4/0x220 [sctp]
+  [ ]  sctp_generate_reconf_event+0xbd/0xe0 [sctp]
+  [ ]  call_timer_fn+0x26/0x130
+
+This patch is to fix it by returning from the timer handler if asoc
+strreset_chunk is already set to NULL.
+
+Fixes: 7b9438de0cd4 ("sctp: add stream reconf timer")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/stm32/pinctrl-stm32.c | 4 ++++
+ net/sctp/sm_sideeffect.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
-index 8934b4878fa8..2c78af0aac57 100644
---- a/drivers/pinctrl/stm32/pinctrl-stm32.c
-+++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
-@@ -311,6 +311,10 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
- 	struct stm32_gpio_bank *bank = d->domain->host_data;
- 	int level;
+diff --git a/net/sctp/sm_sideeffect.c b/net/sctp/sm_sideeffect.c
+index 0d225f891b61..8d32229199b9 100644
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -458,6 +458,10 @@ void sctp_generate_reconf_event(struct timer_list *t)
+ 		goto out_unlock;
+ 	}
  
-+	/* Do not access the GPIO if this is not LEVEL triggered IRQ. */
-+	if (!(bank->irq_type[d->hwirq] & IRQ_TYPE_LEVEL_MASK))
-+		return;
++	/* This happens when the response arrives after the timer is triggered. */
++	if (!asoc->strreset_chunk)
++		goto out_unlock;
 +
- 	/* If level interrupt type then retrig */
- 	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
- 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
+ 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
+ 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
+ 			   asoc->state, asoc->ep, asoc,
 -- 
 2.35.1
 
