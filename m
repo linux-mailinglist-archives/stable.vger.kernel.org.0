@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 848EC51A6BA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD05551A7D8
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354206AbiEDQ6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:58:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
+        id S1354809AbiEDRFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354074AbiEDQ5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D38149FA9;
-        Wed,  4 May 2022 09:50:01 -0700 (PDT)
+        with ESMTP id S1355334AbiEDRER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93293473AC;
+        Wed,  4 May 2022 09:52:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D89546174C;
-        Wed,  4 May 2022 16:50:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31740C385A4;
-        Wed,  4 May 2022 16:50:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 374DAB827A1;
+        Wed,  4 May 2022 16:52:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2A06C385A4;
+        Wed,  4 May 2022 16:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683000;
-        bh=x7xIzJvo8hUwDLxm/wNRMDrcSJap708f1jPagQ0MR4I=;
+        s=korg; t=1651683176;
+        bh=d7FYk8CcoJFVfmacnUDKuqx+IN8JrgInU5TLM/A7XjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hqJ1ntUxvk3VMYjhF1Ymb13QAoVjZr20j8GSOEBMAZT4xheqnNd40cFghLMh6U2G9
-         nlspqSOP4QYUaFTQeOcDBRZcgGNVPYqq7RB2wcKGMyF+zvt5oZZ8YSZLz0ccuqXm3u
-         0NPmxaj49Xay0pgdxfvvvTh2hQ4KWX9TbEoczUBQ=
+        b=tWHKhc3IyIEP2FnmBCEfww4Xp4c6E2o3Vo7K0kdeuP0rwFPkwB3FfhpD+NvVD/OOT
+         U0vdm7SeWzMd/o97kFfpHJJjb+9rnYuFogWJ017Qwf8keb1kB6KVFsNMlky2fSSwa6
+         bcwwicg66jT3LVLG7FjSs6qoYNqqzrxmnfGX88Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 5.10 029/129] serial: 8250: Also set sticky MCR bits in console restoration
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Sean Anderson <sean.anderson@seco.com>
+Subject: [PATCH 5.15 028/177] usb: phy: generic: Get the vbus supply
 Date:   Wed,  4 May 2022 18:43:41 +0200
-Message-Id: <20220504153023.590688263@linuxfoundation.org>
+Message-Id: <20220504153055.585463037@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Sean Anderson <sean.anderson@seco.com>
 
-commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
+commit 03e607cbb2931374db1825f371e9c7f28526d3f4 upstream.
 
-Sticky MCR bits are lost in console restoration if console suspending
-has been disabled.  This currently affects the AFE bit, which works in
-combination with RTS which we set, so we want to make sure the UART
-retains control of its FIFO where previously requested.  Also specific
-drivers may need other bits in the future.
+While support for working with a vbus was added, the regulator was never
+actually gotten (despite what was documented). Fix this by actually
+getting the supply from the device tree.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
-Cc: stable@vger.kernel.org # v4.0+
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
+Fixes: 7acc9973e3c4 ("usb: phy: generic: add vbus support")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Link: https://lore.kernel.org/r/20220425171412.1188485-3-sean.anderson@seco.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/phy/phy-generic.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -3311,7 +3311,7 @@ static void serial8250_console_restore(s
+--- a/drivers/usb/phy/phy-generic.c
++++ b/drivers/usb/phy/phy-generic.c
+@@ -268,6 +268,13 @@ int usb_phy_gen_create_phy(struct device
+ 			return -EPROBE_DEFER;
+ 	}
  
- 	serial8250_set_divisor(port, baud, quot, frac);
- 	serial_port_out(port, UART_LCR, up->lcr);
--	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
-+	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
- }
- 
- /*
++	nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
++	if (PTR_ERR(nop->vbus_draw) == -ENODEV)
++		nop->vbus_draw = NULL;
++	if (IS_ERR(nop->vbus_draw))
++		return dev_err_probe(dev, PTR_ERR(nop->vbus_draw),
++				     "could not get vbus regulator\n");
++
+ 	nop->dev		= dev;
+ 	nop->phy.dev		= nop->dev;
+ 	nop->phy.label		= "nop-xceiv";
 
 
