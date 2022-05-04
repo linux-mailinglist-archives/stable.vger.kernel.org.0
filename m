@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8A0051A64F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4392751A6F6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353947AbiEDQy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52224 "EHLO
+        id S1354648AbiEDRBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354117AbiEDQxv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:51 -0400
+        with ESMTP id S1355115AbiEDQ7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05844831E;
-        Wed,  4 May 2022 09:49:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0443A4A932;
+        Wed,  4 May 2022 09:51:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A94761775;
-        Wed,  4 May 2022 16:49:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96FA3C385AA;
-        Wed,  4 May 2022 16:49:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11D81617BE;
+        Wed,  4 May 2022 16:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF5CC385A5;
+        Wed,  4 May 2022 16:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682945;
-        bh=gjcUHRuosnRAQAIEo2at6PXscj2jLOjPPqadUR14v30=;
+        s=korg; t=1651683076;
+        bh=IgovF0uzoeWjJ6e1jJzKLa2CGLQ3Xd+oBYfxoYuV/J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I8QO7a34nRpgqQh8ub3OeqSa8HzP2eNZwt3fRF0NIYBIqsLMLkcESw2VN4zxHQiXp
-         pBYTl90Iyrv4/7KEpDUtwG95y1L+9QnvQfyIDJ59+yymIawKJsXYH37E2ln69al/w/
-         +N89u+i1uDCkgv/GoF8Ouzxg8nHPq9pJR/JytlJE=
+        b=zlKoPYnmrvuxlOqu2OiZgxMiywUieDEALauALpwgjf6kU/8FbQ13O9cNKvQL+gqm3
+         ZlNYr2QhC6gELg9vdCVOBEAqbDPtC9J9ayFynWZGxO/CMZr2noUiBBCPCaa/JYArwq
+         SkDdB5xDBaQkEC6sdMY+JWzcpv+MiSAAGDC1E5I8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
+        William Tu <u9012063@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 50/84] sctp: check asoc strreset_chunk in sctp_generate_reconf_event
-Date:   Wed,  4 May 2022 18:44:31 +0200
-Message-Id: <20220504152931.303190399@linuxfoundation.org>
+Subject: [PATCH 5.10 080/129] ip_gre: Make o_seqno start from 0 in native mode
+Date:   Wed,  4 May 2022 18:44:32 +0200
+Message-Id: <20220504153027.455127286@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit 165e3e17fe8fe6a8aab319bc6e631a2e23b9a857 ]
+[ Upstream commit ff827beb706ed719c766acf36449801ded0c17fc ]
 
-A null pointer reference issue can be triggered when the response of a
-stream reconf request arrives after the timer is triggered, such as:
+For GRE and GRETAP devices, currently o_seqno starts from 1 in native
+mode.  According to RFC 2890 2.2., "The first datagram is sent with a
+sequence number of 0."  Fix it.
 
-  send Incoming SSN Reset Request --->
-  CPU0:
-   reconf timer is triggered,
-   go to the handler code before hold sk lock
-                            <--- reply with Outgoing SSN Reset Request
-  CPU1:
-   process Outgoing SSN Reset Request,
-   and set asoc->strreset_chunk to NULL
-  CPU0:
-   continue the handler code, hold sk lock,
-   and try to hold asoc->strreset_chunk, crash!
+It is worth mentioning that o_seqno already starts from 0 in collect_md
+mode, see gre_fb_xmit(), where tunnel->o_seqno is passed to
+gre_build_header() before getting incremented.
 
-In Ying Xu's testing, the call trace is:
-
-  [ ] BUG: kernel NULL pointer dereference, address: 0000000000000010
-  [ ] RIP: 0010:sctp_chunk_hold+0xe/0x40 [sctp]
-  [ ] Call Trace:
-  [ ]  <IRQ>
-  [ ]  sctp_sf_send_reconf+0x2c/0x100 [sctp]
-  [ ]  sctp_do_sm+0xa4/0x220 [sctp]
-  [ ]  sctp_generate_reconf_event+0xbd/0xe0 [sctp]
-  [ ]  call_timer_fn+0x26/0x130
-
-This patch is to fix it by returning from the timer handler if asoc
-strreset_chunk is already set to NULL.
-
-Fixes: 7b9438de0cd4 ("sctp: add stream reconf timer")
-Reported-by: Ying Xu <yinxu@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: William Tu <u9012063@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_sideeffect.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/ip_gre.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/net/sctp/sm_sideeffect.c b/net/sctp/sm_sideeffect.c
-index 0d225f891b61..8d32229199b9 100644
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -458,6 +458,10 @@ void sctp_generate_reconf_event(struct timer_list *t)
- 		goto out_unlock;
- 	}
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index e4504dd510c6..801c540db33e 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -454,14 +454,12 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+ 		       __be16 proto)
+ {
+ 	struct ip_tunnel *tunnel = netdev_priv(dev);
+-
+-	if (tunnel->parms.o_flags & TUNNEL_SEQ)
+-		tunnel->o_seqno++;
++	__be16 flags = tunnel->parms.o_flags;
  
-+	/* This happens when the response arrives after the timer is triggered. */
-+	if (!asoc->strreset_chunk)
-+		goto out_unlock;
-+
- 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
- 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
- 			   asoc->state, asoc->ep, asoc,
+ 	/* Push GRE header. */
+ 	gre_build_header(skb, tunnel->tun_hlen,
+-			 tunnel->parms.o_flags, proto, tunnel->parms.o_key,
+-			 htonl(tunnel->o_seqno));
++			 flags, proto, tunnel->parms.o_key,
++			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
+ 
+ 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
+ }
 -- 
 2.35.1
 
