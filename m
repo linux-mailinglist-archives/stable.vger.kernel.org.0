@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7123851A88B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C25051A65F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355738AbiEDRL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
+        id S1354203AbiEDQzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356915AbiEDRJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C444F47383;
-        Wed,  4 May 2022 09:56:26 -0700 (PDT)
+        with ESMTP id S1354440AbiEDQyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB51749270;
+        Wed,  4 May 2022 09:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69922B82795;
-        Wed,  4 May 2022 16:56:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BAE6C385AA;
-        Wed,  4 May 2022 16:56:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49E7761776;
+        Wed,  4 May 2022 16:49:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC18C385A4;
+        Wed,  4 May 2022 16:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683385;
-        bh=DZc9vvguRZ/lyKSb/utrxbO+TjjSi011tbvZ3KPPSg0=;
+        s=korg; t=1651682971;
+        bh=A+5cstA8LLgZPNQw0zRgG2KI0zg32uxsksxSQzyBulw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AF25SrJjeLn9fHZK/fbslQNYKCAFtqX7pl+3JSAexjTb1HUmxl9w+9bvq3BF92/3g
-         ITyOswuEdGnH1aw0YpbwX6LFSxX0Q5lfW5rHM0RUfIyoflTZczxuRSr5J9v6O1LHsq
-         HJlzS/GqWSC9ruuN1VFfd74zwLIxs4hBlsSuE7z8=
+        b=KZ+leYrEzOw+QCz5No6pHtbMhhjMmPmOy+hDiKVDoI+vaescf/0geA9BPhg3yXi5l
+         0q+gVbrNE2FH+l7vaH1+1QW1BJ1jOcUMjEJTSrF3gcJRB+oVqZsC20GO2WuPpPnSnK
+         lohJwRtJbSJvfgg+xhutwK7AaseHNf/yXwt1+gfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 057/225] cpufreq: qcom-hw: fix the opp entries refcounting
+        stable@vger.kernel.org, "Kyle D. Pelton" <kyle.d.pelton@intel.com>,
+        Borislav Petkov <bp@suse.de>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Subject: [PATCH 5.4 74/84] x86/cpu: Load microcode during restore_processor_state()
 Date:   Wed,  4 May 2022 18:44:55 +0200
-Message-Id: <20220504153115.251833804@linuxfoundation.org>
+Message-Id: <20220504152933.255211083@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,93 +54,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 6240aaad75e1a623872a830d13393d7aabf1052c ]
+commit f9e14dbbd454581061c736bf70bf5cbb15ac927c upstream.
 
-The qcom_lmh_dcvs_notify() will get the dev_pm_opp instance for
-throttling, but will not put it, ending up with leaking a reference
-count and the following backtrace when putting the CPU offline.
+When resuming from system sleep state, restore_processor_state()
+restores the boot CPU MSRs. These MSRs could be emulated by microcode.
+If microcode is not loaded yet, writing to emulated MSRs leads to
+unchecked MSR access error:
 
-Correctly put the reference count of the returned opp instance.
+  ...
+  PM: Calling lapic_suspend+0x0/0x210
+  unchecked MSR access error: WRMSR to 0x10f (tried to write 0x0...0) at rIP: ... (native_write_msr)
+  Call Trace:
+    <TASK>
+    ? restore_processor_state
+    x86_acpi_suspend_lowlevel
+    acpi_suspend_enter
+    suspend_devices_and_enter
+    pm_suspend.cold
+    state_store
+    kobj_attr_store
+    sysfs_kf_write
+    kernfs_fop_write_iter
+    new_sync_write
+    vfs_write
+    ksys_write
+    __x64_sys_write
+    do_syscall_64
+    entry_SYSCALL_64_after_hwframe
+   RIP: 0033:0x7fda13c260a7
 
-[   84.418025] ------------[ cut here ]------------
-[   84.422770] WARNING: CPU: 7 PID: 43 at drivers/opp/core.c:1396 _opp_table_kref_release+0x188/0x190
-[   84.431966] Modules linked in:
-[   84.435106] CPU: 7 PID: 43 Comm: cpuhp/7 Tainted: G S                5.17.0-rc6-00388-g7cf3c0d89c44-dirty #721
-[   84.451631] pstate: 82400005 (Nzcv daif +PAN -UAO +TCO -DIT -SSBS BTYPE=--)
-[   84.458781] pc : _opp_table_kref_release+0x188/0x190
-[   84.463878] lr : _opp_table_kref_release+0x78/0x190
-[   84.468885] sp : ffff80000841bc70
-[   84.472294] x29: ffff80000841bc70 x28: ffff6664afe3d000 x27: ffff1db6729e5908
-[   84.479621] x26: 0000000000000000 x25: 0000000000000000 x24: ffff1db6729e58e0
-[   84.486946] x23: ffff8000080a5000 x22: ffff1db40aad80e0 x21: ffff1db4002fec80
-[   84.494277] x20: ffff1db40aad8000 x19: ffffb751c3186300 x18: ffffffffffffffff
-[   84.501603] x17: 5300326563697665 x16: 645f676e696c6f6f x15: 00001186c1df5448
-[   84.508928] x14: 00000000000002e9 x13: 0000000000000000 x12: 0000000000000000
-[   84.516256] x11: ffffb751c3186368 x10: ffffb751c39a2a70 x9 : 0000000000000000
-[   84.523585] x8 : ffff1db4008edf00 x7 : ffffb751c328c000 x6 : 0000000000000001
-[   84.530916] x5 : 0000000000040000 x4 : 0000000000000001 x3 : ffff1db4008edf00
-[   84.538247] x2 : 0000000000000000 x1 : ffff1db400aa6100 x0 : ffff1db40aad80d0
-[   84.545579] Call trace:
-[   84.548101]  _opp_table_kref_release+0x188/0x190
-[   84.552842]  dev_pm_opp_remove_all_dynamic+0x8c/0xc0
-[   84.557949]  qcom_cpufreq_hw_cpu_exit+0x30/0xdc
-[   84.562608]  cpufreq_offline.isra.0+0x1b4/0x1d8
-[   84.567270]  cpuhp_cpufreq_offline+0x10/0x6c
-[   84.571663]  cpuhp_invoke_callback+0x16c/0x2b0
-[   84.576231]  cpuhp_thread_fun+0x190/0x250
-[   84.580353]  smpboot_thread_fn+0x12c/0x230
-[   84.584568]  kthread+0xfc/0x100
-[   84.587810]  ret_from_fork+0x10/0x20
-[   84.591490] irq event stamp: 3482
-[   84.594901] hardirqs last  enabled at (3481): [<ffffb751c13c3db0>] call_rcu+0x39c/0x50c
-[   84.603119] hardirqs last disabled at (3482): [<ffffb751c236b518>] el1_dbg+0x24/0x8c
-[   84.611074] softirqs last  enabled at (310): [<ffffb751c1290410>] _stext+0x410/0x588
-[   84.619028] softirqs last disabled at (305): [<ffffb751c131bf68>] __irq_exit_rcu+0x158/0x174
-[   84.627691] ---[ end trace 0000000000000000 ]---
+To ensure microcode emulated MSRs are available for restoration, load
+the microcode on the boot CPU before restoring these MSRs.
 
-Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [ Pawan: write commit message and productize it. ]
+
+Fixes: e2a1256b17b1 ("x86/speculation: Restore speculation related MSRs during S3 resume")
+Reported-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Tested-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215841
+Link: https://lore.kernel.org/r/4350dfbf785cd482d3fafa72b2b49c83102df3ce.1650386317.git.pawan.kumar.gupta@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/x86/include/asm/microcode.h     |    2 ++
+ arch/x86/kernel/cpu/microcode/core.c |    6 +++---
+ arch/x86/power/cpu.c                 |    8 ++++++++
+ 3 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index dc0d5f84d863..60d38f62308a 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -292,12 +292,18 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+--- a/arch/x86/include/asm/microcode.h
++++ b/arch/x86/include/asm/microcode.h
+@@ -133,11 +133,13 @@ extern void load_ucode_ap(void);
+ void reload_early_microcode(void);
+ extern bool get_builtin_firmware(struct cpio_data *cd, const char *name);
+ extern bool initrd_gone;
++void microcode_bsp_resume(void);
+ #else
+ static inline int __init microcode_init(void)			{ return 0; };
+ static inline void __init load_ucode_bsp(void)			{ }
+ static inline void load_ucode_ap(void)				{ }
+ static inline void reload_early_microcode(void)			{ }
++static inline void microcode_bsp_resume(void)			{ }
+ static inline bool
+ get_builtin_firmware(struct cpio_data *cd, const char *name)	{ return false; }
+ #endif
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -772,9 +772,9 @@ static struct subsys_interface mc_cpu_in
+ };
  
- 	opp = dev_pm_opp_find_freq_floor(dev, &freq_hz);
- 	if (IS_ERR(opp) && PTR_ERR(opp) == -ERANGE)
--		dev_pm_opp_find_freq_ceil(dev, &freq_hz);
-+		opp = dev_pm_opp_find_freq_ceil(dev, &freq_hz);
+ /**
+- * mc_bp_resume - Update boot CPU microcode during resume.
++ * microcode_bsp_resume - Update boot CPU microcode during resume.
+  */
+-static void mc_bp_resume(void)
++void microcode_bsp_resume(void)
+ {
+ 	int cpu = smp_processor_id();
+ 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
+@@ -786,7 +786,7 @@ static void mc_bp_resume(void)
+ }
  
--	throttled_freq = freq_hz / HZ_PER_KHZ;
-+	if (IS_ERR(opp)) {
-+		dev_warn(dev, "Can't find the OPP for throttling: %pe!\n", opp);
-+	} else {
-+		throttled_freq = freq_hz / HZ_PER_KHZ;
+ static struct syscore_ops mc_syscore_ops = {
+-	.resume			= mc_bp_resume,
++	.resume			= microcode_bsp_resume,
+ };
+ 
+ static int mc_cpu_starting(unsigned int cpu)
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -25,6 +25,7 @@
+ #include <asm/cpu.h>
+ #include <asm/mmu_context.h>
+ #include <asm/cpu_device_id.h>
++#include <asm/microcode.h>
+ 
+ #ifdef CONFIG_X86_32
+ __visible unsigned long saved_context_ebx;
+@@ -263,6 +264,13 @@ static void notrace __restore_processor_
+ 	x86_platform.restore_sched_clock_state();
+ 	mtrr_bp_restore();
+ 	perf_restore_debug_store();
 +
-+		/* Update thermal pressure (the boost frequencies are accepted) */
-+		arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
++	microcode_bsp_resume();
++
++	/*
++	 * This needs to happen after the microcode has been updated upon resume
++	 * because some of the MSRs are "emulated" in microcode.
++	 */
+ 	msr_restore_context(ctxt);
+ }
  
--	/* Update thermal pressure (the boost frequencies are accepted) */
--	arch_update_thermal_pressure(policy->related_cpus, throttled_freq);
-+		dev_pm_opp_put(opp);
-+	}
- 
- 	/*
- 	 * In the unlikely case policy is unregistered do not enable
--- 
-2.35.1
-
 
 
