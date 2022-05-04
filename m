@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08E1F51A8A1
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34C9551A64A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355486AbiEDRNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
+        id S1353858AbiEDQyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356821AbiEDRJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9783222A9;
-        Wed,  4 May 2022 09:55:50 -0700 (PDT)
+        with ESMTP id S1353837AbiEDQxd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F41347073;
+        Wed,  4 May 2022 09:48:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98CF7B82795;
-        Wed,  4 May 2022 16:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A4BC385A4;
-        Wed,  4 May 2022 16:55:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11174B82554;
+        Wed,  4 May 2022 16:48:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C89C385A4;
+        Wed,  4 May 2022 16:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683348;
-        bh=G71WT7nFX4UN9eB8Tn1SQhYCaU4g34pC/vPb7hR0lQI=;
+        s=korg; t=1651682933;
+        bh=z6Zb3W/Yf5SsQMTkUB/kSk+sSHoyvaN4eXx/PUl9qA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UQ6QW0aXF5QZWfbMg8EaqbcJsUyXVmkndiycEuPubu5cHld0/x1lIvg74XPaNvtZ6
-         U6lGoLiTWGrCcZcuEpVPW7gF/1qLpKL1p1SAi+r642vTN6vCCf/ELmYu/5K1eWgPj3
-         o2nZWinhkbO5Zm1NLXWCTtmFGC45IieQUZdqCrNA=
+        b=eFTYpQgiEqHL6m/e5R1xbDx556s+corgVQ9UwF3BKitCeFLxZXuwfw0N+5vSQy4Na
+         vJ6arBcfyGL+o6psvqI0V/qtyQUrKDNKOGpPW5nGOQ1Nj9PRUfE1CJHFxoqPmZ+bhr
+         TumGG7RhByJRXB/94J3tYSeuYt4C3OdSHfQeJVak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Subject: [PATCH 5.17 035/225] serial: amba-pl011: do not time out prematurely when draining tx fifo
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 52/84] arm64: dts: imx8mn-ddr4-evk: Describe the 32.768 kHz PMIC clock
 Date:   Wed,  4 May 2022 18:44:33 +0200
-Message-Id: <20220504153113.350828662@linuxfoundation.org>
+Message-Id: <20220504152931.457622778@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URI_HEX autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,67 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Fabio Estevam <festevam@denx.de>
 
-commit 0e4deb56b0c625efdb70c94f150429e2f2a16fa1 upstream.
+[ Upstream commit 0310b5aa0656a94102344f1e9ae2892e342a665d ]
 
-The current timeout for draining the tx fifo in RS485 mode is calculated by
-multiplying the time it takes to transmit one character (with the given
-baud rate) with the maximal number of characters in the tx queue.
+The ROHM BD71847 PMIC has a 32.768 kHz clock.
 
-This timeout is too short for two reasons:
-First when calculating the time to transmit one character integer division
-is used which may round down the result in case of a remainder of the
-division.
+Describe the PMIC clock to fix the following boot errors:
 
-Fix this by rounding up the division result.
+bd718xx-clk bd71847-clk.1.auto: No parent clk found
+bd718xx-clk: probe of bd71847-clk.1.auto failed with error -22
 
-Second the hardware may need additional time (e.g for first putting the
-characters from the fifo into the shift register) before the characters are
-actually put onto the wire.
+Based on the same fix done for imx8mm-evk as per commit
+a6a355ede574 ("arm64: dts: imx8mm-evk: Add 32.768 kHz clock to PMIC")
 
-To be on the safe side double the current maximum number of iterations
-that are used to wait for the queue draining.
-
-Fixes: 8d479237727c ("serial: amba-pl011: add RS485 support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Link: https://lore.kernel.org/r/20220408233503.7251-1-LinoSanfilippo@gmx.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3e44dd09736d ("arm64: dts: imx8mn-ddr4-evk: Add rohm,bd71847 PMIC support")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1255,13 +1255,18 @@ static inline bool pl011_dma_rx_running(
+diff --git a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
+index 9ad1d43b8ce7..4fa39654b695 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
+@@ -213,6 +213,10 @@ pmic@4b {
+ 		interrupts = <3 GPIO_ACTIVE_LOW>;
+ 		rohm,reset-snvs-powered;
  
- static void pl011_rs485_tx_stop(struct uart_amba_port *uap)
- {
-+	/*
-+	 * To be on the safe side only time out after twice as many iterations
-+	 * as fifo size.
-+	 */
-+	const int MAX_TX_DRAIN_ITERS = uap->port.fifosize * 2;
- 	struct uart_port *port = &uap->port;
- 	int i = 0;
- 	u32 cr;
- 
- 	/* Wait until hardware tx queue is empty */
- 	while (!pl011_tx_empty(port)) {
--		if (i == port->fifosize) {
-+		if (i > MAX_TX_DRAIN_ITERS) {
- 			dev_warn(port->dev,
- 				 "timeout while draining hardware tx queue\n");
- 			break;
-@@ -2052,7 +2057,7 @@ pl011_set_termios(struct uart_port *port
- 	 * with the given baud rate. We use this as the poll interval when we
- 	 * wait for the tx queue to empty.
- 	 */
--	uap->rs485_tx_drain_interval = (bits * 1000 * 1000) / baud;
-+	uap->rs485_tx_drain_interval = DIV_ROUND_UP(bits * 1000 * 1000, baud);
- 
- 	pl011_setup_status_masks(port, termios);
- 
++		#clock-cells = <0>;
++		clocks = <&osc_32k 0>;
++		clock-output-names = "clk-32k-out";
++
+ 		regulators {
+ 			buck1_reg: BUCK1 {
+ 				regulator-name = "BUCK1";
+-- 
+2.35.1
+
 
 
