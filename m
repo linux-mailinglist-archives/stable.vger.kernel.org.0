@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56EB151A66A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE3051A708
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354262AbiEDQzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52434 "EHLO
+        id S1354686AbiEDRBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354447AbiEDQyW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469B54968B;
-        Wed,  4 May 2022 09:49:35 -0700 (PDT)
+        with ESMTP id S1355544AbiEDRAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674F4B849;
+        Wed,  4 May 2022 09:51:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E96961701;
-        Wed,  4 May 2022 16:49:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D14EC385A5;
-        Wed,  4 May 2022 16:49:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7018AB8279F;
+        Wed,  4 May 2022 16:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06BE9C385AA;
+        Wed,  4 May 2022 16:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682974;
-        bh=ri5FZx4k/xV0y56XosfN461TREudlontDU4CQIoNdhY=;
+        s=korg; t=1651683102;
+        bh=Q47rXhNzfck/KPKdxhbKGRwmlg2Gb/udeLwxXi3qXtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GA3MboEVM8t3ogjgLkReGoWBWwDKeXqH9SGSfSjTfyAjD/s8w1/GhZer+DWARpCkT
-         +UQDmVqtMBdibfzT49RJ1bpmhXJAMMxc25Ed9mhQL7Feg0OOCbKdqGcqrPlsKi3hoU
-         aRt36VZ2LpyzG/CHsz9Xk8id1EtQspq9Fzh29pGE=
+        b=HBZj4PHHrugEh2SRi34FqcW/b8hmkp+FEI5UGzszFLb2b8QkA2RXDng6HNIscQziP
+         lQQjnH5EjkCVZDjwDC2f0El7xCzHC0mFzMANoOc3zjVogqqiGTpcE5hNomoxpwadpe
+         kxnHZSpVK7rlexTa2c6e/Jfea3VmOS+mF2zYsOoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH 5.4 77/84] netfilter: nft_socket: only do sk lookups when indev is available
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 5.10 106/129] zonefs: Fix management of open zones
 Date:   Wed,  4 May 2022 18:44:58 +0200
-Message-Id: <20220504152933.610244490@linuxfoundation.org>
+Message-Id: <20220504153029.412540267@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 upstream.
+commit 1da18a296f5ba4f99429e62a7cf4fdbefa598902 upstream.
 
-Check if the incoming interface is available and NFT_BREAK
-in case neither skb->sk nor input device are set.
+The mount option "explicit_open" manages the device open zone
+resources to ensure that if an application opens a sequential file for
+writing, the file zone can always be written by explicitly opening
+the zone and accounting for that state with the s_open_zones counter.
 
-Because nf_sk_lookup_slow*() assume packet headers are in the
-'in' direction, use in postrouting is not going to yield a meaningful
-result.  Same is true for the forward chain, so restrict the use
-to prerouting, input and output.
+However, if some zones are already open when mounting, the device open
+zone resource usage status will be larger than the initial s_open_zones
+value of 0. Ensure that this inconsistency does not happen by closing
+any sequential zone that is open when mounting.
 
-Use in output work if a socket is already attached to the skb.
+Furthermore, with ZNS drives, closing an explicitly open zone that has
+not been written will change the zone state to "closed", that is, the
+zone will remain in an active state. Since this can then cause failures
+of explicit open operations on other zones if the drive active zone
+resources are exceeded, we need to make sure that the zone is not
+active anymore by resetting it instead of closing it. To address this,
+zonefs_zone_mgmt() is modified to change a REQ_OP_ZONE_CLOSE request
+into a REQ_OP_ZONE_RESET for sequential zones that have not been
+written.
 
-Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
-Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_socket.c |   52 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ fs/zonefs/super.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 5 deletions(-)
 
---- a/net/netfilter/nft_socket.c
-+++ b/net/netfilter/nft_socket.c
-@@ -14,6 +14,32 @@ struct nft_socket {
- 	};
- };
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -32,6 +32,17 @@ static inline int zonefs_zone_mgmt(struc
  
-+static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
-+{
-+	const struct net_device *indev = nft_in(pkt);
-+	const struct sk_buff *skb = pkt->skb;
-+	struct sock *sk = NULL;
-+
-+	if (!indev)
-+		return NULL;
-+
-+	switch (nft_pf(pkt)) {
-+	case NFPROTO_IPV4:
-+		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
-+		break;
-+#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
-+	case NFPROTO_IPV6:
-+		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
-+		break;
-+#endif
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
-+	}
-+
-+	return sk;
-+}
-+
- static void nft_socket_eval(const struct nft_expr *expr,
- 			    struct nft_regs *regs,
- 			    const struct nft_pktinfo *pkt)
-@@ -27,20 +53,7 @@ static void nft_socket_eval(const struct
- 		sk = NULL;
+ 	lockdep_assert_held(&zi->i_truncate_mutex);
  
- 	if (!sk)
--		switch(nft_pf(pkt)) {
--		case NFPROTO_IPV4:
--			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
--			break;
--#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
--		case NFPROTO_IPV6:
--			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
--			break;
--#endif
--		default:
--			WARN_ON_ONCE(1);
--			regs->verdict.code = NFT_BREAK;
--			return;
--		}
-+		sk = nft_socket_do_lookup(pkt);
- 
- 	if (!sk) {
- 		regs->verdict.code = NFT_BREAK;
-@@ -123,6 +136,16 @@ static int nft_socket_dump(struct sk_buf
- 	return 0;
++	/*
++	 * With ZNS drives, closing an explicitly open zone that has not been
++	 * written will change the zone state to "closed", that is, the zone
++	 * will remain active. Since this can then cause failure of explicit
++	 * open operation on other zones if the drive active zone resources
++	 * are exceeded, make sure that the zone does not remain active by
++	 * resetting it.
++	 */
++	if (op == REQ_OP_ZONE_CLOSE && !zi->i_wpoffset)
++		op = REQ_OP_ZONE_RESET;
++
+ 	ret = blkdev_zone_mgmt(inode->i_sb->s_bdev, op, zi->i_zsector,
+ 			       zi->i_zone_size >> SECTOR_SHIFT, GFP_NOFS);
+ 	if (ret) {
+@@ -1306,12 +1317,13 @@ static void zonefs_init_dir_inode(struct
+ 	inc_nlink(parent);
  }
  
-+static int nft_socket_validate(const struct nft_ctx *ctx,
-+			       const struct nft_expr *expr,
-+			       const struct nft_data **data)
-+{
-+	return nft_chain_validate_hooks(ctx->chain,
-+					(1 << NF_INET_PRE_ROUTING) |
-+					(1 << NF_INET_LOCAL_IN) |
-+					(1 << NF_INET_LOCAL_OUT));
-+}
-+
- static struct nft_expr_type nft_socket_type;
- static const struct nft_expr_ops nft_socket_ops = {
- 	.type		= &nft_socket_type,
-@@ -130,6 +153,7 @@ static const struct nft_expr_ops nft_soc
- 	.eval		= nft_socket_eval,
- 	.init		= nft_socket_init,
- 	.dump		= nft_socket_dump,
-+	.validate	= nft_socket_validate,
- };
+-static void zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+-				   enum zonefs_ztype type)
++static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
++				  enum zonefs_ztype type)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++	int ret = 0;
  
- static struct nft_expr_type nft_socket_type __read_mostly = {
+ 	inode->i_ino = zone->start >> sbi->s_zone_sectors_shift;
+ 	inode->i_mode = S_IFREG | sbi->s_perm;
+@@ -1336,6 +1348,22 @@ static void zonefs_init_file_inode(struc
+ 	sb->s_maxbytes = max(zi->i_max_size, sb->s_maxbytes);
+ 	sbi->s_blocks += zi->i_max_size >> sb->s_blocksize_bits;
+ 	sbi->s_used_blocks += zi->i_wpoffset >> sb->s_blocksize_bits;
++
++	/*
++	 * For sequential zones, make sure that any open zone is closed first
++	 * to ensure that the initial number of open zones is 0, in sync with
++	 * the open zone accounting done when the mount option
++	 * ZONEFS_MNTOPT_EXPLICIT_OPEN is used.
++	 */
++	if (type == ZONEFS_ZTYPE_SEQ &&
++	    (zone->cond == BLK_ZONE_COND_IMP_OPEN ||
++	     zone->cond == BLK_ZONE_COND_EXP_OPEN)) {
++		mutex_lock(&zi->i_truncate_mutex);
++		ret = zonefs_zone_mgmt(inode, REQ_OP_ZONE_CLOSE);
++		mutex_unlock(&zi->i_truncate_mutex);
++	}
++
++	return ret;
+ }
+ 
+ static struct dentry *zonefs_create_inode(struct dentry *parent,
+@@ -1345,6 +1373,7 @@ static struct dentry *zonefs_create_inod
+ 	struct inode *dir = d_inode(parent);
+ 	struct dentry *dentry;
+ 	struct inode *inode;
++	int ret;
+ 
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+@@ -1355,10 +1384,16 @@ static struct dentry *zonefs_create_inod
+ 		goto dput;
+ 
+ 	inode->i_ctime = inode->i_mtime = inode->i_atime = dir->i_ctime;
+-	if (zone)
+-		zonefs_init_file_inode(inode, zone, type);
+-	else
++	if (zone) {
++		ret = zonefs_init_file_inode(inode, zone, type);
++		if (ret) {
++			iput(inode);
++			goto dput;
++		}
++	} else {
+ 		zonefs_init_dir_inode(dir, inode, type);
++	}
++
+ 	d_add(dentry, inode);
+ 	dir->i_size++;
+ 
 
 
