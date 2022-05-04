@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D22E51A73D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F3551A821
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354758AbiEDRC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37240 "EHLO
+        id S1355588AbiEDRIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:08:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355619AbiEDRAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12EB54BB8B;
-        Wed,  4 May 2022 09:51:57 -0700 (PDT)
+        with ESMTP id S1354717AbiEDRFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF665133C;
+        Wed,  4 May 2022 09:54:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAF79617BD;
-        Wed,  4 May 2022 16:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00C65C385AF;
-        Wed,  4 May 2022 16:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F202B618BB;
+        Wed,  4 May 2022 16:54:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C564C385AA;
+        Wed,  4 May 2022 16:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683117;
-        bh=BvmIjTtTWEk5XrrW7SiDfkdntqy8Ebp0VljKqKVynZw=;
+        s=korg; t=1651683255;
+        bh=AzxGN6B+6s9ilIUtcllUE9KE0UO6vCvY2wsQE9iImXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1nZU0HsX5/454wT/AeC+/XoVVNhB1p2k47dmLBpyIFhUrgyXYUChsEl2YkWei6bc
-         Px0YGhoHSaDle3ComiWYW2nl8wBtYP+1szoI7Gt23vG9HdvXjiXv/cw4Nf7r2OowV+
-         Yp21ObWJSIMOBRGFHSznYHQocK8oWAGXWWGBXubA=
+        b=mmOZEhiuWleRN4IsXoOY46U9mBCyFDvZk7E0+NwJMhimnxq8xNl/0qmSTU4t79RMb
+         1sl1LA24FX9VHpUtrGIv1B145dz9wUNFrzNPV7HTPxFBkSiGNTyBVNeM6pvDINcSz0
+         arVhVWWiIdN94hBM2T2o8YfgIz3iy9jXaqhwvEN0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 121/129] tty: n_gsm: fix insufficient txframe size
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 120/177] gfs2: Minor retry logic cleanup
 Date:   Wed,  4 May 2022 18:45:13 +0200
-Message-Id: <20220504153031.058349843@linuxfoundation.org>
+Message-Id: <20220504153103.895550456@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +53,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 535bf600de75a859698892ee873521a48d289ec1 upstream.
+[ Upstream commit 124c458a401a2497f796e4f2d6cafac6edbea8e9 ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.7.2 states that the maximum frame size
-(N1) refers to the length of the information field (i.e. user payload).
-However, 'txframe' stores the whole frame including frame header, checksum
-and start/end flags. We also need to consider the byte stuffing overhead.
-Define constant for the protocol overhead and adjust the 'txframe' size
-calculation accordingly to reserve enough space for a complete mux frame
-including byte stuffing for advanced option mode. Note that no byte
-stuffing is applied to the start and end flag.
-Also use MAX_MTU instead of MAX_MRU as this buffer is used for data
-transmission.
+Clean up the retry logic in the read and write functions somewhat.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-8-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/gfs2/file.c | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -72,6 +72,8 @@ module_param(debug, int, 0600);
-  */
- #define MAX_MRU 1500
- #define MAX_MTU 1500
-+/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
-+#define PROT_OVERHEAD 7
- #define	GSM_NET_TX_TIMEOUT (HZ*10)
- 
- /**
-@@ -2191,7 +2193,7 @@ static struct gsm_mux *gsm_alloc_mux(voi
- 		kfree(gsm);
- 		return NULL;
+diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
+index 97e2793e22d7..964c19e27ce2 100644
+--- a/fs/gfs2/file.c
++++ b/fs/gfs2/file.c
+@@ -858,9 +858,9 @@ static ssize_t gfs2_file_direct_read(struct kiocb *iocb, struct iov_iter *to,
+ 		leftover = fault_in_iov_iter_writeable(to, window_size);
+ 		gfs2_holder_disallow_demote(gh);
+ 		if (leftover != window_size) {
+-			if (!gfs2_holder_queued(gh))
+-				goto retry;
+-			goto retry_under_glock;
++			if (gfs2_holder_queued(gh))
++				goto retry_under_glock;
++			goto retry;
+ 		}
  	}
--	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
-+	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
- 	if (gsm->txframe == NULL) {
- 		kfree(gsm->buf);
- 		kfree(gsm);
+ 	if (gfs2_holder_queued(gh))
+@@ -927,9 +927,9 @@ static ssize_t gfs2_file_direct_write(struct kiocb *iocb, struct iov_iter *from,
+ 		leftover = fault_in_iov_iter_readable(from, window_size);
+ 		gfs2_holder_disallow_demote(gh);
+ 		if (leftover != window_size) {
+-			if (!gfs2_holder_queued(gh))
+-				goto retry;
+-			goto retry_under_glock;
++			if (gfs2_holder_queued(gh))
++				goto retry_under_glock;
++			goto retry;
+ 		}
+ 	}
+ out:
+@@ -996,12 +996,11 @@ static ssize_t gfs2_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 		leftover = fault_in_iov_iter_writeable(to, window_size);
+ 		gfs2_holder_disallow_demote(&gh);
+ 		if (leftover != window_size) {
+-			if (!gfs2_holder_queued(&gh)) {
+-				if (written)
+-					goto out_uninit;
+-				goto retry;
+-			}
+-			goto retry_under_glock;
++			if (gfs2_holder_queued(&gh))
++				goto retry_under_glock;
++			if (written)
++				goto out_uninit;
++			goto retry;
+ 		}
+ 	}
+ 	if (gfs2_holder_queued(&gh))
+@@ -1075,12 +1074,11 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
+ 		gfs2_holder_disallow_demote(gh);
+ 		if (leftover != window_size) {
+ 			from->count = min(from->count, window_size - leftover);
+-			if (!gfs2_holder_queued(gh)) {
+-				if (read)
+-					goto out_uninit;
+-				goto retry;
+-			}
+-			goto retry_under_glock;
++			if (gfs2_holder_queued(gh))
++				goto retry_under_glock;
++			if (read)
++				goto out_uninit;
++			goto retry;
+ 		}
+ 	}
+ out_unlock:
+-- 
+2.35.1
+
 
 
