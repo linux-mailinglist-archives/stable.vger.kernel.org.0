@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 498AB51A73F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C3251A7E9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353891AbiEDRDP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:03:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39520 "EHLO
+        id S1354381AbiEDRHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354757AbiEDQ7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DB52473A7;
-        Wed,  4 May 2022 09:50:57 -0700 (PDT)
+        with ESMTP id S1355863AbiEDREp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA934F45D;
+        Wed,  4 May 2022 09:53:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31F74617A6;
-        Wed,  4 May 2022 16:50:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A323C385A5;
-        Wed,  4 May 2022 16:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 149C361505;
+        Wed,  4 May 2022 16:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E7C7C385A4;
+        Wed,  4 May 2022 16:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683056;
-        bh=0gbObnZmdg3X7SuNnDkKe2xmN0OZyeNQ6+n97FTWnzE=;
+        s=korg; t=1651683207;
+        bh=3hVsmT5G8vgBYDvAK4nk4B5RhbZAjeVci/nVWw3xb8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r2pFBxZFjm+FPAzmh2SjD0krVccVhM3TpPns/TRYHnTCP0rnKW2wsOt5Aaaal6BNa
-         hyA6wfdi9z6w0bGoUm7oqKtCH6nQa4hILmjVKDsz4E11EXF+dd5iGl5umOQ5oFi1kS
-         FB+QOUE8Fk9vNHfqT9nFxJVnrAWNGTKbihX0OV8w=
+        b=Zbaqlqboai8q944AaQn6smfAEhDepQGsMmqC4V/cSalg4CGxoUw953K2p9nV6Nee+
+         f2VPcwansU0bFWQsSS4a6ANr/mVRis6p5TO/ZpE5mybA89AFDXSwMptnsftzpieMMb
+         YZYfnTYlyRxBFylGRRrlwyuGRcQk1mCRmyaEzWEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksandr Ocheretnyi <oocheret@cisco.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 060/129] mtd: fix part field data corruption in mtd_info
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 059/177] phy: samsung: exynos5250-sata: fix missing device put in probe error paths
 Date:   Wed,  4 May 2022 18:44:12 +0200
-Message-Id: <20220504153026.005036487@linuxfoundation.org>
+Message-Id: <20220504153058.294836259@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksandr Ocheretnyi <oocheret@cisco.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 37c5f9e80e015d0df17d0c377c18523002986851 ]
+[ Upstream commit 5c8402c4db45dd55c2c93c8d730f5dfa7c78a702 ]
 
-Commit 46b5889cc2c5 ("mtd: implement proper partition handling")
-started using "mtd_get_master_ofs()" in mtd callbacks to determine
-memory offsets by means of 'part' field from mtd_info, what previously
-was smashed accessing 'master' field in the mtd_set_dev_defaults() method.
-That provides wrong offset what causes hardware access errors.
+The actions of of_find_i2c_device_by_node() in probe function should be
+reversed in error paths by putting the reference to obtained device.
 
-Just make 'part', 'master' as separate fields, rather than using
-union type to avoid 'part' data corruption when mtd_set_dev_defaults()
-is called.
-
-Fixes: 46b5889cc2c5 ("mtd: implement proper partition handling")
-Signed-off-by: Oleksandr Ocheretnyi <oocheret@cisco.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220417184649.449289-1-oocheret@cisco.com
+Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220407091857.230386-2-krzysztof.kozlowski@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/mtd/mtd.h | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/phy/samsung/phy-exynos5250-sata.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/mtd/mtd.h b/include/linux/mtd/mtd.h
-index 157357ec1441..fc41fecfe44f 100644
---- a/include/linux/mtd/mtd.h
-+++ b/include/linux/mtd/mtd.h
-@@ -388,10 +388,8 @@ struct mtd_info {
- 	/* List of partitions attached to this MTD device */
- 	struct list_head partitions;
+diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
+index 6c305a3fe187..595adba5fb8f 100644
+--- a/drivers/phy/samsung/phy-exynos5250-sata.c
++++ b/drivers/phy/samsung/phy-exynos5250-sata.c
+@@ -196,20 +196,21 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 	sata_phy->phyclk = devm_clk_get(dev, "sata_phyctrl");
+ 	if (IS_ERR(sata_phy->phyclk)) {
+ 		dev_err(dev, "failed to get clk for PHY\n");
+-		return PTR_ERR(sata_phy->phyclk);
++		ret = PTR_ERR(sata_phy->phyclk);
++		goto put_dev;
+ 	}
  
--	union {
--		struct mtd_part part;
--		struct mtd_master master;
--	};
-+	struct mtd_part part;
-+	struct mtd_master master;
- };
+ 	ret = clk_prepare_enable(sata_phy->phyclk);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to enable source clk\n");
+-		return ret;
++		goto put_dev;
+ 	}
  
- static inline struct mtd_info *mtd_get_master(struct mtd_info *mtd)
+ 	sata_phy->phy = devm_phy_create(dev, NULL, &exynos_sata_phy_ops);
+ 	if (IS_ERR(sata_phy->phy)) {
+-		clk_disable_unprepare(sata_phy->phyclk);
+ 		dev_err(dev, "failed to create PHY\n");
+-		return PTR_ERR(sata_phy->phy);
++		ret = PTR_ERR(sata_phy->phy);
++		goto clk_disable;
+ 	}
+ 
+ 	phy_set_drvdata(sata_phy->phy, sata_phy);
+@@ -217,11 +218,18 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 	phy_provider = devm_of_phy_provider_register(dev,
+ 					of_phy_simple_xlate);
+ 	if (IS_ERR(phy_provider)) {
+-		clk_disable_unprepare(sata_phy->phyclk);
+-		return PTR_ERR(phy_provider);
++		ret = PTR_ERR(phy_provider);
++		goto clk_disable;
+ 	}
+ 
+ 	return 0;
++
++clk_disable:
++	clk_disable_unprepare(sata_phy->phyclk);
++put_dev:
++	put_device(&sata_phy->client->dev);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id exynos_sata_phy_of_match[] = {
 -- 
 2.35.1
 
