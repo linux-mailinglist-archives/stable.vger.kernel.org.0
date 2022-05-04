@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DA4051A6E5
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135C551A7E6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354638AbiEDRBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
+        id S1355020AbiEDRFc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354582AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A313019003;
-        Wed,  4 May 2022 09:50:37 -0700 (PDT)
+        with ESMTP id S1355475AbiEDRE2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4254EDDC;
+        Wed,  4 May 2022 09:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E9DC61794;
-        Wed,  4 May 2022 16:50:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 852EBC385AA;
-        Wed,  4 May 2022 16:50:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 898F861505;
+        Wed,  4 May 2022 16:53:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2629C385AA;
+        Wed,  4 May 2022 16:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683036;
-        bh=znIJma1PJ8F2SQkkSJRLuJHmh0Wjcu0w9zWweQBvDEs=;
+        s=korg; t=1651683184;
+        bh=+J6mkW7g7FZT8T1bJ9fP3KdetTDCgArgqcBdHrc4ShY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wxmyNoLiDvF1DkWjINu2yyZLTCFWvt9Y5Af67XtlQ6PuW8rQmDIE4k6RqMBcjlVv/
-         Zm5KB4Q+IdKS3R76tW6KDspXmOBtUaWey3mo417oMQV2ni6tazZ+0x8SEjHXYnt7Rr
-         lcpDkIO5L8NCW6R4Bljf5O/ZQDrg7AShhM4BCEyo=
+        b=EKJZQtLAZNRWK/v83KC4GPQ6jTjUB2hvyODqxhTI5yDbfw55NLq/McCB1iMhfQh6a
+         Aa8FraV3zcplmY2oHMJ/Z/qNKH1mMz99GzMedbvv3yxThzjlBdQC4bf0xMqM0g6ar5
+         910fsZ0O4Jq9o7+4FbAPa29N0IwKRYl8z+dArulI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 040/129] arm64: dts: meson: remove CPU opps below 1GHz for SM1 boards
-Date:   Wed,  4 May 2022 18:43:52 +0200
-Message-Id: <20220504153024.364832328@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 040/177] hex2bin: fix access beyond string end
+Date:   Wed,  4 May 2022 18:43:53 +0200
+Message-Id: <20220504153056.515747012@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit fd86d85401c2049f652293877c0f7e6e5afc3bbc ]
+commit e4d8a29997731b3bb14059024b24df9f784288d0 upstream.
 
-Amlogic SM1 devices experience CPU stalls and random board wedges when
-the system idles and CPU cores clock down to lower opp points. Recent
-vendor kernels include a change to remove 100-250MHz and other distro
-sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
-are removed or the CPU governor forced to performance stalls are still
-observed, so let's remove them to improve stability and uptime.
+If we pass too short string to "hex2bin" (and the string size without
+the terminating NUL character is even), "hex2bin" reads one byte after
+the terminating NUL character.  This patch fixes it.
 
-Fixes: 3d9e76483049 ("arm64: dts: meson-sm1-sei610: enable DVFS")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220210100638.19130-3-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Note that hex_to_bin returns -1 on error and hex2bin return -EINVAL on
+error - so we can't just return the variable "hi" or "lo" on error.
+This inconsistency may be fixed in the next merge window, but for the
+purpose of fixing this bug, we just preserve the existing behavior and
+return -1 and -EINVAL.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: b78049831ffe ("lib: add error checking to hex2bin")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1.dtsi | 20 --------------------
- 1 file changed, 20 deletions(-)
+ lib/hexdump.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi b/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-index c309517abae3..defe0b8d4d27 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-@@ -95,26 +95,6 @@ cpu_opp_table: opp-table {
- 		compatible = "operating-points-v2";
- 		opp-shared;
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -63,10 +63,13 @@ EXPORT_SYMBOL(hex_to_bin);
+ int hex2bin(u8 *dst, const char *src, size_t count)
+ {
+ 	while (count--) {
+-		int hi = hex_to_bin(*src++);
+-		int lo = hex_to_bin(*src++);
++		int hi, lo;
  
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <666666666>;
--			opp-microvolt = <750000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <770000>;
--- 
-2.35.1
-
+-		if ((hi < 0) || (lo < 0))
++		hi = hex_to_bin(*src++);
++		if (unlikely(hi < 0))
++			return -EINVAL;
++		lo = hex_to_bin(*src++);
++		if (unlikely(lo < 0))
+ 			return -EINVAL;
+ 
+ 		*dst++ = (hi << 4) | lo;
 
 
