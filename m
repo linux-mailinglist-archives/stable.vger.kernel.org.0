@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F08151A5E9
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FD651A6EA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353097AbiEDQvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:51:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50716 "EHLO
+        id S1354505AbiEDRAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353622AbiEDQvu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B4A2314C;
-        Wed,  4 May 2022 09:48:14 -0700 (PDT)
+        with ESMTP id S1354629AbiEDQ65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC9829CA8;
+        Wed,  4 May 2022 09:50:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF14EB82553;
-        Wed,  4 May 2022 16:48:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9490CC385A4;
-        Wed,  4 May 2022 16:48:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FB80617C3;
+        Wed,  4 May 2022 16:50:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE85CC340ED;
+        Wed,  4 May 2022 16:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682891;
-        bh=Ug3fk8Vt8Pk8CQvWev9QH73Z1POTQgfDaPxABlOgu54=;
+        s=korg; t=1651683048;
+        bh=Za0VdiC3YL/IFH8GD9TAZhUplfNPPkWz+O8jG/yfWG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QGZbD2AknUsJTVr1ixelBXGbmbUX7+LtKMdeYdtHk/fzvVipI4TRWSRsF7rMnycd
-         UXDsSKRcT4illYyTmx/V02msSb0R0H49jrR4zcrSUcZC9UHbshDKvnz1KwulL//uxr
-         LefGdvrumw9bbgdryZJ3sNRUVYS/+nImEVJIYDAg=
+        b=rNxwCw5/8SzuuON9062qic5dj646ZvqLUx1dtxktsfaKzSOz/HIfALXjdgdMz6kik
+         lIWV1q4G2OdKrVWvs5e0XpHmybTIgUQJXFaloP+C81Q5OxP/Xzd/oRM+Ytc8FwHYoO
+         GqijuJwzQwsEy0sVcnr9NbfC+0Xksws/KqoQ+vV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 10/84] USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
+        stable@vger.kernel.org,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 039/129] arm64: dts: meson: remove CPU opps below 1GHz for G12B boards
 Date:   Wed,  4 May 2022 18:43:51 +0200
-Message-Id: <20220504152928.476240411@linuxfoundation.org>
+Message-Id: <20220504153024.293127568@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-commit b4a64ed6e7b857317070fcb9d87ff5d4a73be3e8 upstream.
+[ Upstream commit 6c4d636bc00dc17c63ffb2a73a0da850240e26e3 ]
 
-Add support for Cinterion device MV32-WA/MV32-WB. MV32-WA PID is
-0x00F1, and MV32-WB PID is 0x00F2.
+Amlogic G12B devices experience CPU stalls and random board wedges when
+the system idles and CPU cores clock down to lower opp points. Recent
+vendor kernels include a change to remove 100-250MHz and other distro
+sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
+are removed or the CPU governor forced to performance stalls are still
+observed, so let's remove them to improve stability and uptime.
 
-Test evidence as below:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f1 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F1 USB Mobile Broadband
-S:  SerialNumber=78ada8c4
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f2 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F2 USB Mobile Broadband
-S:  SerialNumber=cdd06a78
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-Interface 0&1: MBIM, 2:Modem, 3: GNSS, 4: NMEA, 5: Diag
-GNSS port don't use serial driver.
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220414074434.5699-1-slark_xiao@163.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b96d4e92709b ("arm64: dts: meson-g12b: support a311d and s922x cpu operating points")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220210100638.19130-2-christianshewitt@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ .../boot/dts/amlogic/meson-g12b-a311d.dtsi    | 40 -------------------
+ .../boot/dts/amlogic/meson-g12b-s922x.dtsi    | 40 -------------------
+ 2 files changed, 80 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -432,6 +432,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_CLS8			0x00b0
- #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
- #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
-+#define CINTERION_PRODUCT_MV32_WA		0x00f1
-+#define CINTERION_PRODUCT_MV32_WB		0x00f2
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+index d61f43052a34..8e9ad1e51d66 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
- /* Olivetti products */
- #define OLIVETTI_VENDOR_ID			0x0b3c
-@@ -1969,6 +1971,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
- 	  .driver_info = RSVD(0)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
-+	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <761000>;
+@@ -71,26 +51,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+index 1e5d0ee5d541..44c23c984034 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+@@ -76,26 +56,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <771000>;
+-- 
+2.35.1
+
 
 
