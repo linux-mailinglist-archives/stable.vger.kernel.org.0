@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA77A51A9E3
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E41551AA3C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357787AbiEDRUC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55274 "EHLO
+        id S1356327AbiEDRW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356949AbiEDROh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:37 -0400
+        with ESMTP id S1357057AbiEDROq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76AD053E24;
-        Wed,  4 May 2022 09:58:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36F7454180;
+        Wed,  4 May 2022 09:58:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66F4361926;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57422617A6;
+        Wed,  4 May 2022 16:57:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A36B9C385A4;
         Wed,  4 May 2022 16:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11FFC385A5;
-        Wed,  4 May 2022 16:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683475;
-        bh=FSy8OxLu6ImTtFkfpaaWWjsYOWcsYH05gS/6+cpnjGc=;
+        s=korg; t=1651683476;
+        bh=pPUIlAMOVYe9srKo2SbyhxPjEu2zN8+V4ndrRz4piyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9cGs9OrrS0ppgCIU3M6I+6TaZ0f8Um5KFDJOp3TVqHtxQqWRyeKxRtrT7ilSkM1t
-         0ijRvGRLvAZZVltQoyUmg9mxomgc0Ag/7EhVSwej0SDQOOWaLNkPd2sgpuXW47ap0x
-         tAJ0Hq8VFoMERq2izSdS9G+Iz8521CmGu01CgB4A=
+        b=K3FKZWwDbgEz9DNS0mr8us0dSrX6QhkIdREvw53ij7dqIjSrhtdFEpj/UEyNFpc54
+         DDxwgvdqtYohAN34k0PZc5X7PYpdE+lmqxNoLDabghLwI7aAYM81saGoN+zdhbiFd8
+         ab4mBtFXIGQ16UeWUzrmf5M3esbRZx8wC9+Bcl7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 137/225] io_uring: check reserved fields for send/sendmsg
-Date:   Wed,  4 May 2022 18:46:15 +0200
-Message-Id: <20220504153122.491940346@linuxfoundation.org>
+Subject: [PATCH 5.17 138/225] io_uring: check reserved fields for recv/recvmsg
+Date:   Wed,  4 May 2022 18:46:16 +0200
+Message-Id: <20220504153122.566841289@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -55,12 +55,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 588faa1ea5eecb351100ee5d187b9be99210f70d ]
+[ Upstream commit 5a1e99b61b0c81388cde0c808b3e4173907df19f ]
 
 We should check unused fields for non-zero and -EINVAL if they are set,
 making it consistent with other opcodes.
 
-Fixes: 0fa03c624d8f ("io_uring: add support for sendmsg()")
+Fixes: aa1fa28fc73e ("io_uring: add support for recvmsg()")
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fbba8342172a..107bce75131e 100644
+index 107bce75131e..531d0086d0b3 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -4890,6 +4890,8 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+@@ -5103,6 +5103,8 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
  	if (unlikely(req->ctx->flags & IORING_SETUP_IOPOLL))
  		return -EINVAL;
