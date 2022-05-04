@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B62A51A7A0
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E1F51A8A1
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355249AbiEDRGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51338 "EHLO
+        id S1355486AbiEDRNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355961AbiEDREs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:48 -0400
+        with ESMTP id S1356821AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8F104FC58;
-        Wed,  4 May 2022 09:53:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9783222A9;
+        Wed,  4 May 2022 09:55:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FFC0B827A1;
-        Wed,  4 May 2022 16:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32D1CC385A4;
-        Wed,  4 May 2022 16:53:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98CF7B82795;
+        Wed,  4 May 2022 16:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A4BC385A4;
+        Wed,  4 May 2022 16:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683214;
-        bh=9Gg/dWksUKSdNnvO9+X8KZ+em90nL3aF/I7M8l2cWyc=;
+        s=korg; t=1651683348;
+        bh=G71WT7nFX4UN9eB8Tn1SQhYCaU4g34pC/vPb7hR0lQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0FB3mlxQVEzekcPqQd3m9o3xU2n6iMnZBtO98hKHcyfBLZ9TWHC8nJ9e/C6yo08U
-         uEeJ81kPTU8poBL9pxTy3tTGyf4EebjMn0+3OFsyAuAfdHqLLrCXJqANkDc3zPxUOw
-         ZCDmZTewXKCXK5muVOhy9DgZ17TV85kNXpp5fKGI=
+        b=UQ6QW0aXF5QZWfbMg8EaqbcJsUyXVmkndiycEuPubu5cHld0/x1lIvg74XPaNvtZ6
+         U6lGoLiTWGrCcZcuEpVPW7gF/1qLpKL1p1SAi+r642vTN6vCCf/ELmYu/5K1eWgPj3
+         o2nZWinhkbO5Zm1NLXWCTtmFGC45IieQUZdqCrNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 079/177] memory: renesas-rpc-if: Fix HF/OSPI data transfer in Manual Mode
-Date:   Wed,  4 May 2022 18:44:32 +0200
-Message-Id: <20220504153100.143222475@linuxfoundation.org>
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Subject: [PATCH 5.17 035/225] serial: amba-pl011: do not time out prematurely when draining tx fifo
+Date:   Wed,  4 May 2022 18:44:33 +0200
+Message-Id: <20220504153113.350828662@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,169 +52,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-[ Upstream commit 7e842d70fe599bc13594b650b2144c4b6e6d6bf1 ]
+commit 0e4deb56b0c625efdb70c94f150429e2f2a16fa1 upstream.
 
-HyperFlash devices fail to probe:
+The current timeout for draining the tx fifo in RS485 mode is calculated by
+multiplying the time it takes to transmit one character (with the given
+baud rate) with the maximal number of characters in the tx queue.
 
-    rpc-if-hyperflash rpc-if-hyperflash: probing of hyperbus device failed
+This timeout is too short for two reasons:
+First when calculating the time to transmit one character integer division
+is used which may round down the result in case of a remainder of the
+division.
 
-In HyperFlash or Octal-SPI Flash mode, the Transfer Data Enable bits
-(SPIDE) in the Manual Mode Enable Setting Register (SMENR) are derived
-from half of the transfer size, cfr. the rpcif_bits_set() helper
-function.  However, rpcif_reg_{read,write}() does not take the bus size
-into account, and does not double all Manual Mode Data Register access
-sizes when communicating with a HyperFlash or Octal-SPI Flash device.
+Fix this by rounding up the division result.
 
-Fix this, and avoid the back-and-forth conversion between transfer size
-and Transfer Data Enable bits, by explicitly storing the transfer size
-in struct rpcif, and using that value to determine access size in
-rpcif_reg_{read,write}().
+Second the hardware may need additional time (e.g for first putting the
+characters from the fifo into the shift register) before the characters are
+actually put onto the wire.
 
-Enforce that the "high" Manual Mode Read/Write Data Registers
-(SM[RW]DR1) are only used for 8-byte data accesses.
-While at it, forbid writing to the Manual Mode Read Data Registers,
-as they are read-only.
+To be on the safe side double the current maximum number of iterations
+that are used to wait for the queue draining.
 
-Fixes: fff53a551db50f5e ("memory: renesas-rpc-if: Correct QSPI data transfer in Manual mode")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Tested-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Link: https://lore.kernel.org/r/cde9bfacf704c81865f57b15d1b48a4793da4286.1649681476.git.geert+renesas@glider.be
-Link: https://lore.kernel.org/r/20220420070526.9367-1-krzysztof.kozlowski@linaro.org'
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8d479237727c ("serial: amba-pl011: add RS485 support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Link: https://lore.kernel.org/r/20220408233503.7251-1-LinoSanfilippo@gmx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/memory/renesas-rpc-if.c | 60 +++++++++++++++++++++++++--------
- include/memory/renesas-rpc-if.h |  1 +
- 2 files changed, 47 insertions(+), 14 deletions(-)
+ drivers/tty/serial/amba-pl011.c |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
-index 2a4c1f94bfa0..3a416705f61c 100644
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -162,25 +162,39 @@ static const struct regmap_access_table rpcif_volatile_table = {
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -1255,13 +1255,18 @@ static inline bool pl011_dma_rx_running(
  
- 
- /*
-- * Custom accessor functions to ensure SMRDR0 and SMWDR0 are always accessed
-- * with proper width. Requires SMENR_SPIDE to be correctly set before!
-+ * Custom accessor functions to ensure SM[RW]DR[01] are always accessed with
-+ * proper width.  Requires rpcif.xfer_size to be correctly set before!
-  */
- static int rpcif_reg_read(void *context, unsigned int reg, unsigned int *val)
+ static void pl011_rs485_tx_stop(struct uart_amba_port *uap)
  {
- 	struct rpcif *rpc = context;
++	/*
++	 * To be on the safe side only time out after twice as many iterations
++	 * as fifo size.
++	 */
++	const int MAX_TX_DRAIN_ITERS = uap->port.fifosize * 2;
+ 	struct uart_port *port = &uap->port;
+ 	int i = 0;
+ 	u32 cr;
  
--	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
--		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
--
--		if (spide == 0x8) {
-+	switch (reg) {
-+	case RPCIF_SMRDR0:
-+	case RPCIF_SMWDR0:
-+		switch (rpc->xfer_size) {
-+		case 1:
- 			*val = readb(rpc->base + reg);
- 			return 0;
--		} else if (spide == 0xC) {
-+
-+		case 2:
- 			*val = readw(rpc->base + reg);
- 			return 0;
--		} else if (spide != 0xF) {
-+
-+		case 4:
-+		case 8:
-+			*val = readl(rpc->base + reg);
-+			return 0;
-+
-+		default:
- 			return -EILSEQ;
- 		}
-+
-+	case RPCIF_SMRDR1:
-+	case RPCIF_SMWDR1:
-+		if (rpc->xfer_size != 8)
-+			return -EILSEQ;
-+		break;
- 	}
+ 	/* Wait until hardware tx queue is empty */
+ 	while (!pl011_tx_empty(port)) {
+-		if (i == port->fifosize) {
++		if (i > MAX_TX_DRAIN_ITERS) {
+ 			dev_warn(port->dev,
+ 				 "timeout while draining hardware tx queue\n");
+ 			break;
+@@ -2052,7 +2057,7 @@ pl011_set_termios(struct uart_port *port
+ 	 * with the given baud rate. We use this as the poll interval when we
+ 	 * wait for the tx queue to empty.
+ 	 */
+-	uap->rs485_tx_drain_interval = (bits * 1000 * 1000) / baud;
++	uap->rs485_tx_drain_interval = DIV_ROUND_UP(bits * 1000 * 1000, baud);
  
- 	*val = readl(rpc->base + reg);
-@@ -192,18 +206,34 @@ static int rpcif_reg_write(void *context, unsigned int reg, unsigned int val)
- {
- 	struct rpcif *rpc = context;
+ 	pl011_setup_status_masks(port, termios);
  
--	if (reg == RPCIF_SMRDR0 || reg == RPCIF_SMWDR0) {
--		u32 spide = readl(rpc->base + RPCIF_SMENR) & RPCIF_SMENR_SPIDE(0xF);
--
--		if (spide == 0x8) {
-+	switch (reg) {
-+	case RPCIF_SMWDR0:
-+		switch (rpc->xfer_size) {
-+		case 1:
- 			writeb(val, rpc->base + reg);
- 			return 0;
--		} else if (spide == 0xC) {
-+
-+		case 2:
- 			writew(val, rpc->base + reg);
- 			return 0;
--		} else if (spide != 0xF) {
-+
-+		case 4:
-+		case 8:
-+			writel(val, rpc->base + reg);
-+			return 0;
-+
-+		default:
- 			return -EILSEQ;
- 		}
-+
-+	case RPCIF_SMWDR1:
-+		if (rpc->xfer_size != 8)
-+			return -EILSEQ;
-+		break;
-+
-+	case RPCIF_SMRDR0:
-+	case RPCIF_SMRDR1:
-+		return -EPERM;
- 	}
- 
- 	writel(val, rpc->base + reg);
-@@ -442,6 +472,7 @@ int rpcif_manual_xfer(struct rpcif *rpc)
- 
- 			smenr |= RPCIF_SMENR_SPIDE(rpcif_bits_set(rpc, nbytes));
- 			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
-+			rpc->xfer_size = nbytes;
- 
- 			memcpy(data, rpc->buffer + pos, nbytes);
- 			if (nbytes == 8) {
-@@ -506,6 +537,7 @@ int rpcif_manual_xfer(struct rpcif *rpc)
- 			regmap_write(rpc->regmap, RPCIF_SMENR, smenr);
- 			regmap_write(rpc->regmap, RPCIF_SMCR,
- 				     rpc->smcr | RPCIF_SMCR_SPIE);
-+			rpc->xfer_size = nbytes;
- 			ret = wait_msg_xfer_end(rpc);
- 			if (ret)
- 				goto err_out;
-diff --git a/include/memory/renesas-rpc-if.h b/include/memory/renesas-rpc-if.h
-index 77c694a19149..15dd0076c293 100644
---- a/include/memory/renesas-rpc-if.h
-+++ b/include/memory/renesas-rpc-if.h
-@@ -66,6 +66,7 @@ struct rpcif {
- 	size_t size;
- 	enum rpcif_data_dir dir;
- 	u8 bus_size;
-+	u8 xfer_size;
- 	void *buffer;
- 	u32 xferlen;
- 	u32 smcr;
--- 
-2.35.1
-
 
 
