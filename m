@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FD451A92D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB1D51A796
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355316AbiEDRMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
+        id S1354695AbiEDRHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356854AbiEDRJq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11832CE39;
-        Wed,  4 May 2022 09:56:00 -0700 (PDT)
+        with ESMTP id S1356151AbiEDREz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560BE506C6;
+        Wed,  4 May 2022 09:53:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D1987617DE;
-        Wed,  4 May 2022 16:56:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23220C385AA;
-        Wed,  4 May 2022 16:56:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC4FCB827A9;
+        Wed,  4 May 2022 16:53:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622A7C385A4;
+        Wed,  4 May 2022 16:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683360;
-        bh=HYJR58QEHHoSYs3l8IRgOcIy5CFAG2cxLrnEXmuFJVU=;
+        s=korg; t=1651683232;
+        bh=BhD/YoPhqnDf8jMNqwbknukIxwRJA39mAq7J59EoT1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=guqSvtVkuvafm6bYenYJG5oCKaFrGSBvLFgh5rpJjopTpkeR02NSESBv4ro9BiK6F
-         0nutNYsEcqT2nbH7z5tPXaGO741QUqwl/wUKPr/s2NezfeUCSlYyGvuMbJgG1L1kH8
-         E0TsebAAciUClyv3dD/6O0pRHFLFSCVkvKfmbneM=
+        b=TVyHqy94RW4wPQiK9AAy7NK8RTu68bajbvxH3njprw1B/oWtHUAYZBDztbQ9lK8qG
+         ycGONdpsMbyf5Vz1vK9ia0xs88IlZKbPlS8Csra4AYPNBZLyi0atWKnOfxokTVbih8
+         9UO27JCgMYSkMN8f3pYOUOga+nMeXKR1yYl0Np5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Wang Qing <wangqing@vivo.com>
-Subject: [PATCH 5.17 039/225] arch_topology: Do not set llc_sibling if llc_id is invalid
-Date:   Wed,  4 May 2022 18:44:37 +0200
-Message-Id: <20220504153113.670016499@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 085/177] pinctrl: stm32: Keep pinctrl block clock enabled when LEVEL IRQ requested
+Date:   Wed,  4 May 2022 18:44:38 +0200
+Message-Id: <20220504153100.717869692@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +59,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
+[ Upstream commit 05d8af449d93e04547b4c6b328e39c890bc803f4 ]
 
-When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
-will set llc_sibling 0xff(...), this is misleading.
+The current EOI handler for LEVEL triggered interrupts calls clk_enable(),
+register IO, clk_disable(). The clock manipulation requires locking which
+happens with IRQs disabled in clk_enable_lock(). Instead of turning the
+clock on and off all the time, enable the clock in case LEVEL interrupt is
+requested and keep the clock enabled until all LEVEL interrupts are freed.
+The LEVEL interrupts are an exception on this platform and seldom used, so
+this does not affect the common case.
 
-Don't set llc_sibling(default 0) if we don't know the cache topology.
+This simplifies the LEVEL interrupt handling considerably and also fixes
+the following splat found when using preempt-rt:
+ ------------[ cut here ]------------
+ WARNING: CPU: 0 PID: 0 at kernel/locking/rtmutex.c:2040 __rt_mutex_trylock+0x37/0x62
+ Modules linked in:
+ CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.10.109-rt65-stable-standard-00068-g6a5afc4b1217 #85
+ Hardware name: STM32 (Device Tree Support)
+ [<c010a45d>] (unwind_backtrace) from [<c010766f>] (show_stack+0xb/0xc)
+ [<c010766f>] (show_stack) from [<c06353ab>] (dump_stack+0x6f/0x84)
+ [<c06353ab>] (dump_stack) from [<c01145e3>] (__warn+0x7f/0xa4)
+ [<c01145e3>] (__warn) from [<c063386f>] (warn_slowpath_fmt+0x3b/0x74)
+ [<c063386f>] (warn_slowpath_fmt) from [<c063b43d>] (__rt_mutex_trylock+0x37/0x62)
+ [<c063b43d>] (__rt_mutex_trylock) from [<c063c053>] (rt_spin_trylock+0x7/0x16)
+ [<c063c053>] (rt_spin_trylock) from [<c036a2f3>] (clk_enable_lock+0xb/0x80)
+ [<c036a2f3>] (clk_enable_lock) from [<c036ba69>] (clk_core_enable_lock+0x9/0x18)
+ [<c036ba69>] (clk_core_enable_lock) from [<c034e9f3>] (stm32_gpio_get+0x11/0x24)
+ [<c034e9f3>] (stm32_gpio_get) from [<c034ef43>] (stm32_gpio_irq_trigger+0x1f/0x48)
+ [<c034ef43>] (stm32_gpio_irq_trigger) from [<c014aa53>] (handle_fasteoi_irq+0x71/0xa8)
+ [<c014aa53>] (handle_fasteoi_irq) from [<c0147111>] (generic_handle_irq+0x19/0x22)
+ [<c0147111>] (generic_handle_irq) from [<c014752d>] (__handle_domain_irq+0x55/0x64)
+ [<c014752d>] (__handle_domain_irq) from [<c0346f13>] (gic_handle_irq+0x53/0x64)
+ [<c0346f13>] (gic_handle_irq) from [<c0100ba5>] (__irq_svc+0x65/0xc0)
+ Exception stack(0xc0e01f18 to 0xc0e01f60)
+ 1f00:                                                       0000300c 00000000
+ 1f20: 0000300c c010ff01 00000000 00000000 c0e00000 c0e07714 00000001 c0e01f78
+ 1f40: c0e07758 00000000 ef7cd0ff c0e01f68 c010554b c0105542 40000033 ffffffff
+ [<c0100ba5>] (__irq_svc) from [<c0105542>] (arch_cpu_idle+0xc/0x1e)
+ [<c0105542>] (arch_cpu_idle) from [<c063be95>] (default_idle_call+0x21/0x3c)
+ [<c063be95>] (default_idle_call) from [<c01324f7>] (do_idle+0xe3/0x1e4)
+ [<c01324f7>] (do_idle) from [<c01327b3>] (cpu_startup_entry+0x13/0x14)
+ [<c01327b3>] (cpu_startup_entry) from [<c0a00c13>] (start_kernel+0x397/0x3d4)
+ [<c0a00c13>] (start_kernel) from [<00000000>] (0x0)
+ ---[ end trace 0000000000000002 ]---
 
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Power consumption measured on STM32MP157C DHCOM SoM is not increased or
+is below noise threshold.
+
+Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+To: linux-gpio@vger.kernel.org
+Reviewed-by: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Link: https://lore.kernel.org/r/20220421140827.214088-1-marex@denx.de
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/arch_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -645,7 +645,7 @@ void update_siblings_masks(unsigned int
- 	for_each_online_cpu(cpu) {
- 		cpu_topo = &cpu_topology[cpu];
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 2c78af0aac57..97a4fb5a9328 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -225,6 +225,13 @@ static void stm32_gpio_free(struct gpio_chip *chip, unsigned offset)
+ 	pinctrl_gpio_free(chip->base + offset);
+ }
  
--		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
-+		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
- 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
- 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
- 		}
++static int stm32_gpio_get_noclk(struct gpio_chip *chip, unsigned int offset)
++{
++	struct stm32_gpio_bank *bank = gpiochip_get_data(chip);
++
++	return !!(readl_relaxed(bank->base + STM32_GPIO_IDR) & BIT(offset));
++}
++
+ static int stm32_gpio_get(struct gpio_chip *chip, unsigned offset)
+ {
+ 	struct stm32_gpio_bank *bank = gpiochip_get_data(chip);
+@@ -232,7 +239,7 @@ static int stm32_gpio_get(struct gpio_chip *chip, unsigned offset)
+ 
+ 	clk_enable(bank->clk);
+ 
+-	ret = !!(readl_relaxed(bank->base + STM32_GPIO_IDR) & BIT(offset));
++	ret = stm32_gpio_get_noclk(chip, offset);
+ 
+ 	clk_disable(bank->clk);
+ 
+@@ -316,7 +323,7 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
+ 		return;
+ 
+ 	/* If level interrupt type then retrig */
+-	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
++	level = stm32_gpio_get_noclk(&bank->gpio_chip, d->hwirq);
+ 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
+ 	    (level == 1 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_HIGH))
+ 		irq_chip_retrigger_hierarchy(d);
+@@ -358,6 +365,7 @@ static int stm32_gpio_irq_request_resources(struct irq_data *irq_data)
+ {
+ 	struct stm32_gpio_bank *bank = irq_data->domain->host_data;
+ 	struct stm32_pinctrl *pctl = dev_get_drvdata(bank->gpio_chip.parent);
++	unsigned long flags;
+ 	int ret;
+ 
+ 	ret = stm32_gpio_direction_input(&bank->gpio_chip, irq_data->hwirq);
+@@ -371,6 +379,10 @@ static int stm32_gpio_irq_request_resources(struct irq_data *irq_data)
+ 		return ret;
+ 	}
+ 
++	flags = irqd_get_trigger_type(irq_data);
++	if (flags & IRQ_TYPE_LEVEL_MASK)
++		clk_enable(bank->clk);
++
+ 	return 0;
+ }
+ 
+@@ -378,6 +390,9 @@ static void stm32_gpio_irq_release_resources(struct irq_data *irq_data)
+ {
+ 	struct stm32_gpio_bank *bank = irq_data->domain->host_data;
+ 
++	if (bank->irq_type[irq_data->hwirq] & IRQ_TYPE_LEVEL_MASK)
++		clk_disable(bank->clk);
++
+ 	gpiochip_unlock_as_irq(&bank->gpio_chip, irq_data->hwirq);
+ }
+ 
+-- 
+2.35.1
+
 
 
