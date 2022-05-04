@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 135C551A7E6
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C93151A733
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355020AbiEDRFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:05:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55364 "EHLO
+        id S1354259AbiEDRCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355475AbiEDRE2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA4254EDDC;
-        Wed,  4 May 2022 09:53:04 -0700 (PDT)
+        with ESMTP id S1354585AbiEDQ6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3BA3193EC;
+        Wed,  4 May 2022 09:50:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 898F861505;
-        Wed,  4 May 2022 16:53:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2629C385AA;
-        Wed,  4 May 2022 16:53:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 433EE6179D;
+        Wed,  4 May 2022 16:50:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE7DC385A5;
+        Wed,  4 May 2022 16:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683184;
-        bh=+J6mkW7g7FZT8T1bJ9fP3KdetTDCgArgqcBdHrc4ShY=;
+        s=korg; t=1651683037;
+        bh=3tCD9UPGGLCqsAMO+Vo9sno0Rmur0LR0rPnUEVYNJ6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EKJZQtLAZNRWK/v83KC4GPQ6jTjUB2hvyODqxhTI5yDbfw55NLq/McCB1iMhfQh6a
-         Aa8FraV3zcplmY2oHMJ/Z/qNKH1mMz99GzMedbvv3yxThzjlBdQC4bf0xMqM0g6ar5
-         910fsZ0O4Jq9o7+4FbAPa29N0IwKRYl8z+dArulI=
+        b=S42KLcMML8dvqJhjAgM+/S/BVbESIhElHwD0aoY9E4zDFf42ubf3hoaSdaI0e+fZW
+         9uS0yRuUtsZeZQuhEyNyN9BN0wIVtd58++L5rQ8360uVd56ISNhv/g9Ej019GcQmtc
+         oVorHjzTxFNyX4SUIOvEGJTnc83lIalMKu2lrWLU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 040/177] hex2bin: fix access beyond string end
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Tong Zhang <ztong0001@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 041/129] iio:imu:bmi160: disable regulator in error path
 Date:   Wed,  4 May 2022 18:43:53 +0200
-Message-Id: <20220504153056.515747012@linuxfoundation.org>
+Message-Id: <20220504153024.435636515@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-commit e4d8a29997731b3bb14059024b24df9f784288d0 upstream.
+[ Upstream commit d926054d5565d3cfa2c7c3f7a48e79bcc10453ed ]
 
-If we pass too short string to "hex2bin" (and the string size without
-the terminating NUL character is even), "hex2bin" reads one byte after
-the terminating NUL character.  This patch fixes it.
+Regulator should be disabled in error path as mentioned in _regulator_put().
+Also disable accel if gyro cannot be enabled.
 
-Note that hex_to_bin returns -1 on error and hex2bin return -EINVAL on
-error - so we can't just return the variable "hi" or "lo" on error.
-This inconsistency may be fixed in the next merge window, but for the
-purpose of fixing this bug, we just preserve the existing behavior and
-return -1 and -EINVAL.
+[   16.233604] WARNING: CPU: 0 PID: 2177 at drivers/regulator/core.c:2257 _regulator_put
+[   16.240453] Call Trace:
+[   16.240572]  <TASK>
+[   16.240676]  regulator_put+0x26/0x40
+[   16.240853]  regulator_bulk_free+0x26/0x50
+[   16.241050]  release_nodes+0x3f/0x70
+[   16.241225]  devres_release_group+0x147/0x1c0
+[   16.241441]  ? bmi160_core_probe+0x175/0x3a0 [bmi160_core]
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Fixes: b78049831ffe ("lib: add error checking to hex2bin")
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5dea3fb066f0 ("iio: imu: bmi160: added regulator support")
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20220327154005.806049-1-ztong0001@gmail.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/hexdump.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/imu/bmi160/bmi160_core.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
---- a/lib/hexdump.c
-+++ b/lib/hexdump.c
-@@ -63,10 +63,13 @@ EXPORT_SYMBOL(hex_to_bin);
- int hex2bin(u8 *dst, const char *src, size_t count)
- {
- 	while (count--) {
--		int hi = hex_to_bin(*src++);
--		int lo = hex_to_bin(*src++);
-+		int hi, lo;
+diff --git a/drivers/iio/imu/bmi160/bmi160_core.c b/drivers/iio/imu/bmi160/bmi160_core.c
+index 82f03a4dc47a..5fd61889f593 100644
+--- a/drivers/iio/imu/bmi160/bmi160_core.c
++++ b/drivers/iio/imu/bmi160/bmi160_core.c
+@@ -731,7 +731,7 @@ static int bmi160_chip_init(struct bmi160_data *data, bool use_spi)
  
--		if ((hi < 0) || (lo < 0))
-+		hi = hex_to_bin(*src++);
-+		if (unlikely(hi < 0))
-+			return -EINVAL;
-+		lo = hex_to_bin(*src++);
-+		if (unlikely(lo < 0))
- 			return -EINVAL;
+ 	ret = regmap_write(data->regmap, BMI160_REG_CMD, BMI160_CMD_SOFTRESET);
+ 	if (ret)
+-		return ret;
++		goto disable_regulator;
  
- 		*dst++ = (hi << 4) | lo;
+ 	usleep_range(BMI160_SOFTRESET_USLEEP, BMI160_SOFTRESET_USLEEP + 1);
+ 
+@@ -742,29 +742,37 @@ static int bmi160_chip_init(struct bmi160_data *data, bool use_spi)
+ 	if (use_spi) {
+ 		ret = regmap_read(data->regmap, BMI160_REG_DUMMY, &val);
+ 		if (ret)
+-			return ret;
++			goto disable_regulator;
+ 	}
+ 
+ 	ret = regmap_read(data->regmap, BMI160_REG_CHIP_ID, &val);
+ 	if (ret) {
+ 		dev_err(dev, "Error reading chip id\n");
+-		return ret;
++		goto disable_regulator;
+ 	}
+ 	if (val != BMI160_CHIP_ID_VAL) {
+ 		dev_err(dev, "Wrong chip id, got %x expected %x\n",
+ 			val, BMI160_CHIP_ID_VAL);
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto disable_regulator;
+ 	}
+ 
+ 	ret = bmi160_set_mode(data, BMI160_ACCEL, true);
+ 	if (ret)
+-		return ret;
++		goto disable_regulator;
+ 
+ 	ret = bmi160_set_mode(data, BMI160_GYRO, true);
+ 	if (ret)
+-		return ret;
++		goto disable_accel;
+ 
+ 	return 0;
++
++disable_accel:
++	bmi160_set_mode(data, BMI160_ACCEL, false);
++
++disable_regulator:
++	regulator_bulk_disable(ARRAY_SIZE(data->supplies), data->supplies);
++	return ret;
+ }
+ 
+ static int bmi160_data_rdy_trigger_set_state(struct iio_trigger *trig,
+-- 
+2.35.1
+
 
 
