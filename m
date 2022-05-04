@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B8251A6AA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A48C51A815
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238473AbiEDQ5K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:57:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        id S1355500AbiEDRH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354144AbiEDQzB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:55:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C730749C80;
-        Wed,  4 May 2022 09:49:50 -0700 (PDT)
+        with ESMTP id S1355075AbiEDREG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FDA44DF48;
+        Wed,  4 May 2022 09:52:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04B2061776;
-        Wed,  4 May 2022 16:49:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E7EC385AA;
-        Wed,  4 May 2022 16:49:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3685DB827A9;
+        Wed,  4 May 2022 16:52:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DECDAC385A5;
+        Wed,  4 May 2022 16:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682989;
-        bh=Y1qldisk8Lv4E9gahULwsrbZv9Dzw/IFq3UUntaIz9k=;
+        s=korg; t=1651683148;
+        bh=SDuyrBXIG1Ux4g+tRXchQPstQixndqbbbbN6bKOU6zI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0NJTaQnEejPJ19gpqbc55buQUNau0QKjdjOfduZKT/ixTovSU9v33M8FfVGAYIXxI
-         dYmYbs5gzuGeEKf84CKHnd9X2rFwRMCPyK3KM+CQpZqFTgX5dw4YWCQQUzsyZwdJW/
-         ZW8ez/9/MDh1GJjhdeF5Gro73fnKYzyFTdfKCDsI=
+        b=2IrhDF6ikOGiez5K4hX2CdwIb/qcOVny2yPwgl1NRcG122w2xGUPS6+TIOI3NUX4s
+         Yzu9JHcMjiyorgZvYRcY8L45QDwccyr9wdi9uu+QN/0vzJ134dylujXVaR97nI+fpc
+         xO8IGh7sMD2tBw+4LLWUftj1qOONcCouslpU/F2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 006/129] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
+Subject: [PATCH 5.15 005/177] USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
 Date:   Wed,  4 May 2022 18:43:18 +0200
-Message-Id: <20220504153021.870007431@linuxfoundation.org>
+Message-Id: <20220504153054.188322549@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Bruno Thomsen <bruno.thomsen@gmail.com>
 
-commit e23e50e7acc8d8f16498e9c129db33e6a00e80eb upstream.
+commit 35a923a0b329c343e9e81d79518e2937eba06fcd upstream.
 
-The sizeof(struct whitehat_dr_info) can be 4 bytes under CONFIG_AEABI=n
-due to "-mabi=apcs-gnu", even though it has a single u8:
+Wireless reading of water and heat meters using 868 MHz wM-Bus mode C1.
 
-whiteheat_private {
-        __u8                       mcr;                  /*     0     1 */
+The two different product IDs allow detection of dongle antenna
+solution:
+- Internal antenna
+- External antenna using SMA connector
 
-        /* size: 4, cachelines: 1, members: 1 */
-        /* padding: 3 */
-        /* last cacheline: 4 bytes */
-};
+https://www.kamstrup.com/en-en/water-solutions/water-meter-reading/usb-meter-reader
 
-The result is technically harmless, as both the source and the
-destinations are currently the same allocation size (4 bytes) and don't
-use their padding, but if anything were to ever be added after the
-"mcr" member in "struct whiteheat_private", it would be overwritten. The
-structs both have a single u8 "mcr" member, but are 4 bytes in padded
-size. The memcpy() destination was explicitly targeting the u8 member
-(size 1) with the length of the whole structure (size 4), triggering
-the memcpy buffer overflow warning:
-
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/spinlock.h:62,
-                 from include/linux/mmzone.h:8,
-                 from include/linux/gfp.h:6,
-                 from include/linux/slab.h:15,
-                 from drivers/usb/serial/whiteheat.c:17:
-In function 'fortify_memcpy_chk',
-    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
-include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
-  328 |                         __write_overflow_field(p_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Instead, just assign the one byte directly.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Link: https://lore.kernel.org/r/20220414081202.5591-1-bruno.thomsen@gmail.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220421001234.2421107-1-keescook@chromium.org
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/whiteheat.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -599,9 +599,8 @@ static int firm_send_command(struct usb_
- 		switch (command) {
- 		case WHITEHEAT_GET_DTR_RTS:
- 			info = usb_get_serial_port_data(port);
--			memcpy(&info->mcr, command_info->result_buffer,
--					sizeof(struct whiteheat_dr_info));
--				break;
-+			info->mcr = command_info->result_buffer[0];
-+			break;
- 		}
- 	}
- exit:
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -194,6 +194,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
+ 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
+ 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
++	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
++	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
+ 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
+ 	{ USB_DEVICE(0x1843, 0x0200) }, /* Vaisala USB Instrument Cable */
+ 	{ USB_DEVICE(0x18EF, 0xE00F) }, /* ELV USB-I2C-Interface */
 
 
