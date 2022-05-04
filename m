@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1109551A8AE
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF6251A8B5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356096AbiEDRNT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40384 "EHLO
+        id S1356348AbiEDRRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356696AbiEDRJi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBDF6DFA8;
-        Wed,  4 May 2022 09:55:21 -0700 (PDT)
+        with ESMTP id S1356345AbiEDRMA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:12:00 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DCD4BBAD;
+        Wed,  4 May 2022 09:57:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FA5BB82737;
-        Wed,  4 May 2022 16:55:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01BD1C385AA;
-        Wed,  4 May 2022 16:55:19 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 85E97CE28B0;
+        Wed,  4 May 2022 16:57:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4561C385AF;
+        Wed,  4 May 2022 16:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683320;
-        bh=hk4cHU0VdAIQ2P5i0CO7Xs40z12faF4Vc3CU85wuPtY=;
+        s=korg; t=1651683458;
+        bh=se5v7BD30ixTkjSOWrFGeSsOS9HZQ/4c5BU5f7DwOwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1woxZBcKaOonBxcTFVbqj2CXPM+cWnDoR4osDVedVarOs2yxMU/vbrvwBcT456It4
-         OQ1HXridFs11hzBBqOsHoUuVAuHKSXsKlKbl0CulttWjfxNK39TRt+bUmLbtPJJlFF
-         1vfUDQ1roPf1HYRTRLgTP5D5FpMAQE7gUwOPhQwo=
+        b=fVbgw1Rk2scdqF6QXmUZAwWRY/YeV0ftmMudidx3dokbWkkfMTphTNE8Coj03e0Wx
+         TENt2MXGv8fAMvu4fpR6wAEufaSinNbwrUOcJypQ6o4auBXX5+GvDBqFME1MWP0uxl
+         dxMFR7mwAq5KCHMr4yWhIach2ceiZemRX1me6SpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 177/177] powerpc/64: Add UADDR64 relocation support
-Date:   Wed,  4 May 2022 18:46:10 +0200
-Message-Id: <20220504153109.573608222@linuxfoundation.org>
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 133/225] drm/sun4i: Remove obsolete references to PHYS_OFFSET
+Date:   Wed,  4 May 2022 18:46:11 +0200
+Message-Id: <20220504153122.186885580@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,190 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Samuel Holland <samuel@sholland.org>
 
-commit d799769188529abc6cbf035a10087a51f7832b6b upstream.
+[ Upstream commit dc3ae06c5f2170d879ff58696f629d8c3868aec3 ]
 
-When ld detects unaligned relocations, it emits R_PPC64_UADDR64
-relocations instead of R_PPC64_RELATIVE. Currently R_PPC64_UADDR64 are
-detected by arch/powerpc/tools/relocs_check.sh and expected not to work.
-Below is a simple chunk to trigger this behaviour (this disables
-optimization for the demonstration purposes only, this also happens with
--O1/-O2 when CONFIG_PRINTK_INDEX=y, for example):
+commit b4bdc4fbf8d0 ("soc: sunxi: Deal with the MBUS DMA offsets in a
+central place") added a platform device notifier that sets the DMA
+offset for all of the display engine frontend and backend devices.
 
-  \#pragma GCC push_options
-  \#pragma GCC optimize ("O0")
-  struct entry {
-          const char *file;
-          int line;
-  } __attribute__((packed));
-  static const struct entry e1 = { .file = __FILE__, .line = __LINE__ };
-  static const struct entry e2 = { .file = __FILE__, .line = __LINE__ };
-  ...
-  prom_printf("e1=%s %lx %lx\n", e1.file, (unsigned long) e1.file, mfmsr());
-  prom_printf("e2=%s %lx\n", e2.file, (unsigned long) e2.file);
-  \#pragma GCC pop_options
+The code applying the offset to DMA buffer physical addresses was then
+removed from the backend driver in commit 756668ba682e ("drm/sun4i:
+backend: Remove the MBUS quirks"), but the code subtracting PHYS_OFFSET
+was left in the frontend driver.
 
-This adds support for UADDR64 for 64bit. This reuses __dynamic_symtab
-from the 32bit code which supports more relocation types already.
+As a result, the offset was applied twice in the frontend driver. This
+likely went unnoticed because it only affects specific configurations
+(scaling or certain pixel formats) where the frontend is used, on boards
+with both one of these older SoCs and more than 1 GB of DRAM.
 
-Because RELACOUNT includes only R_PPC64_RELATIVE, this replaces it with
-RELASZ which is the size of all relocation records.
+In addition, the references to PHYS_OFFSET prevent compiling the driver
+on architectures where PHYS_OFFSET is not defined.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20220309061822.168173-1-aik@ozlabs.ru
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b4bdc4fbf8d0 ("soc: sunxi: Deal with the MBUS DMA offsets in a central place")
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220424162633.12369-4-samuel@sholland.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/reloc_64.S     |   67 +++++++++++++++++++++++++------------
- arch/powerpc/kernel/vmlinux.lds.S  |    2 -
- arch/powerpc/tools/relocs_check.sh |    7 ---
- 3 files changed, 48 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/sun4i/sun4i_frontend.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/powerpc/kernel/reloc_64.S
-+++ b/arch/powerpc/kernel/reloc_64.S
-@@ -8,8 +8,10 @@
- #include <asm/ppc_asm.h>
+diff --git a/drivers/gpu/drm/sun4i/sun4i_frontend.c b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+index 56ae38389db0..462fae73eae9 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_frontend.c
++++ b/drivers/gpu/drm/sun4i/sun4i_frontend.c
+@@ -222,13 +222,11 @@ void sun4i_frontend_update_buffer(struct sun4i_frontend *frontend,
  
- RELA = 7
--RELACOUNT = 0x6ffffff9
-+RELASZ = 8
-+RELAENT = 9
- R_PPC64_RELATIVE = 22
-+R_PPC64_UADDR64 = 43
+ 	/* Set the physical address of the buffer in memory */
+ 	paddr = drm_fb_cma_get_gem_addr(fb, state, 0);
+-	paddr -= PHYS_OFFSET;
+ 	DRM_DEBUG_DRIVER("Setting buffer #0 address to %pad\n", &paddr);
+ 	regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR0_REG, paddr);
  
- /*
-  * r3 = desired final address of kernel
-@@ -25,29 +27,38 @@ _GLOBAL(relocate)
- 	add	r9,r9,r12	/* r9 has runtime addr of .rela.dyn section */
- 	ld	r10,(p_st - 0b)(r12)
- 	add	r10,r10,r12	/* r10 has runtime addr of _stext */
-+	ld	r13,(p_sym - 0b)(r12)
-+	add	r13,r13,r12	/* r13 has runtime addr of .dynsym */
+ 	if (fb->format->num_planes > 1) {
+ 		paddr = drm_fb_cma_get_gem_addr(fb, state, swap ? 2 : 1);
+-		paddr -= PHYS_OFFSET;
+ 		DRM_DEBUG_DRIVER("Setting buffer #1 address to %pad\n", &paddr);
+ 		regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR1_REG,
+ 			     paddr);
+@@ -236,7 +234,6 @@ void sun4i_frontend_update_buffer(struct sun4i_frontend *frontend,
  
- 	/*
--	 * Scan the dynamic section for the RELA and RELACOUNT entries.
-+	 * Scan the dynamic section for the RELA, RELASZ and RELAENT entries.
- 	 */
- 	li	r7,0
- 	li	r8,0
--1:	ld	r6,0(r11)	/* get tag */
-+.Ltags:
-+	ld	r6,0(r11)	/* get tag */
- 	cmpdi	r6,0
--	beq	4f		/* end of list */
-+	beq	.Lend_of_list		/* end of list */
- 	cmpdi	r6,RELA
- 	bne	2f
- 	ld	r7,8(r11)	/* get RELA pointer in r7 */
--	b	3f
--2:	addis	r6,r6,(-RELACOUNT)@ha
--	cmpdi	r6,RELACOUNT@l
-+	b	4f
-+2:	cmpdi	r6,RELASZ
- 	bne	3f
--	ld	r8,8(r11)	/* get RELACOUNT value in r8 */
--3:	addi	r11,r11,16
--	b	1b
--4:	cmpdi	r7,0		/* check we have both RELA and RELACOUNT */
-+	ld	r8,8(r11)	/* get RELASZ value in r8 */
-+	b	4f
-+3:	cmpdi	r6,RELAENT
-+	bne	4f
-+	ld	r12,8(r11)	/* get RELAENT value in r12 */
-+4:	addi	r11,r11,16
-+	b	.Ltags
-+.Lend_of_list:
-+	cmpdi	r7,0		/* check we have RELA, RELASZ, RELAENT */
- 	cmpdi	cr1,r8,0
--	beq	6f
--	beq	cr1,6f
-+	beq	.Lout
-+	beq	cr1,.Lout
-+	cmpdi	r12,0
-+	beq	.Lout
- 
- 	/*
- 	 * Work out linktime address of _stext and hence the
-@@ -62,23 +73,39 @@ _GLOBAL(relocate)
- 
- 	/*
- 	 * Run through the list of relocations and process the
--	 * R_PPC64_RELATIVE ones.
-+	 * R_PPC64_RELATIVE and R_PPC64_UADDR64 ones.
- 	 */
-+	divd	r8,r8,r12	/* RELASZ / RELAENT */
- 	mtctr	r8
--5:	ld	r0,8(9)		/* ELF64_R_TYPE(reloc->r_info) */
-+.Lrels:	ld	r0,8(r9)		/* ELF64_R_TYPE(reloc->r_info) */
- 	cmpdi	r0,R_PPC64_RELATIVE
--	bne	6f
-+	bne	.Luaddr64
- 	ld	r6,0(r9)	/* reloc->r_offset */
- 	ld	r0,16(r9)	/* reloc->r_addend */
-+	b	.Lstore
-+.Luaddr64:
-+	srdi	r14,r0,32	/* ELF64_R_SYM(reloc->r_info) */
-+	clrldi	r0,r0,32
-+	cmpdi	r0,R_PPC64_UADDR64
-+	bne	.Lnext
-+	ld	r6,0(r9)
-+	ld	r0,16(r9)
-+	mulli	r14,r14,24	/* 24 == sizeof(elf64_sym) */
-+	add	r14,r14,r13	/* elf64_sym[ELF64_R_SYM] */
-+	ld	r14,8(r14)
-+	add	r0,r0,r14
-+.Lstore:
- 	add	r0,r0,r3
- 	stdx	r0,r7,r6
--	addi	r9,r9,24
--	bdnz	5b
--
--6:	blr
-+.Lnext:
-+	add	r9,r9,r12
-+	bdnz	.Lrels
-+.Lout:
-+	blr
- 
- .balign 8
- p_dyn:	.8byte	__dynamic_start - 0b
- p_rela:	.8byte	__rela_dyn_start - 0b
-+p_sym:		.8byte __dynamic_symtab - 0b
- p_st:	.8byte	_stext - 0b
- 
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -275,9 +275,7 @@ SECTIONS
- 	. = ALIGN(8);
- 	.dynsym : AT(ADDR(.dynsym) - LOAD_OFFSET)
- 	{
--#ifdef CONFIG_PPC32
- 		__dynamic_symtab = .;
--#endif
- 		*(.dynsym)
- 	}
- 	.dynstr : AT(ADDR(.dynstr) - LOAD_OFFSET) { *(.dynstr) }
---- a/arch/powerpc/tools/relocs_check.sh
-+++ b/arch/powerpc/tools/relocs_check.sh
-@@ -39,6 +39,7 @@ $objdump -R "$vmlinux" |
- 	#	R_PPC_NONE
- 	grep -F -w -v 'R_PPC64_RELATIVE
- R_PPC64_NONE
-+R_PPC64_UADDR64
- R_PPC_ADDR16_LO
- R_PPC_ADDR16_HI
- R_PPC_ADDR16_HA
-@@ -54,9 +55,3 @@ fi
- num_bad=$(echo "$bad_relocs" | wc -l)
- echo "WARNING: $num_bad bad relocations"
- echo "$bad_relocs"
--
--# If we see this type of relocation it's an idication that
--# we /may/ be using an old version of binutils.
--if echo "$bad_relocs" | grep -q -F -w R_PPC64_UADDR64; then
--	echo "WARNING: You need at least binutils >= 2.19 to build a CONFIG_RELOCATABLE kernel"
--fi
+ 	if (fb->format->num_planes > 2) {
+ 		paddr = drm_fb_cma_get_gem_addr(fb, state, swap ? 1 : 2);
+-		paddr -= PHYS_OFFSET;
+ 		DRM_DEBUG_DRIVER("Setting buffer #2 address to %pad\n", &paddr);
+ 		regmap_write(frontend->regs, SUN4I_FRONTEND_BUF_ADDR2_REG,
+ 			     paddr);
+-- 
+2.35.1
+
 
 
