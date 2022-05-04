@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF9351A724
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 479D951A620
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345275AbiEDRCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38300 "EHLO
+        id S1353737AbiEDQxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354586AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B351AF2D;
-        Wed,  4 May 2022 09:50:40 -0700 (PDT)
+        with ESMTP id S1353685AbiEDQwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7AF2473B2;
+        Wed,  4 May 2022 09:48:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41AAC617C3;
-        Wed,  4 May 2022 16:50:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891C0C385AA;
-        Wed,  4 May 2022 16:50:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F3B7B82752;
+        Wed,  4 May 2022 16:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDF68C385A4;
+        Wed,  4 May 2022 16:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683039;
-        bh=QBqLKXwnKZhXrAhur7NkZenhyZHNLuYq2DrCA0YMzMI=;
+        s=korg; t=1651682918;
+        bh=bWIjm8It5BNOSRlnHwW+zxNkTiw7XIoQ7LfvoH41GnM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B1du+or5OOAy8n1hkLRzu/+prY7KPxp7gnIyVemAkWrJ0oCUwaoWYVAOEfByyqCkb
-         sLTyPWUe7sg8yJZOMmbN9lJS2qDr+u1yHrqkfJ2Cmfz8K4956fE46kx6avUpl09taC
-         q3gbk10SIho5hxhT//3cJhx5Kpy4ODA++QnOJ7Rw=
+        b=UuykhxRtSebG/qCWzKonwqQZq2RcqYNRnjlXKFs418qPlc/SqgBTnG5gfzH9DIuSX
+         VRtceGhd1r1Og/+nO6rZ6760Efm6ii0JZ01mVi16Qzd5kB9lvTS+ymWF8DBZag4oDY
+         OFo162xnfDj/hK+qd3HXZ78Rl0W2KpnZbfBsZTqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Weitao Wang <WeitaoWang-oc@zhaoxin.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/129] USB: Fix xhci event ring dequeue pointer ERDP update issue
+        stable@vger.kernel.org, Zizhuang Deng <sunsetdzz@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.4 14/84] iio: dac: ad5592r: Fix the missing return value.
 Date:   Wed,  4 May 2022 18:43:55 +0200
-Message-Id: <20220504153024.570893878@linuxfoundation.org>
+Message-Id: <20220504152928.826085238@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+From: Zizhuang Deng <sunsetdzz@gmail.com>
 
-[ Upstream commit e91ac20889d1a26d077cc511365cd7ff4346a6f3 ]
+commit b55b38f7cc12da3b9ef36e7a3b7f8f96737df4d5 upstream.
 
-In some situations software handles TRB events slower than adding TRBs.
-If the number of TRB events to be processed in a given interrupt is exactly
-the same as the event ring size 256, then the local variable
-"event_ring_deq" that holds the initial dequeue position is equal to
-software_dequeue after handling all 256 interrupts.
+The third call to `fwnode_property_read_u32` did not record
+the return value, resulting in `channel_offstate` possibly
+being assigned the wrong value.
 
-It will cause driver to not update ERDP to hardware,
-
-Software dequeue pointer is out of sync with ERDP on interrupt exit.
-On the next interrupt, the event ring may full but driver will not
-update ERDP as software_dequeue is equal to ERDP.
-
-[  536.377115] xhci_hcd 0000:00:12.0: ERROR unknown event type 37
-[  566.933173] sd 8:0:0:0: [sdb] tag#27 uas_eh_abort_handler 0 uas-tag 7 inflight: CMD OUT
-[  566.933181] sd 8:0:0:0: [sdb] tag#27 CDB: Write(10) 2a 00 17 71 e6 78 00 00 08 00
-[  572.041186] xhci_hcd On some situataions,the0000:00:12.0: xHCI host not responding to stop endpoint command.
-[  572.057193] xhci_hcd 0000:00:12.0: Host halt failed, -110
-[  572.057196] xhci_hcd 0000:00:12.0: xHCI host controller not responding, assume dead
-[  572.057236] sd 8:0:0:0: [sdb] tag#26 uas_eh_abort_handler 0 uas-tag 6 inflight: CMD
-[  572.057240] sd 8:0:0:0: [sdb] tag#26 CDB: Write(10) 2a 00 38 eb cc d8 00 00 08 00
-[  572.057244] sd 8:0:0:0: [sdb] tag#25 uas_eh_abort_handler 0 uas-tag 5 inflight: CMD
-
-Hardware ERDP is updated mid event handling if there are more than 128
-events in an interrupt (half of ring size).
-Fix this by updating the software local variable at the same time as
-hardware ERDP.
-
-[commit message rewording -Mathias]
-
-Fixes: dc0ffbea5729 ("usb: host: xhci: update event ring dequeue pointer on purpose")
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220408134823.2527272-2-mathias.nyman@linux.intel.com
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Zizhuang Deng <sunsetdzz@gmail.com>
+Link: https://lore.kernel.org/r/20220310125450.4164164-1-sunsetdzz@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/dac/ad5592r-base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 76389c0dda8b..fa3a7ac15f82 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2969,6 +2969,8 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
- 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
- 			continue;
- 		xhci_update_erst_dequeue(xhci, event_ring_deq);
-+		event_ring_deq = xhci->event_ring->dequeue;
-+
- 		event_loop = 0;
- 	}
+--- a/drivers/iio/dac/ad5592r-base.c
++++ b/drivers/iio/dac/ad5592r-base.c
+@@ -530,7 +530,7 @@ static int ad5592r_alloc_channels(struct
+ 		if (!ret)
+ 			st->channel_modes[reg] = tmp;
  
--- 
-2.35.1
-
+-		fwnode_property_read_u32(child, "adi,off-state", &tmp);
++		ret = fwnode_property_read_u32(child, "adi,off-state", &tmp);
+ 		if (!ret)
+ 			st->channel_offstate[reg] = tmp;
+ 	}
 
 
