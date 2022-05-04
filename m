@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 732E751A70C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9AC551A7FA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354722AbiEDRBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38278 "EHLO
+        id S1355167AbiEDRF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354579AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32A518E30;
-        Wed,  4 May 2022 09:50:35 -0700 (PDT)
+        with ESMTP id S1355101AbiEDREI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460394DF73;
+        Wed,  4 May 2022 09:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E99C61794;
-        Wed,  4 May 2022 16:50:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFCCC385A4;
-        Wed,  4 May 2022 16:50:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25F3A61808;
+        Wed,  4 May 2022 16:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B3DC385A4;
+        Wed,  4 May 2022 16:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683034;
+        s=korg; t=1651683162;
         bh=/1lHACNg12AF4maJVK5N1PfVNsb8YTHvHFzRsME3Q0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2T6/ktK/NSazSUMp9+hl5leGOZyX9f1hweQm5BMVoPgPoHQ+81CfTmuvzC/9fQT+L
-         4YgRfGGuc9Mkho+wONagPlPYFyheTUWA1BoR+BgLt2Lei9sF9tq8r6Y4U4Z2wAhJB2
-         MQrpT7QnUzQx30MLdzr8CnGoh+tNK8sTiAVE9dtA=
+        b=lNWBjwcLVw4r/xeiGhBx2vYIAoL4Cg1UHyR8S9NvfiwkbCehPMc+lgQ1vqYpW4zTm
+         +Cdgt6WELcVo8WS1k3Af2251pqJCclvO7xbUrTEq/JK8+dVJGjzgHFXLcFil4+bZNc
+         6rZh4tYvrNtkKLcYiK54SfuDHOSwKmyBA31iEhIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.10 015/129] iio: magnetometer: ak8975: Fix the error handling in ak8975_power_on()
+Subject: [PATCH 5.15 014/177] iio: magnetometer: ak8975: Fix the error handling in ak8975_power_on()
 Date:   Wed,  4 May 2022 18:43:27 +0200
-Message-Id: <20220504153022.494786909@linuxfoundation.org>
+Message-Id: <20220504153054.742571618@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
