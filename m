@@ -2,81 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44A8451AFEC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 22:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2866151B095
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 23:28:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231889AbiEDVCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 17:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48264 "EHLO
+        id S1347336AbiEDVc2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 17:32:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238823AbiEDVCJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 17:02:09 -0400
-Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A1E218387
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 13:58:31 -0700 (PDT)
-Received: from tux.applied-asynchrony.com (p5ddd7616.dip0.t-ipconnect.de [93.221.118.22])
-        by mail.itouring.de (Postfix) with ESMTPSA id B74BB124EC0;
-        Wed,  4 May 2022 22:58:29 +0200 (CEST)
-Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
-        by tux.applied-asynchrony.com (Postfix) with ESMTP id 6D5D8F01600;
-        Wed,  4 May 2022 22:58:29 +0200 (CEST)
-Subject: Re: Crash on resume after suspend (5.17.5 and 5.15.36)
-To:     Manuel Ullmann <labre@posteo.de>,
-        Jordan Leppert <jordanleppert@protonmail.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "davem@davemloft.net" <davem@davemloft.net>
-References: <refZ3y2HAXztrRkMMmFbBaF7Dz1CctWgjchSdBtcSNlpk-TL0fqLepVVHfw9qXtIQF9uFzBvFdjQiiX9Jv2zW9oaWej952s1IYwu61d1REo=@protonmail.com>
- <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
- <87levhnlqu.fsf@posteo.de>
-From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
-Organization: Applied Asynchrony, Inc.
-Message-ID: <18466b6a-b040-c72c-e33d-fe37c5ff6a9d@applied-asynchrony.com>
-Date:   Wed, 4 May 2022 22:58:29 +0200
+        with ESMTP id S1347126AbiEDVc1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 17:32:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F27750E0B;
+        Wed,  4 May 2022 14:28:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BCD561967;
+        Wed,  4 May 2022 21:28:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0B2C385A4;
+        Wed,  4 May 2022 21:28:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651699729;
+        bh=k/SHTcjQ/PrI0QjQFYZgO+ymU5S0yqAqGxV95jD8MsQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=AdVKX9QSdZLa7TIJ3yvhHLml7315UPHCfxhawSuffcCTBVJotbhWHUzsROHlu2O5e
+         jPAZTuP4dm5QjDRzuEWnuSnugpo1wvvQtnrPNzLgJIyuOX+vtX94qcN0DwtZf8U4/m
+         ZBaXw3Hihi4m/X8rhkruZupoD+MYwjUK2HyN9s/HTQizW9b+zi6E3xpx6utfeTDtK/
+         Y66zF313//wPDhubvYbZGAlRpalOIzlLj2APkEM2lAU3mSTGcbcJD9XZbqCXuRxn6x
+         aXN4sHCVprdCf8uqq5ZDKQVixCM/+1Sh+YwzhAlpEPuNESC2X6aSnBfPlnoWXUWdzj
+         0FnwTqPfzpeyA==
+Date:   Wed, 4 May 2022 14:28:47 -0700
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ming Yan <yanming@tju.edu.cn>, Chao Yu <chao.yu@oppo.com>
+Subject: Re: [PATCH] f2fs: fix to do sanity check for inline inode
+Message-ID: <YnLwDx1smguDQ6qC@google.com>
+References: <20220428024940.12102-1-chao@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <87levhnlqu.fsf@posteo.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220428024940.12102-1-chao@kernel.org>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2022-05-04 21:25, Manuel Ullmann wrote:
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.17.y&id=cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c
-> Yup, that’s my fault and I reproduced this myself yesterday. I actually
-> expected this to happen and attempted to test suspend with the patch,
-> but must have screwed up by kexec-rebooting into an unpatched kernel
-> version or something like that. I’ll disable the kexec service in the
-> future, if I ever need to prepare a patch again.
->> 05:00.0 Ethernet controller: Aquantia Corp. AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion] (rev 02)
-> Yes, I have the same one.
+On 04/28, Chao Yu wrote:
+> As Yanming reported in bugzilla:
 > 
->> Please let me know if there is any more info I can give that will help.
-> Can you confirm, that hibernation works with the patch, but not without
-> it? The patch was an attempt to fix it, because I had the same behaviour
+> https://bugzilla.kernel.org/show_bug.cgi?id=215895
+> 
+> I have encountered a bug in F2FS file system in kernel v5.17.
+> 
+> The kernel message is shown below:
+> 
+> kernel BUG at fs/inode.c:611!
+> Call Trace:
+>  evict+0x282/0x4e0
+>  __dentry_kill+0x2b2/0x4d0
+>  dput+0x2dd/0x720
+>  do_renameat2+0x596/0x970
+>  __x64_sys_rename+0x78/0x90
+>  do_syscall_64+0x3b/0x90
+> 
+> The root cause is: fuzzed inode has both inline_data flag and encrypted
+> flag, so after it was deleted by rename(), during f2fs_evict_inode(),
+> it will cause inline data conversion due to flags confilction, then
+> page cache will be polluted and trigger panic in clear_inode().
+> 
+> This patch tries to fix the issue by do more sanity checks for inline
+> data inode in sanity_check_inode().
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Ming Yan <yanming@tju.edu.cn>
+> Signed-off-by: Chao Yu <chao.yu@oppo.com>
+> ---
+>  fs/f2fs/f2fs.h  | 7 +++++++
+>  fs/f2fs/inode.c | 3 +--
+>  2 files changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+> index 27aa93caec06..64c511b498cc 100644
+> --- a/fs/f2fs/f2fs.h
+> +++ b/fs/f2fs/f2fs.h
+> @@ -4173,6 +4173,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
+>   */
+>  static inline bool f2fs_post_read_required(struct inode *inode)
+>  {
+> +	/*
+> +	 * used by sanity_check_inode(), when disk layout fields has not
+> +	 * been synchronized to inmem fields.
+> +	 */
+> +	if (file_is_encrypt(inode) || file_is_verity(inode) ||
+> +			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
+> +		return true;
+>  	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
+>  		f2fs_compressed_file(inode);
+>  }
+> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+> index 83639238a1fe..234b8ed02644 100644
+> --- a/fs/f2fs/inode.c
+> +++ b/fs/f2fs/inode.c
+> @@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
+>  		}
+>  	}
+>  
+> -	if (f2fs_has_inline_data(inode) &&
+> -			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
+> +	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
 
-Cannot test hibernation, but..
+It seems f2fs_may_inline_data() is breaking the atomic write case. Please fix.
 
-> with hibernation. I tried to make sense of the deep parameter in
-> atl_resume_common pm function calls, but apparently it’s always required
-> to be true and thus obsolete.
-
-..I patched 5.15.38 to pass true as deep arg everywhere, and now resume
-seems to work again reliably, 5 out of 5. \o/
-
-> I’ll leave the cleanup of that parameter to the maintainers for mainline
-> and prepare a patch. Last time I sent it against mainline. If this fixup
-> of a stable patch regression should be posted differently, it would be
-> nice, if someone could give me a pointer.
-
-Send fix to mainline first, with Fixes: <mainline commit id> tag and
-Cc: stable mentioning the affected versions.
-
-cheers
-Holger
+>  		set_sbi_flag(sbi, SBI_NEED_FSCK);
+>  		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
+>  			  __func__, inode->i_ino, inode->i_mode);
+> -- 
+> 2.25.1
