@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCC2C51A8D7
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8675651A636
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355757AbiEDRND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
+        id S1353852AbiEDQxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:53:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356811AbiEDRJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 629321FA77;
-        Wed,  4 May 2022 09:55:45 -0700 (PDT)
+        with ESMTP id S1353853AbiEDQwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96FB047550;
+        Wed,  4 May 2022 09:48:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2C19616F8;
-        Wed,  4 May 2022 16:55:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47000C385A4;
-        Wed,  4 May 2022 16:55:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A51ED61777;
+        Wed,  4 May 2022 16:48:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF766C385A5;
+        Wed,  4 May 2022 16:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683344;
-        bh=kscUROeCRE3O/E7CUAcG4kFKztYxg8m/TICMXx6czhg=;
+        s=korg; t=1651682922;
+        bh=BVm3wbMWu41GHADlE1qYcgzajVQUgdW6Zs3t/71kNkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KMsZp166GDNAaI0wnp17FyGk7rfmp5hRDArluXGvNGoIs547RvxJDNfO5f4ab5buJ
-         6KCsRg4VZrpVMTYZIinkXN8PYE1tqLbBFoTj6Dur2wgFw2N0SNlW/4KAPWZeyGwqKg
-         Kj70U34uZMx9JDNmd/54JSy/KGxsNsrufvkLGsHU=
+        b=JsAKJtsoedjE39uwDsE6ZNu8R0z7AnLPwh77cbJgJmuZ1hlNvS+AdQ+ys6aFbWQJg
+         bY7m5ghqMq4Q048yrGzgneAP8vzQ/jc7E4us6anDUEjX+mwVlwrECzHXxfe4Etdqln
+         pO6G450MeFF8h07TbAR4jUSDKtCfukPODlCYCsoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijayavardhan Vennapusa <vvreddy@codeaurora.org>,
-        Dan Vacura <w36195@motorola.com>, stable <stable@kernel.org>
-Subject: [PATCH 5.17 023/225] usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 40/84] phy: mapphone-mdm6600: Fix PM error handling in phy_mdm6600_probe
 Date:   Wed,  4 May 2022 18:44:21 +0200
-Message-Id: <20220504153112.388885928@linuxfoundation.org>
+Message-Id: <20220504152930.658970309@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit bf95c4d4630c7a2c16e7b424fdea5177d9ce0864 upstream.
+[ Upstream commit d644e0d79829b1b9a14beedbdb0dc1256fc3677d ]
 
-If any function like UVC is deactivating gadget as part of composition
-switch which results in not calling pullup enablement, it is not getting
-enabled after switch to new composition due to this deactivation flag
-not cleared. This results in USB enumeration not happening after switch
-to new USB composition. Hence clear deactivation flag inside gadget
-structure in configfs_composite_unbind() before switch to new USB
-composition.
+The pm_runtime_enable will increase power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable(). And use pm_runtime_dont_use_autosuspend() to
+undo pm_runtime_use_autosuspend()
+In the PM Runtime docs:
+    Drivers in ->remove() callback should undo the runtime PM changes done
+    in ->probe(). Usually this means calling pm_runtime_disable(),
+    pm_runtime_dont_use_autosuspend() etc.
 
-Signed-off-by: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
-Signed-off-by: Dan Vacura <w36195@motorola.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220413211038.72797-1-w36195@motorola.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We should do this in error handling.
+
+Fixes: f7f50b2a7b05 ("phy: mapphone-mdm6600: Add runtime PM support for n_gsm on USB suspend")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220301024615.31899-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/configfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/phy/motorola/phy-mapphone-mdm6600.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1434,6 +1434,8 @@ static void configfs_composite_unbind(st
- 	usb_ep_autoconfig_reset(cdev->gadget);
- 	spin_lock_irqsave(&gi->spinlock, flags);
- 	cdev->gadget = NULL;
-+	cdev->deactivations = 0;
-+	gadget->deactivated = false;
- 	set_gadget_data(gadget, NULL);
- 	spin_unlock_irqrestore(&gi->spinlock, flags);
+diff --git a/drivers/phy/motorola/phy-mapphone-mdm6600.c b/drivers/phy/motorola/phy-mapphone-mdm6600.c
+index 94a34cf75eb3..39d13f7e4cf3 100644
+--- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
++++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
+@@ -628,7 +628,8 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
+ cleanup:
+ 	if (error < 0)
+ 		phy_mdm6600_device_power_off(ddata);
+-
++	pm_runtime_disable(ddata->dev);
++	pm_runtime_dont_use_autosuspend(ddata->dev);
+ 	return error;
  }
+ 
+-- 
+2.35.1
+
 
 
