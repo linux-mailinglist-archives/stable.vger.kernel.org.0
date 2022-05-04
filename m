@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F6451A80C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F92851A5F2
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355017AbiEDRHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
+        id S1353672AbiEDQwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355412AbiEDRET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F1F4EDC0;
-        Wed,  4 May 2022 09:53:02 -0700 (PDT)
+        with ESMTP id S1353613AbiEDQv6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B4D744A3E;
+        Wed,  4 May 2022 09:48:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74FE361794;
-        Wed,  4 May 2022 16:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C694BC385A5;
-        Wed,  4 May 2022 16:53:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CABFB82554;
+        Wed,  4 May 2022 16:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3C7BC385B1;
+        Wed,  4 May 2022 16:48:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683181;
-        bh=GqXocJ5EJAhLTU16Rx/GrEiSpEnAcl5XCgho8hZgfqM=;
+        s=korg; t=1651682899;
+        bh=wc3rDHdA1PWnE21lxT4hEmsW7Iuq8hxO5HNjLyXzhN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ip1JqS5UqQog1mjHa5ozY7oCaG2Nrne0N5ck8ul5+Q+Mc5plt7+sKSTyco3W1sPGx
-         fdahs9sfcTDP2UBX60eZZpFHmi8OoABrsFDPPkigGcPkfy+pxoCJmhZ9WaFaGWc/y9
-         fBN1gl1b0i9uCYrm1biRg3Lq+0J7SmT0o0nij6ac=
+        b=K4LxhxHTQNXoYP8H79agzHR/8If4pEpDwosn83RH1IrCuF2AqsjcpKxc3spqy+2ro
+         vfeObS82q/BWIHXbqcN9HZ7aUNFopKmh/DNoiWcV5igCS+3y1SrfxrnVBcml6lcl2l
+         SsWjwVZyObN51Ua9F2+clfHavAjDWtpO93ZU1xVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Wang Qing <wangqing@vivo.com>
-Subject: [PATCH 5.15 033/177] arch_topology: Do not set llc_sibling if llc_id is invalid
+        stable@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Tainping Fang <tianping.fang@mediatek.com>
+Subject: [PATCH 5.4 05/84] usb: mtu3: fix USB 3.0 dual-role-switch from device to host
 Date:   Wed,  4 May 2022 18:43:46 +0200
-Message-Id: <20220504153055.948533399@linuxfoundation.org>
+Message-Id: <20220504152928.124644155@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Macpaul Lin <macpaul.lin@mediatek.com>
 
-commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
+commit 456244aeecd54249096362a173dfe06b82a5cafa upstream.
 
-When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
-will set llc_sibling 0xff(...), this is misleading.
+Issue description:
+  When an OTG port has been switched to device role and then switch back
+  to host role again, the USB 3.0 Host (XHCI) will not be able to detect
+  "plug in event of a connected USB 2.0/1.0 ((Highspeed and Fullspeed)
+  devices until system reboot.
 
-Don't set llc_sibling(default 0) if we don't know the cache topology.
+Root cause and Solution:
+  There is a condition checking flag "ssusb->otg_switch.is_u3_drd" in
+  toggle_opstate(). At the end of role switch procedure, toggle_opstate()
+  will be called to set DC_SESSION and SOFT_CONN bit. If "is_u3_drd" was
+  set and switched the role to USB host 3.0, bit DC_SESSION and SOFT_CONN
+  will be skipped hence caused the port cannot detect connected USB 2.0
+  (Highspeed and Fullspeed) devices. Simply remove the condition check to
+  solve this issue.
 
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
+Fixes: d0ed062a8b75 ("usb: mtu3: dual-role mode support")
+Cc: stable@vger.kernel.org
+Tested-by: Fabien Parent <fparent@baylibre.com>
+Reviewed-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Signed-off-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Signed-off-by: Tainping Fang <tianping.fang@mediatek.com>
+Link: https://lore.kernel.org/r/20220419081245.21015-1-macpaul.lin@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/arch_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/mtu3/mtu3_dr.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -609,7 +609,7 @@ void update_siblings_masks(unsigned int
- 	for_each_online_cpu(cpu) {
- 		cpu_topo = &cpu_topology[cpu];
+--- a/drivers/usb/mtu3/mtu3_dr.c
++++ b/drivers/usb/mtu3/mtu3_dr.c
+@@ -41,10 +41,8 @@ static char *mailbox_state_string(enum m
  
--		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
-+		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
- 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
- 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
- 		}
+ static void toggle_opstate(struct ssusb_mtk *ssusb)
+ {
+-	if (!ssusb->otg_switch.is_u3_drd) {
+-		mtu3_setbits(ssusb->mac_base, U3D_DEVICE_CONTROL, DC_SESSION);
+-		mtu3_setbits(ssusb->mac_base, U3D_POWER_MANAGEMENT, SOFT_CONN);
+-	}
++	mtu3_setbits(ssusb->mac_base, U3D_DEVICE_CONTROL, DC_SESSION);
++	mtu3_setbits(ssusb->mac_base, U3D_POWER_MANAGEMENT, SOFT_CONN);
+ }
+ 
+ /* only port0 supports dual-role mode */
 
 
