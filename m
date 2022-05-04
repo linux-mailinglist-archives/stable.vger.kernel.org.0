@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E759F51AA31
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBCB051AA1E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356210AbiEDRWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
+        id S1356630AbiEDRVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357366AbiEDRPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:00 -0400
+        with ESMTP id S1357748AbiEDRPO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C4454BD5;
-        Wed,  4 May 2022 09:58:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7327355372;
+        Wed,  4 May 2022 09:58:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D95D0616AC;
-        Wed,  4 May 2022 16:58:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D820C385B3;
-        Wed,  4 May 2022 16:58:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4591C61896;
+        Wed,  4 May 2022 16:58:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90ADDC385AA;
+        Wed,  4 May 2022 16:58:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683510;
-        bh=+Rmjm5j+NVCX092c+nELx71iEIRBfHPkU0zB4Hx6TB8=;
+        s=korg; t=1651683511;
+        bh=WLr61c6CuQ38LxV24MPtjTp9XfsL/E0q9iwXZbFIaMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOYUAmhyUN3mB5VpWa0y0n8nj6u5k3NmLvZuPM3he2YoSRY7rwHrPK4OcR6kUAKwp
-         0wfLhcAJS8yr0VVcQqRgWgr3O1KNcbT0zg+/uQP8FI90FqEDuW+lw49f5QMGXsK7jc
-         07ISTyQTOmjxKBPqV8qITfEBXmnryoTcVOmRqgw0=
+        b=eAiPgT/Y8zzKo9pMfW9rXK+Pso4SxTBJ4ik3WM5QDcv6uVS5axhxjylaxNxKZi5sG
+         vBbBSaVMiDfZDTewkW31bweiKAW4tbR/GwajEJRnvpA3J34FFHzzXAFmBWdCH1RJoI
+         X/dFe+/Gnqj7Jg1KfWk+2kQumG5eNcE14i/idwe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 173/225] powerpc/perf: Fix 32bit compile
-Date:   Wed,  4 May 2022 18:46:51 +0200
-Message-Id: <20220504153125.711968616@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        Gongjun Song <gongjun.song@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 174/225] ALSA: hda: intel-dsp-config: Add RaptorLake PCI IDs
+Date:   Wed,  4 May 2022 18:46:52 +0200
+Message-Id: <20220504153125.782609580@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,42 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Gongjun Song <gongjun.song@intel.com>
 
-[ Upstream commit bb82c574691daf8f7fa9a160264d15c5804cb769 ]
+[ Upstream commit b07908ab26ceab51165c13714277c19252e62594 ]
 
-The "read_bhrb" global symbol is only called under CONFIG_PPC64 of
-arch/powerpc/perf/core-book3s.c but it is compiled for both 32 and 64 bit
-anyway (and LLVM fails to link this on 32bit).
+Add RaptorLake-P PCI IDs
 
-This fixes it by moving bhrb.o to obj64 targets.
-
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220421025756.571995-1-aik@ozlabs.ru
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Signed-off-by: Gongjun Song <gongjun.song@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220421163546.319604-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/Makefile | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/hda/intel-dsp-config.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/powerpc/perf/Makefile b/arch/powerpc/perf/Makefile
-index 2f46e31c7612..4f53d0b97539 100644
---- a/arch/powerpc/perf/Makefile
-+++ b/arch/powerpc/perf/Makefile
-@@ -3,11 +3,11 @@
- obj-y				+= callchain.o callchain_$(BITS).o perf_regs.o
- obj-$(CONFIG_COMPAT)		+= callchain_32.o
+diff --git a/sound/hda/intel-dsp-config.c b/sound/hda/intel-dsp-config.c
+index 8b0a16ba27d3..a8fe01764b25 100644
+--- a/sound/hda/intel-dsp-config.c
++++ b/sound/hda/intel-dsp-config.c
+@@ -424,6 +424,15 @@ static const struct config_entry config_table[] = {
+ 		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
+ 		.device = 0x54c8,
+ 	},
++	/* RaptorLake-P */
++	{
++		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
++		.device = 0x51ca,
++	},
++	{
++		.flags = FLAG_SOF | FLAG_SOF_ONLY_IF_DMIC_OR_SOUNDWIRE,
++		.device = 0x51cb,
++	},
+ #endif
  
--obj-$(CONFIG_PPC_PERF_CTRS)	+= core-book3s.o bhrb.o
-+obj-$(CONFIG_PPC_PERF_CTRS)	+= core-book3s.o
- obj64-$(CONFIG_PPC_PERF_CTRS)	+= ppc970-pmu.o power5-pmu.o \
- 				   power5+-pmu.o power6-pmu.o power7-pmu.o \
- 				   isa207-common.o power8-pmu.o power9-pmu.o \
--				   generic-compat-pmu.o power10-pmu.o
-+				   generic-compat-pmu.o power10-pmu.o bhrb.o
- obj32-$(CONFIG_PPC_PERF_CTRS)	+= mpc7450-pmu.o
- 
- obj-$(CONFIG_PPC_POWERNV)	+= imc-pmu.o
+ };
 -- 
 2.35.1
 
