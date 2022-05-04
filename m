@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D2851A8EF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D04F51A72C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351368AbiEDRMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38612 "EHLO
+        id S1354751AbiEDRCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356844AbiEDRJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EB17366B9;
-        Wed,  4 May 2022 09:55:58 -0700 (PDT)
+        with ESMTP id S1355032AbiEDQ7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C444F49256;
+        Wed,  4 May 2022 09:51:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D51DD61851;
-        Wed,  4 May 2022 16:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A52C385A5;
-        Wed,  4 May 2022 16:55:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 12A7B617BE;
+        Wed,  4 May 2022 16:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A04BC385A5;
+        Wed,  4 May 2022 16:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683357;
-        bh=d7FYk8CcoJFVfmacnUDKuqx+IN8JrgInU5TLM/A7XjQ=;
+        s=korg; t=1651683072;
+        bh=oOMJHf8M4puZp7SwS8w6iN5e33gggym1pDN1VfHle1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DP/ncrzapVGT6p/YS8SUYPYbnWijx/wanNfVLyR4rewGKLJnRlxMoStFiMj56Sk6i
-         J+qE86wM8CODAmeoMZSXb7gNX84flKYK4mxCAnJmOHz/p/w8C3v4W+UEQAoqUdrG71
-         0aYOXXpW8nV+PPJYXA8iiJiR9HWgGKzWs4ic1VUA=
+        b=bNYYSlYvloASe3RTk/zQgRUYtJ7QGAjlwGz5FM2tIEub2/aIjimv2jhDsvqBwfZui
+         kcgc2kY1ZKpsqq1bgzGHtO0x+pQFPDaHhy0L2cNlHT9FZVkEgwaFd+KCRSKnGcG0XS
+         m+/Ze+wJ1QCLXs+oeixKfP4uvypHW31GPTV05HFk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Sean Anderson <sean.anderson@seco.com>
-Subject: [PATCH 5.17 030/225] usb: phy: generic: Get the vbus supply
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 076/129] net: hns3: modify the return code of hclge_get_ring_chain_from_mbx
 Date:   Wed,  4 May 2022 18:44:28 +0200
-Message-Id: <20220504153112.964934646@linuxfoundation.org>
+Message-Id: <20220504153027.221242910@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-commit 03e607cbb2931374db1825f371e9c7f28526d3f4 upstream.
+[ Upstream commit 48009e9972974c52a5f649f761862dd67bce3d13 ]
 
-While support for working with a vbus was added, the regulator was never
-actually gotten (despite what was documented). Fix this by actually
-getting the supply from the device tree.
+Currently, function hclge_get_ring_chain_from_mbx will return -ENOMEM if
+ring_num is bigger than HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM. It is better to
+return -EINVAL for the invalid parameter case.
 
-Fixes: 7acc9973e3c4 ("usb: phy: generic: add vbus support")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Link: https://lore.kernel.org/r/20220425171412.1188485-3-sean.anderson@seco.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So this patch fixes it by return -EINVAL in this abnormal branch.
+
+Fixes: 5d02a58dae60 ("net: hns3: fix for buffer overflow smatch warning")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/phy/phy-generic.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/phy/phy-generic.c
-+++ b/drivers/usb/phy/phy-generic.c
-@@ -268,6 +268,13 @@ int usb_phy_gen_create_phy(struct device
- 			return -EPROBE_DEFER;
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index 5d3996767256..2ea347b822db 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -173,7 +173,7 @@ static int hclge_get_ring_chain_from_mbx(
+ 	ring_num = req->msg.ring_num;
  
-+	nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
-+	if (PTR_ERR(nop->vbus_draw) == -ENODEV)
-+		nop->vbus_draw = NULL;
-+	if (IS_ERR(nop->vbus_draw))
-+		return dev_err_probe(dev, PTR_ERR(nop->vbus_draw),
-+				     "could not get vbus regulator\n");
-+
- 	nop->dev		= dev;
- 	nop->phy.dev		= nop->dev;
- 	nop->phy.label		= "nop-xceiv";
+ 	if (ring_num > HCLGE_MBX_MAX_RING_CHAIN_PARAM_NUM)
+-		return -ENOMEM;
++		return -EINVAL;
+ 
+ 	for (i = 0; i < ring_num; i++) {
+ 		if (req->msg.param[i].tqp_index >= vport->nic.kinfo.rss_size) {
+-- 
+2.35.1
+
 
 
