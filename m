@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE3051A708
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FAA51A81E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354686AbiEDRBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S1347605AbiEDRIK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:08:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355544AbiEDRAO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2674F4B849;
-        Wed,  4 May 2022 09:51:49 -0700 (PDT)
+        with ESMTP id S1354588AbiEDRFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257BE51323;
+        Wed,  4 May 2022 09:54:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7018AB8279F;
-        Wed,  4 May 2022 16:51:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06BE9C385AA;
-        Wed,  4 May 2022 16:51:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D16D461505;
+        Wed,  4 May 2022 16:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270B1C385AA;
+        Wed,  4 May 2022 16:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683102;
-        bh=Q47rXhNzfck/KPKdxhbKGRwmlg2Gb/udeLwxXi3qXtk=;
+        s=korg; t=1651683252;
+        bh=RYtp1i53ScDXczlIDSN87PZNZT1pdmCQ3DDS44by5LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HBZj4PHHrugEh2SRi34FqcW/b8hmkp+FEI5UGzszFLb2b8QkA2RXDng6HNIscQziP
-         lQQjnH5EjkCVZDjwDC2f0El7xCzHC0mFzMANoOc3zjVogqqiGTpcE5hNomoxpwadpe
-         kxnHZSpVK7rlexTa2c6e/Jfea3VmOS+mF2zYsOoY=
+        b=EMVv852LbKinRwBB1RpB6bOWbvT73Pgqgt9fLSAfTumtYCGVg4uYcq9dHkSn8PONj
+         iMlkbd0POuDhZ1zBAGvp3Gv6nAYwd/zlTHm3ckYtYbpdH1x63/Tke/usMzDwdSMVry
+         DUbva5BNJ8hoflIQr4rc9WMFWpQ1fnFRfymNyXaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Hans Holmberg <hans.holmberg@wdc.com>
-Subject: [PATCH 5.10 106/129] zonefs: Fix management of open zones
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 105/177] cpufreq: qcom-cpufreq-hw: Clear dcvs interrupts
 Date:   Wed,  4 May 2022 18:44:58 +0200
-Message-Id: <20220504153029.412540267@linuxfoundation.org>
+Message-Id: <20220504153102.641150753@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,126 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-commit 1da18a296f5ba4f99429e62a7cf4fdbefa598902 upstream.
+[ Upstream commit e4e6448638a01905faeda9bf96aa9df7c8ef463c ]
 
-The mount option "explicit_open" manages the device open zone
-resources to ensure that if an application opens a sequential file for
-writing, the file zone can always be written by explicitly opening
-the zone and accounting for that state with the s_open_zones counter.
+It's noted that dcvs interrupts are not self-clearing, thus an interrupt
+handler runs constantly, which leads to a severe regression in runtime.
+To fix the problem an explicit write to clear interrupt register is
+required, note that on OSM platforms the register may not be present.
 
-However, if some zones are already open when mounting, the device open
-zone resource usage status will be larger than the initial s_open_zones
-value of 0. Ensure that this inconsistency does not happen by closing
-any sequential zone that is open when mounting.
-
-Furthermore, with ZNS drives, closing an explicitly open zone that has
-not been written will change the zone state to "closed", that is, the
-zone will remain in an active state. Since this can then cause failures
-of explicit open operations on other zones if the drive active zone
-resources are exceeded, we need to make sure that the zone is not
-active anymore by resetting it instead of closing it. To address this,
-zonefs_zone_mgmt() is modified to change a REQ_OP_ZONE_CLOSE request
-into a REQ_OP_ZONE_RESET for sequential zones that have not been
-written.
-
-Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/zonefs/super.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 40 insertions(+), 5 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/zonefs/super.c
-+++ b/fs/zonefs/super.c
-@@ -32,6 +32,17 @@ static inline int zonefs_zone_mgmt(struc
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index e73ecab23c85..bb2f59fd0de4 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -24,6 +24,8 @@
+ #define CLK_HW_DIV			2
+ #define LUT_TURBO_IND			1
  
- 	lockdep_assert_held(&zi->i_truncate_mutex);
- 
-+	/*
-+	 * With ZNS drives, closing an explicitly open zone that has not been
-+	 * written will change the zone state to "closed", that is, the zone
-+	 * will remain active. Since this can then cause failure of explicit
-+	 * open operation on other zones if the drive active zone resources
-+	 * are exceeded, make sure that the zone does not remain active by
-+	 * resetting it.
-+	 */
-+	if (op == REQ_OP_ZONE_CLOSE && !zi->i_wpoffset)
-+		op = REQ_OP_ZONE_RESET;
++#define GT_IRQ_STATUS			BIT(2)
 +
- 	ret = blkdev_zone_mgmt(inode->i_sb->s_bdev, op, zi->i_zsector,
- 			       zi->i_zone_size >> SECTOR_SHIFT, GFP_NOFS);
- 	if (ret) {
-@@ -1306,12 +1317,13 @@ static void zonefs_init_dir_inode(struct
- 	inc_nlink(parent);
+ #define HZ_PER_KHZ			1000
+ 
+ struct qcom_cpufreq_soc_data {
+@@ -31,6 +33,7 @@ struct qcom_cpufreq_soc_data {
+ 	u32 reg_domain_state;
+ 	u32 reg_freq_lut;
+ 	u32 reg_volt_lut;
++	u32 reg_intr_clr;
+ 	u32 reg_current_vote;
+ 	u32 reg_perf_state;
+ 	u8 lut_row_size;
+@@ -349,6 +352,10 @@ static irqreturn_t qcom_lmh_dcvs_handle_irq(int irq, void *data)
+ 	disable_irq_nosync(c_data->throttle_irq);
+ 	schedule_delayed_work(&c_data->throttle_work, 0);
+ 
++	if (c_data->soc_data->reg_intr_clr)
++		writel_relaxed(GT_IRQ_STATUS,
++			       c_data->base + c_data->soc_data->reg_intr_clr);
++
+ 	return IRQ_HANDLED;
  }
  
--static void zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
--				   enum zonefs_ztype type)
-+static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
-+				  enum zonefs_ztype type)
- {
- 	struct super_block *sb = inode->i_sb;
- 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
- 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
-+	int ret = 0;
- 
- 	inode->i_ino = zone->start >> sbi->s_zone_sectors_shift;
- 	inode->i_mode = S_IFREG | sbi->s_perm;
-@@ -1336,6 +1348,22 @@ static void zonefs_init_file_inode(struc
- 	sb->s_maxbytes = max(zi->i_max_size, sb->s_maxbytes);
- 	sbi->s_blocks += zi->i_max_size >> sb->s_blocksize_bits;
- 	sbi->s_used_blocks += zi->i_wpoffset >> sb->s_blocksize_bits;
-+
-+	/*
-+	 * For sequential zones, make sure that any open zone is closed first
-+	 * to ensure that the initial number of open zones is 0, in sync with
-+	 * the open zone accounting done when the mount option
-+	 * ZONEFS_MNTOPT_EXPLICIT_OPEN is used.
-+	 */
-+	if (type == ZONEFS_ZTYPE_SEQ &&
-+	    (zone->cond == BLK_ZONE_COND_IMP_OPEN ||
-+	     zone->cond == BLK_ZONE_COND_EXP_OPEN)) {
-+		mutex_lock(&zi->i_truncate_mutex);
-+		ret = zonefs_zone_mgmt(inode, REQ_OP_ZONE_CLOSE);
-+		mutex_unlock(&zi->i_truncate_mutex);
-+	}
-+
-+	return ret;
- }
- 
- static struct dentry *zonefs_create_inode(struct dentry *parent,
-@@ -1345,6 +1373,7 @@ static struct dentry *zonefs_create_inod
- 	struct inode *dir = d_inode(parent);
- 	struct dentry *dentry;
- 	struct inode *inode;
-+	int ret;
- 
- 	dentry = d_alloc_name(parent, name);
- 	if (!dentry)
-@@ -1355,10 +1384,16 @@ static struct dentry *zonefs_create_inod
- 		goto dput;
- 
- 	inode->i_ctime = inode->i_mtime = inode->i_atime = dir->i_ctime;
--	if (zone)
--		zonefs_init_file_inode(inode, zone, type);
--	else
-+	if (zone) {
-+		ret = zonefs_init_file_inode(inode, zone, type);
-+		if (ret) {
-+			iput(inode);
-+			goto dput;
-+		}
-+	} else {
- 		zonefs_init_dir_inode(dir, inode, type);
-+	}
-+
- 	d_add(dentry, inode);
- 	dir->i_size++;
- 
+@@ -366,6 +373,7 @@ static const struct qcom_cpufreq_soc_data epss_soc_data = {
+ 	.reg_domain_state = 0x20,
+ 	.reg_freq_lut = 0x100,
+ 	.reg_volt_lut = 0x200,
++	.reg_intr_clr = 0x308,
+ 	.reg_perf_state = 0x320,
+ 	.lut_row_size = 4,
+ };
+-- 
+2.35.1
+
 
 
