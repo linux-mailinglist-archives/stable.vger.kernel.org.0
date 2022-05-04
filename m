@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA9651A991
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FA7551AA2B
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351870AbiEDRSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:18:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
+        id S1350414AbiEDRWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:22:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356652AbiEDROC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2089E53B43
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:09 -0700 (PDT)
+        with ESMTP id S1357448AbiEDRPC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F360E54BF5
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1855616AC
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E75D1C385A5;
-        Wed,  4 May 2022 16:58:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11FEAB827A7
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FA9C385B2;
+        Wed,  4 May 2022 16:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683489;
-        bh=Fgny9emLh2YIgJgOyAveJJF+8wPz16H+rL66szMpoI8=;
+        s=k20201202; t=1651683490;
+        bh=iBj39tYbdziASOdyLrxbmMBOBrUi8sOQP+uAap9USnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hs7/1CtBgxszue6yExIqOO0XYtIyVSVc0O9H0Z36RXLQM6DT+U/6qNF4F3OFw6ds7
-         nB99ovPX4TeFx1whVa9+G8IIKQWBSQ49OZXLr5Hk+twbjnGNfM7IOr2dv8Ufk9dcjR
-         Dkr7LBxgoLltU2wYzKdkAsBTokISJ5jjy35LE47O1nTCZC5/qM5VSSe0Sted3rooOP
-         OXwkOrGw6nlzEQkQhrhv9XKY4Xl8+kWYaYkqsuowt0YzWNkKedUa45JAWNoIelfqwg
-         j8NKeXoGIN6di5uBjXI9DqD0eHQC7kOdBdcP+reqsUW6zNOHYTdW9BnahIqj92IvED
-         4AQCjoL5PS8mA==
+        b=myfnxJsGdF+BUZFAYaqlELx+djh4esoEpn5+994M8Xz3eF0eLkwicUXeNqdxikkis
+         PxqDI8tBmwm76brn0NGa+9Ln7yA5UutFVxU2NL0s0T8KsJeoRYbBbk6gPbesXKV56f
+         lHdiIiDloOUNBac68BU7rmx7KhtbdLoesbGupecbCRbgxyEv35kSHgxzqtLCk3yOaD
+         CMkwyowBacky7LhsGWNy0dUaZfi+t6wNvMKIzQHuOaXGTQ5IhORmHUHw+TIq1XEaJk
+         jBJYkRYdwZFXEe56Ixvg6iY/X+TgoOqOgO2QcWPTZ3TjCf90AX6WruLtzF8bhfahi0
+         9vOLq9C1xZnCQ==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.15 06/30] PCI: aardvark: Disable bus mastering when unbinding driver
-Date:   Wed,  4 May 2022 18:57:31 +0200
-Message-Id: <20220504165755.30002-7-kabel@kernel.org>
+Subject: [PATCH 5.15 07/30] PCI: aardvark: Mask all interrupts when unbinding driver
+Date:   Wed,  4 May 2022 18:57:32 +0200
+Message-Id: <20220504165755.30002-8-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165755.30002-1-kabel@kernel.org>
 References: <20220504165755.30002-1-kabel@kernel.org>
@@ -57,40 +57,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit a46f2f6dd4093438d9615dfbf5c0fea2a9835dba upstream.
+commit 13bcdf07cb2ecff5d45d2c141df2539b15211448 upstream.
 
-Ensure that after driver unbind PCIe cards are not able to forward
-memory and I/O requests in the upstream direction.
+Ensure that no interrupt can be triggered after driver unbind.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-7-kabel@kernel.org
+Link: https://lore.kernel.org/r/20211130172913.9727-8-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/pci/controller/pci-aardvark.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 7432eeafc8fe..ee6ffba2af22 100644
+index ee6ffba2af22..d2c01c6e6815 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1679,6 +1679,7 @@ static int advk_pcie_remove(struct platform_device *pdev)
- {
- 	struct advk_pcie *pcie = platform_get_drvdata(pdev);
- 	struct pci_host_bridge *bridge = pci_host_bridge_from_priv(pcie);
-+	u32 val;
- 	int i;
+@@ -1693,6 +1693,27 @@ static int advk_pcie_remove(struct platform_device *pdev)
+ 	val &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
+ 	advk_writel(pcie, val, PCIE_CORE_CMD_STATUS_REG);
  
- 	/* Remove PCI bus with all devices */
-@@ -1687,6 +1688,11 @@ static int advk_pcie_remove(struct platform_device *pdev)
- 	pci_remove_root_bus(bridge->bus);
- 	pci_unlock_rescan_remove();
- 
-+	/* Disable Root Bridge I/O space, memory space and bus mastering */
-+	val = advk_readl(pcie, PCIE_CORE_CMD_STATUS_REG);
-+	val &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
-+	advk_writel(pcie, val, PCIE_CORE_CMD_STATUS_REG);
++	/* Disable MSI */
++	val = advk_readl(pcie, PCIE_CORE_CTRL2_REG);
++	val &= ~PCIE_CORE_CTRL2_MSI_ENABLE;
++	advk_writel(pcie, val, PCIE_CORE_CTRL2_REG);
++
++	/* Clear MSI address */
++	advk_writel(pcie, 0, PCIE_MSI_ADDR_LOW_REG);
++	advk_writel(pcie, 0, PCIE_MSI_ADDR_HIGH_REG);
++
++	/* Mask all interrupts */
++	advk_writel(pcie, PCIE_MSI_ALL_MASK, PCIE_MSI_MASK_REG);
++	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_MASK_REG);
++	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_MASK_REG);
++	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_MASK_REG);
++
++	/* Clear all interrupts */
++	advk_writel(pcie, PCIE_MSI_ALL_MASK, PCIE_MSI_STATUS_REG);
++	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_REG);
++	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
++	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
 +
  	/* Remove IRQ domains */
  	advk_pcie_remove_msi_irq_domain(pcie);
