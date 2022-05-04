@@ -2,67 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F003519AD9
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 10:54:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7BE7519B2A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 11:08:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243156AbiEDI4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 04:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52630 "EHLO
+        id S1346823AbiEDJLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 05:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346896AbiEDIxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 04:53:53 -0400
-Received: from theia.8bytes.org (8bytes.org [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD17025EBB;
-        Wed,  4 May 2022 01:49:38 -0700 (PDT)
-Received: by theia.8bytes.org (Postfix, from userid 1000)
-        id 5A61167B; Wed,  4 May 2022 10:49:37 +0200 (CEST)
-Date:   Wed, 4 May 2022 10:49:36 +0200
-From:   Joerg Roedel <joro@8bytes.org>
-To:     Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Cc:     agross@kernel.org, bjorn.andersson@linaro.org, will@kernel.org,
-        sricharan@codeaurora.org, linux-arm-msm@vger.kernel.org,
-        iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+        with ESMTP id S1345902AbiEDJLj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 05:11:39 -0400
+Received: from smtpservice.6wind.com (unknown [185.13.181.2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id CC70E1A827;
+        Wed,  4 May 2022 02:08:03 -0700 (PDT)
+Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
+        by smtpservice.6wind.com (Postfix) with ESMTPS id 7E686600EB;
+        Wed,  4 May 2022 11:08:02 +0200 (CEST)
+Received: from dichtel by bretzel with local (Exim 4.92)
+        (envelope-from <dichtel@6wind.com>)
+        id 1nmAzK-0005gJ-Dg; Wed, 04 May 2022 11:08:02 +0200
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+To:     David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     David Ahern <dsahern@kernel.org>, netdev@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         stable@vger.kernel.org
-Subject: Re: [PATCH v2] iommu: fix an incorrect NULL check on list iterator
-Message-ID: <YnI+IPP0VIftWwPA@8bytes.org>
-References: <20220501132823.12714-1-xiam0nd.tong@gmail.com>
+Subject: [PATCH net v3 1/2] ping: fix address binding wrt vrf
+Date:   Wed,  4 May 2022 11:07:38 +0200
+Message-Id: <20220504090739.21821-2-nicolas.dichtel@6wind.com>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20220504090739.21821-1-nicolas.dichtel@6wind.com>
+References: <1238b102-f491-a917-3708-0df344015a5b@kernel.org>
+ <20220504090739.21821-1-nicolas.dichtel@6wind.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220501132823.12714-1-xiam0nd.tong@gmail.com>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 01, 2022 at 09:28:23PM +0800, Xiaomeng Tong wrote:
-> The bug is here:
-> 	if (!iommu || iommu->dev->of_node != spec->np) {
-> 
-> The list iterator value 'iommu' will *always* be set and non-NULL by
-> list_for_each_entry(), so it is incorrect to assume that the iterator
-> value will be NULL if the list is empty or no element is found (in fact,
-> it will point to a invalid structure object containing HEAD).
-> 
-> To fix the bug, use a new value 'iter' as the list iterator, while use
-> the old value 'iommu' as a dedicated variable to point to the found one,
-> and remove the unneeded check for 'iommu->dev->of_node != spec->np'
-> outside the loop.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: f78ebca8ff3d6 ("iommu/msm: Add support for generic master bindings")
-> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> ---
-> changes since v1:
->  - add a new iter variable (suggested by Joerg Roedel)
+When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
+instead of an IP raw socket. In this case, 'ping' is unable to bind its
+socket to a local address owned by a vrflite.
 
-This is now applied. I had to manually apply it because the patch was
-malformed at line 36 and git-am complained.
+Before the patch:
+$ sysctl -w net.ipv4.ping_group_range='0  2147483647'
+$ ip link add blue type vrf table 10
+$ ip link add foo type dummy
+$ ip link set foo master blue
+$ ip link set foo up
+$ ip addr add 192.168.1.1/24 dev foo
+$ ip addr add 2001::1/64 dev foo
+$ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
+ping: bind: Cannot assign requested address
+$ ip vrf exec blue ping6 -c1 -I 2001::1 2001::2
+ping6: bind icmp socket: Cannot assign requested address
 
-Regards,
+CC: stable@vger.kernel.org
+Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+---
+ net/ipv4/ping.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-	Joerg
+diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
+index 3ee947557b88..aa9a11b20d18 100644
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -305,6 +305,7 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
+ 	struct net *net = sock_net(sk);
+ 	if (sk->sk_family == AF_INET) {
+ 		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++		u32 tb_id = RT_TABLE_LOCAL;
+ 		int chk_addr_ret;
+ 
+ 		if (addr_len < sizeof(*addr))
+@@ -318,7 +319,8 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
+ 		pr_debug("ping_check_bind_addr(sk=%p,addr=%pI4,port=%d)\n",
+ 			 sk, &addr->sin_addr.s_addr, ntohs(addr->sin_port));
+ 
+-		chk_addr_ret = inet_addr_type(net, addr->sin_addr.s_addr);
++		tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
++		chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
+ 
+ 		if (!inet_addr_valid_or_nonlocal(net, inet_sk(sk),
+ 					         addr->sin_addr.s_addr,
+@@ -355,6 +357,14 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
+ 				return -ENODEV;
+ 			}
+ 		}
++
++		if (!dev && sk->sk_bound_dev_if) {
++			dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
++			if (!dev) {
++				rcu_read_unlock();
++				return -ENODEV;
++			}
++		}
+ 		has_addr = pingv6_ops.ipv6_chk_addr(net, &addr->sin6_addr, dev,
+ 						    scoped);
+ 		rcu_read_unlock();
+-- 
+2.33.0
+
