@@ -2,54 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9258B51A99C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDBFA51A9A0
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356296AbiEDRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:18:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
+        id S1356684AbiEDRSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:18:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357174AbiEDROw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:52 -0400
+        with ESMTP id S1357271AbiEDRO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18012541A6;
-        Wed,  4 May 2022 09:58:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD9C54697;
+        Wed,  4 May 2022 09:58:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E07FA61950;
-        Wed,  4 May 2022 16:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90E0DC385B1;
-        Wed,  4 May 2022 16:58:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B495161920;
+        Wed,  4 May 2022 16:58:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68702C385AF;
+        Wed,  4 May 2022 16:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683484;
-        bh=uyzsFYl8sytYOzQQEprb2qDXzcJ2/da3AqYWM66AXiU=;
+        s=korg; t=1651683494;
+        bh=5Vle1qWJnQKV1VFtVFlv7ED24OJaCLIdTzacdmZoabs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Whlo0Jc3OdX77WQ4D4TQY1agzDydAKFrciatEg3dWuo48ZOend0FLZGQLmeOlYh9x
-         C8sRkhru33mvfBzRcNZp7A2u9VTmDB9EB3QhmcB4LuRbbIdrnAhKvRYXyDYf3szfZ9
-         yVLHqP4A7e/psnZLgcdUhB1odYXmpP2JIWUIMPRg=
+        b=Kko1rdlAxwTFuAoNNVrN9Zg2G9En5BFNbveEnioVFU/HXUHIkk4VvuvlOzDREpjkI
+         6HfMoJ5+ogbUdeNJTCH+hPOjUaNiiEWjJB6ZSzomKQdTwi1XLpX9MBMt05mqYZ0Wdb
+         tLImYBqOfsh21Hn3KzBjc803ZDHawGDYlV5aA28s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        Timothy Hayes <timothy.hayes@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        bpf@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
-        John Fastabend <john.fastabend@gmail.com>,
-        John Garry <john.garry@huawei.com>,
-        KP Singh <kpsingh@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Namhyung Kim <namhyung@kernel.org>, netdev@vger.kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        Will Deacon <will@kernel.org>, Yonghong Song <yhs@fb.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Shannon Nelson <snelson@pensando.io>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 151/225] perf arm-spe: Fix addresses of synthesized SPE events
-Date:   Wed,  4 May 2022 18:46:29 +0200
-Message-Id: <20220504153123.567930418@linuxfoundation.org>
+Subject: [PATCH 5.17 152/225] ixgbe: ensure IPsec VF<->PF compatibility
+Date:   Wed,  4 May 2022 18:46:30 +0200
+Message-Id: <20220504153123.651407660@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -67,52 +58,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Timothy Hayes <timothy.hayes@arm.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit 4e13f6706d5aee1a6b835a44f6cf4971a921dcb8 ]
+[ Upstream commit f049efc7f7cd2f3c419f55040928eaefb13b3636 ]
 
-This patch corrects a bug whereby synthesized events from SPE
-samples are missing virtual addresses.
+The VF driver can forward any IPsec flags and such makes the function
+is not extendable and prone to backward/forward incompatibility.
 
-Fixes: 54f7815efef7fad9 ("perf arm-spe: Fill address info for samples")
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Timothy Hayes <timothy.hayes@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: bpf@vger.kernel.org
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: John Garry <john.garry@huawei.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: netdev@vger.kernel.org
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20220421165205.117662-2-timothy.hayes@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+If new software runs on VF, it won't know that PF configured something
+completely different as it "knows" only XFRM_OFFLOAD_INBOUND flag.
+
+Fixes: eda0333ac293 ("ixgbe: add VF IPsec management")
+Reviewed-by: Raed Salem <raeds@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Shannon Nelson <snelson@pensando.io>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20220427173152.443102-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/arm-spe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/arm-spe.c b/tools/perf/util/arm-spe.c
-index d2b64e3f588b..151cc38a171c 100644
---- a/tools/perf/util/arm-spe.c
-+++ b/tools/perf/util/arm-spe.c
-@@ -1036,7 +1036,7 @@ arm_spe_synth_events(struct arm_spe *spe, struct perf_session *session)
- 	attr.sample_type = evsel->core.attr.sample_type & PERF_SAMPLE_MASK;
- 	attr.sample_type |= PERF_SAMPLE_IP | PERF_SAMPLE_TID |
- 			    PERF_SAMPLE_PERIOD | PERF_SAMPLE_DATA_SRC |
--			    PERF_SAMPLE_WEIGHT;
-+			    PERF_SAMPLE_WEIGHT | PERF_SAMPLE_ADDR;
- 	if (spe->timeless_decoding)
- 		attr.sample_type &= ~(u64)PERF_SAMPLE_TIME;
- 	else
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
+index e596e1a9fc75..69d11ff7677d 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
+@@ -903,7 +903,8 @@ int ixgbe_ipsec_vf_add_sa(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
+ 	/* Tx IPsec offload doesn't seem to work on this
+ 	 * device, so block these requests for now.
+ 	 */
+-	if (!(sam->flags & XFRM_OFFLOAD_INBOUND)) {
++	sam->flags = sam->flags & ~XFRM_OFFLOAD_IPV6;
++	if (sam->flags != XFRM_OFFLOAD_INBOUND) {
+ 		err = -EOPNOTSUPP;
+ 		goto err_out;
+ 	}
 -- 
 2.35.1
 
