@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 232D951A9FF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D3651AA11
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239061AbiEDRUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55678 "EHLO
+        id S242600AbiEDRVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358300AbiEDRPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DE256771;
-        Wed,  4 May 2022 09:59:37 -0700 (PDT)
+        with ESMTP id S1357956AbiEDRPd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36FA5622A;
+        Wed,  4 May 2022 09:59:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5D7A61950;
-        Wed,  4 May 2022 16:59:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1461C385AA;
-        Wed,  4 May 2022 16:59:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 53CC8616AC;
+        Wed,  4 May 2022 16:59:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4C64C385A4;
+        Wed,  4 May 2022 16:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683549;
-        bh=AOBz04IO0x5NuUMMvvLUKJriVH5uBAjA6v8SLusB+VI=;
+        s=korg; t=1651683550;
+        bh=0l1FOOSEenmAD86fDIbhkD5YOhg1dDb2xEVR+5ccbCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/cbRVyTX66nCFedUKfQ2sQ22KrWV1XK2EvMZdry58YpKhsEe4NkXjTiG+NYKCUII
-         46qdWrt+k2hd7tuxQm5vXCJ7nyLswYU/GcOiyhdJZ15ez1bwatAn6bEzUJI2KzH5nx
-         Iy/kzz9j0g+q2gUM2+TJrpizq95dAu35AYpd9g/c=
+        b=D2vJhRrfK53RPnBQOx5n9biCkXQaUrUlehJBQV1cUvNl4OS8kp0Ol0zO33gPMh4AG
+         frjTw2ouxSN5YW9di17kfOADRtTqelH/IBy3TorWADXu/m1gA1Gsb0basf4ZjCjuus
+         u3p1UDOKoTBdmg41avsCGTFyQZ6gvI3MphOiLEDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 203/225] tty: n_gsm: fix decoupled mux resource
-Date:   Wed,  4 May 2022 18:47:21 +0200
-Message-Id: <20220504153128.246294160@linuxfoundation.org>
+Subject: [PATCH 5.17 204/225] tty: n_gsm: fix mux cleanup after unregister tty device
+Date:   Wed,  4 May 2022 18:47:22 +0200
+Message-Id: <20220504153128.318918869@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,146 +54,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 1ec92e9742774bf42614fceea3bf6b50c9409225 upstream.
+commit 284260f278b706364fb4c88a7b56ba5298d5973c upstream.
 
-The active mux instances are managed in the gsm_mux array and via mux_get()
-and mux_put() functions separately. This gives a very loose coupling
-between the actual instance and the gsm_mux array which manages it. It also
-results in unnecessary lockings which makes it prone to failures. And it
-creates a race condition if more than the maximum number of mux instances
-are requested while the user changes the parameters of an active instance.
-The user may loose ownership of the current mux instance in this case.
-Fix this by moving the gsm_mux array handling to the mux allocation and
-deallocation functions.
+Internally, we manage the alive state of the mux channels and mux itself
+with the field member 'dead'. This makes it possible to notify the user
+if the accessed underlying link is already gone. On the other hand,
+however, removing the virtual ttys before terminating the channels may
+result in peer messages being received without any internal target. Move
+the mux cleanup procedure from gsmld_detach_gsm() to gsmld_close() to fix
+this by keeping the virtual ttys open until the mux has been cleaned up.
 
 Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-3-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220414094225.4527-4-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |   63 +++++++++++++++++++++++++++++++---------------------
- 1 file changed, 38 insertions(+), 25 deletions(-)
+ drivers/tty/n_gsm.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/tty/n_gsm.c b/drivers/tty/n_gsm.c
+index f546dfe03d29..de97a3810731 100644
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -2136,18 +2136,6 @@ static void gsm_cleanup_mux(struct gsm_m
- 	/* Finish outstanding timers, making sure they are done */
- 	del_timer_sync(&gsm->t2_timer);
- 
--	spin_lock(&gsm_mux_lock);
--	for (i = 0; i < MAX_MUX; i++) {
--		if (gsm_mux[i] == gsm) {
--			gsm_mux[i] = NULL;
--			break;
--		}
--	}
--	spin_unlock(&gsm_mux_lock);
--	/* open failed before registering => nothing to do */
--	if (i == MAX_MUX)
--		return;
--
- 	/* Free up any link layer users */
- 	for (i = 0; i < NUM_DLCI; i++)
- 		if (gsm->dlci[i])
-@@ -2171,7 +2159,6 @@ static void gsm_cleanup_mux(struct gsm_m
- static int gsm_activate_mux(struct gsm_mux *gsm)
- {
- 	struct gsm_dlci *dlci;
--	int i = 0;
- 
- 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
- 	init_waitqueue_head(&gsm->event);
-@@ -2183,18 +2170,6 @@ static int gsm_activate_mux(struct gsm_m
- 	else
- 		gsm->receive = gsm1_receive;
- 
--	spin_lock(&gsm_mux_lock);
--	for (i = 0; i < MAX_MUX; i++) {
--		if (gsm_mux[i] == NULL) {
--			gsm->num = i;
--			gsm_mux[i] = gsm;
--			break;
--		}
--	}
--	spin_unlock(&gsm_mux_lock);
--	if (i == MAX_MUX)
--		return -EBUSY;
--
- 	dlci = gsm_dlci_alloc(gsm, 0);
- 	if (dlci == NULL)
- 		return -ENOMEM;
-@@ -2210,6 +2185,15 @@ static int gsm_activate_mux(struct gsm_m
-  */
- static void gsm_free_mux(struct gsm_mux *gsm)
- {
-+	int i;
-+
-+	for (i = 0; i < MAX_MUX; i++) {
-+		if (gsm == gsm_mux[i]) {
-+			gsm_mux[i] = NULL;
-+			break;
-+		}
-+	}
-+	mutex_destroy(&gsm->mutex);
- 	kfree(gsm->txframe);
- 	kfree(gsm->buf);
- 	kfree(gsm);
-@@ -2229,12 +2213,20 @@ static void gsm_free_muxr(struct kref *r
- 
- static inline void mux_get(struct gsm_mux *gsm)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&gsm_mux_lock, flags);
- 	kref_get(&gsm->ref);
-+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
+@@ -2479,7 +2479,6 @@ static void gsmld_detach_gsm(struct tty_struct *tty, struct gsm_mux *gsm)
+ 		for (i = 1; i < NUM_DLCI; i++)
+ 			tty_unregister_device(gsm_tty_driver, base + i);
+ 	}
+-	gsm_cleanup_mux(gsm, false);
+ 	tty_kref_put(gsm->tty);
+ 	gsm->tty = NULL;
  }
- 
- static inline void mux_put(struct gsm_mux *gsm)
+@@ -2544,6 +2543,12 @@ static void gsmld_close(struct tty_struct *tty)
  {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&gsm_mux_lock, flags);
- 	kref_put(&gsm->ref, gsm_free_muxr);
-+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
- }
+ 	struct gsm_mux *gsm = tty->disc_data;
  
- static inline unsigned int mux_num_to_base(struct gsm_mux *gsm)
-@@ -2255,6 +2247,7 @@ static inline unsigned int mux_line_to_n
- 
- static struct gsm_mux *gsm_alloc_mux(void)
- {
-+	int i;
- 	struct gsm_mux *gsm = kzalloc(sizeof(struct gsm_mux), GFP_KERNEL);
- 	if (gsm == NULL)
- 		return NULL;
-@@ -2284,6 +2277,26 @@ static struct gsm_mux *gsm_alloc_mux(voi
- 	gsm->mtu = 64;
- 	gsm->dead = true;	/* Avoid early tty opens */
- 
-+	/* Store the instance to the mux array or abort if no space is
-+	 * available.
++	/* The ldisc locks and closes the port before calling our close. This
++	 * means we have no way to do a proper disconnect. We will not bother
++	 * to do one.
 +	 */
-+	spin_lock(&gsm_mux_lock);
-+	for (i = 0; i < MAX_MUX; i++) {
-+		if (!gsm_mux[i]) {
-+			gsm_mux[i] = gsm;
-+			gsm->num = i;
-+			break;
-+		}
-+	}
-+	spin_unlock(&gsm_mux_lock);
-+	if (i == MAX_MUX) {
-+		mutex_destroy(&gsm->mutex);
-+		kfree(gsm->txframe);
-+		kfree(gsm->buf);
-+		kfree(gsm);
-+		return NULL;
-+	}
++	gsm_cleanup_mux(gsm, false);
 +
- 	return gsm;
- }
+ 	gsmld_detach_gsm(tty, gsm);
  
+ 	gsmld_flush_buffer(tty);
+-- 
+2.36.0
+
 
 
