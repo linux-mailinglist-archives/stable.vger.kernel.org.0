@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 012AC51A618
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0672B51A721
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353781AbiEDQws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
+        id S1354076AbiEDRCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353727AbiEDQwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC5A47396;
-        Wed,  4 May 2022 09:48:38 -0700 (PDT)
+        with ESMTP id S1354937AbiEDQ7e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A64148E54;
+        Wed,  4 May 2022 09:51:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57EDAB827A2;
-        Wed,  4 May 2022 16:48:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A21CC385AA;
-        Wed,  4 May 2022 16:48:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA4CEB82552;
+        Wed,  4 May 2022 16:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F124C385A4;
+        Wed,  4 May 2022 16:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682916;
-        bh=tLp+D/BbNexldvUuieYi1TcPMFkymTkwICmqsf+w1y0=;
+        s=korg; t=1651683067;
+        bh=fiEjsMwi+sx83CopIVwfDXjNiCaih6WW+Reo85LpXa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u/I5LrivcYj4SncnUDSqzkmD/5hKrBo/d5DWjDoOtrYSmkHoi13NQaNSnRjyEYEt/
-         kOalMFZTm4s2WnxQimUcM5o42bVQT2+Kpqn63JXiU0cHfZ2DhTFrRI4iKdYC5pMTO6
-         kbfdt7wP/GiIgvRZGiFZdpSqwSPkhLNxMgUOSD0o=
+        b=mxq5WcqrEbpruMNikozdUMjzhD8YpmCtI4CNX9xMMgsF7600GeRtbW3bjNGJLGbTg
+         BtkdumDoTOFXgqPvaLJhgF1nyxcPquvp/Bzf0pYvjYKqUmecZ/hZ+0lDC2Hf+3YPAv
+         7ciuwI8XsvjmDBVQxh0JwcQpPrY4V8We7hQi7TmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.4 22/84] usb: dwc3: gadget: Return proper request status
-Date:   Wed,  4 May 2022 18:44:03 +0200
-Message-Id: <20220504152929.323078879@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 052/129] phy: mapphone-mdm6600: Fix PM error handling in phy_mdm6600_probe
+Date:   Wed,  4 May 2022 18:44:04 +0200
+Message-Id: <20220504153025.174384585@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,74 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit c7428dbddcf4ea1919e1c8e15f715b94ca359268 upstream.
+[ Upstream commit d644e0d79829b1b9a14beedbdb0dc1256fc3677d ]
 
-If the user sets the usb_request's no_interrupt, then there will be no
-completion event for the request. Currently the driver incorrectly uses
-the event status of a different request to report the status for a
-request with no_interrupt. The dwc3 driver needs to check the TRB status
-associated with the request when reporting its status.
+The pm_runtime_enable will increase power disable depth.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable(). And use pm_runtime_dont_use_autosuspend() to
+undo pm_runtime_use_autosuspend()
+In the PM Runtime docs:
+    Drivers in ->remove() callback should undo the runtime PM changes done
+    in ->probe(). Usually this means calling pm_runtime_disable(),
+    pm_runtime_dont_use_autosuspend() etc.
 
-Note: this is only applicable to missed_isoc TRB completion status, but
-the other status are also listed for completeness/documentation.
+We should do this in error handling.
 
-Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/db2c80108286cfd108adb05bad52138b78d7c3a7.1650673655.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f7f50b2a7b05 ("phy: mapphone-mdm6600: Add runtime PM support for n_gsm on USB suspend")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220301024615.31899-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   31 ++++++++++++++++++++++++++++++-
- 1 file changed, 30 insertions(+), 1 deletion(-)
+ drivers/phy/motorola/phy-mapphone-mdm6600.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2728,6 +2728,7 @@ static int dwc3_gadget_ep_cleanup_comple
- 		const struct dwc3_event_depevt *event,
- 		struct dwc3_request *req, int status)
- {
-+	int request_status;
- 	int ret;
+diff --git a/drivers/phy/motorola/phy-mapphone-mdm6600.c b/drivers/phy/motorola/phy-mapphone-mdm6600.c
+index 5172971f4c36..3cd4d51c247c 100644
+--- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
++++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
+@@ -629,7 +629,8 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
+ cleanup:
+ 	if (error < 0)
+ 		phy_mdm6600_device_power_off(ddata);
+-
++	pm_runtime_disable(ddata->dev);
++	pm_runtime_dont_use_autosuspend(ddata->dev);
+ 	return error;
+ }
  
- 	if (req->request.num_mapped_sgs)
-@@ -2757,7 +2758,35 @@ static int dwc3_gadget_ep_cleanup_comple
- 		req->needs_extra_trb = false;
- 	}
- 
--	dwc3_gadget_giveback(dep, req, status);
-+	/*
-+	 * The event status only reflects the status of the TRB with IOC set.
-+	 * For the requests that don't set interrupt on completion, the driver
-+	 * needs to check and return the status of the completed TRBs associated
-+	 * with the request. Use the status of the last TRB of the request.
-+	 */
-+	if (req->request.no_interrupt) {
-+		struct dwc3_trb *trb;
-+
-+		trb = dwc3_ep_prev_trb(dep, dep->trb_dequeue);
-+		switch (DWC3_TRB_SIZE_TRBSTS(trb->size)) {
-+		case DWC3_TRBSTS_MISSED_ISOC:
-+			/* Isoc endpoint only */
-+			request_status = -EXDEV;
-+			break;
-+		case DWC3_TRB_STS_XFER_IN_PROG:
-+			/* Applicable when End Transfer with ForceRM=0 */
-+		case DWC3_TRBSTS_SETUP_PENDING:
-+			/* Control endpoint only */
-+		case DWC3_TRBSTS_OK:
-+		default:
-+			request_status = 0;
-+			break;
-+		}
-+	} else {
-+		request_status = status;
-+	}
-+
-+	dwc3_gadget_giveback(dep, req, request_status);
- 
- out:
- 	return ret;
+-- 
+2.35.1
+
 
 
