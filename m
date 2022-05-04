@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4C851A9EF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F227C51AA21
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357994AbiEDRUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58654 "EHLO
+        id S1345773AbiEDRVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357699AbiEDRPL (ORCPT
+        with ESMTP id S1357709AbiEDRPL (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE3155367;
-        Wed,  4 May 2022 09:58:52 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8DD455371;
+        Wed,  4 May 2022 09:58:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AB661744;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ECFDB827A5;
+        Wed,  4 May 2022 16:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3FFC385AF;
         Wed,  4 May 2022 16:58:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B39BCC385A5;
-        Wed,  4 May 2022 16:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683531;
-        bh=7HP96qjk9PvmbCCTHdMjGWvz+8Yhk8M/QPjWnUSKpgM=;
+        s=korg; t=1651683532;
+        bh=nGLJ71aZM7M+usue7fy/bT1qAY3btYDEdT4Yeh0Ev5U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iksL/Wrki3z4HVnJcZ5wcNzD6pZLzTFm9N1BJcd991jeMBEv7wmTN8v0uupqffGXW
-         MW0NIGF8sv+j+Q5KmZuWxTbW68/NgRKHFYAYAiYTBaOwUTe7cYEgshq/Ss763vqKg2
-         J5jiaiSq4f1JJ8wdWVcFQHkh+w+VVPZKWXh91T3E=
+        b=wsc7E1aTnLV+J/2b4PLxM8vRucXwApLovOJI9CvzKXSYDfTGmtu3jSJ/EnTKZOiFu
+         Q8R5datEYemLur3UlUJY++YGJ6jZwuER16bKMtTiG0V+NndRnfhRC3YSWXTt85bdey
+         ZIOsdOBpKu+INL6l4uxXV4fv0M3QW/cACfm80qEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Woody Suwalski <wsuwalski@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.17 189/225] ACPI: processor: idle: Avoid falling back to C3 type C-states
-Date:   Wed,  4 May 2022 18:47:07 +0200
-Message-Id: <20220504153127.166101213@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Joao Moreira <joao@overdrivepizza.com>
+Subject: [PATCH 5.17 190/225] thermal: int340x: Fix attr.show callback prototype
+Date:   Wed,  4 May 2022 18:47:08 +0200
+Message-Id: <20220504153127.239181450@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -56,48 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit fc45e55ebc58dbf622cb89ddbf797589c7a5510b upstream.
+commit d0f6cfb2bd165b0aa307750e07e03420859bd554 upstream.
 
-The "safe state" index is used by acpi_idle_enter_bm() to avoid
-entering a C-state that may require bus mastering to be disabled
-on entry in the cases when this is not going to happen.  For this
-reason, it should not be set to point to C3 type of C-states, because
-they may require bus mastering to be disabled on entry in principle.
+Control Flow Integrity (CFI) instrumentation of the kernel noticed that
+the caller, dev_attr_show(), and the callback, odvp_show(), did not have
+matching function prototypes, which would cause a CFI exception to be
+raised. Correct the prototype by using struct device_attribute instead
+of struct kobj_attribute.
 
-This was broken by commit d6b88ce2eb9d ("ACPI: processor idle: Allow
-playing dead in C3 state") which inadvertently allowed the "safe
-state" index to point to C3 type of C-states.
-
-This results in a machine that won't boot past the point when it first
-enters C3. Restore the correct behaviour (either demote to C1/C2, or
-use C3 but also set ARB_DIS=1).
-
-I hit this on a Fujitsu Siemens Lifebook S6010 (P3) machine.
-
-Fixes: d6b88ce2eb9d ("ACPI: processor idle: Allow playing dead in C3 state")
-Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Tested-by: Woody Suwalski <wsuwalski@gmail.com>
-[ rjw: Subject and changelog adjustments ]
+Reported-and-tested-by: Joao Moreira <joao@overdrivepizza.com>
+Link: https://lore.kernel.org/lkml/067ce8bd4c3968054509831fa2347f4f@overdrivepizza.com/
+Fixes: 006f006f1e5c ("thermal/int340x_thermal: Export OEM vendor variables")
+Cc: 5.8+ <stable@vger.kernel.org> # 5.8+
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/processor_idle.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/thermal/intel/int340x_thermal/int3400_thermal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -790,7 +790,8 @@ static int acpi_processor_setup_cstates(
- 		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2 ||
- 		    cx->type == ACPI_STATE_C3) {
- 			state->enter_dead = acpi_idle_play_dead;
--			drv->safe_state_index = count;
-+			if (cx->type != ACPI_STATE_C3)
-+				drv->safe_state_index = count;
- 		}
- 		/*
- 		 * Halt-induced C1 is not good for ->enter_s2idle, because it
+--- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+@@ -67,7 +67,7 @@ static int evaluate_odvp(struct int3400_
+ struct odvp_attr {
+ 	int odvp;
+ 	struct int3400_thermal_priv *priv;
+-	struct kobj_attribute attr;
++	struct device_attribute attr;
+ };
+ 
+ static ssize_t data_vault_read(struct file *file, struct kobject *kobj,
+@@ -271,7 +271,7 @@ static int int3400_thermal_run_osc(acpi_
+ 	return result;
+ }
+ 
+-static ssize_t odvp_show(struct kobject *kobj, struct kobj_attribute *attr,
++static ssize_t odvp_show(struct device *dev, struct device_attribute *attr,
+ 			 char *buf)
+ {
+ 	struct odvp_attr *odvp_attr;
 
 
