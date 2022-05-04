@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB90A51A684
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5502351A729
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353874AbiEDQz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
+        id S1348964AbiEDRCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353772AbiEDQwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5DBB47573;
-        Wed,  4 May 2022 09:48:48 -0700 (PDT)
+        with ESMTP id S1354748AbiEDQ7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 653A0473A9;
+        Wed,  4 May 2022 09:50:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 556ECB82553;
-        Wed,  4 May 2022 16:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD827C385A5;
-        Wed,  4 May 2022 16:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A0E617C7;
+        Wed,  4 May 2022 16:50:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70970C385A4;
+        Wed,  4 May 2022 16:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682926;
-        bh=Q9CsuP3nha7SVOaCVYQQPn34IWlxKcJIUkjE8vjF9hU=;
+        s=korg; t=1651683057;
+        bh=XGzZl/x6DuyN5GV6irKCEio/3JA41NUH4s4IYRbrICc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W+fflOmMkTeFH4gHahKgNMOFzLGqxaED9gmZhmRfMRccUYTFhIaEjWWrxvkeCl6V0
-         +0Elfl9eqTU7xQKuKzSo0pO0R10llkQI+pcNWn9msS7/36xa16oJ+m+iRj97srQ/AA
-         csIoh73Rq4+u8OhXwgjIMMXx7pG9ecTCI9cjufcc=
+        b=GAI31Kh9HodgOOHnySVYbV36ZlH8oqrwaxdWXzI8ZmvJHVIJosRc7l8KW1wBkaipN
+         F8p/VLOHgT8lBjgPenam1BalavfWvC6QZxzvUfdpjA0yc9taGH/CvKt4VfCVb5k/Az
+         5OebXybDZj3NG5h+WkvNoZ+5iQ7FwuRHkXHtzGIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuanhong Guo <gch981213@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 32/84] mtd: rawnand: fix ecc parameters for mt7622
+Subject: [PATCH 5.10 061/129] pinctrl: stm32: Do not call stm32_gpio_get() for edge triggered IRQs in EOI
 Date:   Wed,  4 May 2022 18:44:13 +0200
-Message-Id: <20220504152930.050231211@linuxfoundation.org>
+Message-Id: <20220504153026.112064367@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuanhong Guo <gch981213@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 9fe4e0d3cbfe90152137963cc024ecb63db6e8e6 ]
+[ Upstream commit e74200ebf7c4f6a7a7d1be9f63833ddba251effa ]
 
-According to the datasheet, mt7622 only has 5 ECC capabilities instead
-of 7, and the decoding error register is arranged  as follows:
-+------+---------+---------+---------+---------+
-| Bits |  19:15  |  14:10  |   9:5   |   4:0   |
-+------+---------+---------+---------+---------+
-| Name | ERRNUM3 | ERRNUM2 | ERRNUM1 | ERRNUM0 |
-+------+---------+---------+---------+---------+
-This means err_mask should be 0x1f instead of 0x3f and the number of
-bits shifted in mtk_ecc_get_stats should be 5 instead of 8.
+The stm32_gpio_get() should only be called for LEVEL triggered interrupts,
+skip calling it for EDGE triggered interrupts altogether to avoid wasting
+CPU cycles in EOI handler. On this platform, EDGE triggered interrupts are
+the majority and LEVEL triggered interrupts are the exception no less, and
+the CPU cycles are not abundant.
 
-This commit introduces err_shift for the difference in this register
-and fix other existing parameters.
-
-Public MT7622 reference manual can be found on [0] and the info this
-commit is based on is from page 656 and page 660.
-
-[0]: https://wiki.banana-pi.org/Banana_Pi_BPI-R64#Documents
-
-Fixes: 98dea8d71931 ("mtd: nand: mtk: Support MT7622 NAND flash controller.")
-Signed-off-by: Chuanhong Guo <gch981213@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220402160315.919094-1-gch981213@gmail.com
+Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+To: linux-gpio@vger.kernel.org
+Link: https://lore.kernel.org/r/20220415215410.498349-1-marex@denx.de
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/mtk_ecc.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mtd/nand/raw/mtk_ecc.c b/drivers/mtd/nand/raw/mtk_ecc.c
-index 74595b644b7c..57fa7807cd7d 100644
---- a/drivers/mtd/nand/raw/mtk_ecc.c
-+++ b/drivers/mtd/nand/raw/mtk_ecc.c
-@@ -43,6 +43,7 @@
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index e13723bb2be4..12d4d92c4a17 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -311,6 +311,10 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
+ 	struct stm32_gpio_bank *bank = d->domain->host_data;
+ 	int level;
  
- struct mtk_ecc_caps {
- 	u32 err_mask;
-+	u32 err_shift;
- 	const u8 *ecc_strength;
- 	const u32 *ecc_regs;
- 	u8 num_ecc_strength;
-@@ -76,7 +77,7 @@ static const u8 ecc_strength_mt2712[] = {
- };
- 
- static const u8 ecc_strength_mt7622[] = {
--	4, 6, 8, 10, 12, 14, 16
-+	4, 6, 8, 10, 12
- };
- 
- enum mtk_ecc_regs {
-@@ -221,7 +222,7 @@ void mtk_ecc_get_stats(struct mtk_ecc *ecc, struct mtk_ecc_stats *stats,
- 	for (i = 0; i < sectors; i++) {
- 		offset = (i >> 2) << 2;
- 		err = readl(ecc->regs + ECC_DECENUM0 + offset);
--		err = err >> ((i % 4) * 8);
-+		err = err >> ((i % 4) * ecc->caps->err_shift);
- 		err &= ecc->caps->err_mask;
- 		if (err == ecc->caps->err_mask) {
- 			/* uncorrectable errors */
-@@ -449,6 +450,7 @@ EXPORT_SYMBOL(mtk_ecc_get_parity_bits);
- 
- static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
- 	.err_mask = 0x3f,
-+	.err_shift = 8,
- 	.ecc_strength = ecc_strength_mt2701,
- 	.ecc_regs = mt2701_ecc_regs,
- 	.num_ecc_strength = 20,
-@@ -459,6 +461,7 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2701 = {
- 
- static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
- 	.err_mask = 0x7f,
-+	.err_shift = 8,
- 	.ecc_strength = ecc_strength_mt2712,
- 	.ecc_regs = mt2712_ecc_regs,
- 	.num_ecc_strength = 23,
-@@ -468,10 +471,11 @@ static const struct mtk_ecc_caps mtk_ecc_caps_mt2712 = {
- };
- 
- static const struct mtk_ecc_caps mtk_ecc_caps_mt7622 = {
--	.err_mask = 0x3f,
-+	.err_mask = 0x1f,
-+	.err_shift = 5,
- 	.ecc_strength = ecc_strength_mt7622,
- 	.ecc_regs = mt7622_ecc_regs,
--	.num_ecc_strength = 7,
-+	.num_ecc_strength = 5,
- 	.ecc_mode_shift = 4,
- 	.parity_bits = 13,
- 	.pg_irq_sel = 0,
++	/* Do not access the GPIO if this is not LEVEL triggered IRQ. */
++	if (!(bank->irq_type[d->hwirq] & IRQ_TYPE_LEVEL_MASK))
++		return;
++
+ 	/* If level interrupt type then retrig */
+ 	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
+ 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
 -- 
 2.35.1
 
