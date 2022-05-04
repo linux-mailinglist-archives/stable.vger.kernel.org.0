@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B0351A5F8
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FE6451A7C9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353679AbiEDQwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51056 "EHLO
+        id S1355134AbiEDRFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353622AbiEDQwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:01 -0400
+        with ESMTP id S1355257AbiEDREO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:14 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545774704B;
-        Wed,  4 May 2022 09:48:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2414EA1A;
+        Wed,  4 May 2022 09:52:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C3FAF61786;
-        Wed,  4 May 2022 16:48:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFB3C385A5;
-        Wed,  4 May 2022 16:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59396617C3;
+        Wed,  4 May 2022 16:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6DB3C385AA;
+        Wed,  4 May 2022 16:52:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682903;
-        bh=MgNU/KErX9XYknk3zj2PDYvQIh2K7GS2hYAzr7pzkmM=;
+        s=korg; t=1651683172;
+        bh=ErSJhNxNhAjFQyo0IYu55uUHakx8l73TBNY52bN65po=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOgtY2MWMmMgijbus5AUO9zU7QSMfcG7fcFG4iQ1/hGXcxcVatp1q8XmzRFrs/176
-         I3XTmAEkKAJVcBYbBCucl+5PJR42i+n3QNsY6rKi+OkMMIN4GauLjD8lPyf4V5RbVQ
-         GB5Nxk6hW2njWo8KsXWyvmQ6nj7ahUjP3apdsNfw=
+        b=cUuyE70H1KNkqRfNxtP7cIcdINKr0peVHWYmxYZHYwBkjG5T8Fi088NpnwFDZ3/6Q
+         ca3rVHyB4Fxd69u4ZyIzGJe9o7ltZEtNZQwjJ6QMkzrytnjBiKgcWYJftODDp+H+r4
+         cxM2hb2AFQE++tM784UPOOSwnQ93h875AzP92iYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 09/84] USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Johan Hovold <johan@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.15 037/177] arm64: dts: imx8mm-venice: fix spi2 pin configuration
 Date:   Wed,  4 May 2022 18:43:50 +0200
-Message-Id: <20220504152928.395537118@linuxfoundation.org>
+Message-Id: <20220504153056.262481379@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bruno Thomsen <bruno.thomsen@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 35a923a0b329c343e9e81d79518e2937eba06fcd upstream.
+commit dc900431337f5f861e3cc47ec5be5a69db40ee34 upstream.
 
-Wireless reading of water and heat meters using 868 MHz wM-Bus mode C1.
+Due to what looks like a copy-paste error, the ECSPI2_MISO pad is not
+muxed for SPI mode and causes reads from a slave-device connected to the
+SPI header to always return zero.
 
-The two different product IDs allow detection of dongle antenna
-solution:
-- Internal antenna
-- External antenna using SMA connector
+Configure the ECSPI2_MISO pad for SPI mode on the gw71xx, gw72xx and
+gw73xx families of boards that got this wrong.
 
-https://www.kamstrup.com/en-en/water-solutions/water-meter-reading/usb-meter-reader
-
-Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
-Link: https://lore.kernel.org/r/20220414081202.5591-1-bruno.thomsen@gmail.com
-Cc: stable@vger.kernel.org
+Fixes: 6f30b27c5ef5 ("arm64: dts: imx8mm: Add Gateworks i.MX 8M Mini Development Kits")
+Cc: stable@vger.kernel.org      # 5.12
+Cc: Tim Harvey <tharvey@gateworks.com>
 Signed-off-by: Johan Hovold <johan@kernel.org>
+Acked-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi |    2 +-
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi |    2 +-
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -195,6 +195,8 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
- 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
- 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
-+	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
-+	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
- 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
- 	{ USB_DEVICE(0x1843, 0x0200) }, /* Vaisala USB Instrument Cable */
- 	{ USB_DEVICE(0x18EF, 0xE00F) }, /* ELV USB-I2C-Interface */
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
+@@ -166,7 +166,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
+@@ -231,7 +231,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
+@@ -280,7 +280,7 @@
+ 		fsl,pins = <
+ 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI	0xd6
+-			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK	0xd6
++			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO	0xd6
+ 			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13	0xd6
+ 		>;
+ 	};
 
 
