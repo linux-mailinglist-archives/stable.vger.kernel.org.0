@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7984951A203
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4926251A1C9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:07:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236340AbiEDOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 10:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35236 "EHLO
+        id S245166AbiEDOLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 10:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351242AbiEDOS5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:18:57 -0400
-Received: from mail.avm.de (mail.avm.de [212.42.244.94])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA185BED
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 07:15:20 -0700 (PDT)
-Received: from mail-auth.avm.de (unknown [IPv6:2001:bf0:244:244::71])
-        by mail.avm.de (Postfix) with ESMTPS;
-        Wed,  4 May 2022 16:06:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-        t=1651673188; bh=PePx6/sh2VN6cfLu83HvGV4MAV41gXGyw1BfGt71u18=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QXu/3qu31c6djGMvn2rEEfURAdgB4BoaVpLw7QBZ7qU+WwxaUkuNGAEttSkQnoXud
-         UJuj9rpQrVrLx8jNVACn1m4Za/ZnjNdWAgJ6qKuWinOTtMQkZEp+Xo36XqzpHOg553
-         07ZBZaKzc+pWJE7oet7PFLooppNmTsjZinn2vwAk=
-Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
-        by mail-auth.avm.de (Postfix) with ESMTPA id C5126802EA;
-        Wed,  4 May 2022 16:06:25 +0200 (CEST)
-Received: by buildd.core.avm.de (Postfix, from userid 1000)
-        id BDF91188939; Wed,  4 May 2022 16:06:25 +0200 (CEST)
-From:   Johannes Nixdorf <j.nixdorf@avm.de>
-To:     stable@vger.kernel.org
-Cc:     Johannes Nixdorf <j.nixdorf@avm.de>,
-        =?UTF-8?q?Christoph=20B=C3=BCttner?= <c.buettner@avm.de>,
-        Nicolas Schier <n.schier@avm.de>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 5.4] net: ipv6: ensure we call ipv6_mc_down() at most once
-Date:   Wed,  4 May 2022 16:06:10 +0200
-Message-Id: <20220504140610.880318-2-j.nixdorf@avm.de>
+        with ESMTP id S237174AbiEDOLA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:11:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2518F41603
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 07:07:25 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ADAC261A35
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 14:07:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C072C385A5;
+        Wed,  4 May 2022 14:07:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651673244;
+        bh=7mGlPDQMXrMtZEhzcgsK6Kx5DlECfTccOgdFy/c3HT4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=a50x9O+qQ1AxtzrrkWs0+zf0wsD+Xn6RrCF3MdHdvcYOGkk/l2Vmn7Qnba9OvXq/G
+         B05CS+0WkXXod6WFlf/vksG40/soY8SeXDybdm9yMUMqKaDBDYeDPnKXcDGd0f9boK
+         5P16cw0Amky0o0F6St5Aerg4XpA/H5POImKjHglKZ+XXgGVgYK5apmxlSx2j9fjJgg
+         kN9NFpF1F9bF78c+cA7TvqhztAzLUqbQFkfp2+eiygkjuYOXUuYF0ZTS0d3kB0INa8
+         4+DsDY2T/KjOcVpdP5ejzr5jNacrsZqDKPUomst/qMCxeS2WAterAdQq+vrnhgZRSx
+         fV59mesGyx/TA==
+From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.19 1/2] PCI: aardvark: Clear all MSIs at setup
+Date:   Wed,  4 May 2022 16:07:18 +0200
+Message-Id: <20220504140719.11066-1-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220504140610.880318-1-j.nixdorf@avm.de>
-References: <20220504140610.880318-1-j.nixdorf@avm.de>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-purgate-ID: 149429::1651673188-0000038B-9972B794/0/0
-X-purgate-type: clean
-X-purgate-size: 3409
-X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
-X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
-X-purgate: clean
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -58,95 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 9995b408f17ff8c7f11bc725c8aa225ba3a63b1c upstream.
+From: Pali Rohár <pali@kernel.org>
 
-There are two reasons for addrconf_notify() to be called with NETDEV_DOWN:
-either the network device is actually going down, or IPv6 was disabled
-on the interface.
+[ Upstream commit 7d8dc1f7cd007a7ce94c5b4c20d63a8b8d6d7751 ]
 
-If either of them stays down while the other is toggled, we repeatedly
-call the code for NETDEV_DOWN, including ipv6_mc_down(), while never
-calling the corresponding ipv6_mc_up() in between. This will cause a
-new entry in idev->mc_tomb to be allocated for each multicast group
-the interface is subscribed to, which in turn leaks one struct ifmcaddr6
-per nontrivial multicast group the interface is subscribed to.
+We already clear all the other interrupts (ISR0, ISR1, HOST_CTRL_INT).
 
-The following reproducer will leak at least $n objects:
+Define a new macro PCIE_MSI_ALL_MASK and do the same clearing for MSIs,
+to ensure that we don't start receiving spurious interrupts.
 
-ip addr add ff2e::4242/32 dev eth0 autojoin
-sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
-for i in $(seq 1 $n); do
-	ip link set up eth0; ip link set down eth0
-done
+Use this new mask in advk_pcie_handle_msi();
 
-Joining groups with IPV6_ADD_MEMBERSHIP (unprivileged) or setting the
-sysctl net.ipv6.conf.eth0.forwarding to 1 (=> subscribing to ff02::2)
-can also be used to create a nontrivial idev->mc_list, which will the
-leak objects with the right up-down-sequence.
-
-Based on both sources for NETDEV_DOWN events the interface IPv6 state
-should be considered:
-
- - not ready if the network interface is not ready OR IPv6 is disabled
-   for it
- - ready if the network interface is ready AND IPv6 is enabled for it
-
-The functions ipv6_mc_up() and ipv6_down() should only be run when this
-state changes.
-
-Implement this by remembering when the IPv6 state is ready, and only
-run ipv6_mc_down() if it actually changed from ready to not ready.
-
-The other direction (not ready -> ready) already works correctly, as:
-
- - the interface notification triggered codepath for NETDEV_UP /
-   NETDEV_CHANGE returns early if ipv6 is disabled, and
- - the disable_ipv6=0 triggered codepath skips fully initializing the
-   interface as long as addrconf_link_ready(dev) returns false
- - calling ipv6_mc_up() repeatedly does not leak anything
-
-Fixes: 3ce62a84d53c ("ipv6: exit early in addrconf_notify() if IPv6 is disabled")
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[jnixdorf: context updated for bpo to v4.19/v5.4]
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+Link: https://lore.kernel.org/r/20211130172913.9727-5-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- net/ipv6/addrconf.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 9d8b791f63ef..295adfabf870 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3660,6 +3660,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 	struct inet6_dev *idev;
- 	struct inet6_ifaddr *ifa, *tmp;
- 	bool keep_addr = false;
-+	bool was_ready;
- 	int state, i;
+diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
+index db778a25bae3..ae5abd233df4 100644
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -103,6 +103,7 @@
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+ #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
++#define     PCIE_MSI_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
+ #define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
  
- 	ASSERT_RTNL();
-@@ -3725,7 +3726,10 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+@@ -489,6 +490,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL2_REG);
  
- 	addrconf_del_rs_timer(idev);
+ 	/* Clear all interrupts */
++	advk_writel(pcie, PCIE_MSI_ALL_MASK, PCIE_MSI_STATUS_REG);
+ 	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_REG);
+ 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
+ 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
+@@ -501,7 +503,7 @@ static void advk_pcie_setup_hw(struct advk_pcie *pcie)
+ 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_MASK_REG);
  
--	/* Step 2: clear flags for stateless addrconf */
-+	/* Step 2: clear flags for stateless addrconf, repeated down
-+	 *         detection
-+	 */
-+	was_ready = idev->if_flags & IF_READY;
- 	if (!how)
- 		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
+ 	/* Unmask all MSI's */
+-	advk_writel(pcie, 0, PCIE_MSI_MASK_REG);
++	advk_writel(pcie, ~(u32)PCIE_MSI_ALL_MASK, PCIE_MSI_MASK_REG);
  
-@@ -3799,7 +3803,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 	if (how) {
- 		ipv6_ac_destroy_dev(idev);
- 		ipv6_mc_destroy_dev(idev);
--	} else {
-+	} else if (was_ready) {
- 		ipv6_mc_down(idev);
- 	}
+ 	/* Enable summary interrupt for GIC SPI source */
+ 	reg = PCIE_IRQ_ALL_MASK & (~PCIE_IRQ_ENABLE_INTS_MASK);
+@@ -1037,7 +1039,7 @@ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
  
+ 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
+ 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
+-	msi_status = msi_val & ~msi_mask;
++	msi_status = msi_val & ((~msi_mask) & PCIE_MSI_ALL_MASK);
+ 
+ 	for (msi_idx = 0; msi_idx < MSI_IRQ_NUM; msi_idx++) {
+ 		if (!(BIT(msi_idx) & msi_status))
 -- 
-2.36.0
+2.35.1
 
