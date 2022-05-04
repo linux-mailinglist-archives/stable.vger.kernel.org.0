@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8FAA51A81E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7AF751A96E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347605AbiEDRIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53586 "EHLO
+        id S1354702AbiEDRLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354588AbiEDRFT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 257BE51323;
-        Wed,  4 May 2022 09:54:13 -0700 (PDT)
+        with ESMTP id S1356930AbiEDRJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0D294704A;
+        Wed,  4 May 2022 09:56:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D16D461505;
-        Wed,  4 May 2022 16:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270B1C385AA;
-        Wed,  4 May 2022 16:54:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D468B8279A;
+        Wed,  4 May 2022 16:56:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30146C385A4;
+        Wed,  4 May 2022 16:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683252;
-        bh=RYtp1i53ScDXczlIDSN87PZNZT1pdmCQ3DDS44by5LQ=;
+        s=korg; t=1651683388;
+        bh=Za0VdiC3YL/IFH8GD9TAZhUplfNPPkWz+O8jG/yfWG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMVv852LbKinRwBB1RpB6bOWbvT73Pgqgt9fLSAfTumtYCGVg4uYcq9dHkSn8PONj
-         iMlkbd0POuDhZ1zBAGvp3Gv6nAYwd/zlTHm3ckYtYbpdH1x63/Tke/usMzDwdSMVry
-         DUbva5BNJ8hoflIQr4rc9WMFWpQ1fnFRfymNyXaA=
+        b=cAY/tld0AcVpVovLRtB8xCt5Wy3BRbJFuH8iWLa99CzM6/kaq6h/7jNZGq2ut5SNn
+         lXlQUIyrJyk2LX43OIJZ8It0OuY6DDCwOnMCV0RUHyOoIJGeoZ2TE0F7DQVLHyGNGl
+         JCmmAHIrm3wzVcsHDs26VO/3ic8zskBERpXN9GcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 105/177] cpufreq: qcom-cpufreq-hw: Clear dcvs interrupts
+Subject: [PATCH 5.17 060/225] arm64: dts: meson: remove CPU opps below 1GHz for G12B boards
 Date:   Wed,  4 May 2022 18:44:58 +0200
-Message-Id: <20220504153102.641150753@linuxfoundation.org>
+Message-Id: <20220504153115.521635638@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit e4e6448638a01905faeda9bf96aa9df7c8ef463c ]
+[ Upstream commit 6c4d636bc00dc17c63ffb2a73a0da850240e26e3 ]
 
-It's noted that dcvs interrupts are not self-clearing, thus an interrupt
-handler runs constantly, which leads to a severe regression in runtime.
-To fix the problem an explicit write to clear interrupt register is
-required, note that on OSM platforms the register may not be present.
+Amlogic G12B devices experience CPU stalls and random board wedges when
+the system idles and CPU cores clock down to lower opp points. Recent
+vendor kernels include a change to remove 100-250MHz and other distro
+sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
+are removed or the CPU governor forced to performance stalls are still
+observed, so let's remove them to improve stability and uptime.
 
-Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Fixes: b96d4e92709b ("arm64: dts: meson-g12b: support a311d and s922x cpu operating points")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220210100638.19130-2-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../boot/dts/amlogic/meson-g12b-a311d.dtsi    | 40 -------------------
+ .../boot/dts/amlogic/meson-g12b-s922x.dtsi    | 40 -------------------
+ 2 files changed, 80 deletions(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index e73ecab23c85..bb2f59fd0de4 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -24,6 +24,8 @@
- #define CLK_HW_DIV			2
- #define LUT_TURBO_IND			1
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+index d61f43052a34..8e9ad1e51d66 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
-+#define GT_IRQ_STATUS			BIT(2)
-+
- #define HZ_PER_KHZ			1000
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <761000>;
+@@ -71,26 +51,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
- struct qcom_cpufreq_soc_data {
-@@ -31,6 +33,7 @@ struct qcom_cpufreq_soc_data {
- 	u32 reg_domain_state;
- 	u32 reg_freq_lut;
- 	u32 reg_volt_lut;
-+	u32 reg_intr_clr;
- 	u32 reg_current_vote;
- 	u32 reg_perf_state;
- 	u8 lut_row_size;
-@@ -349,6 +352,10 @@ static irqreturn_t qcom_lmh_dcvs_handle_irq(int irq, void *data)
- 	disable_irq_nosync(c_data->throttle_irq);
- 	schedule_delayed_work(&c_data->throttle_work, 0);
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+index 1e5d0ee5d541..44c23c984034 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
-+	if (c_data->soc_data->reg_intr_clr)
-+		writel_relaxed(GT_IRQ_STATUS,
-+			       c_data->base + c_data->soc_data->reg_intr_clr);
-+
- 	return IRQ_HANDLED;
- }
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+@@ -76,26 +56,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
  
-@@ -366,6 +373,7 @@ static const struct qcom_cpufreq_soc_data epss_soc_data = {
- 	.reg_domain_state = 0x20,
- 	.reg_freq_lut = 0x100,
- 	.reg_volt_lut = 0x200,
-+	.reg_intr_clr = 0x308,
- 	.reg_perf_state = 0x320,
- 	.lut_row_size = 4,
- };
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <771000>;
 -- 
 2.35.1
 
