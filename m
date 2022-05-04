@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A4551A94E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE37051A743
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356001AbiEDRMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40390 "EHLO
+        id S239215AbiEDRC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356961AbiEDRJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A590A47064;
-        Wed,  4 May 2022 09:56:44 -0700 (PDT)
+        with ESMTP id S1355623AbiEDRAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B40974BB8A;
+        Wed,  4 May 2022 09:51:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4107061808;
-        Wed,  4 May 2022 16:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B8C1C385A5;
-        Wed,  4 May 2022 16:56:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53947B8279F;
+        Wed,  4 May 2022 16:51:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 097E1C385A4;
+        Wed,  4 May 2022 16:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683403;
-        bh=BQI/BWu84cGIr7wcJBUztzbUZxXOZxMAvC14UpLb+8g=;
+        s=korg; t=1651683116;
+        bh=RgeZqrWmezN2DZR7KTsOqWVW++36tiwICGCSZVp8xps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUICga2oEMWDUXYCMYCl38HKVxngh+WHFIDklI0dx7nJLuonOm9Q1ZrdtNVKjJU58
-         lMHz+3jDDAgLZ92d9xuX+bEFJjXKaceQ7cwJDrGr+CMax32xTBiDNwWzwXNMyu3QCM
-         rPVeq18C4ag5AGU2a4mUzN8+4Gxx1I7jLv58z0Rc=
+        b=dmF7LguNjgy2R7/ewbBX5O/1/1V6CIMXyio9x0mWGkhMNa6i5rzEeS2DcQPksmMiB
+         GZzImaL1GK4IHq9KAXIVolebNg2laVAyMtycroXvk5kVHjMzPq26S6GM0Kx0tMalF8
+         co5B+ervbkR0Sn7KweytNDtF4yjvLYbP1GtV5lJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Adam Ford <aford173@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 074/225] arm64: dts: imx8mn: Fix SAI nodes
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH 5.10 120/129] netfilter: nft_socket: only do sk lookups when indev is available
 Date:   Wed,  4 May 2022 18:45:12 +0200
-Message-Id: <20220504153118.004201715@linuxfoundation.org>
+Message-Id: <20220504153030.950472872@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 574518b7ccbaef74cb89eb1a1a0da88afa1e0113 ]
+commit 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 upstream.
 
-The most specific compatible string element should be "fsl,imx8mn-sai"
-on i.MX8M Nano, fix it from current "fsl,imx8mm-sai" (two Ms, likely
-due to copy-paste error from i.MX8M Mini).
+Check if the incoming interface is available and NFT_BREAK
+in case neither skb->sk nor input device are set.
 
-Fixes: 9e9860069725f ("arm64: dts: imx8mn: Add SAI nodes")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Adam Ford <aford173@gmail.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-To: linux-arm-kernel@lists.infradead.org
-Reviewed-by: Adam Ford <aford173@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Because nf_sk_lookup_slow*() assume packet headers are in the
+'in' direction, use in postrouting is not going to yield a meaningful
+result.  Same is true for the forward chain, so restrict the use
+to prerouting, input and output.
+
+Use in output work if a socket is already attached to the skb.
+
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mn.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ net/netfilter/nft_socket.c |   52 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn.dtsi b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-index b8d49d5f2668..98bfb53491fc 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-@@ -291,7 +291,7 @@ spba2: spba-bus@30000000 {
- 				ranges;
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -33,6 +33,32 @@ static void nft_socket_wildcard(const st
+ 	}
+ }
  
- 				sai2: sai@30020000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30020000 0x10000>;
- 					interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI2_IPG>,
-@@ -305,7 +305,7 @@ sai2: sai@30020000 {
- 				};
++static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
++{
++	const struct net_device *indev = nft_in(pkt);
++	const struct sk_buff *skb = pkt->skb;
++	struct sock *sk = NULL;
++
++	if (!indev)
++		return NULL;
++
++	switch (nft_pf(pkt)) {
++	case NFPROTO_IPV4:
++		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
++		break;
++#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
++	case NFPROTO_IPV6:
++		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
++		break;
++#endif
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
++
++	return sk;
++}
++
+ static void nft_socket_eval(const struct nft_expr *expr,
+ 			    struct nft_regs *regs,
+ 			    const struct nft_pktinfo *pkt)
+@@ -46,20 +72,7 @@ static void nft_socket_eval(const struct
+ 		sk = NULL;
  
- 				sai3: sai@30030000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30030000 0x10000>;
- 					interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI3_IPG>,
-@@ -319,7 +319,7 @@ sai3: sai@30030000 {
- 				};
+ 	if (!sk)
+-		switch(nft_pf(pkt)) {
+-		case NFPROTO_IPV4:
+-			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
+-		case NFPROTO_IPV6:
+-			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#endif
+-		default:
+-			WARN_ON_ONCE(1);
+-			regs->verdict.code = NFT_BREAK;
+-			return;
+-		}
++		sk = nft_socket_do_lookup(pkt);
  
- 				sai5: sai@30050000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30050000 0x10000>;
- 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI5_IPG>,
-@@ -335,7 +335,7 @@ sai5: sai@30050000 {
- 				};
+ 	if (!sk) {
+ 		regs->verdict.code = NFT_BREAK;
+@@ -150,6 +163,16 @@ static int nft_socket_dump(struct sk_buf
+ 	return 0;
+ }
  
- 				sai6: sai@30060000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30060000  0x10000>;
- 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI6_IPG>,
-@@ -392,7 +392,7 @@ spdif1: spdif@30090000 {
- 				};
++static int nft_socket_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain,
++					(1 << NF_INET_PRE_ROUTING) |
++					(1 << NF_INET_LOCAL_IN) |
++					(1 << NF_INET_LOCAL_OUT));
++}
++
+ static struct nft_expr_type nft_socket_type;
+ static const struct nft_expr_ops nft_socket_ops = {
+ 	.type		= &nft_socket_type,
+@@ -157,6 +180,7 @@ static const struct nft_expr_ops nft_soc
+ 	.eval		= nft_socket_eval,
+ 	.init		= nft_socket_init,
+ 	.dump		= nft_socket_dump,
++	.validate	= nft_socket_validate,
+ };
  
- 				sai7: sai@300b0000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x300b0000 0x10000>;
- 					interrupts = <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI7_IPG>,
--- 
-2.35.1
-
+ static struct nft_expr_type nft_socket_type __read_mostly = {
 
 
