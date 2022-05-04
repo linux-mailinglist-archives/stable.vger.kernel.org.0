@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09D8C51A665
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D290D51A6D7
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:57:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234995AbiEDQzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
+        id S1354568AbiEDRAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354403AbiEDQyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54EB949245;
-        Wed,  4 May 2022 09:49:28 -0700 (PDT)
+        with ESMTP id S1355612AbiEDRAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E00D4B437;
+        Wed,  4 May 2022 09:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFCAEB827A7;
-        Wed,  4 May 2022 16:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91BCAC385A4;
-        Wed,  4 May 2022 16:49:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B25C661794;
+        Wed,  4 May 2022 16:51:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F36B1C385A4;
+        Wed,  4 May 2022 16:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682965;
-        bh=L3zXSQls9XfXWHq71OpLpjNBiieiInCvz1Bm0B5p6gE=;
+        s=korg; t=1651683100;
+        bh=bgToEcgNzqSGduzPEvX5C+xMWm9pac0XloT9o040au0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRAkeOwWiXzws7yMRLVwOM/qNMNqMwmPv02P5VmhinC+lEyqUJNWXrXWcrd/j+5yI
-         nR8GRUfKrVvDEeNUNnjl7s3rFUQIo4NE58URJ6vJ7N/+bJeXUFba/uA+1feONFBiTf
-         6nCRfR4L2p25P0CDhYxh0ETutSZCXs0d6v79MFk8=
+        b=Cba9Obf/3bVh9UzdWeR629wbEQWEbeFbk4NDzG70UybFqBcWYUy0XjDzvE+O4dBSe
+         ubeonkjrmkJa88DDGoV8UOF5wZ1Gpx3jeSdmAZQKFdP1U7SrF7QDghtL/lzRx2w4U7
+         04BM9GkLoqOonMVznUMF86on/iLazjKtectjVp+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Lijun Pan <lijunp213@gmail.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 67/84] tcp: fix F-RTO may not work correctly when receiving DSACK
+Subject: [PATCH 5.10 096/129] ibmvnic: fix miscellaneous checks
 Date:   Wed,  4 May 2022 18:44:48 +0200
-Message-Id: <20220504152932.653057672@linuxfoundation.org>
+Message-Id: <20220504153028.558964269@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pengcheng Yang <yangpc@wangsu.com>
+From: Lijun Pan <lijunp213@gmail.com>
 
-[ Upstream commit d9157f6806d1499e173770df1f1b234763de5c79 ]
+[ Upstream commit 91dc5d2553fbf20e2e8384ac997f278a50c70561 ]
 
-Currently DSACK is regarded as a dupack, which may cause
-F-RTO to incorrectly enter "loss was real" when receiving
-DSACK.
+Fix the following checkpatch checks:
+CHECK: Macro argument 'off' may be better as '(off)' to
+avoid precedence issues
+CHECK: Alignment should match open parenthesis
+CHECK: multiple assignments should be avoided
+CHECK: Blank lines aren't necessary before a close brace '}'
+CHECK: Please use a blank line after function/struct/union/enum
+declarations
+CHECK: Unnecessary parentheses around 'rc != H_FUNCTION'
 
-Packetdrill to demonstrate:
-
-// Enable F-RTO and TLP
-    0 `sysctl -q net.ipv4.tcp_frto=2`
-    0 `sysctl -q net.ipv4.tcp_early_retrans=3`
-    0 `sysctl -q net.ipv4.tcp_congestion_control=cubic`
-
-// Establish a connection
-   +0 socket(..., SOCK_STREAM, IPPROTO_TCP) = 3
-   +0 setsockopt(3, SOL_SOCKET, SO_REUSEADDR, [1], 4) = 0
-   +0 bind(3, ..., ...) = 0
-   +0 listen(3, 1) = 0
-
-// RTT 10ms, RTO 210ms
-  +.1 < S 0:0(0) win 32792 <mss 1000,sackOK,nop,nop,nop,wscale 7>
-   +0 > S. 0:0(0) ack 1 <...>
- +.01 < . 1:1(0) ack 1 win 257
-   +0 accept(3, ..., ...) = 4
-
-// Send 2 data segments
-   +0 write(4, ..., 2000) = 2000
-   +0 > P. 1:2001(2000) ack 1
-
-// TLP
-+.022 > P. 1001:2001(1000) ack 1
-
-// Continue to send 8 data segments
-   +0 write(4, ..., 10000) = 10000
-   +0 > P. 2001:10001(8000) ack 1
-
-// RTO
-+.188 > . 1:1001(1000) ack 1
-
-// The original data is acked and new data is sent(F-RTO step 2.b)
-   +0 < . 1:1(0) ack 2001 win 257
-   +0 > P. 10001:12001(2000) ack 1
-
-// D-SACK caused by TLP is regarded as a dupack, this results in
-// the incorrect judgment of "loss was real"(F-RTO step 3.a)
-+.022 < . 1:1(0) ack 2001 win 257 <sack 1001:2001,nop,nop>
-
-// Never-retransmitted data(3001:4001) are acked and
-// expect to switch to open state(F-RTO step 3.b)
-   +0 < . 1:1(0) ack 4001 win 257
-+0 %{ assert tcpi_ca_state == 0, tcpi_ca_state }%
-
-Fixes: e33099f96d99 ("tcp: implement RFC5682 F-RTO")
-Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
-Acked-by: Neal Cardwell <ncardwell@google.com>
-Tested-by: Neal Cardwell <ncardwell@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/1650967419-2150-1-git-send-email-yangpc@wangsu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Lijun Pan <lijunp213@gmail.com>
+Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index f84047aec63c..b0e6fc2c5e10 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -3717,7 +3717,8 @@ static int tcp_ack(struct sock *sk, const struct sk_buff *skb, int flag)
- 		tcp_process_tlp_ack(sk, ack, flag);
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 95bee3d91593..2cd849215913 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -117,7 +117,7 @@ struct ibmvnic_stat {
  
- 	if (tcp_ack_is_dubious(sk, flag)) {
--		if (!(flag & (FLAG_SND_UNA_ADVANCED | FLAG_NOT_DUP))) {
-+		if (!(flag & (FLAG_SND_UNA_ADVANCED |
-+			      FLAG_NOT_DUP | FLAG_DSACKING_ACK))) {
- 			num_dupack = 1;
- 			/* Consider if pure acks were aggregated in tcp_add_backlog() */
- 			if (!(flag & FLAG_DATA))
+ #define IBMVNIC_STAT_OFF(stat) (offsetof(struct ibmvnic_adapter, stats) + \
+ 			     offsetof(struct ibmvnic_statistics, stat))
+-#define IBMVNIC_GET_STAT(a, off) (*((u64 *)(((unsigned long)(a)) + off)))
++#define IBMVNIC_GET_STAT(a, off) (*((u64 *)(((unsigned long)(a)) + (off))))
+ 
+ static const struct ibmvnic_stat ibmvnic_stats[] = {
+ 	{"rx_packets", IBMVNIC_STAT_OFF(rx_packets)},
+@@ -2063,14 +2063,14 @@ static int do_reset(struct ibmvnic_adapter *adapter,
+ 			rc = reset_tx_pools(adapter);
+ 			if (rc) {
+ 				netdev_dbg(adapter->netdev, "reset tx pools failed (%d)\n",
+-						rc);
++					   rc);
+ 				goto out;
+ 			}
+ 
+ 			rc = reset_rx_pools(adapter);
+ 			if (rc) {
+ 				netdev_dbg(adapter->netdev, "reset rx pools failed (%d)\n",
+-						rc);
++					   rc);
+ 				goto out;
+ 			}
+ 		}
+@@ -2331,7 +2331,8 @@ static int ibmvnic_reset(struct ibmvnic_adapter *adapter,
+ 
+ 	if (adapter->state == VNIC_PROBING) {
+ 		netdev_warn(netdev, "Adapter reset during probe\n");
+-		ret = adapter->init_done_rc = EAGAIN;
++		adapter->init_done_rc = EAGAIN;
++		ret = EAGAIN;
+ 		goto err;
+ 	}
+ 
+@@ -2744,7 +2745,6 @@ static int ibmvnic_set_channels(struct net_device *netdev,
+ 			    channels->rx_count, channels->tx_count,
+ 			    adapter->req_rx_queues, adapter->req_tx_queues);
+ 	return ret;
+-
+ }
+ 
+ static void ibmvnic_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+@@ -2833,8 +2833,8 @@ static void ibmvnic_get_ethtool_stats(struct net_device *dev,
+ 		return;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(ibmvnic_stats); i++)
+-		data[i] = be64_to_cpu(IBMVNIC_GET_STAT(adapter,
+-						ibmvnic_stats[i].offset));
++		data[i] = be64_to_cpu(IBMVNIC_GET_STAT
++				      (adapter, ibmvnic_stats[i].offset));
+ 
+ 	for (j = 0; j < adapter->req_tx_queues; j++) {
+ 		data[i] = adapter->tx_stats_buffers[j].packets;
+@@ -2874,6 +2874,7 @@ static int ibmvnic_set_priv_flags(struct net_device *netdev, u32 flags)
+ 
+ 	return 0;
+ }
++
+ static const struct ethtool_ops ibmvnic_ethtool_ops = {
+ 	.get_drvinfo		= ibmvnic_get_drvinfo,
+ 	.get_msglevel		= ibmvnic_get_msglevel,
+@@ -3119,7 +3120,7 @@ static int enable_scrq_irq(struct ibmvnic_adapter *adapter,
+ 		/* H_EOI would fail with rc = H_FUNCTION when running
+ 		 * in XIVE mode which is expected, but not an error.
+ 		 */
+-		if (rc && (rc != H_FUNCTION))
++		if (rc && rc != H_FUNCTION)
+ 			dev_err(dev, "H_EOI FAILED irq 0x%llx. rc=%ld\n",
+ 				val, rc);
+ 	}
 -- 
 2.35.1
 
