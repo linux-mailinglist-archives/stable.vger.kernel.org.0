@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B504C51AA0C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 414AE51A9B4
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351481AbiEDRVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:21:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
+        id S1356774AbiEDRTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358072AbiEDRPi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E285640A;
-        Wed,  4 May 2022 09:59:20 -0700 (PDT)
+        with ESMTP id S1357565AbiEDRPG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F0FD55215;
+        Wed,  4 May 2022 09:58:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2E1D2CE28B0;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8927B827AB;
         Wed,  4 May 2022 16:58:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF40C385A4;
-        Wed,  4 May 2022 16:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5420FC385AA;
+        Wed,  4 May 2022 16:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683521;
-        bh=hFzdxaibjjuBchOtAixxvVDfgsr7vHrSRkpGGqYPVW8=;
+        s=korg; t=1651683522;
+        bh=xCx+GlsVxmY/H4CVNQZ7axuhJ5gW967unc+iX5+XCBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aj0fUUhyJbtioaBysFbWzIpnL06RdGOEzCubfOJJoDYtjfCePOLgc4KkpZgThYoZK
-         BooTsnuxl2TeRU5+sugMG7S3EKOyWNaJUgL9la6OAsBHZ1A+2qXqW4NlHYn/C+34UB
-         a55NMUYnTY1+hZwXMcmkgGGfLf7OOzF0EPCUhq3k=
+        b=uTClmVMpU/FJHQorRUwU7RrYDzEkRJBUVnLAZFuDJnOgk2Y0I2xYp3YL/kMnMOEUV
+         jTryNLTiF27Dhb9GO5qERSdP9QzNzI7ZCbsSoEsGHdV9P3HwDJM5oPJuZCZfQBgcHt
+         UPOFH+1VvFkS375RWvxE5mbI2aIThQ6KCgNxZI9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 5.17 196/225] ARM: dts: at91: sama7g5ek: enable pull-up on flexcom3 console lines
-Date:   Wed,  4 May 2022 18:47:14 +0200
-Message-Id: <20220504153127.688262187@linuxfoundation.org>
+        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: [PATCH 5.17 197/225] ARM: dts: imx8mm-venice-gw{71xx,72xx,73xx}: fix OTG controller OC mode
+Date:   Wed,  4 May 2022 18:47:15 +0200
+Message-Id: <20220504153127.764599625@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -55,37 +53,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Tim Harvey <tharvey@gateworks.com>
 
-commit 3f7ce6d7091765ed6c67c5d78aa364b9d17e3aab upstream.
+commit 4c79865f3e8a2db93ec1e844509edfebe5a6ae56 upstream.
 
-Flexcom3 is used as board console serial. There are no pull-ups on these
-lines on the board. This means that if a cable is not connected (that has
-pull-ups included), stray characters could appear on the console as the
-floating pins voltage levels are interpreted as incoming characters.
-To avoid this problem, enable the internal pull-ups on these lines.
+The GW71xx, GW72xx and GW73xx boards have USB1 routed to a USB OTG
+connectors and USB2 routed to a USB hub.
 
-Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20220307113827.2419331-1-eugen.hristev@microchip.com
+The OTG connector has a over-currently protection with an active-low
+pin and the USB1 to HUB connection has no over-current protection (as
+the HUB itself implements this for its downstream ports).
+
+Add proper dt nodes to specify the over-current pin polarity for USB1
+and disable over-current protection for USB2.
+
+Fixes: 6f30b27c5ef5 ("arm64: dts: imx8mm: Add Gateworks i.MX 8M Mini Development Kits")
+Cc: stable@vger.kernel.org
+Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91-sama7g5ek.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi |    2 ++
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi |    2 ++
+ arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi |    2 ++
+ 3 files changed, 6 insertions(+)
 
---- a/arch/arm/boot/dts/at91-sama7g5ek.dts
-+++ b/arch/arm/boot/dts/at91-sama7g5ek.dts
-@@ -465,7 +465,7 @@
- 	pinctrl_flx3_default: flx3_default {
- 		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
- 			 <PIN_PD17__FLEXCOM3_IO1>;
--		bias-disable;
-+		bias-pull-up;
- 	};
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw71xx.dtsi
+@@ -103,12 +103,14 @@
  
- 	pinctrl_flx4_default: flx4_default {
+ &usbotg1 {
+ 	dr_mode = "otg";
++	over-current-active-low;
+ 	vbus-supply = <&reg_usb_otg1_vbus>;
+ 	status = "okay";
+ };
+ 
+ &usbotg2 {
+ 	dr_mode = "host";
++	disable-over-current;
+ 	status = "okay";
+ };
+ 
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw72xx.dtsi
+@@ -139,12 +139,14 @@
+ 
+ &usbotg1 {
+ 	dr_mode = "otg";
++	over-current-active-low;
+ 	vbus-supply = <&reg_usb_otg1_vbus>;
+ 	status = "okay";
+ };
+ 
+ &usbotg2 {
+ 	dr_mode = "host";
++	disable-over-current;
+ 	vbus-supply = <&reg_usb_otg2_vbus>;
+ 	status = "okay";
+ };
+--- a/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mm-venice-gw73xx.dtsi
+@@ -166,12 +166,14 @@
+ 
+ &usbotg1 {
+ 	dr_mode = "otg";
++	over-current-active-low;
+ 	vbus-supply = <&reg_usb_otg1_vbus>;
+ 	status = "okay";
+ };
+ 
+ &usbotg2 {
+ 	dr_mode = "host";
++	disable-over-current;
+ 	vbus-supply = <&reg_usb_otg2_vbus>;
+ 	status = "okay";
+ };
 
 
