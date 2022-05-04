@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 637E451A90C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 167C051A8C1
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355351AbiEDRML (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S1356226AbiEDRQw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356991AbiEDRJw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91C594830C;
-        Wed,  4 May 2022 09:56:54 -0700 (PDT)
+        with ESMTP id S1355839AbiEDRIw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49793517CC;
+        Wed,  4 May 2022 09:54:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1394FB8278E;
-        Wed,  4 May 2022 16:56:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CD6C385A4;
-        Wed,  4 May 2022 16:56:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CAAD616B8;
+        Wed,  4 May 2022 16:54:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD40C385A4;
+        Wed,  4 May 2022 16:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683411;
-        bh=Nk0q8o4ePO6DGGemVBHiX7y2F5IJfBi+FRCmvQla5YQ=;
+        s=korg; t=1651683276;
+        bh=io5qK08uf7Ho5pIz2sIZ6RVCb9Wt3d3tyHRZDjUXifg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5+jirBitvBb2XypsZn10vpei8CzuLitYjMMGyd7EzcX1N8bae58Vt+KJiEkPX1J4
-         jnktGGF5X5c8DGzRooajgZSW3UpQZnKWa7552xYW9diNwbCSwbNMouzIwPUbk8ByiW
-         +igpDxwhT9lDwn7QZS5yy876Z066Ui8TSVisNQwo=
+        b=RdcALzLWeslAp+WWAav1mfycDQ8m5dnsur+/Z15ddv3cAYqiNLZ8WRzpeOa6bKN6R
+         tBAdSvIulzO9DlsZu1KPvytNCk5eXesVTnEjHIpNtwF4fUwlr5lvSOurdYC8r0sVDE
+         XF5XVNcmDbfruvGcQce8mYZJ6pA+ymXVJU1z1n34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 096/225] pinctrl: mediatek: moore: Fix build error
-Date:   Wed,  4 May 2022 18:45:34 +0200
-Message-Id: <20220504153119.364330797@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 5.15 142/177] zonefs: Clear inode information flags on inode creation
+Date:   Wed,  4 May 2022 18:45:35 +0200
+Message-Id: <20220504153105.971831088@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 87950929e2ff2236207bdbe14bff8230558b541b ]
+commit 694852ead287a3433126e7ebda397b242dc99624 upstream.
 
-If EINT_MTK is m and PINCTRL_MTK_V2 is y, build fails:
+Ensure that the i_flags field of struct zonefs_inode_info is cleared to
+0 when initializing a zone file inode, avoiding seeing the flag
+ZONEFS_ZONE_OPEN being incorrectly set.
 
-drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_set_config':
-pinctrl-moore.c:(.text+0xa6c): undefined reference to `mtk_eint_set_debounce'
-drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_to_irq':
-pinctrl-moore.c:(.text+0xacc): undefined reference to `mtk_eint_find_irq'
-
-Select EINT_MTK for PINCTRL_MTK_V2 to fix this.
-
-Fixes: 8174a8512e3e ("pinctrl: mediatek: make MediaTek pinctrl v2 driver ready for buidling loadable module")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20220409105958.37412-1-yuehaibing@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/mediatek/Kconfig | 1 +
+ fs/zonefs/super.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/mediatek/Kconfig b/drivers/pinctrl/mediatek/Kconfig
-index 66db4ac5d169..c7fa1525e42a 100644
---- a/drivers/pinctrl/mediatek/Kconfig
-+++ b/drivers/pinctrl/mediatek/Kconfig
-@@ -30,6 +30,7 @@ config PINCTRL_MTK_MOORE
- 	select GENERIC_PINMUX_FUNCTIONS
- 	select GPIOLIB
- 	select OF_GPIO
-+	select EINT_MTK
- 	select PINCTRL_MTK_V2
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -1155,6 +1155,7 @@ static struct inode *zonefs_alloc_inode(
+ 	inode_init_once(&zi->i_vnode);
+ 	mutex_init(&zi->i_truncate_mutex);
+ 	zi->i_wr_refcnt = 0;
++	zi->i_flags = 0;
  
- config PINCTRL_MTK_PARIS
--- 
-2.35.1
-
+ 	return &zi->i_vnode;
+ }
 
 
