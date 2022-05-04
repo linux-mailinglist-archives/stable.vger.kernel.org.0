@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B247151A709
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4019151A7D9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354692AbiEDRBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38272 "EHLO
+        id S1354473AbiEDRGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355513AbiEDRAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40AF84B842;
-        Wed,  4 May 2022 09:51:48 -0700 (PDT)
+        with ESMTP id S1356137AbiEDREz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B4A50073;
+        Wed,  4 May 2022 09:53:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAB21617C4;
-        Wed,  4 May 2022 16:51:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26292C385AF;
-        Wed,  4 May 2022 16:51:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E00D8B827A6;
+        Wed,  4 May 2022 16:53:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACD9C385A5;
+        Wed,  4 May 2022 16:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683093;
-        bh=QYfJ4jy1pgwenIxzQh04z03IUEVKov1C1SpEawfBfwY=;
+        s=korg; t=1651683231;
+        bh=+zsxUrdCriv/HUEE0NzYrokSTVzd+971nHkaK5R5ooY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1PMh5cjx202KBHVzpbHXQIRJMgXpRIMKxPPuPKdMN5/DZJnRSBDyDeZSZGVfHtex
-         V3zXbyg0hu7AuSX8keGpUgiClJ14El19fKMgUyufy8lzdq7eRntpL0nZ7h/EC4iiHp
-         r45O1eu4o7xQESYuSwwkh7nAXpORdOxOzu53QsEs=
+        b=LWJb/H4r92G3LxN0v1lFNTqcTTQ3HsQ00PnDnN/x0Z4qg7LXixW/xitJ5dzdNs1YL
+         0OuVoWts9h9T8yTV8ExbGH2i2Smj4F2JiZT5myCHQ08iLDfej1GbEvx1ny5nMAddHx
+         YHECfjfHJzk2o0Ffuv8sYKnEJ5WRJUd1Mjx7ZL90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 085/129] bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
+Subject: [PATCH 5.15 084/177] tcp: md5: incorrect tcp_header_len for incoming connections
 Date:   Wed,  4 May 2022 18:44:37 +0200
-Message-Id: <20220504153027.785752326@linuxfoundation.org>
+Message-Id: <20220504153100.626141326@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit fff8c10368e64e7f8960f149375c12ca5f3b30af ]
+[ Upstream commit 5b0b9e4c2c895227c8852488b3f09839233bba54 ]
 
-This code is really spurious.
-It always returns an ERR_PTR, even when err is known to be 0 and calls
-put_device() after a successful device_register() call.
+In tcp_create_openreq_child we adjust tcp_header_len for md5 using the
+remote address in newsk. But that address is still 0 in newsk at this
+point, and it is only set later by the callers (tcp_v[46]_syn_recv_sock).
+Use the address from the request socket instead.
 
-It is likely that the return statement in the normal path is missing.
-Add 'return rdev;' to fix it.
-
-Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Tested-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/ef2b9576350bba4c8e05e669e9535e9e2a415763.1650551719.git.christophe.jaillet@wanadoo.fr
+Fixes: cfb6eeb4c860 ("[TCP]: MD5 Signature Option (RFC2385) support.")
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220421005026.686A45EC01F2@us226.sjc.aristanetworks.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/tcp_minisocks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index 1bb00a959c67..9b1a5e62417c 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -224,6 +224,8 @@ static struct sunxi_rsb_device *sunxi_rsb_device_create(struct sunxi_rsb *rsb,
- 
- 	dev_dbg(&rdev->dev, "device %s registered\n", dev_name(&rdev->dev));
- 
-+	return rdev;
-+
- err_device_add:
- 	put_device(&rdev->dev);
- 
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index 0a4f3f16140a..13783fc58e03 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -538,7 +538,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
+ 	newtp->tsoffset = treq->ts_off;
+ #ifdef CONFIG_TCP_MD5SIG
+ 	newtp->md5sig_info = NULL;	/*XXX*/
+-	if (newtp->af_specific->md5_lookup(sk, newsk))
++	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
+ 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
+ #endif
+ 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
 -- 
 2.35.1
 
