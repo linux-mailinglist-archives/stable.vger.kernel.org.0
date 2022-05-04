@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EADDA51A71E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF6F51A87F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238008AbiEDRCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
+        id S1356150AbiEDRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355659AbiEDRAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D924BBAE;
-        Wed,  4 May 2022 09:52:00 -0700 (PDT)
+        with ESMTP id S1356920AbiEDRJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD99447386;
+        Wed,  4 May 2022 09:56:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C03A0617BE;
-        Wed,  4 May 2022 16:51:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E884C385A5;
-        Wed,  4 May 2022 16:51:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84E25B8279C;
+        Wed,  4 May 2022 16:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DDA3C385A5;
+        Wed,  4 May 2022 16:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683110;
-        bh=aEDMA/3oe/qWVXNiG9wL+UoIZG5uPLMm54IzJ4kwM5c=;
+        s=korg; t=1651683384;
+        bh=XXe5e6LTOiqCf7n9YpwIDSJ2KM10tPHdgipwNToxAwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I31QLYedeNZ9Gwj7V3HEvdclL1C14PmmHal3te25aNJlugBiCF7iFeNAoSk7K7sa1
-         SnoaNX0v/qL3xciRGYFt3Qz+x6a1jXA2woEkidqZlDNwf+gUZM6YUbwNEb5BF12WHu
-         oSwM1rvVRR3msxaWqVT9nkhXwDelZz78roV+583U=
+        b=Q8bHGCVCgfyagBkT+LYPwhk1CvuAmrGNRt4pq0657O5fur0MTjH2xybBZZNJJqy5X
+         qo6tcNquEm7DqKnmbCybOQgI1gDYpr5RiKpdRPBv4LNEtwnDI6MoFxKhxzusmHDNPs
+         US2MBINe6mgemGz15VB+97ElcTswFBoTidqQ8z7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 102/129] x86: __memcpy_flushcache: fix wrong alignment if size > 2^32
+Subject: [PATCH 5.17 056/225] cpufreq: qcom-hw: fix the race between LMH worker and cpuhp
 Date:   Wed,  4 May 2022 18:44:54 +0200
-Message-Id: <20220504153029.038791063@linuxfoundation.org>
+Message-Id: <20220504153115.159210170@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit a6823e4e360fe975bd3da4ab156df7c74c8b07f3 ]
+[ Upstream commit 5e4f009da6be563984ba4db4ef4f32529e9aeb90 ]
 
-The first "if" condition in __memcpy_flushcache is supposed to align the
-"dest" variable to 8 bytes and copy data up to this alignment.  However,
-this condition may misbehave if "size" is greater than 4GiB.
+The driver would disable the worker when cpu is being put offline, but
+it happens closer to the end of cpufreq_offline(). The function
+qcom_lmh_dcvs_poll() can be running in parallel with this, when
+policy->cpus already has been updated. Read policy->related_cpus
+instead.
 
-The statement min_t(unsigned, size, ALIGN(dest, 8) - dest); casts both
-arguments to unsigned int and selects the smaller one.  However, the
-cast truncates high bits in "size" and it results in misbehavior.
+[   37.122433] ------------[ cut here ]------------
+[   37.127225] WARNING: CPU: 0 PID: 187 at drivers/base/arch_topology.c:180 topology_update_thermal_pressure+0xec/0x100
+[   37.138098] Modules linked in:
+[   37.141279] CPU: 0 PID: 187 Comm: kworker/0:3 Tainted: G S                5.17.0-rc6-00389-g37c83d0b8710-dirty #713
+[   37.158306] Workqueue: events qcom_lmh_dcvs_poll
+[   37.163095] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   37.170278] pc : topology_update_thermal_pressure+0xec/0x100
+[   37.176131] lr : topology_update_thermal_pressure+0x20/0x100
+[   37.181977] sp : ffff800009b6bce0
+[   37.185402] x29: ffff800009b6bce0 x28: ffffd87abe92b000 x27: ffff04bd7292e205
+[   37.192792] x26: ffffd87abe930af8 x25: ffffd87abe94e4c8 x24: 0000000000000000
+[   37.200180] x23: ffff04bb01177018 x22: ffff04bb011770c0 x21: ffff04bb01177000
+[   37.207567] x20: ffff04bb0a419000 x19: 00000000000c4e00 x18: 0000000000000000
+[   37.214954] x17: 000000040044ffff x16: 004000b2b5503510 x15: 0000006aaa1326d2
+[   37.222333] x14: 0000000000000232 x13: 0000000000000001 x12: 0000000000000040
+[   37.229718] x11: ffff04bb00400000 x10: 968f57bd39f701c8 x9 : ffff04bb0acc8674
+[   37.237095] x8 : fefefefefefefeff x7 : 0000000000000018 x6 : ffffd87abd90092c
+[   37.244478] x5 : 0000000000000016 x4 : 0000000000000000 x3 : 0000000000000100
+[   37.251852] x2 : ffff04bb0a419020 x1 : 0000000000000100 x0 : 0000000000000100
+[   37.259235] Call trace:
+[   37.261771]  topology_update_thermal_pressure+0xec/0x100
+[   37.267266]  qcom_lmh_dcvs_poll+0xbc/0x154
+[   37.271505]  process_one_work+0x288/0x69c
+[   37.275654]  worker_thread+0x74/0x470
+[   37.279450]  kthread+0xfc/0x100
+[   37.282712]  ret_from_fork+0x10/0x20
+[   37.286417] irq event stamp: 74
+[   37.289664] hardirqs last  enabled at (73): [<ffffd87abdd78af4>] _raw_spin_unlock_irq+0x44/0x80
+[   37.298632] hardirqs last disabled at (74): [<ffffd87abdd71fc0>] __schedule+0x710/0xa10
+[   37.306885] softirqs last  enabled at (58): [<ffffd87abcc90410>] _stext+0x410/0x588
+[   37.314778] softirqs last disabled at (51): [<ffffd87abcd1bf68>] __irq_exit_rcu+0x158/0x174
+[   37.323386] ---[ end trace 0000000000000000 ]---
 
-For example:
-
-	suppose that size == 0x100000001, dest == 0x200000002
-	min_t(unsigned, size, ALIGN(dest, 8) - dest) == min_t(0x1, 0xe) == 0x1;
-	...
-	dest += 0x1;
-
-so we copy just one byte "and" dest remains unaligned.
-
-This patch fixes the bug by replacing unsigned with size_t.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/usercopy_64.c | 2 +-
+ drivers/cpufreq/qcom-cpufreq-hw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
-index 508c81e97ab1..f1c0befb62df 100644
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -121,7 +121,7 @@ void __memcpy_flushcache(void *_dst, const void *_src, size_t size)
- 
- 	/* cache copy and flush to align dest */
- 	if (!IS_ALIGNED(dest, 8)) {
--		unsigned len = min_t(unsigned, size, ALIGN(dest, 8) - dest);
-+		size_t len = min_t(size_t, size, ALIGN(dest, 8) - dest);
- 
- 		memcpy((void *) dest, (void *) source, len);
- 		clean_cache_range((void *) dest, len);
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index 740518d8ae16..dc0d5f84d863 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -277,7 +277,7 @@ static unsigned int qcom_lmh_get_throttle_freq(struct qcom_cpufreq_data *data)
+ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ {
+ 	struct cpufreq_policy *policy = data->policy;
+-	int cpu = cpumask_first(policy->cpus);
++	int cpu = cpumask_first(policy->related_cpus);
+ 	struct device *dev = get_cpu_device(cpu);
+ 	unsigned long freq_hz, throttled_freq;
+ 	struct dev_pm_opp *opp;
 -- 
 2.35.1
 
