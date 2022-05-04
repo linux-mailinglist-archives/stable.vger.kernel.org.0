@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A541751A99F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8487451A987
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356098AbiEDRSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:18:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57374 "EHLO
+        id S1355368AbiEDRRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357204AbiEDROz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:55 -0400
+        with ESMTP id S1356564AbiEDRN5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76AC54682;
-        Wed,  4 May 2022 09:58:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5707F53A66;
+        Wed,  4 May 2022 09:58:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6809B827B1;
-        Wed,  4 May 2022 16:58:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C9DBC385A5;
-        Wed,  4 May 2022 16:58:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2E4FB82552;
+        Wed,  4 May 2022 16:58:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C6FFC385AA;
+        Wed,  4 May 2022 16:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683501;
-        bh=fkKBag7PPVPmosOz09eZsWq1ZvVA46uXSUgjhv12iXU=;
+        s=korg; t=1651683485;
+        bh=xtg5HxQLcrFUu/kx+UNr01sQ7UEWL3iVhKIKNYCJMaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V3KB8XtfZWOCSYKun/HSvdQMMU+V4T6h9x3GpNr1k6lJK1QWVQBk/3QeZ9l0vVbk3
-         EirQ9lpUNxYy9meqQYbKGAdENTGt63wCVxb6S8DTmlalNjPkFVFBepikL2OVqEb+LJ
-         cAf4sz7KaVSUd8Yhk/H7TR1lQPi/i3nmfNo1IUS4=
+        b=MeG/+ihQQvgYp9yAw0Sx3GAp5xSkIpKvEhj5oWECPJw5YwUbUxTJFjye/6YWf6ErV
+         hvlRkUocLt8UG+Jqee9ofnCwMkU+O4xOGsYSgq28FsZnBdZWk6I02xA9trEyDIQ3l9
+         s6y+RA2MJrcmMxfkmOTYQH4DVCGFG9VBeI3/DxYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Chao Song <chao.song@linux.intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 159/225] ASoC: rt711/5682: check if bus is active before deferred jack detection
-Date:   Wed,  4 May 2022 18:46:37 +0200
-Message-Id: <20220504153124.208111899@linuxfoundation.org>
+Subject: [PATCH 5.17 160/225] ASoC: Intel: soc-acpi: correct device endpoints for max98373
+Date:   Wed,  4 May 2022 18:46:38 +0200
+Message-Id: <20220504153124.285337729@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -57,72 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Chao Song <chao.song@linux.intel.com>
 
-[ Upstream commit 770f3d992a3f7330f801dfeee98429b2885c9fdb ]
+[ Upstream commit 97326be14df7bacc6ba5c62c0556298c27ea0432 ]
 
-This patch takes a defensive programming and paranoid approach in case
-the parent device (SoundWire) is pm_runtime resumed but the rt711
-device is not. In that case, during the attachment and initialization,
-a jack detection workqueue can be scheduled. Since the pm_runtime
-suspend routines will not be invoked, the sequence to cancel all
-deferred work is not executed, and the jack detection could happen
-after the bus stops operating, leading to a timeout.
+The left speaker of max98373 uses spk_r_endpoint, and right
+speaker uses spk_l_endpoint, this is obviously wrong.
 
-This patch applies the same solution to rt5682, based on the
-similarities between codec drivers. The race condition with rt5682 was
-not detected experimentally though.
+This patch corrects the endpoints for max98373 codec.
 
-BugLink: https://github.com/thesofproject/linux/issues/3459
+Signed-off-by: Chao Song <chao.song@linux.intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Link: https://lore.kernel.org/r/20220406192005.262996-1-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220406192341.271465-1-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 9 +++++++++
- sound/soc/codecs/rt711.c  | 7 +++++++
- 2 files changed, 16 insertions(+)
+ sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index c9ff9c89adf7..2b6c6d6b9771 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -1100,6 +1100,15 @@ void rt5682_jack_detect_handler(struct work_struct *work)
- 		return;
+diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+index e2658bca6931..3137cea78d48 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+@@ -132,13 +132,13 @@ static const struct snd_soc_acpi_adr_device mx8373_1_adr[] = {
+ 	{
+ 		.adr = 0x000123019F837300ull,
+ 		.num_endpoints = 1,
+-		.endpoints = &spk_l_endpoint,
++		.endpoints = &spk_r_endpoint,
+ 		.name_prefix = "Right"
+ 	},
+ 	{
+ 		.adr = 0x000127019F837300ull,
+ 		.num_endpoints = 1,
+-		.endpoints = &spk_r_endpoint,
++		.endpoints = &spk_l_endpoint,
+ 		.name_prefix = "Left"
  	}
- 
-+	if (rt5682->is_sdw) {
-+		if (pm_runtime_status_suspended(rt5682->slave->dev.parent)) {
-+			dev_dbg(&rt5682->slave->dev,
-+				"%s: parent device is pm_runtime_status_suspended, skipping jack detection\n",
-+				__func__);
-+			return;
-+		}
-+	}
-+
- 	dapm = snd_soc_component_get_dapm(rt5682->component);
- 
- 	snd_soc_dapm_mutex_lock(dapm);
-diff --git a/sound/soc/codecs/rt711.c b/sound/soc/codecs/rt711.c
-index 6770825d037a..ea25fd58d43a 100644
---- a/sound/soc/codecs/rt711.c
-+++ b/sound/soc/codecs/rt711.c
-@@ -245,6 +245,13 @@ static void rt711_jack_detect_handler(struct work_struct *work)
- 	if (!rt711->component->card->instantiated)
- 		return;
- 
-+	if (pm_runtime_status_suspended(rt711->slave->dev.parent)) {
-+		dev_dbg(&rt711->slave->dev,
-+			"%s: parent device is pm_runtime_status_suspended, skipping jack detection\n",
-+			__func__);
-+		return;
-+	}
-+
- 	reg = RT711_VERB_GET_PIN_SENSE | RT711_HP_OUT;
- 	ret = regmap_read(rt711->regmap, reg, &jack_status);
- 	if (ret < 0)
+ };
 -- 
 2.35.1
 
