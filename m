@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F0351A7F6
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9B7351A8AC
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354677AbiEDRHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55356 "EHLO
+        id S1355983AbiEDRNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355819AbiEDREn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9414A4992B;
-        Wed,  4 May 2022 09:53:25 -0700 (PDT)
+        with ESMTP id S1356797AbiEDRJo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB9A1A807;
+        Wed,  4 May 2022 09:55:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1509A616F8;
-        Wed,  4 May 2022 16:53:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55454C385AF;
-        Wed,  4 May 2022 16:53:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72F09B8278E;
+        Wed,  4 May 2022 16:55:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 226D5C385AA;
+        Wed,  4 May 2022 16:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683204;
-        bh=6Va1t0xMrqkOyI+YVYgcsaBtCpt0QomG1pI3tWZkQTg=;
+        s=korg; t=1651683337;
+        bh=MdhV4vMP/Ag3QWOmc6UiTASLX41bGZ/YGwSwW6Adsdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdWcbBYxLk3ye8H7/EaAVigXalKasgYZfPSxBg0xrwGjl7CFaE11+kEuYSRCniWOz
-         kX1/T2t7OCUP4zvI5l/bXAWrHN8cYoWz69yJAv2D+F8mjNHK5a28qMhntNgQQemD7e
-         DEibafLaQP2FPqZAm56j4MxnZDl6G01F+YJsUXqU=
+        b=TXENfEro0bMF1nIpFtjGlDsPPGeniyrtQJN7guV8JCA2Loh9Rr7pbvBFuPkE5UU9P
+         S731tJDALYB0Av8YhUhGhEwvbzgzgnQwio79ZqRIC24NtQgdrsE59o6AttPb8wrczl
+         U6Zv47k5P4Ooq/enitEzfNx3row9SrnFiLxV4wIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Adam Ford <aford173@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 056/177] arm64: dts: imx8mn: Fix SAI nodes
-Date:   Wed,  4 May 2022 18:44:09 +0200
-Message-Id: <20220504153058.039257167@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.17 012/225] xhci: increase usb U3 -> U0 link resume timeout from 100ms to 500ms
+Date:   Wed,  4 May 2022 18:44:10 +0200
+Message-Id: <20220504153111.358907655@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit 574518b7ccbaef74cb89eb1a1a0da88afa1e0113 ]
+commit 33597f0c48be0836854d43c577e35c8f8a765a7d upstream.
 
-The most specific compatible string element should be "fsl,imx8mn-sai"
-on i.MX8M Nano, fix it from current "fsl,imx8mm-sai" (two Ms, likely
-due to copy-paste error from i.MX8M Mini).
+The first U3 wake signal by the host may be lost if the USB 3 connection is
+tunneled over USB4, with a runtime suspended USB4 host, and firmware
+implemented connection manager.
 
-Fixes: 9e9860069725f ("arm64: dts: imx8mn: Add SAI nodes")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Adam Ford <aford173@gmail.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-To: linux-arm-kernel@lists.infradead.org
-Reviewed-by: Adam Ford <aford173@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Specs state the host must wait 100ms (tU3WakeupRetryDelay) before
+resending a U3 wake signal if device doesn't respond, leading to U3 -> U0
+link transition times around 270ms in the tunneled case.
+
+Fixes: 0200b9f790b0 ("xhci: Wait until link state trainsits to U0 after setting USB_SS_PORT_LS_U0")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20220408134823.2527272-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mn.dtsi | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/host/xhci-hub.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn.dtsi b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-index da6c942fb7f9..6d6cbd4c83b8 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mn.dtsi
-@@ -263,7 +263,7 @@ spba2: spba-bus@30000000 {
- 				ranges;
- 
- 				sai2: sai@30020000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30020000 0x10000>;
- 					interrupts = <GIC_SPI 96 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI2_IPG>,
-@@ -277,7 +277,7 @@ sai2: sai@30020000 {
- 				};
- 
- 				sai3: sai@30030000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30030000 0x10000>;
- 					interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI3_IPG>,
-@@ -291,7 +291,7 @@ sai3: sai@30030000 {
- 				};
- 
- 				sai5: sai@30050000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30050000 0x10000>;
- 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI5_IPG>,
-@@ -307,7 +307,7 @@ sai5: sai@30050000 {
- 				};
- 
- 				sai6: sai@30060000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x30060000  0x10000>;
- 					interrupts = <GIC_SPI 90 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI6_IPG>,
-@@ -364,7 +364,7 @@ spdif1: spdif@30090000 {
- 				};
- 
- 				sai7: sai@300b0000 {
--					compatible = "fsl,imx8mm-sai", "fsl,imx8mq-sai";
-+					compatible = "fsl,imx8mn-sai", "fsl,imx8mq-sai";
- 					reg = <0x300b0000 0x10000>;
- 					interrupts = <GIC_SPI 111 IRQ_TYPE_LEVEL_HIGH>;
- 					clocks = <&clk IMX8MN_CLK_SAI7_IPG>,
--- 
-2.35.1
-
+--- a/drivers/usb/host/xhci-hub.c
++++ b/drivers/usb/host/xhci-hub.c
+@@ -1434,7 +1434,7 @@ int xhci_hub_control(struct usb_hcd *hcd
+ 				}
+ 				spin_unlock_irqrestore(&xhci->lock, flags);
+ 				if (!wait_for_completion_timeout(&bus_state->u3exit_done[wIndex],
+-								 msecs_to_jiffies(100)))
++								 msecs_to_jiffies(500)))
+ 					xhci_dbg(xhci, "missing U0 port change event for port %d-%d\n",
+ 						 hcd->self.busnum, wIndex + 1);
+ 				spin_lock_irqsave(&xhci->lock, flags);
 
 
