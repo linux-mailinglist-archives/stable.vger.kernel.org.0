@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC8E51A86D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE25651A60C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236340AbiEDRK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
+        id S1353802AbiEDQwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356760AbiEDRJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:41 -0400
+        with ESMTP id S1353731AbiEDQwL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:11 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E817E6354;
-        Wed,  4 May 2022 09:55:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D2647053;
+        Wed,  4 May 2022 09:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C352B82792;
-        Wed,  4 May 2022 16:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ACC3C385A4;
-        Wed,  4 May 2022 16:55:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C3A1B8279F;
+        Wed,  4 May 2022 16:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20EB0C385BD;
+        Wed,  4 May 2022 16:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683330;
-        bh=n9Q/W/occ0bb07vn7HK5qwDHGDLUQo+K6rMhV1GBuo8=;
+        s=korg; t=1651682908;
+        bh=yd24OcPBlVIUgxJ+YzdgSDislzfz6tX0jHWJ+szSPI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U0REyl/uWvNRLngLs59+DHV71bKP3fAiycDWJauSOh5Sx9VTUSoFdwakcuimuy3Eu
-         Qgkl9iRTVKOwQyS76/8GGmIU1dBbNxXtSg6BF5fxzA1Uda/mNNWe2ULV5kXNvNXbOZ
-         3KbrV2b2wSOsd/EUp5UpzZ9EkHGT9ED04PG927BY=
+        b=sXJt1j5kuQv5ALCD9/V8GFdWA17rWLN1zbH/0mlSMWwWSSmVSMz94YN3YFgIifquL
+         cl8kQvA+kJilK0ZUttR9660Crc3AP9sOJLxV696PTBlk2ir3ZdnMsTLLlUea0rzkz/
+         iHdlBnMmhYV3I01yiswY6z4J8OYPsfaHkosLxH8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>
-Subject: [PATCH 5.17 009/225] usb: xhci: tegra:Fix PM usage reference leak of tegra_xusb_unpowergate_partitions
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Wang Qing <wangqing@vivo.com>
+Subject: [PATCH 5.4 26/84] arch_topology: Do not set llc_sibling if llc_id is invalid
 Date:   Wed,  4 May 2022 18:44:07 +0200
-Message-Id: <20220504153111.114797832@linuxfoundation.org>
+Message-Id: <20220504152929.640436437@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangqilong <zhangqilong3@huawei.com>
+From: Wang Qing <wangqing@vivo.com>
 
-commit 8771039482d965bdc8cefd972bcabac2b76944a8 upstream.
+commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
 
-pm_runtime_get_sync will increment pm usage counter
-even it failed. Forgetting to putting operation will
-result in reference leak here. We fix it by replacing
-it with pm_runtime_resume_and_get to keep usage counter
-balanced.
+When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
+will set llc_sibling 0xff(...), this is misleading.
 
-Fixes: 41a7426d25fa ("usb: xhci: tegra: Unlink power domain devices")
+Don't set llc_sibling(default 0) if we don't know the cache topology.
+
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220319023822.145641-1-zhangqilong3@huawei.com
+Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/arch_topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1034,13 +1034,13 @@ static int tegra_xusb_unpowergate_partit
- 	int rc;
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -457,7 +457,7 @@ void update_siblings_masks(unsigned int
+ 	for_each_online_cpu(cpu) {
+ 		cpu_topo = &cpu_topology[cpu];
  
- 	if (tegra->use_genpd) {
--		rc = pm_runtime_get_sync(tegra->genpd_dev_ss);
-+		rc = pm_runtime_resume_and_get(tegra->genpd_dev_ss);
- 		if (rc < 0) {
- 			dev_err(dev, "failed to enable XUSB SS partition\n");
- 			return rc;
+-		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
++		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
+ 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
+ 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
  		}
- 
--		rc = pm_runtime_get_sync(tegra->genpd_dev_host);
-+		rc = pm_runtime_resume_and_get(tegra->genpd_dev_host);
- 		if (rc < 0) {
- 			dev_err(dev, "failed to enable XUSB Host partition\n");
- 			pm_runtime_put_sync(tegra->genpd_dev_ss);
 
 
