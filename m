@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1874951A759
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C382751A646
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354567AbiEDRCv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
+        id S237283AbiEDQys (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355523AbiEDRAL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D78144B847;
-        Wed,  4 May 2022 09:51:48 -0700 (PDT)
+        with ESMTP id S1354191AbiEDQxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2D8483B1;
+        Wed,  4 May 2022 09:49:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DC02B82792;
-        Wed,  4 May 2022 16:51:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17CC8C385A5;
-        Wed,  4 May 2022 16:51:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6337F61771;
+        Wed,  4 May 2022 16:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1B14C385A4;
+        Wed,  4 May 2022 16:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683107;
-        bh=9XMsbr7G05OYiESgCjRkznWz6gPpP4Kr/uPZBwsXf4c=;
+        s=korg; t=1651682951;
+        bh=IwX2/NnejUzN7u8g7KsKfNNxuvUqvIN8hWL1MrCgCGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P29NIpS82XtP9EtepqaODMO9AQlK3Eh8W+bw90Yfadchb//M9tq83OMf7pbDg2No7
-         yqlgoY+crT/2jqdnKxnMPpL863cmDc1FM9HRMXu4VrCb5cWBCyzzXbQKclFfNKB0IY
-         ogqjqkGpaDW4UpMF42cSL5GX3NSo8KI5QFKu33NQ=
+        b=itxNc3uTTXStJ4b5JIlC1tA0vv037DbE0zngd+S7cgM4Y198nVR5AJjQpO7+SG+Zg
+         He591syb8p9nHFmFc2LWL/sKuFgzhIxsWyL6qA2Us1DrP/jqDW8eaaKXQEwm0ZhFj5
+         Umedf7b98KLm6K/9s7LK+NTQUq3xm2qxB0qV1+gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Song <chao.song@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/129] ASoC: Intel: soc-acpi: correct device endpoints for max98373
+Subject: [PATCH 5.4 70/84] x86: __memcpy_flushcache: fix wrong alignment if size > 2^32
 Date:   Wed,  4 May 2022 18:44:51 +0200
-Message-Id: <20220504153028.791316478@linuxfoundation.org>
+Message-Id: <20220504152932.925204395@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Song <chao.song@linux.intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 97326be14df7bacc6ba5c62c0556298c27ea0432 ]
+[ Upstream commit a6823e4e360fe975bd3da4ab156df7c74c8b07f3 ]
 
-The left speaker of max98373 uses spk_r_endpoint, and right
-speaker uses spk_l_endpoint, this is obviously wrong.
+The first "if" condition in __memcpy_flushcache is supposed to align the
+"dest" variable to 8 bytes and copy data up to this alignment.  However,
+this condition may misbehave if "size" is greater than 4GiB.
 
-This patch corrects the endpoints for max98373 codec.
+The statement min_t(unsigned, size, ALIGN(dest, 8) - dest); casts both
+arguments to unsigned int and selects the smaller one.  However, the
+cast truncates high bits in "size" and it results in misbehavior.
 
-Signed-off-by: Chao Song <chao.song@linux.intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220406192341.271465-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+For example:
+
+	suppose that size == 0x100000001, dest == 0x200000002
+	min_t(unsigned, size, ALIGN(dest, 8) - dest) == min_t(0x1, 0xe) == 0x1;
+	...
+	dest += 0x1;
+
+so we copy just one byte "and" dest remains unaligned.
+
+This patch fixes the bug by replacing unsigned with size_t.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/lib/usercopy_64.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-index 9f243e60b95c..15d862cdcd2f 100644
---- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-+++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
-@@ -126,13 +126,13 @@ static const struct snd_soc_acpi_adr_device mx8373_1_adr[] = {
- 	{
- 		.adr = 0x000123019F837300,
- 		.num_endpoints = 1,
--		.endpoints = &spk_l_endpoint,
-+		.endpoints = &spk_r_endpoint,
- 		.name_prefix = "Right"
- 	},
- 	{
- 		.adr = 0x000127019F837300,
- 		.num_endpoints = 1,
--		.endpoints = &spk_r_endpoint,
-+		.endpoints = &spk_l_endpoint,
- 		.name_prefix = "Left"
- 	}
- };
+diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
+index 1847e993ac63..f3f7f4cb15a6 100644
+--- a/arch/x86/lib/usercopy_64.c
++++ b/arch/x86/lib/usercopy_64.c
+@@ -142,7 +142,7 @@ void __memcpy_flushcache(void *_dst, const void *_src, size_t size)
+ 
+ 	/* cache copy and flush to align dest */
+ 	if (!IS_ALIGNED(dest, 8)) {
+-		unsigned len = min_t(unsigned, size, ALIGN(dest, 8) - dest);
++		size_t len = min_t(size_t, size, ALIGN(dest, 8) - dest);
+ 
+ 		memcpy((void *) dest, (void *) source, len);
+ 		clean_cache_range((void *) dest, len);
 -- 
 2.35.1
 
