@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C1F51A797
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFC8E51A86D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245569AbiEDRHE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
+        id S236340AbiEDRK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355915AbiEDREr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CC374F9C1;
-        Wed,  4 May 2022 09:53:32 -0700 (PDT)
+        with ESMTP id S1356760AbiEDRJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E817E6354;
+        Wed,  4 May 2022 09:55:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3F14617A6;
-        Wed,  4 May 2022 16:53:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B619C385A5;
-        Wed,  4 May 2022 16:53:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C352B82792;
+        Wed,  4 May 2022 16:55:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ACC3C385A4;
+        Wed,  4 May 2022 16:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683211;
-        bh=pQ3Yw4POrLOhpFozFUH7xQA/LIIUjO4ffdWoR5CouSc=;
+        s=korg; t=1651683330;
+        bh=n9Q/W/occ0bb07vn7HK5qwDHGDLUQo+K6rMhV1GBuo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHUdolSjom4+TTPPtLZtZcfhiqJZMWEKZ5jF62YL2MODzPIR6uQ3TumjRlBMDCZiS
-         MvferLGHPrrMOGomk48OC4ydNdQwKfd7bEM0jHP2jlByoY/lpBO9onFsuqDxXccFPi
-         kSJw2o+tY7/0rQj2ZtWvHwn4u4b7c0H/FtEkkFuI=
+        b=U0REyl/uWvNRLngLs59+DHV71bKP3fAiycDWJauSOh5Sx9VTUSoFdwakcuimuy3Eu
+         Qgkl9iRTVKOwQyS76/8GGmIU1dBbNxXtSg6BF5fxzA1Uda/mNNWe2ULV5kXNvNXbOZ
+         3KbrV2b2wSOsd/EUp5UpzZ9EkHGT9ED04PG927BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/177] arm64: dts: imx8qm: Correct SCU clock controllers compatible property
-Date:   Wed,  4 May 2022 18:44:06 +0200
-Message-Id: <20220504153057.759606331@linuxfoundation.org>
+        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>
+Subject: [PATCH 5.17 009/225] usb: xhci: tegra:Fix PM usage reference leak of tegra_xusb_unpowergate_partitions
+Date:   Wed,  4 May 2022 18:44:07 +0200
+Message-Id: <20220504153111.114797832@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,50 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: zhangqilong <zhangqilong3@huawei.com>
 
-[ Upstream commit dd2737fab4a6ce9ba4eb84842bedbd87d55241a6 ]
+commit 8771039482d965bdc8cefd972bcabac2b76944a8 upstream.
 
-The fsl,scu.txt dt-binding documentation explicitly mentions
-that the compatible string should be either "fsl,imx8qm-clock"
-or "fsl,imx8qxp-clock", followed by "fsl,scu-clk".  Also, i.MX8qm
-SCU clocks and i.MX8qxp SCU clocks are really not the same, so
-we have to set the compatible property according to SoC name.
-Let's correct the i.MX8qm clock controller's compatible property
-from
-"fsl,imx8qxp-clk", "fsl,scu-clk"
-to
-"fsl,imx8qm-clk", "fsl,scu-clk" .
+pm_runtime_get_sync will increment pm usage counter
+even it failed. Forgetting to putting operation will
+result in reference leak here. We fix it by replacing
+it with pm_runtime_resume_and_get to keep usage counter
+balanced.
 
-Fixes: f2180be18a63 ("arm64: dts: imx: add imx8qm common dts file")
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 41a7426d25fa ("usb: xhci: tegra: Unlink power domain devices")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
+Link: https://lore.kernel.org/r/20220319023822.145641-1-zhangqilong3@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8qm.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/xhci-tegra.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8qm.dtsi b/arch/arm64/boot/dts/freescale/imx8qm.dtsi
-index aebbe2b84aa1..a143f38bc78b 100644
---- a/arch/arm64/boot/dts/freescale/imx8qm.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8qm.dtsi
-@@ -155,7 +155,7 @@ pd: imx8qx-pd {
- 		};
+--- a/drivers/usb/host/xhci-tegra.c
++++ b/drivers/usb/host/xhci-tegra.c
+@@ -1034,13 +1034,13 @@ static int tegra_xusb_unpowergate_partit
+ 	int rc;
  
- 		clk: clock-controller {
--			compatible = "fsl,imx8qxp-clk", "fsl,scu-clk";
-+			compatible = "fsl,imx8qm-clk", "fsl,scu-clk";
- 			#clock-cells = <2>;
- 		};
+ 	if (tegra->use_genpd) {
+-		rc = pm_runtime_get_sync(tegra->genpd_dev_ss);
++		rc = pm_runtime_resume_and_get(tegra->genpd_dev_ss);
+ 		if (rc < 0) {
+ 			dev_err(dev, "failed to enable XUSB SS partition\n");
+ 			return rc;
+ 		}
  
--- 
-2.35.1
-
+-		rc = pm_runtime_get_sync(tegra->genpd_dev_host);
++		rc = pm_runtime_resume_and_get(tegra->genpd_dev_host);
+ 		if (rc < 0) {
+ 			dev_err(dev, "failed to enable XUSB Host partition\n");
+ 			pm_runtime_put_sync(tegra->genpd_dev_ss);
 
 
