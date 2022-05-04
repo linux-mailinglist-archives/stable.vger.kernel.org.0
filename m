@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F69E51A9AB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7247051A9E2
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356706AbiEDRSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:18:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55534 "EHLO
+        id S1357779AbiEDRUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55526 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357439AbiEDRPC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B86853E21;
-        Wed,  4 May 2022 09:58:35 -0700 (PDT)
+        with ESMTP id S1356681AbiEDROD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B53C53B4E;
+        Wed,  4 May 2022 09:58:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DBA0BB8279C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C9D12617B7;
         Wed,  4 May 2022 16:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E785C385B5;
-        Wed,  4 May 2022 16:58:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83FDBC385AA;
+        Wed,  4 May 2022 16:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683489;
-        bh=MCu1XbXxTHzmzdl3yftxbmZRAzoGurMjUSAy0MHNp+0=;
+        s=korg; t=1651683490;
+        bh=U7F8eZYEpVTSmb/J39TUf2NGEuMLVkqIGrd2moRZY9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qxPDo81COK4O22naJLdzbLFIWblWx2T/n/XKJ40ET2BtTJmYTS2K/LhI+fYZpcjHv
-         2Ui02VN/FHauHjHkku8DQeX/TM4pBEjDZQjj6fY9fGr+9m4TQ9xyIZdJNvYKeVocBt
-         4keurjCps5XsPKAO6mjxb2l3A1BQSPcnu+0EU/Q0=
+        b=CNVs4hv8sjWzhzseeNnkTXBC1eoSjP6UsFpCG8jxB358ymIQuu4hHqAa0uI7CoHWU
+         l5Ir8NGqTEo6mquYI5nb4Vyz6LAA5JDDCu/GU+RmqI8DY9EnJ/vs+jh4HUrdB93pfR
+         vsZkYVGqyE1rS0cyZN2CNTAS2+ZkBM4xgUwUIUMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 164/225] ext4: fix bug_on in start_this_handle during umount filesystem
-Date:   Wed,  4 May 2022 18:46:42 +0200
-Message-Id: <20220504153124.620459447@linuxfoundation.org>
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Max Filippov <jcmvbkbc@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 165/225] arch: xtensa: platforms: Fix deadlock in rs_close()
+Date:   Wed,  4 May 2022 18:46:43 +0200
+Message-Id: <20220504153124.692859690@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -55,116 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-[ Upstream commit b98535d091795a79336f520b0708457aacf55c67 ]
+[ Upstream commit eb5adc70754d26a260f8b42d39db42da0d0af500 ]
 
-We got issue as follows:
-------------[ cut here ]------------
-kernel BUG at fs/jbd2/transaction.c:389!
-invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 9 PID: 131 Comm: kworker/9:1 Not tainted 5.17.0-862.14.0.6.x86_64-00001-g23f87daf7d74-dirty #197
-Workqueue: events flush_stashed_error_work
-RIP: 0010:start_this_handle+0x41c/0x1160
-RSP: 0018:ffff888106b47c20 EFLAGS: 00010202
-RAX: ffffed10251b8400 RBX: ffff888128dc204c RCX: ffffffffb52972ac
-RDX: 0000000000000200 RSI: 0000000000000004 RDI: ffff888128dc2050
-RBP: 0000000000000039 R08: 0000000000000001 R09: ffffed10251b840a
-R10: ffff888128dc204f R11: ffffed10251b8409 R12: ffff888116d78000
-R13: 0000000000000000 R14: dffffc0000000000 R15: ffff888128dc2000
-FS:  0000000000000000(0000) GS:ffff88839d680000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000001620068 CR3: 0000000376c0e000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- jbd2__journal_start+0x38a/0x790
- jbd2_journal_start+0x19/0x20
- flush_stashed_error_work+0x110/0x2b3
- process_one_work+0x688/0x1080
- worker_thread+0x8b/0xc50
- kthread+0x26f/0x310
- ret_from_fork+0x22/0x30
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
+There is a deadlock in rs_close(), which is shown
+below:
 
-Above issue may happen as follows:
-      umount            read procfs            error_work
-ext4_put_super
-  flush_work(&sbi->s_error_work);
+   (Thread 1)              |      (Thread 2)
+                           | rs_open()
+rs_close()                 |  mod_timer()
+ spin_lock_bh() //(1)      |  (wait a time)
+ ...                       | rs_poll()
+ del_timer_sync()          |  spin_lock() //(2)
+ (wait timer to stop)      |  ...
 
-                      ext4_mb_seq_groups_show
-	                ext4_mb_load_buddy_gfp
-			  ext4_mb_init_group
-			    ext4_mb_init_cache
-	                      ext4_read_block_bitmap_nowait
-			        ext4_validate_block_bitmap
-				  ext4_error
-			            ext4_handle_error
-			              schedule_work(&EXT4_SB(sb)->s_error_work);
+We hold timer_lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need timer_lock in position (2) of thread 2.
+As a result, rs_close() will block forever.
 
-  ext4_unregister_sysfs(sb);
-  jbd2_journal_destroy(sbi->s_journal);
-    journal_kill_thread
-      journal->j_flags |= JBD2_UNMOUNT;
+This patch deletes the redundant timer_lock in order to
+prevent the deadlock. Because there is no race condition
+between rs_close, rs_open and rs_poll.
 
-                                          flush_stashed_error_work
-				            jbd2_journal_start
-					      start_this_handle
-					        BUG_ON(journal->j_flags & JBD2_UNMOUNT);
-
-To solve this issue, we call 'ext4_unregister_sysfs() before flushing
-s_error_work in ext4_put_super().
-
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220322012419.725457-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Message-Id: <20220407154430.22387-1-duoming@zju.edu.cn>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/super.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ arch/xtensa/platforms/iss/console.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index ba6530c2d271..fe30f483c59f 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1199,20 +1199,25 @@ static void ext4_put_super(struct super_block *sb)
- 	int aborted = 0;
- 	int i, err;
+diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
+index 81d7c7e8f7e9..10b79d3c74e0 100644
+--- a/arch/xtensa/platforms/iss/console.c
++++ b/arch/xtensa/platforms/iss/console.c
+@@ -36,24 +36,19 @@ static void rs_poll(struct timer_list *);
+ static struct tty_driver *serial_driver;
+ static struct tty_port serial_port;
+ static DEFINE_TIMER(serial_timer, rs_poll);
+-static DEFINE_SPINLOCK(timer_lock);
  
--	ext4_unregister_li_request(sb);
--	ext4_quota_off_umount(sb);
--
--	flush_work(&sbi->s_error_work);
--	destroy_workqueue(sbi->rsv_conversion_wq);
--	ext4_release_orphan_info(sb);
--
- 	/*
- 	 * Unregister sysfs before destroying jbd2 journal.
- 	 * Since we could still access attr_journal_task attribute via sysfs
- 	 * path which could have sbi->s_journal->j_task as NULL
-+	 * Unregister sysfs before flush sbi->s_error_work.
-+	 * Since user may read /proc/fs/ext4/xx/mb_groups during umount, If
-+	 * read metadata verify failed then will queue error work.
-+	 * flush_stashed_error_work will call start_this_handle may trigger
-+	 * BUG_ON.
- 	 */
- 	ext4_unregister_sysfs(sb);
+ static int rs_open(struct tty_struct *tty, struct file * filp)
+ {
+-	spin_lock_bh(&timer_lock);
+ 	if (tty->count == 1)
+ 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+-	spin_unlock_bh(&timer_lock);
  
-+	ext4_unregister_li_request(sb);
-+	ext4_quota_off_umount(sb);
-+
-+	flush_work(&sbi->s_error_work);
-+	destroy_workqueue(sbi->rsv_conversion_wq);
-+	ext4_release_orphan_info(sb);
-+
- 	if (sbi->s_journal) {
- 		aborted = is_journal_aborted(sbi->s_journal);
- 		err = jbd2_journal_destroy(sbi->s_journal);
+ 	return 0;
+ }
+ 
+ static void rs_close(struct tty_struct *tty, struct file * filp)
+ {
+-	spin_lock_bh(&timer_lock);
+ 	if (tty->count == 1)
+ 		del_timer_sync(&serial_timer);
+-	spin_unlock_bh(&timer_lock);
+ }
+ 
+ 
+@@ -73,8 +68,6 @@ static void rs_poll(struct timer_list *unused)
+ 	int rd = 1;
+ 	unsigned char c;
+ 
+-	spin_lock(&timer_lock);
+-
+ 	while (simc_poll(0)) {
+ 		rd = simc_read(0, &c, 1);
+ 		if (rd <= 0)
+@@ -87,7 +80,6 @@ static void rs_poll(struct timer_list *unused)
+ 		tty_flip_buffer_push(port);
+ 	if (rd)
+ 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
+-	spin_unlock(&timer_lock);
+ }
+ 
+ 
 -- 
 2.35.1
 
