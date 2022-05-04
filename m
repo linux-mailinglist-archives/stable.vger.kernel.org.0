@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BA251A864
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F56B51A986
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355986AbiEDRKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40012 "EHLO
+        id S1355295AbiEDRRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356416AbiEDRJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:14 -0400
+        with ESMTP id S1356389AbiEDRNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4E349F27;
-        Wed,  4 May 2022 09:55:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7131E4BFF3;
+        Wed,  4 May 2022 09:57:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCF2A61505;
-        Wed,  4 May 2022 16:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27DD3C385A5;
-        Wed,  4 May 2022 16:55:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CC496193E;
+        Wed,  4 May 2022 16:57:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4796C385A4;
+        Wed,  4 May 2022 16:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683306;
-        bh=y6+AhN97cqfn9F0f03PjRlxkvydZfldsY9kMaxQuHVg=;
+        s=korg; t=1651683464;
+        bh=nU9hRqmoG+NR1e6QcNT5Gtc/DQw+zQxCB3nckjInEu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EWFLSxTwcWuPtYOXraSMFPVBxkgZgyr+Cl+JfbEZtaTmAUndMMcuPnkf+sjWS2uSj
-         Xh0c1mbP3jgRTn3VWa8rhx5GtwRcgikTUTOZaRLgXGlYZNKHvPR1o4X0+H1QgM4YMj
-         9NGFuReST67fZUxC1icKwIe6ZReunWm9hJAuAqzQ=
+        b=pDZe9K+/A7IxVkyQ9bxuOp1ctGZO9YT1FyGPIv4rPTltqyhUheG6EB8Msz2dQCUst
+         5udpfsmhaqJJexiwjD+Pvvg8q38LG7x+DuKf1WTbk7tYlis35kpAndMTFTCzaFZhmR
+         VO2Qygl3YgHrRxsvc+XBnmYgzdkmExwDA5hFAlF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 171/177] tty: n_gsm: fix incorrect UA handling
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 126/225] bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
 Date:   Wed,  4 May 2022 18:46:04 +0200
-Message-Id: <20220504153108.917080162@linuxfoundation.org>
+Message-Id: <20220504153121.646218439@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
+[ Upstream commit fff8c10368e64e7f8960f149375c12ca5f3b30af ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
-acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
-discarded. Currently, all UA frame are handled in the same way regardless
-of the PF bit. This does not comply with the standard.
-Remove the UA case in gsm_queue() to process only UA frames with PF bit set
-to 1 to abide the standard.
+This code is really spurious.
+It always returns an ERR_PTR, even when err is known to be 0 and calls
+put_device() after a successful device_register() call.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It is likely that the return statement in the normal path is missing.
+Add 'return rdev;' to fix it.
+
+Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Tested-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/ef2b9576350bba4c8e05e669e9535e9e2a415763.1650551719.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/bus/sunxi-rsb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1816,7 +1816,6 @@ static void gsm_queue(struct gsm_mux *gs
- 		gsm_response(gsm, address, UA);
- 		gsm_dlci_close(dlci);
- 		break;
--	case UA:
- 	case UA|PF:
- 		if (cr == 0 || dlci == NULL)
- 			break;
+diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
+index 4566e730ef2b..60b082fe2ed0 100644
+--- a/drivers/bus/sunxi-rsb.c
++++ b/drivers/bus/sunxi-rsb.c
+@@ -227,6 +227,8 @@ static struct sunxi_rsb_device *sunxi_rsb_device_create(struct sunxi_rsb *rsb,
+ 
+ 	dev_dbg(&rdev->dev, "device %s registered\n", dev_name(&rdev->dev));
+ 
++	return rdev;
++
+ err_device_add:
+ 	put_device(&rdev->dev);
+ 
+-- 
+2.35.1
+
 
 
