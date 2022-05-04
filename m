@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF40A51A6F5
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB7351A810
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354483AbiEDRAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:00:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36314 "EHLO
+        id S1355269AbiEDRHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354605AbiEDQ6y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F2F32314C;
-        Wed,  4 May 2022 09:50:48 -0700 (PDT)
+        with ESMTP id S1355356AbiEDRER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D3D4ECD0;
+        Wed,  4 May 2022 09:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E02A617BD;
-        Wed,  4 May 2022 16:50:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6B74C385A4;
-        Wed,  4 May 2022 16:50:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DC04FB82792;
+        Wed,  4 May 2022 16:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 912D3C385A5;
+        Wed,  4 May 2022 16:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683046;
-        bh=humWjBXg5Qfpu/Xg7rjSgbiOYu3/AmTCV30mt2Nvlxk=;
+        s=korg; t=1651683171;
+        bh=50t13TWnJkWNJqSYvgR68ZzAcfdUER8rrkJF4QqlJCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1NcIegnK9TrAg7GTU+RKDTQ5uk1aG4DzrHyAEJxQrcAfs5kjl9zUwej3cYwX6iDzX
-         JxFfYmmtfV7nfW/ZCLpW610x9J4BhYsYmxQoRoycav69haRtwIBnFnxyQkr5MiZqjo
-         dGxyOljmE8AzZj549JOEdjE5KfnHcwH+AnCS1I98=
+        b=dgCb10JE1oABvSPJJld3Zq+/VbLzgWBP71vAfJBhMHE7PIEw1mRojZJGrSVlUCRIJ
+         sBoKhb5fHfvPG8/4mmPH1YIMMMbjoY/zxgZ4DlG1PZSaHB2mR8kThS2JbdUZot9C9I
+         eNQJmnWu4TEdwLpI4RdjX783j40ishixaKJ0ykgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Rik van Riel <riel@surriel.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 037/129] iocost: dont reset the inuse weight of under-weighted debtors
+        stable@vger.kernel.org,
+        Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.15 036/177] bus: mhi: host: pci_generic: Flush recovery worker during freeze
 Date:   Wed,  4 May 2022 18:43:49 +0200
-Message-Id: <20220504153024.146447116@linuxfoundation.org>
+Message-Id: <20220504153056.192191908@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit 8c936f9ea11ec4e35e288810a7503b5c841a355f upstream.
+commit c38f83bae4037023827c85e045841d0421f85034 upstream.
 
-When an iocg is in debt, its inuse weight is owned by debt handling and
-should stay at 1. This invariant was broken when determining the amount of
-surpluses at the beginning of donation calculation - when an iocg's
-hierarchical weight is too low, the iocg is excluded from donation
-calculation and its inuse is reset to its active regardless of its
-indebtedness, triggering warnings like the following:
+It is possible that the recovery work might be running while the freeze
+gets executed (during hibernation etc.,). Currently, we don't powerdown
+the stack if it is not up but if the recovery work completes after freeze,
+then the device will be up afterwards. This will not be a sane situation.
 
- WARNING: CPU: 5 PID: 0 at block/blk-iocost.c:1416 iocg_kick_waitq+0x392/0x3a0
- ...
- RIP: 0010:iocg_kick_waitq+0x392/0x3a0
- Code: 00 00 be ff ff ff ff 48 89 4d a8 e8 98 b2 70 00 48 8b 4d a8 85 c0 0f 85 4a fe ff ff 0f 0b e9 43 fe ff ff 0f 0b e9 4d fe ff ff <0f> 0b e9 50 fe ff ff e8 a2 ae 70 00 66 90 0f 1f 44 00 00 55 48 89
- RSP: 0018:ffffc90000200d08 EFLAGS: 00010016
- ...
-  <IRQ>
-  ioc_timer_fn+0x2e0/0x1470
-  call_timer_fn+0xa1/0x2c0
- ...
+So let's flush the recovery worker before trying to powerdown the device.
 
-As this happens only when an iocg's hierarchical weight is negligible, its
-impact likely is limited to triggering the warnings. Fix it by skipping
-resetting inuse of under-weighted debtors.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Rik van Riel <riel@surriel.com>
-Fixes: c421a3eb2e27 ("blk-iocost: revamp debt handling")
-Cc: stable@vger.kernel.org # v5.10+
-Link: https://lore.kernel.org/r/YmjODd4aif9BzFuO@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Fixes: 5f0c2ee1fe8d ("bus: mhi: pci-generic: Fix hibernation")
+Reported-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
+Reviewed-by: Bhaumik Vasav Bhatt <quic_bbhatt@quicinc.com>
+Link: https://lore.kernel.org/r/20220408150039.17297-1-manivannan.sadhasivam@linaro.org
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-iocost.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/pci_generic.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -2257,7 +2257,17 @@ static void ioc_timer_fn(struct timer_li
- 				iocg->hweight_donating = hwa;
- 				iocg->hweight_after_donation = new_hwi;
- 				list_add(&iocg->surplus_list, &surpluses);
--			} else {
-+			} else if (!iocg->abs_vdebt) {
-+				/*
-+				 * @iocg doesn't have enough to donate. Reset
-+				 * its inuse to active.
-+				 *
-+				 * Don't reset debtors as their inuse's are
-+				 * owned by debt handling. This shouldn't affect
-+				 * donation calculuation in any meaningful way
-+				 * as @iocg doesn't have a meaningful amount of
-+				 * share anyway.
-+				 */
- 				TRACE_IOCG_PATH(inuse_shortage, iocg, &now,
- 						iocg->inuse, iocg->active,
- 						iocg->hweight_inuse, new_hwi);
+--- a/drivers/bus/mhi/pci_generic.c
++++ b/drivers/bus/mhi/pci_generic.c
+@@ -1020,6 +1020,7 @@ static int __maybe_unused mhi_pci_freeze
+ 	 * the intermediate restore kernel reinitializes MHI device with new
+ 	 * context.
+ 	 */
++	flush_work(&mhi_pdev->recovery_work);
+ 	if (test_and_clear_bit(MHI_PCI_DEV_STARTED, &mhi_pdev->status)) {
+ 		mhi_power_down(mhi_cntrl, true);
+ 		mhi_unprepare_after_power_down(mhi_cntrl);
 
 
