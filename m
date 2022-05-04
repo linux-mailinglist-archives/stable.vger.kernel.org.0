@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64D5551A933
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F401951A859
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbiEDRLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38588 "EHLO
+        id S1343737AbiEDRKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357090AbiEDRJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D34448E76;
-        Wed,  4 May 2022 09:57:05 -0700 (PDT)
+        with ESMTP id S1356199AbiEDRJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5657652E4E;
+        Wed,  4 May 2022 09:54:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 221C7B827A3;
-        Wed,  4 May 2022 16:57:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADFECC385A4;
-        Wed,  4 May 2022 16:57:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7B6FB82792;
+        Wed,  4 May 2022 16:54:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D55EC385A5;
+        Wed,  4 May 2022 16:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683421;
-        bh=8jV2h+eNgYTlk2g9f/ePE55tVvCnKBAeJ8Q1/2X9DBs=;
+        s=korg; t=1651683296;
+        bh=ioCklDfM/c7f+A49wR/jj5HbJspAmX8Z9JJJOKPcJbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yFzO/+Vr3KGYhD/izHbCtSZqcbSq4IrfwBZ8kowAmxqYudpc7FiAON41wKygpztl3
-         PxCK106Mnxr+YxYISMndcxUNyvhs+TShS1aNeSEkTXKjiCPFffBa7Tu00VTGOEAkTJ
-         ClUWYqzpwkc8F7L3LufDythPXIJgPbmp++dFRA8k=
+        b=FIeOwpME2buOnt7ecIrwWLs0dLjix/lZ5LB6fNE+IL641++OMgDZ0p1tMF74bco5r
+         zcXWU/25TWwNxGuOwBPRZduMfCE7bM8hRISbhumtsbI9jmb8KhFBwYswesTXZiVjdD
+         r0cfZRJdS+bzFjQXunaFaHLf5Gxv1Xh1v09kpL1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 105/225] tcp: md5: incorrect tcp_header_len for incoming connections
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Joao Moreira <joao@overdrivepizza.com>
+Subject: [PATCH 5.15 150/177] thermal: int340x: Fix attr.show callback prototype
 Date:   Wed,  4 May 2022 18:45:43 +0200
-Message-Id: <20220504153120.037017876@linuxfoundation.org>
+Message-Id: <20220504153106.756396583@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Ruggeri <fruggeri@arista.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 5b0b9e4c2c895227c8852488b3f09839233bba54 ]
+commit d0f6cfb2bd165b0aa307750e07e03420859bd554 upstream.
 
-In tcp_create_openreq_child we adjust tcp_header_len for md5 using the
-remote address in newsk. But that address is still 0 in newsk at this
-point, and it is only set later by the callers (tcp_v[46]_syn_recv_sock).
-Use the address from the request socket instead.
+Control Flow Integrity (CFI) instrumentation of the kernel noticed that
+the caller, dev_attr_show(), and the callback, odvp_show(), did not have
+matching function prototypes, which would cause a CFI exception to be
+raised. Correct the prototype by using struct device_attribute instead
+of struct kobj_attribute.
 
-Fixes: cfb6eeb4c860 ("[TCP]: MD5 Signature Option (RFC2385) support.")
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220421005026.686A45EC01F2@us226.sjc.aristanetworks.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: Joao Moreira <joao@overdrivepizza.com>
+Link: https://lore.kernel.org/lkml/067ce8bd4c3968054509831fa2347f4f@overdrivepizza.com/
+Fixes: 006f006f1e5c ("thermal/int340x_thermal: Export OEM vendor variables")
+Cc: 5.8+ <stable@vger.kernel.org> # 5.8+
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_minisocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/intel/int340x_thermal/int3400_thermal.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 7c2d3ac2363a..492737d2b7d3 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -531,7 +531,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
- 	newtp->tsoffset = treq->ts_off;
- #ifdef CONFIG_TCP_MD5SIG
- 	newtp->md5sig_info = NULL;	/*XXX*/
--	if (newtp->af_specific->md5_lookup(sk, newsk))
-+	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
- 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
- #endif
- 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
--- 
-2.35.1
-
+--- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
++++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
+@@ -67,7 +67,7 @@ static int evaluate_odvp(struct int3400_
+ struct odvp_attr {
+ 	int odvp;
+ 	struct int3400_thermal_priv *priv;
+-	struct kobj_attribute attr;
++	struct device_attribute attr;
+ };
+ 
+ static ssize_t data_vault_read(struct file *file, struct kobject *kobj,
+@@ -272,7 +272,7 @@ static int int3400_thermal_run_osc(acpi_
+ 	return result;
+ }
+ 
+-static ssize_t odvp_show(struct kobject *kobj, struct kobj_attribute *attr,
++static ssize_t odvp_show(struct device *dev, struct device_attribute *attr,
+ 			 char *buf)
+ {
+ 	struct odvp_attr *odvp_attr;
 
 
