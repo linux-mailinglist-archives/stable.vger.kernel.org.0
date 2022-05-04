@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C10151A687
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5623F51A6D4
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353927AbiEDQ4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
+        id S1354547AbiEDRAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354154AbiEDQxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:53 -0400
+        with ESMTP id S1355569AbiEDRAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FB1D483A2;
-        Wed,  4 May 2022 09:49:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C1504B85E;
+        Wed,  4 May 2022 09:51:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EDFF61771;
-        Wed,  4 May 2022 16:49:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AFCAC385AF;
-        Wed,  4 May 2022 16:49:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB970617D4;
+        Wed,  4 May 2022 16:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 144D0C385A5;
+        Wed,  4 May 2022 16:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682948;
-        bh=QYfJ4jy1pgwenIxzQh04z03IUEVKov1C1SpEawfBfwY=;
+        s=korg; t=1651683096;
+        bh=AFIzawQbysXjYjCtcBjeB4t+pADeckbAOSyCAuGBxw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUVYtX+ze2P4xidoB9AT84jQr3RQgyj5NLODRop8XUjlZovIpJfc+rbItByzWJbSg
-         ovyuSLnMvO8D7U7IHxeppEbD0Q4twWnH0r6e7lazAxke8RKLgsytHissV6puesj7QP
-         jYpmo1Vl8V01cCDfYbcGFh5Po8ODf5JNsLXOpIpY=
+        b=uliJHoVw607CbJEvzL57rhqffRNF1wM6USb6BYKGymtJuqJWGT8xTTik6C/gWcRE/
+         SLMn6J6VWFKbrFuHA50ryIpjkBuFYYC0l/00YkYYXKoDtCqJsAplDQYsaG48PrbdIb
+         KEk3Z++vZcEtxUDeGkFhNkiSq9pscmkz7MSgfXS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Baruch Siach <baruch.siach@siklu.com>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 59/84] bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
+Subject: [PATCH 5.10 088/129] net: phy: marvell10g: fix return value on error
 Date:   Wed,  4 May 2022 18:44:40 +0200
-Message-Id: <20220504152931.950244281@linuxfoundation.org>
+Message-Id: <20220504153027.986477931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Baruch Siach <baruch.siach@siklu.com>
 
-[ Upstream commit fff8c10368e64e7f8960f149375c12ca5f3b30af ]
+[ Upstream commit 0ed9704b660b259b54743cad8a84a11148f60f0a ]
 
-This code is really spurious.
-It always returns an ERR_PTR, even when err is known to be 0 and calls
-put_device() after a successful device_register() call.
+Return back the error value that we get from phy_read_mmd().
 
-It is likely that the return statement in the normal path is missing.
-Add 'return rdev;' to fix it.
-
-Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Tested-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/ef2b9576350bba4c8e05e669e9535e9e2a415763.1650551719.git.christophe.jaillet@wanadoo.fr
+Fixes: c84786fa8f91 ("net: phy: marvell10g: read copper results from CSSR1")
+Signed-off-by: Baruch Siach <baruch.siach@siklu.com>
+Reviewed-by: Marek Behún <kabel@kernel.org>
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/f47cb031aeae873bb008ba35001607304a171a20.1650868058.git.baruch@tkos.co.il
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/sunxi-rsb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/phy/marvell10g.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index 1bb00a959c67..9b1a5e62417c 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -224,6 +224,8 @@ static struct sunxi_rsb_device *sunxi_rsb_device_create(struct sunxi_rsb *rsb,
+diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
+index b1bb9b8e1e4e..2b64318efdba 100644
+--- a/drivers/net/phy/marvell10g.c
++++ b/drivers/net/phy/marvell10g.c
+@@ -650,7 +650,7 @@ static int mv3310_read_status_copper(struct phy_device *phydev)
  
- 	dev_dbg(&rdev->dev, "device %s registered\n", dev_name(&rdev->dev));
+ 	cssr1 = phy_read_mmd(phydev, MDIO_MMD_PCS, MV_PCS_CSSR1);
+ 	if (cssr1 < 0)
+-		return val;
++		return cssr1;
  
-+	return rdev;
-+
- err_device_add:
- 	put_device(&rdev->dev);
- 
+ 	/* If the link settings are not resolved, mark the link down */
+ 	if (!(cssr1 & MV_PCS_CSSR1_RESOLVED)) {
 -- 
 2.35.1
 
