@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 442C051A959
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 345D751A857
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237072AbiEDRLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
+        id S1343881AbiEDRKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357039AbiEDRJx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46AB0488B2;
-        Wed,  4 May 2022 09:57:01 -0700 (PDT)
+        with ESMTP id S1356181AbiEDRJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 835E452E41;
+        Wed,  4 May 2022 09:54:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1F50B8279C;
-        Wed,  4 May 2022 16:57:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F76C385AF;
-        Wed,  4 May 2022 16:56:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F13961794;
+        Wed,  4 May 2022 16:54:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69FA2C385A4;
+        Wed,  4 May 2022 16:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683419;
-        bh=bb87NXccFjNGXVz0LjQzmsRxE/zwFSQhn2e5pASPlBY=;
+        s=korg; t=1651683295;
+        bh=TSEPwtreDnFz7e52zYOcOmj3K2cUukjzTzINFygPDPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFe++QmYxEgOdzvJmCPs5Y5/JENx8e6DY+S8LZfn6tXDXLX9O4rN8Vngn6avw9wIb
-         PkAHUBNEO8OnJ2RPjnPaAdWvoCHn0vHUpdaNyFKlZJORg2+vmQYN531aHRmz0WyA6N
-         hyO9wyZk2wtUX9nlgRrvbOlOeVUGKeH1HZBFkxNM=
+        b=bvMiQtm6PNi/eFip9l7drEO9FKoFN9Em+kl0t/nK5QR42Zo3r1Yn9oG20iTdDbRQG
+         1TyOUIMjxMUipLkXJFXHGGdUaAw8a9r9f6MP+Vkju7sy5owGZ+o1U7BRzcfHMp+9Qy
+         8a/HiJj8BRRTPHaJiDRs6dEGA2giNnR8JBIlngdg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 104/225] pinctrl: rockchip: fix RK3308 pinmux bits
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Woody Suwalski <wsuwalski@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 149/177] ACPI: processor: idle: Avoid falling back to C3 type C-states
 Date:   Wed,  4 May 2022 18:45:42 +0200
-Message-Id: <20220504153119.962530496@linuxfoundation.org>
+Message-Id: <20220504153106.656086753@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 1f3e25a068832f8892a5ff71467622d012f5bc9f ]
+commit fc45e55ebc58dbf622cb89ddbf797589c7a5510b upstream.
 
-Some of the pinmuxing bits described in rk3308_mux_recalced_data are wrong,
-pointing to non-existing registers.
+The "safe state" index is used by acpi_idle_enter_bm() to avoid
+entering a C-state that may require bus mastering to be disabled
+on entry in the cases when this is not going to happen.  For this
+reason, it should not be set to point to C3 type of C-states, because
+they may require bus mastering to be disabled on entry in principle.
 
-Fix the entire table.
+This was broken by commit d6b88ce2eb9d ("ACPI: processor idle: Allow
+playing dead in C3 state") which inadvertently allowed the "safe
+state" index to point to C3 type of C-states.
 
-Also add a comment in front of each entry with the same string that appears
-in the datasheet to make the table easier to compare with the docs.
+This results in a machine that won't boot past the point when it first
+enters C3. Restore the correct behaviour (either demote to C1/C2, or
+use C3 but also set ARB_DIS=1).
 
-This fix has been tested on real hardware for the gpio3b3_sel entry.
+I hit this on a Fujitsu Siemens Lifebook S6010 (P3) machine.
 
-Fixes: 7825aeb7b208 ("pinctrl: rockchip: add rk3308 SoC support")
-Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20220420142432.248565-1-luca.ceresoli@bootlin.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d6b88ce2eb9d ("ACPI: processor idle: Allow playing dead in C3 state")
+Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Woody Suwalski <wsuwalski@gmail.com>
+[ rjw: Subject and changelog adjustments ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 45 ++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/acpi/processor_idle.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index a1b598b86aa9..65fa305b5f59 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -457,95 +457,110 @@ static  struct rockchip_mux_recalced_data rk3128_mux_recalced_data[] = {
- 
- static struct rockchip_mux_recalced_data rk3308_mux_recalced_data[] = {
- 	{
-+		/* gpio1b6_sel */
- 		.num = 1,
- 		.pin = 14,
- 		.reg = 0x28,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1b7_sel */
- 		.num = 1,
- 		.pin = 15,
- 		.reg = 0x2c,
- 		.bit = 0,
- 		.mask = 0x3
- 	}, {
-+		/* gpio1c2_sel */
- 		.num = 1,
- 		.pin = 18,
- 		.reg = 0x30,
- 		.bit = 4,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c3_sel */
- 		.num = 1,
- 		.pin = 19,
- 		.reg = 0x30,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c4_sel */
- 		.num = 1,
- 		.pin = 20,
- 		.reg = 0x30,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c5_sel */
- 		.num = 1,
- 		.pin = 21,
- 		.reg = 0x34,
- 		.bit = 0,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c6_sel */
- 		.num = 1,
- 		.pin = 22,
- 		.reg = 0x34,
- 		.bit = 4,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c7_sel */
- 		.num = 1,
- 		.pin = 23,
- 		.reg = 0x34,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio3b4_sel */
- 		.num = 3,
- 		.pin = 12,
- 		.reg = 0x68,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio3b5_sel */
- 		.num = 3,
- 		.pin = 13,
- 		.reg = 0x68,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio2a2_sel */
- 		.num = 2,
- 		.pin = 2,
--		.reg = 0x608,
--		.bit = 0,
--		.mask = 0x7
-+		.reg = 0x40,
-+		.bit = 4,
-+		.mask = 0x3
- 	}, {
-+		/* gpio2a3_sel */
- 		.num = 2,
- 		.pin = 3,
--		.reg = 0x608,
--		.bit = 4,
--		.mask = 0x7
-+		.reg = 0x40,
-+		.bit = 6,
-+		.mask = 0x3
- 	}, {
-+		/* gpio2c0_sel */
- 		.num = 2,
- 		.pin = 16,
--		.reg = 0x610,
--		.bit = 8,
--		.mask = 0x7
-+		.reg = 0x50,
-+		.bit = 0,
-+		.mask = 0x3
- 	}, {
-+		/* gpio3b2_sel */
- 		.num = 3,
- 		.pin = 10,
--		.reg = 0x610,
--		.bit = 0,
--		.mask = 0x7
-+		.reg = 0x68,
-+		.bit = 4,
-+		.mask = 0x3
- 	}, {
-+		/* gpio3b3_sel */
- 		.num = 3,
- 		.pin = 11,
--		.reg = 0x610,
--		.bit = 4,
--		.mask = 0x7
-+		.reg = 0x68,
-+		.bit = 6,
-+		.mask = 0x3
- 	},
- };
- 
--- 
-2.35.1
-
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -792,7 +792,8 @@ static int acpi_processor_setup_cstates(
+ 		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2 ||
+ 		    cx->type == ACPI_STATE_C3) {
+ 			state->enter_dead = acpi_idle_play_dead;
+-			drv->safe_state_index = count;
++			if (cx->type != ACPI_STATE_C3)
++				drv->safe_state_index = count;
+ 		}
+ 		/*
+ 		 * Halt-induced C1 is not good for ->enter_s2idle, because it
 
 
