@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2FD651A6EA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2244451A811
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354505AbiEDRAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37236 "EHLO
+        id S1346303AbiEDRHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354629AbiEDQ65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:57 -0400
+        with ESMTP id S1355353AbiEDRER (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC9829CA8;
-        Wed,  4 May 2022 09:50:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6854ECD2;
+        Wed,  4 May 2022 09:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FB80617C3;
-        Wed,  4 May 2022 16:50:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE85CC340ED;
-        Wed,  4 May 2022 16:50:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60BDC61701;
+        Wed,  4 May 2022 16:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD934C385B0;
+        Wed,  4 May 2022 16:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683048;
-        bh=Za0VdiC3YL/IFH8GD9TAZhUplfNPPkWz+O8jG/yfWG4=;
+        s=korg; t=1651683173;
+        bh=k/8Oplo43mu4djVxDNVjz+6avtQ/vUQIAwVKTqLIjg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rNxwCw5/8SzuuON9062qic5dj646ZvqLUx1dtxktsfaKzSOz/HIfALXjdgdMz6kik
-         lIWV1q4G2OdKrVWvs5e0XpHmybTIgUQJXFaloP+C81Q5OxP/Xzd/oRM+Ytc8FwHYoO
-         GqijuJwzQwsEy0sVcnr9NbfC+0Xksws/KqoQ+vV8=
+        b=YU2iKinG6wDAIk5tunmpLCvlIHuW1k4cp8jO4bNM7oqazxZlpCmHxFuOddhXsU1am
+         mr5NrULtZP/nYdytnLMdBUIRpRupu5E89oAoY42/tSz4+7noxKWTOzeNegIANlzTR1
+         4Yc+mZua7vYo1vnen+gk/ZDnmuYg27lo37NPvSVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/129] arm64: dts: meson: remove CPU opps below 1GHz for G12B boards
+        Necip Fazil Yildiran <fazilyildiran@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.15 038/177] pinctrl: samsung: fix missing GPIOLIB on ARM64 Exynos config
 Date:   Wed,  4 May 2022 18:43:51 +0200
-Message-Id: <20220504153024.293127568@linuxfoundation.org>
+Message-Id: <20220504153056.337925290@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,146 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 6c4d636bc00dc17c63ffb2a73a0da850240e26e3 ]
+commit ac875df4d854ab13d9c4af682a1837a1214fecec upstream.
 
-Amlogic G12B devices experience CPU stalls and random board wedges when
-the system idles and CPU cores clock down to lower opp points. Recent
-vendor kernels include a change to remove 100-250MHz and other distro
-sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
-are removed or the CPU governor forced to performance stalls are still
-observed, so let's remove them to improve stability and uptime.
+The Samsung pinctrl drivers depend on OF_GPIO, which is part of GPIOLIB.
+ARMv7 Exynos platform selects GPIOLIB and Samsung pinctrl drivers. ARMv8
+Exynos selects only the latter leading to possible wrong configuration
+on ARMv8 build:
 
-Fixes: b96d4e92709b ("arm64: dts: meson-g12b: support a311d and s922x cpu operating points")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220210100638.19130-2-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  WARNING: unmet direct dependencies detected for PINCTRL_EXYNOS
+    Depends on [n]: PINCTRL [=y] && OF_GPIO [=n] && (ARCH_EXYNOS [=y] || ARCH_S5PV210 || COMPILE_TEST [=y])
+    Selected by [y]:
+    - ARCH_EXYNOS [=y]
+
+Always select the GPIOLIB from the Samsung pinctrl drivers to fix the
+issue.  This requires removing of OF_GPIO dependency (to avoid recursive
+dependency), so add dependency on OF for COMPILE_TEST cases.
+
+Reported-by: Necip Fazil Yildiran <fazilyildiran@gmail.com>
+Fixes: eed6b3eb20b9 ("arm64: Split out platform options to separate Kconfig")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220420141407.470955-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../boot/dts/amlogic/meson-g12b-a311d.dtsi    | 40 -------------------
- .../boot/dts/amlogic/meson-g12b-s922x.dtsi    | 40 -------------------
- 2 files changed, 80 deletions(-)
+ arch/arm/mach-exynos/Kconfig    |    1 -
+ drivers/pinctrl/samsung/Kconfig |   11 ++++-------
+ 2 files changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
-index d61f43052a34..8e9ad1e51d66 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
-@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
- 		compatible = "operating-points-v2";
- 		opp-shared;
+--- a/arch/arm/mach-exynos/Kconfig
++++ b/arch/arm/mach-exynos/Kconfig
+@@ -18,7 +18,6 @@ menuconfig ARCH_EXYNOS
+ 	select EXYNOS_PMU
+ 	select EXYNOS_SROM
+ 	select EXYNOS_PM_DOMAINS if PM_GENERIC_DOMAINS
+-	select GPIOLIB
+ 	select HAVE_ARM_ARCH_TIMER if ARCH_EXYNOS5
+ 	select HAVE_ARM_SCU if SMP
+ 	select HAVE_S3C2410_I2C if I2C
+--- a/drivers/pinctrl/samsung/Kconfig
++++ b/drivers/pinctrl/samsung/Kconfig
+@@ -4,14 +4,13 @@
+ #
+ config PINCTRL_SAMSUNG
+ 	bool
+-	depends on OF_GPIO
++	select GPIOLIB
+ 	select PINMUX
+ 	select PINCONF
  
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <667000000>;
--			opp-microvolt = <731000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <761000>;
-@@ -71,26 +51,6 @@ cpub_opp_table_1: opp-table-1 {
- 		compatible = "operating-points-v2";
- 		opp-shared;
+ config PINCTRL_EXYNOS
+ 	bool "Pinctrl common driver part for Samsung Exynos SoCs"
+-	depends on OF_GPIO
+-	depends on ARCH_EXYNOS || ARCH_S5PV210 || COMPILE_TEST
++	depends on ARCH_EXYNOS || ARCH_S5PV210 || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
+ 	select PINCTRL_EXYNOS_ARM if ARM && (ARCH_EXYNOS || ARCH_S5PV210)
+ 	select PINCTRL_EXYNOS_ARM64 if ARM64 && ARCH_EXYNOS
+@@ -26,12 +25,10 @@ config PINCTRL_EXYNOS_ARM64
  
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <667000000>;
--			opp-microvolt = <731000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <731000>;
-diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
-index 1e5d0ee5d541..44c23c984034 100644
---- a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
-@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
- 		compatible = "operating-points-v2";
- 		opp-shared;
+ config PINCTRL_S3C24XX
+ 	bool "Samsung S3C24XX SoC pinctrl driver"
+-	depends on OF_GPIO
+-	depends on ARCH_S3C24XX || COMPILE_TEST
++	depends on ARCH_S3C24XX || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
  
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <731000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <667000000>;
--			opp-microvolt = <731000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <731000>;
-@@ -76,26 +56,6 @@ cpub_opp_table_1: opp-table-1 {
- 		compatible = "operating-points-v2";
- 		opp-shared;
- 
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <751000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <751000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <751000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <667000000>;
--			opp-microvolt = <751000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <771000>;
--- 
-2.35.1
-
+ config PINCTRL_S3C64XX
+ 	bool "Samsung S3C64XX SoC pinctrl driver"
+-	depends on OF_GPIO
+-	depends on ARCH_S3C64XX || COMPILE_TEST
++	depends on ARCH_S3C64XX || (COMPILE_TEST && OF)
+ 	select PINCTRL_SAMSUNG
 
 
