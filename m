@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A2651A969
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBEC51A9E4
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235849AbiEDRRd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:17:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
+        id S1357803AbiEDRUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356331AbiEDRL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF8124BB8F;
-        Wed,  4 May 2022 09:57:47 -0700 (PDT)
+        with ESMTP id S1357143AbiEDROs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE40554197;
+        Wed,  4 May 2022 09:58:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E42A61794;
-        Wed,  4 May 2022 16:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A719C385AA;
-        Wed,  4 May 2022 16:57:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 567F761912;
+        Wed,  4 May 2022 16:58:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FC5CC385B3;
+        Wed,  4 May 2022 16:58:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683459;
-        bh=IchFKXoZxi31RZsb3AoQmBrHUFpAC4EeXnEm2gI5ets=;
+        s=korg; t=1651683483;
+        bh=arkoNboqqWCWLyLsjMunKLSYNWc8N9GyNjsjgTaMs30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EkqDNkCIhbTO4B7PnuuqRa3La03zUN4ATDLSzMogOTbGcv9+N0SMQOZ+FJcbc8Epq
-         YL/epeCu1eL+/kQcAXa2/Ojp/qsHBUQ8Hxq+VqY/0PEcFqmRKrurBvVacCgMIademQ
-         mBFo/n8S2XhecuZ6zoW5U6MnT8lEDMQ64QU7TGmg=
+        b=btELwcrtuN8JitTUdCjnSLFC2BCBrGe6Dbus746u3sp0tG+0TvEFtwSks8MErGF2+
+         0Tbfq3ibPPi+vnK4mIXlQgNU0rU/TpXtzmK1JFibrL628A6/PJWH9MjoUe9weP7Wnn
+         n/z1Neerc7JOqFwC1GBQtej4aDPnhcLnpK36z5SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Oros <poros@redhat.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 134/225] ice: wait 5 s for EMP reset after firmware flash
-Date:   Wed,  4 May 2022 18:46:12 +0200
-Message-Id: <20220504153122.262348884@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 135/225] Bluetooth: hci_event: Fix checking for invalid handle on error status
+Date:   Wed,  4 May 2022 18:46:13 +0200
+Message-Id: <20220504153122.340840202@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -55,110 +55,210 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Oros <poros@redhat.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit b537752e6cbf0e4475c165178ca02241b53ff6ef ]
+[ Upstream commit c86cc5a3ec70f5644f1fa21610b943d0441bc1f7 ]
 
-We need to wait 5 s for EMP reset after firmware flash. Code was extracted
-from OOT driver (ice v1.8.3 downloaded from sourceforge). Without this
-wait, fw_activate let card in inconsistent state and recoverable only
-by second flash/activate. Flash was tested on these fw's:
->From -> To
- 3.00 -> 3.10/3.20
- 3.10 -> 3.00/3.20
- 3.20 -> 3.00/3.10
+Commit d5ebaa7c5f6f6 introduces checks for handle range
+(e.g HCI_CONN_HANDLE_MAX) but controllers like Intel AX200 don't seem
+to respect the valid range int case of error status:
 
-Reproducer:
-[root@host ~]# devlink dev flash pci/0000:ca:00.0 file E810_XXVDA4_FH_O_SEC_FW_1p6p1p9_NVM_3p10_PLDMoMCTP_0.11_8000AD7B.bin
-Preparing to flash
-[fw.mgmt] Erasing
-[fw.mgmt] Erasing done
-[fw.mgmt] Flashing 100%
-[fw.mgmt] Flashing done 100%
-[fw.undi] Erasing
-[fw.undi] Erasing done
-[fw.undi] Flashing 100%
-[fw.undi] Flashing done 100%
-[fw.netlist] Erasing
-[fw.netlist] Erasing done
-[fw.netlist] Flashing 100%
-[fw.netlist] Flashing done 100%
-Activate new firmware by devlink reload
-[root@host ~]# devlink dev reload pci/0000:ca:00.0 action fw_activate
-reload_actions_performed:
-    fw_activate
-[root@host ~]# ip link show ens7f0
-71: ens7f0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN mode DEFAULT group default qlen 1000
-    link/ether b4:96:91:dc:72:e0 brd ff:ff:ff:ff:ff:ff
-    altname enp202s0f0
+> HCI Event: Connect Complete (0x03) plen 11
+        Status: Page Timeout (0x04)
+        Handle: 65535
+        Address: 94:DB:56:XX:XX:XX (Sony Home Entertainment&
+	Sound Products Inc)
+        Link type: ACL (0x01)
+        Encryption: Disabled (0x00)
+[1644965.827560] Bluetooth: hci0: Ignoring HCI_Connection_Complete for invalid handle
 
-dmesg after flash:
-[   55.120788] ice: Copyright (c) 2018, Intel Corporation.
-[   55.274734] ice 0000:ca:00.0: Get PHY capabilities failed status = -5, continuing anyway
-[   55.569797] ice 0000:ca:00.0: The DDP package was successfully loaded: ICE OS Default Package version 1.3.28.0
-[   55.603629] ice 0000:ca:00.0: Get PHY capability failed.
-[   55.608951] ice 0000:ca:00.0: ice_init_nvm_phy_type failed: -5
-[   55.647348] ice 0000:ca:00.0: PTP init successful
-[   55.675536] ice 0000:ca:00.0: DCB is enabled in the hardware, max number of TCs supported on this port are 8
-[   55.685365] ice 0000:ca:00.0: FW LLDP is disabled, DCBx/LLDP in SW mode.
-[   55.692179] ice 0000:ca:00.0: Commit DCB Configuration to the hardware
-[   55.701382] ice 0000:ca:00.0: 126.024 Gb/s available PCIe bandwidth, limited by 16.0 GT/s PCIe x8 link at 0000:c9:02.0 (capable of 252.048 Gb/s with 16.0 GT/s PCIe x16 link)
-Reboot doesn’t help, only second flash/activate with OOT or patched
-driver put card back in consistent state.
+Because of it is impossible to cleanup the connections properly since
+the stack would attempt to cancel the connection which is no longer in
+progress causing the following trace:
 
-After patch:
-[root@host ~]# devlink dev flash pci/0000:ca:00.0 file E810_XXVDA4_FH_O_SEC_FW_1p6p1p9_NVM_3p10_PLDMoMCTP_0.11_8000AD7B.bin
-Preparing to flash
-[fw.mgmt] Erasing
-[fw.mgmt] Erasing done
-[fw.mgmt] Flashing 100%
-[fw.mgmt] Flashing done 100%
-[fw.undi] Erasing
-[fw.undi] Erasing done
-[fw.undi] Flashing 100%
-[fw.undi] Flashing done 100%
-[fw.netlist] Erasing
-[fw.netlist] Erasing done
-[fw.netlist] Flashing 100%
-[fw.netlist] Flashing done 100%
-Activate new firmware by devlink reload
-[root@host ~]# devlink dev reload pci/0000:ca:00.0 action fw_activate
-reload_actions_performed:
-    fw_activate
-[root@host ~]# ip link show ens7f0
-19: ens7f0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc mq state UP mode DEFAULT group default qlen 1000
-    link/ether b4:96:91:dc:72:e0 brd ff:ff:ff:ff:ff:ff
-    altname enp202s0f0
+< HCI Command: Create Connection Cancel (0x01|0x0008) plen 6
+        Address: 94:DB:56:XX:XX:XX (Sony Home Entertainment&
+	Sound Products Inc)
+= bluetoothd: src/profile.c:record_cb() Unable to get Hands-Free Voice
+	gateway SDP record: Connection timed out
+> HCI Event: Command Complete (0x0e) plen 10
+      Create Connection Cancel (0x01|0x0008) ncmd 1
+        Status: Unknown Connection Identifier (0x02)
+        Address: 94:DB:56:XX:XX:XX (Sony Home Entertainment&
+	Sound Products Inc)
+< HCI Command: Create Connection Cancel (0x01|0x0008) plen 6
+        Address: 94:DB:56:XX:XX:XX (Sony Home Entertainment&
+	Sound Products Inc)
 
-Fixes: 399e27dbbd9e94 ("ice: support immediate firmware activation via devlink reload")
-Signed-off-by: Petr Oros <poros@redhat.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: d5ebaa7c5f6f6 ("Bluetooth: hci_event: Ignore multiple conn complete events")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/net/bluetooth/hci.h |  1 +
+ net/bluetooth/hci_event.c   | 65 ++++++++++++++++++++-----------------
+ 2 files changed, 37 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 2de2bbbca1e9..e347030ee2e3 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6662,12 +6662,15 @@ static void ice_rebuild(struct ice_pf *pf, enum ice_reset_req reset_type)
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index 5cb095b09a94..69ef31cea582 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -578,6 +578,7 @@ enum {
+ #define HCI_ERROR_CONNECTION_TIMEOUT	0x08
+ #define HCI_ERROR_REJ_LIMITED_RESOURCES	0x0d
+ #define HCI_ERROR_REJ_BAD_ADDR		0x0f
++#define HCI_ERROR_INVALID_PARAMETERS	0x12
+ #define HCI_ERROR_REMOTE_USER_TERM	0x13
+ #define HCI_ERROR_REMOTE_LOW_RESOURCES	0x14
+ #define HCI_ERROR_REMOTE_POWER_OFF	0x15
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index d984777c9b58..33a1b4115194 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3067,13 +3067,9 @@ static void hci_conn_complete_evt(struct hci_dev *hdev, void *data,
+ {
+ 	struct hci_ev_conn_complete *ev = data;
+ 	struct hci_conn *conn;
++	u8 status = ev->status;
  
- 	dev_dbg(dev, "rebuilding PF after reset_type=%d\n", reset_type);
+-	if (__le16_to_cpu(ev->handle) > HCI_CONN_HANDLE_MAX) {
+-		bt_dev_err(hdev, "Ignoring HCI_Connection_Complete for invalid handle");
+-		return;
+-	}
+-
+-	bt_dev_dbg(hdev, "status 0x%2.2x", ev->status);
++	bt_dev_dbg(hdev, "status 0x%2.2x", status);
  
-+#define ICE_EMP_RESET_SLEEP_MS 5000
- 	if (reset_type == ICE_RESET_EMPR) {
- 		/* If an EMP reset has occurred, any previously pending flash
- 		 * update will have completed. We no longer know whether or
- 		 * not the NVM update EMP reset is restricted.
- 		 */
- 		pf->fw_emp_reset_disabled = false;
-+
-+		msleep(ICE_EMP_RESET_SLEEP_MS);
+ 	hci_dev_lock(hdev);
+ 
+@@ -3122,8 +3118,14 @@ static void hci_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 		goto unlock;
  	}
  
- 	err = ice_init_all_ctrlq(hw);
+-	if (!ev->status) {
++	if (!status) {
+ 		conn->handle = __le16_to_cpu(ev->handle);
++		if (conn->handle > HCI_CONN_HANDLE_MAX) {
++			bt_dev_err(hdev, "Invalid handle: 0x%4.4x > 0x%4.4x",
++				   conn->handle, HCI_CONN_HANDLE_MAX);
++			status = HCI_ERROR_INVALID_PARAMETERS;
++			goto done;
++		}
+ 
+ 		if (conn->type == ACL_LINK) {
+ 			conn->state = BT_CONFIG;
+@@ -3164,18 +3166,18 @@ static void hci_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 			hci_send_cmd(hdev, HCI_OP_CHANGE_CONN_PTYPE, sizeof(cp),
+ 				     &cp);
+ 		}
+-	} else {
+-		conn->state = BT_CLOSED;
+-		if (conn->type == ACL_LINK)
+-			mgmt_connect_failed(hdev, &conn->dst, conn->type,
+-					    conn->dst_type, ev->status);
+ 	}
+ 
+ 	if (conn->type == ACL_LINK)
+ 		hci_sco_setup(conn, ev->status);
+ 
+-	if (ev->status) {
+-		hci_connect_cfm(conn, ev->status);
++done:
++	if (status) {
++		conn->state = BT_CLOSED;
++		if (conn->type == ACL_LINK)
++			mgmt_connect_failed(hdev, &conn->dst, conn->type,
++					    conn->dst_type, status);
++		hci_connect_cfm(conn, status);
+ 		hci_conn_del(conn);
+ 	} else if (ev->link_type == SCO_LINK) {
+ 		switch (conn->setting & SCO_AIRMODE_MASK) {
+@@ -3185,7 +3187,7 @@ static void hci_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 			break;
+ 		}
+ 
+-		hci_connect_cfm(conn, ev->status);
++		hci_connect_cfm(conn, status);
+ 	}
+ 
+ unlock:
+@@ -4676,6 +4678,7 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev, void *data,
+ {
+ 	struct hci_ev_sync_conn_complete *ev = data;
+ 	struct hci_conn *conn;
++	u8 status = ev->status;
+ 
+ 	switch (ev->link_type) {
+ 	case SCO_LINK:
+@@ -4690,12 +4693,7 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 		return;
+ 	}
+ 
+-	if (__le16_to_cpu(ev->handle) > HCI_CONN_HANDLE_MAX) {
+-		bt_dev_err(hdev, "Ignoring HCI_Sync_Conn_Complete for invalid handle");
+-		return;
+-	}
+-
+-	bt_dev_dbg(hdev, "status 0x%2.2x", ev->status);
++	bt_dev_dbg(hdev, "status 0x%2.2x", status);
+ 
+ 	hci_dev_lock(hdev);
+ 
+@@ -4729,9 +4727,17 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 		goto unlock;
+ 	}
+ 
+-	switch (ev->status) {
++	switch (status) {
+ 	case 0x00:
+ 		conn->handle = __le16_to_cpu(ev->handle);
++		if (conn->handle > HCI_CONN_HANDLE_MAX) {
++			bt_dev_err(hdev, "Invalid handle: 0x%4.4x > 0x%4.4x",
++				   conn->handle, HCI_CONN_HANDLE_MAX);
++			status = HCI_ERROR_INVALID_PARAMETERS;
++			conn->state = BT_CLOSED;
++			break;
++		}
++
+ 		conn->state  = BT_CONNECTED;
+ 		conn->type   = ev->link_type;
+ 
+@@ -4775,8 +4781,8 @@ static void hci_sync_conn_complete_evt(struct hci_dev *hdev, void *data,
+ 		}
+ 	}
+ 
+-	hci_connect_cfm(conn, ev->status);
+-	if (ev->status)
++	hci_connect_cfm(conn, status);
++	if (status)
+ 		hci_conn_del(conn);
+ 
+ unlock:
+@@ -5527,11 +5533,6 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 	struct smp_irk *irk;
+ 	u8 addr_type;
+ 
+-	if (handle > HCI_CONN_HANDLE_MAX) {
+-		bt_dev_err(hdev, "Ignoring HCI_LE_Connection_Complete for invalid handle");
+-		return;
+-	}
+-
+ 	hci_dev_lock(hdev);
+ 
+ 	/* All controllers implicitly stop advertising in the event of a
+@@ -5603,6 +5604,12 @@ static void le_conn_complete_evt(struct hci_dev *hdev, u8 status,
+ 
+ 	conn->dst_type = ev_bdaddr_type(hdev, conn->dst_type, NULL);
+ 
++	if (handle > HCI_CONN_HANDLE_MAX) {
++		bt_dev_err(hdev, "Invalid handle: 0x%4.4x > 0x%4.4x", handle,
++			   HCI_CONN_HANDLE_MAX);
++		status = HCI_ERROR_INVALID_PARAMETERS;
++	}
++
+ 	if (status) {
+ 		hci_le_conn_failed(conn, status);
+ 		goto unlock;
 -- 
 2.35.1
 
