@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C5C51A907
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 357AD51A990
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350355AbiEDRNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39176 "EHLO
+        id S1356603AbiEDRSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:18:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356657AbiEDRJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5C247056;
-        Wed,  4 May 2022 09:55:19 -0700 (PDT)
+        with ESMTP id S1356442AbiEDRNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:13:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A86BA4C415;
+        Wed,  4 May 2022 09:57:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F476B827A1;
-        Wed,  4 May 2022 16:55:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08916C385AA;
-        Wed,  4 May 2022 16:55:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 269FDB827AD;
+        Wed,  4 May 2022 16:57:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA2BCC385A5;
+        Wed,  4 May 2022 16:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683317;
-        bh=KrCa3xx+pLiibOz+R1GUnejvUmDg0sP1/REd83K1u+4=;
+        s=korg; t=1651683467;
+        bh=d7JgQBk6naJ/rT9zZwoorkKX4JJ7nvbUbjkN0+THQEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea/IEDDLnleWBcQzu9ml3Zk+S1mQ1rwb5PbEqwv5q852/Z8dWkbZMnHsqisJNYOJu
-         1xFQyEJhwQRV9bzGwQdelSvwA+gQcGYLrkRh5y3AoSJKUZusCyP0O+UB1SEMYr9u2p
-         ymQ0F/t8idLtsEFy48UOlDfybzjUj8HFgPLilRxE=
+        b=djHmZ5a1lCuXRuDunwbcLpO1q414eN56UtKUuV5q+O5Rv0dPv6+gom/595bb/zKhA
+         2BHinjs7gnGG2TiDz33tau58UlQjbpeUFYcDc2U/ibMlOyBB7HF7u/rt/fgZCtjkT6
+         ID8dr/13Zjze1+k/GKNcq0f0JkoMld/obqi2OCvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 5.15 174/177] eeprom: at25: Use DMA safe buffers
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 129/225] mctp: defer the kfree of object mdev->addrs
 Date:   Wed,  4 May 2022 18:46:07 +0200
-Message-Id: <20220504153109.261304023@linuxfoundation.org>
+Message-Id: <20220504153121.879448475@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,155 +55,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 5b47b751b760ee1c74a51660fd096aa148a362cd upstream.
+[ Upstream commit b561275d633bcd8e0e8055ab86f1a13df75a0269 ]
 
-Reading EEPROM fails with following warning:
+The function mctp_unregister() reclaims the device's relevant resource
+when a netcard detaches. However, a running routine may be unaware of
+this and cause the use-after-free of the mdev->addrs object.
 
-[   16.357496] ------------[ cut here ]------------
-[   16.357529] fsl_spi b01004c0.spi: rejecting DMA map of vmalloc memory
-[   16.357698] WARNING: CPU: 0 PID: 371 at include/linux/dma-mapping.h:326 fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.357775] CPU: 0 PID: 371 Comm: od Not tainted 5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty #109
-[   16.357806] NIP:  c03fbc9c LR: c03fbc9c CTR: 00000000
-[   16.357825] REGS: e68d9b20 TRAP: 0700   Not tainted  (5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty)
-[   16.357849] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002282  XER: 00000000
-[   16.357931]
-[   16.357931] GPR00: c03fbc9c e68d9be0 c26d06a0 00000039 00000001 c0d36364 c0e96428 00000027
-[   16.357931] GPR08: 00000001 00000000 00000023 3fffc000 24002282 100d3dd6 100a2ffc 00000000
-[   16.357931] GPR16: 100cd280 100b0000 00000000 aff54f7e 100d0000 100d0000 00000001 100cf328
-[   16.357931] GPR24: 100cf328 00000000 00000003 e68d9e30 c156b410 e67ab4c0 e68d9d38 c24ab278
-[   16.358253] NIP [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.358292] LR [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
-[   16.358325] Call Trace:
-[   16.358336] [e68d9be0] [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8 (unreliable)
-[   16.358388] [e68d9c00] [c03fcb44] fsl_spi_bufs.isra.0+0x94/0x1a0
-[   16.358436] [e68d9c20] [c03fd970] fsl_spi_do_one_msg+0x254/0x3dc
-[   16.358483] [e68d9cb0] [c03f7e50] __spi_pump_messages+0x274/0x8a4
-[   16.358529] [e68d9ce0] [c03f9d30] __spi_sync+0x344/0x378
-[   16.358573] [e68d9d20] [c03fb52c] spi_sync+0x34/0x60
-[   16.358616] [e68d9d30] [c03b4dec] at25_ee_read+0x138/0x1a8
-[   16.358667] [e68d9e50] [c04a8fb8] bin_attr_nvmem_read+0x98/0x110
-[   16.358725] [e68d9e60] [c0204b14] kernfs_fop_read_iter+0xc0/0x1fc
-[   16.358774] [e68d9e80] [c0168660] vfs_read+0x284/0x410
-[   16.358821] [e68d9f00] [c016925c] ksys_read+0x6c/0x11c
-[   16.358863] [e68d9f30] [c00160e0] ret_from_syscall+0x0/0x28
-...
-[   16.359608] ---[ end trace a4ce3e34afef0cb5 ]---
-[   16.359638] fsl_spi b01004c0.spi: unable to map tx dma
+The race condition can be demonstrated below
 
-This is due to the AT25 driver using buffers on stack, which is not
-possible with CONFIG_VMAP_STACK.
+ cleanup thread               another thread
+                          |
+unregister_netdev()       |  mctp_sendmsg()
+...                       |    ...
+  mctp_unregister()       |    rt = mctp_route_lookup()
+    ...                   |    mctl_local_output()
+    kfree(mdev->addrs)    |      ...
+                          |      saddr = rt->dev->addrs[0];
+                          |
 
-As mentionned in kernel Documentation (Documentation/spi/spi-summary.rst):
+An attacker can adopt the (recent provided) mtcpserial driver with pty
+to fake the device detaching and use the userfaultfd to increase the
+race success chance (in mctp_sendmsg). The KASan report for such a POC
+is shown below:
 
-  - Follow standard kernel rules, and provide DMA-safe buffers in
-    your messages.  That way controller drivers using DMA aren't forced
-    to make extra copies unless the hardware requires it (e.g. working
-    around hardware errata that force the use of bounce buffering).
+[   86.051955] ==================================================================
+[   86.051955] BUG: KASAN: use-after-free in mctp_local_output+0x4e9/0xb7d
+[   86.051955] Read of size 1 at addr ffff888005f298c0 by task poc/295
+[   86.051955]
+[   86.051955] Call Trace:
+[   86.051955]  <TASK>
+[   86.051955]  dump_stack_lvl+0x33/0x42
+[   86.051955]  print_report.cold.13+0xb2/0x6b3
+[   86.051955]  ? preempt_schedule_irq+0x57/0x80
+[   86.051955]  ? mctp_local_output+0x4e9/0xb7d
+[   86.051955]  kasan_report+0xa5/0x120
+[   86.051955]  ? mctp_local_output+0x4e9/0xb7d
+[   86.051955]  mctp_local_output+0x4e9/0xb7d
+[   86.051955]  ? mctp_dev_set_key+0x79/0x79
+[   86.051955]  ? copyin+0x38/0x50
+[   86.051955]  ? _copy_from_iter+0x1b6/0xf20
+[   86.051955]  ? sysvec_apic_timer_interrupt+0x97/0xb0
+[   86.051955]  ? asm_sysvec_apic_timer_interrupt+0x12/0x20
+[   86.051955]  ? mctp_local_output+0x1/0xb7d
+[   86.051955]  mctp_sendmsg+0x64d/0xdb0
+[   86.051955]  ? mctp_sk_close+0x20/0x20
+[   86.051955]  ? __fget_light+0x2fd/0x4f0
+[   86.051955]  ? mctp_sk_close+0x20/0x20
+[   86.051955]  sock_sendmsg+0xdd/0x110
+[   86.051955]  __sys_sendto+0x1cc/0x2a0
+[   86.051955]  ? __ia32_sys_getpeername+0xa0/0xa0
+[   86.051955]  ? new_sync_write+0x335/0x550
+[   86.051955]  ? alloc_file+0x22f/0x500
+[   86.051955]  ? __ip_do_redirect+0x820/0x1820
+[   86.051955]  ? vfs_write+0x44d/0x7b0
+[   86.051955]  ? vfs_write+0x44d/0x7b0
+[   86.051955]  ? fput_many+0x15/0x120
+[   86.051955]  ? ksys_write+0x155/0x1b0
+[   86.051955]  ? __ia32_sys_read+0xa0/0xa0
+[   86.051955]  __x64_sys_sendto+0xd8/0x1b0
+[   86.051955]  ? exit_to_user_mode_prepare+0x2f/0x120
+[   86.051955]  ? syscall_exit_to_user_mode+0x12/0x20
+[   86.051955]  do_syscall_64+0x3a/0x80
+[   86.051955]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   86.051955] RIP: 0033:0x7f82118a56b3
+[   86.051955] RSP: 002b:00007ffdb154b110 EFLAGS: 00000293 ORIG_RAX: 000000000000002c
+[   86.051955] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f82118a56b3
+[   86.051955] RDX: 0000000000000010 RSI: 00007f8211cd4000 RDI: 0000000000000007
+[   86.051955] RBP: 00007ffdb154c1d0 R08: 00007ffdb154b164 R09: 000000000000000c
+[   86.051955] R10: 0000000000000000 R11: 0000000000000293 R12: 000055d779800db0
+[   86.051955] R13: 00007ffdb154c2b0 R14: 0000000000000000 R15: 0000000000000000
+[   86.051955]  </TASK>
+[   86.051955]
+[   86.051955] Allocated by task 295:
+[   86.051955]  kasan_save_stack+0x1c/0x40
+[   86.051955]  __kasan_kmalloc+0x84/0xa0
+[   86.051955]  mctp_rtm_newaddr+0x242/0x610
+[   86.051955]  rtnetlink_rcv_msg+0x2fd/0x8b0
+[   86.051955]  netlink_rcv_skb+0x11c/0x340
+[   86.051955]  netlink_unicast+0x439/0x630
+[   86.051955]  netlink_sendmsg+0x752/0xc00
+[   86.051955]  sock_sendmsg+0xdd/0x110
+[   86.051955]  __sys_sendto+0x1cc/0x2a0
+[   86.051955]  __x64_sys_sendto+0xd8/0x1b0
+[   86.051955]  do_syscall_64+0x3a/0x80
+[   86.051955]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   86.051955]
+[   86.051955] Freed by task 301:
+[   86.051955]  kasan_save_stack+0x1c/0x40
+[   86.051955]  kasan_set_track+0x21/0x30
+[   86.051955]  kasan_set_free_info+0x20/0x30
+[   86.051955]  __kasan_slab_free+0x104/0x170
+[   86.051955]  kfree+0x8c/0x290
+[   86.051955]  mctp_dev_notify+0x161/0x2c0
+[   86.051955]  raw_notifier_call_chain+0x8b/0xc0
+[   86.051955]  unregister_netdevice_many+0x299/0x1180
+[   86.051955]  unregister_netdevice_queue+0x210/0x2f0
+[   86.051955]  unregister_netdev+0x13/0x20
+[   86.051955]  mctp_serial_close+0x6d/0xa0
+[   86.051955]  tty_ldisc_kill+0x31/0xa0
+[   86.051955]  tty_ldisc_hangup+0x24f/0x560
+[   86.051955]  __tty_hangup.part.28+0x2ce/0x6b0
+[   86.051955]  tty_release+0x327/0xc70
+[   86.051955]  __fput+0x1df/0x8b0
+[   86.051955]  task_work_run+0xca/0x150
+[   86.051955]  exit_to_user_mode_prepare+0x114/0x120
+[   86.051955]  syscall_exit_to_user_mode+0x12/0x20
+[   86.051955]  do_syscall_64+0x46/0x80
+[   86.051955]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[   86.051955]
+[   86.051955] The buggy address belongs to the object at ffff888005f298c0
+[   86.051955]  which belongs to the cache kmalloc-8 of size 8
+[   86.051955] The buggy address is located 0 bytes inside of
+[   86.051955]  8-byte region [ffff888005f298c0, ffff888005f298c8)
+[   86.051955]
+[   86.051955] The buggy address belongs to the physical page:
+[   86.051955] flags: 0x100000000000200(slab|node=0|zone=1)
+[   86.051955] raw: 0100000000000200 dead000000000100 dead000000000122 ffff888005c42280
+[   86.051955] raw: 0000000000000000 0000000080660066 00000001ffffffff 0000000000000000
+[   86.051955] page dumped because: kasan: bad access detected
+[   86.051955]
+[   86.051955] Memory state around the buggy address:
+[   86.051955]  ffff888005f29780: 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc 00
+[   86.051955]  ffff888005f29800: fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc 00 fc
+[   86.051955] >ffff888005f29880: fc fc fc fb fc fc fc fc fa fc fc fc fc fa fc fc
+[   86.051955]                                            ^
+[   86.051955]  ffff888005f29900: fc fc 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc
+[   86.051955]  ffff888005f29980: fc 00 fc fc fc fc 00 fc fc fc fc 00 fc fc fc fc
+[   86.051955] ==================================================================
 
-Modify the driver to use a buffer located in the at25 device structure
-which is allocated via kmalloc during probe.
+To this end, just like the commit e04480920d1e ("Bluetooth: defer
+cleanup of resources in hci_unregister_dev()")  this patch defers the
+destructive kfree(mdev->addrs) in mctp_unregister to the mctp_dev_put,
+where the refcount of mdev is zero and the entire device is reclaimed.
+This prevents the use-after-free because the sendmsg thread holds the
+reference of mdev in the mctp_route object.
 
-Protect writes in this new buffer with the driver's mutex.
-
-Fixes: b587b13a4f67 ("[PATCH] SPI eeprom driver")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/230a9486fc68ea0182df46255e42a51099403642.1648032613.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 583be982d934 (mctp: Add device handling and netlink interface)
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Acked-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Link: https://lore.kernel.org/r/20220422114340.32346-1-linma@zju.edu.cn
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/at25.c |   19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ net/mctp/device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -30,6 +30,8 @@
-  */
- 
- #define	FM25_SN_LEN	8		/* serial number length */
-+#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
-+
- struct at25_data {
- 	struct spi_device	*spi;
- 	struct mutex		lock;
-@@ -38,6 +40,7 @@ struct at25_data {
- 	struct nvmem_config	nvmem_config;
- 	struct nvmem_device	*nvmem;
- 	u8 sernum[FM25_SN_LEN];
-+	u8 command[EE_MAXADDRLEN + 1];
- };
- 
- #define	AT25_WREN	0x06		/* latch the write enable */
-@@ -60,8 +63,6 @@ struct at25_data {
- 
- #define	FM25_ID_LEN	9		/* ID length */
- 
--#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
--
- /* Specs often allow 5 msec for a page write, sometimes 20 msec;
-  * it's important to recover from write timeouts.
-  */
-@@ -76,7 +77,6 @@ static int at25_ee_read(void *priv, unsi
+diff --git a/net/mctp/device.c b/net/mctp/device.c
+index f86ef6d751bd..9150b9789d25 100644
+--- a/net/mctp/device.c
++++ b/net/mctp/device.c
+@@ -312,6 +312,7 @@ void mctp_dev_hold(struct mctp_dev *mdev)
+ void mctp_dev_put(struct mctp_dev *mdev)
  {
- 	struct at25_data *at25 = priv;
- 	char *buf = val;
--	u8			command[EE_MAXADDRLEN + 1];
- 	u8			*cp;
- 	ssize_t			status;
- 	struct spi_transfer	t[2];
-@@ -90,12 +90,15 @@ static int at25_ee_read(void *priv, unsi
- 	if (unlikely(!count))
- 		return -EINVAL;
+ 	if (mdev && refcount_dec_and_test(&mdev->refs)) {
++		kfree(mdev->addrs);
+ 		dev_put(mdev->dev);
+ 		kfree_rcu(mdev, rcu);
+ 	}
+@@ -440,7 +441,6 @@ static void mctp_unregister(struct net_device *dev)
  
--	cp = command;
-+	cp = at25->command;
+ 	mctp_route_remove_dev(mdev);
+ 	mctp_neigh_remove_dev(mdev);
+-	kfree(mdev->addrs);
  
- 	instr = AT25_READ;
- 	if (at25->chip.flags & EE_INSTR_BIT3_IS_ADDR)
- 		if (offset >= (1U << (at25->addrlen * 8)))
- 			instr |= AT25_INSTR_BIT3;
-+
-+	mutex_lock(&at25->lock);
-+
- 	*cp++ = instr;
- 
- 	/* 8/16/24-bit address is written MSB first */
-@@ -114,7 +117,7 @@ static int at25_ee_read(void *priv, unsi
- 	spi_message_init(&m);
- 	memset(t, 0, sizeof(t));
- 
--	t[0].tx_buf = command;
-+	t[0].tx_buf = at25->command;
- 	t[0].len = at25->addrlen + 1;
- 	spi_message_add_tail(&t[0], &m);
- 
-@@ -122,8 +125,6 @@ static int at25_ee_read(void *priv, unsi
- 	t[1].len = count;
- 	spi_message_add_tail(&t[1], &m);
- 
--	mutex_lock(&at25->lock);
--
- 	/* Read it all at once.
- 	 *
- 	 * REVISIT that's potentially a problem with large chips, if
-@@ -151,7 +152,7 @@ static int fm25_aux_read(struct at25_dat
- 	spi_message_init(&m);
- 	memset(t, 0, sizeof(t));
- 
--	t[0].tx_buf = &command;
-+	t[0].tx_buf = at25->command;
- 	t[0].len = 1;
- 	spi_message_add_tail(&t[0], &m);
- 
-@@ -161,6 +162,8 @@ static int fm25_aux_read(struct at25_dat
- 
- 	mutex_lock(&at25->lock);
- 
-+	at25->command[0] = command;
-+
- 	status = spi_sync(at25->spi, &m);
- 	dev_dbg(&at25->spi->dev, "read %d aux bytes --> %d\n", len, status);
- 
+ 	mctp_dev_put(mdev);
+ }
+-- 
+2.35.1
+
 
 
