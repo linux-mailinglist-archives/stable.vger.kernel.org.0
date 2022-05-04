@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A565F51A8B7
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B4851A96F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356501AbiEDRNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38822 "EHLO
+        id S1359028AbiEDRQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356435AbiEDRJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0358552E72;
-        Wed,  4 May 2022 09:55:07 -0700 (PDT)
+        with ESMTP id S1354937AbiEDRLe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E874B842;
+        Wed,  4 May 2022 09:57:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA786617BD;
-        Wed,  4 May 2022 16:55:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 257B3C385AF;
-        Wed,  4 May 2022 16:55:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0A24B82737;
+        Wed,  4 May 2022 16:57:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93389C385AA;
+        Wed,  4 May 2022 16:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683307;
-        bh=qqOBYkyqIaDFVtLXqkMFTJMInOAayRv70HWCatlXsls=;
+        s=korg; t=1651683451;
+        bh=d8aBkKFvDCEcM+/vDNEOn7RvlX+nP+BcdMllvbGZQzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5/9vD/f75HRZ7mFenCZJV6PNgdy5tdZ6DaPQVvaHwL67bB0/kq+uy44/qKslteSR
-         b9NV9BAjyP5OkOcj9KfUJLOSmzCk1oQhZDizgzwXSlnSdXJyibq/lJgF9PDp8fPihX
-         lnjStJNDeYV1TyDUwux2IXOyX4/ppkyiOBZjfGXI=
+        b=ItclEZ3G2akTNEeql2+/J1yyrwjasR+5GSNMUI73zQFFWF+x4SVkUaFHArMIP4uLf
+         p64AsMBul0pgnDheHAw2bCNnmSwCbRx3QpdHoDrkUNeWUOz21Vb8bMHs4sQ5xjwAPX
+         Gbppdh8SApwHwHqFg3xNZE2+U/K+yepsQWC4EorE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 159/177] tty: n_gsm: fix mux cleanup after unregister tty device
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 114/225] net: hns3: clear inited state and stop client after failed to register netdev
 Date:   Wed,  4 May 2022 18:45:52 +0200
-Message-Id: <20220504153107.700609775@linuxfoundation.org>
+Message-Id: <20220504153120.744668252@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,49 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit 284260f278b706364fb4c88a7b56ba5298d5973c upstream.
+[ Upstream commit e98365afc1e94ea1609268866a44112b3572c58b ]
 
-Internally, we manage the alive state of the mux channels and mux itself
-with the field member 'dead'. This makes it possible to notify the user
-if the accessed underlying link is already gone. On the other hand,
-however, removing the virtual ttys before terminating the channels may
-result in peer messages being received without any internal target. Move
-the mux cleanup procedure from gsmld_detach_gsm() to gsmld_close() to fix
-this by keeping the virtual ttys open until the mux has been cleaned up.
+If failed to register netdev, it needs to clear INITED state and stop
+client in case of cause problem when concurrency with uninitialized
+process of driver.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-4-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a289a7e5c1d4 ("net: hns3: put off calling register_netdev() until client initialize complete")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2418,7 +2418,6 @@ static void gsmld_detach_gsm(struct tty_
- 	WARN_ON(tty != gsm->tty);
- 	for (i = 1; i < NUM_DLCI; i++)
- 		tty_unregister_device(gsm_tty_driver, base + i);
--	gsm_cleanup_mux(gsm, false);
- 	tty_kref_put(gsm->tty);
- 	gsm->tty = NULL;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index f6082be7481c..f33b4c351a70 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -5132,6 +5132,13 @@ static void hns3_state_init(struct hnae3_handle *handle)
+ 		set_bit(HNS3_NIC_STATE_RXD_ADV_LAYOUT_ENABLE, &priv->state);
  }
-@@ -2483,6 +2482,12 @@ static void gsmld_close(struct tty_struc
- {
- 	struct gsm_mux *gsm = tty->disc_data;
  
-+	/* The ldisc locks and closes the port before calling our close. This
-+	 * means we have no way to do a proper disconnect. We will not bother
-+	 * to do one.
-+	 */
-+	gsm_cleanup_mux(gsm, false);
++static void hns3_state_uninit(struct hnae3_handle *handle)
++{
++	struct hns3_nic_priv *priv  = handle->priv;
 +
- 	gsmld_detach_gsm(tty, gsm);
++	clear_bit(HNS3_NIC_STATE_INITED, &priv->state);
++}
++
+ static int hns3_client_init(struct hnae3_handle *handle)
+ {
+ 	struct pci_dev *pdev = handle->pdev;
+@@ -5249,7 +5256,9 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 	return ret;
  
- 	gsmld_flush_buffer(tty);
+ out_reg_netdev_fail:
++	hns3_state_uninit(handle);
+ 	hns3_dbg_uninit(handle);
++	hns3_client_stop(handle);
+ out_client_start:
+ 	hns3_free_rx_cpu_rmap(netdev);
+ 	hns3_nic_uninit_irq(priv);
+-- 
+2.35.1
+
 
 
