@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36AC551A823
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F7651A880
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355597AbiEDRIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50148 "EHLO
+        id S1356155AbiEDRLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353151AbiEDRFU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E75850E16;
-        Wed,  4 May 2022 09:54:14 -0700 (PDT)
+        with ESMTP id S1356926AbiEDRJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7F94738D;
+        Wed,  4 May 2022 09:56:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A69AB827AD;
-        Wed,  4 May 2022 16:54:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26102C385A5;
-        Wed,  4 May 2022 16:54:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEA72617A6;
+        Wed,  4 May 2022 16:56:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28DC5C385AA;
+        Wed,  4 May 2022 16:56:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683251;
-        bh=vzEX6Tq9n68EdutGIw5T+UJNk47l/3TGbuch2cwKSbs=;
+        s=korg; t=1651683387;
+        bh=2AHMO1rt09lcgtSq7YM7IIDJOOXaAVwLycWd1FnTCxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y71IOSKfQjSk+KpJQJBtc9NT637Hka7ODM+v+Z88h43YF/xwbBkwUNpQLVNByefE8
-         ZlO+OIRdmy5QlEju4W4DbkVLrbzhiRR4RPwElxa85F3cj8NQFGHVxXvOIprxBD06zp
-         InwOoOEcbZekOy+8KZXBrjVXyfFXEKNqC3SkcCig=
+        b=JyUluXrLQfaVwneNAFkOfb/ATq/40wEBpIsLny+ZNk84Htqv6FBJAxayNeXA89z6t
+         Z7gy4280Iu7rtkdZSypTCV8G9JEav3VQEYBorJdU/zbCES/jmkdBMco/7GBVmz91dM
+         Ku2EVgBivokv6gt+VWMJXmj6k1u01M3+M4Nk4scc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 104/177] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        syzbot+53ce4a4246d0fe0fee34@syzkaller.appspotmail.com
+Subject: [PATCH 5.17 059/225] video: fbdev: udlfb: properly check endpoint type
 Date:   Wed,  4 May 2022 18:44:57 +0200
-Message-Id: <20220504153102.499192036@linuxfoundation.org>
+Message-Id: <20220504153115.436114773@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
+[ Upstream commit aaf7dbe07385e0b8deb7237eca2a79926bbc7091 ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+syzbot reported warning in usb_submit_urb, which is caused by wrong
+endpoint type.
 
-Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
+This driver uses out bulk endpoint for communication, so
+let's check if this endpoint is present and bail out early if not.
+
+Fail log:
+
+usb 1-1: BOGUS urb xfer, pipe 3 != type 1
+WARNING: CPU: 0 PID: 4822 at drivers/usb/core/urb.c:493 usb_submit_urb+0xd27/0x1540 drivers/usb/core/urb.c:493
+Modules linked in:
+CPU: 0 PID: 4822 Comm: kworker/0:3 Tainted: G        W         5.13.0-syzkaller #0
+...
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:usb_submit_urb+0xd27/0x1540 drivers/usb/core/urb.c:493
+...
+Call Trace:
+ dlfb_submit_urb+0x89/0x160 drivers/video/fbdev/udlfb.c:1969
+ dlfb_set_video_mode+0x21f0/0x2950 drivers/video/fbdev/udlfb.c:315
+ dlfb_ops_set_par+0x2a3/0x840 drivers/video/fbdev/udlfb.c:1110
+ dlfb_usb_probe.cold+0x113e/0x1f4a drivers/video/fbdev/udlfb.c:1732
+ usb_probe_interface+0x315/0x7f0 drivers/usb/core/driver.c:396
+
+Fixes: 88e58b1a42f8 ("Staging: add udlfb driver")
+Reported-and-tested-by: syzbot+53ce4a4246d0fe0fee34@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/udlfb.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
-index 542b31d6e96d..636bcf2439ef 100644
---- a/drivers/clk/sunxi/clk-sun9i-mmc.c
-+++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
-@@ -109,6 +109,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
- 	spin_lock_init(&data->lock);
+diff --git a/drivers/video/fbdev/udlfb.c b/drivers/video/fbdev/udlfb.c
+index 90f48b71fd8f..d9eec1b60e66 100644
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -1649,8 +1649,9 @@ static int dlfb_usb_probe(struct usb_interface *intf,
+ 	const struct device_attribute *attr;
+ 	struct dlfb_data *dlfb;
+ 	struct fb_info *info;
+-	int retval = -ENOMEM;
++	int retval;
+ 	struct usb_device *usbdev = interface_to_usbdev(intf);
++	struct usb_endpoint_descriptor *out;
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -EINVAL;
- 	/* one clock/reset pair per word */
- 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
- 	data->membase = devm_ioremap_resource(&pdev->dev, r);
+ 	/* usb initialization */
+ 	dlfb = kzalloc(sizeof(*dlfb), GFP_KERNEL);
+@@ -1664,6 +1665,12 @@ static int dlfb_usb_probe(struct usb_interface *intf,
+ 	dlfb->udev = usb_get_dev(usbdev);
+ 	usb_set_intfdata(intf, dlfb);
+ 
++	retval = usb_find_common_endpoints(intf->cur_altsetting, NULL, &out, NULL, NULL);
++	if (retval) {
++		dev_err(&intf->dev, "Device should have at lease 1 bulk endpoint!\n");
++		goto error;
++	}
++
+ 	dev_dbg(&intf->dev, "console enable=%d\n", console);
+ 	dev_dbg(&intf->dev, "fb_defio enable=%d\n", fb_defio);
+ 	dev_dbg(&intf->dev, "shadow enable=%d\n", shadow);
+@@ -1673,6 +1680,7 @@ static int dlfb_usb_probe(struct usb_interface *intf,
+ 	if (!dlfb_parse_vendor_descriptor(dlfb, intf)) {
+ 		dev_err(&intf->dev,
+ 			"firmware not recognized, incompatible device?\n");
++		retval = -ENODEV;
+ 		goto error;
+ 	}
+ 
+@@ -1686,8 +1694,10 @@ static int dlfb_usb_probe(struct usb_interface *intf,
+ 
+ 	/* allocates framebuffer driver structure, not framebuffer memory */
+ 	info = framebuffer_alloc(0, &dlfb->udev->dev);
+-	if (!info)
++	if (!info) {
++		retval = -ENOMEM;
+ 		goto error;
++	}
+ 
+ 	dlfb->info = info;
+ 	info->par = dlfb;
 -- 
 2.35.1
 
