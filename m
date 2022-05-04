@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC41C51A75F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3903651A8F3
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354704AbiEDRDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:03:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38314 "EHLO
+        id S1355827AbiEDRNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355221AbiEDQ7s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:48 -0400
+        with ESMTP id S1356831AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE7AB49275;
-        Wed,  4 May 2022 09:51:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6828537A86;
+        Wed,  4 May 2022 09:55:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04F7D617BE;
-        Wed,  4 May 2022 16:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E223C385A4;
-        Wed,  4 May 2022 16:51:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBD11617DE;
+        Wed,  4 May 2022 16:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30255C385A5;
+        Wed,  4 May 2022 16:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683082;
-        bh=EhPme3Fm74FYoNwPGq+P4J38yUvRFTbwq3ETX9RbL5s=;
+        s=korg; t=1651683354;
+        bh=4mjYDSdWePM+0k97YorWcmEeIKh9d7g1avgZ06w8JjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPHZ+NlX73R61FC92X5PufMEKGE3xcBZ0Iw6BI/D+W0ucoK6UQ4AK84prRMjAQGDM
-         AjWZCq00DMuH+5LI+isLFH8Ia27vWBt+4149vzhe5jPG/t6/cBDqnEEFjstn3Fp8Ud
-         Bs+wZx5jjXc7C19OAjlE88Vdo5lR+Ln7TBKBCJ6c=
+        b=nW0a0aafJIu3Kg26/LHRj2Nu6J3YQXyE37WJRNrs0nyk6wfHJnIg8nLFFa5F9UOHu
+         sEkjuP7eNwpDxhoW70SYxm7AYS23r0t27agY2HDW0++FwWW9jWFynYfebmMa5BrR6P
+         Qa0HxeaVACZKieXETtu0YsHjjlyFeDMEmJTjy+94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/129] arm64: dts: imx8mn-ddr4-evk: Describe the 32.768 kHz PMIC clock
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.17 027/225] usb: dwc3: gadget: Return proper request status
 Date:   Wed,  4 May 2022 18:44:25 +0200
-Message-Id: <20220504153027.018404656@linuxfoundation.org>
+Message-Id: <20220504153112.731735152@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URI_HEX autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,45 +52,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 0310b5aa0656a94102344f1e9ae2892e342a665d ]
+commit c7428dbddcf4ea1919e1c8e15f715b94ca359268 upstream.
 
-The ROHM BD71847 PMIC has a 32.768 kHz clock.
+If the user sets the usb_request's no_interrupt, then there will be no
+completion event for the request. Currently the driver incorrectly uses
+the event status of a different request to report the status for a
+request with no_interrupt. The dwc3 driver needs to check the TRB status
+associated with the request when reporting its status.
 
-Describe the PMIC clock to fix the following boot errors:
+Note: this is only applicable to missed_isoc TRB completion status, but
+the other status are also listed for completeness/documentation.
 
-bd718xx-clk bd71847-clk.1.auto: No parent clk found
-bd718xx-clk: probe of bd71847-clk.1.auto failed with error -22
-
-Based on the same fix done for imx8mm-evk as per commit
-a6a355ede574 ("arm64: dts: imx8mm-evk: Add 32.768 kHz clock to PMIC")
-
-Fixes: 3e44dd09736d ("arm64: dts: imx8mn-ddr4-evk: Add rohm,bd71847 PMIC support")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/db2c80108286cfd108adb05bad52138b78d7c3a7.1650673655.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/dwc3/gadget.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-index 7dfee715a2c4..d8ce217c6016 100644
---- a/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mn-ddr4-evk.dts
-@@ -59,6 +59,10 @@ pmic@4b {
- 		interrupts = <3 IRQ_TYPE_LEVEL_LOW>;
- 		rohm,reset-snvs-powered;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3229,6 +3229,7 @@ static int dwc3_gadget_ep_cleanup_comple
+ 		const struct dwc3_event_depevt *event,
+ 		struct dwc3_request *req, int status)
+ {
++	int request_status;
+ 	int ret;
  
-+		#clock-cells = <0>;
-+		clocks = <&osc_32k 0>;
-+		clock-output-names = "clk-32k-out";
+ 	if (req->request.num_mapped_sgs)
+@@ -3249,7 +3250,35 @@ static int dwc3_gadget_ep_cleanup_comple
+ 		req->needs_extra_trb = false;
+ 	}
+ 
+-	dwc3_gadget_giveback(dep, req, status);
++	/*
++	 * The event status only reflects the status of the TRB with IOC set.
++	 * For the requests that don't set interrupt on completion, the driver
++	 * needs to check and return the status of the completed TRBs associated
++	 * with the request. Use the status of the last TRB of the request.
++	 */
++	if (req->request.no_interrupt) {
++		struct dwc3_trb *trb;
 +
- 		regulators {
- 			buck1_reg: BUCK1 {
- 				regulator-name = "buck1";
--- 
-2.35.1
-
++		trb = dwc3_ep_prev_trb(dep, dep->trb_dequeue);
++		switch (DWC3_TRB_SIZE_TRBSTS(trb->size)) {
++		case DWC3_TRBSTS_MISSED_ISOC:
++			/* Isoc endpoint only */
++			request_status = -EXDEV;
++			break;
++		case DWC3_TRB_STS_XFER_IN_PROG:
++			/* Applicable when End Transfer with ForceRM=0 */
++		case DWC3_TRBSTS_SETUP_PENDING:
++			/* Control endpoint only */
++		case DWC3_TRBSTS_OK:
++		default:
++			request_status = 0;
++			break;
++		}
++	} else {
++		request_status = status;
++	}
++
++	dwc3_gadget_giveback(dep, req, request_status);
+ 
+ out:
+ 	return ret;
 
 
