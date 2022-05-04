@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A75951A648
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77CF351A7BD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353873AbiEDQys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52422 "EHLO
+        id S1355378AbiEDRG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353977AbiEDQxk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:40 -0400
+        with ESMTP id S1356087AbiEDREw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:52 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0091347AED;
-        Wed,  4 May 2022 09:48:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9397F50450;
+        Wed,  4 May 2022 09:53:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 609B26174B;
-        Wed,  4 May 2022 16:48:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA57C385AA;
-        Wed,  4 May 2022 16:48:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3380561896;
+        Wed,  4 May 2022 16:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81186C385A5;
+        Wed,  4 May 2022 16:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682936;
-        bh=h76GEpf5N76NBpbEK6cuzTroDXKTOFD5aLTGvyLJDkQ=;
+        s=korg; t=1651683226;
+        bh=vAIc1uurf7tCoXg8ZlsD2kbeWm6s3yVfceQCPAEYxTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogsXlg9gJVg2UGcLVFqc3LS5C9ZaSaKswUG09v2+GPTzTx7lJFUEXOkxkcPJTsbN3
-         IK9MN46lU4F2862pPocqU4JWv+89azymICG9k0Iz+PHsnL8DXYM20mDqt/wIX3AJ3W
-         yta1X6gQI0QaQkuSl1tdcdJ5heDhvgV7LwLEY6g4=
+        b=mTSGT0KYXGCnWlKkYtaBzg/uXc/lSLm8uk+225OdysS+OyJXpk9z9jR3kFX8/qtPp
+         Fuxv8FDXAEj0sv/PGcyKekuF5QkuKUIeC4DqS5dYD7E8VkixL2COvClsfIGn3ajNZ+
+         VvHH4ozcBlb7gjSKbpVV1cVhVtKtdOT/p9Y8hKrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Guangbin Huang <huangguangbin2@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/84] net: hns3: add validity check for message data length
+Subject: [PATCH 5.15 083/177] pinctrl: rockchip: fix RK3308 pinmux bits
 Date:   Wed,  4 May 2022 18:44:36 +0200
-Message-Id: <20220504152931.664805518@linuxfoundation.org>
+Message-Id: <20220504153100.481207487@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +55,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-[ Upstream commit 7d413735cb18ff73aaba3457b16b08332e8d3cc4 ]
+[ Upstream commit 1f3e25a068832f8892a5ff71467622d012f5bc9f ]
 
-Add validity check for message data length in function
-hclge_send_mbx_msg(), avoid unexpected overflow.
+Some of the pinmuxing bits described in rk3308_mux_recalced_data are wrong,
+pointing to non-existing registers.
 
-Fixes: dde1a86e93ca ("net: hns3: Add mailbox support to PF driver")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the entire table.
+
+Also add a comment in front of each entry with the same string that appears
+in the datasheet to make the table easier to compare with the docs.
+
+This fix has been tested on real hardware for the gpio3b3_sel entry.
+
+Fixes: 7825aeb7b208 ("pinctrl: rockchip: add rk3308 SoC support")
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20220420142432.248565-1-luca.ceresoli@bootlin.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/pinctrl/pinctrl-rockchip.c | 45 ++++++++++++++++++++----------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index 23a706a1765a..410a9bf7bf0a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -64,6 +64,13 @@ static int hclge_send_mbx_msg(struct hclge_vport *vport, u8 *msg, u16 msg_len,
- 	enum hclge_cmd_status status;
- 	struct hclge_desc desc;
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index 923ff21a44c0..543a4991cf70 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -455,95 +455,110 @@ static  struct rockchip_mux_recalced_data rk3128_mux_recalced_data[] = {
  
-+	if (msg_len > HCLGE_MBX_MAX_MSG_SIZE) {
-+		dev_err(&hdev->pdev->dev,
-+			"msg data length(=%u) exceeds maximum(=%u)\n",
-+			msg_len, HCLGE_MBX_MAX_MSG_SIZE);
-+		return -EMSGSIZE;
-+	}
-+
- 	resp_pf_to_vf = (struct hclge_mbx_pf_to_vf_cmd *)desc.data;
+ static struct rockchip_mux_recalced_data rk3308_mux_recalced_data[] = {
+ 	{
++		/* gpio1b6_sel */
+ 		.num = 1,
+ 		.pin = 14,
+ 		.reg = 0x28,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1b7_sel */
+ 		.num = 1,
+ 		.pin = 15,
+ 		.reg = 0x2c,
+ 		.bit = 0,
+ 		.mask = 0x3
+ 	}, {
++		/* gpio1c2_sel */
+ 		.num = 1,
+ 		.pin = 18,
+ 		.reg = 0x30,
+ 		.bit = 4,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c3_sel */
+ 		.num = 1,
+ 		.pin = 19,
+ 		.reg = 0x30,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c4_sel */
+ 		.num = 1,
+ 		.pin = 20,
+ 		.reg = 0x30,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c5_sel */
+ 		.num = 1,
+ 		.pin = 21,
+ 		.reg = 0x34,
+ 		.bit = 0,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c6_sel */
+ 		.num = 1,
+ 		.pin = 22,
+ 		.reg = 0x34,
+ 		.bit = 4,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c7_sel */
+ 		.num = 1,
+ 		.pin = 23,
+ 		.reg = 0x34,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio3b4_sel */
+ 		.num = 3,
+ 		.pin = 12,
+ 		.reg = 0x68,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio3b5_sel */
+ 		.num = 3,
+ 		.pin = 13,
+ 		.reg = 0x68,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio2a2_sel */
+ 		.num = 2,
+ 		.pin = 2,
+-		.reg = 0x608,
+-		.bit = 0,
+-		.mask = 0x7
++		.reg = 0x40,
++		.bit = 4,
++		.mask = 0x3
+ 	}, {
++		/* gpio2a3_sel */
+ 		.num = 2,
+ 		.pin = 3,
+-		.reg = 0x608,
+-		.bit = 4,
+-		.mask = 0x7
++		.reg = 0x40,
++		.bit = 6,
++		.mask = 0x3
+ 	}, {
++		/* gpio2c0_sel */
+ 		.num = 2,
+ 		.pin = 16,
+-		.reg = 0x610,
+-		.bit = 8,
+-		.mask = 0x7
++		.reg = 0x50,
++		.bit = 0,
++		.mask = 0x3
+ 	}, {
++		/* gpio3b2_sel */
+ 		.num = 3,
+ 		.pin = 10,
+-		.reg = 0x610,
+-		.bit = 0,
+-		.mask = 0x7
++		.reg = 0x68,
++		.bit = 4,
++		.mask = 0x3
+ 	}, {
++		/* gpio3b3_sel */
+ 		.num = 3,
+ 		.pin = 11,
+-		.reg = 0x610,
+-		.bit = 4,
+-		.mask = 0x7
++		.reg = 0x68,
++		.bit = 6,
++		.mask = 0x3
+ 	},
+ };
  
- 	hclge_cmd_setup_basic_desc(&desc, HCLGEVF_OPC_MBX_PF_TO_VF, false);
 -- 
 2.35.1
 
