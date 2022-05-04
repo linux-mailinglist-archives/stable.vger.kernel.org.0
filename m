@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 806C151A87A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F7951A73B
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356118AbiEDRLP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40588 "EHLO
+        id S1354487AbiEDRCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356864AbiEDRJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DAB43ACA;
-        Wed,  4 May 2022 09:56:09 -0700 (PDT)
+        with ESMTP id S1355581AbiEDRAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BE5C4B85D;
+        Wed,  4 May 2022 09:51:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB027B82552;
-        Wed,  4 May 2022 16:56:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 599D6C385A5;
-        Wed,  4 May 2022 16:56:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64397B827A0;
+        Wed,  4 May 2022 16:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D27C385B0;
+        Wed,  4 May 2022 16:51:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683366;
-        bh=MjxXhvR7eOTKXsksl/EC+/r+vZn1DCuhebs5L24vBDo=;
+        s=korg; t=1651683105;
+        bh=MgUSPGC8XAwqCIX5ru8uKpmwPXqDBDFmXLpraWqumLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dEfUxLj+HvhD6DyE1i0u3W0/WoX/R+Thgp5+3quqVWdSE6/0y0rwjzJK2R9VchBh5
-         ViYzbgMptavzfi6NLie5/HKWo/XbvlKioBWjCwVgrMWaW0NIhXN132icLLtZq8QrjX
-         Gcxvv452dx3rA7/ZpTZU84ZcixhnmasA6/krulBA=
+        b=J6epOYcgJOJaHPztNBqE+hlAfIl3ovhQfXm5SKdKcPyTCarQxHhfJAhLxdJeMNjVa
+         j/MjHBPxchN0CUAOfO2Z4aZ1xsS/dBQZwbcRtGW9AyWoHfweSAkbqLP0j3l8cVF1tu
+         t6O7vYbv7T3Q2/VVxVT3igL+YkFAd6RX3Uz8D8sY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kyle D. Pelton" <kyle.d.pelton@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Subject: [PATCH 5.17 051/225] x86/cpu: Load microcode during restore_processor_state()
+        stable@vger.kernel.org, Dany Madden <drt@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 097/129] Revert "ibmvnic: Add ethtool private flag for driver-defined queue limits"
 Date:   Wed,  4 May 2022 18:44:49 +0200
-Message-Id: <20220504153114.690963313@linuxfoundation.org>
+Message-Id: <20220504153028.632338410@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,124 +54,257 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Dany Madden <drt@linux.ibm.com>
 
-commit f9e14dbbd454581061c736bf70bf5cbb15ac927c upstream.
+[ Upstream commit aeaf59b78712c7a1827c76f086acff4f586e072f ]
 
-When resuming from system sleep state, restore_processor_state()
-restores the boot CPU MSRs. These MSRs could be emulated by microcode.
-If microcode is not loaded yet, writing to emulated MSRs leads to
-unchecked MSR access error:
+This reverts commit 723ad916134784b317b72f3f6cf0f7ba774e5dae
 
-  ...
-  PM: Calling lapic_suspend+0x0/0x210
-  unchecked MSR access error: WRMSR to 0x10f (tried to write 0x0...0) at rIP: ... (native_write_msr)
-  Call Trace:
-    <TASK>
-    ? restore_processor_state
-    x86_acpi_suspend_lowlevel
-    acpi_suspend_enter
-    suspend_devices_and_enter
-    pm_suspend.cold
-    state_store
-    kobj_attr_store
-    sysfs_kf_write
-    kernfs_fop_write_iter
-    new_sync_write
-    vfs_write
-    ksys_write
-    __x64_sys_write
-    do_syscall_64
-    entry_SYSCALL_64_after_hwframe
-   RIP: 0033:0x7fda13c260a7
+When client requests channel or ring size larger than what the server
+can support the server will cap the request to the supported max. So,
+the client would not be able to successfully request resources that
+exceed the server limit.
 
-To ensure microcode emulated MSRs are available for restoration, load
-the microcode on the boot CPU before restoring these MSRs.
-
-  [ Pawan: write commit message and productize it. ]
-
-Fixes: e2a1256b17b1 ("x86/speculation: Restore speculation related MSRs during S3 resume")
-Reported-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Tested-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215841
-Link: https://lore.kernel.org/r/4350dfbf785cd482d3fafa72b2b49c83102df3ce.1650386317.git.pawan.kumar.gupta@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 723ad9161347 ("ibmvnic: Add ethtool private flag for driver-defined queue limits")
+Signed-off-by: Dany Madden <drt@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220427235146.23189-1-drt@linux.ibm.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/microcode.h     |    2 ++
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- arch/x86/power/cpu.c                 |   10 +++++++++-
- 3 files changed, 14 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c | 129 ++++++++---------------------
+ drivers/net/ethernet/ibm/ibmvnic.h |   6 --
+ 2 files changed, 35 insertions(+), 100 deletions(-)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -131,10 +131,12 @@ extern void __init load_ucode_bsp(void);
- extern void load_ucode_ap(void);
- void reload_early_microcode(void);
- extern bool initrd_gone;
-+void microcode_bsp_resume(void);
- #else
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
- static inline void reload_early_microcode(void)			{ }
-+static inline void microcode_bsp_resume(void)			{ }
- #endif
- 
- #endif /* _ASM_X86_MICROCODE_H */
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -758,9 +758,9 @@ static struct subsys_interface mc_cpu_in
- };
- 
- /**
-- * mc_bp_resume - Update boot CPU microcode during resume.
-+ * microcode_bsp_resume - Update boot CPU microcode during resume.
-  */
--static void mc_bp_resume(void)
-+void microcode_bsp_resume(void)
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.c b/drivers/net/ethernet/ibm/ibmvnic.c
+index 2cd849215913..61fb2a092451 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2666,13 +2666,8 @@ static void ibmvnic_get_ringparam(struct net_device *netdev,
  {
- 	int cpu = smp_processor_id();
- 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
-@@ -772,7 +772,7 @@ static void mc_bp_resume(void)
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+ 
+-	if (adapter->priv_flags & IBMVNIC_USE_SERVER_MAXES) {
+-		ring->rx_max_pending = adapter->max_rx_add_entries_per_subcrq;
+-		ring->tx_max_pending = adapter->max_tx_entries_per_subcrq;
+-	} else {
+-		ring->rx_max_pending = IBMVNIC_MAX_QUEUE_SZ;
+-		ring->tx_max_pending = IBMVNIC_MAX_QUEUE_SZ;
+-	}
++	ring->rx_max_pending = adapter->max_rx_add_entries_per_subcrq;
++	ring->tx_max_pending = adapter->max_tx_entries_per_subcrq;
+ 	ring->rx_mini_max_pending = 0;
+ 	ring->rx_jumbo_max_pending = 0;
+ 	ring->rx_pending = adapter->req_rx_add_entries_per_subcrq;
+@@ -2685,23 +2680,21 @@ static int ibmvnic_set_ringparam(struct net_device *netdev,
+ 				 struct ethtool_ringparam *ring)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+-	int ret;
+ 
+-	ret = 0;
++	if (ring->rx_pending > adapter->max_rx_add_entries_per_subcrq  ||
++	    ring->tx_pending > adapter->max_tx_entries_per_subcrq) {
++		netdev_err(netdev, "Invalid request.\n");
++		netdev_err(netdev, "Max tx buffers = %llu\n",
++			   adapter->max_rx_add_entries_per_subcrq);
++		netdev_err(netdev, "Max rx buffers = %llu\n",
++			   adapter->max_tx_entries_per_subcrq);
++		return -EINVAL;
++	}
++
+ 	adapter->desired.rx_entries = ring->rx_pending;
+ 	adapter->desired.tx_entries = ring->tx_pending;
+ 
+-	ret = wait_for_reset(adapter);
+-
+-	if (!ret &&
+-	    (adapter->req_rx_add_entries_per_subcrq != ring->rx_pending ||
+-	     adapter->req_tx_entries_per_subcrq != ring->tx_pending))
+-		netdev_info(netdev,
+-			    "Could not match full ringsize request. Requested: RX %d, TX %d; Allowed: RX %llu, TX %llu\n",
+-			    ring->rx_pending, ring->tx_pending,
+-			    adapter->req_rx_add_entries_per_subcrq,
+-			    adapter->req_tx_entries_per_subcrq);
+-	return ret;
++	return wait_for_reset(adapter);
  }
  
- static struct syscore_ops mc_syscore_ops = {
--	.resume			= mc_bp_resume,
-+	.resume			= microcode_bsp_resume,
+ static void ibmvnic_get_channels(struct net_device *netdev,
+@@ -2709,14 +2702,8 @@ static void ibmvnic_get_channels(struct net_device *netdev,
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+ 
+-	if (adapter->priv_flags & IBMVNIC_USE_SERVER_MAXES) {
+-		channels->max_rx = adapter->max_rx_queues;
+-		channels->max_tx = adapter->max_tx_queues;
+-	} else {
+-		channels->max_rx = IBMVNIC_MAX_QUEUES;
+-		channels->max_tx = IBMVNIC_MAX_QUEUES;
+-	}
+-
++	channels->max_rx = adapter->max_rx_queues;
++	channels->max_tx = adapter->max_tx_queues;
+ 	channels->max_other = 0;
+ 	channels->max_combined = 0;
+ 	channels->rx_count = adapter->req_rx_queues;
+@@ -2729,22 +2716,11 @@ static int ibmvnic_set_channels(struct net_device *netdev,
+ 				struct ethtool_channels *channels)
+ {
+ 	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+-	int ret;
+ 
+-	ret = 0;
+ 	adapter->desired.rx_queues = channels->rx_count;
+ 	adapter->desired.tx_queues = channels->tx_count;
+ 
+-	ret = wait_for_reset(adapter);
+-
+-	if (!ret &&
+-	    (adapter->req_rx_queues != channels->rx_count ||
+-	     adapter->req_tx_queues != channels->tx_count))
+-		netdev_info(netdev,
+-			    "Could not match full channels request. Requested: RX %d, TX %d; Allowed: RX %llu, TX %llu\n",
+-			    channels->rx_count, channels->tx_count,
+-			    adapter->req_rx_queues, adapter->req_tx_queues);
+-	return ret;
++	return wait_for_reset(adapter);
+ }
+ 
+ static void ibmvnic_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+@@ -2752,43 +2728,32 @@ static void ibmvnic_get_strings(struct net_device *dev, u32 stringset, u8 *data)
+ 	struct ibmvnic_adapter *adapter = netdev_priv(dev);
+ 	int i;
+ 
+-	switch (stringset) {
+-	case ETH_SS_STATS:
+-		for (i = 0; i < ARRAY_SIZE(ibmvnic_stats);
+-				i++, data += ETH_GSTRING_LEN)
+-			memcpy(data, ibmvnic_stats[i].name, ETH_GSTRING_LEN);
++	if (stringset != ETH_SS_STATS)
++		return;
+ 
+-		for (i = 0; i < adapter->req_tx_queues; i++) {
+-			snprintf(data, ETH_GSTRING_LEN, "tx%d_packets", i);
+-			data += ETH_GSTRING_LEN;
++	for (i = 0; i < ARRAY_SIZE(ibmvnic_stats); i++, data += ETH_GSTRING_LEN)
++		memcpy(data, ibmvnic_stats[i].name, ETH_GSTRING_LEN);
+ 
+-			snprintf(data, ETH_GSTRING_LEN, "tx%d_bytes", i);
+-			data += ETH_GSTRING_LEN;
++	for (i = 0; i < adapter->req_tx_queues; i++) {
++		snprintf(data, ETH_GSTRING_LEN, "tx%d_packets", i);
++		data += ETH_GSTRING_LEN;
+ 
+-			snprintf(data, ETH_GSTRING_LEN,
+-				 "tx%d_dropped_packets", i);
+-			data += ETH_GSTRING_LEN;
+-		}
++		snprintf(data, ETH_GSTRING_LEN, "tx%d_bytes", i);
++		data += ETH_GSTRING_LEN;
+ 
+-		for (i = 0; i < adapter->req_rx_queues; i++) {
+-			snprintf(data, ETH_GSTRING_LEN, "rx%d_packets", i);
+-			data += ETH_GSTRING_LEN;
++		snprintf(data, ETH_GSTRING_LEN, "tx%d_dropped_packets", i);
++		data += ETH_GSTRING_LEN;
++	}
+ 
+-			snprintf(data, ETH_GSTRING_LEN, "rx%d_bytes", i);
+-			data += ETH_GSTRING_LEN;
++	for (i = 0; i < adapter->req_rx_queues; i++) {
++		snprintf(data, ETH_GSTRING_LEN, "rx%d_packets", i);
++		data += ETH_GSTRING_LEN;
+ 
+-			snprintf(data, ETH_GSTRING_LEN, "rx%d_interrupts", i);
+-			data += ETH_GSTRING_LEN;
+-		}
+-		break;
++		snprintf(data, ETH_GSTRING_LEN, "rx%d_bytes", i);
++		data += ETH_GSTRING_LEN;
+ 
+-	case ETH_SS_PRIV_FLAGS:
+-		for (i = 0; i < ARRAY_SIZE(ibmvnic_priv_flags); i++)
+-			strcpy(data + i * ETH_GSTRING_LEN,
+-			       ibmvnic_priv_flags[i]);
+-		break;
+-	default:
+-		return;
++		snprintf(data, ETH_GSTRING_LEN, "rx%d_interrupts", i);
++		data += ETH_GSTRING_LEN;
+ 	}
+ }
+ 
+@@ -2801,8 +2766,6 @@ static int ibmvnic_get_sset_count(struct net_device *dev, int sset)
+ 		return ARRAY_SIZE(ibmvnic_stats) +
+ 		       adapter->req_tx_queues * NUM_TX_STATS +
+ 		       adapter->req_rx_queues * NUM_RX_STATS;
+-	case ETH_SS_PRIV_FLAGS:
+-		return ARRAY_SIZE(ibmvnic_priv_flags);
+ 	default:
+ 		return -EOPNOTSUPP;
+ 	}
+@@ -2855,26 +2818,6 @@ static void ibmvnic_get_ethtool_stats(struct net_device *dev,
+ 	}
+ }
+ 
+-static u32 ibmvnic_get_priv_flags(struct net_device *netdev)
+-{
+-	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+-
+-	return adapter->priv_flags;
+-}
+-
+-static int ibmvnic_set_priv_flags(struct net_device *netdev, u32 flags)
+-{
+-	struct ibmvnic_adapter *adapter = netdev_priv(netdev);
+-	bool which_maxes = !!(flags & IBMVNIC_USE_SERVER_MAXES);
+-
+-	if (which_maxes)
+-		adapter->priv_flags |= IBMVNIC_USE_SERVER_MAXES;
+-	else
+-		adapter->priv_flags &= ~IBMVNIC_USE_SERVER_MAXES;
+-
+-	return 0;
+-}
+-
+ static const struct ethtool_ops ibmvnic_ethtool_ops = {
+ 	.get_drvinfo		= ibmvnic_get_drvinfo,
+ 	.get_msglevel		= ibmvnic_get_msglevel,
+@@ -2888,8 +2831,6 @@ static const struct ethtool_ops ibmvnic_ethtool_ops = {
+ 	.get_sset_count         = ibmvnic_get_sset_count,
+ 	.get_ethtool_stats	= ibmvnic_get_ethtool_stats,
+ 	.get_link_ksettings	= ibmvnic_get_link_ksettings,
+-	.get_priv_flags		= ibmvnic_get_priv_flags,
+-	.set_priv_flags		= ibmvnic_set_priv_flags,
  };
  
- static int mc_cpu_starting(unsigned int cpu)
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -25,6 +25,7 @@
- #include <asm/cpu.h>
- #include <asm/mmu_context.h>
- #include <asm/cpu_device_id.h>
-+#include <asm/microcode.h>
+ /* Routines for managing CRQs/sCRQs  */
+diff --git a/drivers/net/ethernet/ibm/ibmvnic.h b/drivers/net/ethernet/ibm/ibmvnic.h
+index b27211063c64..2eb9a4d5533a 100644
+--- a/drivers/net/ethernet/ibm/ibmvnic.h
++++ b/drivers/net/ethernet/ibm/ibmvnic.h
+@@ -41,11 +41,6 @@
  
- #ifdef CONFIG_X86_32
- __visible unsigned long saved_context_ebx;
-@@ -262,11 +263,18 @@ static void notrace __restore_processor_
- 	x86_platform.restore_sched_clock_state();
- 	mtrr_bp_restore();
- 	perf_restore_debug_store();
--	msr_restore_context(ctxt);
+ #define IBMVNIC_RESET_DELAY 100
  
- 	c = &cpu_data(smp_processor_id());
- 	if (cpu_has(c, X86_FEATURE_MSR_IA32_FEAT_CTL))
- 		init_ia32_feat_ctl(c);
-+
-+	microcode_bsp_resume();
-+
-+	/*
-+	 * This needs to happen after the microcode has been updated upon resume
-+	 * because some of the MSRs are "emulated" in microcode.
-+	 */
-+	msr_restore_context(ctxt);
- }
+-static const char ibmvnic_priv_flags[][ETH_GSTRING_LEN] = {
+-#define IBMVNIC_USE_SERVER_MAXES 0x1
+-	"use-server-maxes"
+-};
+-
+ struct ibmvnic_login_buffer {
+ 	__be32 len;
+ 	__be32 version;
+@@ -974,7 +969,6 @@ struct ibmvnic_adapter {
+ 	struct ibmvnic_control_ip_offload_buffer ip_offload_ctrl;
+ 	dma_addr_t ip_offload_ctrl_tok;
+ 	u32 msg_enable;
+-	u32 priv_flags;
  
- /* Needed by apm.c */
+ 	/* Vital Product Data (VPD) */
+ 	struct ibmvnic_vpd *vpd;
+-- 
+2.35.1
+
 
 
