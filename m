@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE4651A8CC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF0451A96C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348730AbiEDRL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
+        id S1356275AbiEDRL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355853AbiEDRIx (ORCPT
+        with ESMTP id S1355854AbiEDRIx (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FAED49FA5;
-        Wed,  4 May 2022 09:54:38 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE84D517EF;
+        Wed,  4 May 2022 09:54:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6284061899;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54005617DE;
+        Wed,  4 May 2022 16:54:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2186C385A4;
         Wed,  4 May 2022 16:54:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7C09C385A5;
-        Wed,  4 May 2022 16:54:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683277;
-        bh=U7F8eZYEpVTSmb/J39TUf2NGEuMLVkqIGrd2moRZY9U=;
+        s=korg; t=1651683278;
+        bh=pH8kHLg29q84DA3lAKF1knzAlPKUewGQtsmALlQhDkw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lavSqlHe99BIe9cu1Gz+Ba0Tup3OL4UCtCmNDE6zrXFlTAvye4RkwcOOf1tCysYQZ
-         GKVshGeF3FhwK/1ZLQMJMbnrZHlslC0HxsvZVZ+J/PanndhPgvIuN5O3qcf61labS1
-         HP3Xd0k8pSF1r3mYkkdBMkeNxbbKen1Zcxxem8D0=
+        b=vZ+7BeYAlPHdnlzNgC7qPe+tcOz9IRzGJ0j/Mdum+OMtQltGTr6pTY+871Gy6yY4l
+         c0r6NhMZ18xPK4Y8TidQMZm0oN0kuBWU99JfByTlsYqrgbNNsO+R0VkjjSKwnLAbQW
+         8moYuBYy9EhvAbffbO6IkQRdF56+4bAVbEpt8Mz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Max Filippov <jcmvbkbc@gmail.com>,
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Hyunchul Lee <hyc.lee@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 130/177] arch: xtensa: platforms: Fix deadlock in rs_close()
-Date:   Wed,  4 May 2022 18:45:23 +0200
-Message-Id: <20220504153104.791464567@linuxfoundation.org>
+Subject: [PATCH 5.15 131/177] ksmbd: increment reference count of parent fp
+Date:   Wed,  4 May 2022 18:45:24 +0200
+Message-Id: <20220504153104.887434253@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
 References: <20220504153053.873100034@linuxfoundation.org>
@@ -54,84 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit eb5adc70754d26a260f8b42d39db42da0d0af500 ]
+[ Upstream commit 8510a043d334ecdf83d4604782f288db6bf21d60 ]
 
-There is a deadlock in rs_close(), which is shown
-below:
+Add missing increment reference count of parent fp in
+ksmbd_lookup_fd_inode().
 
-   (Thread 1)              |      (Thread 2)
-                           | rs_open()
-rs_close()                 |  mod_timer()
- spin_lock_bh() //(1)      |  (wait a time)
- ...                       | rs_poll()
- del_timer_sync()          |  spin_lock() //(2)
- (wait timer to stop)      |  ...
-
-We hold timer_lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need timer_lock in position (2) of thread 2.
-As a result, rs_close() will block forever.
-
-This patch deletes the redundant timer_lock in order to
-prevent the deadlock. Because there is no race condition
-between rs_close, rs_open and rs_poll.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Message-Id: <20220407154430.22387-1-duoming@zju.edu.cn>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Reviewed-by: Hyunchul Lee <hyc.lee@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/platforms/iss/console.c | 8 --------
- 1 file changed, 8 deletions(-)
+ fs/ksmbd/smb2pdu.c   | 2 ++
+ fs/ksmbd/vfs_cache.c | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/xtensa/platforms/iss/console.c b/arch/xtensa/platforms/iss/console.c
-index 81d7c7e8f7e9..10b79d3c74e0 100644
---- a/arch/xtensa/platforms/iss/console.c
-+++ b/arch/xtensa/platforms/iss/console.c
-@@ -36,24 +36,19 @@ static void rs_poll(struct timer_list *);
- static struct tty_driver *serial_driver;
- static struct tty_port serial_port;
- static DEFINE_TIMER(serial_timer, rs_poll);
--static DEFINE_SPINLOCK(timer_lock);
- 
- static int rs_open(struct tty_struct *tty, struct file * filp)
- {
--	spin_lock_bh(&timer_lock);
- 	if (tty->count == 1)
- 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
--	spin_unlock_bh(&timer_lock);
- 
- 	return 0;
- }
- 
- static void rs_close(struct tty_struct *tty, struct file * filp)
- {
--	spin_lock_bh(&timer_lock);
- 	if (tty->count == 1)
- 		del_timer_sync(&serial_timer);
--	spin_unlock_bh(&timer_lock);
- }
- 
- 
-@@ -73,8 +68,6 @@ static void rs_poll(struct timer_list *unused)
- 	int rd = 1;
- 	unsigned char c;
- 
--	spin_lock(&timer_lock);
--
- 	while (simc_poll(0)) {
- 		rd = simc_read(0, &c, 1);
- 		if (rd <= 0)
-@@ -87,7 +80,6 @@ static void rs_poll(struct timer_list *unused)
- 		tty_flip_buffer_push(port);
- 	if (rd)
- 		mod_timer(&serial_timer, jiffies + SERIAL_TIMER_VALUE);
--	spin_unlock(&timer_lock);
- }
- 
- 
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 192d8308afc2..a9fdb47c2791 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -5768,8 +5768,10 @@ static int set_rename_info(struct ksmbd_work *work, struct ksmbd_file *fp,
+ 	if (parent_fp) {
+ 		if (parent_fp->daccess & FILE_DELETE_LE) {
+ 			pr_err("parent dir is opened with delete access\n");
++			ksmbd_fd_put(work, parent_fp);
+ 			return -ESHARE;
+ 		}
++		ksmbd_fd_put(work, parent_fp);
+ 	}
+ next:
+ 	return smb2_rename(work, fp, user_ns, rename_info,
+diff --git a/fs/ksmbd/vfs_cache.c b/fs/ksmbd/vfs_cache.c
+index 29c1db66bd0f..8b873d92d785 100644
+--- a/fs/ksmbd/vfs_cache.c
++++ b/fs/ksmbd/vfs_cache.c
+@@ -497,6 +497,7 @@ struct ksmbd_file *ksmbd_lookup_fd_inode(struct inode *inode)
+ 	list_for_each_entry(lfp, &ci->m_fp_list, node) {
+ 		if (inode == file_inode(lfp->filp)) {
+ 			atomic_dec(&ci->m_count);
++			lfp = ksmbd_fp_get(lfp);
+ 			read_unlock(&ci->m_lock);
+ 			return lfp;
+ 		}
 -- 
 2.35.1
 
