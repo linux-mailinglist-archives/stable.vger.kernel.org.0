@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B82851A6C2
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1EF251A7E1
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354356AbiEDQ6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:58:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
+        id S1354873AbiEDRF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354353AbiEDQ5u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608D24A3D2;
-        Wed,  4 May 2022 09:50:05 -0700 (PDT)
+        with ESMTP id S1355178AbiEDREL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E5B4E3AC;
+        Wed,  4 May 2022 09:52:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A671AB827A0;
-        Wed,  4 May 2022 16:50:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C980C385A4;
-        Wed,  4 May 2022 16:50:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7F4DB827A1;
+        Wed,  4 May 2022 16:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D597C385A5;
+        Wed,  4 May 2022 16:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683002;
-        bh=yygj4gzvlcT7SWxDWyCdvMa3wTi8PxJIsAe9weyBJdY=;
+        s=korg; t=1651683165;
+        bh=HCoN8/Wq4Acpa5T6uG4M7Zn2PwaQBMq/3dfZoQIgsyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0T3DnL5fsD/vBcUHO+EIlOOIPl2RfGm+cFtIG5ITcIs6U/RoybOip8DVkhBpxu8hh
-         JSSF2gQGIAG+uhalfW0sIMuAx9ft8n1bE7z/ZHChMIuyeBS4vxHmwojQ1WHz5Jei7P
-         nHNH3rgdXM1tEwz2M1AdpdtFRWzDHtdWgoho7sIE=
+        b=ZhThXt4HFzDINnpYisv0qlfXPya09eCVa3Pdm/uWAQp9vLJe8LN9UiQncXH8LUIU4
+         /e0obuALBFDUjBt0LBAOMeHSdKeBPPr3M43PxOCIPwBT/1jTKCUDX2oivuQT29tBsm
+         AUNc5Cqy6oWqr4HG/XNhl+WzN17+ZTI9KDe6Phyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jack Pham <quic_jackp@quicinc.com>
-Subject: [PATCH 5.10 018/129] usb: typec: ucsi: Fix reuse of completion structure
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Tasos Sahanidis <tasos@tasossah.com>
+Subject: [PATCH 5.15 017/177] usb: core: Dont hold the device lock while sleeping in do_proc_control()
 Date:   Wed,  4 May 2022 18:43:30 +0200
-Message-Id: <20220504153022.746748462@linuxfoundation.org>
+Message-Id: <20220504153054.941573165@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-commit e25adcca917d7e4cdc1dc6444d0692ffda7594bf upstream.
+commit 0543e4e8852ef5ff1809ae62f1ea963e2ab23b66 upstream.
 
-The role swapping completion variable is reused, so it needs
-to be reinitialised every time. Otherwise it will be marked
-as done after the first time it's used and completing
-immediately.
+Since commit ae8709b296d8 ("USB: core: Make do_proc_control() and
+do_proc_bulk() killable") if a device has the USB_QUIRK_DELAY_CTRL_MSG
+quirk set, it will temporarily block all other URBs (e.g. interrupts)
+while sleeping due to a control.
 
-Link: https://lore.kernel.org/linux-usb/20220325203959.GA19752@jackp-linux.qualcomm.com/
-Fixes: 6df475f804e6 ("usb: typec: ucsi: Start using struct typec_operations")
-Cc: stable@vger.kernel.org
-Reported-and-suggested-by: Jack Pham <quic_jackp@quicinc.com>
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20220405134824.68067-2-heikki.krogerus@linux.intel.com
+This results in noticeable delays when, for example, a userspace usbfs
+application is sending URB interrupts at a high rate to a keyboard and
+simultaneously updates the lock indicators using controls. Interrupts
+with direction set to IN are also affected by this, meaning that
+delivery of HID reports (containing scancodes) to the usbfs application
+is delayed as well.
+
+This patch fixes the regression by calling msleep() while the device
+mutex is unlocked, as was the case originally with usb_control_msg().
+
+Fixes: ae8709b296d8 ("USB: core: Make do_proc_control() and do_proc_bulk() killable")
+Cc: stable <stable@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Link: https://lore.kernel.org/r/3e299e2a-13b9-ddff-7fee-6845e868bc06@tasossah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/devio.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -928,6 +928,8 @@ static int ucsi_dr_swap(struct typec_por
- 	     role == TYPEC_HOST))
- 		goto out_unlock;
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1197,12 +1197,16 @@ static int do_proc_control(struct usb_de
  
-+	reinit_completion(&con->complete);
+ 		usb_unlock_device(dev);
+ 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
 +
- 	command = UCSI_SET_UOR | UCSI_CONNECTOR_NUMBER(con->num);
- 	command |= UCSI_SET_UOR_ROLE(role);
- 	command |= UCSI_SET_UOR_ACCEPT_ROLE_SWAPS;
-@@ -964,6 +966,8 @@ static int ucsi_pr_swap(struct typec_por
- 	if (cur_role == role)
- 		goto out_unlock;
++		/* Linger a bit, prior to the next control message. */
++		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
++			msleep(200);
+ 		usb_lock_device(dev);
+ 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, tbuf, actlen);
+ 		if (!i && actlen) {
+ 			if (copy_to_user(ctrl->data, tbuf, actlen)) {
+ 				ret = -EFAULT;
+-				goto recv_fault;
++				goto done;
+ 			}
+ 		}
+ 	} else {
+@@ -1219,6 +1223,10 @@ static int do_proc_control(struct usb_de
  
-+	reinit_completion(&con->complete);
+ 		usb_unlock_device(dev);
+ 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
 +
- 	command = UCSI_SET_PDR | UCSI_CONNECTOR_NUMBER(con->num);
- 	command |= UCSI_SET_PDR_ROLE(role);
- 	command |= UCSI_SET_PDR_ACCEPT_ROLE_SWAPS;
++		/* Linger a bit, prior to the next control message. */
++		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
++			msleep(200);
+ 		usb_lock_device(dev);
+ 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, NULL, 0);
+ 	}
+@@ -1230,10 +1238,6 @@ static int do_proc_control(struct usb_de
+ 	}
+ 	ret = (i < 0 ? i : actlen);
+ 
+- recv_fault:
+-	/* Linger a bit, prior to the next control message. */
+-	if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
+-		msleep(200);
+  done:
+ 	kfree(dr);
+ 	usb_free_urb(urb);
 
 
