@@ -2,127 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5D7F51AE1E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 21:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E3ACE51AED6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 22:12:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346016AbiEDTqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 15:46:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47908 "EHLO
+        id S1377941AbiEDUQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 16:16:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358531AbiEDTqb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 15:46:31 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF174D26E
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 12:42:55 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id e5so1957817pgc.5
-        for <stable@vger.kernel.org>; Wed, 04 May 2022 12:42:55 -0700 (PDT)
+        with ESMTP id S1377938AbiEDUQE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 16:16:04 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1E24F442
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 13:12:27 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2eb7d137101so21029427b3.12
+        for <stable@vger.kernel.org>; Wed, 04 May 2022 13:12:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+lzVF5GjvfzYluwTt3X6bf5qzyKRvLyh3fQq//sqPSE=;
-        b=Uld9cM2CkPUzRSK0vjaZ1SVcltbJ5PRmORhgMqpy4ZpNRcbM+/PzQ0lOKjQAUhO+4f
-         JZ85ec1vVnG9VGAjcwc5WQ3rjBJLeEet3/fFJ4atjSdhaz7MZeENftjTnEtl6aX4KVzl
-         bQTZMCxEIdWWcbJf05L7C6LrKB+ttFXR557vBgYyPOR2qduHXly1a8gNRT8abi4xn3+0
-         BvHls4YjJsQl0LQdccKnQb0o/RAsk3at3UvakEkmwip4Vc6vwKOi62EmdFIwU0fJvhHq
-         8ped/Uz9YG/l5aL7DJEWRkaPVHO8HRLSeHE9Puzn8tQsjj1T8TsqdW1n/pPHQqgUWnNk
-         GT7w==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=8j3GLxixxuO/GETj6Ut9d2IxMNOK7b2AVE1IjGLesCI=;
+        b=lBlqCEdDTsulb1AGGQBfPtWENzmQUlUqqnjEQE3wosizZIBbsPAqXmoiarMJ4rH0uN
+         aHnstz8ihVu8k0y6qQiHnjKKbt1w9pCRynYUSKwXU2kJ9mGsvVogoTh3VJQdPAnI/1Xq
+         edLdghtRjXbHvdCSLThVqDUg+nlIsJIBZfyxWb66DEcytZLWz4qFJiLaD9yEYo+zMm+D
+         AUuJMbWaO7G91+oIXounLcSh9BiyeS4T7tSsmu/pj+5KGX3Un4E09kfxUYLmvJ7PP/n4
+         GBSB8xFcqkKlGC2XW1+pfuHpSzTUgkv47JESSEMkMkTjHfmwMms5ZoHeOAqkddm/ybNy
+         j5iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+lzVF5GjvfzYluwTt3X6bf5qzyKRvLyh3fQq//sqPSE=;
-        b=QSk0KPKWlojll27a/BVGYhbsg5n98koa5ZIKiKqMtlIOwXT9XukZEqgJf42P/TYQ5C
-         9cD6SVY8zFGuIqf1YCl6Rt4qOP/vb0lQjbkk32WOztc0Qi781zTvMMVVCKEeO/74KAUK
-         21UqV5o4gDSb4UjEGWhKAvVLxikCV28Jf370/If5gLvmHsikeUQQ0myYnPkel7JnTJOU
-         xCuMZJXyPOyOJiHDV/nwf2RbhbvEUF/rMgZ4v/3B3kbXfPoaTFFELXKITelj7WQGDxlN
-         bVvW2VF3+iHmcfFGpRmXE6HtY3UBxc0ymVt7p7O9Y3A939GjZ5YrucEnHNXsxNW8xH29
-         kXjg==
-X-Gm-Message-State: AOAM532iqh34tmw4lpLr1jKhGLq8LPTycsp7ys4uazhZQ9t+qHBRjypF
-        kNW1UC9zD27itZieFvTa3Yr/aXymObayTlFY/eU=
-X-Google-Smtp-Source: ABdhPJxdBneSgqbJxR61y1Mre9yQbB7HLPG2knuOenk9Iuevr0EE0fD+osvvzYG3e/Jlk7/REkwX3Q==
-X-Received: by 2002:a05:6a00:349b:b0:50e:570:180e with SMTP id cp27-20020a056a00349b00b0050e0570180emr11387741pfb.13.1651693374629;
-        Wed, 04 May 2022 12:42:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x20-20020aa79194000000b0050dc76281fasm8564938pfa.212.2022.05.04.12.42.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 12:42:54 -0700 (PDT)
-Message-ID: <6272d73e.1c69fb81.7a361.53a2@mx.google.com>
-Date:   Wed, 04 May 2022 12:42:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.17
-X-Kernelci-Kernel: v5.17.5-222-ga37132fdd160
-Subject: stable-rc/queue/5.17 baseline: 131 runs,
- 1 regressions (v5.17.5-222-ga37132fdd160)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=8j3GLxixxuO/GETj6Ut9d2IxMNOK7b2AVE1IjGLesCI=;
+        b=uEalx58vn9L+1bjzeTRDdWRPUR7UlyV7pYmtmZmmySKp07GBmzfrxs7DBjd6bwAiKU
+         3Rw5afPam4/Cqbu+NhI71IuuXquoy0f/k0SgJiFC8X9sU0wI7P7E8FNod1ezjqmOQesb
+         oD3zAHDdP6VxGiKQzFG7pdTmJJ18ifQHM+CmEl7/fA9GuSKcxClgt9MLXPmXAOD+JvJk
+         kYQ09FsaVtxjyi95atimBAFciP1jSlXWrdM7tqnTAIkz49YzcXIZQq5psaxWckDQyH8r
+         wbHsZDn16gGkQ/JARRLtID3BtmEFONIWpEa7lBv3Kd7U84XHnqHySvXPItPGPzA/Bmk/
+         1sOw==
+X-Gm-Message-State: AOAM533k5wLLU0OhUOn4ceQVH7XUmHQPguHstYR6ElIP4AZG5Yr4aBhO
+        pfw2N8Er9/8VjcX2O9TBqcTAnfQ4/mkT0EbZO/JOw1neohjdyLbxtNgmp3GscJgB7YK/rHBjpoY
+        RVCk9MPCEVJVBQ5jAP+tz0IyrvN5UmQ986MySqP1RkWXXHoGeHQf4NYKrF7BctyvoLJ9z7wOFxz
+        IfaQ==
+X-Google-Smtp-Source: ABdhPJz/Tm6SwAoVs25PCtGHCN8Da0h1WFPNtlscqsm1uYbwSAmTC3/GMb39O47Od7BJxfGMeUip2Jl3nULI6rcLLA8=
+X-Received: from nobelbarakat.c.googlers.com ([fda3:e722:ac3:cc00:2b:7d90:c0a8:62d])
+ (user=nobelbarakat job=sendgmr) by 2002:a0d:cb93:0:b0:2f7:ce41:5311 with SMTP
+ id n141-20020a0dcb93000000b002f7ce415311mr21302628ywd.497.1651695145431; Wed,
+ 04 May 2022 13:12:25 -0700 (PDT)
+Date:   Wed,  4 May 2022 20:12:07 +0000
+Message-Id: <20220504201207.2352621-1-nobelbarakat@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.36.0.464.gb9c8b46e94-goog
+Subject: [PATCH 5.10] block-map: add __GFP_ZERO flag for alloc_page in
+ function bio_copy_kern
+From:   Nobel Barakat <nobelbarakat@google.com>
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org,
+        Nobel Barakat <nobelbarakat@google.com>,
+        Haimin Zhang <tcs.kernel@gmail.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.17 baseline: 131 runs, 1 regressions (v5.17.5-222-ga37132=
-fdd160)
+[ Upstream commit cc8f7fe1f5eab010191aa4570f27641876fa1267 ]
 
-Regressions Summary
--------------------
+Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
+the buffer of a bio.
 
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
+Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[nobelbarakat: Backported to 5.10: Manually added flag] 
+Signed-off-by: Nobel Barakat <nobelbarakat@google.com>
+---
+This changes fixes a kernel info leak since it's possible for bio_copy_kern to
+copy unitialized memory into userspace. 
 
+For the backport, I had to manually add the __GFP_ZERO
+flag since alloc_page on 5.10 uses a different parameter
+than on 5.15. On 5.10, alloc_page is called with q->bounce_gfp
+whereas on 5.15 it's called with GFP_NOIO.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
-nel/v5.17.5-222-ga37132fdd160/plan/baseline/
+Version 5.4 is also affected, and I intend to submit a backport
+there as well.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.17
-  Describe: v5.17.5-222-ga37132fdd160
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a37132fdd16013a9908c7ac342b8c6b02dac42aa =
+ block/blk-map.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/block/blk-map.c b/block/blk-map.c
+index 21630dccac62..ede73f4f7014 100644
+--- a/block/blk-map.c
++++ b/block/blk-map.c
+@@ -488,7 +488,7 @@
+ 		if (bytes > len)
+ 			bytes = len;
+ 
+-		page = alloc_page(q->bounce_gfp | gfp_mask);
++		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
+ 		if (!page)
+ 			goto cleanup;
+ 
+-- 
+2.36.0.464.gb9c8b46e94-goog
 
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab          | compiler | defconfig | regressions
-----------------+-------+--------------+----------+-----------+------------
-meson-gxbb-p200 | arm64 | lab-baylibre | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6272a3774f5fc2c1908f5724
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.5-2=
-22-ga37132fdd160/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.5-2=
-22-ga37132fdd160/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6272a3774f5fc2c1908f5=
-725
-        new failure (last pass: v5.17.3-221-g1d72a498d8d2d) =
-
- =20
