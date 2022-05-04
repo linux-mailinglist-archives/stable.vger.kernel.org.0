@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2F5751A952
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A565F51A8B7
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356544AbiEDRNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
+        id S1356501AbiEDRNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356230AbiEDRL3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:29 -0400
+        with ESMTP id S1356435AbiEDRJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CBD4B431;
-        Wed,  4 May 2022 09:57:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0358552E72;
+        Wed,  4 May 2022 09:55:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BD62618AC;
-        Wed,  4 May 2022 16:57:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D67C385A4;
-        Wed,  4 May 2022 16:57:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA786617BD;
+        Wed,  4 May 2022 16:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 257B3C385AF;
+        Wed,  4 May 2022 16:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683450;
-        bh=IiuLVqn+41hK/TvtV51P7ny7tLaJWsoNCR7nCU1SY98=;
+        s=korg; t=1651683307;
+        bh=qqOBYkyqIaDFVtLXqkMFTJMInOAayRv70HWCatlXsls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJG7haIl1c1cit9JvOezP85IoWJ/JlnrR7VwymNVZGr+wl4abq4gsq8veHig68K2V
-         2yPGGtp39tkrAZAuzzSQ+bvdOKryvbpbQi+M0QzL9czgAS+6Z/6ZfpiVN8H35vV+Cw
-         q4VEKp/Y96ACP9QUSCMwJhlnzG3tc8n+s7gAFkQ4=
+        b=z5/9vD/f75HRZ7mFenCZJV6PNgdy5tdZ6DaPQVvaHwL67bB0/kq+uy44/qKslteSR
+         b9NV9BAjyP5OkOcj9KfUJLOSmzCk1oQhZDizgzwXSlnSdXJyibq/lJgF9PDp8fPihX
+         lnjStJNDeYV1TyDUwux2IXOyX4/ppkyiOBZjfGXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaobing Luo <luoxiaobing0926@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 113/225] cpufreq: fix memory leak in sun50i_cpufreq_nvmem_probe
-Date:   Wed,  4 May 2022 18:45:51 +0200
-Message-Id: <20220504153120.671649468@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.15 159/177] tty: n_gsm: fix mux cleanup after unregister tty device
+Date:   Wed,  4 May 2022 18:45:52 +0200
+Message-Id: <20220504153107.700609775@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,64 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaobing Luo <luoxiaobing0926@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 1aa24a8f3b5133dae4bc1e57427e345445f3e902 ]
+commit 284260f278b706364fb4c88a7b56ba5298d5973c upstream.
 
---------------------------------------------
-unreferenced object 0xffff000010742a00 (size 128):
-  comm "swapper/0", pid 1, jiffies 4294902015 (age 1187.652s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000b4dfebaa>] __kmalloc+0x338/0x474
-    [<00000000d6e716db>] sun50i_cpufreq_nvmem_probe+0xc4/0x36c
-    [<000000007d6082a0>] platform_probe+0x98/0x11c
-    [<00000000c990f549>] really_probe+0x234/0x5a0
-    [<000000002d9fecc6>] __driver_probe_device+0x194/0x224
-    [<00000000cf0b94fa>] driver_probe_device+0x64/0x13c
-    [<00000000f238e4cf>] __device_attach_driver+0xf8/0x180
-    [<000000006720e418>] bus_for_each_drv+0xf8/0x160
-    [<00000000df4f14f6>] __device_attach+0x174/0x29c
-    [<00000000782002fb>] device_initial_probe+0x20/0x30
-    [<00000000c2681b06>] bus_probe_device+0xfc/0x110
-    [<00000000964cf3bd>] device_add+0x5f0/0xcd0
-    [<000000004b9264e3>] platform_device_add+0x198/0x390
-    [<00000000fa82a9d0>] platform_device_register_full+0x178/0x210
-    [<000000009a5daf13>] sun50i_cpufreq_init+0xf8/0x168
-    [<000000000377cc7c>] do_one_initcall+0xe4/0x570
---------------------------------------------
+Internally, we manage the alive state of the mux channels and mux itself
+with the field member 'dead'. This makes it possible to notify the user
+if the accessed underlying link is already gone. On the other hand,
+however, removing the virtual ttys before terminating the channels may
+result in peer messages being received without any internal target. Move
+the mux cleanup procedure from gsmld_detach_gsm() to gsmld_close() to fix
+this by keeping the virtual ttys open until the mux has been cleaned up.
 
-if sun50i_cpufreq_get_efuse failed, then opp_tables leak.
-
-Fixes: f328584f7bff ("cpufreq: Add sun50i nvmem based CPU scaling driver")
-Signed-off-by: Xiaobing Luo <luoxiaobing0926@gmail.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-4-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/sun50i-cpufreq-nvmem.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/tty/n_gsm.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/sun50i-cpufreq-nvmem.c b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-index 2deed8d8773f..75e1bf3a08f7 100644
---- a/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-+++ b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
-@@ -98,8 +98,10 @@ static int sun50i_cpufreq_nvmem_probe(struct platform_device *pdev)
- 		return -ENOMEM;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2418,7 +2418,6 @@ static void gsmld_detach_gsm(struct tty_
+ 	WARN_ON(tty != gsm->tty);
+ 	for (i = 1; i < NUM_DLCI; i++)
+ 		tty_unregister_device(gsm_tty_driver, base + i);
+-	gsm_cleanup_mux(gsm, false);
+ 	tty_kref_put(gsm->tty);
+ 	gsm->tty = NULL;
+ }
+@@ -2483,6 +2482,12 @@ static void gsmld_close(struct tty_struc
+ {
+ 	struct gsm_mux *gsm = tty->disc_data;
  
- 	ret = sun50i_cpufreq_get_efuse(&speed);
--	if (ret)
-+	if (ret) {
-+		kfree(opp_tables);
- 		return ret;
-+	}
++	/* The ldisc locks and closes the port before calling our close. This
++	 * means we have no way to do a proper disconnect. We will not bother
++	 * to do one.
++	 */
++	gsm_cleanup_mux(gsm, false);
++
+ 	gsmld_detach_gsm(tty, gsm);
  
- 	snprintf(name, MAX_NAME_LEN, "speed%d", speed);
- 
--- 
-2.35.1
-
+ 	gsmld_flush_buffer(tty);
 
 
