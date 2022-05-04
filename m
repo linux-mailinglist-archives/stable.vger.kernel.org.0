@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 913AA51A816
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 046B351A69C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345790AbiEDRH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
+        id S1353977AbiEDQ5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:57:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355018AbiEDREC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E4A4D9F4;
-        Wed,  4 May 2022 09:52:39 -0700 (PDT)
+        with ESMTP id S1354161AbiEDQzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:55:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B50B49C86;
+        Wed,  4 May 2022 09:49:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B765617BE;
-        Wed,  4 May 2022 16:52:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3559C385AA;
-        Wed,  4 May 2022 16:52:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA39EB8279F;
+        Wed,  4 May 2022 16:49:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53056C385A5;
+        Wed,  4 May 2022 16:49:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683146;
-        bh=bU9zuv/XF1iwHuINloAyTAgfvnKnw2LCdg098a6ufOs=;
+        s=korg; t=1651682988;
+        bh=iw5r7VXYhZZ7jk1+tRISB95kKILUAHqZqpWpvMsK8Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBE9v7JhNB6EiTLxmgYYrcoktJyQntlN2YAiDmqztEhzqPwEXs2t5SSiosM0LZUVx
-         xdZVteYOasI4h5NuGICIGGXXBM/J6BbYr7ha1BCzKMNtF5wYeQ8wmZScybUcocNlwR
-         +/KsrYUJa+WOim9m1qJCiPOVBbVlqNK85716eIK4=
+        b=COHNuhku+LsayLnuUQLQPQtYuQhne3Y/HYjtebp+3qwV1axWdteKQ4JUx7Vx9g3cz
+         ZfmV6BoVE07x6yiu5GfH7ezlbMeBEHl//J3bHclTTe36yWZwDBiPa1q7QmQXz/hfm+
+         AJ9N86QgcFlNEWh1pxBnEoQUj7PgI4XCCAnvBaAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.15 003/177] USB: quirks: add STRING quirk for VCOM device
-Date:   Wed,  4 May 2022 18:43:16 +0200
-Message-Id: <20220504153054.076390992@linuxfoundation.org>
+Subject: [PATCH 5.10 005/129] USB: quirks: add STRING quirk for VCOM device
+Date:   Wed,  4 May 2022 18:43:17 +0200
+Message-Id: <20220504153021.813451093@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -68,7 +68,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/core/quirks.c
 +++ b/drivers/usb/core/quirks.c
-@@ -510,6 +510,9 @@ static const struct usb_device_id usb_qu
+@@ -511,6 +511,9 @@ static const struct usb_device_id usb_qu
  	/* DJI CineSSD */
  	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
