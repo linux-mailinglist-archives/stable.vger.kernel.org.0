@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CF351A7BD
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF45A51A92F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355378AbiEDRG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55296 "EHLO
+        id S1355791AbiEDRMe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356087AbiEDREw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9397F50450;
-        Wed,  4 May 2022 09:53:47 -0700 (PDT)
+        with ESMTP id S1356895AbiEDRJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6A57457A1;
+        Wed,  4 May 2022 09:56:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3380561896;
-        Wed,  4 May 2022 16:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81186C385A5;
-        Wed,  4 May 2022 16:53:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 930D6B82795;
+        Wed,  4 May 2022 16:56:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 430FCC385A5;
+        Wed,  4 May 2022 16:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683226;
-        bh=vAIc1uurf7tCoXg8ZlsD2kbeWm6s3yVfceQCPAEYxTE=;
+        s=korg; t=1651683377;
+        bh=nIzniZJexsRlDb8sDTkG/dBuuQQ3PkcJ8JvmKCdp6kc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTSGT0KYXGCnWlKkYtaBzg/uXc/lSLm8uk+225OdysS+OyJXpk9z9jR3kFX8/qtPp
-         Fuxv8FDXAEj0sv/PGcyKekuF5QkuKUIeC4DqS5dYD7E8VkixL2COvClsfIGn3ajNZ+
-         VvHH4ozcBlb7gjSKbpVV1cVhVtKtdOT/p9Y8hKrM=
+        b=KQ9OCY3vDviY1Jev3V960JML2o+gxzEMzxEUe2Vs1XbyKwbd250odyfm6brjuQjRK
+         h8jG3093/hqjZ8dKXGNYYL9SVBa1Xh7DBQAI86+6tI/LOBoKbCeJLLoF2oVe5jWyYP
+         lS2ROygU31ge87uq+l7EORck8KBlblgsCvB8+Xto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 083/177] pinctrl: rockchip: fix RK3308 pinmux bits
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH 5.17 038/225] eeprom: at25: Use DMA safe buffers
 Date:   Wed,  4 May 2022 18:44:36 +0200
-Message-Id: <20220504153100.481207487@linuxfoundation.org>
+Message-Id: <20220504153113.590909684@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +53,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Ceresoli <luca.ceresoli@bootlin.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 1f3e25a068832f8892a5ff71467622d012f5bc9f ]
+commit 5b47b751b760ee1c74a51660fd096aa148a362cd upstream.
 
-Some of the pinmuxing bits described in rk3308_mux_recalced_data are wrong,
-pointing to non-existing registers.
+Reading EEPROM fails with following warning:
 
-Fix the entire table.
+[   16.357496] ------------[ cut here ]------------
+[   16.357529] fsl_spi b01004c0.spi: rejecting DMA map of vmalloc memory
+[   16.357698] WARNING: CPU: 0 PID: 371 at include/linux/dma-mapping.h:326 fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.357775] CPU: 0 PID: 371 Comm: od Not tainted 5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty #109
+[   16.357806] NIP:  c03fbc9c LR: c03fbc9c CTR: 00000000
+[   16.357825] REGS: e68d9b20 TRAP: 0700   Not tainted  (5.16.11-s3k-dev-01743-g19beecbfe9d6-dirty)
+[   16.357849] MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002282  XER: 00000000
+[   16.357931]
+[   16.357931] GPR00: c03fbc9c e68d9be0 c26d06a0 00000039 00000001 c0d36364 c0e96428 00000027
+[   16.357931] GPR08: 00000001 00000000 00000023 3fffc000 24002282 100d3dd6 100a2ffc 00000000
+[   16.357931] GPR16: 100cd280 100b0000 00000000 aff54f7e 100d0000 100d0000 00000001 100cf328
+[   16.357931] GPR24: 100cf328 00000000 00000003 e68d9e30 c156b410 e67ab4c0 e68d9d38 c24ab278
+[   16.358253] NIP [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.358292] LR [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8
+[   16.358325] Call Trace:
+[   16.358336] [e68d9be0] [c03fbc9c] fsl_spi_cpm_bufs+0x2a0/0x2d8 (unreliable)
+[   16.358388] [e68d9c00] [c03fcb44] fsl_spi_bufs.isra.0+0x94/0x1a0
+[   16.358436] [e68d9c20] [c03fd970] fsl_spi_do_one_msg+0x254/0x3dc
+[   16.358483] [e68d9cb0] [c03f7e50] __spi_pump_messages+0x274/0x8a4
+[   16.358529] [e68d9ce0] [c03f9d30] __spi_sync+0x344/0x378
+[   16.358573] [e68d9d20] [c03fb52c] spi_sync+0x34/0x60
+[   16.358616] [e68d9d30] [c03b4dec] at25_ee_read+0x138/0x1a8
+[   16.358667] [e68d9e50] [c04a8fb8] bin_attr_nvmem_read+0x98/0x110
+[   16.358725] [e68d9e60] [c0204b14] kernfs_fop_read_iter+0xc0/0x1fc
+[   16.358774] [e68d9e80] [c0168660] vfs_read+0x284/0x410
+[   16.358821] [e68d9f00] [c016925c] ksys_read+0x6c/0x11c
+[   16.358863] [e68d9f30] [c00160e0] ret_from_syscall+0x0/0x28
+...
+[   16.359608] ---[ end trace a4ce3e34afef0cb5 ]---
+[   16.359638] fsl_spi b01004c0.spi: unable to map tx dma
 
-Also add a comment in front of each entry with the same string that appears
-in the datasheet to make the table easier to compare with the docs.
+This is due to the AT25 driver using buffers on stack, which is not
+possible with CONFIG_VMAP_STACK.
 
-This fix has been tested on real hardware for the gpio3b3_sel entry.
+As mentionned in kernel Documentation (Documentation/spi/spi-summary.rst):
 
-Fixes: 7825aeb7b208 ("pinctrl: rockchip: add rk3308 SoC support")
-Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://lore.kernel.org/r/20220420142432.248565-1-luca.ceresoli@bootlin.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  - Follow standard kernel rules, and provide DMA-safe buffers in
+    your messages.  That way controller drivers using DMA aren't forced
+    to make extra copies unless the hardware requires it (e.g. working
+    around hardware errata that force the use of bounce buffering).
+
+Modify the driver to use a buffer located in the at25 device structure
+which is allocated via kmalloc during probe.
+
+Protect writes in this new buffer with the driver's mutex.
+
+Fixes: b587b13a4f67 ("[PATCH] SPI eeprom driver")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/230a9486fc68ea0182df46255e42a51099403642.1648032613.git.christophe.leroy@csgroup.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-rockchip.c | 45 ++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 15 deletions(-)
+ drivers/misc/eeprom/at25.c |   19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
-index 923ff21a44c0..543a4991cf70 100644
---- a/drivers/pinctrl/pinctrl-rockchip.c
-+++ b/drivers/pinctrl/pinctrl-rockchip.c
-@@ -455,95 +455,110 @@ static  struct rockchip_mux_recalced_data rk3128_mux_recalced_data[] = {
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -31,6 +31,8 @@
+  */
  
- static struct rockchip_mux_recalced_data rk3308_mux_recalced_data[] = {
- 	{
-+		/* gpio1b6_sel */
- 		.num = 1,
- 		.pin = 14,
- 		.reg = 0x28,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1b7_sel */
- 		.num = 1,
- 		.pin = 15,
- 		.reg = 0x2c,
- 		.bit = 0,
- 		.mask = 0x3
- 	}, {
-+		/* gpio1c2_sel */
- 		.num = 1,
- 		.pin = 18,
- 		.reg = 0x30,
- 		.bit = 4,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c3_sel */
- 		.num = 1,
- 		.pin = 19,
- 		.reg = 0x30,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c4_sel */
- 		.num = 1,
- 		.pin = 20,
- 		.reg = 0x30,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c5_sel */
- 		.num = 1,
- 		.pin = 21,
- 		.reg = 0x34,
- 		.bit = 0,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c6_sel */
- 		.num = 1,
- 		.pin = 22,
- 		.reg = 0x34,
- 		.bit = 4,
- 		.mask = 0xf
- 	}, {
-+		/* gpio1c7_sel */
- 		.num = 1,
- 		.pin = 23,
- 		.reg = 0x34,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio3b4_sel */
- 		.num = 3,
- 		.pin = 12,
- 		.reg = 0x68,
- 		.bit = 8,
- 		.mask = 0xf
- 	}, {
-+		/* gpio3b5_sel */
- 		.num = 3,
- 		.pin = 13,
- 		.reg = 0x68,
- 		.bit = 12,
- 		.mask = 0xf
- 	}, {
-+		/* gpio2a2_sel */
- 		.num = 2,
- 		.pin = 2,
--		.reg = 0x608,
--		.bit = 0,
--		.mask = 0x7
-+		.reg = 0x40,
-+		.bit = 4,
-+		.mask = 0x3
- 	}, {
-+		/* gpio2a3_sel */
- 		.num = 2,
- 		.pin = 3,
--		.reg = 0x608,
--		.bit = 4,
--		.mask = 0x7
-+		.reg = 0x40,
-+		.bit = 6,
-+		.mask = 0x3
- 	}, {
-+		/* gpio2c0_sel */
- 		.num = 2,
- 		.pin = 16,
--		.reg = 0x610,
--		.bit = 8,
--		.mask = 0x7
-+		.reg = 0x50,
-+		.bit = 0,
-+		.mask = 0x3
- 	}, {
-+		/* gpio3b2_sel */
- 		.num = 3,
- 		.pin = 10,
--		.reg = 0x610,
--		.bit = 0,
--		.mask = 0x7
-+		.reg = 0x68,
-+		.bit = 4,
-+		.mask = 0x3
- 	}, {
-+		/* gpio3b3_sel */
- 		.num = 3,
- 		.pin = 11,
--		.reg = 0x610,
--		.bit = 4,
--		.mask = 0x7
-+		.reg = 0x68,
-+		.bit = 6,
-+		.mask = 0x3
- 	},
+ #define	FM25_SN_LEN	8		/* serial number length */
++#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
++
+ struct at25_data {
+ 	struct spi_eeprom	chip;
+ 	struct spi_device	*spi;
+@@ -39,6 +41,7 @@ struct at25_data {
+ 	struct nvmem_config	nvmem_config;
+ 	struct nvmem_device	*nvmem;
+ 	u8 sernum[FM25_SN_LEN];
++	u8 command[EE_MAXADDRLEN + 1];
  };
  
--- 
-2.35.1
-
+ #define	AT25_WREN	0x06		/* latch the write enable */
+@@ -61,8 +64,6 @@ struct at25_data {
+ 
+ #define	FM25_ID_LEN	9		/* ID length */
+ 
+-#define EE_MAXADDRLEN	3		/* 24 bit addresses, up to 2 MBytes */
+-
+ /*
+  * Specs often allow 5ms for a page write, sometimes 20ms;
+  * it's important to recover from write timeouts.
+@@ -78,7 +79,6 @@ static int at25_ee_read(void *priv, unsi
+ {
+ 	struct at25_data *at25 = priv;
+ 	char *buf = val;
+-	u8			command[EE_MAXADDRLEN + 1];
+ 	u8			*cp;
+ 	ssize_t			status;
+ 	struct spi_transfer	t[2];
+@@ -92,12 +92,15 @@ static int at25_ee_read(void *priv, unsi
+ 	if (unlikely(!count))
+ 		return -EINVAL;
+ 
+-	cp = command;
++	cp = at25->command;
+ 
+ 	instr = AT25_READ;
+ 	if (at25->chip.flags & EE_INSTR_BIT3_IS_ADDR)
+ 		if (offset >= BIT(at25->addrlen * 8))
+ 			instr |= AT25_INSTR_BIT3;
++
++	mutex_lock(&at25->lock);
++
+ 	*cp++ = instr;
+ 
+ 	/* 8/16/24-bit address is written MSB first */
+@@ -116,7 +119,7 @@ static int at25_ee_read(void *priv, unsi
+ 	spi_message_init(&m);
+ 	memset(t, 0, sizeof(t));
+ 
+-	t[0].tx_buf = command;
++	t[0].tx_buf = at25->command;
+ 	t[0].len = at25->addrlen + 1;
+ 	spi_message_add_tail(&t[0], &m);
+ 
+@@ -124,8 +127,6 @@ static int at25_ee_read(void *priv, unsi
+ 	t[1].len = count;
+ 	spi_message_add_tail(&t[1], &m);
+ 
+-	mutex_lock(&at25->lock);
+-
+ 	/*
+ 	 * Read it all at once.
+ 	 *
+@@ -152,7 +153,7 @@ static int fm25_aux_read(struct at25_dat
+ 	spi_message_init(&m);
+ 	memset(t, 0, sizeof(t));
+ 
+-	t[0].tx_buf = &command;
++	t[0].tx_buf = at25->command;
+ 	t[0].len = 1;
+ 	spi_message_add_tail(&t[0], &m);
+ 
+@@ -162,6 +163,8 @@ static int fm25_aux_read(struct at25_dat
+ 
+ 	mutex_lock(&at25->lock);
+ 
++	at25->command[0] = command;
++
+ 	status = spi_sync(at25->spi, &m);
+ 	dev_dbg(&at25->spi->dev, "read %d aux bytes --> %d\n", len, status);
+ 
 
 
