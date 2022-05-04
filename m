@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5C351A85A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442C051A959
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233003AbiEDRKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
+        id S237072AbiEDRLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356172AbiEDRJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF4452B3D;
-        Wed,  4 May 2022 09:54:55 -0700 (PDT)
+        with ESMTP id S1357039AbiEDRJx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46AB0488B2;
+        Wed,  4 May 2022 09:57:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17C16617BD;
-        Wed,  4 May 2022 16:54:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67F23C385AF;
-        Wed,  4 May 2022 16:54:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1F50B8279C;
+        Wed,  4 May 2022 16:57:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F76C385AF;
+        Wed,  4 May 2022 16:56:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683294;
-        bh=puxZb8keBI0MxGWFKEJg7XUlq5HvNRAXuB4e6S/Tg5E=;
+        s=korg; t=1651683419;
+        bh=bb87NXccFjNGXVz0LjQzmsRxE/zwFSQhn2e5pASPlBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANc/UoNJSpvX2Amep1G8sXwWqRHuEs859iBDeJJjSydfZuLwku17sFIlhsnO/NG6Q
-         q/KIOyEl63t2A8Le6x2ZmnS+UGmDZ0Pu3EtrCrQQzSj0RurzyWSlv0nBz5zKk7Bvco
-         B2WZPQwp8a9sg7LH+Pqujb9wYUvcltzaY4cNBUl8=
+        b=UFe++QmYxEgOdzvJmCPs5Y5/JENx8e6DY+S8LZfn6tXDXLX9O4rN8Vngn6avw9wIb
+         PkAHUBNEO8OnJ2RPjnPaAdWvoCHn0vHUpdaNyFKlZJORg2+vmQYN531aHRmz0WyA6N
+         hyO9wyZk2wtUX9nlgRrvbOlOeVUGKeH1HZBFkxNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 148/177] net: ethernet: stmmac: fix write to sgmii_adapter_base
-Date:   Wed,  4 May 2022 18:45:41 +0200
-Message-Id: <20220504153106.556326710@linuxfoundation.org>
+        stable@vger.kernel.org, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 104/225] pinctrl: rockchip: fix RK3308 pinmux bits
+Date:   Wed,  4 May 2022 18:45:42 +0200
+Message-Id: <20220504153119.962530496@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +55,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-commit 5fd1fe4807f91ea0cca043114d929faa11bd4190 upstream.
+[ Upstream commit 1f3e25a068832f8892a5ff71467622d012f5bc9f ]
 
-I made a mistake with the commit a6aaa0032424 ("net: ethernet: stmmac:
-fix altr_tse_pcs function when using a fixed-link"). I should have
-tested against both scenario of having a SGMII interface and one
-without.
+Some of the pinmuxing bits described in rk3308_mux_recalced_data are wrong,
+pointing to non-existing registers.
 
-Without the SGMII PCS TSE adpater, the sgmii_adapter_base address is
-NULL, thus a write to this address will fail.
+Fix the entire table.
 
-Cc: stable@vger.kernel.org
-Fixes: a6aaa0032424 ("net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20220420152345.27415-1-dinguyen@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Also add a comment in front of each entry with the same string that appears
+in the datasheet to make the table easier to compare with the docs.
+
+This fix has been tested on real hardware for the gpio3b3_sel entry.
+
+Fixes: 7825aeb7b208 ("pinctrl: rockchip: add rk3308 SoC support")
+Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://lore.kernel.org/r/20220420142432.248565-1-luca.ceresoli@bootlin.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/pinctrl/pinctrl-rockchip.c | 45 ++++++++++++++++++++----------
+ 1 file changed, 30 insertions(+), 15 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -65,8 +65,9 @@ static void socfpga_dwmac_fix_mac_speed(
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index a1b598b86aa9..65fa305b5f59 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -457,95 +457,110 @@ static  struct rockchip_mux_recalced_data rk3128_mux_recalced_data[] = {
  
--	writew(SGMII_ADAPTER_DISABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if (sgmii_adapter_base)
-+		writew(SGMII_ADAPTER_DISABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
+ static struct rockchip_mux_recalced_data rk3308_mux_recalced_data[] = {
+ 	{
++		/* gpio1b6_sel */
+ 		.num = 1,
+ 		.pin = 14,
+ 		.reg = 0x28,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1b7_sel */
+ 		.num = 1,
+ 		.pin = 15,
+ 		.reg = 0x2c,
+ 		.bit = 0,
+ 		.mask = 0x3
+ 	}, {
++		/* gpio1c2_sel */
+ 		.num = 1,
+ 		.pin = 18,
+ 		.reg = 0x30,
+ 		.bit = 4,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c3_sel */
+ 		.num = 1,
+ 		.pin = 19,
+ 		.reg = 0x30,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c4_sel */
+ 		.num = 1,
+ 		.pin = 20,
+ 		.reg = 0x30,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c5_sel */
+ 		.num = 1,
+ 		.pin = 21,
+ 		.reg = 0x34,
+ 		.bit = 0,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c6_sel */
+ 		.num = 1,
+ 		.pin = 22,
+ 		.reg = 0x34,
+ 		.bit = 4,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio1c7_sel */
+ 		.num = 1,
+ 		.pin = 23,
+ 		.reg = 0x34,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio3b4_sel */
+ 		.num = 3,
+ 		.pin = 12,
+ 		.reg = 0x68,
+ 		.bit = 8,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio3b5_sel */
+ 		.num = 3,
+ 		.pin = 13,
+ 		.reg = 0x68,
+ 		.bit = 12,
+ 		.mask = 0xf
+ 	}, {
++		/* gpio2a2_sel */
+ 		.num = 2,
+ 		.pin = 2,
+-		.reg = 0x608,
+-		.bit = 0,
+-		.mask = 0x7
++		.reg = 0x40,
++		.bit = 4,
++		.mask = 0x3
+ 	}, {
++		/* gpio2a3_sel */
+ 		.num = 2,
+ 		.pin = 3,
+-		.reg = 0x608,
+-		.bit = 4,
+-		.mask = 0x7
++		.reg = 0x40,
++		.bit = 6,
++		.mask = 0x3
+ 	}, {
++		/* gpio2c0_sel */
+ 		.num = 2,
+ 		.pin = 16,
+-		.reg = 0x610,
+-		.bit = 8,
+-		.mask = 0x7
++		.reg = 0x50,
++		.bit = 0,
++		.mask = 0x3
+ 	}, {
++		/* gpio3b2_sel */
+ 		.num = 3,
+ 		.pin = 10,
+-		.reg = 0x610,
+-		.bit = 0,
+-		.mask = 0x7
++		.reg = 0x68,
++		.bit = 4,
++		.mask = 0x3
+ 	}, {
++		/* gpio3b3_sel */
+ 		.num = 3,
+ 		.pin = 11,
+-		.reg = 0x610,
+-		.bit = 4,
+-		.mask = 0x7
++		.reg = 0x68,
++		.bit = 6,
++		.mask = 0x3
+ 	},
+ };
  
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -88,10 +89,11 @@ static void socfpga_dwmac_fix_mac_speed(
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
- 	}
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--	if (phy_dev)
-+	if (phy_dev && sgmii_adapter_base) {
-+		writew(SGMII_ADAPTER_ENABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
-+	}
- }
- 
- static int socfpga_dwmac_parse_data(struct socfpga_dwmac *dwmac, struct device *dev)
+-- 
+2.35.1
+
 
 
