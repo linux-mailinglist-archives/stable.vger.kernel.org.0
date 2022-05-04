@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6F7051AA3D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA62251A9A6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234512AbiEDRW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:22:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55528 "EHLO
+        id S1356690AbiEDRSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:18:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357058AbiEDROq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B207753E33
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:19 -0700 (PDT)
+        with ESMTP id S1357398AbiEDRPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D9354BDB
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20246B827A9
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A269C385A4;
-        Wed,  4 May 2022 16:58:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4AC5B827AF
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C312C385AF;
+        Wed,  4 May 2022 16:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683498;
-        bh=jvetpaMO9Ho4Ae+NYXB0JK9vsbZBB/QjRNqwFM3B7d4=;
+        s=k20201202; t=1651683500;
+        bh=vHtBCoedpWskrFoSPmt6dutIoQdu6fWNkJtzMtLWxkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNvK9+o82lkic8+gdaeSNJh5hgBwSzxJnFHbtAUq9bi3g+Bio98nrUBwflIu4oq3d
-         +VoO33fyHOWcphdDtsvx8DYLK1f3s9B2HHjI7/OAvceF1OV3d2WMj+thFdL/qTS+uW
-         3q97M5K9rnq7I5lRfHwYTuJiFyTV1Ck8izyynCISzRvmjS3KD/19Ds/BrQlhUXpPnC
-         p+R0gKqPreIoS+KAKwbNa3n23+NSN224kr9913KLnRDB9yIiq1euThvGrjneXfMBLl
-         9+FkltKLN2P4Gtab/T3R09yePRkeCLy6T4H6SmSgScQazslErsb6d8Pj6QURPd/9Dv
-         eFAi3kAGS8TVw==
+        b=d9ZI3AYmvP/yozj93VH7Z4NA9xIPQsv5HQOOrkGx5K9NKit4W/GCeUiShj8MaXWEE
+         7E9LAI1jk0RXqNsXcG3035t0nBrTjL2qFHFq1ymHpD/xltVnycUZhEf12GR5vB/6YV
+         gZ4wvMX7nDOLcU4N6eQ6h/u9XTWy9yNOe3zWqZDWRyQgk1wLrG93ugYcZ8KQ1bgfyy
+         agHNnvA7QL+3SzJUcIn/0hRjbkUjU/OQPx2lkjAOBh7RuwRX4uW8iAmAnC8y+z2XxO
+         xrN+oP179/wOMBEbORf/DxyucaGDlQwQNsLWfkEdqfi/V4kViD7SH52p5CwG/c8uJ9
+         K7T/c322JzNMA==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.15 12/30] PCI: aardvark: Replace custom PCIE_CORE_INT_* macros with PCI_INTERRUPT_*
-Date:   Wed,  4 May 2022 18:57:37 +0200
-Message-Id: <20220504165755.30002-13-kabel@kernel.org>
+Subject: [PATCH 5.15 13/30] PCI: aardvark: Rewrite IRQ code to chained IRQ handler
+Date:   Wed,  4 May 2022 18:57:38 +0200
+Message-Id: <20220504165755.30002-14-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165755.30002-1-kabel@kernel.org>
 References: <20220504165755.30002-1-kabel@kernel.org>
@@ -57,45 +57,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 1d86abf1f89672a70f2ab65f6000299feb1f1781 upstream.
+commit 1571d67dc190e50c6c56e8f88cdc39f7cc53166e upstream.
 
-Header file linux/pci.h defines enum pci_interrupt_pin with corresponding
-PCI_INTERRUPT_* values.
+Rewrite the code to use irq_set_chained_handler_and_data() handler with
+chained_irq_enter() and chained_irq_exit() processing instead of using
+devm_request_irq().
 
-Link: https://lore.kernel.org/r/20220110015018.26359-2-kabel@kernel.org
+advk_pcie_irq_handler() reads IRQ status bits and calls other functions
+based on which bits are set. These functions then read its own IRQ status
+bits and calls other aardvark functions based on these bits. Finally
+generic_handle_domain_irq() with translated linux IRQ numbers are called.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-5-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/pci/controller/pci-aardvark.c | 48 +++++++++++++++------------
+ 1 file changed, 26 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index ae0219ae730a..6076bb7b3ed3 100644
+index 6076bb7b3ed3..5d6ed7a3816f 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -38,10 +38,6 @@
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN			BIT(6)
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK			BIT(7)
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK_RCV			BIT(8)
--#define     PCIE_CORE_INT_A_ASSERT_ENABLE			1
--#define     PCIE_CORE_INT_B_ASSERT_ENABLE			2
--#define     PCIE_CORE_INT_C_ASSERT_ENABLE			3
--#define     PCIE_CORE_INT_D_ASSERT_ENABLE			4
- /* PIO registers base address and register offsets */
- #define PIO_BASE_ADDR				0x4000
- #define PIO_CTRL				(PIO_BASE_ADDR + 0x0)
-@@ -961,7 +957,7 @@ static int advk_sw_pci_bridge_init(struct advk_pcie *pcie)
- 	bridge->conf.pref_mem_limit = cpu_to_le16(PCI_PREF_RANGE_TYPE_64);
+@@ -268,6 +268,7 @@ struct advk_pcie {
+ 		u32 actions;
+ 	} wins[OB_WIN_COUNT];
+ 	u8 wins_count;
++	int irq;
+ 	struct irq_domain *irq_domain;
+ 	struct irq_chip irq_chip;
+ 	raw_spinlock_t irq_lock;
+@@ -1432,21 +1433,26 @@ static void advk_pcie_handle_int(struct advk_pcie *pcie)
+ 	}
+ }
  
- 	/* Support interrupt A for MSI feature */
--	bridge->conf.intpin = PCIE_CORE_INT_A_ASSERT_ENABLE;
-+	bridge->conf.intpin = PCI_INTERRUPT_INTA;
+-static irqreturn_t advk_pcie_irq_handler(int irq, void *arg)
++static void advk_pcie_irq_handler(struct irq_desc *desc)
+ {
+-	struct advk_pcie *pcie = arg;
+-	u32 status;
++	struct advk_pcie *pcie = irq_desc_get_handler_data(desc);
++	struct irq_chip *chip = irq_desc_get_chip(desc);
++	u32 val, mask, status;
  
- 	/* Aardvark HW provides PCIe Capability structure in version 2 */
- 	bridge->pcie_conf.cap = cpu_to_le16(2);
+-	status = advk_readl(pcie, HOST_CTRL_INT_STATUS_REG);
+-	if (!(status & PCIE_IRQ_CORE_INT))
+-		return IRQ_NONE;
++	chained_irq_enter(chip, desc);
+ 
+-	advk_pcie_handle_int(pcie);
++	val = advk_readl(pcie, HOST_CTRL_INT_STATUS_REG);
++	mask = advk_readl(pcie, HOST_CTRL_INT_MASK_REG);
++	status = val & ((~mask) & PCIE_IRQ_ALL_MASK);
+ 
+-	/* Clear interrupt */
+-	advk_writel(pcie, PCIE_IRQ_CORE_INT, HOST_CTRL_INT_STATUS_REG);
++	if (status & PCIE_IRQ_CORE_INT) {
++		advk_pcie_handle_int(pcie);
+ 
+-	return IRQ_HANDLED;
++		/* Clear interrupt */
++		advk_writel(pcie, PCIE_IRQ_CORE_INT, HOST_CTRL_INT_STATUS_REG);
++	}
++
++	chained_irq_exit(chip, desc);
+ }
+ 
+ static void __maybe_unused advk_pcie_disable_phy(struct advk_pcie *pcie)
+@@ -1513,7 +1519,7 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 	struct advk_pcie *pcie;
+ 	struct pci_host_bridge *bridge;
+ 	struct resource_entry *entry;
+-	int ret, irq;
++	int ret;
+ 
+ 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(struct advk_pcie));
+ 	if (!bridge)
+@@ -1599,17 +1605,9 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pcie->base))
+ 		return PTR_ERR(pcie->base);
+ 
+-	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0)
+-		return irq;
+-
+-	ret = devm_request_irq(dev, irq, advk_pcie_irq_handler,
+-			       IRQF_SHARED | IRQF_NO_THREAD, "advk-pcie",
+-			       pcie);
+-	if (ret) {
+-		dev_err(dev, "Failed to register interrupt\n");
+-		return ret;
+-	}
++	pcie->irq = platform_get_irq(pdev, 0);
++	if (pcie->irq < 0)
++		return pcie->irq;
+ 
+ 	pcie->reset_gpio = devm_gpiod_get_from_of_node(dev, dev->of_node,
+ 						       "reset-gpios", 0,
+@@ -1658,11 +1656,14 @@ static int advk_pcie_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
++	irq_set_chained_handler_and_data(pcie->irq, advk_pcie_irq_handler, pcie);
++
+ 	bridge->sysdata = pcie;
+ 	bridge->ops = &advk_pcie_ops;
+ 
+ 	ret = pci_host_probe(bridge);
+ 	if (ret < 0) {
++		irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
+ 		advk_pcie_remove_msi_irq_domain(pcie);
+ 		advk_pcie_remove_irq_domain(pcie);
+ 		return ret;
+@@ -1710,6 +1711,9 @@ static int advk_pcie_remove(struct platform_device *pdev)
+ 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
+ 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
+ 
++	/* Remove IRQ handler */
++	irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
++
+ 	/* Remove IRQ domains */
+ 	advk_pcie_remove_msi_irq_domain(pcie);
+ 	advk_pcie_remove_irq_domain(pcie);
 -- 
 2.35.1
 
