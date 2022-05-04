@@ -2,276 +2,259 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E663651B39D
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 01:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA8951B3A5
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 01:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381937AbiEDXmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 19:42:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44750 "EHLO
+        id S1381964AbiEDXml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 19:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382346AbiEDX26 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 19:28:58 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 349416542;
-        Wed,  4 May 2022 16:25:18 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id i24so2294622pfa.7;
-        Wed, 04 May 2022 16:25:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=a3oa+MjWYg0iSbcO36pvcY+lTfK7h1GqKS5uNpusaVA=;
-        b=YY1eAVbiS/5bMstpMIVNzDvXqhG2kOZZN7HBO/WKu3wzHQ0PAre97bcODM8/EMh2FI
-         Ak3VlVF9fOE7V0jnYGyaGzkha0L/2zTD/74w3y+1RJ0CI+MYS5Ad5rjicpbv9iAJvODw
-         nNlZhO5Q4HG30CmItkCTKy55mN6EdwjYpv1qZTnQendVpZHjRSfs7XQGL/PCIPL9+dcp
-         6fLwpuzn1Bs76/g56t5SjrTvFbNgsBGa3VSQlfoMqrAdaIcOCtPiqpqqIlFNbX43xt39
-         3eQndrYepvPMO4QFzgf5DQqKCitah/zkIimD11M/JN9N1ZfxUkA/+6xPT0G1gYmMVImX
-         xY0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=a3oa+MjWYg0iSbcO36pvcY+lTfK7h1GqKS5uNpusaVA=;
-        b=MjmXnM5TCXG8aZk4CWtl7MUTpYJdbBkUFpn35muPYNC0H+4+BM5hD2lt2FMJ1Fiks6
-         cVS/8AF3/qZt93EKuQgR3nJImR0baBc0xsQKlQ/I6Q7mfpkCFv61nkBMQdvwFblzOga2
-         efPmmsBRtfHgNtSSMqH1ZMTfop5Kjipi5fPM5zi4iN2POxB1Llqj393jbP7PWV4Q5iF2
-         XHlSiFREfqVpQ9uVxnLl4hyqHq9OLPLhU4iLMZhkJwshG8C/7uzPkypX66+JQ5tiN+Bs
-         E0qoAyID02yA/j56fkKUf2SboBlBtrVOZ/cpOIdlMHIhp0vb8Ao2S2ubok9+yCx90Ikm
-         lFQA==
-X-Gm-Message-State: AOAM533CW2TaTT0+Eb6BRIFiN4yIJSQGH0VLw7m4RH+cT6kMsQY5SHSc
-        IQT6/FB/xGuTkI8I4j+hzcI=
-X-Google-Smtp-Source: ABdhPJwK4Gh+zY0MtqvpDIPUpMlLIEyJbgID9CQEKBbeqLrfTRpJF85qZ9z0lFWMSaqPYB9T4YqKDg==
-X-Received: by 2002:a62:834c:0:b0:50d:8d39:8715 with SMTP id h73-20020a62834c000000b0050d8d398715mr23338399pfe.29.1651706717997;
-        Wed, 04 May 2022 16:25:17 -0700 (PDT)
-Received: from google.com ([2620:15c:211:201:8435:b3e7:62fc:4dfa])
-        by smtp.gmail.com with ESMTPSA id b21-20020aa78715000000b0050dc76281a4sm8739881pfo.126.2022.05.04.16.25.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 16:25:17 -0700 (PDT)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Wed, 4 May 2022 16:25:15 -0700
-From:   Minchan Kim <minchan@kernel.org>
-To:     Dong Aisheng <dongas86@gmail.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        Dong Aisheng <aisheng.dong@nxp.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        shawnguo@kernel.org, linux-imx@nxp.com, akpm@linux-foundation.org,
-        m.szyprowski@samsung.com, lecopzer.chen@mediatek.com,
-        vbabka@suse.cz, stable@vger.kernel.org, shijie.qin@nxp.com
-Subject: Re: [PATCH v3 1/2] mm: cma: fix allocation may fail sometimes
-Message-ID: <YnMLW76ivpJSrzto@google.com>
-References: <20220315144521.3810298-1-aisheng.dong@nxp.com>
- <20220315144521.3810298-2-aisheng.dong@nxp.com>
- <93480fb1-6992-b992-4c93-0046f3b92d7a@redhat.com>
- <CAA+hA=QzDJhFnntKK4nk-SMErk9J_mFPv0b7ZWuC8Ubz0BC+sg@mail.gmail.com>
- <YjNr+d2Un7F8c2DZ@google.com>
- <CAA+hA=SBeCT+XkzNL3p07vC+58AZOTtoiLG=jVK0tX4wNFvrHA@mail.gmail.com>
- <YjSxR9Zyck4YqgEz@google.com>
- <CAA+hA=QT3GH0_ufNRowW0N-KzziiJkaDo5o8W-CqZboD3XDbyg@mail.gmail.com>
+        with ESMTP id S244242AbiEDXg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 19:36:27 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE8911150
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:32:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1651707169; x=1683243169;
+  h=message-id:date:subject:to:cc:references:from:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=wYQQT967KfGTcglcWqH1dNAK+FtpDeOVQvePBxDbhzE=;
+  b=X1ge1uaodVpJfbl+1nTBFPp5PYvizFV4cdaMU5k72DmPmHM4QK4awc00
+   d6GGp8T4cq8Z5XTpCcoIO7MjfwcIAzyVRpMcnWgeEnGoVCYnst3k9J+tK
+   PJ2PCvfQie3Sa6dmL3ameQaUpZ7t8iE3/Or3jzPHDhjQZSP9nP2HLcf7A
+   W+3JAel53ES/+9eFwzImAxrX+uBVWkMX0HQvRPwbU95XXmYocAaARrFP1
+   cSPChLlG1Yz8c2VHAKSdeh2UYGY1UaIXEZ3r/DNulYQLyAtq0FOsN6zSQ
+   9szRkApdYwy8VJmZBlMR266J4o/OGXNNhLakm0Aup3tF3tlGcsQTICRPO
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10337"; a="249913904"
+X-IronPort-AV: E=Sophos;i="5.91,199,1647327600"; 
+   d="scan'208";a="249913904"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 May 2022 16:32:49 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,199,1647327600"; 
+   d="scan'208";a="708689570"
+Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
+  by fmsmga001.fm.intel.com with ESMTP; 04 May 2022 16:32:49 -0700
+Received: from orsmsx607.amr.corp.intel.com (10.22.229.20) by
+ ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27; Wed, 4 May 2022 16:32:48 -0700
+Received: from orsmsx608.amr.corp.intel.com (10.22.229.21) by
+ ORSMSX607.amr.corp.intel.com (10.22.229.20) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27; Wed, 4 May 2022 16:32:48 -0700
+Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
+ orsmsx608.amr.corp.intel.com (10.22.229.21) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.27 via Frontend Transport; Wed, 4 May 2022 16:32:48 -0700
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (104.47.59.177)
+ by edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2308.27; Wed, 4 May 2022 16:32:48 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JEXaTk45bAeP7YBPH/Pt2ZZwLdoXXv0yTcRzJbSSNq0nwweSaQPg05NWBHt88IiJ+uiyXrGVG1nQ8v7FVIPdE9atdz9/G7jB/JsBYXCEAe7tM5FC+bCUuBDNFc1sFapsoGNPPQiZN0iUHJ7F6+M7Zmf1GyH1CytCWFRs6JHTO8kP+r13tRFD1mFr9DE3kPf0haNRXTf5i3XdPhEcd+MD9DWsuQlJqSpZkyExeyoY6teoc3FPQ5HE6OpRHdkCLOZvR6dRP84oFtTACo81fUVagAlKv6RRliUyIxwtHlEwJQnYQtybEK/9FrnZa3vMaNkqUovjRu4aJriNF2ntHLZBiQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=/QHMRrXjk0TfdBLsC3Vqkv4ihKMyD0uDX9SSe3+mtxE=;
+ b=kQRzGwbT+A+LE4KtDHsjKlAwQ59vCOrdkumsGwzUUsUG93M3mQIEMUtDEVjH1xAr3Ia8wxLEAyZPuqYa3EQP1UWg4ZlFM7gWzvJe5rHOmwvE0JUUPy4HCZQY+z7eZyEiZb8vxq/rGe+I4p+nCxgWu0P8IuwP7WQK44OPIFrtkXOZt4S89RiU7/GMQAHl1M8nA+nVIMUvE2/PK5+HKpJ4LdSPTkY8TZ+bJon334aNvR8aoUdlARcb0/UM8b/ifTkp8tAoGLnLTLGw6J7ctrNwA5BJF2WKfDhCSBHK3Hq7nUz5r74B2i8m1nO7NSkhRHrighnqTygmBV73gldvT6xDbA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from BY5PR11MB3911.namprd11.prod.outlook.com (2603:10b6:a03:18d::29)
+ by DM6PR11MB4315.namprd11.prod.outlook.com (2603:10b6:5:201::28) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5206.24; Wed, 4 May
+ 2022 23:32:46 +0000
+Received: from BY5PR11MB3911.namprd11.prod.outlook.com
+ ([fe80::ac18:95e3:c184:f976]) by BY5PR11MB3911.namprd11.prod.outlook.com
+ ([fe80::ac18:95e3:c184:f976%6]) with mapi id 15.20.5186.028; Wed, 4 May 2022
+ 23:32:44 +0000
+Message-ID: <c1ff80ae-465b-b54d-a62c-43673145a038@intel.com>
+Date:   Wed, 4 May 2022 16:32:42 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Firefox/91.0 Thunderbird/91.8.1
+Subject: Re: [gfx-internal-devel] [PATCH 1/2] Revert "drm/i915: Propagate
+ errors on awaiting already signaled fences"
+Content-Language: en-GB
+To:     <gfx-internal-devel@eclists.intel.com>,
+        Alan Previn <alan.previn.teres.alexis@intel.com>
+CC:     Jason Ekstrand <jason@jlekstrand.net>,
+        Marcin Slusarz <marcin.slusarz@intel.com>,
+        <stable@vger.kernel.org>,
+        Jason Ekstrand <jason.ekstrand@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        "Jon Bloomfield" <jon.bloomfield@intel.com>
+References: <20220504183410.1283944-1-alan.previn.teres.alexis@intel.com>
+ <20220504183410.1283944-2-alan.previn.teres.alexis@intel.com>
+From:   John Harrison <john.c.harrison@intel.com>
+In-Reply-To: <20220504183410.1283944-2-alan.previn.teres.alexis@intel.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BYAPR08CA0031.namprd08.prod.outlook.com
+ (2603:10b6:a03:100::44) To BY5PR11MB3911.namprd11.prod.outlook.com
+ (2603:10b6:a03:18d::29)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAA+hA=QT3GH0_ufNRowW0N-KzziiJkaDo5o8W-CqZboD3XDbyg@mail.gmail.com>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
-        version=3.4.6
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 0a116191-65d4-4b8c-bc25-08da2e2663ba
+X-MS-TrafficTypeDiagnostic: DM6PR11MB4315:EE_
+X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+X-Microsoft-Antispam-PRVS: <DM6PR11MB4315B7FBB3311CE049803323BDC39@DM6PR11MB4315.namprd11.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: oxtK2F6PS0O0CR3arLjDgG6PQ8yCnUhmKvReKRmBtIB2VkK0jlS1eMw6d2w0jfdsoFZlhJvmDeiZAoW5KsyIsEqJklYNxRuXUX2fyZip/v5ekEQlA1d+svrL0fB8Ijjcw2OmxPFoyX0NVreiKBbO1WanolYsnKg5eYSn7nObmJJMfQgSYmH44cskFySIK84exsyUvS3aTiRdTSmYEVHcjUTGgHU3ib800f8HiL9pnViYJ+RU5X4sB9UuiK6YHYc2rXMpbzvx/x+aZxBivdSGEk3DhKriYr4T65xbpB67Vxo+4dttCWk9jGifHiN7o6jYQpwHagcCElG3wd+l5ajyqmHw0+2TADgEZHdfDKljbg/uKGj5rSesphiSkG4cOB1No2/NpBWMnX5sz3atOUvUETPhOLn2X3nTMu7niB7hZMPYn271Cc6OyCSBXAQRC2CBM9K2sWqZssUCJ8dqtI7FUJ/2RcRLZPkbBr0gyo893XA5wlKPC+cYcTyO80u26xSyUIe1X8tfWbzibadrkp3rQmXOnhcxKok2SfMK8SxqdLMMVd4n7X31r5JAuWzNfTNnjL4GJhP/kxAXJEbUeT54I2UmaLehIf6E4gKFmCbUi3aUo/+YT8eWXEgTMVVfPS3dCnMCGgLxoRmS5V5YtE77SI1kqGnb3JnB6kCgnl9PfYcDutKL5xQJXuseQcDKz5HV3qv8OncZHyAppFyHobtm4J5+HqvoWM8AWRBETyUX4cCFqziVXL1Utr+vZ6SfrsVJ5M1YJEbYRR6rpxj+6BDvyRTLumAsXZgPzjBldu/U7W6zkvGpoaZ2LVSXGl+aKYw9lnzn+Bw5MFplZTfyYszGkA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BY5PR11MB3911.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(36756003)(4326008)(6862004)(8936002)(31686004)(966005)(2616005)(5660300002)(6486002)(2906002)(6636002)(8676002)(37006003)(66476007)(508600001)(66946007)(66556008)(54906003)(53546011)(31696002)(38100700002)(26005)(6512007)(83380400001)(6506007)(186003)(86362001)(82960400001)(316002)(43740500002)(45980500001);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?dllZMFVXT1RBM0QrNmJrMno3UDhodGlldlNXMVBKVCtKek0rVEhIUHdmbkhV?=
+ =?utf-8?B?RlpWTFNacDBaZmYxN3ZQM1NyMGtORitLN1FoLzUrQlY4Mm0vNW8zT3ZsTHBm?=
+ =?utf-8?B?WDJZWkt4ZE5NRjEwRWJaeVV2VHk2bXZNRGpEcnR2eERjQkIvRVBvc1gvdktI?=
+ =?utf-8?B?ZGQweGhLR0tWOUlCcmF4ZTRuR1Z6c1VhTExjNmsxRU9KbjBDS2hDMFlSMnJi?=
+ =?utf-8?B?U1Z2UDFsYWF3Y0JtNFNJb0ZhclJPN0pSZ1VvVEwreHFUaXgraHBKeWN5WXZV?=
+ =?utf-8?B?L1NBbTE1cSsza2NlK1pRcVZBWFdYVVIzZkZxcmJXai9YTGdjU2JOQUQvazAz?=
+ =?utf-8?B?ekt0S1FGcGdEUUt0YkR0cU1RNGdybTREOEgvTXhjVUFKSnhyN1lvbEVLSUt5?=
+ =?utf-8?B?d1oyNnRrQmd0RFFOcThLa1d5dWl4OFJBUmpzendNcXJWaGlYb2lMd29xSjFt?=
+ =?utf-8?B?QmZ0QzMrQUZ4Ny80ZjJIc0dxNnYyZmlsNk81S1NRVDBuYjN5SjFKNXQ0Slpn?=
+ =?utf-8?B?dE9QRGlNRDBGdjhreml5RG12NWlvUEdCZGVWWTlNb1FqcmRHNzU3dGJhbG1B?=
+ =?utf-8?B?aDBmMDlHRzZEc3ArOHdWVUtZUHZlMHV5L1JjUm4vTWhJYkJFSDZIakx4QzI0?=
+ =?utf-8?B?akM3Wmk4aXp4bFNEVDFzSjNMRDdRQmJuMjFOU2owc0cwZ2pudm5pZmdLN1hQ?=
+ =?utf-8?B?SUY1VEZEVFgxdHRkY29iTjE2TWZpYWFVQlQzVDdvQXZiem1Nais2QTVwRmpj?=
+ =?utf-8?B?MG1uNjY2ZVdYY1ZFdHNxWWJGNjRIOVdiVG9PRzdmSW4zQzY1aFlTUWZwTmEr?=
+ =?utf-8?B?ekptMFpCNng2dDVVTWxOUEtWeWJRcW5tNkt4NmNpVW9Gam85WXpyMjhpdFJJ?=
+ =?utf-8?B?aXpZMDFlSHJkQllvdDM4cHdoTXZrQTR2NGx4T2RQbjBpQ2hzaFpxbUUwS2Rx?=
+ =?utf-8?B?ZXRJZFF3UTB6dGo3ZEQ3c3NRTEpWMVJ0c2hCMUhoN3VFTXpTbGNWUVpmZFRM?=
+ =?utf-8?B?cldqVThlNjdMeUVIZngvekpqelhPeVM3aUhocTQzaUpNd0IvcjNDQzRjcGY2?=
+ =?utf-8?B?TzNObEtsZ0ZTUEN2WVVJM3hPK3hGcXlva2NLNERaeUJyTzhSRmswR3Z4WlJS?=
+ =?utf-8?B?ajN6ZXRZUWhFQy9OMTFoWERqc21rWlFYSUIrRDVVa3lNTXlNT0JmcC91TnpS?=
+ =?utf-8?B?eW1xUU14SStDZi9FTWxobnlxNUt1c0xlQTMvTk0wdHVOT0l2VmkzRGNBOHJk?=
+ =?utf-8?B?QVZBTW9MMVp2N2wwVlVQY3kvam4rOHJZZUtCNWg1N2NCSXltdDRwNmZzVGRF?=
+ =?utf-8?B?Ly8wcUpQUytrNFJDWUVuY0JHcEQzTGhQU09PeENWb3FkK3RGRGNCS0VFNlQ5?=
+ =?utf-8?B?ZmxZWWVmMUlMb0ZRQ3NDYnllZk1DNFQ4T0ZRZ1duLzhjZ290T0pVdjJlVGdh?=
+ =?utf-8?B?VEZMOFZSd3lxS05sTnNXQ1dHY3VNeDNiaitUb2VWNjlCWm1ER1NTSERlVFZw?=
+ =?utf-8?B?dWd4RXptUG5KcUo0UXZVbFNOakM5d3Z3OGpaNGJZRjJ6dmt5Qm8vUXlqN3cz?=
+ =?utf-8?B?ZUtocjZqUUZFd1dSV0RpbG1EamI3RnZmNy80WWJUQTMrVmlWK0tiSEIxS3Rh?=
+ =?utf-8?B?OFBGUUhjWkI5NTlLU3B6M1RicS9YNi9XcmZiRTB0bE9vNHVDbm9ocTBtUWlX?=
+ =?utf-8?B?SVNvSUhvYmZoZXUxS2NhMytLYlE3K3ZuODI4ZXh1QXl5OGJUUEhGR0VDakhw?=
+ =?utf-8?B?RVhuc0pYTkRhVm4yeTZacEROL1l0eE1jbTAzRDkraDB1T1NVb3R2KzRGNzRV?=
+ =?utf-8?B?Z1RJT0VZNlhXNVErY0hIOHp3NGlDV2dFaXZhb2NMRlVMc28ySGRKTjAzNC9h?=
+ =?utf-8?B?c1huTjdyeVJ2WUczMjNjaHZWS2c1UVRJTVBtam5OM0UrSHNaM2M4cmk2b2lJ?=
+ =?utf-8?B?aGxHbjJCOXpsWmtkOHI5K1BQZW1wL0dTdjk1SW5JOFpUVWVKNWcvc2x6OUhG?=
+ =?utf-8?B?Wk9WMmlqTWh1M0N4RXF2TXdRY3EraGxLZmdrQlJ5V3VFVUoydWc2SHc5b3RV?=
+ =?utf-8?B?UlpTd0hMSzgwOFU5VDVqd3lXdHR4TFA1TTRPL1I3cW5CdmRFQ3JpNS9kMFdX?=
+ =?utf-8?B?TTF3ZStSLzNHYkI4amF2Y1I3RlRneWM4b0FTc0pMWk5hYnhRS2R3NTExazlu?=
+ =?utf-8?B?VENRMFREekhHS3gwTWxFanBnMFBkTGh0QTUwZmxkTERMdVBUaHdBT0NVaVU3?=
+ =?utf-8?B?MmNDYWJVbmZRaXNuUGE3akttR1dWM3JDWWNWdjdXVE81Nmtsdm0yeSs4bmhx?=
+ =?utf-8?B?MDZVZzQ2TGFidlpILzc4UVBqRmxZTWlpQlpKTThvcFVIbGUvck0zWGlWazlE?=
+ =?utf-8?Q?8xGHZjSh82iEF+ik=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0a116191-65d4-4b8c-bc25-08da2e2663ba
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR11MB3911.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 May 2022 23:32:44.5507
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: IIRA2NjXERTQoIEN3N+8CqsYZXLMny85qL4co8gZw9lreo8q90LvjvMW+meO/zDFizrX/tQ5YTqJvAfLX9P+6/i+UMwaL3TwTnB+0NRfpv4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB4315
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 04, 2022 at 11:52:30PM +0800, Dong Aisheng wrote:
-> Hi Minchan & David,
-> 
-> On Sat, Mar 19, 2022 at 12:20 AM Minchan Kim <minchan@kernel.org> wrote:
-> >
-> > On Fri, Mar 18, 2022 at 11:43:41AM +0800, Dong Aisheng wrote:
-> > > On Fri, Mar 18, 2022 at 1:12 AM Minchan Kim <minchan@kernel.org> wrote:
-> > > >
-> > > > On Thu, Mar 17, 2022 at 10:26:42PM +0800, Dong Aisheng wrote:
-> > > > > On Thu, Mar 17, 2022 at 6:55 PM David Hildenbrand <david@redhat.com> wrote:
-> > > > > >
-> > > > > > On 15.03.22 15:45, Dong Aisheng wrote:
-> > > > > > > When there're multiple process allocing dma memory in parallel
-> > > > > >
-> > > > > > s/allocing/allocating/
-> > > > > >
-> > > > > > > by calling dma_alloc_coherent(), it may fail sometimes as follows:
-> > > > > > >
-> > > > > > > Error log:
-> > > > > > > cma: cma_alloc: linux,cma: alloc failed, req-size: 148 pages, ret: -16
-> > > > > > > cma: number of available pages:
-> > > > > > > 3@125+20@172+12@236+4@380+32@736+17@2287+23@2473+20@36076+99@40477+108@40852+44@41108+20@41196+108@41364+108@41620+
-> > > > > > > 108@42900+108@43156+483@44061+1763@45341+1440@47712+20@49324+20@49388+5076@49452+2304@55040+35@58141+20@58220+20@58284+
-> > > > > > > 7188@58348+84@66220+7276@66452+227@74525+6371@75549=> 33161 free of 81920 total pages
-> > > > > > >
-> > > > > > > When issue happened, we saw there were still 33161 pages (129M) free CMA
-> > > > > > > memory and a lot available free slots for 148 pages in CMA bitmap that we
-> > > > > > > want to allocate.
-> > > >
-> > > > Yes, I also have met the problem especially when the multiple threads
-> > > > compete cma allocation. Thanks for bringing up the issue.
-> > > >
-> > > > > > >
-> > > > > > > If dumping memory info, we found that there was also ~342M normal memory,
-> > > > > > > but only 1352K CMA memory left in buddy system while a lot of pageblocks
-> > > > > > > were isolated.
-> > > > > >
-> > > > > > s/If/When/
-> > > > > >
-> > > > >
-> > > > > Will fix them all, thanks.
-> > > > >
-> > > > > > >
-> > > > > > > Memory info log:
-> > > > > > > Normal free:351096kB min:30000kB low:37500kB high:45000kB reserved_highatomic:0KB
-> > > > > > >           active_anon:98060kB inactive_anon:98948kB active_file:60864kB inactive_file:31776kB
-> > > > > > >           unevictable:0kB writepending:0kB present:1048576kB managed:1018328kB mlocked:0kB
-> > > > > > >           bounce:0kB free_pcp:220kB local_pcp:192kB free_cma:1352kB lowmem_reserve[]: 0 0 0
-> > > > > > > Normal: 78*4kB (UECI) 1772*8kB (UMECI) 1335*16kB (UMECI) 360*32kB (UMECI) 65*64kB (UMCI)
-> > > > > > >       36*128kB (UMECI) 16*256kB (UMCI) 6*512kB (EI) 8*1024kB (UEI) 4*2048kB (MI) 8*4096kB (EI)
-> > > > > > >       8*8192kB (UI) 3*16384kB (EI) 8*32768kB (M) = 489288kB
-> > > > > > >
-> > > > > > > The root cause of this issue is that since commit a4efc174b382
-> > > > > > > ("mm/cma.c: remove redundant cma_mutex lock"), CMA supports concurrent
-> > > > > > > memory allocation. It's possible that the memory range process A trying
-> > > > > > > to alloc has already been isolated by the allocation of process B during
-> > > > > > > memory migration.
-> > > > > > >
-> > > > > > > The problem here is that the memory range isolated during one allocation
-> > > > > > > by start_isolate_page_range() could be much bigger than the real size we
-> > > > > > > want to alloc due to the range is aligned to MAX_ORDER_NR_PAGES.
-> > > > > > >
-> > > > > > > Taking an ARMv7 platform with 1G memory as an example, when MAX_ORDER_NR_PAGES
-> > > > > > > is big (e.g. 32M with max_order 14) and CMA memory is relatively small
-> > > > > > > (e.g. 128M), there're only 4 MAX_ORDER slot, then it's very easy that
-> > > > > > > all CMA memory may have already been isolated by other processes when
-> > > > > > > one trying to allocate memory using dma_alloc_coherent().
-> > > > > > > Since current CMA code will only scan one time of whole available CMA
-> > > > > > > memory, then dma_alloc_coherent() may easy fail due to contention with
-> > > > > > > other processes.
-> > > > > > >
-> > > > > > > This patch introduces a retry mechanism to rescan CMA bitmap for -EBUSY
-> > > > > > > error in case the target memory range may has been temporarily isolated
-> > > > > > > by others and released later.
-> > > > > >
-> > > > > > But you patch doesn't check for -EBUSY and instead might retry forever,
-> > > > > > on any allocation error, no?
-> > > > > >
-> > > > >
-> > > > > My patch seems not need check it because there's no chance to retry the loop
-> > > > > in case an non -EBUS error happened earlier.
-> > > > >
-> > > > > for (;;) {
-> > > > >         if (bitmap_no >= bitmap_maxno) {
-> > > > >                 retry_the_whole_loop;
-> > > > >         }
-> > > > >
-> > > > >         pfn = cma->base_pfn + (bitmap_no << cma->order_per_bit);
-> > > > >         ret = alloc_contig_range(pfn, pfn + count, MIGRATE_CMA,
-> > > > >                              GFP_KERNEL | (no_warn ? __GFP_NOWARN : 0));
-> > > > >
-> > > > >         if (ret != -EBUSY)
-> > > > >                 break;
-> > > > > }
-> > > > >
-> > > > > > I'd really suggest letting alloc_contig_range() return -EAGAIN in case
-> > > > > > the isolation failed and handling -EAGAIN only in a special way instead.
-> > > > > >
-> > > > >
-> > > > > Yes, i guess that's another improvement and is applicable.
-> > > > >
-> > > > > > In addition, we might want to stop once we looped to often I assume.
-> > > > > >
-> > > > >
-> > > > > I wonder if really retried un-reasonably too often, we probably may
-> > > > > need figure out
-> > > > > what's going on inside alloc_contig_range() and fix it rather than
-> > > > > return EBUSY error to
-> > > > > users in case there're still a lot of avaiable memories.
-> > > > > So currently i didn't add a maximum retry loop outside.
-> > > > >
-> > > > > Additionaly, for a small CMA system (128M with 32M max_order pages),
-> > > > > the retry would
-> > > > > be frequently when multiple process allocating memory, it also depends
-> > > > > on system running
-> > > > > state, so it's hard to define a reasonable and stable maxinum retry count.
-> > > >
-> > > > IMO, when the CMA see the -EAGAIN, it should put the task into
-> > > > cma->wait_queue and then be woken up by other thread which finish
-> > > > work of the cma. So it's similar with cma_mutex but we don't need to
-> > > > synchronize for !EAGAIN cases and make the cma allocatoin fair.
-> > >
-> > > Okay, that's another approach which is completely different from the
-> > > existing one.
-> > > Instead of blocking on the CMA memory range which we want to allocate,
-> > > the existing code will try the next available memory ranges.
-> > > The question is whether we need to change this behavior?
-> >
-> > It could wait only if it scan the whole range but everyblock were
-> > taken and then one more trial after woken up. If the cma_alloc return
-> > -EAGAIN in the end, user could decide the policy.
-> >
-> > > It looks to me both ways have pros and cons.
-> > >
-> > > And for sleeping on -EAGAIN case, do we need an accurate wakeup?
-> > > IOW only wakes the sleeper when the exact memory range is released
-> > > which means we need create some more complicated code logic
-> > > to track different CMA memory range usage.
-> > > Otherwise, there will be possible false positive wakeups and the requester may
-> > > quickly sleep again.
-> >
-> > I even didn't consider such complicated model since we would have
-> > the race anyway.(Never tested but wanted to show the intention)
-> >
-> > diff --git a/mm/cma.c b/mm/cma.c
-> > index bc9ca8f3c487..cccf684da587 100644
-> > --- a/mm/cma.c
-> > +++ b/mm/cma.c
-> > @@ -449,6 +449,7 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
-> >         offset = cma_bitmap_aligned_offset(cma, align);
-> >         bitmap_maxno = cma_bitmap_maxno(cma);
-> >         bitmap_count = cma_bitmap_pages_to_bits(cma, count);
-> > +       bool retried = false;
-> >
-> >         if (bitmap_count > bitmap_maxno)
-> >                 goto out;
-> > @@ -460,6 +461,12 @@ struct page *cma_alloc(struct cma *cma, unsigned long count,
-> >                                 offset);
-> >                 if (bitmap_no >= bitmap_maxno) {
-> >                         spin_unlock_irq(&cma->lock);
-> > +                       if (ret == -EAGAIN && !retried) {
-> > +                               wait_event_killable(cma->wq);
-> 
-> I spent a few days reading the code carefully and implementing your suggestions.
-> But I think the problem was still when to wake up multiple callers
-> properly who were sleeping
-> on isolation contention error.  The issue I observed was that there's
-> a synchronization problem
-> between the sleeper and waker in current code logic due to:
-> 1) we only need to wake up the caller when detecting users sleeping on
-> the isolation contention.
-> A flag needs to be introduced to check dynamically.
-> 2) wakeup code may be finished before the flag was set which means the
-> last sleeper
-> may be missed to wake up. So a timeout mechanism needs to be introduced.
-> 3) the code can't avoid the wait_for_completion() and complete() run in parallel
-> without introducing extra complexity to do proper synchronization.
-> (during my test, &cma->pending can be < 0 sometimes)
-> 
-> I wonder if it's worth introducing such complexity to support sleeping
-> on isolation contention.
-> Maybe the simple way was just as Andrew said that  let's revert that
-> broken patch first.
-> 
-> Do you have any suggestions?
+On 5/4/2022 11:34, Alan Previn wrote:
+> From: Jason Ekstrand <jason@jlekstrand.net>
+>
+> This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
+> since that commit, we've been having issues where a hang in one client
+> can propagate to another.  In particular, a hang in an app can propagate
+> to the X server which causes the whole desktop to lock up.
+>
+> Error propagation along fences sound like a good idea, but as your bug
+> shows, surprising consequences, since propagating errors across security
+> boundaries is not a good thing.
+>
+> What we do have is track the hangs on the ctx, and report information to
+> userspace using RESET_STATS. That's how arb_robustness works. Also, if my
+> understanding is still correct, the EIO from execbuf is when your context
+> is banned (because not recoverable or too many hangs). And in all these
+> cases it's up to userspace to figure out what is all impacted and should
+> be reported to the application, that's not on the kernel to guess and
+> automatically propagate.
+>
+> What's more, we're also building more features on top of ctx error
+> reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
+> userspace fence wait also relies on that mechanism. So it is the path
+> going forward for reporting gpu hangs and resets to userspace.
+>
+> So all together that's why I think we should just bury this idea again as
+> not quite the direction we want to go to, hence why I think the revert is
+> the right option here.
+>
+> For backporters: Please note that you _must_ have a backport of
+> https://lore.kernel.org/dri-devel/20210602164149.391653-2-jason@jlekstrand.net/
+> for otherwise backporting just this patch opens up a security bug.
+I'm not seeing that required patch in DII.
 
-Thanks for the effort. On a second thought, I am also worry about the unfairness
-on my suggestion since new comer could steal the pageblock while former was waiting
-on the queue to be woken up. If it's complicated than the expectation, I don't think
-we should block your workload so I agree reverting the original patch to resolve
-regression first as Andrew suggested and then we need to think over better ideas.
+John.
 
-Thanks.
+>
+> v2: Augment commit message. Also restore Jason's sob that I
+> accidentally lost.
+>
+> v3: Add a note for backporters
+>
+> Signed-off-by: Jason Ekstrand <jason@jlekstrand.net>
+> Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.6+
+> Cc: Jason Ekstrand <jason.ekstrand@intel.com>
+> Cc: Marcin Slusarz <marcin.slusarz@intel.com>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
+> Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
+> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Link: https://patchwork.freedesktop.org/patch/msgid/20210714193419.1459723-3-jason@jlekstrand.net
+> (cherry picked from commit 93a2711cddd5760e2f0f901817d71c93183c3b87)
+> ---
+>   drivers/gpu/drm/i915/i915_request.c | 8 ++------
+>   1 file changed, 2 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> index 8e310b8dd91c..6a5070399c04 100644
+> --- a/drivers/gpu/drm/i915/i915_request.c
+> +++ b/drivers/gpu/drm/i915/i915_request.c
+> @@ -1297,10 +1297,8 @@ i915_request_await_execution(struct i915_request *rq,
+>   
+>   	do {
+>   		fence = *child++;
+> -		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+> -			i915_sw_fence_set_error_once(&rq->submit, fence->error);
+> +		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+>   			continue;
+> -		}
+>   
+>   		if (fence->context == rq->fence.context)
+>   			continue;
+> @@ -1398,10 +1396,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
+>   
+>   	do {
+>   		fence = *child++;
+> -		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+> -			i915_sw_fence_set_error_once(&rq->submit, fence->error);
+> +		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+>   			continue;
+> -		}
+>   
+>   		/*
+>   		 * Requests on the same timeline are explicitly ordered, along
+
