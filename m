@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 129FA51A847
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1A851A6EC
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354585AbiEDRKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
+        id S1354604AbiEDRA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355415AbiEDRHf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:07:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EE9517E3;
-        Wed,  4 May 2022 09:54:29 -0700 (PDT)
+        with ESMTP id S1355617AbiEDRAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFA24BB83;
+        Wed,  4 May 2022 09:51:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 538D8616F8;
-        Wed,  4 May 2022 16:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F97C385AA;
-        Wed,  4 May 2022 16:54:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6349FB827AB;
+        Wed,  4 May 2022 16:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D6E2C385AF;
+        Wed,  4 May 2022 16:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683268;
-        bh=0IiNxe8NdBPwEW6lbGtCQxmIXK0QG7FV5Fx/37V/jR4=;
+        s=korg; t=1651683115;
+        bh=ajlyHJlXLFrefqDuXU+8CxL6cuBrNIB29dSZeCj6OZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIRvtHUzlS8WbXYj7CXBnsP7COCxm0N7ESmba+HMT2yfksEaDZ8WsNhMbNa3hr739
-         +Rh3oyVbC3arU1yB3Z97dbwxAtZ6a2KMBhiOf/GcCTA4knRqkntojBuwI1mg/Ntodg
-         UuIRgFAlGghfcSLo9cecw9XfnVnMIv/JQTCRJ6+Q=
+        b=eGJOJGwQP/yVY0YGYMeuj7BYKX7ef47nKhKMEpxX4F7fnx8En8DRoUFpf3Im7aYIF
+         tyX/Hr0mEelRCV95nelyWM7J75nFFUgYv8sOvPvch7Fp2Q/w2nxM6N8s/H06tRfKvn
+         VMJ5eEBIOTUKwsKT0DHaxdJLWdV8Av8/pUNzDSqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 118/177] net: fec: add missing of_node_put() in fec_enet_init_stop_mode()
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 119/129] tty: n_gsm: fix malformed counter for out of frame data
 Date:   Wed,  4 May 2022 18:45:11 +0200
-Message-Id: <20220504153103.737095476@linuxfoundation.org>
+Message-Id: <20220504153030.815398172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit d2b52ec056d5bddb055c8f21d7489a23548d0838 ]
+commit a24b4b2f660b7ddf3f484b37600bba382cb28a9d upstream.
 
-Put device node in error path in fec_enet_init_stop_mode().
+The gsm_mux field 'malformed' represents the number of malformed frames
+received. However, gsm1_receive() also increases this counter for any out
+of frame byte.
+Fix this by ignoring out of frame data for the malformed counter.
 
-Fixes: 8a448bf832af ("net: ethernet: fec: move GPR register offset and bit into DT")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220426125231.375688-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-7-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index a3e87e10ee6b..67eb9b671244 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3726,7 +3726,7 @@ static int fec_enet_init_stop_mode(struct fec_enet_private *fep,
- 					 ARRAY_SIZE(out_val));
- 	if (ret) {
- 		dev_dbg(&fep->pdev->dev, "no stop mode property\n");
--		return ret;
-+		goto out;
- 	}
- 
- 	fep->stop_gpr.gpr = syscon_node_to_regmap(gpr_np);
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1968,7 +1968,8 @@ static void gsm1_receive(struct gsm_mux
+ 		}
+ 		/* Any partial frame was a runt so go back to start */
+ 		if (gsm->state != GSM_START) {
+-			gsm->malformed++;
++			if (gsm->state != GSM_SEARCH)
++				gsm->malformed++;
+ 			gsm->state = GSM_START;
+ 		}
+ 		/* A SOF in GSM_START means we are still reading idling or
 
 
