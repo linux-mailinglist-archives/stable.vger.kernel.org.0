@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E686251A789
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B0E451A655
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355292AbiEDRGj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51434 "EHLO
+        id S1354234AbiEDQzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356333AbiEDRFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DC2C50B32;
-        Wed,  4 May 2022 09:54:03 -0700 (PDT)
+        with ESMTP id S1349590AbiEDQyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7531A4968D;
+        Wed,  4 May 2022 09:49:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EA9A61505;
-        Wed,  4 May 2022 16:54:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA22C385BA;
-        Wed,  4 May 2022 16:54:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 146896174C;
+        Wed,  4 May 2022 16:49:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 653FCC385A4;
+        Wed,  4 May 2022 16:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683241;
-        bh=+ajv8gDEINzpPt5k/lZ7YsXmqVeb/TEI1e3IDVzr2uw=;
+        s=korg; t=1651682975;
+        bh=L1Ds1EUngD0M7E8EcZPz2evcTmB11XeoOhit7RNR7g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMgOkPMFKeLZAF7jGYZ8YjqmwtXq7rOPhct9SO77hvcnqoBC/DQaYwRrU4lDgn52n
-         aIN8lY1S06ECRWEw0CgsmjoQ/1fmmFsxwYdzIz68/75ZLkHjdoNj/oZa+4Iri/Yd21
-         bj8FPwIXafHPNv+InZgMrvntNwwXQX+XKvaFdIrk=
+        b=ExOx4PC8GMGJev/cSHaKz283lrrtBp6k/9H7Wcssu5qWqP94MMaAz3aFm5V6kyOHN
+         W2EFKHXmkHgbf2FWBopCNsrjsE7M4SgvVE7GFR38s0ZnehJUzbZytD7pvHrpY9KUiq
+         Mq37SPCGjMw0ZZPfRDS2Y9M2TNCSL3yNX0M+chGs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/177] net: bcmgenet: hide status block before TX timestamping
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.4 78/84] tty: n_gsm: fix insufficient txframe size
 Date:   Wed,  4 May 2022 18:44:59 +0200
-Message-Id: <20220504153102.722994656@linuxfoundation.org>
+Message-Id: <20220504152933.672339990@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Lemon <jonathan.lemon@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit acac0541d1d65e81e599ec399d34d184d2424401 ]
+commit 535bf600de75a859698892ee873521a48d289ec1 upstream.
 
-The hardware checksum offloading requires use of a transmit
-status block inserted before the outgoing frame data, this was
-updated in '9a9ba2a4aaaa ("net: bcmgenet: always enable status blocks")'
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.7.2 states that the maximum frame size
+(N1) refers to the length of the information field (i.e. user payload).
+However, 'txframe' stores the whole frame including frame header, checksum
+and start/end flags. We also need to consider the byte stuffing overhead.
+Define constant for the protocol overhead and adjust the 'txframe' size
+calculation accordingly to reserve enough space for a complete mux frame
+including byte stuffing for advanced option mode. Note that no byte
+stuffing is applied to the start and end flag.
+Also use MAX_MTU instead of MAX_MRU as this buffer is used for data
+transmission.
 
-However, skb_tx_timestamp() assumes that it is passed a raw frame
-and PTP parsing chokes on this status block.
-
-Fix this by calling __skb_pull(), which hides the TSB before calling
-skb_tx_timestamp(), so an outgoing PTP packet is parsed correctly.
-
-As the data in the skb has already been set up for DMA, and the
-dma_unmap_* calls use a separately stored address, there is no
-no effective change in the data transmission.
-
-Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220424165307.591145-1-jonathan.lemon@gmail.com
-Fixes: d03825fba459 ("net: bcmgenet: add skb_tx_timestamp call")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-8-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/tty/n_gsm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index b4f99dd284e5..8bcc39b1575c 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1991,6 +1991,11 @@ static struct sk_buff *bcmgenet_add_tsb(struct net_device *dev,
- 	return skb;
- }
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -72,6 +72,8 @@ module_param(debug, int, 0600);
+  */
+ #define MAX_MRU 1500
+ #define MAX_MTU 1500
++/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
++#define PROT_OVERHEAD 7
+ #define	GSM_NET_TX_TIMEOUT (HZ*10)
  
-+static void bcmgenet_hide_tsb(struct sk_buff *skb)
-+{
-+	__skb_pull(skb, sizeof(struct status_64));
-+}
-+
- static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bcmgenet_priv *priv = netdev_priv(dev);
-@@ -2097,6 +2102,8 @@ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
+ /**
+@@ -2209,7 +2211,7 @@ static struct gsm_mux *gsm_alloc_mux(voi
+ 		kfree(gsm);
+ 		return NULL;
  	}
- 
- 	GENET_CB(skb)->last_cb = tx_cb_ptr;
-+
-+	bcmgenet_hide_tsb(skb);
- 	skb_tx_timestamp(skb);
- 
- 	/* Decrement total BD count and advance our write pointer */
--- 
-2.35.1
-
+-	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
++	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
+ 	if (gsm->txframe == NULL) {
+ 		kfree(gsm->buf);
+ 		kfree(gsm);
 
 
