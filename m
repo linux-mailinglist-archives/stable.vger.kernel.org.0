@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0672B51A721
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B341A51A8FD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354076AbiEDRCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37244 "EHLO
+        id S1356081AbiEDRNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354937AbiEDQ7e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A64148E54;
-        Wed,  4 May 2022 09:51:10 -0700 (PDT)
+        with ESMTP id S1356727AbiEDRJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D180717E35;
+        Wed,  4 May 2022 09:55:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA4CEB82552;
-        Wed,  4 May 2022 16:51:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F124C385A4;
-        Wed,  4 May 2022 16:51:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2BBC618BB;
+        Wed,  4 May 2022 16:55:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9E3C385AF;
+        Wed,  4 May 2022 16:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683067;
-        bh=fiEjsMwi+sx83CopIVwfDXjNiCaih6WW+Reo85LpXa0=;
+        s=korg; t=1651683327;
+        bh=SDuyrBXIG1Ux4g+tRXchQPstQixndqbbbbN6bKOU6zI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxq5WcqrEbpruMNikozdUMjzhD8YpmCtI4CNX9xMMgsF7600GeRtbW3bjNGJLGbTg
-         BtkdumDoTOFXgqPvaLJhgF1nyxcPquvp/Bzf0pYvjYKqUmecZ/hZ+0lDC2Hf+3YPAv
-         7ciuwI8XsvjmDBVQxh0JwcQpPrY4V8We7hQi7TmY=
+        b=jZCJdtB6RGdEkMGdChAlLBnfG9lcMPV/cVtctplwFSE6EGJlDJAWlg+HM4RS2uTSv
+         PT+BQNpGz2oASK8WoZbJy9V/i7em7Ce0KYOXmVLI+zVXeEyu92QJevkt27g3RfCOVb
+         AgkxtT1EEWGCQ6mappomrZEIIcqDjFK0SQLt+hRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 052/129] phy: mapphone-mdm6600: Fix PM error handling in phy_mdm6600_probe
+        stable@vger.kernel.org, Bruno Thomsen <bruno.thomsen@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.17 006/225] USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
 Date:   Wed,  4 May 2022 18:44:04 +0200
-Message-Id: <20220504153025.174384585@linuxfoundation.org>
+Message-Id: <20220504153110.822126341@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Bruno Thomsen <bruno.thomsen@gmail.com>
 
-[ Upstream commit d644e0d79829b1b9a14beedbdb0dc1256fc3677d ]
+commit 35a923a0b329c343e9e81d79518e2937eba06fcd upstream.
 
-The pm_runtime_enable will increase power disable depth.
-If the probe fails, we should use pm_runtime_disable() to balance
-pm_runtime_enable(). And use pm_runtime_dont_use_autosuspend() to
-undo pm_runtime_use_autosuspend()
-In the PM Runtime docs:
-    Drivers in ->remove() callback should undo the runtime PM changes done
-    in ->probe(). Usually this means calling pm_runtime_disable(),
-    pm_runtime_dont_use_autosuspend() etc.
+Wireless reading of water and heat meters using 868 MHz wM-Bus mode C1.
 
-We should do this in error handling.
+The two different product IDs allow detection of dongle antenna
+solution:
+- Internal antenna
+- External antenna using SMA connector
 
-Fixes: f7f50b2a7b05 ("phy: mapphone-mdm6600: Add runtime PM support for n_gsm on USB suspend")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220301024615.31899-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+https://www.kamstrup.com/en-en/water-solutions/water-meter-reading/usb-meter-reader
+
+Signed-off-by: Bruno Thomsen <bruno.thomsen@gmail.com>
+Link: https://lore.kernel.org/r/20220414081202.5591-1-bruno.thomsen@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/motorola/phy-mapphone-mdm6600.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/cp210x.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/phy/motorola/phy-mapphone-mdm6600.c b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-index 5172971f4c36..3cd4d51c247c 100644
---- a/drivers/phy/motorola/phy-mapphone-mdm6600.c
-+++ b/drivers/phy/motorola/phy-mapphone-mdm6600.c
-@@ -629,7 +629,8 @@ static int phy_mdm6600_probe(struct platform_device *pdev)
- cleanup:
- 	if (error < 0)
- 		phy_mdm6600_device_power_off(ddata);
--
-+	pm_runtime_disable(ddata->dev);
-+	pm_runtime_dont_use_autosuspend(ddata->dev);
- 	return error;
- }
- 
--- 
-2.35.1
-
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -194,6 +194,8 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x16DC, 0x0015) }, /* W-IE-NE-R Plein & Baus GmbH CML Control, Monitoring and Data Logger */
+ 	{ USB_DEVICE(0x17A8, 0x0001) }, /* Kamstrup Optical Eye/3-wire */
+ 	{ USB_DEVICE(0x17A8, 0x0005) }, /* Kamstrup M-Bus Master MultiPort 250D */
++	{ USB_DEVICE(0x17A8, 0x0101) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Int Ant) */
++	{ USB_DEVICE(0x17A8, 0x0102) }, /* Kamstrup 868 MHz wM-Bus C-Mode Meter Reader (Ext Ant) */
+ 	{ USB_DEVICE(0x17F4, 0xAAAA) }, /* Wavesense Jazz blood glucose meter */
+ 	{ USB_DEVICE(0x1843, 0x0200) }, /* Vaisala USB Instrument Cable */
+ 	{ USB_DEVICE(0x18EF, 0xE00F) }, /* ELV USB-I2C-Interface */
 
 
