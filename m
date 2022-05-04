@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A437651A84D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D361251A94A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355172AbiEDRKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
+        id S1352205AbiEDRLw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355768AbiEDRIu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74D651E5D;
-        Wed,  4 May 2022 09:54:33 -0700 (PDT)
+        with ESMTP id S1357203AbiEDRKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC32249693;
+        Wed,  4 May 2022 09:57:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53E6561852;
-        Wed,  4 May 2022 16:54:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E698C385A5;
-        Wed,  4 May 2022 16:54:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2B171B827A3;
+        Wed,  4 May 2022 16:57:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE30C385A4;
+        Wed,  4 May 2022 16:57:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683272;
-        bh=uU32vsAIlQhNOwiz7baeDmqduhS8jWk8Pq/Li7uhVgw=;
+        s=korg; t=1651683427;
+        bh=2R5kitwa1y1l5S4KPY9jcoJ/BPm7iTyVBAWu2sovui0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loGFp8N1zl16aS2O2slP2NLm6Z+oA9woLfHTQoJUMa82d7GQA0Hx22ZHrwMvcqT8z
-         176GBZCwvPhyOL5pUVsMxHlsEUld4wcS52Iu2gHV4IkTiBKPLsu18Rj7AaWdob1hmo
-         y2g581J/WrBq7KRsRPnSlCfb0ybMMnyPJ7Inc9Qg=
+        b=0pfO8fNY7sUOimOUHZIvY3qPnWMdgCj40a7aGpyMGmPGBuSYUohS5e692gF3m+kBs
+         cQA51qXV1hNGiuAHmdNbIZnvQel7vFZN7hjkyQHt/WlB2Gdf57MXXng0nxqPbHyjnz
+         AECXJfwU+TrNh7aXh5nxpIfxupJ3zzkFZ0mhhA3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 138/177] selftest/vm: verify mmap addr in mremap_test
+Subject: [PATCH 5.17 093/225] pinctrl: qcom: sm6350: fix order of UFS & SDC pins
 Date:   Wed,  4 May 2022 18:45:31 +0200
-Message-Id: <20220504153105.576914812@linuxfoundation.org>
+Message-Id: <20220504153119.135109608@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,107 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+From: Luca Weiss <luca.weiss@fairphone.com>
 
-[ Upstream commit 9c85a9bae267f6b5e5e374d0d023bbbe9db096d3 ]
+[ Upstream commit ef0beba1a5fb0c693ddf7d31246bd96c925ffd00 ]
 
-Avoid calling mmap with requested addresses that are less than the
-system's mmap_min_addr.  When run as root, mmap returns EACCES when
-trying to map addresses < mmap_min_addr.  This is not one of the error
-codes for the condition to retry the mmap in the test.
+In other places the SDC and UFS pins have been swapped but this was
+missed in the PINCTRL_PIN definitions. Fix that.
 
-Rather than arbitrarily retrying on EACCES, don't attempt an mmap until
-addr > vm.mmap_min_addr.
-
-Add a munmap call after an alignment check as the mappings are retained
-after the retry and can reach the vm.max_map_count sysctl.
-
-Link: https://lkml.kernel.org/r/20220420215721.4868-1-sidhartha.kumar@oracle.com
-Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7d74b55afd27 ("pinctrl: qcom: Add SM6350 pinctrl driver")
+Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+Link: https://lore.kernel.org/r/20220318183004.858707-5-luca.weiss@fairphone.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/vm/mremap_test.c | 41 +++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ drivers/pinctrl/qcom/pinctrl-sm6350.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/mremap_test.c b/tools/testing/selftests/vm/mremap_test.c
-index 0624d1bd71b5..2b3b4f15185f 100644
---- a/tools/testing/selftests/vm/mremap_test.c
-+++ b/tools/testing/selftests/vm/mremap_test.c
-@@ -6,6 +6,7 @@
+diff --git a/drivers/pinctrl/qcom/pinctrl-sm6350.c b/drivers/pinctrl/qcom/pinctrl-sm6350.c
+index 4d37b817b232..a91a86628f2f 100644
+--- a/drivers/pinctrl/qcom/pinctrl-sm6350.c
++++ b/drivers/pinctrl/qcom/pinctrl-sm6350.c
+@@ -264,14 +264,14 @@ static const struct pinctrl_pin_desc sm6350_pins[] = {
+ 	PINCTRL_PIN(153, "GPIO_153"),
+ 	PINCTRL_PIN(154, "GPIO_154"),
+ 	PINCTRL_PIN(155, "GPIO_155"),
+-	PINCTRL_PIN(156, "SDC1_RCLK"),
+-	PINCTRL_PIN(157, "SDC1_CLK"),
+-	PINCTRL_PIN(158, "SDC1_CMD"),
+-	PINCTRL_PIN(159, "SDC1_DATA"),
+-	PINCTRL_PIN(160, "SDC2_CLK"),
+-	PINCTRL_PIN(161, "SDC2_CMD"),
+-	PINCTRL_PIN(162, "SDC2_DATA"),
+-	PINCTRL_PIN(163, "UFS_RESET"),
++	PINCTRL_PIN(156, "UFS_RESET"),
++	PINCTRL_PIN(157, "SDC1_RCLK"),
++	PINCTRL_PIN(158, "SDC1_CLK"),
++	PINCTRL_PIN(159, "SDC1_CMD"),
++	PINCTRL_PIN(160, "SDC1_DATA"),
++	PINCTRL_PIN(161, "SDC2_CLK"),
++	PINCTRL_PIN(162, "SDC2_CMD"),
++	PINCTRL_PIN(163, "SDC2_DATA"),
+ };
  
- #include <errno.h>
- #include <stdlib.h>
-+#include <stdio.h>
- #include <string.h>
- #include <sys/mman.h>
- #include <time.h>
-@@ -64,6 +65,35 @@ enum {
- 	.expect_failure = should_fail				\
- }
- 
-+/* Returns mmap_min_addr sysctl tunable from procfs */
-+static unsigned long long get_mmap_min_addr(void)
-+{
-+	FILE *fp;
-+	int n_matched;
-+	static unsigned long long addr;
-+
-+	if (addr)
-+		return addr;
-+
-+	fp = fopen("/proc/sys/vm/mmap_min_addr", "r");
-+	if (fp == NULL) {
-+		ksft_print_msg("Failed to open /proc/sys/vm/mmap_min_addr: %s\n",
-+			strerror(errno));
-+		exit(KSFT_SKIP);
-+	}
-+
-+	n_matched = fscanf(fp, "%llu", &addr);
-+	if (n_matched != 1) {
-+		ksft_print_msg("Failed to read /proc/sys/vm/mmap_min_addr: %s\n",
-+			strerror(errno));
-+		fclose(fp);
-+		exit(KSFT_SKIP);
-+	}
-+
-+	fclose(fp);
-+	return addr;
-+}
-+
- /*
-  * Returns the start address of the mapping on success, else returns
-  * NULL on failure.
-@@ -72,8 +102,15 @@ static void *get_source_mapping(struct config c)
- {
- 	unsigned long long addr = 0ULL;
- 	void *src_addr = NULL;
-+	unsigned long long mmap_min_addr;
-+
-+	mmap_min_addr = get_mmap_min_addr();
-+
- retry:
- 	addr += c.src_alignment;
-+	if (addr < mmap_min_addr)
-+		goto retry;
-+
- 	src_addr = mmap((void *) addr, c.region_size, PROT_READ | PROT_WRITE,
- 			MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
- 			-1, 0);
-@@ -91,8 +128,10 @@ static void *get_source_mapping(struct config c)
- 	 * alignment in the tests.
- 	 */
- 	if (((unsigned long long) src_addr & (c.src_alignment - 1)) ||
--			!((unsigned long long) src_addr & c.src_alignment))
-+			!((unsigned long long) src_addr & c.src_alignment)) {
-+		munmap(src_addr, c.region_size);
- 		goto retry;
-+	}
- 
- 	if (!src_addr)
- 		goto error;
+ #define DECLARE_MSM_GPIO_PINS(pin) \
 -- 
 2.35.1
 
