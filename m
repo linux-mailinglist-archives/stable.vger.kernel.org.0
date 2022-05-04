@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 864DC51A9BC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AAD751A9B6
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356910AbiEDRTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56332 "EHLO
+        id S1356790AbiEDRTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357623AbiEDRPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:09 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83EBA55233;
-        Wed,  4 May 2022 09:58:47 -0700 (PDT)
+        with ESMTP id S1357581AbiEDRPH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1A725521B;
+        Wed,  4 May 2022 09:58:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 219ADCE28B9;
-        Wed,  4 May 2022 16:58:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F7DCC385B1;
-        Wed,  4 May 2022 16:58:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B443617A6;
+        Wed,  4 May 2022 16:58:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46940C385A5;
+        Wed,  4 May 2022 16:58:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683523;
-        bh=BKUXDLzplQ5j6VjlLJEEr3gBKq6Qoso3pd32RExTUsM=;
+        s=korg; t=1651683524;
+        bh=3TzXMKvd6eC55mqijotQiI6jDkYbdylBFY4G2KQvp5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=01BMEdh+W2sh+nUpH/VAFvt0aT3uQ7mr6RFFc5InfbJ94QL1v5FP2ASIlAnuCR+fv
-         ptMW2FI2qNaqpbMIPWuv/DlmF5FdXqY+KPC4TYZ/gxe+WlqG6xpfQtkbDjJ+e2r5ph
-         1zewA6GXw4vBgZWJ9XVm/TxLf4RMEj3I4xTtHtf4=
+        b=RNn6tCc/kVSoSo9Ia8eSQJTYOAoXak4rpVKNNmJrbJqWiseUzPawjzo7yPQYCzKrv
+         zWQcjaCIR/2tAzgLMdfllqcQcn6AK3zib9cNJI1JEhHINFFGCLQh3AvWRQjmmCMrDH
+         1cn0NLNeGqfF0wHkbClk6+wHu94Cs3eIsVkeNBQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michele Ballabio <ballabio.m@gmail.com>,
-        Evan Quan <evan.quan@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.17 185/225] drm/amdgpu: dont runtime suspend if there are displays attached (v3)
-Date:   Wed,  4 May 2022 18:47:03 +0200
-Message-Id: <20220504153126.888301268@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Mika Kahola <mika.kahola@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Filippo Falezza <filippo.falezza@outlook.it>,
+        =?UTF-8?q?Jouni=20H=C3=B6gander?= <jouni.hogander@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.17 186/225] drm/i915: Check EDID for HDR static metadata when choosing blc
+Date:   Wed,  4 May 2022 18:47:04 +0200
+Message-Id: <20220504153126.956417972@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,170 +59,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jouni Högander <jouni.hogander@intel.com>
 
-commit f95af4a9236695caed24fe6401256bb974e8f2a7 upstream.
+commit c05d8332f5d23fa3b521911cbe55a2b67fb21248 upstream.
 
-We normally runtime suspend when there are displays attached if they
-are in the DPMS off state, however, if something wakes the GPU
-we send a hotplug event on resume (in case any displays were connected
-while the GPU was in suspend) which can cause userspace to light
-up the displays again soon after they were turned off.
+We have now seen panel (XMG Core 15 e21 laptop) advertizing support
+for Intel proprietary eDP backlight control via DPCD registers, but
+actually working only with legacy pwm control.
 
-Prior to
-commit 087451f372bf76 ("drm/amdgpu: use generic fb helpers instead of setting up AMD own's."),
-the driver took a runtime pm reference when the fbdev emulation was
-enabled because we didn't implement proper shadowing support for
-vram access when the device was off so the device never runtime
-suspended when there was a console bound.  Once that commit landed,
-we now utilize the core fb helper implementation which properly
-handles the emulation, so runtime pm now suspends in cases where it did
-not before.  Ultimately, we need to sort out why runtime suspend in not
-working in this case for some users, but this should restore similar
-behavior to before.
+This patch adds panel EDID check for possible HDR static metadata and
+Intel proprietary eDP backlight control is used only if that exists.
+Missing HDR static metadata is ignored if user specifically asks for
+Intel proprietary eDP backlight control via enable_dpcd_backlight
+parameter.
 
-v2: move check into runtime_suspend
-v3: wake ups -> wakeups in comment, retain pm_runtime behavior in
-    runtime_idle callback
+v2 :
+- Ignore missing HDR static metadata if Intel proprietary eDP
+  backlight control is forced via i915.enable_dpcd_backlight
+- Printout info message if panel is missing HDR static metadata and
+  support for Intel proprietary eDP backlight control is detected
 
-Fixes: 087451f372bf76 ("drm/amdgpu: use generic fb helpers instead of setting up AMD own's.")
-Link: https://lore.kernel.org/r/20220403132322.51c90903@darkstar.example.org/
-Tested-by: Michele Ballabio <ballabio.m@gmail.com>
-Reviewed-by: Evan Quan <evan.quan@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4a8d79901d5b ("drm/i915/dp: Enable Intel's HDR backlight interface (only SDR for now)")
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/5284
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Mika Kahola <mika.kahola@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Filippo Falezza <filippo.falezza@outlook.it>
 Cc: stable@vger.kernel.org
+Signed-off-by: Jouni Högander <jouni.hogander@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220413082826.120634-1-jouni.hogander@intel.com
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+(cherry picked from commit b4b157577cb1de13bee8bebc3576f1de6799a921)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  105 +++++++++++++++++++++-----------
- 1 file changed, 70 insertions(+), 35 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c |   34 +++++++++++++-----
+ 1 file changed, 26 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -2348,6 +2348,71 @@ static int amdgpu_pmops_restore(struct d
- 	return amdgpu_device_resume(drm_dev, true);
- }
+--- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+@@ -97,6 +97,14 @@
  
-+static int amdgpu_runtime_idle_check_display(struct device *dev)
-+{
-+	struct pci_dev *pdev = to_pci_dev(dev);
-+	struct drm_device *drm_dev = pci_get_drvdata(pdev);
-+	struct amdgpu_device *adev = drm_to_adev(drm_dev);
+ #define INTEL_EDP_BRIGHTNESS_OPTIMIZATION_1                            0x359
+ 
++enum intel_dp_aux_backlight_modparam {
++	INTEL_DP_AUX_BACKLIGHT_AUTO = -1,
++	INTEL_DP_AUX_BACKLIGHT_OFF = 0,
++	INTEL_DP_AUX_BACKLIGHT_ON = 1,
++	INTEL_DP_AUX_BACKLIGHT_FORCE_VESA = 2,
++	INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL = 3,
++};
 +
-+	if (adev->mode_info.num_crtc) {
-+		struct drm_connector *list_connector;
-+		struct drm_connector_list_iter iter;
-+		int ret = 0;
-+
-+		/* XXX: Return busy if any displays are connected to avoid
-+		 * possible display wakeups after runtime resume due to
-+		 * hotplug events in case any displays were connected while
-+		 * the GPU was in suspend.  Remove this once that is fixed.
-+		 */
-+		mutex_lock(&drm_dev->mode_config.mutex);
-+		drm_connector_list_iter_begin(drm_dev, &iter);
-+		drm_for_each_connector_iter(list_connector, &iter) {
-+			if (list_connector->status == connector_status_connected) {
-+				ret = -EBUSY;
-+				break;
-+			}
-+		}
-+		drm_connector_list_iter_end(&iter);
-+		mutex_unlock(&drm_dev->mode_config.mutex);
-+
-+		if (ret)
-+			return ret;
-+
-+		if (amdgpu_device_has_dc_support(adev)) {
-+			struct drm_crtc *crtc;
-+
-+			drm_for_each_crtc(crtc, drm_dev) {
-+				drm_modeset_lock(&crtc->mutex, NULL);
-+				if (crtc->state->active)
-+					ret = -EBUSY;
-+				drm_modeset_unlock(&crtc->mutex);
-+				if (ret < 0)
-+					break;
-+			}
-+		} else {
-+			mutex_lock(&drm_dev->mode_config.mutex);
-+			drm_modeset_lock(&drm_dev->mode_config.connection_mutex, NULL);
-+
-+			drm_connector_list_iter_begin(drm_dev, &iter);
-+			drm_for_each_connector_iter(list_connector, &iter) {
-+				if (list_connector->dpms ==  DRM_MODE_DPMS_ON) {
-+					ret = -EBUSY;
-+					break;
-+				}
-+			}
-+
-+			drm_connector_list_iter_end(&iter);
-+
-+			drm_modeset_unlock(&drm_dev->mode_config.connection_mutex);
-+			mutex_unlock(&drm_dev->mode_config.mutex);
-+		}
-+		if (ret)
-+			return ret;
+ /* Intel EDP backlight callbacks */
+ static bool
+ intel_dp_aux_supports_hdr_backlight(struct intel_connector *connector)
+@@ -126,6 +134,24 @@ intel_dp_aux_supports_hdr_backlight(stru
+ 		return false;
+ 	}
+ 
++	/*
++	 * If we don't have HDR static metadata there is no way to
++	 * runtime detect used range for nits based control. For now
++	 * do not use Intel proprietary eDP backlight control if we
++	 * don't have this data in panel EDID. In case we find panel
++	 * which supports only nits based control, but doesn't provide
++	 * HDR static metadata we need to start maintaining table of
++	 * ranges for such panels.
++	 */
++	if (i915->params.enable_dpcd_backlight != INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL &&
++	    !(connector->base.hdr_sink_metadata.hdmi_type1.metadata_type &
++	      BIT(HDMI_STATIC_METADATA_TYPE1))) {
++		drm_info(&i915->drm,
++			 "Panel is missing HDR static metadata. Possible support for Intel HDR backlight interface is not used. If your backlight controls don't work try booting with i915.enable_dpcd_backlight=%d. needs this, please file a _new_ bug report on drm/i915, see " FDO_BUG_URL " for details.\n",
++			 INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL);
++		return false;
 +	}
 +
-+	return 0;
-+}
-+
- static int amdgpu_pmops_runtime_suspend(struct device *dev)
+ 	panel->backlight.edp.intel.sdr_uses_aux =
+ 		tcon_cap[2] & INTEL_EDP_SDR_TCON_BRIGHTNESS_AUX_CAP;
+ 
+@@ -413,14 +439,6 @@ static const struct intel_panel_bl_funcs
+ 	.get = intel_dp_aux_vesa_get_backlight,
+ };
+ 
+-enum intel_dp_aux_backlight_modparam {
+-	INTEL_DP_AUX_BACKLIGHT_AUTO = -1,
+-	INTEL_DP_AUX_BACKLIGHT_OFF = 0,
+-	INTEL_DP_AUX_BACKLIGHT_ON = 1,
+-	INTEL_DP_AUX_BACKLIGHT_FORCE_VESA = 2,
+-	INTEL_DP_AUX_BACKLIGHT_FORCE_INTEL = 3,
+-};
+-
+ int intel_dp_aux_init_backlight_funcs(struct intel_connector *connector)
  {
- 	struct pci_dev *pdev = to_pci_dev(dev);
-@@ -2360,6 +2425,10 @@ static int amdgpu_pmops_runtime_suspend(
- 		return -EBUSY;
- 	}
- 
-+	ret = amdgpu_runtime_idle_check_display(dev);
-+	if (ret)
-+		return ret;
-+
- 	/* wait for all rings to drain before suspending */
- 	for (i = 0; i < AMDGPU_MAX_RINGS; i++) {
- 		struct amdgpu_ring *ring = adev->rings[i];
-@@ -2469,41 +2538,7 @@ static int amdgpu_pmops_runtime_idle(str
- 		return -EBUSY;
- 	}
- 
--	if (amdgpu_device_has_dc_support(adev)) {
--		struct drm_crtc *crtc;
--
--		drm_for_each_crtc(crtc, drm_dev) {
--			drm_modeset_lock(&crtc->mutex, NULL);
--			if (crtc->state->active)
--				ret = -EBUSY;
--			drm_modeset_unlock(&crtc->mutex);
--			if (ret < 0)
--				break;
--		}
--
--	} else {
--		struct drm_connector *list_connector;
--		struct drm_connector_list_iter iter;
--
--		mutex_lock(&drm_dev->mode_config.mutex);
--		drm_modeset_lock(&drm_dev->mode_config.connection_mutex, NULL);
--
--		drm_connector_list_iter_begin(drm_dev, &iter);
--		drm_for_each_connector_iter(list_connector, &iter) {
--			if (list_connector->dpms ==  DRM_MODE_DPMS_ON) {
--				ret = -EBUSY;
--				break;
--			}
--		}
--
--		drm_connector_list_iter_end(&iter);
--
--		drm_modeset_unlock(&drm_dev->mode_config.connection_mutex);
--		mutex_unlock(&drm_dev->mode_config.mutex);
--	}
--
--	if (ret == -EBUSY)
--		DRM_DEBUG_DRIVER("failing to power off - crtc active\n");
-+	ret = amdgpu_runtime_idle_check_display(dev);
- 
- 	pm_runtime_mark_last_busy(dev);
- 	pm_runtime_autosuspend(dev);
+ 	struct drm_device *dev = connector->base.dev;
 
 
