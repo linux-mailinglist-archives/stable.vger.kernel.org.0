@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D7851A201
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:15:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7984951A203
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 16:15:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351207AbiEDOSp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 10:18:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34886 "EHLO
+        id S236340AbiEDOTV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 10:19:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351239AbiEDOSn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:18:43 -0400
-X-Greylist: delayed 510 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 04 May 2022 07:15:04 PDT
-Received: from mail.avm.de (mail.avm.de [212.42.244.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1015E43AC2
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 07:15:03 -0700 (PDT)
-Received: from mail-auth.avm.de (dovecot-mx-01.avm.de [212.42.244.71])
+        with ESMTP id S1351242AbiEDOS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 10:18:57 -0400
+Received: from mail.avm.de (mail.avm.de [212.42.244.94])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA185BED
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 07:15:20 -0700 (PDT)
+Received: from mail-auth.avm.de (unknown [IPv6:2001:bf0:244:244::71])
         by mail.avm.de (Postfix) with ESMTPS;
-        Wed,  4 May 2022 16:06:27 +0200 (CEST)
+        Wed,  4 May 2022 16:06:28 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=avm.de; s=mail;
-        t=1651673189; bh=Q0S8L4rEfUze7HnAAuiBOiCheph2AIJhofEcBHjdHDI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JthZbRzqvorGQJWIARBujF025bR6jpxKHobjBPNIPpnRK36gCxlwWCY8LeMFh91IC
-         AQfMK/18RpFbILu6jpmDK3VTjXKRtHKAQF8fL4WrwH02O/Ua6UaqpHPEmmUd4E1HlT
-         x+gs11DJUWxMgrg9ePyLZ/i99k2+8vBka/QSn2eU=
+        t=1651673188; bh=PePx6/sh2VN6cfLu83HvGV4MAV41gXGyw1BfGt71u18=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QXu/3qu31c6djGMvn2rEEfURAdgB4BoaVpLw7QBZ7qU+WwxaUkuNGAEttSkQnoXud
+         UJuj9rpQrVrLx8jNVACn1m4Za/ZnjNdWAgJ6qKuWinOTtMQkZEp+Xo36XqzpHOg553
+         07ZBZaKzc+pWJE7oet7PFLooppNmTsjZinn2vwAk=
 Received: from buildd.core.avm.de (buildd-sv-01.avm.de [172.16.0.225])
-        by mail-auth.avm.de (Postfix) with ESMTPA id EAC1B81D27;
-        Wed,  4 May 2022 16:06:21 +0200 (CEST)
+        by mail-auth.avm.de (Postfix) with ESMTPA id C5126802EA;
+        Wed,  4 May 2022 16:06:25 +0200 (CEST)
 Received: by buildd.core.avm.de (Postfix, from userid 1000)
-        id DDB85188939; Wed,  4 May 2022 16:06:21 +0200 (CEST)
+        id BDF91188939; Wed,  4 May 2022 16:06:25 +0200 (CEST)
 From:   Johannes Nixdorf <j.nixdorf@avm.de>
 To:     stable@vger.kernel.org
 Cc:     Johannes Nixdorf <j.nixdorf@avm.de>,
         =?UTF-8?q?Christoph=20B=C3=BCttner?= <c.buettner@avm.de>,
         Nicolas Schier <n.schier@avm.de>,
         "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 4.14] net: ipv6: ensure we call ipv6_mc_down() at most once
-Date:   Wed,  4 May 2022 16:06:09 +0200
-Message-Id: <20220504140610.880318-1-j.nixdorf@avm.de>
+Subject: [PATCH 4.19 5.4] net: ipv6: ensure we call ipv6_mc_down() at most once
+Date:   Wed,  4 May 2022 16:06:10 +0200
+Message-Id: <20220504140610.880318-2-j.nixdorf@avm.de>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220504140610.880318-1-j.nixdorf@avm.de>
+References: <20220504140610.880318-1-j.nixdorf@avm.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-purgate-ID: 149429::1651673187-000003AF-2BC0B4E5/0/0
+X-purgate-ID: 149429::1651673188-0000038B-9972B794/0/0
 X-purgate-type: clean
-X-purgate-size: 3388
+X-purgate-size: 3409
 X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
 X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
 X-purgate: clean
@@ -107,25 +108,25 @@ The other direction (not ready -> ready) already works correctly, as:
 Fixes: 3ce62a84d53c ("ipv6: exit early in addrconf_notify() if IPv6 is disabled")
 Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[jnixdorf: context updated for bpo to v4.9/v4.14]
+[jnixdorf: context updated for bpo to v4.19/v5.4]
 Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
 ---
  net/ipv6/addrconf.c | 8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
 
 diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 6119ab33a56e..30ca73c78125 100644
+index 9d8b791f63ef..295adfabf870 100644
 --- a/net/ipv6/addrconf.c
 +++ b/net/ipv6/addrconf.c
-@@ -3539,6 +3539,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
- 	struct list_head del_list;
- 	int _keep_addr;
- 	bool keep_addr;
+@@ -3660,6 +3660,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+ 	struct inet6_dev *idev;
+ 	struct inet6_ifaddr *ifa, *tmp;
+ 	bool keep_addr = false;
 +	bool was_ready;
  	int state, i;
  
  	ASSERT_RTNL();
-@@ -3602,7 +3603,10 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+@@ -3725,7 +3726,10 @@ static int addrconf_ifdown(struct net_device *dev, int how)
  
  	addrconf_del_rs_timer(idev);
  
@@ -137,7 +138,7 @@ index 6119ab33a56e..30ca73c78125 100644
  	if (!how)
  		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
  
-@@ -3689,7 +3693,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+@@ -3799,7 +3803,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
  	if (how) {
  		ipv6_ac_destroy_dev(idev);
  		ipv6_mc_destroy_dev(idev);
