@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 517A251AA46
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 710ED51AA37
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356525AbiEDRWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
+        id S1356968AbiEDRWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356737AbiEDROF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1641553B77
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:14 -0700 (PDT)
+        with ESMTP id S1357315AbiEDRO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06F25546BF
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 09:58:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D126179D
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0632C385B3;
-        Wed,  4 May 2022 16:58:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9995B827AB
+        for <stable@vger.kernel.org>; Wed,  4 May 2022 16:58:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6255FC385A4;
+        Wed,  4 May 2022 16:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651683494;
-        bh=Pqm5eITw/y3Bb8/eENOq5EtcKZAsIAOIpyQTM5omGpo=;
+        s=k20201202; t=1651683495;
+        bh=vEFTJ4KiSUnrW3Wao7CHJ7hn1a2w3DGOihGNYeCKfb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgVDy60rB9W/4ksGCQsehAv8FillnpS455CSPrEf9YmROPbE7BjSGa+8fmbYpzNvt
-         rIBdtK/88VFq++n9ZUQ00dkBwXoYeo/hBhqhcMscNvV5/2aaEpjlqFrXaIWzwlIJfz
-         8MlULbPqH0AORbJhZzJ26x2ThGbtqCUPe2svwBdGfKRe5YG/gjGv3kqU1Qnpni8BtB
-         BRZP8GRlXOf0HpJnLpgLsBnJGQMC/FmDRpbD01nkuMk7ofe+51NxXCZYCKp/zK2tJZ
-         Gkp14zPuJrAjjewe12q1FH1f+KtaEa3J+7L+EwQqx+0UKD7Jl7ES41ljE1N01ctOWk
-         007oI7nHW3O+A==
+        b=U3mGJJdrJO6rBM3v0BTZfnGLj78R6WHVxZ1vfFwRwyAkHGOf0w3/7qhOSFAIUJVzi
+         10SwQOCSe8+nmo4vFWuF+tbwTYkDiFClgo2vbcq8gAL+j5AOB16iyHBGJLegp+Pl3c
+         CEVHakH618B9YyiDMm9TIe3KKnPGOSqlRVs1X+A51LUPp5KacqOlX2Qq5fKu94Sb2V
+         jEyOSFcS8MJEOosPOzjtr0wK+feS94TMcxpZG9sK+TX2h7MZq5ZaE8nXidwnq0XGdZ
+         yYUFDv+Ja+aPrO5EzsrF4mEkCoNoIx7hE0fTWf8diknN75BsHLQvzutmhxJyLFNBtT
+         GI+9LzYsmCAGg==
 From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
 Cc:     stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-Subject: [PATCH 5.15 09/30] PCI: aardvark: Assert PERST# when unbinding driver
-Date:   Wed,  4 May 2022 18:57:34 +0200
-Message-Id: <20220504165755.30002-10-kabel@kernel.org>
+Subject: [PATCH 5.15 10/30] PCI: aardvark: Disable link training when unbinding driver
+Date:   Wed,  4 May 2022 18:57:35 +0200
+Message-Id: <20220504165755.30002-11-kabel@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220504165755.30002-1-kabel@kernel.org>
 References: <20220504165755.30002-1-kabel@kernel.org>
@@ -57,32 +57,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 1f54391be8ce0c981d312cb93acdc5608def576a upstream.
+commit 759dec2e3dfdbd261c41d2279f04f2351c971a49 upstream.
 
-Put the PCIe card into reset by asserting PERST# signal when unbinding
-driver. It doesn't make sense to leave the card working if it can't
-communicate with the host. This should also save some power.
+Disable link training circuit in driver unbind sequence. We want to
+leave link training in the same state as it was before the driver was
+probed.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-10-kabel@kernel.org
+Link: https://lore.kernel.org/r/20211130172913.9727-11-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/controller/pci-aardvark.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 02eefc13ac60..78bc57d57926 100644
+index 78bc57d57926..3f6919564434 100644
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1721,6 +1721,10 @@ static int advk_pcie_remove(struct platform_device *pdev)
- 	/* Free config space for emulated root bridge */
- 	pci_bridge_emul_cleanup(&pcie->bridge);
+@@ -1725,6 +1725,11 @@ static int advk_pcie_remove(struct platform_device *pdev)
+ 	if (pcie->reset_gpio)
+ 		gpiod_set_value_cansleep(pcie->reset_gpio, 1);
  
-+	/* Assert PERST# signal which prepares PCIe card for power down */
-+	if (pcie->reset_gpio)
-+		gpiod_set_value_cansleep(pcie->reset_gpio, 1);
++	/* Disable link training */
++	val = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
++	val &= ~LINK_TRAINING_EN;
++	advk_writel(pcie, val, PCIE_CORE_CTRL0_REG);
 +
  	/* Disable outbound address windows mapping */
  	for (i = 0; i < OB_WIN_COUNT; i++)
