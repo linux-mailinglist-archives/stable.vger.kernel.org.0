@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6E3F51A81A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECE351A6AB
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355562AbiEDRIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51402 "EHLO
+        id S1354340AbiEDQ5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:57:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354690AbiEDRDA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:03:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B22324D623;
-        Wed,  4 May 2022 09:52:32 -0700 (PDT)
+        with ESMTP id S1354368AbiEDQ5A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786DC49F2F;
+        Wed,  4 May 2022 09:49:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4874FB82792;
-        Wed,  4 May 2022 16:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D125FC385AA;
-        Wed,  4 May 2022 16:52:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9E83B827A2;
+        Wed,  4 May 2022 16:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4818CC385AF;
+        Wed,  4 May 2022 16:49:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683151;
-        bh=n9Q/W/occ0bb07vn7HK5qwDHGDLUQo+K6rMhV1GBuo8=;
+        s=korg; t=1651682993;
+        bh=+5sO8A4SCcVNYHESQuZJ1neYMuO5NHBNZuzxle12Owg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r5uV13vbn90VL3Rg9fXzKGvcnWouFCpl9xJJA0RqY5rDRIhcIZPamxijnYqyzfCF0
-         nyd0TNBpk8KMvbF27lGRpjxYIMrTkPET3N2VRGjvETy2js4Sq+LHOFrUw1uz2z6c/X
-         vbB4peUcHIJ/Jv8SResx67KJVGh4KurxgNJUT+8c=
+        b=w2Dv46GYthw7zt++gIo+jYqh98JNrfDb4ukycJiZrJKU9+9I/I/WQUGl9kmsGDAsM
+         SGxZwsBm0UThn27kVDfbmM7az/ZqNREwHJUlGGN8b7ApPkxnKuNfXh8vs1vRXnlWgj
+         KWTYfu+j94bg0s3OXobivhlPKkVrO3G2W8x9F23g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Qilong <zhangqilong3@huawei.com>
-Subject: [PATCH 5.15 008/177] usb: xhci: tegra:Fix PM usage reference leak of tegra_xusb_unpowergate_partitions
-Date:   Wed,  4 May 2022 18:43:21 +0200
-Message-Id: <20220504153054.379355158@linuxfoundation.org>
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.10 010/129] xhci: Enable runtime PM on second Alderlake controller
+Date:   Wed,  4 May 2022 18:43:22 +0200
+Message-Id: <20220504153022.161471590@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhangqilong <zhangqilong3@huawei.com>
+From: Evan Green <evgreen@chromium.org>
 
-commit 8771039482d965bdc8cefd972bcabac2b76944a8 upstream.
+commit d8bfe5091d6cc4b8b8395e4666979ae72a6069ca upstream.
 
-pm_runtime_get_sync will increment pm usage counter
-even it failed. Forgetting to putting operation will
-result in reference leak here. We fix it by replacing
-it with pm_runtime_resume_and_get to keep usage counter
-balanced.
+Alderlake has two XHCI controllers with PCI IDs 0x461e and 0x51ed. We
+had previously added the quirk to default enable runtime PM for 0x461e,
+now add it for 0x51ed as well.
 
-Fixes: 41a7426d25fa ("usb: xhci: tegra: Unlink power domain devices")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Zhang Qilong <zhangqilong3@huawei.com>
-Link: https://lore.kernel.org/r/20220319023822.145641-1-zhangqilong3@huawei.com
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220408114225.1.Ibcff6b86ed4eacfe4c4bc89c90e18416f3900a3e@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -1034,13 +1034,13 @@ static int tegra_xusb_unpowergate_partit
- 	int rc;
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
+ #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
  
- 	if (tegra->use_genpd) {
--		rc = pm_runtime_get_sync(tegra->genpd_dev_ss);
-+		rc = pm_runtime_resume_and_get(tegra->genpd_dev_ss);
- 		if (rc < 0) {
- 			dev_err(dev, "failed to enable XUSB SS partition\n");
- 			return rc;
- 		}
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+@@ -261,7 +262,8 @@ static void xhci_pci_quirks(struct devic
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI))
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
  
--		rc = pm_runtime_get_sync(tegra->genpd_dev_host);
-+		rc = pm_runtime_resume_and_get(tegra->genpd_dev_host);
- 		if (rc < 0) {
- 			dev_err(dev, "failed to enable XUSB Host partition\n");
- 			pm_runtime_put_sync(tegra->genpd_dev_ss);
+ 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
 
 
