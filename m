@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7535351A638
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CC0551A877
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351640AbiEDQye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:54:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
+        id S1355691AbiEDRLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354095AbiEDQxu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C684831F;
-        Wed,  4 May 2022 09:49:05 -0700 (PDT)
+        with ESMTP id S1356849AbiEDRJq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DFC240A33;
+        Wed,  4 May 2022 09:55:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F02BDB827A4;
-        Wed,  4 May 2022 16:49:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99854C385A4;
-        Wed,  4 May 2022 16:49:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE080616B8;
+        Wed,  4 May 2022 16:55:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36067C385A5;
+        Wed,  4 May 2022 16:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682942;
-        bh=TO2u6DsjX01I++Gbol2MZZVS021YyWQL8xLibqDKbNo=;
+        s=korg; t=1651683358;
+        bh=dF0EmH5rX/p6/vVhDhSdVqRIOShLnMTADUfEzcQ2mgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANxex2Q/Gtyqo505i/lfc+i38FK7ErWqKScdNrseYB7rer0SpQkw2zCP10wnT6pih
-         TCcWf7LS//J2iEEPm+IdsdbiAWh++EA2bG6ZEI4t3eUppotAvecGjHCczyqAQV1pD9
-         dxzgNO8UgrqF9P75202utcuenCu7inWfQNm7j2SE=
+        b=Or9WvxCBYZiCJIKgnPUDfxnozzP6msy42wpDgTyZRr2K8yeT0/20w0bDFP6MvwMs/
+         TWRHH2B1AJGhqvw2n0oLN8UACemwG/LAYi8nPUMR5FGOsqPNySTGe1NTw/ds60RnW6
+         fkVphcd5050uf/FZd1GX6d1SDQhnGbo0yrAXcjyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 47/84] bpf, lwt: Fix crash when using bpf_skb_set_tunnel_key() from bpf_xmit lwt hook
-Date:   Wed,  4 May 2022 18:44:28 +0200
-Message-Id: <20220504152931.132160677@linuxfoundation.org>
+        stable@vger.kernel.org, Jirka Hladky <jhladky@redhat.com>,
+        Tejun Heo <tj@kernel.org>, Minchan Kim <minchan@kernel.org>
+Subject: [PATCH 5.17 031/225] kernfs: fix NULL dereferencing in kernfs_remove
+Date:   Wed,  4 May 2022 18:44:29 +0200
+Message-Id: <20220504153113.041944007@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +53,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Minchan Kim <minchan@kernel.org>
 
-[ Upstream commit b02d196c44ead1a5949729be9ff08fe781c3e48a ]
+commit ad8d869343ae4a07a2038a4ca923f699308c8323 upstream.
 
-xmit_check_hhlen() observes the dst for getting the device hard header
-length to make sure a modified packet can fit. When a helper which changes
-the dst - such as bpf_skb_set_tunnel_key() - is called as part of the
-xmit program the accessed dst is no longer valid.
+kernfs_remove supported NULL kernfs_node param to bail out but revent
+per-fs lock change introduced regression that dereferencing the
+param without NULL check so kernel goes crash.
 
-This leads to the following splat:
+This patch checks the NULL kernfs_node in kernfs_remove and if so,
+just return.
 
- BUG: kernel NULL pointer dereference, address: 00000000000000de
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP PTI
- CPU: 0 PID: 798 Comm: ping Not tainted 5.18.0-rc2+ #103
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- RIP: 0010:bpf_xmit+0xfb/0x17f
- Code: c6 c0 4d cd 8e 48 c7 c7 7d 33 f0 8e e8 42 09 fb ff 48 8b 45 58 48 8b 95 c8 00 00 00 48 2b 95 c0 00 00 00 48 83 e0 fe 48 8b 00 <0f> b7 80 de 00 00 00 39 c2 73 22 29 d0 b9 20 0a 00 00 31 d2 48 89
- RSP: 0018:ffffb148c0bc7b98 EFLAGS: 00010282
- RAX: 0000000000000000 RBX: 0000000000240008 RCX: 0000000000000000
- RDX: 0000000000000010 RSI: 00000000ffffffea RDI: 00000000ffffffff
- RBP: ffff922a828a4e00 R08: ffffffff8f1350e8 R09: 00000000ffffdfff
- R10: ffffffff8f055100 R11: ffffffff8f105100 R12: 0000000000000000
- R13: ffff922a828a4e00 R14: 0000000000000040 R15: 0000000000000000
- FS:  00007f414e8f0080(0000) GS:ffff922afdc00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00000000000000de CR3: 0000000002d80006 CR4: 0000000000370ef0
- Call Trace:
-  <TASK>
-  lwtunnel_xmit.cold+0x71/0xc8
-  ip_finish_output2+0x279/0x520
-  ? __ip_finish_output.part.0+0x21/0x130
+Quote from bug report by Jirka
 
-Fix by fetching the device hard header length before running the BPF code.
+```
+The bug is triggered by running NAS Parallel benchmark suite on
+SuperMicro servers with 2x Xeon(R) Gold 6126 CPU. Here is the error
+log:
 
-Fixes: 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220420165219.1755407-1-eyal.birger@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[  247.035564] BUG: kernel NULL pointer dereference, address: 0000000000000008
+[  247.036009] #PF: supervisor read access in kernel mode
+[  247.036009] #PF: error_code(0x0000) - not-present page
+[  247.036009] PGD 0 P4D 0
+[  247.036009] Oops: 0000 [#1] PREEMPT SMP PTI
+[  247.058060] CPU: 1 PID: 6546 Comm: umount Not tainted
+5.16.0393c3714081a53795bbff0e985d24146def6f57f+ #16
+[  247.058060] Hardware name: Supermicro Super Server/X11DDW-L, BIOS
+2.0b 03/07/2018
+[  247.058060] RIP: 0010:kernfs_remove+0x8/0x50
+[  247.058060] Code: 4c 89 e0 5b 5d 41 5c 41 5d 41 5e c3 49 c7 c4 f4
+ff ff ff eb b2 66 66 2e 0f 1f 84 00 00 00 00 00 66 90 0f 1f 44 00 00
+41 54 55 <48> 8b 47 08 48 89 fd 48 85 c0 48 0f 44 c7 4c 8b 60 50 49 83
+c4 60
+[  247.058060] RSP: 0018:ffffbbfa48a27e48 EFLAGS: 00010246
+[  247.058060] RAX: 0000000000000001 RBX: ffffffff89e31f98 RCX: 0000000080200018
+[  247.058060] RDX: 0000000080200019 RSI: fffff6760786c900 RDI: 0000000000000000
+[  247.058060] RBP: ffffffff89e31f98 R08: ffff926b61b24d00 R09: 0000000080200018
+[  247.122048] R10: ffff926b61b24d00 R11: ffff926a8040c000 R12: ffff927bd09a2000
+[  247.122048] R13: ffffffff89e31fa0 R14: dead000000000122 R15: dead000000000100
+[  247.122048] FS:  00007f01be0a8c40(0000) GS:ffff926fa8e40000(0000)
+knlGS:0000000000000000
+[  247.122048] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  247.122048] CR2: 0000000000000008 CR3: 00000001145c6003 CR4: 00000000007706e0
+[  247.122048] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  247.122048] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  247.122048] PKRU: 55555554
+[  247.122048] Call Trace:
+[  247.122048]  <TASK>
+[  247.122048]  rdt_kill_sb+0x29d/0x350
+[  247.122048]  deactivate_locked_super+0x36/0xa0
+[  247.122048]  cleanup_mnt+0x131/0x190
+[  247.122048]  task_work_run+0x5c/0x90
+[  247.122048]  exit_to_user_mode_prepare+0x229/0x230
+[  247.122048]  syscall_exit_to_user_mode+0x18/0x40
+[  247.122048]  do_syscall_64+0x48/0x90
+[  247.122048]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  247.122048] RIP: 0033:0x7f01be2d735b
+```
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215696
+Link: https://lore.kernel.org/lkml/CAE4VaGDZr_4wzRn2___eDYRtmdPaGGJdzu_LCSkJYuY9BEO3cw@mail.gmail.com/
+Fixes: 393c3714081a (kernfs: switch global kernfs_rwsem lock to per-fs lock)
+Cc: stable@vger.kernel.org
+Reported-by: Jirka Hladky <jhladky@redhat.com>
+Tested-by: Jirka Hladky <jhladky@redhat.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Link: https://lore.kernel.org/r/20220427172152.3505364-1-minchan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/lwt_bpf.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ fs/kernfs/dir.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index a5502c5aa44e..bf270b6a99b4 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -158,10 +158,8 @@ static int bpf_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- 	return dst->lwtstate->orig_output(net, sk, skb);
- }
- 
--static int xmit_check_hhlen(struct sk_buff *skb)
-+static int xmit_check_hhlen(struct sk_buff *skb, int hh_len)
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -1397,7 +1397,12 @@ static void __kernfs_remove(struct kernf
+  */
+ void kernfs_remove(struct kernfs_node *kn)
  {
--	int hh_len = skb_dst(skb)->dev->hard_header_len;
--
- 	if (skb_headroom(skb) < hh_len) {
- 		int nhead = HH_DATA_ALIGN(hh_len - skb_headroom(skb));
+-	struct kernfs_root *root = kernfs_root(kn);
++	struct kernfs_root *root;
++
++	if (!kn)
++		return;
++
++	root = kernfs_root(kn);
  
-@@ -273,6 +271,7 @@ static int bpf_xmit(struct sk_buff *skb)
- 
- 	bpf = bpf_lwt_lwtunnel(dst->lwtstate);
- 	if (bpf->xmit.prog) {
-+		int hh_len = dst->dev->hard_header_len;
- 		__be16 proto = skb->protocol;
- 		int ret;
- 
-@@ -290,7 +289,7 @@ static int bpf_xmit(struct sk_buff *skb)
- 			/* If the header was expanded, headroom might be too
- 			 * small for L2 header to come, expand as needed.
- 			 */
--			ret = xmit_check_hhlen(skb);
-+			ret = xmit_check_hhlen(skb, hh_len);
- 			if (unlikely(ret))
- 				return ret;
- 
--- 
-2.35.1
-
+ 	down_write(&root->kernfs_rwsem);
+ 	__kernfs_remove(kn);
 
 
