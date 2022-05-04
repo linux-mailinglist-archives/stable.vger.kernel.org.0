@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5DA51A8B1
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2159F51A760
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355443AbiEDRLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39258 "EHLO
+        id S1354945AbiEDRDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356956AbiEDRJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:51 -0400
+        with ESMTP id S1354451AbiEDRA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73D71473AB;
-        Wed,  4 May 2022 09:56:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BDD24C79B;
+        Wed,  4 May 2022 09:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 124B661794;
-        Wed,  4 May 2022 16:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61D1DC385A5;
-        Wed,  4 May 2022 16:56:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FFAD617BE;
+        Wed,  4 May 2022 16:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A229AC385A5;
+        Wed,  4 May 2022 16:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683400;
-        bh=BSn/8yTGvLIHbBu3mlc38X9iJe+OQtQDI5OHBi2CgMY=;
+        s=korg; t=1651683134;
+        bh=BME9CcRKN5HaiyAH0M+P+DN+4uP3raAhX29wVJvqTdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4z7FgCIlgIVs58+USnjRkiaEdj8DFidE5uCsa6Mai4GnLLdyIGoFlfEDUj6s5oc4
-         kBOXVfK2tWkWClB+CoiEYjKszjd+VW2aRo8rn254bKu/LkYo7/EGiCnlvJQI3dHSLE
-         C3L/kP5SiVvBIs1kLHxRAy8ON2qPeRSqNp7h2Phk=
+        b=dVPJQYA5j2O7vf1VRj304hYiWfGpLcuJYXUyQ+jrMO/QAAfWSfDk9d4fWgMdjYdBo
+         2fYFhX4RoyOpY91imPz1m9gts3tUHJVQPYJaOy64KCfnKjjVIydHHbAOhmD9dAgbHq
+         zZBS7WyyBVHoyz00vXejPjjgle3L93XGmw3uJYlg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Tim Harvey <tharvey@gateworks.com>,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 071/225] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 117/129] tty: n_gsm: fix mux cleanup after unregister tty device
 Date:   Wed,  4 May 2022 18:45:09 +0200
-Message-Id: <20220504153117.838767637@linuxfoundation.org>
+Message-Id: <20220504153030.637535756@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +52,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
+commit 284260f278b706364fb4c88a7b56ba5298d5973c upstream.
 
-On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
-on the SoM is often not detected and the following error message is
-seen when the sgtl5000 driver tries to read the ID register:
+Internally, we manage the alive state of the mux channels and mux itself
+with the field member 'dead'. This makes it possible to notify the user
+if the accessed underlying link is already gone. On the other hand,
+however, removing the virtual ttys before terminating the channels may
+result in peer messages being received without any internal target. Move
+the mux cleanup procedure from gsmld_detach_gsm() to gsmld_close() to fix
+this by keeping the virtual ttys open until the mux has been cleaned up.
 
-sgtl5000 1-000a: Error reading chip id -6
-
-The reason for the error is that the MCLK clock is not provided
-early enough.
-
-Fix the problem by describing the MCLK pinctrl inside the codec
-node instead of placing it inside the audmux pinctrl group.
-
-With this change applied the sgtl5000 is always detected on every boot.
-
-Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Tim Harvey <tharvey@gateworks.com>
-Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-4-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-index ed2739e39085..bd763bae596b 100644
---- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-@@ -286,6 +286,8 @@ vgen6_reg: vgen6 {
- 	codec: sgtl5000@a {
- 		compatible = "fsl,sgtl5000";
- 		reg = <0x0a>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_sgtl5000>;
- 		clocks = <&clks IMX6QDL_CLK_CKO>;
- 		VDDA-supply = <&reg_module_3v3_audio>;
- 		VDDIO-supply = <&reg_module_3v3>;
-@@ -517,8 +519,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
- 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
- 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
- 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
--			/* SGTL5000 sys_mclk */
--			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
- 		>;
- 	};
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2410,7 +2410,6 @@ static void gsmld_detach_gsm(struct tty_
+ 	WARN_ON(tty != gsm->tty);
+ 	for (i = 1; i < NUM_DLCI; i++)
+ 		tty_unregister_device(gsm_tty_driver, base + i);
+-	gsm_cleanup_mux(gsm, false);
+ 	tty_kref_put(gsm->tty);
+ 	gsm->tty = NULL;
+ }
+@@ -2478,6 +2477,12 @@ static void gsmld_close(struct tty_struc
+ {
+ 	struct gsm_mux *gsm = tty->disc_data;
  
-@@ -811,6 +811,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
- 		>;
- 	};
- 
-+	pinctrl_sgtl5000: sgtl5000grp {
-+		fsl,pins = <
-+			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
-+		>;
-+	};
++	/* The ldisc locks and closes the port before calling our close. This
++	 * means we have no way to do a proper disconnect. We will not bother
++	 * to do one.
++	 */
++	gsm_cleanup_mux(gsm, false);
 +
- 	pinctrl_spdif: spdifgrp {
- 		fsl,pins = <
- 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
--- 
-2.35.1
-
+ 	gsmld_detach_gsm(tty, gsm);
+ 
+ 	gsmld_flush_buffer(tty);
 
 
