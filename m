@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0674051A86B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 012AC51A618
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355858AbiEDRK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
+        id S1353781AbiEDQws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356728AbiEDRJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:39 -0400
+        with ESMTP id S1353727AbiEDQwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD841101C6;
-        Wed,  4 May 2022 09:55:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC5A47396;
+        Wed,  4 May 2022 09:48:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B33DB8279A;
-        Wed,  4 May 2022 16:55:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD2CC385A5;
-        Wed,  4 May 2022 16:55:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57EDAB827A2;
+        Wed,  4 May 2022 16:48:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A21CC385AA;
+        Wed,  4 May 2022 16:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683326;
-        bh=W0ma7N9tFRN5uOzAAOel1RrPOTCwMohQRrM+WFEL8KE=;
+        s=korg; t=1651682916;
+        bh=tLp+D/BbNexldvUuieYi1TcPMFkymTkwICmqsf+w1y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4F3wzyuUo6TEkHyKXww0w9OQdCxnXmDnnd5H1oZ7jv9RiEq3EyGyWBrQlNPhDLM4
-         YFRfMnhebgNBZ2XaTs6T72iDnFFN1/wAyH1Dtztax/beUlciJ4xjbJ+XVXLFkG8zqG
-         fS6oOBW5V9gk1ZvmADpRSyX04NzTPO7cIpuxocVg=
+        b=u/I5LrivcYj4SncnUDSqzkmD/5hKrBo/d5DWjDoOtrYSmkHoi13NQaNSnRjyEYEt/
+         kOalMFZTm4s2WnxQimUcM5o42bVQT2+Kpqn63JXiU0cHfZ2DhTFrRI4iKdYC5pMTO6
+         kbfdt7wP/GiIgvRZGiFZdpSqwSPkhLNxMgUOSD0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.17 005/225] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.4 22/84] usb: dwc3: gadget: Return proper request status
 Date:   Wed,  4 May 2022 18:44:03 +0200
-Message-Id: <20220504153110.722997606@linuxfoundation.org>
+Message-Id: <20220504152929.323078879@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,72 +52,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-commit e23e50e7acc8d8f16498e9c129db33e6a00e80eb upstream.
+commit c7428dbddcf4ea1919e1c8e15f715b94ca359268 upstream.
 
-The sizeof(struct whitehat_dr_info) can be 4 bytes under CONFIG_AEABI=n
-due to "-mabi=apcs-gnu", even though it has a single u8:
+If the user sets the usb_request's no_interrupt, then there will be no
+completion event for the request. Currently the driver incorrectly uses
+the event status of a different request to report the status for a
+request with no_interrupt. The dwc3 driver needs to check the TRB status
+associated with the request when reporting its status.
 
-whiteheat_private {
-        __u8                       mcr;                  /*     0     1 */
+Note: this is only applicable to missed_isoc TRB completion status, but
+the other status are also listed for completeness/documentation.
 
-        /* size: 4, cachelines: 1, members: 1 */
-        /* padding: 3 */
-        /* last cacheline: 4 bytes */
-};
-
-The result is technically harmless, as both the source and the
-destinations are currently the same allocation size (4 bytes) and don't
-use their padding, but if anything were to ever be added after the
-"mcr" member in "struct whiteheat_private", it would be overwritten. The
-structs both have a single u8 "mcr" member, but are 4 bytes in padded
-size. The memcpy() destination was explicitly targeting the u8 member
-(size 1) with the length of the whole structure (size 4), triggering
-the memcpy buffer overflow warning:
-
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/spinlock.h:62,
-                 from include/linux/mmzone.h:8,
-                 from include/linux/gfp.h:6,
-                 from include/linux/slab.h:15,
-                 from drivers/usb/serial/whiteheat.c:17:
-In function 'fortify_memcpy_chk',
-    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
-include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
-  328 |                         __write_overflow_field(p_size_field, size);
-      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Instead, just assign the one byte directly.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220421001234.2421107-1-keescook@chromium.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 6d8a019614f3 ("usb: dwc3: gadget: check for Missed Isoc from event status")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/db2c80108286cfd108adb05bad52138b78d7c3a7.1650673655.git.Thinh.Nguyen@synopsys.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/whiteheat.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c |   31 ++++++++++++++++++++++++++++++-
+ 1 file changed, 30 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -584,9 +584,8 @@ static int firm_send_command(struct usb_
- 		switch (command) {
- 		case WHITEHEAT_GET_DTR_RTS:
- 			info = usb_get_serial_port_data(port);
--			memcpy(&info->mcr, command_info->result_buffer,
--					sizeof(struct whiteheat_dr_info));
--				break;
-+			info->mcr = command_info->result_buffer[0];
-+			break;
- 		}
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2728,6 +2728,7 @@ static int dwc3_gadget_ep_cleanup_comple
+ 		const struct dwc3_event_depevt *event,
+ 		struct dwc3_request *req, int status)
+ {
++	int request_status;
+ 	int ret;
+ 
+ 	if (req->request.num_mapped_sgs)
+@@ -2757,7 +2758,35 @@ static int dwc3_gadget_ep_cleanup_comple
+ 		req->needs_extra_trb = false;
  	}
- exit:
+ 
+-	dwc3_gadget_giveback(dep, req, status);
++	/*
++	 * The event status only reflects the status of the TRB with IOC set.
++	 * For the requests that don't set interrupt on completion, the driver
++	 * needs to check and return the status of the completed TRBs associated
++	 * with the request. Use the status of the last TRB of the request.
++	 */
++	if (req->request.no_interrupt) {
++		struct dwc3_trb *trb;
++
++		trb = dwc3_ep_prev_trb(dep, dep->trb_dequeue);
++		switch (DWC3_TRB_SIZE_TRBSTS(trb->size)) {
++		case DWC3_TRBSTS_MISSED_ISOC:
++			/* Isoc endpoint only */
++			request_status = -EXDEV;
++			break;
++		case DWC3_TRB_STS_XFER_IN_PROG:
++			/* Applicable when End Transfer with ForceRM=0 */
++		case DWC3_TRBSTS_SETUP_PENDING:
++			/* Control endpoint only */
++		case DWC3_TRBSTS_OK:
++		default:
++			request_status = 0;
++			break;
++		}
++	} else {
++		request_status = status;
++	}
++
++	dwc3_gadget_giveback(dep, req, request_status);
+ 
+ out:
+ 	return ret;
 
 
