@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A64851A9DF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 835F151A86A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357747AbiEDRT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39300 "EHLO
+        id S1356028AbiEDRKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356319AbiEDRL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8119A4B1FC;
-        Wed,  4 May 2022 09:57:47 -0700 (PDT)
+        with ESMTP id S1356664AbiEDRJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC34AE02E;
+        Wed,  4 May 2022 09:55:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A453B8279A;
-        Wed,  4 May 2022 16:57:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AC7C385A4;
-        Wed,  4 May 2022 16:57:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A59A8617DE;
+        Wed,  4 May 2022 16:55:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 023CFC385A4;
+        Wed,  4 May 2022 16:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683465;
-        bh=vzEX6Tq9n68EdutGIw5T+UJNk47l/3TGbuch2cwKSbs=;
+        s=korg; t=1651683321;
+        bh=qyER8K2QxBFIr0Kc3Q6zgBJENfDJNyjEhU0emb+6CjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l5mYY+gemsorkHfQI0IbgWOqJpq+bvTfyhY5Dyaf0eUWclUlDUP5REWWIaVpGlz1+
-         tW1XkK2wAdKvoPCT3HTuk2Xx0BSxjKvfuw1Zq4kXUMV1mQLbJrEhX71Sm1ASC5LdW7
-         xlYA64NNCLO71EWalheyIkc4a6dtvwEYXRkfsQXc=
+        b=jVZHXcvdpg2n3ZwSCIVWNhODwboPdPBjgFVRPsDKfzQOy2O2BJPWiEaK6Ervo1Hbd
+         Ww8FR+S+Oz9h4tmdC9btAI9iQDOvQpBe0Qk6O8Oc3j+rtw9mvqITpjDaB7D/qU5HrY
+         0NYthd7yEoL5O0a822m0TwpYEgVX5LrW6QfevKtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 127/225] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.15 172/177] tty: n_gsm: fix software flow control handling
 Date:   Wed,  4 May 2022 18:46:05 +0200
-Message-Id: <20220504153121.720337444@linuxfoundation.org>
+Message-Id: <20220504153109.013429794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +52,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
+commit f4f7d63287217ba25e5c80f5faae5e4f7118790e upstream.
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.8.1 states that XON/XOFF characters
+shall be used instead of Fcon/Fcoff command in advanced option mode to
+handle flow control. Chapter 5.4.8.2 describes how XON/XOFF characters
+shall be handled. Basic option mode only used Fcon/Fcoff commands and no
+XON/XOFF characters. These are treated as data bytes here.
+The current implementation uses the gsm_mux field 'constipated' to handle
+flow control from the remote peer and the gsm_dlci field 'constipated' to
+handle flow control from each DLCI. The later is unrelated to this patch.
+The gsm_mux field is correctly set for Fcon/Fcoff commands in
+gsm_control_message(). However, the same is not true for XON/XOFF
+characters in gsm1_receive().
+Disable software flow control handling in the tty to allow explicit
+handling by n_gsm.
+Add the missing handling in advanced option mode for gsm_mux in
+gsm1_receive() to comply with the standard.
 
-Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch depends on the following commit:
+Commit 8838b2af23ca ("tty: n_gsm: fix SW flow control encoding/handling")
+
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220422071025.5490-3-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/n_gsm.c |   16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
-index 542b31d6e96d..636bcf2439ef 100644
---- a/drivers/clk/sunxi/clk-sun9i-mmc.c
-+++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
-@@ -109,6 +109,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
- 	spin_lock_init(&data->lock);
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -233,6 +233,7 @@ struct gsm_mux {
+ 	int initiator;			/* Did we initiate connection */
+ 	bool dead;			/* Has the mux been shut down */
+ 	struct gsm_dlci *dlci[NUM_DLCI];
++	int old_c_iflag;		/* termios c_iflag value before attach */
+ 	bool constipated;		/* Asked by remote to shut up */
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -EINVAL;
- 	/* one clock/reset pair per word */
- 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
- 	data->membase = devm_ioremap_resource(&pdev->dev, r);
--- 
-2.35.1
-
+ 	spinlock_t tx_lock;
+@@ -1959,6 +1960,16 @@ static void gsm0_receive(struct gsm_mux
+ 
+ static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
+ {
++	/* handle XON/XOFF */
++	if ((c & ISO_IEC_646_MASK) == XON) {
++		gsm->constipated = true;
++		return;
++	} else if ((c & ISO_IEC_646_MASK) == XOFF) {
++		gsm->constipated = false;
++		/* Kick the link in case it is idling */
++		gsm_data_kick(gsm, NULL);
++		return;
++	}
+ 	if (c == GSM1_SOF) {
+ 		/* EOF is only valid in frame if we have got to the data state
+ 		   and received at least one byte (the FCS) */
+@@ -2377,6 +2388,9 @@ static int gsmld_attach_gsm(struct tty_s
+ 	int ret, i;
+ 
+ 	gsm->tty = tty_kref_get(tty);
++	/* Turn off tty XON/XOFF handling to handle it explicitly. */
++	gsm->old_c_iflag = tty->termios.c_iflag;
++	tty->termios.c_iflag &= (IXON | IXOFF);
+ 	ret =  gsm_activate_mux(gsm);
+ 	if (ret != 0)
+ 		tty_kref_put(gsm->tty);
+@@ -2417,6 +2431,8 @@ static void gsmld_detach_gsm(struct tty_
+ 	WARN_ON(tty != gsm->tty);
+ 	for (i = 1; i < NUM_DLCI; i++)
+ 		tty_unregister_device(gsm_tty_driver, base + i);
++	/* Restore tty XON/XOFF handling. */
++	gsm->tty->termios.c_iflag = gsm->old_c_iflag;
+ 	tty_kref_put(gsm->tty);
+ 	gsm->tty = NULL;
+ }
 
 
