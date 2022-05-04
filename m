@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C91EE51A85E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F5751A952
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355780AbiEDRKn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
+        id S1356544AbiEDRNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356268AbiEDRJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9894D532D1;
-        Wed,  4 May 2022 09:55:02 -0700 (PDT)
+        with ESMTP id S1356230AbiEDRL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62CBD4B431;
+        Wed,  4 May 2022 09:57:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C85DF617BD;
-        Wed,  4 May 2022 16:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A18DC385A5;
-        Wed,  4 May 2022 16:55:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BD62618AC;
+        Wed,  4 May 2022 16:57:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0D67C385A4;
+        Wed,  4 May 2022 16:57:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683301;
-        bh=6bZU3NGMInlfBN8tBdB3M1+GwC8lMtxZ9yWkud+oP+c=;
+        s=korg; t=1651683450;
+        bh=IiuLVqn+41hK/TvtV51P7ny7tLaJWsoNCR7nCU1SY98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hkTGBT+R+uolJZMKsdGMfP4ZQZaV0FivSr3H5l91rCWoiHjW4PYUNzOn6xszwjoE+
-         lngMc4Ci8mDt578YlxLIUlNXps2bAQT3R4PiWiQyjCV/mNi17qYX3ByB81svRMKjnX
-         uH8xfTYt3TRJkJ9cBnNiLhFQONJphpxTo6J7o5lY=
+        b=rJG7haIl1c1cit9JvOezP85IoWJ/JlnrR7VwymNVZGr+wl4abq4gsq8veHig68K2V
+         2yPGGtp39tkrAZAuzzSQ+bvdOKryvbpbQi+M0QzL9czgAS+6Z/6ZfpiVN8H35vV+Cw
+         q4VEKp/Y96ACP9QUSCMwJhlnzG3tc8n+s7gAFkQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 158/177] tty: n_gsm: fix decoupled mux resource
+        stable@vger.kernel.org, Xiaobing Luo <luoxiaobing0926@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 113/225] cpufreq: fix memory leak in sun50i_cpufreq_nvmem_probe
 Date:   Wed,  4 May 2022 18:45:51 +0200
-Message-Id: <20220504153107.599944026@linuxfoundation.org>
+Message-Id: <20220504153120.671649468@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,148 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Xiaobing Luo <luoxiaobing0926@gmail.com>
 
-commit 1ec92e9742774bf42614fceea3bf6b50c9409225 upstream.
+[ Upstream commit 1aa24a8f3b5133dae4bc1e57427e345445f3e902 ]
 
-The active mux instances are managed in the gsm_mux array and via mux_get()
-and mux_put() functions separately. This gives a very loose coupling
-between the actual instance and the gsm_mux array which manages it. It also
-results in unnecessary lockings which makes it prone to failures. And it
-creates a race condition if more than the maximum number of mux instances
-are requested while the user changes the parameters of an active instance.
-The user may loose ownership of the current mux instance in this case.
-Fix this by moving the gsm_mux array handling to the mux allocation and
-deallocation functions.
+--------------------------------------------
+unreferenced object 0xffff000010742a00 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294902015 (age 1187.652s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000b4dfebaa>] __kmalloc+0x338/0x474
+    [<00000000d6e716db>] sun50i_cpufreq_nvmem_probe+0xc4/0x36c
+    [<000000007d6082a0>] platform_probe+0x98/0x11c
+    [<00000000c990f549>] really_probe+0x234/0x5a0
+    [<000000002d9fecc6>] __driver_probe_device+0x194/0x224
+    [<00000000cf0b94fa>] driver_probe_device+0x64/0x13c
+    [<00000000f238e4cf>] __device_attach_driver+0xf8/0x180
+    [<000000006720e418>] bus_for_each_drv+0xf8/0x160
+    [<00000000df4f14f6>] __device_attach+0x174/0x29c
+    [<00000000782002fb>] device_initial_probe+0x20/0x30
+    [<00000000c2681b06>] bus_probe_device+0xfc/0x110
+    [<00000000964cf3bd>] device_add+0x5f0/0xcd0
+    [<000000004b9264e3>] platform_device_add+0x198/0x390
+    [<00000000fa82a9d0>] platform_device_register_full+0x178/0x210
+    [<000000009a5daf13>] sun50i_cpufreq_init+0xf8/0x168
+    [<000000000377cc7c>] do_one_initcall+0xe4/0x570
+--------------------------------------------
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-3-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+if sun50i_cpufreq_get_efuse failed, then opp_tables leak.
+
+Fixes: f328584f7bff ("cpufreq: Add sun50i nvmem based CPU scaling driver")
+Signed-off-by: Xiaobing Luo <luoxiaobing0926@gmail.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |   63 +++++++++++++++++++++++++++++++---------------------
- 1 file changed, 38 insertions(+), 25 deletions(-)
+ drivers/cpufreq/sun50i-cpufreq-nvmem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2078,18 +2078,6 @@ static void gsm_cleanup_mux(struct gsm_m
- 	/* Finish outstanding timers, making sure they are done */
- 	del_timer_sync(&gsm->t2_timer);
- 
--	spin_lock(&gsm_mux_lock);
--	for (i = 0; i < MAX_MUX; i++) {
--		if (gsm_mux[i] == gsm) {
--			gsm_mux[i] = NULL;
--			break;
--		}
--	}
--	spin_unlock(&gsm_mux_lock);
--	/* open failed before registering => nothing to do */
--	if (i == MAX_MUX)
--		return;
--
- 	/* Free up any link layer users */
- 	for (i = 0; i < NUM_DLCI; i++)
- 		if (gsm->dlci[i])
-@@ -2113,7 +2101,6 @@ static void gsm_cleanup_mux(struct gsm_m
- static int gsm_activate_mux(struct gsm_mux *gsm)
- {
- 	struct gsm_dlci *dlci;
--	int i = 0;
- 
- 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
- 	init_waitqueue_head(&gsm->event);
-@@ -2125,18 +2112,6 @@ static int gsm_activate_mux(struct gsm_m
- 	else
- 		gsm->receive = gsm1_receive;
- 
--	spin_lock(&gsm_mux_lock);
--	for (i = 0; i < MAX_MUX; i++) {
--		if (gsm_mux[i] == NULL) {
--			gsm->num = i;
--			gsm_mux[i] = gsm;
--			break;
--		}
--	}
--	spin_unlock(&gsm_mux_lock);
--	if (i == MAX_MUX)
--		return -EBUSY;
--
- 	dlci = gsm_dlci_alloc(gsm, 0);
- 	if (dlci == NULL)
+diff --git a/drivers/cpufreq/sun50i-cpufreq-nvmem.c b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
+index 2deed8d8773f..75e1bf3a08f7 100644
+--- a/drivers/cpufreq/sun50i-cpufreq-nvmem.c
++++ b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
+@@ -98,8 +98,10 @@ static int sun50i_cpufreq_nvmem_probe(struct platform_device *pdev)
  		return -ENOMEM;
-@@ -2152,6 +2127,15 @@ static int gsm_activate_mux(struct gsm_m
-  */
- static void gsm_free_mux(struct gsm_mux *gsm)
- {
-+	int i;
-+
-+	for (i = 0; i < MAX_MUX; i++) {
-+		if (gsm == gsm_mux[i]) {
-+			gsm_mux[i] = NULL;
-+			break;
-+		}
+ 
+ 	ret = sun50i_cpufreq_get_efuse(&speed);
+-	if (ret)
++	if (ret) {
++		kfree(opp_tables);
+ 		return ret;
 +	}
-+	mutex_destroy(&gsm->mutex);
- 	kfree(gsm->txframe);
- 	kfree(gsm->buf);
- 	kfree(gsm);
-@@ -2171,12 +2155,20 @@ static void gsm_free_muxr(struct kref *r
  
- static inline void mux_get(struct gsm_mux *gsm)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&gsm_mux_lock, flags);
- 	kref_get(&gsm->ref);
-+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
- }
+ 	snprintf(name, MAX_NAME_LEN, "speed%d", speed);
  
- static inline void mux_put(struct gsm_mux *gsm)
- {
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&gsm_mux_lock, flags);
- 	kref_put(&gsm->ref, gsm_free_muxr);
-+	spin_unlock_irqrestore(&gsm_mux_lock, flags);
- }
- 
- static inline unsigned int mux_num_to_base(struct gsm_mux *gsm)
-@@ -2197,6 +2189,7 @@ static inline unsigned int mux_line_to_n
- 
- static struct gsm_mux *gsm_alloc_mux(void)
- {
-+	int i;
- 	struct gsm_mux *gsm = kzalloc(sizeof(struct gsm_mux), GFP_KERNEL);
- 	if (gsm == NULL)
- 		return NULL;
-@@ -2226,6 +2219,26 @@ static struct gsm_mux *gsm_alloc_mux(voi
- 	gsm->mtu = 64;
- 	gsm->dead = true;	/* Avoid early tty opens */
- 
-+	/* Store the instance to the mux array or abort if no space is
-+	 * available.
-+	 */
-+	spin_lock(&gsm_mux_lock);
-+	for (i = 0; i < MAX_MUX; i++) {
-+		if (!gsm_mux[i]) {
-+			gsm_mux[i] = gsm;
-+			gsm->num = i;
-+			break;
-+		}
-+	}
-+	spin_unlock(&gsm_mux_lock);
-+	if (i == MAX_MUX) {
-+		mutex_destroy(&gsm->mutex);
-+		kfree(gsm->txframe);
-+		kfree(gsm->buf);
-+		kfree(gsm);
-+		return NULL;
-+	}
-+
- 	return gsm;
- }
- 
+-- 
+2.35.1
+
 
 
