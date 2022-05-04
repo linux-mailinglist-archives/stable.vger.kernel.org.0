@@ -2,138 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CDB9519307
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 02:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D35AE51947E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 03:52:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244793AbiEDAyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 20:54:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58670 "EHLO
+        id S245703AbiEDBzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 21:55:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244789AbiEDAyD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 20:54:03 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9147818B13
-        for <stable@vger.kernel.org>; Tue,  3 May 2022 17:50:28 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id l11-20020a17090a49cb00b001d923a9ca99so3407622pjm.1
-        for <stable@vger.kernel.org>; Tue, 03 May 2022 17:50:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=a7dQdxe4iDCbq8aSQWGuJdu24X8SwjrnMyI2suqEgV0=;
-        b=KQrjUg+LJG+cpTmVBa908y03ng4U9M9Dy/jU8yjuCpW2H9rZliFRoYauaXg/EejKb9
-         ZEQ83sSpBEEmffb04AsqLsg4wBQoSqwtsntGJ4Qitc28QiF12YRA0jsG59jwbuwmk072
-         wpZJaS3V72kEOMgWdm5NEMCxB9AciGXuhhfwvVOWk7NZrBj++jnlzyxh7mLuBua5ysoc
-         jDoI0duh84gOmnio00PnghSRRIMK2jekaguWbap8oS8nXIw1m2LIwX7fIP5FZ+t4UIBA
-         GuFvFjY2HQOcvc46qFytoahgArLPMzOoBFR69cZeCAsNS1IkklVclz0ylNyigYW2XLaM
-         BUtw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=a7dQdxe4iDCbq8aSQWGuJdu24X8SwjrnMyI2suqEgV0=;
-        b=xHKz499cOTI0YbQwNHj15zeiAL02sk55lunaJRhaadedXrkHH4KjERUuxm3Y15GHMJ
-         hy3dZ4uhxXOYbll1CEJuk0SQQ2bvxkk1+XwMVAfNPDc1/NM3IJ+gr65Ob4f59tk+4Dzz
-         ExGtt/nDCVrzI9qMaGyQlbnFF+mLJYpXb/iMxYRWvJO0OXcnjLJX2beHdanAyFzLVh74
-         SbOuDVEjLDQcET9Kf6igd87wjVQrYK0lNQ0UPw4eY+k0eDHnZsFrEa8MA3ILNlKyoz7h
-         WduH1KY/qaHAWf5d4ohRh0JSFYfxd0crDlICs3+i5dBkzObbd2HsyOK6bxa3VGG3fFUb
-         nSkQ==
-X-Gm-Message-State: AOAM531uR/KOWcsM2evffECTRKrsSNIxg74x1efem5WWBFkNiLTkppMc
-        IfPcRiMyRPQ2q/X3nYPSvuCnlADRjlb8+h6trxA=
-X-Google-Smtp-Source: ABdhPJyaIUYA1uRfcaNBlFQRVtWHE2b2tuH7RADHBLyg26nudexvaeRU/5OfZG1+RI+2ZQj/37KvMg==
-X-Received: by 2002:a17:90b:2241:b0:1d2:54b2:64b2 with SMTP id hk1-20020a17090b224100b001d254b264b2mr7634485pjb.225.1651625428001;
-        Tue, 03 May 2022 17:50:28 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id bj9-20020a170902850900b0015eafc485c8sm3254677plb.289.2022.05.03.17.50.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 03 May 2022 17:50:27 -0700 (PDT)
-Message-ID: <6271cdd3.1c69fb81.a6f16.7ff5@mx.google.com>
-Date:   Tue, 03 May 2022 17:50:27 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1343657AbiEDBw4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 21:52:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE29244A3A;
+        Tue,  3 May 2022 18:48:27 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96F9461987;
+        Wed,  4 May 2022 01:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 817C5C385A9;
+        Wed,  4 May 2022 01:48:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651628888;
+        bh=1sRYRjLbt8trZsAxQP405ve5/+hZRzhVT+rXdU002IU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZIqODaO4EeJ3AGQlFrE98zItIkLii9TzICBsRd4HttDYp3pWa1CS91mDp0ZUG6rw7
+         0CfC61X+QTB8CfkhI0IfKJTrK1XkCVKDbALRtn1/jIDPB5DgnezjcBpdxiqCgiSSQq
+         RYy0Sr5k8tF72NreVxLBMxbHzhHejpdQD7l1ztACPs4V7bzwugXp19PXHC0yLQuLEw
+         Zqphrb0YORYhyJR/9DFSPDwVegg6iCuFN3kzs+NeOaUfToWmH4IvpL7jbcKERBjYhU
+         us+cOa1ec/2irqMEf8UQ3DkvRfQ/CKtyYEZQD26cQhblA2dk3l3Tz1Vrlsmix1UJY1
+         FKD8FhW6pSJqQ==
+From:   Chao Yu <chao@kernel.org>
+To:     jaegeuk@kernel.org
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>
+Subject: [PATCH v2] f2fs: fix deadloop in foreground GC
+Date:   Wed,  4 May 2022 09:47:55 +0800
+Message-Id: <20220504014755.1727-1-chao@kernel.org>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.241-57-g4b8ced4f49e7
-X-Kernelci-Report-Type: test
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/4.19 baseline: 82 runs,
- 1 regressions (v4.19.241-57-g4b8ced4f49e7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 82 runs, 1 regressions (v4.19.241-57-g4b8ced=
-4f49e7)
+As Yanming reported in bugzilla:
 
-Regressions Summary
--------------------
+https://bugzilla.kernel.org/show_bug.cgi?id=215914
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+The root cause is: in a very small sized image, it's very easy to
+exceed threshold of foreground GC, if we calculate free space and
+dirty data based on section granularity, in corner case,
+has_not_enough_free_secs() will always return true, result in
+deadloop in f2fs_gc().
 
+So this patch refactors has_not_enough_free_secs() as below to fix
+this issue:
+1. calculate needed space based on block granularity, and separate
+all blocks to two parts, section part, and block part, comparing
+section part to free section, and comparing block part to free space
+in openned log.
+2. account F2FS_DIRTY_NODES, F2FS_DIRTY_IMETA and F2FS_DIRTY_DENTS
+as node block consumer;
+3. account F2FS_DIRTY_DENTS as data block consumer;
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.241-57-g4b8ced4f49e7/plan/baseline/
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+---
+v2:
+- fix performance regression
+ fs/f2fs/segment.h | 32 ++++++++++++++++++++------------
+ 1 file changed, 20 insertions(+), 12 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.241-57-g4b8ced4f49e7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4b8ced4f49e787248a53d4863bfce9175fa4ebca =
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index 8a591455d796..c38263dbc5ca 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -575,11 +575,10 @@ static inline int reserved_sections(struct f2fs_sb_info *sbi)
+ 	return GET_SEC_FROM_SEG(sbi, reserved_segments(sbi));
+ }
+ 
+-static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
++static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi,
++			unsigned int node_blocks, unsigned int dent_blocks)
+ {
+-	unsigned int node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
+-					get_pages(sbi, F2FS_DIRTY_DENTS);
+-	unsigned int dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++
+ 	unsigned int segno, left_blocks;
+ 	int i;
+ 
+@@ -605,19 +604,28 @@ static inline bool has_curseg_enough_space(struct f2fs_sb_info *sbi)
+ static inline bool has_not_enough_free_secs(struct f2fs_sb_info *sbi,
+ 					int freed, int needed)
+ {
+-	int node_secs = get_blocktype_secs(sbi, F2FS_DIRTY_NODES);
+-	int dent_secs = get_blocktype_secs(sbi, F2FS_DIRTY_DENTS);
+-	int imeta_secs = get_blocktype_secs(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_node_blocks = get_pages(sbi, F2FS_DIRTY_NODES) +
++					get_pages(sbi, F2FS_DIRTY_DENTS) +
++					get_pages(sbi, F2FS_DIRTY_IMETA);
++	unsigned int total_dent_blocks = get_pages(sbi, F2FS_DIRTY_DENTS);
++	unsigned int node_secs = total_node_blocks / BLKS_PER_SEC(sbi);
++	unsigned int dent_secs = total_dent_blocks / BLKS_PER_SEC(sbi);
++	unsigned int node_blocks = total_node_blocks % BLKS_PER_SEC(sbi);
++	unsigned int dent_blocks = total_dent_blocks % BLKS_PER_SEC(sbi);
++	unsigned int free, need_lower, need_upper;
+ 
+ 	if (unlikely(is_sbi_flag_set(sbi, SBI_POR_DOING)))
+ 		return false;
+ 
+-	if (free_sections(sbi) + freed == reserved_sections(sbi) + needed &&
+-			has_curseg_enough_space(sbi))
++	free = free_sections(sbi) + freed;
++	need_lower = node_secs + dent_secs + reserved_sections(sbi) + needed;
++	need_upper = need_lower + node_blocks ? 1 : 0 + dent_blocks ? 1 : 0;
++
++	if (free > need_upper)
+ 		return false;
+-	return (free_sections(sbi) + freed) <=
+-		(node_secs + 2 * dent_secs + imeta_secs +
+-		reserved_sections(sbi) + needed);
++	else if (free <= need_lower)
++		return true;
++	return !has_curseg_enough_space(sbi, node_blocks, dent_blocks);
+ }
+ 
+ static inline bool f2fs_is_checkpoint_ready(struct f2fs_sb_info *sbi)
+-- 
+2.32.0
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/62713d964e94c8c295dc7b3e
-
-  Results:     83 PASS, 7 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--57-g4b8ced4f49e7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.241=
--57-g4b8ced4f49e7/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/62713d964e94c8c295dc7b64
-        failing since 58 days (last pass: v4.19.232-31-g5cf846953aa2, first=
- fail: v4.19.232-44-gfd65e02206f4)
-
-    2022-05-03T14:34:44.025885  <8>[   35.908401] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-05-03T14:34:45.041727  /lava-6250575/1/../bin/lava-test-case   =
-
- =20
