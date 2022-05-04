@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB7D51A67D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6140B51A80A
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353784AbiEDQzw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51232 "EHLO
+        id S1355489AbiEDRHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354404AbiEDQyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B799F49249;
-        Wed,  4 May 2022 09:49:28 -0700 (PDT)
+        with ESMTP id S1356489AbiEDRFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F44351301;
+        Wed,  4 May 2022 09:54:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A6AE6179D;
-        Wed,  4 May 2022 16:49:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B3CC385A5;
-        Wed,  4 May 2022 16:49:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D062B82792;
+        Wed,  4 May 2022 16:54:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DDB3C385A4;
+        Wed,  4 May 2022 16:54:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682967;
-        bh=puxZb8keBI0MxGWFKEJg7XUlq5HvNRAXuB4e6S/Tg5E=;
+        s=korg; t=1651683248;
+        bh=xHjdodkM8imZA+Sq/nW+D5bW2iBF5yM/fZCpCyR5jek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRX0KRgDseBXe11G1to8Ou87bjJV8+HIob7Di+COKXKrxQ/wfh/BphX1TfjCgCdGS
-         49FGNd1hM6wJprGHhlQlVTLR4v7UOBVYLcZpBllf01HnfjygwwVbxjDfMg8mwmm7f7
-         NP6etgEE9155+a/g7sNLcQ4TSW8ERqXSSoubQUfo=
+        b=aKZg6lu3ROVWVlHZSln34skia1lS7UmIw4co0SNNzl/9GwJF8waxOmKd9VkB7G5Am
+         Xfxco/Ga9zVfSMjuSsxxf5e4z39FXc6N9PQVk/8yf2gjurM+ZOZV/ouFbgRt0xDIou
+         +oQhBSmubzKjwSSWFXRNLc+CTP762Dt1s+agQEWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 73/84] net: ethernet: stmmac: fix write to sgmii_adapter_base
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Doug Porter <dsp@fb.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 101/177] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
 Date:   Wed,  4 May 2022 18:44:54 +0200
-Message-Id: <20220504152933.142928480@linuxfoundation.org>
+Message-Id: <20220504153102.232962663@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +57,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 5fd1fe4807f91ea0cca043114d929faa11bd4190 upstream.
+[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
 
-I made a mistake with the commit a6aaa0032424 ("net: ethernet: stmmac:
-fix altr_tse_pcs function when using a fixed-link"). I should have
-tested against both scenario of having a SGMII interface and one
-without.
+I had this bug sitting for too long in my pile, it is time to fix it.
 
-Without the SGMII PCS TSE adpater, the sgmii_adapter_base address is
-NULL, thus a write to this address will fail.
+Thanks to Doug Porter for reminding me of it!
 
-Cc: stable@vger.kernel.org
-Fixes: a6aaa0032424 ("net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20220420152345.27415-1-dinguyen@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We had various attempts in the past, including commit
+0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
+but the issue is that TCP stack currently only generates
+EPOLLOUT from input path, when tp->snd_una has advanced
+and skb(s) cleaned from rtx queue.
+
+If a flow has a big RTT, and/or receives SACKs, it is possible
+that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
+and no more data can be sent until tp->snd_una finally advances.
+
+What is needed is to also check if POLLOUT needs to be generated
+whenever tp->snd_nxt is advanced, from output path.
+
+This bug triggers more often after an idle period, as
+we do not receive ACK for at least one RTT. tcp_notsent_lowat
+could be a fraction of what CWND and pacing rate would allow to
+send during this RTT.
+
+In a followup patch, I will remove the bogus call
+to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
+from tcp_check_space(). Fact that we have decided to generate
+an EPOLLOUT does not mean the application has immediately
+refilled the transmit queue. This optimistic call
+might have been the reason the bug seemed not too serious.
+
+Tested:
+
+200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
+
+$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
+$ cat bench_rr.sh
+SUM=0
+for i in {1..10}
+do
+ V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
+ echo $V
+ SUM=$(($SUM + $V))
+done
+echo SUM=$SUM
+
+Before patch:
+$ bench_rr.sh
+130000000
+80000000
+140000000
+140000000
+140000000
+140000000
+130000000
+40000000
+90000000
+110000000
+SUM=1140000000
+
+After patch:
+$ bench_rr.sh
+430000000
+590000000
+530000000
+450000000
+450000000
+350000000
+450000000
+490000000
+480000000
+460000000
+SUM=4680000000  # This is 410 % of the value before patch.
+
+Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Doug Porter <dsp@fb.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ include/net/tcp.h     |  1 +
+ net/ipv4/tcp_input.c  | 12 +++++++++++-
+ net/ipv4/tcp_output.c |  1 +
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -65,8 +65,9 @@ static void socfpga_dwmac_fix_mac_speed(
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index 71a9aeae693d..89d231477ef4 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -608,6 +608,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
+ void tcp_reset(struct sock *sk, struct sk_buff *skb);
+ void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
+ void tcp_fin(struct sock *sk);
++void tcp_check_space(struct sock *sk);
  
--	writew(SGMII_ADAPTER_DISABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if (sgmii_adapter_base)
-+		writew(SGMII_ADAPTER_DISABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -88,10 +89,11 @@ static void socfpga_dwmac_fix_mac_speed(
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
- 	}
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--	if (phy_dev)
-+	if (phy_dev && sgmii_adapter_base) {
-+		writew(SGMII_ADAPTER_ENABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
-+	}
+ /* tcp_timer.c */
+ void tcp_init_xmit_timers(struct sock *);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 509f577869d4..6bd283b58bb8 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5420,7 +5420,17 @@ static void tcp_new_space(struct sock *sk)
+ 	INDIRECT_CALL_1(sk->sk_write_space, sk_stream_write_space, sk);
  }
  
- static int socfpga_dwmac_parse_data(struct socfpga_dwmac *dwmac, struct device *dev)
+-static void tcp_check_space(struct sock *sk)
++/* Caller made space either from:
++ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
++ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
++ *
++ * We might be able to generate EPOLLOUT to the application if:
++ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
++ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
++ *    small enough that tcp_stream_memory_free() decides it
++ *    is time to generate EPOLLOUT.
++ */
++void tcp_check_space(struct sock *sk)
+ {
+ 	/* pairs with tcp_poll() */
+ 	smp_mb();
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index 369752f5f676..df413282fa2e 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -82,6 +82,7 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
+ 
+ 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
+ 		      tcp_skb_pcount(skb));
++	tcp_check_space(sk);
+ }
+ 
+ /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
+-- 
+2.35.1
+
 
 
