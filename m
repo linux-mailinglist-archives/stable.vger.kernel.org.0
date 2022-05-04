@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4019151A7D9
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C05351A653
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354473AbiEDRGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51436 "EHLO
+        id S1353848AbiEDQy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356137AbiEDREz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5B4A50073;
-        Wed,  4 May 2022 09:53:53 -0700 (PDT)
+        with ESMTP id S1354026AbiEDQxr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE26247AFF;
+        Wed,  4 May 2022 09:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E00D8B827A6;
-        Wed,  4 May 2022 16:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACD9C385A5;
-        Wed,  4 May 2022 16:53:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BB7661701;
+        Wed,  4 May 2022 16:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD4B4C385A4;
+        Wed,  4 May 2022 16:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683231;
-        bh=+zsxUrdCriv/HUEE0NzYrokSTVzd+971nHkaK5R5ooY=;
+        s=korg; t=1651682937;
+        bh=Bla4DnsSnnIoXDc4ghLJ1hbfQgBlIQ8VsAkR4WxaL+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LWJb/H4r92G3LxN0v1lFNTqcTTQ3HsQ00PnDnN/x0Z4qg7LXixW/xitJ5dzdNs1YL
-         0OuVoWts9h9T8yTV8ExbGH2i2Smj4F2JiZT5myCHQ08iLDfej1GbEvx1ny5nMAddHx
-         YHECfjfHJzk2o0Ffuv8sYKnEJ5WRJUd1Mjx7ZL90=
+        b=zy9mrC8VIqvoMum/jfNyVPLgMHu9cthYhtFTWhMFxF4vLkMZd+vNnyGDsH64fVr0H
+         k7zCISEgIXHV01d8PZ8ZGx9NOkkXuvaSKGL9OABXbeJYtP98mmSCLd0sEWCfuLl/uC
+         UcTjt7yXNQcyOoxvTIARoWzXHO861nso98Gwu6ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 084/177] tcp: md5: incorrect tcp_header_len for incoming connections
+Subject: [PATCH 5.4 56/84] net/smc: sync err code when tcp connection was refused
 Date:   Wed,  4 May 2022 18:44:37 +0200
-Message-Id: <20220504153100.626141326@linuxfoundation.org>
+Message-Id: <20220504152931.767254648@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Ruggeri <fruggeri@arista.com>
+From: liuyacan <liuyacan@corp.netease.com>
 
-[ Upstream commit 5b0b9e4c2c895227c8852488b3f09839233bba54 ]
+[ Upstream commit 4e2e65e2e56c6ceb4ea1719360080c0af083229e ]
 
-In tcp_create_openreq_child we adjust tcp_header_len for md5 using the
-remote address in newsk. But that address is still 0 in newsk at this
-point, and it is only set later by the callers (tcp_v[46]_syn_recv_sock).
-Use the address from the request socket instead.
+In the current implementation, when TCP initiates a connection
+to an unavailable [ip,port], ECONNREFUSED will be stored in the
+TCP socket, but SMC will not. However, some apps (like curl) use
+getsockopt(,,SO_ERROR,,) to get the error information, which makes
+them miss the error message and behave strangely.
 
-Fixes: cfb6eeb4c860 ("[TCP]: MD5 Signature Option (RFC2385) support.")
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220421005026.686A45EC01F2@us226.sjc.aristanetworks.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 50717a37db03 ("net/smc: nonblocking connect rework")
+Signed-off-by: liuyacan <liuyacan@corp.netease.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_minisocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index 0a4f3f16140a..13783fc58e03 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -538,7 +538,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
- 	newtp->tsoffset = treq->ts_off;
- #ifdef CONFIG_TCP_MD5SIG
- 	newtp->md5sig_info = NULL;	/*XXX*/
--	if (newtp->af_specific->md5_lookup(sk, newsk))
-+	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
- 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
- #endif
- 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 5221092cc66d..a5a8cca46bd5 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -816,6 +816,8 @@ static void smc_connect_work(struct work_struct *work)
+ 		smc->sk.sk_state = SMC_CLOSED;
+ 		if (rc == -EPIPE || rc == -EAGAIN)
+ 			smc->sk.sk_err = EPIPE;
++		else if (rc == -ECONNREFUSED)
++			smc->sk.sk_err = ECONNREFUSED;
+ 		else if (signal_pending(current))
+ 			smc->sk.sk_err = -sock_intr_errno(timeo);
+ 		sock_put(&smc->sk); /* passive closing */
 -- 
 2.35.1
 
