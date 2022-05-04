@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68BDC51A7CA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 019E351A86F
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232702AbiEDRHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55020 "EHLO
+        id S1355885AbiEDRLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355911AbiEDREr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA6649C90;
-        Wed,  4 May 2022 09:53:32 -0700 (PDT)
+        with ESMTP id S1356763AbiEDRJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E26A18E2B;
+        Wed,  4 May 2022 09:55:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0674B8279F;
-        Wed,  4 May 2022 16:53:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E2A9C385AA;
-        Wed,  4 May 2022 16:53:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E235B617D5;
+        Wed,  4 May 2022 16:55:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B98C385A5;
+        Wed,  4 May 2022 16:55:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683210;
-        bh=sCjBYryfbrDNUGqpThNG1E4jFTg2IH/IIsr3Om6bE/U=;
+        s=korg; t=1651683331;
+        bh=9E39mHLbOPtkiWOEOKFy56IbZL3g5wvMyD0A5kF6R7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rTPHvJRjO7SUs8vBOX7miqGV0qlkPwlvu4ToyIlu+vZmmqPxPKmaZtsGfF/ytLzhY
-         HfQ4y12GX1bCdoabTE5zfvFjygd1g5vlPIBEy7uEMZwTe7UN09qLWhYYWT48VLpwH3
-         NEpCTVKndA4YUtiX1kwd1dlRYlJOxZWD6Sb7Wz8k=
+        b=W6z051L+RsxOeNgthxEwD3IcEBYJPy9RbK9qqobnaGAjW3a6FHcJVUi/RD5TscSi7
+         XTA5+hB6EjyMKkG7dUefzK/8l/HMzaX4QSjiyZ0E94k5vVPcyN1hkhCZDlE//5XC+h
+         F6W6at5AjmEUdj5gc0x9Px6EMQfFPbfjOcGJIvuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benoit Parrot <bparrot@ti.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 062/177] ARM: dts: dra7: Fix suspend warning for vpe powerdomain
-Date:   Wed,  4 May 2022 18:44:15 +0200
-Message-Id: <20220504153058.558589545@linuxfoundation.org>
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        Hangyu Hua <hbh25y@gmail.com>
+Subject: [PATCH 5.17 018/225] usb: misc: fix improper handling of refcount in uss720_probe()
+Date:   Wed,  4 May 2022 18:44:16 +0200
+Message-Id: <20220504153111.913625937@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,54 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit 8d2453d9a307c2eafd21242dd73f35f05fb7ce74 ]
+commit 0a96fa640dc928da9eaa46a22c46521b037b78ad upstream.
 
-We currently are getting the following warning after a system suspend:
+usb_put_dev shouldn't be called when uss720_probe succeeds because of
+priv->usbdev. At the same time, priv->usbdev shouldn't be set to NULL
+before destroy_priv in uss720_disconnect because usb_put_dev is in
+destroy_priv.
 
-Powerdomain (vpe_pwrdm) didn't enter target state 0
+Fix this by moving priv->usbdev = NULL after usb_put_dev.
 
-Looks like this is because the STANDBYMODE bit for SMART_IDLE should
-not be used. The TRM "Table 12-348. VPE_SYSCONFIG" says that the value
-for SMART_IDLE is "0x2: Same behavior as bit-field value of 0x1". But
-if the SMART_IDLE value is used, PM_VPE_PWRSTST LASTPOWERSTATEENTERED
-bits always show value of 3.
-
-Let's fix the issue by dropping SMART_IDLE for vpe. And let's also add
-the missing the powerdomain for vpe.
-
-Fixes: 1a2095160594 ("ARM: dts: dra7: Add ti-sysc node for VPE")
-Cc: Benoit Parrot <bparrot@ti.com>
-Reported-by: Kevin Hilman <khilman@baylibre.com>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: dcb4b8ad6a44 ("misc/uss720: fix memory leak in uss720_probe")
+Cc: stable <stable@kernel.org>
+Reviewed-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20220407024001.11761-1-hbh25y@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/dra7-l4.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/misc/uss720.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
-index 0a11bacffc1f..5733e3a4ea8e 100644
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -4188,11 +4188,11 @@ target-module@1d0010 {			/* 0x489d0000, ap 27 30.0 */
- 			reg = <0x1d0010 0x4>;
- 			reg-names = "sysc";
- 			ti,sysc-midle = <SYSC_IDLE_FORCE>,
--					<SYSC_IDLE_NO>,
--					<SYSC_IDLE_SMART>;
-+					<SYSC_IDLE_NO>;
- 			ti,sysc-sidle = <SYSC_IDLE_FORCE>,
- 					<SYSC_IDLE_NO>,
- 					<SYSC_IDLE_SMART>;
-+			power-domains = <&prm_vpe>;
- 			clocks = <&vpe_clkctrl DRA7_VPE_VPE_CLKCTRL 0>;
- 			clock-names = "fck";
- 			#address-cells = <1>;
--- 
-2.35.1
-
+--- a/drivers/usb/misc/uss720.c
++++ b/drivers/usb/misc/uss720.c
+@@ -71,6 +71,7 @@ static void destroy_priv(struct kref *kr
+ 
+ 	dev_dbg(&priv->usbdev->dev, "destroying priv datastructure\n");
+ 	usb_put_dev(priv->usbdev);
++	priv->usbdev = NULL;
+ 	kfree(priv);
+ }
+ 
+@@ -736,7 +737,6 @@ static int uss720_probe(struct usb_inter
+ 	parport_announce_port(pp);
+ 
+ 	usb_set_intfdata(intf, pp);
+-	usb_put_dev(usbdev);
+ 	return 0;
+ 
+ probe_abort:
+@@ -754,7 +754,6 @@ static void uss720_disconnect(struct usb
+ 	usb_set_intfdata(intf, NULL);
+ 	if (pp) {
+ 		priv = pp->private_data;
+-		priv->usbdev = NULL;
+ 		priv->pp = NULL;
+ 		dev_dbg(&intf->dev, "parport_remove_port\n");
+ 		parport_remove_port(pp);
 
 
