@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A43551A7FE
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0D6551A882
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354885AbiEDRHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55356 "EHLO
+        id S1356171AbiEDRLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356450AbiEDRFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF9550E31;
-        Wed,  4 May 2022 09:54:10 -0700 (PDT)
+        with ESMTP id S1356899AbiEDRJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBC8F47053;
+        Wed,  4 May 2022 09:56:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECAE861794;
-        Wed,  4 May 2022 16:54:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45874C385AF;
-        Wed,  4 May 2022 16:54:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94F7CB82552;
+        Wed,  4 May 2022 16:56:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 360E2C385A4;
+        Wed,  4 May 2022 16:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683247;
-        bh=JGN1aSur651jL6VwygsDUq9AQEFBdmvTSDtGQpbExFs=;
+        s=korg; t=1651683378;
+        bh=7+kZSzGKTNg8TZC5Dz8eHP1lgFCzqxnQ9mOapg3IUQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9WgwEL2il2L3W4R7Ti7PiiXtlvVBgkF09goNDJqRNRf+DkTxXcjDsCWmyI+6L44L
-         e2xW3soFIp9JBZJVp75cDsI6cuglfOUUkflCrCFQ4a4vIBLqs1lpcOIbgjTX/szBrZ
-         hvnnhbSMoihes3JvXYIFAL0NK/doTaZ4RgoVZeYU=
+        b=YRkQpqsRS0l/nZXFZeGaxMzYHFa3muCbiz8NXz6A+iLhD6+o/Ug+Hfohj4uu3N521
+         zxYfdek7s+Q2+sS9B97Lw2JFE8oz18WQs/hVRRJc6QMpTqfA1mPQEU+tw8/MkNxXBf
+         9C+YRx1mS0Css0t3aPZEsAKJfCZkiA3hShXFfCBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Peilin Ye <peilin.ye@bytedance.com>,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 100/177] ip_gre, ip6_gre: Fix race condition on o_seqno in collect_md mode
+Subject: [PATCH 5.17 055/225] cpufreq: qcom-hw: drop affinity hint before freeing the IRQ
 Date:   Wed,  4 May 2022 18:44:53 +0200
-Message-Id: <20220504153102.099314214@linuxfoundation.org>
+Message-Id: <20220504153115.072987652@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,150 +57,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 31c417c948d7f6909cb63f0ac3298f3c38f8ce20 ]
+[ Upstream commit be5985b3dbce5ba2af3c8b0f2b7df235c93907e6 ]
 
-As pointed out by Jakub Kicinski, currently using TUNNEL_SEQ in
-collect_md mode is racy for [IP6]GRE[TAP] devices.  Consider the
-following sequence of events:
+Drop affinity hint before freeing the throttling IRQ to fix the
+following trace:
 
-1. An [IP6]GRE[TAP] device is created in collect_md mode using "ip link
-   add ... external".  "ip" ignores "[o]seq" if "external" is specified,
-   so TUNNEL_SEQ is off, and the device is marked as NETIF_F_LLTX (i.e.
-   it uses lockless TX);
-2. Someone sets TUNNEL_SEQ on outgoing skb's, using e.g.
-   bpf_skb_set_tunnel_key() in an eBPF program attached to this device;
-3. gre_fb_xmit() or __gre6_xmit() processes these skb's:
+[  185.114773] ------------[ cut here ]------------
+[  185.119517] WARNING: CPU: 7 PID: 43 at kernel/irq/manage.c:1887 free_irq+0x3a4/0x3dc
+[  185.127474] Modules linked in:
+[  185.130618] CPU: 7 PID: 43 Comm: cpuhp/7 Tainted: G S      W         5.17.0-rc6-00386-g67382a5b705d-dirty #690
+[  185.147125] pstate: 604000c5 (nZCv daIF +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  185.154269] pc : free_irq+0x3a4/0x3dc
+[  185.158031] lr : free_irq+0x33c/0x3dc
+[  185.161792] sp : ffff80000841bc90
+[  185.165195] x29: ffff80000841bc90 x28: ffffa6edc5c3d000 x27: ffff6d93729e5908
+[  185.172515] x26: 0000000000000000 x25: ffff6d910109fc00 x24: ffff6d91011490e0
+[  185.179838] x23: ffff6d9101149218 x22: 0000000000000080 x21: 0000000000000000
+[  185.187163] x20: ffff6d9101149000 x19: ffff6d910ab61500 x18: ffffffffffffffff
+[  185.194487] x17: 2e35202020202020 x16: 2020202020202020 x15: ffff80008841b9a7
+[  185.201805] x14: 00000000000003c9 x13: 0000000000000001 x12: 0000000000000040
+[  185.209135] x11: ffff6d91005aab58 x10: ffff6d91005aab5a x9 : ffffc6a5ad1c5408
+[  185.216455] x8 : ffff6d91005adb88 x7 : 0000000000000000 x6 : ffffc6a5ab5a91f4
+[  185.223776] x5 : 0000000000000000 x4 : ffff6d91011490a8 x3 : ffffc6a5ad266108
+[  185.231098] x2 : 0000000013033204 x1 : ffff6d9101149000 x0 : ffff6d910a9cc000
+[  185.238421] Call trace:
+[  185.240932]  free_irq+0x3a4/0x3dc
+[  185.244334]  qcom_cpufreq_hw_cpu_exit+0x78/0xcc
+[  185.248985]  cpufreq_offline.isra.0+0x228/0x270
+[  185.253639]  cpuhp_cpufreq_offline+0x10/0x20
+[  185.258027]  cpuhp_invoke_callback+0x16c/0x2b0
+[  185.262592]  cpuhp_thread_fun+0x190/0x250
+[  185.266710]  smpboot_thread_fn+0x12c/0x230
+[  185.270914]  kthread+0xfc/0x100
+[  185.274145]  ret_from_fork+0x10/0x20
+[  185.277820] irq event stamp: 212
+[  185.281136] hardirqs last  enabled at (211): [<ffffc6a5ac57973c>] _raw_spin_unlock_irqrestore+0x8c/0xa0
+[  185.290775] hardirqs last disabled at (212): [<ffffc6a5ac572100>] __schedule+0x710/0xa10
+[  185.299081] softirqs last  enabled at (0): [<ffffc6a5ab50f7b0>] copy_process+0x7d0/0x1a14
+[  185.307475] softirqs last disabled at (0): [<0000000000000000>] 0x0
 
-	gre_build_header(skb, tun_hlen,
-			 flags, protocol,
-			 tunnel_id_to_key32(tun_info->key.tun_id),
-			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
-					      : 0);   ^^^^^^^^^^^^^^^^^
-
-Since we are not using the TX lock (&txq->_xmit_lock), multiple CPUs may
-try to do this tunnel->o_seqno++ in parallel, which is racy.  Fix it by
-making o_seqno atomic_t.
-
-As mentioned by Eric Dumazet in commit b790e01aee74 ("ip_gre: lockless
-xmit"), making o_seqno atomic_t increases "chance for packets being out
-of order at receiver" when NETIF_F_LLTX is on.
-
-Maybe a better fix would be:
-
-1. Do not ignore "oseq" in external mode.  Users MUST specify "oseq" if
-   they want the kernel to allow sequencing of outgoing packets;
-2. Reject all outgoing TUNNEL_SEQ packets if the device was not created
-   with "oseq".
-
-Unfortunately, that would break userspace.
-
-We could now make [IP6]GRE[TAP] devices always NETIF_F_LLTX, but let us
-do it in separate patches to keep this fix minimal.
-
-Suggested-by: Jakub Kicinski <kuba@kernel.org>
-Fixes: 77a5196a804e ("gre: add sequence number for collect md mode.")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3ed6dfbd3bb98 ("cpufreq: qcom-hw: Set CPU affinity of dcvsh interrupts")
+Tested-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_tunnel.h | 2 +-
- include/net/ip_tunnels.h | 2 +-
- net/ipv4/ip_gre.c        | 6 +++---
- net/ipv6/ip6_gre.c       | 7 ++++---
- 4 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/net/ip6_tunnel.h b/include/net/ip6_tunnel.h
-index 028eaea1c854..42d50856fcf2 100644
---- a/include/net/ip6_tunnel.h
-+++ b/include/net/ip6_tunnel.h
-@@ -57,7 +57,7 @@ struct ip6_tnl {
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index effbb680b453..740518d8ae16 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -412,6 +412,7 @@ static void qcom_cpufreq_hw_lmh_exit(struct qcom_cpufreq_data *data)
+ 	mutex_unlock(&data->throttle_lock);
  
- 	/* These fields used only by GRE */
- 	__u32 i_seqno;	/* The last seen seqno	*/
--	__u32 o_seqno;	/* The last output seqno */
-+	atomic_t o_seqno;	/* The last output seqno */
- 	int hlen;       /* tun_hlen + encap_hlen */
- 	int tun_hlen;	/* Precalculated header length */
- 	int encap_hlen; /* Encap header length (FOU,GUE) */
-diff --git a/include/net/ip_tunnels.h b/include/net/ip_tunnels.h
-index bc3b13ec93c9..37d5d4968e20 100644
---- a/include/net/ip_tunnels.h
-+++ b/include/net/ip_tunnels.h
-@@ -113,7 +113,7 @@ struct ip_tunnel {
- 
- 	/* These four fields used only by GRE */
- 	u32		i_seqno;	/* The last seen seqno	*/
--	u32		o_seqno;	/* The last output seqno */
-+	atomic_t	o_seqno;	/* The last output seqno */
- 	int		tun_hlen;	/* Precalculated header length */
- 
- 	/* These four fields used only by ERSPAN */
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 4b7d7ed4bab8..276a3b7b0e9c 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -464,7 +464,7 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 	/* Push GRE header. */
- 	gre_build_header(skb, tunnel->tun_hlen,
- 			 flags, proto, tunnel->parms.o_key,
--			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
- 
- 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
+ 	cancel_delayed_work_sync(&data->throttle_work);
++	irq_set_affinity_hint(data->throttle_irq, NULL);
+ 	free_irq(data->throttle_irq, data);
  }
-@@ -502,7 +502,7 @@ static void gre_fb_xmit(struct sk_buff *skb, struct net_device *dev,
- 		(TUNNEL_CSUM | TUNNEL_KEY | TUNNEL_SEQ);
- 	gre_build_header(skb, tunnel_hlen, flags, proto,
- 			 tunnel_id_to_key32(tun_info->key.tun_id),
--			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+			 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno)) : 0);
  
- 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
- 
-@@ -579,7 +579,7 @@ static void erspan_fb_xmit(struct sk_buff *skb, struct net_device *dev)
- 	}
- 
- 	gre_build_header(skb, 8, TUNNEL_SEQ,
--			 proto, 0, htonl(tunnel->o_seqno++));
-+			 proto, 0, htonl(atomic_fetch_inc(&tunnel->o_seqno)));
- 
- 	ip_md_tunnel_xmit(skb, dev, IPPROTO_GRE, tunnel_hlen);
- 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 4ccbee5e7526..a817ac6d9759 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -766,7 +766,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 		gre_build_header(skb, tun_hlen,
- 				 flags, protocol,
- 				 tunnel_id_to_key32(tun_info->key.tun_id),
--				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++)
-+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
- 						      : 0);
- 
- 	} else {
-@@ -777,7 +777,8 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 
- 		gre_build_header(skb, tunnel->tun_hlen, flags,
- 				 protocol, tunnel->parms.o_key,
--				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
-+				 (flags & TUNNEL_SEQ) ? htonl(atomic_fetch_inc(&tunnel->o_seqno))
-+						      : 0);
- 	}
- 
- 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
-@@ -1055,7 +1056,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit(struct sk_buff *skb,
- 	/* Push GRE header. */
- 	proto = (t->parms.erspan_ver == 1) ? htons(ETH_P_ERSPAN)
- 					   : htons(ETH_P_ERSPAN2);
--	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(t->o_seqno++));
-+	gre_build_header(skb, 8, TUNNEL_SEQ, proto, 0, htonl(atomic_fetch_inc(&t->o_seqno)));
- 
- 	/* TooBig packet may have updated dst->dev's mtu */
- 	if (!t->parms.collect_md && dst && dst_mtu(dst) > dst->dev->mtu)
 -- 
 2.35.1
 
