@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B9251A9C4
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC6351AA16
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357299AbiEDRT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
+        id S1350827AbiEDRVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:21:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357862AbiEDRPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87159554B2;
-        Wed,  4 May 2022 09:59:05 -0700 (PDT)
+        with ESMTP id S1357890AbiEDRPZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7220E56204;
+        Wed,  4 May 2022 09:59:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E9AD6191D;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00F18B8279C;
+        Wed,  4 May 2022 16:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F87C385A4;
         Wed,  4 May 2022 16:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 983EAC385AF;
-        Wed,  4 May 2022 16:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683544;
-        bh=7cNWoDllzlhlhBT0AEDDuXRENPZ9G9LkpZELR4gvMbo=;
+        s=korg; t=1651683545;
+        bh=NklaLAkdEHvnlz+bedhg6QNfkHVv0yfpygQ577M85B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZ0hpDz3wLHlt2MIen9ABqHWNAbGS9mPDcFFjTLE7V59ndso2UsT4F/WUPTcLsLRq
-         t+jYXHjbLJbYFVNt7fzuKlIEnv1r7gIHVgOZfK3Ub2SkQvh6MjhRaEUUpohXCBR7Ac
-         zrEnCw+oByu6DY+zmMguLRjBzuWiMOfY7YahxAkU=
+        b=fDpAHU4P7rdgrp7FxDnQ6Kkid65Eb0mWilo1wKPjQeoJi1xj/R8u79HW8POW4Is8c
+         pEeuLHio5u1qu7T5yXZK6vTI8bVdvqQ56x0dBGSXlDcT5A3pZQ2chDUxhXcHos2QLN
+         ik+NuM6ZEdwradyo0aibuT2P3x9pfzhpaf9yYX+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 215/225] tty: n_gsm: fix missing tty wakeup in convergence layer type 2
-Date:   Wed,  4 May 2022 18:47:33 +0200
-Message-Id: <20220504153129.137505333@linuxfoundation.org>
+Subject: [PATCH 5.17 216/225] tty: n_gsm: fix reset fifo race condition
+Date:   Wed,  4 May 2022 18:47:34 +0200
+Message-Id: <20220504153129.211825265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,33 +54,59 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 1adf6fee58ca25fb6720b8d34c919dcf5425cc9c upstream.
+commit 73029a4d7161f8b6c0934553145ef574d2d0c645 upstream.
 
-gsm_control_modem() informs the virtual tty that more data can be written
-after receiving a control signal octet via modem status command (MSC).
-However, gsm_dlci_data() fails to do the same after receiving a control
-signal octet from the convergence layer type 2 header.
-Add tty_wakeup() in gsm_dlci_data() for convergence layer type 2 to fix
-this.
+gsmtty_write() and gsm_dlci_data_output() properly guard the fifo access.
+However, gsm_dlci_close() and gsmtty_flush_buffer() modifies the fifo but
+do not guard this.
+Add a guard here to prevent race conditions on parallel writes to the fifo.
 
 Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-14-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220414094225.4527-17-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/n_gsm.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -1615,6 +1615,7 @@ static void gsm_dlci_data(struct gsm_dlc
- 		tty = tty_port_tty_get(port);
- 		if (tty) {
- 			gsm_process_modem(tty, dlci, modem, slen);
-+			tty_wakeup(tty);
- 			tty_kref_put(tty);
- 		}
- 		fallthrough;
+@@ -1442,13 +1442,17 @@ static int gsm_control_wait(struct gsm_m
+ 
+ static void gsm_dlci_close(struct gsm_dlci *dlci)
+ {
++	unsigned long flags;
++
+ 	del_timer(&dlci->t1);
+ 	if (debug & 8)
+ 		pr_debug("DLCI %d goes closed.\n", dlci->addr);
+ 	dlci->state = DLCI_CLOSED;
+ 	if (dlci->addr != 0) {
+ 		tty_port_tty_hangup(&dlci->port, false);
++		spin_lock_irqsave(&dlci->lock, flags);
+ 		kfifo_reset(&dlci->fifo);
++		spin_unlock_irqrestore(&dlci->lock, flags);
+ 		/* Ensure that gsmtty_open() can return. */
+ 		tty_port_set_initialized(&dlci->port, 0);
+ 		wake_up_interruptible(&dlci->port.open_wait);
+@@ -3148,13 +3152,17 @@ static unsigned int gsmtty_chars_in_buff
+ static void gsmtty_flush_buffer(struct tty_struct *tty)
+ {
+ 	struct gsm_dlci *dlci = tty->driver_data;
++	unsigned long flags;
++
+ 	if (dlci->state == DLCI_CLOSED)
+ 		return;
+ 	/* Caution needed: If we implement reliable transport classes
+ 	   then the data being transmitted can't simply be junked once
+ 	   it has first hit the stack. Until then we can just blow it
+ 	   away */
++	spin_lock_irqsave(&dlci->lock, flags);
+ 	kfifo_reset(&dlci->fifo);
++	spin_unlock_irqrestore(&dlci->lock, flags);
+ 	/* Need to unhook this DLCI from the transmit queue logic */
+ }
+ 
 
 
