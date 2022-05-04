@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BABC51A722
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C88EE51A65E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354548AbiEDRCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38282 "EHLO
+        id S1354211AbiEDQzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355663AbiEDRAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA59F4BBB3;
-        Wed,  4 May 2022 09:52:00 -0700 (PDT)
+        with ESMTP id S1354430AbiEDQyW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A8564925C;
+        Wed,  4 May 2022 09:49:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1E2461701;
-        Wed,  4 May 2022 16:52:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B75C385A5;
-        Wed,  4 May 2022 16:51:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D865DB82554;
+        Wed,  4 May 2022 16:49:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E1B3C385AA;
+        Wed,  4 May 2022 16:49:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683120;
-        bh=UvbEPPP0Phld+EI24rEyUua/Umh4MxaId4S52B0wD58=;
+        s=korg; t=1651682968;
+        bh=e559Bqf6LPnE3jwmAkFfShmHGWGViQtRHK3xguGfn7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iXY5ZZqDPTaI8jANtx/IbxaGa4RRqtGNgeAIVVrULlA+FFzj+qW6FGe0TCOSKdt4Y
-         glomw9NFJ2GDWPwMaamCx0WUHiHGn9ag6eihjCbXLSreOh1T2imBZmBRFjubNZnXAT
-         TrleYsJfNTEw7BDMHq5PpU2nbr9vW7JlwUn3/NoU=
+        b=JXv9+z4gxvZFprPD9UO9Z0UV/V2mjIRXxUzSS2kdIzkSwu/IKtsxKFY73wakDtrdb
+         xexym6xIUjWBwyGUjAjETJ3UW+zSpY7bNS5ftELKkk07FEAoJYshPFXAQ9BcpBMfUa
+         MAdhajCc3ym8fNffyvwQ9TS/DeSHUNEhDfy+U75M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Joao Moreira <joao@overdrivepizza.com>
-Subject: [PATCH 5.10 111/129] thermal: int340x: Fix attr.show callback prototype
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.4 82/84] tty: n_gsm: fix incorrect UA handling
 Date:   Wed,  4 May 2022 18:45:03 +0200
-Message-Id: <20220504153030.088795829@linuxfoundation.org>
+Message-Id: <20220504152933.940828231@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit d0f6cfb2bd165b0aa307750e07e03420859bd554 upstream.
+commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
 
-Control Flow Integrity (CFI) instrumentation of the kernel noticed that
-the caller, dev_attr_show(), and the callback, odvp_show(), did not have
-matching function prototypes, which would cause a CFI exception to be
-raised. Correct the prototype by using struct device_attribute instead
-of struct kobj_attribute.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
+acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
+discarded. Currently, all UA frame are handled in the same way regardless
+of the PF bit. This does not comply with the standard.
+Remove the UA case in gsm_queue() to process only UA frames with PF bit set
+to 1 to abide the standard.
 
-Reported-and-tested-by: Joao Moreira <joao@overdrivepizza.com>
-Link: https://lore.kernel.org/lkml/067ce8bd4c3968054509831fa2347f4f@overdrivepizza.com/
-Fixes: 006f006f1e5c ("thermal/int340x_thermal: Export OEM vendor variables")
-Cc: 5.8+ <stable@vger.kernel.org> # 5.8+
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/intel/int340x_thermal/int3400_thermal.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-+++ b/drivers/thermal/intel/int340x_thermal/int3400_thermal.c
-@@ -67,7 +67,7 @@ static int evaluate_odvp(struct int3400_
- struct odvp_attr {
- 	int odvp;
- 	struct int3400_thermal_priv *priv;
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- };
- 
- static ssize_t data_vault_read(struct file *file, struct kobject *kobj,
-@@ -269,7 +269,7 @@ static int int3400_thermal_run_osc(acpi_
- 	return result;
- }
- 
--static ssize_t odvp_show(struct kobject *kobj, struct kobj_attribute *attr,
-+static ssize_t odvp_show(struct device *dev, struct device_attribute *attr,
- 			 char *buf)
- {
- 	struct odvp_attr *odvp_attr;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1813,7 +1813,6 @@ static void gsm_queue(struct gsm_mux *gs
+ 		gsm_response(gsm, address, UA);
+ 		gsm_dlci_close(dlci);
+ 		break;
+-	case UA:
+ 	case UA|PF:
+ 		if (cr == 0 || dlci == NULL)
+ 			break;
 
 
