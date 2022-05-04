@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C382751A646
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D3E651A7F9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237283AbiEDQys (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:54:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50902 "EHLO
+        id S1355414AbiEDRHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354191AbiEDQxz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D2D8483B1;
-        Wed,  4 May 2022 09:49:12 -0700 (PDT)
+        with ESMTP id S1356429AbiEDRFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B018050E20;
+        Wed,  4 May 2022 09:54:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6337F61771;
-        Wed,  4 May 2022 16:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1B14C385A4;
-        Wed,  4 May 2022 16:49:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7F51B827A5;
+        Wed,  4 May 2022 16:54:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DD82C385A5;
+        Wed,  4 May 2022 16:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682951;
-        bh=IwX2/NnejUzN7u8g7KsKfNNxuvUqvIN8hWL1MrCgCGU=;
+        s=korg; t=1651683246;
+        bh=0gX0SpLF4d8wYM7UAJuh4x9vkfWWnABx2guuzFrTmcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itxNc3uTTXStJ4b5JIlC1tA0vv037DbE0zngd+S7cgM4Y198nVR5AJjQpO7+SG+Zg
-         He591syb8p9nHFmFc2LWL/sKuFgzhIxsWyL6qA2Us1DrP/jqDW8eaaKXQEwm0ZhFj5
-         Umedf7b98KLm6K/9s7LK+NTQUq3xm2qxB0qV1+gE=
+        b=fFyRoTxAURIp1IL6z0MuBJDyCxhUzBM7qsWVEK0XG0rp51qeccVIJM+/csWPR6jez
+         /f3eTcv7jE3qclSVp+0vF6efN8wxlFysUSYq47coQs/RuNSvHWmQsuJfSoOEY5No6p
+         DgIeof1xH6IOsSO5iTuUAqCg0RKE+u9osTcy7cqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
+        William Tu <u9012063@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 70/84] x86: __memcpy_flushcache: fix wrong alignment if size > 2^32
-Date:   Wed,  4 May 2022 18:44:51 +0200
-Message-Id: <20220504152932.925204395@linuxfoundation.org>
+Subject: [PATCH 5.15 099/177] ip6_gre: Make o_seqno start from 0 in native mode
+Date:   Wed,  4 May 2022 18:44:52 +0200
+Message-Id: <20220504153101.986521745@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit a6823e4e360fe975bd3da4ab156df7c74c8b07f3 ]
+[ Upstream commit fde98ae91f79cab4e020f40c35ed23cbdc59661c ]
 
-The first "if" condition in __memcpy_flushcache is supposed to align the
-"dest" variable to 8 bytes and copy data up to this alignment.  However,
-this condition may misbehave if "size" is greater than 4GiB.
+For IP6GRE and IP6GRETAP devices, currently o_seqno starts from 1 in
+native mode.  According to RFC 2890 2.2., "The first datagram is sent
+with a sequence number of 0."  Fix it.
 
-The statement min_t(unsigned, size, ALIGN(dest, 8) - dest); casts both
-arguments to unsigned int and selects the smaller one.  However, the
-cast truncates high bits in "size" and it results in misbehavior.
+It is worth mentioning that o_seqno already starts from 0 in collect_md
+mode, see the "if (tunnel->parms.collect_md)" clause in __gre6_xmit(),
+where tunnel->o_seqno is passed to gre_build_header() before getting
+incremented.
 
-For example:
-
-	suppose that size == 0x100000001, dest == 0x200000002
-	min_t(unsigned, size, ALIGN(dest, 8) - dest) == min_t(0x1, 0xe) == 0x1;
-	...
-	dest += 0x1;
-
-so we copy just one byte "and" dest remains unaligned.
-
-This patch fixes the bug by replacing unsigned with size_t.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: William Tu <u9012063@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/usercopy_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/ip6_gre.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/lib/usercopy_64.c b/arch/x86/lib/usercopy_64.c
-index 1847e993ac63..f3f7f4cb15a6 100644
---- a/arch/x86/lib/usercopy_64.c
-+++ b/arch/x86/lib/usercopy_64.c
-@@ -142,7 +142,7 @@ void __memcpy_flushcache(void *_dst, const void *_src, size_t size)
+diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
+index 869c3337e319..4ccbee5e7526 100644
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -724,6 +724,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ {
+ 	struct ip6_tnl *tunnel = netdev_priv(dev);
+ 	__be16 protocol;
++	__be16 flags;
  
- 	/* cache copy and flush to align dest */
- 	if (!IS_ALIGNED(dest, 8)) {
--		unsigned len = min_t(unsigned, size, ALIGN(dest, 8) - dest);
-+		size_t len = min_t(size_t, size, ALIGN(dest, 8) - dest);
+ 	if (dev->type == ARPHRD_ETHER)
+ 		IPCB(skb)->flags = 0;
+@@ -739,7 +740,6 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 	if (tunnel->parms.collect_md) {
+ 		struct ip_tunnel_info *tun_info;
+ 		const struct ip_tunnel_key *key;
+-		__be16 flags;
+ 		int tun_hlen;
  
- 		memcpy((void *) dest, (void *) source, len);
- 		clean_cache_range((void *) dest, len);
+ 		tun_info = skb_tunnel_info_txcheck(skb);
+@@ -770,15 +770,14 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
+ 						      : 0);
+ 
+ 	} else {
+-		if (tunnel->parms.o_flags & TUNNEL_SEQ)
+-			tunnel->o_seqno++;
+-
+ 		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
+ 			return -ENOMEM;
+ 
+-		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
++		flags = tunnel->parms.o_flags;
++
++		gre_build_header(skb, tunnel->tun_hlen, flags,
+ 				 protocol, tunnel->parms.o_key,
+-				 htonl(tunnel->o_seqno));
++				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
+ 	}
+ 
+ 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
 -- 
 2.35.1
 
