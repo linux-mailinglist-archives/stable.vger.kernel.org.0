@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5F9851A736
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E02EC51A7DF
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242914AbiEDRCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
+        id S1352346AbiEDRHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354677AbiEDQ67 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE302E9ED;
-        Wed,  4 May 2022 09:50:51 -0700 (PDT)
+        with ESMTP id S1355703AbiEDREj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B3F34F456;
+        Wed,  4 May 2022 09:53:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 573116179D;
-        Wed,  4 May 2022 16:50:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A625BC385A4;
-        Wed,  4 May 2022 16:50:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F416B827A1;
+        Wed,  4 May 2022 16:53:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA90C385AA;
+        Wed,  4 May 2022 16:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683050;
-        bh=DAKZ+IMFhB3kynJd+4BTivE21C0uCBxfzjW6JzSQ6Go=;
+        s=korg; t=1651683192;
+        bh=JSN3iWdCY/Avvkx26JMis6POmyQuyyQMFX0qbKasTh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VgwUbkZQlop8h+DpbsXYnOMk5s5cY4eSXpmP8N43TAEN+EmmtCScUNUoiu81cecKr
-         zG5IHQM4jKNnxjJQ0KCTeKPZFxlri7pB60ncugAhjp6EbOdXtwxi+KUk/VAksMORO2
-         UQtJ0e7n2EifJog00Y9D6Ae4d6zfTOYiRvKNWsuk=
+        b=mav6F7ZcdNAwlaiuU/LsPtpC37zaX6Xq6LohbTZ9cALipr2rUY1uxNA9UpXQ5hQsT
+         khkbjBTPFxButUbUqvQvwL442DmN+TUmTJ0CPyIzl/dYI+hAP4g6NB9NDTyCY02RGC
+         CVH6+9vyYCl03XhjoJ2igyuw5+35lR+3uRN/I0Yc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/129] phy: samsung: exynos5250-sata: fix missing device put in probe error paths
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 045/177] cpufreq: qcom-hw: fix the race between LMH worker and cpuhp
 Date:   Wed,  4 May 2022 18:43:58 +0200
-Message-Id: <20220504153024.801221958@linuxfoundation.org>
+Message-Id: <20220504153056.956369919@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 5c8402c4db45dd55c2c93c8d730f5dfa7c78a702 ]
+[ Upstream commit 5e4f009da6be563984ba4db4ef4f32529e9aeb90 ]
 
-The actions of of_find_i2c_device_by_node() in probe function should be
-reversed in error paths by putting the reference to obtained device.
+The driver would disable the worker when cpu is being put offline, but
+it happens closer to the end of cpufreq_offline(). The function
+qcom_lmh_dcvs_poll() can be running in parallel with this, when
+policy->cpus already has been updated. Read policy->related_cpus
+instead.
 
-Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-Link: https://lore.kernel.org/r/20220407091857.230386-2-krzysztof.kozlowski@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[   37.122433] ------------[ cut here ]------------
+[   37.127225] WARNING: CPU: 0 PID: 187 at drivers/base/arch_topology.c:180 topology_update_thermal_pressure+0xec/0x100
+[   37.138098] Modules linked in:
+[   37.141279] CPU: 0 PID: 187 Comm: kworker/0:3 Tainted: G S                5.17.0-rc6-00389-g37c83d0b8710-dirty #713
+[   37.158306] Workqueue: events qcom_lmh_dcvs_poll
+[   37.163095] pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[   37.170278] pc : topology_update_thermal_pressure+0xec/0x100
+[   37.176131] lr : topology_update_thermal_pressure+0x20/0x100
+[   37.181977] sp : ffff800009b6bce0
+[   37.185402] x29: ffff800009b6bce0 x28: ffffd87abe92b000 x27: ffff04bd7292e205
+[   37.192792] x26: ffffd87abe930af8 x25: ffffd87abe94e4c8 x24: 0000000000000000
+[   37.200180] x23: ffff04bb01177018 x22: ffff04bb011770c0 x21: ffff04bb01177000
+[   37.207567] x20: ffff04bb0a419000 x19: 00000000000c4e00 x18: 0000000000000000
+[   37.214954] x17: 000000040044ffff x16: 004000b2b5503510 x15: 0000006aaa1326d2
+[   37.222333] x14: 0000000000000232 x13: 0000000000000001 x12: 0000000000000040
+[   37.229718] x11: ffff04bb00400000 x10: 968f57bd39f701c8 x9 : ffff04bb0acc8674
+[   37.237095] x8 : fefefefefefefeff x7 : 0000000000000018 x6 : ffffd87abd90092c
+[   37.244478] x5 : 0000000000000016 x4 : 0000000000000000 x3 : 0000000000000100
+[   37.251852] x2 : ffff04bb0a419020 x1 : 0000000000000100 x0 : 0000000000000100
+[   37.259235] Call trace:
+[   37.261771]  topology_update_thermal_pressure+0xec/0x100
+[   37.267266]  qcom_lmh_dcvs_poll+0xbc/0x154
+[   37.271505]  process_one_work+0x288/0x69c
+[   37.275654]  worker_thread+0x74/0x470
+[   37.279450]  kthread+0xfc/0x100
+[   37.282712]  ret_from_fork+0x10/0x20
+[   37.286417] irq event stamp: 74
+[   37.289664] hardirqs last  enabled at (73): [<ffffd87abdd78af4>] _raw_spin_unlock_irq+0x44/0x80
+[   37.298632] hardirqs last disabled at (74): [<ffffd87abdd71fc0>] __schedule+0x710/0xa10
+[   37.306885] softirqs last  enabled at (58): [<ffffd87abcc90410>] _stext+0x410/0x588
+[   37.314778] softirqs last disabled at (51): [<ffffd87abcd1bf68>] __irq_exit_rcu+0x158/0x174
+[   37.323386] ---[ end trace 0000000000000000 ]---
+
+Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/samsung/phy-exynos5250-sata.c | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
-index 5077987570fd..ea46576404b8 100644
---- a/drivers/phy/samsung/phy-exynos5250-sata.c
-+++ b/drivers/phy/samsung/phy-exynos5250-sata.c
-@@ -199,20 +199,21 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
- 	sata_phy->phyclk = devm_clk_get(dev, "sata_phyctrl");
- 	if (IS_ERR(sata_phy->phyclk)) {
- 		dev_err(dev, "failed to get clk for PHY\n");
--		return PTR_ERR(sata_phy->phyclk);
-+		ret = PTR_ERR(sata_phy->phyclk);
-+		goto put_dev;
- 	}
- 
- 	ret = clk_prepare_enable(sata_phy->phyclk);
- 	if (ret < 0) {
- 		dev_err(dev, "failed to enable source clk\n");
--		return ret;
-+		goto put_dev;
- 	}
- 
- 	sata_phy->phy = devm_phy_create(dev, NULL, &exynos_sata_phy_ops);
- 	if (IS_ERR(sata_phy->phy)) {
--		clk_disable_unprepare(sata_phy->phyclk);
- 		dev_err(dev, "failed to create PHY\n");
--		return PTR_ERR(sata_phy->phy);
-+		ret = PTR_ERR(sata_phy->phy);
-+		goto clk_disable;
- 	}
- 
- 	phy_set_drvdata(sata_phy->phy, sata_phy);
-@@ -220,11 +221,18 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
- 	phy_provider = devm_of_phy_provider_register(dev,
- 					of_phy_simple_xlate);
- 	if (IS_ERR(phy_provider)) {
--		clk_disable_unprepare(sata_phy->phyclk);
--		return PTR_ERR(phy_provider);
-+		ret = PTR_ERR(phy_provider);
-+		goto clk_disable;
- 	}
- 
- 	return 0;
-+
-+clk_disable:
-+	clk_disable_unprepare(sata_phy->phyclk);
-+put_dev:
-+	put_device(&sata_phy->client->dev);
-+
-+	return ret;
- }
- 
- static const struct of_device_id exynos_sata_phy_of_match[] = {
+diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
+index 35d93361fda1..dfe72d82858f 100644
+--- a/drivers/cpufreq/qcom-cpufreq-hw.c
++++ b/drivers/cpufreq/qcom-cpufreq-hw.c
+@@ -277,7 +277,7 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
+ {
+ 	unsigned long max_capacity, capacity, freq_hz, throttled_freq;
+ 	struct cpufreq_policy *policy = data->policy;
+-	int cpu = cpumask_first(policy->cpus);
++	int cpu = cpumask_first(policy->related_cpus);
+ 	struct device *dev = get_cpu_device(cpu);
+ 	struct dev_pm_opp *opp;
+ 	unsigned int freq;
 -- 
 2.35.1
 
