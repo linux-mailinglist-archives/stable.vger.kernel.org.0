@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5623F51A6D4
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3FE51A641
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354547AbiEDRAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:00:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39248 "EHLO
+        id S1354020AbiEDQyn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355569AbiEDRAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C1504B85E;
-        Wed,  4 May 2022 09:51:51 -0700 (PDT)
+        with ESMTP id S1354274AbiEDQx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28AE6488AD;
+        Wed,  4 May 2022 09:49:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BB970617D4;
-        Wed,  4 May 2022 16:51:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 144D0C385A5;
-        Wed,  4 May 2022 16:51:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5ACA061701;
+        Wed,  4 May 2022 16:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A97D6C385A5;
+        Wed,  4 May 2022 16:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683096;
-        bh=AFIzawQbysXjYjCtcBjeB4t+pADeckbAOSyCAuGBxw4=;
+        s=korg; t=1651682958;
+        bh=vzEX6Tq9n68EdutGIw5T+UJNk47l/3TGbuch2cwKSbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uliJHoVw607CbJEvzL57rhqffRNF1wM6USb6BYKGymtJuqJWGT8xTTik6C/gWcRE/
-         SLMn6J6VWFKbrFuHA50ryIpjkBuFYYC0l/00YkYYXKoDtCqJsAplDQYsaG48PrbdIb
-         KEk3Z++vZcEtxUDeGkFhNkiSq9pscmkz7MSgfXS8=
+        b=gJxzKo1MWeeIn5Zz1VxQdkwGMf/5I4IiKelUWqrWT7OqTAXaAgxjgurckVU5ENzui
+         iRM4fY/mT6ODreu0GUXCwaXxCIHtsrd9zfu3J+IadEIBLXi/fSfHNI8w09z4c+3PJH
+         uGdgqB9XAyyV38/cc7CEvTz9Or/6CuioXR3U2JB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch.siach@siklu.com>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 088/129] net: phy: marvell10g: fix return value on error
-Date:   Wed,  4 May 2022 18:44:40 +0200
-Message-Id: <20220504153027.986477931@linuxfoundation.org>
+Subject: [PATCH 5.4 60/84] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+Date:   Wed,  4 May 2022 18:44:41 +0200
+Message-Id: <20220504152932.010530078@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,36 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch.siach@siklu.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0ed9704b660b259b54743cad8a84a11148f60f0a ]
+[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
 
-Return back the error value that we get from phy_read_mmd().
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Fixes: c84786fa8f91 ("net: phy: marvell10g: read copper results from CSSR1")
-Signed-off-by: Baruch Siach <baruch.siach@siklu.com>
-Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/f47cb031aeae873bb008ba35001607304a171a20.1650868058.git.baruch@tkos.co.il
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell10g.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
-index b1bb9b8e1e4e..2b64318efdba 100644
---- a/drivers/net/phy/marvell10g.c
-+++ b/drivers/net/phy/marvell10g.c
-@@ -650,7 +650,7 @@ static int mv3310_read_status_copper(struct phy_device *phydev)
+diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
+index 542b31d6e96d..636bcf2439ef 100644
+--- a/drivers/clk/sunxi/clk-sun9i-mmc.c
++++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
+@@ -109,6 +109,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
+ 	spin_lock_init(&data->lock);
  
- 	cssr1 = phy_read_mmd(phydev, MDIO_MMD_PCS, MV_PCS_CSSR1);
- 	if (cssr1 < 0)
--		return val;
-+		return cssr1;
- 
- 	/* If the link settings are not resolved, mark the link down */
- 	if (!(cssr1 & MV_PCS_CSSR1_RESOLVED)) {
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!r)
++		return -EINVAL;
+ 	/* one clock/reset pair per word */
+ 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
+ 	data->membase = devm_ioremap_resource(&pdev->dev, r);
 -- 
 2.35.1
 
