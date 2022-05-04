@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3100F51A6DA
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAD7551A795
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354646AbiEDRBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38642 "EHLO
+        id S1355223AbiEDRGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355203AbiEDQ7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80E904AE3C;
-        Wed,  4 May 2022 09:51:22 -0700 (PDT)
+        with ESMTP id S1355933AbiEDREr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E3C49C9F;
+        Wed,  4 May 2022 09:53:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9230B827AD;
-        Wed,  4 May 2022 16:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C90C385AF;
-        Wed,  4 May 2022 16:51:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6E4961794;
+        Wed,  4 May 2022 16:53:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302AFC385A4;
+        Wed,  4 May 2022 16:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683079;
-        bh=2AbzTeh1eHwNLj47u0aDJWZ/sZhiCnga/ZsnwBBqyIs=;
+        s=korg; t=1651683212;
+        bh=mXFV1eCLSb36iBuzyVOfOeBZf521incMvf/E8Kl5D/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2Z64MGHuwPw6L+q1z6a/8KGhjQFGDxXYZy7iBTFqWnAV9XlQOJ9G8qakjW29tS4Z
-         MFqu68ZLkRxQvkII5h1tDwmMxUJFGGXT3qbuVbJl5IQhncxA71fMum/2Ib0O1wl2se
-         QjndQQuEGP8MkW5gG5ZiPYNCrswlGKzSFRbYN3vc=
+        b=gycNTWNbMjAQBWRx269CxJI13qfI53q/TO09ef9JYak+3VA3LE5Mv0TNeqLCeQNZ4
+         9VqBOu1tr1VGCFdznkiZZLUauyur6GYk8IRDWIL/EM7Ia8hIfZJCEdpdVPMSaUP7Bf
+         MN/SYLmgYYjp+3PcfhWjBaEf1B2J0z2RYd6HKZtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martynas Pumputis <m@lambda.lt>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Taniya Das <quic_tdas@quicinc.com>,
+        Mike Tipton <quic_mdtipton@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/129] wireguard: device: check for metadata_dst with skb_valid_dst()
+Subject: [PATCH 5.15 069/177] interconnect: qcom: sdx55: Drop IP0 interconnects
 Date:   Wed,  4 May 2022 18:44:22 +0200
-Message-Id: <20220504153026.785770112@linuxfoundation.org>
+Message-Id: <20220504153059.212708372@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,101 +59,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikolay Aleksandrov <razor@blackwall.org>
+From: Stephen Boyd <swboyd@chromium.org>
 
-[ Upstream commit 45ac774c33d834fe9d4de06ab5f1022fe8cd2071 ]
+[ Upstream commit 2fb251c265608636fc961b7d38e1a03937e57371 ]
 
-When we try to transmit an skb with md_dst attached through wireguard
-we hit a null pointer dereference in wg_xmit() due to the use of
-dst_mtu() which calls into dst_blackhole_mtu() which in turn tries to
-dereference dst->dev.
+Similar to the sc7180 commit, let's drop the IP0 interconnects here
+because the IP0 resource is also used in the clk-rpmh driver on sdx55.
+It's bad to have the clk framework and interconnect framework control
+the same RPMh resource without any coordination. The rpmh driver in the
+kernel doesn't aggregate resources between clients either, so leaving
+control to clk-rpmh avoids any issues with unused interconnects turning
+off IP0 behind the back of the clk framework.
 
-Since wireguard doesn't use md_dsts we should use skb_valid_dst(), which
-checks for DST_METADATA flag, and if it's set, then falls back to
-wireguard's device mtu. That gives us the best chance of transmitting
-the packet; otherwise if the blackhole netdev is used we'd get
-ETH_MIN_MTU.
-
- [  263.693506] BUG: kernel NULL pointer dereference, address: 00000000000000e0
- [  263.693908] #PF: supervisor read access in kernel mode
- [  263.694174] #PF: error_code(0x0000) - not-present page
- [  263.694424] PGD 0 P4D 0
- [  263.694653] Oops: 0000 [#1] PREEMPT SMP NOPTI
- [  263.694876] CPU: 5 PID: 951 Comm: mausezahn Kdump: loaded Not tainted 5.18.0-rc1+ #522
- [  263.695190] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
- [  263.695529] RIP: 0010:dst_blackhole_mtu+0x17/0x20
- [  263.695770] Code: 00 00 00 0f 1f 44 00 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 8b 47 10 48 83 e0 fc 8b 40 04 85 c0 75 09 48 8b 07 <8b> 80 e0 00 00 00 c3 66 90 0f 1f 44 00 00 48 89 d7 be 01 00 00 00
- [  263.696339] RSP: 0018:ffffa4a4422fbb28 EFLAGS: 00010246
- [  263.696600] RAX: 0000000000000000 RBX: ffff8ac9c3553000 RCX: 0000000000000000
- [  263.696891] RDX: 0000000000000401 RSI: 00000000fffffe01 RDI: ffffc4a43fb48900
- [  263.697178] RBP: ffffa4a4422fbb90 R08: ffffffff9622635e R09: 0000000000000002
- [  263.697469] R10: ffffffff9b69a6c0 R11: ffffa4a4422fbd0c R12: ffff8ac9d18b1a00
- [  263.697766] R13: ffff8ac9d0ce1840 R14: ffff8ac9d18b1a00 R15: ffff8ac9c3553000
- [  263.698054] FS:  00007f3704c337c0(0000) GS:ffff8acaebf40000(0000) knlGS:0000000000000000
- [  263.698470] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- [  263.698826] CR2: 00000000000000e0 CR3: 0000000117a5c000 CR4: 00000000000006e0
- [  263.699214] Call Trace:
- [  263.699505]  <TASK>
- [  263.699759]  wg_xmit+0x411/0x450
- [  263.700059]  ? bpf_skb_set_tunnel_key+0x46/0x2d0
- [   263.700382]  ? dev_queue_xmit_nit+0x31/0x2b0
- [  263.700719]  dev_hard_start_xmit+0xd9/0x220
- [  263.701047]  __dev_queue_xmit+0x8b9/0xd30
- [  263.701344]  __bpf_redirect+0x1a4/0x380
- [  263.701664]  __dev_queue_xmit+0x83b/0xd30
- [  263.701961]  ? packet_parse_headers+0xb4/0xf0
- [  263.702275]  packet_sendmsg+0x9a8/0x16a0
- [  263.702596]  ? _raw_spin_unlock_irqrestore+0x23/0x40
- [  263.702933]  sock_sendmsg+0x5e/0x60
- [  263.703239]  __sys_sendto+0xf0/0x160
- [  263.703549]  __x64_sys_sendto+0x20/0x30
- [  263.703853]  do_syscall_64+0x3b/0x90
- [  263.704162]  entry_SYSCALL_64_after_hwframe+0x44/0xae
- [  263.704494] RIP: 0033:0x7f3704d50506
- [  263.704789] Code: 48 c7 c0 ff ff ff ff eb b7 66 2e 0f 1f 84 00 00 00 00 00 90 41 89 ca 64 8b 04 25 18 00 00 00 85 c0 75 11 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 72 c3 90 55 48 83 ec 30 44 89 4c 24 2c 4c 89
- [  263.705652] RSP: 002b:00007ffe954b0b88 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- [  263.706141] RAX: ffffffffffffffda RBX: 0000558bb259b490 RCX: 00007f3704d50506
- [  263.706544] RDX: 000000000000004a RSI: 0000558bb259b7b2 RDI: 0000000000000003
- [  263.706952] RBP: 0000000000000000 R08: 00007ffe954b0b90 R09: 0000000000000014
- [  263.707339] R10: 0000000000000000 R11: 0000000000000246 R12: 00007ffe954b0b90
- [  263.707735] R13: 000000000000004a R14: 0000558bb259b7b2 R15: 0000000000000001
- [  263.708132]  </TASK>
- [  263.708398] Modules linked in: bridge netconsole bonding [last unloaded: bridge]
- [  263.708942] CR2: 00000000000000e0
-
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Link: https://github.com/cilium/cilium/issues/19428
-Reported-by: Martynas Pumputis <m@lambda.lt>
-Signed-off-by: Nikolay Aleksandrov <razor@blackwall.org>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: Alex Elder <elder@linaro.org>
+Cc: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Taniya Das <quic_tdas@quicinc.com>
+Cc: Mike Tipton <quic_mdtipton@quicinc.com>
+Fixes: b2150cab9a97 ("clk: qcom: rpmh: add support for SDX55 rpmh IPA clock")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Acked-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220412220033.1273607-3-swboyd@chromium.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireguard/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/interconnect/qcom/sdx55.c | 21 ---------------------
+ 1 file changed, 21 deletions(-)
 
-diff --git a/drivers/net/wireguard/device.c b/drivers/net/wireguard/device.c
-index e189eb95678d..e0693cd965ec 100644
---- a/drivers/net/wireguard/device.c
-+++ b/drivers/net/wireguard/device.c
-@@ -19,6 +19,7 @@
- #include <linux/if_arp.h>
- #include <linux/icmp.h>
- #include <linux/suspend.h>
-+#include <net/dst_metadata.h>
- #include <net/icmp.h>
- #include <net/rtnetlink.h>
- #include <net/ip_tunnels.h>
-@@ -152,7 +153,7 @@ static netdev_tx_t wg_xmit(struct sk_buff *skb, struct net_device *dev)
- 		goto err_peer;
- 	}
+diff --git a/drivers/interconnect/qcom/sdx55.c b/drivers/interconnect/qcom/sdx55.c
+index 03d604f84cc5..e3ac25a997b7 100644
+--- a/drivers/interconnect/qcom/sdx55.c
++++ b/drivers/interconnect/qcom/sdx55.c
+@@ -18,7 +18,6 @@
+ #include "icc-rpmh.h"
+ #include "sdx55.h"
  
--	mtu = skb_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
-+	mtu = skb_valid_dst(skb) ? dst_mtu(skb_dst(skb)) : dev->mtu;
+-DEFINE_QNODE(ipa_core_master, SDX55_MASTER_IPA_CORE, 1, 8, SDX55_SLAVE_IPA_CORE);
+ DEFINE_QNODE(llcc_mc, SDX55_MASTER_LLCC, 4, 4, SDX55_SLAVE_EBI_CH0);
+ DEFINE_QNODE(acm_tcu, SDX55_MASTER_TCU_0, 1, 8, SDX55_SLAVE_LLCC, SDX55_SLAVE_MEM_NOC_SNOC, SDX55_SLAVE_MEM_NOC_PCIE_SNOC);
+ DEFINE_QNODE(qnm_snoc_gc, SDX55_MASTER_SNOC_GC_MEM_NOC, 1, 8, SDX55_SLAVE_LLCC);
+@@ -40,7 +39,6 @@ DEFINE_QNODE(xm_pcie, SDX55_MASTER_PCIE, 1, 8, SDX55_SLAVE_ANOC_SNOC);
+ DEFINE_QNODE(xm_qdss_etr, SDX55_MASTER_QDSS_ETR, 1, 8, SDX55_SLAVE_SNOC_CFG, SDX55_SLAVE_EMAC_CFG, SDX55_SLAVE_USB3, SDX55_SLAVE_AOSS, SDX55_SLAVE_SPMI_FETCHER, SDX55_SLAVE_QDSS_CFG, SDX55_SLAVE_PDM, SDX55_SLAVE_SNOC_MEM_NOC_GC, SDX55_SLAVE_TCSR, SDX55_SLAVE_CNOC_DDRSS, SDX55_SLAVE_SPMI_VGI_COEX, SDX55_SLAVE_QPIC, SDX55_SLAVE_OCIMEM, SDX55_SLAVE_IPA_CFG, SDX55_SLAVE_USB3_PHY_CFG, SDX55_SLAVE_AOP, SDX55_SLAVE_BLSP_1, SDX55_SLAVE_SDCC_1, SDX55_SLAVE_CNOC_MSS, SDX55_SLAVE_PCIE_PARF, SDX55_SLAVE_ECC_CFG, SDX55_SLAVE_AUDIO, SDX55_SLAVE_AOSS, SDX55_SLAVE_PRNG, SDX55_SLAVE_CRYPTO_0_CFG, SDX55_SLAVE_TCU, SDX55_SLAVE_CLK_CTL, SDX55_SLAVE_IMEM_CFG);
+ DEFINE_QNODE(xm_sdc1, SDX55_MASTER_SDCC_1, 1, 8, SDX55_SLAVE_AOSS, SDX55_SLAVE_IPA_CFG, SDX55_SLAVE_ANOC_SNOC, SDX55_SLAVE_AOP, SDX55_SLAVE_AUDIO);
+ DEFINE_QNODE(xm_usb3, SDX55_MASTER_USB3, 1, 8, SDX55_SLAVE_ANOC_SNOC);
+-DEFINE_QNODE(ipa_core_slave, SDX55_SLAVE_IPA_CORE, 1, 8);
+ DEFINE_QNODE(ebi, SDX55_SLAVE_EBI_CH0, 1, 4);
+ DEFINE_QNODE(qns_llcc, SDX55_SLAVE_LLCC, 1, 16, SDX55_SLAVE_EBI_CH0);
+ DEFINE_QNODE(qns_memnoc_snoc, SDX55_SLAVE_MEM_NOC_SNOC, 1, 8, SDX55_MASTER_MEM_NOC_SNOC);
+@@ -82,7 +80,6 @@ DEFINE_QNODE(xs_sys_tcu_cfg, SDX55_SLAVE_TCU, 1, 8);
+ DEFINE_QBCM(bcm_mc0, "MC0", true, &ebi);
+ DEFINE_QBCM(bcm_sh0, "SH0", true, &qns_llcc);
+ DEFINE_QBCM(bcm_ce0, "CE0", false, &qxm_crypto);
+-DEFINE_QBCM(bcm_ip0, "IP0", false, &ipa_core_slave);
+ DEFINE_QBCM(bcm_pn0, "PN0", false, &qhm_snoc_cfg);
+ DEFINE_QBCM(bcm_sh3, "SH3", false, &xm_apps_rdwr);
+ DEFINE_QBCM(bcm_sh4, "SH4", false, &qns_memnoc_snoc, &qns_sys_pcie);
+@@ -219,22 +216,6 @@ static const struct qcom_icc_desc sdx55_system_noc = {
+ 	.num_bcms = ARRAY_SIZE(system_noc_bcms),
+ };
  
- 	__skb_queue_head_init(&packets);
- 	if (!skb_is_gso(skb)) {
+-static struct qcom_icc_bcm *ipa_virt_bcms[] = {
+-	&bcm_ip0,
+-};
+-
+-static struct qcom_icc_node *ipa_virt_nodes[] = {
+-	[MASTER_IPA_CORE] = &ipa_core_master,
+-	[SLAVE_IPA_CORE] = &ipa_core_slave,
+-};
+-
+-static const struct qcom_icc_desc sdx55_ipa_virt = {
+-	.nodes = ipa_virt_nodes,
+-	.num_nodes = ARRAY_SIZE(ipa_virt_nodes),
+-	.bcms = ipa_virt_bcms,
+-	.num_bcms = ARRAY_SIZE(ipa_virt_bcms),
+-};
+-
+ static const struct of_device_id qnoc_of_match[] = {
+ 	{ .compatible = "qcom,sdx55-mc-virt",
+ 	  .data = &sdx55_mc_virt},
+@@ -242,8 +223,6 @@ static const struct of_device_id qnoc_of_match[] = {
+ 	  .data = &sdx55_mem_noc},
+ 	{ .compatible = "qcom,sdx55-system-noc",
+ 	  .data = &sdx55_system_noc},
+-	{ .compatible = "qcom,sdx55-ipa-virt",
+-	  .data = &sdx55_ipa_virt},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, qnoc_of_match);
 -- 
 2.35.1
 
