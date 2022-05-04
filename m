@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDDE51A826
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E80C451A8E5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355608AbiEDRIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54978 "EHLO
+        id S235000AbiEDRMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355091AbiEDRFi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF1149CA8;
-        Wed,  4 May 2022 09:54:18 -0700 (PDT)
+        with ESMTP id S1356969AbiEDRJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5EBE47558;
+        Wed,  4 May 2022 09:56:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7728AB827A3;
-        Wed,  4 May 2022 16:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF395C385AF;
-        Wed,  4 May 2022 16:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4149E617DE;
+        Wed,  4 May 2022 16:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83177C385A4;
+        Wed,  4 May 2022 16:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683256;
-        bh=hNs9+GG7P/OSBBSbROM5/66FARCO1Gc+QL6VOtw+Q+A=;
+        s=korg; t=1651683406;
+        bh=3hVsmT5G8vgBYDvAK4nk4B5RhbZAjeVci/nVWw3xb8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvSRJ4MdrRTPXgoEtu5+1SJHqAyQxcvXii8llc6ux+pqPFMHR96EmL0n/NsZUbeUY
-         qFTpcp88Rd+l8p6DuP0FC0DYObl2gzgkfUerZqvMfKh/sIYrtltD0JTseNuV7H2/On
-         Gd5T0sZGN4FQ2FLfo9RZoZzQaK/PhNVpvT9x1OKM=
+        b=IHO3kIX5sGhAxCv6APfkBytajmfEQOuJCoNeXRH8hpA6X94a3b0C0zCcDDAme1LLM
+         O2QgMgvE4jp+z7+RuhLB9/zL++FXsB3m+8cw08tun9wN/QRcQ/nB/Oq8o41L/h/Wmn
+         f9uJWMB0AtVfclL4oKlj1vdw6fhCJMamejLBzUQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 121/177] gfs2: Make sure not to return short direct writes
-Date:   Wed,  4 May 2022 18:45:14 +0200
-Message-Id: <20220504153103.971992183@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 077/225] phy: samsung: exynos5250-sata: fix missing device put in probe error paths
+Date:   Wed,  4 May 2022 18:45:15 +0200
+Message-Id: <20220504153118.170914263@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 3bde4c48586074202044456285a97ccdf9048988 ]
+[ Upstream commit 5c8402c4db45dd55c2c93c8d730f5dfa7c78a702 ]
 
-When direct writes fail with -ENOTBLK because we're writing into a
-hole (gfs2_iomap_begin()) or because of a page invalidation failure
-(iomap_dio_rw()), we're falling back to buffered writes.  In that case,
-when we lose the inode glock in gfs2_file_buffered_write(), we want to
-re-acquire it instead of returning a short write.
+The actions of of_find_i2c_device_by_node() in probe function should be
+reversed in error paths by putting the reference to obtained device.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
+Link: https://lore.kernel.org/r/20220407091857.230386-2-krzysztof.kozlowski@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/phy/samsung/phy-exynos5250-sata.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 964c19e27ce2..42fa4b5b81a0 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -1076,7 +1076,7 @@ static ssize_t gfs2_file_buffered_write(struct kiocb *iocb,
- 			from->count = min(from->count, window_size - leftover);
- 			if (gfs2_holder_queued(gh))
- 				goto retry_under_glock;
--			if (read)
-+			if (read && !(iocb->ki_flags & IOCB_DIRECT))
- 				goto out_uninit;
- 			goto retry;
- 		}
+diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
+index 6c305a3fe187..595adba5fb8f 100644
+--- a/drivers/phy/samsung/phy-exynos5250-sata.c
++++ b/drivers/phy/samsung/phy-exynos5250-sata.c
+@@ -196,20 +196,21 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 	sata_phy->phyclk = devm_clk_get(dev, "sata_phyctrl");
+ 	if (IS_ERR(sata_phy->phyclk)) {
+ 		dev_err(dev, "failed to get clk for PHY\n");
+-		return PTR_ERR(sata_phy->phyclk);
++		ret = PTR_ERR(sata_phy->phyclk);
++		goto put_dev;
+ 	}
+ 
+ 	ret = clk_prepare_enable(sata_phy->phyclk);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to enable source clk\n");
+-		return ret;
++		goto put_dev;
+ 	}
+ 
+ 	sata_phy->phy = devm_phy_create(dev, NULL, &exynos_sata_phy_ops);
+ 	if (IS_ERR(sata_phy->phy)) {
+-		clk_disable_unprepare(sata_phy->phyclk);
+ 		dev_err(dev, "failed to create PHY\n");
+-		return PTR_ERR(sata_phy->phy);
++		ret = PTR_ERR(sata_phy->phy);
++		goto clk_disable;
+ 	}
+ 
+ 	phy_set_drvdata(sata_phy->phy, sata_phy);
+@@ -217,11 +218,18 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 	phy_provider = devm_of_phy_provider_register(dev,
+ 					of_phy_simple_xlate);
+ 	if (IS_ERR(phy_provider)) {
+-		clk_disable_unprepare(sata_phy->phyclk);
+-		return PTR_ERR(phy_provider);
++		ret = PTR_ERR(phy_provider);
++		goto clk_disable;
+ 	}
+ 
+ 	return 0;
++
++clk_disable:
++	clk_disable_unprepare(sata_phy->phyclk);
++put_dev:
++	put_device(&sata_phy->client->dev);
++
++	return ret;
+ }
+ 
+ static const struct of_device_id exynos_sata_phy_of_match[] = {
 -- 
 2.35.1
 
