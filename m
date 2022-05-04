@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D01451A751
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B21D451A7CB
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354912AbiEDRDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:03:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38274 "EHLO
+        id S1355244AbiEDRHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354572AbiEDQ6w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD512BE5;
-        Wed,  4 May 2022 09:50:29 -0700 (PDT)
+        with ESMTP id S1355106AbiEDREI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C1544D9C1;
+        Wed,  4 May 2022 09:52:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C59661720;
-        Wed,  4 May 2022 16:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 611BCC385A4;
-        Wed,  4 May 2022 16:50:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8457D61852;
+        Wed,  4 May 2022 16:52:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1120C385AA;
+        Wed,  4 May 2022 16:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683028;
-        bh=HY6g3a2YqxarSW+yXg6O1VC2q4lgiVbKF4W9sWwGzdo=;
+        s=korg; t=1651683154;
+        bh=WHbh4A6ClgjOu6hZJxIoyBalRcJQ3ef8RTnB7wCBapM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zaTamPKZPPLtzHhKJrI2hXzg9c3SQGUl+417X73sXD5CaRQ3bAdnuwHakW2Dqgu15
-         8sigOraE5hls2S5O/I6DaUay7a7b1eafNXWWEKxcR5+/xaEo24Il4/CTAkOc2o6Uum
-         GiwF7PbQ1ZW8OrQ7PWKvOqoZb/+zVjolIPhrCwNc=
+        b=ILDNNaCdr6W+qCIjF2lL0rYWgiGb1UaLDzvstx+KV5HvXAljjByIdtDB0ad4iVYFI
+         EBhQVvX6JPfwjzYesZdkbHWei4MtfuXIGSpTvYLgzuR0SfIKKlXVbL8VZloWfaTeRz
+         uBZ1iAiIAg4HmNCbrQhexVs25brw3CGw7P+bb+YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
         Jia-Ju Bai <baijiaju1990@gmail.com>
-Subject: [PATCH 5.10 019/129] usb: typec: ucsi: Fix role swapping
-Date:   Wed,  4 May 2022 18:43:31 +0200
-Message-Id: <20220504153022.838977126@linuxfoundation.org>
+Subject: [PATCH 5.15 019/177] usb: typec: ucsi: Fix role swapping
+Date:   Wed,  4 May 2022 18:43:32 +0200
+Message-Id: <20220504153055.052584435@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/typec/ucsi/ucsi.c
 +++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -937,14 +937,18 @@ static int ucsi_dr_swap(struct typec_por
+@@ -964,14 +964,18 @@ static int ucsi_dr_swap(struct typec_por
  	if (ret < 0)
  		goto out_unlock;
  
@@ -98,7 +98,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  }
  
  static int ucsi_pr_swap(struct typec_port *port, enum typec_role role)
-@@ -975,11 +979,13 @@ static int ucsi_pr_swap(struct typec_por
+@@ -1002,11 +1006,13 @@ static int ucsi_pr_swap(struct typec_por
  	if (ret < 0)
  		goto out_unlock;
  
