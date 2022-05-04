@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DEA751A79B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE8B51A8A8
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355319AbiEDRGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
+        id S1351050AbiEDRMo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356301AbiEDRFI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D42450B38;
-        Wed,  4 May 2022 09:54:03 -0700 (PDT)
+        with ESMTP id S1356870AbiEDRJr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AA7843EC9;
+        Wed,  4 May 2022 09:56:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC9A6B82792;
-        Wed,  4 May 2022 16:54:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B48DC385B1;
-        Wed,  4 May 2022 16:54:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5D8DB8278E;
+        Wed,  4 May 2022 16:56:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B37C385A4;
+        Wed,  4 May 2022 16:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683240;
-        bh=SNx83Pbjpg0ZcHfND6i5kAbdpaRsicsaY11CcJYsxrw=;
+        s=korg; t=1651683368;
+        bh=UZl42qo5/Ar8qtWtm+NFa5TCzVY3jfja3ZRWVrYwy6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQOTU3yiqAwjDfSOOJGBpZIe/0dNWRqGS+gqrdXzcKSB7F5DCqvJYEFjbtLZRmz13
-         DoV+NptLRA+rWfInli9Rj9YZOjV10rHJ+2rctrXhhYGxPgMmew2YNUn8Sw5NJPWly+
-         LrLLNNVQl+irVwnonR/PhcdOG3CsJkB2ou31/6c8=
+        b=zHUq/5Vb76IsZii9KsVuMsu71qvVZc7r/b0HCLBZPg5WA4hswZb7R9Ir5wwlzQMfT
+         C7rMZ0DIbCojpRu6P7yzwsw+w86/ZqEA78nQG8g5CbA1S5CYxXAxEQl1Lu0+AMTGv+
+         cYf2h9kgFXANEkAQo+3AriGZRmvwnqYkHl776mo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, liuyacan <liuyacan@corp.netease.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 097/177] net/smc: sync err code when tcp connection was refused
-Date:   Wed,  4 May 2022 18:44:50 +0200
-Message-Id: <20220504153101.812740917@linuxfoundation.org>
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Rik van Riel <riel@surriel.com>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 053/225] iocost: dont reset the inuse weight of under-weighted debtors
+Date:   Wed,  4 May 2022 18:44:51 +0200
+Message-Id: <20220504153114.897394089@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: liuyacan <liuyacan@corp.netease.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 4e2e65e2e56c6ceb4ea1719360080c0af083229e ]
+commit 8c936f9ea11ec4e35e288810a7503b5c841a355f upstream.
 
-In the current implementation, when TCP initiates a connection
-to an unavailable [ip,port], ECONNREFUSED will be stored in the
-TCP socket, but SMC will not. However, some apps (like curl) use
-getsockopt(,,SO_ERROR,,) to get the error information, which makes
-them miss the error message and behave strangely.
+When an iocg is in debt, its inuse weight is owned by debt handling and
+should stay at 1. This invariant was broken when determining the amount of
+surpluses at the beginning of donation calculation - when an iocg's
+hierarchical weight is too low, the iocg is excluded from donation
+calculation and its inuse is reset to its active regardless of its
+indebtedness, triggering warnings like the following:
 
-Fixes: 50717a37db03 ("net/smc: nonblocking connect rework")
-Signed-off-by: liuyacan <liuyacan@corp.netease.com>
-Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+ WARNING: CPU: 5 PID: 0 at block/blk-iocost.c:1416 iocg_kick_waitq+0x392/0x3a0
+ ...
+ RIP: 0010:iocg_kick_waitq+0x392/0x3a0
+ Code: 00 00 be ff ff ff ff 48 89 4d a8 e8 98 b2 70 00 48 8b 4d a8 85 c0 0f 85 4a fe ff ff 0f 0b e9 43 fe ff ff 0f 0b e9 4d fe ff ff <0f> 0b e9 50 fe ff ff e8 a2 ae 70 00 66 90 0f 1f 44 00 00 55 48 89
+ RSP: 0018:ffffc90000200d08 EFLAGS: 00010016
+ ...
+  <IRQ>
+  ioc_timer_fn+0x2e0/0x1470
+  call_timer_fn+0xa1/0x2c0
+ ...
+
+As this happens only when an iocg's hierarchical weight is negligible, its
+impact likely is limited to triggering the warnings. Fix it by skipping
+resetting inuse of under-weighted debtors.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Rik van Riel <riel@surriel.com>
+Fixes: c421a3eb2e27 ("blk-iocost: revamp debt handling")
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lore.kernel.org/r/YmjODd4aif9BzFuO@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/smc/af_smc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ block/blk-iocost.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 499058248bdb..fb801c249d92 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1223,6 +1223,8 @@ static void smc_connect_work(struct work_struct *work)
- 		smc->sk.sk_state = SMC_CLOSED;
- 		if (rc == -EPIPE || rc == -EAGAIN)
- 			smc->sk.sk_err = EPIPE;
-+		else if (rc == -ECONNREFUSED)
-+			smc->sk.sk_err = ECONNREFUSED;
- 		else if (signal_pending(current))
- 			smc->sk.sk_err = -sock_intr_errno(timeo);
- 		sock_put(&smc->sk); /* passive closing */
--- 
-2.35.1
-
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -2322,7 +2322,17 @@ static void ioc_timer_fn(struct timer_li
+ 				iocg->hweight_donating = hwa;
+ 				iocg->hweight_after_donation = new_hwi;
+ 				list_add(&iocg->surplus_list, &surpluses);
+-			} else {
++			} else if (!iocg->abs_vdebt) {
++				/*
++				 * @iocg doesn't have enough to donate. Reset
++				 * its inuse to active.
++				 *
++				 * Don't reset debtors as their inuse's are
++				 * owned by debt handling. This shouldn't affect
++				 * donation calculuation in any meaningful way
++				 * as @iocg doesn't have a meaningful amount of
++				 * share anyway.
++				 */
+ 				TRACE_IOCG_PATH(inuse_shortage, iocg, &now,
+ 						iocg->inuse, iocg->active,
+ 						iocg->hweight_inuse, new_hwi);
 
 
