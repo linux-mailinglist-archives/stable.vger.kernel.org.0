@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E2FC51A6FF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C69E51A64E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354657AbiEDRBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37262 "EHLO
+        id S1353939AbiEDQyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355594AbiEDRAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:16 -0400
+        with ESMTP id S1354293AbiEDQyA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ACF64B410;
-        Wed,  4 May 2022 09:51:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23BBA488B5;
+        Wed,  4 May 2022 09:49:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7315617D5;
-        Wed,  4 May 2022 16:51:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07170C385A4;
-        Wed,  4 May 2022 16:51:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E7D461776;
+        Wed,  4 May 2022 16:49:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A73B4C385A5;
+        Wed,  4 May 2022 16:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683098;
-        bh=+70qO+KftOn2ixodnPkzCkURwjcE2RutkcJIg1oC1a4=;
+        s=korg; t=1651682959;
+        bh=TvL9yjl2bK077pgShO+lHk2bgQfaU69azEG+j51K/+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GDqXg6+CQJ53GkBWDLRB0Wvkc66wRgP0i3V8XWSXsDHr21ttX6vhlLDNXwHE7s9b0
-         /JjYOUJF2G352aGvdWcHEGBNNxC05yYUBzmz6gtSPSmeUh9/0fL5WdSvt0rg0IKdCe
-         jV04MvZrJaupYZBLQOYXO1WQpkcztY1xMLHA2A4A=
+        b=xwor0YOvMEhx+5jJP/wIBHKEiMJuNy2462xK8S6+cT/dD5C+aty+PpLcU+K8kVFV7
+         81EO9I2p0fkpSOWurlqeR5tJUN5FEz7DhGMVW9zXnF30N4VtOLun3gKYkbZD8xpU5o
+         MmuBCkGaBuz1B9Ooq/CNtVn62t7ndNiKVqaHxGHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Yat Sin <david.yatsin@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 090/129] drm/amdkfd: Fix GWS queue count
+Subject: [PATCH 5.4 61/84] net: bcmgenet: hide status block before TX timestamping
 Date:   Wed,  4 May 2022 18:44:42 +0200
-Message-Id: <20220504153028.116293731@linuxfoundation.org>
+Message-Id: <20220504152932.094949340@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,220 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Yat Sin <david.yatsin@amd.com>
+From: Jonathan Lemon <jonathan.lemon@gmail.com>
 
-[ Upstream commit 7c6b6e18c890f30965b0589b0a57645e1dbccfde ]
+[ Upstream commit acac0541d1d65e81e599ec399d34d184d2424401 ]
 
-dqm->gws_queue_count and pdd->qpd.mapped_gws_queue need to be updated
-each time the queue gets evicted.
+The hardware checksum offloading requires use of a transmit
+status block inserted before the outgoing frame data, this was
+updated in '9a9ba2a4aaaa ("net: bcmgenet: always enable status blocks")'
 
-Fixes: b8020b0304c8 ("drm/amdkfd: Enable over-subscription with >1 GWS queue")
-Signed-off-by: David Yat Sin <david.yatsin@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+However, skb_tx_timestamp() assumes that it is passed a raw frame
+and PTP parsing chokes on this status block.
+
+Fix this by calling __skb_pull(), which hides the TSB before calling
+skb_tx_timestamp(), so an outgoing PTP packet is parsed correctly.
+
+As the data in the skb has already been set up for DMA, and the
+dma_unmap_* calls use a separately stored address, there is no
+no effective change in the data transmission.
+
+Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220424165307.591145-1-jonathan.lemon@gmail.com
+Fixes: d03825fba459 ("net: bcmgenet: add skb_tx_timestamp call")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/amdkfd/kfd_device_queue_manager.c | 83 +++++++++----------
- 1 file changed, 37 insertions(+), 46 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index 2645ebc63a14..195b7e02dc4b 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -138,19 +138,33 @@ void program_sh_mem_settings(struct device_queue_manager *dqm,
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 2affdddc12bf..e03e2bfcc6a1 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1547,6 +1547,11 @@ static struct sk_buff *bcmgenet_put_tx_csum(struct net_device *dev,
+ 	return skb;
  }
  
- static void increment_queue_count(struct device_queue_manager *dqm,
--			enum kfd_queue_type type)
-+				  struct qcm_process_device *qpd,
-+				  struct queue *q)
- {
- 	dqm->active_queue_count++;
--	if (type == KFD_QUEUE_TYPE_COMPUTE || type == KFD_QUEUE_TYPE_DIQ)
-+	if (q->properties.type == KFD_QUEUE_TYPE_COMPUTE ||
-+	    q->properties.type == KFD_QUEUE_TYPE_DIQ)
- 		dqm->active_cp_queue_count++;
++static void bcmgenet_hide_tsb(struct sk_buff *skb)
++{
++	__skb_pull(skb, sizeof(struct status_64));
++}
 +
-+	if (q->properties.is_gws) {
-+		dqm->gws_queue_count++;
-+		qpd->mapped_gws_queue = true;
-+	}
- }
- 
- static void decrement_queue_count(struct device_queue_manager *dqm,
--			enum kfd_queue_type type)
-+				  struct qcm_process_device *qpd,
-+				  struct queue *q)
+ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
  {
- 	dqm->active_queue_count--;
--	if (type == KFD_QUEUE_TYPE_COMPUTE || type == KFD_QUEUE_TYPE_DIQ)
-+	if (q->properties.type == KFD_QUEUE_TYPE_COMPUTE ||
-+	    q->properties.type == KFD_QUEUE_TYPE_DIQ)
- 		dqm->active_cp_queue_count--;
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+@@ -1655,6 +1660,8 @@ static netdev_tx_t bcmgenet_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	}
+ 
+ 	GENET_CB(skb)->last_cb = tx_cb_ptr;
 +
-+	if (q->properties.is_gws) {
-+		dqm->gws_queue_count--;
-+		qpd->mapped_gws_queue = false;
-+	}
- }
++	bcmgenet_hide_tsb(skb);
+ 	skb_tx_timestamp(skb);
  
- static int allocate_doorbell(struct qcm_process_device *qpd, struct queue *q)
-@@ -377,7 +391,7 @@ static int create_queue_nocpsch(struct device_queue_manager *dqm,
- 	list_add(&q->list, &qpd->queues_list);
- 	qpd->queue_count++;
- 	if (q->properties.is_active)
--		increment_queue_count(dqm, q->properties.type);
-+		increment_queue_count(dqm, qpd, q);
- 
- 	/*
- 	 * Unconditionally increment this counter, regardless of the queue's
-@@ -502,13 +516,8 @@ static int destroy_queue_nocpsch_locked(struct device_queue_manager *dqm,
- 		deallocate_vmid(dqm, qpd, q);
- 	}
- 	qpd->queue_count--;
--	if (q->properties.is_active) {
--		decrement_queue_count(dqm, q->properties.type);
--		if (q->properties.is_gws) {
--			dqm->gws_queue_count--;
--			qpd->mapped_gws_queue = false;
--		}
--	}
-+	if (q->properties.is_active)
-+		decrement_queue_count(dqm, qpd, q);
- 
- 	return retval;
- }
-@@ -598,12 +607,11 @@ static int update_queue(struct device_queue_manager *dqm, struct queue *q)
- 	 * dqm->active_queue_count to determine whether a new runlist must be
- 	 * uploaded.
- 	 */
--	if (q->properties.is_active && !prev_active)
--		increment_queue_count(dqm, q->properties.type);
--	else if (!q->properties.is_active && prev_active)
--		decrement_queue_count(dqm, q->properties.type);
--
--	if (q->gws && !q->properties.is_gws) {
-+	if (q->properties.is_active && !prev_active) {
-+		increment_queue_count(dqm, &pdd->qpd, q);
-+	} else if (!q->properties.is_active && prev_active) {
-+		decrement_queue_count(dqm, &pdd->qpd, q);
-+	} else if (q->gws && !q->properties.is_gws) {
- 		if (q->properties.is_active) {
- 			dqm->gws_queue_count++;
- 			pdd->qpd.mapped_gws_queue = true;
-@@ -665,11 +673,7 @@ static int evict_process_queues_nocpsch(struct device_queue_manager *dqm,
- 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
- 				q->properties.type)];
- 		q->properties.is_active = false;
--		decrement_queue_count(dqm, q->properties.type);
--		if (q->properties.is_gws) {
--			dqm->gws_queue_count--;
--			qpd->mapped_gws_queue = false;
--		}
-+		decrement_queue_count(dqm, qpd, q);
- 
- 		if (WARN_ONCE(!dqm->sched_running, "Evict when stopped\n"))
- 			continue;
-@@ -713,7 +717,7 @@ static int evict_process_queues_cpsch(struct device_queue_manager *dqm,
- 			continue;
- 
- 		q->properties.is_active = false;
--		decrement_queue_count(dqm, q->properties.type);
-+		decrement_queue_count(dqm, qpd, q);
- 	}
- 	pdd->last_evict_timestamp = get_jiffies_64();
- 	retval = execute_queues_cpsch(dqm,
-@@ -784,11 +788,7 @@ static int restore_process_queues_nocpsch(struct device_queue_manager *dqm,
- 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
- 				q->properties.type)];
- 		q->properties.is_active = true;
--		increment_queue_count(dqm, q->properties.type);
--		if (q->properties.is_gws) {
--			dqm->gws_queue_count++;
--			qpd->mapped_gws_queue = true;
--		}
-+		increment_queue_count(dqm, qpd, q);
- 
- 		if (WARN_ONCE(!dqm->sched_running, "Restore when stopped\n"))
- 			continue;
-@@ -846,7 +846,7 @@ static int restore_process_queues_cpsch(struct device_queue_manager *dqm,
- 			continue;
- 
- 		q->properties.is_active = true;
--		increment_queue_count(dqm, q->properties.type);
-+		increment_queue_count(dqm, &pdd->qpd, q);
- 	}
- 	retval = execute_queues_cpsch(dqm,
- 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
-@@ -1247,7 +1247,7 @@ static int create_kernel_queue_cpsch(struct device_queue_manager *dqm,
- 			dqm->total_queue_count);
- 
- 	list_add(&kq->list, &qpd->priv_queue_list);
--	increment_queue_count(dqm, kq->queue->properties.type);
-+	increment_queue_count(dqm, qpd, kq->queue);
- 	qpd->is_debug = true;
- 	execute_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
- 	dqm_unlock(dqm);
-@@ -1261,7 +1261,7 @@ static void destroy_kernel_queue_cpsch(struct device_queue_manager *dqm,
- {
- 	dqm_lock(dqm);
- 	list_del(&kq->list);
--	decrement_queue_count(dqm, kq->queue->properties.type);
-+	decrement_queue_count(dqm, qpd, kq->queue);
- 	qpd->is_debug = false;
- 	execute_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES, 0);
- 	/*
-@@ -1328,7 +1328,7 @@ static int create_queue_cpsch(struct device_queue_manager *dqm, struct queue *q,
- 	qpd->queue_count++;
- 
- 	if (q->properties.is_active) {
--		increment_queue_count(dqm, q->properties.type);
-+		increment_queue_count(dqm, qpd, q);
- 
- 		execute_queues_cpsch(dqm,
- 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
-@@ -1513,15 +1513,11 @@ static int destroy_queue_cpsch(struct device_queue_manager *dqm,
- 	list_del(&q->list);
- 	qpd->queue_count--;
- 	if (q->properties.is_active) {
--		decrement_queue_count(dqm, q->properties.type);
-+		decrement_queue_count(dqm, qpd, q);
- 		retval = execute_queues_cpsch(dqm,
- 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
- 		if (retval == -ETIME)
- 			qpd->reset_wavefronts = true;
--		if (q->properties.is_gws) {
--			dqm->gws_queue_count--;
--			qpd->mapped_gws_queue = false;
--		}
- 	}
- 
- 	/*
-@@ -1732,7 +1728,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 	/* Clean all kernel queues */
- 	list_for_each_entry_safe(kq, kq_next, &qpd->priv_queue_list, list) {
- 		list_del(&kq->list);
--		decrement_queue_count(dqm, kq->queue->properties.type);
-+		decrement_queue_count(dqm, qpd, kq->queue);
- 		qpd->is_debug = false;
- 		dqm->total_queue_count--;
- 		filter = KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES;
-@@ -1745,13 +1741,8 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
- 		else if (q->properties.type == KFD_QUEUE_TYPE_SDMA_XGMI)
- 			deallocate_sdma_queue(dqm, q);
- 
--		if (q->properties.is_active) {
--			decrement_queue_count(dqm, q->properties.type);
--			if (q->properties.is_gws) {
--				dqm->gws_queue_count--;
--				qpd->mapped_gws_queue = false;
--			}
--		}
-+		if (q->properties.is_active)
-+			decrement_queue_count(dqm, qpd, q);
- 
- 		dqm->total_queue_count--;
- 	}
+ 	/* Decrement total BD count and advance our write pointer */
 -- 
 2.35.1
 
