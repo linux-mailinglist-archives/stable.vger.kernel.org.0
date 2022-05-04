@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B528751A85B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B4F51A8D5
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355748AbiEDRKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
+        id S1355431AbiEDRNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:13:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356238AbiEDRJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:06 -0400
+        with ESMTP id S1357346AbiEDRKI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:10:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51CE652E7E;
-        Wed,  4 May 2022 09:55:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 700314AE0A;
+        Wed,  4 May 2022 09:57:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6222B827A4;
-        Wed,  4 May 2022 16:54:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E781C385A4;
-        Wed,  4 May 2022 16:54:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F6F2B827A1;
+        Wed,  4 May 2022 16:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB3BBC385A4;
+        Wed,  4 May 2022 16:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683298;
-        bh=+pd8bGsS0zR0hJwb5IFgrU+qEToXC0YbxDwkOVysbwI=;
+        s=korg; t=1651683435;
+        bh=o/TBVWKlJXQHY5/wrx7BA8kakwrKrOXVY/FDBhu94k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHzR3+V3C/b4u27j+Au1Qpb5ZvDzGpjESzcG9Fe3L+3FtojSiU7qkJNEFijdZzXaY
-         wrFzGhIuXeKms3Fg/0LajAUiNWOYgunvcl5pLmOYyEayAAvvBADhIQX6AJnSq3MJtG
-         zatTgB/6tUxBU1/6M9hTQVf4ACxwn1mb122NOjFE=
+        b=s30Slj9MOCLgJf6clrWKBgYRR/u3jfbck/ZAuRSjpYTuf1PKifjwtctSWSIFy7Fe9
+         mRkJX0CprT26EnnoLXXsoZsEQgNZSV8AaAT30XJPgzvAEx16Pf7WI/U3cCFHTetpS1
+         0xvDfH5zjClMnBktjRJsuT7iJ17ResvCUPjtvUos=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>
-Subject: [PATCH 5.15 152/177] ARM: dts: at91: sama7g5ek: enable pull-up on flexcom3 console lines
+        stable@vger.kernel.org, Pengcheng Yang <yangpc@wangsu.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 107/225] tcp: ensure to use the most recently sent skb when filling the rate sample
 Date:   Wed,  4 May 2022 18:45:45 +0200
-Message-Id: <20220504153106.964060853@linuxfoundation.org>
+Message-Id: <20220504153120.203761821@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,37 +57,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Pengcheng Yang <yangpc@wangsu.com>
 
-commit 3f7ce6d7091765ed6c67c5d78aa364b9d17e3aab upstream.
+[ Upstream commit b253a0680ceadc5d7b4acca7aa2d870326cad8ad ]
 
-Flexcom3 is used as board console serial. There are no pull-ups on these
-lines on the board. This means that if a cable is not connected (that has
-pull-ups included), stray characters could appear on the console as the
-floating pins voltage levels are interpreted as incoming characters.
-To avoid this problem, enable the internal pull-ups on these lines.
+If an ACK (s)acks multiple skbs, we favor the information
+from the most recently sent skb by choosing the skb with
+the highest prior_delivered count. But in the interval
+between receiving ACKs, we send multiple skbs with the same
+prior_delivered, because the tp->delivered only changes
+when we receive an ACK.
 
-Fixes: 7540629e2fc7 ("ARM: dts: at91: add sama7g5 SoC DT and sama7g5-ek")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20220307113827.2419331-1-eugen.hristev@microchip.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We used RACK's solution, copying tcp_rack_sent_after() as
+tcp_skb_sent_after() helper to determine "which packet was
+sent last?". Later, we will use tcp_skb_sent_after() instead
+in RACK.
+
+Fixes: b9f64820fb22 ("tcp: track data delivery rate for a TCP connection")
+Signed-off-by: Pengcheng Yang <yangpc@wangsu.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Neal Cardwell <ncardwell@google.com>
+Tested-by: Neal Cardwell <ncardwell@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/1650422081-22153-1-git-send-email-yangpc@wangsu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-sama7g5ek.dts |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/tcp.h   |  6 ++++++
+ net/ipv4/tcp_rate.c | 11 ++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
---- a/arch/arm/boot/dts/at91-sama7g5ek.dts
-+++ b/arch/arm/boot/dts/at91-sama7g5ek.dts
-@@ -403,7 +403,7 @@
- 	pinctrl_flx3_default: flx3_default {
- 		pinmux = <PIN_PD16__FLEXCOM3_IO0>,
- 			 <PIN_PD17__FLEXCOM3_IO1>;
--		bias-disable;
-+		bias-pull-up;
- 	};
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index b9fc978fb2ca..9f459e8f1689 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -1042,6 +1042,7 @@ struct rate_sample {
+ 	int  losses;		/* number of packets marked lost upon ACK */
+ 	u32  acked_sacked;	/* number of packets newly (S)ACKed upon ACK */
+ 	u32  prior_in_flight;	/* in flight before this ACK */
++	u32  last_end_seq;	/* end_seq of most recently ACKed packet */
+ 	bool is_app_limited;	/* is sample from packet with bubble in pipe? */
+ 	bool is_retrans;	/* is sample from retransmission? */
+ 	bool is_ack_delayed;	/* is this (likely) a delayed ACK? */
+@@ -1164,6 +1165,11 @@ void tcp_rate_gen(struct sock *sk, u32 delivered, u32 lost,
+ 		  bool is_sack_reneg, struct rate_sample *rs);
+ void tcp_rate_check_app_limited(struct sock *sk);
  
- 	pinctrl_flx4_default: flx4_default {
++static inline bool tcp_skb_sent_after(u64 t1, u64 t2, u32 seq1, u32 seq2)
++{
++	return t1 > t2 || (t1 == t2 && after(seq1, seq2));
++}
++
+ /* These functions determine how the current flow behaves in respect of SACK
+  * handling. SACK is negotiated with the peer, and therefore it can vary
+  * between different flows.
+diff --git a/net/ipv4/tcp_rate.c b/net/ipv4/tcp_rate.c
+index fbab921670cc..9a8e014d9b5b 100644
+--- a/net/ipv4/tcp_rate.c
++++ b/net/ipv4/tcp_rate.c
+@@ -74,27 +74,32 @@ void tcp_rate_skb_sent(struct sock *sk, struct sk_buff *skb)
+  *
+  * If an ACK (s)acks multiple skbs (e.g., stretched-acks), this function is
+  * called multiple times. We favor the information from the most recently
+- * sent skb, i.e., the skb with the highest prior_delivered count.
++ * sent skb, i.e., the skb with the most recently sent time and the highest
++ * sequence.
+  */
+ void tcp_rate_skb_delivered(struct sock *sk, struct sk_buff *skb,
+ 			    struct rate_sample *rs)
+ {
+ 	struct tcp_sock *tp = tcp_sk(sk);
+ 	struct tcp_skb_cb *scb = TCP_SKB_CB(skb);
++	u64 tx_tstamp;
+ 
+ 	if (!scb->tx.delivered_mstamp)
+ 		return;
+ 
++	tx_tstamp = tcp_skb_timestamp_us(skb);
+ 	if (!rs->prior_delivered ||
+-	    after(scb->tx.delivered, rs->prior_delivered)) {
++	    tcp_skb_sent_after(tx_tstamp, tp->first_tx_mstamp,
++			       scb->end_seq, rs->last_end_seq)) {
+ 		rs->prior_delivered_ce  = scb->tx.delivered_ce;
+ 		rs->prior_delivered  = scb->tx.delivered;
+ 		rs->prior_mstamp     = scb->tx.delivered_mstamp;
+ 		rs->is_app_limited   = scb->tx.is_app_limited;
+ 		rs->is_retrans	     = scb->sacked & TCPCB_RETRANS;
++		rs->last_end_seq     = scb->end_seq;
+ 
+ 		/* Record send time of most recently ACKed packet: */
+-		tp->first_tx_mstamp  = tcp_skb_timestamp_us(skb);
++		tp->first_tx_mstamp  = tx_tstamp;
+ 		/* Find the duration of the "send phase" of this window: */
+ 		rs->interval_us = tcp_stamp_us_delta(tp->first_tx_mstamp,
+ 						     scb->tx.first_tx_mstamp);
+-- 
+2.35.1
+
 
 
