@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 405EA51A70E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6497651A79E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354735AbiEDRBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38302 "EHLO
+        id S1354790AbiEDRFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:05:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354575AbiEDQ6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
+        with ESMTP id S1354933AbiEDRDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:03:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 193381834B;
-        Wed,  4 May 2022 09:50:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 826D24CD76;
+        Wed,  4 May 2022 09:52:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDFC5B82552;
-        Wed,  4 May 2022 16:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EB2AC385A5;
-        Wed,  4 May 2022 16:50:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A53AB827AB;
+        Wed,  4 May 2022 16:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D342BC385A5;
+        Wed,  4 May 2022 16:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683029;
-        bh=zL7m3jJKBlSnNR74+VWXMFcYh75Cfk2X59tlw/vprHk=;
+        s=korg; t=1651683155;
+        bh=x0NSc7MEHG10LK5hjOAWgWyyKxJaPB0om7Wljiw3vkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xCdSN5SjozaRlRiiPhCEabgQclfagNqctKpi8OBu3XCYwCJmSdRXfJDgsDEkwm1hG
-         ydcpsnvj+FkGbe4k5ybt+RVRjsmFRC6Spc7QEJvQfmwN1NaBrxZpMZ3osKHsg5CHZg
-         Tz6jbeBMML8KRf0dFyzzmtzgJ/nRiZVTxXZ4rJBk=
+        b=b+t+srUDh5Lh4ZEBnWN3oQfeKPilnwF3K9Gkp73mNf5BCy/xX70E8RYZS0U0BDqtL
+         o5bqhLslKelpnCh9hjSCb1GZvLX176wMXE+XKdrKUh8YNYYEbMCeci5wgDFgO8qzo+
+         pmuC7vci61Yq8OwNg7TZg+oxVeUHdNxJihmaHnGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
-Subject: [PATCH 5.10 020/129] usb: gadget: uvc: Fix crash when encoding data for usb request
-Date:   Wed,  4 May 2022 18:43:32 +0200
-Message-Id: <20220504153022.895360243@linuxfoundation.org>
+Subject: [PATCH 5.15 020/177] usb: gadget: uvc: Fix crash when encoding data for usb request
+Date:   Wed,  4 May 2022 18:43:33 +0200
+Message-Id: <20220504153055.110882915@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -96,7 +96,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/gadget/function/uvc_queue.c
 +++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -242,6 +242,8 @@ void uvcg_queue_cancel(struct uvc_video_
+@@ -264,6 +264,8 @@ void uvcg_queue_cancel(struct uvc_video_
  		buf->state = UVC_BUF_STATE_ERROR;
  		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
  	}
