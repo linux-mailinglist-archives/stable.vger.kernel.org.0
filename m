@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A058651A7FB
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF07C51A871
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355432AbiEDRHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
+        id S1350244AbiEDRLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355760AbiEDREl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:41 -0400
+        with ESMTP id S1356777AbiEDRJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CC424F9D7;
-        Wed,  4 May 2022 09:53:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49CA81B7A5;
+        Wed,  4 May 2022 09:55:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D368BB8279F;
-        Wed,  4 May 2022 16:53:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C83DC385AF;
-        Wed,  4 May 2022 16:53:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 838F4B82737;
+        Wed,  4 May 2022 16:55:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8E1C385AA;
+        Wed,  4 May 2022 16:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683199;
-        bh=c9tifztPdtIZMnIZoFYTn8EbVTxFGghKHU5Yrzs7rmg=;
+        s=korg; t=1651683332;
+        bh=HCoN8/Wq4Acpa5T6uG4M7Zn2PwaQBMq/3dfZoQIgsyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wnFtUvvswxQNbZXpkHGOrClT9auogOsyQyUOQeMarSn0yGCd34fc+HFEAaluS3BX
-         KjIdoCxf+LVCfCmNaQv+H7nhBHQNG82W7J+At5n09+Q0IMwfroCVSp7Jw4GvnPpN6U
-         AtsMAw9k2QHFJj4j/6p2d57xPds+QgQmmwG6p0xU=
+        b=l1TB1MjEf7UdT5grUfqfBJ+g+Gt5AdO3NFCqe6bg1pIuZX3SZVfAy9SAKAh04u8Vp
+         zabLlq6Q/DH4tPaE+sCQCcMs+xhX7dpmacCYiLHq1UpKZI0WysNPKV/iLOv+OGvCVW
+         T7Qc4XbueO6K3czAD3uno/xVT91AtHMEubvny60Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/177] ARM: dts: at91: Map MCLK for wm8731 on at91sam9g20ek
+        stable@vger.kernel.org, stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Tasos Sahanidis <tasos@tasossah.com>
+Subject: [PATCH 5.17 019/225] usb: core: Dont hold the device lock while sleeping in do_proc_control()
 Date:   Wed,  4 May 2022 18:44:17 +0200
-Message-Id: <20220504153058.732915149@linuxfoundation.org>
+Message-Id: <20220504153112.012598935@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit 0e486fe341fabd8e583f3d601a874cd394979c45 ]
+commit 0543e4e8852ef5ff1809ae62f1ea963e2ab23b66 upstream.
 
-The MCLK of the WM8731 on the AT91SAM9G20-EK board is connected to the
-PCK0 output of the SoC and is expected to be set to 12MHz. Previously
-this was mapped using pre-common clock API calls in the audio machine
-driver but the conversion to the common clock framework broke that so
-describe things in the DT instead.
+Since commit ae8709b296d8 ("USB: core: Make do_proc_control() and
+do_proc_bulk() killable") if a device has the USB_QUIRK_DELAY_CTRL_MSG
+quirk set, it will temporarily block all other URBs (e.g. interrupts)
+while sleeping due to a control.
 
-Fixes: ff78a189b0ae55f ("ARM: at91: remove old at91-specific clock driver")
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Link: https://lore.kernel.org/r/20220404102806.581374-2-broonie@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This results in noticeable delays when, for example, a userspace usbfs
+application is sending URB interrupts at a high rate to a keyboard and
+simultaneously updates the lock indicators using controls. Interrupts
+with direction set to IN are also affected by this, meaning that
+delivery of HID reports (containing scancodes) to the usbfs application
+is delayed as well.
+
+This patch fixes the regression by calling msleep() while the device
+mutex is unlocked, as was the case originally with usb_control_msg().
+
+Fixes: ae8709b296d8 ("USB: core: Make do_proc_control() and do_proc_bulk() killable")
+Cc: stable <stable@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Link: https://lore.kernel.org/r/3e299e2a-13b9-ddff-7fee-6845e868bc06@tasossah.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/at91sam9g20ek_common.dtsi | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/core/devio.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-index 87bb39060e8b..ca03685f0f08 100644
---- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-@@ -219,6 +219,12 @@ i2c-gpio-0 {
- 		wm8731: wm8731@1b {
- 			compatible = "wm8731";
- 			reg = <0x1b>;
-+
-+			/* PCK0 at 12MHz */
-+			clocks = <&pmc PMC_TYPE_SYSTEM 8>;
-+			clock-names = "mclk";
-+			assigned-clocks = <&pmc PMC_TYPE_SYSTEM 8>;
-+			assigned-clock-rates = <12000000>;
- 		};
- 	};
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1197,12 +1197,16 @@ static int do_proc_control(struct usb_de
  
--- 
-2.35.1
-
+ 		usb_unlock_device(dev);
+ 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
++
++		/* Linger a bit, prior to the next control message. */
++		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
++			msleep(200);
+ 		usb_lock_device(dev);
+ 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, tbuf, actlen);
+ 		if (!i && actlen) {
+ 			if (copy_to_user(ctrl->data, tbuf, actlen)) {
+ 				ret = -EFAULT;
+-				goto recv_fault;
++				goto done;
+ 			}
+ 		}
+ 	} else {
+@@ -1219,6 +1223,10 @@ static int do_proc_control(struct usb_de
+ 
+ 		usb_unlock_device(dev);
+ 		i = usbfs_start_wait_urb(urb, tmo, &actlen);
++
++		/* Linger a bit, prior to the next control message. */
++		if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
++			msleep(200);
+ 		usb_lock_device(dev);
+ 		snoop_urb(dev, NULL, pipe, actlen, i, COMPLETE, NULL, 0);
+ 	}
+@@ -1230,10 +1238,6 @@ static int do_proc_control(struct usb_de
+ 	}
+ 	ret = (i < 0 ? i : actlen);
+ 
+- recv_fault:
+-	/* Linger a bit, prior to the next control message. */
+-	if (dev->quirks & USB_QUIRK_DELAY_CTRL_MSG)
+-		msleep(200);
+  done:
+ 	kfree(dr);
+ 	usb_free_urb(urb);
 
 
