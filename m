@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8729F51A77B
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31B0551A696
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:53:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354583AbiEDRHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55550 "EHLO
+        id S1353855AbiEDQ4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:56:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355150AbiEDREK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:10 -0400
+        with ESMTP id S1353948AbiEDQyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF674E3A4;
-        Wed,  4 May 2022 09:52:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6FD349904;
+        Wed,  4 May 2022 09:49:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2927B6187C;
-        Wed,  4 May 2022 16:52:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CC9EC385A5;
-        Wed,  4 May 2022 16:52:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34748617A5;
+        Wed,  4 May 2022 16:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81362C385A5;
+        Wed,  4 May 2022 16:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683159;
-        bh=MdhV4vMP/Ag3QWOmc6UiTASLX41bGZ/YGwSwW6Adsdc=;
+        s=korg; t=1651682983;
+        bh=k1rHxpQm2S8mpKlnDFvQd5CLu7baZrkGv8q8lii6SQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JN1PfqvSWbocZqesd6RLRPhJ7hpNeJMgm5o9vXIYpc0ohcoO1qoL5XrBj+Twi0vC
-         Eb8VEKsKIX66zvuZL7dKGwV22vf9702FQwqdKfHPuL8i2vxQxEGid0W/0/J7AB9YvD
-         /WEyOIW8Cb54nXmzhg63eWNpZKa3h3OtVDpvorDM=
+        b=0m1vj5hbi5ViNYOBR4qnc8uX8AykAsu2mn7g8kU1OrlteXFObaEcoWrO2cWoykF7e
+         cpvIE5LBRRFhXaumOedZ3mLefNq08nWSJDL3ByKss2PP/df8Ieas5vW8HbQP8uK2KB
+         7rX84UWg4kZke2tZRQ3B24Z5ZyadrFsmofFG8t4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 011/177] xhci: increase usb U3 -> U0 link resume timeout from 100ms to 500ms
+Subject: [PATCH 5.10 012/129] xhci: increase usb U3 -> U0 link resume timeout from 100ms to 500ms
 Date:   Wed,  4 May 2022 18:43:24 +0200
-Message-Id: <20220504153054.555154510@linuxfoundation.org>
+Message-Id: <20220504153022.295406273@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -76,7 +76,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/host/xhci-hub.c
 +++ b/drivers/usb/host/xhci-hub.c
-@@ -1434,7 +1434,7 @@ int xhci_hub_control(struct usb_hcd *hcd
+@@ -1348,7 +1348,7 @@ int xhci_hub_control(struct usb_hcd *hcd
  				}
  				spin_unlock_irqrestore(&xhci->lock, flags);
  				if (!wait_for_completion_timeout(&bus_state->u3exit_done[wIndex],
