@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B3951A9C8
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:18:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4C851A9EF
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357398AbiEDRTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:19:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55412 "EHLO
+        id S1357994AbiEDRUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357973AbiEDRPe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88E856236;
-        Wed,  4 May 2022 09:59:12 -0700 (PDT)
+        with ESMTP id S1357699AbiEDRPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADE3155367;
+        Wed,  4 May 2022 09:58:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D9F261794;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AB661744;
+        Wed,  4 May 2022 16:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B39BCC385A5;
         Wed,  4 May 2022 16:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2C9AC385AA;
-        Wed,  4 May 2022 16:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683530;
-        bh=puxZb8keBI0MxGWFKEJg7XUlq5HvNRAXuB4e6S/Tg5E=;
+        s=korg; t=1651683531;
+        bh=7HP96qjk9PvmbCCTHdMjGWvz+8Yhk8M/QPjWnUSKpgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4HK4mKbn0GHX8jqyjifLG3CKnF5HaJnYOlsDCYJeJxTSEljZQR+1pKLeOvbQg4W7
-         ehnDXIzsiuYAbVS6NIGKnxAc8cewpGfF/i9acY+iqeJcbWPiLqdp0obCUgHE5KyE98
-         lEf/ltLYK/42wdSYoNyRZ7uZnkujVWVtLdqg6tDI=
+        b=iksL/Wrki3z4HVnJcZ5wcNzD6pZLzTFm9N1BJcd991jeMBEv7wmTN8v0uupqffGXW
+         MW0NIGF8sv+j+Q5KmZuWxTbW68/NgRKHFYAYAiYTBaOwUTe7cYEgshq/Ss763vqKg2
+         J5jiaiSq4f1JJ8wdWVcFQHkh+w+VVPZKWXh91T3E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 188/225] net: ethernet: stmmac: fix write to sgmii_adapter_base
-Date:   Wed,  4 May 2022 18:47:06 +0200
-Message-Id: <20220504153127.096740333@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Woody Suwalski <wsuwalski@gmail.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.17 189/225] ACPI: processor: idle: Avoid falling back to C3 type C-states
+Date:   Wed,  4 May 2022 18:47:07 +0200
+Message-Id: <20220504153127.166101213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -53,56 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 5fd1fe4807f91ea0cca043114d929faa11bd4190 upstream.
+commit fc45e55ebc58dbf622cb89ddbf797589c7a5510b upstream.
 
-I made a mistake with the commit a6aaa0032424 ("net: ethernet: stmmac:
-fix altr_tse_pcs function when using a fixed-link"). I should have
-tested against both scenario of having a SGMII interface and one
-without.
+The "safe state" index is used by acpi_idle_enter_bm() to avoid
+entering a C-state that may require bus mastering to be disabled
+on entry in the cases when this is not going to happen.  For this
+reason, it should not be set to point to C3 type of C-states, because
+they may require bus mastering to be disabled on entry in principle.
 
-Without the SGMII PCS TSE adpater, the sgmii_adapter_base address is
-NULL, thus a write to this address will fail.
+This was broken by commit d6b88ce2eb9d ("ACPI: processor idle: Allow
+playing dead in C3 state") which inadvertently allowed the "safe
+state" index to point to C3 type of C-states.
 
-Cc: stable@vger.kernel.org
-Fixes: a6aaa0032424 ("net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link")
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Link: https://lore.kernel.org/r/20220420152345.27415-1-dinguyen@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This results in a machine that won't boot past the point when it first
+enters C3. Restore the correct behaviour (either demote to C1/C2, or
+use C3 but also set ARB_DIS=1).
+
+I hit this on a Fujitsu Siemens Lifebook S6010 (P3) machine.
+
+Fixes: d6b88ce2eb9d ("ACPI: processor idle: Allow playing dead in C3 state")
+Cc: 5.16+ <stable@vger.kernel.org> # 5.16+
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Woody Suwalski <wsuwalski@gmail.com>
+[ rjw: Subject and changelog adjustments ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/acpi/processor_idle.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -65,8 +65,9 @@ static void socfpga_dwmac_fix_mac_speed(
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
- 
--	writew(SGMII_ADAPTER_DISABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if (sgmii_adapter_base)
-+		writew(SGMII_ADAPTER_DISABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -88,10 +89,11 @@ static void socfpga_dwmac_fix_mac_speed(
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
- 	}
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--	if (phy_dev)
-+	if (phy_dev && sgmii_adapter_base) {
-+		writew(SGMII_ADAPTER_ENABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
-+	}
- }
- 
- static int socfpga_dwmac_parse_data(struct socfpga_dwmac *dwmac, struct device *dev)
+--- a/drivers/acpi/processor_idle.c
++++ b/drivers/acpi/processor_idle.c
+@@ -790,7 +790,8 @@ static int acpi_processor_setup_cstates(
+ 		if (cx->type == ACPI_STATE_C1 || cx->type == ACPI_STATE_C2 ||
+ 		    cx->type == ACPI_STATE_C3) {
+ 			state->enter_dead = acpi_idle_play_dead;
+-			drv->safe_state_index = count;
++			if (cx->type != ACPI_STATE_C3)
++				drv->safe_state_index = count;
+ 		}
+ 		/*
+ 		 * Halt-induced C1 is not good for ->enter_s2idle, because it
 
 
