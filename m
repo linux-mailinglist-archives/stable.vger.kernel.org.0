@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE25651A60C
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFC651A718
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353802AbiEDQwa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        id S1354421AbiEDRB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353731AbiEDQwL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D2647053;
-        Wed,  4 May 2022 09:48:29 -0700 (PDT)
+        with ESMTP id S1354679AbiEDQ67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18187366B9;
+        Wed,  4 May 2022 09:50:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C3A1B8279F;
-        Wed,  4 May 2022 16:48:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20EB0C385BD;
-        Wed,  4 May 2022 16:48:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C62E617CB;
+        Wed,  4 May 2022 16:50:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2D33C385A4;
+        Wed,  4 May 2022 16:50:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682908;
-        bh=yd24OcPBlVIUgxJ+YzdgSDislzfz6tX0jHWJ+szSPI8=;
+        s=korg; t=1651683051;
+        bh=mG562RSlp1GIUX/9eUaCxfRcLCFqQjtL0AeviNxO6YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sXJt1j5kuQv5ALCD9/V8GFdWA17rWLN1zbH/0mlSMWwWSSmVSMz94YN3YFgIifquL
-         cl8kQvA+kJilK0ZUttR9660Crc3AP9sOJLxV696PTBlk2ir3ZdnMsTLLlUea0rzkz/
-         iHdlBnMmhYV3I01yiswY6z4J8OYPsfaHkosLxH8M=
+        b=EJ0rqM8kwWKyAuA8OXkLLh0wVTZM9+NRWRfFhF/NHp3RJn23/nsRsOKWn54i/oor7
+         pubhbrn67mC6yHViszxqY/tUkqyem01CZouMxLgIQ/2/Q1c+2S8DIt7RYpx16PH1+H
+         +hKW+f4YebEnTeR7z6cAfS99q+xlolgfpgLPwK3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
-        Wang Qing <wangqing@vivo.com>
-Subject: [PATCH 5.4 26/84] arch_topology: Do not set llc_sibling if llc_id is invalid
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 055/129] ARM: dts: am3517-evm: Fix misc pinmuxing
 Date:   Wed,  4 May 2022 18:44:07 +0200
-Message-Id: <20220504152929.640436437@linuxfoundation.org>
+Message-Id: <20220504153025.406484300@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Qing <wangqing@vivo.com>
+From: Adam Ford <aford173@gmail.com>
 
-commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
+[ Upstream commit 942da3af32b2288e674736eb159d1fc676261691 ]
 
-When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
-will set llc_sibling 0xff(...), this is misleading.
+The bootloader for the AM3517 has previously done much of the pin
+muxing, but as the bootloader is moving more and more to a model
+based on the device tree, it may no longer automatically mux the
+pins, so it is necessary to add the pinmuxing to the Linux device
+trees so the respective peripherals can remain functional.
 
-Don't set llc_sibling(default 0) if we don't know the cache topology.
-
-Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Wang Qing <wangqing@vivo.com>
-Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6ed1d7997561 ("ARM: dts: am3517-evm: Add support for UI board and Audio")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Message-Id: <20220226214820.747847-1-aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/arch_topology.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/am3517-evm.dts  | 45 +++++++++++++++++++++++++++----
+ arch/arm/boot/dts/am3517-som.dtsi |  9 +++++++
+ 2 files changed, 49 insertions(+), 5 deletions(-)
 
---- a/drivers/base/arch_topology.c
-+++ b/drivers/base/arch_topology.c
-@@ -457,7 +457,7 @@ void update_siblings_masks(unsigned int
- 	for_each_online_cpu(cpu) {
- 		cpu_topo = &cpu_topology[cpu];
+diff --git a/arch/arm/boot/dts/am3517-evm.dts b/arch/arm/boot/dts/am3517-evm.dts
+index 0d2fac98ce7d..c8b80f156ec9 100644
+--- a/arch/arm/boot/dts/am3517-evm.dts
++++ b/arch/arm/boot/dts/am3517-evm.dts
+@@ -161,6 +161,8 @@ pwm11: dmtimer-pwm@11 {
  
--		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
-+		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
- 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
- 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
- 		}
+ 	/* HS USB Host PHY on PORT 1 */
+ 	hsusb1_phy: hsusb1_phy {
++		pinctrl-names = "default";
++		pinctrl-0 = <&hsusb1_rst_pins>;
+ 		compatible = "usb-nop-xceiv";
+ 		reset-gpios = <&gpio2 25 GPIO_ACTIVE_LOW>; /* gpio_57 */
+ 		#phy-cells = <0>;
+@@ -168,7 +170,9 @@ hsusb1_phy: hsusb1_phy {
+ };
+ 
+ &davinci_emac {
+-	     status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&ethernet_pins>;
++	status = "okay";
+ };
+ 
+ &davinci_mdio {
+@@ -193,6 +197,8 @@ dpi_out: endpoint {
+ };
+ 
+ &i2c2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c2_pins>;
+ 	clock-frequency = <400000>;
+ 	/* User DIP swithes [1:8] / User LEDS [1:2] */
+ 	tca6416: gpio@21 {
+@@ -205,6 +211,8 @@ tca6416: gpio@21 {
+ };
+ 
+ &i2c3 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c3_pins>;
+ 	clock-frequency = <400000>;
+ };
+ 
+@@ -223,6 +231,8 @@ &mmc3 {
+ };
+ 
+ &usbhshost {
++	pinctrl-names = "default";
++	pinctrl-0 = <&hsusb1_pins>;
+ 	port1-mode = "ehci-phy";
+ };
+ 
+@@ -231,8 +241,35 @@ &usbhsehci {
+ };
+ 
+ &omap3_pmx_core {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&hsusb1_rst_pins>;
++
++	ethernet_pins: pinmux_ethernet_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21fe, PIN_INPUT | MUX_MODE0) /* rmii_mdio_data */
++			OMAP3_CORE1_IOPAD(0x2200, MUX_MODE0) /* rmii_mdio_clk */
++			OMAP3_CORE1_IOPAD(0x2202, PIN_INPUT_PULLDOWN | MUX_MODE0) /* rmii_rxd0 */
++			OMAP3_CORE1_IOPAD(0x2204, PIN_INPUT_PULLDOWN | MUX_MODE0) /* rmii_rxd1 */
++			OMAP3_CORE1_IOPAD(0x2206, PIN_INPUT_PULLDOWN | MUX_MODE0) /* rmii_crs_dv */
++			OMAP3_CORE1_IOPAD(0x2208, PIN_OUTPUT_PULLDOWN | MUX_MODE0) /* rmii_rxer */
++			OMAP3_CORE1_IOPAD(0x220a, PIN_OUTPUT_PULLDOWN | MUX_MODE0) /* rmii_txd0 */
++			OMAP3_CORE1_IOPAD(0x220c, PIN_OUTPUT_PULLDOWN | MUX_MODE0) /* rmii_txd1 */
++			OMAP3_CORE1_IOPAD(0x220e, PIN_OUTPUT_PULLDOWN |MUX_MODE0) /* rmii_txen */
++			OMAP3_CORE1_IOPAD(0x2210, PIN_INPUT_PULLDOWN | MUX_MODE0) /* rmii_50mhz_clk */
++		>;
++	};
++
++	i2c2_pins: pinmux_i2c2_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21be, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c2_scl */
++			OMAP3_CORE1_IOPAD(0x21c0, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c2_sda */
++		>;
++	};
++
++	i2c3_pins: pinmux_i2c3_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21c2, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c3_scl */
++			OMAP3_CORE1_IOPAD(0x21c4, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c3_sda */
++		>;
++	};
+ 
+ 	leds_pins: pinmux_leds_pins {
+ 		pinctrl-single,pins = <
+@@ -300,8 +337,6 @@ OMAP3_CORE1_IOPAD(0x20ba, PIN_OUTPUT | MUX_MODE4)	/* gpmc_ncs6.gpio_57 */
+ };
+ 
+ &omap3_pmx_core2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&hsusb1_pins>;
+ 
+ 	hsusb1_pins: pinmux_hsusb1_pins {
+ 		pinctrl-single,pins = <
+diff --git a/arch/arm/boot/dts/am3517-som.dtsi b/arch/arm/boot/dts/am3517-som.dtsi
+index 8b669e2eafec..f7b680f6c48a 100644
+--- a/arch/arm/boot/dts/am3517-som.dtsi
++++ b/arch/arm/boot/dts/am3517-som.dtsi
+@@ -69,6 +69,8 @@ nand@0,0 {
+ };
+ 
+ &i2c1 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2c1_pins>;
+ 	clock-frequency = <400000>;
+ 
+ 	s35390a: s35390a@30 {
+@@ -179,6 +181,13 @@ bluetooth {
+ 
+ &omap3_pmx_core {
+ 
++	i2c1_pins: pinmux_i2c1_pins {
++		pinctrl-single,pins = <
++			OMAP3_CORE1_IOPAD(0x21ba, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c1_scl */
++			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT_PULLUP | MUX_MODE0)  /* i2c1_sda */
++		>;
++	};
++
+ 	wl12xx_buffer_pins: pinmux_wl12xx_buffer_pins {
+ 		pinctrl-single,pins = <
+ 			OMAP3_CORE1_IOPAD(0x2156, PIN_OUTPUT | MUX_MODE4)  /* mmc1_dat7.gpio_129 */
+-- 
+2.35.1
+
 
 
