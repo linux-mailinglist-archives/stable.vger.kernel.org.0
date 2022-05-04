@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9092051A715
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F49251A60D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354313AbiEDRBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38296 "EHLO
+        id S1353859AbiEDQwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354885AbiEDQ7b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A4CD48310;
-        Wed,  4 May 2022 09:51:05 -0700 (PDT)
+        with ESMTP id S1353757AbiEDQwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CF0847395;
+        Wed,  4 May 2022 09:48:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DB0E617C4;
-        Wed,  4 May 2022 16:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65C5FC385B1;
-        Wed,  4 May 2022 16:51:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC6E61775;
+        Wed,  4 May 2022 16:48:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14491C385A4;
+        Wed,  4 May 2022 16:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683064;
-        bh=JD/ygaqNAPbJJVlFYWXUglaqn74YGk482auv9jzluJA=;
+        s=korg; t=1651682915;
+        bh=EgOJk3ui2P1WPj5Kx+Q0XiNrigZfZXXW2qHJ3g9In/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pp4e/7fW2bwC94SqE1Qr4EDOdYU2fw3riXJD8gJdWLoPtVAxcB0oWmgqwO5iXSSqe
-         10uTpQ2j/7p5nVvkOFFK1zk4tCAiQ457xAimF9BGJJ0QXgewBO5CddP4VpfJcH26qV
-         5nGRPq3M/BtsMdXbdUKzh2W+CmejguSWGoonvCQM=
+        b=0yP8xhp7+WZhHeM+y4fDjQ0NdXNlCf2Wvb1Us0dymoTa3gq8H4co+4BeNcQND1x8n
+         Rh0iEijdzy0ICF/gYA4AxfLhmhjyNccYfoLzZJmpqv+ewHKjO5MQlu4r2bQvBCtcCK
+         9AHeXAMPFVy9EHtMhPUCX2jtW8WgwNeoH/2bQ82w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 049/129] phy: ti: omap-usb2: Fix error handling in omap_usb2_enable_clocks
-Date:   Wed,  4 May 2022 18:44:01 +0200
-Message-Id: <20220504153024.984373871@linuxfoundation.org>
+        stable@vger.kernel.org, Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Subject: [PATCH 5.4 21/84] usb: dwc3: core: Fix tx/rx threshold settings
+Date:   Wed,  4 May 2022 18:44:02 +0200
+Message-Id: <20220504152929.257435650@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 3588060befff75ff39fab7122b94c6fb3148fcda ]
+commit f28ad9069363dec7deb88032b70612755eed9ee6 upstream.
 
-The corresponding API for clk_prepare_enable is clk_disable_unprepare.
-Make sure that the clock is unprepared on exit by changing clk_disable
-to clk_disable_unprepare.
+The current driver logic checks against 0 to determine whether the
+periodic tx/rx threshold settings are set, but we may get bogus values
+from uninitialized variables if no device property is set. Properly
+default these variables to 0.
 
-Fixes: ed31ee7cf1fe ("phy: ti: usb2: Fix logic on -EPROBE_DEFER")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Link: https://lore.kernel.org/r/20220318105748.19532-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 938a5ad1d305 ("usb: dwc3: Check for ESS TX/RX threshold config")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+Link: https://lore.kernel.org/r/cccfce990b11b730b0dae42f9d217dc6fb988c90.1649727139.git.Thinh.Nguyen@synopsys.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/ti/phy-omap-usb2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/core.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/phy/ti/phy-omap-usb2.c b/drivers/phy/ti/phy-omap-usb2.c
-index 4fec90d2624f..f77ac041d836 100644
---- a/drivers/phy/ti/phy-omap-usb2.c
-+++ b/drivers/phy/ti/phy-omap-usb2.c
-@@ -215,7 +215,7 @@ static int omap_usb2_enable_clocks(struct omap_usb *phy)
- 	return 0;
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1229,10 +1229,10 @@ static void dwc3_get_properties(struct d
+ 	u8			lpm_nyet_threshold;
+ 	u8			tx_de_emphasis;
+ 	u8			hird_threshold;
+-	u8			rx_thr_num_pkt_prd;
+-	u8			rx_max_burst_prd;
+-	u8			tx_thr_num_pkt_prd;
+-	u8			tx_max_burst_prd;
++	u8			rx_thr_num_pkt_prd = 0;
++	u8			rx_max_burst_prd = 0;
++	u8			tx_thr_num_pkt_prd = 0;
++	u8			tx_max_burst_prd = 0;
  
- err1:
--	clk_disable(phy->wkupclk);
-+	clk_disable_unprepare(phy->wkupclk);
- 
- err0:
- 	return ret;
--- 
-2.35.1
-
+ 	/* default to highest possible threshold */
+ 	lpm_nyet_threshold = 0xf;
 
 
