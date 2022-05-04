@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFBD951A7A7
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66DAA51A747
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355057AbiEDRGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55552 "EHLO
+        id S1354826AbiEDRC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356356AbiEDRFJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C41E506F1;
-        Wed,  4 May 2022 09:54:02 -0700 (PDT)
+        with ESMTP id S1355459AbiEDRAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFD204B1CE;
+        Wed,  4 May 2022 09:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B252FB827A3;
-        Wed,  4 May 2022 16:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69528C385A4;
-        Wed,  4 May 2022 16:53:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9CF561701;
+        Wed,  4 May 2022 16:51:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA3DC385A4;
+        Wed,  4 May 2022 16:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683239;
-        bh=lVaJWtKW0Ijh2nupS9UWR8XJmZlkiWdqTf0rNGERKtw=;
+        s=korg; t=1651683091;
+        bh=ExQwAyyPQ2GLDFnz2zlKMAueARLYN0nq1lFnffu+7fU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5+3I308TF4hpyqb1Agx5KBCl43aw1YbIbv1DyurOwBVnmCqgYvm7lIsBX2qkZVzP
-         HW8MCeAMXYF/srzhx9k/JmycyMVfzgqBo0bee3vNO8YaqeZjyZqTR1PgAZ1H5wM6pJ
-         jA8jYZtsKdvtdtYNpg2dnsy5e/ZvoOsQbN4bJ/3A=
+        b=oJ9LUIDSowM/kMAQMeThx8Odc+mNASKdebVWZispkL6OEJhcfnVfcUyhgBwCw8/Rm
+         x1WBqmHHtJxSl8umTSicXOFcthBiYpnLbu+XFs658X88Z3AQd/4z40NgVnQ6Ne0d0g
+         ti7t+ELQmQDczWfNaV7eu4Ca++kKkBmBM4OSaQFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Doug Porter <dsp@fb.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 082/177] bpf, lwt: Fix crash when using bpf_skb_set_tunnel_key() from bpf_xmit lwt hook
+Subject: [PATCH 5.10 083/129] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
 Date:   Wed,  4 May 2022 18:44:35 +0200
-Message-Id: <20220504153100.395919305@linuxfoundation.org>
+Message-Id: <20220504153027.666675794@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +57,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit b02d196c44ead1a5949729be9ff08fe781c3e48a ]
+[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
 
-xmit_check_hhlen() observes the dst for getting the device hard header
-length to make sure a modified packet can fit. When a helper which changes
-the dst - such as bpf_skb_set_tunnel_key() - is called as part of the
-xmit program the accessed dst is no longer valid.
+I had this bug sitting for too long in my pile, it is time to fix it.
 
-This leads to the following splat:
+Thanks to Doug Porter for reminding me of it!
 
- BUG: kernel NULL pointer dereference, address: 00000000000000de
- #PF: supervisor read access in kernel mode
- #PF: error_code(0x0000) - not-present page
- PGD 0 P4D 0
- Oops: 0000 [#1] PREEMPT SMP PTI
- CPU: 0 PID: 798 Comm: ping Not tainted 5.18.0-rc2+ #103
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- RIP: 0010:bpf_xmit+0xfb/0x17f
- Code: c6 c0 4d cd 8e 48 c7 c7 7d 33 f0 8e e8 42 09 fb ff 48 8b 45 58 48 8b 95 c8 00 00 00 48 2b 95 c0 00 00 00 48 83 e0 fe 48 8b 00 <0f> b7 80 de 00 00 00 39 c2 73 22 29 d0 b9 20 0a 00 00 31 d2 48 89
- RSP: 0018:ffffb148c0bc7b98 EFLAGS: 00010282
- RAX: 0000000000000000 RBX: 0000000000240008 RCX: 0000000000000000
- RDX: 0000000000000010 RSI: 00000000ffffffea RDI: 00000000ffffffff
- RBP: ffff922a828a4e00 R08: ffffffff8f1350e8 R09: 00000000ffffdfff
- R10: ffffffff8f055100 R11: ffffffff8f105100 R12: 0000000000000000
- R13: ffff922a828a4e00 R14: 0000000000000040 R15: 0000000000000000
- FS:  00007f414e8f0080(0000) GS:ffff922afdc00000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00000000000000de CR3: 0000000002d80006 CR4: 0000000000370ef0
- Call Trace:
-  <TASK>
-  lwtunnel_xmit.cold+0x71/0xc8
-  ip_finish_output2+0x279/0x520
-  ? __ip_finish_output.part.0+0x21/0x130
+We had various attempts in the past, including commit
+0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
+but the issue is that TCP stack currently only generates
+EPOLLOUT from input path, when tp->snd_una has advanced
+and skb(s) cleaned from rtx queue.
 
-Fix by fetching the device hard header length before running the BPF code.
+If a flow has a big RTT, and/or receives SACKs, it is possible
+that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
+and no more data can be sent until tp->snd_una finally advances.
 
-Fixes: 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure")
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20220420165219.1755407-1-eyal.birger@gmail.com
+What is needed is to also check if POLLOUT needs to be generated
+whenever tp->snd_nxt is advanced, from output path.
+
+This bug triggers more often after an idle period, as
+we do not receive ACK for at least one RTT. tcp_notsent_lowat
+could be a fraction of what CWND and pacing rate would allow to
+send during this RTT.
+
+In a followup patch, I will remove the bogus call
+to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
+from tcp_check_space(). Fact that we have decided to generate
+an EPOLLOUT does not mean the application has immediately
+refilled the transmit queue. This optimistic call
+might have been the reason the bug seemed not too serious.
+
+Tested:
+
+200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
+
+$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
+$ cat bench_rr.sh
+SUM=0
+for i in {1..10}
+do
+ V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
+ echo $V
+ SUM=$(($SUM + $V))
+done
+echo SUM=$SUM
+
+Before patch:
+$ bench_rr.sh
+130000000
+80000000
+140000000
+140000000
+140000000
+140000000
+130000000
+40000000
+90000000
+110000000
+SUM=1140000000
+
+After patch:
+$ bench_rr.sh
+430000000
+590000000
+530000000
+450000000
+450000000
+350000000
+450000000
+490000000
+480000000
+460000000
+SUM=4680000000  # This is 410 % of the value before patch.
+
+Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Doug Porter <dsp@fb.com>
+Cc: Soheil Hassas Yeganeh <soheil@google.com>
+Cc: Neal Cardwell <ncardwell@google.com>
+Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/lwt_bpf.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ include/net/tcp.h     |  1 +
+ net/ipv4/tcp_input.c  | 12 +++++++++++-
+ net/ipv4/tcp_output.c |  1 +
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
-index 2f7940bcf715..3fd207fe1284 100644
---- a/net/core/lwt_bpf.c
-+++ b/net/core/lwt_bpf.c
-@@ -158,10 +158,8 @@ static int bpf_output(struct net *net, struct sock *sk, struct sk_buff *skb)
- 	return dst->lwtstate->orig_output(net, sk, skb);
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index c74befd89ee9..263f6eb417d5 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -598,6 +598,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
+ void tcp_reset(struct sock *sk);
+ void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
+ void tcp_fin(struct sock *sk);
++void tcp_check_space(struct sock *sk);
+ 
+ /* tcp_timer.c */
+ void tcp_init_xmit_timers(struct sock *);
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 12dd08af12b5..c25a95c74128 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -5370,7 +5370,17 @@ static void tcp_new_space(struct sock *sk)
+ 	sk->sk_write_space(sk);
  }
  
--static int xmit_check_hhlen(struct sk_buff *skb)
-+static int xmit_check_hhlen(struct sk_buff *skb, int hh_len)
+-static void tcp_check_space(struct sock *sk)
++/* Caller made space either from:
++ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
++ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
++ *
++ * We might be able to generate EPOLLOUT to the application if:
++ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
++ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
++ *    small enough that tcp_stream_memory_free() decides it
++ *    is time to generate EPOLLOUT.
++ */
++void tcp_check_space(struct sock *sk)
  {
--	int hh_len = skb_dst(skb)->dev->hard_header_len;
--
- 	if (skb_headroom(skb) < hh_len) {
- 		int nhead = HH_DATA_ALIGN(hh_len - skb_headroom(skb));
+ 	/* pairs with tcp_poll() */
+ 	smp_mb();
+diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
+index ce9987e6ff25..e37ad0b3645c 100644
+--- a/net/ipv4/tcp_output.c
++++ b/net/ipv4/tcp_output.c
+@@ -82,6 +82,7 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
  
-@@ -273,6 +271,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
+ 		      tcp_skb_pcount(skb));
++	tcp_check_space(sk);
+ }
  
- 	bpf = bpf_lwt_lwtunnel(dst->lwtstate);
- 	if (bpf->xmit.prog) {
-+		int hh_len = dst->dev->hard_header_len;
- 		__be16 proto = skb->protocol;
- 		int ret;
- 
-@@ -290,7 +289,7 @@ static int bpf_xmit(struct sk_buff *skb)
- 			/* If the header was expanded, headroom might be too
- 			 * small for L2 header to come, expand as needed.
- 			 */
--			ret = xmit_check_hhlen(skb);
-+			ret = xmit_check_hhlen(skb, hh_len);
- 			if (unlikely(ret))
- 				return ret;
- 
+ /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
 -- 
 2.35.1
 
