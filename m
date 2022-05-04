@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E423251A6B0
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4175B51A80D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:06:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354377AbiEDQ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:57:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36002 "EHLO
+        id S1352087AbiEDRHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354409AbiEDQ5I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:57:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 476E049F91;
-        Wed,  4 May 2022 09:50:00 -0700 (PDT)
+        with ESMTP id S1355413AbiEDRET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5E64EDC6;
+        Wed,  4 May 2022 09:53:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CECB2617BD;
-        Wed,  4 May 2022 16:49:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27DA1C385A5;
-        Wed,  4 May 2022 16:49:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2381FB827AC;
+        Wed,  4 May 2022 16:52:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C773AC385B0;
+        Wed,  4 May 2022 16:52:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682999;
-        bh=m8EhxSzt2rZcv42yO5sG7Li9fTis8ptXEoUNaclR5eY=;
+        s=korg; t=1651683175;
+        bh=GYqdHF/kWbxCt6a86UWjM3QOO2fhmQgGD64+8+8qvrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acVrDZpUmJRVK7QKAf4+W3o5HM22FQNCRa7c3DHR/eWSw7rx3uNJM5eK26b91LXsK
-         v3lphJYHbYpoK2dDEDbcgV29zsaneA1wM0XlGP+W0iVcgWKBGUjVqGcaEKmZ80HtLT
-         zzTVii1yDiEyuZkycOwzIPfJQTZFcTBRMqjUw9Bk=
+        b=2LG3dKeR0HCc96BFRvMCCasWjm6W63ykKDPF8XThabZ+VlVn9Koj+Q7MLCzIESTIT
+         zZ+oHK3Q4SI/aqfkVbMQf5vNFovkAOyzJquRVzL8Rcv6Dz7/1rSEKefh5DjSWHO/EE
+         r2qKEhqN0WMMxsYLKktdOaiRb64HEdkNayutnqp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 028/129] serial: imx: fix overrun interrupts in DMA mode
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Pawel Laszczak <pawell@cadence.com>
+Subject: [PATCH 5.15 027/177] usb: cdns3: Fix issue for clear halt endpoint
 Date:   Wed,  4 May 2022 18:43:40 +0200
-Message-Id: <20220504153023.511605289@linuxfoundation.org>
+Message-Id: <20220504153055.521161879@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pawel Laszczak <pawell@cadence.com>
 
-commit 3ee82c6e41f3d2212647ce0bc5a05a0f69097824 upstream.
+commit b3fa25de31fb7e9afebe9599b8ff32eda13d7c94 upstream.
 
-Commit 76821e222c18 ("serial: imx: ensure that RX irqs are off if RX is
-off") accidentally enabled overrun interrupts unconditionally when
-deferring DMA enable until after the receiver has been enabled during
-startup.
+Path fixes bug which occurs during resetting endpoint in
+__cdns3_gadget_ep_clear_halt function. During resetting endpoint
+controller will change HW/DMA owned TRB. It set Abort flag in
+trb->control and will change trb->length field. If driver want
+to use the aborted trb it must update the changed field in
+TRB.
 
-Fix this by using the DMA-initialised instead of DMA-enabled flag to
-determine whether overrun interrupts should be enabled.
-
-Note that overrun interrupts are already accounted for in
-imx_uart_clear_rx_errors() when using DMA since commit 41d98b5da92f
-("serial: imx-serial - update RX error counters when DMA is used").
-
-Fixes: 76821e222c18 ("serial: imx: ensure that RX irqs are off if RX is off")
-Cc: stable@vger.kernel.org      # 4.17
-Cc: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20220411081957.7846-1-johan@kernel.org
+Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
+cc: <stable@vger.kernel.org>
+Acked-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+Link: https://lore.kernel.org/r/20220329084605.4022-1-pawell@cadence.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/imx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/cdns3/cdns3-gadget.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -1470,7 +1470,7 @@ static int imx_uart_startup(struct uart_
- 	imx_uart_writel(sport, ucr1, UCR1);
+--- a/drivers/usb/cdns3/cdns3-gadget.c
++++ b/drivers/usb/cdns3/cdns3-gadget.c
+@@ -2684,6 +2684,7 @@ int __cdns3_gadget_ep_clear_halt(struct
+ 	struct usb_request *request;
+ 	struct cdns3_request *priv_req;
+ 	struct cdns3_trb *trb = NULL;
++	struct cdns3_trb trb_tmp;
+ 	int ret;
+ 	int val;
  
- 	ucr4 = imx_uart_readl(sport, UCR4) & ~(UCR4_OREN | UCR4_INVR);
--	if (!sport->dma_is_enabled)
-+	if (!dma_is_inited)
- 		ucr4 |= UCR4_OREN;
- 	if (sport->inverted_rx)
- 		ucr4 |= UCR4_INVR;
+@@ -2693,8 +2694,10 @@ int __cdns3_gadget_ep_clear_halt(struct
+ 	if (request) {
+ 		priv_req = to_cdns3_request(request);
+ 		trb = priv_req->trb;
+-		if (trb)
++		if (trb) {
++			trb_tmp = *trb;
+ 			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
++		}
+ 	}
+ 
+ 	writel(EP_CMD_CSTALL | EP_CMD_EPRST, &priv_dev->regs->ep_cmd);
+@@ -2709,7 +2712,7 @@ int __cdns3_gadget_ep_clear_halt(struct
+ 
+ 	if (request) {
+ 		if (trb)
+-			trb->control = trb->control ^ cpu_to_le32(TRB_CYCLE);
++			*trb = trb_tmp;
+ 
+ 		cdns3_rearm_transfer(priv_ep, 1);
+ 	}
 
 
