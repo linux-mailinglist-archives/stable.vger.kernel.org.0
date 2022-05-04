@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 686FE51A7DE
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7535351A638
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355346AbiEDRG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:06:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S1351640AbiEDQye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356062AbiEDREv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6C8850076;
-        Wed,  4 May 2022 09:53:43 -0700 (PDT)
+        with ESMTP id S1354095AbiEDQxu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:53:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C684831F;
+        Wed,  4 May 2022 09:49:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC63617D5;
-        Wed,  4 May 2022 16:53:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 870F7C385A5;
-        Wed,  4 May 2022 16:53:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F02BDB827A4;
+        Wed,  4 May 2022 16:49:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99854C385A4;
+        Wed,  4 May 2022 16:49:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683222;
-        bh=NMC99gcqDM2guG2tRry0M7OaVR82LfisPaysCzoEjCY=;
+        s=korg; t=1651682942;
+        bh=TO2u6DsjX01I++Gbol2MZZVS021YyWQL8xLibqDKbNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdPszhLigUAqn5bxNmBkHpm1un0YNoLcyHfCqEHjYns/g8OYcd/FDZ2kjOHVPh9lB
-         /YN2zvsofwhpyflVcrWUkyh7qoC4bCZxG3/KNIhV2tBGzqjZ69lKGtud0d1R3Ca71J
-         pERnd6I9sElkmFxSJc52BRygNok2C5E0D054vb3A=
+        b=ANxex2Q/Gtyqo505i/lfc+i38FK7ErWqKScdNrseYB7rer0SpQkw2zCP10wnT6pih
+         TCcWf7LS//J2iEEPm+IdsdbiAWh++EA2bG6ZEI4t3eUppotAvecGjHCczyqAQV1pD9
+         dxzgNO8UgrqF9P75202utcuenCu7inWfQNm7j2SE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 075/177] pinctrl: mediatek: moore: Fix build error
+Subject: [PATCH 5.4 47/84] bpf, lwt: Fix crash when using bpf_skb_set_tunnel_key() from bpf_xmit lwt hook
 Date:   Wed,  4 May 2022 18:44:28 +0200
-Message-Id: <20220504153059.785244126@linuxfoundation.org>
+Message-Id: <20220504152931.132160677@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit 87950929e2ff2236207bdbe14bff8230558b541b ]
+[ Upstream commit b02d196c44ead1a5949729be9ff08fe781c3e48a ]
 
-If EINT_MTK is m and PINCTRL_MTK_V2 is y, build fails:
+xmit_check_hhlen() observes the dst for getting the device hard header
+length to make sure a modified packet can fit. When a helper which changes
+the dst - such as bpf_skb_set_tunnel_key() - is called as part of the
+xmit program the accessed dst is no longer valid.
 
-drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_set_config':
-pinctrl-moore.c:(.text+0xa6c): undefined reference to `mtk_eint_set_debounce'
-drivers/pinctrl/mediatek/pinctrl-moore.o: In function `mtk_gpio_to_irq':
-pinctrl-moore.c:(.text+0xacc): undefined reference to `mtk_eint_find_irq'
+This leads to the following splat:
 
-Select EINT_MTK for PINCTRL_MTK_V2 to fix this.
+ BUG: kernel NULL pointer dereference, address: 00000000000000de
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 0 PID: 798 Comm: ping Not tainted 5.18.0-rc2+ #103
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ RIP: 0010:bpf_xmit+0xfb/0x17f
+ Code: c6 c0 4d cd 8e 48 c7 c7 7d 33 f0 8e e8 42 09 fb ff 48 8b 45 58 48 8b 95 c8 00 00 00 48 2b 95 c0 00 00 00 48 83 e0 fe 48 8b 00 <0f> b7 80 de 00 00 00 39 c2 73 22 29 d0 b9 20 0a 00 00 31 d2 48 89
+ RSP: 0018:ffffb148c0bc7b98 EFLAGS: 00010282
+ RAX: 0000000000000000 RBX: 0000000000240008 RCX: 0000000000000000
+ RDX: 0000000000000010 RSI: 00000000ffffffea RDI: 00000000ffffffff
+ RBP: ffff922a828a4e00 R08: ffffffff8f1350e8 R09: 00000000ffffdfff
+ R10: ffffffff8f055100 R11: ffffffff8f105100 R12: 0000000000000000
+ R13: ffff922a828a4e00 R14: 0000000000000040 R15: 0000000000000000
+ FS:  00007f414e8f0080(0000) GS:ffff922afdc00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00000000000000de CR3: 0000000002d80006 CR4: 0000000000370ef0
+ Call Trace:
+  <TASK>
+  lwtunnel_xmit.cold+0x71/0xc8
+  ip_finish_output2+0x279/0x520
+  ? __ip_finish_output.part.0+0x21/0x130
 
-Fixes: 8174a8512e3e ("pinctrl: mediatek: make MediaTek pinctrl v2 driver ready for buidling loadable module")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Link: https://lore.kernel.org/r/20220409105958.37412-1-yuehaibing@huawei.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fix by fetching the device hard header length before running the BPF code.
+
+Fixes: 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220420165219.1755407-1-eyal.birger@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/core/lwt_bpf.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/mediatek/Kconfig b/drivers/pinctrl/mediatek/Kconfig
-index 7040a7a7bd5d..246b0e951e1c 100644
---- a/drivers/pinctrl/mediatek/Kconfig
-+++ b/drivers/pinctrl/mediatek/Kconfig
-@@ -30,6 +30,7 @@ config PINCTRL_MTK_MOORE
- 	select GENERIC_PINMUX_FUNCTIONS
- 	select GPIOLIB
- 	select OF_GPIO
-+	select EINT_MTK
- 	select PINCTRL_MTK_V2
+diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
+index a5502c5aa44e..bf270b6a99b4 100644
+--- a/net/core/lwt_bpf.c
++++ b/net/core/lwt_bpf.c
+@@ -158,10 +158,8 @@ static int bpf_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 	return dst->lwtstate->orig_output(net, sk, skb);
+ }
  
- config PINCTRL_MTK_PARIS
+-static int xmit_check_hhlen(struct sk_buff *skb)
++static int xmit_check_hhlen(struct sk_buff *skb, int hh_len)
+ {
+-	int hh_len = skb_dst(skb)->dev->hard_header_len;
+-
+ 	if (skb_headroom(skb) < hh_len) {
+ 		int nhead = HH_DATA_ALIGN(hh_len - skb_headroom(skb));
+ 
+@@ -273,6 +271,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 
+ 	bpf = bpf_lwt_lwtunnel(dst->lwtstate);
+ 	if (bpf->xmit.prog) {
++		int hh_len = dst->dev->hard_header_len;
+ 		__be16 proto = skb->protocol;
+ 		int ret;
+ 
+@@ -290,7 +289,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 			/* If the header was expanded, headroom might be too
+ 			 * small for L2 header to come, expand as needed.
+ 			 */
+-			ret = xmit_check_hhlen(skb);
++			ret = xmit_check_hhlen(skb, hh_len);
+ 			if (unlikely(ret))
+ 				return ret;
+ 
 -- 
 2.35.1
 
