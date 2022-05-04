@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66B3C51A829
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E3C051A8DB
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355628AbiEDRIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
+        id S1353062AbiEDRMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346734AbiEDRF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A363A4755D;
-        Wed,  4 May 2022 09:54:19 -0700 (PDT)
+        with ESMTP id S1356945AbiEDRJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C4B4739C;
+        Wed,  4 May 2022 09:56:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B55A618DF;
-        Wed,  4 May 2022 16:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB661C385AF;
-        Wed,  4 May 2022 16:54:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E953561794;
+        Wed,  4 May 2022 16:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44B46C385AF;
+        Wed,  4 May 2022 16:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683259;
-        bh=5Vle1qWJnQKV1VFtVFlv7ED24OJaCLIdTzacdmZoabs=;
+        s=korg; t=1651683394;
+        bh=0ttIZ0ihhyBidXV9m5MwjSKUbj2JnWrIM5mZ6cMm7M8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+VS8OvSkrC9ozjwHI4UATcUd4b71tIyPQ5zeuiiBcmW3JN3VxssE43oDb5ky974M
-         BbO4Egfp1B4UAjXr7o7hEYX/tGlr6tgqO32zkSN6tNhmJsKOK8uQOLkigFqzvdWVK5
-         636zOZeQSW9BGek/1r06baWX3JyupMXJGvPhVoTc=
+        b=lYrmYT9GlpEb0B6xKTGGp4ucJC2pTLAZRcXWp4xpNOchO0A9KlyQ7byFOuQj3aJPS
+         FuAeSc1/kW3Pwss1bCCuGtp7rrHRe6dUFcSl1kjGw3fABAllv2xBiSeh9UL4/t29XS
+         rN5yQjFkrkYZTJ0x07kf2Nzhj8Pv99sPf7jsMinw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Shannon Nelson <snelson@pensando.io>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 124/177] ixgbe: ensure IPsec VF<->PF compatibility
+Subject: [PATCH 5.17 079/225] bus: ti-sysc: Make omap3 gpt12 quirk handling SoC specific
 Date:   Wed,  4 May 2022 18:45:17 +0200
-Message-Id: <20220504153104.222961804@linuxfoundation.org>
+Message-Id: <20220504153118.282106726@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,43 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit f049efc7f7cd2f3c419f55040928eaefb13b3636 ]
+[ Upstream commit a12315d6d27093392b6c634e1d35a59f1d1f7a59 ]
 
-The VF driver can forward any IPsec flags and such makes the function
-is not extendable and prone to backward/forward incompatibility.
+On beagleboard revisions A to B4 we need to use gpt12 as the system timer.
+However, the quirk handling added for gpt12 caused a regression for system
+suspend for am335x as the PM coprocessor needs the timers idled for
+suspend.
 
-If new software runs on VF, it won't know that PF configured something
-completely different as it "knows" only XFRM_OFFLOAD_INBOUND flag.
+Let's make the gpt12 quirk specific to omap34xx, other SoCs don't need
+it. Beagleboard revisions C and later no longer need to use the gpt12
+related quirk. Then at some point, if we decide to drop support for the old
+beagleboard revisions A to B4, we can also drop the gpt12 related quirks
+completely.
 
-Fixes: eda0333ac293 ("ixgbe: add VF IPsec management")
-Reviewed-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Shannon Nelson <snelson@pensando.io>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220427173152.443102-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3ff340e24c9d ("bus: ti-sysc: Fix gpt12 system timer issue with reserved status")
+Reported-by: Kevin Hilman <khilman@baylibre.com>
+Suggested-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/bus/ti-sysc.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-index e596e1a9fc75..69d11ff7677d 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_ipsec.c
-@@ -903,7 +903,8 @@ int ixgbe_ipsec_vf_add_sa(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
- 	/* Tx IPsec offload doesn't seem to work on this
- 	 * device, so block these requests for now.
- 	 */
--	if (!(sam->flags & XFRM_OFFLOAD_INBOUND)) {
-+	sam->flags = sam->flags & ~XFRM_OFFLOAD_IPV6;
-+	if (sam->flags != XFRM_OFFLOAD_INBOUND) {
- 		err = -EOPNOTSUPP;
- 		goto err_out;
- 	}
+diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
+index 54c0ee6dda30..7a1b1f9e4933 100644
+--- a/drivers/bus/ti-sysc.c
++++ b/drivers/bus/ti-sysc.c
+@@ -3232,13 +3232,27 @@ static int sysc_check_disabled_devices(struct sysc *ddata)
+  */
+ static int sysc_check_active_timer(struct sysc *ddata)
+ {
++	int error;
++
+ 	if (ddata->cap->type != TI_SYSC_OMAP2_TIMER &&
+ 	    ddata->cap->type != TI_SYSC_OMAP4_TIMER)
+ 		return 0;
+ 
++	/*
++	 * Quirk for omap3 beagleboard revision A to B4 to use gpt12.
++	 * Revision C and later are fixed with commit 23885389dbbb ("ARM:
++	 * dts: Fix timer regression for beagleboard revision c"). This all
++	 * can be dropped if we stop supporting old beagleboard revisions
++	 * A to B4 at some point.
++	 */
++	if (sysc_soc->soc == SOC_3430)
++		error = -ENXIO;
++	else
++		error = -EBUSY;
++
+ 	if ((ddata->cfg.quirks & SYSC_QUIRK_NO_RESET_ON_INIT) &&
+ 	    (ddata->cfg.quirks & SYSC_QUIRK_NO_IDLE))
+-		return -ENXIO;
++		return error;
+ 
+ 	return 0;
+ }
 -- 
 2.35.1
 
