@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E8451A8A7
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 210E651A732
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355427AbiEDRLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S1354575AbiEDRDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356954AbiEDRJv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:51 -0400
+        with ESMTP id S1354452AbiEDRA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32317473AE;
-        Wed,  4 May 2022 09:56:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC1FA4BFF1;
+        Wed,  4 May 2022 09:52:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12E39617A6;
-        Wed,  4 May 2022 16:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 605A4C385AA;
-        Wed,  4 May 2022 16:56:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A58561852;
+        Wed,  4 May 2022 16:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3703C385A4;
+        Wed,  4 May 2022 16:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683401;
-        bh=hdoWo2RhsqsWgZIRmPbb7DxC3aFuG2ViZhr8JO9X6t8=;
+        s=korg; t=1651683135;
+        bh=tSw8xM9a6f1U+wpCg+E1lnJk6d+d0qTv4HVG5LNkj/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfI2kci8w3n/CelDbJEuhjXDVi7WZVLr2gWrl6ZzJ6twWj7zbmMuASsQytOzgBk6o
-         StMfh58fCKuyH3A1O0a6S/jUCwnOX+o93IW92k13sVTY38iKubzqIcsXJbMh/J4UVD
-         fuSBuf4FvA2qrjMcDtSs5xT5dWvP5FJn0FDR5mrk=
+        b=2Vspvvx/ILU5j44DyznFbRuut8M5cxT0ZAYUWe+ynF/oU7Tj5tn+fqDzTsaUyrorD
+         9iD7r+oUnMua9m1jQ+F+ieP7N+epme+kC3pFKLZ7AXIapAT1pLMX4+RzxNK3VYqWhl
+         rlJnGzFqeFEd4C/ZUNzVFD6j28v/nGL//4Cwnl7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 072/225] iio:dac:ad3552r: Fix an IS_ERR() vs NULL check
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.10 118/129] tty: n_gsm: fix wrong signal octet encoding in convergence layer type 2
 Date:   Wed,  4 May 2022 18:45:10 +0200
-Message-Id: <20220504153117.893992445@linuxfoundation.org>
+Message-Id: <20220504153030.715325998@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit de3b9fe9609a05d3c354c6718ca657962d11d9fe ]
+commit 06d5afd4d640eea67f5623e76cd5fc03359b7f3c upstream.
 
-The fwnode_get_named_child_node() function does not return error
-pointers.  It returns NULL.  Update the check accordingly.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.5.2 describes that the signal octet in
+convergence layer type 2 can be either one or two bytes. The length is
+encoded in the EA bit. This is set 1 for the last byte in the sequence.
+gsmtty_modem_update() handles this correctly but gsm_dlci_data_output()
+fails to set EA to 1. There is no case in which we encode two signal octets
+as there is no case in which we send out a break signal.
+Therefore, always set the EA bit to 1 for the signal octet to fix this.
 
-Fixes: 8f2b54824b28 ("drivers:iio:dac: Add AD3552R driver support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Link: https://lore.kernel.org/r/20220404114244.GA19201@kili
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-5-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad3552r.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/dac/ad3552r.c b/drivers/iio/dac/ad3552r.c
-index e0a93b27e0e8..d5ea1a1be122 100644
---- a/drivers/iio/dac/ad3552r.c
-+++ b/drivers/iio/dac/ad3552r.c
-@@ -809,10 +809,10 @@ static int ad3552r_configure_custom_gain(struct ad3552r_desc *dac,
- 
- 	gain_child = fwnode_get_named_child_node(child,
- 						 "custom-output-range-config");
--	if (IS_ERR(gain_child)) {
-+	if (!gain_child) {
- 		dev_err(dev,
- 			"mandatory custom-output-range-config property missing\n");
--		return PTR_ERR(gain_child);
-+		return -EINVAL;
- 	}
- 
- 	dac->ch_data[ch].range_override = 1;
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -818,7 +818,7 @@ static int gsm_dlci_data_output(struct g
+ 			break;
+ 		case 2:	/* Unstructed with modem bits.
+ 		Always one byte as we never send inline break data */
+-			*dp++ = gsm_encode_modem(dlci);
++			*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
+ 			break;
+ 		}
+ 		WARN_ON(kfifo_out_locked(&dlci->fifo, dp , len, &dlci->lock) != len);
 
 
