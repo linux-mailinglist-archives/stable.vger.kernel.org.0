@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 812FC51A5F5
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:48:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C301051A719
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353664AbiEDQwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50944 "EHLO
+        id S1353549AbiEDRCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353661AbiEDQv7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:51:59 -0400
+        with ESMTP id S1354608AbiEDQ6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9900346B1B;
-        Wed,  4 May 2022 09:48:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55D511FCC9;
+        Wed,  4 May 2022 09:50:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F6C7B8279F;
-        Wed,  4 May 2022 16:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0202C385A5;
-        Wed,  4 May 2022 16:48:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0AA20B82792;
+        Wed,  4 May 2022 16:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D118C385A5;
+        Wed,  4 May 2022 16:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682900;
-        bh=nO0HsBH97IIxsOjMZu1jbvvi+Us0BjRufFBiwIiqmSw=;
+        s=korg; t=1651683044;
+        bh=Q0Kg/EArx821a5Fy8d/3If2cJ8xy+zC5AZDlUXUfY4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvmYPMEjiRYExtEWwAK/DBRAf9p/lYwpfAEOUBtlxrSVt2dyyVP+8lZnUJZBrow/V
-         CXt6q27tne2ABuFdySe5Csb71c/CSLqKW+ffLY6em9ZyGQgUU0hVvKtIsGAhjNGLtQ
-         j49NMD4+wmXK5VZ37wyMuWivR3rVf19HEdjmDNZs=
+        b=NMPAbiInIlGU2BJy4IOVg89jmWTenxY9sTdovHUCngY1P9H+Ud2dj4mVJG2UbnYJc
+         4uYcQLb/mP7WhyBHzKfDU/eEa6eB99gd0syYXrO2bPz1cj/wY46aMq6+C+eDTl9YDU
+         7Z4fsF5tNJOSkFAH47OEOlpj5uiNGFPgW889E5z8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.4 06/84] USB: quirks: add a Realtek card reader
+        stable@vger.kernel.org, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>
+Subject: [PATCH 5.10 035/129] riscv: patch_text: Fixup last cpu should be master
 Date:   Wed,  4 May 2022 18:43:47 +0200
-Message-Id: <20220504152928.186056786@linuxfoundation.org>
+Message-Id: <20220504153024.031128517@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 2a7ccf6bb6f147f64c025ad68f4255d8e1e0ce6d upstream.
+commit 8ec1442953c66a1d8462cccd8c20b7ba561f5915 upstream.
 
-This device is reported to stall when enummerated.
+These patch_text implementations are using stop_machine_cpuslocked
+infrastructure with atomic cpu_count. The original idea: When the
+master CPU patch_text, the others should wait for it. But current
+implementation is using the first CPU as master, which couldn't
+guarantee the remaining CPUs are waiting. This patch changes the
+last CPU as the master to solve the potential risk.
 
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220414110209.30924-1-oneukum@suse.com
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: 043cb41a85de ("riscv: introduce interfaces to patch kernel code")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/riscv/kernel/patch.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -404,6 +404,9 @@ static const struct usb_device_id usb_qu
- 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
- 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
+--- a/arch/riscv/kernel/patch.c
++++ b/arch/riscv/kernel/patch.c
+@@ -100,7 +100,7 @@ static int patch_text_cb(void *data)
+ 	struct patch_insn *patch = data;
+ 	int ret = 0;
  
-+	/* Realtek Semiconductor Corp. Mass Storage Device (Multicard Reader)*/
-+	{ USB_DEVICE(0x0bda, 0x0151), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
-+
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
- 	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
+-	if (atomic_inc_return(&patch->cpu_count) == 1) {
++	if (atomic_inc_return(&patch->cpu_count) == num_online_cpus()) {
+ 		ret =
+ 		    patch_text_nosync(patch->addr, &patch->insn,
+ 					    GET_INSN_LENGTH(patch->insn));
 
 
