@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 238BF51A965
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1579D51A95D
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356359AbiEDRMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
+        id S1350628AbiEDRRO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356974AbiEDRJw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
+        with ESMTP id S1354608AbiEDRHU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:07:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF4D24755E;
-        Wed,  4 May 2022 09:56:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6373515AE;
+        Wed,  4 May 2022 09:54:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EE05616B8;
-        Wed,  4 May 2022 16:56:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F58FC385AA;
-        Wed,  4 May 2022 16:56:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BCC6617DE;
+        Wed,  4 May 2022 16:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA418C385A5;
+        Wed,  4 May 2022 16:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683408;
-        bh=hmbtWVfyriMLSNG2cgnHPr6zR2rssfLG2hmu6gUSMOc=;
+        s=korg; t=1651683264;
+        bh=FB6S71sPeFP0H53YPfgswpGWG6zlz1yjWXv/ilUPvWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukG7m3xvNMHP2iZwFctxTxxUJ2EjCoKNjQbIwb1cZiEaQ388NrMtoPxOgGL5ihPO/
-         GgRsg7NLsz7SUNTFEKciSEz7GUNoQLkJW07FIryQ5oamzA+IZD9PC0EgB1faxa3AaR
-         yHFexVShZ9QH4/GlNDka8QK0MYHdmxznVKnsCgT0=
+        b=vuL7RtDrmsD/pszgwocosQWmtEhoqK8f7y6i8WSrCQDdKTgF3xCE8uz8tSc4p4w8s
+         umq/YNORJfXr7AzLelS6pDWHA2ZcIzVDxc6xvoQpC31l70hMSymou58YLre8cCNQHO
+         bLDv8aC+tCH9Pb3BqZMLy03+25vBTfxX5/omOftE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Weitao Wang <WeitaoWang-oc@zhaoxin.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        stable@vger.kernel.org, David Yat Sin <david.yatsin@amd.com>,
+        Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 069/225] USB: Fix xhci event ring dequeue pointer ERDP update issue
+Subject: [PATCH 5.15 114/177] drm/amdkfd: Fix GWS queue count
 Date:   Wed,  4 May 2022 18:45:07 +0200
-Message-Id: <20220504153117.726462014@linuxfoundation.org>
+Message-Id: <20220504153103.397174871@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+From: David Yat Sin <david.yatsin@amd.com>
 
-[ Upstream commit e91ac20889d1a26d077cc511365cd7ff4346a6f3 ]
+[ Upstream commit 7c6b6e18c890f30965b0589b0a57645e1dbccfde ]
 
-In some situations software handles TRB events slower than adding TRBs.
-If the number of TRB events to be processed in a given interrupt is exactly
-the same as the event ring size 256, then the local variable
-"event_ring_deq" that holds the initial dequeue position is equal to
-software_dequeue after handling all 256 interrupts.
+dqm->gws_queue_count and pdd->qpd.mapped_gws_queue need to be updated
+each time the queue gets evicted.
 
-It will cause driver to not update ERDP to hardware,
-
-Software dequeue pointer is out of sync with ERDP on interrupt exit.
-On the next interrupt, the event ring may full but driver will not
-update ERDP as software_dequeue is equal to ERDP.
-
-[  536.377115] xhci_hcd 0000:00:12.0: ERROR unknown event type 37
-[  566.933173] sd 8:0:0:0: [sdb] tag#27 uas_eh_abort_handler 0 uas-tag 7 inflight: CMD OUT
-[  566.933181] sd 8:0:0:0: [sdb] tag#27 CDB: Write(10) 2a 00 17 71 e6 78 00 00 08 00
-[  572.041186] xhci_hcd On some situataions,the0000:00:12.0: xHCI host not responding to stop endpoint command.
-[  572.057193] xhci_hcd 0000:00:12.0: Host halt failed, -110
-[  572.057196] xhci_hcd 0000:00:12.0: xHCI host controller not responding, assume dead
-[  572.057236] sd 8:0:0:0: [sdb] tag#26 uas_eh_abort_handler 0 uas-tag 6 inflight: CMD
-[  572.057240] sd 8:0:0:0: [sdb] tag#26 CDB: Write(10) 2a 00 38 eb cc d8 00 00 08 00
-[  572.057244] sd 8:0:0:0: [sdb] tag#25 uas_eh_abort_handler 0 uas-tag 5 inflight: CMD
-
-Hardware ERDP is updated mid event handling if there are more than 128
-events in an interrupt (half of ring size).
-Fix this by updating the software local variable at the same time as
-hardware ERDP.
-
-[commit message rewording -Mathias]
-
-Fixes: dc0ffbea5729 ("usb: host: xhci: update event ring dequeue pointer on purpose")
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220408134823.2527272-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b8020b0304c8 ("drm/amdkfd: Enable over-subscription with >1 GWS queue")
+Signed-off-by: David Yat Sin <david.yatsin@amd.com>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../drm/amd/amdkfd/kfd_device_queue_manager.c | 83 +++++++++----------
+ 1 file changed, 37 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index d0b6806275e0..f9707997969d 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3141,6 +3141,7 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
- 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
- 			continue;
- 		xhci_update_erst_dequeue(xhci, event_ring_deq);
-+		event_ring_deq = xhci->event_ring->dequeue;
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+index 4f2e0cc8a51a..442857f3bde7 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
+@@ -138,19 +138,33 @@ void program_sh_mem_settings(struct device_queue_manager *dqm,
+ }
  
- 		/* ring is half-full, force isoc trbs to interrupt more often */
- 		if (xhci->isoc_bei_interval > AVOID_BEI_INTERVAL_MIN)
+ static void increment_queue_count(struct device_queue_manager *dqm,
+-			enum kfd_queue_type type)
++				  struct qcm_process_device *qpd,
++				  struct queue *q)
+ {
+ 	dqm->active_queue_count++;
+-	if (type == KFD_QUEUE_TYPE_COMPUTE || type == KFD_QUEUE_TYPE_DIQ)
++	if (q->properties.type == KFD_QUEUE_TYPE_COMPUTE ||
++	    q->properties.type == KFD_QUEUE_TYPE_DIQ)
+ 		dqm->active_cp_queue_count++;
++
++	if (q->properties.is_gws) {
++		dqm->gws_queue_count++;
++		qpd->mapped_gws_queue = true;
++	}
+ }
+ 
+ static void decrement_queue_count(struct device_queue_manager *dqm,
+-			enum kfd_queue_type type)
++				  struct qcm_process_device *qpd,
++				  struct queue *q)
+ {
+ 	dqm->active_queue_count--;
+-	if (type == KFD_QUEUE_TYPE_COMPUTE || type == KFD_QUEUE_TYPE_DIQ)
++	if (q->properties.type == KFD_QUEUE_TYPE_COMPUTE ||
++	    q->properties.type == KFD_QUEUE_TYPE_DIQ)
+ 		dqm->active_cp_queue_count--;
++
++	if (q->properties.is_gws) {
++		dqm->gws_queue_count--;
++		qpd->mapped_gws_queue = false;
++	}
+ }
+ 
+ static int allocate_doorbell(struct qcm_process_device *qpd, struct queue *q)
+@@ -390,7 +404,7 @@ static int create_queue_nocpsch(struct device_queue_manager *dqm,
+ 	list_add(&q->list, &qpd->queues_list);
+ 	qpd->queue_count++;
+ 	if (q->properties.is_active)
+-		increment_queue_count(dqm, q->properties.type);
++		increment_queue_count(dqm, qpd, q);
+ 
+ 	/*
+ 	 * Unconditionally increment this counter, regardless of the queue's
+@@ -515,13 +529,8 @@ static int destroy_queue_nocpsch_locked(struct device_queue_manager *dqm,
+ 		deallocate_vmid(dqm, qpd, q);
+ 	}
+ 	qpd->queue_count--;
+-	if (q->properties.is_active) {
+-		decrement_queue_count(dqm, q->properties.type);
+-		if (q->properties.is_gws) {
+-			dqm->gws_queue_count--;
+-			qpd->mapped_gws_queue = false;
+-		}
+-	}
++	if (q->properties.is_active)
++		decrement_queue_count(dqm, qpd, q);
+ 
+ 	return retval;
+ }
+@@ -613,12 +622,11 @@ static int update_queue(struct device_queue_manager *dqm, struct queue *q)
+ 	 * dqm->active_queue_count to determine whether a new runlist must be
+ 	 * uploaded.
+ 	 */
+-	if (q->properties.is_active && !prev_active)
+-		increment_queue_count(dqm, q->properties.type);
+-	else if (!q->properties.is_active && prev_active)
+-		decrement_queue_count(dqm, q->properties.type);
+-
+-	if (q->gws && !q->properties.is_gws) {
++	if (q->properties.is_active && !prev_active) {
++		increment_queue_count(dqm, &pdd->qpd, q);
++	} else if (!q->properties.is_active && prev_active) {
++		decrement_queue_count(dqm, &pdd->qpd, q);
++	} else if (q->gws && !q->properties.is_gws) {
+ 		if (q->properties.is_active) {
+ 			dqm->gws_queue_count++;
+ 			pdd->qpd.mapped_gws_queue = true;
+@@ -680,11 +688,7 @@ static int evict_process_queues_nocpsch(struct device_queue_manager *dqm,
+ 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
+ 				q->properties.type)];
+ 		q->properties.is_active = false;
+-		decrement_queue_count(dqm, q->properties.type);
+-		if (q->properties.is_gws) {
+-			dqm->gws_queue_count--;
+-			qpd->mapped_gws_queue = false;
+-		}
++		decrement_queue_count(dqm, qpd, q);
+ 
+ 		if (WARN_ONCE(!dqm->sched_running, "Evict when stopped\n"))
+ 			continue;
+@@ -730,7 +734,7 @@ static int evict_process_queues_cpsch(struct device_queue_manager *dqm,
+ 			continue;
+ 
+ 		q->properties.is_active = false;
+-		decrement_queue_count(dqm, q->properties.type);
++		decrement_queue_count(dqm, qpd, q);
+ 	}
+ 	pdd->last_evict_timestamp = get_jiffies_64();
+ 	retval = execute_queues_cpsch(dqm,
+@@ -801,11 +805,7 @@ static int restore_process_queues_nocpsch(struct device_queue_manager *dqm,
+ 		mqd_mgr = dqm->mqd_mgrs[get_mqd_type_from_queue_type(
+ 				q->properties.type)];
+ 		q->properties.is_active = true;
+-		increment_queue_count(dqm, q->properties.type);
+-		if (q->properties.is_gws) {
+-			dqm->gws_queue_count++;
+-			qpd->mapped_gws_queue = true;
+-		}
++		increment_queue_count(dqm, qpd, q);
+ 
+ 		if (WARN_ONCE(!dqm->sched_running, "Restore when stopped\n"))
+ 			continue;
+@@ -863,7 +863,7 @@ static int restore_process_queues_cpsch(struct device_queue_manager *dqm,
+ 			continue;
+ 
+ 		q->properties.is_active = true;
+-		increment_queue_count(dqm, q->properties.type);
++		increment_queue_count(dqm, &pdd->qpd, q);
+ 	}
+ 	retval = execute_queues_cpsch(dqm,
+ 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+@@ -1265,7 +1265,7 @@ static int create_kernel_queue_cpsch(struct device_queue_manager *dqm,
+ 			dqm->total_queue_count);
+ 
+ 	list_add(&kq->list, &qpd->priv_queue_list);
+-	increment_queue_count(dqm, kq->queue->properties.type);
++	increment_queue_count(dqm, qpd, kq->queue);
+ 	qpd->is_debug = true;
+ 	execute_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+ 	dqm_unlock(dqm);
+@@ -1279,7 +1279,7 @@ static void destroy_kernel_queue_cpsch(struct device_queue_manager *dqm,
+ {
+ 	dqm_lock(dqm);
+ 	list_del(&kq->list);
+-	decrement_queue_count(dqm, kq->queue->properties.type);
++	decrement_queue_count(dqm, qpd, kq->queue);
+ 	qpd->is_debug = false;
+ 	execute_queues_cpsch(dqm, KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES, 0);
+ 	/*
+@@ -1346,7 +1346,7 @@ static int create_queue_cpsch(struct device_queue_manager *dqm, struct queue *q,
+ 	qpd->queue_count++;
+ 
+ 	if (q->properties.is_active) {
+-		increment_queue_count(dqm, q->properties.type);
++		increment_queue_count(dqm, qpd, q);
+ 
+ 		execute_queues_cpsch(dqm,
+ 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+@@ -1548,15 +1548,11 @@ static int destroy_queue_cpsch(struct device_queue_manager *dqm,
+ 	list_del(&q->list);
+ 	qpd->queue_count--;
+ 	if (q->properties.is_active) {
+-		decrement_queue_count(dqm, q->properties.type);
++		decrement_queue_count(dqm, qpd, q);
+ 		retval = execute_queues_cpsch(dqm,
+ 				KFD_UNMAP_QUEUES_FILTER_DYNAMIC_QUEUES, 0);
+ 		if (retval == -ETIME)
+ 			qpd->reset_wavefronts = true;
+-		if (q->properties.is_gws) {
+-			dqm->gws_queue_count--;
+-			qpd->mapped_gws_queue = false;
+-		}
+ 	}
+ 
+ 	/*
+@@ -1747,7 +1743,7 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 	/* Clean all kernel queues */
+ 	list_for_each_entry_safe(kq, kq_next, &qpd->priv_queue_list, list) {
+ 		list_del(&kq->list);
+-		decrement_queue_count(dqm, kq->queue->properties.type);
++		decrement_queue_count(dqm, qpd, kq->queue);
+ 		qpd->is_debug = false;
+ 		dqm->total_queue_count--;
+ 		filter = KFD_UNMAP_QUEUES_FILTER_ALL_QUEUES;
+@@ -1760,13 +1756,8 @@ static int process_termination_cpsch(struct device_queue_manager *dqm,
+ 		else if (q->properties.type == KFD_QUEUE_TYPE_SDMA_XGMI)
+ 			deallocate_sdma_queue(dqm, q);
+ 
+-		if (q->properties.is_active) {
+-			decrement_queue_count(dqm, q->properties.type);
+-			if (q->properties.is_gws) {
+-				dqm->gws_queue_count--;
+-				qpd->mapped_gws_queue = false;
+-			}
+-		}
++		if (q->properties.is_active)
++			decrement_queue_count(dqm, qpd, q);
+ 
+ 		dqm->total_queue_count--;
+ 	}
 -- 
 2.35.1
 
