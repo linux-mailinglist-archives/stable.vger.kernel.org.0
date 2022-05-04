@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 019E351A86F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3345D51A755
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355885AbiEDRLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
+        id S1354903AbiEDRDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356763AbiEDRJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E26A18E2B;
-        Wed,  4 May 2022 09:55:32 -0700 (PDT)
+        with ESMTP id S1354791AbiEDQ7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:59:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C1748314;
+        Wed,  4 May 2022 09:51:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E235B617D5;
-        Wed,  4 May 2022 16:55:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B98C385A5;
-        Wed,  4 May 2022 16:55:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D847617BD;
+        Wed,  4 May 2022 16:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 770B4C385A4;
+        Wed,  4 May 2022 16:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683331;
-        bh=9E39mHLbOPtkiWOEOKFy56IbZL3g5wvMyD0A5kF6R7k=;
+        s=korg; t=1651683060;
+        bh=Ml8Xr3vF/i5o3EcwcDdhV4lR+q7NSKCRiHjFcKZqJvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6z051L+RsxOeNgthxEwD3IcEBYJPy9RbK9qqobnaGAjW3a6FHcJVUi/RD5TscSi7
-         XTA5+hB6EjyMKkG7dUefzK/8l/HMzaX4QSjiyZ0E94k5vVPcyN1hkhCZDlE//5XC+h
-         F6W6at5AjmEUdj5gc0x9Px6EMQfFPbfjOcGJIvuo=
+        b=P6NUYIaIIjik+ymXkBx1YvEo/Qi0Ih7wDv8IzI/5yLX9kxmzEJQMPqzup5Cuz1nlw
+         FaOsRra5byE6hxDBEIk7E2ETRZRPMkfpwZ+rwaXDJhA7Cy6OdzMuwnBHlOnwmphhCT
+         /JCObQoXtcS5MbyuZdR43yrHyrhsoZSJn61x8O4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable <stable@kernel.org>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        Hangyu Hua <hbh25y@gmail.com>
-Subject: [PATCH 5.17 018/225] usb: misc: fix improper handling of refcount in uss720_probe()
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 064/129] netfilter: nft_set_rbtree: overlap detection with element re-addition after deletion
 Date:   Wed,  4 May 2022 18:44:16 +0200
-Message-Id: <20220504153111.913625937@linuxfoundation.org>
+Message-Id: <20220504153026.338363624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 0a96fa640dc928da9eaa46a22c46521b037b78ad upstream.
+[ Upstream commit babc3dc9524f0bcb5a0ec61f3c3639b11508fad6 ]
 
-usb_put_dev shouldn't be called when uss720_probe succeeds because of
-priv->usbdev. At the same time, priv->usbdev shouldn't be set to NULL
-before destroy_priv in uss720_disconnect because usb_put_dev is in
-destroy_priv.
+This patch fixes spurious EEXIST errors.
 
-Fix this by moving priv->usbdev = NULL after usb_put_dev.
+Extend d2df92e98a34 ("netfilter: nft_set_rbtree: handle element
+re-addition after deletion") to deal with elements with same end flags
+in the same transation.
 
-Fixes: dcb4b8ad6a44 ("misc/uss720: fix memory leak in uss720_probe")
-Cc: stable <stable@kernel.org>
-Reviewed-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20220407024001.11761-1-hbh25y@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reset the overlap flag as described by 7c84d41416d8 ("netfilter:
+nft_set_rbtree: Detect partial overlaps on insertion").
+
+Fixes: 7c84d41416d8 ("netfilter: nft_set_rbtree: Detect partial overlaps on insertion")
+Fixes: d2df92e98a34 ("netfilter: nft_set_rbtree: handle element re-addition after deletion")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/uss720.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/netfilter/nft_set_rbtree.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -71,6 +71,7 @@ static void destroy_priv(struct kref *kr
+diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
+index 217ab3644c25..94a5446c5eae 100644
+--- a/net/netfilter/nft_set_rbtree.c
++++ b/net/netfilter/nft_set_rbtree.c
+@@ -348,7 +348,11 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
+ 				*ext = &rbe->ext;
+ 				return -EEXIST;
+ 			} else {
+-				p = &parent->rb_left;
++				overlap = false;
++				if (nft_rbtree_interval_end(rbe))
++					p = &parent->rb_left;
++				else
++					p = &parent->rb_right;
+ 			}
+ 		}
  
- 	dev_dbg(&priv->usbdev->dev, "destroying priv datastructure\n");
- 	usb_put_dev(priv->usbdev);
-+	priv->usbdev = NULL;
- 	kfree(priv);
- }
- 
-@@ -736,7 +737,6 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
- 
- 	usb_set_intfdata(intf, pp);
--	usb_put_dev(usbdev);
- 	return 0;
- 
- probe_abort:
-@@ -754,7 +754,6 @@ static void uss720_disconnect(struct usb
- 	usb_set_intfdata(intf, NULL);
- 	if (pp) {
- 		priv = pp->private_data;
--		priv->usbdev = NULL;
- 		priv->pp = NULL;
- 		dev_dbg(&intf->dev, "parport_remove_port\n");
- 		parport_remove_port(pp);
+-- 
+2.35.1
+
 
 
