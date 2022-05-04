@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 250B051A9E6
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8027A51A9EA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:19:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357865AbiEDRUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:20:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
+        id S1357898AbiEDRUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357216AbiEDROz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:14:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CC1254690;
-        Wed,  4 May 2022 09:58:25 -0700 (PDT)
+        with ESMTP id S1357361AbiEDRPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:15:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF19541A0;
+        Wed,  4 May 2022 09:58:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 232B56179D;
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC584B827B3;
+        Wed,  4 May 2022 16:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B739C385B3;
         Wed,  4 May 2022 16:58:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A661C385AA;
-        Wed,  4 May 2022 16:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683504;
-        bh=DosKk7dVzX8SYgoTdF/LccHpUnW5A2jQ9D2iz4RgMQc=;
+        s=korg; t=1651683505;
+        bh=/1yeXMa6uf99VEUn8qt+TxYPCMGa6OAgd4dvwWp1OYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EBVG1XaU9mhV6W9L6NF/N53eJ21v4B7jTuTVvBCaUXP2pb7Mdpzf9j3nsiJ75oFZ+
-         ALL4husBt/Htpr7mNjRjZktkM89TnI9q9w3szLwAXOLzQ7eOHC6zh2yyKw/YeCC0SA
-         UpXavzGoj2XJG+pwgrlAOIz+kn9GCrdJz/6b5jME=
+        b=u2zb+CrrBKNVkTXD2iOjzHmYL9C0usj0lInp78q2ZEDnyDXlGMV1TcePzUu4iDuSZ
+         ojRUwy0GpTXvw/dD6YGdjXCzIZDxhsTmGBJ1BX1kuteRQpJ9OulCRUQlq01sCluHyM
+         C52slhzlgpzhT83bzkKTmsjnrh9ZYXcyPTMMOOd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 179/225] Revert "block: inherit request start time from bio for BLK_CGROUP"
-Date:   Wed,  4 May 2022 18:46:57 +0200
-Message-Id: <20220504153126.455057466@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Hans Holmberg <hans.holmberg@wdc.com>
+Subject: [PATCH 5.17 180/225] zonefs: Fix management of open zones
+Date:   Wed,  4 May 2022 18:46:58 +0200
+Message-Id: <20220504153126.579432514@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -53,55 +55,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 4cddeacad6d4b23493a108d0705e7d2ab89ba5a3 upstream.
+commit 1da18a296f5ba4f99429e62a7cf4fdbefa598902 upstream.
 
-This reverts commit 0006707723233cb2a9a23ca19fc3d0864835704c. It has a
-couple problems:
+The mount option "explicit_open" manages the device open zone
+resources to ensure that if an application opens a sequential file for
+writing, the file zone can always be written by explicitly opening
+the zone and accounting for that state with the s_open_zones counter.
 
-* bio_issue_time() is stored in bio->bi_issue truncated to 51 bits. This
-  overflows in slightly over 26 days. Setting rq->io_start_time_ns with it
-  means that io duration calculation would yield >26days after 26 days of
-  uptime. This, for example, confuses kyber making it cause high IO
-  latencies.
+However, if some zones are already open when mounting, the device open
+zone resource usage status will be larger than the initial s_open_zones
+value of 0. Ensure that this inconsistency does not happen by closing
+any sequential zone that is open when mounting.
 
-* rq->io_start_time_ns should record the time that the IO is issued to the
-  device so that on-device latency can be measured. However,
-  bio_issue_time() is set before the bio goes through the rq-qos controllers
-  (wbt, iolatency, iocost), so when the bio gets throttled in any of the
-  mechanisms, the measured latencies make no sense - on-device latencies end
-  up higher than request-alloc-to-completion latencies.
+Furthermore, with ZNS drives, closing an explicitly open zone that has
+not been written will change the zone state to "closed", that is, the
+zone will remain in an active state. Since this can then cause failures
+of explicit open operations on other zones if the drive active zone
+resources are exceeded, we need to make sure that the zone is not
+active anymore by resetting it instead of closing it. To address this,
+zonefs_zone_mgmt() is modified to change a REQ_OP_ZONE_CLOSE request
+into a REQ_OP_ZONE_RESET for sequential zones that have not been
+written.
 
-We'll need a smarter way to avoid calling ktime_get_ns() repeatedly
-back-to-back. For now, let's revert the commit.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: stable@vger.kernel.org # v5.16+
-Link: https://lore.kernel.org/r/YmmeOLfo5lzc+8yI@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b5c00e975779 ("zonefs: open/close zone on file open/close")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Reviewed-by: Hans Holmberg <hans.holmberg@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-mq.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ fs/zonefs/super.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 5 deletions(-)
 
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -1122,14 +1122,7 @@ void blk_mq_start_request(struct request
- 	trace_block_rq_issue(rq);
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -35,6 +35,17 @@ static inline int zonefs_zone_mgmt(struc
  
- 	if (test_bit(QUEUE_FLAG_STATS, &q->queue_flags)) {
--		u64 start_time;
--#ifdef CONFIG_BLK_CGROUP
--		if (rq->bio)
--			start_time = bio_issue_time(&rq->bio->bi_issue);
--		else
--#endif
--			start_time = ktime_get_ns();
--		rq->io_start_time_ns = start_time;
-+		rq->io_start_time_ns = ktime_get_ns();
- 		rq->stats_sectors = blk_rq_sectors(rq);
- 		rq->rq_flags |= RQF_STATS;
- 		rq_qos_issue(q, rq);
+ 	lockdep_assert_held(&zi->i_truncate_mutex);
+ 
++	/*
++	 * With ZNS drives, closing an explicitly open zone that has not been
++	 * written will change the zone state to "closed", that is, the zone
++	 * will remain active. Since this can then cause failure of explicit
++	 * open operation on other zones if the drive active zone resources
++	 * are exceeded, make sure that the zone does not remain active by
++	 * resetting it.
++	 */
++	if (op == REQ_OP_ZONE_CLOSE && !zi->i_wpoffset)
++		op = REQ_OP_ZONE_RESET;
++
+ 	trace_zonefs_zone_mgmt(inode, op);
+ 	ret = blkdev_zone_mgmt(inode->i_sb->s_bdev, op, zi->i_zsector,
+ 			       zi->i_zone_size >> SECTOR_SHIFT, GFP_NOFS);
+@@ -1295,12 +1306,13 @@ static void zonefs_init_dir_inode(struct
+ 	inc_nlink(parent);
+ }
+ 
+-static void zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
+-				   enum zonefs_ztype type)
++static int zonefs_init_file_inode(struct inode *inode, struct blk_zone *zone,
++				  enum zonefs_ztype type)
+ {
+ 	struct super_block *sb = inode->i_sb;
+ 	struct zonefs_sb_info *sbi = ZONEFS_SB(sb);
+ 	struct zonefs_inode_info *zi = ZONEFS_I(inode);
++	int ret = 0;
+ 
+ 	inode->i_ino = zone->start >> sbi->s_zone_sectors_shift;
+ 	inode->i_mode = S_IFREG | sbi->s_perm;
+@@ -1325,6 +1337,22 @@ static void zonefs_init_file_inode(struc
+ 	sb->s_maxbytes = max(zi->i_max_size, sb->s_maxbytes);
+ 	sbi->s_blocks += zi->i_max_size >> sb->s_blocksize_bits;
+ 	sbi->s_used_blocks += zi->i_wpoffset >> sb->s_blocksize_bits;
++
++	/*
++	 * For sequential zones, make sure that any open zone is closed first
++	 * to ensure that the initial number of open zones is 0, in sync with
++	 * the open zone accounting done when the mount option
++	 * ZONEFS_MNTOPT_EXPLICIT_OPEN is used.
++	 */
++	if (type == ZONEFS_ZTYPE_SEQ &&
++	    (zone->cond == BLK_ZONE_COND_IMP_OPEN ||
++	     zone->cond == BLK_ZONE_COND_EXP_OPEN)) {
++		mutex_lock(&zi->i_truncate_mutex);
++		ret = zonefs_zone_mgmt(inode, REQ_OP_ZONE_CLOSE);
++		mutex_unlock(&zi->i_truncate_mutex);
++	}
++
++	return ret;
+ }
+ 
+ static struct dentry *zonefs_create_inode(struct dentry *parent,
+@@ -1334,6 +1362,7 @@ static struct dentry *zonefs_create_inod
+ 	struct inode *dir = d_inode(parent);
+ 	struct dentry *dentry;
+ 	struct inode *inode;
++	int ret;
+ 
+ 	dentry = d_alloc_name(parent, name);
+ 	if (!dentry)
+@@ -1344,10 +1373,16 @@ static struct dentry *zonefs_create_inod
+ 		goto dput;
+ 
+ 	inode->i_ctime = inode->i_mtime = inode->i_atime = dir->i_ctime;
+-	if (zone)
+-		zonefs_init_file_inode(inode, zone, type);
+-	else
++	if (zone) {
++		ret = zonefs_init_file_inode(inode, zone, type);
++		if (ret) {
++			iput(inode);
++			goto dput;
++		}
++	} else {
+ 		zonefs_init_dir_inode(dir, inode, type);
++	}
++
+ 	d_add(dentry, inode);
+ 	dir->i_size++;
+ 
 
 
