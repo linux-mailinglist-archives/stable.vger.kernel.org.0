@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA88251A8BF
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91EE51A85E
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356531AbiEDRNx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40668 "EHLO
+        id S1355780AbiEDRKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356201AbiEDRL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B636B4B416;
-        Wed,  4 May 2022 09:57:30 -0700 (PDT)
+        with ESMTP id S1356268AbiEDRJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9894D532D1;
+        Wed,  4 May 2022 09:55:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C538617A6;
-        Wed,  4 May 2022 16:57:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A75BEC385A4;
-        Wed,  4 May 2022 16:57:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C85DF617BD;
+        Wed,  4 May 2022 16:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A18DC385A5;
+        Wed,  4 May 2022 16:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683449;
-        bh=+UBJ4i3Fl2GsTUI0Gp8N2JfuB7Nvbo2PZZ9YAnUaWY8=;
+        s=korg; t=1651683301;
+        bh=6bZU3NGMInlfBN8tBdB3M1+GwC8lMtxZ9yWkud+oP+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XdMgJMHXFbBT7995HONq4X8n0Q3lLvLqdyALIC13eg7x6LbypQIGhBRQaVP5aw0yi
-         biCKoPXADkonAD4A+JANbVesBGQta4jXo61pwmv7HusC5lClP26P3PWh16icpVdRDA
-         WawlpFBuSGIqMETaRDA9BpPqBwA+OwlqTdMdisMA=
+        b=hkTGBT+R+uolJZMKsdGMfP4ZQZaV0FivSr3H5l91rCWoiHjW4PYUNzOn6xszwjoE+
+         lngMc4Ci8mDt578YlxLIUlNXps2bAQT3R4PiWiQyjCV/mNi17qYX3ByB81svRMKjnX
+         uH8xfTYt3TRJkJ9cBnNiLhFQONJphpxTo6J7o5lY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 112/225] pinctrl: pistachio: fix use of irq_of_parse_and_map()
-Date:   Wed,  4 May 2022 18:45:50 +0200
-Message-Id: <20220504153120.578548247@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.15 158/177] tty: n_gsm: fix decoupled mux resource
+Date:   Wed,  4 May 2022 18:45:51 +0200
+Message-Id: <20220504153107.599944026@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +52,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit 0c9843a74a85224a89daa81fa66891dae2f930e1 ]
+commit 1ec92e9742774bf42614fceea3bf6b50c9409225 upstream.
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+The active mux instances are managed in the gsm_mux array and via mux_get()
+and mux_put() functions separately. This gives a very loose coupling
+between the actual instance and the gsm_mux array which manages it. It also
+results in unnecessary lockings which makes it prone to failures. And it
+creates a race condition if more than the maximum number of mux instances
+are requested while the user changes the parameters of an active instance.
+The user may loose ownership of the current mux instance in this case.
+Fix this by moving the gsm_mux array handling to the mux allocation and
+deallocation functions.
 
-Fixes: cefc03e5995e ("pinctrl: Add Pistachio SoC pin control driver")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Link: https://lore.kernel.org/r/20220424031430.3170759-1-lv.ruyi@zte.com.cn
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-3-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pinctrl/pinctrl-pistachio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/tty/n_gsm.c |   63 +++++++++++++++++++++++++++++++---------------------
+ 1 file changed, 38 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-pistachio.c b/drivers/pinctrl/pinctrl-pistachio.c
-index 8d271c6b0ca4..5de691c630b4 100644
---- a/drivers/pinctrl/pinctrl-pistachio.c
-+++ b/drivers/pinctrl/pinctrl-pistachio.c
-@@ -1374,10 +1374,10 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
- 		}
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2078,18 +2078,6 @@ static void gsm_cleanup_mux(struct gsm_m
+ 	/* Finish outstanding timers, making sure they are done */
+ 	del_timer_sync(&gsm->t2_timer);
  
- 		irq = irq_of_parse_and_map(child, 0);
--		if (irq < 0) {
--			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
-+		if (!irq) {
-+			dev_err(pctl->dev, "No IRQ for bank %u\n", i);
- 			of_node_put(child);
--			ret = irq;
-+			ret = -EINVAL;
- 			goto err;
- 		}
+-	spin_lock(&gsm_mux_lock);
+-	for (i = 0; i < MAX_MUX; i++) {
+-		if (gsm_mux[i] == gsm) {
+-			gsm_mux[i] = NULL;
+-			break;
+-		}
+-	}
+-	spin_unlock(&gsm_mux_lock);
+-	/* open failed before registering => nothing to do */
+-	if (i == MAX_MUX)
+-		return;
+-
+ 	/* Free up any link layer users */
+ 	for (i = 0; i < NUM_DLCI; i++)
+ 		if (gsm->dlci[i])
+@@ -2113,7 +2101,6 @@ static void gsm_cleanup_mux(struct gsm_m
+ static int gsm_activate_mux(struct gsm_mux *gsm)
+ {
+ 	struct gsm_dlci *dlci;
+-	int i = 0;
  
--- 
-2.35.1
-
+ 	timer_setup(&gsm->t2_timer, gsm_control_retransmit, 0);
+ 	init_waitqueue_head(&gsm->event);
+@@ -2125,18 +2112,6 @@ static int gsm_activate_mux(struct gsm_m
+ 	else
+ 		gsm->receive = gsm1_receive;
+ 
+-	spin_lock(&gsm_mux_lock);
+-	for (i = 0; i < MAX_MUX; i++) {
+-		if (gsm_mux[i] == NULL) {
+-			gsm->num = i;
+-			gsm_mux[i] = gsm;
+-			break;
+-		}
+-	}
+-	spin_unlock(&gsm_mux_lock);
+-	if (i == MAX_MUX)
+-		return -EBUSY;
+-
+ 	dlci = gsm_dlci_alloc(gsm, 0);
+ 	if (dlci == NULL)
+ 		return -ENOMEM;
+@@ -2152,6 +2127,15 @@ static int gsm_activate_mux(struct gsm_m
+  */
+ static void gsm_free_mux(struct gsm_mux *gsm)
+ {
++	int i;
++
++	for (i = 0; i < MAX_MUX; i++) {
++		if (gsm == gsm_mux[i]) {
++			gsm_mux[i] = NULL;
++			break;
++		}
++	}
++	mutex_destroy(&gsm->mutex);
+ 	kfree(gsm->txframe);
+ 	kfree(gsm->buf);
+ 	kfree(gsm);
+@@ -2171,12 +2155,20 @@ static void gsm_free_muxr(struct kref *r
+ 
+ static inline void mux_get(struct gsm_mux *gsm)
+ {
++	unsigned long flags;
++
++	spin_lock_irqsave(&gsm_mux_lock, flags);
+ 	kref_get(&gsm->ref);
++	spin_unlock_irqrestore(&gsm_mux_lock, flags);
+ }
+ 
+ static inline void mux_put(struct gsm_mux *gsm)
+ {
++	unsigned long flags;
++
++	spin_lock_irqsave(&gsm_mux_lock, flags);
+ 	kref_put(&gsm->ref, gsm_free_muxr);
++	spin_unlock_irqrestore(&gsm_mux_lock, flags);
+ }
+ 
+ static inline unsigned int mux_num_to_base(struct gsm_mux *gsm)
+@@ -2197,6 +2189,7 @@ static inline unsigned int mux_line_to_n
+ 
+ static struct gsm_mux *gsm_alloc_mux(void)
+ {
++	int i;
+ 	struct gsm_mux *gsm = kzalloc(sizeof(struct gsm_mux), GFP_KERNEL);
+ 	if (gsm == NULL)
+ 		return NULL;
+@@ -2226,6 +2219,26 @@ static struct gsm_mux *gsm_alloc_mux(voi
+ 	gsm->mtu = 64;
+ 	gsm->dead = true;	/* Avoid early tty opens */
+ 
++	/* Store the instance to the mux array or abort if no space is
++	 * available.
++	 */
++	spin_lock(&gsm_mux_lock);
++	for (i = 0; i < MAX_MUX; i++) {
++		if (!gsm_mux[i]) {
++			gsm_mux[i] = gsm;
++			gsm->num = i;
++			break;
++		}
++	}
++	spin_unlock(&gsm_mux_lock);
++	if (i == MAX_MUX) {
++		mutex_destroy(&gsm->mutex);
++		kfree(gsm->txframe);
++		kfree(gsm->buf);
++		kfree(gsm);
++		return NULL;
++	}
++
+ 	return gsm;
+ }
+ 
 
 
