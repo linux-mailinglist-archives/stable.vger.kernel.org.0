@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8026B51A85D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0C8D51A863
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355458AbiEDRKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S1355920AbiEDRKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:10:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356307AbiEDRJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08EBB532DB;
-        Wed,  4 May 2022 09:55:02 -0700 (PDT)
+        with ESMTP id S1356411AbiEDRJO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC5C3527E1;
+        Wed,  4 May 2022 09:55:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E4261899;
-        Wed,  4 May 2022 16:55:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17D0FC385AA;
-        Wed,  4 May 2022 16:55:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66861B8278E;
+        Wed,  4 May 2022 16:55:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B0B2C385A5;
+        Wed,  4 May 2022 16:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683302;
-        bh=7pBfGO7jJD7TSXKhPud04PKEnIWy2lecZmL2TL3JfC8=;
+        s=korg; t=1651683303;
+        bh=7fgymN/1pIGsyJtMpwE+5+9FXwZ5z4P08NGmcaC4cGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/gJkHr7qUwFSaEjq1VWmAcj+p1V8cRnuzPJiEs1HVoMTciy05vj2vA7njOH5kp76
-         mYm/WC8edXaHP3OintIEjGzfWeBdD/ISO1d/y3RwWLCS3sNmosADyiWXBYB0Tx5qWi
-         fYFrgYz2fGGOsOyVFxnEazNRd5rZYRes1b5UUcDU=
+        b=BUCJ5DtZfSrYQj23VLUHYpu1zHTlkJI7Sj2+YuN5nfarlSeg4Twq6oJx9RoXsIJCO
+         mRp0Ic58o2Wzkm09UdD+i7EWgVm1T9C4d7TIBzZs4AqvEuYItUj+lSMjI9ccLRKsWo
+         oKmBPiE+D/Qn5z90AYvj9E4p2ojzqw7xYpfcqT6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 167/177] tty: n_gsm: fix wrong command frame length field encoding
-Date:   Wed,  4 May 2022 18:46:00 +0200
-Message-Id: <20220504153108.497103113@linuxfoundation.org>
+Subject: [PATCH 5.15 168/177] tty: n_gsm: fix wrong signal octets encoding in MSC
+Date:   Wed,  4 May 2022 18:46:01 +0200
+Message-Id: <20220504153108.599900560@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
 References: <20220504153053.873100034@linuxfoundation.org>
@@ -54,74 +54,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 398867f59f956985f4c324f173eff7b946e14bd8 upstream.
+commit 317f86af7f5d19f286ed2d181cbaef4a188c7f19 upstream.
 
 n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
 See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
 The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.1 states that each command frame shall
-be made up from type, length and value. Looking for example in chapter
-5.4.6.3.5 at the description for the encoding of a flow control on command
-it becomes obvious, that the type and length field is always present
-whereas the value may be zero bytes long. The current implementation omits
-the length field if the value is not present. This is wrong.
-Correct this by always sending the length in gsm_control_transmit().
-So far only the modem status command (MSC) has included a value and encoded
-its length directly. Therefore, also change gsmtty_modem_update().
+the newer 27.010 here. The value of the modem status command (MSC) frame
+contains an address field, control signal and optional break signal octet.
+The address field is encoded as described in chapter 5.2.1.2 with only one
+octet (may be extended to more in future versions of the standard). Whereas
+the control signal and break signal octet are always one byte each. This is
+strange at first glance as it makes the EA bit redundant. However, the same
+two octets are also encoded as header in convergence layer type 2 as
+described in chapter 5.5.2. No header length field is given and the only
+way to test if there is an optional break signal octet is via the EA flag
+which extends the control signal octet with a break signal octet. Now it
+becomes obvious how the EA bit for those two octets shall be encoded in the
+MSC frame. The current implementation treats the signal octet different for
+MSC frame and convergence layer type 2 header even though the standard
+describes it for both in the same way.
+Use the EA bit to encode the signal octets not only in the convergence
+layer type 2 header but also in the MSC frame in the same way with either
+1 or 2 bytes in case of an optional break signal. Adjust the receiving path
+accordingly in gsm_control_modem().
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Fixes: 3ac06b905655 ("tty: n_gsm: Fix for modems with brk in modem status control")
 Cc: stable@vger.kernel.org
 Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-12-daniel.starke@siemens.com
+Link: https://lore.kernel.org/r/20220414094225.4527-13-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ drivers/tty/n_gsm.c |   18 +++++-------------
+ 1 file changed, 5 insertions(+), 13 deletions(-)
 
 --- a/drivers/tty/n_gsm.c
 +++ b/drivers/tty/n_gsm.c
-@@ -1302,11 +1302,12 @@ static void gsm_control_response(struct
- 
- static void gsm_control_transmit(struct gsm_mux *gsm, struct gsm_control *ctrl)
+@@ -1083,7 +1083,6 @@ static void gsm_control_modem(struct gsm
  {
--	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 1, gsm->ftype);
-+	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 2, gsm->ftype);
- 	if (msg == NULL)
- 		return;
--	msg->data[0] = (ctrl->cmd << 1) | 2 | EA;	/* command */
--	memcpy(msg->data + 1, ctrl->data, ctrl->len);
-+	msg->data[0] = (ctrl->cmd << 1) | CR | EA;	/* command */
-+	msg->data[1] = (ctrl->len << 1) | EA;
-+	memcpy(msg->data + 2, ctrl->data, ctrl->len);
- 	gsm_data_queue(gsm->dlci[0], msg);
- }
- 
-@@ -2889,19 +2890,17 @@ static struct tty_ldisc_ops tty_ldisc_pa
- 
- static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk)
- {
--	u8 modembits[5];
-+	u8 modembits[3];
- 	struct gsm_control *ctrl;
+ 	unsigned int addr = 0;
+ 	unsigned int modem = 0;
+-	unsigned int brk = 0;
+ 	struct gsm_dlci *dlci;
+ 	int len = clen;
+ 	int slen;
+@@ -1113,17 +1112,8 @@ static void gsm_control_modem(struct gsm
+ 			return;
+ 	}
+ 	len--;
+-	if (len > 0) {
+-		while (gsm_read_ea(&brk, *dp++) == 0) {
+-			len--;
+-			if (len == 0)
+-				return;
+-		}
+-		modem <<= 7;
+-		modem |= (brk & 0x7f);
+-	}
+ 	tty = tty_port_tty_get(&dlci->port);
+-	gsm_process_modem(tty, dlci, modem, slen);
++	gsm_process_modem(tty, dlci, modem, slen - len);
+ 	if (tty) {
+ 		tty_wakeup(tty);
+ 		tty_kref_put(tty);
+@@ -2895,8 +2885,10 @@ static int gsmtty_modem_update(struct gs
  	int len = 2;
  
--	if (brk)
-+	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
-+	modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
-+	if (brk) {
-+		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
+ 	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
+-	modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
+-	if (brk) {
++	if (!brk) {
++		modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
++	} else {
++		modembits[1] = gsm_encode_modem(dlci) << 1;
+ 		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
  		len++;
--
--	modembits[0] = len << 1 | EA;		/* Data bytes */
--	modembits[1] = dlci->addr << 2 | 3;	/* DLCI, EA, 1 */
--	modembits[2] = gsm_encode_modem(dlci) << 1 | EA;
--	if (brk)
--		modembits[3] = brk << 4 | 2 | EA;	/* Valid, EA */
--	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len + 1);
-+	}
-+	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len);
- 	if (ctrl == NULL)
- 		return -ENOMEM;
- 	return gsm_control_wait(dlci->gsm, ctrl);
+ 	}
 
 
