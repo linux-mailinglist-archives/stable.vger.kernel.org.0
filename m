@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 636FC51A713
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B532F51A878
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354244AbiEDRBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:01:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35656 "EHLO
+        id S1356102AbiEDRLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:11:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355507AbiEDRAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A6054B1E5;
-        Wed,  4 May 2022 09:51:48 -0700 (PDT)
+        with ESMTP id S1356822AbiEDRJp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50587220D0;
+        Wed,  4 May 2022 09:55:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB8216187C;
-        Wed,  4 May 2022 16:51:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01709C385A4;
-        Wed,  4 May 2022 16:51:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E02DA616F8;
+        Wed,  4 May 2022 16:55:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37142C385AA;
+        Wed,  4 May 2022 16:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683099;
-        bh=vrXHUeiBGCc1SZvHym5m4/ZjOsgwzIuFcFfu5qMi3QY=;
+        s=korg; t=1651683349;
+        bh=RxD54wOIf+gtesh7VHfBEjiXkcaf7g6pr7I4+AwcUM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtaonSGc9lUzIJmOOijGueFLtogW94Jv15MxG3XkC0+xhxGYAYQ+87jqN8RZJ/Bsd
-         I7MABiijs9ahJydNZm6dVyi3Fbezz0uVKj9vchw7PbGJfxjUz2Ecbx/ZK+V/5FZ5OO
-         QOo9hRKI4C2+9GhOIuv20NAdwvDFpGPh4gMS4sHA=
+        b=PmmLH9MD5cPnUF+CNIlgo3DUUq533LWFz3zv/hea2WdPZKnW+PCWyaM5216N41SRO
+         dOscUOsUM8QxHwTF/EIRg1YpvbWgFl/+NIN0LhnPZP+xxq39va9rlvY3dj/cKiWqbQ
+         MaYjTSOBEce7J7XyL+qaeF6fShRpINsI02/fojbc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 081/129] ip6_gre: Make o_seqno start from 0 in native mode
-Date:   Wed,  4 May 2022 18:44:33 +0200
-Message-Id: <20220504153027.510923900@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.17 036/225] serial: 8250: Also set sticky MCR bits in console restoration
+Date:   Wed,  4 May 2022 18:44:34 +0200
+Message-Id: <20220504153113.425360432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit fde98ae91f79cab4e020f40c35ed23cbdc59661c ]
+commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
 
-For IP6GRE and IP6GRETAP devices, currently o_seqno starts from 1 in
-native mode.  According to RFC 2890 2.2., "The first datagram is sent
-with a sequence number of 0."  Fix it.
+Sticky MCR bits are lost in console restoration if console suspending
+has been disabled.  This currently affects the AFE bit, which works in
+combination with RTS which we set, so we want to make sure the UART
+retains control of its FIFO where previously requested.  Also specific
+drivers may need other bits in the future.
 
-It is worth mentioning that o_seqno already starts from 0 in collect_md
-mode, see the "if (tunnel->parms.collect_md)" clause in __gre6_xmit(),
-where tunnel->o_seqno is passed to gre_build_header() before getting
-incremented.
-
-Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Cc: stable@vger.kernel.org # v4.0+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/tty/serial/8250/8250_port.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ip6_gre.c b/net/ipv6/ip6_gre.c
-index 1f6c752f13b4..09262adf004e 100644
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -724,6 +724,7 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- {
- 	struct ip6_tnl *tunnel = netdev_priv(dev);
- 	__be16 protocol;
-+	__be16 flags;
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3340,7 +3340,7 @@ static void serial8250_console_restore(s
  
- 	if (dev->type == ARPHRD_ETHER)
- 		IPCB(skb)->flags = 0;
-@@ -739,7 +740,6 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 	if (tunnel->parms.collect_md) {
- 		struct ip_tunnel_info *tun_info;
- 		const struct ip_tunnel_key *key;
--		__be16 flags;
- 		int tun_hlen;
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+-	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
++	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
+ }
  
- 		tun_info = skb_tunnel_info_txcheck(skb);
-@@ -770,15 +770,14 @@ static netdev_tx_t __gre6_xmit(struct sk_buff *skb,
- 						      : 0);
- 
- 	} else {
--		if (tunnel->parms.o_flags & TUNNEL_SEQ)
--			tunnel->o_seqno++;
--
- 		if (skb_cow_head(skb, dev->needed_headroom ?: tunnel->hlen))
- 			return -ENOMEM;
- 
--		gre_build_header(skb, tunnel->tun_hlen, tunnel->parms.o_flags,
-+		flags = tunnel->parms.o_flags;
-+
-+		gre_build_header(skb, tunnel->tun_hlen, flags,
- 				 protocol, tunnel->parms.o_key,
--				 htonl(tunnel->o_seqno));
-+				 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
- 	}
- 
- 	return ip6_tnl_xmit(skb, dev, dsfield, fl6, encap_limit, pmtu,
--- 
-2.35.1
-
+ /*
 
 
