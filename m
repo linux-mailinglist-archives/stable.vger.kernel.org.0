@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76CEE51A89F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D11C651A92C
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356247AbiEDRQx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:16:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
+        id S1356198AbiEDRRV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:17:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355612AbiEDRLn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71DA24B850;
-        Wed,  4 May 2022 09:57:37 -0700 (PDT)
+        with ESMTP id S1356274AbiEDRL4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:11:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 601754B85D;
+        Wed,  4 May 2022 09:57:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 46E84618B4;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDBF6B827A4;
+        Wed,  4 May 2022 16:57:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99A8CC385A5;
         Wed,  4 May 2022 16:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96ADAC385A5;
-        Wed,  4 May 2022 16:57:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683456;
-        bh=UENWpMK2j0GaH55wcuPVhfFipYceSV+SOq3v7+THSbo=;
+        s=korg; t=1651683457;
+        bh=6Elx0oXf8pbyDQpAEzwHlIxpEwN9MDAQQX+4yMGajzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zGCrdOOUVn5qMC0j9uXLVUupBcHcvOOPz9yaFez+HZQ8oudKI53gExA4CpDTRbv2A
-         OHHp9aY7eh5Xz2DjfpEsFQM1AQg68GhigTEayMv+a4fBpancZzYcGCW+CCLEDRYrO0
-         svyEDsjsoRlpHPsqHYm7397MY2zCwLJzQNCEhdPU=
+        b=eqUpLq8v88kBcvpOnmbmzWzKv601k56rkdbRMguzY1eyZkGItsh+yRDV1xihFZEnZ
+         FGikyi3fuwi7Zi2HusVlqOKXx8mqn2WcorjZhP74IDgR6UI9LUtQLozvIp2/1vt26k
+         +ZItnTfrl6AutsNHoaYYrWlfaEyzhli0HevmV82M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baruch Siach <baruch.siach@siklu.com>,
+        stable@vger.kernel.org, Nathan Rossi <nathan@nathanrossi.com>,
         =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Paolo Abeni <pabeni@redhat.com>,
+        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 131/225] net: phy: marvell10g: fix return value on error
-Date:   Wed,  4 May 2022 18:46:09 +0200
-Message-Id: <20220504153122.034933314@linuxfoundation.org>
+Subject: [PATCH 5.17 132/225] net: dsa: mv88e6xxx: Fix port_hidden_wait to account for port_base_addr
+Date:   Wed,  4 May 2022 18:46:10 +0200
+Message-Id: <20220504153122.110919171@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -56,36 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baruch Siach <baruch.siach@siklu.com>
+From: Nathan Rossi <nathan@nathanrossi.com>
 
-[ Upstream commit 0ed9704b660b259b54743cad8a84a11148f60f0a ]
+[ Upstream commit 24cbdb910bb62b5be3865275e5682be1a7708c0f ]
 
-Return back the error value that we get from phy_read_mmd().
+The other port_hidden functions rely on the port_read/port_write
+functions to access the hidden control port. These functions apply the
+offset for port_base_addr where applicable. Update port_hidden_wait to
+use the port_wait_bit so that port_base_addr offsets are accounted for
+when waiting for the busy bit to change.
 
-Fixes: c84786fa8f91 ("net: phy: marvell10g: read copper results from CSSR1")
-Signed-off-by: Baruch Siach <baruch.siach@siklu.com>
+Without the offset the port_hidden_wait function would timeout on
+devices that have a non-zero port_base_addr (e.g. MV88E6141), however
+devices that have a zero port_base_addr would operate correctly (e.g.
+MV88E6390).
+
+Fixes: 609070133aff ("net: dsa: mv88e6xxx: update code operating on hidden registers")
+Signed-off-by: Nathan Rossi <nathan@nathanrossi.com>
 Reviewed-by: Marek Behún <kabel@kernel.org>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/r/f47cb031aeae873bb008ba35001607304a171a20.1650868058.git.baruch@tkos.co.il
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220425070454.348584-1-nathan@nathanrossi.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/marvell10g.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/mv88e6xxx/port_hidden.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/marvell10g.c b/drivers/net/phy/marvell10g.c
-index b6fea119fe13..2b7d0720720b 100644
---- a/drivers/net/phy/marvell10g.c
-+++ b/drivers/net/phy/marvell10g.c
-@@ -880,7 +880,7 @@ static int mv3310_read_status_copper(struct phy_device *phydev)
+diff --git a/drivers/net/dsa/mv88e6xxx/port_hidden.c b/drivers/net/dsa/mv88e6xxx/port_hidden.c
+index b49d05f0e117..7a9f9ff6dedf 100644
+--- a/drivers/net/dsa/mv88e6xxx/port_hidden.c
++++ b/drivers/net/dsa/mv88e6xxx/port_hidden.c
+@@ -40,8 +40,9 @@ int mv88e6xxx_port_hidden_wait(struct mv88e6xxx_chip *chip)
+ {
+ 	int bit = __bf_shf(MV88E6XXX_PORT_RESERVED_1A_BUSY);
  
- 	cssr1 = phy_read_mmd(phydev, MDIO_MMD_PCS, MV_PCS_CSSR1);
- 	if (cssr1 < 0)
--		return val;
-+		return cssr1;
+-	return mv88e6xxx_wait_bit(chip, MV88E6XXX_PORT_RESERVED_1A_CTRL_PORT,
+-				  MV88E6XXX_PORT_RESERVED_1A, bit, 0);
++	return mv88e6xxx_port_wait_bit(chip,
++				       MV88E6XXX_PORT_RESERVED_1A_CTRL_PORT,
++				       MV88E6XXX_PORT_RESERVED_1A, bit, 0);
+ }
  
- 	/* If the link settings are not resolved, mark the link down */
- 	if (!(cssr1 & MV_PCS_CSSR1_RESOLVED)) {
+ int mv88e6xxx_port_hidden_read(struct mv88e6xxx_chip *chip, int block, int port,
 -- 
 2.35.1
 
