@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80A1C51A85F
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3313451A950
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355871AbiEDRKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:10:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38888 "EHLO
+        id S1355384AbiEDRMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356263AbiEDRJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB989532C7;
-        Wed,  4 May 2022 09:55:01 -0700 (PDT)
+        with ESMTP id S1357007AbiEDRJw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC0B4831E;
+        Wed,  4 May 2022 09:56:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62499B82552;
-        Wed,  4 May 2022 16:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A30C385AA;
-        Wed,  4 May 2022 16:55:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12F46B827A1;
+        Wed,  4 May 2022 16:56:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C9EC385BB;
+        Wed,  4 May 2022 16:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683300;
-        bh=LqikQVruDlTPY4W8yio5ZihTYRkdGJY8fqc90o2rNZU=;
+        s=korg; t=1651683414;
+        bh=NYarbiEKNJhdMwy43JHI6hW/kY4vKlXNSqwptppxmHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=coNhCWYqnrfqNT70riuu9EaJMYjXCRe8MoUHkS4QnwZsN2SnQX+PeZ22BtIL+yjRR
-         hYuE0lieZwFOJXdjWtThiQP2bKcZ9ptU2KuN2tjs6f5wk3Wukm4Dkix3wi8dumLoui
-         v/sJjhOYMMZ2c/fRoZvgW8ZE9bVKpU8eT582Kpmo=
+        b=o6sS2/b1YAh//7S9evPqcpb1lDWPhU6OOJxPOj2ktBUTntSm8DRJhWNXwp5Qz0AgE
+         uG3fp5rppmkgEm4x+dRT0oHSNbyEqcEm8Z3XO5ZKA8/seWc7UgzcEzF8aQDpN1gTJX
+         zQ/W3z+cgbYkwErNkFPAVblCwYOhM3ON+ssXTuZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang1.zhang@intel.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 143/177] kasan: prevent cpu_quarantine corruption when CPU offline and cache shrink occur at same time
-Date:   Wed,  4 May 2022 18:45:36 +0200
-Message-Id: <20220504153106.070173619@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@foss.st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 099/225] pinctrl: stm32: Do not call stm32_gpio_get() for edge triggered IRQs in EOI
+Date:   Wed,  4 May 2022 18:45:37 +0200
+Message-Id: <20220504153119.592660213@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+References: <20220504153110.096069935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,53 +59,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 31fa985b4196f8a66f027672e9bf2b81fea0417c upstream.
+[ Upstream commit e74200ebf7c4f6a7a7d1be9f63833ddba251effa ]
 
-kasan_quarantine_remove_cache() is called in kmem_cache_shrink()/
-destroy().  The kasan_quarantine_remove_cache() call is protected by
-cpuslock in kmem_cache_destroy() to ensure serialization with
-kasan_cpu_offline().
+The stm32_gpio_get() should only be called for LEVEL triggered interrupts,
+skip calling it for EDGE triggered interrupts altogether to avoid wasting
+CPU cycles in EOI handler. On this platform, EDGE triggered interrupts are
+the majority and LEVEL triggered interrupts are the exception no less, and
+the CPU cycles are not abundant.
 
-However the kasan_quarantine_remove_cache() call is not protected by
-cpuslock in kmem_cache_shrink().  When a CPU is going offline and cache
-shrink occurs at same time, the cpu_quarantine may be corrupted by
-interrupt (per_cpu_remove_cache operation).
-
-So add a cpu_quarantine offline flags check in per_cpu_remove_cache().
-
-[akpm@linux-foundation.org: add comment, per Zqiang]
-
-Link: https://lkml.kernel.org/r/20220414025925.2423818-1-qiang1.zhang@intel.com
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Reviewed-by: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 47beed513a85b ("pinctrl: stm32: Add level interrupt support to gpio irq chip")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@foss.st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: linux-stm32@st-md-mailman.stormreply.com
+Cc: linux-arm-kernel@lists.infradead.org
+To: linux-gpio@vger.kernel.org
+Link: https://lore.kernel.org/r/20220415215410.498349-1-marex@denx.de
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/kasan/quarantine.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/pinctrl/stm32/pinctrl-stm32.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/mm/kasan/quarantine.c
-+++ b/mm/kasan/quarantine.c
-@@ -315,6 +315,13 @@ static void per_cpu_remove_cache(void *a
- 	struct qlist_head *q;
+diff --git a/drivers/pinctrl/stm32/pinctrl-stm32.c b/drivers/pinctrl/stm32/pinctrl-stm32.c
+index 9ed764731570..df1d6b466fb7 100644
+--- a/drivers/pinctrl/stm32/pinctrl-stm32.c
++++ b/drivers/pinctrl/stm32/pinctrl-stm32.c
+@@ -311,6 +311,10 @@ static void stm32_gpio_irq_trigger(struct irq_data *d)
+ 	struct stm32_gpio_bank *bank = d->domain->host_data;
+ 	int level;
  
- 	q = this_cpu_ptr(&cpu_quarantine);
-+	/*
-+	 * Ensure the ordering between the writing to q->offline and
-+	 * per_cpu_remove_cache.  Prevent cpu_quarantine from being corrupted
-+	 * by interrupt.
-+	 */
-+	if (READ_ONCE(q->offline))
++	/* Do not access the GPIO if this is not LEVEL triggered IRQ. */
++	if (!(bank->irq_type[d->hwirq] & IRQ_TYPE_LEVEL_MASK))
 +		return;
- 	qlist_move_cache(q, &to_free, cache);
- 	qlist_free_all(&to_free, cache);
- }
++
+ 	/* If level interrupt type then retrig */
+ 	level = stm32_gpio_get(&bank->gpio_chip, d->hwirq);
+ 	if ((level == 0 && bank->irq_type[d->hwirq] == IRQ_TYPE_LEVEL_LOW) ||
+-- 
+2.35.1
+
 
 
