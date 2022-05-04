@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE6351A87E
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF89C51A7B7
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355693AbiEDRLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S1355081AbiEDRG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356889AbiEDRJs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ECB245780;
-        Wed,  4 May 2022 09:56:17 -0700 (PDT)
+        with ESMTP id S1356099AbiEDREx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34B7E50455;
+        Wed,  4 May 2022 09:53:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEA42616F8;
-        Wed,  4 May 2022 16:56:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48786C385A4;
-        Wed,  4 May 2022 16:56:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5679B8279F;
+        Wed,  4 May 2022 16:53:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78E1FC385A5;
+        Wed,  4 May 2022 16:53:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683376;
-        bh=OQ1b/bKeJ5Eyf13DeI9WkK5aBxJe3mgx/Xvg+t6wOEQ=;
+        s=korg; t=1651683227;
+        bh=IiuLVqn+41hK/TvtV51P7ny7tLaJWsoNCR7nCU1SY98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TnKLsFHliZgVYYJKS3SlQtGy6EFUdJDSbcSAk7JMzsnAXRkDa3F+chDDgnt7Q5sPG
-         soB/SeIaS2gMK6iQqjFqdNw/89/vBWbdwdBzoPtWnNaXmNyKju2PC5nw6N7HJJ9f6q
-         Bh7CjBy4gxXGWE89apxsxmPcU3Lm+b52VeyessN4=
+        b=KukplC2U0TZ6FMtV794VfOiEzd24mYzXeww5Q/J43MsDrY29RDxevypEHk3Nujlct
+         njDZF0qq3t7U0sQuPWfa/Jgh25c695dXl92GtHeD0YoFJPt88hfG0K+4zyaXC7lFOG
+         zyQvRT+JVTNOK0806JdvnsaLNXJbKsP1R0winnUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 047/225] hex2bin: make the function hex_to_bin constant-time
+        stable@vger.kernel.org, Xiaobing Luo <luoxiaobing0926@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 092/177] cpufreq: fix memory leak in sun50i_cpufreq_nvmem_probe
 Date:   Wed,  4 May 2022 18:44:45 +0200
-Message-Id: <20220504153114.304876345@linuxfoundation.org>
+Message-Id: <20220504153101.347699471@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +55,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Xiaobing Luo <luoxiaobing0926@gmail.com>
 
-commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
+[ Upstream commit 1aa24a8f3b5133dae4bc1e57427e345445f3e902 ]
 
-The function hex2bin is used to load cryptographic keys into device
-mapper targets dm-crypt and dm-integrity.  It should take constant time
-independent on the processed data, so that concurrently running
-unprivileged code can't infer any information about the keys via
-microarchitectural convert channels.
+--------------------------------------------
+unreferenced object 0xffff000010742a00 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294902015 (age 1187.652s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000b4dfebaa>] __kmalloc+0x338/0x474
+    [<00000000d6e716db>] sun50i_cpufreq_nvmem_probe+0xc4/0x36c
+    [<000000007d6082a0>] platform_probe+0x98/0x11c
+    [<00000000c990f549>] really_probe+0x234/0x5a0
+    [<000000002d9fecc6>] __driver_probe_device+0x194/0x224
+    [<00000000cf0b94fa>] driver_probe_device+0x64/0x13c
+    [<00000000f238e4cf>] __device_attach_driver+0xf8/0x180
+    [<000000006720e418>] bus_for_each_drv+0xf8/0x160
+    [<00000000df4f14f6>] __device_attach+0x174/0x29c
+    [<00000000782002fb>] device_initial_probe+0x20/0x30
+    [<00000000c2681b06>] bus_probe_device+0xfc/0x110
+    [<00000000964cf3bd>] device_add+0x5f0/0xcd0
+    [<000000004b9264e3>] platform_device_add+0x198/0x390
+    [<00000000fa82a9d0>] platform_device_register_full+0x178/0x210
+    [<000000009a5daf13>] sun50i_cpufreq_init+0xf8/0x168
+    [<000000000377cc7c>] do_one_initcall+0xe4/0x570
+--------------------------------------------
 
-This patch changes the function hex_to_bin so that it contains no
-branches and no memory accesses.
+if sun50i_cpufreq_get_efuse failed, then opp_tables leak.
 
-Note that this shouldn't cause performance degradation because the size
-of the new function is the same as the size of the old function (on
-x86-64) - and the new function causes no branch misprediction penalties.
-
-I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
-i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
-sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
-powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
-no branches in the generated code.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f328584f7bff ("cpufreq: Add sun50i nvmem based CPU scaling driver")
+Signed-off-by: Xiaobing Luo <luoxiaobing0926@gmail.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel.h |    2 +-
- lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
- 2 files changed, 26 insertions(+), 8 deletions(-)
+ drivers/cpufreq/sun50i-cpufreq-nvmem.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -280,7 +280,7 @@ static inline char *hex_byte_pack_upper(
- 	return buf;
- }
+diff --git a/drivers/cpufreq/sun50i-cpufreq-nvmem.c b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
+index 2deed8d8773f..75e1bf3a08f7 100644
+--- a/drivers/cpufreq/sun50i-cpufreq-nvmem.c
++++ b/drivers/cpufreq/sun50i-cpufreq-nvmem.c
+@@ -98,8 +98,10 @@ static int sun50i_cpufreq_nvmem_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--extern int hex_to_bin(char ch);
-+extern int hex_to_bin(unsigned char ch);
- extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
- extern char *bin2hex(char *dst, const void *src, size_t count);
+ 	ret = sun50i_cpufreq_get_efuse(&speed);
+-	if (ret)
++	if (ret) {
++		kfree(opp_tables);
+ 		return ret;
++	}
  
---- a/lib/hexdump.c
-+++ b/lib/hexdump.c
-@@ -22,15 +22,33 @@ EXPORT_SYMBOL(hex_asc_upper);
-  *
-  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
-  * input.
-+ *
-+ * This function is used to load cryptographic keys, so it is coded in such a
-+ * way that there are no conditions or memory accesses that depend on data.
-+ *
-+ * Explanation of the logic:
-+ * (ch - '9' - 1) is negative if ch <= '9'
-+ * ('0' - 1 - ch) is negative if ch >= '0'
-+ * we "and" these two values, so the result is negative if ch is in the range
-+ *	'0' ... '9'
-+ * we are only interested in the sign, so we do a shift ">> 8"; note that right
-+ *	shift of a negative value is implementation-defined, so we cast the
-+ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
-+ *	the range '0' ... '9', 0 otherwise
-+ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
-+ *	in the range '0' ... '9', 0 otherwise
-+ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
-+ *	... '9', -1 otherwise
-+ * the next line is similar to the previous one, but we need to decode both
-+ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
-+ *	lowercase to uppercase
-  */
--int hex_to_bin(char ch)
-+int hex_to_bin(unsigned char ch)
- {
--	if ((ch >= '0') && (ch <= '9'))
--		return ch - '0';
--	ch = tolower(ch);
--	if ((ch >= 'a') && (ch <= 'f'))
--		return ch - 'a' + 10;
--	return -1;
-+	unsigned char cu = ch & 0xdf;
-+	return -1 +
-+		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
-+		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
- }
- EXPORT_SYMBOL(hex_to_bin);
+ 	snprintf(name, MAX_NAME_LEN, "speed%d", speed);
  
+-- 
+2.35.1
+
 
 
