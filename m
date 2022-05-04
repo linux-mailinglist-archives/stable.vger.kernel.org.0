@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A91A851A678
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:52:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D4751A753
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352862AbiEDQzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:55:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
+        id S1354455AbiEDRDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:03:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354363AbiEDQyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD78D48E54;
-        Wed,  4 May 2022 09:49:23 -0700 (PDT)
+        with ESMTP id S1355390AbiEDRAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BBE64B1F8;
+        Wed,  4 May 2022 09:51:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B639B827A1;
-        Wed,  4 May 2022 16:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB0C7C385A5;
-        Wed,  4 May 2022 16:49:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9061DB827A1;
+        Wed,  4 May 2022 16:51:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D8DC385A4;
+        Wed,  4 May 2022 16:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682960;
-        bh=Dwb6QnWQj04rmhFqxpl4mg+tzBFecln+ljQjgMk9tXY=;
+        s=korg; t=1651683087;
+        bh=RL5yGVkyeNKNqpXaH1HM7y2330PAjpWmWzwxkKb8fFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWJehQ1E+SeJ3X1H37I/l8AS67U6SiL2/8S2ceXnZFWYTViF4ZuvdejA7wY7rdARe
-         n44TncFqb+ajxYCZQBF5FyH6j8l+OU6zkapHBAO7q/u++UIOrbFHxrRY5yC0d6gLfi
-         eoCq8716aKvzHB5pmM882Sq2z2K3+OuzQGZgtJ5A=
+        b=vCmF3KN+Js0gbDcHnaLQtf6dwcOg+qh/ltOx497wSkaGuFgZrfgVO1AH85OKNlkvW
+         dSByEeCm82aD43daXMBlI2FPMFiEnNF4/KNNx7bCRO2LVp7bK7mI/4i2UzeocApiz8
+         JqJeCGnuqJLzy9H6o7kfkO4dD1q6EHt/e+KPRZ4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Hoffmann <jan@3e8.eu>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 62/84] net: dsa: lantiq_gswip: Dont set GSWIP_MII_CFG_RMII_CLK
+Subject: [PATCH 5.10 091/129] drm/amd/display: Fix memory leak in dcn21_clock_source_create
 Date:   Wed,  4 May 2022 18:44:43 +0200
-Message-Id: <20220504152932.159983651@linuxfoundation.org>
+Message-Id: <20220504153028.198953417@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,58 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 71cffebf6358a7f5031f5b208bbdc1cb4db6e539 ]
+[ Upstream commit 65e54987508b6f0771f56bdfa3ee1926d52785ae ]
 
-Commit 4b5923249b8fa4 ("net: dsa: lantiq_gswip: Configure all remaining
-GSWIP_MII_CFG bits") added all known bits in the GSWIP_MII_CFGp
-register. It helped bring this register into a well-defined state so the
-driver has to rely less on the bootloader to do things right.
-Unfortunately it also sets the GSWIP_MII_CFG_RMII_CLK bit without any
-possibility to configure it. Upon further testing it turns out that all
-boards which are supported by the GSWIP driver in OpenWrt which use an
-RMII PHY have a dedicated oscillator on the board which provides the
-50MHz RMII reference clock.
+When dcn20_clk_src_construct() fails, we need to release clk_src.
 
-Don't set the GSWIP_MII_CFG_RMII_CLK bit (but keep the code which always
-clears it) to fix support for the Fritz!Box 7362 SL in OpenWrt. This is
-a board with two Atheros AR8030 RMII PHYs. With the "RMII clock" bit set
-the MAC also generates the RMII reference clock whose signal then
-conflicts with the signal from the oscillator on the board. This results
-in a constant cycle of the PHY detecting link up/down (and as a result
-of that: the two ports using the AR8030 PHYs are not working).
-
-At the time of writing this patch there's no known board where the MAC
-(GSWIP) has to generate the RMII reference clock. If needed this can be
-implemented in future by providing a device-tree flag so the
-GSWIP_MII_CFG_RMII_CLK bit can be toggled per port.
-
-Fixes: 4b5923249b8fa4 ("net: dsa: lantiq_gswip: Configure all remaining GSWIP_MII_CFG bits")
-Tested-by: Jan Hoffmann <jan@3e8.eu>
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Link: https://lore.kernel.org/r/20220425152027.2220750-1-martin.blumenstingl@googlemail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6f4e6361c3ff ("drm/amd/display: Add Renoir resource (v2)")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/lantiq_gswip.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/dsa/lantiq_gswip.c b/drivers/net/dsa/lantiq_gswip.c
-index 60e36f46f8ab..0c191d395f8f 100644
---- a/drivers/net/dsa/lantiq_gswip.c
-+++ b/drivers/net/dsa/lantiq_gswip.c
-@@ -1607,9 +1607,6 @@ static void gswip_phylink_mac_config(struct dsa_switch *ds, int port,
- 		break;
- 	case PHY_INTERFACE_MODE_RMII:
- 		miicfg |= GSWIP_MII_CFG_MODE_RMIIM;
--
--		/* Configure the RMII clock as output: */
--		miicfg |= GSWIP_MII_CFG_RMII_CLK;
- 		break;
- 	case PHY_INTERFACE_MODE_RGMII:
- 	case PHY_INTERFACE_MODE_RGMII_ID:
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+index 7ed4d7c8734f..01c4e8753294 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn21/dcn21_resource.c
+@@ -1267,6 +1267,7 @@ static struct clock_source *dcn21_clock_source_create(
+ 		return &clk_src->base;
+ 	}
+ 
++	kfree(clk_src);
+ 	BREAK_TO_DEBUGGER();
+ 	return NULL;
+ }
 -- 
 2.35.1
 
