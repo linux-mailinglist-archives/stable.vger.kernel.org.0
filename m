@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C8F351A612
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D63851A7CD
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353750AbiEDQwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 12:52:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51482 "EHLO
+        id S1351588AbiEDRGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:06:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353751AbiEDQwN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:52:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 997384738C;
-        Wed,  4 May 2022 09:48:35 -0700 (PDT)
+        with ESMTP id S1355707AbiEDREj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E70D54EDDB;
+        Wed,  4 May 2022 09:53:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CACCD61771;
-        Wed,  4 May 2022 16:48:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225B1C385A4;
-        Wed,  4 May 2022 16:48:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 566E361866;
+        Wed,  4 May 2022 16:53:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A35DCC385AA;
+        Wed,  4 May 2022 16:53:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651682914;
-        bh=eFPjMgElhDEszECLNXLR9KghKw55KcyONnperHZm5LM=;
+        s=korg; t=1651683195;
+        bh=Za0VdiC3YL/IFH8GD9TAZhUplfNPPkWz+O8jG/yfWG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USPsLbyeRBhiPBNX7SRzSFnr3aKX1ygyenALc8f0VmL88hHuUTNqNPXrFx1Qh1jSr
-         Tzpz7CuHIlKr1LnhWkrydbiYIwW5k97tHg/Tt4DouA7GmHWIkS/jbl6E+xpVe8ij5U
-         6IACsJ0b5W0zLgsLZQIGZY5zoQO0mmMZe0KB1yZ8=
+        b=Mc/I83SpP/ojGvWEk8t+5jtGrmlXVYOpg+ViWngffrkvQ793WJydgY2+ex2ahiKE/
+         wHz6cQQPAZnCnHKTH/dxbXqwHwrrHoFNvvFaZuFEAniXXlkTcZnKeGcnwdi9RiBYCP
+         j8pcW54kdJFX1lhfpEXVVj+L/e9py6kbcM2p4GZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Vijayavardhan Vennapusa <vvreddy@codeaurora.org>,
-        Dan Vacura <w36195@motorola.com>, stable <stable@kernel.org>
-Subject: [PATCH 5.4 20/84] usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 048/177] arm64: dts: meson: remove CPU opps below 1GHz for G12B boards
 Date:   Wed,  4 May 2022 18:44:01 +0200
-Message-Id: <20220504152929.188480953@linuxfoundation.org>
+Message-Id: <20220504153057.229727054@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
-References: <20220504152927.744120418@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-commit bf95c4d4630c7a2c16e7b424fdea5177d9ce0864 upstream.
+[ Upstream commit 6c4d636bc00dc17c63ffb2a73a0da850240e26e3 ]
 
-If any function like UVC is deactivating gadget as part of composition
-switch which results in not calling pullup enablement, it is not getting
-enabled after switch to new composition due to this deactivation flag
-not cleared. This results in USB enumeration not happening after switch
-to new USB composition. Hence clear deactivation flag inside gadget
-structure in configfs_composite_unbind() before switch to new USB
-composition.
+Amlogic G12B devices experience CPU stalls and random board wedges when
+the system idles and CPU cores clock down to lower opp points. Recent
+vendor kernels include a change to remove 100-250MHz and other distro
+sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
+are removed or the CPU governor forced to performance stalls are still
+observed, so let's remove them to improve stability and uptime.
 
-Signed-off-by: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
-Signed-off-by: Dan Vacura <w36195@motorola.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220413211038.72797-1-w36195@motorola.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b96d4e92709b ("arm64: dts: meson-g12b: support a311d and s922x cpu operating points")
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20220210100638.19130-2-christianshewitt@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/configfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ .../boot/dts/amlogic/meson-g12b-a311d.dtsi    | 40 -------------------
+ .../boot/dts/amlogic/meson-g12b-s922x.dtsi    | 40 -------------------
+ 2 files changed, 80 deletions(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1412,6 +1412,8 @@ static void configfs_composite_unbind(st
- 	usb_ep_autoconfig_reset(cdev->gadget);
- 	spin_lock_irqsave(&gi->spinlock, flags);
- 	cdev->gadget = NULL;
-+	cdev->deactivations = 0;
-+	gadget->deactivated = false;
- 	set_gadget_data(gadget, NULL);
- 	spin_unlock_irqrestore(&gi->spinlock, flags);
- }
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+index d61f43052a34..8e9ad1e51d66 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-a311d.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <761000>;
+@@ -71,26 +51,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+index 1e5d0ee5d541..44c23c984034 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-g12b-s922x.dtsi
+@@ -11,26 +11,6 @@ cpu_opp_table_0: opp-table-0 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <731000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <731000>;
+@@ -76,26 +56,6 @@ cpub_opp_table_1: opp-table-1 {
+ 		compatible = "operating-points-v2";
+ 		opp-shared;
+ 
+-		opp-100000000 {
+-			opp-hz = /bits/ 64 <100000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-250000000 {
+-			opp-hz = /bits/ 64 <250000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-500000000 {
+-			opp-hz = /bits/ 64 <500000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+-		opp-667000000 {
+-			opp-hz = /bits/ 64 <667000000>;
+-			opp-microvolt = <751000>;
+-		};
+-
+ 		opp-1000000000 {
+ 			opp-hz = /bits/ 64 <1000000000>;
+ 			opp-microvolt = <771000>;
+-- 
+2.35.1
+
 
 
