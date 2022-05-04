@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9357151A7A4
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1874951A759
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354540AbiEDRHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55100 "EHLO
+        id S1354567AbiEDRCv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:02:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356406AbiEDRFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:05:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB8350E11;
-        Wed,  4 May 2022 09:54:06 -0700 (PDT)
+        with ESMTP id S1355523AbiEDRAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:00:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D78144B847;
+        Wed,  4 May 2022 09:51:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BD4061896;
-        Wed,  4 May 2022 16:54:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A181C385AA;
-        Wed,  4 May 2022 16:54:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DC02B82792;
+        Wed,  4 May 2022 16:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17CC8C385A5;
+        Wed,  4 May 2022 16:51:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683245;
-        bh=25ux8NFNKLydnTHHEQeLqGsVmScposqAAuPdXMHZvJU=;
+        s=korg; t=1651683107;
+        bh=9XMsbr7G05OYiESgCjRkznWz6gPpP4Kr/uPZBwsXf4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LxioS/J+4QDjDI8uyqLst8p1jswCXJ62U00GeeTH9/DotPWqifHx0gVxC+Gtg4y/j
-         /tH4rATvDEK154MW+w9RoOtjwA8Gd8PGT2GJEfvZRfbDB4UbodZ4Rqtf2zzC1p3LJ0
-         vpl2NNeaNdx5r5qq4ZM9iTTeGfrEYBYRp6nCw4DY=
+        b=P29NIpS82XtP9EtepqaODMO9AQlK3Eh8W+bw90Yfadchb//M9tq83OMf7pbDg2No7
+         yqlgoY+crT/2jqdnKxnMPpL863cmDc1FM9HRMXu4VrCb5cWBCyzzXbQKclFfNKB0IY
+         ogqjqkGpaDW4UpMF42cSL5GX3NSo8KI5QFKu33NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Chao Song <chao.song@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 098/177] ip_gre: Make o_seqno start from 0 in native mode
+Subject: [PATCH 5.10 099/129] ASoC: Intel: soc-acpi: correct device endpoints for max98373
 Date:   Wed,  4 May 2022 18:44:51 +0200
-Message-Id: <20220504153101.902753048@linuxfoundation.org>
+Message-Id: <20220504153028.791316478@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Chao Song <chao.song@linux.intel.com>
 
-[ Upstream commit ff827beb706ed719c766acf36449801ded0c17fc ]
+[ Upstream commit 97326be14df7bacc6ba5c62c0556298c27ea0432 ]
 
-For GRE and GRETAP devices, currently o_seqno starts from 1 in native
-mode.  According to RFC 2890 2.2., "The first datagram is sent with a
-sequence number of 0."  Fix it.
+The left speaker of max98373 uses spk_r_endpoint, and right
+speaker uses spk_l_endpoint, this is obviously wrong.
 
-It is worth mentioning that o_seqno already starts from 0 in collect_md
-mode, see gre_fb_xmit(), where tunnel->o_seqno is passed to
-gre_build_header() before getting incremented.
+This patch corrects the endpoints for max98373 codec.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chao Song <chao.song@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220406192341.271465-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ sound/soc/intel/common/soc-acpi-intel-tgl-match.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index e7f3e37e4aa8..4b7d7ed4bab8 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -459,14 +459,12 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 		       __be16 proto)
- {
- 	struct ip_tunnel *tunnel = netdev_priv(dev);
--
--	if (tunnel->parms.o_flags & TUNNEL_SEQ)
--		tunnel->o_seqno++;
-+	__be16 flags = tunnel->parms.o_flags;
- 
- 	/* Push GRE header. */
- 	gre_build_header(skb, tunnel->tun_hlen,
--			 tunnel->parms.o_flags, proto, tunnel->parms.o_key,
--			 htonl(tunnel->o_seqno));
-+			 flags, proto, tunnel->parms.o_key,
-+			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
- 
- 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
- }
+diff --git a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+index 9f243e60b95c..15d862cdcd2f 100644
+--- a/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
++++ b/sound/soc/intel/common/soc-acpi-intel-tgl-match.c
+@@ -126,13 +126,13 @@ static const struct snd_soc_acpi_adr_device mx8373_1_adr[] = {
+ 	{
+ 		.adr = 0x000123019F837300,
+ 		.num_endpoints = 1,
+-		.endpoints = &spk_l_endpoint,
++		.endpoints = &spk_r_endpoint,
+ 		.name_prefix = "Right"
+ 	},
+ 	{
+ 		.adr = 0x000127019F837300,
+ 		.num_endpoints = 1,
+-		.endpoints = &spk_r_endpoint,
++		.endpoints = &spk_l_endpoint,
+ 		.name_prefix = "Left"
+ 	}
+ };
 -- 
 2.35.1
 
