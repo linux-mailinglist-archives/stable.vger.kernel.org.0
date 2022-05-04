@@ -2,194 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0495192EC
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 02:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E4F5192FE
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 02:50:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236921AbiEDApk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 3 May 2022 20:45:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48498 "EHLO
+        id S244776AbiEDAxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 3 May 2022 20:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbiEDApk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 20:45:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58BFC3DA59;
-        Tue,  3 May 2022 17:42:06 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 006C36189A;
-        Wed,  4 May 2022 00:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23EABC385A9;
-        Wed,  4 May 2022 00:42:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651624925;
-        bh=Oc/u/zgywgMiv8iJg6VykHdetVlVhL+ecbN6OsutqQo=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=Wlg+VWQTtR5kCJkOiSnHypHh5ui92B54h5EXQyyX37PVh9zkWdF2ZxZv2tKcIEeS/
-         wbC7MGB2lNH0vuxwWdILCYfI9bGMFQl8yPyAky6gtZQlkRG1bvi4e2ldacA4n8iDzy
-         XEquwHCMwPPCyN9ZlwD0kkdouQaxdrUA4+fAKxFCDWN12t9ccJfoJ124YrwxL08Fj0
-         zv02mbQuts4AAYOT9F1qH05Cu32AV7AQEd/xCVFb0TrW0rYky/Sls4dqBeHSTyxQ3Q
-         RrjxGRLOvs8pujuQIJ3mTqiLqvWvapn6+53mF2F36xqeT+6Ufb334o2TxnULYy8Uga
-         I8eTgOdAiVOcg==
-Message-ID: <5a3472bb-c024-e78b-adae-7f4ce8bf921b@kernel.org>
-Date:   Wed, 4 May 2022 08:42:05 +0800
+        with ESMTP id S244769AbiEDAxQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 3 May 2022 20:53:16 -0400
+Received: from esa6.hgst.iphmx.com (esa6.hgst.iphmx.com [216.71.154.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E7B43F8BB;
+        Tue,  3 May 2022 17:49:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1651625383; x=1683161383;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=5HVpc36GD/gLGbmClhd7HS6r7wGttaAQGBxRDAT8lus=;
+  b=RieTnPKKAKPdp6baQq2+TpWbhayI5uX0lHn7MRj2b4SkQIPam3KmKm/l
+   hcgpmiO2K0+9UaHgmM0JQbcxqv+UrlgNqN9hFp+9w7HHHCjtLTFZWp3l3
+   zaUeQneDRS2o8pQARnMfQWgLNigWowNJCVzDKJLV+dLEbmWkQtkugCMm3
+   8Wn/uUkEqNKf1K/UxWjw7An2JlZ9WA95TFi/wh2e2eSjNIqnvsaU5p2YP
+   FX5rkug1nqX37ZziFnjYFRBamutOp1WVHm5u0zNp3lUxRngVMHeLXxSd6
+   tkl1M63zzKSI4DByztiG/YZQ75USZsjrE+66Nh7+xUu+EGTdhdORPhqYP
+   w==;
+X-IronPort-AV: E=Sophos;i="5.91,196,1647273600"; 
+   d="scan'208";a="200341886"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 04 May 2022 08:49:42 +0800
+IronPort-SDR: AhIQwvzX+I0GmabbE87AMzDjVqbBrLAodbwwuWWsuymVnAJ9HC4SyXjCzByZYWNW+YtZOFke8R
+ sZ3IPRPoAf1XvASY+SXIWGDoR0MBnWQKUEYdq2eQOH1hOPVdrNDY7aO1/CwhBEvhTfAM1TTUBh
+ uxstnm0bK7Bg9Pa9QLwLNTGrAHgeH2bvpvm2scLn6Kb1XZXQSeQNuQZsaSFKCjlKoIy6SQBYgt
+ 7NsUGy6sPxEL2eJpdsg9I8LzGVdLqNrtNuwxysYTq+DRt43VLVIwd9HfNKoGRJwpr0wmr1xDEk
+ xu9qvw7p/l5e4K1/l1nr48Uu
+Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 03 May 2022 17:19:44 -0700
+IronPort-SDR: 76vdjQFV9lyxlFcn3HOzX8kH1l9ZPXNpJuG9uwtNZOQ7QS6tTlQrOpgU+M65V6/VXMHi38zf+y
+ fzWAHmr8wwT3poHU/okiCz9v+ig+SOCzd1XSBXlAXjm/DsxPwXL/FSi67nDbght+Y8dgPdL02c
+ syOuOs1R5AWEdk+TdYieVHxBsg5wiPCWj4CigALERBnJ89Pl9qkOnwu29q6qpXxaI/YGNd5Qkw
+ xADxxwKtQ3TBbAri8iIddK26mVcOxE8k0fd87YYBfHYpTyMSIPrMuhuuuPFsbqfhZzhwZCsSs/
+ Gvw=
+WDCIronportException: Internal
+Received: from jv0vzd3.ad.shared (HELO naota-x1.wdc.com) ([10.225.48.207])
+  by uls-op-cesaip02.wdc.com with ESMTP; 03 May 2022 17:49:40 -0700
+From:   Naohiro Aota <naohiro.aota@wdc.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     Naohiro Aota <naohiro.aota@wdc.com>, stable@vger.kernel.org,
+        Pankaj Raghav <p.raghav@samsung.com>
+Subject: [PATCH v2 3/5] btrfs: zoned: finish BG when there are no more allocatable bytes left
+Date:   Tue,  3 May 2022 17:48:52 -0700
+Message-Id: <f50c845105ca7f81383c3feb1d1bc399bc589fd4.1651624820.git.naohiro.aota@wdc.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <cover.1651624820.git.naohiro.aota@wdc.com>
+References: <cover.1651624820.git.naohiro.aota@wdc.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH] f2fs: fix to do sanity check on total_data_blocks
-Content-Language: en-US
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ming Yan <yanming@tju.edu.cn>, Chao Yu <chao.yu@oppo.com>
-References: <20220429144456.22232-1-chao@kernel.org>
- <YnGi9va0RW/vcwXi@google.com>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <YnGi9va0RW/vcwXi@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-10.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Currently, btrfs_zone_finish_endio() finishes a block group only when the
+written region reaches the end of the block group. We can also finish the
+block group when no more allocation is possible.
 
+Cc: stable@vger.kernel.org # 5.16+
+Fixes: be1a1d7a5d24 ("btrfs: zoned: finish fully written block group")
+Reviewed-by: Pankaj Raghav <p.raghav@samsung.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ fs/btrfs/zoned.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-On 2022/5/4 5:47, Jaegeuk Kim wrote:
-> On 04/29, Chao Yu wrote:
->> As Yanming reported in bugzilla:
->>
->> https://bugzilla.kernel.org/show_bug.cgi?id=215916
->>
->> The kernel message is shown below:
->>
->> kernel BUG at fs/f2fs/segment.c:2560!
->> Call Trace:
->>   allocate_segment_by_default+0x228/0x440
->>   f2fs_allocate_data_block+0x13d1/0x31f0
->>   do_write_page+0x18d/0x710
->>   f2fs_outplace_write_data+0x151/0x250
->>   f2fs_do_write_data_page+0xef9/0x1980
->>   move_data_page+0x6af/0xbc0
->>   do_garbage_collect+0x312f/0x46f0
->>   f2fs_gc+0x6b0/0x3bc0
->>   f2fs_balance_fs+0x921/0x2260
->>   f2fs_write_single_data_page+0x16be/0x2370
->>   f2fs_write_cache_pages+0x428/0xd00
->>   f2fs_write_data_pages+0x96e/0xd50
->>   do_writepages+0x168/0x550
->>   __writeback_single_inode+0x9f/0x870
->>   writeback_sb_inodes+0x47d/0xb20
->>   __writeback_inodes_wb+0xb2/0x200
->>   wb_writeback+0x4bd/0x660
->>   wb_workfn+0x5f3/0xab0
->>   process_one_work+0x79f/0x13e0
->>   worker_thread+0x89/0xf60
->>   kthread+0x26a/0x300
->>   ret_from_fork+0x22/0x30
->> RIP: 0010:new_curseg+0xe8d/0x15f0
->>
->> The root cause is: ckpt.valid_block_count is inconsistent with SIT table,
->> stat info indicates filesystem has free blocks, but SIT table indicates
->> filesystem has no free segment.
->>
->> So that during garbage colloection, it triggers panic when LFS allocator
->> fails to find free segment.
->>
->> This patch tries to fix this issue by checking consistency in between
->> ckpt.valid_block_count and block accounted from SIT.
->>
->> Cc: stable@vger.kernel.org
->> Reported-by: Ming Yan <yanming@tju.edu.cn>
->> Signed-off-by: Chao Yu <chao.yu@oppo.com>
->> ---
->>   fs/f2fs/segment.c | 24 +++++++++++++++++++++---
->>   1 file changed, 21 insertions(+), 3 deletions(-)
->>
->> diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
->> index 8c17fed8987e..eddaf3b45b25 100644
->> --- a/fs/f2fs/segment.c
->> +++ b/fs/f2fs/segment.c
->> @@ -4462,6 +4462,7 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
->>   	unsigned int readed, start_blk = 0;
->>   	int err = 0;
->>   	block_t total_node_blocks = 0;
->> +	block_t total_data_blocks = 0;
->>   
->>   	do {
->>   		readed = f2fs_ra_meta_pages(sbi, start_blk, BIO_MAX_VECS,
->> @@ -4488,6 +4489,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
->>   			seg_info_from_raw_sit(se, &sit);
->>   			if (IS_NODESEG(se->type))
->>   				total_node_blocks += se->valid_blocks;
->> +			else
->> +				total_data_blocks += se->valid_blocks;
->>   
->>   			if (f2fs_block_unit_discard(sbi)) {
->>   				/* build discard map only one time */
->> @@ -4529,6 +4532,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
->>   		old_valid_blocks = se->valid_blocks;
->>   		if (IS_NODESEG(se->type))
->>   			total_node_blocks -= old_valid_blocks;
->> +		else
->> +			total_data_blocks -= old_valid_blocks;
->>   
->>   		err = check_block_count(sbi, start, &sit);
->>   		if (err)
->> @@ -4536,6 +4541,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
->>   		seg_info_from_raw_sit(se, &sit);
->>   		if (IS_NODESEG(se->type))
->>   			total_node_blocks += se->valid_blocks;
->> +		else
->> +			total_data_blocks += se->valid_blocks;
->>   
->>   		if (f2fs_block_unit_discard(sbi)) {
->>   			if (is_set_ckpt_flags(sbi, CP_TRIMMED_FLAG)) {
->> @@ -4557,13 +4564,24 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
->>   	}
->>   	up_read(&curseg->journal_rwsem);
->>   
->> -	if (!err && total_node_blocks != valid_node_count(sbi)) {
->> +	if (err)
->> +		return err;
->> +
->> +	if (total_node_blocks != valid_node_count(sbi)) {
->>   		f2fs_err(sbi, "SIT is corrupted node# %u vs %u",
->>   			 total_node_blocks, valid_node_count(sbi));
->> -		err = -EFSCORRUPTED;
->> +		return -EFSCORRUPTED;
->>   	}
->>   
->> -	return err;
->> +	if (total_data_blocks + total_node_blocks !=
->> +				valid_user_blocks(sbi)) {
->> +		f2fs_err(sbi, "SIT is corrupted data# %u vs %u",
->> +			 total_data_blocks,
->> +			 valid_user_blocks(sbi) - total_node_blocks);
-> 
-> This doesn't work, since some NEW_ADDR is not counted from SIT.
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index 0286fb1c63db..320bb7ba1c49 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -2021,6 +2021,7 @@ bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
+ void btrfs_zone_finish_endio(struct btrfs_fs_info *fs_info, u64 logical, u64 length)
+ {
+ 	struct btrfs_block_group *block_group;
++	u64 min_alloc_bytes;
+ 
+ 	if (!btrfs_is_zoned(fs_info))
+ 		return;
+@@ -2028,7 +2029,15 @@ void btrfs_zone_finish_endio(struct btrfs_fs_info *fs_info, u64 logical, u64 len
+ 	block_group = btrfs_lookup_block_group(fs_info, logical);
+ 	ASSERT(block_group);
+ 
+-	if (logical + length < block_group->start + block_group->zone_capacity)
++	/* No MIXED BG on zoned btrfs. */
++	if (block_group->flags & BTRFS_BLOCK_GROUP_DATA)
++		min_alloc_bytes = fs_info->sectorsize;
++	else
++		min_alloc_bytes = fs_info->nodesize;
++
++	/* Bail out if we can allocate more data from this BG. */
++	if (logical + length + min_alloc_bytes <=
++	    block_group->start + block_group->zone_capacity)
+ 		goto out;
+ 
+ 	do_zone_finish(block_group, true);
+-- 
+2.35.1
 
-Yup, so how about updating check condition as below? it means image
-may be corrupted if blocks counted from SIT is more than the one counted
-from CKPT.
-
-if (total_data_blocks + total_node_blocks >
-			valid_user_blocks(sbi))
-
-Thanks,
-
-> 
->> +		return -EFSCORRUPTED;
->> +	}
->> +
->> +	return 0;
->>   }
->>   
->>   static void init_free_segmap(struct f2fs_sb_info *sbi)
->> -- 
->> 2.25.1
