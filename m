@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C74CA51A931
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E19F51A668
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:51:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343930AbiEDRLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:11:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
+        id S1354115AbiEDQzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 12:55:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356933AbiEDRJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E240947391;
-        Wed,  4 May 2022 09:56:31 -0700 (PDT)
+        with ESMTP id S1354476AbiEDQy3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:54:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BF964969D;
+        Wed,  4 May 2022 09:49:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 928A8B82795;
-        Wed,  4 May 2022 16:56:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31289C385AF;
-        Wed,  4 May 2022 16:56:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3540B8279F;
+        Wed,  4 May 2022 16:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6204EC385A4;
+        Wed,  4 May 2022 16:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683389;
-        bh=bOEnfUtlCzKilcQVNdgNDkraRV1l4mxr/wnzQyI8f7Q=;
+        s=korg; t=1651682976;
+        bh=JRE8OAckK6Z2/pZaQdU2BPmNB27yYOJnPnYlHynw71Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CR0sGPUOSiwBFOOH3kLHJIKTpB8I3WZQFI8SINpeL6/H2s0UvzrJSQfBl/TssbYIR
-         9sGJzrYdhCiR2l94Y6F4OxLgM6yLa0WAGpDsZEx4fdO9ii/z2v/xxrl9FjQdZuwZ68
-         t8v6Y9D3cAArvrZEz5Mjpr/wd11+FucClTJ1De7k=
+        b=LRkvf9/F2iISU9yWuPr5OAAi3oBmFaweWKZ/s/CpUjPW2/sGE9Hn0OCbAFuwJaRft
+         KyRdRFbkzuLxzfAFuAHdG273HyKrVzNXQk+DxGEx8qkgh4OE9+D1MUhRHhRARSFabO
+         MUXHCHnWcn+j2MFMegr9WpJ5G2XKVCR5rI/C47a8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 061/225] arm64: dts: meson: remove CPU opps below 1GHz for SM1 boards
-Date:   Wed,  4 May 2022 18:44:59 +0200
-Message-Id: <20220504153115.616429094@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 5.4 79/84] tty: n_gsm: fix missing explicit ldisc flush
+Date:   Wed,  4 May 2022 18:45:00 +0200
+Message-Id: <20220504152933.753555817@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504152927.744120418@linuxfoundation.org>
+References: <20220504152927.744120418@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit fd86d85401c2049f652293877c0f7e6e5afc3bbc ]
+commit 17eac652028501df7ea296b1d9b9c134db262b7d upstream.
 
-Amlogic SM1 devices experience CPU stalls and random board wedges when
-the system idles and CPU cores clock down to lower opp points. Recent
-vendor kernels include a change to remove 100-250MHz and other distro
-sources also remove the 500/667MHz points. Unless all 100-667Mhz opps
-are removed or the CPU governor forced to performance stalls are still
-observed, so let's remove them to improve stability and uptime.
+In gsm_cleanup_mux() the muxer is closed down and all queues are removed.
+However, removing the queues is done without explicit control of the
+underlying buffers. Flush those before freeing up our queues to ensure
+that all outgoing queues are cleared consistently. Otherwise, a new mux
+connection establishment attempt may time out while the underlying tty is
+still busy sending out the remaining data from the previous connection.
 
-Fixes: 3d9e76483049 ("arm64: dts: meson-sm1-sei610: enable DVFS")
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20220210100638.19130-3-christianshewitt@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-10-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-sm1.dtsi | 20 --------------------
- 1 file changed, 20 deletions(-)
+ drivers/tty/n_gsm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi b/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-index 3d8b1f4f2001..78bdbd2ccc9d 100644
---- a/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-sm1.dtsi
-@@ -95,26 +95,6 @@ cpu_opp_table: opp-table {
- 		compatible = "operating-points-v2";
- 		opp-shared;
- 
--		opp-100000000 {
--			opp-hz = /bits/ 64 <100000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-250000000 {
--			opp-hz = /bits/ 64 <250000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-500000000 {
--			opp-hz = /bits/ 64 <500000000>;
--			opp-microvolt = <730000>;
--		};
--
--		opp-667000000 {
--			opp-hz = /bits/ 64 <666666666>;
--			opp-microvolt = <750000>;
--		};
--
- 		opp-1000000000 {
- 			opp-hz = /bits/ 64 <1000000000>;
- 			opp-microvolt = <770000>;
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2101,6 +2101,7 @@ static void gsm_cleanup_mux(struct gsm_m
+ 			gsm_dlci_release(gsm->dlci[i]);
+ 	mutex_unlock(&gsm->mutex);
+ 	/* Now wipe the queues */
++	tty_ldisc_flush(gsm->tty);
+ 	list_for_each_entry_safe(txq, ntxq, &gsm->tx_list, list)
+ 		kfree(txq);
+ 	INIT_LIST_HEAD(&gsm->tx_list);
 
 
