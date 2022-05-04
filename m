@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 703E451A81D
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C94751A912
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353719AbiEDRIH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:08:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50152 "EHLO
+        id S1355818AbiEDRQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:16:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354435AbiEDRCa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:02:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B724C79D;
-        Wed,  4 May 2022 09:52:28 -0700 (PDT)
+        with ESMTP id S1355966AbiEDRI5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:08:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62652527C3;
+        Wed,  4 May 2022 09:54:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 920B36187C;
-        Wed,  4 May 2022 16:52:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2B24C385BF;
-        Wed,  4 May 2022 16:52:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 391E361896;
+        Wed,  4 May 2022 16:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 859E7C385B9;
+        Wed,  4 May 2022 16:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683141;
-        bh=PhRXsatzWHvqXGivsWYtvZ8yGMRSGmpPSv6ugCS06DM=;
+        s=korg; t=1651683285;
+        bh=qoLkNOpHDZegcIXVQDcuYOHTdqmMBOW+KEJuAQFdY5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fingn4BT3pioKZTsqKGZcuFaqEJVR8BtJsOgd8QvzBeeuMvrucN9Ce8k/vHhl1UC/
-         7wK6P1mwJ9rHS9oH+j83w2jqtt2ZUGdEs4p5KCp+b+EFZh6dgZcF/kob289eVUSVnl
-         Rht+b7gniJKLGiGr7hymaoLePM6mHVRqmFTN6AIQ=
+        b=MJZ1TTMlXyty+2KeAqNVyRQa4aCwPI76aOXSoQvEm8zkvINI1iEnks0wWqRc9kwmI
+         /subMRICFTtGCiEBjxlEyUtEWh6GX8Cg+SQ7E0H//3LrFulmUw8E20hkEhfK6y/ZUb
+         2E4e5oG74HfTuxikGH1zoV4/HmO3G8txaR+qBqDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 128/129] tty: n_gsm: fix software flow control handling
-Date:   Wed,  4 May 2022 18:45:20 +0200
-Message-Id: <20220504153031.816518089@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 128/177] ASoC: wm8731: Disable the regulator when probing fails
+Date:   Wed,  4 May 2022 18:45:21 +0200
+Message-Id: <20220504153104.570889166@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
-References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
+References: <20220504153053.873100034@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,86 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit f4f7d63287217ba25e5c80f5faae5e4f7118790e upstream.
+[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.8.1 states that XON/XOFF characters
-shall be used instead of Fcon/Fcoff command in advanced option mode to
-handle flow control. Chapter 5.4.8.2 describes how XON/XOFF characters
-shall be handled. Basic option mode only used Fcon/Fcoff commands and no
-XON/XOFF characters. These are treated as data bytes here.
-The current implementation uses the gsm_mux field 'constipated' to handle
-flow control from the remote peer and the gsm_dlci field 'constipated' to
-handle flow control from each DLCI. The later is unrelated to this patch.
-The gsm_mux field is correctly set for Fcon/Fcoff commands in
-gsm_control_message(). However, the same is not true for XON/XOFF
-characters in gsm1_receive().
-Disable software flow control handling in the tty to allow explicit
-handling by n_gsm.
-Add the missing handling in advanced option mode for gsm_mux in
-gsm1_receive() to comply with the standard.
+When the driver fails during probing, the driver should disable the
+regulator, not just handle it in wm8731_hw_init().
 
-This patch depends on the following commit:
-Commit 8838b2af23ca ("tty: n_gsm: fix SW flow control encoding/handling")
+The following log reveals it:
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220422071025.5490-3-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   17.824467] Call Trace:
+[   17.824774]  <TASK>
+[   17.825040]  regulator_bulk_free+0x82/0xe0
+[   17.825514]  devres_release_group+0x319/0x3d0
+[   17.825882]  i2c_device_probe+0x766/0x940
+[   17.829198]  i2c_register_driver+0xb5/0x130
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ sound/soc/codecs/wm8731.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -232,6 +232,7 @@ struct gsm_mux {
- 	int initiator;			/* Did we initiate connection */
- 	bool dead;			/* Has the mux been shut down */
- 	struct gsm_dlci *dlci[NUM_DLCI];
-+	int old_c_iflag;		/* termios c_iflag value before attach */
- 	bool constipated;		/* Asked by remote to shut up */
+diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
+index dcee7b2bd3d7..859ebcec8383 100644
+--- a/sound/soc/codecs/wm8731.c
++++ b/sound/soc/codecs/wm8731.c
+@@ -602,7 +602,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	ret = wm8731_reset(wm8731->regmap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+-		goto err_regulator_enable;
++		goto err;
+ 	}
  
- 	spinlock_t tx_lock;
-@@ -1960,6 +1961,16 @@ static void gsm0_receive(struct gsm_mux
+ 	/* Clear POWEROFF, keep everything else disabled */
+@@ -619,10 +619,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
  
- static void gsm1_receive(struct gsm_mux *gsm, unsigned char c)
- {
-+	/* handle XON/XOFF */
-+	if ((c & ISO_IEC_646_MASK) == XON) {
-+		gsm->constipated = true;
-+		return;
-+	} else if ((c & ISO_IEC_646_MASK) == XOFF) {
-+		gsm->constipated = false;
-+		/* Kick the link in case it is idling */
-+		gsm_data_kick(gsm, NULL);
-+		return;
-+	}
- 	if (c == GSM1_SOF) {
- 		/* EOF is only valid in frame if we have got to the data state
- 		   and received at least one byte (the FCS) */
-@@ -2378,6 +2389,9 @@ static int gsmld_attach_gsm(struct tty_s
- 	int ret, i;
+ 	regcache_mark_dirty(wm8731->regmap);
  
- 	gsm->tty = tty_kref_get(tty);
-+	/* Turn off tty XON/XOFF handling to handle it explicitly. */
-+	gsm->old_c_iflag = tty->termios.c_iflag;
-+	tty->termios.c_iflag &= (IXON | IXOFF);
- 	ret =  gsm_activate_mux(gsm);
- 	if (ret != 0)
- 		tty_kref_put(gsm->tty);
-@@ -2418,6 +2432,8 @@ static void gsmld_detach_gsm(struct tty_
- 	WARN_ON(tty != gsm->tty);
- 	for (i = 1; i < NUM_DLCI; i++)
- 		tty_unregister_device(gsm_tty_driver, base + i);
-+	/* Restore tty XON/XOFF handling. */
-+	gsm->tty->termios.c_iflag = gsm->old_c_iflag;
- 	tty_kref_put(gsm->tty);
- 	gsm->tty = NULL;
+-err_regulator_enable:
+-	/* Regulators will be enabled by bias management */
+-	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+-
++err:
+ 	return ret;
  }
+ 
+@@ -766,21 +763,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(wm8731->regmap);
+ 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
+ 			ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	ret = wm8731_hw_init(&i2c->dev, wm8731);
+ 	if (ret != 0)
+-		return ret;
++		goto err_regulator_enable;
+ 
+ 	ret = devm_snd_soc_register_component(&i2c->dev,
+ 			&soc_component_dev_wm8731, &wm8731_dai, 1);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	return 0;
++
++err_regulator_enable:
++	/* Regulators will be enabled by bias management */
++	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++
++	return ret;
+ }
+ 
+ static int wm8731_i2c_remove(struct i2c_client *client)
+-- 
+2.35.1
+
 
 
