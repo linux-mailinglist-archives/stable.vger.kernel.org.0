@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6697F51A7D3
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0250751A6D9
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:57:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354923AbiEDRFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:05:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
+        id S1353838AbiEDRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355368AbiEDRES (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:04:18 -0400
+        with ESMTP id S1354584AbiEDQ6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D792F4ECDC;
-        Wed,  4 May 2022 09:52:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D1C719039;
+        Wed,  4 May 2022 09:50:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5A8FFB827AE;
-        Wed,  4 May 2022 16:52:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E69EBC385AF;
-        Wed,  4 May 2022 16:52:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9415B82554;
+        Wed,  4 May 2022 16:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 832A6C385A5;
+        Wed,  4 May 2022 16:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683179;
-        bh=4DNcNCHM3If/Pd7pLcI1oBJQ3+DYgaREuJpCgjY887A=;
+        s=korg; t=1651683035;
+        bh=LN4KYRcCDF5ZUy/Iuw4eM2izh6Ti+dL1/kE1TDFqV5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIGcZ236lvWgI66ABPXOa+VYY1SZOmM5tncc4rmnwEZ5Z6MuaEZ1IPednrj1NCTBT
-         QKpsgrR24By4rrMZhlTYiJt2khXRr/wlV2Vkx5LpwfxKX8Se9IN0mT22j4fS80cQq4
-         g4plIEh+OylMosKgg5sbRUbIjAaWBt1RG43t1JWY=
+        b=CPssmFekfXRnQh/xKM8gfvcgvb4yKFHMmFSXwDu82unoVg7xfm60PO7+8fv8gs+dz
+         fbhnrerRSIbH2ezMmPtkUuBiFfnt4SV7rZh01GWM40a93jfzVR0WC04KtuBADX3ysR
+         0/chu7uqLyTTsQhbNVy1HEn8x3iZfXdZH1qNBNM4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Subject: [PATCH 5.15 030/177] serial: amba-pl011: do not time out prematurely when draining tx fifo
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Wang Qing <wangqing@vivo.com>
+Subject: [PATCH 5.10 031/129] arch_topology: Do not set llc_sibling if llc_id is invalid
 Date:   Wed,  4 May 2022 18:43:43 +0200
-Message-Id: <20220504153055.716476987@linuxfoundation.org>
+Message-Id: <20220504153023.778112812@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-References: <20220504153053.873100034@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,67 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Wang Qing <wangqing@vivo.com>
 
-commit 0e4deb56b0c625efdb70c94f150429e2f2a16fa1 upstream.
+commit 1dc9f1a66e1718479e1c4f95514e1750602a3cb9 upstream.
 
-The current timeout for draining the tx fifo in RS485 mode is calculated by
-multiplying the time it takes to transmit one character (with the given
-baud rate) with the maximal number of characters in the tx queue.
+When ACPI is not enabled, cpuid_topo->llc_id = cpu_topo->llc_id = -1, which
+will set llc_sibling 0xff(...), this is misleading.
 
-This timeout is too short for two reasons:
-First when calculating the time to transmit one character integer division
-is used which may round down the result in case of a remainder of the
-division.
+Don't set llc_sibling(default 0) if we don't know the cache topology.
 
-Fix this by rounding up the division result.
-
-Second the hardware may need additional time (e.g for first putting the
-characters from the fifo into the shift register) before the characters are
-actually put onto the wire.
-
-To be on the safe side double the current maximum number of iterations
-that are used to wait for the queue draining.
-
-Fixes: 8d479237727c ("serial: amba-pl011: add RS485 support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Link: https://lore.kernel.org/r/20220408233503.7251-1-LinoSanfilippo@gmx.de
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Wang Qing <wangqing@vivo.com>
+Fixes: 37c3ec2d810f ("arm64: topology: divorce MC scheduling domain from core_siblings")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1649644580-54626-1-git-send-email-wangqing@vivo.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/amba-pl011.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/base/arch_topology.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -1288,13 +1288,18 @@ static inline bool pl011_dma_rx_running(
+--- a/drivers/base/arch_topology.c
++++ b/drivers/base/arch_topology.c
+@@ -515,7 +515,7 @@ void update_siblings_masks(unsigned int
+ 	for_each_online_cpu(cpu) {
+ 		cpu_topo = &cpu_topology[cpu];
  
- static void pl011_rs485_tx_stop(struct uart_amba_port *uap)
- {
-+	/*
-+	 * To be on the safe side only time out after twice as many iterations
-+	 * as fifo size.
-+	 */
-+	const int MAX_TX_DRAIN_ITERS = uap->port.fifosize * 2;
- 	struct uart_port *port = &uap->port;
- 	int i = 0;
- 	u32 cr;
- 
- 	/* Wait until hardware tx queue is empty */
- 	while (!pl011_tx_empty(port)) {
--		if (i == port->fifosize) {
-+		if (i > MAX_TX_DRAIN_ITERS) {
- 			dev_warn(port->dev,
- 				 "timeout while draining hardware tx queue\n");
- 			break;
-@@ -2099,7 +2104,7 @@ pl011_set_termios(struct uart_port *port
- 	 * with the given baud rate. We use this as the poll interval when we
- 	 * wait for the tx queue to empty.
- 	 */
--	uap->rs485_tx_drain_interval = (bits * 1000 * 1000) / baud;
-+	uap->rs485_tx_drain_interval = DIV_ROUND_UP(bits * 1000 * 1000, baud);
- 
- 	pl011_setup_status_masks(port, termios);
- 
+-		if (cpuid_topo->llc_id == cpu_topo->llc_id) {
++		if (cpu_topo->llc_id != -1 && cpuid_topo->llc_id == cpu_topo->llc_id) {
+ 			cpumask_set_cpu(cpu, &cpuid_topo->llc_sibling);
+ 			cpumask_set_cpu(cpuid, &cpu_topo->llc_sibling);
+ 		}
 
 
