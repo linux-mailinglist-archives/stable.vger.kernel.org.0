@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C27B51A8A4
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A329451A8E1
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356023AbiEDRME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:12:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38862 "EHLO
+        id S1355848AbiEDRMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357062AbiEDRJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA83D47571;
-        Wed,  4 May 2022 09:56:58 -0700 (PDT)
+        with ESMTP id S1357034AbiEDRJx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45DFA483B7;
+        Wed,  4 May 2022 09:56:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65D0F618DF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60ECC618E6;
+        Wed,  4 May 2022 16:56:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC60AC385AA;
         Wed,  4 May 2022 16:56:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AD6C385C2;
-        Wed,  4 May 2022 16:56:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683417;
-        bh=eidVBpEHpfCZhtqWZN0t3L727DuGTceR+6ii9207lXE=;
+        s=korg; t=1651683418;
+        bh=U7CHLa07UFAQueiR4u3l4fMlzXwhdCCICSZBYwXOThI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQeJO8cMOMA5jNK5Rvc24NFJtJp0R55vUBGGtnoReL3Pq9nYOGgozpH7Ivs25o3pD
-         kzcEXSCDGJkTaqj14FXCmUKCSC75wQoEefiHRQyEugCyb8SRrburcFq/qG8SgBfsEr
-         pm7U6phfpKPlGmoGkkuHQEDP1xdRh2P3GpZtdjrQ=
+        b=OI2vJSEjHlH5i0tcUjGn1FDOT/jIdzfyUhH68DJrK/Wzx6lwqQNStCWfO6pG0MidN
+         AQu6ddrGShX6azolQNqqLZ53H0NuQWVMGDXkY38S62FYpxRkaaKyaJ61NE/wbjd9zL
+         eG9XV8domPckK3Hlsgjb5R7Pm9Mo6VIDgjYazvMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
-        Stefano Brivio <sbrivio@redhat.com>,
+        stable@vger.kernel.org, Eyal Birger <eyal.birger@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 102/225] netfilter: nft_set_rbtree: overlap detection with element re-addition after deletion
-Date:   Wed,  4 May 2022 18:45:40 +0200
-Message-Id: <20220504153119.811799595@linuxfoundation.org>
+Subject: [PATCH 5.17 103/225] bpf, lwt: Fix crash when using bpf_skb_set_tunnel_key() from bpf_xmit lwt hook
+Date:   Wed,  4 May 2022 18:45:41 +0200
+Message-Id: <20220504153119.885566519@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
 In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
 References: <20220504153110.096069935@linuxfoundation.org>
@@ -54,45 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit babc3dc9524f0bcb5a0ec61f3c3639b11508fad6 ]
+[ Upstream commit b02d196c44ead1a5949729be9ff08fe781c3e48a ]
 
-This patch fixes spurious EEXIST errors.
+xmit_check_hhlen() observes the dst for getting the device hard header
+length to make sure a modified packet can fit. When a helper which changes
+the dst - such as bpf_skb_set_tunnel_key() - is called as part of the
+xmit program the accessed dst is no longer valid.
 
-Extend d2df92e98a34 ("netfilter: nft_set_rbtree: handle element
-re-addition after deletion") to deal with elements with same end flags
-in the same transation.
+This leads to the following splat:
 
-Reset the overlap flag as described by 7c84d41416d8 ("netfilter:
-nft_set_rbtree: Detect partial overlaps on insertion").
+ BUG: kernel NULL pointer dereference, address: 00000000000000de
+ #PF: supervisor read access in kernel mode
+ #PF: error_code(0x0000) - not-present page
+ PGD 0 P4D 0
+ Oops: 0000 [#1] PREEMPT SMP PTI
+ CPU: 0 PID: 798 Comm: ping Not tainted 5.18.0-rc2+ #103
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+ RIP: 0010:bpf_xmit+0xfb/0x17f
+ Code: c6 c0 4d cd 8e 48 c7 c7 7d 33 f0 8e e8 42 09 fb ff 48 8b 45 58 48 8b 95 c8 00 00 00 48 2b 95 c0 00 00 00 48 83 e0 fe 48 8b 00 <0f> b7 80 de 00 00 00 39 c2 73 22 29 d0 b9 20 0a 00 00 31 d2 48 89
+ RSP: 0018:ffffb148c0bc7b98 EFLAGS: 00010282
+ RAX: 0000000000000000 RBX: 0000000000240008 RCX: 0000000000000000
+ RDX: 0000000000000010 RSI: 00000000ffffffea RDI: 00000000ffffffff
+ RBP: ffff922a828a4e00 R08: ffffffff8f1350e8 R09: 00000000ffffdfff
+ R10: ffffffff8f055100 R11: ffffffff8f105100 R12: 0000000000000000
+ R13: ffff922a828a4e00 R14: 0000000000000040 R15: 0000000000000000
+ FS:  00007f414e8f0080(0000) GS:ffff922afdc00000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00000000000000de CR3: 0000000002d80006 CR4: 0000000000370ef0
+ Call Trace:
+  <TASK>
+  lwtunnel_xmit.cold+0x71/0xc8
+  ip_finish_output2+0x279/0x520
+  ? __ip_finish_output.part.0+0x21/0x130
 
-Fixes: 7c84d41416d8 ("netfilter: nft_set_rbtree: Detect partial overlaps on insertion")
-Fixes: d2df92e98a34 ("netfilter: nft_set_rbtree: handle element re-addition after deletion")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fix by fetching the device hard header length before running the BPF code.
+
+Fixes: 3a0af8fd61f9 ("bpf: BPF for lightweight tunnel infrastructure")
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20220420165219.1755407-1-eyal.birger@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_rbtree.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/core/lwt_bpf.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index d600a566da32..7325bee7d144 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -349,7 +349,11 @@ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
- 				*ext = &rbe->ext;
- 				return -EEXIST;
- 			} else {
--				p = &parent->rb_left;
-+				overlap = false;
-+				if (nft_rbtree_interval_end(rbe))
-+					p = &parent->rb_left;
-+				else
-+					p = &parent->rb_right;
- 			}
- 		}
+diff --git a/net/core/lwt_bpf.c b/net/core/lwt_bpf.c
+index 349480ef68a5..8b6b5e72b217 100644
+--- a/net/core/lwt_bpf.c
++++ b/net/core/lwt_bpf.c
+@@ -159,10 +159,8 @@ static int bpf_output(struct net *net, struct sock *sk, struct sk_buff *skb)
+ 	return dst->lwtstate->orig_output(net, sk, skb);
+ }
+ 
+-static int xmit_check_hhlen(struct sk_buff *skb)
++static int xmit_check_hhlen(struct sk_buff *skb, int hh_len)
+ {
+-	int hh_len = skb_dst(skb)->dev->hard_header_len;
+-
+ 	if (skb_headroom(skb) < hh_len) {
+ 		int nhead = HH_DATA_ALIGN(hh_len - skb_headroom(skb));
+ 
+@@ -274,6 +272,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 
+ 	bpf = bpf_lwt_lwtunnel(dst->lwtstate);
+ 	if (bpf->xmit.prog) {
++		int hh_len = dst->dev->hard_header_len;
+ 		__be16 proto = skb->protocol;
+ 		int ret;
+ 
+@@ -291,7 +290,7 @@ static int bpf_xmit(struct sk_buff *skb)
+ 			/* If the header was expanded, headroom might be too
+ 			 * small for L2 header to come, expand as needed.
+ 			 */
+-			ret = xmit_check_hhlen(skb);
++			ret = xmit_check_hhlen(skb, hh_len);
+ 			if (unlikely(ret))
+ 				return ret;
  
 -- 
 2.35.1
