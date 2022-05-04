@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F134C51A90A
-	for <lists+stable@lfdr.de>; Wed,  4 May 2022 19:15:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE52751A6FA
+	for <lists+stable@lfdr.de>; Wed,  4 May 2022 18:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356017AbiEDRNO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 13:13:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
+        id S245451AbiEDRBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 13:01:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356792AbiEDRJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 13:09:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA9581D319;
-        Wed,  4 May 2022 09:55:36 -0700 (PDT)
+        with ESMTP id S1354681AbiEDQ67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 12:58:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EBB4093D;
+        Wed,  4 May 2022 09:50:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7328DB8278E;
-        Wed,  4 May 2022 16:55:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DD48C385A4;
-        Wed,  4 May 2022 16:55:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 50FEB617A6;
+        Wed,  4 May 2022 16:50:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A0DCC385A5;
+        Wed,  4 May 2022 16:50:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651683335;
-        bh=8VMbv6k1Ez79dhZYetnG2VPw/IkmhQKJA3RVyKVyfcU=;
+        s=korg; t=1651683052;
+        bh=TJj4Yiloi+OzkR9APGeJI/DYk4NVRmMyNOzm9Hso+HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yotB2Wj2gVVIpz4NqmAnKLPZLCs+bm4idMcdP+vI8VkDyg6eXcbKyE0ML3fxyNJWZ
-         Y19JjNyRWnv04yp+ND4Cqg0pRuAgPsXxLfQya6ZVnYtC2l6V4cAvUY/WA8yNGMro72
-         3pvf3Yusa2MRmA3g+whD71JJeln0sGGevbmmTMB8=
+        b=P86s2H8yiVdMjo+9HcAUIDYjYkAB51HygT6STGV4W3NaIT6LbuHhVtINxE6dlnIiF
+         QndU0BKRWw21SEecaE8AZGmxh9+4uG5Dgbi5UxNE5Lq5ocEDLv3YH0foYBwvF7B6FR
+         lP6GnKE5Am3d8H2MVin5gEqatFDtnavIVkwEO3OA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.17 010/225] xhci: Enable runtime PM on second Alderlake controller
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 056/129] ARM: dts: logicpd-som-lv: Fix wrong pinmuxing on OMAP35
 Date:   Wed,  4 May 2022 18:44:08 +0200
-Message-Id: <20220504153111.197596636@linuxfoundation.org>
+Message-Id: <20220504153025.620267806@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+References: <20220504153021.299025455@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Green <evgreen@chromium.org>
+From: Adam Ford <aford173@gmail.com>
 
-commit d8bfe5091d6cc4b8b8395e4666979ae72a6069ca upstream.
+[ Upstream commit 46ff3df87215ff42c0cd2c4bdb7d74540384a69c ]
 
-Alderlake has two XHCI controllers with PCI IDs 0x461e and 0x51ed. We
-had previously added the quirk to default enable runtime PM for 0x461e,
-now add it for 0x51ed as well.
+The pinout of the OMAP35 and DM37 variants of the SOM-LV are the
+same, but the macros which define the pinmuxing are different
+between OMAP3530 and DM3730.  The pinmuxing was correct for
+for the DM3730, but wrong for the OMAP3530.  Since the boot loader
+was correctly pin-muxing the pins, this was not obvious. As the
+bootloader not guaranteed to pinmux all the pins any more, this
+causes an issue, so the pinmux needs to be moved from a common
+file to their respective board files.
 
-Signed-off-by: Evan Green <evgreen@chromium.org>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220408114225.1.Ibcff6b86ed4eacfe4c4bc89c90e18416f3900a3e@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f8a2e3ff7103 ("ARM: dts: Add minimal support for LogicPD OMAP35xx SOM-LV devkit")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Message-Id: <20220303171818.11060-1-aford173@gmail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts | 15 +++++++++++++++
+ arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts | 15 +++++++++++++++
+ arch/arm/boot/dts/logicpd-som-lv.dtsi            | 15 ---------------
+ 3 files changed, 30 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -59,6 +59,7 @@
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
- #define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI	0x51ed
+diff --git a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
+index 2a0a98fe67f0..3240c67e0c39 100644
+--- a/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
++++ b/arch/arm/boot/dts/logicpd-som-lv-35xx-devkit.dts
+@@ -11,3 +11,18 @@ / {
+ 	model = "LogicPD Zoom OMAP35xx SOM-LV Development Kit";
+ 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3430", "ti,omap3";
+ };
++
++&omap3_pmx_core2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&hsusb2_2_pins>;
++	hsusb2_2_pins: pinmux_hsusb2_2_pins {
++		pinctrl-single,pins = <
++			OMAP3430_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
++			OMAP3430_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
++			OMAP3430_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
++			OMAP3430_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
++			OMAP3430_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
++			OMAP3430_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
++		>;
++	};
++};
+diff --git a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
+index a604d92221a4..c757f0d7781c 100644
+--- a/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
++++ b/arch/arm/boot/dts/logicpd-som-lv-37xx-devkit.dts
+@@ -11,3 +11,18 @@ / {
+ 	model = "LogicPD Zoom DM3730 SOM-LV Development Kit";
+ 	compatible = "logicpd,dm3730-som-lv-devkit", "ti,omap3630", "ti,omap3";
+ };
++
++&omap3_pmx_core2 {
++	pinctrl-names = "default";
++	pinctrl-0 = <&hsusb2_2_pins>;
++	hsusb2_2_pins: pinmux_hsusb2_2_pins {
++		pinctrl-single,pins = <
++			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
++			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
++			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
++			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
++			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
++			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
++		>;
++	};
++};
+diff --git a/arch/arm/boot/dts/logicpd-som-lv.dtsi b/arch/arm/boot/dts/logicpd-som-lv.dtsi
+index b56524cc7fe2..55b619c99e24 100644
+--- a/arch/arm/boot/dts/logicpd-som-lv.dtsi
++++ b/arch/arm/boot/dts/logicpd-som-lv.dtsi
+@@ -265,21 +265,6 @@ OMAP3_WKUP_IOPAD(0x2a0c, PIN_OUTPUT | MUX_MODE4)	/* sys_boot1.gpio_3 */
+ 	};
+ };
  
- #define PCI_DEVICE_ID_AMD_RENOIR_XHCI			0x1639
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
-@@ -266,7 +267,8 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_PCH_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
- 
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+-&omap3_pmx_core2 {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&hsusb2_2_pins>;
+-	hsusb2_2_pins: pinmux_hsusb2_2_pins {
+-		pinctrl-single,pins = <
+-			OMAP3630_CORE2_IOPAD(0x25f0, PIN_OUTPUT | MUX_MODE3)            /* etk_d10.hsusb2_clk */
+-			OMAP3630_CORE2_IOPAD(0x25f2, PIN_OUTPUT | MUX_MODE3)            /* etk_d11.hsusb2_stp */
+-			OMAP3630_CORE2_IOPAD(0x25f4, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d12.hsusb2_dir */
+-			OMAP3630_CORE2_IOPAD(0x25f6, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d13.hsusb2_nxt */
+-			OMAP3630_CORE2_IOPAD(0x25f8, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d14.hsusb2_data0 */
+-			OMAP3630_CORE2_IOPAD(0x25fa, PIN_INPUT_PULLDOWN | MUX_MODE3)    /* etk_d15.hsusb2_data1 */
+-		>;
+-	};
+-};
+-
+ &uart2 {
+ 	interrupts-extended = <&intc 73 &omap3_pmx_core OMAP3_UART2_RX>;
+ 	pinctrl-names = "default";
+-- 
+2.35.1
+
 
 
