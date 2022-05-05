@@ -2,58 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1502851BD7F
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 12:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DB451BEDC
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 14:07:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233719AbiEEKxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 06:53:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59260 "EHLO
+        id S1359512AbiEEMLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 08:11:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356098AbiEEKxa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 06:53:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF67C1704C;
-        Thu,  5 May 2022 03:49:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B291B82C20;
-        Thu,  5 May 2022 10:49:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01EEC385A8;
-        Thu,  5 May 2022 10:49:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651747789;
-        bh=4wRC8CnMoukaVD03+2+C4OVAxYGmYnDtIw/bitID6EY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CEw6KXM4WlzscfjsuYVJyYEL3Q63NuQRaiaHJ5ly7tGrQUo6I1oBYRuQcIi9Fj/cG
-         7og9sIAzrtRP/geXRB4SsDzIuzrzt740Ig0ZDJVIqyTh6ueJLpjmtzBblm9W/EkK/B
-         wkVddlNxgXQP5sITTn6ergpsBeE/XAYsql0zwJlNYrqh3WJ07i+BldCtxwy9cJr5KU
-         R2t1tSoAeJ3T0z6AChj71OAVNUMgeEc20190RZlMhJyNUK5w6S6g09hZBANbvHumQF
-         T8OaQgLTqx7hcFdS1vLo6SzlEZu1U2rnSSlk2V9mc9V9oRHxT54QAq66SVlbdIWs1Y
-         I1Hd7/R6BDosw==
-Date:   Thu, 5 May 2022 11:49:43 +0100
-From:   Will Deacon <will@kernel.org>
-To:     Elliot Berman <quic_eberman@quicinc.com>
-Cc:     Juergen Gross <jgross@suse.com>,
-        "Srivatsa S. Bhat (VMware)" <srivatsa@csail.mit.edu>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>,
-        virtualization@lists.linux-foundation.org, x86@kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Murali Nalajala <quic_mnalajal@quicinc.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] arm64: paravirt: Use RCU read locks to guard
- stolen_time
-Message-ID: <20220505104942.GA21596@willie-the-truck>
-References: <20220428183536.2866667-1-quic_eberman@quicinc.com>
+        with ESMTP id S1357001AbiEEMLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 08:11:35 -0400
+Received: from mail-yw1-x112b.google.com (mail-yw1-x112b.google.com [IPv6:2607:f8b0:4864:20::112b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49FD315FFF
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 05:07:56 -0700 (PDT)
+Received: by mail-yw1-x112b.google.com with SMTP id 00721157ae682-2f7d7e3b5bfso45849577b3.5
+        for <stable@vger.kernel.org>; Thu, 05 May 2022 05:07:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=gjywDP+ovyQmR5hK96gfZIq8TNaMr9xQjsaWHLuf+e4=;
+        b=jG9/WWDNN6gSV62apa193JWZ8LCLE/ivDFRzKZZ7tJRaQIywDArCJYf6iTQB8VQEO1
+         oxFh0USRD/5bDHVMkLXlf5EbT5yacFuA/lv2yfA7FaJneJkrqfLuXTjwrVHHjj8d0Ily
+         /GpEguzuyRHkdR5v4sAcwnf0/uPe3FZlPr8spIm2hfQN7WvqsG2rD3UHNMX0agehp4NL
+         KYBFHOh3poLYboZRy15LwTmXbIqLeDcTxi6QWzYpdOyTXZiE2wKIRFMhTrmq8HQvSdlD
+         xXWl5nfg+9pkNhQCaWVCQzUTUJ2HUmji2HnPpXNAdEE9XLR0+nMy477yhL3vs7CEgr6M
+         VBFg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=gjywDP+ovyQmR5hK96gfZIq8TNaMr9xQjsaWHLuf+e4=;
+        b=nERDIQA1HyaVcHI/q7OjeCJD8GIISKi0GU0iKa8FPI8j8VerAlwhwYeZz56snUlJMl
+         VM6Kogu9DS3XTQOIMqPmbqXY+gp0NZKxO090dRuptL2qXMdqOc5dgcf0fm73nJneYEjb
+         IGlRLcf20ZukEt5AyvdqpgdVQXydxEZFJxMt5j/Wb+38draUX0ZEGpsA4MZCDtRaU9Sv
+         4ledjAc7TAml8GySEScxt9hiK9caDni3lVkJn5wv5TU/hI3xKHowOAbtn1oXuJLgoVCd
+         f2b8iP0MduplDmDWNSQUW1T5Uhgh2VM+dW49qIe+puA8/XDWpPMXpDAmCkCChYJN+R25
+         Hw3g==
+X-Gm-Message-State: AOAM531Mcl+iPJUpc81LH9zpqgc8vFAYbAHo1EXOn+l+Usioxgam1fKB
+        HxKqdK+Rb1dCcT/8xs5pC59YA5yub4iGDNOswcuRVw==
+X-Google-Smtp-Source: ABdhPJx/e7d19O+IRKxU5aKO/cqjVmvXNj18NBvQrYgDB8m8NKs5KrYuFtiN+bZhOsM8YPZTiVl6aQKl38+5eOZ7Znk=
+X-Received: by 2002:a0d:ffc3:0:b0:2eb:2327:3361 with SMTP id
+ p186-20020a0dffc3000000b002eb23273361mr23604261ywf.36.1651752475391; Thu, 05
+ May 2022 05:07:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220428183536.2866667-1-quic_eberman@quicinc.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20220504153021.299025455@linuxfoundation.org>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 5 May 2022 17:37:44 +0530
+Message-ID: <CA+G9fYsu03yTrT9LJiYzvoatof69Lk5g9dA+geW0op+vyUa+Rw@mail.gmail.com>
+Subject: Re: [PATCH 5.10 000/129] 5.10.114-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -62,116 +70,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Elliot,
+On Wed, 4 May 2022 at 22:19, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.10.114 release.
+> There are 129 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 06 May 2022 15:25:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.10.114-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.10.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Thu, Apr 28, 2022 at 11:35:36AM -0700, Elliot Berman wrote:
-> From: Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>
-> 
-> During hotplug, the stolen time data structure is unmapped and memset.
-> There is a possibility of the timer IRQ being triggered before memset
-> and stolen time is getting updated as part of this timer IRQ handler. This
-> causes the below crash in timer handler -
-> 
->   [ 3457.473139][    C5] Unable to handle kernel paging request at virtual address ffffffc03df05148
->   ...
->   [ 3458.154398][    C5] Call trace:
->   [ 3458.157648][    C5]  para_steal_clock+0x30/0x50
->   [ 3458.162319][    C5]  irqtime_account_process_tick+0x30/0x194
->   [ 3458.168148][    C5]  account_process_tick+0x3c/0x280
->   [ 3458.173274][    C5]  update_process_times+0x5c/0xf4
->   [ 3458.178311][    C5]  tick_sched_timer+0x180/0x384
->   [ 3458.183164][    C5]  __run_hrtimer+0x160/0x57c
->   [ 3458.187744][    C5]  hrtimer_interrupt+0x258/0x684
->   [ 3458.192698][    C5]  arch_timer_handler_virt+0x5c/0xa0
->   [ 3458.198002][    C5]  handle_percpu_devid_irq+0xdc/0x414
->   [ 3458.203385][    C5]  handle_domain_irq+0xa8/0x168
->   [ 3458.208241][    C5]  gic_handle_irq.34493+0x54/0x244
->   [ 3458.213359][    C5]  call_on_irq_stack+0x40/0x70
->   [ 3458.218125][    C5]  do_interrupt_handler+0x60/0x9c
->   [ 3458.223156][    C5]  el1_interrupt+0x34/0x64
->   [ 3458.227560][    C5]  el1h_64_irq_handler+0x1c/0x2c
->   [ 3458.232503][    C5]  el1h_64_irq+0x7c/0x80
->   [ 3458.236736][    C5]  free_vmap_area_noflush+0x108/0x39c
->   [ 3458.242126][    C5]  remove_vm_area+0xbc/0x118
->   [ 3458.246714][    C5]  vm_remove_mappings+0x48/0x2a4
->   [ 3458.251656][    C5]  __vunmap+0x154/0x278
->   [ 3458.255796][    C5]  stolen_time_cpu_down_prepare+0xc0/0xd8
->   [ 3458.261542][    C5]  cpuhp_invoke_callback+0x248/0xc34
->   [ 3458.266842][    C5]  cpuhp_thread_fun+0x1c4/0x248
->   [ 3458.271696][    C5]  smpboot_thread_fn+0x1b0/0x400
->   [ 3458.276638][    C5]  kthread+0x17c/0x1e0
->   [ 3458.280691][    C5]  ret_from_fork+0x10/0x20
-> 
-> As a fix, introduce rcu lock to update stolen time structure.
-> 
-> Fixes: 75df529bec91 ("arm64: paravirt: Initialize steal time when cpu is online")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Prakruthi Deepak Heragu <quic_pheragu@quicinc.com>
-> Signed-off-by: Elliot Berman <quic_eberman@quicinc.com>
-> ---
-> Changes since v1: https://lore.kernel.org/all/20220420204417.155194-1-quic_eberman@quicinc.com/
->  - Use RCU instead of disabling interrupts
-> 
->  arch/arm64/kernel/paravirt.c | 24 +++++++++++++++++++-----
->  1 file changed, 19 insertions(+), 5 deletions(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-I applied this locally, but sparse is complaining because the 'kaddr' field
-of 'struct pv_time_stolen_time_region' is missing an '__rcu' annotation:
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
- | arch/arm64/kernel/paravirt.c:112:9: warning: cast adds address space '__rcu' to expression [sparse]
- | arch/arm64/kernel/paravirt.c:112:9: error: incompatible types in comparison expression (different address spaces): [sparse]
- | arch/arm64/kernel/paravirt.c:112:9:    struct pvclock_vcpu_stolen_time [noderef] __rcu * [sparse]
- | arch/arm64/kernel/paravirt.c:112:9:    struct pvclock_vcpu_stolen_time * [sparse]
- | arch/arm64/kernel/paravirt.c:67:17: warning: cast adds address space '__rcu' to expression [sparse]
- | arch/arm64/kernel/paravirt.c:67:17: error: incompatible types in comparison expression (different address spaces): [sparse]
- | arch/arm64/kernel/paravirt.c:67:17:    struct pvclock_vcpu_stolen_time [noderef] __rcu * [sparse]
- | arch/arm64/kernel/paravirt.c:67:17:    struct pvclock_vcpu_stolen_time * [sparse]
- | arch/arm64/kernel/paravirt.c:88:9: warning: cast adds address space '__rcu' to expression [sparse]
- | arch/arm64/kernel/paravirt.c:88:9: error: incompatible types in comparison expression (different address spaces): [sparse]
- | arch/arm64/kernel/paravirt.c:88:9:    struct pvclock_vcpu_stolen_time [noderef] __rcu * [sparse]
- | arch/arm64/kernel/paravirt.c:88:9:    struct pvclock_vcpu_stolen_time * [sparse]
+## Build
+* kernel: 5.10.114-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.10.y
+* git commit: 0412f4bd3360abe0f87f814f6b1325813bbe9f44
+* git describe: v5.10.113-130-g0412f4bd3360
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
+.113-130-g0412f4bd3360
 
-The diff below seems to make it happy again, but please can you take a
-look?
+## Test Regressions (compared to v5.10.113-3-gbc311a966773)
+No test regressions found.
 
-Cheers,
+## Metric Regressions (compared to v5.10.113-3-gbc311a966773)
+No metric regressions found.
 
-Will
+## Test Fixes (compared to v5.10.113-3-gbc311a966773)
+No test fixes found.
 
---->8
+## Metric Fixes (compared to v5.10.113-3-gbc311a966773)
+No metric fixes found.
 
-diff --git a/arch/arm64/kernel/paravirt.c b/arch/arm64/kernel/paravirt.c
-index e724ea3d86f0..57c7c211f8c7 100644
---- a/arch/arm64/kernel/paravirt.c
-+++ b/arch/arm64/kernel/paravirt.c
-@@ -35,7 +35,7 @@ static u64 native_steal_clock(int cpu)
- DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
- 
- struct pv_time_stolen_time_region {
--       struct pvclock_vcpu_stolen_time *kaddr;
-+       struct pvclock_vcpu_stolen_time __rcu *kaddr;
- };
- 
- static DEFINE_PER_CPU(struct pv_time_stolen_time_region, stolen_time_region);
-@@ -84,8 +84,7 @@ static int stolen_time_cpu_down_prepare(unsigned int cpu)
-        if (!reg->kaddr)
-                return 0;
- 
--       kaddr = reg->kaddr;
--       rcu_assign_pointer(reg->kaddr, NULL);
-+       kaddr = rcu_replace_pointer(reg->kaddr, NULL, true);
-        synchronize_rcu();
-        memunmap(kaddr);
- 
-@@ -116,8 +115,8 @@ static int stolen_time_cpu_online(unsigned int cpu)
-                return -ENOMEM;
-        }
- 
--       if (le32_to_cpu(reg->kaddr->revision) != 0 ||
--           le32_to_cpu(reg->kaddr->attributes) != 0) {
-+       if (le32_to_cpu(kaddr->revision) != 0 ||
-+           le32_to_cpu(kaddr->attributes) != 0) {
-                pr_warn_once("Unexpected revision or attributes in stolen time data\n");
-                return -ENXIO;
-        }
+## Test result summary
+total: 100855, pass: 85629, fail: 641, skip: 13505, xfail: 1080
 
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 291 total, 291 passed, 0 failed
+* arm64: 41 total, 41 passed, 0 failed
+* i386: 39 total, 39 passed, 0 failed
+* mips: 37 total, 37 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 60 total, 51 passed, 9 failed
+* riscv: 27 total, 27 passed, 0 failed
+* s390: 21 total, 21 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 41 total, 41 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* perf/Zstd-perf.data-compression
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
