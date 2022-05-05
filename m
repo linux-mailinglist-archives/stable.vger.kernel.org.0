@@ -2,120 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D23251B658
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 05:14:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D5451B68F
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 05:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240592AbiEEDRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 4 May 2022 23:17:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45360 "EHLO
+        id S230360AbiEEDbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 4 May 2022 23:31:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232469AbiEEDRl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 23:17:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5067920F66;
-        Wed,  4 May 2022 20:14:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB3A5B82794;
-        Thu,  5 May 2022 03:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED32EC385A5;
-        Thu,  5 May 2022 03:13:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651720440;
-        bh=fgYShDk8J/LH7fRewSMC+BYKPB5NxskQkpkXs8hqxDs=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Gu8BTaS6QcvN1Zcekn09aNMpiKrZ9CwVxhA+jmfPxjC756WBiUYF+PQtSaX3xzv0C
-         WyAvNADizjYRGzBFni+0HqRpXeOUVOjg8WES8/iUOZ8+MICEO2tYZXqGIzVrC+pYR9
-         5KzVzpyoiK32DuYzLzdKP9OiZR1Hij1i3gS4meXMP7qH9jTEdHWyAzkc6zDcSmGDmN
-         xREyDvy+jPrCIfl6VNibDFXcg8GC6ehZ9/X7cmlyVM9TeWwySYbGw/TYJ6hkWeNJGo
-         ZYbThIgvL41D63EC8IcDOPCl88QI75i06nKBS27oAmvBtMYTCkgvoiVLylSEPGNCht
-         H9zuPE6rjSBNg==
-Date:   Wed, 4 May 2022 20:13:58 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Raju Rangoju <rajur@chelsio.com>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] net: chelsio: cxgb4: Avoid potential negative array
- offset
-Message-ID: <20220504201358.0ba62232@kernel.org>
-In-Reply-To: <20220503144425.2858110-1-keescook@chromium.org>
-References: <20220503144425.2858110-1-keescook@chromium.org>
+        with ESMTP id S233705AbiEEDbC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 4 May 2022 23:31:02 -0400
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CF6946142;
+        Wed,  4 May 2022 20:27:24 -0700 (PDT)
+Received: by mail-pf1-x42d.google.com with SMTP id x23so2630937pff.9;
+        Wed, 04 May 2022 20:27:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=9zQNbMxYczMNSMBjlKwAqK0Zf0LTVQ4fP6xMR3g4H9E=;
+        b=TYwqyjukzHiw9hs2taos2n+SiiIuMwX872mpUAaEIn7Vw1VT82TRzCr6MdeFW5YIDX
+         UkiRSOaIhWhl8F2ItpwQmBJGcKW4Ao4G4p4fiUHeOolxlfXZu1GLi6Ez9eoRs0qWYJJ/
+         TM3Xz26MvCrQXgPXPObf0KnhcpKCJCnIX5HQVEWfxUrPB6Jr5jc5w5BhxdQaeSYnbsLX
+         0jDKOPb6CvSnNvb+Xn7vBQDhhnz0RqvziIVZpzRzcSA2BGy0qQtCrD3ybTK8aTAW9IDf
+         WE7ubXf9wBWKKyflmvoPtp+21+TQSMN9cadaNN2axKy95lb1J8sIJnCoakqjA64y5XW8
+         unlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=9zQNbMxYczMNSMBjlKwAqK0Zf0LTVQ4fP6xMR3g4H9E=;
+        b=gwgoJSeI+BV5fARQOskxXDXR9bP0ZL5t3/AsP/8U05MROj+oeLemmeIg2ap2tDvoEP
+         1h0CvCKppFormSssBDyZIqTpSRQpjv7vR1DnW1EgVX2jlQ4cui2Gf+RSmXMqywVym1SW
+         U9F+zz2rP8eV4MWCOMO+7oImPcjUjQPGjo4ai+UYLechRHazPVm+N3z8bENMTCMJ+Kpy
+         LwCF5nvzDt/2rYrwpK7NwoouSqYq9vjdOTjKlxz/oloe4vsuSY43cA+JhbabaABNp9Iq
+         QkLXvSmEV7vRxweu7VkmbrM03ktTVEw3clBnrX47kGppXtlgCNFRGdyBxI3M7QP/PvJ3
+         9HGg==
+X-Gm-Message-State: AOAM530T6O5Q+uP0kUY0GVBgtU9sfTkC0qTY6lfwpJ53Ii/asA5getep
+        H6Mgg9ODY/xAiT+A1De9g9g=
+X-Google-Smtp-Source: ABdhPJyRfhOBZeDi0X0vYMrehR1+0q8VkfT3VKlaAkeRLfAavj7LEQ341VHc6eXqJcXTnKA1DyeKvA==
+X-Received: by 2002:a65:524b:0:b0:383:1b87:2d21 with SMTP id q11-20020a65524b000000b003831b872d21mr20443698pgp.482.1651721244004;
+        Wed, 04 May 2022 20:27:24 -0700 (PDT)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id i13-20020a63584d000000b003c14af50606sm153188pgm.30.2022.05.04.20.27.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 May 2022 20:27:23 -0700 (PDT)
+Message-ID: <fd00484e-5254-7764-cc80-c7f875b2d7a7@gmail.com>
+Date:   Wed, 4 May 2022 20:27:22 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 5.10 000/129] 5.10.114-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220504153021.299025455@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220504153021.299025455@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue,  3 May 2022 07:44:25 -0700 Kees Cook wrote:
-> Using min_t(int, ...) as a potential array index implies to the compiler
-> that negative offsets should be allowed. This is not the case, though.
-> Replace min_t() with clamp_t(). Fixes the following warning exposed
-> under future CONFIG_FORTIFY_SOURCE improvements:
 
-> Additionally remove needless cast from u8[] to char * in last strim()
-> call.
+
+On 5/4/2022 9:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.114 release.
+> There are 129 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
-> Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
-> Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
-
-Is it needed in the current release?
-
-> Cc: Raju Rangoju <rajur@chelsio.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: netdev@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
+> Responses should be made by Fri, 06 May 2022 15:25:19 +0000.
+> Anything received after that time might be too late.
 > 
-> diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-> index e7b4e3ed056c..f119ec7323e5 100644
-> --- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-> +++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-> @@ -2793,14 +2793,14 @@ int t4_get_raw_vpd_params(struct adapter *adapter, struct vpd_params *p)
->  		goto out;
->  	na = ret;
->  
-> -	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-> +	memcpy(p->id, vpd + id, clamp_t(int, id_len, 0, ID_LEN));
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.114-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-The typing is needed because of the enum, right? The variable is
-unsigned, seems a little strange to use clamp(int, ..., 0, constant)
-min(unsigned int, ..., constant) will be equivalent with fewer branches.
-Is it just me?
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
->  	strim(p->id);
-> -	memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-> +	memcpy(p->sn, vpd + sn, clamp_t(int, sn_len, 0, SERNUM_LEN));
->  	strim(p->sn);
-> -	memcpy(p->pn, vpd + pn, min_t(int, pn_len, PN_LEN));
-> +	memcpy(p->pn, vpd + pn, clamp_t(int, pn_len, 0, PN_LEN));
->  	strim(p->pn);
-> -	memcpy(p->na, vpd + na, min_t(int, na_len, MACADDR_LEN));
-> -	strim((char *)p->na);
-> +	memcpy(p->na, vpd + na, clamp_t(int, na_len, 0, MACADDR_LEN));
-> +	strim(p->na);
->  
->  out:
->  	vfree(vpd);
-
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
