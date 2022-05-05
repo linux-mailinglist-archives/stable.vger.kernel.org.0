@@ -2,94 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9864B51CB8F
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 23:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 406DA51CC20
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 00:34:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238900AbiEEVrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 17:47:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42266 "EHLO
+        id S1386345AbiEEWha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 18:37:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbiEEVrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 17:47:20 -0400
-Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D11352E77;
-        Thu,  5 May 2022 14:43:38 -0700 (PDT)
-Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-e5e433d66dso5526208fac.5;
-        Thu, 05 May 2022 14:43:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=HwVwUxk5H0GtYIO92JdyFcoBHKe3VuV2ZMa5DcmeEHI=;
-        b=kGTK3m6KN9Js2LjNbj+P7ZjUmo9wgkKemNu3EKGtiVjTpyzNzvoRZivBzthfxvxm23
-         F5Y5+RDOMSMDwC2gWpw7FyCLYxj9at8fVxhsIXx0LEe1Xnc8QknHQgWhgkkOu0HOWsyL
-         wA/R8C9RKtig+xMv9UY7KzopFlspn35mc8ZjEGet6Fye2pSTun0Y8dA7GA5tXlEVM+RM
-         ZWAKrsIERhYn/zTYaeObou2fXyLQWSpdOdkULf+Ju1hOdJfN8N6Lqt2BruRQLBX7HWrX
-         q7HjQK/T0/S2F/n7dCgpv0PtujT86kTA/S/k91VJZLLhYZ36SBdWGsfo3y+tJwjmE2Q+
-         ZOZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=HwVwUxk5H0GtYIO92JdyFcoBHKe3VuV2ZMa5DcmeEHI=;
-        b=iE0V84216SIIx5HvaipNpIETaS6Tu4cKWvw5gWFbA271EMM7oQoIOmaHO0s2zv6Nfb
-         mdGK+22EFtlPa9zH1ETnUXoIezTsI0loKY8nl6C+GMBxv6HyarS+KV8OpSMpY1jlzKdg
-         uBd5hHhDmibs/lMgwTlM5Y45R8qbYUFbp/UhAr4Vgkv6O8lawSka83SOK9tm3Ev3gKgj
-         /y5zsOln2M9oJPFStnaiYuByNJY4ngu35DMokxYRJeVPQSQuQ9yL6AkeFfVgJG7mRgjB
-         oww49o5nf2HrykY+YqJjzK7QSiZtKFnb0tDh3D6JON9FfqAF/9fgmqSZK0d0UTRMNyiq
-         8CJg==
-X-Gm-Message-State: AOAM5331M8CZTIUeZ5VogUEHvfLOeZ1ik5pue9CcIYwizTwl/eLib5C5
-        zd2RHnB3xbuvX+0UEv4vzXc=
-X-Google-Smtp-Source: ABdhPJwzoiGQJXFexMygYYgnrH+9SnCHxAzU3LeHp/H3m9EXYk8zhQv75IjaQj2C/Jqh5L6rXPQlTA==
-X-Received: by 2002:a05:6870:891f:b0:e1:ec98:3c59 with SMTP id i31-20020a056870891f00b000e1ec983c59mr111734oao.295.1651787017929;
-        Thu, 05 May 2022 14:43:37 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a32-20020a9d2623000000b006060322123csm1012879otb.12.2022.05.05.14.43.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 May 2022 14:43:37 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Thu, 5 May 2022 14:43:36 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.17 000/225] 5.17.6-rc1 review
-Message-ID: <20220505214336.GD1988936@roeck-us.net>
-References: <20220504153110.096069935@linuxfoundation.org>
+        with ESMTP id S242293AbiEEWh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 18:37:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C89035DBF5
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 15:33:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5744AB830E6
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 22:33:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C627EC385A8;
+        Thu,  5 May 2022 22:33:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651790025;
+        bh=EX9FyHBWvyCLWQrSaYDrZTQ/VcOI34+CzH9pzHmurqk=;
+        h=Subject:To:From:Date:From;
+        b=qLmWfnISgxBOBRR3B4e7H3cERDe/Hl+tIxge+QIxwHPwqffd8PAS+BqOlaizgxPvF
+         TR6zEr5Z1wKnXn+yGS8y8K5k0fAtgeNTtU/B5HfTBaX05yUAXeBKAJsvjUIBBok+ej
+         NoGBnghPvBtZdndvIQvf/HVR1vRXXMz8Z2dmDXpA=
+Subject: patch "usb: cdc-wdm: fix reading stuck on device close" added to usb-linus
+To:     ryazanov.s.a@gmail.com, gregkh@linuxfoundation.org,
+        oneukum@suse.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 05 May 2022 22:18:16 +0200
+Message-ID: <1651781896192206@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 04, 2022 at 06:43:58PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.17.6 release.
-> There are 225 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Fri, 06 May 2022 15:25:19 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 489 pass: 489 fail: 0
+This is a note to let you know that I've just added the patch titled
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+    usb: cdc-wdm: fix reading stuck on device close
 
-Guenter
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 01e01f5c89773c600a9f0b32c888de0146066c3a Mon Sep 17 00:00:00 2001
+From: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Date: Sun, 1 May 2022 20:58:28 +0300
+Subject: usb: cdc-wdm: fix reading stuck on device close
+
+cdc-wdm tracks whether a response reading request is in-progress and
+blocks the next request from being sent until the previous request is
+completed. As soon as last user closes the cdc-wdm device file, the
+driver cancels any ongoing requests, resets the pending response
+counter, but leaves the response reading in-progress flag
+(WDM_RESPONDING) untouched.
+
+So if the user closes the device file during the response receive
+request is being performed, no more data will be obtained from the
+modem. The request will be cancelled, effectively preventing the
+WDM_RESPONDING flag from being reseted. Keeping the flag set will
+prevent a new response receive request from being sent, permanently
+blocking the read path. The read path will staying blocked until the
+module will be reloaded or till the modem will be re-attached.
+
+This stuck has been observed with a Huawei E3372 modem attached to an
+OpenWrt router and using the comgt utility to set up a network
+connection.
+
+Fix this issue by clearing the WDM_RESPONDING flag on the device file
+close.
+
+Without this fix, the device reading stuck can be easily reproduced in a
+few connection establishing attempts. With this fix, a load test for
+modem connection re-establishing worked for several hours without any
+issues.
+
+Fixes: 922a5eadd5a3 ("usb: cdc-wdm: Fix race between autosuspend and reading from the device")
+Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220501175828.8185-1-ryazanov.s.a@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/class/cdc-wdm.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 7f2c83f299d3..eebe782380fb 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -774,6 +774,7 @@ static int wdm_release(struct inode *inode, struct file *file)
+ 			poison_urbs(desc);
+ 			spin_lock_irq(&desc->iuspin);
+ 			desc->resp_count = 0;
++			clear_bit(WDM_RESPONDING, &desc->flags);
+ 			spin_unlock_irq(&desc->iuspin);
+ 			desc->manage_power(desc->intf, 0);
+ 			unpoison_urbs(desc);
+-- 
+2.36.0
+
+
