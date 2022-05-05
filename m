@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 272D751CC33
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 00:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01E151CC32
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 00:36:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384641AbiEEWiI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 18:38:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53620 "EHLO
+        id S1386425AbiEEWie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 18:38:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379812AbiEEWiE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 18:38:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E76A5F25E
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 15:34:20 -0700 (PDT)
+        with ESMTP id S1386404AbiEEWiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 18:38:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBEBD5F25E
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 15:34:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F08CBB830E9
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 22:34:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1A82C385A8;
-        Thu,  5 May 2022 22:34:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AA4561F4F
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 22:34:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D660CC385AE;
+        Thu,  5 May 2022 22:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651790057;
-        bh=RV/T1QDyrTmWfR84H6v00PamvPTZNJRt/x3LYKhdXLk=;
+        s=korg; t=1651790074;
+        bh=em5+Eupom86A20GDjRTHcim9DYJ00Nwot/DwX3KMB5I=;
         h=Subject:To:From:Date:From;
-        b=2o0h3FEihjt4i6fkF6Oa+N1xqlKZbHj47qpkrfrk/yGjgMkElSICU/wlTb0cZWDqv
-         Bm0E8jNTXsL7eXJ5DoGQZ2iej8qzsspIQDV3/g+lVZMxYZ/5hpwvdlll06A4U9tcpB
-         WoZTMR3vwI0O/zjA5tI+Oq9p1OyHTROveS6aOlNM=
-Subject: patch "serial: pch: don't overwrite xmit->buf[0] by x_char" added to tty-testing
-To:     jslaby@suse.cz, gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=W4LGAX4H4J6qUxWeNGZvcZzCrr1bNDUOK8MrPTbHLrV8iayrUSfKTfWHa/S7L16Mm
+         IEpnZFCyakdXYe/yDXDiis553F4AHtjZyrSbNjBTRdqlqqb/+riTi599Oz+tR8SzMP
+         vVGfwbQ5+Nu23cFVl5jyKQ/XOGVjnBZs49ndSlpk=
+Subject: patch "tty/serial: digicolor: fix possible null-ptr-deref in" added to tty-linus
+To:     yangyingliang@huawei.com, baruch@tkos.co.il,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 May 2022 22:43:02 +0200
-Message-ID: <165178338214670@kroah.com>
+Date:   Thu, 05 May 2022 22:58:50 +0200
+Message-ID: <165178433056130@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,98 +50,60 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: pch: don't overwrite xmit->buf[0] by x_char
+    tty/serial: digicolor: fix possible null-ptr-deref in
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+in the tty-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
 
 If you have any questions about this process, please let me know.
 
 
-From d9f3af4fbb1d955bbaf872d9e76502f6e3e803cb Mon Sep 17 00:00:00 2001
-From: Jiri Slaby <jslaby@suse.cz>
-Date: Tue, 3 May 2022 10:08:03 +0200
-Subject: serial: pch: don't overwrite xmit->buf[0] by x_char
+From 447ee1516f19f534a228dda237eddb202f23e163 Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Thu, 5 May 2022 20:46:21 +0800
+Subject: tty/serial: digicolor: fix possible null-ptr-deref in
+ digicolor_uart_probe()
 
-When x_char is to be sent, the TX path overwrites whatever is in the
-circular buffer at offset 0 with x_char and sends it using
-pch_uart_hal_write(). I don't understand how this was supposed to work
-if xmit->buf[0] already contained some character. It must have been
-lost.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Remove this whole pop_tx_x() concept and do the work directly in the
-callers. (Without printing anything using dev_dbg().)
-
-Cc: <stable@vger.kernel.org>
-Fixes: 3c6a483275f4 (Serial: EG20T: add PCH_UART driver)
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20220503080808.28332-1-jslaby@suse.cz
+Fixes: 5930cb3511df ("serial: driver for Conexant Digicolor USART")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Baruch Siach <baruch@tkos.co.il>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220505124621.1592697-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/pch_uart.c | 27 +++++++--------------------
- 1 file changed, 7 insertions(+), 20 deletions(-)
+ drivers/tty/serial/digicolor-usart.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index f872613a5e83..6cb631487383 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -624,22 +624,6 @@ static int push_rx(struct eg20t_port *priv, const unsigned char *buf,
- 	return 0;
- }
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index 6d70fea76bb3..e37a917b9dbb 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -471,11 +471,10 @@ static int digicolor_uart_probe(struct platform_device *pdev)
+ 	if (IS_ERR(uart_clk))
+ 		return PTR_ERR(uart_clk);
  
--static int pop_tx_x(struct eg20t_port *priv, unsigned char *buf)
--{
--	int ret = 0;
--	struct uart_port *port = &priv->port;
--
--	if (port->x_char) {
--		dev_dbg(priv->port.dev, "%s:X character send %02x (%lu)\n",
--			__func__, port->x_char, jiffies);
--		buf[0] = port->x_char;
--		port->x_char = 0;
--		ret = 1;
--	}
--
--	return ret;
--}
--
- static int dma_push_rx(struct eg20t_port *priv, int size)
- {
- 	int room;
-@@ -889,9 +873,10 @@ static unsigned int handle_tx(struct eg20t_port *priv)
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dp->port.mapbase = res->start;
+-	dp->port.membase = devm_ioremap_resource(&pdev->dev, res);
++	dp->port.membase = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(dp->port.membase))
+ 		return PTR_ERR(dp->port.membase);
++	dp->port.mapbase = res->start;
  
- 	fifo_size = max(priv->fifo_size, 1);
- 	tx_empty = 1;
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		tx_empty = 0;
- 		fifo_size--;
- 	}
-@@ -948,9 +933,11 @@ static unsigned int dma_handle_tx(struct eg20t_port *priv)
- 	}
- 
- 	fifo_size = max(priv->fifo_size, 1);
--	if (pop_tx_x(priv, xmit->buf)) {
--		pch_uart_hal_write(priv, xmit->buf, 1);
-+
-+	if (port->x_char) {
-+		pch_uart_hal_write(priv, &port->x_char, 1);
- 		port->icount.tx++;
-+		port->x_char = 0;
- 		fifo_size--;
- 	}
- 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
 -- 
 2.36.0
 
