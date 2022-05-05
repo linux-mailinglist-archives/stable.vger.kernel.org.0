@@ -2,90 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C886B51B882
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 09:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B5251B961
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 09:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234790AbiEEHPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 03:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54366 "EHLO
+        id S231575AbiEEHrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 03:47:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245757AbiEEHPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 03:15:20 -0400
-Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23ED135DC3
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 00:11:41 -0700 (PDT)
-Received: from gproxy3-pub.mail.unifiedlayer.com (unknown [69.89.30.42])
-        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id D8541802EFDD
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 07:11:39 +0000 (UTC)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 4BC8710049227
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 07:11:39 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id mVeEnNxMAkku4mVeFndQMv; Thu, 05 May 2022 07:11:39 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=ANANYO9+ c=1 sm=1 tr=0 ts=627378ab
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=oZkIemNP1mAA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Rnp1Z4ceA851sqUsnqf/+O+E2OsD56cGNcmbg4fWT78=; b=2+qjfzpdB7vT7K6ujKXdS0WD3l
-        M8yQsAUgvCC+tqEhMz2VYUq55QCk0YokU3hVZ3f1KuvRjB1D31gwnodPp3GJ5u1Jgm6UXdDv8Jffa
-        l04izXhXXrBQVYnPKIU7v91RhF/bp06qKbL30/vQzsYDG4ZSJFZelcglaxwRv4/BtJqherkUQMkJO
-        EuoPB+hP6iMNo8qHhUkTA51RFWNlHnQSGYjvfxsFSgBuBxWh7xNCJhtu+A0i75JGlZFLLYlAm4zmI
-        aJyzlCmWGSLhpZqh6hiDDwMRcA68AKuE1XYpwgQxnhLYcYgy/Gf2srBNbLkvK0k7Efdmye5IRsBH0
-        eCVFZpyw==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:49802 helo=[10.0.1.48])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1nmVeD-002Bcs-W4; Thu, 05 May 2022 01:11:38 -0600
-Subject: Re: [PATCH 5.15 000/177] 5.15.38-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-References: <20220504153053.873100034@linuxfoundation.org>
-In-Reply-To: <20220504153053.873100034@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <80e8a4e9-3219-9fd3-944a-b44b9c259398@w6rz.net>
-Date:   Thu, 5 May 2022 00:11:35 -0700
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S242624AbiEEHrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 03:47:31 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D2D0488A0
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 00:43:52 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nmW9M-0004Sz-Q2; Thu, 05 May 2022 09:43:48 +0200
+Message-ID: <f7ae9d50-a9dc-3473-903b-28dcd79aaeba@leemhuis.info>
+Date:   Thu, 5 May 2022 09:43:48 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
 Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1nmVeD-002Bcs-W4
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:49802
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 3
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+To:     Jordan Leppert <jordanleppert@protonmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "labre@posteo.de" <labre@posteo.de>,
+        "davem@davemloft.net" <davem@davemloft.net>
+References: <refZ3y2HAXztrRkMMmFbBaF7Dz1CctWgjchSdBtcSNlpk-TL0fqLepVVHfw9qXtIQF9uFzBvFdjQiiX9Jv2zW9oaWej952s1IYwu61d1REo=@protonmail.com>
+ <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: Crash on resume after suspend (5.17.5 and 5.15.36)
+In-Reply-To: <9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1651736632;9bcb2e00;
+X-HE-SMSGID: 1nmW9M-0004Sz-Q2
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,NICE_REPLY_A,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -94,26 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/4/22 9:43 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.38 release.
-> There are 177 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 06 May 2022 15:25:19 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.38-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+[TLDR: I'm adding the regression report below to regzbot, the Linux
+kernel regression tracking bot; all text you find below is compiled from
+a few templates paragraphs you might have encountered already already
+from similar mails.]
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+Hi, this is your Linux kernel regression tracker. Top-posting for once,
+to make this easily accessible to everyone.
 
-Tested-by: Ron Economos <re@w6rz.net>
+This is being dealt with already (great, thx a lot!), nevertheless I'd
+like to add it to the regression tracking:
 
+#regzbot ^introduced cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c
+#regzbot title net: atlantic: computer to freeze when resuming after a
+suspend
+#regzbot ignore-activity
+#regzbot monitor https://lore.kernel.org/lkml/87czgt2bsb.fsf@posteo.de/
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
+
+On 04.05.22 17:07, Jordan Leppert wrote:
+> 
+> A changed was added to both version 5.17.5 and 5.15.36 which causes my computer to freeze when resuming after a suspend. This happens every time I suspend and then resume.
+> 
+> I've bisected the change to commit: cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c (net: atlantic: invert deep par in pm functions, preventing null derefs)
+> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-5.17.y&id=cbe6c3a8f8f4315b96e46e1a1c70393c06d95a4c
+> 
+> My computer details that might be relevant:
+> OS: Arch Linux
+> CPU: AMD 5950X
+> GPU: AMD 6800XT
+> 
+> As expected I have an Aquantia ethernet controller listed in lspci:
+> 
+> 05:00.0 Ethernet controller: Aquantia Corp. AQC107 NBase-T/IEEE 802.3bz Ethernet Controller [AQtion] (rev 02)
+> 
+> Please let me know if there is any more info I can give that will help.
+> 
+> Regards,
+> Jordan
+> 
+> 
