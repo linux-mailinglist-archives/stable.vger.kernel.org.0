@@ -2,138 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ACFC51B6DE
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 05:58:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF96451B6E3
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 06:01:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbiEEEC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 00:02:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57988 "EHLO
+        id S239283AbiEEEFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 00:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231154AbiEEECZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 00:02:25 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E82749F00
-        for <stable@vger.kernel.org>; Wed,  4 May 2022 20:58:47 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id s14so3268020plk.8
-        for <stable@vger.kernel.org>; Wed, 04 May 2022 20:58:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pijfzsV1/gE2g3n3zFcRPTEBUORNbzAHyws1WMcvHuM=;
-        b=2rJqarrslWvlPuRhUUCNIMAkaGHJX8jBZMSj0bKkKZE+ez9YMUkYGgK5oGSZOQ/Uqj
-         O7fBnWqNQ/YthTQk6ZvJjdtZmOApHPDwv9ZxCPXz2damGFgppyvJr1CZUe8IPydwYWHr
-         ci1zVAmuX+vFhahGvQ/o659H3nr9Fq1RTUMlJQRa5MgXZ4Pi5keh+8oOfTu8vzTWzvhm
-         BV+japZuKjv0RaY6fwhsoEQkVGtfQe3HYNwK/ufPwx/bJ2ycwwJUBFpgP7klNjZktr1O
-         bVYs8KvGLOR5fVnFIntXdQ58btdSACRlbF20qbl2PR52Q0ONr8lAHyWplYAyR9rb0DYM
-         ZLbA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pijfzsV1/gE2g3n3zFcRPTEBUORNbzAHyws1WMcvHuM=;
-        b=hyxFXnpLghC1PIDGlJwZHometH7da5YDtkHl5v5/nCIISJ1KukIzDgiUqR52t1BrRt
-         Jw7D8K6Db03RttPuJXkj3/Wl1V3Y63UhDmlvVl9HlT3kxEJ4xgBTOb/pwfrN40Az3xIn
-         wILxcC57TcfDQO595FLImvTWp6C7bCbxldldz7HSVNH0aW2pxfA2MvSjMsyXQYIIp81N
-         5PCqCvSj4I9ulDeW2IxBro9Ox0SGqMaLg000jBKPVECtQZeYh/+XwnyV0qzDm2xQcaf5
-         n02EW0+d2fG8BFrdnOOkR2fvfWz1SBR31ZDUfaERkBuBtCfqLIN4Gc6KuGo3U9fP7RTj
-         xUkQ==
-X-Gm-Message-State: AOAM530JLIloGmp09RAOsc0W+OCx6L32Yip1HF9UTBw1pm3h4cwb6AlB
-        T9I5TdjJSy44BsrqLFFcGIAO5jo1nWaBLea5dZ8=
-X-Google-Smtp-Source: ABdhPJwJDbjfn6cPIrLVFqdJedB4HaFCQWt/MYPhGdiKccuEQjIanJhQ51rtzgHNoLL/VKpTkgsGEA==
-X-Received: by 2002:a17:90b:4d8b:b0:1dc:a9c0:3d53 with SMTP id oj11-20020a17090b4d8b00b001dca9c03d53mr3550353pjb.29.1651723126466;
-        Wed, 04 May 2022 20:58:46 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i3-20020a17090332c300b0015e8d4eb24esm296539plr.152.2022.05.04.20.58.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 May 2022 20:58:46 -0700 (PDT)
-Message-ID: <62734b76.1c69fb81.16aa1.0fdc@mx.google.com>
-Date:   Wed, 04 May 2022 20:58:46 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231154AbiEEEFX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 00:05:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7F74AE16;
+        Wed,  4 May 2022 21:01:45 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8F4FB82A86;
+        Thu,  5 May 2022 04:01:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31B2DC385AC;
+        Thu,  5 May 2022 04:01:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651723302;
+        bh=FYC0CvQaP+3mMgxceGHIF8Aw1uZcq1KmRRW+MxCfV2I=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=mQYJIj0+JWE20dxYT8W3Z04gILiggLvIy9ppMpDnUNbXVcZp+4dGuY+9nSU7GneeK
+         pEsMRCB3sqDCE6N7KgTU1hoFWcfMkcakm7q5uowHrDjiJ5+rsBNmGewvw7ieLTK+Cj
+         vABJhgV8R5xdQQjM2HvszqoHDDQ9aI635h9wE+NlaWwe/8xKPAs1JxH+FSXszm/9tz
+         HRIf2PcDq/+sOnlvpWMxnTInPB8vOrL7tsAQE3khHppXtdSqlLT3dBtK2Um4C6NPjC
+         3dhSQKJ//JGgbMg5MSe1i4WEBo/fDaVU3wvxIU8g6ncwyyg0nwrExg8qKJXQT9Bvim
+         QLq7VMqVlJwKQ==
+Message-ID: <f2ccff61-bc6d-1a99-dcbd-31b4e5153097@kernel.org>
+Date:   Wed, 4 May 2022 21:01:41 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.113-129-g488ef7a9d9c3
-Subject: stable-rc/queue/5.10 baseline: 110 runs,
- 1 regressions (v5.10.113-129-g488ef7a9d9c3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.8.1
+Subject: Re: [PATCH net v3 1/2] ping: fix address binding wrt vrf
+Content-Language: en-US
+To:     Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Miller <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Eric Dumazet <edumazet@google.com>
+Cc:     netdev@vger.kernel.org, stable@vger.kernel.org
+References: <1238b102-f491-a917-3708-0df344015a5b@kernel.org>
+ <20220504090739.21821-1-nicolas.dichtel@6wind.com>
+ <20220504090739.21821-2-nicolas.dichtel@6wind.com>
+From:   David Ahern <dsahern@kernel.org>
+In-Reply-To: <20220504090739.21821-2-nicolas.dichtel@6wind.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-10.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 110 runs, 1 regressions (v5.10.113-129-g488e=
-f7a9d9c3)
+On 5/4/22 2:07 AM, Nicolas Dichtel wrote:
+> When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
+> instead of an IP raw socket. In this case, 'ping' is unable to bind its
+> socket to a local address owned by a vrflite.
+> 
+> Before the patch:
+> $ sysctl -w net.ipv4.ping_group_range='0  2147483647'
+> $ ip link add blue type vrf table 10
+> $ ip link add foo type dummy
+> $ ip link set foo master blue
+> $ ip link set foo up
+> $ ip addr add 192.168.1.1/24 dev foo
+> $ ip addr add 2001::1/64 dev foo
+> $ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
+> ping: bind: Cannot assign requested address
+> $ ip vrf exec blue ping6 -c1 -I 2001::1 2001::2
+> ping6: bind icmp socket: Cannot assign requested address
+> 
+> CC: stable@vger.kernel.org
+> Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
+> Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+> ---
+>  net/ipv4/ping.c | 12 +++++++++++-
+>  1 file changed, 11 insertions(+), 1 deletion(-)
+> 
 
-Regressions Summary
--------------------
+Reviewed-by: David Ahern <dsahern@kernel.org>
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.113-129-g488ef7a9d9c3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.113-129-g488ef7a9d9c3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      488ef7a9d9c34e0dc0c77eee88b9b02dbf42bec5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6273235331058a14e68f5752
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--129-g488ef7a9d9c3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--129-g488ef7a9d9c3/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6273235331058a14e68f5774
-        failing since 58 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-05-05T01:07:13.526235  /lava-6268054/1/../bin/lava-test-case
-    2022-05-05T01:07:13.536863  <8>[   34.542040] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
