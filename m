@@ -2,66 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3D951C51B
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 18:27:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BADFF51C56F
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 18:53:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380430AbiEEQbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 12:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54468 "EHLO
+        id S1346945AbiEEQ4i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 12:56:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233421AbiEEQbb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 12:31:31 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B2F426579
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 09:27:52 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id d17so4911135plg.0
-        for <stable@vger.kernel.org>; Thu, 05 May 2022 09:27:52 -0700 (PDT)
+        with ESMTP id S229636AbiEEQ4h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 12:56:37 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 776E057B14
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 09:52:57 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id r9so4703279pjo.5
+        for <stable@vger.kernel.org>; Thu, 05 May 2022 09:52:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=sender:date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to;
-        bh=IrANl9UNlmb6YfpELlZ5NcH8fF+psOChpCTrK7l3qSQ=;
-        b=g9R3QqDGoZlBJ16Sl1Vr6BxU1HXBFjXu8jhhYlVowS+0UntdTm/bcVZ2a9HC3gwHh1
-         HSRp+lVjMhy0uXVex8Ub0ImzONXu8laGComNZI9jWME3NKCDL7BExVBQAR0htFY7avGE
-         caAay4jSi0GSzmUeo9d43+lUthj5Ey2d0bje/VnoZdXpUWKmoN5LLPdrjbSOKUz89mv0
-         RmbSlJlp0ItNYs2Ej9rZXuRpMdOT98CzxRwtffzk1l8IHaIP5eEfj7GsnVpjvyOdGsFA
-         YPkZ6s4NV2rUA+vTakhVLNTO7kGuUTaDyk/I6RBQEe/5L7n/AQ0icHVjwkvL0B/YCcJd
-         rd0Q==
+        bh=ysBakyAO0cQmKS96vClynaYLEdLsuydxq/3dx/fhoSo=;
+        b=HdAleN4Tk5VuhTMZlCacDQ76aGW7ZAD1tbTNriMjLTs49KiAbLHv7/uPxLWcEcRj6G
+         RZH6g+ULVFFEYOrtplpS/SGPM17c7G2+cE/gvRrpqIStUSUI6Z9RKUD8OHdPce2Lzful
+         BlL4g8qLOe6uZ47xpv0BUPSEFJ5Wx9dSjnL7L7cDCLICnBnJUB0iOZQC8Vu2Q8z1S3Fk
+         yeXaCUWcfgSdNp9xYAMbilLbgUiwSuWXEQ7QZWrgbaqg707gu66tDSGEjoI3A2MNB5yZ
+         V/j5q4sheTz15dd7SuACc9CwXWPkAk+k2zcbla9LNWKKgK7C5dE7a0OjsAkx6uNGbpaT
+         C0TA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
          :references:mime-version:content-disposition:in-reply-to;
-        bh=IrANl9UNlmb6YfpELlZ5NcH8fF+psOChpCTrK7l3qSQ=;
-        b=51OKvm9x8PfpOQu3Hh/VN9i3grwkvXxBVTJ7TXgWjFk1qw9REz0dn68oL3ADA8MZO1
-         1ICsTVpx8dO9Kz6HKDZ7vIv0XJX54aMRQW8mJhciOMtzEX21nnWJcO9ypk/y6z3KVi6L
-         DkIRB9WMpHHTqCL1MR7iOHE0DCZgpSeu2jK2t1N5Fxmi4KY1RrqpXmo4xLMcCW1KSEH9
-         tZ5SeS/gegNd+DhNIsGWGb6r9AwE8MAuGoDd7+O06y2SAyhQyEsimld1BhSXQ6dS6qzd
-         dSvu2XZ8wVPzIRE3q6SVs5QIvaW47xVS1EIvbM16uiOOYznkX3teXLGgrT6glUZSU9zn
-         /U9g==
-X-Gm-Message-State: AOAM5309OCVAunUzJrnizxsQx2ahFuf4lC2VFubM2KBTooMZx9FZ9b93
-        Wd/ztFdDTO2YHDodxBzHuhw=
-X-Google-Smtp-Source: ABdhPJzEt/DGBav+JK2WDsksZar/YFuETgp8nP8+OkIb/qOrAEZGhbZb81mO3A6BAnq74fxFGqMnag==
-X-Received: by 2002:a17:90b:1642:b0:1dc:6419:43ff with SMTP id il2-20020a17090b164200b001dc641943ffmr7096634pjb.229.1651768071349;
-        Thu, 05 May 2022 09:27:51 -0700 (PDT)
+        bh=ysBakyAO0cQmKS96vClynaYLEdLsuydxq/3dx/fhoSo=;
+        b=mIgvQyYVM9x/GYGpD3wDJxGddaTDqa5UTgUYfbxwyKym3WZKQeoxy9cEWer55ZEvpo
+         kyvFQyFCQ171lELQazNAneCjmDk1wrJDyRKQUCm5wQoeNE5VeGQTnl70tcIvLBHMAWr8
+         WZW5kSq948yjvGXXG2GeaQshsPoeZhWoLrwmrbuG69hn3c33mIDuGdc11+ymXnWPQ3+M
+         NDcFbhjBHJ+X0wqYrN6DC0MFITdFUo/TWIwEP1E9ZkmExUqaPr9pGEjG1gcPiLc2ScJF
+         9zlX1yqJCZqc4GdaC80KPjURfHggNvOv5d/oLBcKH5y4m4LFKozmFimJ81e3jX95c1Pt
+         LnHg==
+X-Gm-Message-State: AOAM530Ef+YivqUSjjSkbB5iAyuWCYZBMSf33b/7upu41c4cXOBvVZGd
+        vnJCj7G+IaUuvanWaH4Km9k=
+X-Google-Smtp-Source: ABdhPJy2q+GQfVlGnfYaS9OcmMSJeIeSyfOK+NKOyQX+hIZX8qA8E0qxOKQ3RaTRi8YsUnnQurD3Yw==
+X-Received: by 2002:a17:902:ce87:b0:15e:a619:4294 with SMTP id f7-20020a170902ce8700b0015ea6194294mr21445450plg.157.1651769576947;
+        Thu, 05 May 2022 09:52:56 -0700 (PDT)
 Received: from google.com ([2620:15c:211:201:1c0c:8050:e4d3:12f5])
-        by smtp.gmail.com with ESMTPSA id f4-20020a17090ac28400b001dbc620a5adsm5533495pjt.41.2022.05.05.09.27.50
+        by smtp.gmail.com with ESMTPSA id mu6-20020a17090b388600b001d960eaed66sm1757256pjb.42.2022.05.05.09.52.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 May 2022 09:27:50 -0700 (PDT)
+        Thu, 05 May 2022 09:52:56 -0700 (PDT)
 Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Thu, 5 May 2022 09:27:49 -0700
+Date:   Thu, 5 May 2022 09:52:54 -0700
 From:   Minchan Kim <minchan@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     akpm@linux-foundation.org, axboe@kernel.dk, david@redhat.com,
         ivan@cloudflare.com, ngupta@vflare.org, senozhatsky@chromium.org,
         stable@vger.kernel.org, torvalds@linux-foundation.org
 Subject: Re: FAILED: patch "[PATCH] mm: fix unexpected zeroed page mapping
- with zram swap" failed to apply to 5.4-stable tree
-Message-ID: <YnP7BQVW3q43wDg8@google.com>
-References: <16502691151480@kroah.com>
+ with zram swap" failed to apply to 4.19-stable tree
+Message-ID: <YnQA5hBrVI1dzAG1@google.com>
+References: <16502691166558@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <16502691151480@kroah.com>
+In-Reply-To: <16502691166558@kroah.com>
 X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
         HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
@@ -73,9 +73,9 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 10:05:15AM +0200, gregkh@linuxfoundation.org wrote:
+On Mon, Apr 18, 2022 at 10:05:16AM +0200, gregkh@linuxfoundation.org wrote:
 > 
-> The patch below does not apply to the 5.4-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
@@ -86,11 +86,11 @@ On Mon, Apr 18, 2022 at 10:05:15AM +0200, gregkh@linuxfoundation.org wrote:
 
 < snip >
 
-This is backport for 5.4-stable.
+This is backport for 4.19-stable.
 
-From 587a2b370d803766fd57778cdd1f05511658a246 Mon Sep 17 00:00:00 2001
+From c1e0210179e39d3f51d10f20e8031e5af0ce06f8 Mon Sep 17 00:00:00 2001
 From: Minchan Kim <minchan@kernel.org>
-Date: Thu, 14 Apr 2022 19:13:46 -0700
+Date: Thu, 5 May 2022 09:49:49 -0700
 Subject: [PATCH] mm: fix unexpected zeroed page mapping with zram swap
 
 e914d8f00391520ecc4495dd0ca0124538ab7119 upstream.
@@ -161,14 +161,14 @@ Cc: <stable@vger.kernel.org>	[4.14+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
- mm/page_io.c | 54 ----------------------------------------------------
- 1 file changed, 54 deletions(-)
+ mm/page_io.c | 55 ----------------------------------------------------
+ 1 file changed, 55 deletions(-)
 
 diff --git a/mm/page_io.c b/mm/page_io.c
-index bcf27d057253..f0e3f2be7b44 100644
+index 9b646f07f47f..929e7829e02d 100644
 --- a/mm/page_io.c
 +++ b/mm/page_io.c
-@@ -69,54 +69,6 @@ void end_swap_bio_write(struct bio *bio)
+@@ -71,55 +71,6 @@ void end_swap_bio_write(struct bio *bio)
  	bio_put(bio);
  }
  
@@ -209,7 +209,8 @@ index bcf27d057253..f0e3f2be7b44 100644
 -	 */
 -	disk = sis->bdev->bd_disk;
 -	entry.val = page_private(page);
--	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
+-	if (disk->fops->swap_slot_free_notify &&
+-			__swap_count(sis, entry) == 1) {
 -		unsigned long offset;
 -
 -		offset = swp_offset(entry);
@@ -223,7 +224,7 @@ index bcf27d057253..f0e3f2be7b44 100644
  static void end_swap_bio_read(struct bio *bio)
  {
  	struct page *page = bio_first_page_all(bio);
-@@ -132,7 +84,6 @@ static void end_swap_bio_read(struct bio *bio)
+@@ -135,7 +86,6 @@ static void end_swap_bio_read(struct bio *bio)
  	}
  
  	SetPageUptodate(page);
@@ -231,9 +232,9 @@ index bcf27d057253..f0e3f2be7b44 100644
  out:
  	unlock_page(page);
  	WRITE_ONCE(bio->bi_private, NULL);
-@@ -371,11 +322,6 @@ int swap_readpage(struct page *page, bool synchronous)
+@@ -373,11 +323,6 @@ int swap_readpage(struct page *page, bool synchronous)
  
- 	ret = bdev_read_page(sis->bdev, swap_page_sector(page), page);
+ 	ret = bdev_read_page(sis->bdev, map_swap_page(page, &sis->bdev), page);
  	if (!ret) {
 -		if (trylock_page(page)) {
 -			swap_slot_free_notify(page);
