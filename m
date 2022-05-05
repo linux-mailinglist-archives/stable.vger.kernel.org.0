@@ -2,70 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72EB151C513
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 18:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542BC51C519
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 18:26:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381920AbiEEQ1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 12:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48656 "EHLO
+        id S1381973AbiEEQae (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 12:30:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381921AbiEEQ1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 12:27:05 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10A605C640
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 09:23:25 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id x12so3992442pgj.7
-        for <stable@vger.kernel.org>; Thu, 05 May 2022 09:23:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=k7gsNgCyT247Xr3GRAEbCammiSXa3uZGYJnST76Cxwk=;
-        b=RVmSgg0C3UldZ+RyZHl8yul90x5S8rTQUwsgOGpohyALNMZJb/dKn2xVWmFGTEdiCF
-         icfX7tNfqVo8lyPRr4qhsubbnPL6smsK5FrE89rk26zXP9NU1q5YzSGTVVsN+a9RvN3j
-         7Nh4h4OV9IkVcLQcUo42aryIa4qPP4r88jB+k=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=k7gsNgCyT247Xr3GRAEbCammiSXa3uZGYJnST76Cxwk=;
-        b=mbCHmFUC9Pti/FiPageQPjKsuvG/ytWIEJCCXENmoFDvg9LYtvtKVABy0WBpnMg0TY
-         KY6VPVvuVlQcqQ4QhSizktTIMel5ryApa+6JV3SPwa04du7hST+wdSz/48nE0mwKAz32
-         xpJt/5jWSdkElSKYf1s2HFeaISzNAq5s7256iQ3kXgBDudDO9o3sErCbcFGTerMkUwUz
-         P3aasUqHPfubEBe1z0ada8Yns6Sn/td4K44nFu7WMypI4nTH7PE3D9xksjqYcPuoPc8p
-         paFnkypuG9nCciV7SYYbdP3I/5S9WDKaNPeUQ81fRXraC66M0E5iixmEHqQO4l1VkvDU
-         8PZg==
-X-Gm-Message-State: AOAM532p76nNE+O7rt6I98myyLqjtygUMgaIQhDwCAuVd08M7KUe4dzK
-        9UhENz4V0kpC17XXaKa0ZDOwYQ==
-X-Google-Smtp-Source: ABdhPJyCbUJfJSClHIgPHI9ZfCXrp9dbwQQvNWyR2JsIOw5em9iwuILh3Nu7K4NFe7FWksDwPqmjug==
-X-Received: by 2002:a63:2c53:0:b0:3c1:7367:3a0 with SMTP id s80-20020a632c53000000b003c1736703a0mr22747842pgs.516.1651767804424;
-        Thu, 05 May 2022 09:23:24 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id o184-20020a625ac1000000b0050dc76281c3sm1555418pfb.157.2022.05.05.09.23.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 May 2022 09:23:23 -0700 (PDT)
-Date:   Thu, 5 May 2022 09:23:23 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Jakub Kicinski <kuba@kernel.org>
-Cc:     Raju Rangoju <rajur@chelsio.com>,
-        kernel test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] net: chelsio: cxgb4: Avoid potential negative array
- offset
-Message-ID: <202205050919.496AC46@keescook>
-References: <20220503144425.2858110-1-keescook@chromium.org>
- <20220504201358.0ba62232@kernel.org>
+        with ESMTP id S1380217AbiEEQad (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 12:30:33 -0400
+Received: from qproxy1-pub.mail.unifiedlayer.com (qproxy1-pub.mail.unifiedlayer.com [173.254.64.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3083A26579
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 09:26:53 -0700 (PDT)
+Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
+        by qproxy1.mail.unifiedlayer.com (Postfix) with ESMTP id 61AF8803584F
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 16:26:52 +0000 (UTC)
+Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
+        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id B2B8E100425D4
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 16:26:51 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id meJXntoaPY8ycmeJXnSs3D; Thu, 05 May 2022 16:26:51 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=TZJTCTch c=1 sm=1 tr=0 ts=6273facb
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oZkIemNP1mAA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=5lkSp0b2IgHK4bHO/GACjq5PfuE/UsQzZEsciE4Dh/U=; b=OotnkAhTGeiq3Il7YVjeNbrX6e
+        btW7pqvme6+4IcQm898qUoYQd22HCVs5+PJ01TNG5mSWaqG3X2EsmH8UFvm9AGsqnJ6phZRF91GYN
+        jc/HC5Fv/8Ocs56SvZi/q2jLzAZ2if0IHq3UFpb8asHYrkz2/DggZ6s9tyuvE23ZlmmQ42jlqKBYZ
+        7pp3DXe/V1IL0a93UR+GmhG0SVNgTVgEGbDc6v5MNiXenHJBwxe+oqY9yj9v6W+XWnVsoJIATsOIs
+        2PXGnJTZBAt9zLmO+xxgOyom/0hMN/B8KuOeXNTMiejtemJzpc8Bym6jBvlVy4xTWr/FK3gvqEq9h
+        Y/p4L+vQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:49872 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nmeJW-000wTA-Az; Thu, 05 May 2022 10:26:50 -0600
+Subject: Re: [PATCH 5.17 000/225] 5.17.6-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220504153110.096069935@linuxfoundation.org>
+In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <10860aa0-a7d5-f5a5-8742-7386144ed0fc@w6rz.net>
+Date:   Thu, 5 May 2022 09:26:48 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220504201358.0ba62232@kernel.org>
-X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nmeJW-000wTA-Az
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:49872
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-4.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -74,37 +94,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 04, 2022 at 08:13:58PM -0700, Jakub Kicinski wrote:
-> On Tue,  3 May 2022 07:44:25 -0700 Kees Cook wrote:
-> > Using min_t(int, ...) as a potential array index implies to the compiler
-> > that negative offsets should be allowed. This is not the case, though.
-> > Replace min_t() with clamp_t(). Fixes the following warning exposed
-> > under future CONFIG_FORTIFY_SOURCE improvements:
-> 
-> > Additionally remove needless cast from u8[] to char * in last strim()
-> > call.
-> > 
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
-> > Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
-> > Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
-> 
-> Is it needed in the current release?
+On 5/4/22 9:43 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.6 release.
+> There are 225 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 06 May 2022 15:25:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-No, the build warning isn't in the current release, but I'm expecting to
-enable the next step of the FORTIFY work in the coming merge window.
+Tested-by: Ron Economos <re@w6rz.net>
 
-> > -	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-> > +	memcpy(p->id, vpd + id, clamp_t(int, id_len, 0, ID_LEN));
-> 
-> The typing is needed because of the enum, right? The variable is
-> unsigned, seems a little strange to use clamp(int, ..., 0, constant)
-> min(unsigned int, ..., constant) will be equivalent with fewer branches.
-> Is it just me?
-
-Yes, due to the enum, but you're right; this could just use min_t(uint...
-
-I'll respin!
-
--- 
-Kees Cook
