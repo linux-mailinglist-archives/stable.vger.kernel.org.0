@@ -2,175 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A166651C294
-	for <lists+stable@lfdr.de>; Thu,  5 May 2022 16:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D99351C2B2
+	for <lists+stable@lfdr.de>; Thu,  5 May 2022 16:34:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344831AbiEEOdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 10:33:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57220 "EHLO
+        id S230132AbiEEOhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 10:37:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229570AbiEEOdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 10:33:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744A524BE0;
-        Thu,  5 May 2022 07:29:51 -0700 (PDT)
+        with ESMTP id S1353097AbiEEOhg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 10:37:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5A9E5AA6B;
+        Thu,  5 May 2022 07:33:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22306B82DA4;
-        Thu,  5 May 2022 14:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21FC8C385A8;
-        Thu,  5 May 2022 14:29:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A00A6147B;
+        Thu,  5 May 2022 14:33:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1217BC385A8;
+        Thu,  5 May 2022 14:33:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651760988;
-        bh=N3cfcZ5R177Vy3ShBjYhQisk3rhZYNwWw0AXe+7cFhw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WVYXrUIFs641fCAlWtqH+Q3leAL9deBOOIh/RfcMd7tKmEr8vmjp+3qnxy++3zriP
-         oYpYWFiC4G/G5rPnqhkQja9Dgu6xxpeOfAMKxUKvXmBj7yM12b6H6e8s+wVERHmoHT
-         U7u8xPfTWb2axgiIk12fGizSgmPtpET6qPTlix1Q9rsTUlUYzrUYjdLBCH6LY3LHY6
-         S1fxVwLP/WWVnX0xuKq68GzxBpqezqd4k/a/ZvyNRbZ2VWPJoQ9C00daaKgYFQfpKU
-         BsxTfdrXtg5H0sgZwrA7YmgygM6RobbuR/jP6dcjSDhV/73umbK/ameX6YmU6X9n86
-         kXgAg2PTBq2RA==
-From:   Chao Yu <chao@kernel.org>
-To:     jaegeuk@kernel.org
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>
-Subject: [PATCH v2] f2fs: fix to do sanity check on total_data_blocks
-Date:   Thu,  5 May 2022 22:15:07 +0800
-Message-Id: <20220505141507.6616-1-chao@kernel.org>
-X-Mailer: git-send-email 2.32.0
+        s=k20201202; t=1651761235;
+        bh=BUPnKbKAdOnbjmg5XilzGiWe9VC31h4y8LapZ0CnZIo=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=CGCv80f6Voi3DgDCfKsq3364Z52DbeBXiYOVhcj6xaydr2sbFv8wrKmiJ8m7b0gJf
+         h/pZGAnSejlWsbgKh2EMmEjTucoxdx5AWzxV0i61Ouoiib1YWtsI8kfYfuPlfHHWvA
+         kfwWVJYE4uB/oYseFOnN5+fgZMe6L4Qep7IfWPDdSBtTD6GRiTxleBONpidH3XtuLl
+         Si07IH9rzTZQUgTvyk19dFMOMfoRCeiuAMEEWk0/7Bl26dyVuPhBAaV08RIr93JQO3
+         64w9uB2gNynW1abrId/+LBZkaoo5MDEb0PSwnFUzy72wt7sZJ+U8Rb3VIIstnArHGw
+         3yqI31zxNMr3Q==
+Message-ID: <142acf95-c940-8d4a-7f00-08f1bb816c49@kernel.org>
+Date:   Thu, 5 May 2022 22:33:51 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH] f2fs: fix to do sanity check for inline inode
+Content-Language: en-US
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ming Yan <yanming@tju.edu.cn>, Chao Yu <chao.yu@oppo.com>
+References: <20220428024940.12102-1-chao@kernel.org>
+ <YnLwDx1smguDQ6qC@google.com>
+ <173c51c2-eff3-8d76-7041-e9c58024a97e@kernel.org>
+ <YnNFCEdSpyVSaTZq@google.com>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <YnNFCEdSpyVSaTZq@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-10.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As Yanming reported in bugzilla:
+On 2022/5/5 11:31, Jaegeuk Kim wrote:
+> On 05/05, Chao Yu wrote:
+>> On 2022/5/5 5:28, Jaegeuk Kim wrote:
+>>> On 04/28, Chao Yu wrote:
+>>>> As Yanming reported in bugzilla:
+>>>>
+>>>> https://bugzilla.kernel.org/show_bug.cgi?id=215895
+>>>>
+>>>> I have encountered a bug in F2FS file system in kernel v5.17.
+>>>>
+>>>> The kernel message is shown below:
+>>>>
+>>>> kernel BUG at fs/inode.c:611!
+>>>> Call Trace:
+>>>>    evict+0x282/0x4e0
+>>>>    __dentry_kill+0x2b2/0x4d0
+>>>>    dput+0x2dd/0x720
+>>>>    do_renameat2+0x596/0x970
+>>>>    __x64_sys_rename+0x78/0x90
+>>>>    do_syscall_64+0x3b/0x90
+>>>>
+>>>> The root cause is: fuzzed inode has both inline_data flag and encrypted
+>>>> flag, so after it was deleted by rename(), during f2fs_evict_inode(),
+>>>> it will cause inline data conversion due to flags confilction, then
+>>>> page cache will be polluted and trigger panic in clear_inode().
+>>>>
+>>>> This patch tries to fix the issue by do more sanity checks for inline
+>>>> data inode in sanity_check_inode().
+>>>>
+>>>> Cc: stable@vger.kernel.org
+>>>> Reported-by: Ming Yan <yanming@tju.edu.cn>
+>>>> Signed-off-by: Chao Yu <chao.yu@oppo.com>
+>>>> ---
+>>>>    fs/f2fs/f2fs.h  | 7 +++++++
+>>>>    fs/f2fs/inode.c | 3 +--
+>>>>    2 files changed, 8 insertions(+), 2 deletions(-)
+>>>>
+>>>> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+>>>> index 27aa93caec06..64c511b498cc 100644
+>>>> --- a/fs/f2fs/f2fs.h
+>>>> +++ b/fs/f2fs/f2fs.h
+>>>> @@ -4173,6 +4173,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
+>>>>     */
+>>>>    static inline bool f2fs_post_read_required(struct inode *inode)
+>>>>    {
+>>>> +	/*
+>>>> +	 * used by sanity_check_inode(), when disk layout fields has not
+>>>> +	 * been synchronized to inmem fields.
+>>>> +	 */
+>>>> +	if (file_is_encrypt(inode) || file_is_verity(inode) ||
+>>>> +			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
+>>>> +		return true;
+>>>>    	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
+>>>>    		f2fs_compressed_file(inode);
+>>>>    }
+>>>> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+>>>> index 83639238a1fe..234b8ed02644 100644
+>>>> --- a/fs/f2fs/inode.c
+>>>> +++ b/fs/f2fs/inode.c
+>>>> @@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
+>>>>    		}
+>>>>    	}
+>>>> -	if (f2fs_has_inline_data(inode) &&
+>>>> -			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
+>>>> +	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
+>>>
+>>> It seems f2fs_may_inline_data() is breaking the atomic write case. Please fix.
+>>
+>> sanity_check_inode() change only affect f2fs_iget(), during inode initialization,
+>> file should not be set as atomic one, right?
+>>
+>> I didn't see any failure during 'f2fs_io write atomic_write' testcase... could you
+>> please provide me detail of the testcase?
+> 
+> I just applied this into my device and was getting lots of the below error
+> messages resulting in open failures of database files.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215916
+Could you please help to apply below patch and dump the log?
 
-The kernel message is shown below:
+From: Chao Yu <chao@kernel.org>
+Subject: [PATCH] f2fs: fix to do sanity check for inline inode
 
-kernel BUG at fs/f2fs/segment.c:2560!
-Call Trace:
- allocate_segment_by_default+0x228/0x440
- f2fs_allocate_data_block+0x13d1/0x31f0
- do_write_page+0x18d/0x710
- f2fs_outplace_write_data+0x151/0x250
- f2fs_do_write_data_page+0xef9/0x1980
- move_data_page+0x6af/0xbc0
- do_garbage_collect+0x312f/0x46f0
- f2fs_gc+0x6b0/0x3bc0
- f2fs_balance_fs+0x921/0x2260
- f2fs_write_single_data_page+0x16be/0x2370
- f2fs_write_cache_pages+0x428/0xd00
- f2fs_write_data_pages+0x96e/0xd50
- do_writepages+0x168/0x550
- __writeback_single_inode+0x9f/0x870
- writeback_sb_inodes+0x47d/0xb20
- __writeback_inodes_wb+0xb2/0x200
- wb_writeback+0x4bd/0x660
- wb_workfn+0x5f3/0xab0
- process_one_work+0x79f/0x13e0
- worker_thread+0x89/0xf60
- kthread+0x26a/0x300
- ret_from_fork+0x22/0x30
-RIP: 0010:new_curseg+0xe8d/0x15f0
-
-The root cause is: ckpt.valid_block_count is inconsistent with SIT table,
-stat info indicates filesystem has free blocks, but SIT table indicates
-filesystem has no free segment.
-
-So that during garbage colloection, it triggers panic when LFS allocator
-fails to find free segment.
-
-This patch tries to fix this issue by checking consistency in between
-ckpt.valid_block_count and block accounted from SIT.
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
 Signed-off-by: Chao Yu <chao.yu@oppo.com>
 ---
-v2:
-- adjust check condition according to the case Jaegeuk mentioned.
- fs/f2fs/segment.c | 24 +++++++++++++++++++++---
- 1 file changed, 21 insertions(+), 3 deletions(-)
+  fs/f2fs/f2fs.h  |  7 +++++++
+  fs/f2fs/inode.c | 11 +++++++----
+  2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 3a3e2cec2ac4..942d6d8c18e6 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -4462,6 +4462,7 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 	unsigned int readed, start_blk = 0;
- 	int err = 0;
- 	block_t total_node_blocks = 0;
-+	block_t total_data_blocks = 0;
- 
- 	do {
- 		readed = f2fs_ra_meta_pages(sbi, start_blk, BIO_MAX_VECS,
-@@ -4488,6 +4489,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 			seg_info_from_raw_sit(se, &sit);
- 			if (IS_NODESEG(se->type))
- 				total_node_blocks += se->valid_blocks;
-+			else
-+				total_data_blocks += se->valid_blocks;
- 
- 			if (f2fs_block_unit_discard(sbi)) {
- 				/* build discard map only one time */
-@@ -4529,6 +4532,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 		old_valid_blocks = se->valid_blocks;
- 		if (IS_NODESEG(se->type))
- 			total_node_blocks -= old_valid_blocks;
-+		else
-+			total_data_blocks -= old_valid_blocks;
- 
- 		err = check_block_count(sbi, start, &sit);
- 		if (err)
-@@ -4536,6 +4541,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 		seg_info_from_raw_sit(se, &sit);
- 		if (IS_NODESEG(se->type))
- 			total_node_blocks += se->valid_blocks;
-+		else
-+			total_data_blocks += se->valid_blocks;
- 
- 		if (f2fs_block_unit_discard(sbi)) {
- 			if (is_set_ckpt_flags(sbi, CP_TRIMMED_FLAG)) {
-@@ -4557,13 +4564,24 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
- 	}
- 	up_read(&curseg->journal_rwsem);
- 
--	if (!err && total_node_blocks != valid_node_count(sbi)) {
-+	if (err)
-+		return err;
-+
-+	if (total_node_blocks != valid_node_count(sbi)) {
- 		f2fs_err(sbi, "SIT is corrupted node# %u vs %u",
- 			 total_node_blocks, valid_node_count(sbi));
--		err = -EFSCORRUPTED;
-+		return -EFSCORRUPTED;
- 	}
- 
--	return err;
-+	if (total_data_blocks + total_node_blocks >
-+				valid_user_blocks(sbi)) {
-+		f2fs_err(sbi, "SIT is corrupted data# %u %u vs %u",
-+			 total_data_blocks, total_node_blocks,
-+			 valid_user_blocks(sbi));
-+		return -EFSCORRUPTED;
-+	}
-+
-+	return 0;
- }
- 
- static void init_free_segmap(struct f2fs_sb_info *sbi)
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 0f8c426aed50..13a9212d6cb6 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -4159,6 +4159,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
+   */
+  static inline bool f2fs_post_read_required(struct inode *inode)
+  {
++	/*
++	 * used by sanity_check_inode(), when disk layout fields has not
++	 * been synchronized to inmem fields.
++	 */
++	if (file_is_encrypt(inode) || file_is_verity(inode) ||
++			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
++		return true;
+  	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
+  		f2fs_compressed_file(inode);
+  }
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 02630c17da93..a98614a24ad0 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -276,11 +276,14 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
+  		}
+  	}
+
+-	if (f2fs_has_inline_data(inode) &&
+-			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
++	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
+  		set_sbi_flag(sbi, SBI_NEED_FSCK);
+-		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
+-			  __func__, inode->i_ino, inode->i_mode);
++		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) reason(%d, %llu, %ld, %d, %d, %lu) should not have inline_data, run fsck to fix",
++			  __func__, inode->i_ino, inode->i_mode,
++			  f2fs_is_atomic_file(inode),
++			  i_size_read(inode), MAX_INLINE_DATA(inode),
++			  file_is_encrypt(inode), file_is_verity(inode),
++			  F2FS_I(inode)->i_flags & F2FS_COMPR_FL);
+  		return false;
+  	}
+
 -- 
 2.32.0
 
+> 
+>>
+>> Thanks,
+>>
+>>>
+>>>>    		set_sbi_flag(sbi, SBI_NEED_FSCK);
+>>>>    		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
+>>>>    			  __func__, inode->i_ino, inode->i_mode);
+>>>> -- 
+>>>> 2.25.1
