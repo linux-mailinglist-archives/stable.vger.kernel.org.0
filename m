@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C61E51CC29
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 00:36:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD53151CC24
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 00:36:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386356AbiEEWia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 18:38:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54172 "EHLO
+        id S237778AbiEEWjI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 18:39:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386433AbiEEWi3 (ORCPT
+        with ESMTP id S1386457AbiEEWi3 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 18:38:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B531F5EDE9
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 15:34:38 -0700 (PDT)
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9AD960077
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 15:34:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C816F61F50
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 22:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21E68C385AF;
-        Thu,  5 May 2022 22:34:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 4A4B7CE318B
+        for <stable@vger.kernel.org>; Thu,  5 May 2022 22:34:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7209EC385AE;
+        Thu,  5 May 2022 22:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651790077;
-        bh=fLBmoQlSW5c09QlUXXyBjb6YTVPv5QCxnzNnxZemtuk=;
+        s=korg; t=1651790081;
+        bh=+6Q0+ujFOEjgv02jpIXXWKkzGW9yEOiVZYJLBhbX41w=;
         h=Subject:To:From:Date:From;
-        b=T3Br0BDfydZNIlWyW5zVnXnLK2nUXUHwOWlSjy/2HZC1+Y0bL/SgDai7SRW6n0P+1
-         +lsHRCHtWGLkFePv1chBYuYpGZnIiaxrhFpwn2lk1q2rJMaweP+5M26sxCmUAtCXl/
-         BaRRNWfLuxikXRwUNs6KD855VRYMxrMGs9pJyB6I=
-Subject: patch "serial: 8250_mtk: Fix register address for XON/XOFF character" added to tty-linus
-To:     angelogioacchino.delregno@collabora.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
+        b=P2fWCRB5f2iG1PZpPCjNYcDS3aiuo+nX4mHv+Ybduf0tz3zl6EciyFCYz9Jo4iemB
+         mgQwbKfNvfFrzx+VR4MY6FBwDAcdDdjBIt2NAoO2gZt8bR9fxde9OjHR3G3qrcqcCt
+         dI5+b5FnHwhB4m0wtDKxu6c6EmxAgpG32lWrwWNM=
+Subject: patch "fsl_lpuart: Don't enable interrupts too early" added to tty-linus
+To:     Indan.Zupancic@mep-info.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 05 May 2022 23:00:39 +0200
-Message-ID: <165178443977159@kroah.com>
+Date:   Thu, 05 May 2022 23:00:45 +0200
+Message-ID: <1651784445199135@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +50,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250_mtk: Fix register address for XON/XOFF character
+    fsl_lpuart: Don't enable interrupts too early
 
 to my tty git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
@@ -65,48 +65,76 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From e1bfdbc7daca171c74a577b3dd0b36d76bb0ffcc Mon Sep 17 00:00:00 2001
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Date: Wed, 27 Apr 2022 15:23:28 +0200
-Subject: serial: 8250_mtk: Fix register address for XON/XOFF character
+From 401fb66a355eb0f22096cf26864324f8e63c7d78 Mon Sep 17 00:00:00 2001
+From: Indan Zupancic <Indan.Zupancic@mep-info.com>
+Date: Thu, 5 May 2022 13:47:50 +0200
+Subject: fsl_lpuart: Don't enable interrupts too early
 
-The XON1/XOFF1 character registers are at offset 0xa0 and 0xa8
-respectively, so we cannot use the definition in serial_port.h.
+If an irq is pending when devm_request_irq() is called, the irq
+handler will cause a NULL pointer access because initialisation
+is not done yet.
 
-Fixes: bdbd0a7f8f03 ("serial: 8250-mtk: modify baudrate setting")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Fixes: 9d7ee0e28da59 ("tty: serial: lpuart: avoid report NULL interrupt")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220427132328.228297-4-angelogioacchino.delregno@collabora.com
+Signed-off-by: Indan Zupancic <Indan.Zupancic@mep-info.com>
+Link: https://lore.kernel.org/r/20220505114750.45423-1-Indan.Zupancic@mep-info.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index 28e36459642c..21053db93ff1 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -57,6 +57,9 @@
- #define MTK_UART_FEATURE_SEL	39	/* Feature Selection register */
- #define MTK_UART_FEAT_NEWRMAP	BIT(0)	/* Use new register map */
+diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
+index 87789872f400..be12fee94db5 100644
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2664,6 +2664,7 @@ static int lpuart_probe(struct platform_device *pdev)
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct lpuart_port *sport;
+ 	struct resource *res;
++	irq_handler_t handler;
+ 	int ret;
  
-+#define MTK_UART_XON1		40	/* I/O: Xon character 1 */
-+#define MTK_UART_XOFF1		42	/* I/O: Xoff character 1 */
+ 	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
+@@ -2741,17 +2742,11 @@ static int lpuart_probe(struct platform_device *pdev)
+ 
+ 	if (lpuart_is_32(sport)) {
+ 		lpuart_reg.cons = LPUART32_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart32_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart32_int;
+ 	} else {
+ 		lpuart_reg.cons = LPUART_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart_int;
+ 	}
+-
+-	if (ret)
+-		goto failed_irq_request;
+-
+ 	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+ 	if (ret)
+ 		goto failed_attach_port;
+@@ -2773,13 +2768,18 @@ static int lpuart_probe(struct platform_device *pdev)
+ 
+ 	sport->port.rs485_config(&sport->port, &sport->port.rs485);
+ 
++	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
++				DRIVER_NAME, sport);
++	if (ret)
++		goto failed_irq_request;
 +
- #ifdef CONFIG_SERIAL_8250_DMA
- enum dma_rx_status {
- 	DMA_RX_START = 0,
-@@ -278,8 +281,8 @@ static void mtk8250_set_flow_ctrl(struct uart_8250_port *up, int mode)
- 			(serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
+ 	return 0;
  
--		serial_out(up, UART_XON1, START_CHAR(port->state->port.tty));
--		serial_out(up, UART_XOFF1, STOP_CHAR(port->state->port.tty));
-+		serial_out(up, MTK_UART_XON1, START_CHAR(port->state->port.tty));
-+		serial_out(up, MTK_UART_XOFF1, STOP_CHAR(port->state->port.tty));
- 		serial_out(up, UART_LCR, lcr);
- 		mtk8250_disable_intrs(up, MTK_UART_IER_CTSI|MTK_UART_IER_RTSI);
- 		mtk8250_enable_intrs(up, MTK_UART_IER_XOFFI);
++failed_irq_request:
+ failed_get_rs485:
+ failed_reset:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
+-failed_irq_request:
+ 	lpuart_disable_clks(sport);
+ failed_clock_enable:
+ failed_out_of_range:
 -- 
 2.36.0
 
