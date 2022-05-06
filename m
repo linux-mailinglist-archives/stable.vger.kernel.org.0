@@ -2,97 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E28DF51E0CC
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 23:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E335251E230
+	for <lists+stable@lfdr.de>; Sat,  7 May 2022 01:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1444301AbiEFVNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 May 2022 17:13:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36086 "EHLO
+        id S1444881AbiEFXEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 May 2022 19:04:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444346AbiEFVNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 17:13:31 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9E96F4A5
-        for <stable@vger.kernel.org>; Fri,  6 May 2022 14:09:47 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id p6so8060561plr.12
-        for <stable@vger.kernel.org>; Fri, 06 May 2022 14:09:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:in-reply-to:references:from:date:message-id
-         :subject:to;
-        bh=VSSUIwdzgxQxnEkB7+u7pnweyPajIQMP3nQqWYs8VX0=;
-        b=eiAQXuEKXp5T9ck7zmwrtRg7mfdJz+b5e/qLZGNQ+P0jlbkGGyLUR+k8OQGunYV4w4
-         eySbEB2zi6V5vmP5aMQ2aTjvhsXqeGeNCaXKDTmu3I7z4XL+pW4OvX3Z2jx3GwqegtS8
-         B/6pQqBJhtaS+I9tjFoKAuGDb0fWMi+x5hlAUgBfIf2lwRC3GbJ/LCvb0cslojJTiXv6
-         2QS4mYskP3yxkq5AQmzh0pubamLpiFgh3sSG6JGF7eC1+wjOyCOm6BXcKhHZRJyklGjh
-         VQ+VoFh6DWjvUS0ZfFB0B0XD1LN754vsNH9vipO0KfrDO8JBq+TS26TOQQ3tNQJ6214C
-         5a8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:in-reply-to:references
-         :from:date:message-id:subject:to;
-        bh=VSSUIwdzgxQxnEkB7+u7pnweyPajIQMP3nQqWYs8VX0=;
-        b=0NV5vuR70KwhWS6OBt1ntiPM7tSBMkzGBeVGWY9A/N79YZzK9MKmqTVs2f3cKLZ/zs
-         BJJ+VBg5mTlx9ufV6VhskoEDTFR74aqzDBahCVB1w/kWNbV+beHKUt6CFmrXTLNACnPr
-         44vajwnaGCnyGMgRSGYCK+O71/lBUMyDuo1KshItYoy0WMoKzWl0fGhrPvNCXcm6cVxy
-         tgCaANE1L4tFj67ZlsYJ+no7bzynbHwEr3gm6lT2bCH6MX+zISO4ZmLcz6VYU27L3uEK
-         62KKhrONJh4a6Z2mJmZ/L57McaJyHm7l+A1UearoCiEgrhFnOHyNsYhx2rgDyaUACHOp
-         oxxg==
-X-Gm-Message-State: AOAM532sf/L8IB3K+ddRbI2p4sGE0BfoYIbm3wa0kDZl+W/3HdxSkcj7
-        86wZqpK9UakijZxsVSVUmEJ7W644PT5mHGsRJQ==
-X-Google-Smtp-Source: ABdhPJzg0WuA2nWsf5GfojxJwV1671Vg7LfyIkyz0YR1vlLhPfyCappL8fPY+P0VDolj1UnA1lJoJRDRGks4K5ixmyY=
-X-Received: by 2002:a17:90a:1944:b0:1d9:7cf8:5457 with SMTP id
- 4-20020a17090a194400b001d97cf85457mr14365809pjh.112.1651871386691; Fri, 06
- May 2022 14:09:46 -0700 (PDT)
+        with ESMTP id S1444915AbiEFXD5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 19:03:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A7C2127A;
+        Fri,  6 May 2022 16:00:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE170619BD;
+        Fri,  6 May 2022 23:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2B596C385AE;
+        Fri,  6 May 2022 23:00:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651878012;
+        bh=MrL/xlZXbQCHOLcrOHVeYm6Mzr+lMG9w01S/LPD9Ij8=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ahhh2SLOWwSBAvNbcv1YVB1jy9Z7m2K0257VVsYEfMzZENURD6400AH0rIKqqnblW
+         lhptmKI+EX3WCZsW+/doT+bwf08IjDNMJSMG+UC/iB7e2KDBVaRx/TJi5H1veAmPk+
+         3L1N9mLXcOCsZYBME/OZ74Wz+uqX9o8TTnt5xSvOSbqGizHb5xqsT6XldQQf2vDl2W
+         4feeV4xtOv6l5VtSgjYD8KQlmIpK0rboaJn7+DGQhPfQby8xZol5opMG9WjJ5hgxA2
+         F7ICxxTV26paqmSmKimK8wTuokwJKXTrIp25tMH6VEfIhszeOmO0sOuSO92AWJ66mh
+         qjHsMa2+dbxsw==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0F304F03912;
+        Fri,  6 May 2022 23:00:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:ac4:9906:0:b0:4ba:807b:b8f3 with HTTP; Fri, 6 May 2022
- 14:09:44 -0700 (PDT)
-Reply-To: warren001buffett@gmail.com
-In-Reply-To: <CAD_xG_pvNZK6BFCW+28Xv4DE=_5rbDZXDok2BYNn9xw6Ma7iow@mail.gmail.com>
-References: <CAD_xG_pvNZK6BFCW+28Xv4DE=_5rbDZXDok2BYNn9xw6Ma7iow@mail.gmail.com>
-From:   Warren Buffett <guidayema@gmail.com>
-Date:   Fri, 6 May 2022 21:09:44 +0000
-Message-ID: <CAD_xG_odZ2a17vwQOtf_G_N8RGEpabLVcAoVxBDgubah5+QYJA@mail.gmail.com>
-Subject: Fwd: My name is Warren Buffett, an American businessman.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.1 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4845]
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:641 listed in]
-        [list.dnswl.org]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [guidayema[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.5 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2] net: chelsio: cxgb4: Avoid potential negative array offset
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165187801205.26496.17417977061407998485.git-patchwork-notify@kernel.org>
+Date:   Fri, 06 May 2022 23:00:12 +0000
+References: <20220505233101.1224230-1-keescook@chromium.org>
+In-Reply-To: <20220505233101.1224230-1-keescook@chromium.org>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     rajur@chelsio.com, lkp@intel.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        bhelgaas@google.com, hkallweit1@gmail.com,
+        linux-kernel@vger.kernel.org
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My name is Warren Buffett, an American businessman and investor I have
-something important to discuss with you.
+Hello:
 
-Mr. Warren Buffett
-warren001buffett@gmail.com
-Chief Executive Officer: Berkshire Hathaway
-aphy/Warren-Edward-Buffett
+This patch was applied to netdev/net.git (master)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu,  5 May 2022 16:31:01 -0700 you wrote:
+> Using min_t(int, ...) as a potential array index implies to the compiler
+> that negative offsets should be allowed. This is not the case, though.
+> Replace "int" with "unsigned int". Fixes the following warning exposed
+> under future CONFIG_FORTIFY_SOURCE improvements:
+> 
+> In file included from include/linux/string.h:253,
+>                  from include/linux/bitmap.h:11,
+>                  from include/linux/cpumask.h:12,
+>                  from include/linux/smp.h:13,
+>                  from include/linux/lockdep.h:14,
+>                  from include/linux/rcupdate.h:29,
+>                  from include/linux/rculist.h:11,
+>                  from include/linux/pid.h:5,
+>                  from include/linux/sched.h:14,
+>                  from include/linux/delay.h:23,
+>                  from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
+> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
+> include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
+>    46 | #define __underlying_memcpy     __builtin_memcpy
+>       |                                 ^
+> include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
+>   388 |         __underlying_##op(p, q, __fortify_size);                        \
+>       |         ^~~~~~~~~~~~~
+> include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
+>   433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
+>       |                          ^~~~~~~~~~~~~~~~~~~~
+> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
+>  2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
+>       |         ^~~~~~
+> include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
+>    46 | #define __underlying_memcpy     __builtin_memcpy
+>       |                                 ^
+> include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
+>   388 |         __underlying_##op(p, q, __fortify_size);                        \
+>       |         ^~~~~~~~~~~~~
+> include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
+>   433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
+>       |                          ^~~~~~~~~~~~~~~~~~~~
+> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
+>  2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
+>       |         ^~~~~~
+> 
+> [...]
+
+Here is the summary with links:
+  - [v2] net: chelsio: cxgb4: Avoid potential negative array offset
+    https://git.kernel.org/netdev/net/c/1c7ab9cd98b7
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
