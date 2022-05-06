@@ -2,120 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B85751D698
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 13:25:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0399551D734
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 14:01:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391304AbiEFL3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 May 2022 07:29:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58972 "EHLO
+        id S1391600AbiEFMEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 May 2022 08:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391300AbiEFL3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 07:29:00 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A08A56436;
-        Fri,  6 May 2022 04:25:17 -0700 (PDT)
-Date:   Fri, 06 May 2022 11:25:14 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1651836315;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SG0xDhrYsbMTMZvnzqXVgARUAputX5grlXdQ0OVHVvE=;
-        b=DD+kHIJZoXWfHCrN5D77ljx51RKs2RDD/jhZAopstvLMd99jSeIPosaDt5u2ll5W9sIuUF
-        BR89nLr5LInoFMtS50oJaNGnvoWYCEI/kwWmBAIWbLOmHZ5vpm5FeryluWhZc1kaHuWtxW
-        xjUoMfqNVH8nTSckZbxeDrqfD2M7UZkyyi4tNX7fjSrKlSYghMVT4dbBSQhDxQ5Rcateci
-        atpJc8lffpuyvSoOr/3VQXRypERA0bHFGuJbE9RscKBb7S4sg09SGejb0yfFSqRzsNOEFi
-        uP40zJ660/8vOjpVy6cvRtmvRRCj8uc8bHgA9baGyUgdoCRbxnhM3rJ6pOE64A==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1651836315;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SG0xDhrYsbMTMZvnzqXVgARUAputX5grlXdQ0OVHVvE=;
-        b=8lRHAhOL0TucH6Xz8iMQtm9VNUEeUw4y5OdZLv4r14sFQvrGsvhA/52vH6sXZJ++QSz3yD
-        P4k4Ila8PJqDtgDQ==
-From:   irqchip-bot for Pali =?utf-8?q?Roh=C3=A1r?= 
-        <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-kernel@vger.kernel.org
-Subject: [irqchip: irq/irqchip-next] irqchip/armada-370-xp: Do not touch
- Performance Counter Overflow on A375, A38x, A39x
-Cc:     pali@kernel.org, stable@vger.kernel.org,
-        Andrew Lunn <andrew@lunn.ch>, Marc Zyngier <maz@kernel.org>,
-        tglx@linutronix.de
-In-Reply-To: <20220425113706.29310-1-pali@kernel.org>
-References: <20220425113706.29310-1-pali@kernel.org>
+        with ESMTP id S1383527AbiEFMEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 08:04:48 -0400
+Received: from out30-130.freemail.mail.aliyun.com (out30-130.freemail.mail.aliyun.com [115.124.30.130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5920E1D30F
+        for <stable@vger.kernel.org>; Fri,  6 May 2022 05:01:05 -0700 (PDT)
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R381e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04407;MF=llfl@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0VCRjzom_1651838462;
+Received: from localhost(mailfrom:llfl@linux.alibaba.com fp:SMTPD_---0VCRjzom_1651838462)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Fri, 06 May 2022 20:01:02 +0800
+From:   "Kun(llfl)" <llfl@linux.alibaba.com>
+To:     Jiangbo Wu <jiangbo.wu@intel.com>
+Cc:     Xu Yu <xuyu@linux.alibaba.com>, Kun <llfl@linux.alibaba.com>,
+        Sanjay Kumar <sanjay.k.kumar@intel.com>,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>
+Subject: [PATCH 05/19] iommu/vt-d: Global devTLB flush when present context entry changed
+Date:   Fri,  6 May 2022 20:00:43 +0800
+Message-Id: <20220506120057.77320-5-llfl@linux.alibaba.com>
+X-Mailer: git-send-email 2.32.0 (Apple Git-132)
+In-Reply-To: <20220506120057.77320-1-llfl@linux.alibaba.com>
+References: <20220506120057.77320-1-llfl@linux.alibaba.com>
 MIME-Version: 1.0
-Message-ID: <165183631461.4207.8890709509221089065.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-9.9 required=5.0 tests=BAYES_00,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/irqchip-next branch of irqc=
-hip:
+From: Sanjay Kumar <sanjay.k.kumar@intel.com>
 
-Commit-ID:     a3d66a76348daf559873f19afc912a2a7c2ccdaf
-Gitweb:        https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platfo=
-rms/a3d66a76348daf559873f19afc912a2a7c2ccdaf
-Author:        Pali Roh=C3=A1r <pali@kernel.org>
-AuthorDate:    Mon, 25 Apr 2022 13:37:05 +02:00
-Committer:     Marc Zyngier <maz@kernel.org>
-CommitterDate: Fri, 06 May 2022 12:18:37 +01:00
+ANBZ: #1105
 
-irqchip/armada-370-xp: Do not touch Performance Counter Overflow on A375, A38=
-x, A39x
+commit 37764b952e1b39053defc7ebe5dcd8c4e3e78de9 upstream.
 
-Register ARMADA_370_XP_INT_FABRIC_MASK_OFFS is Armada 370 and XP specific
-and on new Armada platforms it has different meaning. It does not configure
-Performance Counter Overflow interrupt masking. So do not touch this
-register on non-A370/XP platforms (A375, A38x and A39x).
+This fixes a bug in context cache clear operation. The code was not
+following the correct invalidation flow. A global device TLB invalidation
+should be added after the IOTLB invalidation. At the same time, it
+uses the domain ID from the context entry. But in scalable mode, the
+domain ID is in PASID table entry, not context entry.
 
-Signed-off-by: Pali Roh=C3=A1r <pali@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 28da06dfd9e4 ("irqchip: armada-370-xp: Enable the PMU interrupts")
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20220425113706.29310-1-pali@kernel.org
+Fixes: 7373a8cc38197 ("iommu/vt-d: Setup context and enable RID2PASID support")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Sanjay Kumar <sanjay.k.kumar@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Kun(llfl) <llfl@linux.alibaba.com>
 ---
- drivers/irqchip/irq-armada-370-xp.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/iommu/intel/iommu.c | 31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/irqchip/irq-armada-370-xp.c b/drivers/irqchip/irq-armada=
--370-xp.c
-index c877285..ee18eb3 100644
---- a/drivers/irqchip/irq-armada-370-xp.c
-+++ b/drivers/irqchip/irq-armada-370-xp.c
-@@ -327,7 +327,16 @@ static inline int armada_370_xp_msi_init(struct device_n=
-ode *node,
-=20
- static void armada_xp_mpic_perf_init(void)
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index a5160d350f91..1a0027da6dad 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -2527,10 +2527,11 @@ static inline int domain_pfn_mapping(struct dmar_domain *domain, unsigned long i
+ 	return domain_mapping(domain, iov_pfn, NULL, phys_pfn, nr_pages, prot);
+ }
+ 
+-static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn)
++static void domain_context_clear_one(struct device_domain_info *info, u8 bus, u8 devfn)
  {
--	unsigned long cpuid =3D cpu_logical_map(smp_processor_id());
-+	unsigned long cpuid;
+-	unsigned long flags;
++	struct intel_iommu *iommu = info->iommu;
+ 	struct context_entry *context;
++	unsigned long flags;
+ 	u16 did_old;
+ 
+ 	if (!iommu)
+@@ -2542,7 +2543,16 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
+ 		spin_unlock_irqrestore(&iommu->lock, flags);
+ 		return;
+ 	}
+-	did_old = context_domain_id(context);
 +
-+	/*
-+	 * This Performance Counter Overflow interrupt is specific for
-+	 * Armada 370 and XP. It is not available on Armada 375, 38x and 39x.
-+	 */
-+	if (!of_machine_is_compatible("marvell,armada-370-xp"))
-+		return;
++	if (sm_supported(iommu)) {
++		if (hw_pass_through && domain_type_is_si(info->domain))
++			did_old = FLPT_DEFAULT_DID;
++		else
++			did_old = info->domain->iommu_did[iommu->seq_id];
++	} else {
++		did_old = context_domain_id(context);
++	}
 +
-+	cpuid =3D cpu_logical_map(smp_processor_id());
-=20
- 	/* Enable Performance Counter Overflow interrupts */
- 	writel(ARMADA_370_XP_INT_CAUSE_PERF(cpuid),
+ 	context_clear_entry(context);
+ 	__iommu_flush_cache(iommu, context, sizeof(*context));
+ 	spin_unlock_irqrestore(&iommu->lock, flags);
+@@ -2560,6 +2570,8 @@ static void domain_context_clear_one(struct intel_iommu *iommu, u8 bus, u8 devfn
+ 				 0,
+ 				 0,
+ 				 DMA_TLB_DSI_FLUSH);
++
++	__iommu_flush_dev_iotlb(info, 0, MAX_AGAW_PFN_WIDTH);
+ }
+ 
+ static inline void unlink_domain_info(struct device_domain_info *info)
+@@ -5079,9 +5091,9 @@ int __init intel_iommu_init(void)
+ 
+ static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *opaque)
+ {
+-	struct intel_iommu *iommu = opaque;
++	struct device_domain_info *info = opaque;
+ 
+-	domain_context_clear_one(iommu, PCI_BUS_NUM(alias), alias & 0xff);
++	domain_context_clear_one(info, PCI_BUS_NUM(alias), alias & 0xff);
+ 	return 0;
+ }
+ 
+@@ -5091,12 +5103,13 @@ static int domain_context_clear_one_cb(struct pci_dev *pdev, u16 alias, void *op
+  * devices, unbinding the driver from any one of them will possibly leave
+  * the others unable to operate.
+  */
+-static void domain_context_clear(struct intel_iommu *iommu, struct device *dev)
++static void domain_context_clear(struct device_domain_info *info)
+ {
+-	if (!iommu || !dev || !dev_is_pci(dev))
++	if (!info->iommu || !info->dev || !dev_is_pci(info->dev))
+ 		return;
+ 
+-	pci_for_each_dma_alias(to_pci_dev(dev), &domain_context_clear_one_cb, iommu);
++	pci_for_each_dma_alias(to_pci_dev(info->dev),
++			       &domain_context_clear_one_cb, info);
+ }
+ 
+ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+@@ -5120,7 +5133,7 @@ static void __dmar_remove_one_dev_info(struct device_domain_info *info)
+ 
+ 		iommu_disable_dev_iotlb(info);
+ 		if (!dev_is_real_dma_subdevice(info->dev))
+-			domain_context_clear(iommu, info->dev);
++			domain_context_clear(info);
+ 		intel_pasid_free_table(info->dev);
+ 	}
+ 
+-- 
+2.32.0 (Apple Git-132)
+
