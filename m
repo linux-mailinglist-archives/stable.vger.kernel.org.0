@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91EAD51CE25
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 04:16:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3C1851CE9A
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 04:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387922AbiEFBbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 21:31:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50822 "EHLO
+        id S1387966AbiEFBhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 21:37:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352523AbiEFBbj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 21:31:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D3E5AA40;
-        Thu,  5 May 2022 18:27:57 -0700 (PDT)
+        with ESMTP id S1387974AbiEFBhB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 21:37:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF1B62134;
+        Thu,  5 May 2022 18:33:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CF2C61FDA;
-        Fri,  6 May 2022 01:27:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2C60C385A8;
-        Fri,  6 May 2022 01:27:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E121FB83219;
+        Fri,  6 May 2022 01:33:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87574C385A4;
+        Fri,  6 May 2022 01:33:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651800476;
-        bh=cAQOYpc/BEuhdKQNkv+uO9klIjSDcos54VSXN3Bdukc=;
+        s=k20201202; t=1651800793;
+        bh=jMRV6olJyBYv8iv039xz+xRblr+veqvj9hxwcdJ9uEU=;
         h=From:To:Cc:Subject:Date:From;
-        b=rWKsLO0QcrSt83NQ1T1YLZz8Li0i5s2WmCn5oA0rg94MpMAoHyJ9Mh2Hm15iVZQ8G
-         CqZp6MkRGMh1soC1erACMyQ/SHoPhFyCuJUiwQZuInVTNhrCH6KY6pXx7Y4cJ5NgaB
-         nP8Fh8AfsFGkUrArR8pcLjs+08PlnTVoHfPAS+o3Eo1yUkl6P1haNxcaoq9B2ozKaX
-         FQuXPttB6lSZ32Ydp5JDTdwFP+6n13LmOxNs1bOXRVIi2puy05SHdGushwRhpfa9Bc
-         FbdxfR8nXPLZCqcIHxc7fbf6YmPxhgZJatNKGf4JXgT2To3mrvwSdoKP8k+KBwII2L
-         qa2QZOIceX6Nw==
+        b=BZEcob0+Hhw3fJiKkLL5pQsIEe2p/mlUjC8gUQhkqcaZVhfCMRZcNWgBNHzloGRRT
+         Gn5nyp2UTnk6SbdxrcySTt4DE9flw+mT9rI1xwVxpjO13ERs7gGKZsLNntA2iMAFnz
+         +UErJn2VIMAj/iWu6t/uZ70aJobQEwUUS7sgvmeDeU1qdU8f3BY+HrMyTOQCpNdW3J
+         NLPWl+mW7dNnCn7lHviARSpGp/Z0e+Af6FpHcPZpf8Ky47Jrvc3YRnZQLh2ZeVBDYH
+         3QxtK04FflxKDqvqx61GPawW48NEnVO4wATH6uoWpcRUjObLDENGjR75NE/u1ox3do
+         3AN3La+et1IFA==
 From:   Chao Yu <chao@kernel.org>
 To:     jaegeuk@kernel.org
 Cc:     linux-f2fs-devel@lists.sourceforge.net,
         linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
         stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
         Chao Yu <chao.yu@oppo.com>
-Subject: [PATCH v3] f2fs: fix to do sanity check on total_data_blocks
-Date:   Fri,  6 May 2022 09:27:51 +0800
-Message-Id: <20220506012751.3547772-1-chao@kernel.org>
+Subject: [PATCH v4] f2fs: fix to do sanity check on total_data_blocks
+Date:   Fri,  6 May 2022 09:33:06 +0800
+Message-Id: <20220506013306.3563504-1-chao@kernel.org>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -99,13 +99,13 @@ Cc: stable@vger.kernel.org
 Reported-by: Ming Yan <yanming@tju.edu.cn>
 Signed-off-by: Chao Yu <chao.yu@oppo.com>
 ---
-v3:
-- clean up codes.
- fs/f2fs/segment.c | 36 +++++++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+v4:
+- fix to set data/node type correctly.
+ fs/f2fs/segment.c | 37 ++++++++++++++++++++++++++-----------
+ 1 file changed, 26 insertions(+), 11 deletions(-)
 
 diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 3a3e2cec2ac4..cf466b84500d 100644
+index 3a3e2cec2ac4..4735d477059d 100644
 --- a/fs/f2fs/segment.c
 +++ b/fs/f2fs/segment.c
 @@ -4461,7 +4461,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
@@ -130,7 +130,7 @@ index 3a3e2cec2ac4..cf466b84500d 100644
  
  			if (f2fs_block_unit_discard(sbi)) {
  				/* build discard map only one time */
-@@ -4527,15 +4529,16 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+@@ -4527,15 +4529,17 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
  		sit = sit_in_journal(journal, i);
  
  		old_valid_blocks = se->valid_blocks;
@@ -147,11 +147,12 @@ index 3a3e2cec2ac4..cf466b84500d 100644
 -		if (IS_NODESEG(se->type))
 -			total_node_blocks += se->valid_blocks;
 +
++		type = IS_NODESEG(se->type) ? NODE : DATA;
 +		sit_valid_blocks[type] += se->valid_blocks;
  
  		if (f2fs_block_unit_discard(sbi)) {
  			if (is_set_ckpt_flags(sbi, CP_TRIMMED_FLAG)) {
-@@ -4557,13 +4560,24 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+@@ -4557,13 +4561,24 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
  	}
  	up_read(&curseg->journal_rwsem);
  
