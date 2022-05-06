@@ -2,53 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E335251E230
-	for <lists+stable@lfdr.de>; Sat,  7 May 2022 01:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01C7551E227
+	for <lists+stable@lfdr.de>; Sat,  7 May 2022 01:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1444881AbiEFXEI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 May 2022 19:04:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43012 "EHLO
+        id S1379405AbiEFXYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 May 2022 19:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444915AbiEFXD5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 19:03:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A7C2127A;
-        Fri,  6 May 2022 16:00:13 -0700 (PDT)
+        with ESMTP id S1355793AbiEFXYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 19:24:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34A746678;
+        Fri,  6 May 2022 16:20:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE170619BD;
-        Fri,  6 May 2022 23:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 2B596C385AE;
-        Fri,  6 May 2022 23:00:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BC6261A47;
+        Fri,  6 May 2022 23:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81A3C385A8;
+        Fri,  6 May 2022 23:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1651878012;
-        bh=MrL/xlZXbQCHOLcrOHVeYm6Mzr+lMG9w01S/LPD9Ij8=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=ahhh2SLOWwSBAvNbcv1YVB1jy9Z7m2K0257VVsYEfMzZENURD6400AH0rIKqqnblW
-         lhptmKI+EX3WCZsW+/doT+bwf08IjDNMJSMG+UC/iB7e2KDBVaRx/TJi5H1veAmPk+
-         3L1N9mLXcOCsZYBME/OZ74Wz+uqX9o8TTnt5xSvOSbqGizHb5xqsT6XldQQf2vDl2W
-         4feeV4xtOv6l5VtSgjYD8KQlmIpK0rboaJn7+DGQhPfQby8xZol5opMG9WjJ5hgxA2
-         F7ICxxTV26paqmSmKimK8wTuokwJKXTrIp25tMH6VEfIhszeOmO0sOuSO92AWJ66mh
-         qjHsMa2+dbxsw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 0F304F03912;
-        Fri,  6 May 2022 23:00:12 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        s=k20201202; t=1651879237;
+        bh=paOGZ646ofsXxf6LRNQ+Cx4XSEFlOn+NkTo10rbSuNo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=oNo2tIOdBhU/9g8+h80Zq5s9KEShdKn5Bl9IMIK9qsIT9dHOeLSb/TlDPm7wjBjIA
+         QltafoQTL7yEUnlwSvg7AMnMwchRTiM9PSUFFaC+cls1dHpKOxUdvTHsX/BfKPYtUk
+         ze4jmsp3wD03cIRtlRF1nTmzuE4KawT1LeYm0xgkqt9so7A9rTT9CPB9pAL7hmAujp
+         nmbY+xEZzBQbY8MSENhlHeFdHXA4V8/MjvWhkFCqJITsfbhJL/tbgpDllGqz8NVO6Y
+         L7wsE4rj4zNn1YY4gd75pvxg2KQqZ9eJc6DW+rp8kxjq9UTAYPhCCLv6LSHbesHckr
+         R0xtRPnc6abxA==
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     linux-kernel@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 5/5] f2fs: don't need inode lock for system hidden quota
+Date:   Fri,  6 May 2022 16:20:32 -0700
+Message-Id: <20220506232032.1264078-5-jaegeuk@kernel.org>
+X-Mailer: git-send-email 2.36.0.512.ge40c2bad7a-goog
+In-Reply-To: <20220506232032.1264078-1-jaegeuk@kernel.org>
+References: <20220506232032.1264078-1-jaegeuk@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2] net: chelsio: cxgb4: Avoid potential negative array offset
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <165187801205.26496.17417977061407998485.git-patchwork-notify@kernel.org>
-Date:   Fri, 06 May 2022 23:00:12 +0000
-References: <20220505233101.1224230-1-keescook@chromium.org>
-In-Reply-To: <20220505233101.1224230-1-keescook@chromium.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     rajur@chelsio.com, lkp@intel.com, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        bhelgaas@google.com, hkallweit1@gmail.com,
-        linux-kernel@vger.kernel.org
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -59,63 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Let's avoid false-alarmed lockdep warning.
 
-This patch was applied to netdev/net.git (master)
-by Jakub Kicinski <kuba@kernel.org>:
+[   58.914674] [T1501146] -> #2 (&sb->s_type->i_mutex_key#20){+.+.}-{3:3}:
+[   58.915975] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.916738] [T1501146] system_server:        f2fs_quota_sync+0x60/0x1a8
+[   58.917563] [T1501146] system_server:        block_operations+0x16c/0x43c
+[   58.918410] [T1501146] system_server:        f2fs_write_checkpoint+0x114/0x318
+[   58.919312] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.920214] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.920999] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.921862] [T1501146] system_server:        f2fs_sync_file+0x30/0x48
+[   58.922667] [T1501146] system_server:        __arm64_sys_fsync+0x84/0xf8
+[   58.923506] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.924604] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.925366] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.926094] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.926920] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
 
-On Thu,  5 May 2022 16:31:01 -0700 you wrote:
-> Using min_t(int, ...) as a potential array index implies to the compiler
-> that negative offsets should be allowed. This is not the case, though.
-> Replace "int" with "unsigned int". Fixes the following warning exposed
-> under future CONFIG_FORTIFY_SOURCE improvements:
-> 
-> In file included from include/linux/string.h:253,
->                  from include/linux/bitmap.h:11,
->                  from include/linux/cpumask.h:12,
->                  from include/linux/smp.h:13,
->                  from include/linux/lockdep.h:14,
->                  from include/linux/rcupdate.h:29,
->                  from include/linux/rculist.h:11,
->                  from include/linux/pid.h:5,
->                  from include/linux/sched.h:14,
->                  from include/linux/delay.h:23,
->                  from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
-> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
-> include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
->    46 | #define __underlying_memcpy     __builtin_memcpy
->       |                                 ^
-> include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
->   388 |         __underlying_##op(p, q, __fortify_size);                        \
->       |         ^~~~~~~~~~~~~
-> include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
->   433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
->       |                          ^~~~~~~~~~~~~~~~~~~~
-> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
->  2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
->       |         ^~~~~~
-> include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
->    46 | #define __underlying_memcpy     __builtin_memcpy
->       |                                 ^
-> include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
->   388 |         __underlying_##op(p, q, __fortify_size);                        \
->       |         ^~~~~~~~~~~~~
-> include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
->   433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
->       |                          ^~~~~~~~~~~~~~~~~~~~
-> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
->  2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
->       |         ^~~~~~
-> 
-> [...]
+[   58.927681] [T1501146] -> #1 (&sbi->cp_global_sem){+.+.}-{3:3}:
+[   58.928889] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.929650] [T1501146] system_server:        f2fs_write_checkpoint+0xbc/0x318
+[   58.930541] [T1501146] system_server:        f2fs_issue_checkpoint+0x178/0x21c
+[   58.931443] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.932226] [T1501146] system_server:        sync_filesystem+0xac/0x130
+[   58.933053] [T1501146] system_server:        generic_shutdown_super+0x38/0x150
+[   58.933958] [T1501146] system_server:        kill_block_super+0x24/0x58
+[   58.934791] [T1501146] system_server:        kill_f2fs_super+0xcc/0x124
+[   58.935618] [T1501146] system_server:        deactivate_locked_super+0x90/0x120
+[   58.936529] [T1501146] system_server:        deactivate_super+0x74/0xac
+[   58.937356] [T1501146] system_server:        cleanup_mnt+0x128/0x168
+[   58.938150] [T1501146] system_server:        __cleanup_mnt+0x18/0x28
+[   58.938944] [T1501146] system_server:        task_work_run+0xb8/0x14c
+[   58.939749] [T1501146] system_server:        do_notify_resume+0x114/0x1e8
+[   58.940595] [T1501146] system_server:        work_pending+0xc/0x5f0
 
-Here is the summary with links:
-  - [v2] net: chelsio: cxgb4: Avoid potential negative array offset
-    https://git.kernel.org/netdev/net/c/1c7ab9cd98b7
+[   58.941375] [T1501146] -> #0 (&sbi->gc_lock){+.+.}-{3:3}:
+[   58.942519] [T1501146] system_server:        __lock_acquire+0x1270/0x2868
+[   58.943366] [T1501146] system_server:        lock_acquire+0x114/0x294
+[   58.944169] [T1501146] system_server:        down_write+0x7c/0xe0
+[   58.944930] [T1501146] system_server:        f2fs_issue_checkpoint+0x13c/0x21c
+[   58.945831] [T1501146] system_server:        f2fs_sync_fs+0x48/0x6c
+[   58.946614] [T1501146] system_server:        f2fs_do_sync_file+0x334/0x738
+[   58.947472] [T1501146] system_server:        f2fs_ioc_commit_atomic_write+0xc8/0x14c
+[   58.948439] [T1501146] system_server:        __f2fs_ioctl+0x674/0x154c
+[   58.949253] [T1501146] system_server:        f2fs_ioctl+0x54/0x88
+[   58.950018] [T1501146] system_server:        __arm64_sys_ioctl+0xa8/0x110
+[   58.950865] [T1501146] system_server:        el0_svc_common.llvm.12821150825140585682+0xd8/0x20c
+[   58.951965] [T1501146] system_server:        do_el0_svc+0x28/0xa0
+[   58.952727] [T1501146] system_server:        el0_svc+0x24/0x38
+[   58.953454] [T1501146] system_server:        el0_sync_handler+0x88/0xec
+[   58.954279] [T1501146] system_server:        el0_sync+0x1b4/0x1c0
 
-You are awesome, thank you!
+Cc: stable@vger.kernel.org
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ fs/f2fs/super.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 5d5b35067c3d..09435280d856 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -2700,7 +2700,8 @@ int f2fs_quota_sync(struct super_block *sb, int type)
+ 		if (!sb_has_quota_active(sb, cnt))
+ 			continue;
+ 
+-		inode_lock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_lock(dqopt->files[cnt]);
+ 
+ 		/*
+ 		 * do_quotactl
+@@ -2719,7 +2720,8 @@ int f2fs_quota_sync(struct super_block *sb, int type)
+ 		f2fs_up_read(&sbi->quota_sem);
+ 		f2fs_unlock_op(sbi);
+ 
+-		inode_unlock(dqopt->files[cnt]);
++		if (!f2fs_sb_has_quota_ino(sbi))
++			inode_unlock(dqopt->files[cnt]);
+ 
+ 		if (ret)
+ 			break;
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.36.0.512.ge40c2bad7a-goog
 
