@@ -2,138 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EEA051D1F1
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 09:05:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 116A351D1F5
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 09:08:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388394AbiEFHJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 May 2022 03:09:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57470 "EHLO
+        id S1388382AbiEFHLq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 May 2022 03:11:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348641AbiEFHJY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 03:09:24 -0400
-X-Greylist: delayed 180 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 06 May 2022 00:05:41 PDT
-Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25CD5E179
-        for <stable@vger.kernel.org>; Fri,  6 May 2022 00:05:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1651820550;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=Message-Id:Date:Subject:Cc:To:From:Cc:Date:From:Subject:Sender;
-    bh=pKK7rcMWY2eaKxbxQ6Qy6GMgfLOY89m3Jsu3lHsEKCE=;
-    b=HK5ocmClfyX0JV4C0M9D4V1/05eA+hXW7EfsBN774H/O3Jh7F/ab7J5UUmwAXNal1A
-    oOAw6EvO4uYJSEy5wqE2aqqRSc/OK17fNaT+64R67XvIRbqM/JmclOCFM+bRIJO6ZwHQ
-    Sqi3p+MAmO0Fs1scBLwa1z2wzU2So1C5S2V7uUMB3h+jw9Wm+h0MZ94mo49RtQ5JdugR
-    uMaYkSAU6dzQQ8MgrX9Uh2Awv1mn4by7TJNlgtOX6llfoZDfVNmCWOeokBMFUjNHQjvq
-    volXCyZr6YSeduCGb9x5JqgNFwVJGm2t9D+5OhB28/p6D3G8RDTKt8diEcVCKpWCzcrG
-    cp+A==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjGrp7owjzFK3JbFk1mS/xvEBL7X5sbo3UIh9JCKNKiWJaRDy1ex1"
-X-RZG-CLASS-ID: mo00
-Received: from silver.lan
-    by smtp.strato.de (RZmta 47.42.2 AUTH)
-    with ESMTPSA id 4544c9y4672UkZn
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Fri, 6 May 2022 09:02:30 +0200 (CEST)
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        sashal@kernel.org, mkl@pengutronix.de
-Cc:     Oliver Hartkopp <socketcan@hartkopp.net>
-Subject: [PATCH stable] can: isotp: remove re-binding of bound socket
-Date:   Fri,  6 May 2022 09:02:11 +0200
-Message-Id: <20220506070211.2734-1-socketcan@hartkopp.net>
-X-Mailer: git-send-email 2.30.2
+        with ESMTP id S1386803AbiEFHLq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 03:11:46 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F25C644F2;
+        Fri,  6 May 2022 00:08:02 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id bo5so5552665pfb.4;
+        Fri, 06 May 2022 00:08:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qJZVl5EvwvcXVjSPcNvmPIb3iIpc3e94gPZeNfEIGDE=;
+        b=RquPcCEtPTQ8NBVOkNpgpfhMCaOU7gI0N2vmjXVEjeXEe47eK3VzRCiPPHMYYCxLg1
+         P6CPTSsRWdUdNnPe/pRgZi+CAMTXOUW0aypCBBwy8+E+GZt1qfHSrSgiWhFOXQrDerPl
+         DatPmAPOlMB2tmNlha9NwkZVVfrkt7/5nPmmGw1r/xOKTjKETDCaCs0tDLHNU6qL6xi7
+         zAW9JgkwQRnxFAMqJeCE+U8r5dQmqbrlgs9EClh2uSa24oGIURlPYADWhRa9yFHAXrQC
+         CnveAh8yJez5ypZvu1OL+WLOuhds+4ACEz2XKq+7SS60PyrasC1F8NQ9g5oL9GzwDwCI
+         gxUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=qJZVl5EvwvcXVjSPcNvmPIb3iIpc3e94gPZeNfEIGDE=;
+        b=qK1vn2nqt1Md+hdox47ytmman1cEfeu4t+wX4oFgwPxSYFqL0Cr91BAwhJVAUjzeCd
+         oJCpFatfpdUV+mIj5meHZrPPp3gLlLm8mGm5w2tDd/+3isk8y9RtDN1QH5vXeum4x/wW
+         SeZa5ohmRDSCmVsuKxI+RtH46iNAuLrOjp5RsD6IykQKgiiLTQilew/66OkeRYRv+VEz
+         /yPNjw8ZcoLtEjLPPsmqp1S3LsGZNNoD3hmd1Xq0B2epc6fzrc3tFh1PWb+wIXYvqwek
+         JOn+LQyoBUiZjgVpiDdmhFK9RGKJBRoW9WcPueevYjnYiBoGy3wyNqH4pfpV+ZhqklxO
+         3SUg==
+X-Gm-Message-State: AOAM533lWyDP9QXbS3jX3ggBZl6SRdxnfnhSUVQDOr0tarnLREPBY1nj
+        2xWwjydIgQOFW5EKMhJKvxV7+GSZ+HMtG42g
+X-Google-Smtp-Source: ABdhPJyQwhu+TLbFod80h890qcGGw9VNP9GSkzdKgcSkhgYmo6vXqdsuzS9lzJ1uVtzCOtokQbwb6A==
+X-Received: by 2002:a63:ee50:0:b0:3c5:f762:c709 with SMTP id n16-20020a63ee50000000b003c5f762c709mr1648410pgk.222.1651820881250;
+        Fri, 06 May 2022 00:08:01 -0700 (PDT)
+Received: from debian.me (subs03-180-214-233-93.three.co.id. [180.214.233.93])
+        by smtp.gmail.com with ESMTPSA id i12-20020a170902e48c00b0015e8d4eb26dsm844317ple.183.2022.05.06.00.07.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 06 May 2022 00:08:00 -0700 (PDT)
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     linux-doc@vger.kernel.org
+Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Suresh Warrier <warrier@linux.vnet.ibm.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Fabiano Rosas <farosas@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Alexey Kardashevskiy <aik@ozlabs.ru>,
+        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND] KVM: powerpc: remove extraneous asterisk from rm_host_ipi_action comment
+Date:   Fri,  6 May 2022 14:07:47 +0700
+Message-Id: <20220506070747.16309-1-bagasdotme@gmail.com>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 72ed3ee9fa0b461ad086403a8b5336154bd82234 ]
+kernel test robot reported kernel-doc warning for rm_host_ipi_action():
 
-As a carry over from the CAN_RAW socket (which allows to change the CAN
-interface while mantaining the filter setup) the re-binding of the
-CAN_ISOTP socket needs to take care about CAN ID address information and
-subscriptions. It turned out that this feature is so limited (e.g. the
-sockopts remain fix) that it finally has never been needed/used.
+>> arch/powerpc/kvm/book3s_hv_rm_xics.c:887: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+    * Host Operations poked by RM KVM
 
-In opposite to the stateless CAN_RAW socket the switching of the CAN ID
-subscriptions might additionally lead to an interrupted ongoing PDU
-reception. So better remove this unneeded complexity.
+Since the function is static, remove the extraneous (second) asterisk at
+the head of function comment.
 
-Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
-Link: https://lore.kernel.org/all/20220422082337.1676-1-socketcan@hartkopp.net
-Cc: stable@vger.kernel.org
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 0c2a66062470cd ("KVM: PPC: Book3S HV: Host side kick VCPU when poked by real-mode KVM")
+Link: https://lore.kernel.org/linux-doc/202204252334.Cd2IsiII-lkp@intel.com/
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Suresh Warrier <warrier@linux.vnet.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Fabiano Rosas <farosas@linux.ibm.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Alexey Kardashevskiy <aik@ozlabs.ru>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: kvm@vger.kernel.org
+Cc: stable@vger.kernel.org # v5.15, v5.17
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
 ---
- net/can/isotp.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ arch/powerpc/kvm/book3s_hv_rm_xics.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index c515bbd46c67..f2f0bc7f0cb4 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1142,24 +1142,25 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 	if (!addr->can_ifindex)
- 		return -ENODEV;
+diff --git a/arch/powerpc/kvm/book3s_hv_rm_xics.c b/arch/powerpc/kvm/book3s_hv_rm_xics.c
+index 587c33fc45640f..6e16bd751c8423 100644
+--- a/arch/powerpc/kvm/book3s_hv_rm_xics.c
++++ b/arch/powerpc/kvm/book3s_hv_rm_xics.c
+@@ -883,7 +883,7 @@ long kvmppc_deliver_irq_passthru(struct kvm_vcpu *vcpu,
  
- 	lock_sock(sk);
+ /*  --- Non-real mode XICS-related built-in routines ---  */
  
-+	if (so->bound) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
- 	/* do not register frame reception for functional addressing */
- 	if (so->opt.flags & CAN_ISOTP_SF_BROADCAST)
- 		do_rx_reg = 0;
- 
- 	/* do not validate rx address for functional addressing */
- 	if (do_rx_reg && rx_id == tx_id) {
- 		err = -EADDRNOTAVAIL;
- 		goto out;
- 	}
- 
--	if (so->bound && addr->can_ifindex == so->ifindex &&
--	    rx_id == so->rxid && tx_id == so->txid)
--		goto out;
--
- 	dev = dev_get_by_index(net, addr->can_ifindex);
- 	if (!dev) {
- 		err = -ENODEV;
- 		goto out;
- 	}
-@@ -1182,23 +1183,10 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 		can_rx_register(net, dev, rx_id, SINGLE_MASK(rx_id),
- 				isotp_rcv, sk, "isotp", sk);
- 
- 	dev_put(dev);
- 
--	if (so->bound && do_rx_reg) {
--		/* unregister old filter */
--		if (so->ifindex) {
--			dev = dev_get_by_index(net, so->ifindex);
--			if (dev) {
--				can_rx_unregister(net, dev, so->rxid,
--						  SINGLE_MASK(so->rxid),
--						  isotp_rcv, sk);
--				dev_put(dev);
--			}
--		}
--	}
--
- 	/* switch to new settings */
- 	so->ifindex = ifindex;
- 	so->rxid = rx_id;
- 	so->txid = tx_id;
- 	so->bound = 1;
+-/**
++/*
+  * Host Operations poked by RM KVM
+  */
+ static void rm_host_ipi_action(int action, void *data)
+
+base-commit: a7391ad3572431a354c927cf8896e86e50d7d0bf
 -- 
-2.30.2
+An old man doll... just what I always wanted! - Clara
 
