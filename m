@@ -2,57 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B71A551CCDF
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 01:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF42C51CE9C
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 04:16:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243255AbiEEXuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 5 May 2022 19:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54826 "EHLO
+        id S1387702AbiEFA44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 5 May 2022 20:56:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386887AbiEEXuY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 19:50:24 -0400
-Received: from mta-out-01.tin.it (mta-out-01.tin.it [217.169.118.4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 852316007A
-        for <stable@vger.kernel.org>; Thu,  5 May 2022 16:46:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tin.it; s=20211207; t=1651794402; 
-        bh=hlsMe1R+80pYvj9DlLXZL/9baqltlX1YInKCZaNLxIQ=;
-        h=Message-ID:Content-Type:MIME-Version:Content-Transfer-Encoding:Content-Description:Subject:To:From:Date:Reply-To;
-        b=f6IAQpAVM4aa1rNdkP+2GzowbS0ZgReJrOlWufMbxC7Toc2RtFkV4Ahmxfo76vOEj0sfn8aKUV3plpIqLL+nMLf6RxsoSfWUWJ+FM9PtQMF/FftxIhgWJ3RfPYyRxb7tcDe3L1/H+IfQxFbqXMaMrFbxVPM6LRaheOssoY1R/RZ0VKmUriKdJV+CXfYCeaOs1H6OMj1r4zy81ktEOb2TV0Q3ehdFCXDNJITywFsFtbTxO9c+d993a2qOtmw4fYU3u+IfNiK1lED5hTXr4u6iRdpnuX9g3tTw4rCfzzJ0UL5s8zaHBNcuCnibS8La72OvORIsrVhsAbdUuMpZkvmE+A==
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedvfedrfedvgddvhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfvgffngfevqffokffvtefnkfetpdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurheptggggffuvffhffhrsehtqhdttddttddunecuhfhrohhmpedfucetlhhlvghnuccufdcuoehprgholhgrrdhinhhnohgtvghniihisehtihhnrdhitheqnecuggftrfgrthhtvghrnhepleekuedvvefgudekvdffheegveetteefgeehgeelteeuleeitddvkeelkeejkeelnecukfhppeekjedruddtuddrleegrdefgeenucevlhhushhtvghrufhiiigvpeegfeeiieenucfrrghrrghmpehhvghloheplgduleegrdefuddrleekrdduuddungdpihhnvghtpeekjedruddtuddrleegrdefgedpmhgrihhlfhhrohhmpehprgholhgrrdhinhhnohgtvghniihisehtihhnrdhithdpnhgspghrtghpthhtohepuddprhgtphhtthhopehsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from [194.31.98.111] (87.101.94.34) by mta-out-01.tin.it (5.8.807.04) (authenticated as paola.innocenzi@tin.it)
-        id 6271454E005E6276 for stable@vger.kernel.org; Fri, 6 May 2022 01:46:39 +0200
-Message-ID: <6271454E005E6276@mta-out-01.tin.it> (added by postmaster@tin.it)
-Content-Type: text/plain; charset="iso-8859-1"
+        with ESMTP id S1387704AbiEFA44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 5 May 2022 20:56:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4464B5AA55;
+        Thu,  5 May 2022 17:53:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDC6C61FE3;
+        Fri,  6 May 2022 00:53:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D4D2C385A4;
+        Fri,  6 May 2022 00:53:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651798394;
+        bh=CNebCznOeFAnc8qF6ffneuM6vdU/dd66WedXNIT0M8w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dovigtcA3VXNPZG51qgWyU8q0YoWECeHnTSiLjpmlFf0s6FHu8gmNtyzrjM3QjwdE
+         ZTEkQutbBE7obZqc+pVF9qImpxq6To8kdZ0zyDJSK2zvXzH5tdN2baXbYz9dOseVSy
+         2JmaTI+vriQVf/XM0MQt+z8+kK39heOSmrfX4csfZfvVenpQ5E5fl6rmMdWgMdn/vz
+         Qg0OpLoFDUWCbeuoSXX7EKBjRr3F3xXuMMo/RnxlqR2tEv6W8Mxx8afKsDVwx9Kjs9
+         CL8W2vdRZ72MswASqWHK89vVKYTYPWZzIQcF1f59iJlwwFPJydG8Aa6YLAWABubtbg
+         m90KJo5ySD3dA==
+Date:   Thu, 5 May 2022 17:53:12 -0700
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Chao Yu <chao@kernel.org>
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ming Yan <yanming@tju.edu.cn>, Chao Yu <chao.yu@oppo.com>
+Subject: Re: [PATCH v2] f2fs: fix to do sanity check on total_data_blocks
+Message-ID: <YnRxeJbYNC9eHgtr@google.com>
+References: <20220505141507.6616-1-chao@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: opportunity
-To:     stable@vger.kernel.org
-From:   " Allen  " <paola.innocenzi@tin.it>
-Date:   Thu, 05 May 2022 16:46:38 -0700
-Reply-To: allen.large@cheapnet.it
-X-Spam-Status: No, score=3.2 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FROMSPACE,
-        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ***
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220505141507.6616-1-chao@kernel.org>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-H e l l o,
+On 05/05, Chao Yu wrote:
+> As Yanming reported in bugzilla:
+> 
+> https://bugzilla.kernel.org/show_bug.cgi?id=215916
+> 
+> The kernel message is shown below:
+> 
+> kernel BUG at fs/f2fs/segment.c:2560!
+> Call Trace:
+>  allocate_segment_by_default+0x228/0x440
+>  f2fs_allocate_data_block+0x13d1/0x31f0
+>  do_write_page+0x18d/0x710
+>  f2fs_outplace_write_data+0x151/0x250
+>  f2fs_do_write_data_page+0xef9/0x1980
+>  move_data_page+0x6af/0xbc0
+>  do_garbage_collect+0x312f/0x46f0
+>  f2fs_gc+0x6b0/0x3bc0
+>  f2fs_balance_fs+0x921/0x2260
+>  f2fs_write_single_data_page+0x16be/0x2370
+>  f2fs_write_cache_pages+0x428/0xd00
+>  f2fs_write_data_pages+0x96e/0xd50
+>  do_writepages+0x168/0x550
+>  __writeback_single_inode+0x9f/0x870
+>  writeback_sb_inodes+0x47d/0xb20
+>  __writeback_inodes_wb+0xb2/0x200
+>  wb_writeback+0x4bd/0x660
+>  wb_workfn+0x5f3/0xab0
+>  process_one_work+0x79f/0x13e0
+>  worker_thread+0x89/0xf60
+>  kthread+0x26a/0x300
+>  ret_from_fork+0x22/0x30
+> RIP: 0010:new_curseg+0xe8d/0x15f0
+> 
+> The root cause is: ckpt.valid_block_count is inconsistent with SIT table,
+> stat info indicates filesystem has free blocks, but SIT table indicates
+> filesystem has no free segment.
+> 
+> So that during garbage colloection, it triggers panic when LFS allocator
+> fails to find free segment.
+> 
+> This patch tries to fix this issue by checking consistency in between
+> ckpt.valid_block_count and block accounted from SIT.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Ming Yan <yanming@tju.edu.cn>
+> Signed-off-by: Chao Yu <chao.yu@oppo.com>
+> ---
+> v2:
+> - adjust check condition according to the case Jaegeuk mentioned.
+>  fs/f2fs/segment.c | 24 +++++++++++++++++++++---
+>  1 file changed, 21 insertions(+), 3 deletions(-)
+> 
+> diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+> index 3a3e2cec2ac4..942d6d8c18e6 100644
+> --- a/fs/f2fs/segment.c
+> +++ b/fs/f2fs/segment.c
+> @@ -4462,6 +4462,7 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+>  	unsigned int readed, start_blk = 0;
+>  	int err = 0;
+>  	block_t total_node_blocks = 0;
+> +	block_t total_data_blocks = 0;
 
-I lead family investment vehicles who want to invest a proportion of their =
-funds with a trust party .
+How about something like "sit_valid_blocks[DATA | NODE]"?
 
-Please are you interested in discussing investment in your sector?
-
-Please email, or simply write to me here: allen.large@cheapnet.it  I value =
-promptness and will make every attempt to respond within a short time.
-
-Thank you.
-Allen S.
+>  
+>  	do {
+>  		readed = f2fs_ra_meta_pages(sbi, start_blk, BIO_MAX_VECS,
+> @@ -4488,6 +4489,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+>  			seg_info_from_raw_sit(se, &sit);
+>  			if (IS_NODESEG(se->type))
+>  				total_node_blocks += se->valid_blocks;
+> +			else
+> +				total_data_blocks += se->valid_blocks;
+>  
+>  			if (f2fs_block_unit_discard(sbi)) {
+>  				/* build discard map only one time */
+> @@ -4529,6 +4532,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+>  		old_valid_blocks = se->valid_blocks;
+>  		if (IS_NODESEG(se->type))
+>  			total_node_blocks -= old_valid_blocks;
+> +		else
+> +			total_data_blocks -= old_valid_blocks;
+>  
+>  		err = check_block_count(sbi, start, &sit);
+>  		if (err)
+> @@ -4536,6 +4541,8 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+>  		seg_info_from_raw_sit(se, &sit);
+>  		if (IS_NODESEG(se->type))
+>  			total_node_blocks += se->valid_blocks;
+> +		else
+> +			total_data_blocks += se->valid_blocks;
+>  
+>  		if (f2fs_block_unit_discard(sbi)) {
+>  			if (is_set_ckpt_flags(sbi, CP_TRIMMED_FLAG)) {
+> @@ -4557,13 +4564,24 @@ static int build_sit_entries(struct f2fs_sb_info *sbi)
+>  	}
+>  	up_read(&curseg->journal_rwsem);
+>  
+> -	if (!err && total_node_blocks != valid_node_count(sbi)) {
+> +	if (err)
+> +		return err;
+> +
+> +	if (total_node_blocks != valid_node_count(sbi)) {
+>  		f2fs_err(sbi, "SIT is corrupted node# %u vs %u",
+>  			 total_node_blocks, valid_node_count(sbi));
+> -		err = -EFSCORRUPTED;
+> +		return -EFSCORRUPTED;
+>  	}
+>  
+> -	return err;
+> +	if (total_data_blocks + total_node_blocks >
+> +				valid_user_blocks(sbi)) {
+> +		f2fs_err(sbi, "SIT is corrupted data# %u %u vs %u",
+> +			 total_data_blocks, total_node_blocks,
+> +			 valid_user_blocks(sbi));
+> +		return -EFSCORRUPTED;
+> +	}
+> +
+> +	return 0;
+>  }
+>  
+>  static void init_free_segmap(struct f2fs_sb_info *sbi)
+> -- 
+> 2.32.0
