@@ -2,58 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F215351DA80
-	for <lists+stable@lfdr.de>; Fri,  6 May 2022 16:29:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA6751DAA6
+	for <lists+stable@lfdr.de>; Fri,  6 May 2022 16:38:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442190AbiEFOc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 6 May 2022 10:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S234559AbiEFOmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 6 May 2022 10:42:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349607AbiEFOc4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 10:32:56 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2D9D868FAB
-        for <stable@vger.kernel.org>; Fri,  6 May 2022 07:29:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1651847352;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sl3tayqSeSwStUmGAN4VOsTJbnxMRfuI6128fPfMd2A=;
-        b=QxUmpHzz1oXQbuQqUS375Fb8zuB/nBXvf866odq6az17w81/aEvPWFCJIxmSbgEIELbNDK
-        /qfALXeuWBx/jSQC7E61UpFZ9CC7PTpqKP1r4RADuXinkvOksukOD5kJhProQU/zsN61y1
-        Jz6z1N8S2WRUXpJQOpTKTsm16/HhIuo=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-618-rFIbqaMeOQSzRU-fSNvhKw-1; Fri, 06 May 2022 10:29:08 -0400
-X-MC-Unique: rFIbqaMeOQSzRU-fSNvhKw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        with ESMTP id S1442257AbiEFOmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 6 May 2022 10:42:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8F946A424;
+        Fri,  6 May 2022 07:38:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 66A2C1014A63;
-        Fri,  6 May 2022 14:29:08 +0000 (UTC)
-Received: from lorien.usersys.redhat.com (unknown [10.22.32.97])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 114664010E2C;
-        Fri,  6 May 2022 14:29:08 +0000 (UTC)
-Date:   Fri, 6 May 2022 10:29:06 -0400
-From:   Phil Auld <pauld@redhat.com>
-To:     Joseph Salisbury <joseph.salisbury@canonical.com>
-Cc:     linux-kernel@vger.kernel.org, corbet@lwn.net,
-        linux-doc@vger.kernel.org, stable@vger.kernel.org,
-        peterz@infradead.org, tglx@linutronix.de
-Subject: Re: [PATCH] docs: sched: Update sched-rt-group Documentation For
- Gender Inclusiveness
-Message-ID: <YnUwsnt52aB0sZi0@lorien.usersys.redhat.com>
-References: <20220505021424.12656-1-joseph.salisbury@canonical.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DEFB6204C;
+        Fri,  6 May 2022 14:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54C0EC385A8;
+        Fri,  6 May 2022 14:38:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651847898;
+        bh=Cz7IK5LW9LlHHli9HhQJKzboa9/phiQaRtWkWrvB0xM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sVwHR+pqBuD3DEf3GmOVF/x9hGMR3+GpczIrueBt55YDyFKnM62UyK9HoB+wrA89U
+         /6Qke46vifwdNwytWhY8/iBru3Agy3Cfi+oHUBOyknBCPu2Yfu6ZeZuFO8xNA4gfbB
+         03U+Z8bX7g6Z1OPC/ODcJa/CW2Yf88WKtzmWq3C4=
+Date:   Fri, 6 May 2022 16:38:15 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        qat-linux@intel.com, vdronov@redhat.com, stable@vger.kernel.org,
+        Adam Guerin <adam.guerin@intel.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>
+Subject: Re: [PATCH 10/12] crypto: qat - use memzero_explicit() for algs
+Message-ID: <YnUy13JBMvhkxSgx@kroah.com>
+References: <20220506082327.21605-1-giovanni.cabiddu@intel.com>
+ <20220506082327.21605-11-giovanni.cabiddu@intel.com>
+ <YnTo3zfXSXoEX2+R@kroah.com>
+ <YnTwP/0WNvecE9SJ@silpixa00400314>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220505021424.12656-1-joseph.salisbury@canonical.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
-X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+In-Reply-To: <YnTwP/0WNvecE9SJ@silpixa00400314>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,45 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 04, 2022 at 10:14:24PM -0400 Joseph Salisbury wrote:
-> Document assumes root user is he:
-> "assumes root knows what he is doing."
+On Fri, May 06, 2022 at 10:54:07AM +0100, Giovanni Cabiddu wrote:
+> On Fri, May 06, 2022 at 11:22:39AM +0200, Greg KH wrote:
+> > On Fri, May 06, 2022 at 09:23:25AM +0100, Giovanni Cabiddu wrote:
+> > > Use memzero_explicit(), instead of a memset(.., 0, ..) in the
+> > > implementation of the algorithms, for buffers containing sensitive
+> > > information to ensure they are wiped out before free.
+> > > 
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+> > > Reviewed-by: Adam Guerin <adam.guerin@intel.com>
+> > > Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
+> > > ---
+> > >  drivers/crypto/qat/qat_common/qat_algs.c      | 20 +++++++++----------
+> > >  drivers/crypto/qat/qat_common/qat_asym_algs.c | 20 +++++++++----------
+> > >  2 files changed, 20 insertions(+), 20 deletions(-)
+> > > 
+> > > diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+> > > index 873533dc43a7..c42df18e02b2 100644
+> > > --- a/drivers/crypto/qat/qat_common/qat_algs.c
+> > > +++ b/drivers/crypto/qat/qat_common/qat_algs.c
+> > > @@ -637,12 +637,12 @@ static int qat_alg_aead_newkey(struct crypto_aead *tfm, const u8 *key,
+> > >  	return 0;
+> > >  
+> > >  out_free_all:
+> > > -	memset(ctx->dec_cd, 0, sizeof(struct qat_alg_cd));
+> > > +	memzero_explicit(ctx->dec_cd, sizeof(struct qat_alg_cd));
+> > 
+> > This is for structure fields, why does memset() not work properly here?
+> > The compiler should always call this, it doesn't know what
+> > dma_free_coherent() does.  You are referencing this pointer after the
+> > memset() call so all should be working as intended here.
+> > 
+> > Because of this, I don't see why this change is needed.  Do you have
+> > reports of compilers not calling memset() for all of this properly?
+> Apologies, I had a wrong assumption.
+> Based on a comment in the memzero_explicit() documentation I assumed it
+> should be always used to zero sensitive data.
 > 
-> Update documentation for inclusivness, since root is not limited by gender.
-> 
-> Fixes: 60aa605dfce2 ("sched: rt: document the risk of small values in the bandwidth settings")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Joseph Salisbury <joseph.salisbury@canonical.com>
-> ---
->  Documentation/scheduler/sched-rt-group.rst | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/Documentation/scheduler/sched-rt-group.rst b/Documentation/scheduler/sched-rt-group.rst
-> index 655a096ec8fb..e55fee6772c4 100644
-> --- a/Documentation/scheduler/sched-rt-group.rst
-> +++ b/Documentation/scheduler/sched-rt-group.rst
-> @@ -19,7 +19,7 @@ Real-Time group scheduling
->  ==========
->  
->   Fiddling with these settings can result in an unstable system, the knobs are
-> - root only and assumes root knows what he is doing.
-> + root only and assumes root knows what they are doing.
->
+>      * memzero_explicit - Fill a region of memory (e.g. sensitive
+>      *			  keying data) with 0s.
 
-Now there's a singular vs plural problem.
+Yes, that's what it is for, when the compiler thinks it is "smarter than
+you" for stack variables.
 
-"... assumes root users know ..."  ?
+It's great for functions like this:
+	int foo(...)
+	{
+		struct key secret_key;
 
+		do something and set secret_key...
 
+		/* All done, clean up and return */
+		memset(&secret_key, 0, sizeof(secret_key));
+		return 0;
+	}
 
-Cheers,
-Phil
+For that, some compilers now go "hey, they just want to set this to 0
+and then never touch it again, that is pointless, let's not call
+memset() at all!".
 
->  Most notable:
->  
-> -- 
-> 2.34.1
-> 
+But when you call:
+	memset(foo->key, 0, sizeof(key));
+	do_something_with_foo(foo);
 
--- 
+the compiler can NOT go and ignore the call to memset() as it does not
+know what do_something_with_foo() does.  Or at least it better not.
 
+Try out this with a small example and look at the asm output for proof.
+
+You aren't the first to be confused about this, I see this happening at
+least once a month with a patch to change code like you did.  Don't know
+why it keeps coming up, is this a checkpatch() recommentation?
+
+thanks,
+
+greg k-h
