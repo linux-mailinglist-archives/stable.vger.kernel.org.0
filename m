@@ -2,121 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 836D451E5C4
-	for <lists+stable@lfdr.de>; Sat,  7 May 2022 10:58:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3FE51E62C
+	for <lists+stable@lfdr.de>; Sat,  7 May 2022 11:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231486AbiEGJCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 May 2022 05:02:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40986 "EHLO
+        id S1343969AbiEGJvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 May 2022 05:51:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230191AbiEGJCe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 05:02:34 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A67F24BC3;
-        Sat,  7 May 2022 01:58:43 -0700 (PDT)
-X-UUID: ded7c836f5874ba3ac180d82108dc4dd-20220507
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.4,REQID:0020efbe-81ad-4a91-9245-e6a6010afc93,OB:0,LO
-        B:0,IP:0,URL:8,TC:0,Content:-20,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,AC
-        TION:release,TS:-12
-X-CID-META: VersionHash:faefae9,CLOUDID:c82cebb2-56b5-4c9e-8d83-0070b288eb6a,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,File:nil,QS:0,BEC:nil
-X-UUID: ded7c836f5874ba3ac180d82108dc4dd-20220507
-Received: from mtkmbs11n2.mediatek.inc [(172.21.101.187)] by mailgw01.mediatek.com
-        (envelope-from <yf.wang@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 620380499; Sat, 07 May 2022 16:58:38 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.792.15; Sat, 7 May 2022 16:58:37 +0800
-Received: from mbjsdccf07.mediatek.inc (10.15.20.246) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Sat, 7 May 2022 16:58:35 +0800
-From:   <yf.wang@mediatek.com>
-To:     Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        "Matthias Brugger" <matthias.bgg@gmail.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        "open list:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "moderated list:ARM/Mediatek SoC support" 
-        <linux-mediatek@lists.infradead.org>
-CC:     <wsd_upstream@mediatek.com>, Libo Kang <Libo.Kang@mediatek.com>,
-        Yong Wu <yong.wu@mediatek.com>, Ning Li <Ning.Li@mediatek.com>,
-        Yunfei Wang <yf.wang@mediatek.com>, <stable@vger.kernel.org>
-Subject: [PATCH] iommu/dma: Fix iova map result check bug
-Date:   Sat, 7 May 2022 16:52:03 +0800
-Message-ID: <20220507085204.16914-1-yf.wang@mediatek.com>
-X-Mailer: git-send-email 2.18.0
+        with ESMTP id S244252AbiEGJva (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 05:51:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487E03584A;
+        Sat,  7 May 2022 02:47:44 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4AD66111A;
+        Sat,  7 May 2022 09:47:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2A4C385A9;
+        Sat,  7 May 2022 09:47:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1651916863;
+        bh=TN9Ln0eWjWSNpAaJly0A68+GoYhMTOpf7TMoBE/D/8E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=eAdWlOck68816ScoivDDAizGIIpMuirzXMEnhlTuCe0boQDQ2FAbiKVwBSDw+1PKQ
+         eryZIke41EI7FBgz3rBhcOPXg+qn/NcT+7LTFVsoooc1kbcEGoItAutByNEbYrDgWK
+         Ur0gbDNafQq8fsmSCP56cwhjhCdircLlP8pdtgic=
+Date:   Sat, 7 May 2022 11:47:39 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Chen Zhongjin <chenzhongjin@huawei.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-arch@vger.kernel.org, stable@vger.kernel.org,
+        peterz@infradead.org, tglx@linutronix.de, namit@vmware.com,
+        gor@linux.ibm.com, rdunlap@infradead.org, sashal@kernel.org
+Subject: Re: [PATCH 5.10 v3] locking/csd_lock: fix csdlock_debug cause arm64
+ boot panic
+Message-ID: <YnZAO+3Rhj0gwq38@kroah.com>
+References: <20220507084510.14761-1-chenzhongjin@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,MAY_BE_FORGED,
-        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220507084510.14761-1-chenzhongjin@huawei.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+On Sat, May 07, 2022 at 04:45:10PM +0800, Chen Zhongjin wrote:
+> csdlock_debug is a early_param to enable csd_lock_wait
+> feature.
+> 
+> It uses static_branch_enable in early_param which triggers
+> a panic on arm64 with config:
+> CONFIG_SPARSEMEM=y
+> CONFIG_SPARSEMEM_VMEMMAP=n
+> 
+> The log shows:
+> Unable to handle kernel NULL pointer dereference at
+> virtual address ", '0' <repeats 16 times>, "
+> ...
+> Call trace:
+> __aarch64_insn_write+0x9c/0x18c
+> ...
+> static_key_enable+0x1c/0x30
+> csdlock_debug+0x4c/0x78
+> do_early_param+0x9c/0xcc
+> parse_args+0x26c/0x3a8
+> parse_early_options+0x34/0x40
+> parse_early_param+0x80/0xa4
+> setup_arch+0x150/0x6c8
+> start_kernel+0x8c/0x720
+> ...
+> Kernel panic - not syncing: Oops: Fatal exception
+> 
+> Call trace inside __aarch64_insn_write:
+> __nr_to_section
+> __pfn_to_page
+> phys_to_page
+> patch_map
+> __aarch64_insn_write
+> 
+> Here, with CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section returns
+> NULL and makes the NULL dereference because mem_section is
+> initialized in sparse_init after parse_early_param stage.
+> 
+> So, static_branch_enable shouldn't be used inside early_param.
+> To avoid this, I changed it to __setup and fixed this.
+> 
+> Reported-by: Chen jingwen <chenjingwen6@huawei.com>
+> Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+> ---
+> Change v2 -> v3:
+> Add module name in title
+> 
+> Change v1 -> v2:
+> Fix return 1 for __setup
+> ---
+> 
+>  kernel/smp.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/smp.c b/kernel/smp.c
+> index 65a630f62363..381eb15cd28f 100644
+> --- a/kernel/smp.c
+> +++ b/kernel/smp.c
+> @@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
+>  	if (val)
+>  		static_branch_enable(&csdlock_debug_enabled);
+>  
+> -	return 0;
+> +	return 1;
+>  }
+> -early_param("csdlock_debug", csdlock_debug);
+> +__setup("csdlock_debug=", csdlock_debug);
+>  
+>  static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
+>  static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
+> -- 
+> 2.17.1
+> 
 
-The data type of the return value of the iommu_map_sg_atomic
-is ssize_t, but the data type of iova size is size_t,
-e.g. one is int while the other is unsigned int.
 
-When iommu_map_sg_atomic return value is compared with iova size,
-it will force the signed int to be converted to unsigned int, if
-iova map fails and iommu_map_sg_atomic return error code is less
-than 0, then (ret < iova_len) is false, which will to cause not
-do free iova, and the master can still successfully get the iova
-of map fail, which is not expected.
+<formletter>
 
-Therefore, we need to check the return value of iommu_map_sg_atomic
-in two cases according to whether it is less than 0.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Fixes: ad8f36e4b6b1 ("iommu: return full error code from iommu_map_sg[_atomic]()")
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.15.*
----
- drivers/iommu/dma-iommu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 09f6e1c0f9c0..2932281e93fc 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -776,6 +776,7 @@ static struct page **__iommu_dma_alloc_noncontiguous(struct device *dev,
- 	unsigned int count, min_size, alloc_sizes = domain->pgsize_bitmap;
- 	struct page **pages;
- 	dma_addr_t iova;
-+	ssize_t ret;
- 
- 	if (static_branch_unlikely(&iommu_deferred_attach_enabled) &&
- 	    iommu_deferred_attach(dev, domain))
-@@ -813,8 +814,8 @@ static struct page **__iommu_dma_alloc_noncontiguous(struct device *dev,
- 			arch_dma_prep_coherent(sg_page(sg), sg->length);
- 	}
- 
--	if (iommu_map_sg_atomic(domain, iova, sgt->sgl, sgt->orig_nents, ioprot)
--			< size)
-+	ret = iommu_map_sg_atomic(domain, iova, sgt->sgl, sgt->orig_nents, ioprot);
-+	if (ret < 0 || ret < size)
- 		goto out_free_sg;
- 
- 	sgt->sgl->dma_address = iova;
-@@ -1209,7 +1210,7 @@ static int iommu_dma_map_sg(struct device *dev, struct scatterlist *sg,
- 	 * implementation - it knows better than we do.
- 	 */
- 	ret = iommu_map_sg_atomic(domain, iova, sg, nents, prot);
--	if (ret < iova_len)
-+	if (ret < 0 || ret < iova_len)
- 		goto out_free_iova;
- 
- 	return __finalise_sg(dev, sg, nents, iova);
--- 
-2.18.0
-
+</formletter>
