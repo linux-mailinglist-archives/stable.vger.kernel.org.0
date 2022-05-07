@@ -2,72 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3360051E6A5
-	for <lists+stable@lfdr.de>; Sat,  7 May 2022 13:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00F1F51E797
+	for <lists+stable@lfdr.de>; Sat,  7 May 2022 15:58:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446272AbiEGLdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 May 2022 07:33:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57084 "EHLO
+        id S1354981AbiEGOB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 May 2022 10:01:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442354AbiEGLdi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 07:33:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C09E49C87
-        for <stable@vger.kernel.org>; Sat,  7 May 2022 04:29:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5EE76117C
-        for <stable@vger.kernel.org>; Sat,  7 May 2022 11:29:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1FB7C385A9;
-        Sat,  7 May 2022 11:29:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1651922989;
-        bh=o0EiLWdqnzN1NV+owEwH6ILetckO4CFOc/yPOMPUFow=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=suYiugPN1RjgiGqF8SNVIMlmf49nmZKLCpuf2l9eP1pW3X1R7M/WAIxgOrAC39Pd7
-         9pn6EOUN6UkwA/QFCjjt46kCA0MzDauww3rA1EQZOpVar2KXme0Z6qeSTD+mVcUs1k
-         kxTW9XxRGpKzhyBx0YUF7knituEn58GrIPelKxfs=
-Date:   Sat, 7 May 2022 13:29:46 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "llfl(kun.hk)" <llfl@linux.alibaba.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 05/19] iommu/vt-d: Global devTLB flush when present
- context entry changed
-Message-ID: <YnZYKgnAGiPC5ecj@kroah.com>
-References: <20220506120057.77320-1-llfl@linux.alibaba.com>
- <20220506120057.77320-5-llfl@linux.alibaba.com>
- <YnU2Is7w6u6TZK9V@kroah.com>
- <2fa72980-d94f-3257-1ea4-5ff9c77f8b59@linux.alibaba.com>
+        with ESMTP id S231375AbiEGOB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 10:01:56 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B0E29CA8;
+        Sat,  7 May 2022 06:58:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=jD8TyMuu+bcxOTqwym8lZasuV6dU31UITBMEYcnRFAI=; b=1/ZYjMcXmaJSnoaN1HeHcCGzx7
+        djzOpbh1ZM+SyjG7CzhJFP7Tzpzc79UWgRfimTck00mJJXEtbkKtj9adeb0hbetowturcbZ6dvpju
+        kRr7UQ+Y/thbkyhvcB1Gv8mUk0dZRzsub15oBBEelgRDXCiuz5fsrrb/L2zOh7wVxGfg=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1nnKwT-001fFK-18; Sat, 07 May 2022 15:57:53 +0200
+Date:   Sat, 7 May 2022 15:57:53 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Francesco Dolcini <francesco.dolcini@toradex.com>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net v2] net: phy: Fix race condition on link status change
+Message-ID: <YnZ64cXE0ZRdHEbX@lunn.ch>
+References: <20220506060815.327382-1-francesco.dolcini@toradex.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2fa72980-d94f-3257-1ea4-5ff9c77f8b59@linux.alibaba.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220506060815.327382-1-francesco.dolcini@toradex.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 06, 2022 at 11:43:25PM +0800, llfl(kun.hk) wrote:
-> I am so sorry about that wrong email. I was backporting these patches from a
-> mail list, and I added your email to cc list by accident.
+On Fri, May 06, 2022 at 08:08:15AM +0200, Francesco Dolcini wrote:
+> This fixes the following error caused by a race condition between
+> phydev->adjust_link() and a MDIO transaction in the phy interrupt
+> handler. The issue was reproduced with the ethernet FEC driver and a
+> micrel KSZ9031 phy.
 > 
-> 
-> This 'ANBZ' mark is for alibaba inc. code base internal review.
-> 
-> 
-> I am so sorry about those emails confuse you.
+> Link: https://lore.kernel.org/all/20220422152612.GA510015@francesco-nb.int.toradex.com/
+> Fixes: c974bdbc3e77 ("net: phy: Use threaded IRQ, to allow IRQ from sleeping devices")
+> cc: <stable@vger.kernel.org>
+> Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-Why not submit these for inclusion in the real stable kernel releases,
-so that you do not have to backport anything?
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 
-They need to go to older kernels, why duplicate the work for everyone?
-
-thanks,
-
-greg k-h
+    Andrew
