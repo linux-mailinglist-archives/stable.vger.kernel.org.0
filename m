@@ -2,70 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEDF251E535
-	for <lists+stable@lfdr.de>; Sat,  7 May 2022 09:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 263CC51E5A2
+	for <lists+stable@lfdr.de>; Sat,  7 May 2022 10:41:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242942AbiEGH2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 May 2022 03:28:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35168 "EHLO
+        id S1382906AbiEGIpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 May 2022 04:45:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238791AbiEGH2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 03:28:03 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A73A625D
-        for <stable@vger.kernel.org>; Sat,  7 May 2022 00:24:17 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id p10so15912857lfa.12
-        for <stable@vger.kernel.org>; Sat, 07 May 2022 00:24:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hcsdovZexsweBQgXsrS9TmegcFHPxrc5+tTSlWIXW4Y=;
-        b=l/fxotlu5k8y0NETltlduGCQIozeJi+RgobEFAhUnVRFsaccPs4uYF3GvZSCvl56kq
-         1m+xy+M9SazSkkF8skT4IPk8c9nuH5rOP4xxkLFK9uLnnZ0UFmM8mgly+/RYH6VhCYje
-         gW5a7DF2SrcVeiS4p6gC691W0TA6R2IbPu8WuIOT3aEGWqQjEWZwLlEcIiw6kQqJNqUU
-         zAdJ4I2bOLpr3GbPZRPvwufFpeQiB7Vu65VbNiQnxfdpS73JgF/U+HGUDOyHoK9x5qaT
-         WohksDh9yIxEkp6P3oUu47Tkd0llstCjBpGtSno+9YA9jOwLH83tOWFPbU+pzi3q03yU
-         5xzA==
+        with ESMTP id S1346493AbiEGIpd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 04:45:33 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 14F0D3EF31
+        for <stable@vger.kernel.org>; Sat,  7 May 2022 01:41:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1651912906;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=pH/8q4WWU1F57uoZuiEXN9uHXlw/jrDUSuY49/KnKJw=;
+        b=M5mNLNCuhruwJDnEp3rKN/ca69IJlmsWWJMEcot8/3vir0vmevHR3WpSkucCykpivUfUTe
+        Sjs/Fei5Ab23uIy4E7dOrXgeV9+FWFYuwW1aQMYzfEDZTcGGaR+Z8Mm4WRYSopER3WQ9zT
+        a1eHn51N+Tyi1oDTqQzdLOYvJTH8wsY=
+Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
+ [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-543-N3IM0C23NnOzquWD1mmy6Q-1; Sat, 07 May 2022 04:41:45 -0400
+X-MC-Unique: N3IM0C23NnOzquWD1mmy6Q-1
+Received: by mail-yb1-f200.google.com with SMTP id j11-20020a05690212cb00b006454988d225so8085505ybu.10
+        for <stable@vger.kernel.org>; Sat, 07 May 2022 01:41:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=hcsdovZexsweBQgXsrS9TmegcFHPxrc5+tTSlWIXW4Y=;
-        b=y26sPmwZOwCuA4/KTyA8z/bUkQaDSNqWyC4TPnWFm2hNrAFNhSUSKbCtHNmlJKMIDJ
-         H5HxFMzcShg6k/+6IXVdtl0uwE97M+Yhdbp59ebG9KvBoYVVX+QMMfJugFBvehRTdZPc
-         H61dzdTNZO5oPdhETezT5lv1E8G3yKHWhDbllR3D1TM6ZE5aMICj9dK03qbkxG2yUnMP
-         gqokqqAkaUbnxAVBPrq2njft8bG/7pZDVg1ItipksqVPzEwm6kBEM8nTBEwvGC4yrexy
-         u45JEQmHWhnQf5AOOrHvC1Gj3vdyzq96hIyAZcexoDMEHEyj2Mmoeo9cA1T2BXTz3e1w
-         f8jg==
-X-Gm-Message-State: AOAM530nnhm7mnA1+OXNI8LGcuo7RjLidKLUfQQ7Nt4e/kilds3mR6iH
-        hLnwlu2IretPpRCd6vr3efPUIqjZheqfLu0LYBU71mVAxyzbFw==
-X-Google-Smtp-Source: ABdhPJz6+xDt7eq8J2NirLHsFV8X8y2K7quQAYCBjFarVGWhV9jMhGY7xyxgZcfFcrPdm+xSFKDJMHccRB2act/RTqY=
-X-Received: by 2002:a05:6512:3b93:b0:474:188b:1c99 with SMTP id
- g19-20020a0565123b9300b00474188b1c99mr128808lfv.549.1651908255592; Sat, 07
- May 2022 00:24:15 -0700 (PDT)
+        bh=pH/8q4WWU1F57uoZuiEXN9uHXlw/jrDUSuY49/KnKJw=;
+        b=FElivkS03LbNzlS9re4iUbGvm3bpamtV1kLN+fUAWTtvQG/PKq7QTANeGAkSIz0kuD
+         Ij8h+hMQktId+9WJ7xBorP5KjNvjWANzm45ZsnVyTD7NQXoWTqchdCWlJJaOtJcipIpr
+         69oV+R1le0kBaLMeajiBOtSPQv/WvkyezK9xaEtwNXrTvGh2tyGY5RZ9RL9qlQLULUFG
+         leyTGqLJ4EuaqpwmWIgGV8DjF/JPJ5hWXEggpYkAwct+WE2wOtjbyjchkcJdGdo2g2wH
+         Yh+0HRUW/F59uSqImXgzu/fskJ9+s0fgiUAi2iD7/gARMvXHKI1z47rW0p+9YSL02wUG
+         57/Q==
+X-Gm-Message-State: AOAM532gAydu11GVldJeY2fKlpho9KISOVottZC0qqvwBRdU5WjC+MkK
+        yatC69AhjZQqBjmHlVPkoIUyNBLxOYFYySB9LEhPY1uW9j57uJ5RXMNw4s2yYH3ZvaxztwgO8F5
+        UwF/IAafFSObhCc7F0czttL9A+ZBK02iH
+X-Received: by 2002:a25:d209:0:b0:648:370f:573c with SMTP id j9-20020a25d209000000b00648370f573cmr5570216ybg.255.1651912904429;
+        Sat, 07 May 2022 01:41:44 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyL8lHgmhm01MbdmhDDqtcHd5MtPPN2X8/3Y6Vo0COEyOTfbsiMCUsGQj/N/qrO0ZhjLJ/gcTEuPNxd2WmE35I=
+X-Received: by 2002:a25:d209:0:b0:648:370f:573c with SMTP id
+ j9-20020a25d209000000b00648370f573cmr5570202ybg.255.1651912904261; Sat, 07
+ May 2022 01:41:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220504153110.096069935@linuxfoundation.org>
-In-Reply-To: <20220504153110.096069935@linuxfoundation.org>
-From:   Fenil Jain <fkjainco@gmail.com>
-Date:   Sat, 7 May 2022 12:54:04 +0530
-Message-ID: <CAHokDB=AfYE_NmKg_AF6-B6yEaJg3=QdTB=0WNXz85ZXfqdQDA@mail.gmail.com>
-Subject: Re: [PATCH 5.17 000/225] 5.17.6-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     skhan@linuxfoundation.org, stable@vger.kernel.org
+References: <20220503115010.1750296-1-omosnace@redhat.com> <YnFUH6nyVs8fBgED@x1>
+In-Reply-To: <YnFUH6nyVs8fBgED@x1>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Sat, 7 May 2022 10:41:32 +0200
+Message-ID: <CAFqZXNsQK-0knY-W4YojJEFapJyWZBsf9sE=L=0drXnb4SPQeA@mail.gmail.com>
+Subject: Re: [PATCH] crypto: qcom-rng - fix infinite loop on requests not
+ multiple of WORD_SZ
+To:     Brian Masney <bmasney@redhat.com>
+Cc:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-arm-msm@vger.kernel.org,
+        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Linux Stable maillist <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hey Greg,
+On Tue, May 3, 2022 at 6:11 PM Brian Masney <bmasney@redhat.com> wrote:
+> On Tue, May 03, 2022 at 01:50:10PM +0200, Ondrej Mosnacek wrote:
+> > The commit referenced in the Fixes tag removed the 'break' from the else
+> > branch in qcom_rng_read(), causing an infinite loop whenever 'max' is
+> > not a multiple of WORD_SZ. This can be reproduced e.g. by running:
+> >
+> >     kcapi-rng -b 67 >/dev/null
+> >
+> > There are many ways to fix this without adding back the 'break', but
+> > they all seem more awkward than simply adding it back, so do just that.
+> >
+> > Tested on a machine with Qualcomm Amberwing processor.
+> >
+> > Fixes: a680b1832ced ("crypto: qcom-rng - ensure buffer for generate is completely filled")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Reviewed-by: Brian Masney <bmasney@redhat.com>
+>
+> We should add '# 5.17+' to the end of the stable line.
 
-Ran tests and boot tested on my system, no regression found
+Is that really relied upon any more? AFAIK, the stable maintainer(s)
+already compute the target versions from the Fixes: tag. And the
+version based on the original commit would be inaccurate in many
+cases, as the commit may have been already backported to earlier
+streams and you need to patch those as well. Thus, I believe it's
+better to leave out the version hint and force people to look up the
+Fixes: commit instead, which is more reliable. Also if you grep the
+latest mainline commits for 'Cc: stable@vger.kernel.org', you'll see
+that most commits don't include the version hint any more.
 
-Tested-by: Fenil Jain<fkjainco@gmail.com>
+-- 
+Ondrej Mosnacek
+Software Engineer, Linux Security - SELinux kernel
+Red Hat, Inc.
+
