@@ -2,104 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7AE51ED28
-	for <lists+stable@lfdr.de>; Sun,  8 May 2022 13:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9489B51ED7A
+	for <lists+stable@lfdr.de>; Sun,  8 May 2022 14:31:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231438AbiEHLEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 07:04:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36692 "EHLO
+        id S232828AbiEHMfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 08:35:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230432AbiEHLEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 07:04:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C18EDF1B;
-        Sun,  8 May 2022 04:00:57 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9529B80CF6;
-        Sun,  8 May 2022 11:00:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4182C385AC;
-        Sun,  8 May 2022 11:00:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652007654;
-        bh=EZfKEEIU6fwh+g3DA99Vxb5EFnmexu4Vm1FFiHIGZTY=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=caQv8XOk06qog+i2uX6Gcsuf2+7HKtS8azHf0B48MEiK2Es2buQRgcBi4bt9Yq1jB
-         ekoxPo8VIkSQrlfQp2ut8Gh24KTTjQ5eG/Cdxz/1f/Kv0Z+2HBGCS64jUiAugx7j3T
-         BrGsV9OQsS2phjKMFa0czJlo8t1xb1XZXpcXye3QLFXwOHY1Bz3ZkgDPHa5I7L7e81
-         afitPbQuu/bqjN15fPyD2hVXgmVrjQXac5055pHhgBoSoP3SDRz6QeJU7PXuSrRErA
-         GgTUDu4qio04xXEeVtAbvTg7H/8+X+r4MuXFV5DDrmAR4Kdy/6SsKgEMglAmgsnEaz
-         izn4F0psWe9gQ==
-Message-ID: <b106e3661a104a08672cd1b9b97bd1f4bec85740.camel@kernel.org>
-Subject: Re: [PATCH] ceph: check folio PG_private bit instead of
- folio->private
-From:   Jeff Layton <jlayton@kernel.org>
-To:     Xiubo Li <xiubli@redhat.com>
-Cc:     lhenriques@suse.de, idryomov@gmail.com, vshankar@redhat.com,
-        ceph-devel@vger.kernel.org, stable@vger.kernel.org
-Date:   Sun, 08 May 2022 07:00:52 -0400
-In-Reply-To: <20220508061543.318394-1-xiubli@redhat.com>
-References: <20220508061543.318394-1-xiubli@redhat.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S232146AbiEHMfI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 08:35:08 -0400
+X-Greylist: delayed 19087 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 08 May 2022 05:31:18 PDT
+Received: from bmailout2.hostsharing.net (bmailout2.hostsharing.net [83.223.78.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85757BF53;
+        Sun,  8 May 2022 05:31:18 -0700 (PDT)
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256
+         client-signature RSA-PSS (4096 bits) client-digest SHA256)
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by bmailout2.hostsharing.net (Postfix) with ESMTPS id 7E21628004991;
+        Sun,  8 May 2022 14:31:16 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 72166119437; Sun,  8 May 2022 14:31:16 +0200 (CEST)
+Date:   Sun, 8 May 2022 14:31:16 +0200
+From:   Lukas Wunner <lukas@wunner.de>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: Re: [PATCH 5.10 126/599] PCI: pciehp: Clear cmd_busy bit in polling
+ mode
+Message-ID: <20220508123116.GA27352@wunner.de>
+References: <20220405070258.802373272@linuxfoundation.org>
+ <20220405070302.589741179@linuxfoundation.org>
+ <20220409081314.GA19452@amd>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220409081314.GA19452@amd>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 2022-05-08 at 14:15 +0800, Xiubo Li wrote:
-> The pages in the file mapping maybe reclaimed and reused by other
-> subsystems and the page->private maybe used as flags field or
-> something else, if later that pages are used by page caches again
-> the page->private maybe not cleared as expected.
+On Sat, Apr 09, 2022 at 10:13:15AM +0200, Pavel Machek wrote:
+> > From: Liguang Zhang <zhangliguang@linux.alibaba.com>
+> > 
+> > Writes to a Downstream Port's Slot Control register are PCIe hotplug
+> > "commands."  If the Port supports Command Completed events, software must
+> > wait for a command to complete before writing to Slot Control again.
+> > 
+> > pcie_do_write_cmd() sets ctrl->cmd_busy when it writes to Slot Control.  If
+> > software notification is enabled, i.e., PCI_EXP_SLTCTL_HPIE and
+> > PCI_EXP_SLTCTL_CCIE are set, ctrl->cmd_busy is cleared by pciehp_isr().
+> > 
+> > But when software notification is disabled, as it is when pcie_init()
+> > powers off an empty slot, pcie_wait_cmd() uses pcie_poll_cmd() to poll for
+> > command completion, and it neglects to clear ctrl->cmd_busy, which leads to
+> > spurious timeouts:
 > 
-> Here will check the PG_private bit instead of the folio->private.
+> I'm pretty sure this fixes the problem, but... it is still not fully
+> correct.
 > 
-> Cc: stable@vger.kernel.org
-> URL: https://tracker.ceph.com/issues/55421
-> Signed-off-by: Xiubo Li <xiubli@redhat.com>
-> ---
->  fs/ceph/addr.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+> > +++ b/drivers/pci/hotplug/pciehp_hpc.c
+> > @@ -98,6 +98,8 @@ static int pcie_poll_cmd(struct controll
+> >  		if (slot_status & PCI_EXP_SLTSTA_CC) {
+> >  			pcie_capability_write_word(pdev, PCI_EXP_SLTSTA,
+> >  						   PCI_EXP_SLTSTA_CC);
+> > +			ctrl->cmd_busy = 0;
+> > +			smp_mb();
+> >  			return 1;
+> >  		}
 > 
-> diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-> index 63b7430e1ce6..1a108f24e7d9 100644
-> --- a/fs/ceph/addr.c
-> +++ b/fs/ceph/addr.c
-> @@ -85,7 +85,7 @@ static bool ceph_dirty_folio(struct address_space *mapping, struct folio *folio)
->  	if (folio_test_dirty(folio)) {
->  		dout("%p dirty_folio %p idx %lu -- already dirty\n",
->  		     mapping->host, folio, folio->index);
-> -		VM_BUG_ON_FOLIO(!folio_get_private(folio), folio);
-> +		VM_BUG_ON_FOLIO(!folio_test_private(folio), folio);
->  		return false;
->  	}
->  
-> @@ -122,7 +122,7 @@ static bool ceph_dirty_folio(struct address_space *mapping, struct folio *folio)
->  	 * Reference snap context in folio->private.  Also set
->  	 * PagePrivate so that we get invalidate_folio callback.
->  	 */
-> -	VM_BUG_ON_FOLIO(folio_get_private(folio), folio);
-> +	VM_BUG_ON_FOLIO(folio_test_private(folio), folio);
->  	folio_attach_private(folio, snapc);
->  
->  	return ceph_fscache_dirty_folio(mapping, folio);
-> @@ -150,7 +150,7 @@ static void ceph_invalidate_folio(struct folio *folio, size_t offset,
->  	}
->  
->  	WARN_ON(!folio_test_locked(folio));
-> -	if (folio_get_private(folio)) {
-> +	if (folio_test_private(folio)) {
->  		dout("%p invalidate_folio idx %lu full dirty page\n",
->  		     inode, folio->index);
->  
+> Is the memory barrier neccessary? I don't see corresponding memory
+> barrier for reading.
+> 
+> If it is neccessary, should we have WRITE_ONCE at the very least, or
+> probably normal atomic operations?
 
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
+The cmd_busy flag is set by pcie_do_write_cmd() before writing the
+Slot Control register and it is then cleared by pciehp_isr().
+
+The purpose of the memory barriers is to ensure that order.
+IOW, we want to avoid a scenario where the write to cmd_busy in
+pcie_do_write_cmd() hasn't been committed to memory yet, the Slot Control
+write is performed, an interrupt occurs and is handled, the interrupt
+handler writes cmd_busy = 0 and only then is the cmd_busy = 1 write
+in pcie_do_write_cmd() committed to memory.
+
+That said, you're right that such a scenario is impossible if
+cmd_busy is cleared by the synchronous pcie_poll_cmd()
+instead of the asynchronous pciehp_isr().
+
+Care to submit a patch to remove the memory barrier in this single
+location?
+
+A WRITE_ONCE() (i.e. a mere compiler barrier instead of a proper
+cacheline flush) is not sufficient to avoid the above scenario.
+An atomic bitop would work, but wouldn't offer advantages compared
+to the status quo.
+
+Thanks,
+
+Lukas
