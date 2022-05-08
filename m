@@ -2,88 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE4351EEBF
-	for <lists+stable@lfdr.de>; Sun,  8 May 2022 18:01:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B7CC51EED8
+	for <lists+stable@lfdr.de>; Sun,  8 May 2022 18:12:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234395AbiEHQFT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 12:05:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59138 "EHLO
+        id S235285AbiEHQQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 12:16:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232281AbiEHQFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 12:05:18 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BB0D654C;
-        Sun,  8 May 2022 09:01:23 -0700 (PDT)
-X-UUID: 1dbc5d80bf594775b536ef032d9feea6-20220509
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.4,REQID:056b2570-af1b-4a0a-850b-587964813929,OB:0,LO
-        B:0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:45,FILE:0,RULE:Release_Ham,ACT
-        ION:release,TS:45
-X-CID-INFO: VERSION:1.1.4,REQID:056b2570-af1b-4a0a-850b-587964813929,OB:0,LOB:
-        0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:45,FILE:0,RULE:Release_Ham,ACTIO
-        N:release,TS:45
-X-CID-META: VersionHash:faefae9,CLOUDID:4f60a016-2e53-443e-b81a-655c13977218,C
-        OID:IGNORED,Recheck:0,SF:28|17|19|48,TC:nil,Content:-5,EDM:-3,File:nil,QS:
-        0,BEC:nil
-X-UUID: 1dbc5d80bf594775b536ef032d9feea6-20220509
-Received: from mtkmbs10n1.mediatek.inc [(172.21.101.34)] by mailgw01.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1948238772; Mon, 09 May 2022 00:01:17 +0800
-Received: from mtkcas10.mediatek.inc (172.21.101.39) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Mon, 9 May 2022 00:01:15 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas10.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 9 May 2022 00:01:15 +0800
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     <yf.wang@mediatek.com>
-CC:     <Libo.Kang@mediatek.com>, <Ning.Li@mediatek.com>,
-        <iommu@lists.linux-foundation.org>, <joro@8bytes.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <logang@deltatee.com>,
-        <matthias.bgg@gmail.com>, <stable@vger.kernel.org>,
-        <will@kernel.org>, <wsd_upstream@mediatek.com>,
-        <yong.wu@mediatek.com>
-Subject: Re: [PATCH] iommu/dma: Fix iova map result check bug
-Date:   Mon, 9 May 2022 00:01:15 +0800
-Message-ID: <20220508160115.4851-1-miles.chen@mediatek.com>
-X-Mailer: git-send-email 2.18.0
-In-Reply-To: <20220507085204.16914-1-yf.wang@mediatek.com>
-References: <20220507085204.16914-1-yf.wang@mediatek.com>
+        with ESMTP id S235257AbiEHQQ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 12:16:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BFDFDEF5;
+        Sun,  8 May 2022 09:12:36 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDC1D6121A;
+        Sun,  8 May 2022 16:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8460DC385A4;
+        Sun,  8 May 2022 16:12:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1652026355;
+        bh=P6W2XUCIDtOr95rgU7d3QpyWeAEQjkqN2CvdZhRnVUM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=fEy8y0LNeJNz4tKeHwzbIhiCFHWOYrSj5lgBMNLoTwocZIanfrS13yFAKvj1LlZjg
+         x/y7Dd1dJ5hmo8bU5yGGAA+BVxNhZNk7GVMjm6R+o8rg8PNxweRSNgD0tec1AWE/op
+         ZeNb9L4CFjGEFYkQUg4u8KeTWwb1EgjT288lw1YQ=
+Date:   Sun, 8 May 2022 18:12:32 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Justin Forbes <jforbes@fedoraproject.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.17 162/225] ASoC: Intel: sof_es8336: Add a quirk for
+ Huawei Matebook D15
+Message-ID: <Ynfr8LxLZpNvbQ77@kroah.com>
+References: <20220504153110.096069935@linuxfoundation.org>
+ <20220504153124.439720094@linuxfoundation.org>
+ <YnLk9DLTZcVjTdK/@fedora64.linuxtx.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-MTK:  N
-X-Spam-Status: No, score=0.3 required=5.0 tests=BAYES_00,MAY_BE_FORGED,
-        SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE,T_SPF_TEMPERROR,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YnLk9DLTZcVjTdK/@fedora64.linuxtx.org>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> The data type of the return value of the iommu_map_sg_atomic
-> is ssize_t, but the data type of iova size is size_t,
-> e.g. one is int while the other is unsigned int.
+On Wed, May 04, 2022 at 03:41:24PM -0500, Justin Forbes wrote:
+> On Wed, May 04, 2022 at 06:46:40PM +0200, Greg Kroah-Hartman wrote:
+> > From: Mauro Carvalho Chehab <mchehab@kernel.org>
+> > 
+> > [ Upstream commit c7cb4717f641db68e8117635bfcf62a9c27dc8d3 ]
+> > 
+> > Based on experimental tests, Huawei Matebook D15 actually uses
+> > both gpio0 and gpio1: the first one controls the speaker, while
+> > the other one controls the headphone.
+> > 
+> > Also, the headset is mapped as MIC1, instead of MIC2.
+> > 
+> > So, add a quirk for it.
+> > 
+> > Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> > Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+> > Link: https://lore.kernel.org/r/d678aef9fc9a07aced611aa7cb8c9b800c649e5a.1649357263.git.mchehab@kernel.org
+> > Signed-off-by: Mark Brown <broonie@kernel.org>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
 > 
-> When iommu_map_sg_atomic return value is compared with iova size,
-> it will force the signed int to be converted to unsigned int, if
-> iova map fails and iommu_map_sg_atomic return error code is less
-> than 0, then (ret < iova_len) is false, which will to cause not
-> do free iova, and the master can still successfully get the iova
-> of map fail, which is not expected.
+> This patch is missing some dependencies and fails to build:
 > 
-> Therefore, we need to check the return value of iommu_map_sg_atomic
-> in two cases according to whether it is less than 0.
+> sound/soc/intel/boards/sof_es8336.c:261:41: error: 'SOF_ES8336_HEADPHONE_GPIO' undeclared here (not in a function)
+>   261 |                 .driver_data = (void *)(SOF_ES8336_HEADPHONE_GPIO |
 > 
-> Fixes: ad8f36e4b6b1 ("iommu: return full error code from iommu_map_sg[_atomic]()")
-> Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
+> SOF_ES8336_HEADPHONE_GPIO was defined in upstream commit:
+> 6e1ff1459e008 ASoC: Intel: sof_es8336: support a separate gpio to control headphone
+> which appeared with 5.18-rc4
+> 
+> sound/soc/intel/boards/sof_es8336.c:262:41: error: 'SOC_ES8336_HEADSET_MIC1' undeclared here (not in a function)
+>   262 |                                         SOC_ES8336_HEADSET_MIC1)
+> 
+> SOC_ES8336_HEADSET_MIC1 was defined in upstream commit: 
+> 7c7bb2a059b22 ASoC: Intel: sof_es8336: add a quirk for headset at mic1 port
+> which also appeared with 5.18-rc4
+> 
+> We either need to bring in these 2 commits or drop this one from the
+> stable queue.
 
-Yes, we have to make sure ssize_t >= 0 before comparing ssize_t and size_t.
+I've dropped this one now, thanks.
 
-Reviewed-by: Miles Chen <miles.chen@mediatek.com> 
->
-> Cc: <stable@vger.kernel.org> # 5.15.*
+greg k-h
