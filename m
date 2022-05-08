@@ -2,119 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE22351EB9A
-	for <lists+stable@lfdr.de>; Sun,  8 May 2022 06:40:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67D0F51EBE8
+	for <lists+stable@lfdr.de>; Sun,  8 May 2022 07:19:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231165AbiEHEoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 00:44:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57494 "EHLO
+        id S231279AbiEHFXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 01:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230353AbiEHEoh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 00:44:37 -0400
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD3D7E0D4
-        for <stable@vger.kernel.org>; Sat,  7 May 2022 21:40:48 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 686EF5C005F;
-        Sun,  8 May 2022 00:40:46 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sun, 08 May 2022 00:40:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:reply-to:sender
-        :subject:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender
-        :x-me-sender:x-sasl-enc; s=fm1; t=1651984846; x=1652071246; bh=N
-        ew1kHAYn2RAULfL2ULXIJxNYWlQQiUEdCVT1uKZn6k=; b=r42uasgFii/DdMNXv
-        Scw/IFsoZnWMWairAZPWq7pyAPtq2X+y4XfMMo4VM3/GyyLsqqedCFUTJT6UA1xc
-        0evtOG4ZyhgHjhOgvfXATD9wFEumms2xfP4xW9unnqrPcl4gwikQGjQXB/gpb9Y4
-        xvWw3PIsqytkV69MAfLOrhO6kaLhvSZ9olQ/+LUu87V1hX/Ky33gfKcaJ+MOxVjh
-        LhFViyXIqn/hvhu/P1noc4T6XU4eOARuYbHJ8vxKxXzEZRd3Sc8g2a9STeF92kR1
-        +npv9oU2Oxevn/aIbAoeM5Kq9fUlP0LvHwXNUYxvJFAPMosdjwIBW8PNwaBYeP05
-        0fOcQ==
-X-ME-Sender: <xms:zkl3Yk1_srdPr0GUuI3ixxsCouG3f8hNJr4x-HVEY7aJFpeiYmDCJQ>
-    <xme:zkl3YvF9Uf7O8NOg9sHrBnZ6fYI7kf5RrvL03xrCWJxRe96Ot6vmb9ZVAfLNY7JPF
-    xCF-SkIVnb_czY>
-X-ME-Received: <xmr:zkl3Ys59ZY9ive8kExBtGs7f-fSNfSq_wytrOSNfWUB7ck57G0zJStIQbM_0>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeeigdekhecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvvefukfggtggujgesghdtreertddtvdenucfhrhhomhepffgvmhhiucfo
-    rghrihgvucfqsggvnhhouhhruceouggvmhhisehinhhvihhsihgslhgvthhhihhnghhslh
-    grsgdrtghomheqnecuggftrfgrthhtvghrnhepieelkeetleegieeufedvffeifeefveeg
-    gfeutdehteevteefueehhfduhfetfeehnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepuggvmhhisehinhhvihhsihgslhgvthhhihhnghhslhgr
-    sgdrtghomh
-X-ME-Proxy: <xmx:zkl3Yt0QCSCuNfEQx7_3yh1ZIGavCuVJMHCjtMfImWZnMV6TiAUYig>
-    <xmx:zkl3YnGAAjfoK2h3mu23wK6QuMnaF0AN-wunbKm52nlIlVglRQE5sw>
-    <xmx:zkl3Ym_SiJLD3A3mkfRxxbn82Mc6nRPWa07TMQl0nNEB-lweYRmIdg>
-    <xmx:zkl3YsTKOCE2xyhJiP97esEF_hJn90blYVDYvnVawDHLh_h0fI8FKA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 8 May 2022 00:40:45 -0400 (EDT)
-Date:   Sun, 8 May 2022 00:40:25 -0400
-From:   Demi Marie Obenour <demi@invisiblethingslab.com>
-To:     Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <msnitzer@redhat.com>
-Cc:     dm-devel@redhat.com, Milan Broz <gmazyland@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [dm-devel] [PATCH v2] dm-crypt: make printing of the key
- constant-time
-Message-ID: <YndJzCY5sZG3k5q5@itl-email>
+        with ESMTP id S231243AbiEHFXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 01:23:18 -0400
+Received: from mail-yw1-x1143.google.com (mail-yw1-x1143.google.com [IPv6:2607:f8b0:4864:20::1143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A90626589
+        for <stable@vger.kernel.org>; Sat,  7 May 2022 22:19:27 -0700 (PDT)
+Received: by mail-yw1-x1143.google.com with SMTP id 00721157ae682-2f83983782fso116063497b3.6
+        for <stable@vger.kernel.org>; Sat, 07 May 2022 22:19:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=boZL8sxWa4d1tSO8Vkf2XAGcnSBFA0JviefhzZinYdg=;
+        b=OMhZgX8Tl+5XlEFHitg/shnltUikmVhk8jziKNAQgHkNSI8OoWFe88UuqBWxsaYG4b
+         keCIwbkyiaMuEy/n1iKbSEP73a+VHXXRWSe2vHkEfKfe5hZ6Zvmv1gT7LCF0V8R46Sqf
+         OxdZDUripwIqJS8ySMJWfXkl2/EBHEZN2zbCz+GP54lTyVxSXytDoFqV3FyRP71bYi2A
+         UoCmP+gYYTvJavaxUa++AxfkMcti5XSzJBggaGC1xhuhW+kkc7+SL5EUN636qO3yAL0u
+         eny0UI7nlM9KIThMZuOigZN4YYYkGX43WgOx+I3Z/LMx4yNxSjhtvHcnZlXWz8acRENW
+         Gb4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=boZL8sxWa4d1tSO8Vkf2XAGcnSBFA0JviefhzZinYdg=;
+        b=D0MBOIo/VIHjBUVeu2n2iRd68hnUmSfZbdgpgEB4eEqXXE3KErpaEpzt7ytQbW8//r
+         tnf2QjDuqPieSR+WVp5Zulu3fJlCA3SEETIutvfbeTOTVbTzwCnGh6q77r+KrMI6Seou
+         /SZaLfdV3o1PHAj/0T+lisV6QnjdMr9igeHr66RxjLsSfXqKiNhTzaEy05eu72yoIEx1
+         /kYbUoR6wF23ZNofqfoxIMjIWfEDMv2fmQXbYK+ZXHKQ0cXfVmX618VQAoY3d4W0epLF
+         twhJxAX6lPczgfUVMerl0QTg/JMb1A40usgcW6wdptGHXWdYr0c6YSomLmg2m3IZkf80
+         fJRQ==
+X-Gm-Message-State: AOAM530nCXkZjzdBI3/xc1aPawACoRT6anwKe6V6mQQc3hFvpgpCKrx1
+        cl01S08Yy8ojiTtC/Ug+5ByCR4Dl43vNY3Jf2RM=
+X-Google-Smtp-Source: ABdhPJzDIfwDq2JHUZKwPunldWXOg1YzGvzl+vmV814Vs+icgU8WGfeSKTC2n1/ostkNGu4MpwZkxNizpFpp6cpKOkg=
+X-Received: by 2002:a81:c443:0:b0:2d0:dfa3:9ed9 with SMTP id
+ s3-20020a81c443000000b002d0dfa39ed9mr8694871ywj.220.1651987166646; Sat, 07
+ May 2022 22:19:26 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cOu/gkykmDr07wxN"
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.2204250851320.1699@file01.intranet.prod.int.rdu2.redhat.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+Reply-To: azzedineguessous1@gmail.com
+Sender: fatiskoumbousi@gmail.com
+Received: by 2002:a05:7108:3a01:0:0:0:0 with HTTP; Sat, 7 May 2022 22:19:26
+ -0700 (PDT)
+From:   "Mr.Azzedine Guessous" <azzedineguessous1@gmail.com>
+Date:   Sat, 7 May 2022 22:19:26 -0700
+X-Google-Sender-Auth: PUX3IW3qZH56_i5QvD3Uolhcuaw
+Message-ID: <CALtGhaPDKKZ5WhnenbOOpmp-4yvByEyNROGJvXZcPPBXbC8qTA@mail.gmail.com>
+Subject: VERY VERY URGENT,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.2 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        FREEMAIL_REPLYTO_END_DIGIT,HK_NAME_FM_MR_MRS,LOTS_OF_MONEY,
+        MONEY_FREEMAIL_REPTO,NA_DOLLARS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,SUBJ_ALL_CAPS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:1143 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5020]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [azzedineguessous1[at]gmail.com]
+        *  0.5 SUBJ_ALL_CAPS Subject is all capitals
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [azzedineguessous1[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  1.5 NA_DOLLARS BODY: Talks about a million North American dollars
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 HK_NAME_FM_MR_MRS No description available.
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.4 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  1.9 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Good days to you
 
---cOu/gkykmDr07wxN
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Date: Sun, 8 May 2022 00:40:25 -0400
-From: Demi Marie Obenour <demi@invisiblethingslab.com>
-To: Mikulas Patocka <mpatocka@redhat.com>,
-	Mike Snitzer <msnitzer@redhat.com>
-Cc: dm-devel@redhat.com, Milan Broz <gmazyland@gmail.com>,
-	stable@vger.kernel.org
-Subject: Re: [dm-devel] [PATCH v2] dm-crypt: make printing of the key
- constant-time
+Please kindly accept my apology for sending you this email without
+your consent i am Mr.Azzedine Guessous,The director in charge of
+auditing and accounting section of Bank Of Africa Ouagadougou
+Burkina-Faso in West Africa, I am writing to request your assistance
+to transfer the sum of ( $18.6 Million US DOLLARS) feel free to
+contact me here (azzedineguessous1@gmail.com) for more clarifications
+if you are really interested in my proposal Have a nice day
 
-Nit: did you mean CC: stable@vger.kernel.org (colon instead of
-semicolon)?  Also, would it be better to avoid using the formatting
-built-in to DMEMIT()?  Finally, are there any architectures for which
-gcc or clang make this non-constant-time?
---=20
-Sincerely,
-Demi Marie Obenour (she/her/hers)
-Invisible Things Lab
-
---cOu/gkykmDr07wxN
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEdodNnxM2uiJZBxxxsoi1X/+cIsEFAmJ3ScsACgkQsoi1X/+c
-IsGt3RAA2hU0+iLv18E6gyonqnEFcAw1qMWO8eVBJ/J/zUiYSBile1ubZOESzt2T
-9ic5zo6o1U34u+8g0O5kKAvtXPWZIsXEILA5Bs8rKPtWYRDy/0yfJdqDJ7tEtCjR
-YIEH04j3EHVdYU4VznizQ3G2OYuhFXv1TaD9TGONlwHLtwx8fBSmpixFRxcvscol
-GOQrpWT1CgYzr2zju5MpAEAOeTTAkKqDBYIgPwhOglfQ2KHKPn+Ao4nDiGVUPIvb
-lLuKodoaMvxcx3vNqIGkL/lL0ivJwoqwNhDBq+UT5fA8id9Rtskh4kwYv/B+3PRm
-9pAMsldNCtLMWbf7Vtcf2dfTOfqifZ/FMf14Cw2LvgA0rn3lINdM39N/Pd6LngMm
-qvXxy8Ot2G8NWb9BK7ZkbzB7yHA7xnTdREfk8eFF7FYyJFWi4SDqryUqjm11FSa0
-3fvUXUSUooFk1tgIIqXVDFUB8kzQjZ5TP3c47vTabKQubwHxmdYuAwM4U3dxN27B
-J0nURU67xlup/r5A/7siPVteNjQ7KfkT4MVHL2WW6bOSQrsyutqqIiEFvbYkp5Ug
-e/e6/vWB3GTfnAPRX+b1NNLcuFOMRi0Q5qv9IPa4SMJf9vP8YtAcRikjNrhyITf+
-s5Y0gCb2vup7fHeOC6a7ac4wj7NbN0O1vvEnsBKENq3ufjLBtsg=
-=pKVN
------END PGP SIGNATURE-----
-
---cOu/gkykmDr07wxN--
+Mr.Azzedine Guessous
