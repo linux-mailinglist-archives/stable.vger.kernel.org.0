@@ -2,57 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D4851EDDA
-	for <lists+stable@lfdr.de>; Sun,  8 May 2022 15:52:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69A351EE61
+	for <lists+stable@lfdr.de>; Sun,  8 May 2022 16:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233624AbiEHN4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 09:56:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37500 "EHLO
+        id S234091AbiEHPAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 11:00:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231799AbiEHN4D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 09:56:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4846BDEF7;
-        Sun,  8 May 2022 06:52:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD93061193;
-        Sun,  8 May 2022 13:52:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCFB0C385AC;
-        Sun,  8 May 2022 13:52:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652017931;
-        bh=K8ZdW0YTIJUfw19c0PaxA0xsHdt8IH5745zf3Q2+Wmg=;
-        h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-        b=qEtBsHNME4BVvPB0XeyE7fum/bHyEUgjXIeZUNLTwwJQ4PJyQNmZRBILOXB2ey/pt
-         9Do2pz1MJuaHjCzY83wsIGKA17Cja8WftP7hgI1UCmLHPUBsAZ1mKqq1WczbiBiPRG
-         bzQXZp/gJIi1ohGXOR5NSP5mdmmJg3qhO3W7IQpwWAijMKbC4dnaz2DprJxYXFSVzJ
-         d2zHwVejcA0Fv68Hyf0/xXCmz7D1V0YZBHiOr8KypFK0A9UUaRE7r1BoPamMLQdr45
-         wiqQm5AhiAJOJpTTOETh8/d4wg2bcHBf4EKI0Q22AeBf0z92pEz3ToyYgTWeVBrZJ3
-         p2OO32eQfvBvw==
-Message-ID: <c717cdc3-bb6f-d437-f039-d05418c9dd88@kernel.org>
-Date:   Sun, 8 May 2022 21:52:06 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [f2fs-dev] [PATCH] f2fs: fix to do sanity check for inline inode
+        with ESMTP id S234040AbiEHPAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 11:00:51 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2122.outbound.protection.outlook.com [40.107.243.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E3DBE07
+        for <stable@vger.kernel.org>; Sun,  8 May 2022 07:57:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=liEwCADH6gdJa67Y6AUxIs8ekYxT5/ap24bJETzucN7Ih8aDH2imd4OzvVb50qEf2Qh1NK+p5iQMUkoMKF+ov8fSJQm5ljEvzkOcVXm7XrV7aUDjNU8yhMUMj/YZpymaUeYUiuodus5RR424AS8FW0CmcPfrA8TlGXyTW0UIFSsJyXkUI+tgiLogS6ZJf+nu3ysFqnddLH52YRpXCcxsC/R/NM4wwMSP2dt7MAYq6+SyMexQ7y0vWK57YktD/h15INRS2y0JWiqjhJ+zLh5TUm2SZ5ki/qITaz+vGtKbBMQF9Zo3onKldREdL0aYWnEJDdQQDp75lp7Ea1sm1aGXoA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=QYUwkWrm7RjvwTz3Dq1GlaAq2jHn3wGJ9Ap8a+8d7mY=;
+ b=BB8841GDoOnyquoIogwI51JY+2fLMueoJtEI4UywAITBVXWzimaFlvb9a8BENOmrU7k5plZETDhWG/PuIDXJv6wUAyamQhChbYERnYGbn81UU8B6TGugRrbtrYda5xq7BXIdgnHoChghVRjDxEG1xxoEPAmRhPiI/vFvrLkcfm4jOQyQuDP1SbU0Ga+BvMD88isnI/yfgKBvMLdB1wVM6ZcIq1eUZDrsgBD3Znzdk1dA3HMJhumupk6KLgHIt6UDFLTG/oFTtqVvy9qCigWirfnfIrXrqUdry3JPrGgtuVdKHip0a5X1WLgFOjEDzfOxqMruEwE9FmH/7ZnfeZt93A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=hammerspace.com; dmarc=pass action=none
+ header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=QYUwkWrm7RjvwTz3Dq1GlaAq2jHn3wGJ9Ap8a+8d7mY=;
+ b=EHu+mH3OXO9OErxcesAtorvrBAOklhRDEiVe4h6acvMx9LEMDcvbA6emOoqJb0PzOA66EpWT9rKTEtPG1Xyk5QuAC47eKxsWCwlp9yVvHdjAvQ6dk2aM/u2LumeXDIq3MXXWZYZYKIpz38BZnJLGqHgll3EEJaP1EBv6bM/m33A=
+Received: from CH0PR13MB5084.namprd13.prod.outlook.com (2603:10b6:610:111::7)
+ by BYAPR13MB2792.namprd13.prod.outlook.com (2603:10b6:a03:b0::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.12; Sun, 8 May
+ 2022 14:56:55 +0000
+Received: from CH0PR13MB5084.namprd13.prod.outlook.com
+ ([fe80::694a:6bf0:4537:f3e5]) by CH0PR13MB5084.namprd13.prod.outlook.com
+ ([fe80::694a:6bf0:4537:f3e5%5]) with mapi id 15.20.5250.012; Sun, 8 May 2022
+ 14:56:54 +0000
+From:   Trond Myklebust <trondmy@hammerspace.com>
+To:     "sashal@kernel.org" <sashal@kernel.org>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+CC:     "bfields@fieldses.org" <bfields@fieldses.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Please do not apply 892de36fd4a9 ("SUNRPC: Ensure gss-proxy connects
+ on setup")
+Thread-Topic: Please do not apply 892de36fd4a9 ("SUNRPC: Ensure gss-proxy
+ connects on setup")
+Thread-Index: AQHYYuvbdLvbuAa+6UWBsvxB8rMczQ==
+Date:   Sun, 8 May 2022 14:56:54 +0000
+Message-ID: <ac5fa5c1d6eb33628bb528d1e67dc5a45fd7151c.camel@hammerspace.com>
+Accept-Language: en-US, en-GB
 Content-Language: en-US
-From:   Chao Yu <chao@kernel.org>
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     Ming Yan <yanming@tju.edu.cn>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net
-References: <20220428024940.12102-1-chao@kernel.org>
- <YnLwDx1smguDQ6qC@google.com>
- <173c51c2-eff3-8d76-7041-e9c58024a97e@kernel.org>
- <YnNFCEdSpyVSaTZq@google.com>
- <142acf95-c940-8d4a-7f00-08f1bb816c49@kernel.org>
-In-Reply-To: <142acf95-c940-8d4a-7f00-08f1bb816c49@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-9.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=hammerspace.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 05079a44-bd99-4866-ae38-08da3102fde8
+x-ms-traffictypediagnostic: BYAPR13MB2792:EE_
+x-microsoft-antispam-prvs: <BYAPR13MB2792E97D427FED86C31F5B42B8C79@BYAPR13MB2792.namprd13.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: cUR0JJ5Oy01l6OrsyLYS45IHf/o3XXppCcgqB6ZQUnXSVth1PJPjBbvmlkT9S+fr9SEdaaMBzSy/4JR5bOG7dV144SC3e6jmy1xDihnon20xqloGOCdFxVLWeGOd+WONqVCiOSW9hwH3T4HnfCg2apT5vtceqVOCXTMZ3Z3qBx81lztqKbpvg/f5QHeVMiTn567GxD7DH0tSFdqxc71UK5ggxLfseUk/ioD8wPakZ+C7icWrZj+Mrbz1mcUw6f/L3gf0sm9qbu3aJog26QqHND8U3eZRyt5rfyRcXlJPpDOMad3xRHCvd0K+BwK1RIGU5idIT8GN6QEkFT6/WYrtmw4RQnMZ5+hopQUacLQhaXQ7AAKDOKuz+ITwxkvi3iFzQiokojxTI9iL6MzZ9juTAZ6wm4R0jvH7NGiXVdvHSwP6YSQTpaRdtGRc0IAeOq2RYmKCpKP0WoEXYHB5ih+mmpGP3jADypvW6oSANPEA2Ugf1a9MnoN2BMfsQRmhoekrrIS7itXpBiowILDh0DayHme5zDIw5uwuGQ3/aYXjNnlOsPUxeAjdAgfILKYJc/gFeyawnB+Zd+IyQ2o+7OReM3oItyBEW0X699rAhOtm88yH3uoGTQ/saYPutS1wtRnFo3bIVcR3v2EavlXVT1AnE69thCQPoX9TEB1Rnq5/LOfg2d2fN+vzW9vR7Hz7kEd0sBXEoTCdlKYkKqW1OAfEig==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR13MB5084.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(6506007)(2906002)(76116006)(6512007)(36756003)(8676002)(4326008)(64756008)(71200400001)(66446008)(5660300002)(86362001)(66556008)(66476007)(26005)(2616005)(4744005)(66946007)(508600001)(6486002)(38100700002)(38070700005)(110136005)(122000001)(54906003)(186003)(316002)(8936002);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?VkdoUVFITkpieEhyKytzYThZYWlDelp5ZTVBMXZHK04waUpwNW04bXdURkMw?=
+ =?utf-8?B?cjZQV21UNTBBNlI2bi9JaFFEcDRJVDhNK21HUEJaUW1nRmFPQWJKQ2NXREZC?=
+ =?utf-8?B?NzhLMSsvQzRJY0V4dXJFQVRkcThub2d2ZWpHUFNsbXJsZXpLT1F3Qlc5dml5?=
+ =?utf-8?B?OG4ySDZZV09QdEJtT3BsZElCR2FIS2orS2FOeWlZZ3lvL21pajhwYnkyUzgz?=
+ =?utf-8?B?THNlcnFJSGpKVDNORVRaU3F5Z0pkWDQxeWpqcURQYzlSd0JJZVVRWkRjdTBm?=
+ =?utf-8?B?ZmlwR1hrNmFGdU04RkVuWWlvVE1NcUNVaUgwaG5zb2wxaHhjSmhObHV1WDlP?=
+ =?utf-8?B?NUVxVEZQSmhnL3BNemtMNi9KOS9NRFp2a2NXbXFhTFFCWjliWnRSSkZrdGNF?=
+ =?utf-8?B?OWFOeUJlcVdqM08xaWgraVlWdVQ3RTl0TGpoVUlxdlluNGxzWHZYOXZWeGJo?=
+ =?utf-8?B?enN1enUxKzUyb3dyRURHaE80RlpYNkpsVlpsZFBTRVlUQ0ROVUZ0Y1IwdGF4?=
+ =?utf-8?B?UW9wWERIRkVsWlQzTmY1cDhjRlJqOG1FS2dacVJYRGJrOGJqTlc4RW5jWnph?=
+ =?utf-8?B?dklSS2t4Sjdoa3N0OXB3c2tOeUZSdTMvUkgxNjMvc1JCLzAzalBjckZMMDZM?=
+ =?utf-8?B?ODJ5WHdhT1dZMTRndjJ2QXQ2Nzl1K0ZjMDRaYy9ITklXVlNjb2hQVXNUUm9O?=
+ =?utf-8?B?N3NHcmtFSjNJOGJ2MDhjTk45WkcrZXkwNFBSc0tMQWM3OU5vT2FMQm9UNnAx?=
+ =?utf-8?B?dnJFREVmNXltNkpJOXhPU3VMNDA2Y0I3ZkYxL3YwT1hZY3FDOWR6c3MzbzRi?=
+ =?utf-8?B?RUpqMG1NK2tyRUpoTmpiQXJaQnhKRkRhdmwvMHZVVTBqT2wxaTNsWHR6NGVq?=
+ =?utf-8?B?K0lBN3NlRDFUK2FEcys2Tjl6cUNJdzV4NWxoNmkvem5IRjdNdHlnS3dRRjJt?=
+ =?utf-8?B?cjFmM2lrL2FGSngzU2h6VlNtb3VBaFI2VlR0WWdGOTZRbTVnL2dtR2ZNNXd2?=
+ =?utf-8?B?MjlzeVJwMTFVTzJZdE5kOHVqakdUanJZb3VUS0hkZ29wT2FtQTJyaUVVTkRJ?=
+ =?utf-8?B?NlBqMzcwczlZcVVyMmd0SmJkVUl6S1ppRi9peUp0M21YUjY3ekswQkJtcjQw?=
+ =?utf-8?B?UGZZRWhZeDZMbitZR2JJQTVRSUVMOXRjeCswdVFSbDUrZkIzWXI0cHU1cHEx?=
+ =?utf-8?B?R3JCUmRPK283dEdWbXJqMGUwcHV6bUZrUlZWVHdTWEdJVjNTRlQ1RW4vSFRS?=
+ =?utf-8?B?bVpKZGRTZXo4MGxsRG1VTnJBQW5NRnlUV2VaZWsxVnliT2tTOFJMa09yejJM?=
+ =?utf-8?B?bGNQYkNqcFlhYmhoVW5aZnIzT0EzZy9EKzJsMk5COEVxSmU1YlFBREY2amlP?=
+ =?utf-8?B?Wmo2bXB4Rk5maWxDbnZoNkdreEVLRThMb3RWNE1UK25zTnJYZE5WUTBMbkFO?=
+ =?utf-8?B?R003WE1jME45ZytvMFJGdE54Y1pOcW5EaHJDSjRqQlNNRGlvRktOOW9DeTF6?=
+ =?utf-8?B?NU5aYTF5K2dGMlBFcDFhdyt6K3FEQmh6bktEU1NwVzIyMmxhaW5HcVppYUhj?=
+ =?utf-8?B?Y1VPeHBwbTN4ZDJ4Q3dzKzc1aUtTWUozQ3JjdEdESmlLZ3ptSUFLNmR4WUFN?=
+ =?utf-8?B?bFZpbTZBdHNyME9wclhVQU5ESXZ1VTI4TkZDb2g2SU5FcDgxNngxelhqVHRW?=
+ =?utf-8?B?YUlmcy9UZko2Q1BYSVVDL0VpSXFMWEd1MGVsSlJGTjdIRGxDVklOMkpxYUtw?=
+ =?utf-8?B?TmJLVDhNS3JXa3BvSVhuVlB2a3FEUDVIaVNZRld0SHpjZHBHcmRTb1BpS0RY?=
+ =?utf-8?B?cHFSeGhsTGd2NHlHUXVZOTJVcUdISjN0Ym1LTHkzaFZYL21qdStqOWdDdVJG?=
+ =?utf-8?B?M0lsMTJ1VjNZUGdyb1hHTXY3L1Nsd245Y3VRemVjYncweXhoR05qR28zVlho?=
+ =?utf-8?B?Um0yS1E2VWh3cnplVjFxd2JkVVFPeWxXK1B0TnZrL1NQblNEbGVJUWtGRUQ2?=
+ =?utf-8?B?OFgrVXVxc09wbjFWclBIZ3RDTStXUWNaUERNdWVqV1JlY1Q2dE8xeFRIL2wy?=
+ =?utf-8?B?SXUxY0owT1ZQbWx5R3kxZzFqeHRwUUJqaTVZa0ZWWjhBWGgwUHpLYnlPaXRj?=
+ =?utf-8?B?WUl3bEx1RTBxTHRSalpBK2xyRmY5SXYzRTZ2aWJoQUFnd3U5ay9lY2tRSTVG?=
+ =?utf-8?B?djk2dWcvdjBEa0xwYzZWVGg1eUs5dXBTQ3J1QWdYSitXQjN4UzJaNVhQekU4?=
+ =?utf-8?B?ZlR4NVpFVTJaaU82YlF3UktGWCtOZ0RpbW1TeVh3WXphaWdFUitmN1BkMFlj?=
+ =?utf-8?B?TzM1ZU1BbTZibC9NOEJRLzVhcTcxeHJBd0lNKzdrNUpyZzg3ZnhZQnJ0aGF5?=
+ =?utf-8?Q?rA9Kpum7f8QO9y4A=3D?=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <C5CE0F3519DED8419A1BB649586966EB@namprd13.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: hammerspace.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH0PR13MB5084.namprd13.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 05079a44-bd99-4866-ae38-08da3102fde8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 May 2022 14:56:54.5614
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: exU7GopsrDCNtll2NEZsauaO43hdgKH41ak2QL2wbXk+qVuQZWDqism3WnG9XJCUa4ry0pEzy5RhagZbE0vhOw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR13MB2792
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,135 +131,14 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ping,
-
-On 2022/5/5 22:33, Chao Yu wrote:
-> On 2022/5/5 11:31, Jaegeuk Kim wrote:
->> On 05/05, Chao Yu wrote:
->>> On 2022/5/5 5:28, Jaegeuk Kim wrote:
->>>> On 04/28, Chao Yu wrote:
->>>>> As Yanming reported in bugzilla:
->>>>>
->>>>> https://bugzilla.kernel.org/show_bug.cgi?id=215895
->>>>>
->>>>> I have encountered a bug in F2FS file system in kernel v5.17.
->>>>>
->>>>> The kernel message is shown below:
->>>>>
->>>>> kernel BUG at fs/inode.c:611!
->>>>> Call Trace:
->>>>>     evict+0x282/0x4e0
->>>>>     __dentry_kill+0x2b2/0x4d0
->>>>>     dput+0x2dd/0x720
->>>>>     do_renameat2+0x596/0x970
->>>>>     __x64_sys_rename+0x78/0x90
->>>>>     do_syscall_64+0x3b/0x90
->>>>>
->>>>> The root cause is: fuzzed inode has both inline_data flag and encrypted
->>>>> flag, so after it was deleted by rename(), during f2fs_evict_inode(),
->>>>> it will cause inline data conversion due to flags confilction, then
->>>>> page cache will be polluted and trigger panic in clear_inode().
->>>>>
->>>>> This patch tries to fix the issue by do more sanity checks for inline
->>>>> data inode in sanity_check_inode().
->>>>>
->>>>> Cc: stable@vger.kernel.org
->>>>> Reported-by: Ming Yan <yanming@tju.edu.cn>
->>>>> Signed-off-by: Chao Yu <chao.yu@oppo.com>
->>>>> ---
->>>>>     fs/f2fs/f2fs.h  | 7 +++++++
->>>>>     fs/f2fs/inode.c | 3 +--
->>>>>     2 files changed, 8 insertions(+), 2 deletions(-)
->>>>>
->>>>> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
->>>>> index 27aa93caec06..64c511b498cc 100644
->>>>> --- a/fs/f2fs/f2fs.h
->>>>> +++ b/fs/f2fs/f2fs.h
->>>>> @@ -4173,6 +4173,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
->>>>>      */
->>>>>     static inline bool f2fs_post_read_required(struct inode *inode)
->>>>>     {
->>>>> +	/*
->>>>> +	 * used by sanity_check_inode(), when disk layout fields has not
->>>>> +	 * been synchronized to inmem fields.
->>>>> +	 */
->>>>> +	if (file_is_encrypt(inode) || file_is_verity(inode) ||
->>>>> +			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
->>>>> +		return true;
->>>>>     	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
->>>>>     		f2fs_compressed_file(inode);
->>>>>     }
->>>>> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
->>>>> index 83639238a1fe..234b8ed02644 100644
->>>>> --- a/fs/f2fs/inode.c
->>>>> +++ b/fs/f2fs/inode.c
->>>>> @@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
->>>>>     		}
->>>>>     	}
->>>>> -	if (f2fs_has_inline_data(inode) &&
->>>>> -			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
->>>>> +	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
->>>>
->>>> It seems f2fs_may_inline_data() is breaking the atomic write case. Please fix.
->>>
->>> sanity_check_inode() change only affect f2fs_iget(), during inode initialization,
->>> file should not be set as atomic one, right?
->>>
->>> I didn't see any failure during 'f2fs_io write atomic_write' testcase... could you
->>> please provide me detail of the testcase?
->>
->> I just applied this into my device and was getting lots of the below error
->> messages resulting in open failures of database files.
-> 
-> Could you please help to apply below patch and dump the log?
-> 
-> From: Chao Yu <chao@kernel.org>
-> Subject: [PATCH] f2fs: fix to do sanity check for inline inode
-> 
-> Signed-off-by: Chao Yu <chao.yu@oppo.com>
-> ---
->    fs/f2fs/f2fs.h  |  7 +++++++
->    fs/f2fs/inode.c | 11 +++++++----
->    2 files changed, 14 insertions(+), 4 deletions(-)
-> 
-> diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-> index 0f8c426aed50..13a9212d6cb6 100644
-> --- a/fs/f2fs/f2fs.h
-> +++ b/fs/f2fs/f2fs.h
-> @@ -4159,6 +4159,13 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
->     */
->    static inline bool f2fs_post_read_required(struct inode *inode)
->    {
-> +	/*
-> +	 * used by sanity_check_inode(), when disk layout fields has not
-> +	 * been synchronized to inmem fields.
-> +	 */
-> +	if (file_is_encrypt(inode) || file_is_verity(inode) ||
-> +			F2FS_I(inode)->i_flags & F2FS_COMPR_FL)
-> +		return true;
->    	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
->    		f2fs_compressed_file(inode);
->    }
-> diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-> index 02630c17da93..a98614a24ad0 100644
-> --- a/fs/f2fs/inode.c
-> +++ b/fs/f2fs/inode.c
-> @@ -276,11 +276,14 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
->    		}
->    	}
-> 
-> -	if (f2fs_has_inline_data(inode) &&
-> -			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
-> +	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
->    		set_sbi_flag(sbi, SBI_NEED_FSCK);
-> -		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
-> -			  __func__, inode->i_ino, inode->i_mode);
-> +		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) reason(%d, %llu, %ld, %d, %d, %lu) should not have inline_data, run fsck to fix",
-> +			  __func__, inode->i_ino, inode->i_mode,
-> +			  f2fs_is_atomic_file(inode),
-> +			  i_size_read(inode), MAX_INLINE_DATA(inode),
-> +			  file_is_encrypt(inode), file_is_verity(inode),
-> +			  F2FS_I(inode)->i_flags & F2FS_COMPR_FL);
->    		return false;
->    	}
-> 
+SGkgR3JlZyBhbmQgU2FzaGEsDQoNCg0KSnVzdCBhIGhlYWRzIHVwIHRoYXQgQnJ1Y2UgRmllbGRz
+IGZvdW5kIGEgcHJvYmxlbSB3aXRoIG9uZSBvZiB0aGUNCnBhdGNoZXMgaW4gdGhpcyB3ZWVrJ3Mg
+TkZTIGNsaWVudCBwdWxsIHRoYXQgd2FzIG1hcmtlZCBmb3Igc3RhYmxlIHBhdGNoDQppbmNsdXNp
+b24uDQpUaGUgcGF0Y2ggaW4gcXVlc3Rpb24gaXMgY29tbWl0IDg5MmRlMzZmZDRhOSAoIlNVTlJQ
+QzogRW5zdXJlIGdzcy1wcm94eQ0KY29ubmVjdHMgb24gc2V0dXAiKS4gSSdtIHBsYW5uaW5nIG9u
+IHJldmVydGluZyBpdCBpbiBMaW51cycgdHJlZSBhbmQgSQ0KaGF2ZSBhIGRpZmZlcmVudCBmaXgg
+dGhhdCBpcyBxdWV1ZWQgdXAgYW5kIHRoYXQgd2lsbCByZXBsYWNlIHRoaXMgb25lLg0KDQpIb3Bl
+IHRoaXMgY2F0Y2hlcyB5b3UgYmVmb3JlIHlvdSd2ZSBnb25lIHRvIHRoZSB0cm91YmxlIG9mIHF1
+ZXVpbmcgaXQNCnVwLi4uDQoNCkFsbCB0aGUgYmVzdCwNCiAgVHJvbmQNCi0tIA0KVHJvbmQgTXlr
+bGVidXN0DQpMaW51eCBORlMgY2xpZW50IG1haW50YWluZXIsIEhhbW1lcnNwYWNlDQp0cm9uZC5t
+eWtsZWJ1c3RAaGFtbWVyc3BhY2UuY29tDQoNCg0K
