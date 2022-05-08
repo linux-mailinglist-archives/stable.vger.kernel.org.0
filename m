@@ -2,138 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E59251EA66
-	for <lists+stable@lfdr.de>; Sat,  7 May 2022 23:52:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9499051EAC1
+	for <lists+stable@lfdr.de>; Sun,  8 May 2022 03:04:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233529AbiEGV4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 7 May 2022 17:56:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55358 "EHLO
+        id S232974AbiEHBH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 7 May 2022 21:07:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387528AbiEGV4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 17:56:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D30EFD10;
-        Sat,  7 May 2022 14:52:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3C4860F2D;
-        Sat,  7 May 2022 21:52:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 065C6C385A6;
-        Sat,  7 May 2022 21:52:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1651960352;
-        bh=1I4TKssy6yHtJB0DOLvoU/YN0ZUywf5dO/iYT5pJTTo=;
-        h=Date:To:From:Subject:From;
-        b=Gh1jcRFxVeCZSBIEIWnFuhczU68nJUtL4y0VZAwJKnYJIPz4vHmeVZKuu5PvrSvpq
-         rzWsPa/OevXv1//F7wddJcKxrT6RwfGgsQ2SiJ0SNH2Rixhq2fjyD981BW20KR+A6m
-         A1naD9dCxPQFtE3gZ+X4D3dhgYEeUXcIcP1zvBis=
-Date:   Sat, 07 May 2022 14:52:31 -0700
-To:     mm-commits@vger.kernel.org, viro@zeniv.linux.org.uk,
-        stable@vger.kernel.org, avagin@gmail.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + fs-sendfile-handles-o_nonblock-of-out_fd.patch added to mm-nonmm-unstable branch
-Message-Id: <20220507215232.065C6C385A6@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        with ESMTP id S229988AbiEHBH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 7 May 2022 21:07:58 -0400
+Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD1A26E4
+        for <stable@vger.kernel.org>; Sat,  7 May 2022 18:04:10 -0700 (PDT)
+Received: by mail-vs1-xe29.google.com with SMTP id i186so10685096vsc.9
+        for <stable@vger.kernel.org>; Sat, 07 May 2022 18:04:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=e7Q4y7iPGLCVPWqTkoNkP7leQjTRit1YqVpiGh/1AQo=;
+        b=h2M6CuRuevROfB8zrdIA6RNhUaYWZHF/tFqZQTfKnNTZQ5Z+bRt9qTeyXPzaPAVR5C
+         UbJTWNFh+rrRPENYoAzbOCCvoo1u4Xg8v9h+fa+VkxuMb/87Y8a7cJFNbvKQZ+O6pTBb
+         T0+F95VWDn4Qe1Vr3YGWUb0bMUHZAAdnvMgaiq+eztcbIYILMizWjBaAYPsAIfOHnDyo
+         QaQor5bTZYgAEp+Da1Aaq9a5+XmtWuhumXXo9lKWM/fiisz6tYpUQdipj2ww2R294U4o
+         GIREXR3eohTYlp3Xdp7/fzaa8/b+iNLC7xPMSPk74zIN7bA8A8cIdo7liEkaeFMJhHU3
+         6ikA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=e7Q4y7iPGLCVPWqTkoNkP7leQjTRit1YqVpiGh/1AQo=;
+        b=t0W2GAttgjlONaRDHjFcusQ36CPwaxUlGEX6KLZ+/PeXGD3ihqCIcFDjP2HdVgKxUM
+         NVE1tpw93lfQNDbrkt0+0Wn1m/PamVGr9e41YRfGCpZJsse2sClcaus+Jzx/bsSdqQKs
+         6N30REykWpKNqBgXlvFs0PIs/wfl4yfuHD31K/Y5x0O2lYkOaE3HTlVabNh/f4eTGLuZ
+         VRgFqkbMsU67v7uJuuATGHxV9/TRWgqTZw2EL35GGmN04nVxF50QCM1aEXxFWina1oDm
+         s+STguDtHUbwovraiOS8xq+v4PwHEJRMiuyds2e/8j1DJ4skOiZ9Kz0s/DIUl9FmBefx
+         ObNA==
+X-Gm-Message-State: AOAM533z55eyUypQLWRx8jf6NJ07LPtR/obXWsXNOeDybx/5bzFG6PwG
+        699L438EdtoMvos1ti8tI3UUfW/+JwWiqmbH3Mo=
+X-Google-Smtp-Source: ABdhPJxPTKLwoRzU2xyajFaUXMOXq5Y0RGvAMelfQdXcQnh3u1HX4dJHRz+KEyV4/KdMOC7OOQV6looBhrxrM6wmWhw=
+X-Received: by 2002:a05:6102:538:b0:32c:bb2d:ddce with SMTP id
+ m24-20020a056102053800b0032cbb2dddcemr5233601vsa.6.1651971848805; Sat, 07 May
+ 2022 18:04:08 -0700 (PDT)
+MIME-Version: 1.0
+Received: by 2002:ab0:3c4f:0:0:0:0:0 with HTTP; Sat, 7 May 2022 18:04:08 -0700 (PDT)
+Reply-To: wijh555@gmail.com
+From:   "Mr. Ahmed Osane" <osane706@gmail.com>
+Date:   Sat, 7 May 2022 18:04:08 -0700
+Message-ID: <CAC7Oyrro3cpQN+Wgq0gGmPrdP78rpYiQDj2NpwaxJKM00g8Dtw@mail.gmail.com>
+Subject: Good Day,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        HK_NAME_FM_MR_MRS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
         version=3.4.6
+X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4999]
+        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:e29 listed in]
+        [list.dnswl.org]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [wijh555[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [osane706[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [osane706[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 HK_NAME_FM_MR_MRS No description available.
+        *  3.5 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+-- 
+Greetings,
+I'm Mr. Ahmed Osane, how are you doing hope you are in good health,
+the Board director try to reach you on phone several times Meanwhile,
+your number was not
+connecting. before he ask me to send you an email to hear from you if
+you are fine. hope to hear you are in good Health.
 
-The patch titled
-     Subject: fs: sendfile handles O_NONBLOCK of out_fd
-has been added to the -mm mm-nonmm-unstable branch.  Its filename is
-     fs-sendfile-handles-o_nonblock-of-out_fd.patch
-
-This patch should soon appear in the mm-nonmm-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Andrei Vagin <avagin@gmail.com>
-Subject: fs: sendfile handles O_NONBLOCK of out_fd
-
-sendfile has to return EAGAIN if out_fd is nonblocking and the write into
-it would block.
-
-Here is a small reproducer for the problem:
-
-#define _GNU_SOURCE /* See feature_test_macros(7) */
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/sendfile.h>
-
-
-#define FILE_SIZE (1UL << 30)
-int main(int argc, char **argv) {
-        int p[2], fd;
-
-        if (pipe2(p, O_NONBLOCK))
-                return 1;
-
-        fd = open(argv[1], O_RDWR | O_TMPFILE, 0666);
-        if (fd < 0)
-                return 1;
-        ftruncate(fd, FILE_SIZE);
-
-        if (sendfile(p[1], fd, 0, FILE_SIZE) == -1) {
-                fprintf(stderr, "FAIL\n");
-        }
-        if (sendfile(p[1], fd, 0, FILE_SIZE) != -1 || errno != EAGAIN) {
-                fprintf(stderr, "FAIL\n");
-        }
-        return 0;
-}
-
-It worked before b964bf53e540, it is stuck after b964bf53e540, and it
-works again with this fix.
-
-Link: https://lkml.kernel.org/r/20220415005015.525191-1-avagin@gmail.com
-Fixes: b964bf53e540 ("teach sendfile(2) to handle send-to-pipe directly")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/read_write.c |    3 +++
- 1 file changed, 3 insertions(+)
-
---- a/fs/read_write.c~fs-sendfile-handles-o_nonblock-of-out_fd
-+++ a/fs/read_write.c
-@@ -1247,6 +1247,9 @@ static ssize_t do_sendfile(int out_fd, i
- 					  count, fl);
- 		file_end_write(out.file);
- 	} else {
-+		if (out.file->f_flags & O_NONBLOCK)
-+			fl |= SPLICE_F_NONBLOCK;
-+
- 		retval = splice_file_to_pipe(in.file, opipe, &pos, count, fl);
- 	}
- 
-_
-
-Patches currently in -mm which might be from avagin@gmail.com are
-
-fs-sendfile-handles-o_nonblock-of-out_fd.patch
-
+Thanks,
+Mr. Ahmed Osane.
