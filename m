@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F19D551F9E0
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02F6251F9ED
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232934AbiEIKdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 06:33:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39098 "EHLO
+        id S229853AbiEIKfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 06:35:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233186AbiEIKcb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:32:31 -0400
+        with ESMTP id S231327AbiEIKee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:34:34 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E7D72A0A68
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:27:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BE6270184
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:29:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0CDFB810E2
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AF1AC385A8;
-        Mon,  9 May 2022 10:26:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0524DB810E8
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34843C385AB;
+        Mon,  9 May 2022 10:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652091961;
-        bh=QIZULERtjKO3+yQBXaU9QHdT47RW6QFyTrdHOuVc/LI=;
+        s=korg; t=1652092183;
+        bh=vKFa5NLrGm/G6fu/tDI80dYSbf6351ZIMMGef5KpCdU=;
         h=Subject:To:Cc:From:Date:From;
-        b=dy4JP7Ca52sC3uNzvoAYsUvjK98bC7nxi4GMaJXa9xp63G0DTZnfNGF6ZFP1x1X/S
-         sB1eFKUNEx+xBDF8QEXzKTr2fj9xqoOV93RRqORMgSVvZcC4ge38ffoxREf+X64/IN
-         2324vAi1c3OrpcdHlCIDw7ApvBRJgo4MriaGV7DU=
-Subject: FAILED: patch "[PATCH] gpio: pca953x: fix irq_stat not updated when irq is disabled" failed to apply to 4.9-stable tree
-To:     puyou.lu@gmail.com, brgl@bgdev.pl
+        b=r8pYgUQMx81CZ+oBB1K/Bz25mKBwYTS3tnv1WUWDZSmTbimk4LZF4idPouyTfeRx8
+         7mHu/rbaP/9WPyBNhA5teDBr+Y9cR6GxbBaLez9+trEwmsYEoWNzOb333rdt6uSrxM
+         l4S+mrRuCVEDW9kE9juIhtKPINamG4pkXr4S4CUo=
+Subject: FAILED: patch "[PATCH] iommu/dart: Add missing module owner to ops structure" failed to apply to 5.15-stable tree
+To:     marcan@marcan.st, jroedel@suse.de, sven@svenpeter.dev
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 12:25:45 +0200
-Message-ID: <1652091945136113@kroah.com>
+Date:   Mon, 09 May 2022 12:29:32 +0200
+Message-ID: <1652092172181239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,38 +59,29 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From dba785798526a3282cc4d0f0ea751883715dbbb4 Mon Sep 17 00:00:00 2001
-From: Puyou Lu <puyou.lu@gmail.com>
-Date: Fri, 6 May 2022 16:06:30 +0800
-Subject: [PATCH] gpio: pca953x: fix irq_stat not updated when irq is disabled
- (irq_mask not set)
+From 2ac2fab52917ae82cbca97cf6e5d2993530257ed Mon Sep 17 00:00:00 2001
+From: Hector Martin <marcan@marcan.st>
+Date: Mon, 2 May 2022 18:22:38 +0900
+Subject: [PATCH] iommu/dart: Add missing module owner to ops structure
 
-When one port's input state get inverted (eg. from low to hight) after
-pca953x_irq_setup but before setting irq_mask (by some other driver such as
-"gpio-keys"), the next inversion of this port (eg. from hight to low) will not
-be triggered any more (because irq_stat is not updated at the first time). Issue
-should be fixed after this commit.
+This is required to make loading this as a module work.
 
-Fixes: 89ea8bbe9c3e ("gpio: pca953x.c: add interrupt handling capability")
-Signed-off-by: Puyou Lu <puyou.lu@gmail.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Fixes: 46d1fb072e76 ("iommu/dart: Add DART iommu driver")
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20220502092238.30486-1-marcan@marcan.st
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-diff --git a/drivers/gpio/gpio-pca953x.c b/drivers/gpio/gpio-pca953x.c
-index d2fe76f3f34f..8726921a1129 100644
---- a/drivers/gpio/gpio-pca953x.c
-+++ b/drivers/gpio/gpio-pca953x.c
-@@ -762,11 +762,11 @@ static bool pca953x_irq_pending(struct pca953x_chip *chip, unsigned long *pendin
- 	bitmap_xor(cur_stat, new_stat, old_stat, gc->ngpio);
- 	bitmap_and(trigger, cur_stat, chip->irq_mask, gc->ngpio);
- 
-+	bitmap_copy(chip->irq_stat, new_stat, gc->ngpio);
-+
- 	if (bitmap_empty(trigger, gc->ngpio))
- 		return false;
- 
--	bitmap_copy(chip->irq_stat, new_stat, gc->ngpio);
--
- 	bitmap_and(cur_stat, chip->irq_trig_fall, old_stat, gc->ngpio);
- 	bitmap_and(old_stat, chip->irq_trig_raise, new_stat, gc->ngpio);
- 	bitmap_or(new_stat, old_stat, cur_stat, gc->ngpio);
+diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
+index 15b77f16cfa3..8af0242a90d9 100644
+--- a/drivers/iommu/apple-dart.c
++++ b/drivers/iommu/apple-dart.c
+@@ -773,6 +773,7 @@ static const struct iommu_ops apple_dart_iommu_ops = {
+ 	.get_resv_regions = apple_dart_get_resv_regions,
+ 	.put_resv_regions = generic_iommu_put_resv_regions,
+ 	.pgsize_bitmap = -1UL, /* Restricted during dart probe */
++	.owner = THIS_MODULE,
+ 	.default_domain_ops = &(const struct iommu_domain_ops) {
+ 		.attach_dev	= apple_dart_attach_dev,
+ 		.detach_dev	= apple_dart_detach_dev,
 
