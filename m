@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9454451F7E0
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9944A51F7FD
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229604AbiEIJVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:21:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53550 "EHLO
+        id S236304AbiEIJWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237052AbiEIIuH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:50:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34A718B02
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:46:14 -0700 (PDT)
+        with ESMTP id S236047AbiEIIus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:50:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0584013F42D
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:46:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E8F5614B1
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:46:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82140C385AC;
-        Mon,  9 May 2022 08:46:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 98AD1614B2
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D96BC385A8;
+        Mon,  9 May 2022 08:46:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085974;
-        bh=IUYn/4w978oBNu/CB7meWzUzMITUSXfCbQUcXOmGU4c=;
+        s=korg; t=1652086014;
+        bh=/VQKnO264DSfy61uZjU9uSZh5UXvH5iwnqxoTTO50mo=;
         h=Subject:To:Cc:From:Date:From;
-        b=xIIcdUnAaeDe19zyP7d+IiGKU6BHKOugyj2HcYsVfQ4+qpYbGNw0v5SjJaFFE04cu
-         rakFnFK6ucqbIWT4aDUFpsyQIsraKTF1z5AdDWrqv8icLyQZqAQKNnzMt1JqFwGMq2
-         jvhFaanTsB+NjzLbE5Jwc2kOU1JOJBrslGOA57BU=
-Subject: FAILED: patch "[PATCH] btrfs: do not BUG_ON() on failure to update inode when" failed to apply to 5.4-stable tree
-To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
-        wqu@suse.com
+        b=2s8Dx9dGoBc6oyCeeagolxG4Pfopc9WbMcsREuoef0GtpDB/bBo/tUAUzbWVNQC/k
+         xgd83Sa69X9JCiY5IOmi+sgXmf009v1pzvHVZFllR1iHuCayzGFQbEMRBRr1aBtuT5
+         Xy7B5/16SU9bpyRClvJY0zFtw13/4GIbARJFXAF8=
+Subject: FAILED: patch "[PATCH] btrfs: export a helper for compression hard check" failed to apply to 5.10-stable tree
+To:     cccheng@synology.com, dsterba@suse.com, nborisov@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:45:55 +0200
-Message-ID: <1652085955171250@kroah.com>
+Date:   Mon, 09 May 2022 10:46:43 +0200
+Message-ID: <165208600339164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,51 +59,81 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 193b4e83986d7ee6caa8ceefb5ee9f58240fbee0 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Thu, 21 Apr 2022 11:03:09 +0100
-Subject: [PATCH] btrfs: do not BUG_ON() on failure to update inode when
- setting xattr
+From e6f9d69648029e48b8f97db09368d419b5e2614a Mon Sep 17 00:00:00 2001
+From: Chung-Chiang Cheng <cccheng@synology.com>
+Date: Fri, 15 Apr 2022 16:04:05 +0800
+Subject: [PATCH] btrfs: export a helper for compression hard check
 
-We are doing a BUG_ON() if we fail to update an inode after setting (or
-clearing) a xattr, but there's really no reason to not instead simply
-abort the transaction and return the error to the caller. This should be
-a rare error because we have previously reserved enough metadata space to
-update the inode and the delayed inode should have already been setup, so
-an -ENOSPC or -ENOMEM, which are the possible errors, are very unlikely to
-happen.
+inode_can_compress will be used outside of inode.c to check the
+availability of setting compression flag by xattr. This patch moves
+this function as an internal helper and renames it to
+btrfs_inode_can_compress.
 
-So replace the BUG_ON()s with a transaction abort.
-
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Chung-Chiang Cheng <cccheng@synology.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 9632d0ff2038..367bb87b66df 100644
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -262,7 +262,8 @@ int btrfs_setxattr_trans(struct inode *inode, const char *name,
- 	inode_inc_iversion(inode);
- 	inode->i_ctime = current_time(inode);
- 	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
--	BUG_ON(ret);
-+	if (ret)
-+		btrfs_abort_transaction(trans, ret);
- out:
- 	if (start_trans)
- 		btrfs_end_transaction(trans);
-@@ -416,7 +417,8 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
- 		inode_inc_iversion(inode);
- 		inode->i_ctime = current_time(inode);
- 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
--		BUG_ON(ret);
-+		if (ret)
-+			btrfs_abort_transaction(trans, ret);
- 	}
+diff --git a/fs/btrfs/btrfs_inode.h b/fs/btrfs/btrfs_inode.h
+index 47e72d72f7d0..32131a5d321b 100644
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -384,6 +384,17 @@ static inline bool btrfs_inode_in_log(struct btrfs_inode *inode, u64 generation)
+ 	return ret;
+ }
  
- 	btrfs_end_transaction(trans);
++/*
++ * Check if the inode has flags compatible with compression
++ */
++static inline bool btrfs_inode_can_compress(const struct btrfs_inode *inode)
++{
++	if (inode->flags & BTRFS_INODE_NODATACOW ||
++	    inode->flags & BTRFS_INODE_NODATASUM)
++		return false;
++	return true;
++}
++
+ struct btrfs_dio_private {
+ 	struct inode *inode;
+ 
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 8bac68d8e96f..673b9259f6c0 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -480,17 +480,6 @@ static noinline int add_async_extent(struct async_chunk *cow,
+ 	return 0;
+ }
+ 
+-/*
+- * Check if the inode has flags compatible with compression
+- */
+-static inline bool inode_can_compress(struct btrfs_inode *inode)
+-{
+-	if (inode->flags & BTRFS_INODE_NODATACOW ||
+-	    inode->flags & BTRFS_INODE_NODATASUM)
+-		return false;
+-	return true;
+-}
+-
+ /*
+  * Check if the inode needs to be submitted to compression, based on mount
+  * options, defragmentation, properties or heuristics.
+@@ -500,7 +489,7 @@ static inline int inode_need_compress(struct btrfs_inode *inode, u64 start,
+ {
+ 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+ 
+-	if (!inode_can_compress(inode)) {
++	if (!btrfs_inode_can_compress(inode)) {
+ 		WARN(IS_ENABLED(CONFIG_BTRFS_DEBUG),
+ 			KERN_ERR "BTRFS: unexpected compression for ino %llu\n",
+ 			btrfs_ino(inode));
+@@ -2019,7 +2008,7 @@ int btrfs_run_delalloc_range(struct btrfs_inode *inode, struct page *locked_page
+ 		ASSERT(!zoned || btrfs_is_data_reloc_root(inode->root));
+ 		ret = run_delalloc_nocow(inode, locked_page, start, end,
+ 					 page_started, nr_written);
+-	} else if (!inode_can_compress(inode) ||
++	} else if (!btrfs_inode_can_compress(inode) ||
+ 		   !inode_need_compress(inode, start, end)) {
+ 		if (zoned)
+ 			ret = run_delalloc_zoned(inode, locked_page, start, end,
 
