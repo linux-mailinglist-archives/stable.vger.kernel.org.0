@@ -2,163 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAF851F2E0
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 05:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4422B51F3E0
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 07:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231230AbiEIDYB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 23:24:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49550 "EHLO
+        id S230474AbiEIFho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 01:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232795AbiEIDSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 23:18:14 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8614712FC;
-        Sun,  8 May 2022 20:14:21 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KxR5n6RftzGpfg;
-        Mon,  9 May 2022 11:11:25 +0800 (CST)
-Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 9 May 2022 11:14:12 +0800
-Received: from [127.0.0.1] (10.67.108.67) by dggpemm500013.china.huawei.com
- (7.185.36.172) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Mon, 9 May
- 2022 11:14:12 +0800
-Message-ID: <e8715911-f835-059d-27f8-cc5f5ad30a07@huawei.com>
-Date:   Mon, 9 May 2022 11:14:12 +0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH 5.10 v3] locking/csd_lock: fix csdlock_debug cause arm64
- boot panic
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-arch@vger.kernel.org>, <stable@vger.kernel.org>,
-        <peterz@infradead.org>, <tglx@linutronix.de>, <namit@vmware.com>,
-        <gor@linux.ibm.com>, <rdunlap@infradead.org>, <sashal@kernel.org>
-References: <20220507084510.14761-1-chenzhongjin@huawei.com>
- <YnZAO+3Rhj0gwq38@kroah.com>
-From:   Chen Zhongjin <chenzhongjin@huawei.com>
-In-Reply-To: <YnZAO+3Rhj0gwq38@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.108.67]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500013.china.huawei.com (7.185.36.172)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229777AbiEIFbk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 01:31:40 -0400
+X-Greylist: delayed 39721 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 08 May 2022 22:27:46 PDT
+Received: from yodobashi.com (unknown [107.155.45.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D14FF11E489
+        for <stable@vger.kernel.org>; Sun,  8 May 2022 22:27:46 -0700 (PDT)
+Sender: info@yodobashi.com
+Date:   Mon, 9 May 2022 13:27:40 +0800
+From:   "yodobashi.com" <mail@yodobashi.com>
+To:     <stable@vger.kernel.org>
+Subject: =?gb2312?B?peilyaXQpbelyaXDpcils6Xgo7qhuKSqv82YlMfpiPOhuYnkuPzSwA==?=
+        =?gb2312?B?7m3K3Li2pM6ktN9CvWogam5rZ2c3cm9weGNx?=
+Message-ID: <20220509132746342758@yodobashi.com>
+X-mailer: Foxmail 6, 13, 102, 15 [cn]
+Mime-Version: 1.0
+Content-Type: text/plain;
+        charset="gb2312"
+Content-Transfer-Encoding: base64
+X-Spam-Status: Yes, score=7.6 required=5.0 tests=BAYES_50,
+        RCVD_IN_BL_SPAMCOP_NET,RCVD_IN_SBL_CSS,RCVD_IN_VALIDITY_RPBL,RDNS_NONE,
+        SPF_FAIL,SPF_HELO_FAIL,TVD_SPACE_ENCODED,TVD_SPACE_RATIO_MINFP,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?107.155.45.197>]
+        *  3.3 RCVD_IN_SBL_CSS RBL: Received via a relay in Spamhaus SBL-CSS
+        *      [107.155.45.197 listed in zen.spamhaus.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
+        *      https://senderscore.org/blocklistlookup/
+        *      [107.155.45.197 listed in bl.score.senderscore.com]
+        *  0.0 SPF_FAIL SPF: sender does not match SPF record (fail)
+        *      [SPF failed: Please see http://www.openspf.org/Why?s=mfrom;id=info%40yodobashi.com;ip=107.155.45.197;r=lindbergh.monkeyblade.net]
+        *  0.0 SPF_HELO_FAIL SPF: HELO does not match SPF record (fail)
+        *      [SPF failed: Please see http://www.openspf.org/Why?s=helo;id=yodobashi.com;ip=107.155.45.197;r=lindbergh.monkeyblade.net]
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.8 RDNS_NONE Delivered to internal network by a host with no rDNS
+        *  0.0 TVD_SPACE_ENCODED Space ratio & encoded subject
+        *  0.0 TVD_SPACE_RATIO_MINFP Space ratio (vertical text obfuscation?)
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+ofah9qG4pKq/zZiUx+mI86G5ieS4/NLA7m3K3Li2pM6ktN9CvWqh9qH2DQqjqKSzpM6l4algpeuk
+z6GixeTQxYyf08OkzqWipcml7KW5pMfF5NDFpLWk7KTGpKSk3qS5o6kNCg0KDQql6KXJpdClt6XJ
+pcOlyKWzpeCk8qS0wPvTw6SkpL+kwKStoaKkoqTqpKykyKSmpLSktqSkpN6kuaGjDQqkqr/NmJSk
+zqSqv82YlMfpiPOJ5Lj8yta+QaStpPKkqqSzpMqkpKTepLekv6GjDQrE2sjdpM6ktLRf1Uqk8qSq
+7oqkpKSkpL+kt6TepLmhow0Ko6il0aW5pe+pYKXJpM+horHtyr6kt6TGpKqk6qTepLuk86OpDQoN
+CqG+ieS4/Iydz/OkzrvhhlRJRKG/DQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQ0Ku+GGVElEoaE6oaFzdGFibGVAdmdlci5rZXJuZWwu
+b3JnDQotLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLQ0KDQqh8YnkuPyktaTspL+kqr/NmJTH6YjzIA0KLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCuuK1JK3rLrFDQrI1dbQpM6k
+tN9CvWrPyOuK1JK3rLrFDQoNCqS0tcflaMfpiPOkz6Giz8LTm6G4pKq/zZiUjJ/Tw6XaqWCluKG5
+pKuk6aS0tF/VSqSvpMCktaSkoaMNCg0KoaGoi6Sqv82YlIyf08Ol2qlgpbgNCmh0dHBzOi8vcy55
+YW0uY29tL2JraTZ6DQoNCqH5pLOkzqXhqWCl68TayN2ky9DEpKKkv6TqpM6kyqSkiPa6z6TPoaKk
+qsrWyv2kx6S5pKyhoqXopcml0KW3P6XJpcOlyD+ls6XgpKqGlqSkus+k76S7t5m/2qTY1sG8saS0
+30K9aqTypKruiqSkpKSkv6S3pN6kuaGjDQoNCg0KpLOkzqXhqWCl66TPoaLF5NDFjJ/Tw6TOpaKl
+yaXspbmkx8Xk0MWktaTspMakpKTepLmhow0KpKrK1sr9pPKkqpLspLGkpKS/pLek3qS5pKyhoqSz
+pM6l4algpeukzsTayN2ky6TEpKSkxqTOpKqGlqSkus+k76S7pM/PwtObpM7fQr1qz8ik3qTHpKru
+iqSkpKSkv6S3pN6kuaGjDQoNCqXopcml0KW3pcmlw6XIpbOl4CCkqoaWpKS6z6TvpLu3mb/aDQpF
+bWFpbDogaW5mb0B5b2RvYmFzaGkuY29tDQoNCkNvcHlyaWdodDIwMjIgWW9kb2Jhc2hpIENhbWVy
+YSBDby4sTHRkLg0KDQogDQo=
 
-Since the patch:
-https://lore.kernel.org/all/20210420093559.23168-1-catalin.marinas@arm.com/
-has forced CONFIG_SPARSEMEM_VMEMMAP=y from 5.12, it's not necessary to include
-this patch on master.
-
-However this problem still exist on 5.10 stable, so either we can backport the
-above patch to 5.10, or independently apply mine.
-
-I'm not sure if backporting one exist patch is better, but that patch only
-changed configs without any fix for old builds.
-
-If you have any advice please tell me.
-
-Thanks!
-Chen
-
-On 2022/5/7 17:47, Greg KH wrote:
-> On Sat, May 07, 2022 at 04:45:10PM +0800, Chen Zhongjin wrote:
->> csdlock_debug is a early_param to enable csd_lock_wait
->> feature.
->>
->> It uses static_branch_enable in early_param which triggers
->> a panic on arm64 with config:
->> CONFIG_SPARSEMEM=y
->> CONFIG_SPARSEMEM_VMEMMAP=n
->>
->> The log shows:
->> Unable to handle kernel NULL pointer dereference at
->> virtual address ", '0' <repeats 16 times>, "
->> ...
->> Call trace:
->> __aarch64_insn_write+0x9c/0x18c
->> ...
->> static_key_enable+0x1c/0x30
->> csdlock_debug+0x4c/0x78
->> do_early_param+0x9c/0xcc
->> parse_args+0x26c/0x3a8
->> parse_early_options+0x34/0x40
->> parse_early_param+0x80/0xa4
->> setup_arch+0x150/0x6c8
->> start_kernel+0x8c/0x720
->> ...
->> Kernel panic - not syncing: Oops: Fatal exception
->>
->> Call trace inside __aarch64_insn_write:
->> __nr_to_section
->> __pfn_to_page
->> phys_to_page
->> patch_map
->> __aarch64_insn_write
->>
->> Here, with CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section returns
->> NULL and makes the NULL dereference because mem_section is
->> initialized in sparse_init after parse_early_param stage.
->>
->> So, static_branch_enable shouldn't be used inside early_param.
->> To avoid this, I changed it to __setup and fixed this.
->>
->> Reported-by: Chen jingwen <chenjingwen6@huawei.com>
->> Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
->> ---
->> Change v2 -> v3:
->> Add module name in title
->>
->> Change v1 -> v2:
->> Fix return 1 for __setup
->> ---
->>
->>  kernel/smp.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/kernel/smp.c b/kernel/smp.c
->> index 65a630f62363..381eb15cd28f 100644
->> --- a/kernel/smp.c
->> +++ b/kernel/smp.c
->> @@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
->>  	if (val)
->>  		static_branch_enable(&csdlock_debug_enabled);
->>  
->> -	return 0;
->> +	return 1;
->>  }
->> -early_param("csdlock_debug", csdlock_debug);
->> +__setup("csdlock_debug=", csdlock_debug);
->>  
->>  static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
->>  static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
->> -- 
->> 2.17.1
->>
-> 
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
-> .
 
