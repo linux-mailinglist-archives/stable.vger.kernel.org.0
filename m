@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 115CF51F6FB
+	by mail.lfdr.de (Postfix) with ESMTP id A88A651F6FD
 	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237327AbiEIIq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34656 "EHLO
+        id S237333AbiEIIqa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237391AbiEII2q (ORCPT
+        with ESMTP id S237395AbiEII2q (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:28:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D02164C89
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:24:47 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7917E1CE611
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:24:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FD1A61426
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43667C385A8;
-        Mon,  9 May 2022 08:24:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE7DB81002
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6CEC385A8;
+        Mon,  9 May 2022 08:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652084686;
-        bh=kqZoJJx6e68curchVYhZssOLc/sFOsyzMxDEb3NTwDI=;
+        s=korg; t=1652084689;
+        bh=RBT9X8RK/5F3uioLCQVE2xCfSlyIDFrcDritiowMK+I=;
         h=Subject:To:Cc:From:Date:From;
-        b=ge4kDC2MECn+sss5/1N0X3tTNNGo3w0NBa7wJgvEuRyiWMUyqrLvoORQauPx2KLV2
-         0+MA44eqZUwxio6J02IIO6kynDqpVp91ORczGtrvgwYQaYtMz4Xjw2Eb3whz4JB+SG
-         uRuZUlnhkIkfW/4pYCHsue2U8gbbXUnBZ1T2C7mY=
-Subject: FAILED: patch "[PATCH] mmc: core: Set HS clock speed before sending HS CMD13" failed to apply to 4.14-stable tree
+        b=d9VpG/Bkci0oMlInLobegTVCCvfXEZjOFzO+o27V4o+shCSb6M70RYT+tSsZ2+6tR
+         WcrOkcmdJ8bWXm3ILTGeywLWHSwddHxbcYDM1WGwaYTpICGfMdASugtni7SZcXiQZA
+         /ZvP555Hh7a9TEFvfmB8bg6Hbn9f/l+MdusePIZ4=
+Subject: FAILED: patch "[PATCH] mmc: core: Set HS clock speed before sending HS CMD13" failed to apply to 4.9-stable tree
 To:     briannorris@chromium.org, luca@z3ntu.xyz, shawn.lin@rock-chips.com,
         ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:24:39 +0200
-Message-ID: <165208467919416@kroah.com>
+Date:   Mon, 09 May 2022 10:24:40 +0200
+Message-ID: <16520846801753@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
