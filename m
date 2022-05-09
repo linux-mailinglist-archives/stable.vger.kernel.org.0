@@ -2,121 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB73A51FE78
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 15:37:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01BEA51FF14
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236028AbiEINkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 09:40:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33716 "EHLO
+        id S236562AbiEIOG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 10:06:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236030AbiEINkp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 09:40:45 -0400
-Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 863B218B940;
-        Mon,  9 May 2022 06:36:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652103410; x=1683639410;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=DzSK5EtvSUu+rARESr34ozWVmZBIJIRsYnefuQZeksk=;
-  b=j7YcHfuakaMD/OKV+5k1+iujncpMVBLmaWNlDsqOC4vd3ozHxpwcWqgu
-   B3fQc66Lle+ccCSmBbSoI0WmOSi4p/JzW0hFJrLGXU7ww6n1nGIhxl7iQ
-   X9pWJ4hOL1ByDyQw9+xK+TGSP9yhw0eD4yW4hYcQAS/1Bv/F7Tv3n3FmS
-   fK8EcpbSF18hmxJ/xPj0vYU+Pv7ui5e9fh/ZBN4iNvhUDJHYrDEvrSxyi
-   tEZNvPHzLSy/m2ff6MIGUdjF1VkNHiCUXT0eN6bzUDK6NmOq7ar+0d2Fy
-   fi1d4EKlaxJ4Jky6lxQ3bBkfTCzW00sWlwqD56+MsME6rqoJN73J7f5fV
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10341"; a="248952429"
-X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
-   d="scan'208";a="248952429"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 06:34:53 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
-   d="scan'208";a="622967754"
-Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314.ger.corp.intel.com) ([10.237.222.76])
-  by fmsmga008.fm.intel.com with ESMTP; 09 May 2022 06:34:51 -0700
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     herbert@gondor.apana.org.au
-Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
-        Vlad Dronov <vdronov@redhat.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        stable@vger.kernel.org,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Adam Guerin <adam.guerin@intel.com>,
-        Wojciech Ziemba <wojciech.ziemba@intel.com>
-Subject: [PATCH v3 10/10] crypto: qat - re-enable registration of algorithms
-Date:   Mon,  9 May 2022 14:34:17 +0100
-Message-Id: <20220509133417.56043-11-giovanni.cabiddu@intel.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220509133417.56043-1-giovanni.cabiddu@intel.com>
-References: <20220509133417.56043-1-giovanni.cabiddu@intel.com>
+        with ESMTP id S236651AbiEIOGy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:06:54 -0400
+Received: from mail-yw1-x1136.google.com (mail-yw1-x1136.google.com [IPv6:2607:f8b0:4864:20::1136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E051FB56F
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 07:02:51 -0700 (PDT)
+Received: by mail-yw1-x1136.google.com with SMTP id 00721157ae682-2f7b815ac06so145574067b3.3
+        for <stable@vger.kernel.org>; Mon, 09 May 2022 07:02:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=deN5QvVvswoH9XYBaP1Q+fVKPJFSMrTMILZDXRWnG0M=;
+        b=JXp/7OA11XAyBhT2zOubWHp+WvmCG7N+NZFnqEChNZAL1XzdDVpIWZvr2w+RegGWIz
+         nn45DJxAij9FgTvgNpYczb2DKvhy8iqYgKnNyg/LcIKngZo0RogErzvf/rEIYu9O7Em/
+         QgChmj9vpRroKkCxoC9cv5xsMKFDJdh1KQHJO++EFA+T10v2boZ1leXUXGgg+8yOw8Af
+         IpspjYVU3BtvzP1H09eS5kRxv91NeFwDNETpiSRDBMUy+r1MiOLWKXz8QArz5UqemQad
+         W+SNh3dWddBHFtgUwjGzQ2qIM7mKpo/5dlz2HEq3dzdxMjYdzj5NzQZpIqc1OaWIIlPd
+         oniQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=deN5QvVvswoH9XYBaP1Q+fVKPJFSMrTMILZDXRWnG0M=;
+        b=13+YVKWoiFxENJiJxowqbWT4vFcXpuxGvSjcw1P7Osh7cMElmyx7tgp7N97QUgTqyn
+         cgkmxBUE/E2sc7fCUesSEc++COEiS2LJ5JC06oGSDU10hGAoGog0bm6QDjddv80gEIyH
+         wr/dVpZO50FkiKwRgTUdPsXlpwozG1vB1aJ36Fy9pvjx7Ff7AQ9MBhdK2fKSHN4J9PL7
+         ZAOOUAkGHS2nLFUQARyil274KCqIWbkjhoYb/dzHtw2R38yLiioouTcc8zpLr2nONBJX
+         Jdb0p6LAVlfovpCJrjghpmSmb+KbzAbOzrawzU4Qad75UzQ6we1l0rsfMMvCOplr2K5X
+         upFQ==
+X-Gm-Message-State: AOAM533DDJ8UdFqjwBnxGXZkaWIUYX9rWCd9nW7H4Jbe76AeTFSylElH
+        jHDQ/iJWN3EmtFN6tK/LDHhOL32JHSEQ3ST9okfhLULJPq3itQ==
+X-Google-Smtp-Source: ABdhPJzTsWFuNO6RQPZ2TSj+M2vnb+KxtrJnHcKEsbU0UX4+RU4atUmiveT8ee3gYR4CHg3cBwW3GtnWkKfflZTzCJk=
+X-Received: by 2002:a81:5603:0:b0:2f8:3187:f37a with SMTP id
+ k3-20020a815603000000b002f83187f37amr13657483ywb.255.1652104970291; Mon, 09
+ May 2022 07:02:50 -0700 (PDT)
 MIME-Version: 1.0
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <16520932588119@kroah.com>
+In-Reply-To: <16520932588119@kroah.com>
+From:   Eric Dumazet <edumazet@google.com>
+Date:   Mon, 9 May 2022 07:02:39 -0700
+Message-ID: <CANn89iKEdDUtLigQU1KZtNRbKw1_wQnAF5WZL9dWJFk-mMxc2Q@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] net: igmp: respect RCU rules in
+ ip_mc_source() and" failed to apply to 5.10-stable tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     David Miller <davem@davemloft.net>, fbl@sysclose.org,
+        syzbot <syzkaller@googlegroups.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Re-enable the registration of algorithms after fixes to (1) use
-pre-allocated buffers in the datapath and (2) support the
-CRYPTO_TFM_REQ_MAY_BACKLOG flag.
+On Mon, May 9, 2022 at 3:47 AM <gregkh@linuxfoundation.org> wrote:
+>
+>
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
 
-This reverts commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Adam Guerin <adam.guerin@intel.com>
-Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
----
- drivers/crypto/qat/qat_4xxx/adf_drv.c      | 7 -------
- drivers/crypto/qat/qat_common/qat_crypto.c | 7 -------
- 2 files changed, 14 deletions(-)
-
-diff --git a/drivers/crypto/qat/qat_4xxx/adf_drv.c b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-index fa4c350c1bf9..a6c78b9c730b 100644
---- a/drivers/crypto/qat/qat_4xxx/adf_drv.c
-+++ b/drivers/crypto/qat/qat_4xxx/adf_drv.c
-@@ -75,13 +75,6 @@ static int adf_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
- 
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		bank = i * 2;
-diff --git a/drivers/crypto/qat/qat_common/qat_crypto.c b/drivers/crypto/qat/qat_common/qat_crypto.c
-index 80d905ed102e..9341d892533a 100644
---- a/drivers/crypto/qat/qat_common/qat_crypto.c
-+++ b/drivers/crypto/qat/qat_common/qat_crypto.c
-@@ -161,13 +161,6 @@ int qat_crypto_dev_config(struct adf_accel_dev *accel_dev)
- 	if (ret)
- 		goto err;
- 
--	/* Temporarily set the number of crypto instances to zero to avoid
--	 * registering the crypto algorithms.
--	 * This will be removed when the algorithms will support the
--	 * CRYPTO_TFM_REQ_MAY_BACKLOG flag
--	 */
--	instances = 0;
--
- 	for (i = 0; i < instances; i++) {
- 		val = i;
- 		snprintf(key, sizeof(key), ADF_CY "%d" ADF_RING_ASYM_BANK_NUM, i);
--- 
-2.35.1
-
+Thanks, I will take care of it.
