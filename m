@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38B0B51FAD5
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:06:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27FC51FAE3
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:06:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231700AbiEILGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 07:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32956 "EHLO
+        id S231980AbiEILIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 07:08:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231738AbiEILGt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:06:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 465A7233A6A
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:02:56 -0700 (PDT)
+        with ESMTP id S231903AbiEILIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:08:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 667E423E2AC
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:04:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 882F16100A
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93B72C385A8;
-        Mon,  9 May 2022 11:02:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8B2B6106C
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:04:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C33C385AB;
+        Mon,  9 May 2022 11:04:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652094175;
-        bh=4kAVCzk53oaTSU4xa4eFUZlNf0yIsH0eD1DAcEAsUjI=;
+        s=korg; t=1652094263;
+        bh=bbE7rHYj+naQi5CA8zBrwh1Irhin1Egkk4ts4O3GDZU=;
         h=Subject:To:Cc:From:Date:From;
-        b=qa4fFU7WeNcITAp2QXd7WgAAR/AcFiNIf1vrJj99/nL0sO7CAbVRT4Q8PNHvSsvGt
-         9tPoP7wZBQkegDZfjjH5Z1QsCgjT7iSQhvxCKjYkjVvqZQaISlC8XKck9+3Y2PFMqF
-         VZ3hj9cOYw8pK1/TGlzYXQwBubNjzkOBIeOavuZg=
-Subject: FAILED: patch "[PATCH] net: rds: acquire refcount on TCP sockets" failed to apply to 4.9-stable tree
-To:     penguin-kernel@I-love.SAKURA.ne.jp, pabeni@redhat.com,
-        syzbot+694120e1002c117747ed@syzkaller.appspotmail.com
+        b=wkjnK/N6btjppD6x+W/7yLC3RhGCqpz2BTd4psQRE4L+wLEaF7HKYzLijtLEjW/H7
+         i8dxcnS2u9VF/8Hd1At3kvOklUygC9z5dZC4BdNx7FyLsN++fCj55cGChsPuILw7M3
+         VsyptiuMC/rqPXJwnPehK9wI4c8gaYuAeiG9K0No=
+Subject: FAILED: patch "[PATCH] net: dsa: ksz9477: port mirror sniffing limited to one port" failed to apply to 5.10-stable tree
+To:     arun.ramadoss@microchip.com, kuba@kernel.org,
+        prasanna.vengateshan@microchip.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 13:02:33 +0200
-Message-ID: <165209415354112@kroah.com>
+Date:   Mon, 09 May 2022 13:04:12 +0200
+Message-ID: <16520942522272@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,43 +60,92 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3a58f13a881ed351198ffab4cf9953cf19d2ab3a Mon Sep 17 00:00:00 2001
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Date: Mon, 2 May 2022 10:40:18 +0900
-Subject: [PATCH] net: rds: acquire refcount on TCP sockets
+From fee34dd199384a483f84806a5cbcf8d657a481cc Mon Sep 17 00:00:00 2001
+From: Arun Ramadoss <arun.ramadoss@microchip.com>
+Date: Thu, 28 Apr 2022 12:37:09 +0530
+Subject: [PATCH] net: dsa: ksz9477: port mirror sniffing limited to one port
 
-syzbot is reporting use-after-free read in tcp_retransmit_timer() [1],
-for TCP socket used by RDS is accessing sock_net() without acquiring a
-refcount on net namespace. Since TCP's retransmission can happen after
-a process which created net namespace terminated, we need to explicitly
-acquire a refcount.
+This patch limits the sniffing to only one port during the mirror add.
+And during the mirror_del it checks for all the ports using the sniff,
+if and only if no other ports are referring, sniffing is disabled.
+The code is updated based on the review comments of LAN937x port mirror
+patch.
 
-Link: https://syzkaller.appspot.com/bug?extid=694120e1002c117747ed [1]
-Reported-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
-Fixes: 26abe14379f8e2fa ("net: Modify sk_alloc to not reference count the netns of kernel sockets.")
-Fixes: 8a68173691f03661 ("net: sk_clone_lock() should only do get_net() if the parent is not a kernel socket")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
-Link: https://lore.kernel.org/r/a5fb1fc4-2284-3359-f6a0-e4e390239d7b@I-love.SAKURA.ne.jp
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://patchwork.kernel.org/project/netdevbpf/patch/20210422094257.1641396-8-prasanna.vengateshan@microchip.com/
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Prasanna Vengateshan <prasanna.vengateshan@microchip.com>
+Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
+Link: https://lore.kernel.org/r/20220428070709.7094-1-arun.ramadoss@microchip.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 5327d130c4b5..2f638f8b7b1e 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -495,6 +495,14 @@ void rds_tcp_tune(struct socket *sock)
- 
- 	tcp_sock_set_nodelay(sock->sk);
- 	lock_sock(sk);
-+	/* TCP timer functions might access net namespace even after
-+	 * a process which created this net namespace terminated.
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index 8222c8a6c5ec..7310d19d1f06 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -1021,14 +1021,32 @@ static int ksz9477_port_mirror_add(struct dsa_switch *ds, int port,
+ 				   bool ingress, struct netlink_ext_ack *extack)
+ {
+ 	struct ksz_device *dev = ds->priv;
++	u8 data;
++	int p;
++
++	/* Limit to one sniffer port
++	 * Check if any of the port is already set for sniffing
++	 * If yes, instruct the user to remove the previous entry & exit
 +	 */
-+	if (!sk->sk_net_refcnt) {
-+		sk->sk_net_refcnt = 1;
-+		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
-+		sock_inuse_add(net, 1);
++	for (p = 0; p < dev->port_cnt; p++) {
++		/* Skip the current sniffing port */
++		if (p == mirror->to_local_port)
++			continue;
++
++		ksz_pread8(dev, p, P_MIRROR_CTRL, &data);
++
++		if (data & PORT_MIRROR_SNIFFER) {
++			NL_SET_ERR_MSG_MOD(extack,
++					   "Sniffer port is already configured, delete existing rules & retry");
++			return -EBUSY;
++		}
 +	}
- 	if (rtn->sndbuf_size > 0) {
- 		sk->sk_sndbuf = rtn->sndbuf_size;
- 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
+ 
+ 	if (ingress)
+ 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_RX, true);
+ 	else
+ 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_TX, true);
+ 
+-	ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_SNIFFER, false);
+-
+ 	/* configure mirror port */
+ 	ksz_port_cfg(dev, mirror->to_local_port, P_MIRROR_CTRL,
+ 		     PORT_MIRROR_SNIFFER, true);
+@@ -1042,16 +1060,28 @@ static void ksz9477_port_mirror_del(struct dsa_switch *ds, int port,
+ 				    struct dsa_mall_mirror_tc_entry *mirror)
+ {
+ 	struct ksz_device *dev = ds->priv;
++	bool in_use = false;
+ 	u8 data;
++	int p;
+ 
+ 	if (mirror->ingress)
+ 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_RX, false);
+ 	else
+ 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_TX, false);
+ 
+-	ksz_pread8(dev, port, P_MIRROR_CTRL, &data);
+ 
+-	if (!(data & (PORT_MIRROR_RX | PORT_MIRROR_TX)))
++	/* Check if any of the port is still referring to sniffer port */
++	for (p = 0; p < dev->port_cnt; p++) {
++		ksz_pread8(dev, p, P_MIRROR_CTRL, &data);
++
++		if ((data & (PORT_MIRROR_RX | PORT_MIRROR_TX))) {
++			in_use = true;
++			break;
++		}
++	}
++
++	/* delete sniffing if there are no other mirroring rules */
++	if (!in_use)
+ 		ksz_port_cfg(dev, mirror->to_local_port, P_MIRROR_CTRL,
+ 			     PORT_MIRROR_SNIFFER, false);
+ }
 
