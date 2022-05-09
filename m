@@ -2,140 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B169E51FF82
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 110D551FFF2
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:37:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237127AbiEIO1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 10:27:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S237237AbiEIOgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 10:36:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237124AbiEIO1s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:27:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1AA1E2502;
-        Mon,  9 May 2022 07:23:53 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 653E7CE18C3;
-        Mon,  9 May 2022 14:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DD04C385AB;
-        Mon,  9 May 2022 14:23:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652106230;
-        bh=g/s1bZ+fS72zAZzof9qz8XzOroT6LB31TLHSeyMqtUw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=vOxKA5F6za2BLpLY1HRfROc7zlE8qLgcRIK+UNhiKnPkCjEBcrjPKBqoyith6JsTg
-         NHF/xEHhY40caMQUBpxCn0tDgV4py1MbwERk5kygVxlBjK2db1J1jmysbbyLtTP2OM
-         jhJDNaLUxrtqpVsdbTUtf48t70CFtSk3Zu0ZXiN5O3oFPSR/pv02CmJGZH9FLUd+ch
-         LErUvWixS5sGl7syaZ7uiY0fkIKIMF7GeW1qYhPiiXn6eO8RWIoN7PMdLudcxL21UX
-         lZKP2L1aBtBLt29Ek2utZH1fKqoKJ1FjiMk+lNIW5RJg3v//LOmwseYfbgkarb2NE/
-         2mvjUhOIISOxQ==
-From:   fdmanana@kernel.org
-To:     stable@vger.kernel.org
-Cc:     linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        with ESMTP id S237253AbiEIOgh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:36:37 -0400
+Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F569344EA;
+        Mon,  9 May 2022 07:32:43 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id B434332002E8;
+        Mon,  9 May 2022 10:32:38 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Mon, 09 May 2022 10:32:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1652106758; x=1652193158; bh=q2fT6PeM+A
+        UuJffXe5pQrhxNHgfVI2C0XP0Aur0lGRQ=; b=A4iBPsoEz6TeExjL15OtRvqOBD
+        Rcgj3CEIbFxNDBWpEOvWhgqSxyHYQgHzP6L2rHOv76GyG2I8roO2CBtUMXeUs9QD
+        9VdNunZ3MY4PUGwckFplrl6SaD7x1jthvmNhxwLdwubzx4mOgdtLu9Z/zpGIRuBK
+        j1KPJ7/XdMqca2UVchc69aKrhnPXpz12NcwZ+T24LZUov1Bb/Phmy/kh6p9DzewY
+        tUe/vFcTfB2Np5VcQNEXnLeBl9LyKQGDcETW7lxcOVZiAuAAszWFcl6rRNknCpPg
+        WZ5ihOadmgWalMt133ueUqziTTCpokipTDuBUMKmg6wPOeR6VJ3oWB+alKkA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1652106758; x=
+        1652193158; bh=q2fT6PeM+AUuJffXe5pQrhxNHgfVI2C0XP0Aur0lGRQ=; b=y
+        Wjkna7tbZljgf02Qd2QXFkFZGxDoYaNx5upaQcv6P7XX8BwjG2UAk1Zgy9Ow6Wd+
+        KpBBa1qP4bBchGr5EIWsorFwDSDweMKcktE44Q/HTrSqXzT3BoDdLB6e6GQzVuou
+        SygHBe67fXPrAa0G8VcNbV51JdAxwipgyX2LVWI9CPlFx09rUQtbkCmqz84BVGkB
+        5H388WSa9pvcarZeT8YQ1n5jEIwQX2qGYyTTyhDHkh4oPCGvHVNaOtAAV+nApeBY
+        Qa7YaeHxaC2gNhy156KPUp+53bcGXCrvLAOFyL9fBw7D4Huie/RRqw4QALjfOQek
+        wpIPFsgrf+qVS/vDmWL6w==
+X-ME-Sender: <xms:BSZ5Ygx6-lm1QrNUBNVxmtjzNaKdnpHvAIj7CASikzSusu6FB20ZTg>
+    <xme:BSZ5YkTbUoxlRrcCqIfA4NF8FRaY3OF1y2czNdANLbvKAvx6NXiAeIEtkaEuhwuai
+    Oi9O3TJSKX7qQ>
+X-ME-Received: <xmr:BSZ5YiXMVkJZdC0KbhSKYfibYEBE-une6zY7CMcBXzkTEFYksd2ObeNnOPcz1ncTmTSNVTdLvyX8NePeXSY3u2R-bELYMuG9>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrfeelgdejjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeegheeuhe
+    fgtdeluddtleekfeegjeetgeeikeehfeduieffvddufeefleevtddtvdenucffohhmrghi
+    nhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
+    hmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:BSZ5YuiVXce1FX60DhPXZ00MR2S_45sPs3-QqM1vM984dOgwr9am4Q>
+    <xmx:BSZ5YiAIq5WJI6s8VIZUUW3dLPw8yGeUDfw4GMQQXSGLOfZpMxjYlQ>
+    <xmx:BSZ5YvLRhSHtsKQfv2--elMtzCTHcbexfovunQT_9D90rsIlTYQINA>
+    <xmx:BiZ5Ym7iY5VG26jzw0l3cCdhnIfSfHyIsGPsBo3J1pacKoN2HJ7KWg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 9 May 2022 10:32:37 -0400 (EDT)
+Date:   Mon, 9 May 2022 16:32:35 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Qu Wenruo <wqu@suse.com>
+Cc:     stable@vger.kernel.org, linux-btrfs@vger.kernel.org,
+        Matt Corallo <blnxfsl@bluematt.me>,
+        Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9-stable] btrfs: always log symlinks in full mode
-Date:   Mon,  9 May 2022 15:23:45 +0100
-Message-Id: <16faeac0ce3cb44fca8a48e96e5c07feffc363c9.1652106037.git.fdmanana@suse.com>
-X-Mailer: git-send-email 2.34.1
+Subject: Re: [PATCH stable-5.15.y] btrfs: force v2 space cache usage for
+ subpage mount
+Message-ID: <YnkmA3hE5LnVz3KQ@kroah.com>
+References: <edc6262ba229edce38a63b70960ffc170287ee11.1652088466.git.wqu@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <edc6262ba229edce38a63b70960ffc170287ee11.1652088466.git.wqu@suse.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+On Mon, May 09, 2022 at 05:28:56PM +0800, Qu Wenruo wrote:
+> commit 9f73f1aef98b2fa7252c0a89be64840271ce8ea0 upstream.
+> 
+> [BUG]
+> For a 4K sector sized btrfs with v1 cache enabled and only mounted on
+> systems with 4K page size, if it's mounted on subpage (64K page size)
+> systems, it can cause the following warning on v1 space cache:
+> 
+>  BTRFS error (device dm-1): csum mismatch on free space cache
+>  BTRFS warning (device dm-1): failed to load free space cache for block group 84082688, rebuilding it now
+> 
+> Although not a big deal, as kernel can rebuild it without problem, such
+> warning will bother end users, especially if they want to switch the
+> same btrfs seamlessly between different page sized systems.
+> 
+> [CAUSE]
+> V1 free space cache is still using fixed PAGE_SIZE for various bitmap,
+> like BITS_PER_BITMAP.
+> 
+> Such hard-coded PAGE_SIZE usage will cause various mismatch, from v1
+> cache size to checksum.
+> 
+> Thus kernel will always reject v1 cache with a different PAGE_SIZE with
+> csum mismatch.
+> 
+> [FIX]
+> Although we should fix v1 cache, it's already going to be marked
+> deprecated soon.
+> 
+> And we have v2 cache based on metadata (which is already fully subpage
+> compatible), and it has almost everything superior than v1 cache.
+> 
+> So just force subpage mount to use v2 cache on mount.
+> 
+> Reported-by: Matt Corallo <blnxfsl@bluematt.me>
+> CC: stable@vger.kernel.org # 5.15+
+> Link: https://lore.kernel.org/linux-btrfs/61aa27d1-30fc-c1a9-f0f4-9df544395ec3@bluematt.me/
+> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+> Signed-off-by: Qu Wenruo <wqu@suse.com>
+> Signed-off-by: David Sterba <dsterba@suse.com>
+> ---
+>  fs/btrfs/disk-io.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 
-commit d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 upstream.
+Now queued up, thanks.
 
-On Linux, empty symlinks are invalid, and attempting to create one with
-the system call symlink(2) results in an -ENOENT error and this is
-explicitly documented in the man page.
-
-If we rename a symlink that was created in the current transaction and its
-parent directory was logged before, we actually end up logging the symlink
-without logging its content, which is stored in an inline extent. That
-means that after a power failure we can end up with an empty symlink,
-having no content and an i_size of 0 bytes.
-
-It can be easily reproduced like this:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  $ mkdir /mnt/testdir
-  $ sync
-
-  # Create a file inside the directory and fsync the directory.
-  $ touch /mnt/testdir/foo
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  # Create a symlink inside the directory and then rename the symlink.
-  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
-  $ mv /mnt/testdir/bar /mnt/testdir/baz
-
-  # Now fsync again the directory, this persist the log tree.
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  <power failure>
-
-  $ mount /dev/sdc /mnt
-  $ stat -c %s /mnt/testdir/baz
-  0
-  $ readlink /mnt/testdir/baz
-  $
-
-Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
-their content is also logged.
-
-A test case for fstests will follow.
-
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/tree-log.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
-
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index cc91b0c564a3..312c050d0dbd 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4696,6 +4696,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 		mutex_lock(&BTRFS_I(inode)->log_mutex);
- 	}
- 
-+	/*
-+	 * For symlinks, we must always log their content, which is stored in an
-+	 * inline extent, otherwise we could end up with an empty symlink after
-+	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
-+	 * one attempts to create an empty symlink).
-+	 * We don't need to worry about flushing delalloc, because when we create
-+	 * the inline extent when the symlink is created (we never have delalloc
-+	 * for symlinks).
-+	 */
-+	if (S_ISLNK(inode->i_mode))
-+		inode_only = LOG_INODE_ALL;
-+
- 	/*
- 	 * a brute force approach to making sure we get the most uptodate
- 	 * copies of everything.
-@@ -5271,7 +5283,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
- 			}
- 
- 			ctx->log_new_dentries = false;
--			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
-+			if (type == BTRFS_FT_DIR)
- 				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, root, di_inode,
- 					      log_mode, 0, LLONG_MAX, ctx);
--- 
-2.34.1
-
+greg k-h
