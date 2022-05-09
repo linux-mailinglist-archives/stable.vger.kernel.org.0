@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E339B51F701
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE2AE51F6F1
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:44:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237358AbiEIIqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41908 "EHLO
+        id S235627AbiEIIq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231623AbiEIIjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:39:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B191B7AA
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:35:48 -0700 (PDT)
+        with ESMTP id S234940AbiEIIki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:40:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B6CFD367
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:36:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24970B81002
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65729C385A8;
-        Mon,  9 May 2022 08:35:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7737A6136E
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:36:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897F9C385A8;
+        Mon,  9 May 2022 08:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085345;
-        bh=mWX4YpwEH6eXekLTkMC9RVtKNn1MaJVvedXmaGl2Q2k=;
+        s=korg; t=1652085403;
+        bh=+Plo4q9rHc5O2C0EvMLsOTb7D6nBDEnREL4BKXrxQcQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=e2xqCkEEwZxAtdrO+0IcH6bosTYDB6QRhWmjQwmZlGb5mWO39w8zup14xjDrxVJpP
-         la1LGHBYbgrdePgFCZ8lwXASejk+X39m6cWKQzRSFlQMUl/GKJHgenrshoWbL8s8DU
-         oWGm7/2yETnPJmfabF2Qn0xWyab3QZsbGAEE3OsM=
-Subject: FAILED: patch "[PATCH] net: stmmac: disable Split Header (SPH) for Intel platforms" failed to apply to 5.4-stable tree
-To:     tee.min.tan@linux.intel.com, boon.leong.ong@intel.com,
-        davem@davemloft.net, mohammad.athari.ismail@intel.com,
-        stable@vger.kernel.org, vee.khee.wong@linux.intel.com
+        b=KbPoOz03L+qRrU4SJvEGhrGxGdxFMtJzjGLPfYZNTxUF797y3s1upxJ7EaKFZ4fCu
+         F/bfvxm6028glMIuNCy5dyTufteNekA8r2IlyrxHaOxTb4EA8HHPmTMTaNTUJFb5gj
+         Y6ui43lec6jbB/MfdbhWugS2qYthckvSL1KzfVJw=
+Subject: FAILED: patch "[PATCH] x86/fpu: Prevent FPU state corruption" failed to apply to 4.9-stable tree
+To:     tglx@linutronix.de, bp@suse.de, fdmanana@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:35:43 +0200
-Message-ID: <1652085343238109@kroah.com>
+Date:   Mon, 09 May 2022 10:36:41 +0200
+Message-ID: <165208540124157@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -61,65 +59,138 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 47f753c1108e287edb3e27fad8a7511a9d55578e Mon Sep 17 00:00:00 2001
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
-Date: Fri, 29 Apr 2022 19:58:07 +0800
-Subject: [PATCH] net: stmmac: disable Split Header (SPH) for Intel platforms
+From 59f5ede3bc0f00eb856425f636dab0c10feb06d8 Mon Sep 17 00:00:00 2001
+From: Thomas Gleixner <tglx@linutronix.de>
+Date: Sun, 1 May 2022 21:31:43 +0200
+Subject: [PATCH] x86/fpu: Prevent FPU state corruption
 
-Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
-of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
-This SPH limitation will cause ping failure when the packets size exceed
-the MTU size. For example, the issue happens once the basic ping packet
-size is larger than the configured MTU size and the data is lost inside
-the fragmented packet, replaced by zeros/corrupted values, and leads to
-ping fail.
+The FPU usage related to task FPU management is either protected by
+disabling interrupts (switch_to, return to user) or via fpregs_lock() which
+is a wrapper around local_bh_disable(). When kernel code wants to use the
+FPU then it has to check whether it is possible by calling irq_fpu_usable().
 
-So, disable the Split Header for Intel platforms.
+But the condition in irq_fpu_usable() is wrong. It allows FPU to be used
+when:
 
-v2: Add fixes tag in commit message.
+   !in_interrupt() || interrupted_user_mode() || interrupted_kernel_fpu_idle()
 
-Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The latter is checking whether some other context already uses FPU in the
+kernel, but if that's not the case then it allows FPU to be used
+unconditionally even if the calling context interrupted a fpregs_lock()
+critical region. If that happens then the FPU state of the interrupted
+context becomes corrupted.
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-index 63754a9c4ba7..0b0be0898ac5 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -454,6 +454,7 @@ static int intel_mgbe_common_data(struct pci_dev *pdev,
- 	plat->has_gmac4 = 1;
- 	plat->force_sf_dma_mode = 0;
- 	plat->tso_en = 1;
-+	plat->sph_disable = 1;
+Allow in kernel FPU usage only when no other context has in kernel FPU
+usage and either the calling context is not hard interrupt context or the
+hard interrupt did not interrupt a local bottomhalf disabled region.
+
+It's hard to find a proper Fixes tag as the condition was broken in one way
+or the other for a very long time and the eager/lazy FPU changes caused a
+lot of churn. Picked something remotely connected from the history.
+
+This survived undetected for quite some time as FPU usage in interrupt
+context is rare, but the recent changes to the random code unearthed it at
+least on a kernel which had FPU debugging enabled. There is probably a
+higher rate of silent corruption as not all issues can be detected by the
+FPU debugging code. This will be addressed in a subsequent change.
+
+Fixes: 5d2bd7009f30 ("x86, fpu: decouple non-lazy/eager fpu restore from xsave")
+Reported-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220501193102.588689270@linutronix.de
+
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index c049561f373a..e28ab0ecc537 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -41,17 +41,7 @@ struct fpu_state_config fpu_user_cfg __ro_after_init;
+  */
+ struct fpstate init_fpstate __ro_after_init;
  
- 	/* Multiplying factor to the clk_eee_i clock time
- 	 * period to make it closer to 100 ns. This value
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4a4b3651ab3e..2525a80353b7 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7021,7 +7021,7 @@ int stmmac_dvr_probe(struct device *device,
- 		dev_info(priv->device, "TSO feature enabled\n");
- 	}
+-/*
+- * Track whether the kernel is using the FPU state
+- * currently.
+- *
+- * This flag is used:
+- *
+- *   - by IRQ context code to potentially use the FPU
+- *     if it's unused.
+- *
+- *   - to debug kernel_fpu_begin()/end() correctness
+- */
++/* Track in-kernel FPU usage */
+ static DEFINE_PER_CPU(bool, in_kernel_fpu);
  
--	if (priv->dma_cap.sphen) {
-+	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
- 		ndev->hw_features |= NETIF_F_GRO;
- 		priv->sph_cap = true;
- 		priv->sph = priv->sph_cap;
-diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
-index 24eea1b05ca2..29917850f079 100644
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -270,5 +270,6 @@ struct plat_stmmacenet_data {
- 	int msi_rx_base_vec;
- 	int msi_tx_base_vec;
- 	bool use_phy_wol;
-+	bool sph_disable;
- };
- #endif
+ /*
+@@ -59,42 +49,37 @@ static DEFINE_PER_CPU(bool, in_kernel_fpu);
+  */
+ DEFINE_PER_CPU(struct fpu *, fpu_fpregs_owner_ctx);
+ 
+-static bool kernel_fpu_disabled(void)
+-{
+-	return this_cpu_read(in_kernel_fpu);
+-}
+-
+-static bool interrupted_kernel_fpu_idle(void)
+-{
+-	return !kernel_fpu_disabled();
+-}
+-
+-/*
+- * Were we in user mode (or vm86 mode) when we were
+- * interrupted?
+- *
+- * Doing kernel_fpu_begin/end() is ok if we are running
+- * in an interrupt context from user mode - we'll just
+- * save the FPU state as required.
+- */
+-static bool interrupted_user_mode(void)
+-{
+-	struct pt_regs *regs = get_irq_regs();
+-	return regs && user_mode(regs);
+-}
+-
+ /*
+  * Can we use the FPU in kernel mode with the
+  * whole "kernel_fpu_begin/end()" sequence?
+- *
+- * It's always ok in process context (ie "not interrupt")
+- * but it is sometimes ok even from an irq.
+  */
+ bool irq_fpu_usable(void)
+ {
+-	return !in_interrupt() ||
+-		interrupted_user_mode() ||
+-		interrupted_kernel_fpu_idle();
++	if (WARN_ON_ONCE(in_nmi()))
++		return false;
++
++	/* In kernel FPU usage already active? */
++	if (this_cpu_read(in_kernel_fpu))
++		return false;
++
++	/*
++	 * When not in NMI or hard interrupt context, FPU can be used in:
++	 *
++	 * - Task context except from within fpregs_lock()'ed critical
++	 *   regions.
++	 *
++	 * - Soft interrupt processing context which cannot happen
++	 *   while in a fpregs_lock()'ed critical region.
++	 */
++	if (!in_hardirq())
++		return true;
++
++	/*
++	 * In hard interrupt context it's safe when soft interrupts
++	 * are enabled, which means the interrupt did not hit in
++	 * a fpregs_lock()'ed critical region.
++	 */
++	return !softirq_count();
+ }
+ EXPORT_SYMBOL(irq_fpu_usable);
+ 
 
