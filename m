@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FF9A51F707
+	by mail.lfdr.de (Postfix) with ESMTP id 6156151F708
 	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237377AbiEIIqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36116 "EHLO
+        id S237380AbiEIIql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237474AbiEIIiD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:38:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638421D4A13
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:34:08 -0700 (PDT)
+        with ESMTP id S237557AbiEIIic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:38:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 123561F35EB
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:34:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 557E2614B1
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61C06C385AB;
-        Mon,  9 May 2022 08:33:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00E4B614AB
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:33:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111AEC385A8;
+        Mon,  9 May 2022 08:33:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085227;
-        bh=RJwV9qvVrZStxNVEVhd15Dtq9bol4KgU9iHZTCYvoxE=;
+        s=korg; t=1652085237;
+        bh=BCoiRFATU8xowG4t0E0Vq1XVcl0LhYRjhODrA7fQB8U=;
         h=Subject:To:Cc:From:Date:From;
-        b=nnC00RJBpa5hoAlJ8vSpfK/hOOd2mdZ1/ZzKv0BuuZyWW65MF9WoL4QulRGJHmITM
-         9S1qXnW7ynL8WgCUZkj1JdryqC1w4M4PVtsDd+yJcbVgpJCG7WYTFGRGGyuPbnivVY
-         OgpO6x7chyWjPeh/s6G4eqp8zTWNwkRdkRW61mCc=
-Subject: FAILED: patch "[PATCH] powerpc/vdso: Fix incorrect CFI in gettimeofday.S" failed to apply to 5.17-stable tree
+        b=Nu0wxhOxIbMZXB6zzkwq14ynbBawAi/RfLYp4sNJqDMZ7USaug96If/2r3H3RCkvE
+         qBUdexRqi8TYF/5e8A0Che+Gdwso3RRDjORczeKWxlURPPG6qXtWldK9Ssg6vNZX9m
+         VGLofGsJKKW+MfX1VkFkGA5KdZJMX2bWfDpT3Xo4=
+Subject: FAILED: patch "[PATCH] powerpc/vdso: Fix incorrect CFI in gettimeofday.S" failed to apply to 5.15-stable tree
 To:     mpe@ellerman.id.au, amodra@gmail.com, segher@kernel.crashing.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:33:45 +0200
-Message-ID: <165208522516431@kroah.com>
+Date:   Mon, 09 May 2022 10:33:46 +0200
+Message-ID: <1652085226120148@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
