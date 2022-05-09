@@ -2,193 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8D051FB46
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1B0551FB7A
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232767AbiEILaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 07:30:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
+        id S232590AbiEILp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 07:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232833AbiEILaV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:30:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C397DE21
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:26:27 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD3CEB81190
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:26:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12B70C385AB;
-        Mon,  9 May 2022 11:26:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652095585;
-        bh=Ztpuo2RJDpJ1vIGMJnfReGXPLeWcWsuYVLxlqIIsra8=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OgU7Zjh56B5HdTCt/3C3UzFD5i29sBkngM9cM4NHyn/qZGll7TgDmi5a78nxMQzTf
-         pDYXcFQCxTSwrVrIXhN1oKXViqVNlgK5c76yQLrNZXsH2IFZKZyROSWDcKSkuJdiD7
-         w8zM0jOCydP2k3XCfZCV4JivPiOj71v2kR7I3FsY=
-Subject: FAILED: patch "[PATCH] tcp: make sure treq->af_specific is initialized" failed to apply to 4.19-stable tree
-To:     edumazet@google.com, davem@davemloft.net, fruggeri@arista.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 13:26:22 +0200
-Message-ID: <1652095582112139@kroah.com>
+        with ESMTP id S231935AbiEILpX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:45:23 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E24DE149D92
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:41:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652096488;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=Bf0d4LwdBszW2HoKqW0Csu48jPbD9xTwfA3gn01IV/A=;
+        b=Pf6u5/2nGjaVvWJHwZqyS50RtZqFXf3IxaV+/bC7Ljol1VSNg8ZK/XUKhuhYAMo0G7GLuu
+        TiOcFiSsNrSUywHVyzwVe2DHSwTrGDxe1PY5y9b7E7Yx2ZemMaeKSi8ln8VzTOxMdu6qnZ
+        y3TT+K2Urh+r6AeJYT5y3Eavu1wzRPQ=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-382-1-JKkfRnM4C7PWKQ1w7JnA-1; Mon, 09 May 2022 07:41:26 -0400
+X-MC-Unique: 1-JKkfRnM4C7PWKQ1w7JnA-1
+Received: by mail-ed1-f72.google.com with SMTP id ch28-20020a0564021bdc00b00425cb227ab4so8181668edb.4
+        for <stable@vger.kernel.org>; Mon, 09 May 2022 04:41:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=Bf0d4LwdBszW2HoKqW0Csu48jPbD9xTwfA3gn01IV/A=;
+        b=YJTWZNdwkUE5xShWaB1RDlRVn24v/n6N6RsPfGnQSZ3UaK4ilH0zbPO29KAnk+/N/0
+         8nOu6FrMj3+oZXNpFrfFtcVg88YhOpyjKCCU4JkNty70qNmnrh5U7RQY4KEGhtjkg5Wh
+         iZ58cz47NkBlz/EAUKvpEunfmq4E+lUzip9+rLrTybPCZeQjExaOxchvxOdmlHnqPOOr
+         BQSyNHC2bIdTUOHkL373qeRxmmTyOu47TnMtMYJRTgqElYgW2HnEfG7CnQDzFKxHBUFH
+         6FrJ9Q6lpYiI8jKvfihhhmd7tV9hv7utymKn1JPNsjk52wA2ESVQGSkqTbyv0JTaBIew
+         suag==
+X-Gm-Message-State: AOAM533HVAD5Z5Y+nkcToLZIxnM/mSRZEn+JB4BJRlgKbRAbLWSMNcI1
+        0Kib6S8TPJwH+1OOR8VCROOgZ5mUHtwF2ZXwZ7/8T8pCfBKlyEdY2NZkYeXrQwe04/jXmnZjied
+        6JUXiCBoyvLnTRdc4
+X-Received: by 2002:a17:907:3e90:b0:6f7:f63:78b6 with SMTP id hs16-20020a1709073e9000b006f70f6378b6mr11022279ejc.3.1652096484918;
+        Mon, 09 May 2022 04:41:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwCkzxuX0xT0C1Tww5G/TqDm4C9Sb5c9/QTjuSai4noiho34YDCJ1QDxMazyXPzv1WpsX7aqA==
+X-Received: by 2002:a17:907:3e90:b0:6f7:f63:78b6 with SMTP id hs16-20020a1709073e9000b006f70f6378b6mr11022254ejc.3.1652096484626;
+        Mon, 09 May 2022 04:41:24 -0700 (PDT)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.googlemail.com with ESMTPSA id w5-20020a056402268500b0042617ba6389sm6291740edd.19.2022.05.09.04.41.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 09 May 2022 04:41:23 -0700 (PDT)
+Message-ID: <29767a7d-d887-1a0c-296e-5bed220f1c9e@redhat.com>
+Date:   Mon, 9 May 2022 13:41:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Content-Language: en-US
+To:     Kyle Huey <me@kylehuey.com>, stable@vger.kernel.org
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, kvm@vger.kernel.org,
+        Robert O'Callahan <robert@ocallahan.org>,
+        Keno Fischer <keno@juliacomputing.com>
+References: <20220508165434.119000-1-khuey@kylehuey.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 5.4] KVM: x86/svm: Account for family 17h event
+ renumberings in amd_pmc_perf_hw_id
+In-Reply-To: <20220508165434.119000-1-khuey@kylehuey.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 5/8/22 18:54, Kyle Huey wrote:
+> From: Kyle Huey <me@kylehuey.com>
+> 
+> commit 5eb849322d7f7ae9d5c587c7bc3b4f7c6872cd2f upstream
+> 
+> Zen renumbered some of the performance counters that correspond to the
+> well known events in perf_hw_id. This code in KVM was never updated for
+> that, so guest that attempt to use counters on Zen that correspond to the
+> pre-Zen perf_hw_id values will silently receive the wrong values.
+> 
+> This has been observed in the wild with rr[0] when running in Zen 3
+> guests. rr uses the retired conditional branch counter 00d1 which is
+> incorrectly recognized by KVM as PERF_COUNT_HW_STALLED_CYCLES_BACKEND.
+> 
+> [0] https://rr-project.org/
+> 
+> Signed-off-by: Kyle Huey <me@kylehuey.com>
+> Message-Id: <20220503050136.86298-1-khuey@kylehuey.com>
+> Cc: stable@vger.kernel.org
+> [Check guest family, not host. - Paolo]
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> [Backport to 5.4: adjusted context]
+> Signed-off-by: Kyle Huey <me@kylehuey.com>
+> ---
+>   arch/x86/kvm/pmu_amd.c | 28 +++++++++++++++++++++++++---
+>   1 file changed, 25 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/pmu_amd.c b/arch/x86/kvm/pmu_amd.c
+> index 6bc656abbe66..3ccfd1abcbad 100644
+> --- a/arch/x86/kvm/pmu_amd.c
+> +++ b/arch/x86/kvm/pmu_amd.c
+> @@ -44,6 +44,22 @@ static struct kvm_event_hw_type_mapping amd_event_mapping[] = {
+>   	[7] = { 0xd1, 0x00, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
+>   };
+>   
+> +/* duplicated from amd_f17h_perfmon_event_map. */
+> +static struct kvm_event_hw_type_mapping amd_f17h_event_mapping[] = {
+> +	[0] = { 0x76, 0x00, PERF_COUNT_HW_CPU_CYCLES },
+> +	[1] = { 0xc0, 0x00, PERF_COUNT_HW_INSTRUCTIONS },
+> +	[2] = { 0x60, 0xff, PERF_COUNT_HW_CACHE_REFERENCES },
+> +	[3] = { 0x64, 0x09, PERF_COUNT_HW_CACHE_MISSES },
+> +	[4] = { 0xc2, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
+> +	[5] = { 0xc3, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
+> +	[6] = { 0x87, 0x02, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND },
+> +	[7] = { 0x87, 0x01, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
+> +};
+> +
+> +/* amd_pmc_perf_hw_id depends on these being the same size */
+> +static_assert(ARRAY_SIZE(amd_event_mapping) ==
+> +	     ARRAY_SIZE(amd_f17h_event_mapping));
+> +
+>   static unsigned int get_msr_base(struct kvm_pmu *pmu, enum pmu_type type)
+>   {
+>   	struct kvm_vcpu *vcpu = pmu_to_vcpu(pmu);
+> @@ -130,17 +146,23 @@ static unsigned amd_find_arch_event(struct kvm_pmu *pmu,
+>   				    u8 event_select,
+>   				    u8 unit_mask)
+>   {
+> +	struct kvm_event_hw_type_mapping *event_mapping;
+>   	int i;
+>   
+> +	if (guest_cpuid_family(pmc->vcpu) >= 0x17)
+> +		event_mapping = amd_f17h_event_mapping;
+> +	else
+> +		event_mapping = amd_event_mapping;
+> +
+>   	for (i = 0; i < ARRAY_SIZE(amd_event_mapping); i++)
+> -		if (amd_event_mapping[i].eventsel == event_select
+> -		    && amd_event_mapping[i].unit_mask == unit_mask)
+> +		if (event_mapping[i].eventsel == event_select
+> +		    && event_mapping[i].unit_mask == unit_mask)
+>   			break;
+>   
+>   	if (i == ARRAY_SIZE(amd_event_mapping))
+>   		return PERF_COUNT_HW_MAX;
+>   
+> -	return amd_event_mapping[i].event_type;
+> +	return event_mapping[i].event_type;
+>   }
+>   
+>   /* return PERF_COUNT_HW_MAX as AMD doesn't have fixed events */
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
-thanks,
+Thanks,
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ba5a4fdd63ae0c575707030db0b634b160baddd7 Mon Sep 17 00:00:00 2001
-From: Eric Dumazet <edumazet@google.com>
-Date: Sun, 24 Apr 2022 13:35:09 -0700
-Subject: [PATCH] tcp: make sure treq->af_specific is initialized
-
-syzbot complained about a recent change in TCP stack,
-hitting a NULL pointer [1]
-
-tcp request sockets have an af_specific pointer, which
-was used before the blamed change only for SYNACK generation
-in non SYNCOOKIE mode.
-
-tcp requests sockets momentarily created when third packet
-coming from client in SYNCOOKIE mode were not using
-treq->af_specific.
-
-Make sure this field is populated, in the same way normal
-TCP requests sockets do in tcp_conn_request().
-
-[1]
-TCP: request_sock_TCPv6: Possible SYN flooding on port 20002. Sending cookies.  Check SNMP counters.
-general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
-CPU: 1 PID: 3695 Comm: syz-executor864 Not tainted 5.18.0-rc3-syzkaller-00224-g5fd1fe4807f9 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:tcp_create_openreq_child+0xe16/0x16b0 net/ipv4/tcp_minisocks.c:534
-Code: 48 c1 ea 03 80 3c 02 00 0f 85 e5 07 00 00 4c 8b b3 28 01 00 00 48 b8 00 00 00 00 00 fc ff df 49 8d 7e 08 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 c9 07 00 00 48 8b 3c 24 48 89 de 41 ff 56 08 48
-RSP: 0018:ffffc90000de0588 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: ffff888076490330 RCX: 0000000000000100
-RDX: 0000000000000001 RSI: ffffffff87d67ff0 RDI: 0000000000000008
-RBP: ffff88806ee1c7f8 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff87d67f00 R11: 0000000000000000 R12: ffff88806ee1bfc0
-R13: ffff88801b0e0368 R14: 0000000000000000 R15: 0000000000000000
-FS:  00007f517fe58700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffcead76960 CR3: 000000006f97b000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- tcp_v6_syn_recv_sock+0x199/0x23b0 net/ipv6/tcp_ipv6.c:1267
- tcp_get_cookie_sock+0xc9/0x850 net/ipv4/syncookies.c:207
- cookie_v6_check+0x15c3/0x2340 net/ipv6/syncookies.c:258
- tcp_v6_cookie_check net/ipv6/tcp_ipv6.c:1131 [inline]
- tcp_v6_do_rcv+0x1148/0x13b0 net/ipv6/tcp_ipv6.c:1486
- tcp_v6_rcv+0x3305/0x3840 net/ipv6/tcp_ipv6.c:1725
- ip6_protocol_deliver_rcu+0x2e9/0x1900 net/ipv6/ip6_input.c:422
- ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:464
- NF_HOOK include/linux/netfilter.h:307 [inline]
- NF_HOOK include/linux/netfilter.h:301 [inline]
- ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:473
- dst_input include/net/dst.h:461 [inline]
- ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
- NF_HOOK include/linux/netfilter.h:307 [inline]
- NF_HOOK include/linux/netfilter.h:301 [inline]
- ipv6_rcv+0x27f/0x3b0 net/ipv6/ip6_input.c:297
- __netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5405
- __netif_receive_skb+0x24/0x1b0 net/core/dev.c:5519
- process_backlog+0x3a0/0x7c0 net/core/dev.c:5847
- __napi_poll+0xb3/0x6e0 net/core/dev.c:6413
- napi_poll net/core/dev.c:6480 [inline]
- net_rx_action+0x8ec/0xc60 net/core/dev.c:6567
- __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
- invoke_softirq kernel/softirq.c:432 [inline]
- __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
- irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
- sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1097
-
-Fixes: 5b0b9e4c2c89 ("tcp: md5: incorrect tcp_header_len for incoming connections")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Francesco Ruggeri <fruggeri@arista.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index b99d9d9cbd99..cc1295037533 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -480,6 +480,7 @@ int __cookie_v4_check(const struct iphdr *iph, const struct tcphdr *th,
- 		      u32 cookie);
- struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb);
- struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
-+					    const struct tcp_request_sock_ops *af_ops,
- 					    struct sock *sk, struct sk_buff *skb);
- #ifdef CONFIG_SYN_COOKIES
- 
-diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
-index 2cb3b852d148..f33c31dd7366 100644
---- a/net/ipv4/syncookies.c
-+++ b/net/ipv4/syncookies.c
-@@ -281,6 +281,7 @@ bool cookie_ecn_ok(const struct tcp_options_received *tcp_opt,
- EXPORT_SYMBOL(cookie_ecn_ok);
- 
- struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
-+					    const struct tcp_request_sock_ops *af_ops,
- 					    struct sock *sk,
- 					    struct sk_buff *skb)
- {
-@@ -297,6 +298,10 @@ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
- 		return NULL;
- 
- 	treq = tcp_rsk(req);
-+
-+	/* treq->af_specific might be used to perform TCP_MD5 lookup */
-+	treq->af_specific = af_ops;
-+
- 	treq->syn_tos = TCP_SKB_CB(skb)->ip_dsfield;
- #if IS_ENABLED(CONFIG_MPTCP)
- 	treq->is_mptcp = sk_is_mptcp(sk);
-@@ -364,7 +369,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
- 		goto out;
- 
- 	ret = NULL;
--	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops, sk, skb);
-+	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops,
-+				     &tcp_request_sock_ipv4_ops, sk, skb);
- 	if (!req)
- 		goto out;
- 
-diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
-index d1b61d00368e..9cc123f000fb 100644
---- a/net/ipv6/syncookies.c
-+++ b/net/ipv6/syncookies.c
-@@ -170,7 +170,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
- 		goto out;
- 
- 	ret = NULL;
--	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops, sk, skb);
-+	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops,
-+				     &tcp_request_sock_ipv6_ops, sk, skb);
- 	if (!req)
- 		goto out;
- 
+Paolo
 
