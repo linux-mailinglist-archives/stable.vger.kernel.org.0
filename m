@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A60BA51F9DD
+	by mail.lfdr.de (Postfix) with ESMTP id 0D48251F9DB
 	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233167AbiEIKdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233125AbiEIKdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 9 May 2022 06:33:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiEIKcj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:32:39 -0400
+        with ESMTP id S231634AbiEIKcf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:32:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC23429BC70
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:27:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281AA2A0A5C
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:27:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2372BB8111C
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:25:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72757C385A8;
-        Mon,  9 May 2022 10:25:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B436AB8111B
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:25:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09591C385A8;
+        Mon,  9 May 2022 10:25:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652091946;
-        bh=ERCQW1KJcLIXqwCVgMtKD7kmdr4TDmadO1iD31mxU4I=;
+        s=korg; t=1652091958;
+        bh=SA8pSd3BRH83opwg2+PBNSRbWPmIOnAy+ERARbTRw7M=;
         h=Subject:To:Cc:From:Date:From;
-        b=YvJd8iR8V3Vmy+8OdGlrHaiPFtI+9sF/cerAAiMv/NoDPhYgOlpQ/8indbbgFhuNR
-         ZsBmMEruc9WTUZxlwCexGYwHq6paoBf/67/FxU/fofwwfhYIUnCCHaYIdo0T6gyH6a
-         sZgoG71ijILmEZgyK6p6baLspUs/FKwXkyzgskQw=
-Subject: FAILED: patch "[PATCH] gpio: pca953x: fix irq_stat not updated when irq is disabled" failed to apply to 5.4-stable tree
+        b=MHGEAlH1ATGChtK0L9WwNt668IPO/O8NWaL4qNaSn8yj9iG5TRscBYjkLzlvWOIo+
+         CtvawgYuiHmiBbCq7BCIN+r/eWN50biaVk18Am7yRFqN/xUMtCDb3nJ2nlQ9+3m6So
+         jH4v7OWoKfflRKJpnLab5gv2l+9oolelv4yfxXV8=
+Subject: FAILED: patch "[PATCH] gpio: pca953x: fix irq_stat not updated when irq is disabled" failed to apply to 4.14-stable tree
 To:     puyou.lu@gmail.com, brgl@bgdev.pl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 09 May 2022 12:25:44 +0200
-Message-ID: <1652091944130169@kroah.com>
+Message-ID: <1652091944156218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
