@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE2E51F7EE
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFA251F7F5
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236291AbiEIJWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52002 "EHLO
+        id S236570AbiEIJWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236817AbiEIIto (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:49:44 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8848C17B846
+        with ESMTP id S236748AbiEIItl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:49:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E38C17B85E
         for <stable@vger.kernel.org>; Mon,  9 May 2022 01:45:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4B921CE12E1
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D9FDC385A8;
-        Mon,  9 May 2022 08:45:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 581CD61447
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E588C385AC;
+        Mon,  9 May 2022 08:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085935;
-        bh=k5RYPzBt0r0Yx8yR1HUDmrqanYMZl3BWBVUrJCqzuHg=;
+        s=korg; t=1652085938;
+        bh=jTR3pXNib0uvaK1Ve1GWNn0rXDElFqxN36P0wFAF1uw=;
         h=Subject:To:Cc:From:Date:From;
-        b=zL3cqf5vVyHJw//zzH68DsGF/6Q38x1XRXKhlLNKa4H8H4BC+vqEE5ZaGY2HTc+Bp
-         hZXxJdDD9AIQmihws0ya6wpIPUaai6mIdyBZVt9RzmiveGZiM6wGuR82oLKZCJ9epS
-         3RFQ6zBYdSkMrAnh/nExq16VRqTcJKT0U9NRcrbA=
-Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 5.4-stable tree
+        b=gMmMGWOVymVSAbrh6x2Y8fQ1EnVqywRzulQwrLmztnYdIyIo6hNeWUTe3Ub+wry+K
+         dVzZjV8Dq36qbaSfezaTSQlxMhKsiOo5i7jQZLHMV7g7whqxQFSykPeyxrWlsf2Nyz
+         8PrObWGFtDAe04ZUXHOP6BBT1veHiDSQ0nb6wFM4=
+Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 5.10-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:45:26 +0200
-Message-ID: <165208592611068@kroah.com>
+Date:   Mon, 09 May 2022 10:45:27 +0200
+Message-ID: <1652085927250103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
