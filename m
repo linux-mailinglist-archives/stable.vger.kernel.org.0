@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8976951F800
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D70D51F7E7
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236736AbiEIJWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
+        id S230295AbiEIJWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236260AbiEIIs6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:48:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F906AE258
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:45:05 -0700 (PDT)
+        with ESMTP id S236544AbiEIIth (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:49:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B1B917997E
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:45:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0EA98B8103B
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 555DCC385AB;
-        Mon,  9 May 2022 08:45:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D24A614B0
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E985C385A8;
+        Mon,  9 May 2022 08:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085902;
-        bh=V/ZH1AV7DP4RgLQtBH70w5Y08mXuw+ruOqTKfNgCtKo=;
+        s=korg; t=1652085926;
+        bh=oDJjOrWF96V+dLVEHjmyI9hDXn+8iDqkKcbR6QW0s14=;
         h=Subject:To:Cc:From:Date:From;
-        b=UC001sQlvFnFRm6DViCt4BUYMXGU1h29btAP2fPFGjrMHQFc16NzbWlQtv6pOGW0g
-         J7CJHL8muS0ChXaBLvPfvfx+YChQ+2WG+tACu5ea0aqnAaa4zDymit1P+Kzo3/nF9F
-         HqlnmsNT/cJFOrC9DUpj+NTj+Vtb9NscuKIp39+g=
-Subject: FAILED: patch "[PATCH] btrfs: force v2 space cache usage for subpage mount" failed to apply to 5.15-stable tree
-To:     wqu@suse.com, blnxfsl@bluematt.me, dsterba@suse.com,
-        josef@toxicpanda.com
+        b=rCQ2VyrrVlLvMoT02KpgQPyKJZYarLnbGBb6+amXvmM0RP5aB1Cbcf5YOi4hfp4et
+         z5SKYjNuvUUigcczY5jxZMrhbIGXlPvQ3aJXx2Aixwdy3PY4/hwcRDXddC1X8UmNGA
+         Kh5wh9WafwwDAG7Hbr6iQVovS1PD/2zjD6PgmOJY=
+Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:44:54 +0200
-Message-ID: <16520858942205@kroah.com>
+Date:   Mon, 09 May 2022 10:45:23 +0200
+Message-ID: <165208592310886@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,69 +59,87 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 9f73f1aef98b2fa7252c0a89be64840271ce8ea0 Mon Sep 17 00:00:00 2001
-From: Qu Wenruo <wqu@suse.com>
-Date: Fri, 1 Apr 2022 15:29:37 +0800
-Subject: [PATCH] btrfs: force v2 space cache usage for subpage mount
+From d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 21 Apr 2022 10:56:39 +0100
+Subject: [PATCH] btrfs: always log symlinks in full mode
 
-[BUG]
-For a 4K sector sized btrfs with v1 cache enabled and only mounted on
-systems with 4K page size, if it's mounted on subpage (64K page size)
-systems, it can cause the following warning on v1 space cache:
+On Linux, empty symlinks are invalid, and attempting to create one with
+the system call symlink(2) results in an -ENOENT error and this is
+explicitly documented in the man page.
 
- BTRFS error (device dm-1): csum mismatch on free space cache
- BTRFS warning (device dm-1): failed to load free space cache for block group 84082688, rebuilding it now
+If we rename a symlink that was created in the current transaction and its
+parent directory was logged before, we actually end up logging the symlink
+without logging its content, which is stored in an inline extent. That
+means that after a power failure we can end up with an empty symlink,
+having no content and an i_size of 0 bytes.
 
-Although not a big deal, as kernel can rebuild it without problem, such
-warning will bother end users, especially if they want to switch the
-same btrfs seamlessly between different page sized systems.
+It can be easily reproduced like this:
 
-[CAUSE]
-V1 free space cache is still using fixed PAGE_SIZE for various bitmap,
-like BITS_PER_BITMAP.
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
 
-Such hard-coded PAGE_SIZE usage will cause various mismatch, from v1
-cache size to checksum.
+  $ mkdir /mnt/testdir
+  $ sync
 
-Thus kernel will always reject v1 cache with a different PAGE_SIZE with
-csum mismatch.
+  # Create a file inside the directory and fsync the directory.
+  $ touch /mnt/testdir/foo
+  $ xfs_io -c "fsync" /mnt/testdir
 
-[FIX]
-Although we should fix v1 cache, it's already going to be marked
-deprecated soon.
+  # Create a symlink inside the directory and then rename the symlink.
+  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
+  $ mv /mnt/testdir/bar /mnt/testdir/baz
 
-And we have v2 cache based on metadata (which is already fully subpage
-compatible), and it has almost everything superior than v1 cache.
+  # Now fsync again the directory, this persist the log tree.
+  $ xfs_io -c "fsync" /mnt/testdir
 
-So just force subpage mount to use v2 cache on mount.
+  <power failure>
 
-Reported-by: Matt Corallo <blnxfsl@bluematt.me>
-CC: stable@vger.kernel.org # 5.15+
-Link: https://lore.kernel.org/linux-btrfs/61aa27d1-30fc-c1a9-f0f4-9df544395ec3@bluematt.me/
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
+  $ mount /dev/sdc /mnt
+  $ stat -c %s /mnt/testdir/baz
+  0
+  $ readlink /mnt/testdir/baz
+  $
+
+Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
+their content is also logged.
+
+A test case for fstests will follow.
+
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/disk-io.c b/fs/btrfs/disk-io.c
-index 20e70eb88465..3e0acc362233 100644
---- a/fs/btrfs/disk-io.c
-+++ b/fs/btrfs/disk-io.c
-@@ -3657,6 +3657,17 @@ int __cold open_ctree(struct super_block *sb, struct btrfs_fs_devices *fs_device
- 	if (sectorsize < PAGE_SIZE) {
- 		struct btrfs_subpage_info *subpage_info;
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 09e4f1a04e6f..11399c8eed87 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5804,6 +5804,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 		mutex_lock(&inode->log_mutex);
+ 	}
  
-+		/*
-+		 * V1 space cache has some hardcoded PAGE_SIZE usage, and is
-+		 * going to be deprecated.
-+		 *
-+		 * Force to use v2 cache for subpage case.
-+		 */
-+		btrfs_clear_opt(fs_info->mount_opt, SPACE_CACHE);
-+		btrfs_set_and_info(fs_info, FREE_SPACE_TREE,
-+			"forcing free space tree for sector size %u with page size %lu",
-+			sectorsize, PAGE_SIZE);
++	/*
++	 * For symlinks, we must always log their content, which is stored in an
++	 * inline extent, otherwise we could end up with an empty symlink after
++	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
++	 * one attempts to create an empty symlink).
++	 * We don't need to worry about flushing delalloc, because when we create
++	 * the inline extent when the symlink is created (we never have delalloc
++	 * for symlinks).
++	 */
++	if (S_ISLNK(inode->vfs_inode.i_mode))
++		inode_only = LOG_INODE_ALL;
 +
- 		btrfs_warn(fs_info,
- 		"read-write for sector size %u with page size %lu is experimental",
- 			   sectorsize, PAGE_SIZE);
+ 	/*
+ 	 * Before logging the inode item, cache the value returned by
+ 	 * inode_logged(), because after that we have the need to figure out if
+@@ -6182,7 +6194,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
+ 			}
+ 
+ 			ctx->log_new_dentries = false;
+-			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
++			if (type == BTRFS_FT_DIR)
+ 				log_mode = LOG_INODE_ALL;
+ 			ret = btrfs_log_inode(trans, BTRFS_I(di_inode),
+ 					      log_mode, ctx);
 
