@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D0B51F7DF
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:25:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E27E51F805
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235375AbiEIJWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34904 "EHLO
+        id S236602AbiEIJWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236528AbiEIIv6 (ORCPT
+        with ESMTP id S236529AbiEIIv6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:51:58 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB82B1FD877
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:48:03 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCF01FD87B
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:48:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5A3DECE135F
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E8AAC385A8;
-        Mon,  9 May 2022 08:48:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A40B61447
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5744DC385A8;
+        Mon,  9 May 2022 08:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652086080;
-        bh=Op+ZMwlBsqt5PN4VnOwvg0x9yDf/TjQHYrti5TUM9rU=;
+        s=korg; t=1652086083;
+        bh=MUCwKddV7A6fDqpuWUN0YewqtKKNbVIMElkslzoDaz4=;
         h=Subject:To:Cc:From:Date:From;
-        b=iL3cUGn8G94byTqFIozCXeXbAiq9y6qevzE8U3jJ/0xjYbnr+cZYnSThzsTxevEZA
-         PwKAuPzAnZD8S8kvOxi5hohVH5Bn+Oo6wJdRoOIjJHRzViI84kZREQ9yid1BjDE3pR
-         U411PtWCRf5NyeoZy5ibM/ChDVHWnhN+rQiCTius=
-Subject: FAILED: patch "[PATCH] btrfs: skip compression property for anything other than" failed to apply to 5.10-stable tree
+        b=xeRvonF0Ahx6ckqNoKK7ypiGFYSNC2RuyDKziMp6yCORA4UZPYOx1pRYFpdp18h+Y
+         5bbRaC421yNgytAPTeMaSmR8eX+WPTpXY3Y0axoBq+zO3ptWVB7gfoOy3kkydUDsmF
+         WWReqt8IRgpEmQ2P7zV1DdeMz01ljmS/krf6Gmiw=
+Subject: FAILED: patch "[PATCH] btrfs: skip compression property for anything other than" failed to apply to 5.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:47:50 +0200
-Message-ID: <165208607031112@kroah.com>
+Date:   Mon, 09 May 2022 10:47:51 +0200
+Message-ID: <165208607121816@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
