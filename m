@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EE4051F720
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 061A751F70A
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237724AbiEIIrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:47:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50584 "EHLO
+        id S237381AbiEIIqn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbiEIIdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:33:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB0E1F1CAC
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:29:48 -0700 (PDT)
+        with ESMTP id S237840AbiEIIdr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:33:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0271D1F1CB1
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:29:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28D94B80FEA
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1884BC385AB;
-        Mon,  9 May 2022 08:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 66DA961490
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:29:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AE72C385AB;
+        Mon,  9 May 2022 08:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652084943;
-        bh=OIiEVwoKm8y10hzLWzSB9gtPI03PEqfZqxmqWpJ8h9I=;
+        s=korg; t=1652084949;
+        bh=0c+vHc+xY5xgmOpAz1XdmlyK0tYDG1USv+NpMgOTlWA=;
         h=Subject:To:Cc:From:Date:From;
-        b=Wf04cGAeW8E8jnttw4QTwCHr8NZq6FpItDfUSdvPLk70LVvYilymXqZb+E62WwB2y
-         AgFDzCdzx5SmX4RuKbQXSF4/6VYzJOpZoPCx/NnzpNdVS50lwBTnMbzSQ9/cg/MAws
-         TsBurBtMlon9ayEIX9oR2Pi1cJ4/oG4Rk6D11/p8=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Move shadow-present check out of" failed to apply to 4.14-stable tree
+        b=hZ+3jSDLIzslzP9/C2tk4pzTL/FEsC9Hxugn144QasRX4DKCYLxsXxWwq/sI3zNty
+         qKzDrQJxrgiF+LJLY/ck/XeG5IYqLeeJU8c0yuH5cmdrzTlbuibv4wMj92MoVr9mcG
+         M82V+LA4IKLusC0fwJbInPKUMT7l8DT7hG8PnWS0=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Move shadow-present check out of" failed to apply to 4.9-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:28:53 +0200
-Message-ID: <1652084933128251@kroah.com>
+Date:   Mon, 09 May 2022 10:28:54 +0200
+Message-ID: <16520849342165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
