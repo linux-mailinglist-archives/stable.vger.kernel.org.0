@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E27E51F805
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DCA551F802
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236602AbiEIJWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34910 "EHLO
+        id S236548AbiEIJWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236529AbiEIIv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:51:58 -0400
+        with ESMTP id S236303AbiEIIwg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:52:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDCF01FD87B
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:48:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF58A24096
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:48:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A40B61447
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:48:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5744DC385A8;
-        Mon,  9 May 2022 08:48:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C548614B3
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:48:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 974BBC385A8;
+        Mon,  9 May 2022 08:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652086083;
-        bh=MUCwKddV7A6fDqpuWUN0YewqtKKNbVIMElkslzoDaz4=;
+        s=korg; t=1652086119;
+        bh=Wz9Rxg7I3OobGnr8V4sFYKjbxHkernf5GCmG4lv3b2Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=xeRvonF0Ahx6ckqNoKK7ypiGFYSNC2RuyDKziMp6yCORA4UZPYOx1pRYFpdp18h+Y
-         5bbRaC421yNgytAPTeMaSmR8eX+WPTpXY3Y0axoBq+zO3ptWVB7gfoOy3kkydUDsmF
-         WWReqt8IRgpEmQ2P7zV1DdeMz01ljmS/krf6Gmiw=
-Subject: FAILED: patch "[PATCH] btrfs: skip compression property for anything other than" failed to apply to 5.4-stable tree
+        b=00FpcV6Nk01Y7nX8A9+gaP/VVBxSOuSUpMSnH7pTxNXsvNVPzXZJETfyuhQzp54qI
+         eMgMy2Nw4gmTMjLNUGDof5FaiaLFYeEvBEsB72y0Zh5EQDrIDs1NKRz/yTK6RLG74Y
+         y349vs8wn4aW5mOHIvRF14B348WD/zQMyVV+nmXI=
+Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 5.15-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:47:51 +0200
-Message-ID: <165208607121816@kroah.com>
+Date:   Mon, 09 May 2022 10:48:36 +0200
+Message-ID: <1652086116175114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,150 +59,87 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4b73c55fdebd8939f0f6000921075f7f6fa41397 Mon Sep 17 00:00:00 2001
+From d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Thu, 21 Apr 2022 11:01:22 +0100
-Subject: [PATCH] btrfs: skip compression property for anything other than
- files and dirs
+Date: Thu, 21 Apr 2022 10:56:39 +0100
+Subject: [PATCH] btrfs: always log symlinks in full mode
 
-The compression property only has effect on regular files and directories
-(so that it's propagated to files and subdirectories created inside a
-directory). For any other inode type (symlink, fifo, device, socket),
-it's pointless to set the compression property because it does nothing
-and ends up unnecessarily wasting leaf space due to the pointless xattr
-(75 or 76 bytes, depending on the compression value). Symlinks in
-particular are very common (for example, I have almost 10k symlinks under
-/etc, /usr and /var alone) and therefore it's worth to avoid wasting
-leaf space with the compression xattr.
+On Linux, empty symlinks are invalid, and attempting to create one with
+the system call symlink(2) results in an -ENOENT error and this is
+explicitly documented in the man page.
 
-For example, the compression property can end up on a symlink or character
-device implicitly, through inheritance from a parent directory
+If we rename a symlink that was created in the current transaction and its
+parent directory was logged before, we actually end up logging the symlink
+without logging its content, which is stored in an inline extent. That
+means that after a power failure we can end up with an empty symlink,
+having no content and an i_size of 0 bytes.
+
+It can be easily reproduced like this:
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
 
   $ mkdir /mnt/testdir
-  $ btrfs property set /mnt/testdir compression lzo
+  $ sync
 
-  $ ln -s yadayada /mnt/testdir/lnk
-  $ mknod /mnt/testdir/dev c 0 0
+  # Create a file inside the directory and fsync the directory.
+  $ touch /mnt/testdir/foo
+  $ xfs_io -c "fsync" /mnt/testdir
 
-Or explicitly like this:
+  # Create a symlink inside the directory and then rename the symlink.
+  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
+  $ mv /mnt/testdir/bar /mnt/testdir/baz
 
-  $ ln -s yadayda /mnt/lnk
-  $ setfattr -h -n btrfs.compression -v lzo /mnt/lnk
+  # Now fsync again the directory, this persist the log tree.
+  $ xfs_io -c "fsync" /mnt/testdir
 
-So skip the compression property on inodes that are neither a regular
-file nor a directory.
+  <power failure>
 
-CC: stable@vger.kernel.org # 5.4+
+  $ mount /dev/sdc /mnt
+  $ stat -c %s /mnt/testdir/baz
+  0
+  $ readlink /mnt/testdir/baz
+  $
+
+Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
+their content is also logged.
+
+A test case for fstests will follow.
+
+CC: stable@vger.kernel.org # 4.9+
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
-index 5a6f87744c28..1b31481f9e72 100644
---- a/fs/btrfs/props.c
-+++ b/fs/btrfs/props.c
-@@ -21,6 +21,7 @@ struct prop_handler {
- 			size_t len);
- 	int (*apply)(struct inode *inode, const char *value, size_t len);
- 	const char *(*extract)(struct inode *inode);
-+	bool (*ignore)(const struct btrfs_inode *inode);
- 	int inheritable;
- };
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 09e4f1a04e6f..11399c8eed87 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5804,6 +5804,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+ 		mutex_lock(&inode->log_mutex);
+ 	}
  
-@@ -74,6 +75,28 @@ int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
- 	return handler->validate(inode, value, value_len);
- }
- 
-+/*
-+ * Check if a property should be ignored (not set) for an inode.
-+ *
-+ * @inode:     The target inode.
-+ * @name:      The property's name.
-+ *
-+ * The caller must be sure the given property name is valid, for example by
-+ * having previously called btrfs_validate_prop().
-+ *
-+ * Returns:    true if the property should be ignored for the given inode
-+ *             false if the property must not be ignored for the given inode
-+ */
-+bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name)
-+{
-+	const struct prop_handler *handler;
-+
-+	handler = find_prop_handler(name, NULL);
-+	ASSERT(handler != NULL);
-+
-+	return handler->ignore(inode);
-+}
-+
- int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
- 		   const char *name, const char *value, size_t value_len,
- 		   int flags)
-@@ -316,6 +339,22 @@ static int prop_compression_apply(struct inode *inode, const char *value,
- 	return 0;
- }
- 
-+static bool prop_compression_ignore(const struct btrfs_inode *inode)
-+{
 +	/*
-+	 * Compression only has effect for regular files, and for directories
-+	 * we set it just to propagate it to new files created inside them.
-+	 * Everything else (symlinks, devices, sockets, fifos) is pointless as
-+	 * it will do nothing, so don't waste metadata space on a compression
-+	 * xattr for anything that is neither a file nor a directory.
++	 * For symlinks, we must always log their content, which is stored in an
++	 * inline extent, otherwise we could end up with an empty symlink after
++	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
++	 * one attempts to create an empty symlink).
++	 * We don't need to worry about flushing delalloc, because when we create
++	 * the inline extent when the symlink is created (we never have delalloc
++	 * for symlinks).
 +	 */
-+	if (!S_ISREG(inode->vfs_inode.i_mode) &&
-+	    !S_ISDIR(inode->vfs_inode.i_mode))
-+		return true;
++	if (S_ISLNK(inode->vfs_inode.i_mode))
++		inode_only = LOG_INODE_ALL;
 +
-+	return false;
-+}
-+
- static const char *prop_compression_extract(struct inode *inode)
- {
- 	switch (BTRFS_I(inode)->prop_compress) {
-@@ -336,6 +375,7 @@ static struct prop_handler prop_handlers[] = {
- 		.validate = prop_compression_validate,
- 		.apply = prop_compression_apply,
- 		.extract = prop_compression_extract,
-+		.ignore = prop_compression_ignore,
- 		.inheritable = 1
- 	},
- };
-@@ -362,6 +402,9 @@ static int inherit_props(struct btrfs_trans_handle *trans,
- 		if (!h->inheritable)
- 			continue;
+ 	/*
+ 	 * Before logging the inode item, cache the value returned by
+ 	 * inode_logged(), because after that we have the need to figure out if
+@@ -6182,7 +6194,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
+ 			}
  
-+		if (h->ignore(BTRFS_I(inode)))
-+			continue;
-+
- 		value = h->extract(parent);
- 		if (!value)
- 			continue;
-diff --git a/fs/btrfs/props.h b/fs/btrfs/props.h
-index 2b2ac15ab788..59bea741cfcf 100644
---- a/fs/btrfs/props.h
-+++ b/fs/btrfs/props.h
-@@ -15,6 +15,7 @@ int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
- 		   int flags);
- int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
- 			const char *value, size_t value_len);
-+bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name);
- 
- int btrfs_load_inode_props(struct inode *inode, struct btrfs_path *path);
- 
-diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 367bb87b66df..85691dc2232f 100644
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -408,6 +408,9 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
- 	if (ret)
- 		return ret;
- 
-+	if (btrfs_ignore_prop(BTRFS_I(inode), name))
-+		return 0;
-+
- 	trans = btrfs_start_transaction(root, 2);
- 	if (IS_ERR(trans))
- 		return PTR_ERR(trans);
+ 			ctx->log_new_dentries = false;
+-			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
++			if (type == BTRFS_FT_DIR)
+ 				log_mode = LOG_INODE_ALL;
+ 			ret = btrfs_log_inode(trans, BTRFS_I(di_inode),
+ 					      log_mode, ctx);
 
