@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F8351F9F4
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A66951FA05
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbiEIKgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 06:36:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
+        id S230500AbiEIKfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 06:35:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229731AbiEIKeW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:34:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EE4C2611F
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:29:38 -0700 (PDT)
+        with ESMTP id S232459AbiEIKe4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:34:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E14932A3758
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:30:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47F7160DFB
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:29:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A44AC385AB;
-        Mon,  9 May 2022 10:29:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81ABEB810E2
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:30:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E26D3C385AB;
+        Mon,  9 May 2022 10:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652092175;
-        bh=s7LGX903yACpb7OwlRIn0Y1kwIaZM7FVf/dnNJsbI6Q=;
+        s=korg; t=1652092237;
+        bh=47d0m1J01aBGyNB87KLJ+CzOnQBKSOjKtVtSW/91nw4=;
         h=Subject:To:Cc:From:Date:From;
-        b=KsG8X1k+4SeD+GscO6F39qpgNjpAAS7CpEOCARZ3YwHBrdb4H8P1yCPexDj2nD67h
-         uyutG55eRGfNm4l6n3JJGHGN4tL4+A7xjMT+tVEGgPiqnEOBC5rz7lFGroF+nLk03W
-         m7J+wcweXGzt4ZeEFjH1QWnABp1zNa9v0ThOAGrw=
-Subject: FAILED: patch "[PATCH] iommu/dart: Add missing module owner to ops structure" failed to apply to 5.17-stable tree
-To:     marcan@marcan.st, jroedel@suse.de, sven@svenpeter.dev
+        b=R2QOZEw1obHZ7pUkVtQRFJZoO0XcC+BEeHQb0B16333LeCawUFyCPCsVEv2ZuIun3
+         S+mmBHbq6jU+lqAiWTSVcQfVogzmletnYKg8iejop1oInXTaILpzvJ+YQutahjuyLh
+         wdZdRlutbV9b5bpSTKZgqo9JbVV0olckx5XoFIso=
+Subject: FAILED: patch "[PATCH] net/mlx5e: Fix trust state reset in reload" failed to apply to 5.4-stable tree
+To:     moshet@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 12:29:32 +0200
-Message-ID: <1652092172132121@kroah.com>
+Date:   Mon, 09 May 2022 12:30:34 +0200
+Message-ID: <165209223445213@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,29 +59,42 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2ac2fab52917ae82cbca97cf6e5d2993530257ed Mon Sep 17 00:00:00 2001
-From: Hector Martin <marcan@marcan.st>
-Date: Mon, 2 May 2022 18:22:38 +0900
-Subject: [PATCH] iommu/dart: Add missing module owner to ops structure
+From b781bff882d16175277ca129c382886cb4c74a2c Mon Sep 17 00:00:00 2001
+From: Moshe Tal <moshet@nvidia.com>
+Date: Wed, 9 Feb 2022 19:23:56 +0200
+Subject: [PATCH] net/mlx5e: Fix trust state reset in reload
 
-This is required to make loading this as a module work.
+Setting dscp2prio during the driver reload can cause dcb ieee app list to
+be not empty after the reload finish and as a result to a conflict between
+the priority trust state reported by the app and the state in the device
+register.
 
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Fixes: 46d1fb072e76 ("iommu/dart: Add DART iommu driver")
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20220502092238.30486-1-marcan@marcan.st
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reset the dcb ieee app list on initialization in case this is
+conflicting with the register status.
 
-diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
-index 15b77f16cfa3..8af0242a90d9 100644
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -773,6 +773,7 @@ static const struct iommu_ops apple_dart_iommu_ops = {
- 	.get_resv_regions = apple_dart_get_resv_regions,
- 	.put_resv_regions = generic_iommu_put_resv_regions,
- 	.pgsize_bitmap = -1UL, /* Restricted during dart probe */
-+	.owner = THIS_MODULE,
- 	.default_domain_ops = &(const struct iommu_domain_ops) {
- 		.attach_dev	= apple_dart_attach_dev,
- 		.detach_dev	= apple_dart_detach_dev,
+Fixes: 2a5e7a1344f4 ("net/mlx5e: Add dcbnl dscp to priority support")
+Signed-off-by: Moshe Tal <moshet@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+index d659fe07d464..8ead2c82a52a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+@@ -1200,6 +1200,16 @@ static int mlx5e_trust_initialize(struct mlx5e_priv *priv)
+ 		return err;
+ 	WRITE_ONCE(priv->dcbx_dp.trust_state, trust_state);
+ 
++	if (priv->dcbx_dp.trust_state == MLX5_QPTS_TRUST_PCP && priv->dcbx.dscp_app_cnt) {
++		/*
++		 * Align the driver state with the register state.
++		 * Temporary state change is required to enable the app list reset.
++		 */
++		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_DSCP;
++		mlx5e_dcbnl_delete_app(priv);
++		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_PCP;
++	}
++
+ 	mlx5e_params_calc_trust_tx_min_inline_mode(priv->mdev, &priv->channels.params,
+ 						   priv->dcbx_dp.trust_state);
+ 
 
