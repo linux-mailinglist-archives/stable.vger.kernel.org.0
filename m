@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D36051FACD
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 067EF51FB45
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231903AbiEILIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 07:08:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37750 "EHLO
+        id S232525AbiEILaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 07:30:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231925AbiEILId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:08:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C8FC23EB4A
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:04:28 -0700 (PDT)
+        with ESMTP id S232767AbiEILaI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:30:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC59F26557
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:26:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0603D61013
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:04:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1F68C385AB;
-        Mon,  9 May 2022 11:04:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B2CAB81190
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:26:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94135C385AB;
+        Mon,  9 May 2022 11:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652094267;
-        bh=5/JE42tQ7IfGJXy8BeAtOiSGcJyKNV4Jll5m1rSrTO4=;
+        s=korg; t=1652095571;
+        bh=7BpvZ+AJ+V1xerxAwKbhdC0IkXOf9gq/vUFpfysBcJQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=U7piGy1oC8KJBia4K+J0fsLesyMF7vll53L5zhiqWltKvVSwVM00IqytiYNAeIsdY
-         cinJFc8B7fxC9E69ARfyNfwG2Qu8q5LRxB5AAHa2c0JbxkxZu5mZRaJW8oOQcSzrb1
-         Bhxea/tqGTkk2MOtSMTWrZnhNuCSUJdofI3R2vC0=
-Subject: FAILED: patch "[PATCH] net: dsa: ksz9477: port mirror sniffing limited to one port" failed to apply to 5.4-stable tree
-To:     arun.ramadoss@microchip.com, kuba@kernel.org,
-        prasanna.vengateshan@microchip.com
+        b=r4Io86VNs+aUOs/UzgalqFfkALUgQ/h0hVCv8i5MuLgIqv9BZx3jhB7oimCokWIse
+         85pXWZI9bIRqgrq5OKmYH4+74zLtqmzfvf7cd3xErooKNMc6G3206QC26yKqbKorF5
+         eGvZZuLybx3ON2FRhDmEVE9ajChuc1b1xUuEG58U=
+Subject: FAILED: patch "[PATCH] tcp: make sure treq->af_specific is initialized" failed to apply to 5.4-stable tree
+To:     edumazet@google.com, davem@davemloft.net, fruggeri@arista.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 13:04:12 +0200
-Message-ID: <16520942521473@kroah.com>
+Date:   Mon, 09 May 2022 13:26:08 +0200
+Message-ID: <1652095568155@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,92 +59,136 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fee34dd199384a483f84806a5cbcf8d657a481cc Mon Sep 17 00:00:00 2001
-From: Arun Ramadoss <arun.ramadoss@microchip.com>
-Date: Thu, 28 Apr 2022 12:37:09 +0530
-Subject: [PATCH] net: dsa: ksz9477: port mirror sniffing limited to one port
+From ba5a4fdd63ae0c575707030db0b634b160baddd7 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Sun, 24 Apr 2022 13:35:09 -0700
+Subject: [PATCH] tcp: make sure treq->af_specific is initialized
 
-This patch limits the sniffing to only one port during the mirror add.
-And during the mirror_del it checks for all the ports using the sniff,
-if and only if no other ports are referring, sniffing is disabled.
-The code is updated based on the review comments of LAN937x port mirror
-patch.
+syzbot complained about a recent change in TCP stack,
+hitting a NULL pointer [1]
 
-Link: https://patchwork.kernel.org/project/netdevbpf/patch/20210422094257.1641396-8-prasanna.vengateshan@microchip.com/
-Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
-Signed-off-by: Prasanna Vengateshan <prasanna.vengateshan@microchip.com>
-Signed-off-by: Arun Ramadoss <arun.ramadoss@microchip.com>
-Link: https://lore.kernel.org/r/20220428070709.7094-1-arun.ramadoss@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+tcp request sockets have an af_specific pointer, which
+was used before the blamed change only for SYNACK generation
+in non SYNCOOKIE mode.
 
-diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-index 8222c8a6c5ec..7310d19d1f06 100644
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -1021,14 +1021,32 @@ static int ksz9477_port_mirror_add(struct dsa_switch *ds, int port,
- 				   bool ingress, struct netlink_ext_ack *extack)
+tcp requests sockets momentarily created when third packet
+coming from client in SYNCOOKIE mode were not using
+treq->af_specific.
+
+Make sure this field is populated, in the same way normal
+TCP requests sockets do in tcp_conn_request().
+
+[1]
+TCP: request_sock_TCPv6: Possible SYN flooding on port 20002. Sending cookies.  Check SNMP counters.
+general protection fault, probably for non-canonical address 0xdffffc0000000001: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x0000000000000008-0x000000000000000f]
+CPU: 1 PID: 3695 Comm: syz-executor864 Not tainted 5.18.0-rc3-syzkaller-00224-g5fd1fe4807f9 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:tcp_create_openreq_child+0xe16/0x16b0 net/ipv4/tcp_minisocks.c:534
+Code: 48 c1 ea 03 80 3c 02 00 0f 85 e5 07 00 00 4c 8b b3 28 01 00 00 48 b8 00 00 00 00 00 fc ff df 49 8d 7e 08 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 c9 07 00 00 48 8b 3c 24 48 89 de 41 ff 56 08 48
+RSP: 0018:ffffc90000de0588 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: ffff888076490330 RCX: 0000000000000100
+RDX: 0000000000000001 RSI: ffffffff87d67ff0 RDI: 0000000000000008
+RBP: ffff88806ee1c7f8 R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffff87d67f00 R11: 0000000000000000 R12: ffff88806ee1bfc0
+R13: ffff88801b0e0368 R14: 0000000000000000 R15: 0000000000000000
+FS:  00007f517fe58700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffcead76960 CR3: 000000006f97b000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ tcp_v6_syn_recv_sock+0x199/0x23b0 net/ipv6/tcp_ipv6.c:1267
+ tcp_get_cookie_sock+0xc9/0x850 net/ipv4/syncookies.c:207
+ cookie_v6_check+0x15c3/0x2340 net/ipv6/syncookies.c:258
+ tcp_v6_cookie_check net/ipv6/tcp_ipv6.c:1131 [inline]
+ tcp_v6_do_rcv+0x1148/0x13b0 net/ipv6/tcp_ipv6.c:1486
+ tcp_v6_rcv+0x3305/0x3840 net/ipv6/tcp_ipv6.c:1725
+ ip6_protocol_deliver_rcu+0x2e9/0x1900 net/ipv6/ip6_input.c:422
+ ip6_input_finish+0x14c/0x2c0 net/ipv6/ip6_input.c:464
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ip6_input+0x9c/0xd0 net/ipv6/ip6_input.c:473
+ dst_input include/net/dst.h:461 [inline]
+ ip6_rcv_finish net/ipv6/ip6_input.c:76 [inline]
+ NF_HOOK include/linux/netfilter.h:307 [inline]
+ NF_HOOK include/linux/netfilter.h:301 [inline]
+ ipv6_rcv+0x27f/0x3b0 net/ipv6/ip6_input.c:297
+ __netif_receive_skb_one_core+0x114/0x180 net/core/dev.c:5405
+ __netif_receive_skb+0x24/0x1b0 net/core/dev.c:5519
+ process_backlog+0x3a0/0x7c0 net/core/dev.c:5847
+ __napi_poll+0xb3/0x6e0 net/core/dev.c:6413
+ napi_poll net/core/dev.c:6480 [inline]
+ net_rx_action+0x8ec/0xc60 net/core/dev.c:6567
+ __do_softirq+0x29b/0x9c2 kernel/softirq.c:558
+ invoke_softirq kernel/softirq.c:432 [inline]
+ __irq_exit_rcu+0x123/0x180 kernel/softirq.c:637
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
+ sysvec_apic_timer_interrupt+0x93/0xc0 arch/x86/kernel/apic/apic.c:1097
+
+Fixes: 5b0b9e4c2c89 ("tcp: md5: incorrect tcp_header_len for incoming connections")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Francesco Ruggeri <fruggeri@arista.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/include/net/tcp.h b/include/net/tcp.h
+index b99d9d9cbd99..cc1295037533 100644
+--- a/include/net/tcp.h
++++ b/include/net/tcp.h
+@@ -480,6 +480,7 @@ int __cookie_v4_check(const struct iphdr *iph, const struct tcphdr *th,
+ 		      u32 cookie);
+ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb);
+ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
++					    const struct tcp_request_sock_ops *af_ops,
+ 					    struct sock *sk, struct sk_buff *skb);
+ #ifdef CONFIG_SYN_COOKIES
+ 
+diff --git a/net/ipv4/syncookies.c b/net/ipv4/syncookies.c
+index 2cb3b852d148..f33c31dd7366 100644
+--- a/net/ipv4/syncookies.c
++++ b/net/ipv4/syncookies.c
+@@ -281,6 +281,7 @@ bool cookie_ecn_ok(const struct tcp_options_received *tcp_opt,
+ EXPORT_SYMBOL(cookie_ecn_ok);
+ 
+ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
++					    const struct tcp_request_sock_ops *af_ops,
+ 					    struct sock *sk,
+ 					    struct sk_buff *skb)
  {
- 	struct ksz_device *dev = ds->priv;
-+	u8 data;
-+	int p;
-+
-+	/* Limit to one sniffer port
-+	 * Check if any of the port is already set for sniffing
-+	 * If yes, instruct the user to remove the previous entry & exit
-+	 */
-+	for (p = 0; p < dev->port_cnt; p++) {
-+		/* Skip the current sniffing port */
-+		if (p == mirror->to_local_port)
-+			continue;
-+
-+		ksz_pread8(dev, p, P_MIRROR_CTRL, &data);
-+
-+		if (data & PORT_MIRROR_SNIFFER) {
-+			NL_SET_ERR_MSG_MOD(extack,
-+					   "Sniffer port is already configured, delete existing rules & retry");
-+			return -EBUSY;
-+		}
-+	}
+@@ -297,6 +298,10 @@ struct request_sock *cookie_tcp_reqsk_alloc(const struct request_sock_ops *ops,
+ 		return NULL;
  
- 	if (ingress)
- 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_RX, true);
- 	else
- 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_TX, true);
- 
--	ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_SNIFFER, false);
--
- 	/* configure mirror port */
- 	ksz_port_cfg(dev, mirror->to_local_port, P_MIRROR_CTRL,
- 		     PORT_MIRROR_SNIFFER, true);
-@@ -1042,16 +1060,28 @@ static void ksz9477_port_mirror_del(struct dsa_switch *ds, int port,
- 				    struct dsa_mall_mirror_tc_entry *mirror)
- {
- 	struct ksz_device *dev = ds->priv;
-+	bool in_use = false;
- 	u8 data;
-+	int p;
- 
- 	if (mirror->ingress)
- 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_RX, false);
- 	else
- 		ksz_port_cfg(dev, port, P_MIRROR_CTRL, PORT_MIRROR_TX, false);
- 
--	ksz_pread8(dev, port, P_MIRROR_CTRL, &data);
- 
--	if (!(data & (PORT_MIRROR_RX | PORT_MIRROR_TX)))
-+	/* Check if any of the port is still referring to sniffer port */
-+	for (p = 0; p < dev->port_cnt; p++) {
-+		ksz_pread8(dev, p, P_MIRROR_CTRL, &data);
+ 	treq = tcp_rsk(req);
 +
-+		if ((data & (PORT_MIRROR_RX | PORT_MIRROR_TX))) {
-+			in_use = true;
-+			break;
-+		}
-+	}
++	/* treq->af_specific might be used to perform TCP_MD5 lookup */
++	treq->af_specific = af_ops;
 +
-+	/* delete sniffing if there are no other mirroring rules */
-+	if (!in_use)
- 		ksz_port_cfg(dev, mirror->to_local_port, P_MIRROR_CTRL,
- 			     PORT_MIRROR_SNIFFER, false);
- }
+ 	treq->syn_tos = TCP_SKB_CB(skb)->ip_dsfield;
+ #if IS_ENABLED(CONFIG_MPTCP)
+ 	treq->is_mptcp = sk_is_mptcp(sk);
+@@ -364,7 +369,8 @@ struct sock *cookie_v4_check(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 
+ 	ret = NULL;
+-	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops, sk, skb);
++	req = cookie_tcp_reqsk_alloc(&tcp_request_sock_ops,
++				     &tcp_request_sock_ipv4_ops, sk, skb);
+ 	if (!req)
+ 		goto out;
+ 
+diff --git a/net/ipv6/syncookies.c b/net/ipv6/syncookies.c
+index d1b61d00368e..9cc123f000fb 100644
+--- a/net/ipv6/syncookies.c
++++ b/net/ipv6/syncookies.c
+@@ -170,7 +170,8 @@ struct sock *cookie_v6_check(struct sock *sk, struct sk_buff *skb)
+ 		goto out;
+ 
+ 	ret = NULL;
+-	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops, sk, skb);
++	req = cookie_tcp_reqsk_alloc(&tcp6_request_sock_ops,
++				     &tcp_request_sock_ipv6_ops, sk, skb);
+ 	if (!req)
+ 		goto out;
+ 
 
