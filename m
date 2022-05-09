@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECFA251F7F5
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5DF351F801
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236570AbiEIJWU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51750 "EHLO
+        id S232828AbiEIJV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:21:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236748AbiEIItl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:49:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E38C17B85E
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:45:48 -0700 (PDT)
+        with ESMTP id S237000AbiEIItw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:49:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24F09273F
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:45:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 581CD61447
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E588C385AC;
-        Mon,  9 May 2022 08:45:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9358DB8108C
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:45:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0621C385B1;
+        Mon,  9 May 2022 08:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085938;
-        bh=jTR3pXNib0uvaK1Ve1GWNn0rXDElFqxN36P0wFAF1uw=;
+        s=korg; t=1652085956;
+        bh=nBPGtG+HdQYkaeGQJJpyDpty1AapNWXJGGPYxL8XPmc=;
         h=Subject:To:Cc:From:Date:From;
-        b=gMmMGWOVymVSAbrh6x2Y8fQ1EnVqywRzulQwrLmztnYdIyIo6hNeWUTe3Ub+wry+K
-         dVzZjV8Dq36qbaSfezaTSQlxMhKsiOo5i7jQZLHMV7g7whqxQFSykPeyxrWlsf2Nyz
-         8PrObWGFtDAe04ZUXHOP6BBT1veHiDSQ0nb6wFM4=
-Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 5.10-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        b=SKcfRGqAEiaHwRc9P9OAxytDIXahvOeorHEPJPB1fcH9e0Ta0EhHOZmXGG1ypfxC/
+         BkNN9ozcmvx19gdfRB9JNFwd7xdb1cI6f3LZdEPrxKg6xKsliMR3q6WhVWDMNgNzlw
+         DTlwbx6aCHg1sQzp+fuAdnzIfiHsXcRQdH3bfYF4=
+Subject: FAILED: patch "[PATCH] btrfs: do not BUG_ON() on failure to update inode when" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
+        wqu@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:45:27 +0200
-Message-ID: <1652085927250103@kroah.com>
+Date:   Mon, 09 May 2022 10:45:53 +0200
+Message-ID: <165208595313620@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,87 +60,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 Mon Sep 17 00:00:00 2001
+From 193b4e83986d7ee6caa8ceefb5ee9f58240fbee0 Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Thu, 21 Apr 2022 10:56:39 +0100
-Subject: [PATCH] btrfs: always log symlinks in full mode
+Date: Thu, 21 Apr 2022 11:03:09 +0100
+Subject: [PATCH] btrfs: do not BUG_ON() on failure to update inode when
+ setting xattr
 
-On Linux, empty symlinks are invalid, and attempting to create one with
-the system call symlink(2) results in an -ENOENT error and this is
-explicitly documented in the man page.
+We are doing a BUG_ON() if we fail to update an inode after setting (or
+clearing) a xattr, but there's really no reason to not instead simply
+abort the transaction and return the error to the caller. This should be
+a rare error because we have previously reserved enough metadata space to
+update the inode and the delayed inode should have already been setup, so
+an -ENOSPC or -ENOMEM, which are the possible errors, are very unlikely to
+happen.
 
-If we rename a symlink that was created in the current transaction and its
-parent directory was logged before, we actually end up logging the symlink
-without logging its content, which is stored in an inline extent. That
-means that after a power failure we can end up with an empty symlink,
-having no content and an i_size of 0 bytes.
-
-It can be easily reproduced like this:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  $ mkdir /mnt/testdir
-  $ sync
-
-  # Create a file inside the directory and fsync the directory.
-  $ touch /mnt/testdir/foo
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  # Create a symlink inside the directory and then rename the symlink.
-  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
-  $ mv /mnt/testdir/bar /mnt/testdir/baz
-
-  # Now fsync again the directory, this persist the log tree.
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  <power failure>
-
-  $ mount /dev/sdc /mnt
-  $ stat -c %s /mnt/testdir/baz
-  0
-  $ readlink /mnt/testdir/baz
-  $
-
-Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
-their content is also logged.
-
-A test case for fstests will follow.
+So replace the BUG_ON()s with a transaction abort.
 
 CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 09e4f1a04e6f..11399c8eed87 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5804,6 +5804,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 		mutex_lock(&inode->log_mutex);
+diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
+index 9632d0ff2038..367bb87b66df 100644
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -262,7 +262,8 @@ int btrfs_setxattr_trans(struct inode *inode, const char *name,
+ 	inode_inc_iversion(inode);
+ 	inode->i_ctime = current_time(inode);
+ 	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+-	BUG_ON(ret);
++	if (ret)
++		btrfs_abort_transaction(trans, ret);
+ out:
+ 	if (start_trans)
+ 		btrfs_end_transaction(trans);
+@@ -416,7 +417,8 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
+ 		inode_inc_iversion(inode);
+ 		inode->i_ctime = current_time(inode);
+ 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+-		BUG_ON(ret);
++		if (ret)
++			btrfs_abort_transaction(trans, ret);
  	}
  
-+	/*
-+	 * For symlinks, we must always log their content, which is stored in an
-+	 * inline extent, otherwise we could end up with an empty symlink after
-+	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
-+	 * one attempts to create an empty symlink).
-+	 * We don't need to worry about flushing delalloc, because when we create
-+	 * the inline extent when the symlink is created (we never have delalloc
-+	 * for symlinks).
-+	 */
-+	if (S_ISLNK(inode->vfs_inode.i_mode))
-+		inode_only = LOG_INODE_ALL;
-+
- 	/*
- 	 * Before logging the inode item, cache the value returned by
- 	 * inode_logged(), because after that we have the need to figure out if
-@@ -6182,7 +6194,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
- 			}
- 
- 			ctx->log_new_dentries = false;
--			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
-+			if (type == BTRFS_FT_DIR)
- 				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, BTRFS_I(di_inode),
- 					      log_mode, ctx);
+ 	btrfs_end_transaction(trans);
 
