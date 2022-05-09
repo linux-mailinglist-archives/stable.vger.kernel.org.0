@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 067EF51FB45
+	by mail.lfdr.de (Postfix) with ESMTP id 5A8D051FB46
 	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232525AbiEILaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 07:30:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49570 "EHLO
+        id S232767AbiEILaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 07:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232767AbiEILaI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:30:08 -0400
+        with ESMTP id S232833AbiEILaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:30:21 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC59F26557
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:26:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C397DE21
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 04:26:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B2CAB81190
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94135C385AB;
-        Mon,  9 May 2022 11:26:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD3CEB81190
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 11:26:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12B70C385AB;
+        Mon,  9 May 2022 11:26:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652095571;
-        bh=7BpvZ+AJ+V1xerxAwKbhdC0IkXOf9gq/vUFpfysBcJQ=;
+        s=korg; t=1652095585;
+        bh=Ztpuo2RJDpJ1vIGMJnfReGXPLeWcWsuYVLxlqIIsra8=;
         h=Subject:To:Cc:From:Date:From;
-        b=r4Io86VNs+aUOs/UzgalqFfkALUgQ/h0hVCv8i5MuLgIqv9BZx3jhB7oimCokWIse
-         85pXWZI9bIRqgrq5OKmYH4+74zLtqmzfvf7cd3xErooKNMc6G3206QC26yKqbKorF5
-         eGvZZuLybx3ON2FRhDmEVE9ajChuc1b1xUuEG58U=
-Subject: FAILED: patch "[PATCH] tcp: make sure treq->af_specific is initialized" failed to apply to 5.4-stable tree
+        b=OgU7Zjh56B5HdTCt/3C3UzFD5i29sBkngM9cM4NHyn/qZGll7TgDmi5a78nxMQzTf
+         pDYXcFQCxTSwrVrIXhN1oKXViqVNlgK5c76yQLrNZXsH2IFZKZyROSWDcKSkuJdiD7
+         w8zM0jOCydP2k3XCfZCV4JivPiOj71v2kR7I3FsY=
+Subject: FAILED: patch "[PATCH] tcp: make sure treq->af_specific is initialized" failed to apply to 4.19-stable tree
 To:     edumazet@google.com, davem@davemloft.net, fruggeri@arista.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 13:26:08 +0200
-Message-ID: <1652095568155@kroah.com>
+Date:   Mon, 09 May 2022 13:26:22 +0200
+Message-ID: <1652095582112139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
