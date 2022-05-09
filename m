@@ -2,119 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB98351FBA9
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 13:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 660C251FD17
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 14:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233180AbiEILt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 07:49:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S234733AbiEIMon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 08:44:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233165AbiEILtY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 07:49:24 -0400
-Received: from smtp2.infineon.com (smtp2.infineon.com [IPv6:2a00:18f0:1e00:4::4])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22CB81C9676;
-        Mon,  9 May 2022 04:45:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=infineon.com; i=@infineon.com; q=dns/txt; s=IFXMAIL;
-  t=1652096730; x=1683632730;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=kMygQDKRp1jGxPYCSiZeHi1ypIZtJR5d8kJ5nHlpwjU=;
-  b=Z2c0I/6XouSn1o5P6QYUEwEIwyrBvPJlpY/RrP+7qeeHSqadZmMHKy7G
-   xOstDVLrNwDpTy7LCMMiqiKg2OdvledfnKdHwCoUJllDVekU4S7xJqORT
-   QgBvIsjSZt3XUnw7+MwExQlPnsEI+HuKwKfWdlerAZmvwyGKoe7DN+6zp
-   I=;
-X-SBRS: None
-X-IronPort-AV: E=McAfee;i="6400,9594,10341"; a="176637034"
-X-IronPort-AV: E=Sophos;i="5.91,211,1647298800"; 
-   d="scan'208";a="176637034"
-Received: from unknown (HELO mucxv001.muc.infineon.com) ([172.23.11.16])
-  by smtp2.infineon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 13:45:28 +0200
-Received: from MUCSE822.infineon.com (MUCSE822.infineon.com [172.23.29.53])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mucxv001.muc.infineon.com (Postfix) with ESMTPS;
-        Mon,  9 May 2022 13:45:28 +0200 (CEST)
-Received: from MUCSE818.infineon.com (172.23.29.44) by MUCSE822.infineon.com
- (172.23.29.53) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Mon, 9 May 2022
- 13:45:27 +0200
-Received: from smaha-lin-dev01.agb.infineon.com (172.23.8.247) by
- MUCSE818.infineon.com (172.23.29.44) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Mon, 9 May 2022 13:45:27 +0200
-From:   Stefan Mahnke-Hartmann <stefan.mahnke-hartmann@infineon.com>
-To:     <jarkko@kernel.org>
-CC:     <Marten.Lindahl@axis.com>, <jgg@ziepe.ca>,
-        <johannes.holland@infineon.com>, <jsnitsel@redhat.com>,
-        <linux-integrity@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <martenli@axis.com>, <nayna@linux.vnet.ibm.com>,
-        <peterhuewe@gmx.de>, <stable@vger.kernel.org>,
-        <stefan.mahnke-hartmann@infineon.com>
-Subject: Re: [PATCH 1/2] tpm: Fix buffer access in tpm2_get_tpm_pt()
-Date:   Mon, 9 May 2022 13:48:09 +0200
-Message-ID: <20220509114809.245621-1-stefan.mahnke-hartmann@infineon.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <YnbL2R/a3SwA3fMC@iki.fi>
-References: <YnbL2R/a3SwA3fMC@iki.fi>
+        with ESMTP id S234729AbiEIMom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 08:44:42 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBB61CA34A
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 05:40:48 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id dk23so26554132ejb.8
+        for <stable@vger.kernel.org>; Mon, 09 May 2022 05:40:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=7RcKw958Dwoxyv5P28kdPCejyB/j1UrEo/6eETvtZeU=;
+        b=qGYpeGmWtGQZbHGbMm9sLpMLQkNGoNSqYlyP6SnANSFiXA9leBKIu2JXiuaSqmR5H1
+         yrOXhnxagtARajjFQa4Xnudxy4HU8xNjEBGc0ROI+1ZCCZAhoFNja7k5twLXbFvyezdg
+         Aa1ZMCr90bwn+Jgnm9TjIv7r47XhOU9CTfYzaOWtWvPPPOMxpuPE+cw/uPB6ql4HAa/6
+         ZEHk8ygoZCA/yRRtwUpytuuIj4hWnrM8gQbQHv8Ol2Ws0kYlG+5XUGAXzBPa3u4fE2BU
+         F38lf9pPB5kyp90JBPzXcvVIVInUnT7ieIKLfDec40MRZ0g+Fw4cAKfSEY4I0YZmGQqa
+         aMqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=7RcKw958Dwoxyv5P28kdPCejyB/j1UrEo/6eETvtZeU=;
+        b=BSVYeyw4FG0k1PPz2zSL3v0RzwYe/mUYzW+7Zt1X7LHqCcBmufhU4sn+8+zRlRmTNk
+         ka2njGNDDtNK+RWAE7EcRoo90tK3+7gShkbvJGXjtExsMvzFDstG/oUajaUu9mmrKjc0
+         cBdCd71kGB2ep9qPH8HEPv5KPDhOXD1/gQfIaGiLpHp4gsrnqYaqt7YljLW97LF6Cjg1
+         mB+2AwRWo1DLuXW6tJq1eJyMjL8sdGCgiRNJ6qD4pxLrhooXAQ2D73ppBuD4RqO+roxL
+         0/TBNANCtKXSPZy0fb/v18Y/VPLnLXUJq0j42n6Dll8FidAXl5obgmwxad721xzf3VZX
+         UNpw==
+X-Gm-Message-State: AOAM53277Z/NZ84O5vAIz+vQoplg9iAn1KemRZ8rcD3bcnacq1DWI6AU
+        l32hX7d/fUsR+hODpNR8BYlV0Z5I6cWRVVxSrYI=
+X-Google-Smtp-Source: ABdhPJxn6LPNWDVRXhSG7NOx5dAGCj2dXxolchnPegomC4Su5yG99LF+hqv6FQim3VZPsyq1s7v49tVRbMlCJjD0KQo=
+X-Received: by 2002:a17:907:1c0b:b0:6f5:64f4:91df with SMTP id
+ nc11-20020a1709071c0b00b006f564f491dfmr12823927ejc.750.1652100047246; Mon, 09
+ May 2022 05:40:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [172.23.8.247]
-X-ClientProxiedBy: MUCSE823.infineon.com (172.23.29.54) To
- MUCSE818.infineon.com (172.23.29.44)
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Sender: franklinlometogo@gmail.com
+Received: by 2002:a17:906:7146:0:0:0:0 with HTTP; Mon, 9 May 2022 05:40:46
+ -0700 (PDT)
+From:   ueoma <westafricaeconomicmonetary.tg@gmail.com>
+Date:   Mon, 9 May 2022 12:40:46 +0000
+X-Google-Sender-Auth: 97FZV2gAkxOyxvezBqDlsx2WofI
+Message-ID: <CAM7APZxTEzM2E1ypATyhBNwkCiApGV5SUZfAhcfQyEH10VBWRg@mail.gmail.com>
+Subject: =?UTF-8?B?0LLQvdC40LzQsNC90LjQtQ==?=
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 07.05.22 21:43, Jarkko Sakkinen wrote:
-> On Fri, May 06, 2022 at 02:31:46PM +0200, Stefan Mahnke-Hartmann wrote:
->> Under certain conditions uninitialized memory will be accessed.
->> As described by TCG Trusted Platform Module Library Specification,
->> rev. 1.59 (Part 3: Commands), if a TPM2_GetCapability is received,
->> requesting a capability, the TPM in Field Upgrade mode may return a
->                                       ~~~~~~~~~~~~~~~~~~
->
-> Looks like random picks for casing: two words with upper case letter and
-> one with lowe case.
-
-In the TCG specification it is unfortunately also inconsistent.
-I will change it to lower case then.
-
->
->> zero length list.
->> Check the property count in tpm2_get_tpm_pt().
->>
->> Fixes: 2ab3241161b3 ("tpm: migrate tpm2_get_tpm_pt() to use struct tpm_buf")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Stefan Mahnke-Hartmann <stefan.mahnke-hartmann@infineon.com>
->
-> Which section is this in that specification documented?
-
-It is described in the TCG Trusted Platform Module Library Specification,
-rev. 1.59 (Part 3: Commands) in Chapter 30.2.1, Example 3. This example
-describes the behavior in failure mode, but it may occur in other
-circumstances, such as field upgrade mode.
-
->
-> I looked into section 30.2 but could not find the part that documents this
-> behaviour, i.e. returning success in FW upgrade mode. Why it wouldn't just
-> return TPM_RC_UPGRADE?
-
-Since some computer system failed booting up in case the TPM returned
-anything else than SUCCESS, therefore Infineon decided to return SUCCESS
-when TPM is in field upgrade mode.
-
-BR, Stefan
-
->
-> BR, Jarkko
->
->  
-
+0KPQstCw0LbQsNC10LzQuCDRgdC+0LHRgdGC0LLQtdC90LjQuiDQvdCwINC40LzQtdC50LssINCX
+0LDQv9Cw0LTQvdC+0LDRhNGA0LjQutCw0L3RgdC60LjRj9GCINC40LrQvtC90L7QvNC40YfQtdGB
+0LrQuCDQuA0K0L/QsNGA0LjRh9C10L0g0YHRitGO0Lcg0LrQvtC80L/QtdC90YHQuNGA0LAg0LLR
+gdC40YfQutC4INC20LXRgNGC0LLQuCDQvdCwINC40LfQvNCw0LzQsCDQuCDRgtC10LfQuCwg0LrQ
+vtC40YLQviDQuNC80LDRgg0K0L3QtdC/0L7RgtGK0YDRgdC10L3QuCDRgdGA0LXQtNGB0YLQstCw
+LCDQuCDQstCw0YjQuNGP0YIg0LjQvNC10LnQuyDQsNC00YDQtdGBINC1INC90LDQvNC10YDQtdC9
+INCyINGB0L/QuNGB0YrQutCwINGBDQrQvdC10L/QvtGC0YrRgNGB0LXQvdC4INGE0L7QvdC00L7Q
+stC1LCDRgdGK0LLQtdGC0LLQsNC80LUg0LLQuCDQtNCwINGB0LUg0LLRitGA0L3QtdGC0LUg0LrR
+itC8INC90LDRgSDRgdC10LPQsC4NCg==
