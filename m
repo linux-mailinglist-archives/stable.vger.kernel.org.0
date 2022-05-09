@@ -2,112 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCF3520051
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:51:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF5B52005E
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237363AbiEIOxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 10:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59130 "EHLO
+        id S237854AbiEIO6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 10:58:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237061AbiEIOxB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:53:01 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E5C24DC09
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 07:49:07 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id 129so8525528wmz.0
-        for <stable@vger.kernel.org>; Mon, 09 May 2022 07:49:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=gHnu2ZpFdEZeGgsV6LJ9J3EQsFicj2yfJJz6IRs36rs=;
-        b=pkQRNedKDexjZJy42ca9CtWRqZXInBcSREOe0KFnptHiO8/ZCGlHWLuHNQ+V8hThMX
-         LwMsqcFmZFjKC/3VRY0oEZbrjzyxkZdkEVXreHkdbk0Y5bJRKzZXFTyyPhIPovvPQ+Wp
-         mfFuBWZaEPlm9OiWJ+uqtqyxJbbdtPgCOHOubxP+B5N4z/gVz2SwGsgI7e3o3aWgoqJJ
-         OORb/QjwcNC5ozYOQBJLAUCj9d15FJJywFXD9oHCtIAYxYlctvSuHCb6iEK+GbMRNUIz
-         0BcL0eTQ8DLWG+jf8RAHTYzm9fGOBYD+8v6B5Xwd20T6rGCPosDVAkFO4cMJeTVMQ6Ky
-         Ww9Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=gHnu2ZpFdEZeGgsV6LJ9J3EQsFicj2yfJJz6IRs36rs=;
-        b=fkzy/f3odiRYKLcQhW7jQ0sLtRlMlUQFNPvLh0mV/jd89Oa2f9B0BgT1TO+qzUQ9yD
-         WR/w0O3frrJ1RhJV5oQrqMfoVDaoIVqSlyT4CQvWcSZ8VJr4akvDVPTGQZCqIEDO1Zfl
-         EhBc9TerWsSUSO1nC/1mkhLsM9BjAJkvBmSPUCurlPCuD7FWMsUK7o7EEhi2z8toYT82
-         a5c6DuQc19RfC1o56ge18nKqfbqBrvetqlMP0rRjRXy/BgSiYJAsFYM6tW7R28rZsjlW
-         xH9CvODpPDH7cbor2HPBYtzQXbBlxxTOwu8L3y2E9KEGPvceXpwG5nzcn5obqZUrClqw
-         UPLQ==
-X-Gm-Message-State: AOAM530ql/DnPrysqXyN0GqDoHM7/3Hip/HBXAqXzkvohGU4iFBgdV7n
-        mBawbHpHKHpLKea6IuM6dCveGw==
-X-Google-Smtp-Source: ABdhPJyjK6WAR/VZSkjZz9iYJrdF14G2v8OVGBT53jxFu2JrVWFt4FQUhcXmeHENem73T6w1xU41Pg==
-X-Received: by 2002:a1c:3b54:0:b0:394:3910:3cb9 with SMTP id i81-20020a1c3b54000000b0039439103cb9mr22649799wma.50.1652107745868;
-        Mon, 09 May 2022 07:49:05 -0700 (PDT)
-Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
-        by smtp.gmail.com with ESMTPSA id n13-20020a056000170d00b0020c5253d911sm11724160wrc.93.2022.05.09.07.49.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 May 2022 07:49:05 -0700 (PDT)
-Date:   Mon, 9 May 2022 15:49:03 +0100
-From:   Lee Jones <lee.jones@linaro.org>
+        with ESMTP id S237764AbiEIO6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:58:21 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 506272C4780;
+        Mon,  9 May 2022 07:54:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1652108067; x=1683644067;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=cXGN16AjvvHzj8vLffhSi+a0BXyUYujkz+6rZNcFLzw=;
+  b=cKjdBrj1LnCB72cz/gA1Zv8cU465yTTPCfyOJ/oXcmG9j3Cr0UApZyP+
+   RKAGUS/O+z3PIe9W743X5LQ/cAmM/U5IsN2Wyb7FboAbekE8bfdtZEJ/Q
+   S+EN6fuv5wHQVm++RNt/8cTdzaUYexpTi7cgFmhAY46HzfArOuLuft3V0
+   TNHE2MyF6HgE4oaHESWiSfqoxKyJeisbC+0QpWRLRexCfgko55Jnlb1wN
+   WIBaeAHTe4wRCuqZFFQ8B23WyaJDBKqxlxY60RQhjaeqgAcR5qOf2bTwj
+   uAQEva7Kxo7I0HINitFRHcrqqRlDT2Xp4aQSAM/vwLz/eJGF8eSlqV4x1
+   w==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10342"; a="256607819"
+X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
+   d="scan'208";a="256607819"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 07:54:26 -0700
+X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
+   d="scan'208";a="696599856"
+Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314) ([10.237.222.76])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 07:54:24 -0700
+Date:   Mon, 9 May 2022 15:54:21 +0100
+From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH 5.10 1/1] drm/amdgpu: Ensure the AMDGPU file descriptor
- is legitimate
-Message-ID: <Ynkp3+eBhhilI8vK@google.com>
-References: <20220412152057.1170235-1-lee.jones@linaro.org>
- <Ylf5zmP88Lw0md47@kroah.com>
+Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        qat-linux@intel.com, stable@vger.kernel.org,
+        Adam Guerin <adam.guerin@intel.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>
+Subject: Re: [PATCH] crypto: qat - set to zero DH parameters before free
+Message-ID: <YnkrHdxLeS2PXpaj@silpixa00400314>
+References: <20220509131927.55387-1-giovanni.cabiddu@intel.com>
+ <Ynkgs262rVNat0fp@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Ylf5zmP88Lw0md47@kroah.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <Ynkgs262rVNat0fp@kroah.com>
+Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 -
+ Collinstown Industrial Park, Leixlip, County Kildare - Ireland
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 14 Apr 2022, Greg KH wrote:
-
-> On Tue, Apr 12, 2022 at 04:20:57PM +0100, Lee Jones wrote:
-> > [ Upstream commit b40a6ab2cf9213923bf8e821ce7fa7f6a0a26990 ]
+On Mon, May 09, 2022 at 04:09:55PM +0200, Greg KH wrote:
+> On Mon, May 09, 2022 at 02:19:27PM +0100, Giovanni Cabiddu wrote:
+> > Set to zero the context buffers containing the DH key before they are
+> > freed.
+> > This is a defense in depth measure that avoids keys to be recovered from
+> > memory in case the system is compromised between the free of the buffer
+> > and when that area of memory (containing keys) gets overwritten.
 > > 
-> > This is a partial cherry-pick of the above upstream commit.
-> > 
-> > It ensures the file descriptor passed in by userspace is a valid one.
-> > 
-> > Cc: Felix Kuehling <Felix.Kuehling@amd.com>
-> > Cc: Alex Deucher <alexander.deucher@amd.com>
-> > Cc: "Christian König" <christian.koenig@amd.com>
-> > Cc: David Airlie <airlied@linux.ie>
-> > Cc: Daniel Vetter <daniel@ffwll.ch>
-> > Cc: amd-gfx@lists.freedesktop.org
-> > Cc: dri-devel@lists.freedesktop.org
-> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > Cc: stable@vger.kernel.org
+> > Fixes: c9839143ebbf ("crypto: qat - Add DH support")
+> > Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+> > Reviewed-by: Adam Guerin <adam.guerin@intel.com>
+> > Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
 > > ---
-> >  drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 10 +++++++---
-> >  1 file changed, 7 insertions(+), 3 deletions(-)
+> >  drivers/crypto/qat/qat_common/qat_asym_algs.c | 3 +++
+> >  1 file changed, 3 insertions(+)
 > 
-> Now queued up, thanks.
+> Why isn't this part of the other series for this "driver"?
+Just for consistency.
+I preferred to decouple this from the set `crypto: qat - re-enable algorithms`
+since differently from the other patches in that set, this is not fixing
+a functional issue in the driver but it is adding a protection measure.
 
-Could you also back-port this into v5.4 please?
-
-FYI, in the v5.10.y tree, it's now called:
-
-  f0c31f192f38c drm/amdkfd: Use drm_priv to pass VM from KFD to amdgpu
+Regards,
 
 -- 
-Lee Jones [李琼斯]
-Principal Technical Lead - Developer Services
-Linaro.org │ Open source software for Arm SoCs
-Follow Linaro: Facebook | Twitter | Blog
+Giovanni
