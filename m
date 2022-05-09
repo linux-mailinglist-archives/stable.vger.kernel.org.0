@@ -2,64 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC6AF520044
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:48:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCF3520051
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:51:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237629AbiEIOvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 10:51:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50102 "EHLO
+        id S237363AbiEIOxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 10:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237605AbiEIOvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:51:14 -0400
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E0D24BB0C;
-        Mon,  9 May 2022 07:47:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652107640; x=1683643640;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ctbr8pn64aox4+GvXSlTrmhBa7uObSu6+nPSkOf5bqQ=;
-  b=F9nMofqZ8fLjG/wJryu+78hNbdFEcKCIz/MNeccSmfUvi79RoCaVEPaD
-   z9ugDvUaAMhNjz6NoKEmgrvBHvMiD2q8oF3Kcfqs4ejiekkcA+zpRGgx2
-   46mGYU8QlPUMUHYuBRipbBhrUIB4dS6HsAdCGF+mCYlmgdz2fDIqUfo7X
-   D0SZrZdGBU+CbkloLsbV1E0lbe3sG8wzaMX6TnX7uOHSifsgdESDjLxPf
-   WZ98SH2OadGEGpnXizV2TfqP30WmOynhM0IN415fhPVQ9SFd4bWI7DSwT
-   2ATIy278HdF9S3h7m8Rr6qYUOYNOQB8FAYfRDdoBrOqdyYXubz4p6OwuL
-   w==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10342"; a="269002439"
-X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
-   d="scan'208";a="269002439"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 07:47:19 -0700
-X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
-   d="scan'208";a="657093336"
-Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314) ([10.237.222.76])
-  by fmsmga003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 07:47:17 -0700
-Date:   Mon, 9 May 2022 15:47:10 +0100
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
-        qat-linux@intel.com, Vlad Dronov <vdronov@redhat.com>,
-        stable@vger.kernel.org,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Adam Guerin <adam.guerin@intel.com>,
-        Wojciech Ziemba <wojciech.ziemba@intel.com>
-Subject: Re: [PATCH v3 10/10] crypto: qat - re-enable registration of
- algorithms
-Message-ID: <YnkpbpEkvF8uwN4s@silpixa00400314>
-References: <20220509133417.56043-1-giovanni.cabiddu@intel.com>
- <20220509133417.56043-11-giovanni.cabiddu@intel.com>
- <YnkhD5YY3thCMkgX@kroah.com>
+        with ESMTP id S237061AbiEIOxB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:53:01 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43E5C24DC09
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 07:49:07 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id 129so8525528wmz.0
+        for <stable@vger.kernel.org>; Mon, 09 May 2022 07:49:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=gHnu2ZpFdEZeGgsV6LJ9J3EQsFicj2yfJJz6IRs36rs=;
+        b=pkQRNedKDexjZJy42ca9CtWRqZXInBcSREOe0KFnptHiO8/ZCGlHWLuHNQ+V8hThMX
+         LwMsqcFmZFjKC/3VRY0oEZbrjzyxkZdkEVXreHkdbk0Y5bJRKzZXFTyyPhIPovvPQ+Wp
+         mfFuBWZaEPlm9OiWJ+uqtqyxJbbdtPgCOHOubxP+B5N4z/gVz2SwGsgI7e3o3aWgoqJJ
+         OORb/QjwcNC5ozYOQBJLAUCj9d15FJJywFXD9oHCtIAYxYlctvSuHCb6iEK+GbMRNUIz
+         0BcL0eTQ8DLWG+jf8RAHTYzm9fGOBYD+8v6B5Xwd20T6rGCPosDVAkFO4cMJeTVMQ6Ky
+         Ww9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=gHnu2ZpFdEZeGgsV6LJ9J3EQsFicj2yfJJz6IRs36rs=;
+        b=fkzy/f3odiRYKLcQhW7jQ0sLtRlMlUQFNPvLh0mV/jd89Oa2f9B0BgT1TO+qzUQ9yD
+         WR/w0O3frrJ1RhJV5oQrqMfoVDaoIVqSlyT4CQvWcSZ8VJr4akvDVPTGQZCqIEDO1Zfl
+         EhBc9TerWsSUSO1nC/1mkhLsM9BjAJkvBmSPUCurlPCuD7FWMsUK7o7EEhi2z8toYT82
+         a5c6DuQc19RfC1o56ge18nKqfbqBrvetqlMP0rRjRXy/BgSiYJAsFYM6tW7R28rZsjlW
+         xH9CvODpPDH7cbor2HPBYtzQXbBlxxTOwu8L3y2E9KEGPvceXpwG5nzcn5obqZUrClqw
+         UPLQ==
+X-Gm-Message-State: AOAM530ql/DnPrysqXyN0GqDoHM7/3Hip/HBXAqXzkvohGU4iFBgdV7n
+        mBawbHpHKHpLKea6IuM6dCveGw==
+X-Google-Smtp-Source: ABdhPJyjK6WAR/VZSkjZz9iYJrdF14G2v8OVGBT53jxFu2JrVWFt4FQUhcXmeHENem73T6w1xU41Pg==
+X-Received: by 2002:a1c:3b54:0:b0:394:3910:3cb9 with SMTP id i81-20020a1c3b54000000b0039439103cb9mr22649799wma.50.1652107745868;
+        Mon, 09 May 2022 07:49:05 -0700 (PDT)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id n13-20020a056000170d00b0020c5253d911sm11724160wrc.93.2022.05.09.07.49.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 May 2022 07:49:05 -0700 (PDT)
+Date:   Mon, 9 May 2022 15:49:03 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Greg KH <greg@kroah.com>
+Cc:     stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH 5.10 1/1] drm/amdgpu: Ensure the AMDGPU file descriptor
+ is legitimate
+Message-ID: <Ynkp3+eBhhilI8vK@google.com>
+References: <20220412152057.1170235-1-lee.jones@linaro.org>
+ <Ylf5zmP88Lw0md47@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <YnkhD5YY3thCMkgX@kroah.com>
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 -
- Collinstown Industrial Park, Leixlip, County Kildare - Ireland
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Ylf5zmP88Lw0md47@kroah.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,33 +77,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 09, 2022 at 04:11:27PM +0200, Greg KH wrote:
-> On Mon, May 09, 2022 at 02:34:17PM +0100, Giovanni Cabiddu wrote:
-> > Re-enable the registration of algorithms after fixes to (1) use
-> > pre-allocated buffers in the datapath and (2) support the
-> > CRYPTO_TFM_REQ_MAY_BACKLOG flag.
+On Thu, 14 Apr 2022, Greg KH wrote:
+
+> On Tue, Apr 12, 2022 at 04:20:57PM +0100, Lee Jones wrote:
+> > [ Upstream commit b40a6ab2cf9213923bf8e821ce7fa7f6a0a26990 ]
 > > 
-> > This reverts commit 8893d27ffcaf6ec6267038a177cb87bcde4dd3de.
+> > This is a partial cherry-pick of the above upstream commit.
+> > 
+> > It ensures the file descriptor passed in by userspace is a valid one.
+> > 
+> > Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+> > Cc: Alex Deucher <alexander.deucher@amd.com>
+> > Cc: "Christian König" <christian.koenig@amd.com>
+> > Cc: David Airlie <airlied@linux.ie>
+> > Cc: Daniel Vetter <daniel@ffwll.ch>
+> > Cc: amd-gfx@lists.freedesktop.org
+> > Cc: dri-devel@lists.freedesktop.org
+> > Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> > ---
+> >  drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c | 10 +++++++---
+> >  1 file changed, 7 insertions(+), 3 deletions(-)
 > 
-> Then why not just have this be a "normal" revert commit?
-It can be a revert commit. I didn't send a revert commit since I never
-saw one in the crypto mailing list.
+> Now queued up, thanks.
 
-> And why is this ok for stable kernels?  This feels like a new feature
-> (i.e. the code finally works.)  Why not just have users who want to use
-> this use a newer kernel?  What bugfix does this resolve in older kernels
-> (and "the driver did not work" is not really a good reason.)
-After the bug report in [1], the final decision was to disable the
-algorithms until the issue was fixed.
-This set is fixing the issues that cause [1] and a few other minor ones
-before re-enabling the algos.
+Could you also back-port this into v5.4 please?
 
-I think there is value in having these fixes in stable as they allow to
-re-enable services that were available before the 5.17 time frame.
+FYI, in the v5.10.y tree, it's now called:
 
-Regards,
+  f0c31f192f38c drm/amdkfd: Use drm_priv to pass VM from KFD to amdgpu
 
 -- 
-Giovanni
-
-[1] https://lore.kernel.org/linux-crypto/CACsaVZ+mt3CfdXV0_yJh7d50tRcGcRZ12j3n6-hoX2cz3+njsg@mail.gmail.com/
+Lee Jones [李琼斯]
+Principal Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
