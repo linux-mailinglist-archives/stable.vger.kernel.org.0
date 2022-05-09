@@ -2,67 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E04A51FD77
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 14:58:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFF251FDFD
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 15:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235026AbiEINBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 09:01:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34964 "EHLO
+        id S235347AbiEINX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 09:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235138AbiEINBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 09:01:04 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 598741C8FD6
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 05:57:10 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id t13so11957412pgn.8
-        for <stable@vger.kernel.org>; Mon, 09 May 2022 05:57:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qgJt9d5BYD8qH5Il+D2wLwrp6Gx/ioG49lSVTIbilsA=;
-        b=E/oR0T5Xz+bCVQiW8VJaKUyLcZ8txR/QFVk0RRzqWXHZf1lKiAq2lsaKG7HiPhO4QE
-         FIncDUiI3zHiPFO1H3PAR3PZMI1u6BglDnVVrndD0cqe1bEXp0PQ2KvcB3iCJMi9mac3
-         +9YJ/+JbS61LNWfaJODgrfjMNFQXu+k2ETTaQxAOreNre+B6rn0JivJYL9axZQiDGmNz
-         MNRO2VHmNSqr+IqCEZAB5nHlonqcZZLWWltnVUjaSObIgaJlulntp/C7yxsEnLRTpNFo
-         +kCX+7dt0QbMI0MqCUBVwaL9gl9nDQoGWX9V80egv3BVCGAMQ4OtKCDgdiazK1UpiFpM
-         hFqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qgJt9d5BYD8qH5Il+D2wLwrp6Gx/ioG49lSVTIbilsA=;
-        b=L5K8FdE/57nMNlrvB9iq5GlzweX6zmBOYJQWF84SsfGqhHciIBXe+/h6H6GfCvDoVT
-         W6Tnxkn1+DHI/f1V5E6utqJcGYwEowA/C7QkSUvgHBX348QJjK8PvHxfXFyeG9W2Ipt/
-         v7RtMmAxIinFwLVDh5ESRq03wc0O8qiaslk0IewROpdVOXBv3yGRgpETtiqWLxRXcBNO
-         7qtPEHt6GhXwTpH4FCqwU1xjK3zTWLm8O9bnPE9R2kvc+BAmJ4Fv0/Ma9WhLHDIGOZ/8
-         wWY5pWkVJzeF5FKDntZko1j78JhTd69dlS6vesTndy1neQ+4ZyqDVt8RTkM0woaQbzHy
-         9qsg==
-X-Gm-Message-State: AOAM533ns5eQdbHK4k4VWgnvfqtnMyuG5BSGx6TI2xkF2jaTr34ABjMq
-        Ko1EpBZqV8Aj6rZ4A49m+GUPtnTRxBGRiyjr
-X-Google-Smtp-Source: ABdhPJx9r9gYNkzDNVjWYeHdJizOwDKEyHIK8BOZJOuzySrQ8m4MKDrh/D7ohbGAoyyvSUvg7uUMZg==
-X-Received: by 2002:a63:4723:0:b0:3c2:69ab:df80 with SMTP id u35-20020a634723000000b003c269abdf80mr12889546pga.23.1652101029710;
-        Mon, 09 May 2022 05:57:09 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 30-20020a17090a191e00b001cd4989ff3fsm8803095pjg.6.2022.05.09.05.57.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 May 2022 05:57:09 -0700 (PDT)
-Message-ID: <62790fa5.1c69fb81.d682.3c66@mx.google.com>
-Date:   Mon, 09 May 2022 05:57:09 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S235485AbiEINX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 09:23:27 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A059B2B1645;
+        Mon,  9 May 2022 06:19:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1652102373; x=1683638373;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=iw7AkwX6aWzKG6Flh+f4y/Qhta8v4tot42bt4LXNf+I=;
+  b=GOMX32zT0PLnXB1oGlqHK1kQIB2Bc/SYei8HOS08ZdtGsesaK59xQGgA
+   olNarXpQzWv68eyjEvtQUpbZBYK4sLSKt2LOb/xkSXXunOIG9mZYhjHSJ
+   +XZg6+ys+h8TnIheLSJZsCTB9uPyXBRTXnYrSzelLZOnSRSdFomba7zwb
+   i6x1Mg8//B5voaFiMdDO/emI6kzmZobtupfTQWn9NFPWTyLvs6uVQNMl6
+   Ern6v4Zek/1UC5jG9tTJIYq3rQBUlMkddmg80EfZkFFUzP8gRTN3LFLn0
+   oaut+WWTJz2tLb86/LgPBoZNaNuyOm4u6Z6gwyWIkc1vfz0iat6PauCIr
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10341"; a="268712064"
+X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
+   d="scan'208";a="268712064"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 May 2022 06:19:33 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,211,1647327600"; 
+   d="scan'208";a="519229672"
+Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314.ger.corp.intel.com) ([10.237.222.76])
+  by orsmga003.jf.intel.com with ESMTP; 09 May 2022 06:19:31 -0700
+From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+To:     herbert@gondor.apana.org.au
+Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        stable@vger.kernel.org, Adam Guerin <adam.guerin@intel.com>,
+        Wojciech Ziemba <wojciech.ziemba@intel.com>
+Subject: [PATCH] crypto: qat - set to zero DH parameters before free
+Date:   Mon,  9 May 2022 14:19:27 +0100
+Message-Id: <20220509131927.55387-1-giovanni.cabiddu@intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Kernel: v5.10.113-129-g2a88b987a070
-Subject: stable-rc/queue/5.10 baseline: 169 runs,
- 1 regressions (v5.10.113-129-g2a88b987a070)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,70 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 169 runs, 1 regressions (v5.10.113-129-g2a88=
-b987a070)
+Set to zero the context buffers containing the DH key before they are
+freed.
+This is a defense in depth measure that avoids keys to be recovered from
+memory in case the system is compromised between the free of the buffer
+and when that area of memory (containing keys) gets overwritten.
 
-Regressions Summary
--------------------
+Cc: stable@vger.kernel.org
+Fixes: c9839143ebbf ("crypto: qat - Add DH support")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Adam Guerin <adam.guerin@intel.com>
+Reviewed-by: Wojciech Ziemba <wojciech.ziemba@intel.com>
+---
+ drivers/crypto/qat/qat_common/qat_asym_algs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
+diff --git a/drivers/crypto/qat/qat_common/qat_asym_algs.c b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+index b0b78445418b..5633f9df3b6f 100644
+--- a/drivers/crypto/qat/qat_common/qat_asym_algs.c
++++ b/drivers/crypto/qat/qat_common/qat_asym_algs.c
+@@ -420,14 +420,17 @@ static int qat_dh_set_params(struct qat_dh_ctx *ctx, struct dh *params)
+ static void qat_dh_clear_ctx(struct device *dev, struct qat_dh_ctx *ctx)
+ {
+ 	if (ctx->g) {
++		memset(ctx->g, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->g, ctx->dma_g);
+ 		ctx->g = NULL;
+ 	}
+ 	if (ctx->xa) {
++		memset(ctx->xa, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->xa, ctx->dma_xa);
+ 		ctx->xa = NULL;
+ 	}
+ 	if (ctx->p) {
++		memset(ctx->p, 0, ctx->p_size);
+ 		dma_free_coherent(dev, ctx->p_size, ctx->p, ctx->dma_p);
+ 		ctx->p = NULL;
+ 	}
+-- 
+2.35.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.113-129-g2a88b987a070/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.113-129-g2a88b987a070
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2a88b987a0700ca5f0200a2d1ee1ab078755c9ca =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6278d9c1ecaf7b18538f5743
-
-  Results:     90 PASS, 2 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--129-g2a88b987a070/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.113=
--129-g2a88b987a070/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/ba=
-seline-rk3399-gru-kevin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220428.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6278d9c1ecaf7b18538f5765
-        failing since 62 days (last pass: v5.10.103-56-ge5a40f18f4ce, first=
- fail: v5.10.103-105-gf074cce6ae0d)
-
-    2022-05-09T09:07:02.270789  <8>[   60.077414] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s0-probed RESULT=3Dpass>
-    2022-05-09T09:07:03.292985  /lava-6306079/1/../bin/lava-test-case   =
-
- =20
