@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1851451F7DC
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:25:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 398F851F7E2
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231591AbiEIJV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
+        id S235976AbiEIJWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236201AbiEIIvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:51:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DF61FD1F4
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:47:52 -0700 (PDT)
+        with ESMTP id S236372AbiEIIvv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:51:51 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF5D1FD851
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:47:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AA9261447
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:47:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D55C385A8;
-        Mon,  9 May 2022 08:47:41 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B041ECE12E2
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:47:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEAFFC385AB;
+        Mon,  9 May 2022 08:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652086062;
-        bh=mD1jKOYYSwfggyNX3ms5Rwu1udpjVpaBViYR1bJT0cY=;
+        s=korg; t=1652086072;
+        bh=M0+jOQdCJF3dWq403Vqe78uoElkjfer+7e7r3U+XLwU=;
         h=Subject:To:Cc:From:Date:From;
-        b=PRDsRacA9EXUsQp9nbePQTyBV1Q8tyKH6tMoKSO36q/01UK6O4YIH2TF7CE0PCitb
-         1I/6UQbvZO9bE7NrJ9t9otxcSHW+e7C/amdNNw7gjlGfoQLmguv1K11gEG4HKfqBec
-         yPlyPrNw8Olt6F9QXjG2Rum5bnePhBB9DZcOzmE4=
-Subject: FAILED: patch "[PATCH] btrfs: do not allow compression on nodatacow files" failed to apply to 5.10-stable tree
-To:     cccheng@synology.com, dsterba@suse.com, fdmanana@suse.com,
-        jaycelin@synology.com
+        b=PRDGFUIPVD4CjYmXpQQJeQgNZg4ChtawnCJZgc+NcfheGScxg4X18Zdhye2EzELDb
+         hKZeXxk7qmIcKSM1D3m6z6Rm5uo/JoDBuUe9TFOxyYSmGxANoCqewphDhxgHlRqVm1
+         AIBpy+EmAzW++hDwPysHZX6nQCVPQBp6a4uqCNGM=
+Subject: FAILED: patch "[PATCH] btrfs: skip compression property for anything other than" failed to apply to 5.15-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:47:31 +0200
-Message-ID: <165208605158163@kroah.com>
+Date:   Mon, 09 May 2022 10:47:49 +0200
+Message-ID: <1652086069237241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,130 +59,150 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0e852ab8974cd2b5946766b2d9baf82c78ace03d Mon Sep 17 00:00:00 2001
-From: Chung-Chiang Cheng <cccheng@synology.com>
-Date: Fri, 15 Apr 2022 16:04:06 +0800
-Subject: [PATCH] btrfs: do not allow compression on nodatacow files
+From 4b73c55fdebd8939f0f6000921075f7f6fa41397 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Thu, 21 Apr 2022 11:01:22 +0100
+Subject: [PATCH] btrfs: skip compression property for anything other than
+ files and dirs
 
-Compression and nodatacow are mutually exclusive. A similar issue was
-fixed by commit f37c563bab429 ("btrfs: add missing check for nocow and
-compression inode flags"). Besides ioctl, there is another way to
-enable/disable/reset compression directly via xattr. The following
-steps will result in a invalid combination.
+The compression property only has effect on regular files and directories
+(so that it's propagated to files and subdirectories created inside a
+directory). For any other inode type (symlink, fifo, device, socket),
+it's pointless to set the compression property because it does nothing
+and ends up unnecessarily wasting leaf space due to the pointless xattr
+(75 or 76 bytes, depending on the compression value). Symlinks in
+particular are very common (for example, I have almost 10k symlinks under
+/etc, /usr and /var alone) and therefore it's worth to avoid wasting
+leaf space with the compression xattr.
 
-  $ touch bar
-  $ chattr +C bar
-  $ lsattr bar
-  ---------------C-- bar
-  $ setfattr -n btrfs.compression -v zstd bar
-  $ lsattr bar
-  --------c------C-- bar
+For example, the compression property can end up on a symlink or character
+device implicitly, through inheritance from a parent directory
 
-To align with the logic in check_fsflags, nocompress will also be
-unacceptable after this patch, to prevent mix any compression-related
-options with nodatacow.
+  $ mkdir /mnt/testdir
+  $ btrfs property set /mnt/testdir compression lzo
 
-  $ touch bar
-  $ chattr +C bar
-  $ lsattr bar
-  ---------------C-- bar
-  $ setfattr -n btrfs.compression -v zstd bar
-  setfattr: bar: Invalid argument
-  $ setfattr -n btrfs.compression -v no bar
-  setfattr: bar: Invalid argument
+  $ ln -s yadayada /mnt/testdir/lnk
+  $ mknod /mnt/testdir/dev c 0 0
 
-When both compression and nodatacow are enabled, then
-btrfs_run_delalloc_range prefers nodatacow and no compression happens.
+Or explicitly like this:
 
-Reported-by: Jayce Lin <jaycelin@synology.com>
-CC: stable@vger.kernel.org # 5.10.x: e6f9d6964802: btrfs: export a helper for compression hard check
-CC: stable@vger.kernel.org # 5.10.x
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Chung-Chiang Cheng <cccheng@synology.com>
+  $ ln -s yadayda /mnt/lnk
+  $ setfattr -h -n btrfs.compression -v lzo /mnt/lnk
+
+So skip the compression property on inodes that are neither a regular
+file nor a directory.
+
+CC: stable@vger.kernel.org # 5.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
 diff --git a/fs/btrfs/props.c b/fs/btrfs/props.c
-index 1a6d2d5b4b33..5a6f87744c28 100644
+index 5a6f87744c28..1b31481f9e72 100644
 --- a/fs/btrfs/props.c
 +++ b/fs/btrfs/props.c
-@@ -17,7 +17,8 @@ static DEFINE_HASHTABLE(prop_handlers_ht, BTRFS_PROP_HANDLERS_HT_BITS);
- struct prop_handler {
- 	struct hlist_node node;
- 	const char *xattr_name;
--	int (*validate)(const char *value, size_t len);
-+	int (*validate)(const struct btrfs_inode *inode, const char *value,
-+			size_t len);
+@@ -21,6 +21,7 @@ struct prop_handler {
+ 			size_t len);
  	int (*apply)(struct inode *inode, const char *value, size_t len);
  	const char *(*extract)(struct inode *inode);
++	bool (*ignore)(const struct btrfs_inode *inode);
  	int inheritable;
-@@ -55,7 +56,8 @@ find_prop_handler(const char *name,
- 	return NULL;
+ };
+ 
+@@ -74,6 +75,28 @@ int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
+ 	return handler->validate(inode, value, value_len);
  }
  
--int btrfs_validate_prop(const char *name, const char *value, size_t value_len)
-+int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
-+			const char *value, size_t value_len)
- {
- 	const struct prop_handler *handler;
- 
-@@ -69,7 +71,7 @@ int btrfs_validate_prop(const char *name, const char *value, size_t value_len)
- 	if (value_len == 0)
- 		return 0;
- 
--	return handler->validate(value, value_len);
-+	return handler->validate(inode, value, value_len);
- }
- 
- int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
-@@ -252,8 +254,12 @@ int btrfs_load_inode_props(struct inode *inode, struct btrfs_path *path)
- 	return ret;
- }
- 
--static int prop_compression_validate(const char *value, size_t len)
-+static int prop_compression_validate(const struct btrfs_inode *inode,
-+				     const char *value, size_t len)
- {
-+	if (!btrfs_inode_can_compress(inode))
-+		return -EINVAL;
++/*
++ * Check if a property should be ignored (not set) for an inode.
++ *
++ * @inode:     The target inode.
++ * @name:      The property's name.
++ *
++ * The caller must be sure the given property name is valid, for example by
++ * having previously called btrfs_validate_prop().
++ *
++ * Returns:    true if the property should be ignored for the given inode
++ *             false if the property must not be ignored for the given inode
++ */
++bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name)
++{
++	const struct prop_handler *handler;
 +
- 	if (!value)
- 		return 0;
- 
-@@ -364,7 +370,7 @@ static int inherit_props(struct btrfs_trans_handle *trans,
- 		 * This is not strictly necessary as the property should be
- 		 * valid, but in case it isn't, don't propagate it further.
- 		 */
--		ret = h->validate(value, strlen(value));
-+		ret = h->validate(BTRFS_I(inode), value, strlen(value));
- 		if (ret)
- 			continue;
- 
-diff --git a/fs/btrfs/props.h b/fs/btrfs/props.h
-index 40b2c65b518c..2b2ac15ab788 100644
---- a/fs/btrfs/props.h
-+++ b/fs/btrfs/props.h
-@@ -13,7 +13,8 @@ void __init btrfs_props_init(void);
++	handler = find_prop_handler(name, NULL);
++	ASSERT(handler != NULL);
++
++	return handler->ignore(inode);
++}
++
  int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
  		   const char *name, const char *value, size_t value_len,
+ 		   int flags)
+@@ -316,6 +339,22 @@ static int prop_compression_apply(struct inode *inode, const char *value,
+ 	return 0;
+ }
+ 
++static bool prop_compression_ignore(const struct btrfs_inode *inode)
++{
++	/*
++	 * Compression only has effect for regular files, and for directories
++	 * we set it just to propagate it to new files created inside them.
++	 * Everything else (symlinks, devices, sockets, fifos) is pointless as
++	 * it will do nothing, so don't waste metadata space on a compression
++	 * xattr for anything that is neither a file nor a directory.
++	 */
++	if (!S_ISREG(inode->vfs_inode.i_mode) &&
++	    !S_ISDIR(inode->vfs_inode.i_mode))
++		return true;
++
++	return false;
++}
++
+ static const char *prop_compression_extract(struct inode *inode)
+ {
+ 	switch (BTRFS_I(inode)->prop_compress) {
+@@ -336,6 +375,7 @@ static struct prop_handler prop_handlers[] = {
+ 		.validate = prop_compression_validate,
+ 		.apply = prop_compression_apply,
+ 		.extract = prop_compression_extract,
++		.ignore = prop_compression_ignore,
+ 		.inheritable = 1
+ 	},
+ };
+@@ -362,6 +402,9 @@ static int inherit_props(struct btrfs_trans_handle *trans,
+ 		if (!h->inheritable)
+ 			continue;
+ 
++		if (h->ignore(BTRFS_I(inode)))
++			continue;
++
+ 		value = h->extract(parent);
+ 		if (!value)
+ 			continue;
+diff --git a/fs/btrfs/props.h b/fs/btrfs/props.h
+index 2b2ac15ab788..59bea741cfcf 100644
+--- a/fs/btrfs/props.h
++++ b/fs/btrfs/props.h
+@@ -15,6 +15,7 @@ int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
  		   int flags);
--int btrfs_validate_prop(const char *name, const char *value, size_t value_len);
-+int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
-+			const char *value, size_t value_len);
+ int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
+ 			const char *value, size_t value_len);
++bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name);
  
  int btrfs_load_inode_props(struct inode *inode, struct btrfs_path *path);
  
 diff --git a/fs/btrfs/xattr.c b/fs/btrfs/xattr.c
-index 99abf41b89b9..9632d0ff2038 100644
+index 367bb87b66df..85691dc2232f 100644
 --- a/fs/btrfs/xattr.c
 +++ b/fs/btrfs/xattr.c
-@@ -403,7 +403,7 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
- 	struct btrfs_root *root = BTRFS_I(inode)->root;
- 
- 	name = xattr_full_name(handler, name);
--	ret = btrfs_validate_prop(name, value, size);
-+	ret = btrfs_validate_prop(BTRFS_I(inode), name, value, size);
+@@ -408,6 +408,9 @@ static int btrfs_xattr_handler_set_prop(const struct xattr_handler *handler,
  	if (ret)
  		return ret;
  
++	if (btrfs_ignore_prop(BTRFS_I(inode), name))
++		return 0;
++
+ 	trans = btrfs_start_transaction(root, 2);
+ 	if (IS_ERR(trans))
+ 		return PTR_ERR(trans);
 
