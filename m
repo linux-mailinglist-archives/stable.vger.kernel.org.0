@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8CC51F7D9
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0E3151F7F4
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 11:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235710AbiEIJWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 05:22:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38762 "EHLO
+        id S234113AbiEIJWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 05:22:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236958AbiEIIwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:52:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C81185656
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:48:50 -0700 (PDT)
+        with ESMTP id S235372AbiEIIxz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:53:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB4E31F63A1
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:50:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E10E7B8108F
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:48:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4791FC385AB;
-        Mon,  9 May 2022 08:48:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65B16B8103B
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E84C385A8;
+        Mon,  9 May 2022 08:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652086127;
-        bh=4sNQNL1IRdmOIyV5BIzMg4tWqsr2mMov69g342xgdEw=;
+        s=korg; t=1652086193;
+        bh=mWX4YpwEH6eXekLTkMC9RVtKNn1MaJVvedXmaGl2Q2k=;
         h=Subject:To:Cc:From:Date:From;
-        b=mkDpppomaQlCMpRvq2tFKQhSKlx5MqsT0fmLRrKLs6R/j9o8Wo0fVRVfeDMYDo2G4
-         z7oijP5md5hjrJyEqdRbNVDjEWMdTWkJLpvCRhPacaWB9Ar45jOJwje1EVCUPLhVAk
-         62HwJFzJQ6pAi5pLDsKQlaoQYHRmDUg6a/DAIxm8=
-Subject: FAILED: patch "[PATCH] btrfs: always log symlinks in full mode" failed to apply to 5.17-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com
+        b=oC67vl7556CooLa9dFiFWs962ffuaUTVyqW0/C56FaCfgEBHx6IkZR8y9ifNRfkLl
+         EQ93kqXbg7qMi2CyVHNV5N+PYr7gysph1oh5XrTZAQ41+G1ioNwl9mxpW/DrEhvSK9
+         lFMumVQlqaBCIwTRkS8hkpv6g/U0uxqHAhg7fd8g=
+Subject: FAILED: patch "[PATCH] net: stmmac: disable Split Header (SPH) for Intel platforms" failed to apply to 5.4-stable tree
+To:     tee.min.tan@linux.intel.com, boon.leong.ong@intel.com,
+        davem@davemloft.net, mohammad.athari.ismail@intel.com,
+        stable@vger.kernel.org, vee.khee.wong@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:48:37 +0200
-Message-ID: <1652086117205217@kroah.com>
+Date:   Mon, 09 May 2022 10:49:50 +0200
+Message-ID: <1652086190123103@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,87 +61,65 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Thu, 21 Apr 2022 10:56:39 +0100
-Subject: [PATCH] btrfs: always log symlinks in full mode
+From 47f753c1108e287edb3e27fad8a7511a9d55578e Mon Sep 17 00:00:00 2001
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
+Date: Fri, 29 Apr 2022 19:58:07 +0800
+Subject: [PATCH] net: stmmac: disable Split Header (SPH) for Intel platforms
 
-On Linux, empty symlinks are invalid, and attempting to create one with
-the system call symlink(2) results in an -ENOENT error and this is
-explicitly documented in the man page.
+Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
+of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
+This SPH limitation will cause ping failure when the packets size exceed
+the MTU size. For example, the issue happens once the basic ping packet
+size is larger than the configured MTU size and the data is lost inside
+the fragmented packet, replaced by zeros/corrupted values, and leads to
+ping fail.
 
-If we rename a symlink that was created in the current transaction and its
-parent directory was logged before, we actually end up logging the symlink
-without logging its content, which is stored in an inline extent. That
-means that after a power failure we can end up with an empty symlink,
-having no content and an i_size of 0 bytes.
+So, disable the Split Header for Intel platforms.
 
-It can be easily reproduced like this:
+v2: Add fixes tag in commit message.
 
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
+Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it in XGMAC cores")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-  $ mkdir /mnt/testdir
-  $ sync
-
-  # Create a file inside the directory and fsync the directory.
-  $ touch /mnt/testdir/foo
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  # Create a symlink inside the directory and then rename the symlink.
-  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
-  $ mv /mnt/testdir/bar /mnt/testdir/baz
-
-  # Now fsync again the directory, this persist the log tree.
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  <power failure>
-
-  $ mount /dev/sdc /mnt
-  $ stat -c %s /mnt/testdir/baz
-  0
-  $ readlink /mnt/testdir/baz
-  $
-
-Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
-their content is also logged.
-
-A test case for fstests will follow.
-
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 09e4f1a04e6f..11399c8eed87 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -5804,6 +5804,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
- 		mutex_lock(&inode->log_mutex);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+index 63754a9c4ba7..0b0be0898ac5 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -454,6 +454,7 @@ static int intel_mgbe_common_data(struct pci_dev *pdev,
+ 	plat->has_gmac4 = 1;
+ 	plat->force_sf_dma_mode = 0;
+ 	plat->tso_en = 1;
++	plat->sph_disable = 1;
+ 
+ 	/* Multiplying factor to the clk_eee_i clock time
+ 	 * period to make it closer to 100 ns. This value
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4a4b3651ab3e..2525a80353b7 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -7021,7 +7021,7 @@ int stmmac_dvr_probe(struct device *device,
+ 		dev_info(priv->device, "TSO feature enabled\n");
  	}
  
-+	/*
-+	 * For symlinks, we must always log their content, which is stored in an
-+	 * inline extent, otherwise we could end up with an empty symlink after
-+	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
-+	 * one attempts to create an empty symlink).
-+	 * We don't need to worry about flushing delalloc, because when we create
-+	 * the inline extent when the symlink is created (we never have delalloc
-+	 * for symlinks).
-+	 */
-+	if (S_ISLNK(inode->vfs_inode.i_mode))
-+		inode_only = LOG_INODE_ALL;
-+
- 	/*
- 	 * Before logging the inode item, cache the value returned by
- 	 * inode_logged(), because after that we have the need to figure out if
-@@ -6182,7 +6194,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
- 			}
- 
- 			ctx->log_new_dentries = false;
--			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
-+			if (type == BTRFS_FT_DIR)
- 				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, BTRFS_I(di_inode),
- 					      log_mode, ctx);
+-	if (priv->dma_cap.sphen) {
++	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
+ 		ndev->hw_features |= NETIF_F_GRO;
+ 		priv->sph_cap = true;
+ 		priv->sph = priv->sph_cap;
+diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
+index 24eea1b05ca2..29917850f079 100644
+--- a/include/linux/stmmac.h
++++ b/include/linux/stmmac.h
+@@ -270,5 +270,6 @@ struct plat_stmmacenet_data {
+ 	int msi_rx_base_vec;
+ 	int msi_tx_base_vec;
+ 	bool use_phy_wol;
++	bool sph_disable;
+ };
+ #endif
 
