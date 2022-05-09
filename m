@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8BF851F9FB
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D0651FA01
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbiEIKfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 06:35:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39818 "EHLO
+        id S231313AbiEIKfq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 06:35:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232644AbiEIKe7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:34:59 -0400
+        with ESMTP id S232624AbiEIKe5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:34:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6BB024F208
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:31:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B00253A97
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:30:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3495960F7C
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:31:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8FBC385A8;
-        Mon,  9 May 2022 10:31:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F33660F88
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64459C385AB;
+        Mon,  9 May 2022 10:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652092261;
-        bh=mN79ZeIV50Zwpm/cXLfJAWVvPs1NZW84k9N38JrkvgI=;
+        s=korg; t=1652092252;
+        bh=TA/k9polGAyg1i9gbiQWZaXHM/w5WKsrhS+LrDLx3AA=;
         h=Subject:To:Cc:From:Date:From;
-        b=PViL3ycCW3YQ0+wATp5LRb+in3wlDATlIKNqqrzZOfhd15R/YKBFI+L7hbCgnSPg8
-         buDE/z6mINXFFe+8N5Fz2B+RcXQ8v9C1ayDV0bYxG3empQhGhaK3savX20OHQSJbAq
-         6fxAPvKOguOXMlPhAvXxwROo6LVHWdEToN35+WRo=
-Subject: FAILED: patch "[PATCH] net/mlx5e: TC, Fix ct_clear overwriting ct action metadata" failed to apply to 5.15-stable tree
+        b=zxWAFdN7yRST5xNKe+R+alO3cMWhFukB66kxUk7Y14bX2t14vxaNAEBL9OSKjx8TX
+         Q0crEfuBJVD6M1MlU03tMjzrb8Nvb1SnYENI+yjgUeKN7kvUtHv0MRhrq7t8iOxn0U
+         iRytiZVp6E2RP+ua0BZlGAOd0VtTx/4gC8qEW3QE=
+Subject: FAILED: patch "[PATCH] net/mlx5e: TC, Fix ct_clear overwriting ct action metadata" failed to apply to 5.17-stable tree
 To:     lariel@nvidia.com, maord@nvidia.com, paulb@nvidia.com,
         roid@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 09 May 2022 12:30:50 +0200
-Message-ID: <1652092250251116@kroah.com>
+Message-ID: <165209225021618@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
