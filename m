@@ -2,187 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5E7251F278
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 03:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FF351F2AF
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 04:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbiEIBdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 21:33:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41952 "EHLO
+        id S229507AbiEICv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 22:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234292AbiEIBbK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 21:31:10 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1084513F63;
-        Sun,  8 May 2022 18:25:19 -0700 (PDT)
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KxNh16Np0zGpg9;
-        Mon,  9 May 2022 09:22:25 +0800 (CST)
-Received: from [10.174.177.174] (10.174.177.174) by
- dggpeml500020.china.huawei.com (7.185.36.88) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Mon, 9 May 2022 09:25:12 +0800
-Message-ID: <83ed1d6f-84f9-0e47-ddb1-b8cafc12338a@huawei.com>
-Date:   Mon, 9 May 2022 09:25:11 +0800
+        with ESMTP id S231215AbiEICvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 22:51:25 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD526462;
+        Sun,  8 May 2022 19:47:33 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id i1so12584348plg.7;
+        Sun, 08 May 2022 19:47:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=09Vt4G6n2lDrTYL/OjY7UiKCXH1y9x+5kX8o8WWVQgw=;
+        b=NQruP2zCQHSaJQUmJCI9RhATtkSlIijZCS+mT5oc8iOV0GgqNp6+mmzKsSIuQLS/Sa
+         gb3ZP24Urz562/DxdMZTJuFuFvvpC+O3t7V/9jxxrrXBcRfy7j7See7/YI5izGYnJI5V
+         IAV/expdJmASHN2iU3Tpp0HITZILUsyvrBKOFspglPCO5S2tIKFc6Uhf50ws+LKt8v1q
+         V+/NfeC828eRkrlVvi0q86CoCLLFKJpxNYJF499nPqkGJ5AoDrBVe/3wPvNtCKUF/fdP
+         Hr5jrQJTmiCUQMD9hrNNP/wUOzRGjtll2Ep7D40W3SV2pahKmMSmv75Bx2/e4fFHa6dj
+         RD+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=09Vt4G6n2lDrTYL/OjY7UiKCXH1y9x+5kX8o8WWVQgw=;
+        b=rLzomKUauY6fxWcqWgSOMcfGyL8BF/AmLbIMi7obTzTtU4GB0zSfhEid83AK6KqFjz
+         wvfDy1R9cICOZ7gwR3JE9qPYlLIfIRyWQdG7cukcGZ7ZYjT3vNgEdgzNOkCr4HhWCKFs
+         68tuhp6BZj8WlUU2JZ31dEKNZWV8eoA1lQNdaLo6nYq/dnItZH6qAmSgKZlU6FWTRo/u
+         wDs5c8DCMVU3JmLlvEPZANcjbriJNQdpEv7CnLtFIRt9N4KS6PZJxk1T2sYoa3F6u4U/
+         ruqM9H952kOy4RNenOIZYJ8x1DZ3a+ZvZVaYK2IqfJvZHxD02+Ci2AC0dO/BNPrez/t+
+         7v+A==
+X-Gm-Message-State: AOAM533uQjNrJEBIDB+Dl95c52rZMZbOGJz7Tc3nzxsOtVWw59A64LMn
+        jA7AhV6v3r8Q+1wcI8ZvYLY=
+X-Google-Smtp-Source: ABdhPJyqLCkqK3/akcURR3Rflog2HpRW6HLgyMluoXrSsDXRzsGQg+YZm5qwdBADAFGOHLV5BJzY5A==
+X-Received: by 2002:a17:903:189:b0:15e:9584:fbe7 with SMTP id z9-20020a170903018900b0015e9584fbe7mr14570008plg.65.1652064453194;
+        Sun, 08 May 2022 19:47:33 -0700 (PDT)
+Received: from sultan-box.localdomain ([204.152.216.102])
+        by smtp.gmail.com with ESMTPSA id s24-20020a656918000000b003c14af50607sm7346077pgq.31.2022.05.08.19.47.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 08 May 2022 19:47:32 -0700 (PDT)
+Sender: Sultan Alsawaf <sultan.kerneltoast@gmail.com>
+From:   Sultan Alsawaf <sultan@kerneltoast.com>
+X-Google-Original-From: Sultan Alsawaf
+Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
+        Minchan Kim <minchan@kernel.org>,
+        Nitin Gupta <ngupta@vflare.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] zsmalloc: Fix races between asynchronous zspage free and page migration
+Date:   Sun,  8 May 2022 19:47:02 -0700
+Message-Id: <20220509024703.243847-1-sultan@kerneltoast.com>
+X-Mailer: git-send-email 2.36.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH v3] ext4: fix race condition between ext4_write and
- ext4_convert_inline_data
-To:     <linux-ext4@vger.kernel.org>
-CC:     <tytso@mit.edu>, <adilger.kernel@dilger.ca>, <jack@suse.cz>,
-        <linux-kernel@vger.kernel.org>, <yi.zhang@huawei.com>,
-        <yebin10@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>, Hulk Robot <hulkci@huawei.com>,
-        Baokun Li <libaokun1@huawei.com>
-References: <20220428134031.4153381-1-libaokun1@huawei.com>
-From:   "libaokun (A)" <libaokun1@huawei.com>
-In-Reply-To: <20220428134031.4153381-1-libaokun1@huawei.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.177.174]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpeml500020.china.huawei.com (7.185.36.88)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A gentle ping.
+From: Sultan Alsawaf <sultan@kerneltoast.com>
 
-在 2022/4/28 21:40, Baokun Li 写道:
-> Hulk Robot reported a BUG_ON:
->   ==================================================================
->   EXT4-fs error (device loop3): ext4_mb_generate_buddy:805: group 0,
->   block bitmap and bg descriptor inconsistent: 25 vs 31513 free clusters
->   kernel BUG at fs/ext4/ext4_jbd2.c:53!
->   invalid opcode: 0000 [#1] SMP KASAN PTI
->   CPU: 0 PID: 25371 Comm: syz-executor.3 Not tainted 5.10.0+ #1
->   RIP: 0010:ext4_put_nojournal fs/ext4/ext4_jbd2.c:53 [inline]
->   RIP: 0010:__ext4_journal_stop+0x10e/0x110 fs/ext4/ext4_jbd2.c:116
->   [...]
->   Call Trace:
->    ext4_write_inline_data_end+0x59a/0x730 fs/ext4/inline.c:795
->    generic_perform_write+0x279/0x3c0 mm/filemap.c:3344
->    ext4_buffered_write_iter+0x2e3/0x3d0 fs/ext4/file.c:270
->    ext4_file_write_iter+0x30a/0x11c0 fs/ext4/file.c:520
->    do_iter_readv_writev+0x339/0x3c0 fs/read_write.c:732
->    do_iter_write+0x107/0x430 fs/read_write.c:861
->    vfs_writev fs/read_write.c:934 [inline]
->    do_pwritev+0x1e5/0x380 fs/read_write.c:1031
->   [...]
->   ==================================================================
->
-> Above issue may happen as follows:
->             cpu1                     cpu2
-> __________________________|__________________________
-> do_pwritev
->   vfs_writev
->    do_iter_write
->     ext4_file_write_iter
->      ext4_buffered_write_iter
->       generic_perform_write
->        ext4_da_write_begin
->                             vfs_fallocate
->                              ext4_fallocate
->                               ext4_convert_inline_data
->                                ext4_convert_inline_data_nolock
->                                 ext4_destroy_inline_data_nolock
->                                  clear EXT4_STATE_MAY_INLINE_DATA
->                                 ext4_map_blocks
->                                  ext4_ext_map_blocks
->                                   ext4_mb_new_blocks
->                                    ext4_mb_regular_allocator
->                                     ext4_mb_good_group_nolock
->                                      ext4_mb_init_group
->                                       ext4_mb_init_cache
->                                        ext4_mb_generate_buddy  --> error
->         ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
->                                  ext4_restore_inline_data
->                                   set EXT4_STATE_MAY_INLINE_DATA
->         ext4_block_write_begin
->        ext4_da_write_end
->         ext4_test_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA)
->         ext4_write_inline_data_end
->          handle=NULL
->          ext4_journal_stop(handle)
->           __ext4_journal_stop
->            ext4_put_nojournal(handle)
->             ref_cnt = (unsigned long)handle
->             BUG_ON(ref_cnt == 0)  ---> BUG_ON
->
-> The lock held by ext4_convert_inline_data is xattr_sem, but the lock
-> held by generic_perform_write is i_rwsem. Therefore, the two locks can
-> be concurrent.
->
-> To solve above issue, we add inode_lock() for ext4_convert_inline_data().
-> At the same time, move ext4_convert_inline_data() in front of
-> ext4_punch_hole(), remove similar handling from ext4_punch_hole().
->
-> Fixes: 0c8d414f163f ("ext4: let fallocate handle inline data correctly")
-> Cc: stable@vger.kernel.org
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Baokun Li <libaokun1@huawei.com>
-> ---
-> V1->V2:
-> 	Increase the range of the inode_lock.
-> V2->V3:
-> 	Move the lock outside the ext4_convert_inline_data().
-> 	And reorganize ext4_fallocate().
->
->   fs/ext4/extents.c | 10 ++++++----
->   fs/ext4/inode.c   |  9 ---------
->   2 files changed, 6 insertions(+), 13 deletions(-)
->
-> diff --git a/fs/ext4/extents.c b/fs/ext4/extents.c
-> index e473fde6b64b..474479ce76e0 100644
-> --- a/fs/ext4/extents.c
-> +++ b/fs/ext4/extents.c
-> @@ -4693,15 +4693,17 @@ long ext4_fallocate(struct file *file, int mode, loff_t offset, loff_t len)
->   		     FALLOC_FL_INSERT_RANGE))
->   		return -EOPNOTSUPP;
->   
-> +	inode_lock(inode);
-> +	ret = ext4_convert_inline_data(inode);
-> +	inode_unlock(inode);
-> +	if (ret)
-> +		goto exit;
-> +
->   	if (mode & FALLOC_FL_PUNCH_HOLE) {
->   		ret = ext4_punch_hole(file, offset, len);
->   		goto exit;
->   	}
->   
-> -	ret = ext4_convert_inline_data(inode);
-> -	if (ret)
-> -		goto exit;
-> -
->   	if (mode & FALLOC_FL_COLLAPSE_RANGE) {
->   		ret = ext4_collapse_range(file, offset, len);
->   		goto exit;
-> diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-> index 646ece9b3455..4779673d733e 100644
-> --- a/fs/ext4/inode.c
-> +++ b/fs/ext4/inode.c
-> @@ -3967,15 +3967,6 @@ int ext4_punch_hole(struct file *file, loff_t offset, loff_t length)
->   
->   	trace_ext4_punch_hole(inode, offset, length, 0);
->   
-> -	ext4_clear_inode_state(inode, EXT4_STATE_MAY_INLINE_DATA);
-> -	if (ext4_has_inline_data(inode)) {
-> -		filemap_invalidate_lock(mapping);
-> -		ret = ext4_convert_inline_data(inode);
-> -		filemap_invalidate_unlock(mapping);
-> -		if (ret)
-> -			return ret;
-> -	}
-> -
->   	/*
->   	 * Write out all dirty pages to avoid race conditions
->   	 * Then release them.
+The asynchronous zspage free worker tries to lock a zspage's entire page
+list without defending against page migration. Since pages which haven't
+yet been locked can concurrently migrate off the zspage page list while
+lock_zspage() churns away, lock_zspage() can suffer from a few different
+lethal races. It can lock a page which no longer belongs to the zspage and
+unsafely dereference page_private(), it can unsafely dereference a torn
+pointer to the next page (since there's a data race), and it can observe a
+spurious NULL pointer to the next page and thus not lock all of the
+zspage's pages (since a single page migration will reconstruct the entire
+page list, and create_page_chain() unconditionally zeroes out each list
+pointer in the process).
 
+Fix the races by using migrate_read_lock() in lock_zspage() to synchronize
+with page migration.
+
+Cc: stable@vger.kernel.org
+Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
+Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
+---
+ mm/zsmalloc.c | 37 +++++++++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 4 deletions(-)
+
+diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
+index 9152fbde33b5..5d5fc04385b8 100644
+--- a/mm/zsmalloc.c
++++ b/mm/zsmalloc.c
+@@ -1718,11 +1718,40 @@ static enum fullness_group putback_zspage(struct size_class *class,
+  */
+ static void lock_zspage(struct zspage *zspage)
+ {
+-	struct page *page = get_first_page(zspage);
++	struct page *curr_page, *page;
+ 
+-	do {
+-		lock_page(page);
+-	} while ((page = get_next_page(page)) != NULL);
++	/*
++	 * Pages we haven't locked yet can be migrated off the list while we're
++	 * trying to lock them, so we need to be careful and only attempt to
++	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
++	 * may no longer belong to the zspage. This means that we may wait for
++	 * the wrong page to unlock, so we must take a reference to the page
++	 * prior to waiting for it to unlock outside migrate_read_lock().
++	 */
++	while (1) {
++		migrate_read_lock(zspage);
++		page = get_first_page(zspage);
++		if (trylock_page(page))
++			break;
++		get_page(page);
++		migrate_read_unlock(zspage);
++		wait_on_page_locked(page);
++		put_page(page);
++	}
++
++	curr_page = page;
++	while ((page = get_next_page(curr_page))) {
++		if (trylock_page(page)) {
++			curr_page = page;
++		} else {
++			get_page(page);
++			migrate_read_unlock(zspage);
++			wait_on_page_locked(page);
++			put_page(page);
++			migrate_read_lock(zspage);
++		}
++	}
++	migrate_read_unlock(zspage);
+ }
+ 
+ static int zs_init_fs_context(struct fs_context *fc)
+-- 
+2.36.0
 
