@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3978C51FF8E
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C990F51FF74
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 16:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236760AbiEIO01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 10:26:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43540 "EHLO
+        id S237099AbiEIO0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 10:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236987AbiEIO0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:26:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3871D4A34;
-        Mon,  9 May 2022 07:22:28 -0700 (PDT)
+        with ESMTP id S236987AbiEIO0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 10:26:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5DE1D7373;
+        Mon,  9 May 2022 07:22:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DDC8C615BC;
-        Mon,  9 May 2022 14:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AE1AC385AB;
-        Mon,  9 May 2022 14:22:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58607B81629;
+        Mon,  9 May 2022 14:22:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AD5DC385A8;
+        Mon,  9 May 2022 14:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652106147;
-        bh=sSIoYa6iDtZuA4VRX9K/Gfl5be/3u7oyJ2jIynKJu60=;
+        s=k20201202; t=1652106160;
+        bh=bO1lEAw5FpwNsjPsQYyliaKG5EPZGnux+KtsLvmLRZU=;
         h=From:To:Cc:Subject:Date:From;
-        b=RjuBUWoLnRSTyNrV6lEOOJR0pfntmvnzlo7lmJ0GPfenntFu6pv05g2hWFeWoUHXh
-         qbzB49AlEHOsxudBSO78rwqQGvpt8RNos4ZtPP5ROtHKCzROFiIZ73t/5AZ+fSQs2E
-         eALfQ4YlkAB6ac5hcBoG/qmjHn4GN2SUDV/H/F80HIA68e61tA7/oKJL214fkXhJTO
-         ScJPO6w9SS02NwF2TUmsYyIs7SXFYr8ZfQaAvP3zBHDhwSJyxrcPpr5Fcl8iHWSc4I
-         WO8Q4glTMUql+kYtgYuuPVReOOsvfs0bKinbs8K4fj91mKWpefT0pLQ2m27gfnYTDH
-         PWoQvle4E+w2A==
+        b=SodnlsBhOnPZGG7ip2VAn7xqsyXf1MGbyDa6PbJjKftLpZ/L1+DmTlCcqJK/BEbxZ
+         19HsIjxIiB5jDIbg1Mo9xKRsdjbB3lGcqwfPb71Rs6Prl3Tdwz6RjjhUSN0fsb/8DE
+         /1+QGHj5sUz40cjq55mXjbA6jvBpetAb17FR9NVU1DSdiZpN1n2K+DPjJEaS7d3kV9
+         MeR4rV5l0nl+TfHf784MM8GLgzw35sN6OmodnEqWgo5LhL1MsNcUMuVS9og6EaKZgk
+         shcw2qubfbhFXQ/uR/8pLDfEhS6i56+NI7Lrw0LOrpabTlf90AQm2/UL6A3PvcXvZK
+         HWuBbWtGzWG4A==
 From:   fdmanana@kernel.org
 To:     stable@vger.kernel.org
 Cc:     linux-btrfs@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17-stable] btrfs: always log symlinks in full mode
-Date:   Mon,  9 May 2022 15:22:07 +0100
-Message-Id: <a16d71c5518d24df053acafcbe381ae6d5e1c406.1652103634.git.fdmanana@suse.com>
+Subject: [PATCH 5.15-stable] btrfs: always log symlinks in full mode
+Date:   Mon,  9 May 2022 15:22:34 +0100
+Message-Id: <7101c325383638bb17688e7266460099985ce654.1652103774.git.fdmanana@suse.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -105,10 +105,10 @@ Signed-off-by: David Sterba <dsterba@suse.com>
  1 file changed, 13 insertions(+), 1 deletion(-)
 
 diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 7a0bfa5bedb9..049ee19041c7 100644
+index 290cfe11e790..1221d8483d63 100644
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -5655,6 +5655,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
+@@ -5483,6 +5483,18 @@ static int btrfs_log_inode(struct btrfs_trans_handle *trans,
  		mutex_lock(&inode->log_mutex);
  	}
  
@@ -127,14 +127,14 @@ index 7a0bfa5bedb9..049ee19041c7 100644
  	/*
  	 * This is for cases where logging a directory could result in losing a
  	 * a file after replaying the log. For example, if we move a file from a
-@@ -6015,7 +6027,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
+@@ -5853,7 +5865,7 @@ static int log_new_dir_dentries(struct btrfs_trans_handle *trans,
  			}
  
  			ctx->log_new_dentries = false;
 -			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
 +			if (type == BTRFS_FT_DIR)
  				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, BTRFS_I(di_inode),
+ 			ret = btrfs_log_inode(trans, root, BTRFS_I(di_inode),
  					      log_mode, ctx);
 -- 
 2.34.1
