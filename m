@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B475351FA5C
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A85B51FA58
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbiEIKvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 06:51:37 -0400
+        id S229553AbiEIKvk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 06:51:40 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229449AbiEIKvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:51:31 -0400
+        with ESMTP id S229494AbiEIKvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:51:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F3424F2F
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:47:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB9E61BF19F
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:47:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61DA660FD0
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:47:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64CE8C385AB;
-        Mon,  9 May 2022 10:47:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 58EA260FE4
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:47:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6856EC385AF;
+        Mon,  9 May 2022 10:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652093255;
-        bh=sn2SdAnEh6aHpmV+6lrxDb19cfyK06SlDUaazHOQWGc=;
+        s=korg; t=1652093258;
+        bh=c9SD3FHNbtW4z+7V+CjgdWLARTTzCyYdiu7opHLPBaM=;
         h=Subject:To:Cc:From:Date:From;
-        b=YTw1JgO6mANB/5lPVmzDjel09GMKgcMuA9EIu/HFCn9K25NUfjdXC+AkJaMeDxcud
-         2rwsyMEnjDyT2NqgZ5rWXvinjXzzKtPYAa66SS2PoR34G78lezHXaMVOdxFIhAWlci
-         AxqgnJ7mNCnbK45XTd7pc5DUvn0w10WOh2yp/nXM=
-Subject: FAILED: patch "[PATCH] net: igmp: respect RCU rules in ip_mc_source() and" failed to apply to 4.14-stable tree
+        b=1WcprB3OsM5HqE4jrx+izujcJJUh82pQJuVlRZXp38/w3v2krY7pbg0n44POPPyIv
+         kQBsXq63uhVLcKIqSaWjwqRZ/aU8+O3NIdfD/SpCatlLOSDZgWiyXtLpB3VllcUqLA
+         tn7PqXoGolXe6ZQeF7AeH/QH+9JoQkuX+GO+9u0M=
+Subject: FAILED: patch "[PATCH] net: igmp: respect RCU rules in ip_mc_source() and" failed to apply to 4.19-stable tree
 To:     edumazet@google.com, davem@davemloft.net, fbl@sysclose.org,
         syzkaller@googlegroups.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 12:47:30 +0200
-Message-ID: <165209325085130@kroah.com>
+Date:   Mon, 09 May 2022 12:47:33 +0200
+Message-ID: <165209325383248@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
