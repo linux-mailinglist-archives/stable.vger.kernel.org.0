@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CABF51F705
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76ED351F71B
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237369AbiEIIqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35716 "EHLO
+        id S237696AbiEIIrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:47:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237437AbiEIIhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:37:54 -0400
+        with ESMTP id S237459AbiEIIh5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:37:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8EE31D501C
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:34:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334BA1D8645
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 377DC61493
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F9B2C385AB;
-        Mon,  9 May 2022 08:33:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7667F614B0
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:33:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A92C385A8;
+        Mon,  9 May 2022 08:33:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085208;
-        bh=0rcOmI52cJJ1gsLsnSjQPI33C4fKS4UvpgPoMlcvBZI=;
+        s=korg; t=1652085214;
+        bh=bOBOlv1AeJSE6GIpcbkp15ekQLiWvNh/QgPEGy2Uj4k=;
         h=Subject:To:Cc:From:Date:From;
-        b=iF/ewqS4Ut5G4jAOY7N6Mhr1jtyxsNuAx9fcI8nfULy7TXqwUCvGf3JI/mANM7dNS
-         G90pACrYfZ3gcngnev+rb+8Xvw58UyHIRzK4t10SPXWHv9VNRPsaYK1BBAawFQTiv2
-         2SDLWnPQdtR57aMlfnTw/B7BHgjTckONh/tFOEJY=
-Subject: FAILED: patch "[PATCH] timekeeping: Mark NMI safe time accessors as notrace" failed to apply to 4.19-stable tree
+        b=cgnUUZjpccH2gXGaFkU/J7O+6HhZ/hFb2SzVz6yps0E2vN4DjubVWsUC62K3P9DEH
+         STDPev2Y0lt9ROL3m1jTpMCRzlw0QuBHyIMiLwZlZyEPw8lt3P7oI1cCZvbWhkyuNd
+         OS6eIG9SxT6jA7PkHhTkomQuyN7ZRQSrBssAia5A=
+Subject: FAILED: patch "[PATCH] timekeeping: Mark NMI safe time accessors as notrace" failed to apply to 4.14-stable tree
 To:     kurt@linutronix.de, rostedt@goodmis.org, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 09 May 2022 10:33:18 +0200
-Message-ID: <16520851988746@kroah.com>
+Message-ID: <1652085198164172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
