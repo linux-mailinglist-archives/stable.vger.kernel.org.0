@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A88A651F6FD
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D53451F70C
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237333AbiEIIqa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34672 "EHLO
+        id S237470AbiEIIqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237395AbiEII2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:28:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7917E1CE611
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:24:52 -0700 (PDT)
+        with ESMTP id S237084AbiEIIdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:33:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8231EF0A6
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:29:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CE7DB81002
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:24:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F6CEC385A8;
-        Mon,  9 May 2022 08:24:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8170B61493
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:28:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76F19C385AB;
+        Mon,  9 May 2022 08:28:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652084689;
-        bh=RBT9X8RK/5F3uioLCQVE2xCfSlyIDFrcDritiowMK+I=;
+        s=korg; t=1652084907;
+        bh=uik+yggsJ0+f4OqsZPguH5gJ2/baMGOE8egGL3zKhlw=;
         h=Subject:To:Cc:From:Date:From;
-        b=d9VpG/Bkci0oMlInLobegTVCCvfXEZjOFzO+o27V4o+shCSb6M70RYT+tSsZ2+6tR
-         WcrOkcmdJ8bWXm3ILTGeywLWHSwddHxbcYDM1WGwaYTpICGfMdASugtni7SZcXiQZA
-         /ZvP555Hh7a9TEFvfmB8bg6Hbn9f/l+MdusePIZ4=
-Subject: FAILED: patch "[PATCH] mmc: core: Set HS clock speed before sending HS CMD13" failed to apply to 4.9-stable tree
-To:     briannorris@chromium.org, luca@z3ntu.xyz, shawn.lin@rock-chips.com,
-        ulf.hansson@linaro.org
+        b=XFY/tXvDDaG/hiVyvn9dgIgJa3riD+3E3qEzz+iqlYhNGet0l/gyyHmrFzJ2JNh1x
+         0mAup6COYTHGMLC/Y/jkqGk1XjhQqGmzUJS7amalvcAPcuoTInn6OWXHmQL/LJiA83
+         e2zJ9jKxN60JOp7hGjeWbotccvktoPuTEHISiuhk=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile" failed to apply to 5.4-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:24:40 +0200
-Message-ID: <16520846801753@kroah.com>
+Date:   Mon, 09 May 2022 10:28:24 +0200
+Message-ID: <1652084904183164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,129 +59,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4bc31edebde51fcf8ad0794763b8679a7ecb5ec0 Mon Sep 17 00:00:00 2001
-From: Brian Norris <briannorris@chromium.org>
-Date: Fri, 22 Apr 2022 10:08:53 -0700
-Subject: [PATCH] mmc: core: Set HS clock speed before sending HS CMD13
+From 706c9c55e5a32800605eb6a864ef6e1ca0c6c179 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Sat, 23 Apr 2022 03:47:41 +0000
+Subject: [PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile
+ (modulo A/D)
 
-Way back in commit 4f25580fb84d ("mmc: core: changes frequency to
-hs_max_dtr when selecting hs400es"), Rockchip engineers noticed that
-some eMMC don't respond to SEND_STATUS commands very reliably if they're
-still running at a low initial frequency. As mentioned in that commit,
-JESD84-B51 P49 suggests a sequence in which the host:
-1. sets HS_TIMING
-2. bumps the clock ("<= 52 MHz")
-3. sends further commands
+Don't treat SPTEs that are truly writable, i.e. writable in hardware, as
+being volatile (unless they're volatile for other reasons, e.g. A/D bits).
+KVM _sets_ the WRITABLE bit out of mmu_lock, but never _clears_ the bit
+out of mmu_lock, so if the WRITABLE bit is set, it cannot magically get
+cleared just because the SPTE is MMU-writable.
 
-It doesn't exactly require that we don't use a lower-than-52MHz
-frequency, but in practice, these eMMC don't like it.
+Rename the wrapper of MMU-writable to be more literal, the previous name
+of spte_can_locklessly_be_made_writable() is wrong and misleading.
 
-The aforementioned commit tried to get that right for HS400ES, although
-it's unclear whether this ever truly worked as committed into mainline,
-as other changes/refactoring adjusted the sequence in conflicting ways:
-
-08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode
-switch")
-
-53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode
-for mmc")
-
-In any case, today we do step 3 before step 2. Let's fix that, and also
-apply the same logic to HS200/400, where this eMMC has problems too.
-
-Resolves errors like this seen when booting some RK3399 Gru/Scarlet
-systems:
-
-[    2.058881] mmc1: CQHCI version 5.10
-[    2.097545] mmc1: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
-[    2.209804] mmc1: mmc_select_hs400es failed, error -84
-[    2.215597] mmc1: error -84 whilst initialising MMC card
-[    2.417514] mmc1: mmc_select_hs400es failed, error -110
-[    2.423373] mmc1: error -110 whilst initialising MMC card
-[    2.605052] mmc1: mmc_select_hs400es failed, error -110
-[    2.617944] mmc1: error -110 whilst initialising MMC card
-[    2.835884] mmc1: mmc_select_hs400es failed, error -110
-[    2.841751] mmc1: error -110 whilst initialising MMC card
-
-Ealier versions of this patch bumped to 200MHz/HS200 speeds too early,
-which caused issues on, e.g., qcom-msm8974-fairphone-fp2. (Thanks for
-the report Luca!) After a second look, it appears that aligns with
-JESD84 / page 45 / table 28, so we need to keep to lower (HS / 52 MHz)
-rates first.
-
-Fixes: 08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode switch")
-Fixes: 53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode for mmc")
-Fixes: 4f25580fb84d ("mmc: core: changes frequency to hs_max_dtr when selecting hs400es")
-Cc: Shawn Lin <shawn.lin@rock-chips.com>
-Link: https://lore.kernel.org/linux-mmc/11962455.O9o76ZdvQC@g550jk/
-Reported-by: Luca Weiss <luca@z3ntu.xyz>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Luca Weiss <luca@z3ntu.xyz>
+Fixes: c7ba5b48cc8d ("KVM: MMU: fast path of handling guest page fault")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220422100824.v4.1.I484f4ee35609f78b932bd50feed639c29e64997e@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220423034752.1161007-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/drivers/mmc/core/mmc.c b/drivers/mmc/core/mmc.c
-index e7ea45386c22..efa95dc4fc4e 100644
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1384,13 +1384,17 @@ static int mmc_select_hs400es(struct mmc_card *card)
- 		goto out_err;
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 64a2a7e2be90..48dcb6a782f4 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -484,13 +484,15 @@ static bool spte_has_volatile_bits(u64 spte)
+ 	 * also, it can help us to get a stable is_writable_pte()
+ 	 * to ensure tlb flush is not missed.
+ 	 */
+-	if (spte_can_locklessly_be_made_writable(spte) ||
+-	    is_access_track_spte(spte))
++	if (!is_writable_pte(spte) && is_mmu_writable_spte(spte))
++		return true;
++
++	if (is_access_track_spte(spte))
+ 		return true;
+ 
+ 	if (spte_ad_enabled(spte)) {
+-		if ((spte & shadow_accessed_mask) == 0 ||
+-	    	    (is_writable_pte(spte) && (spte & shadow_dirty_mask) == 0))
++		if (!(spte & shadow_accessed_mask) ||
++		    (is_writable_pte(spte) && !(spte & shadow_dirty_mask)))
+ 			return true;
  	}
  
-+	/*
-+	 * Bump to HS timing and frequency. Some cards don't handle
-+	 * SEND_STATUS reliably at the initial frequency.
-+	 */
- 	mmc_set_timing(host, MMC_TIMING_MMC_HS);
-+	mmc_set_bus_speed(card);
-+
- 	err = mmc_switch_status(card, true);
- 	if (err)
- 		goto out_err;
+@@ -557,7 +559,7 @@ static bool mmu_spte_update(u64 *sptep, u64 new_spte)
+ 	 * we always atomically update it, see the comments in
+ 	 * spte_has_volatile_bits().
+ 	 */
+-	if (spte_can_locklessly_be_made_writable(old_spte) &&
++	if (is_mmu_writable_spte(old_spte) &&
+ 	      !is_writable_pte(new_spte))
+ 		flush = true;
  
--	mmc_set_clock(host, card->ext_csd.hs_max_dtr);
--
- 	/* Switch card to DDR with strobe bit */
- 	val = EXT_CSD_DDR_BUS_WIDTH_8 | EXT_CSD_BUS_WIDTH_STROBE;
- 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
-@@ -1448,7 +1452,7 @@ static int mmc_select_hs400es(struct mmc_card *card)
- static int mmc_select_hs200(struct mmc_card *card)
- {
- 	struct mmc_host *host = card->host;
--	unsigned int old_timing, old_signal_voltage;
-+	unsigned int old_timing, old_signal_voltage, old_clock;
- 	int err = -EINVAL;
- 	u8 val;
+@@ -1187,7 +1189,7 @@ static bool spte_write_protect(u64 *sptep, bool pt_protect)
+ 	u64 spte = *sptep;
  
-@@ -1479,8 +1483,17 @@ static int mmc_select_hs200(struct mmc_card *card)
- 				   false, true, MMC_CMD_RETRIES);
- 		if (err)
- 			goto err;
-+
-+		/*
-+		 * Bump to HS timing and frequency. Some cards don't handle
-+		 * SEND_STATUS reliably at the initial frequency.
-+		 * NB: We can't move to full (HS200) speeds until after we've
-+		 * successfully switched over.
-+		 */
- 		old_timing = host->ios.timing;
-+		old_clock = host->ios.clock;
- 		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
-+		mmc_set_clock(card->host, card->ext_csd.hs_max_dtr);
+ 	if (!is_writable_pte(spte) &&
+-	      !(pt_protect && spte_can_locklessly_be_made_writable(spte)))
++	    !(pt_protect && is_mmu_writable_spte(spte)))
+ 		return false;
  
- 		/*
- 		 * For HS200, CRC errors are not a reliable way to know the
-@@ -1493,8 +1506,10 @@ static int mmc_select_hs200(struct mmc_card *card)
- 		 * mmc_select_timing() assumes timing has not changed if
- 		 * it is a switch error.
+ 	rmap_printk("spte %p %llx\n", sptep, *sptep);
+@@ -3196,8 +3198,7 @@ static int fast_page_fault(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault)
+ 		 * be removed in the fast path only if the SPTE was
+ 		 * write-protected for dirty-logging or access tracking.
  		 */
--		if (err == -EBADMSG)
-+		if (err == -EBADMSG) {
-+			mmc_set_clock(host, old_clock);
- 			mmc_set_timing(host, old_timing);
-+		}
- 	}
- err:
- 	if (err) {
+-		if (fault->write &&
+-		    spte_can_locklessly_be_made_writable(spte)) {
++		if (fault->write && is_mmu_writable_spte(spte)) {
+ 			new_spte |= PT_WRITABLE_MASK;
+ 
+ 			/*
+diff --git a/arch/x86/kvm/mmu/spte.h b/arch/x86/kvm/mmu/spte.h
+index e4abeb5df1b1..c571784cb567 100644
+--- a/arch/x86/kvm/mmu/spte.h
++++ b/arch/x86/kvm/mmu/spte.h
+@@ -390,7 +390,7 @@ static inline void check_spte_writable_invariants(u64 spte)
+ 			  "kvm: Writable SPTE is not MMU-writable: %llx", spte);
+ }
+ 
+-static inline bool spte_can_locklessly_be_made_writable(u64 spte)
++static inline bool is_mmu_writable_spte(u64 spte)
+ {
+ 	return spte & shadow_mmu_writable_mask;
+ }
 
