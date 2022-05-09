@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 977E451F700
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52E651F716
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237349AbiEIIqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50266 "EHLO
+        id S237671AbiEIIq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229763AbiEIIl5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:41:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D1E41796F8
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:37:52 -0700 (PDT)
+        with ESMTP id S237028AbiEIInb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:43:31 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59BC11900E7
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63698B80FEA
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C6DC385A8;
-        Mon,  9 May 2022 08:37:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6F185CE132B
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 761E3C385A8;
+        Mon,  9 May 2022 08:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652085470;
-        bh=Oq7pIkoEk35+XB90e/bwhmHuvz6ZHKW98FJHdkZD77g=;
+        s=korg; t=1652085574;
+        bh=H21Fi9pnJ7rYmMD8yRqJqXrXGP/KmU0VtsbFWuNBiu8=;
         h=Subject:To:Cc:From:Date:From;
-        b=nG+XL7FWSA90mJlocBfxVFzcquFWwOhTo0xMRLkPHMlT06dNkZmUb89DGuq5rwFiC
-         iNq109eSlG8FqjobxrBds8kaeay/bVimDi+ozgp6IEo9D1+kLgFR00WmC3+X2fSJYX
-         Zfi0xQ1PBH1LfcIzGtEsMhkkuyahS9HxYgpRRCIU=
-Subject: FAILED: patch "[PATCH] x86/fpu: Prevent FPU state corruption" failed to apply to 5.10-stable tree
-To:     tglx@linutronix.de, bp@suse.de, fdmanana@suse.com
+        b=EB7X0n3e+wrm8mhRKO8tbC4MZBHfc5p9LHWYWbfiJFqQZGT+XPNeZoGheUPqX1bvV
+         04cVwCST4KxLi4bftG3VG9ayMA17GpnB8W9HJbtDGJO7HO+1RN+tOdmavEAday5t5B
+         1D5wpxo+dQeQWkynDAY8O/UryPn48kZTdJ4pxFO8=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile" failed to apply to 5.17-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 10:37:47 +0200
-Message-ID: <16520854676053@kroah.com>
+Date:   Mon, 09 May 2022 10:39:32 +0200
+Message-ID: <165208557218297@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,138 +59,90 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 59f5ede3bc0f00eb856425f636dab0c10feb06d8 Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Sun, 1 May 2022 21:31:43 +0200
-Subject: [PATCH] x86/fpu: Prevent FPU state corruption
+From 706c9c55e5a32800605eb6a864ef6e1ca0c6c179 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Sat, 23 Apr 2022 03:47:41 +0000
+Subject: [PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile
+ (modulo A/D)
 
-The FPU usage related to task FPU management is either protected by
-disabling interrupts (switch_to, return to user) or via fpregs_lock() which
-is a wrapper around local_bh_disable(). When kernel code wants to use the
-FPU then it has to check whether it is possible by calling irq_fpu_usable().
+Don't treat SPTEs that are truly writable, i.e. writable in hardware, as
+being volatile (unless they're volatile for other reasons, e.g. A/D bits).
+KVM _sets_ the WRITABLE bit out of mmu_lock, but never _clears_ the bit
+out of mmu_lock, so if the WRITABLE bit is set, it cannot magically get
+cleared just because the SPTE is MMU-writable.
 
-But the condition in irq_fpu_usable() is wrong. It allows FPU to be used
-when:
+Rename the wrapper of MMU-writable to be more literal, the previous name
+of spte_can_locklessly_be_made_writable() is wrong and misleading.
 
-   !in_interrupt() || interrupted_user_mode() || interrupted_kernel_fpu_idle()
-
-The latter is checking whether some other context already uses FPU in the
-kernel, but if that's not the case then it allows FPU to be used
-unconditionally even if the calling context interrupted a fpregs_lock()
-critical region. If that happens then the FPU state of the interrupted
-context becomes corrupted.
-
-Allow in kernel FPU usage only when no other context has in kernel FPU
-usage and either the calling context is not hard interrupt context or the
-hard interrupt did not interrupt a local bottomhalf disabled region.
-
-It's hard to find a proper Fixes tag as the condition was broken in one way
-or the other for a very long time and the eager/lazy FPU changes caused a
-lot of churn. Picked something remotely connected from the history.
-
-This survived undetected for quite some time as FPU usage in interrupt
-context is rare, but the recent changes to the random code unearthed it at
-least on a kernel which had FPU debugging enabled. There is probably a
-higher rate of silent corruption as not all issues can be detected by the
-FPU debugging code. This will be addressed in a subsequent change.
-
-Fixes: 5d2bd7009f30 ("x86, fpu: decouple non-lazy/eager fpu restore from xsave")
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Borislav Petkov <bp@suse.de>
+Fixes: c7ba5b48cc8d ("KVM: MMU: fast path of handling guest page fault")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220501193102.588689270@linutronix.de
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220423034752.1161007-2-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
-index c049561f373a..e28ab0ecc537 100644
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -41,17 +41,7 @@ struct fpu_state_config fpu_user_cfg __ro_after_init;
-  */
- struct fpstate init_fpstate __ro_after_init;
- 
--/*
-- * Track whether the kernel is using the FPU state
-- * currently.
-- *
-- * This flag is used:
-- *
-- *   - by IRQ context code to potentially use the FPU
-- *     if it's unused.
-- *
-- *   - to debug kernel_fpu_begin()/end() correctness
-- */
-+/* Track in-kernel FPU usage */
- static DEFINE_PER_CPU(bool, in_kernel_fpu);
- 
- /*
-@@ -59,42 +49,37 @@ static DEFINE_PER_CPU(bool, in_kernel_fpu);
-  */
- DEFINE_PER_CPU(struct fpu *, fpu_fpregs_owner_ctx);
- 
--static bool kernel_fpu_disabled(void)
--{
--	return this_cpu_read(in_kernel_fpu);
--}
--
--static bool interrupted_kernel_fpu_idle(void)
--{
--	return !kernel_fpu_disabled();
--}
--
--/*
-- * Were we in user mode (or vm86 mode) when we were
-- * interrupted?
-- *
-- * Doing kernel_fpu_begin/end() is ok if we are running
-- * in an interrupt context from user mode - we'll just
-- * save the FPU state as required.
-- */
--static bool interrupted_user_mode(void)
--{
--	struct pt_regs *regs = get_irq_regs();
--	return regs && user_mode(regs);
--}
--
- /*
-  * Can we use the FPU in kernel mode with the
-  * whole "kernel_fpu_begin/end()" sequence?
-- *
-- * It's always ok in process context (ie "not interrupt")
-- * but it is sometimes ok even from an irq.
-  */
- bool irq_fpu_usable(void)
- {
--	return !in_interrupt() ||
--		interrupted_user_mode() ||
--		interrupted_kernel_fpu_idle();
-+	if (WARN_ON_ONCE(in_nmi()))
-+		return false;
-+
-+	/* In kernel FPU usage already active? */
-+	if (this_cpu_read(in_kernel_fpu))
-+		return false;
-+
-+	/*
-+	 * When not in NMI or hard interrupt context, FPU can be used in:
-+	 *
-+	 * - Task context except from within fpregs_lock()'ed critical
-+	 *   regions.
-+	 *
-+	 * - Soft interrupt processing context which cannot happen
-+	 *   while in a fpregs_lock()'ed critical region.
-+	 */
-+	if (!in_hardirq())
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 64a2a7e2be90..48dcb6a782f4 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -484,13 +484,15 @@ static bool spte_has_volatile_bits(u64 spte)
+ 	 * also, it can help us to get a stable is_writable_pte()
+ 	 * to ensure tlb flush is not missed.
+ 	 */
+-	if (spte_can_locklessly_be_made_writable(spte) ||
+-	    is_access_track_spte(spte))
++	if (!is_writable_pte(spte) && is_mmu_writable_spte(spte))
 +		return true;
 +
-+	/*
-+	 * In hard interrupt context it's safe when soft interrupts
-+	 * are enabled, which means the interrupt did not hit in
-+	 * a fpregs_lock()'ed critical region.
-+	 */
-+	return !softirq_count();
- }
- EXPORT_SYMBOL(irq_fpu_usable);
++	if (is_access_track_spte(spte))
+ 		return true;
  
+ 	if (spte_ad_enabled(spte)) {
+-		if ((spte & shadow_accessed_mask) == 0 ||
+-	    	    (is_writable_pte(spte) && (spte & shadow_dirty_mask) == 0))
++		if (!(spte & shadow_accessed_mask) ||
++		    (is_writable_pte(spte) && !(spte & shadow_dirty_mask)))
+ 			return true;
+ 	}
+ 
+@@ -557,7 +559,7 @@ static bool mmu_spte_update(u64 *sptep, u64 new_spte)
+ 	 * we always atomically update it, see the comments in
+ 	 * spte_has_volatile_bits().
+ 	 */
+-	if (spte_can_locklessly_be_made_writable(old_spte) &&
++	if (is_mmu_writable_spte(old_spte) &&
+ 	      !is_writable_pte(new_spte))
+ 		flush = true;
+ 
+@@ -1187,7 +1189,7 @@ static bool spte_write_protect(u64 *sptep, bool pt_protect)
+ 	u64 spte = *sptep;
+ 
+ 	if (!is_writable_pte(spte) &&
+-	      !(pt_protect && spte_can_locklessly_be_made_writable(spte)))
++	    !(pt_protect && is_mmu_writable_spte(spte)))
+ 		return false;
+ 
+ 	rmap_printk("spte %p %llx\n", sptep, *sptep);
+@@ -3196,8 +3198,7 @@ static int fast_page_fault(struct kvm_vcpu *vcpu, struct kvm_page_fault *fault)
+ 		 * be removed in the fast path only if the SPTE was
+ 		 * write-protected for dirty-logging or access tracking.
+ 		 */
+-		if (fault->write &&
+-		    spte_can_locklessly_be_made_writable(spte)) {
++		if (fault->write && is_mmu_writable_spte(spte)) {
+ 			new_spte |= PT_WRITABLE_MASK;
+ 
+ 			/*
+diff --git a/arch/x86/kvm/mmu/spte.h b/arch/x86/kvm/mmu/spte.h
+index e4abeb5df1b1..c571784cb567 100644
+--- a/arch/x86/kvm/mmu/spte.h
++++ b/arch/x86/kvm/mmu/spte.h
+@@ -390,7 +390,7 @@ static inline void check_spte_writable_invariants(u64 spte)
+ 			  "kvm: Writable SPTE is not MMU-writable: %llx", spte);
+ }
+ 
+-static inline bool spte_can_locklessly_be_made_writable(u64 spte)
++static inline bool is_mmu_writable_spte(u64 spte)
+ {
+ 	return spte & shadow_mmu_writable_mask;
+ }
 
