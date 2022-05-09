@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F00FE51F9E9
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CE5F51F9F8
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 12:33:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229516AbiEIKft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 06:35:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53100 "EHLO
+        id S229578AbiEIKfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 06:35:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231829AbiEIKfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:35:07 -0400
+        with ESMTP id S229846AbiEIKfR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 06:35:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F2C2A4A35
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:31:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72292A8047
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 03:31:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4554460F92
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B11C385BF;
-        Mon,  9 May 2022 10:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F0A060F90
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 10:31:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D849C385AB;
+        Mon,  9 May 2022 10:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652092269;
-        bh=qJVT2VsMzIJQ9ec6gUl4J6b+SOE+eg7AGo0Eg1/J+WQ=;
+        s=korg; t=1652092278;
+        bh=XTSogcj2tcL8OHrXFw9aZwJBZANldrWwE2dITWEU3do=;
         h=Subject:To:Cc:From:Date:From;
-        b=AaP4eXVqK862/IthKpjhwYShoAUCuj3/PTu4Yf0+OSiqRIbEn+6NFQw3DOhKly9yG
-         vQsLWX+CXE2o0L1Q7AQrPhoeOomNvaJPg3Yne8spdHkzBSReuvksbTjzc/JxXupkw9
-         rxejPpcxF5aA/w5mk5mraYxzbvtQoLOL0KAvV7p4=
-Subject: FAILED: patch "[PATCH] net/mlx5: Fix slab-out-of-bounds while reading resource dump" failed to apply to 5.10-stable tree
+        b=zZ2bx0DRIKNtrHJ2hKQ/J6IefkP9flUyMwOxHLMPzx1bROY+BOz0rNzvsh0eiLrKK
+         CXD3HgJooOjgcWoFrfSAtGJnCZY5C14llp6hY+IXNbLTeMSenYia+8hvGojICtD1dj
+         P1dFZAdlOIWVZxj8dEIjOt/YJEnUHO+ZWlZe1C6Y=
+Subject: FAILED: patch "[PATCH] net/mlx5: Fix slab-out-of-bounds while reading resource dump" failed to apply to 5.15-stable tree
 To:     ayal@nvidia.com, moshe@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 09 May 2022 12:31:06 +0200
-Message-ID: <1652092266221218@kroah.com>
+Date:   Mon, 09 May 2022 12:31:07 +0200
+Message-ID: <1652092267145181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
