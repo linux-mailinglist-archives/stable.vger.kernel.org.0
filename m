@@ -2,149 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FF351F2AF
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 04:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AAF851F2E0
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 05:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229507AbiEICv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 8 May 2022 22:51:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45320 "EHLO
+        id S231230AbiEIDYB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 8 May 2022 23:24:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbiEICvZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 22:51:25 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDD526462;
-        Sun,  8 May 2022 19:47:33 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id i1so12584348plg.7;
-        Sun, 08 May 2022 19:47:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=09Vt4G6n2lDrTYL/OjY7UiKCXH1y9x+5kX8o8WWVQgw=;
-        b=NQruP2zCQHSaJQUmJCI9RhATtkSlIijZCS+mT5oc8iOV0GgqNp6+mmzKsSIuQLS/Sa
-         gb3ZP24Urz562/DxdMZTJuFuFvvpC+O3t7V/9jxxrrXBcRfy7j7See7/YI5izGYnJI5V
-         IAV/expdJmASHN2iU3Tpp0HITZILUsyvrBKOFspglPCO5S2tIKFc6Uhf50ws+LKt8v1q
-         V+/NfeC828eRkrlVvi0q86CoCLLFKJpxNYJF499nPqkGJ5AoDrBVe/3wPvNtCKUF/fdP
-         Hr5jrQJTmiCUQMD9hrNNP/wUOzRGjtll2Ep7D40W3SV2pahKmMSmv75Bx2/e4fFHa6dj
-         RD+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=09Vt4G6n2lDrTYL/OjY7UiKCXH1y9x+5kX8o8WWVQgw=;
-        b=rLzomKUauY6fxWcqWgSOMcfGyL8BF/AmLbIMi7obTzTtU4GB0zSfhEid83AK6KqFjz
-         wvfDy1R9cICOZ7gwR3JE9qPYlLIfIRyWQdG7cukcGZ7ZYjT3vNgEdgzNOkCr4HhWCKFs
-         68tuhp6BZj8WlUU2JZ31dEKNZWV8eoA1lQNdaLo6nYq/dnItZH6qAmSgKZlU6FWTRo/u
-         wDs5c8DCMVU3JmLlvEPZANcjbriJNQdpEv7CnLtFIRt9N4KS6PZJxk1T2sYoa3F6u4U/
-         ruqM9H952kOy4RNenOIZYJ8x1DZ3a+ZvZVaYK2IqfJvZHxD02+Ci2AC0dO/BNPrez/t+
-         7v+A==
-X-Gm-Message-State: AOAM533uQjNrJEBIDB+Dl95c52rZMZbOGJz7Tc3nzxsOtVWw59A64LMn
-        jA7AhV6v3r8Q+1wcI8ZvYLY=
-X-Google-Smtp-Source: ABdhPJyqLCkqK3/akcURR3Rflog2HpRW6HLgyMluoXrSsDXRzsGQg+YZm5qwdBADAFGOHLV5BJzY5A==
-X-Received: by 2002:a17:903:189:b0:15e:9584:fbe7 with SMTP id z9-20020a170903018900b0015e9584fbe7mr14570008plg.65.1652064453194;
-        Sun, 08 May 2022 19:47:33 -0700 (PDT)
-Received: from sultan-box.localdomain ([204.152.216.102])
-        by smtp.gmail.com with ESMTPSA id s24-20020a656918000000b003c14af50607sm7346077pgq.31.2022.05.08.19.47.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 May 2022 19:47:32 -0700 (PDT)
-Sender: Sultan Alsawaf <sultan.kerneltoast@gmail.com>
-From:   Sultan Alsawaf <sultan@kerneltoast.com>
-X-Google-Original-From: Sultan Alsawaf
-Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
-        Minchan Kim <minchan@kernel.org>,
-        Nitin Gupta <ngupta@vflare.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] zsmalloc: Fix races between asynchronous zspage free and page migration
-Date:   Sun,  8 May 2022 19:47:02 -0700
-Message-Id: <20220509024703.243847-1-sultan@kerneltoast.com>
-X-Mailer: git-send-email 2.36.0
+        with ESMTP id S232795AbiEIDSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 8 May 2022 23:18:14 -0400
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8614712FC;
+        Sun,  8 May 2022 20:14:21 -0700 (PDT)
+Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KxR5n6RftzGpfg;
+        Mon,  9 May 2022 11:11:25 +0800 (CST)
+Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
+ dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.24; Mon, 9 May 2022 11:14:12 +0800
+Received: from [127.0.0.1] (10.67.108.67) by dggpemm500013.china.huawei.com
+ (7.185.36.172) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Mon, 9 May
+ 2022 11:14:12 +0800
+Message-ID: <e8715911-f835-059d-27f8-cc5f5ad30a07@huawei.com>
+Date:   Mon, 9 May 2022 11:14:12 +0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,T_SCC_BODY_TEXT_LINE
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH 5.10 v3] locking/csd_lock: fix csdlock_debug cause arm64
+ boot panic
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <linux-kernel@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-arch@vger.kernel.org>, <stable@vger.kernel.org>,
+        <peterz@infradead.org>, <tglx@linutronix.de>, <namit@vmware.com>,
+        <gor@linux.ibm.com>, <rdunlap@infradead.org>, <sashal@kernel.org>
+References: <20220507084510.14761-1-chenzhongjin@huawei.com>
+ <YnZAO+3Rhj0gwq38@kroah.com>
+From:   Chen Zhongjin <chenzhongjin@huawei.com>
+In-Reply-To: <YnZAO+3Rhj0gwq38@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.67.108.67]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggpemm500013.china.huawei.com (7.185.36.172)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-5.7 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sultan Alsawaf <sultan@kerneltoast.com>
+Hi Greg,
 
-The asynchronous zspage free worker tries to lock a zspage's entire page
-list without defending against page migration. Since pages which haven't
-yet been locked can concurrently migrate off the zspage page list while
-lock_zspage() churns away, lock_zspage() can suffer from a few different
-lethal races. It can lock a page which no longer belongs to the zspage and
-unsafely dereference page_private(), it can unsafely dereference a torn
-pointer to the next page (since there's a data race), and it can observe a
-spurious NULL pointer to the next page and thus not lock all of the
-zspage's pages (since a single page migration will reconstruct the entire
-page list, and create_page_chain() unconditionally zeroes out each list
-pointer in the process).
+Since the patch:
+https://lore.kernel.org/all/20210420093559.23168-1-catalin.marinas@arm.com/
+has forced CONFIG_SPARSEMEM_VMEMMAP=y from 5.12, it's not necessary to include
+this patch on master.
 
-Fix the races by using migrate_read_lock() in lock_zspage() to synchronize
-with page migration.
+However this problem still exist on 5.10 stable, so either we can backport the
+above patch to 5.10, or independently apply mine.
 
-Cc: stable@vger.kernel.org
-Fixes: 48b4800a1c6a ("zsmalloc: page migration support")
-Signed-off-by: Sultan Alsawaf <sultan@kerneltoast.com>
----
- mm/zsmalloc.c | 37 +++++++++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 4 deletions(-)
+I'm not sure if backporting one exist patch is better, but that patch only
+changed configs without any fix for old builds.
 
-diff --git a/mm/zsmalloc.c b/mm/zsmalloc.c
-index 9152fbde33b5..5d5fc04385b8 100644
---- a/mm/zsmalloc.c
-+++ b/mm/zsmalloc.c
-@@ -1718,11 +1718,40 @@ static enum fullness_group putback_zspage(struct size_class *class,
-  */
- static void lock_zspage(struct zspage *zspage)
- {
--	struct page *page = get_first_page(zspage);
-+	struct page *curr_page, *page;
- 
--	do {
--		lock_page(page);
--	} while ((page = get_next_page(page)) != NULL);
-+	/*
-+	 * Pages we haven't locked yet can be migrated off the list while we're
-+	 * trying to lock them, so we need to be careful and only attempt to
-+	 * lock each page under migrate_read_lock(). Otherwise, the page we lock
-+	 * may no longer belong to the zspage. This means that we may wait for
-+	 * the wrong page to unlock, so we must take a reference to the page
-+	 * prior to waiting for it to unlock outside migrate_read_lock().
-+	 */
-+	while (1) {
-+		migrate_read_lock(zspage);
-+		page = get_first_page(zspage);
-+		if (trylock_page(page))
-+			break;
-+		get_page(page);
-+		migrate_read_unlock(zspage);
-+		wait_on_page_locked(page);
-+		put_page(page);
-+	}
-+
-+	curr_page = page;
-+	while ((page = get_next_page(curr_page))) {
-+		if (trylock_page(page)) {
-+			curr_page = page;
-+		} else {
-+			get_page(page);
-+			migrate_read_unlock(zspage);
-+			wait_on_page_locked(page);
-+			put_page(page);
-+			migrate_read_lock(zspage);
-+		}
-+	}
-+	migrate_read_unlock(zspage);
- }
- 
- static int zs_init_fs_context(struct fs_context *fc)
--- 
-2.36.0
+If you have any advice please tell me.
+
+Thanks!
+Chen
+
+On 2022/5/7 17:47, Greg KH wrote:
+> On Sat, May 07, 2022 at 04:45:10PM +0800, Chen Zhongjin wrote:
+>> csdlock_debug is a early_param to enable csd_lock_wait
+>> feature.
+>>
+>> It uses static_branch_enable in early_param which triggers
+>> a panic on arm64 with config:
+>> CONFIG_SPARSEMEM=y
+>> CONFIG_SPARSEMEM_VMEMMAP=n
+>>
+>> The log shows:
+>> Unable to handle kernel NULL pointer dereference at
+>> virtual address ", '0' <repeats 16 times>, "
+>> ...
+>> Call trace:
+>> __aarch64_insn_write+0x9c/0x18c
+>> ...
+>> static_key_enable+0x1c/0x30
+>> csdlock_debug+0x4c/0x78
+>> do_early_param+0x9c/0xcc
+>> parse_args+0x26c/0x3a8
+>> parse_early_options+0x34/0x40
+>> parse_early_param+0x80/0xa4
+>> setup_arch+0x150/0x6c8
+>> start_kernel+0x8c/0x720
+>> ...
+>> Kernel panic - not syncing: Oops: Fatal exception
+>>
+>> Call trace inside __aarch64_insn_write:
+>> __nr_to_section
+>> __pfn_to_page
+>> phys_to_page
+>> patch_map
+>> __aarch64_insn_write
+>>
+>> Here, with CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section returns
+>> NULL and makes the NULL dereference because mem_section is
+>> initialized in sparse_init after parse_early_param stage.
+>>
+>> So, static_branch_enable shouldn't be used inside early_param.
+>> To avoid this, I changed it to __setup and fixed this.
+>>
+>> Reported-by: Chen jingwen <chenjingwen6@huawei.com>
+>> Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+>> ---
+>> Change v2 -> v3:
+>> Add module name in title
+>>
+>> Change v1 -> v2:
+>> Fix return 1 for __setup
+>> ---
+>>
+>>  kernel/smp.c | 4 ++--
+>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/kernel/smp.c b/kernel/smp.c
+>> index 65a630f62363..381eb15cd28f 100644
+>> --- a/kernel/smp.c
+>> +++ b/kernel/smp.c
+>> @@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
+>>  	if (val)
+>>  		static_branch_enable(&csdlock_debug_enabled);
+>>  
+>> -	return 0;
+>> +	return 1;
+>>  }
+>> -early_param("csdlock_debug", csdlock_debug);
+>> +__setup("csdlock_debug=", csdlock_debug);
+>>  
+>>  static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
+>>  static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
+>> -- 
+>> 2.17.1
+>>
+> 
+> 
+> <formletter>
+> 
+> This is not the correct way to submit patches for inclusion in the
+> stable kernel tree.  Please read:
+>     https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+> for how to do this properly.
+> 
+> </formletter>
+> .
 
