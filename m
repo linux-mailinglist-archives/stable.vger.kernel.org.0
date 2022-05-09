@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E1A251F714
-	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4934A51F6F9
+	for <lists+stable@lfdr.de>; Mon,  9 May 2022 10:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237663AbiEIIqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 9 May 2022 04:46:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
+        id S237319AbiEIIq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 9 May 2022 04:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237120AbiEIIdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:33:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFE901D572F
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:29:12 -0700 (PDT)
+        with ESMTP id S237048AbiEIIdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 9 May 2022 04:33:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 267CD1CEECB
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 01:29:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ACFEBB81065
-        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0341EC385AB;
-        Mon,  9 May 2022 08:28:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C54636148A
+        for <stable@vger.kernel.org>; Mon,  9 May 2022 08:28:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF053C385A8;
+        Mon,  9 May 2022 08:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652084919;
-        bh=+5p6E+Cg7cuwEvORQj1R+7FVM0yo5qhIwcFfXpFYW54=;
+        s=korg; t=1652084916;
+        bh=UuypwZHerpWOOnDyTPcVkB++inpIl7qi6kvQrl1L3sQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=AhNGDnTWdJO4IoyuVjJ9fvhpQCv23P0gQNbrmMYCp9yMMQF6ClwYao+sOeLpFHhO6
-         Gxzqq2lnK/ObRljxUhUTTK+eZ33BYDHb7ozHhVL8ApHW01IY79w/orgE7NBgXiz5DL
-         UQHke8yAPetgCd32WbytxVsaaDTYSkiuHulgCWVg=
-Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile" failed to apply to 4.19-stable tree
+        b=xWxmxWfmbd7LTtZJTAcK6QCBh1tBJR7TCrzItb53Olh/OF8UpCbikVNu2MFBodv5E
+         oGmoEB2lZu5FDEe/XrIpAAmB0Sg/PUlix+q3Vf0VfDm+GOaXW6IdUxUMr/YTDh8KTJ
+         R/JjlINJNrh1QfezEM6fqaIta2j/qRPZL6SG0sq0=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: Don't treat fully writable SPTEs as volatile" failed to apply to 4.14-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 09 May 2022 10:28:25 +0200
-Message-ID: <165208490542201@kroah.com>
+Message-ID: <1652084905101184@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
