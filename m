@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7BA5219A7
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:47:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAFC65217E0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244531AbiEJNuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47180 "EHLO
+        id S243263AbiEJN3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343757AbiEJNsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4836B641;
-        Tue, 10 May 2022 06:36:50 -0700 (PDT)
+        with ESMTP id S243266AbiEJN3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:29:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7508F3DDDE;
+        Tue, 10 May 2022 06:21:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6CE9B81D24;
-        Tue, 10 May 2022 13:36:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAE8C385C9;
-        Tue, 10 May 2022 13:36:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 99913CE1E73;
+        Tue, 10 May 2022 13:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1AAEC385A6;
+        Tue, 10 May 2022 13:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189808;
-        bh=9xEVtLV5Lt1Wu95ByQYAXxRUTJvXj47o6TKf+HyKhmU=;
+        s=korg; t=1652188859;
+        bh=ljAp3L6ejEaut1G2rpqxIWAvHX0+PXzJjFMUlc6tosM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q15uhl5jkzQnXEu+WNNVzaLqigeCRMs7tABGM/cZGgVQSelE2HGD2Tw22QgGRLWwx
-         zQf/B714BwTKnqmtBBD6QpTNq8w35KJrNTcKBQ5w7q+lRdhuR0/ExxUa03zdzxlWO9
-         D71OkIRaO/p2hxQxdtYv8yDcKxgG1JvWPSlSvfm8=
+        b=UwXLN54YyTLnu9H/7L5EAO09cfGNCBzKh0Xtr7jW3ngDv/gEqVhs5rVIsW7hHM4IE
+         eaoYdEq/sgLkKpHLal+lhXJmBSbIUfnzYlr37HVbVhsmqwrGX+tXNupK34Tu0L5L05
+         rjEnjEjTj2hbQAt0En1kChnFBTLLmNU1/soKfwjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pfaff <tpfaff@pcs.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.17 034/140] genirq: Synchronize interrupt thread startup
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        stable <stable@kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 4.19 19/88] serial: 8250: Correct the clock for EndRun PTP/1588 PCIe device
 Date:   Tue, 10 May 2022 15:07:04 +0200
-Message-Id: <20220510130742.592721474@linuxfoundation.org>
+Message-Id: <20220510130734.306546556@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,173 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pfaff <tpfaff@pcs.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 8707898e22fd665bc1d7b18b809be4b56ce25bdd upstream.
+commit 637674fa40059cddcc3ad2212728965072f62ea3 upstream.
 
-A kernel hang can be observed when running setserial in a loop on a kernel
-with force threaded interrupts. The sequence of events is:
+The EndRun PTP/1588 dual serial port device is based on the Oxford
+Semiconductor OXPCIe952 UART device with the PCI vendor:device ID set
+for EndRun Technologies and is therefore driven by a fixed 62.5MHz clock
+input derived from the 100MHz PCI Express clock.  The clock rate is
+divided by the oversampling rate of 16 as it is supplied to the baud
+rate generator, yielding the baud base of 3906250.
 
-   setserial
-     open("/dev/ttyXXX")
-       request_irq()
-     do_stuff()
-      -> serial interrupt
-         -> wake(irq_thread)
-	      desc->threads_active++;
-     close()
-       free_irq()
-         kthread_stop(irq_thread)
-     synchronize_irq() <- hangs because desc->threads_active != 0
+Replace the incorrect baud base of 4000000 with the right value of
+3906250 then, complementing commit 6cbe45d8ac93 ("serial: 8250: Correct
+the clock for OxSemi PCIe devices").
 
-The thread is created in request_irq() and woken up, but does not get on a
-CPU to reach the actual thread function, which would handle the pending
-wake-up. kthread_stop() sets the should stop condition which makes the
-thread immediately exit, which in turn leaves the stale threads_active
-count around.
-
-This problem was introduced with commit 519cc8652b3a, which addressed a
-interrupt sharing issue in the PCIe code.
-
-Before that commit free_irq() invoked synchronize_irq(), which waits for
-the hard interrupt handler and also for associated threads to complete.
-
-To address the PCIe issue synchronize_irq() was replaced with
-__synchronize_hardirq(), which only waits for the hard interrupt handler to
-complete, but not for threaded handlers.
-
-This was done under the assumption, that the interrupt thread already
-reached the thread function and waits for a wake-up, which is guaranteed to
-be handled before acting on the stop condition. The problematic case, that
-the thread would not reach the thread function, was obviously overlooked.
-
-Make sure that the interrupt thread is really started and reaches
-thread_fn() before returning from __setup_irq().
-
-This utilizes the existing wait queue in the interrupt descriptor. The
-wait queue is unused for non-shared interrupts. For shared interrupts the
-usage might cause a spurious wake-up of a waiter in synchronize_irq() or the
-completion of a threaded handler might cause a spurious wake-up of the
-waiter for the ready flag. Both are harmless and have no functional impact.
-
-[ tglx: Amended changelog ]
-
-Fixes: 519cc8652b3a ("genirq: Synchronize only with single thread on free_irq()")
-Signed-off-by: Thomas Pfaff <tpfaff@pcs.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/552fe7b4-9224-b183-bb87-a8f36d335690@pcs.com
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Cc: stable <stable@kernel.org>
+Fixes: 1bc8cde46a159 ("8250_pci: Added driver for Endrun Technologies PTP PCIe card.")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181515270.9383@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/internals.h |    2 ++
- kernel/irq/irqdesc.c   |    2 ++
- kernel/irq/manage.c    |   39 +++++++++++++++++++++++++++++----------
- 3 files changed, 33 insertions(+), 10 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -29,12 +29,14 @@ extern struct irqaction chained_action;
-  * IRQTF_WARNED    - warning "IRQ_WAKE_THREAD w/o thread_fn" has been printed
-  * IRQTF_AFFINITY  - irq thread is requested to adjust affinity
-  * IRQTF_FORCED_THREAD  - irq action is force threaded
-+ * IRQTF_READY     - signals that irq thread is ready
-  */
- enum {
- 	IRQTF_RUNTHREAD,
- 	IRQTF_WARNED,
- 	IRQTF_AFFINITY,
- 	IRQTF_FORCED_THREAD,
-+	IRQTF_READY,
- };
- 
- /*
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -407,6 +407,7 @@ static struct irq_desc *alloc_desc(int i
- 	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
- 	mutex_init(&desc->request_mutex);
- 	init_rcu_head(&desc->rcu);
-+	init_waitqueue_head(&desc->wait_for_threads);
- 
- 	desc_set_defaults(irq, desc, node, affinity, owner);
- 	irqd_set(&desc->irq_data, flags);
-@@ -575,6 +576,7 @@ int __init early_irq_init(void)
- 		raw_spin_lock_init(&desc[i].lock);
- 		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class);
- 		mutex_init(&desc[i].request_mutex);
-+		init_waitqueue_head(&desc[i].wait_for_threads);
- 		desc_set_defaults(i, &desc[i], node, NULL, NULL);
- 	}
- 	return arch_early_irq_init();
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -1249,6 +1249,31 @@ static void irq_wake_secondary(struct ir
- }
- 
- /*
-+ * Internal function to notify that a interrupt thread is ready.
-+ */
-+static void irq_thread_set_ready(struct irq_desc *desc,
-+				 struct irqaction *action)
-+{
-+	set_bit(IRQTF_READY, &action->thread_flags);
-+	wake_up(&desc->wait_for_threads);
-+}
-+
-+/*
-+ * Internal function to wake up a interrupt thread and wait until it is
-+ * ready.
-+ */
-+static void wake_up_and_wait_for_irq_thread_ready(struct irq_desc *desc,
-+						  struct irqaction *action)
-+{
-+	if (!action || !action->thread)
-+		return;
-+
-+	wake_up_process(action->thread);
-+	wait_event(desc->wait_for_threads,
-+		   test_bit(IRQTF_READY, &action->thread_flags));
-+}
-+
-+/*
-  * Interrupt handler thread
-  */
- static int irq_thread(void *data)
-@@ -1259,6 +1284,8 @@ static int irq_thread(void *data)
- 	irqreturn_t (*handler_fn)(struct irq_desc *desc,
- 			struct irqaction *action);
- 
-+	irq_thread_set_ready(desc, action);
-+
- 	sched_set_fifo(current);
- 
- 	if (force_irqthreads() && test_bit(IRQTF_FORCED_THREAD,
-@@ -1683,8 +1710,6 @@ __setup_irq(unsigned int irq, struct irq
- 	}
- 
- 	if (!shared) {
--		init_waitqueue_head(&desc->wait_for_threads);
--
- 		/* Setup the type (level, edge polarity) if configured: */
- 		if (new->flags & IRQF_TRIGGER_MASK) {
- 			ret = __irq_set_trigger(desc,
-@@ -1780,14 +1805,8 @@ __setup_irq(unsigned int irq, struct irq
- 
- 	irq_setup_timings(desc, new);
- 
--	/*
--	 * Strictly no need to wake it up, but hung_task complains
--	 * when no hard interrupt wakes the thread up.
--	 */
--	if (new->thread)
--		wake_up_process(new->thread);
--	if (new->secondary)
--		wake_up_process(new->secondary->thread);
-+	wake_up_and_wait_for_irq_thread_ready(desc, new);
-+	wake_up_and_wait_for_irq_thread_ready(desc, new->secondary);
- 
- 	register_irq_proc(irq, desc);
- 	new->dir = NULL;
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -2656,7 +2656,7 @@ enum pci_board_num_t {
+ 	pbn_panacom2,
+ 	pbn_panacom4,
+ 	pbn_plx_romulus,
+-	pbn_endrun_2_4000000,
++	pbn_endrun_2_3906250,
+ 	pbn_oxsemi,
+ 	pbn_oxsemi_1_4000000,
+ 	pbn_oxsemi_2_4000000,
+@@ -3172,10 +3172,10 @@ static struct pciserial_board pci_boards
+ 	* signal now many ports are available
+ 	* 2 port 952 Uart support
+ 	*/
+-	[pbn_endrun_2_4000000] = {
++	[pbn_endrun_2_3906250] = {
+ 		.flags		= FL_BASE0,
+ 		.num_ports	= 2,
+-		.base_baud	= 4000000,
++		.base_baud	= 3906250,
+ 		.uart_offset	= 0x200,
+ 		.first_offset	= 0x1000,
+ 	},
+@@ -4028,7 +4028,7 @@ static const struct pci_device_id serial
+ 	*/
+ 	{	PCI_VENDOR_ID_ENDRUN, PCI_DEVICE_ID_ENDRUN_1588,
+ 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
+-		pbn_endrun_2_4000000 },
++		pbn_endrun_2_3906250 },
+ 	/*
+ 	 * Quatech cards. These actually have configurable clocks but for
+ 	 * now we just use the default.
 
 
