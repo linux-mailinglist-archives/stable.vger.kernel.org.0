@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72367521712
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 670A7521A45
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242849AbiEJNXL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S241789AbiEJNym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243565AbiEJNWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3416F53A72;
-        Tue, 10 May 2022 06:16:20 -0700 (PDT)
+        with ESMTP id S244341AbiEJNwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04F7E7A81D;
+        Tue, 10 May 2022 06:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C30A861532;
-        Tue, 10 May 2022 13:16:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2755C385C2;
-        Tue, 10 May 2022 13:15:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B85A1618A6;
+        Tue, 10 May 2022 13:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACDFC385A6;
+        Tue, 10 May 2022 13:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188560;
-        bh=MKK5ZJ9IUYz5rN4WMjJXXQlyeAz3VtRXT4EZBFNKVVw=;
+        s=korg; t=1652189899;
+        bh=x9FNJaZ9Ldy9h7nrfhuU9gWW1aSmkPn7QTppmhyRPL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/TXfjZKdPTeDjh1klSu2FubaHFKDOBUt423jdFAWZUIvJ64wmy8Cqi45thLeU0Ne
-         EReN5GzuGs36qJVB/MjX0RRWzMWjWdzWNFZI+hlIrYDJIyc6HHZkra0iKkfw1HGWL/
-         4c9ORd1pOre1VdpUHHj0igOOD2GQa3RLHB81j0w0=
+        b=JbbQLtL+puFbR//Ar306y/JHVBoRJtQjcq94EnvGzyPsYKt8SHsmxkNbWGbYtme1h
+         XA8PU3RRCOInw0xHA1ZFH6JYNMGLTE2wyoOrMVBT7My2bHfWMearQlPxjmpfFp7oY0
+         YcGsCyXST1bIG4fpGTS82q66uj9vlqOjK5R/fK5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.14 48/78] tty: n_gsm: fix insufficient txframe size
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.17 064/140] net/mlx5: Fix slab-out-of-bounds while reading resource dump menu
 Date:   Tue, 10 May 2022 15:07:34 +0200
-Message-Id: <20220510130733.959398362@linuxfoundation.org>
+Message-Id: <20220510130743.449998596@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,52 +54,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit 535bf600de75a859698892ee873521a48d289ec1 upstream.
+commit 7ba2d9d8de96696c1451fee1b01da11f45bdc2b9 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.7.2 states that the maximum frame size
-(N1) refers to the length of the information field (i.e. user payload).
-However, 'txframe' stores the whole frame including frame header, checksum
-and start/end flags. We also need to consider the byte stuffing overhead.
-Define constant for the protocol overhead and adjust the 'txframe' size
-calculation accordingly to reserve enough space for a complete mux frame
-including byte stuffing for advanced option mode. Note that no byte
-stuffing is applied to the start and end flag.
-Also use MAX_MTU instead of MAX_MRU as this buffer is used for data
-transmission.
+Resource dump menu may span over more than a single page, support it.
+Otherwise, menu read may result in a memory access violation: reading
+outside of the allocated page.
+Note that page format of the first menu page contains menu headers while
+the proceeding menu pages contain only records.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-8-daniel.starke@siemens.com
+The KASAN logs are as follows:
+BUG: KASAN: slab-out-of-bounds in strcmp+0x9b/0xb0
+Read of size 1 at addr ffff88812b2e1fd0 by task systemd-udevd/496
+
+CPU: 5 PID: 496 Comm: systemd-udevd Tainted: G    B  5.16.0_for_upstream_debug_2022_01_10_23_12 #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0x57/0x7d
+ print_address_description.constprop.0+0x1f/0x140
+ ? strcmp+0x9b/0xb0
+ ? strcmp+0x9b/0xb0
+ kasan_report.cold+0x83/0xdf
+ ? strcmp+0x9b/0xb0
+ strcmp+0x9b/0xb0
+ mlx5_rsc_dump_init+0x4ab/0x780 [mlx5_core]
+ ? mlx5_rsc_dump_destroy+0x80/0x80 [mlx5_core]
+ ? lockdep_hardirqs_on_prepare+0x286/0x400
+ ? raw_spin_unlock_irqrestore+0x47/0x50
+ ? aomic_notifier_chain_register+0x32/0x40
+ mlx5_load+0x104/0x2e0 [mlx5_core]
+ mlx5_init_one+0x41b/0x610 [mlx5_core]
+ ....
+The buggy address belongs to the object at ffff88812b2e0000
+ which belongs to the cache kmalloc-4k of size 4096
+The buggy address is located 4048 bytes to the right of
+ 4096-byte region [ffff88812b2e0000, ffff88812b2e1000)
+The buggy address belongs to the page:
+page:000000009d69807a refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88812b2e6000 pfn:0x12b2e0
+head:000000009d69807a order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x8000000000010200(slab|head|zone=2)
+raw: 8000000000010200 0000000000000000 dead000000000001 ffff888100043040
+raw: ffff88812b2e6000 0000000080040000 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff88812b2e1e80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88812b2e1f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88812b2e1f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                                                 ^
+ ffff88812b2e2000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88812b2e2080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
+
+Fixes: 12206b17235a ("net/mlx5: Add support for resource dump")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c |   31 ++++++++++++----
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -84,6 +84,8 @@ module_param(debug, int, 0600);
-  */
- #define MAX_MRU 1500
- #define MAX_MTU 1500
-+/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
-+#define PROT_OVERHEAD 7
- #define	GSM_NET_TX_TIMEOUT (HZ*10)
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
+@@ -31,6 +31,7 @@ static const char *const mlx5_rsc_sgmt_n
+ struct mlx5_rsc_dump {
+ 	u32 pdn;
+ 	u32 mkey;
++	u32 number_of_menu_items;
+ 	u16 fw_segment_type[MLX5_SGMT_TYPE_NUM];
+ };
  
- /**
-@@ -2211,7 +2213,7 @@ static struct gsm_mux *gsm_alloc_mux(voi
- 		kfree(gsm);
- 		return NULL;
+@@ -50,21 +51,37 @@ static int mlx5_rsc_dump_sgmt_get_by_nam
+ 	return -EINVAL;
+ }
+ 
+-static void mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page)
++#define MLX5_RSC_DUMP_MENU_HEADER_SIZE (MLX5_ST_SZ_BYTES(resource_dump_info_segment) + \
++					MLX5_ST_SZ_BYTES(resource_dump_command_segment) + \
++					MLX5_ST_SZ_BYTES(resource_dump_menu_segment))
++
++static int mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page,
++					int read_size, int start_idx)
+ {
+ 	void *data = page_address(page);
+ 	enum mlx5_sgmt_type sgmt_idx;
+ 	int num_of_items;
+ 	char *sgmt_name;
+ 	void *member;
++	int size = 0;
+ 	void *menu;
+ 	int i;
+ 
+-	menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
+-	num_of_items = MLX5_GET(resource_dump_menu_segment, menu, num_of_records);
++	if (!start_idx) {
++		menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
++		rsc_dump->number_of_menu_items = MLX5_GET(resource_dump_menu_segment, menu,
++							  num_of_records);
++		size = MLX5_RSC_DUMP_MENU_HEADER_SIZE;
++		data += size;
++	}
++	num_of_items = rsc_dump->number_of_menu_items;
++
++	for (i = 0; start_idx + i < num_of_items; i++) {
++		size += MLX5_ST_SZ_BYTES(resource_dump_menu_record);
++		if (size >= read_size)
++			return start_idx + i;
+ 
+-	for (i = 0; i < num_of_items; i++) {
+-		member = MLX5_ADDR_OF(resource_dump_menu_segment, menu, record[i]);
++		member = data + MLX5_ST_SZ_BYTES(resource_dump_menu_record) * i;
+ 		sgmt_name =  MLX5_ADDR_OF(resource_dump_menu_record, member, segment_name);
+ 		sgmt_idx = mlx5_rsc_dump_sgmt_get_by_name(sgmt_name);
+ 		if (sgmt_idx == -EINVAL)
+@@ -72,6 +89,7 @@ static void mlx5_rsc_dump_read_menu_sgmt
+ 		rsc_dump->fw_segment_type[sgmt_idx] = MLX5_GET(resource_dump_menu_record,
+ 							       member, segment_type);
  	}
--	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
-+	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
- 	if (gsm->txframe == NULL) {
- 		kfree(gsm->buf);
- 		kfree(gsm);
++	return 0;
+ }
+ 
+ static int mlx5_rsc_dump_trigger(struct mlx5_core_dev *dev, struct mlx5_rsc_dump_cmd *cmd,
+@@ -168,6 +186,7 @@ static int mlx5_rsc_dump_menu(struct mlx
+ 	struct mlx5_rsc_dump_cmd *cmd = NULL;
+ 	struct mlx5_rsc_key key = {};
+ 	struct page *page;
++	int start_idx = 0;
+ 	int size;
+ 	int err;
+ 
+@@ -189,7 +208,7 @@ static int mlx5_rsc_dump_menu(struct mlx
+ 		if (err < 0)
+ 			goto destroy_cmd;
+ 
+-		mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page);
++		start_idx = mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page, size, start_idx);
+ 
+ 	} while (err > 0);
+ 
 
 
