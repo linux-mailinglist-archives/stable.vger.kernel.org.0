@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2441521743
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CF8521823
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242613AbiEJNYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:24:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38458 "EHLO
+        id S236492AbiEJNd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242537AbiEJNUk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:20:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817C02B94DD;
-        Tue, 10 May 2022 06:13:37 -0700 (PDT)
+        with ESMTP id S243877AbiEJNcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9152214CA0C;
+        Tue, 10 May 2022 06:23:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C89AB81DA2;
-        Tue, 10 May 2022 13:13:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86086C385C2;
-        Tue, 10 May 2022 13:13:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 512F6B81DA5;
+        Tue, 10 May 2022 13:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90AD0C385C2;
+        Tue, 10 May 2022 13:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188415;
-        bh=a7Xdftnirl6+Yv0iDfdH+DVaKQCBSHUCUNchi72cbcw=;
+        s=korg; t=1652188982;
+        bh=RRkK3PGwP3zmeyLRDB3rhf1tmnLcW9G0dse4hLzQCwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zGj1bxOCJV1qKKzuBMykOFgUcP9l8aeS5nPfXTmzW3cFzrVGOdzvsOOmAe7ZO73al
-         dPD4tIxQdXXKnfxMr6x7jsBwr8ts3oeyiNS8QoI8JBp8QDpJHlXSDlWl+WcirBIMmP
-         oxJL2Y4RnQBV+b3vPgI6YGdbDCqc2EHC8xj5uKsY=
+        b=ixYxJPfZXKh1jy7Tf8w3NCwNdccH70HVCZXoZiCMupN597yodOHZU9kc+z+hT1zVD
+         X+Tl6K6HL4X9DkyO4e5ADr6+1xrGPf3QWA2eIXP7p3n/ne1eAxBHas2oP2BgF6UKuy
+         MMn3gR46fGbhsdzLDac7iq9JOgPXOxuyaswSS1gM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Nixdorf <j.nixdorf@avm.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 64/66] net: ipv6: ensure we call ipv6_mc_down() at most once
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Cheng Xu <chengyou@linux.alibaba.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 25/52] RDMA/siw: Fix a condition race issue in MPA request processing
 Date:   Tue, 10 May 2022 15:07:54 +0200
-Message-Id: <20220510130731.641665189@linuxfoundation.org>
+Message-Id: <20220510130730.589217408@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,95 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: j.nixdorf@avm.de <j.nixdorf@avm.de>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-commit 9995b408f17ff8c7f11bc725c8aa225ba3a63b1c upstream.
+commit ef91271c65c12d36e4c2b61c61d4849fb6d11aa0 upstream.
 
-There are two reasons for addrconf_notify() to be called with NETDEV_DOWN:
-either the network device is actually going down, or IPv6 was disabled
-on the interface.
+The calling of siw_cm_upcall and detaching new_cep with its listen_cep
+should be atomistic semantics. Otherwise siw_reject may be called in a
+temporary state, e,g, siw_cm_upcall is called but the new_cep->listen_cep
+has not being cleared.
 
-If either of them stays down while the other is toggled, we repeatedly
-call the code for NETDEV_DOWN, including ipv6_mc_down(), while never
-calling the corresponding ipv6_mc_up() in between. This will cause a
-new entry in idev->mc_tomb to be allocated for each multicast group
-the interface is subscribed to, which in turn leaks one struct ifmcaddr6
-per nontrivial multicast group the interface is subscribed to.
+This fixes a WARN:
 
-The following reproducer will leak at least $n objects:
+  WARNING: CPU: 7 PID: 201 at drivers/infiniband/sw/siw/siw_cm.c:255 siw_cep_put+0x125/0x130 [siw]
+  CPU: 2 PID: 201 Comm: kworker/u16:22 Kdump: loaded Tainted: G            E     5.17.0-rc7 #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+  Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+  RIP: 0010:siw_cep_put+0x125/0x130 [siw]
+  Call Trace:
+   <TASK>
+   siw_reject+0xac/0x180 [siw]
+   iw_cm_reject+0x68/0xc0 [iw_cm]
+   cm_work_handler+0x59d/0xe20 [iw_cm]
+   process_one_work+0x1e2/0x3b0
+   worker_thread+0x50/0x3a0
+   ? rescuer_thread+0x390/0x390
+   kthread+0xe5/0x110
+   ? kthread_complete_and_exit+0x20/0x20
+   ret_from_fork+0x1f/0x30
+   </TASK>
 
-ip addr add ff2e::4242/32 dev eth0 autojoin
-sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
-for i in $(seq 1 $n); do
-	ip link set up eth0; ip link set down eth0
-done
-
-Joining groups with IPV6_ADD_MEMBERSHIP (unprivileged) or setting the
-sysctl net.ipv6.conf.eth0.forwarding to 1 (=> subscribing to ff02::2)
-can also be used to create a nontrivial idev->mc_list, which will the
-leak objects with the right up-down-sequence.
-
-Based on both sources for NETDEV_DOWN events the interface IPv6 state
-should be considered:
-
- - not ready if the network interface is not ready OR IPv6 is disabled
-   for it
- - ready if the network interface is ready AND IPv6 is enabled for it
-
-The functions ipv6_mc_up() and ipv6_down() should only be run when this
-state changes.
-
-Implement this by remembering when the IPv6 state is ready, and only
-run ipv6_mc_down() if it actually changed from ready to not ready.
-
-The other direction (not ready -> ready) already works correctly, as:
-
- - the interface notification triggered codepath for NETDEV_UP /
-   NETDEV_CHANGE returns early if ipv6 is disabled, and
- - the disable_ipv6=0 triggered codepath skips fully initializing the
-   interface as long as addrconf_link_ready(dev) returns false
- - calling ipv6_mc_up() repeatedly does not leak anything
-
-Fixes: 3ce62a84d53c ("ipv6: exit early in addrconf_notify() if IPv6 is disabled")
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[jnixdorf: context updated for bpo to v4.9/v4.14]
-Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+Fixes: 6c52fdc244b5 ("rdma/siw: connection management")
+Link: https://lore.kernel.org/r/d528d83466c44687f3872eadcb8c184528b2e2d4.1650526554.git.chengyou@linux.alibaba.com
+Reported-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/infiniband/sw/siw/siw_cm.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3539,6 +3539,7 @@ static int addrconf_ifdown(struct net_de
- 	struct list_head del_list;
- 	int _keep_addr;
- 	bool keep_addr;
-+	bool was_ready;
- 	int state, i;
+--- a/drivers/infiniband/sw/siw/siw_cm.c
++++ b/drivers/infiniband/sw/siw/siw_cm.c
+@@ -976,14 +976,15 @@ static void siw_accept_newconn(struct si
  
- 	ASSERT_RTNL();
-@@ -3602,7 +3603,10 @@ restart:
- 
- 	addrconf_del_rs_timer(idev);
- 
--	/* Step 2: clear flags for stateless addrconf */
-+	/* Step 2: clear flags for stateless addrconf, repeated down
-+	 *         detection
-+	 */
-+	was_ready = idev->if_flags & IF_READY;
- 	if (!how)
- 		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
- 
-@@ -3689,7 +3693,7 @@ restart:
- 	if (how) {
- 		ipv6_ac_destroy_dev(idev);
- 		ipv6_mc_destroy_dev(idev);
--	} else {
-+	} else if (was_ready) {
- 		ipv6_mc_down(idev);
+ 		siw_cep_set_inuse(new_cep);
+ 		rv = siw_proc_mpareq(new_cep);
+-		siw_cep_set_free(new_cep);
+-
+ 		if (rv != -EAGAIN) {
+ 			siw_cep_put(cep);
+ 			new_cep->listen_cep = NULL;
+-			if (rv)
++			if (rv) {
++				siw_cep_set_free(new_cep);
+ 				goto error;
++			}
+ 		}
++		siw_cep_set_free(new_cep);
  	}
+ 	return;
  
 
 
