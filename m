@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DE35218CB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6270252180B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243407AbiEJNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:40:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
+        id S243243AbiEJNc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:32:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245168AbiEJNig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:36 -0400
+        with ESMTP id S243798AbiEJNcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808EB263DB4;
-        Tue, 10 May 2022 06:28:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5FA52CFE8E;
+        Tue, 10 May 2022 06:22:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D62361768;
-        Tue, 10 May 2022 13:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6BCC385C2;
-        Tue, 10 May 2022 13:27:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4AD5C61663;
+        Tue, 10 May 2022 13:22:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502ACC385A6;
+        Tue, 10 May 2022 13:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189279;
-        bh=5cNK+wuvoX5vTKWBRONcqZCKvqOu/lyCY19Iqr7BuQA=;
+        s=korg; t=1652188931;
+        bh=lyBqSR0EnOVA8i/cJ7U1vjDXnqHAh9OtfQbsNi3k8Ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGSAjvtuR4iKsgPxnHil+wHPu8O0cRDIL5SaOo7FcJemBwQF++KkHsfHYPXECBIA9
-         tydu0dxPzsPsKvDfK7/esSBWuUJ+oDbmLZtyi6UbJkND8iz/2PGz9yuvXThis895w1
-         /kLKDKGE9bIWxdhRAGGvlpbt0BV7jh+8w4WYIORE=
+        b=ezj1ElVrWjSYPRkmFikVOGG3wgU3OJxWBY9E8r9E05kfxn+m6jILM2Kgf479HezGm
+         eXOLoRcBQZ9Igr2zTJpUw4hgzDEmbJIFZaTgYR/e/+neZs+hcTEA4FB60BeOC1WyBj
+         YSBjZdsB+e4LX53rqiSbxbmxy87mOBsqSmqH/m5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 29/70] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 63/88] firewire: fix potential uaf in outbound_phy_packet_callback()
 Date:   Tue, 10 May 2022 15:07:48 +0200
-Message-Id: <20220510130733.721314349@linuxfoundation.org>
+Message-Id: <20220510130735.571310602@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
+commit b7c81f80246fac44077166f3e07103affe6db8ff upstream.
 
-The systemid property was checked for in the wrong place of the device
-tree and compared to the wrong value.
+&e->event and e point to the same address, and &e->event could
+be freed in queue_event. So there is a potential uaf issue if
+we dereference e after calling queue_event(). Fix this by adding
+a temporary variable to maintain e->client in advance, this can
+avoid the potential uaf issue.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/firewire/core-cdev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -241,7 +241,7 @@ struct grcan_device_config {
- 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
- 		}
- 
--#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
-+#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
- #define GRLIB_VERSION_MASK		0xffff
- 
- /* GRCAN private data structure */
-@@ -1656,6 +1656,7 @@ exit_free_candev:
- static int grcan_probe(struct platform_device *ofdev)
+--- a/drivers/firewire/core-cdev.c
++++ b/drivers/firewire/core-cdev.c
+@@ -1495,6 +1495,7 @@ static void outbound_phy_packet_callback
  {
- 	struct device_node *np = ofdev->dev.of_node;
-+	struct device_node *sysid_parent;
- 	u32 sysid, ambafreq;
- 	int irq, err;
- 	void __iomem *base;
-@@ -1664,10 +1665,15 @@ static int grcan_probe(struct platform_d
- 	/* Compare GRLIB version number with the first that does not
- 	 * have the tx bug (see start_xmit)
- 	 */
--	err = of_property_read_u32(np, "systemid", &sysid);
--	if (!err && ((sysid & GRLIB_VERSION_MASK)
--		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
--		txbug = false;
-+	sysid_parent = of_find_node_by_path("/ambapp0");
-+	if (sysid_parent) {
-+		of_node_get(sysid_parent);
-+		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
-+		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
-+			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
-+			txbug = false;
-+		of_node_put(sysid_parent);
-+	}
+ 	struct outbound_phy_packet_event *e =
+ 		container_of(packet, struct outbound_phy_packet_event, p);
++	struct client *e_client;
  
- 	err = of_property_read_u32(np, "freq", &ambafreq);
- 	if (err) {
+ 	switch (status) {
+ 	/* expected: */
+@@ -1511,9 +1512,10 @@ static void outbound_phy_packet_callback
+ 	}
+ 	e->phy_packet.data[0] = packet->timestamp;
+ 
++	e_client = e->client;
+ 	queue_event(e->client, &e->event, &e->phy_packet,
+ 		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
+-	client_put(e->client);
++	client_put(e_client);
+ }
+ 
+ static int ioctl_send_phy_packet(struct client *client, union ioctl_arg *arg)
 
 
