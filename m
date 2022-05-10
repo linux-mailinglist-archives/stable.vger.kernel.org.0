@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF25A5219B6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F31252189F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243522AbiEJNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
+        id S241389AbiEJNjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244836AbiEJNrC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7510419CB79;
-        Tue, 10 May 2022 06:32:11 -0700 (PDT)
+        with ESMTP id S244259AbiEJNhO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3468762223;
+        Tue, 10 May 2022 06:25:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 027E660B12;
-        Tue, 10 May 2022 13:32:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C7CC385A6;
-        Tue, 10 May 2022 13:32:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 717DA6170D;
+        Tue, 10 May 2022 13:25:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F668C385C2;
+        Tue, 10 May 2022 13:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189530;
-        bh=YmCIwfczu1mXcczkqwoETbSEQm5ZZgmkMLoLZWVLehw=;
+        s=korg; t=1652189128;
+        bh=XvdFnLpnH8rg/tJlNoJuTp1Us8A3o+r1OR7Q0sYWAhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fG9OX/rQeiKa5SjDBLN2NPABn3errfa+LYoElo8X9tbElnIvRVzmOamuvCrrQP8cu
-         8QfG0yEC7rnt6Em6+ujHeKo4DVOtb0hdylbmhlitmDTTLO5mommJ6C35gVkNYc8HKX
-         3bltjTl6akoq4lUCL8/DnR1XXYyzuPprBAhPas9Q=
+        b=vwCt3G+vTBGH1GYJANLF9op9d05WOYRa/zW/mq3/SXJcYT/n3WEf9aotiWy7dgw6I
+         GSHqTDsc0gZ+MtxmB3g0QUEi/57VYCJ+tRJbm9SzxyTkIHkUK9AFa5sPdjQYUP5dya
+         yNYMDeqyTTr5yktof1Ohf9cXKF/aOB87u9PWGI/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 078/135] selftests: ocelot: tc_flower_chains: specify conform-exceed action for policer
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH 5.10 21/70] ASoC: meson: Fix event generation for AUI CODEC mux
 Date:   Tue, 10 May 2022 15:07:40 +0200
-Message-Id: <20220510130742.648476715@linuxfoundation.org>
+Message-Id: <20220510130733.487953451@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 5a7c5f70c743c6cf32b44b05bd6b19d4ad82f49d upstream.
+commit fce49921a22262736cdc3cc74fa67915b75e9363 upstream.
 
-As discussed here with Ido Schimmel:
-https://patchwork.kernel.org/project/netdevbpf/patch/20220224102908.5255-2-jianbol@nvidia.com/
+The AIU CODEC has a custom put() operation which returns 0 when the value
+of the mux changes, meaning that events are not generated for userspace.
+Change to return 1 in this case, the function returns early in the case
+where there is no change.
 
-the default conform-exceed action is "reclassify", for a reason we don't
-really understand.
-
-The point is that hardware can't offload that police action, so not
-specifying "conform-exceed" was always wrong, even though the command
-used to work in hardware (but not in software) until the kernel started
-adding validation for it.
-
-Fix the command used by the selftest by making the policer drop on
-exceed, and pass the packet to the next action (goto) on conform.
-
-Fixes: 8cd6b020b644 ("selftests: ocelot: add some example VCAP IS1, IS2 and ES0 tc offloads")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220503121428.842906-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20220421123803.292063-3-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh |    2 +-
+ sound/soc/meson/aiu-codec-ctrl.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-+++ b/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-@@ -185,7 +185,7 @@ setup_prepare()
+--- a/sound/soc/meson/aiu-codec-ctrl.c
++++ b/sound/soc/meson/aiu-codec-ctrl.c
+@@ -57,7 +57,7 @@ static int aiu_codec_ctrl_mux_put_enum(s
  
- 	tc filter add dev $eth0 ingress chain $(IS2 0 0) pref 1 \
- 		protocol ipv4 flower skip_sw ip_proto udp dst_port 5201 \
--		action police rate 50mbit burst 64k \
-+		action police rate 50mbit burst 64k conform-exceed drop/pipe \
- 		action goto chain $(IS2 1 0)
+ 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
+ 
+-	return 0;
++	return 1;
  }
  
+ static SOC_ENUM_SINGLE_DECL(aiu_hdmi_ctrl_mux_enum, AIU_HDMI_CLK_DATA_CTRL,
 
 
