@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E62D4521FC7
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4272E521FAE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346530AbiEJPwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:52:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32960 "EHLO
+        id S1346401AbiEJPwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346726AbiEJPvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99204286D7;
-        Tue, 10 May 2022 08:45:47 -0700 (PDT)
+        with ESMTP id S1346757AbiEJPvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8D833EB91;
+        Tue, 10 May 2022 08:45:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47CBBB81DFB;
-        Tue, 10 May 2022 15:45:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF15C385CB;
-        Tue, 10 May 2022 15:45:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3515F614AF;
+        Tue, 10 May 2022 15:45:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AAF9C385A6;
+        Tue, 10 May 2022 15:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197545;
-        bh=atRy27yf9Vy/665sbn+jOCfM4MC2nSQBCmGmLlIUE8A=;
+        s=k20201202; t=1652197550;
+        bh=qsEmvDv4R6fjTcIXCmhCsv9d2/D+ul3JKKqQnU4Hq18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q6UYgNaR3OUTg3BlgiCleyXt7Sh1FEI1uhKF9rd8BMD9p9ABqoCyjI4q1st12OZLa
-         dV7SOCPntvcuCcJkubIMtzvqdt8Eo+e13gEmqpolnZ4Rk5R0eqi7B+nUc7QybLtkB3
-         woo8qqQLdyKhjdFbLtAJV5KxKoN8iuEx8yfTw7Qcr86t0KSgVjSt+xqVP6wwTkvC+E
-         BKHyLQiovlyBwjbBL2dgQ8w4PFY9WC49m9jcnUShP08Vw0rLbfgIOGnbm1Q3Rw0ty/
-         7SPbv+K6xqalUSdO+3N7iqAAq4epX80RZO9t4zBG5OPMoK3wifsuZBu+YeUNRIN6rc
-         C8Rvy+ehMQpoA==
+        b=qYJnNquZnW/8kEARx6Ceb31JmvEVAybv64E10OW8GWNgQOQM6U05D/BOAqhcQsqkZ
+         Ew9Bcc0QyMnRNpO4T5vEOwpCyaCui5ipvS6EMqSrNyf2ff9bQRaXbi4qEXyrCMqzTw
+         teDTBmy3bm9DbqAdk7004gVesBiTXrEkjK2s26Qa0bp9lKeJCvDGY/P3HoJJmzgeFB
+         /pykxeCrx+X86twUbFSkC6c2glhjSUDW/xhYOSRFFoAUmNWCSPJqgvBR8egBMwutnc
+         0KquDljHJgf+nEyp33hZ6D+bV1ThT3TRFHKnxSS7HLfOmWfU7h4niyFd+BIfsJ7WB4
+         pqAixynZ1GBPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
         lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
         pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 2/8] ASoC: max98090: Reject invalid values in custom control put()
-Date:   Tue, 10 May 2022 11:45:30 -0400
-Message-Id: <20220510154536.154070-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 3/8] ASoC: max98090: Generate notifications on changes for custom control
+Date:   Tue, 10 May 2022 11:45:31 -0400
+Message-Id: <20220510154536.154070-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154536.154070-1-sashal@kernel.org>
 References: <20220510154536.154070-1-sashal@kernel.org>
@@ -58,36 +58,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 2fbe467bcbfc760a08f08475eea6bbd4c2874319 ]
+[ Upstream commit 13fcf676d9e102594effc686d98521ff5c90b925 ]
 
-The max98090 driver has a custom put function for some controls which can
-only be updated in certain circumstances which makes no effort to validate
-that input is suitable for the control, allowing out of spec values to be
-written to the hardware and presented to userspace. Fix this by returning
-an error when invalid values are written.
+The max98090 driver has some custom controls which share a put() function
+which returns 0 unconditionally, meaning that events are not generated
+when the value changes. Fix that.
 
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220420193454.2647908-1-broonie@kernel.org
+Link: https://lore.kernel.org/r/20220420193454.2647908-2-broonie@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/max98090.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 6b9d326e11b0..207cdcfb6ebb 100644
+index 207cdcfb6ebb..ce9f99dd3e87 100644
 --- a/sound/soc/codecs/max98090.c
 +++ b/sound/soc/codecs/max98090.c
-@@ -413,6 +413,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+@@ -430,7 +430,7 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+ 		mask << mc->shift,
+ 		sel << mc->shift);
  
- 	val = (val >> mc->shift) & mask;
+-	return 0;
++	return *select != val;
+ }
  
-+	if (sel < 0 || sel > mc->max)
-+		return -EINVAL;
-+
- 	*select = sel;
- 
- 	/* Setting a volume is only valid if it is already On */
+ static const char *max98090_perf_pwr_text[] =
 -- 
 2.35.1
 
