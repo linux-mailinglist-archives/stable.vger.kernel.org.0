@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC2355217A5
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8148521892
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242795AbiEJN2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33516 "EHLO
+        id S242205AbiEJNjJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243274AbiEJN0k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7E8231CB1;
-        Tue, 10 May 2022 06:19:18 -0700 (PDT)
+        with ESMTP id S243590AbiEJNf1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:35:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE0582BFBD7;
+        Tue, 10 May 2022 06:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF8B4B81D7A;
-        Tue, 10 May 2022 13:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083F7C385A6;
-        Tue, 10 May 2022 13:19:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E231617AE;
+        Tue, 10 May 2022 13:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A30C385A6;
+        Tue, 10 May 2022 13:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188755;
-        bh=VkjXY59wzMY0vN+1WTwZLVdRbwyG7gsNrtDViAswDNs=;
+        s=korg; t=1652189089;
+        bh=RIK5MElVo47bD1tsF8v3qbeY9yUwA6PQltPBj+Q7u+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJRxvnDyFNMraFGBgR2++JkhTbezLWjge7vRJyrLe3YdGLP8sawvwEeoF6RSM9GaQ
-         Ak6csjPOv4IzHhFvNQnVVEQK+TadUaN1qjKtKoNqUjv6P/MzidNYuh/XcqHBLodGHU
-         GXIGz4Xc/gsXmijLiLTSNALGCsfeajUqjr59Moi8=
+        b=xcVsiYk7IV2cMYFdDwaxwOVJjgimUPlocmYwwFmzvipSRP7pcWzdFrd25IyFM/jaU
+         B2Wn1CCxHPkWL+7G939u1GrMyUxM9suw2jZv7svZSeOmzIgd+W1sy+3Niyy4qpX9RY
+         6odGxn0WlAsS9dha+pjjVLfuIi48FKguDIGs/Wn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Denys Drozdov <denys.drozdov@toradex.com>,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 34/88] ARM: dts: imx6ull-colibri: fix vqmmc regulator
-Date:   Tue, 10 May 2022 15:07:19 +0200
-Message-Id: <20220510130734.736251531@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 01/70] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+Date:   Tue, 10 May 2022 15:07:20 +0200
+Message-Id: <20220510130732.906253467@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,39 +56,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Krummenacher <max.krummenacher@toradex.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit 45974e4276a8d6653394f66666fc57d8ffa6de9a ]
+commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
 
-The correct spelling for the property is gpios. Otherwise, the regulator
-will neither reserve nor control any GPIOs. Thus, any SD/MMC card which
-can use UHS-I modes will fail.
+Fix the discrepancy between the two places we check for the CP0 counter
+erratum in along with the incorrect comparison of the R4400 revision
+number against 0x30 which matches none and consistently consider all
+R4000 and R4400 processors affected, as documented in processor errata
+publications[1][2][3], following the mapping between CP0 PRId register
+values and processor models:
 
-Fixes: c2e4987e0e02 ("ARM: dts: imx6ull: add Toradex Colibri iMX6ULL support")
-Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
-Signed-off-by: Denys Drozdov <denys.drozdov@toradex.com>
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  PRId   |  Processor Model
+---------+--------------------
+00000422 | R4000 Revision 2.2
+00000430 | R4000 Revision 3.0
+00000440 | R4400 Revision 1.0
+00000450 | R4400 Revision 2.0
+00000460 | R4400 Revision 3.0
+
+No other revision of either processor has ever been spotted.
+
+Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
+R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
+CP0 counter as buggy does not preclude it from being used as either a
+clock event or a clock source device.  It just cannot be used as both at
+a time, because in that case clock event interrupts will be occasionally
+lost, and the use as a clock event device takes precedence.
+
+Compare against 0x4ff in `can_use_mips_counter' so that a single machine
+instruction is produced.
+
+
+[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+    Technologies Inc., May 10, 1994, Erratum 53, p.13
+
+[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+    Inc., February 9, 1994, Erratum 21, p.4
+
+[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
+    Technologies Inc., January 24, 1995, Erratum 14, p.3
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+Cc: stable@vger.kernel.org # v2.6.24+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6ull-colibri.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/timex.h |    8 ++++----
+ arch/mips/kernel/time.c       |   11 +++--------
+ 2 files changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6ull-colibri.dtsi b/arch/arm/boot/dts/imx6ull-colibri.dtsi
-index 6c63a7384611..4219239f0b58 100644
---- a/arch/arm/boot/dts/imx6ull-colibri.dtsi
-+++ b/arch/arm/boot/dts/imx6ull-colibri.dtsi
-@@ -37,7 +37,7 @@ reg_module_3v3_avdd: regulator-module-3v3-avdd {
+--- a/arch/mips/include/asm/timex.h
++++ b/arch/mips/include/asm/timex.h
+@@ -40,9 +40,9 @@
+ typedef unsigned int cycles_t;
  
- 	reg_sd1_vmmc: regulator-sd1-vmmc {
- 		compatible = "regulator-gpio";
--		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
-+		gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_snvs_reg_sd>;
- 		regulator-always-on;
--- 
-2.35.1
-
+ /*
+- * On R4000/R4400 before version 5.0 an erratum exists such that if the
+- * cycle counter is read in the exact moment that it is matching the
+- * compare register, no interrupt will be generated.
++ * On R4000/R4400 an erratum exists such that if the cycle counter is
++ * read in the exact moment that it is matching the compare register,
++ * no interrupt will be generated.
+  *
+  * There is a suggested workaround and also the erratum can't strike if
+  * the compare interrupt isn't being used as the clock source device.
+@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
+ 	if (!__builtin_constant_p(cpu_has_counter))
+ 		asm volatile("" : "=m" (cpu_data[0].options));
+ 	if (likely(cpu_has_counter &&
+-		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
++		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
+ 		return 1;
+ 	else
+ 		return 0;
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -141,15 +141,10 @@ static __init int cpu_has_mfc0_count_bug
+ 	case CPU_R4400MC:
+ 		/*
+ 		 * The published errata for the R4400 up to 3.0 say the CPU
+-		 * has the mfc0 from count bug.
++		 * has the mfc0 from count bug.  This seems the last version
++		 * produced.
+ 		 */
+-		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
+-			return 1;
+-
+-		/*
+-		 * we assume newer revisions are ok
+-		 */
+-		return 0;
++		return 1;
+ 	}
+ 
+ 	return 0;
 
 
