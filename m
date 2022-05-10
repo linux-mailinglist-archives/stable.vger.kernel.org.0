@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A730352183E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD93652181A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243430AbiEJNdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
+        id S243370AbiEJNdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243868AbiEJNcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D85142809;
-        Tue, 10 May 2022 06:22:51 -0700 (PDT)
+        with ESMTP id S243392AbiEJNao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A968222B38D;
+        Tue, 10 May 2022 06:21:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D3261763;
-        Tue, 10 May 2022 13:22:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E3BC385C2;
-        Tue, 10 May 2022 13:22:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2EE96B81B32;
+        Tue, 10 May 2022 13:21:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A071C385A6;
+        Tue, 10 May 2022 13:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188970;
-        bh=tUBIoF9N6X0NiJbBCmDtbiWMfzpX2+Dhrt4Z/jqBemM=;
+        s=korg; t=1652188892;
+        bh=gdUdKjW7XpBqC98ng8uSCII3uv6RmKTxh7z3nkYusHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zA+UFecsuBlGZgMm3rF4JwxIZaqGCHXQNAjL0B3SGwMf7SHDHtamOGGrqtLq00s4W
-         ibO2v3vLjz6zItogZq1YHeZnBGzam/aYEB1fMEcNlUlKO7XQttgJoOrqd37xidajjn
-         /hSk2GVJCCHziLVGNMMU0FsKe0WCcVYZHaStYpNE=
+        b=Kf2OqDRi1ZyNtutywswqP3Y4TRXStAVrVhgq+YppDBvAEXoLL/ZQTvTVV1+kPItgu
+         hEdFbhxnN+JCxrM3KEBFzfWm6lRBfBEWVhpoohx699aMgu1bBCxU6bUA5fXp6UiAm3
+         sX3KlqCF6nw/dlg4pJp/YBXtuYdg8nQOJwNEN0P0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 21/52] nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 65/88] firewire: core: extend card->lock in fw_core_handle_bus_reset
 Date:   Tue, 10 May 2022 15:07:50 +0200
-Message-Id: <20220510130730.473905363@linuxfoundation.org>
+Message-Id: <20220510130735.627286891@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-commit d270453a0d9ec10bb8a802a142fb1b3601a83098 upstream.
+commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
 
-There are destructive operations such as nfcmrvl_fw_dnld_abort and
-gpio_free in nfcmrvl_nci_unregister_dev. The resources such as firmware,
-gpio and so on could be destructed while the upper layer functions such as
-nfcmrvl_fw_dnld_start and nfcmrvl_nci_recv_frame is executing, which leads
-to double-free, use-after-free and null-ptr-deref bugs.
+card->local_node and card->bm_retries are both always accessed under
+card->lock.
+fw_core_handle_bus_reset has a check whose condition depends on
+card->local_node and whose body writes to card->bm_retries.
+Both of these accesses are not under card->lock. Move the lock acquiring
+of card->lock to before this check such that these accesses do happen
+when card->lock is held.
+fw_destroy_nodes is called inside the check.
+Since fw_destroy_nodes already acquires card->lock inside its function
+body, move this out to the callsites of fw_destroy_nodes.
+Also add a comment to indicate which locking is necessary when calling
+fw_destroy_nodes.
 
-There are three situations that could lead to double-free bugs.
-
-The first situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |  nfcmrvl_nci_unregister_dev
- release_firmware()           |   nfcmrvl_fw_dnld_abort
-  kfree(fw) //(1)             |    fw_dnld_over
-                              |     release_firmware
-  ...                         |      kfree(fw) //(2)
-                              |     ...
-
-The second situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |
- mod_timer                    |
- (wait a time)                |
- fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
-   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
-    release_firmware          |    fw_dnld_over
-     kfree(fw) //(1)          |     release_firmware
-     ...                      |      kfree(fw) //(2)
-
-The third situation is shown below:
-
-       (Thread 1)               |       (Thread 2)
-nfcmrvl_nci_recv_frame          |
- if(..->fw_download_in_progress)|
-  nfcmrvl_fw_dnld_recv_frame    |
-   queue_work                   |
-                                |
-fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
- fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
-  release_firmware              |   fw_dnld_over
-   kfree(fw) //(1)              |    release_firmware
-                                |     kfree(fw) //(2)
-
-The firmware struct is deallocated in position (1) and deallocated
-in position (2) again.
-
-The crash trace triggered by POC is like below:
-
-BUG: KASAN: double-free or invalid-free in fw_dnld_over
-Call Trace:
-  kfree
-  fw_dnld_over
-  nfcmrvl_nci_unregister_dev
-  nci_uart_tty_close
-  tty_ldisc_kill
-  tty_ldisc_hangup
-  __tty_hangup.part.0
-  tty_release
-  ...
-
-What's more, there are also use-after-free and null-ptr-deref bugs
-in nfcmrvl_fw_dnld_start. If we deallocate firmware struct, gpio or
-set null to the members of priv->fw_dnld in nfcmrvl_nci_unregister_dev,
-then, we dereference firmware, gpio or the members of priv->fw_dnld in
-nfcmrvl_fw_dnld_start, the UAF or NPD bugs will happen.
-
-This patch reorders destructive operations after nci_unregister_device
-in order to synchronize between cleanup routine and firmware download
-routine.
-
-The nci_unregister_device is well synchronized. If the device is
-detaching, the firmware download routine will goto error. If firmware
-download routine is executing, nci_unregister_device will wait until
-firmware download routine is finished.
-
-Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nfcmrvl/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firewire/core-card.c     |    3 +++
+ drivers/firewire/core-topology.c |    9 +++------
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -194,6 +194,7 @@ void nfcmrvl_nci_unregister_dev(struct n
+--- a/drivers/firewire/core-card.c
++++ b/drivers/firewire/core-card.c
+@@ -681,6 +681,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
+ void fw_core_remove_card(struct fw_card *card)
  {
- 	struct nci_dev *ndev = priv->ndev;
+ 	struct fw_card_driver dummy_driver = dummy_driver_template;
++	unsigned long flags;
  
-+	nci_unregister_device(ndev);
- 	if (priv->ndev->nfc_dev->fw_download_in_progress)
- 		nfcmrvl_fw_dnld_abort(priv);
+ 	card->driver->update_phy_reg(card, 4,
+ 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
+@@ -695,7 +696,9 @@ void fw_core_remove_card(struct fw_card
+ 	dummy_driver.stop_iso		= card->driver->stop_iso;
+ 	card->driver = &dummy_driver;
  
-@@ -202,7 +203,6 @@ void nfcmrvl_nci_unregister_dev(struct n
- 	if (gpio_is_valid(priv->config.reset_n_io))
- 		gpio_free(priv->config.reset_n_io);
++	spin_lock_irqsave(&card->lock, flags);
+ 	fw_destroy_nodes(card);
++	spin_unlock_irqrestore(&card->lock, flags);
  
--	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- 	kfree(priv);
+ 	/* Wait for all users, especially device workqueue jobs, to finish. */
+ 	fw_card_put(card);
+--- a/drivers/firewire/core-topology.c
++++ b/drivers/firewire/core-topology.c
+@@ -386,16 +386,13 @@ static void report_found_node(struct fw_
+ 	card->bm_retries = 0;
  }
+ 
++/* Must be called with card->lock held */
+ void fw_destroy_nodes(struct fw_card *card)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&card->lock, flags);
+ 	card->color++;
+ 	if (card->local_node != NULL)
+ 		for_each_fw_node(card, card->local_node, report_lost_node);
+ 	card->local_node = NULL;
+-	spin_unlock_irqrestore(&card->lock, flags);
+ }
+ 
+ static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
+@@ -521,6 +518,8 @@ void fw_core_handle_bus_reset(struct fw_
+ 	struct fw_node *local_node;
+ 	unsigned long flags;
+ 
++	spin_lock_irqsave(&card->lock, flags);
++
+ 	/*
+ 	 * If the selfID buffer is not the immediate successor of the
+ 	 * previously processed one, we cannot reliably compare the
+@@ -532,8 +531,6 @@ void fw_core_handle_bus_reset(struct fw_
+ 		card->bm_retries = 0;
+ 	}
+ 
+-	spin_lock_irqsave(&card->lock, flags);
+-
+ 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
+ 	card->node_id = node_id;
+ 	/*
 
 
