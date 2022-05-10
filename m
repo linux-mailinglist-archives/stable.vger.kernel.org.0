@@ -2,127 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BF9521718
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7285A5219B5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241546AbiEJNXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58494 "EHLO
+        id S238564AbiEJNuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243390AbiEJNVu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:50 -0400
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3047B4B436;
-        Tue, 10 May 2022 06:16:00 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id bv19so32893249ejb.6;
-        Tue, 10 May 2022 06:16:00 -0700 (PDT)
+        with ESMTP id S244601AbiEJNqw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:52 -0400
+Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691A613B8CD;
+        Tue, 10 May 2022 06:31:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=IAUYLfqUIj6E6rVxVYSr8ar5yxzTVRlspTjstUVMSqg=;
-        b=Kju8Nya5/XzIqQPFDQl+lLN/vdxQvO8nw82I6Cr/P2t0lP1LxewlPMEkZl50gU+NJx
-         EVHiqlLW/afmurs5qFfVPvnIEbSamovPXxVy6QO8HS2lbg+PPVOgVESFRsRZK1cvlsem
-         fLM1e3Se75/O5VRz4JCIjzojI3Ae2HKrotoKEWB9jd58QIh+jz7WPvneEyC1YHwq/u++
-         pLTv93QgcMBO89LBbL6+xHNlmBiCylB6haSMfnPxOhOXPi/QikKvYe4sARppoGu7t2LD
-         4gLlQhCX6KCgyQDYd0zTU0OUtZXPe71q9H2xiWbn7m2ypLQCgtQVyXxFUicUyHPIoIiA
-         L35Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=IAUYLfqUIj6E6rVxVYSr8ar5yxzTVRlspTjstUVMSqg=;
-        b=JyU+pRWJmJ+PYaJIw16c7frLyCDsUJCf72qwwqlHyVCBn2E+ieNzpKH3R2kDwXb5zQ
-         WyF6j+XiHfjfvr2pjj9U6afGWzGm720mIhtOX4gtmJOvMugtxPvuWf0xH71mnq8uatVi
-         bmdzD/dT0dcxYXRDL04WVDnDjziCM8a0hyzULI8QHdKR5dytbW7FGyfaQS/kyi8gR6Cj
-         0E4DRVLpwA0UDj4P1jMX5ZLIpxrEfAzboHM/O1jctBxWBY0/pgHl+QEGiSwgFCDvcHGw
-         23hgLfCtVdpHCv91PGX6Ty5OLcVizsRh7x6l8/ST/nwL4GLwSBje2Amxn0UyGh0zxYjA
-         mpXg==
-X-Gm-Message-State: AOAM532JSPqujPEwchNiCSE6OOP80UqeeXl2UWIvCUDcgUgv1y6D8WEK
-        Ps+yq2KqxJvtVuwauVDHGxclZhMreBGPoya8Izw=
-X-Google-Smtp-Source: ABdhPJz5LNJY8GWY1rPBqNXs5mgGPNUJ7IWDbR7vrbqymeXQ+f5NfjaRqg3kCUCDIP5W7agINa98ubQ7lfZODUF1mn0=
-X-Received: by 2002:a17:906:c284:b0:6f4:dcc3:7939 with SMTP id
- r4-20020a170906c28400b006f4dcc37939mr18980434ejz.444.1652188554545; Tue, 10
- May 2022 06:15:54 -0700 (PDT)
+  d=amazon.de; i=@amazon.de; q=dns/txt; s=amazon201209;
+  t=1652189503; x=1683725503;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=TwU6CtF1V9/2Y57AY/B4As4rfmtIlL8LhHI2uYJkLIs=;
+  b=OYoLAdBzkTYHiCkvWlZUsU0y2qV5R8iDsLqtqbbOtgBqTj5UuS9BaX8D
+   891shD4v9kcElO6bJ2olRWHQYHG5DcHt83FJCFqwwy/wVLXLTgaNtzsSG
+   cC1RmTK6zm8Vr0KkCMA5144OxhTFKrvOfawxGXegiNwCPWxihqPco/+oS
+   I=;
+X-IronPort-AV: E=Sophos;i="5.91,214,1647302400"; 
+   d="scan'208";a="193949634"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-iad-1e-b69ea591.us-east-1.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-33001.sea14.amazon.com with ESMTP; 10 May 2022 13:31:18 +0000
+Received: from EX13D08EUB004.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan2.iad.amazon.com [10.40.163.34])
+        by email-inbound-relay-iad-1e-b69ea591.us-east-1.amazon.com (Postfix) with ESMTPS id EE987C040C;
+        Tue, 10 May 2022 13:31:08 +0000 (UTC)
+Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
+ EX13D08EUB004.ant.amazon.com (10.43.166.158) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.32; Tue, 10 May 2022 13:31:06 +0000
+Received: from dev-dsk-mheyne-1b-c1524648.eu-west-1.amazon.com (10.15.60.66)
+ by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP Server id
+ 15.0.1497.32 via Frontend Transport; Tue, 10 May 2022 13:31:05 +0000
+Received: by dev-dsk-mheyne-1b-c1524648.eu-west-1.amazon.com (Postfix, from userid 5466572)
+        id 2BD5441131; Tue, 10 May 2022 13:31:05 +0000 (UTC)
+From:   Maximilian Heyne <mheyne@amazon.de>
+CC:     Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juergen Gross <jgross@suse.com>, <x86@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Borislav Petkov <bp@alien8.de>,
+        <xen-devel@lists.xenproject.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Maximilian Heyne <mheyne@amazon.de>, <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        <linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>
+Subject: [PATCH 1/4] x86/asm: Allow to pass macros to __ASM_FORM()
+Date:   Tue, 10 May 2022 13:30:30 +0000
+Message-ID: <20220510133036.46767-2-mheyne@amazon.de>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220510133036.46767-1-mheyne@amazon.de>
+References: <20220510133036.46767-1-mheyne@amazon.de>
 MIME-Version: 1.0
-References: <20220503191709.155266-1-urezki@gmail.com> <YnpIpYgD7W4q+Nwj@kroah.com>
-In-Reply-To: <YnpIpYgD7W4q+Nwj@kroah.com>
-From:   Uladzislau Rezki <urezki@gmail.com>
-Date:   Tue, 10 May 2022 15:15:43 +0200
-Message-ID: <CA+KHdyXGoWfyXvwqYAqhwks36RUJhBztVov10nA0qi8Lnc1FtA@mail.gmail.com>
-Subject: Re: [PATCH 0/2] RCU offloading vs scheduler latency(for 5.15 stable)
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, RCU <rcu@vger.kernel.org>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Oleksiy Avramchenko <oleksiy.avramchenko@sony.com>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Neeraj Upadhyay <neeraj.iitr10@gmail.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thank you!
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-On Tue, May 10, 2022 at 1:12 PM Greg KH <greg@kroah.com> wrote:
->
-> On Tue, May 03, 2022 at 09:17:07PM +0200, Uladzislau Rezki (Sony) wrote:
-> > Motivation of backport:
-> > -----------------------
-> >
-> > 1. The cfcdef5e30469 ("rcu: Allow rcu_do_batch() to dynamically adjust batch sizes")
-> > broke the default behaviour of "offloading rcu callbacks" setup. In that scenario
-> > after each callback the caller context was used to check if it has to be rescheduled
-> > giving a CPU time for others. After that change an "offloaded" setup can switch to
-> > time-based RCU callbacks processing, what can be long for latency sensitive workloads
-> > and SCHED_FIFO processes, i.e. callbacks are invoked for a long time with keeping
-> > preemption off and without checking cond_resched().
-> >
-> > 2. Our devices which run Android and 5.10 kernel have some critical areas which
-> > are sensitive to latency. It is a low latency audio, 8k video, UI stack and so on.
-> > For example below is a trace that illustrates a delay of "irq/396-5-0072" RT task
-> > to complete IRQ processing:
-> >
-> > <snip>
-> >   rcuop/6-54  [000] d.h2  183.752989: irq_handler_entry:    irq=85 name=i2c_geni
-> >   rcuop/6-54  [000] d.h5  183.753007: sched_waking:         comm=irq/396-5-0072 pid=12675 prio=49 target_cpu=000
-> >   rcuop/6-54  [000] dNh6  183.753014: sched_wakeup:         irq/396-5-0072:12675 [49] success=1 CPU:000
-> >   rcuop/6-54  [000] dNh2  183.753015: irq_handler_exit:     irq=85 ret=handled
-> >   rcuop/6-54  [000] .N..  183.753018: rcu_invoke_callback:  rcu_preempt rhp=0xffffff88ffd440b0 func=__d_free.cfi_jt
-> >   rcuop/6-54  [000] .N..  183.753020: rcu_invoke_callback:  rcu_preempt rhp=0xffffff892ffd8400 func=inode_free_by_rcu.cfi_jt
-> >   rcuop/6-54  [000] .N..  183.753021: rcu_invoke_callback:  rcu_preempt rhp=0xffffff89327cd708 func=i_callback.cfi_jt
-> >   ...
-> >   rcuop/6-54  [000] .N..  183.755941: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c5a968 func=i_callback.cfi_jt
-> >   rcuop/6-54  [000] .N..  183.755942: rcu_invoke_callback:  rcu_preempt rhp=0xffffff8993c4bd20 func=__d_free.cfi_jt
-> >   rcuop/6-54  [000] dN..  183.755944: rcu_batch_end:        rcu_preempt CBs-invoked=2112 idle=>c<>c<>c<>c<
-> >   rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      Start context switch
-> >   rcuop/6-54  [000] dN..  183.755946: rcu_utilization:      End context switch
-> >   rcuop/6-54  [000] d..2  183.755959: sched_switch:         rcuop/6:54 [120] R ==> migration/0:16 [0]
-> >   ...
-> >   migratio-16 [000] d..2  183.756021: sched_switch:         migration/0:16 [0] S ==> irq/396-5-0072:12675 [49]
-> > <snip>
-> >
-> > The "irq/396-5-0072:12675" was delayed for ~3 milliseconds due to introduced side effect.
-> > Please note, on our Android devices we get ~70 000 callbacks registered to be invoked by
-> > the "rcuop/x" workers. This is during 1 seconds time interval and regular handset usage.
-> > Latencies bigger that 3 milliseconds affect our high-resolution audio streaming over the
-> > LDAC/Bluetooth stack.
-> >
-> > Two patches depend on each other.
->
-> All now queued up, thanks.
->
-> greg k-h
+commit f7919fd943abf0c77aed4441ea9897a323d132f5 upstream
 
+Use __stringify() at __ASM_FORM() so that user can pass
+code including macros to __ASM_FORM().
 
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: x86@kernel.org
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: xen-devel@lists.xenproject.org
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/156777562873.25081.2288083344657460959.stgit@devnote2
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
+Cc: stable@vger.kernel.org # 5.4.x
+---
+ arch/x86/include/asm/asm.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
+diff --git a/arch/x86/include/asm/asm.h b/arch/x86/include/asm/asm.h
+index 3ff577c0b102..1b563f9167ea 100644
+--- a/arch/x86/include/asm/asm.h
++++ b/arch/x86/include/asm/asm.h
+@@ -7,9 +7,11 @@
+ # define __ASM_FORM_RAW(x)     x
+ # define __ASM_FORM_COMMA(x) x,
+ #else
+-# define __ASM_FORM(x)	" " #x " "
+-# define __ASM_FORM_RAW(x)     #x
+-# define __ASM_FORM_COMMA(x) " " #x ","
++#include <linux/stringify.h>
++
++# define __ASM_FORM(x)	" " __stringify(x) " "
++# define __ASM_FORM_RAW(x)     __stringify(x)
++# define __ASM_FORM_COMMA(x) " " __stringify(x) ","
+ #endif
+ 
+ #ifndef __x86_64__
 -- 
-Uladzislau Rezki
+2.32.0
+
+
+
+
+Amazon Development Center Germany GmbH
+Krausenstr. 38
+10117 Berlin
+Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
+Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
+Sitz: Berlin
+Ust-ID: DE 289 237 879
+
+
+
