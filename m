@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A71B521998
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C33952168A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244273AbiEJNts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
+        id S242321AbiEJNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:15:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244902AbiEJNrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E4F1D8640;
-        Tue, 10 May 2022 06:32:32 -0700 (PDT)
+        with ESMTP id S242318AbiEJNPc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:32 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B8A369CD;
+        Tue, 10 May 2022 06:11:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AB23617F5;
-        Tue, 10 May 2022 13:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C60C385C2;
-        Tue, 10 May 2022 13:32:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B976ACE1EE2;
+        Tue, 10 May 2022 13:11:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D0EC385D3;
+        Tue, 10 May 2022 13:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189551;
-        bh=AXVlMqWVh31M/5HakdprczmpNhoKSmd7rznleQMc9Hc=;
+        s=korg; t=1652188273;
+        bh=xNaN2J7XaIrUH2DW0OpIFN3289nXX4c1YssyrcL1db8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gCUPV+UNvT36wM0FfcxHtw5qrIXR4p+VNSOogc2JtvczbUgjcU8RIF9wlaxw9Cgp7
-         MpyxJUlZHSR5CtAxCIAr0A3QgoUhyGwrJh1w2vmkjKgD7JjhA5C6RCj6IqG6otgnlO
-         a5ZhXXZ0V6k/wEo8GTmsZ25MERRX3tPhGe0Dnugk=
+        b=Pw8pOGGubpV+CxEvoWX0cVWgJtpVS7YE+kuPgt8Dk4IDVeNQrTqnb9gjYLkrHBWOE
+         8Id6VIzafnH5/GB0Bi4MZlUUP1A0A018j+sk4QDu/a7TyDrKUw+6Sv3z1XiVDdVV6N
+         F0pXuCp7Ho6BsJ5+37i7FhiIdckUMzRnQ4mYQwS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 046/135] iommu/vt-d: Drop stop marker messages
-Date:   Tue, 10 May 2022 15:07:08 +0200
-Message-Id: <20220510130741.719786279@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 19/66] hex2bin: make the function hex_to_bin constant-time
+Date:   Tue, 10 May 2022 15:07:09 +0200
+Message-Id: <20220510130730.327688811@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +53,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit da8669ff41fa31573375c9a4180f5c080677204b upstream.
+commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
 
-The page fault handling framework in the IOMMU core explicitly states
-that it doesn't handle PCI PASID Stop Marker and the IOMMU drivers must
-discard them before reporting faults. This handles Stop Marker messages
-in prq_event_thread() before reporting events to the core.
+The function hex2bin is used to load cryptographic keys into device
+mapper targets dm-crypt and dm-integrity.  It should take constant time
+independent on the processed data, so that concurrently running
+unprivileged code can't infer any information about the keys via
+microarchitectural convert channels.
 
-The VT-d driver explicitly drains the pending page requests when a CPU
-page table (represented by a mm struct) is unbound from a PASID according
-to the procedures defined in the VT-d spec. The Stop Marker messages do
-not need a response. Hence, it is safe to drop the Stop Marker messages
-silently if any of them is found in the page request queue.
+This patch changes the function hex_to_bin so that it contains no
+branches and no memory accesses.
 
-Fixes: d5b9e4bfe0d88 ("iommu/vt-d: Report prq to io-pgfault framework")
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Reviewed-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Link: https://lore.kernel.org/r/20220421113558.3504874-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20220423082330.3897867-2-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Note that this shouldn't cause performance degradation because the size
+of the new function is the same as the size of the old function (on
+x86-64) - and the new function causes no branch misprediction penalties.
+
+I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
+i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
+sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
+powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
+no branches in the generated code.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/intel/svm.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/kernel.h |    2 +-
+ lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
---- a/drivers/iommu/intel/svm.c
-+++ b/drivers/iommu/intel/svm.c
-@@ -978,6 +978,10 @@ bad_req:
- 			goto bad_req;
- 		}
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -530,7 +530,7 @@ static inline char *hex_byte_pack_upper(
+ 	return buf;
+ }
  
-+		/* Drop Stop Marker message. No need for a response. */
-+		if (unlikely(req->lpig && !req->rd_req && !req->wr_req))
-+			goto prq_advance;
-+
- 		if (!svm || svm->pasid != req->pasid) {
- 			/*
- 			 * It can't go away, because the driver is not permitted
+-extern int hex_to_bin(char ch);
++extern int hex_to_bin(unsigned char ch);
+ extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
+ extern char *bin2hex(char *dst, const void *src, size_t count);
+ 
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -24,15 +24,33 @@ EXPORT_SYMBOL(hex_asc_upper);
+  *
+  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
+  * input.
++ *
++ * This function is used to load cryptographic keys, so it is coded in such a
++ * way that there are no conditions or memory accesses that depend on data.
++ *
++ * Explanation of the logic:
++ * (ch - '9' - 1) is negative if ch <= '9'
++ * ('0' - 1 - ch) is negative if ch >= '0'
++ * we "and" these two values, so the result is negative if ch is in the range
++ *	'0' ... '9'
++ * we are only interested in the sign, so we do a shift ">> 8"; note that right
++ *	shift of a negative value is implementation-defined, so we cast the
++ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
++ *	the range '0' ... '9', 0 otherwise
++ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
++ *	in the range '0' ... '9', 0 otherwise
++ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
++ *	... '9', -1 otherwise
++ * the next line is similar to the previous one, but we need to decode both
++ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
++ *	lowercase to uppercase
+  */
+-int hex_to_bin(char ch)
++int hex_to_bin(unsigned char ch)
+ {
+-	if ((ch >= '0') && (ch <= '9'))
+-		return ch - '0';
+-	ch = tolower(ch);
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return ch - 'a' + 10;
+-	return -1;
++	unsigned char cu = ch & 0xdf;
++	return -1 +
++		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
++		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+ }
+ EXPORT_SYMBOL(hex_to_bin);
+ 
 
 
