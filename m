@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0EB521684
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DAD852170B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235563AbiEJNPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:15:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59720 "EHLO
+        id S242897AbiEJNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242311AbiEJNPM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E963BBCC;
-        Tue, 10 May 2022 06:11:07 -0700 (PDT)
+        with ESMTP id S243037AbiEJNVV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415D853B6C;
+        Tue, 10 May 2022 06:14:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72CEEB81DA0;
-        Tue, 10 May 2022 13:11:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4BD1C385A6;
-        Tue, 10 May 2022 13:11:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25FD6615FA;
+        Tue, 10 May 2022 13:14:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C68C385A6;
+        Tue, 10 May 2022 13:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188264;
-        bh=OxnQB7/QxrTZahRDC9oFBGORMX0uRlChmyDd5jW8Gq4=;
+        s=korg; t=1652188479;
+        bh=R5zxNH/6ea6tY49yUZgBAJKjIXrIpEJh7MaPAFq5tNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2sBGzvDH8t2qMxrt0hx72zyVQED9xinlleXNpn8tUVwDL8Z1J7HPzcLP8c5QJeNz7
-         f5GCRzadnzHeMq1E85Nh0gzFThPnGBmQIzeUvAuLe65DzlDus+EGUiu4bso36Hq/kH
-         jpBzCF/dltKnoVy1cNQnl8OA1hNvIdSj2x4UwD4M=
+        b=ZZXvfXqqpo+bKnfFBpnKbiemNlUO3xylD1GTDta4y+7OuqKYCJswY9KrNr/Z2lKUI
+         Pi7lbBeFIetezGeJSaa15anxoWfM6LuMAFviyYu7zoWb2X0Iqaniuga/gfsKI9A2Ey
+         Z+tm/C40j3RY2irDmzfaB/vDSbasTReiXsRa5ehc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vijayavardhan Vennapusa <vvreddy@codeaurora.org>,
-        Dan Vacura <w36195@motorola.com>, stable <stable@kernel.org>
-Subject: [PATCH 4.9 16/66] usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
-Date:   Tue, 10 May 2022 15:07:06 +0200
-Message-Id: <20220510130730.241763536@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 4.14 21/78] serial: 8250: Also set sticky MCR bits in console restoration
+Date:   Tue, 10 May 2022 15:07:07 +0200
+Message-Id: <20220510130733.157855699@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +46,43 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit bf95c4d4630c7a2c16e7b424fdea5177d9ce0864 upstream.
+commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
 
-If any function like UVC is deactivating gadget as part of composition
-switch which results in not calling pullup enablement, it is not getting
-enabled after switch to new composition due to this deactivation flag
-not cleared. This results in USB enumeration not happening after switch
-to new USB composition. Hence clear deactivation flag inside gadget
-structure in configfs_composite_unbind() before switch to new USB
-composition.
+Sticky MCR bits are lost in console restoration if console suspending
+has been disabled.  This currently affects the AFE bit, which works in
+combination with RTS which we set, so we want to make sure the UART
+retains control of its FIFO where previously requested.  Also specific
+drivers may need other bits in the future.
 
-Signed-off-by: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
-Signed-off-by: Dan Vacura <w36195@motorola.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20220413211038.72797-1-w36195@motorola.com
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
+Cc: stable@vger.kernel.org # v4.0+
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/configfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/8250/8250_port.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/configfs.c
-+++ b/drivers/usb/gadget/configfs.c
-@@ -1409,6 +1409,8 @@ static void configfs_composite_unbind(st
- 	usb_ep_autoconfig_reset(cdev->gadget);
- 	spin_lock_irqsave(&gi->spinlock, flags);
- 	cdev->gadget = NULL;
-+	cdev->deactivations = 0;
-+	gadget->deactivated = false;
- 	set_gadget_data(gadget, NULL);
- 	spin_unlock_irqrestore(&gi->spinlock, flags);
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -3240,7 +3240,7 @@ static void serial8250_console_restore(s
+ 
+ 	serial8250_set_divisor(port, baud, quot, frac);
+ 	serial_port_out(port, UART_LCR, up->lcr);
+-	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
++	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
  }
+ 
+ /*
 
 
