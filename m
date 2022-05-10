@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9D452180A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E499521805
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242991AbiEJNcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
+        id S242537AbiEJNcw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:32:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243378AbiEJNam (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750812C511A;
-        Tue, 10 May 2022 06:21:27 -0700 (PDT)
+        with ESMTP id S243919AbiEJNcV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2B51D54;
+        Tue, 10 May 2022 06:23:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1555F616D0;
-        Tue, 10 May 2022 13:21:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2103AC385A6;
-        Tue, 10 May 2022 13:21:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75BBFB81D7A;
+        Tue, 10 May 2022 13:23:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBDEEC385C2;
+        Tue, 10 May 2022 13:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188886;
-        bh=NmlfjBAVVEP/vw+cxYqZN4npXt02El+JYjH9uacL4go=;
+        s=korg; t=1652189023;
+        bh=qS9yeF5Z4kqyQaN+jkF6ZO2qnwVTEewgiRMJ/qCZUY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DQCh7XtIEUUU3dr4s85wAprRgDQqiIQ69jkKAiucbhSIPYiU6QM8MeP2GRWVqOOqT
-         weD2q6Pz5cB+ah6nxohD3QiA0ciGNJBr6piuZjlDxmWDPc7440d7JbLb+qOXeKpUmN
-         66B5h0eG9do6ErMVA5LmiwrBUtM+9IoimhWqek3k=
+        b=vsuvJgX+iw44plVfiOEzFKvkjDcRTjxBPRhLoav92kG21ydBkCBmJJGWxys/BmvNb
+         KTy7Hw/dhGdqvLEmYNNEuzlFcRWrTEZpH1U2BKHBmsQWym8DLD7Ax6MEjTyLulT/JK
+         aozR6Cs+KgUR6RRcIHlmoNnNXkGrO1dY+u7J8OI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
-        Sandipan Das <sandipan.das@amd.com>,
+        stable@vger.kernel.org, Aili Yao <yaoaili@kingsoft.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 81/88] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
-Date:   Tue, 10 May 2022 15:08:06 +0200
-Message-Id: <20220510130736.084725368@linuxfoundation.org>
+Subject: [PATCH 5.4 38/52] KVM: LAPIC: Enable timer posted-interrupt only when mwait/hlt is advertised
+Date:   Tue, 10 May 2022 15:08:07 +0200
+Message-Id: <20220510130730.967514649@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan.das@amd.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
+[ Upstream commit 1714a4eb6fb0cb79f182873cd011a8ed60ac65e8 ]
 
-On some x86 processors, CPUID leaf 0xA provides information
-on Architectural Performance Monitoring features. It
-advertises a PMU version which Qemu uses to determine the
-availability of additional MSRs to manage the PMCs.
+As commit 0c5f81dad46 ("KVM: LAPIC: Inject timer interrupt via posted
+interrupt") mentioned that the host admin should well tune the guest
+setup, so that vCPUs are placed on isolated pCPUs, and with several pCPUs
+surplus for *busy* housekeeping.  In this setup, it is preferrable to
+disable mwait/hlt/pause vmexits to keep the vCPUs in non-root mode.
 
-Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
-the same, the kernel constructs return values based on the
-x86_pmu_capability irrespective of the vendor.
+However, if only some guests isolated and others not, they would not
+have any benefit from posted timer interrupts, and at the same time lose
+VMX preemption timer fast paths because kvm_can_post_timer_interrupt()
+returns true and therefore forces kvm_can_use_hv_timer() to false.
 
-This leaf and the additional MSRs are not supported on AMD
-and Hygon processors. If AMD PerfMonV2 is detected, the PMU
-version is set to 2 and guest startup breaks because of an
-attempt to access a non-existent MSR. Return zeros to avoid
-this.
+By guaranteeing that posted-interrupt timer is only used if MWAIT or
+HLT are done without vmexit, KVM can make a better choice and use the
+VMX preemption timer and the corresponding fast paths.
 
-Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
-Reported-by: Vasant Hegde <vasant.hegde@amd.com>
-Signed-off-by: Sandipan Das <sandipan.das@amd.com>
-Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
+Reported-by: Aili Yao <yaoaili@kingsoft.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Cc: Aili Yao <yaoaili@kingsoft.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1643112538-36743-1-git-send-email-wanpengli@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/cpuid.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kvm/lapic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index 097eef712cdc..0489ffc3dfe5 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -532,6 +532,11 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
- 		union cpuid10_eax eax;
- 		union cpuid10_edx edx;
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index afe3b8e61514..3696b4de9d99 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -118,7 +118,8 @@ static inline u32 kvm_x2apic_id(struct kvm_lapic *apic)
  
-+		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
-+			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
-+			break;
-+		}
-+
- 		perf_get_x86_pmu_capability(&cap);
+ bool kvm_can_post_timer_interrupt(struct kvm_vcpu *vcpu)
+ {
+-	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu);
++	return pi_inject_timer && kvm_vcpu_apicv_active(vcpu) &&
++		(kvm_mwait_in_guest(vcpu->kvm) || kvm_hlt_in_guest(vcpu->kvm));
+ }
+ EXPORT_SYMBOL_GPL(kvm_can_post_timer_interrupt);
  
- 		/*
 -- 
 2.35.1
 
