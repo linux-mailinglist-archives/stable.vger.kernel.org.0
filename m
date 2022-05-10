@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6692352189A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AFEB5216F6
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243333AbiEJNjT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
+        id S242862AbiEJNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244070AbiEJNgs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:36:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B172D7EE5;
-        Tue, 10 May 2022 06:25:21 -0700 (PDT)
+        with ESMTP id S243560AbiEJNWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ECCA53A44;
+        Tue, 10 May 2022 06:16:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75BBF60B12;
-        Tue, 10 May 2022 13:25:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692B6C385C2;
-        Tue, 10 May 2022 13:25:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47C65B81DA3;
+        Tue, 10 May 2022 13:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCD2C385A6;
+        Tue, 10 May 2022 13:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189119;
-        bh=/G7G98mOkb3wMCY7W2ZwgXvwNVhR/tDRGLVkEvO0kr0=;
+        s=korg; t=1652188576;
+        bh=JJe8sEvxS5e9xUkxokihEGFI8ATuPtWVWFYdW0GQdmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laoFzC6694BMLLcpm3e6TZEbHHIm8iHO4+swfcdcMFBh/KQYL69gzMX16g/gLcEkG
-         JQUYXDnsP0GuUJwjWZzY7vkwWuip2gfbI4Yi6YyMpDxkIL9ln3h59lUROqIA9zATfG
-         IrxAJJ4JpnT+fZ+IJJmE8F1Vwb0Ukbl6BGGP68jY=
+        b=tMRrb0d1sEUFRA2c4bvzVkRGuxfwxmAiFSHYXdoy+YR+LOHTTBmgJGMPgrJ7Twxuo
+         vPJEEjpx+/GG1lk0Pf4XWRQZ6dOUvnX/NF+9qkWrMZ4icaTZqp9D0fcF6dhO2XrVic
+         jd0+YVmK9+Ilu9WCEl+6bT4g6428c/UMQwIpfykU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.10 19/70] ASoC: meson: Fix event generation for AUI ACODEC mux
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.14 52/78] tty: n_gsm: fix incorrect UA handling
 Date:   Tue, 10 May 2022 15:07:38 +0200
-Message-Id: <20220510130733.430864409@linuxfoundation.org>
+Message-Id: <20220510130734.079029094@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 2e3a0d1bfa95b54333f7add3e50e288769373873 upstream.
+commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
 
-The AIU ACODEC has a custom put() operation which returns 0 when the value
-of the mux changes, meaning that events are not generated for userspace.
-Change to return 1 in this case, the function returns early in the case
-where there is no change.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
+acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
+discarded. Currently, all UA frame are handled in the same way regardless
+of the PF bit. This does not comply with the standard.
+Remove the UA case in gsm_queue() to process only UA frames with PF bit set
+to 1 to abide the standard.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20220421123803.292063-2-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
 Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/meson/aiu-acodec-ctrl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/n_gsm.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/sound/soc/meson/aiu-acodec-ctrl.c
-+++ b/sound/soc/meson/aiu-acodec-ctrl.c
-@@ -58,7 +58,7 @@ static int aiu_acodec_ctrl_mux_put_enum(
- 
- 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
- 
--	return 0;
-+	return 1;
- }
- 
- static SOC_ENUM_SINGLE_DECL(aiu_acodec_ctrl_mux_enum, AIU_ACODEC_CTRL,
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1825,7 +1825,6 @@ static void gsm_queue(struct gsm_mux *gs
+ 		gsm_response(gsm, address, UA);
+ 		gsm_dlci_close(dlci);
+ 		break;
+-	case UA:
+ 	case UA|PF:
+ 		if (cr == 0 || dlci == NULL)
+ 			break;
 
 
