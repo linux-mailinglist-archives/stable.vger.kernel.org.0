@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 940F5521844
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A2E95216ED
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242913AbiEJNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:34:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58656 "EHLO
+        id S242680AbiEJNWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243808AbiEJNcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596A82CE21B;
-        Tue, 10 May 2022 06:22:18 -0700 (PDT)
+        with ESMTP id S243569AbiEJNWF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7793C54F8F;
+        Tue, 10 May 2022 06:16:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA447616E8;
-        Tue, 10 May 2022 13:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E7AC385C2;
-        Tue, 10 May 2022 13:22:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC5FDB81CE7;
+        Tue, 10 May 2022 13:16:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC3DC385CC;
+        Tue, 10 May 2022 13:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188937;
-        bh=ryGuLZuTVvELjmOAxyFYd+KsX+jKUysPaiqjQMBv6xg=;
+        s=korg; t=1652188581;
+        bh=/UVAzQlgFegpmkQYaFIjEN+bkQrQ1feWxFKhU29pdeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfeZMt7I1Kw/RX+KMO4eZHThjTo6LBfU5P4IiHeAF5iNviDnhZH9+rOXdELc2shKS
-         a6WDWH60uXrg7xqMbAsjHd2STS2PiNYK39LxuLKT3/XxzYrIO7AU5uX+prYpsr6jwQ
-         qypNxp+i70itNQbK/ARvUf2ZpwYhhuHiHsfRmHW4=
+        b=rRF3/4KPnf00rkpw3LjnX2FMdxwHKsVt1X/NmZnaXw4AvJDv5nIBWooRH34oldEMe
+         6Rm4gybKhO4DDuF//lPflZvZfGfJ8j9GYqnFjx1HU8FyXKUVLvmeuLkn970fUU6deo
+         A2gp3rxEiWVvXE5cTgW3Le86nnNtWkFl5LAt55Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Pfaff <tpfaff@pcs.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.4 10/52] genirq: Synchronize interrupt thread startup
-Date:   Tue, 10 May 2022 15:07:39 +0200
-Message-Id: <20220510130730.159096997@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.14 54/78] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+Date:   Tue, 10 May 2022 15:07:40 +0200
+Message-Id: <20220510130734.137598475@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,173 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Pfaff <tpfaff@pcs.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 8707898e22fd665bc1d7b18b809be4b56ce25bdd upstream.
+commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
 
-A kernel hang can be observed when running setserial in a loop on a kernel
-with force threaded interrupts. The sequence of events is:
+Fix the discrepancy between the two places we check for the CP0 counter
+erratum in along with the incorrect comparison of the R4400 revision
+number against 0x30 which matches none and consistently consider all
+R4000 and R4400 processors affected, as documented in processor errata
+publications[1][2][3], following the mapping between CP0 PRId register
+values and processor models:
 
-   setserial
-     open("/dev/ttyXXX")
-       request_irq()
-     do_stuff()
-      -> serial interrupt
-         -> wake(irq_thread)
-	      desc->threads_active++;
-     close()
-       free_irq()
-         kthread_stop(irq_thread)
-     synchronize_irq() <- hangs because desc->threads_active != 0
+  PRId   |  Processor Model
+---------+--------------------
+00000422 | R4000 Revision 2.2
+00000430 | R4000 Revision 3.0
+00000440 | R4400 Revision 1.0
+00000450 | R4400 Revision 2.0
+00000460 | R4400 Revision 3.0
 
-The thread is created in request_irq() and woken up, but does not get on a
-CPU to reach the actual thread function, which would handle the pending
-wake-up. kthread_stop() sets the should stop condition which makes the
-thread immediately exit, which in turn leaves the stale threads_active
-count around.
+No other revision of either processor has ever been spotted.
 
-This problem was introduced with commit 519cc8652b3a, which addressed a
-interrupt sharing issue in the PCIe code.
+Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
+R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
+CP0 counter as buggy does not preclude it from being used as either a
+clock event or a clock source device.  It just cannot be used as both at
+a time, because in that case clock event interrupts will be occasionally
+lost, and the use as a clock event device takes precedence.
 
-Before that commit free_irq() invoked synchronize_irq(), which waits for
-the hard interrupt handler and also for associated threads to complete.
+Compare against 0x4ff in `can_use_mips_counter' so that a single machine
+instruction is produced.
 
-To address the PCIe issue synchronize_irq() was replaced with
-__synchronize_hardirq(), which only waits for the hard interrupt handler to
-complete, but not for threaded handlers.
 
-This was done under the assumption, that the interrupt thread already
-reached the thread function and waits for a wake-up, which is guaranteed to
-be handled before acting on the stop condition. The problematic case, that
-the thread would not reach the thread function, was obviously overlooked.
+[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+    Technologies Inc., May 10, 1994, Erratum 53, p.13
 
-Make sure that the interrupt thread is really started and reaches
-thread_fn() before returning from __setup_irq().
+[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+    Inc., February 9, 1994, Erratum 21, p.4
 
-This utilizes the existing wait queue in the interrupt descriptor. The
-wait queue is unused for non-shared interrupts. For shared interrupts the
-usage might cause a spurious wake-up of a waiter in synchronize_irq() or the
-completion of a threaded handler might cause a spurious wake-up of the
-waiter for the ready flag. Both are harmless and have no functional impact.
+[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
+    Technologies Inc., January 24, 1995, Erratum 14, p.3
 
-[ tglx: Amended changelog ]
-
-Fixes: 519cc8652b3a ("genirq: Synchronize only with single thread on free_irq()")
-Signed-off-by: Thomas Pfaff <tpfaff@pcs.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/552fe7b4-9224-b183-bb87-a8f36d335690@pcs.com
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+Cc: stable@vger.kernel.org # v2.6.24+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/irq/internals.h |    2 ++
- kernel/irq/irqdesc.c   |    2 ++
- kernel/irq/manage.c    |   39 +++++++++++++++++++++++++++++----------
- 3 files changed, 33 insertions(+), 10 deletions(-)
+ arch/mips/include/asm/timex.h |    8 ++++----
+ arch/mips/kernel/time.c       |   11 +++--------
+ 2 files changed, 7 insertions(+), 12 deletions(-)
 
---- a/kernel/irq/internals.h
-+++ b/kernel/irq/internals.h
-@@ -29,12 +29,14 @@ extern struct irqaction chained_action;
-  * IRQTF_WARNED    - warning "IRQ_WAKE_THREAD w/o thread_fn" has been printed
-  * IRQTF_AFFINITY  - irq thread is requested to adjust affinity
-  * IRQTF_FORCED_THREAD  - irq action is force threaded
-+ * IRQTF_READY     - signals that irq thread is ready
-  */
- enum {
- 	IRQTF_RUNTHREAD,
- 	IRQTF_WARNED,
- 	IRQTF_AFFINITY,
- 	IRQTF_FORCED_THREAD,
-+	IRQTF_READY,
- };
+--- a/arch/mips/include/asm/timex.h
++++ b/arch/mips/include/asm/timex.h
+@@ -40,9 +40,9 @@
+ typedef unsigned int cycles_t;
  
  /*
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -405,6 +405,7 @@ static struct irq_desc *alloc_desc(int i
- 	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
- 	mutex_init(&desc->request_mutex);
- 	init_rcu_head(&desc->rcu);
-+	init_waitqueue_head(&desc->wait_for_threads);
- 
- 	desc_set_defaults(irq, desc, node, affinity, owner);
- 	irqd_set(&desc->irq_data, flags);
-@@ -573,6 +574,7 @@ int __init early_irq_init(void)
- 		raw_spin_lock_init(&desc[i].lock);
- 		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class);
- 		mutex_init(&desc[i].request_mutex);
-+		init_waitqueue_head(&desc[i].wait_for_threads);
- 		desc_set_defaults(i, &desc[i], node, NULL, NULL);
- 	}
- 	return arch_early_irq_init();
---- a/kernel/irq/manage.c
-+++ b/kernel/irq/manage.c
-@@ -1103,6 +1103,31 @@ static void irq_wake_secondary(struct ir
- }
- 
- /*
-+ * Internal function to notify that a interrupt thread is ready.
-+ */
-+static void irq_thread_set_ready(struct irq_desc *desc,
-+				 struct irqaction *action)
-+{
-+	set_bit(IRQTF_READY, &action->thread_flags);
-+	wake_up(&desc->wait_for_threads);
-+}
-+
-+/*
-+ * Internal function to wake up a interrupt thread and wait until it is
-+ * ready.
-+ */
-+static void wake_up_and_wait_for_irq_thread_ready(struct irq_desc *desc,
-+						  struct irqaction *action)
-+{
-+	if (!action || !action->thread)
-+		return;
-+
-+	wake_up_process(action->thread);
-+	wait_event(desc->wait_for_threads,
-+		   test_bit(IRQTF_READY, &action->thread_flags));
-+}
-+
-+/*
-  * Interrupt handler thread
-  */
- static int irq_thread(void *data)
-@@ -1113,6 +1138,8 @@ static int irq_thread(void *data)
- 	irqreturn_t (*handler_fn)(struct irq_desc *desc,
- 			struct irqaction *action);
- 
-+	irq_thread_set_ready(desc, action);
-+
- 	if (force_irqthreads && test_bit(IRQTF_FORCED_THREAD,
- 					&action->thread_flags))
- 		handler_fn = irq_forced_thread_fn;
-@@ -1541,8 +1568,6 @@ __setup_irq(unsigned int irq, struct irq
- 	}
- 
- 	if (!shared) {
--		init_waitqueue_head(&desc->wait_for_threads);
+- * On R4000/R4400 before version 5.0 an erratum exists such that if the
+- * cycle counter is read in the exact moment that it is matching the
+- * compare register, no interrupt will be generated.
++ * On R4000/R4400 an erratum exists such that if the cycle counter is
++ * read in the exact moment that it is matching the compare register,
++ * no interrupt will be generated.
+  *
+  * There is a suggested workaround and also the erratum can't strike if
+  * the compare interrupt isn't being used as the clock source device.
+@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
+ 	if (!__builtin_constant_p(cpu_has_counter))
+ 		asm volatile("" : "=m" (cpu_data[0].options));
+ 	if (likely(cpu_has_counter &&
+-		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
++		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
+ 		return 1;
+ 	else
+ 		return 0;
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -155,15 +155,10 @@ static __init int cpu_has_mfc0_count_bug
+ 	case CPU_R4400MC:
+ 		/*
+ 		 * The published errata for the R4400 up to 3.0 say the CPU
+-		 * has the mfc0 from count bug.
++		 * has the mfc0 from count bug.  This seems the last version
++		 * produced.
+ 		 */
+-		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
+-			return 1;
 -
- 		/* Setup the type (level, edge polarity) if configured: */
- 		if (new->flags & IRQF_TRIGGER_MASK) {
- 			ret = __irq_set_trigger(desc,
-@@ -1632,14 +1657,8 @@ __setup_irq(unsigned int irq, struct irq
+-		/*
+-		 * we assume newer revisions are ok
+-		 */
+-		return 0;
++		return 1;
+ 	}
  
- 	irq_setup_timings(desc, new);
- 
--	/*
--	 * Strictly no need to wake it up, but hung_task complains
--	 * when no hard interrupt wakes the thread up.
--	 */
--	if (new->thread)
--		wake_up_process(new->thread);
--	if (new->secondary)
--		wake_up_process(new->secondary->thread);
-+	wake_up_and_wait_for_irq_thread_ready(desc, new);
-+	wake_up_and_wait_for_irq_thread_ready(desc, new->secondary);
- 
- 	register_irq_proc(irq, desc);
- 	new->dir = NULL;
+ 	return 0;
 
 
