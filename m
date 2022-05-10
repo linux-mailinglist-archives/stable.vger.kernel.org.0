@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE15E5219FF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CC32521AD9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240757AbiEJNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:52:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44428 "EHLO
+        id S242433AbiEJOEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:04:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245041AbiEJNrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:13 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 519577658;
-        Tue, 10 May 2022 06:34:05 -0700 (PDT)
+        with ESMTP id S242506AbiEJOEA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16CE98085;
+        Tue, 10 May 2022 06:40:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2F3DCE1E67;
-        Tue, 10 May 2022 13:34:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99DBDC385A6;
-        Tue, 10 May 2022 13:34:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49C8CB81D24;
+        Tue, 10 May 2022 13:40:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD728C385A6;
+        Tue, 10 May 2022 13:40:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189642;
-        bh=IOMGjic0Y5MCySd6f210PJpYaIrCb0vu1Km2VJOHEZ4=;
+        s=korg; t=1652190035;
+        bh=pzdjDdykdV0GuijjeSO1zMlMsGhcfnxWnN7/tA5VIEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mS4WstrVFv3qxxZHYNkcK9nbdpaH/yZyLnecDXaNB6zlsj282AmQjK+ngg9/HEhUK
-         AEakTtIYKHSpcEs78nhS0Tl8woG+ALJvoblBzeev3tpRUA2qmX1QKniyYkc97+t5nP
-         WnXb6A8a8KWgqBqt/W72Kdbo1Osf9AkSrWTXrz7w=
+        b=PRfirbS7dlvxxuR2AlLczhDWiJz1qIrRo7sx9dT0lq4hxxxQ2YXx9AVOA3JOrxh0d
+         XPYmY4m5oxIOyHw4AgFvjB4Ux2FcRpkqB43JkRd9Ya5Alx3Sn3JGaVm0magykMNv7G
+         7Fg8l0llsRhTvCBpfShkUZ9JRHrFBhZvWmRI4up0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 115/135] PCI: aardvark: Disable link training when unbinding driver
+        stable@vger.kernel.org,
+        syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 107/140] net: rds: acquire refcount on TCP sockets
 Date:   Tue, 10 May 2022 15:08:17 +0200
-Message-Id: <20220510130743.700907942@linuxfoundation.org>
+Message-Id: <20220510130744.664750864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 759dec2e3dfdbd261c41d2279f04f2351c971a49 upstream.
+[ Upstream commit 3a58f13a881ed351198ffab4cf9953cf19d2ab3a ]
 
-Disable link training circuit in driver unbind sequence. We want to
-leave link training in the same state as it was before the driver was
-probed.
+syzbot is reporting use-after-free read in tcp_retransmit_timer() [1],
+for TCP socket used by RDS is accessing sock_net() without acquiring a
+refcount on net namespace. Since TCP's retransmission can happen after
+a process which created net namespace terminated, we need to explicitly
+acquire a refcount.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-11-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://syzkaller.appspot.com/bug?extid=694120e1002c117747ed [1]
+Reported-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
+Fixes: 26abe14379f8e2fa ("net: Modify sk_alloc to not reference count the netns of kernel sockets.")
+Fixes: 8a68173691f03661 ("net: sk_clone_lock() should only do get_net() if the parent is not a kernel socket")
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
+Link: https://lore.kernel.org/r/a5fb1fc4-2284-3359-f6a0-e4e390239d7b@I-love.SAKURA.ne.jp
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/rds/tcp.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1725,6 +1725,11 @@ static int advk_pcie_remove(struct platf
- 	if (pcie->reset_gpio)
- 		gpiod_set_value_cansleep(pcie->reset_gpio, 1);
+diff --git a/net/rds/tcp.c b/net/rds/tcp.c
+index 5327d130c4b5..2f638f8b7b1e 100644
+--- a/net/rds/tcp.c
++++ b/net/rds/tcp.c
+@@ -495,6 +495,14 @@ void rds_tcp_tune(struct socket *sock)
  
-+	/* Disable link training */
-+	val = advk_readl(pcie, PCIE_CORE_CTRL0_REG);
-+	val &= ~LINK_TRAINING_EN;
-+	advk_writel(pcie, val, PCIE_CORE_CTRL0_REG);
-+
- 	/* Disable outbound address windows mapping */
- 	for (i = 0; i < OB_WIN_COUNT; i++)
- 		advk_pcie_disable_ob_win(pcie, i);
+ 	tcp_sock_set_nodelay(sock->sk);
+ 	lock_sock(sk);
++	/* TCP timer functions might access net namespace even after
++	 * a process which created this net namespace terminated.
++	 */
++	if (!sk->sk_net_refcnt) {
++		sk->sk_net_refcnt = 1;
++		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
++		sock_inuse_add(net, 1);
++	}
+ 	if (rtn->sndbuf_size > 0) {
+ 		sk->sk_sndbuf = rtn->sndbuf_size;
+ 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
+-- 
+2.35.1
+
 
 
