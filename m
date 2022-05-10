@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 189EF521FB6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9C06521FD6
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346350AbiEJPwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60776 "EHLO
+        id S1346583AbiEJPwj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:52:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347184AbiEJPwD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:52:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D552289BFF;
-        Tue, 10 May 2022 08:47:10 -0700 (PDT)
+        with ESMTP id S1347196AbiEJPwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:52:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E2B28B68C;
+        Tue, 10 May 2022 08:47:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C879B81DF7;
-        Tue, 10 May 2022 15:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338AFC385A6;
-        Tue, 10 May 2022 15:47:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E31D0614A7;
+        Tue, 10 May 2022 15:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D8F8C385C2;
+        Tue, 10 May 2022 15:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197628;
-        bh=Xb2iH1RD9rLYp/HcvNZ8NPrqSJ1SAA5g+w9cI06BPY0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ukOl6X+c/SsN0hsstWhZKeDN8MHZ6nYlKiZzAvAsr1uNJO/cNJNX7o/zo5xSZVmcS
-         C6M64OO4Zgdjd2FC+YQ0p3Dg+n5YzqBrgd4kStmOcpquWF1Y51co4mP0asvQ272HeI
-         rOMUFzp13Jyrssyk96W5aLHX6kWaSVztN/V3Mni0TkOi+Y3nF+ywia9SVFrFu7BGPZ
-         dqrOav3XRQirXc4TYbfjDB7N55hAv+8rIDESv5CpVGmm435t6UeGJIhIvuqnJXMhzU
-         bDfim4ym4MSc9zCcf5dxxgCvG/VA3TSLP/pzSJ5NVU/W64aBBR7oua2OjvNMYj3Phe
-         Y9NZu+/qSi+xQ==
+        s=k20201202; t=1652197635;
+        bh=ISZcK/ZX9IJ8RTUAaEuQ43PU7CydBS6RpFZ6oCpcNbc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OTDC+zJc46Zcm1wTBGZO5fZPpY/5Izxf0uaBplGARW6ZlT/4szyGpOWUxVDO4spgT
+         0WxolEvCSC8IF1ZZB6mUbSLxKYA9/i03TgWYrgmJKsEHXO9a/fKz8B8X7qIKBlhBbr
+         YQ3R3kwSusP6A2Y1APJP1Kkfu5KeRvA0++Cy303giQbCiJBCrlbtpulbHykMAXBoC2
+         azQ3113DLdaPIbBuxipPq82+jO/gtV6JQ4BcMZXBU1kmhXHrU13/V4WYx8j4hb9cIE
+         2G5/M+KptI3cVYFT3asyOhAnY6FehRbSzwFDhTZ9MgEwmfZSOUXFBQ2N80Mo2q0OyE
+         9mX9SCJI/XcmQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
-        Ji-Ze Hong <hpeter+linux_kernel@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 1/4] hwmon: (f71882fg) Fix negative temperature
-Date:   Tue, 10 May 2022 11:47:00 -0400
-Message-Id: <20220510154704.154362-1-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.9 2/4] ASoC: max98090: Reject invalid values in custom control put()
+Date:   Tue, 10 May 2022 11:47:01 -0400
+Message-Id: <20220510154704.154362-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220510154704.154362-1-sashal@kernel.org>
+References: <20220510154704.154362-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,44 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 4aaaaf0f279836f06d3b9d0ffeec7a1e1a04ceef ]
+[ Upstream commit 2fbe467bcbfc760a08f08475eea6bbd4c2874319 ]
 
-All temperature of Fintek superio hwmonitor that using 1-byte reg will use
-2's complement.
+The max98090 driver has a custom put function for some controls which can
+only be updated in certain circumstances which makes no effort to validate
+that input is suitable for the control, allowing out of spec values to be
+written to the hardware and presented to userspace. Fix this by returning
+an error when invalid values are written.
 
-In show_temp()
-	temp = data->temp[nr] * 1000;
-
-When data->temp[nr] read as 255, it indicate -1C, but this code will report
-255C to userspace. It'll be ok when change to:
-	temp = ((s8)data->temp[nr]) * 1000;
-
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-Link: https://lore.kernel.org/r/20220418090706.6339-1-hpeter+linux_kernel@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220420193454.2647908-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/f71882fg.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/codecs/max98090.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hwmon/f71882fg.c b/drivers/hwmon/f71882fg.c
-index cb28e4b4fb10..b87ca56fb774 100644
---- a/drivers/hwmon/f71882fg.c
-+++ b/drivers/hwmon/f71882fg.c
-@@ -1590,8 +1590,9 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
- 		temp *= 125;
- 		if (sign)
- 			temp -= 128000;
--	} else
--		temp = data->temp[nr] * 1000;
-+	} else {
-+		temp = ((s8)data->temp[nr]) * 1000;
-+	}
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index e7aef841f87d..4aefb13900c2 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -419,6 +419,9 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
  
- 	return sprintf(buf, "%d\n", temp);
- }
+ 	val = (val >> mc->shift) & mask;
+ 
++	if (sel < 0 || sel > mc->max)
++		return -EINVAL;
++
+ 	*select = sel;
+ 
+ 	/* Setting a volume is only valid if it is already On */
 -- 
 2.35.1
 
