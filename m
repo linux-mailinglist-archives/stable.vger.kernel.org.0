@@ -2,90 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E9A521518
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 14:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BAB3521581
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 14:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241678AbiEJMYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 08:24:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
+        id S238244AbiEJMiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 08:38:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241670AbiEJMYl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 08:24:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D142CD6
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 05:20:41 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50E9E60A75
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 12:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19524C385C2;
-        Tue, 10 May 2022 12:20:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652185240;
-        bh=5rxW07Ihd0t/36ikoFO1qIBVC9ETiKAvr1S8ZGlmyKw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=YPGVdSU0kFrOemWCjiUkGLacnThZFqV11i8IOK7Y3AvQL2KKMJXkEOGDJtULISiOh
-         yv9X7vskJHZsFNFX0OVTBxQ1udUV8Y7yaEghYFgGfeTQBAWTNfQrjTiDB33GoyOjbb
-         6ZbPViqmX7JZMqLkaV1KUfZ3e//rfx/h7OQKP9sw=
-Date:   Tue, 10 May 2022 14:20:32 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>
-Cc:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Josef Schlehofer <josef.schlehofer@nic.cz>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: [PATCH 4.14 1/2] PCI: aardvark: Clear all MSIs at setup
-Message-ID: <YnpYkEYMYEP9yo3T@kroah.com>
-References: <20220503205434.25275-1-kabel@kernel.org>
- <YnpTTkaVKo8hCOHT@kroah.com>
- <20220510120118.r4nmzqrxw3mmyryd@pali>
+        with ESMTP id S237901AbiEJMiF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 08:38:05 -0400
+Received: from smtp-fw-33001.amazon.com (smtp-fw-33001.amazon.com [207.171.190.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C4B02A7C3C;
+        Tue, 10 May 2022 05:34:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1652186042; x=1683722042;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=AVZzSx7m2KvPuGPmt5Zx8G5rV5fa+SEexHw6KVQP/1c=;
+  b=F3pQHXs7oWqoTIjQbuzfUu7COfBi76dXc4CSktQm8nPf3JegokRekWSs
+   7j0kt+AKClr8PRrOAzz2fYpTCPLzae+Ki8lQo2vlLBcAf3Dy2RapfeSYm
+   oFsxVJAZN9rd0xyDVX/Z72j+BMxUfKU65fplgdDeeXigZ/NQDzdZD8Q94
+   8=;
+X-IronPort-AV: E=Sophos;i="5.91,214,1647302400"; 
+   d="scan'208";a="193936383"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2b-22c2b493.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-33001.sea14.amazon.com with ESMTP; 10 May 2022 12:33:46 +0000
+Received: from EX13MTAUWC001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2b-22c2b493.us-west-2.amazon.com (Postfix) with ESMTPS id 37BF941C44;
+        Tue, 10 May 2022 12:33:45 +0000 (UTC)
+Received: from EX13D20UWC001.ant.amazon.com (10.43.162.244) by
+ EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.32; Tue, 10 May 2022 12:33:45 +0000
+Received: from [0.0.0.0] (10.43.161.183) by EX13D20UWC001.ant.amazon.com
+ (10.43.162.244) with Microsoft SMTP Server (TLS) id 15.0.1497.32; Tue, 10 May
+ 2022 12:33:42 +0000
+Message-ID: <5ad0f302-c1e1-b400-c3f3-a97c1cd443e8@amazon.com>
+Date:   Tue, 10 May 2022 14:33:40 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220510120118.r4nmzqrxw3mmyryd@pali>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.9.0
+Subject: Re: [PATCH v2] KVM: PPC: Book3S PR: Enable MSR_DR for
+ switch_mmu_context()
+To:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+CC:     "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Matt Evans <matt@ozlabs.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220510111809.15987-1-graf@amazon.com>
+ <f7416897-2ca5-6b2f-cfd3-30d9bcc557cd@csgroup.eu>
+From:   Alexander Graf <graf@amazon.com>
+In-Reply-To: <f7416897-2ca5-6b2f-cfd3-30d9bcc557cd@csgroup.eu>
+X-Originating-IP: [10.43.161.183]
+X-ClientProxiedBy: EX13D03UWA002.ant.amazon.com (10.43.160.144) To
+ EX13D20UWC001.ant.amazon.com (10.43.162.244)
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 10, 2022 at 02:01:18PM +0200, Pali Rohár wrote:
-> On Tuesday 10 May 2022 13:58:06 Greg Kroah-Hartman wrote:
-> > On Tue, May 03, 2022 at 10:54:33PM +0200, Marek Behún wrote:
-> > > From: Pali Rohár <pali@kernel.org>
-> > > 
-> > > [ Upstream commit 7d8dc1f7cd007a7ce94c5b4c20d63a8b8d6d7751 ]
-> > > 
-> > > We already clear all the other interrupts (ISR0, ISR1, HOST_CTRL_INT).
-> > > 
-> > > Define a new macro PCIE_MSI_ALL_MASK and do the same clearing for MSIs,
-> > > to ensure that we don't start receiving spurious interrupts.
-> > > 
-> > > Use this new mask in advk_pcie_handle_msi();
-> > > 
-> > > Link: https://lore.kernel.org/r/20211130172913.9727-5-kabel@kernel.org
-> > > Signed-off-by: Pali Rohár <pali@kernel.org>
-> > > Signed-off-by: Marek Behún <kabel@kernel.org>
-> > > Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-> > > Signed-off-by: Marek Behún <kabel@kernel.org>
-> > > ---
-> > >  drivers/pci/host/pci-aardvark.c | 6 ++++--
-> > >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > What about 4.19 and 5.4 for this and patch 2/2?  I can't apply this to
-> > 4.14 without the newer kernels also having it, right?
-> 
-> Do you mean these patches which Marek prepared? Or something else?
-> https://lore.kernel.org/stable/20220504140719.11066-1-kabel@kernel.org/
-> https://lore.kernel.org/stable/20220504140826.11094-1-kabel@kernel.org/
+Ck9uIDEwLjA1LjIyIDEzOjMxLCBDaHJpc3RvcGhlIExlcm95IHdyb3RlOgo+IExlIDEwLzA1LzIw
+MjIgw6AgMTM6MTgsIEFsZXhhbmRlciBHcmFmIGEgw6ljcml0IDoKPj4gQ29tbWl0IDg2Mzc3MWEy
+OGUyNyAoInBvd2VycGMvMzJzOiBDb252ZXJ0IHN3aXRjaF9tbXVfY29udGV4dCgpIHRvIEMiKQo+
+PiBtb3ZlZCB0aGUgc3dpdGNoX21tdV9jb250ZXh0KCkgdG8gQy4gV2hpbGUgaW4gcHJpbmNpcGxl
+IGEgZ29vZCBpZGVhLCBpdAo+PiBtZWFudCB0aGF0IHRoZSBmdW5jdGlvbiBub3cgdXNlcyB0aGUg
+c3RhY2suIFRoZSBzdGFjayBpcyBub3QgYWNjZXNzaWJsZQo+PiBmcm9tIHJlYWwgbW9kZSB0aG91
+Z2guCj4+Cj4+IFNvIHRvIGtlZXAgY2FsbGluZyB0aGUgZnVuY3Rpb24sIGxldCdzIHR1cm4gb24g
+TVNSX0RSIHdoaWxlIHdlIGNhbGwgaXQuCj4+IFRoYXQgd2F5LCBhbGwgcG9pbnRlciByZWZlcmVu
+Y2VzIHRvIHRoZSBzdGFjayBhcmUgaGFuZGxlZCB2aXJ0dWFsbHkuCj4gSXMgdGhlIHN5c3RlbSBy
+ZWFkeSB0byBoYW5kbGUgYSBEU0kgaW4gY2FzZSB0aGUgc3RhY2sgaXMgbm90IG1hcHBlZCA/CgoK
+QSBEU0kgaXRzZWxmIHdpbGwgYmUgYW4gaW50ZXJydXB0IGFnYWluIHdoaWNoIHdpbGwgaW4gdHVy
+biBkZXN0cm95IHRoZSAKU1BSRyB0aGF0IHdlJ3JlIHNhdmluZy4gR3Vlc3MgSSB3YXMgdHJ5aW5n
+IHRvIGJlIHRvbyBzbWFydCA6KS4gSSdsbCB1c2UgCk1hdHQncyBvcmlnaW5hbCBzdWdnZXN0aW9u
+IGFuZCBqdXN0IHB1dCBpdCBvbiB0aGUgc3RhY2suCgoKPj4gSW4gYWRkaXRpb24sIG1ha2Ugc3Vy
+ZSB0byBzYXZlL3Jlc3RvcmUgcjEyIGluIGFuIFNQUkcsIGFzIGl0IG1heSBnZXQKPj4gY2xvYmJl
+cmVkIGJ5IHRoZSBDIGZ1bmN0aW9uLgo+Pgo+PiBSZXBvcnRlZC1ieTogTWF0dCBFdmFucyA8bWF0
+dEBvemxhYnMub3JnPgo+PiBGaXhlczogODYzNzcxYTI4ZTI3ICgicG93ZXJwYy8zMnM6IENvbnZl
+cnQgc3dpdGNoX21tdV9jb250ZXh0KCkgdG8gQyIpCj4gT29wcywgc29ycnkgZm9yIHRoYXQuIEkg
+ZGlkbid0IHJlYWxpc2UgdGhhdCB0aGVyZSB3YXMgb3RoZXIgY2FsbGVycyB0bwo+IHN3aXRjaF9t
+bXVfY29udGV4dCgpIHRoYW4gc3dpdGNoX21tX2lycXNfb2ZmKCkuCgoKTm8gd29ycmllcywgdGhl
+IGNvbXBpbGVkIEMgdmVyc2lvbiBsb29rcyBhIGxvdCBuaWNlciB0aGFuIHRoZSBwcmV2aW91cyAK
+YXNtIG9uZSAtIGFuZCBpdCB3YXMgYSBnb29kIHdheSB0byBpZGVudGlmeSB3aGV0aGVyIHRoZXJl
+IHN0aWxsIGFyZSAKdXNlcnMgb2YgS1ZNIG9uIEJvb2szUyAzMmJpdCBvdXQgdGhlcmUgOikKCgpB
+bGV4CgoKCgoKQW1hem9uIERldmVsb3BtZW50IENlbnRlciBHZXJtYW55IEdtYkgKS3JhdXNlbnN0
+ci4gMzgKMTAxMTcgQmVybGluCkdlc2NoYWVmdHNmdWVocnVuZzogQ2hyaXN0aWFuIFNjaGxhZWdl
+ciwgSm9uYXRoYW4gV2Vpc3MKRWluZ2V0cmFnZW4gYW0gQW10c2dlcmljaHQgQ2hhcmxvdHRlbmJ1
+cmcgdW50ZXIgSFJCIDE0OTE3MyBCClNpdHo6IEJlcmxpbgpVc3QtSUQ6IERFIDI4OSAyMzcgODc5
+CgoK
 
-Odd, I missed those somehow.  Thanks for pointing them out, I'll go
-apply them now.
-
-greg k-h
