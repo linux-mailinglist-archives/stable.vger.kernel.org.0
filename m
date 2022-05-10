@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 558E152168C
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFEF8521A31
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242242AbiEJNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32912 "EHLO
+        id S244259AbiEJNyL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242370AbiEJNPh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:37 -0400
+        with ESMTP id S244890AbiEJNv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:51:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6F044A0C;
-        Tue, 10 May 2022 06:11:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E08F2992DF;
+        Tue, 10 May 2022 06:38:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 28519615F4;
-        Tue, 10 May 2022 13:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C76C385C6;
-        Tue, 10 May 2022 13:11:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1068C618BB;
+        Tue, 10 May 2022 13:37:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C284C385C9;
+        Tue, 10 May 2022 13:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188282;
-        bh=vnTXKHoW+s1UCoDCJYnUiMkurm5wSeldRpOsZ741LXw=;
+        s=korg; t=1652189848;
+        bh=ECmiXNGYewi08JxQt1hFdaf6p24m2pojk7/YQtqMICE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DUZ7Q7RGyiDdlgg1B1OkK7b/GX4ZidaeynLXiXZMKicS5awAJdIDQm3HMkWVCMFf
-         Nw3FfFlpzNCK+khbsrs+R1n7YSuq7AwyjBe+XC/7JB9zBLPvOhTsfzu+JvY8kV1MAC
-         Mjnl2CVHIQuOAM+wzyFxBCJ1jWCuqQfBEz2LlKMM=
+        b=C5JgzXpfBCfgBvvTkBvZZSdHBYORGb+qW6Rqo7i34CodqoNKAed8Nhop4dshYZ0fq
+         aPDeDFL/jp73+AUnCfM+U/EiJgTep2cs2NHiVAWH++lCWWnSiZ7vSUXE+wRk6hbC8U
+         7lAQA8NmoSjuTP2kQH/pMgKoYBDYSPXqaiPngdhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Tim Harvey <tharvey@gateworks.com>,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/66] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 041/140] s390/dasd: fix data corruption for ESE devices
 Date:   Tue, 10 May 2022 15:07:11 +0200
-Message-Id: <20220510130730.383346503@linuxfoundation.org>
+Message-Id: <20220510130742.793578666@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,71 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
+commit 5b53a405e4658580e1faf7c217db3f55a21ba849 upstream.
 
-On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
-on the SoM is often not detected and the following error message is
-seen when the sgtl5000 driver tries to read the ID register:
+For ESE devices we get an error when accessing an unformatted track.
+The handling of this error will return zero data for read requests and
+format the track on demand before writing to it. To do this the code needs
+to distinguish between read and write requests. This is done with data from
+the blocklayer request. A pointer to the blocklayer request is stored in
+the CQR.
 
-sgtl5000 1-000a: Error reading chip id -6
+If there is an error on the device an ERP request is built to do error
+recovery. While the ERP request is mostly a copy of the original CQR the
+pointer to the blocklayer request is not copied to not accidentally pass
+it back to the blocklayer without cleanup.
 
-The reason for the error is that the MCLK clock is not provided
-early enough.
+This leads to the error that during ESE handling after an ERP request was
+built it is not possible to determine the IO direction. This leads to the
+formatting of a track for read requests which might in turn lead to data
+corruption.
 
-Fix the problem by describing the MCLK pinctrl inside the codec
-node instead of placing it inside the audmux pinctrl group.
-
-With this change applied the sgtl5000 is always detected on every boot.
-
-Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Tim Harvey <tharvey@gateworks.com>
-Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-2-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/s390/block/dasd.c      |    8 +++++++-
+ drivers/s390/block/dasd_eckd.c |    2 +-
+ drivers/s390/block/dasd_int.h  |   12 ++++++++++++
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-index 99e323b57261..cbe7b0dcb6eb 100644
---- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-@@ -324,6 +324,8 @@ vgen6_reg: vgen6 {
- 	codec: sgtl5000@0a {
- 		compatible = "fsl,sgtl5000";
- 		reg = <0x0a>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_sgtl5000>;
- 		clocks = <&clks IMX6QDL_CLK_CKO>;
- 		VDDA-supply = <&reg_2p5v>;
- 		VDDIO-supply = <&reg_3p3v>;
-@@ -550,8 +552,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
- 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
- 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
- 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
--			/* SGTL5000 sys_mclk */
--			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
- 		>;
- 	};
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1639,6 +1639,7 @@ void dasd_int_handler(struct ccw_device
+ 	unsigned long now;
+ 	int nrf_suppressed = 0;
+ 	int fp_suppressed = 0;
++	struct request *req;
+ 	u8 *sense = NULL;
+ 	int expires;
  
-@@ -812,6 +812,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
- 		>;
- 	};
+@@ -1739,7 +1740,12 @@ void dasd_int_handler(struct ccw_device
+ 	}
  
-+	pinctrl_sgtl5000: sgtl5000grp {
-+		fsl,pins = <
-+			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
-+		>;
-+	};
+ 	if (dasd_ese_needs_format(cqr->block, irb)) {
+-		if (rq_data_dir((struct request *)cqr->callback_data) == READ) {
++		req = dasd_get_callback_data(cqr);
++		if (!req) {
++			cqr->status = DASD_CQR_ERROR;
++			return;
++		}
++		if (rq_data_dir(req) == READ) {
+ 			device->discipline->ese_read(cqr, irb);
+ 			cqr->status = DASD_CQR_SUCCESS;
+ 			cqr->stopclk = now;
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3145,7 +3145,7 @@ dasd_eckd_ese_format(struct dasd_device
+ 	sector_t curr_trk;
+ 	int rc;
+ 
+-	req = cqr->callback_data;
++	req = dasd_get_callback_data(cqr);
+ 	block = cqr->block;
+ 	base = block->base;
+ 	private = base->private;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -757,6 +757,18 @@ dasd_check_blocksize(int bsize)
+ 	return 0;
+ }
+ 
++/*
++ * return the callback data of the original request in case there are
++ * ERP requests build on top of it
++ */
++static inline void *dasd_get_callback_data(struct dasd_ccw_req *cqr)
++{
++	while (cqr->refers)
++		cqr = cqr->refers;
 +
- 	pinctrl_spdif: spdifgrp {
- 		fsl,pins = <
- 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
--- 
-2.35.1
-
++	return cqr->callback_data;
++}
++
+ /* externals in dasd.c */
+ #define DASD_PROFILE_OFF	 0
+ #define DASD_PROFILE_ON 	 1
 
 
