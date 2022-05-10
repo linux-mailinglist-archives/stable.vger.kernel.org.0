@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A6452170F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D4285217D2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:25:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242896AbiEJNXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
+        id S243230AbiEJN2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243059AbiEJNVW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1732C13CF;
-        Tue, 10 May 2022 06:14:46 -0700 (PDT)
+        with ESMTP id S243967AbiEJN1o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:44 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F55B140AC;
+        Tue, 10 May 2022 06:20:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 222AE61663;
-        Tue, 10 May 2022 13:14:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2023FC385A6;
-        Tue, 10 May 2022 13:14:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 55021CE1E73;
+        Tue, 10 May 2022 13:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D80C385A6;
+        Tue, 10 May 2022 13:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188485;
-        bh=2g/WMPTJPer4iFcfPM0Og5LI/Edv3RTtBnSON5Vy+tU=;
+        s=korg; t=1652188847;
+        bh=pz8zjZPWrbsGCPy0NPZ+4qZXWpmaB0sZuWf9cMya9uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mu89ZQwzxn4VSJL2tcS6r5iZyi9WN42JcBa426/WVpmGp9UHej3XxFndybDCEw5UN
-         TQ67k0DHxrEZ/Mru14TDQeGADVtC/gmTTUwgezpqEfdOvc445v0qy2+oRuB7w6nftg
-         dAY/+w8MlKCkCT2N/ON+R2iHrfoFBCQ/yX7i2atA=
+        b=ZeltMjU/7eppVCfh6nJUDIcIMMpHodI7+LCvAicGoKE0vkC3wGu3et9BgmAiSeanh
+         Yh4YG5JDPhJcPdLzVGMFbnSTbfUky8209j0TNViHtbnIQMqYgZeUtGApp/tN7UxihW
+         3vMPztfpPrBK86Ke19OVjNLqB8vdYNG3SO1Sm/Zo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 23/78] hex2bin: make the function hex_to_bin constant-time
-Date:   Tue, 10 May 2022 15:07:09 +0200
-Message-Id: <20220510130733.218279755@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/88] phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
+Date:   Tue, 10 May 2022 15:07:10 +0200
+Message-Id: <20220510130734.477403714@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,98 +47,45 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
+[ Upstream commit 388ec8f079f2f20d5cd183c3bc6f33cbc3ffd3ef ]
 
-The function hex2bin is used to load cryptographic keys into device
-mapper targets dm-crypt and dm-integrity.  It should take constant time
-independent on the processed data, so that concurrently running
-unprivileged code can't infer any information about the keys via
-microarchitectural convert channels.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-This patch changes the function hex_to_bin so that it contains no
-branches and no memory accesses.
-
-Note that this shouldn't cause performance degradation because the size
-of the new function is the same as the size of the old function (on
-x86-64) - and the new function causes no branch misprediction penalties.
-
-I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
-i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
-sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
-powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
-no branches in the generated code.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220407091857.230386-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel.h |    2 +-
- lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
- 2 files changed, 26 insertions(+), 8 deletions(-)
+ drivers/phy/samsung/phy-exynos5250-sata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -582,7 +582,7 @@ static inline char *hex_byte_pack_upper(
- 	return buf;
- }
+diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
+index 60e13afcd9b8..7960c69d09a6 100644
+--- a/drivers/phy/samsung/phy-exynos5250-sata.c
++++ b/drivers/phy/samsung/phy-exynos5250-sata.c
+@@ -193,6 +193,7 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  
--extern int hex_to_bin(char ch);
-+extern int hex_to_bin(unsigned char ch);
- extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
- extern char *bin2hex(char *dst, const void *src, size_t count);
+ 	sata_phy->client = of_find_i2c_device_by_node(node);
++	of_node_put(node);
+ 	if (!sata_phy->client)
+ 		return -EPROBE_DEFER;
  
---- a/lib/hexdump.c
-+++ b/lib/hexdump.c
-@@ -25,15 +25,33 @@ EXPORT_SYMBOL(hex_asc_upper);
-  *
-  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
-  * input.
-+ *
-+ * This function is used to load cryptographic keys, so it is coded in such a
-+ * way that there are no conditions or memory accesses that depend on data.
-+ *
-+ * Explanation of the logic:
-+ * (ch - '9' - 1) is negative if ch <= '9'
-+ * ('0' - 1 - ch) is negative if ch >= '0'
-+ * we "and" these two values, so the result is negative if ch is in the range
-+ *	'0' ... '9'
-+ * we are only interested in the sign, so we do a shift ">> 8"; note that right
-+ *	shift of a negative value is implementation-defined, so we cast the
-+ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
-+ *	the range '0' ... '9', 0 otherwise
-+ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
-+ *	in the range '0' ... '9', 0 otherwise
-+ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
-+ *	... '9', -1 otherwise
-+ * the next line is similar to the previous one, but we need to decode both
-+ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
-+ *	lowercase to uppercase
-  */
--int hex_to_bin(char ch)
-+int hex_to_bin(unsigned char ch)
- {
--	if ((ch >= '0') && (ch <= '9'))
--		return ch - '0';
--	ch = tolower(ch);
--	if ((ch >= 'a') && (ch <= 'f'))
--		return ch - 'a' + 10;
--	return -1;
-+	unsigned char cu = ch & 0xdf;
-+	return -1 +
-+		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
-+		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
- }
- EXPORT_SYMBOL(hex_to_bin);
- 
+-- 
+2.35.1
+
 
 
