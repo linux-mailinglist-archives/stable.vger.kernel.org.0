@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADE14521AC8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F22DB521939
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244416AbiEJOC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45308 "EHLO
+        id S242769AbiEJNn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244609AbiEJNz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:55:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93BE83F892;
-        Tue, 10 May 2022 06:38:39 -0700 (PDT)
+        with ESMTP id S244822AbiEJNmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BB6238857;
+        Tue, 10 May 2022 06:30:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27323615E9;
-        Tue, 10 May 2022 13:38:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 203F9C385D4;
-        Tue, 10 May 2022 13:38:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1D0061821;
+        Tue, 10 May 2022 13:30:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EBDC385C9;
+        Tue, 10 May 2022 13:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189917;
-        bh=BLhaYnSDWTmnxGZlLocs5B2+vyy327FfiGc2UyQUzZc=;
+        s=korg; t=1652189436;
+        bh=DHz9FBVHZk9j/KZCg+ljNfPo6VkSfiVP4tnwrZI+KG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbYJwSl38SknuIwzYral34U0ruJbuEUtVKS/tcjTMVWfosYplvq6tWCgx4r/VqUu6
-         JKiasACzNbfT2bT0ADHo4ZkxqpefP7FGcM6I7vciXBeEIeCj74HobDRsQlpV0AithE
-         6Odpv0llX94nGsClQWT8oQbJBmAJ9KqDcYDSzzO0=
+        b=gzatFk1IAx3Wf3bfSqxidbIa1jISSYSHD3fKgtjuyCcUhjLgmbgW7tPiewqIIPDNq
+         aRfeLu8Q5NEKXlLMqfueUfP/lHOSwWqbZmMVvuEotQddKVqFjk6nFzTL8Z1F4WChxu
+         JR77fUIoYahuF6bgTC/zfclzNuDyA1dZNVCx99pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 043/140] s390/dasd: Fix read for ESE with blksize < 4k
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 051/135] net/mlx5e: Fix the calling of update_buffer_lossy() API
 Date:   Tue, 10 May 2022 15:07:13 +0200
-Message-Id: <20220510130742.851866478@linuxfoundation.org>
+Message-Id: <20220510130741.864954889@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-commit cd68c48ea15c85f1577a442dc4c285e112ff1b37 upstream.
+commit c4d963a588a6e7c4ef31160e80697ae8e5a47746 upstream.
 
-When reading unformatted tracks on ESE devices, the corresponding memory
-areas are simply set to zero for each segment. This is done incorrectly
-for blocksizes < 4096.
+The arguments of update_buffer_lossy() is in a wrong order. Fix it.
 
-There are two problems. First, the increment of dst is done using the
-counter of the loop (off), which is increased by blksize every
-iteration. This leads to a much bigger increment for dst as actually
-intended. Second, the increment of dst is done before the memory area
-is set to 0, skipping a significant amount of bytes of memory.
-
-This leads to illegal overwriting of memory and ultimately to a kernel
-panic.
-
-This is not a problem with 4k blocksize because
-blk_queue_max_segment_size is set to PAGE_SIZE, always resulting in a
-single iteration for the inner segment loop (bv.bv_len == blksize). The
-incorrectly used 'off' value to increment dst is 0 and the correct
-memory area is used.
-
-In order to fix this for blksize < 4k, increment dst correctly using the
-blksize and only do it at the end of the loop.
-
-Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220505141733.1989450-4-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 88b3d5c90e96 ("net/mlx5e: Fix port buffers cell size value")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_eckd.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -3285,12 +3285,11 @@ static int dasd_eckd_ese_read(struct das
- 				cqr->proc_bytes = blk_count * blksize;
- 				return 0;
- 			}
--			if (dst && !skip_block) {
--				dst += off;
-+			if (dst && !skip_block)
- 				memset(dst, 0, blksize);
--			} else {
-+			else
- 				skip_block--;
--			}
-+			dst += blksize;
- 			blk_count++;
- 		}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
+@@ -309,8 +309,8 @@ int mlx5e_port_manual_buffer_config(stru
+ 		if (err)
+ 			return err;
+ 
+-		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, port_buff_cell_sz,
+-					  xoff, &port_buffer, &update_buffer);
++		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, xoff,
++					  port_buff_cell_sz, &port_buffer, &update_buffer);
+ 		if (err)
+ 			return err;
  	}
 
 
