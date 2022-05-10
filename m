@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BE34521AB9
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BF27521694
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242617AbiEJODc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36368 "EHLO
+        id S242297AbiEJNQT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245169AbiEJN77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:59:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BA84D80A8;
-        Tue, 10 May 2022 06:39:43 -0700 (PDT)
+        with ESMTP id S242308AbiEJNPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A66F42EC6;
+        Tue, 10 May 2022 06:11:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E6DDB81D7A;
-        Tue, 10 May 2022 13:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14FDC385A6;
-        Tue, 10 May 2022 13:39:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC5ABB81D7C;
+        Tue, 10 May 2022 13:11:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D283C385C2;
+        Tue, 10 May 2022 13:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189981;
-        bh=XvdFnLpnH8rg/tJlNoJuTp1Us8A3o+r1OR7Q0sYWAhU=;
+        s=korg; t=1652188279;
+        bh=xnGMAVPnM6acoucr9QgmgxwJzzrZh7N4dF54mhzvUa8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rljiqVCgc0y6zTEXz0eBB5qOuhzOrOhQAASWSpgZqZ0vUVP7xkeuF1TwoT8mcfz1s
-         DEzcNlTOSxQJbUK9eDPTs64pG/kc8kGtaaIRRLu9/iedO99TFnV23Pojl0keLL7rUi
-         kJANpO6CNEt8IX1abDTf47kyRfeqt33MpQ5oIn9E=
+        b=e6jqdMiPSA0GZzSWerzulKYXcG6pFas96cI+jBQKWuPXXXB4zE1zpfJFSVxnSfbYg
+         o5RL5yohdGfJkrFDFtQFuZ3iubuaf4gzYm5dRnn/smC9r/7a9lDQe5pDHsYZNPlv51
+         E3VxAnPmVjyR0LXIGJTEA+98lesfUIUyDxiFaqps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.17 040/140] ASoC: meson: Fix event generation for AUI CODEC mux
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 20/66] hex2bin: fix access beyond string end
 Date:   Tue, 10 May 2022 15:07:10 +0200
-Message-Id: <20220510130742.764997731@linuxfoundation.org>
+Message-Id: <20220510130730.355650511@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit fce49921a22262736cdc3cc74fa67915b75e9363 upstream.
+commit e4d8a29997731b3bb14059024b24df9f784288d0 upstream.
 
-The AIU CODEC has a custom put() operation which returns 0 when the value
-of the mux changes, meaning that events are not generated for userspace.
-Change to return 1 in this case, the function returns early in the case
-where there is no change.
+If we pass too short string to "hex2bin" (and the string size without
+the terminating NUL character is even), "hex2bin" reads one byte after
+the terminating NUL character.  This patch fixes it.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20220421123803.292063-3-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Note that hex_to_bin returns -1 on error and hex2bin return -EINVAL on
+error - so we can't just return the variable "hi" or "lo" on error.
+This inconsistency may be fixed in the next merge window, but for the
+purpose of fixing this bug, we just preserve the existing behavior and
+return -1 and -EINVAL.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: b78049831ffe ("lib: add error checking to hex2bin")
 Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/meson/aiu-codec-ctrl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/hexdump.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/sound/soc/meson/aiu-codec-ctrl.c
-+++ b/sound/soc/meson/aiu-codec-ctrl.c
-@@ -57,7 +57,7 @@ static int aiu_codec_ctrl_mux_put_enum(s
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -65,10 +65,13 @@ EXPORT_SYMBOL(hex_to_bin);
+ int hex2bin(u8 *dst, const char *src, size_t count)
+ {
+ 	while (count--) {
+-		int hi = hex_to_bin(*src++);
+-		int lo = hex_to_bin(*src++);
++		int hi, lo;
  
- 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
+-		if ((hi < 0) || (lo < 0))
++		hi = hex_to_bin(*src++);
++		if (unlikely(hi < 0))
++			return -1;
++		lo = hex_to_bin(*src++);
++		if (unlikely(lo < 0))
+ 			return -1;
  
--	return 0;
-+	return 1;
- }
- 
- static SOC_ENUM_SINGLE_DECL(aiu_hdmi_ctrl_mux_enum, AIU_HDMI_CLK_DATA_CTRL,
+ 		*dst++ = (hi << 4) | lo;
 
 
