@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50E4E5218FC
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF3C5218F3
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243918AbiEJNlV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
+        id S244050AbiEJNlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:41:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245188AbiEJNih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF3C69BAFB;
-        Tue, 10 May 2022 06:28:27 -0700 (PDT)
+        with ESMTP id S245283AbiEJNin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95C01BDD82;
+        Tue, 10 May 2022 06:29:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7915E60C1C;
-        Tue, 10 May 2022 13:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F017C385A6;
-        Tue, 10 May 2022 13:28:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BFE96181B;
+        Tue, 10 May 2022 13:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92FF1C385A6;
+        Tue, 10 May 2022 13:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189306;
-        bh=RIK5MElVo47bD1tsF8v3qbeY9yUwA6PQltPBj+Q7u+4=;
+        s=korg; t=1652189341;
+        bh=WTnl3+B6yRLPj0eRn2sUYYRUVNpckkYKXc79sNWkQus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xqh8t/4yAmj0UYS4Hkyzqc1UM2pMLiPaRPjac926nj0xUGZ7Las/95tVWamyGT8lH
-         TzGP0LAgGdL/vaLLsXoNs0q4PtwPQbJaJoM4CY8nOJirCM+b3Npt+Cx93w3OThfUtQ
-         8qs73cre/D/iGigSd+C9OlTkuYGaQFnxS+ysHgNs=
+        b=HSiH6g61twcZhKHVXqargXzm2ERzXALZD8orSb/JImYyE5sVC3zZE3f0Ce/90E9jY
+         bUbbu5w9iLa0J7SW+unTHjdaZbk8uQgLU2+/a1UMW3eXWyb+8gaeJ2NIssuR0gA937
+         abs4zhtcBDHF3+xGCpSKX4+GlyUU+OvmWLwLXpQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.15 001/135] MIPS: Fix CP0 counter erratum detection for R4k CPUs
-Date:   Tue, 10 May 2022 15:06:23 +0200
-Message-Id: <20220510130740.437799575@linuxfoundation.org>
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.15 002/135] parisc: Merge model and model name into one line in /proc/cpuinfo
+Date:   Tue, 10 May 2022 15:06:24 +0200
+Message-Id: <20220510130740.467396313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,102 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Helge Deller <deller@gmx.de>
 
-commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
+commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
 
-Fix the discrepancy between the two places we check for the CP0 counter
-erratum in along with the incorrect comparison of the R4400 revision
-number against 0x30 which matches none and consistently consider all
-R4000 and R4400 processors affected, as documented in processor errata
-publications[1][2][3], following the mapping between CP0 PRId register
-values and processor models:
+The Linux tool "lscpu" shows the double amount of CPUs if we have
+"model" and "model name" in two different lines in /proc/cpuinfo.
+This change combines the model and the model name into one line.
 
-  PRId   |  Processor Model
----------+--------------------
-00000422 | R4000 Revision 2.2
-00000430 | R4000 Revision 3.0
-00000440 | R4400 Revision 1.0
-00000450 | R4400 Revision 2.0
-00000460 | R4400 Revision 3.0
-
-No other revision of either processor has ever been spotted.
-
-Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
-R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
-CP0 counter as buggy does not preclude it from being used as either a
-clock event or a clock source device.  It just cannot be used as both at
-a time, because in that case clock event interrupts will be occasionally
-lost, and the use as a clock event device takes precedence.
-
-Compare against 0x4ff in `can_use_mips_counter' so that a single machine
-instruction is produced.
-
-
-[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
-    Technologies Inc., May 10, 1994, Erratum 53, p.13
-
-[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
-    Inc., February 9, 1994, Erratum 21, p.4
-
-[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
-    Technologies Inc., January 24, 1995, Erratum 14, p.3
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
-Cc: stable@vger.kernel.org # v2.6.24+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/timex.h |    8 ++++----
- arch/mips/kernel/time.c       |   11 +++--------
- 2 files changed, 7 insertions(+), 12 deletions(-)
+ arch/parisc/kernel/processor.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/mips/include/asm/timex.h
-+++ b/arch/mips/include/asm/timex.h
-@@ -40,9 +40,9 @@
- typedef unsigned int cycles_t;
+--- a/arch/parisc/kernel/processor.c
++++ b/arch/parisc/kernel/processor.c
+@@ -418,8 +418,7 @@ show_cpuinfo (struct seq_file *m, void *
+ 		}
+ 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
  
- /*
-- * On R4000/R4400 before version 5.0 an erratum exists such that if the
-- * cycle counter is read in the exact moment that it is matching the
-- * compare register, no interrupt will be generated.
-+ * On R4000/R4400 an erratum exists such that if the cycle counter is
-+ * read in the exact moment that it is matching the compare register,
-+ * no interrupt will be generated.
-  *
-  * There is a suggested workaround and also the erratum can't strike if
-  * the compare interrupt isn't being used as the clock source device.
-@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
- 	if (!__builtin_constant_p(cpu_has_counter))
- 		asm volatile("" : "=m" (cpu_data[0].options));
- 	if (likely(cpu_has_counter &&
--		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
-+		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
- 		return 1;
- 	else
- 		return 0;
---- a/arch/mips/kernel/time.c
-+++ b/arch/mips/kernel/time.c
-@@ -141,15 +141,10 @@ static __init int cpu_has_mfc0_count_bug
- 	case CPU_R4400MC:
- 		/*
- 		 * The published errata for the R4400 up to 3.0 say the CPU
--		 * has the mfc0 from count bug.
-+		 * has the mfc0 from count bug.  This seems the last version
-+		 * produced.
- 		 */
--		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
--			return 1;
--
--		/*
--		 * we assume newer revisions are ok
--		 */
--		return 0;
-+		return 1;
- 	}
- 
- 	return 0;
+-		seq_printf(m, "model\t\t: %s\n"
+-				"model name\t: %s\n",
++		seq_printf(m, "model\t\t: %s - %s\n",
+ 				 boot_cpu_data.pdc.sys_model_name,
+ 				 cpuinfo->dev ?
+ 				 cpuinfo->dev->name : "Unknown");
 
 
