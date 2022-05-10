@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D8675218C3
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0EB652198C
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243672AbiEJNj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
+        id S241526AbiEJNti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:49:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245049AbiEJNi1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:27 -0400
+        with ESMTP id S245016AbiEJNrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FBF57F23F;
-        Tue, 10 May 2022 06:26:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9A9F62200;
+        Tue, 10 May 2022 06:33:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EE7561768;
-        Tue, 10 May 2022 13:26:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F1D2C385A6;
-        Tue, 10 May 2022 13:26:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C4C5615C8;
+        Tue, 10 May 2022 13:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BD2BC385C2;
+        Tue, 10 May 2022 13:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189217;
-        bh=VPmGLYyoid+7Hr0o4liQyLBaeJin3XuWlLByWtnfuCo=;
+        s=korg; t=1652189613;
+        bh=SYhf9Y/s6CCh/yxYZDBxoiBR/iAMVK98G+WsVzlPuas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hToUCWcjfllfiSV64+ehj9WEvv5kJipfGrpdjdwticKuXzT9TSQIRAH8aNhbcRSWi
-         fsGJvyifC0IppSw3LtxAjvoqfB8eT9lCqhbsrOQWjmcbpY1/8cyjEyfAK9pp6sLkuG
-         i4j3odVyme1HzCMQfznkfd8hG34UKzP7AmB+n6tM=
+        b=KHbGoRrLZyC0KhuB4adk0so1/PIei1CCTx7+TlLKlvJAxGGAkJVsxsh6NZn4eJ3qN
+         7AaOOvzHRtyzFuv3B+LS66oV9YarZDSPJdWy/eRksAR2GhAlrfI93sQNAv6hwQYhCZ
+         qeRz+0vpkyCOr1Os/KSQCSl14FsGdGd3Dsm9q5XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiao Ma <mqaio@linux.alibaba.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 50/70] hinic: fix bug of wq out of bound access
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 107/135] PCI: pci-bridge-emul: Add definitions for missing capabilities registers
 Date:   Tue, 10 May 2022 15:08:09 +0200
-Message-Id: <20220510130734.326693325@linuxfoundation.org>
+Message-Id: <20220510130743.476584426@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiao Ma <mqaio@linux.alibaba.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 52b2abef450a78e25d485ac61e32f4ce86a87701 upstream.
+commit 8ea673a8b30b4a32516b8adabb15e2a68ff02ec8 upstream.
 
-If wq has only one page, we need to check wqe rolling over page by
-compare end_idx and curr_idx, and then copy wqe to shadow wqe to
-avoid out of bound access.
-This work has been done in hinic_get_wqe, but missed for hinic_read_wqe.
-This patch fixes it, and removes unnecessary MASKED_WQE_IDX().
+pci-bridge-emul driver already allocates buffer for capabilities up to the
+PCI_EXP_SLTSTA2 register, but does not define bit access behavior for these
+registers. Add these missing definitions.
 
-Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
-Signed-off-by: Qiao Ma <mqaio@linux.alibaba.com>
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/282817b0e1ae2e28fdf3ed8271a04e77f57bf42e.1651148587.git.mqaio@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Link: https://lore.kernel.org/r/20211130172913.9727-3-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/pci/pci-bridge-emul.c |   43 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 43 insertions(+)
 
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-@@ -771,7 +771,7 @@ struct hinic_hw_wqe *hinic_get_wqe(struc
- 	/* If we only have one page, still need to get shadown wqe when
- 	 * wqe rolling-over page
- 	 */
--	if (curr_pg != end_pg || MASKED_WQE_IDX(wq, end_prod_idx) < *prod_idx) {
-+	if (curr_pg != end_pg || end_prod_idx < *prod_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -270,6 +270,49 @@ struct pci_bridge_reg_behavior pcie_cap_
+ 		.ro = GENMASK(15, 0) | PCI_EXP_RTSTA_PENDING,
+ 		.w1c = PCI_EXP_RTSTA_PME,
+ 	},
++
++	[PCI_EXP_DEVCAP2 / 4] = {
++		/*
++		 * Device capabilities 2 register has reserved bits [30:27].
++		 * Also bits [26:24] are reserved for non-upstream ports.
++		 */
++		.ro = BIT(31) | GENMASK(23, 0),
++	},
++
++	[PCI_EXP_DEVCTL2 / 4] = {
++		/*
++		 * Device control 2 register is RW. Bit 11 is reserved for
++		 * non-upstream ports.
++		 *
++		 * Device status 2 register is reserved.
++		 */
++		.rw = GENMASK(15, 12) | GENMASK(10, 0),
++	},
++
++	[PCI_EXP_LNKCAP2 / 4] = {
++		/* Link capabilities 2 register has reserved bits [30:25] and 0. */
++		.ro = BIT(31) | GENMASK(24, 1),
++	},
++
++	[PCI_EXP_LNKCTL2 / 4] = {
++		/*
++		 * Link control 2 register is RW.
++		 *
++		 * Link status 2 register has bits 5, 15 W1C;
++		 * bits 10, 11 reserved and others are RO.
++		 */
++		.rw = GENMASK(15, 0),
++		.w1c = (BIT(15) | BIT(5)) << 16,
++		.ro = (GENMASK(14, 12) | GENMASK(9, 6) | GENMASK(4, 0)) << 16,
++	},
++
++	[PCI_EXP_SLTCAP2 / 4] = {
++		/* Slot capabilities 2 register is reserved. */
++	},
++
++	[PCI_EXP_SLTCTL2 / 4] = {
++		/* Both Slot control 2 and Slot status 2 registers are reserved. */
++	},
+ };
  
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *prod_idx);
-@@ -841,7 +841,10 @@ struct hinic_hw_wqe *hinic_read_wqe(stru
- 
- 	*cons_idx = curr_cons_idx;
- 
--	if (curr_pg != end_pg) {
-+	/* If we only have one page, still need to get shadown wqe when
-+	 * wqe rolling-over page
-+	 */
-+	if (curr_pg != end_pg || end_cons_idx < curr_cons_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
- 
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *cons_idx);
+ /*
 
 
