@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 569DF5216C6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68CB5521846
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242455AbiEJNSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40238 "EHLO
+        id S236692AbiEJNeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:34:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242467AbiEJNRC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:17:02 -0400
+        with ESMTP id S243813AbiEJNcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 936BE3C4B6;
-        Tue, 10 May 2022 06:12:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6372D12A2;
+        Tue, 10 May 2022 06:22:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30D58615FA;
-        Tue, 10 May 2022 13:12:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F21C2C385C2;
-        Tue, 10 May 2022 13:12:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F7C26172E;
+        Tue, 10 May 2022 13:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD5ABC385C2;
+        Tue, 10 May 2022 13:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188367;
-        bh=7ni6v9EcwTeRnymZXJCe2F2vv9mVcGy9VAalwjR/0ls=;
+        s=korg; t=1652188940;
+        bh=2HnKUKKeygCNULEDLTGebDWd/Upf5P086EXE4P6TmGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgbzU+IW+/pslt9oQDQ2xBgoYP/GOlmWnSuaRZlqsT3xBj7/T0b7ulR9HTzub9lD9
-         YuEI4pKdulbXRTgWSSHvJacMaPZKpY2lLJq80SYnc0Jeqcq/mPD4ChmkvUZXHZSomI
-         BqyqjGpsooJUIpnCymmj5viA4ewAhIkWumcenpRk=
+        b=F87FujuiBRuprFfXBTMc5cgAGIEfCEmrgmygCOmsz6+prsuK3ywDVZGBupEz8wk0/
+         wD5kNyh+P1MV020edcb5xnYGGqUDojUL8t8t2UTm+T+PumEvfX2iOrThUGybQBCkbV
+         ziK39B1KRShdzFFBxr82BBNKYzTv/aUuQ8rarT70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH 4.9 50/66] ASoC: wm8958: Fix change notifications for DSP controls
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Subject: [PATCH 5.4 11/52] ASoC: da7219: Fix change notifications for tone generator frequency
 Date:   Tue, 10 May 2022 15:07:40 +0200
-Message-Id: <20220510130731.232069294@linuxfoundation.org>
+Message-Id: <20220510130730.188549006@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-commit b4f5c6b2e52b27462c0599e64e96e53b58438de1 upstream.
+commit 08ef48404965cfef99343d6bbbcf75b88c74aa0e upstream.
 
-The WM8958 DSP controls all return 0 on successful write, not a boolean
-value indicating if the write changed the value of the control. Fix this
-by returning 1 after a change, there is already a check at the start of
-each put() that skips the function in the case that there is no change.
+The tone generator frequency control just returns 0 on successful write,
+not a boolean value indicating if there was a change or not.  Compare
+what was written with the value that was there previously so that
+notifications are generated appropriately when the value changes.
 
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220416125408.197440-1-broonie@kernel.org
+Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
 Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220420133437.569229-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8958-dsp2.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/da7219.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/sound/soc/codecs/wm8958-dsp2.c
-+++ b/sound/soc/codecs/wm8958-dsp2.c
-@@ -533,7 +533,7 @@ static int wm8958_mbc_put(struct snd_kco
+--- a/sound/soc/codecs/da7219.c
++++ b/sound/soc/codecs/da7219.c
+@@ -446,7 +446,7 @@ static int da7219_tonegen_freq_put(struc
+ 	struct soc_mixer_control *mixer_ctrl =
+ 		(struct soc_mixer_control *) kcontrol->private_value;
+ 	unsigned int reg = mixer_ctrl->reg;
+-	__le16 val;
++	__le16 val_new, val_old;
+ 	int ret;
  
- 	wm8958_dsp_apply(codec, mbc, wm8994->mbc_ena[mbc]);
+ 	/*
+@@ -454,13 +454,19 @@ static int da7219_tonegen_freq_put(struc
+ 	 * Therefore we need to convert to little endian here to align with
+ 	 * HW registers.
+ 	 */
+-	val = cpu_to_le16(ucontrol->value.integer.value[0]);
++	val_new = cpu_to_le16(ucontrol->value.integer.value[0]);
  
--	return 0;
-+	return 1;
+ 	mutex_lock(&da7219->ctrl_lock);
+-	ret = regmap_raw_write(da7219->regmap, reg, &val, sizeof(val));
++	ret = regmap_raw_read(da7219->regmap, reg, &val_old, sizeof(val_old));
++	if (ret == 0 && (val_old != val_new))
++		ret = regmap_raw_write(da7219->regmap, reg,
++				&val_new, sizeof(val_new));
+ 	mutex_unlock(&da7219->ctrl_lock);
+ 
+-	return ret;
++	if (ret < 0)
++		return ret;
++
++	return val_old != val_new;
  }
  
- #define WM8958_MBC_SWITCH(xname, xval) {\
-@@ -659,7 +659,7 @@ static int wm8958_vss_put(struct snd_kco
  
- 	wm8958_dsp_apply(codec, vss, wm8994->vss_ena[vss]);
- 
--	return 0;
-+	return 1;
- }
- 
- 
-@@ -733,7 +733,7 @@ static int wm8958_hpf_put(struct snd_kco
- 
- 	wm8958_dsp_apply(codec, hpf % 3, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_HPF_SWITCH(xname, xval) {\
-@@ -827,7 +827,7 @@ static int wm8958_enh_eq_put(struct snd_
- 
- 	wm8958_dsp_apply(codec, eq, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_ENH_EQ_SWITCH(xname, xval) {\
 
 
