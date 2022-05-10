@@ -2,69 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA69052145B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 13:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F9B5214B7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 14:00:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234192AbiEJL7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 07:59:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
+        id S241474AbiEJMCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 08:02:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241299AbiEJL7m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 07:59:42 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBB21014
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:55:44 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id d6so19685640ede.8
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:55:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=9ygkrQc+ek2XiZL48rDG/nZ8HONRH2u6mkORGAxrJ18=;
-        b=OwHEiiq0pQ4WLb6IHbYPHgWA33riwzTpe+bLCUREWIKd0JtjG3nftDzA9GOJA3oLVV
-         O6L3As8xMki/zAtroL6LKbPVQBq1AjOp2l5CvYYPwsIkB4qX918soNVch7zwecEW0CH5
-         bKolH4MfA6/N2sb+bEcv7r90er1U+yZPIKLeU/lh57I2ROgUPh3H7qwjUNxs9o6x/HYR
-         qieOkZtDblnic+PTo7AWR3b9+mCpKEWso0SRGKvVz2Ym5SMq6JoYW0svjKnSksfPZLGB
-         O59Eck0Dn6kULbMkOEM1sHhbm9FJz8kTskPpMGlokkz1/MQpdXMCa/zQSr7XqW+mnuAE
-         /lKQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=9ygkrQc+ek2XiZL48rDG/nZ8HONRH2u6mkORGAxrJ18=;
-        b=vkjh5qm/RwD2jwvlIL1gLGtLRGMUqZpmA7kMky461IgpaxsZ/9CzVxL8hL42QDUyPP
-         EbTdQHc+S7PgB9LY2w6ecz+A8Uw744oDkKrp/PC3/Aq+6WDqNOwGlmwv1f2FZPKlopvp
-         BHbLfFYVsxig0bpxYnATatE+NcNWpTQobufnxFBMOMLh1ghzntLMPjOlZu8K42AJHtkh
-         LO49b7dvKTYdKsgamgU3aWb8GQUTwciZJTO+TypVNVyPNH76lqo8m+g3NnzIjD6v7wAw
-         GVGZmCekuQxSMPmAol0RQw1ZCiKDE3sCxLMLPiiQhO6Pyy3Jc1fb6Eo0UE31CQg/Q7Il
-         9ySQ==
-X-Gm-Message-State: AOAM530FUWN3/4kH3mx9+xbfOirgZP3OS8OogLaXF4EP8SZ8e/w9Fq3g
-        DnyLutRkC20bqGorGTIQTQKSNejvCDbOuPiPqLM=
-X-Google-Smtp-Source: ABdhPJw+d0NDcQV8NnQuncKZww1RCwrRolOStR3bjufF7289hrZV8VJeysCefDRVnCemm3odbJmgL1/9gbI71ZJ2tNw=
-X-Received: by 2002:aa7:d610:0:b0:425:ccf8:c369 with SMTP id
- c16-20020aa7d610000000b00425ccf8c369mr22624329edr.368.1652183742706; Tue, 10
- May 2022 04:55:42 -0700 (PDT)
+        with ESMTP id S241430AbiEJMCQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 08:02:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C6825D111
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:58:02 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0808CB81A0A
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 11:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 551EEC385C9;
+        Tue, 10 May 2022 11:57:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1652183879;
+        bh=PBDuMtwKtoSpswJc7dBSZVNQ9Hx2nx/h1B8wJEOuRP4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Zyw3LY3afcHLHaDxIM1JqYoZrrSRq9ww/2G1vTxEYMgJJzEFkYS3bllFx2/UqMAB1
+         DehStskw4eKNpbKmGDdO9zeVve0fevHRsXj9arfE+x/wP68yLvsIBPDCOfCGeV3czf
+         btWdTOHEotPuMNdO3dyurzvKMN7A2tr18EVFCp9M=
+Date:   Tue, 10 May 2022 13:57:09 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <kabel@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        pali@kernel.org
+Subject: Re: [PATCH 5.17 00/19] PCIe Aardvark controller backports for 5.17
+Message-ID: <YnpTFfKA9/GxW9P1@kroah.com>
+References: <20220504165852.30089-1-kabel@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a54:30c1:0:0:0:0:0 with HTTP; Tue, 10 May 2022 04:55:42
- -0700 (PDT)
-Reply-To: sgtkayla2001@gmail.com
-From:   Kayla Manthey <eyanacthan.com@gmail.com>
-Date:   Tue, 10 May 2022 11:55:42 +0000
-Message-ID: <CAG3fTc=_o8OzneD9htVGwyBLePbUxjq6YU=GkR5Gf_bduqgMVg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_40,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220504165852.30089-1-kabel@kernel.org>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Salut draga mea, te rog, vreau sa stiu daca ai primit mesajul meu
-anterior, multumesc.
+On Wed, May 04, 2022 at 06:58:33PM +0200, Marek Behún wrote:
+> Hello Greg, Sasha,
+> 
+> this is backport of all the recet changes for the Aardvark PCIe controller
+> for 5.17.
+> These include
+> - fixes for MSI support
+> - add MSI-X support, which fixes support for some cards
+> - add ERR interrupt support (which we really missed when debugging)
+> 
+> As in series for 5.15, I included some small cosmetic changes - this
+> will make it easier to backport next fixes for the driver (there is
+> another batch pending on linux-pci).
+> 
+> Marek
+> 
+> Marek Behún (5):
+>   PCI: aardvark: Make MSI irq_chip structures static driver structures
+>   PCI: aardvark: Make msi_domain_info structure a static driver
+>     structure
+>   PCI: aardvark: Use dev_fwnode() instead of
+>     of_node_to_fwnode(dev->of_node)
+>   PCI: aardvark: Drop __maybe_unused from advk_pcie_disable_phy()
+>   PCI: aardvark: Update comment about link going down after link-up
+> 
+> Pali Rohár (14):
+>   PCI: aardvark: Replace custom PCIE_CORE_INT_* macros with
+>     PCI_INTERRUPT_*
+>   PCI: aardvark: Rewrite IRQ code to chained IRQ handler
+>   PCI: aardvark: Check return value of generic_handle_domain_irq() when
+>     processing INTx IRQ
+>   PCI: aardvark: Refactor unmasking summary MSI interrupt
+>   PCI: aardvark: Add support for masking MSI interrupts
+>   PCI: aardvark: Fix setting MSI address
+>   PCI: aardvark: Enable MSI-X support
+>   PCI: aardvark: Add support for ERR interrupt on emulated bridge
+>   PCI: aardvark: Optimize writing PCI_EXP_RTCTL_PMEIE and
+>     PCI_EXP_RTSTA_PME on emulated bridge
+>   PCI: aardvark: Add support for PME interrupts
+>   PCI: aardvark: Fix support for PME requester on emulated bridge
+>   PCI: aardvark: Use separate INTA interrupt for emulated root bridge
+>   PCI: aardvark: Remove irq_mask_ack() callback for INTx interrupts
+>   PCI: aardvark: Don't mask irq when mapping
+> 
+>  drivers/pci/controller/pci-aardvark.c | 367 +++++++++++++++++++-------
+>  1 file changed, 266 insertions(+), 101 deletions(-)
+> 
+> -- 
+> 2.35.1
+> 
+
+All now queued up, thanks.
+
+greg k-h
