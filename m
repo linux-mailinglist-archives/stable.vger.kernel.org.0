@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2381521FB8
+	by mail.lfdr.de (Postfix) with ESMTP id 189EF521FB6
 	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346488AbiEJPw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:52:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
+        id S1346350AbiEJPwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347147AbiEJPwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:52:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1063286FC7;
-        Tue, 10 May 2022 08:47:04 -0700 (PDT)
+        with ESMTP id S1347184AbiEJPwD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:52:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D552289BFF;
+        Tue, 10 May 2022 08:47:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FAFBB81DFA;
-        Tue, 10 May 2022 15:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E8C7C385CB;
-        Tue, 10 May 2022 15:47:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C879B81DF7;
+        Tue, 10 May 2022 15:47:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338AFC385A6;
+        Tue, 10 May 2022 15:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197621;
-        bh=KuVmxcN1RR5gLpFNGJGar/lGk7b6M9imhOEuY6GRs6Y=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OVrGYMKQkm97Y9nj09GbAvDSgyuimSLkzFe6OPeXh7988xj4CoVo2mEBrZg6kGXZc
-         rowvaSaZOblQl0njJCwPHGRHY443bCAI+8TrHjXAMp9elMSnQfoZYn30xfwgJpSOhs
-         WvmtcU5nslJOQ1iWtdbxxdAlmOEZRkqeybznmtp62JlTOxANb4SwxX/xDGN2eBx/+y
-         oxSQ+XdoRIQ0TqzY9f/wC6ipyNTr5GOQDXSbRIuZlhz2H/ilI0nvlgBswhkxEyzP8G
-         UVhYdshzbMw2vB920XDwEhLhlM1LbELEh09Sr7Wr5JkR/scB/qvwgZr9s2i0tu5hwM
-         x0i8xOnR0Rb1g==
+        s=k20201202; t=1652197628;
+        bh=Xb2iH1RD9rLYp/HcvNZ8NPrqSJ1SAA5g+w9cI06BPY0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ukOl6X+c/SsN0hsstWhZKeDN8MHZ6nYlKiZzAvAsr1uNJO/cNJNX7o/zo5xSZVmcS
+         C6M64OO4Zgdjd2FC+YQ0p3Dg+n5YzqBrgd4kStmOcpquWF1Y51co4mP0asvQ272HeI
+         rOMUFzp13Jyrssyk96W5aLHX6kWaSVztN/V3Mni0TkOi+Y3nF+ywia9SVFrFu7BGPZ
+         dqrOav3XRQirXc4TYbfjDB7N55hAv+8rIDESv5CpVGmm435t6UeGJIhIvuqnJXMhzU
+         bDfim4ym4MSc9zCcf5dxxgCvG/VA3TSLP/pzSJ5NVU/W64aBBR7oua2OjvNMYj3Phe
+         Y9NZu+/qSi+xQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        "Jason A . Donenfeld" <Jason@zx2c4.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        pabeni@redhat.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 5/5] tcp: resalt the secret every 10 seconds
-Date:   Tue, 10 May 2022 11:46:37 -0400
-Message-Id: <20220510154637.154283-5-sashal@kernel.org>
+Cc:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
+        Ji-Ze Hong <hpeter+linux_kernel@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 1/4] hwmon: (f71882fg) Fix negative temperature
+Date:   Tue, 10 May 2022 11:47:00 -0400
+Message-Id: <20220510154704.154362-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220510154637.154283-1-sashal@kernel.org>
-References: <20220510154637.154283-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -61,68 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
 
-[ Upstream commit 4dfa9b438ee34caca4e6a4e5e961641807367f6f ]
+[ Upstream commit 4aaaaf0f279836f06d3b9d0ffeec7a1e1a04ceef ]
 
-In order to limit the ability for an observer to recognize the source
-ports sequence used to contact a set of destinations, we should
-periodically shuffle the secret. 10 seconds looks effective enough
-without causing particular issues.
+All temperature of Fintek superio hwmonitor that using 1-byte reg will use
+2's complement.
 
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+In show_temp()
+	temp = data->temp[nr] * 1000;
+
+When data->temp[nr] read as 255, it indicate -1C, but this code will report
+255C to userspace. It'll be ok when change to:
+	temp = ((s8)data->temp[nr]) * 1000;
+
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+Link: https://lore.kernel.org/r/20220418090706.6339-1-hpeter+linux_kernel@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/secure_seq.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/hwmon/f71882fg.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
-index 7232274de334..17683aea8a35 100644
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -22,6 +22,8 @@
- static siphash_key_t net_secret __read_mostly;
- static siphash_key_t ts_secret __read_mostly;
+diff --git a/drivers/hwmon/f71882fg.c b/drivers/hwmon/f71882fg.c
+index cb28e4b4fb10..b87ca56fb774 100644
+--- a/drivers/hwmon/f71882fg.c
++++ b/drivers/hwmon/f71882fg.c
+@@ -1590,8 +1590,9 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+ 		temp *= 125;
+ 		if (sign)
+ 			temp -= 128000;
+-	} else
+-		temp = data->temp[nr] * 1000;
++	} else {
++		temp = ((s8)data->temp[nr]) * 1000;
++	}
  
-+#define EPHEMERAL_PORT_SHUFFLE_PERIOD (10 * HZ)
-+
- static __always_inline void net_secret_init(void)
- {
- 	net_get_random_once(&net_secret, sizeof(net_secret));
-@@ -100,11 +102,13 @@ u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 	const struct {
- 		struct in6_addr saddr;
- 		struct in6_addr daddr;
-+		unsigned int timeseed;
- 		__be16 dport;
- 	} __aligned(SIPHASH_ALIGNMENT) combined = {
- 		.saddr = *(struct in6_addr *)saddr,
- 		.daddr = *(struct in6_addr *)daddr,
--		.dport = dport
-+		.timeseed = jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
-+		.dport = dport,
- 	};
- 	net_secret_init();
- 	return siphash(&combined, offsetofend(typeof(combined), dport),
-@@ -144,8 +148,10 @@ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
- u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	net_secret_init();
--	return siphash_3u32((__force u32)saddr, (__force u32)daddr,
--			    (__force u16)dport, &net_secret);
-+	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
-+			    (__force u16)dport,
-+			    jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
-+			    &net_secret);
+ 	return sprintf(buf, "%d\n", temp);
  }
- EXPORT_SYMBOL_GPL(secure_ipv4_port_ephemeral);
- #endif
 -- 
 2.35.1
 
