@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D37225219C5
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D97852189E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244707AbiEJNvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
+        id S236900AbiEJNja (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244732AbiEJNq6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:58 -0400
+        with ESMTP id S244194AbiEJNhL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035971668A9;
-        Tue, 10 May 2022 06:31:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BE32D9EEF;
+        Tue, 10 May 2022 06:25:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 94141615C8;
-        Tue, 10 May 2022 13:31:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F63C385C9;
-        Tue, 10 May 2022 13:31:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 59F1B617A5;
+        Tue, 10 May 2022 13:25:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5842EC385C6;
+        Tue, 10 May 2022 13:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189517;
-        bh=FxIhdZqIw91pbHMbO5gwTOdjHrJnWK2rh0Rb9gXuISc=;
+        s=korg; t=1652189116;
+        bh=U3t5kK9OCHwvOySeFZuGHZJrRFzboJZwTeQJEzdZGVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAPJySPr6EtALD/+BYtvt8CrDwPN+AbI4mviagNSf1NbljVeOtIS8EyrS4wXQrQJh
-         /aCih0Lqxg93q92/G7zHakuKngqbHA5o71ShJeVCieKDHPkKZmXrW5PigV4ciXMitW
-         UPfUJn2SHVEQ0ULk0v3AT1FQKYWJ7H/QCxQCLSAQ=
+        b=qkF6BWo8Nx8DrO0ClAjD1N6uQx52hxP9frXwhiPMTjsRleJtKmGfhUxef2P+3kUAa
+         TAU214bFH2H4aCdL994CcPgs2DeL8WnTU9BDenwCiosb8ymx+WpTXHWUdxV4m7q5jG
+         xgLUflk31xi9MynCrJm31+or73oNM9SnEnTsktRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 075/135] selftests: mirror_gre_bridge_1q: Avoid changing PVID while interface is operational
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>
+Subject: [PATCH 5.10 18/70] ASoC: wm8958: Fix change notifications for DSP controls
 Date:   Tue, 10 May 2022 15:07:37 +0200
-Message-Id: <20220510130742.563598393@linuxfoundation.org>
+Message-Id: <20220510130733.401041023@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit 3122257c02afd9f199a8fc84ae981e1fc4958532 upstream.
+commit b4f5c6b2e52b27462c0599e64e96e53b58438de1 upstream.
 
-In emulated environments, the bridge ports enslaved to br1 get a carrier
-before changing br1's PVID. This means that by the time the PVID is
-changed, br1 is already operational and configured with an IPv6
-link-local address.
+The WM8958 DSP controls all return 0 on successful write, not a boolean
+value indicating if the write changed the value of the control. Fix this
+by returning 1 after a change, there is already a check at the start of
+each put() that skips the function in the case that there is no change.
 
-When the test is run with netdevs registered by mlxsw, changing the PVID
-is vetoed, as changing the VID associated with an existing L3 interface
-is forbidden. This restriction is similar to the 8021q driver's
-restriction of changing the VID of an existing interface.
-
-Fix this by taking br1 down and bringing it back up when it is fully
-configured.
-
-With this fix, the test reliably passes on top of both the SW and HW
-data paths (emulated or not).
-
-Fixes: 239e754af854 ("selftests: forwarding: Test mirror-to-gretap w/ UL 802.1q")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20220502084507.364774-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20220416125408.197440-1-broonie@kernel.org
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/wm8958-dsp2.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
-+++ b/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
-@@ -61,9 +61,12 @@ setup_prepare()
+--- a/sound/soc/codecs/wm8958-dsp2.c
++++ b/sound/soc/codecs/wm8958-dsp2.c
+@@ -530,7 +530,7 @@ static int wm8958_mbc_put(struct snd_kco
  
- 	vrf_prepare
- 	mirror_gre_topo_create
-+	# Avoid changing br1's PVID while it is operational as a L3 interface.
-+	ip link set dev br1 down
+ 	wm8958_dsp_apply(component, mbc, wm8994->mbc_ena[mbc]);
  
- 	ip link set dev $swp3 master br1
- 	bridge vlan add dev br1 vid 555 pvid untagged self
-+	ip link set dev br1 up
- 	ip address add dev br1 192.0.2.129/28
- 	ip address add dev br1 2001:db8:2::1/64
+-	return 0;
++	return 1;
+ }
  
+ #define WM8958_MBC_SWITCH(xname, xval) {\
+@@ -656,7 +656,7 @@ static int wm8958_vss_put(struct snd_kco
+ 
+ 	wm8958_dsp_apply(component, vss, wm8994->vss_ena[vss]);
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ 
+@@ -730,7 +730,7 @@ static int wm8958_hpf_put(struct snd_kco
+ 
+ 	wm8958_dsp_apply(component, hpf % 3, ucontrol->value.integer.value[0]);
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ #define WM8958_HPF_SWITCH(xname, xval) {\
+@@ -824,7 +824,7 @@ static int wm8958_enh_eq_put(struct snd_
+ 
+ 	wm8958_dsp_apply(component, eq, ucontrol->value.integer.value[0]);
+ 
+-	return 0;
++	return 1;
+ }
+ 
+ #define WM8958_ENH_EQ_SWITCH(xname, xval) {\
 
 
