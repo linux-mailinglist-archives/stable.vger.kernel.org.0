@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF315219CC
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E12B521A3E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244804AbiEJNvX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S244525AbiEJNye (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244649AbiEJNqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1267A16A260;
-        Tue, 10 May 2022 06:31:48 -0700 (PDT)
+        with ESMTP id S243906AbiEJNwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:53 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC9692992DB;
+        Tue, 10 May 2022 06:38:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF547B81D24;
-        Tue, 10 May 2022 13:31:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38BD1C385A6;
-        Tue, 10 May 2022 13:31:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DA726188F;
+        Tue, 10 May 2022 13:38:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80C80C385C2;
+        Tue, 10 May 2022 13:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189504;
-        bh=HMkPzu0U3NUOKTa8txjuV7KsMyHeKV537byhEaLBu1A=;
+        s=korg; t=1652189896;
+        bh=ZHYzabtid5rGR1vUHabUw8fvas6K2SQA2jyLWJ7U7ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0jB5Bg1syNHT0gj9kJi1cjc7p82gC5cMckRpGCz2MO6sNEq10XOR+/EjxkYpBeEC
-         fLiXk3PouM5ajKP6bxb5IJTVAII1vqf8697n4EorUah2UInvzHjbtbGV7sjOsPpuMo
-         1Ju9PnCj86EU0ZjJcXUWn5+KkrfQVB0U5Dbrf3Wo=
+        b=GE4nzintz7gPBbsJ2NP1BRXy3lrgubtVllmi1FWmZGtVPctYtvTLJ1a0jM//PBGtD
+         p90dR/OnQrCdi0VkPuZZZJTPYB6wK95M/IJZHCqu+bSm4zT58kpWDzA+Totsoj0Src
+         iK480xRRG5Cjt9UBDxET/XacsVnFkABDsfIJ9jyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 071/135] btrfs: do not BUG_ON() on failure to update inode when setting xattr
+        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.17 063/140] net/mlx5e: Fix trust state reset in reload
 Date:   Tue, 10 May 2022 15:07:33 +0200
-Message-Id: <20220510130742.448498897@linuxfoundation.org>
+Message-Id: <20220510130743.421684759@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Moshe Tal <moshet@nvidia.com>
 
-commit 193b4e83986d7ee6caa8ceefb5ee9f58240fbee0 upstream.
+commit b781bff882d16175277ca129c382886cb4c74a2c upstream.
 
-We are doing a BUG_ON() if we fail to update an inode after setting (or
-clearing) a xattr, but there's really no reason to not instead simply
-abort the transaction and return the error to the caller. This should be
-a rare error because we have previously reserved enough metadata space to
-update the inode and the delayed inode should have already been setup, so
-an -ENOSPC or -ENOMEM, which are the possible errors, are very unlikely to
-happen.
+Setting dscp2prio during the driver reload can cause dcb ieee app list to
+be not empty after the reload finish and as a result to a conflict between
+the priority trust state reported by the app and the state in the device
+register.
 
-So replace the BUG_ON()s with a transaction abort.
+Reset the dcb ieee app list on initialization in case this is
+conflicting with the register status.
 
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 2a5e7a1344f4 ("net/mlx5e: Add dcbnl dscp to priority support")
+Signed-off-by: Moshe Tal <moshet@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/xattr.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -264,7 +264,8 @@ int btrfs_setxattr_trans(struct inode *i
- 	inode_inc_iversion(inode);
- 	inode->i_ctime = current_time(inode);
- 	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
--	BUG_ON(ret);
-+	if (ret)
-+		btrfs_abort_transaction(trans, ret);
- out:
- 	if (start_trans)
- 		btrfs_end_transaction(trans);
-@@ -418,7 +419,8 @@ static int btrfs_xattr_handler_set_prop(
- 		inode_inc_iversion(inode);
- 		inode->i_ctime = current_time(inode);
- 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
--		BUG_ON(ret);
-+		if (ret)
-+			btrfs_abort_transaction(trans, ret);
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
+@@ -1198,6 +1198,16 @@ static int mlx5e_trust_initialize(struct
+ 	if (err)
+ 		return err;
  
- 	btrfs_end_transaction(trans);
++	if (priv->dcbx_dp.trust_state == MLX5_QPTS_TRUST_PCP && priv->dcbx.dscp_app_cnt) {
++		/*
++		 * Align the driver state with the register state.
++		 * Temporary state change is required to enable the app list reset.
++		 */
++		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_DSCP;
++		mlx5e_dcbnl_delete_app(priv);
++		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_PCP;
++	}
++
+ 	mlx5e_params_calc_trust_tx_min_inline_mode(priv->mdev, &priv->channels.params,
+ 						   priv->dcbx_dp.trust_state);
+ 
 
 
