@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D59521843
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6DE35218CB
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239997AbiEJNeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
+        id S243407AbiEJNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243849AbiEJNcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:18 -0400
+        with ESMTP id S245168AbiEJNig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6098A22EA74;
-        Tue, 10 May 2022 06:22:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 808EB263DB4;
+        Tue, 10 May 2022 06:28:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0D9F6170D;
-        Tue, 10 May 2022 13:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D91C385C2;
-        Tue, 10 May 2022 13:22:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D62361768;
+        Tue, 10 May 2022 13:28:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C6BCC385C2;
+        Tue, 10 May 2022 13:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188959;
-        bh=IWBx+5sO3Vp2iBsahPhayhdg6TUAZM8E8BQ3PDzgWgI=;
+        s=korg; t=1652189279;
+        bh=5cNK+wuvoX5vTKWBRONcqZCKvqOu/lyCY19Iqr7BuQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acgM7P5couVN3WC84/PUakJt9AUYYvBpLu/U4+wCDLTTWLTnK+csVteQM7YL4YbbE
-         Y0GD9FZVjpnRJ0bnpXOnPkZTSNEPg/yhlx4tyiTMDf2huk7LfokZAklPLj9rvhDURX
-         gDDZDNSIE0VME0IitKDcQN6TdWHwGOxKFkYuV56c=
+        b=xGSAjvtuR4iKsgPxnHil+wHPu8O0cRDIL5SaOo7FcJemBwQF++KkHsfHYPXECBIA9
+         tydu0dxPzsPsKvDfK7/esSBWuUJ+oDbmLZtyi6UbJkND8iz/2PGz9yuvXThis895w1
+         /kLKDKGE9bIWxdhRAGGvlpbt0BV7jh+8w4WYIORE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Andreas Larsson <andreas@gaisler.com>,
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 18/52] can: grcan: grcan_close(): fix deadlock
-Date:   Tue, 10 May 2022 15:07:47 +0200
-Message-Id: <20220510130730.389893254@linuxfoundation.org>
+Subject: [PATCH 5.10 29/70] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
+Date:   Tue, 10 May 2022 15:07:48 +0200
+Message-Id: <20220510130733.721314349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Andreas Larsson <andreas@gaisler.com>
 
-commit 47f070a63e735bcc8d481de31be1b5a1aa62b31c upstream.
+commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
 
-There are deadlocks caused by del_timer_sync(&priv->hang_timer) and
-del_timer_sync(&priv->rr_timer) in grcan_close(), one of the deadlocks
-are shown below:
+The systemid property was checked for in the wrong place of the device
+tree and compared to the wrong value.
 
-   (Thread 1)              |      (Thread 2)
-                           | grcan_reset_timer()
-grcan_close()              |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | grcan_initiate_running_reset()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
-
-We hold priv->lock in position (1) of thread 1 and use
-del_timer_sync() to wait timer to stop, but timer handler also need
-priv->lock in position (2) of thread 2. As a result, grcan_close()
-will block forever.
-
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain the
-needed lock.
-
-Link: https://lore.kernel.org/all/20220425042400.66517-1-duoming@zju.edu.cn
 Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/grcan.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
 --- a/drivers/net/can/grcan.c
 +++ b/drivers/net/can/grcan.c
-@@ -1113,8 +1113,10 @@ static int grcan_close(struct net_device
+@@ -241,7 +241,7 @@ struct grcan_device_config {
+ 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
+ 		}
  
- 	priv->closing = true;
- 	if (priv->need_txbug_workaround) {
-+		spin_unlock_irqrestore(&priv->lock, flags);
- 		del_timer_sync(&priv->hang_timer);
- 		del_timer_sync(&priv->rr_timer);
-+		spin_lock_irqsave(&priv->lock, flags);
- 	}
- 	netif_stop_queue(dev);
- 	grcan_stop_hardware(dev);
+-#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
++#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
+ #define GRLIB_VERSION_MASK		0xffff
+ 
+ /* GRCAN private data structure */
+@@ -1656,6 +1656,7 @@ exit_free_candev:
+ static int grcan_probe(struct platform_device *ofdev)
+ {
+ 	struct device_node *np = ofdev->dev.of_node;
++	struct device_node *sysid_parent;
+ 	u32 sysid, ambafreq;
+ 	int irq, err;
+ 	void __iomem *base;
+@@ -1664,10 +1665,15 @@ static int grcan_probe(struct platform_d
+ 	/* Compare GRLIB version number with the first that does not
+ 	 * have the tx bug (see start_xmit)
+ 	 */
+-	err = of_property_read_u32(np, "systemid", &sysid);
+-	if (!err && ((sysid & GRLIB_VERSION_MASK)
+-		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
+-		txbug = false;
++	sysid_parent = of_find_node_by_path("/ambapp0");
++	if (sysid_parent) {
++		of_node_get(sysid_parent);
++		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
++		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
++			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
++			txbug = false;
++		of_node_put(sysid_parent);
++	}
+ 
+ 	err = of_property_read_u32(np, "freq", &ambafreq);
+ 	if (err) {
 
 
