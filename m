@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 802D9521696
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9707D52192C
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242318AbiEJNQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
+        id S243779AbiEJNmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242462AbiEJNQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2808249F18;
-        Tue, 10 May 2022 06:11:44 -0700 (PDT)
+        with ESMTP id S244614AbiEJNmC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341EA2CCD16;
+        Tue, 10 May 2022 06:30:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A519A61574;
-        Tue, 10 May 2022 13:11:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2120C385C2;
-        Tue, 10 May 2022 13:11:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C252B81DA0;
+        Tue, 10 May 2022 13:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3FAC385D8;
+        Tue, 10 May 2022 13:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188303;
-        bh=A/JRDkuq2cNykGWSuoZt6p3ZN9nfI+Zo+Gq7fBTW8h8=;
+        s=korg; t=1652189396;
+        bh=sYcx22CNtW7hSY2tI7NBOUw3XnIwaKgfLUJasIi6tks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BxuY2JwaTgm/shgeWSPVF0rlepxZ6Rg70rMs7Pep5f9xk9sq1qCpxjM0HE8LkI//e
-         7m80zuKRzZZJt4jCMQnXujmd20j2/0EwPl4KYapXsRymKsa+z1JG6pCwptWu+eXKEP
-         gnZ4LhwXhAohagzD/KvDC2N2i0Vm+vBMQDCV0z2U=
+        b=Ykz2cUcu90pKcArr8GDvsCanf9Xq2jIQPXhUJ5uTtzotfxEbFhTbWr3wnf4KjJaw7
+         nknrHY1ElYdKR0VFJ2CbOIC9edjYgTYgxlD3aIIS7sEuN7eAd4x2Lo1Jf39ucW9U+0
+         v0Eqbm9IcpaPO7vMptHWzu0Rhb5WR5vIz2SmamHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 08/66] USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 036/135] can: grcan: only use the NAPI poll budget for RX
 Date:   Tue, 10 May 2022 15:06:58 +0200
-Message-Id: <20220510130730.014747979@linuxfoundation.org>
+Message-Id: <20220510130741.439388975@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,75 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Slark Xiao <slark_xiao@163.com>
+From: Andreas Larsson <andreas@gaisler.com>
 
-commit b4a64ed6e7b857317070fcb9d87ff5d4a73be3e8 upstream.
+commit 2873d4d52f7c52d60b316ba6c47bd7122b5a9861 upstream.
 
-Add support for Cinterion device MV32-WA/MV32-WB. MV32-WA PID is
-0x00F1, and MV32-WB PID is 0x00F2.
+The previous split budget between TX and RX made it return not using
+the entire budget but at the same time not having calling called
+napi_complete. This sometimes led to the poll to not be called, and at
+the same time having TX and RX interrupts disabled resulting in the
+driver getting stuck.
 
-Test evidence as below:
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f1 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F1 USB Mobile Broadband
-S:  SerialNumber=78ada8c4
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
-D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
-P:  Vendor=1e2d ProdID=00f2 Rev=05.04
-S:  Manufacturer=Cinterion
-S:  Product=Cinterion PID 0x00F2 USB Mobile Broadband
-S:  SerialNumber=cdd06a78
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
-I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
-
-Interface 0&1: MBIM, 2:Modem, 3: GNSS, 4: NMEA, 5: Diag
-GNSS port don't use serial driver.
-
-Signed-off-by: Slark Xiao <slark_xiao@163.com>
-Link: https://lore.kernel.org/r/20220414074434.5699-1-slark_xiao@163.com
+Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+Link: https://lore.kernel.org/all/20220429084656.29788-4-andreas@gaisler.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/can/grcan.c |   22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -430,6 +430,8 @@ static void option_instat_callback(struc
- #define CINTERION_PRODUCT_CLS8			0x00b0
- #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
- #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
-+#define CINTERION_PRODUCT_MV32_WA		0x00f1
-+#define CINTERION_PRODUCT_MV32_WB		0x00f2
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1137,7 +1137,7 @@ static int grcan_close(struct net_device
+ 	return 0;
+ }
  
- /* Olivetti products */
- #define OLIVETTI_VENDOR_ID			0x0b3c
-@@ -1945,6 +1947,10 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
- 	  .driver_info = RSVD(0)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
-+	  .driver_info = RSVD(3)},
-+	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
-+	  .driver_info = RSVD(3)},
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
- 	  .driver_info = RSVD(4) },
- 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
+-static int grcan_transmit_catch_up(struct net_device *dev, int budget)
++static void grcan_transmit_catch_up(struct net_device *dev)
+ {
+ 	struct grcan_priv *priv = netdev_priv(dev);
+ 	unsigned long flags;
+@@ -1145,7 +1145,7 @@ static int grcan_transmit_catch_up(struc
+ 
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
+-	work_done = catch_up_echo_skb(dev, budget, true);
++	work_done = catch_up_echo_skb(dev, -1, true);
+ 	if (work_done) {
+ 		if (!priv->resetting && !priv->closing &&
+ 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+@@ -1159,8 +1159,6 @@ static int grcan_transmit_catch_up(struc
+ 	}
+ 
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+-
+-	return work_done;
+ }
+ 
+ static int grcan_receive(struct net_device *dev, int budget)
+@@ -1242,19 +1240,13 @@ static int grcan_poll(struct napi_struct
+ 	struct net_device *dev = priv->dev;
+ 	struct grcan_registers __iomem *regs = priv->regs;
+ 	unsigned long flags;
+-	int tx_work_done, rx_work_done;
+-	int rx_budget = budget / 2;
+-	int tx_budget = budget - rx_budget;
++	int work_done;
+ 
+-	/* Half of the budget for receiving messages */
+-	rx_work_done = grcan_receive(dev, rx_budget);
++	work_done = grcan_receive(dev, budget);
+ 
+-	/* Half of the budget for transmitting messages as that can trigger echo
+-	 * frames being received
+-	 */
+-	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
++	grcan_transmit_catch_up(dev);
+ 
+-	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
++	if (work_done < budget) {
+ 		napi_complete(napi);
+ 
+ 		/* Guarantee no interference with a running reset that otherwise
+@@ -1271,7 +1263,7 @@ static int grcan_poll(struct napi_struct
+ 		spin_unlock_irqrestore(&priv->lock, flags);
+ 	}
+ 
+-	return rx_work_done + tx_work_done;
++	return work_done;
+ }
+ 
+ /* Work tx bug by waiting while for the risky situation to clear. If that fails,
 
 
