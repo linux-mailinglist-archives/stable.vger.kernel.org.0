@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DF3C5218F3
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2D8521917
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244050AbiEJNlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
+        id S243699AbiEJNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245283AbiEJNin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D95C01BDD82;
-        Tue, 10 May 2022 06:29:02 -0700 (PDT)
+        with ESMTP id S243917AbiEJNlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C341129B032;
+        Tue, 10 May 2022 06:29:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BFE96181B;
-        Tue, 10 May 2022 13:29:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92FF1C385A6;
-        Tue, 10 May 2022 13:29:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6FF2B81DA2;
+        Tue, 10 May 2022 13:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDD8C385C2;
+        Tue, 10 May 2022 13:29:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189341;
-        bh=WTnl3+B6yRLPj0eRn2sUYYRUVNpckkYKXc79sNWkQus=;
+        s=korg; t=1652189374;
+        bh=auUTgvODqWpl/wPgb1AxZujhbozTaEOhuOuxa/0w1/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HSiH6g61twcZhKHVXqargXzm2ERzXALZD8orSb/JImYyE5sVC3zZE3f0Ce/90E9jY
-         bUbbu5w9iLa0J7SW+unTHjdaZbk8uQgLU2+/a1UMW3eXWyb+8gaeJ2NIssuR0gA937
-         abs4zhtcBDHF3+xGCpSKX4+GlyUU+OvmWLwLXpQs=
+        b=0TlDnpFPokwybilGllavh2gfFHHc/qNM6kjLdd5uQaCSzc+smsCeMNiIVbJRzrYvq
+         dio/Z4G4tbNH9Gzqc7OoOX43qizK1TCSYUO9RLHjuzYYafPuKYDzy1EC9dIJUSDyzJ
+         GyrEF6uyhUWJ+yAXAuDWAr22mkFGJ8qlhQqgWEhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 002/135] parisc: Merge model and model name into one line in /proc/cpuinfo
-Date:   Tue, 10 May 2022 15:06:24 +0200
-Message-Id: <20220510130740.467396313@linuxfoundation.org>
+        stable@vger.kernel.org, Zihao Wang <wzhd@ustc.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 003/135] ALSA: hda/realtek: Add quirk for Yoga Duet 7 13ITL6 speakers
+Date:   Tue, 10 May 2022 15:06:25 +0200
+Message-Id: <20220510130740.496110017@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
@@ -52,32 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Zihao Wang <wzhd@ustc.edu>
 
-commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
+commit 3b79954fd00d540677c97a560622b73f3a1f4e28 upstream.
 
-The Linux tool "lscpu" shows the double amount of CPUs if we have
-"model" and "model name" in two different lines in /proc/cpuinfo.
-This change combines the model and the model name into one line.
+Lenovo Yoga Duet 7 13ITL6 has Realtek ALC287 and built-in
+speakers do not work out of the box. The fix developed for
+Yoga 7i 14ITL5 also enables speaker output for this model.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
+Signed-off-by: Zihao Wang <wzhd@ustc.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220424084120.74125-1-wzhd@ustc.edu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/processor.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/kernel/processor.c
-+++ b/arch/parisc/kernel/processor.c
-@@ -418,8 +418,7 @@ show_cpuinfo (struct seq_file *m, void *
- 		}
- 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
- 
--		seq_printf(m, "model\t\t: %s\n"
--				"model name\t: %s\n",
-+		seq_printf(m, "model\t\t: %s - %s\n",
- 				 boot_cpu_data.pdc.sys_model_name,
- 				 cpuinfo->dev ?
- 				 cpuinfo->dev->name : "Unknown");
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9034,6 +9034,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
++	SND_PCI_QUIRK(0x17aa, 0x3820, "Yoga Duet 7 13ITL6", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
+ 	SND_PCI_QUIRK(0x17aa, 0x3834, "Lenovo IdeaPad Slim 9i 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
 
 
