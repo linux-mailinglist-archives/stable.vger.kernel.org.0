@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2E95216ED
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D44D5217C3
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242680AbiEJNWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45940 "EHLO
+        id S243178AbiEJN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243569AbiEJNWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7793C54F8F;
-        Tue, 10 May 2022 06:16:26 -0700 (PDT)
+        with ESMTP id S243693AbiEJN1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A082E25D111;
+        Tue, 10 May 2022 06:20:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC5FDB81CE7;
-        Tue, 10 May 2022 13:16:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC3DC385CC;
-        Tue, 10 May 2022 13:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39B786165A;
+        Tue, 10 May 2022 13:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48DFCC385A6;
+        Tue, 10 May 2022 13:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188581;
-        bh=/UVAzQlgFegpmkQYaFIjEN+bkQrQ1feWxFKhU29pdeU=;
+        s=korg; t=1652188819;
+        bh=sN5HR7f9AJoRolKAArwQTOKUueVNLwfQy/wUH8Trtu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRF3/4KPnf00rkpw3LjnX2FMdxwHKsVt1X/NmZnaXw4AvJDv5nIBWooRH34oldEMe
-         6Rm4gybKhO4DDuF//lPflZvZfGfJ8j9GYqnFjx1HU8FyXKUVLvmeuLkn970fUU6deo
-         A2gp3rxEiWVvXE5cTgW3Le86nnNtWkFl5LAt55Mw=
+        b=1u+t7QMRhMxyIBZmSzfUqsMQV2i2rlwSHHVXEkXrCsP/Uhs7EPnByEOjcvDbSm2CX
+         +DVbQDyW1tDIYCmjSTEU5Mpv7Q6NAqUyql1FBc6faXubkySVFbMlUnHz5IxnLYD6wf
+         VVt1SGUM6088/ib4NpgZb81bLPnrGr5uONE4Hs2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.14 54/78] MIPS: Fix CP0 counter erratum detection for R4k CPUs
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.19 55/88] tty: n_gsm: fix wrong command frame length field encoding
 Date:   Tue, 10 May 2022 15:07:40 +0200
-Message-Id: <20220510130734.137598475@linuxfoundation.org>
+Message-Id: <20220510130735.343311933@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,102 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
+commit 398867f59f956985f4c324f173eff7b946e14bd8 upstream.
 
-Fix the discrepancy between the two places we check for the CP0 counter
-erratum in along with the incorrect comparison of the R4400 revision
-number against 0x30 which matches none and consistently consider all
-R4000 and R4400 processors affected, as documented in processor errata
-publications[1][2][3], following the mapping between CP0 PRId register
-values and processor models:
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.4.6.1 states that each command frame shall
+be made up from type, length and value. Looking for example in chapter
+5.4.6.3.5 at the description for the encoding of a flow control on command
+it becomes obvious, that the type and length field is always present
+whereas the value may be zero bytes long. The current implementation omits
+the length field if the value is not present. This is wrong.
+Correct this by always sending the length in gsm_control_transmit().
+So far only the modem status command (MSC) has included a value and encoded
+its length directly. Therefore, also change gsmtty_modem_update().
 
-  PRId   |  Processor Model
----------+--------------------
-00000422 | R4000 Revision 2.2
-00000430 | R4000 Revision 3.0
-00000440 | R4400 Revision 1.0
-00000450 | R4400 Revision 2.0
-00000460 | R4400 Revision 3.0
-
-No other revision of either processor has ever been spotted.
-
-Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
-R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
-CP0 counter as buggy does not preclude it from being used as either a
-clock event or a clock source device.  It just cannot be used as both at
-a time, because in that case clock event interrupts will be occasionally
-lost, and the use as a clock event device takes precedence.
-
-Compare against 0x4ff in `can_use_mips_counter' so that a single machine
-instruction is produced.
-
-
-[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
-    Technologies Inc., May 10, 1994, Erratum 53, p.13
-
-[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
-    Inc., February 9, 1994, Erratum 21, p.4
-
-[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
-    Technologies Inc., January 24, 1995, Erratum 14, p.3
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
-Cc: stable@vger.kernel.org # v2.6.24+
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-12-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/timex.h |    8 ++++----
- arch/mips/kernel/time.c       |   11 +++--------
- 2 files changed, 7 insertions(+), 12 deletions(-)
+ drivers/tty/n_gsm.c |   23 +++++++++++------------
+ 1 file changed, 11 insertions(+), 12 deletions(-)
 
---- a/arch/mips/include/asm/timex.h
-+++ b/arch/mips/include/asm/timex.h
-@@ -40,9 +40,9 @@
- typedef unsigned int cycles_t;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1302,11 +1302,12 @@ static void gsm_control_response(struct
  
- /*
-- * On R4000/R4400 before version 5.0 an erratum exists such that if the
-- * cycle counter is read in the exact moment that it is matching the
-- * compare register, no interrupt will be generated.
-+ * On R4000/R4400 an erratum exists such that if the cycle counter is
-+ * read in the exact moment that it is matching the compare register,
-+ * no interrupt will be generated.
-  *
-  * There is a suggested workaround and also the erratum can't strike if
-  * the compare interrupt isn't being used as the clock source device.
-@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
- 	if (!__builtin_constant_p(cpu_has_counter))
- 		asm volatile("" : "=m" (cpu_data[0].options));
- 	if (likely(cpu_has_counter &&
--		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
-+		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
- 		return 1;
- 	else
- 		return 0;
---- a/arch/mips/kernel/time.c
-+++ b/arch/mips/kernel/time.c
-@@ -155,15 +155,10 @@ static __init int cpu_has_mfc0_count_bug
- 	case CPU_R4400MC:
- 		/*
- 		 * The published errata for the R4400 up to 3.0 say the CPU
--		 * has the mfc0 from count bug.
-+		 * has the mfc0 from count bug.  This seems the last version
-+		 * produced.
- 		 */
--		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
--			return 1;
+ static void gsm_control_transmit(struct gsm_mux *gsm, struct gsm_control *ctrl)
+ {
+-	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 1, gsm->ftype);
++	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 2, gsm->ftype);
+ 	if (msg == NULL)
+ 		return;
+-	msg->data[0] = (ctrl->cmd << 1) | 2 | EA;	/* command */
+-	memcpy(msg->data + 1, ctrl->data, ctrl->len);
++	msg->data[0] = (ctrl->cmd << 1) | CR | EA;	/* command */
++	msg->data[1] = (ctrl->len << 1) | EA;
++	memcpy(msg->data + 2, ctrl->data, ctrl->len);
+ 	gsm_data_queue(gsm->dlci[0], msg);
+ }
+ 
+@@ -2860,19 +2861,17 @@ static struct tty_ldisc_ops tty_ldisc_pa
+ 
+ static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk)
+ {
+-	u8 modembits[5];
++	u8 modembits[3];
+ 	struct gsm_control *ctrl;
+ 	int len = 2;
+ 
+-	if (brk)
++	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
++	modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
++	if (brk) {
++		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
+ 		len++;
 -
--		/*
--		 * we assume newer revisions are ok
--		 */
--		return 0;
-+		return 1;
- 	}
- 
- 	return 0;
+-	modembits[0] = len << 1 | EA;		/* Data bytes */
+-	modembits[1] = dlci->addr << 2 | 3;	/* DLCI, EA, 1 */
+-	modembits[2] = gsm_encode_modem(dlci) << 1 | EA;
+-	if (brk)
+-		modembits[3] = brk << 4 | 2 | EA;	/* Valid, EA */
+-	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len + 1);
++	}
++	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len);
+ 	if (ctrl == NULL)
+ 		return -ENOMEM;
+ 	return gsm_control_wait(dlci->gsm, ctrl);
 
 
