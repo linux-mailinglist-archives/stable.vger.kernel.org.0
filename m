@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F00EF521854
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29325521995
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235432AbiEJNeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:34:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56868 "EHLO
+        id S244231AbiEJNtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243336AbiEJNdM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:33:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02F922380E2;
-        Tue, 10 May 2022 06:24:22 -0700 (PDT)
+        with ESMTP id S245045AbiEJNrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A432F38D;
+        Tue, 10 May 2022 06:34:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD0CDB81DB1;
-        Tue, 10 May 2022 13:24:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499B3C385C9;
-        Tue, 10 May 2022 13:24:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE64615C8;
+        Tue, 10 May 2022 13:34:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1066EC385A6;
+        Tue, 10 May 2022 13:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189056;
-        bh=p66mXbbVKTuTCV9wvWvuCcAImiMsmy9tH8s+oB4xHXE=;
+        s=korg; t=1652189654;
+        bh=WppGhgcPB+6oY6QJ8p+yvs4P6oEjc6aM7RIGjBre9Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Di9MqFst3LMVDOP/gg3pOd7KhKTklTRGFWavhGeE4QcpZZ7WLG6EYd7z9nMWMQkvJ
-         4eVVrsGHGlIw8VyOtDEEEfjIIRM6XkatoVxVmXeC/MmPJlEi9vYeNJiUtUyIAvsKg6
-         4UB5ouLoo6rsMyRPTOR7PA8LiiCf5HyDhr7zr5R8=
+        b=2k1cwXWIwixpC9nV8dLlKRIvRlglzc1+ei2RrgTaD6gsm5y8746bwdUvxjuSVsWU2
+         GfYJ5UwPk7i4OqoQmNIQF8IOjnrsSfWrrsK0Puoc4cb3r/ZG085KKLu+/RsVo3oe55
+         GqGpR94bD5U6qrn0uUpPQF4WKCs53L0GM4rD0Kq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 51/52] PCI: aardvark: Fix reading MSI interrupt number
-Date:   Tue, 10 May 2022 15:08:20 +0200
-Message-Id: <20220510130731.345785180@linuxfoundation.org>
+Subject: [PATCH 5.15 119/135] PCI: aardvark: Check return value of generic_handle_domain_irq() when processing INTx IRQ
+Date:   Tue, 10 May 2022 15:08:21 +0200
+Message-Id: <20220510130743.812198606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali RohÃ¡r <pali@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 upstream.
+commit 51f96e287c6f003d3bb29672811c757c5fbf0028 upstream.
 
-In advk_pcie_handle_msi() it is expected that when bit i in the W1C
-register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
-updated to contain the MSI number corresponding to index i.
+It is possible that we receive spurious INTx interrupt. Check for the
+return value of generic_handle_domain_irq() when processing INTx IRQ.
 
-Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
-always contains the number of the last received MSI, overall.
-
-Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
-number. Since Aardvark already forbids more than 32 interrupts and uses
-own allocated hwirq numbers, the msi_idx already corresponds to the
-received MSI number.
-
-Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali RohÃ¡r <pali@kernel.org>
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
+Link: https://lore.kernel.org/r/20220110015018.26359-6-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1372,7 +1372,7 @@ static void advk_pcie_remove_irq_domain(
- static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- {
- 	u32 msi_val, msi_mask, msi_status, msi_idx;
--	u16 msi_data;
-+	int virq;
+@@ -1429,7 +1429,9 @@ static void advk_pcie_handle_int(struct
+ 		advk_writel(pcie, PCIE_ISR1_INTX_ASSERT(i),
+ 			    PCIE_ISR1_REG);
  
- 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
- 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
-@@ -1382,13 +1382,9 @@ static void advk_pcie_handle_msi(struct
- 		if (!(BIT(msi_idx) & msi_status))
- 			continue;
- 
--		/*
--		 * msi_idx contains bits [4:0] of the msi_data and msi_data
--		 * contains 16bit MSI interrupt number
--		 */
- 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
--		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
--		generic_handle_irq(msi_data);
-+		virq = irq_find_mapping(pcie->msi_inner_domain, msi_idx);
-+		generic_handle_irq(virq);
+-		generic_handle_domain_irq(pcie->irq_domain, i);
++		if (generic_handle_domain_irq(pcie->irq_domain, i) == -EINVAL)
++			dev_err_ratelimited(&pcie->pdev->dev, "unexpected INT%c IRQ\n",
++					    (char)i + 'A');
  	}
+ }
  
- 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 
 
