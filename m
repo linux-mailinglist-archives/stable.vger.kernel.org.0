@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53A67521A24
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77B7521949
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243605AbiEJNwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:52:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
+        id S239493AbiEJNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245144AbiEJNr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560CB2C13CB;
-        Tue, 10 May 2022 06:35:27 -0700 (PDT)
+        with ESMTP id S244823AbiEJNmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60265819A3;
+        Tue, 10 May 2022 06:30:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7172618A0;
-        Tue, 10 May 2022 13:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84E9C385A6;
-        Tue, 10 May 2022 13:35:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54E4E615C8;
+        Tue, 10 May 2022 13:30:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 648A2C385A6;
+        Tue, 10 May 2022 13:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189726;
-        bh=/avtzuZvfnMi1NnIu7uKKrjB03sJRY+GFZrwoZkIdA4=;
+        s=korg; t=1652189414;
+        bh=EjlviHrtXJMXgN9I+g+CCb6AQ//L9SQBZ6ZMZ93GDJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1+3Bcslfp2vl5Ycev8DQ5k/6ogIVZdy33DMSHSGOHwsXOamhkfhWvy3TdRLKbbC6E
-         1d0WPvWqYVeYK3qvTo5TCnQs7wci2gSKKWOvmfyaCeYBKrSU+X06ea2VwVuL/60XFH
-         O2mV2dbLrqCYHpdMkrImzuAdaCmvIaehSvjnJgpQ=
+        b=0yqeC3/NvkcvKpdcUlH2avbpTOenDOwItHq8uep/MJJVHw6im8zQYS1OaEpw3sB63
+         7jeA6YoXVr6EHqqgjzZpzycT8r0e9e7j4MMRQVL2q6JWAFALSCByJFwlm0vGpXxSrh
+         uwQmU0R7B2VYwYMsAq/+nEZrxhXBe8RJAPK1eT7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
-Subject: [PATCH 5.17 001/140] pci_irq_vector() cant be used in atomic context any longer. This conflicts with the usage of this function in nic_mbx_intr_handler(). =?UTF-8?q?age=20of=20this=20function=20in=20nic=5Fmbx=5Fintr=5Fhandler().?=
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 009/135] x86/fpu: Prevent FPU state corruption
 Date:   Tue, 10 May 2022 15:06:31 +0200
-Message-Id: <20220510130741.644300046@linuxfoundation.org>
+Message-Id: <20220510130740.664230646@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,81 +56,138 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 6b292a04c694573a302686323fe15b1c7e673e5b upstream.
+commit 59f5ede3bc0f00eb856425f636dab0c10feb06d8 upstream.
 
-Cache the Linux interrupt numbers in struct nicpf and use that cache in the
-interrupt handler to select the mailbox.
+The FPU usage related to task FPU management is either protected by
+disabling interrupts (switch_to, return to user) or via fpregs_lock() which
+is a wrapper around local_bh_disable(). When kernel code wants to use the
+FPU then it has to check whether it is possible by calling irq_fpu_usable().
 
-Fixes: 495c66aca3da ("genirq/msi: Convert to new functions")
-Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
+But the condition in irq_fpu_usable() is wrong. It allows FPU to be used
+when:
+
+   !in_interrupt() || interrupted_user_mode() || interrupted_kernel_fpu_idle()
+
+The latter is checking whether some other context already uses FPU in the
+kernel, but if that's not the case then it allows FPU to be used
+unconditionally even if the calling context interrupted a fpregs_lock()
+critical region. If that happens then the FPU state of the interrupted
+context becomes corrupted.
+
+Allow in kernel FPU usage only when no other context has in kernel FPU
+usage and either the calling context is not hard interrupt context or the
+hard interrupt did not interrupt a local bottomhalf disabled region.
+
+It's hard to find a proper Fixes tag as the condition was broken in one way
+or the other for a very long time and the eager/lazy FPU changes caused a
+lot of churn. Picked something remotely connected from the history.
+
+This survived undetected for quite some time as FPU usage in interrupt
+context is rare, but the recent changes to the random code unearthed it at
+least on a kernel which had FPU debugging enabled. There is probably a
+higher rate of silent corruption as not all issues can be detected by the
+FPU debugging code. This will be addressed in a subsequent change.
+
+Fixes: 5d2bd7009f30 ("x86, fpu: decouple non-lazy/eager fpu restore from xsave")
+Reported-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Sunil Goutham <sgoutham@marvell.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org
+Tested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2041772
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20220501193102.588689270@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cavium/thunder/nic_main.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kernel/fpu/core.c |   67 +++++++++++++++++----------------------------
+ 1 file changed, 26 insertions(+), 41 deletions(-)
 
---- a/drivers/net/ethernet/cavium/thunder/nic_main.c
-+++ b/drivers/net/ethernet/cavium/thunder/nic_main.c
-@@ -59,7 +59,7 @@ struct nicpf {
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -25,17 +25,7 @@
+  */
+ union fpregs_state init_fpstate __ro_after_init;
  
- 	/* MSI-X */
- 	u8			num_vec;
--	bool			irq_allocated[NIC_PF_MSIX_VECTORS];
-+	unsigned int		irq_allocated[NIC_PF_MSIX_VECTORS];
- 	char			irq_name[NIC_PF_MSIX_VECTORS][20];
- };
+-/*
+- * Track whether the kernel is using the FPU state
+- * currently.
+- *
+- * This flag is used:
+- *
+- *   - by IRQ context code to potentially use the FPU
+- *     if it's unused.
+- *
+- *   - to debug kernel_fpu_begin()/end() correctness
+- */
++/* Track in-kernel FPU usage */
+ static DEFINE_PER_CPU(bool, in_kernel_fpu);
  
-@@ -1150,7 +1150,7 @@ static irqreturn_t nic_mbx_intr_handler(
- 	u64 intr;
- 	u8  vf;
+ /*
+@@ -43,42 +33,37 @@ static DEFINE_PER_CPU(bool, in_kernel_fp
+  */
+ DEFINE_PER_CPU(struct fpu *, fpu_fpregs_owner_ctx);
  
--	if (irq == pci_irq_vector(nic->pdev, NIC_PF_INTR_ID_MBOX0))
-+	if (irq == nic->irq_allocated[NIC_PF_INTR_ID_MBOX0])
- 		mbx = 0;
- 	else
- 		mbx = 1;
-@@ -1176,14 +1176,14 @@ static void nic_free_all_interrupts(stru
- 
- 	for (irq = 0; irq < nic->num_vec; irq++) {
- 		if (nic->irq_allocated[irq])
--			free_irq(pci_irq_vector(nic->pdev, irq), nic);
--		nic->irq_allocated[irq] = false;
-+			free_irq(nic->irq_allocated[irq], nic);
-+		nic->irq_allocated[irq] = 0;
- 	}
- }
- 
- static int nic_register_interrupts(struct nicpf *nic)
+-static bool kernel_fpu_disabled(void)
+-{
+-	return this_cpu_read(in_kernel_fpu);
+-}
+-
+-static bool interrupted_kernel_fpu_idle(void)
+-{
+-	return !kernel_fpu_disabled();
+-}
+-
+-/*
+- * Were we in user mode (or vm86 mode) when we were
+- * interrupted?
+- *
+- * Doing kernel_fpu_begin/end() is ok if we are running
+- * in an interrupt context from user mode - we'll just
+- * save the FPU state as required.
+- */
+-static bool interrupted_user_mode(void)
+-{
+-	struct pt_regs *regs = get_irq_regs();
+-	return regs && user_mode(regs);
+-}
+-
+ /*
+  * Can we use the FPU in kernel mode with the
+  * whole "kernel_fpu_begin/end()" sequence?
+- *
+- * It's always ok in process context (ie "not interrupt")
+- * but it is sometimes ok even from an irq.
+  */
+ bool irq_fpu_usable(void)
  {
--	int i, ret;
-+	int i, ret, irq;
- 	nic->num_vec = pci_msix_vec_count(nic->pdev);
+-	return !in_interrupt() ||
+-		interrupted_user_mode() ||
+-		interrupted_kernel_fpu_idle();
++	if (WARN_ON_ONCE(in_nmi()))
++		return false;
++
++	/* In kernel FPU usage already active? */
++	if (this_cpu_read(in_kernel_fpu))
++		return false;
++
++	/*
++	 * When not in NMI or hard interrupt context, FPU can be used in:
++	 *
++	 * - Task context except from within fpregs_lock()'ed critical
++	 *   regions.
++	 *
++	 * - Soft interrupt processing context which cannot happen
++	 *   while in a fpregs_lock()'ed critical region.
++	 */
++	if (!in_hardirq())
++		return true;
++
++	/*
++	 * In hard interrupt context it's safe when soft interrupts
++	 * are enabled, which means the interrupt did not hit in
++	 * a fpregs_lock()'ed critical region.
++	 */
++	return !softirq_count();
+ }
+ EXPORT_SYMBOL(irq_fpu_usable);
  
- 	/* Enable MSI-X */
-@@ -1201,13 +1201,13 @@ static int nic_register_interrupts(struc
- 		sprintf(nic->irq_name[i],
- 			"NICPF Mbox%d", (i - NIC_PF_INTR_ID_MBOX0));
- 
--		ret = request_irq(pci_irq_vector(nic->pdev, i),
--				  nic_mbx_intr_handler, 0,
-+		irq = pci_irq_vector(nic->pdev, i);
-+		ret = request_irq(irq, nic_mbx_intr_handler, 0,
- 				  nic->irq_name[i], nic);
- 		if (ret)
- 			goto fail;
- 
--		nic->irq_allocated[i] = true;
-+		nic->irq_allocated[i] = irq;
- 	}
- 
- 	/* Enable mailbox interrupt */
 
 
