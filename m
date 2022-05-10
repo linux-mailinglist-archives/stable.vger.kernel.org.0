@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DA675218BF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DEDA521A07
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236445AbiEJNjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41166 "EHLO
+        id S244323AbiEJNxR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244983AbiEJNiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136F48022F;
-        Tue, 10 May 2022 06:26:50 -0700 (PDT)
+        with ESMTP id S244993AbiEJNrK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BFE39BBB;
+        Tue, 10 May 2022 06:33:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 376FC617F5;
-        Tue, 10 May 2022 13:26:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44B6EC385C2;
-        Tue, 10 May 2022 13:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D211A6188A;
+        Tue, 10 May 2022 13:33:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5715C385C2;
+        Tue, 10 May 2022 13:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189208;
-        bh=sepjU7tRU13o/CeRhHjVMN4T6eotrZo2Y0GY3FV6c/Y=;
+        s=korg; t=1652189604;
+        bh=KqOU/pUGQdhnvyBqs5TI1Kuqwvj5N0BbGyVQazdzZco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NaaHM0Pln90CFFWdOhb3e8Qc2qaj60GnfnD+Ni3TOKjLuADf7UV1XhfXXpJ4oSzoE
-         tF5tJn3hEMWTHjMK3+bGYZmZFXMyHblHoLJCga1OuyVW2uuKdE+ftN+4wIUjexWGSw
-         rtPexCJOtRDS9qvq0wVZCKGVMoRCqzzYJPz5N39M=
+        b=jHTWJzK4zEKIHso88ry9f+sLMmO9Ytz267LpH2UrUONwmmK1yH5hS70STLsLwXf88
+         PtsG5hlMAHJdsNlRqwV/8wyhNbndFIbLht/XlIw9mpk3As80dgg5SQnggV7Z/NIMTR
+         /Ksa0hN0eaA86ciLVr7pzay8MZjMaYBf3Abtonow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 47/70] net: stmmac: dwmac-sun8i: add missing of_node_put() in sun8i_dwmac_register_mdio_mux()
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.15 104/135] rcu: Fix callbacks processing time limit retaining cond_resched()
 Date:   Tue, 10 May 2022 15:08:06 +0200
-Message-Id: <20220510130734.239367180@linuxfoundation.org>
+Message-Id: <20220510130743.390330035@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +63,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 1a15267b7be77e0792cf0c7b36ca65c8eb2df0d8 upstream.
+commit 3e61e95e2d095e308616cba4ffb640f95a480e01 upstream.
 
-The node pointer returned by of_get_child_by_name() with refcount incremented,
-so add of_node_put() after using it.
+The callbacks processing time limit makes sure we are not exceeding a
+given amount of time executing the queue.
 
-Fixes: 634db83b8265 ("net: stmmac: dwmac-sun8i: Handle integrated/external MDIOs")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220428095716.540452-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+However its "continue" clause bypasses the cond_resched() call on
+rcuc and NOCB kthreads, delaying it until we reach the limit, which can
+be very long...
+
+Make sure the scheduler has a higher priority than the time limit.
+
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Valentin Schneider <valentin.schneider@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+[UR: backport to 5.15-stable + commit update]
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/rcu/tree.c |   27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
-@@ -895,6 +895,7 @@ static int sun8i_dwmac_register_mdio_mux
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2513,10 +2513,22 @@ static void rcu_do_batch(struct rcu_data
+ 		/*
+ 		 * Stop only if limit reached and CPU has something to do.
+ 		 */
+-		if (count >= bl && !offloaded &&
+-		    (need_resched() ||
+-		     (!is_idle_task(current) && !rcu_is_callbacks_kthread())))
+-			break;
++		if (in_serving_softirq()) {
++			if (count >= bl && (need_resched() ||
++					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
++				break;
++		} else {
++			local_bh_enable();
++			lockdep_assert_irqs_enabled();
++			cond_resched_tasks_rcu_qs();
++			lockdep_assert_irqs_enabled();
++			local_bh_disable();
++		}
++
++		/*
++		 * Make sure we don't spend too much time here and deprive other
++		 * softirq vectors of CPU cycles.
++		 */
+ 		if (unlikely(tlimit)) {
+ 			/* only call local_clock() every 32 callbacks */
+ 			if (likely((count & 31) || local_clock() < tlimit))
+@@ -2524,13 +2536,6 @@ static void rcu_do_batch(struct rcu_data
+ 			/* Exceeded the time limit, so leave. */
+ 			break;
+ 		}
+-		if (!in_serving_softirq()) {
+-			local_bh_enable();
+-			lockdep_assert_irqs_enabled();
+-			cond_resched_tasks_rcu_qs();
+-			lockdep_assert_irqs_enabled();
+-			local_bh_disable();
+-		}
+ 	}
  
- 	ret = mdio_mux_init(priv->device, mdio_mux, mdio_mux_syscon_switch_fn,
- 			    &gmac->mux_handle, priv, priv->mii);
-+	of_node_put(mdio_mux);
- 	return ret;
- }
- 
+ 	local_irq_save(flags);
 
 
