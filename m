@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE62521F9D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80ACD521F87
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346248AbiEJPur (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:50:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35456 "EHLO
+        id S1346457AbiEJPuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:50:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346201AbiEJPuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:50:23 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AEC4285AF5;
-        Tue, 10 May 2022 08:44:44 -0700 (PDT)
+        with ESMTP id S1346183AbiEJPuV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:50:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8634285AE5;
+        Tue, 10 May 2022 08:44:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9B680CE1F2B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9B0561414;
         Tue, 10 May 2022 15:44:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 233C1C385C2;
-        Tue, 10 May 2022 15:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C95FC385CD;
+        Tue, 10 May 2022 15:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197481;
-        bh=B5Qp5P8UuaKwEKNG8kBzepvyoMKD3BUNxBcVLn2VzAU=;
+        s=k20201202; t=1652197482;
+        bh=neXHOKi229Sgtbs4jWuGm4TMYdxq/uhV/QYN2mcwRGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ica+WZkUbpbB2mLITZdSwDC++lRUyLkQGjKcHM206D/LH/WSMFrvXIlCLiuerLPtO
-         JzUolHTDhAxIa5jnp1mxhPSn4Md4LtzPRCuASGjqYhj7LUUSBj13T/6Hnibd1O9p8g
-         y4ifGWmax5c3ReS8icuIbAiDZfsimOinU1d0LZWeBQaNNpC2L9cYtsUGC+m3MBCoR4
-         OJHMNGnyAbOkcgAjaFAuwVgFmBcJw+2unIEX+mTh7PfAHLCYkHyVasWkO2v9n9BARf
-         4VN5fl2bVH8yGhT7iM/6/59hJBnOZDyUBilkIhrkc+f01rH1P5WXIg6nusNho1ZBTH
-         TL0frcCPFNPqg==
+        b=VU2fhX5Qvcij68RJIvRK2OVe+qgXcGXLVt/9Ct6KcEyO22MQ8htaaKLtQv5HCljEE
+         DQEpwUTM0QdZh2qTETO9S1PFPen7Jn7LO/2UdpgUMLjl06dyxjR2ObxMtRp9xh/cHQ
+         YXwWsyhDtJSBLpx2kcwuRpPk7c1A06Mk7VxlaEiFeNDIeS3HiZQc/K0x2cpPGCuvs1
+         m4gkk8wcH1osrx+Wy66bdiQ1SuGimJNxrCCDv5RW0QE+VAWmosQM6I7lyd8X6kgpka
+         FIxvXcWT88+tuIj5nxw0Ku9eZwCOoCZTeVLaaTKWO4W4qu2ZbDrKhwSNg5gQEta4nW
+         LrVwYeF/rV62g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
         lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 05/19] ASoC: max98090: Generate notifications on changes for custom control
-Date:   Tue, 10 May 2022 11:44:15 -0400
-Message-Id: <20220510154429.153677-5-sashal@kernel.org>
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 06/19] ASoC: ops: Validate input values in snd_soc_put_volsw_range()
+Date:   Tue, 10 May 2022 11:44:16 -0400
+Message-Id: <20220510154429.153677-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154429.153677-1-sashal@kernel.org>
 References: <20220510154429.153677-1-sashal@kernel.org>
@@ -58,33 +58,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 13fcf676d9e102594effc686d98521ff5c90b925 ]
+[ Upstream commit aa22125c57f9e577f0a667e4fa07fc3fa8ca1e60 ]
 
-The max98090 driver has some custom controls which share a put() function
-which returns 0 unconditionally, meaning that events are not generated
-when the value changes. Fix that.
+Check that values written via snd_soc_put_volsw_range() are
+within the range advertised by the control, ensuring that we
+don't write out of spec values to the hardware.
 
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20220420193454.2647908-2-broonie@kernel.org
+Link: https://lore.kernel.org/r/20220423131239.3375261-1-broonie@kernel.org
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/max98090.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/soc-ops.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
-index 6d9261346842..62b41ca050a2 100644
---- a/sound/soc/codecs/max98090.c
-+++ b/sound/soc/codecs/max98090.c
-@@ -430,7 +430,7 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
- 		mask << mc->shift,
- 		sel << mc->shift);
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index ee3782ecd7e3..bd88e56cacac 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -519,7 +519,15 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
+ 	unsigned int mask = (1 << fls(max)) - 1;
+ 	unsigned int invert = mc->invert;
+ 	unsigned int val, val_mask;
+-	int err, ret;
++	int err, ret, tmp;
++
++	tmp = ucontrol->value.integer.value[0];
++	if (tmp < 0)
++		return -EINVAL;
++	if (mc->platform_max && tmp > mc->platform_max)
++		return -EINVAL;
++	if (tmp > mc->max - mc->min + 1)
++		return -EINVAL;
  
--	return 0;
-+	return *select != val;
- }
+ 	if (invert)
+ 		val = (max - ucontrol->value.integer.value[0]) & mask;
+@@ -534,6 +542,14 @@ int snd_soc_put_volsw_range(struct snd_kcontrol *kcontrol,
+ 	ret = err;
  
- static const char *max98090_perf_pwr_text[] =
+ 	if (snd_soc_volsw_is_stereo(mc)) {
++		tmp = ucontrol->value.integer.value[1];
++		if (tmp < 0)
++			return -EINVAL;
++		if (mc->platform_max && tmp > mc->platform_max)
++			return -EINVAL;
++		if (tmp > mc->max - mc->min + 1)
++			return -EINVAL;
++
+ 		if (invert)
+ 			val = (max - ucontrol->value.integer.value[1]) & mask;
+ 		else
 -- 
 2.35.1
 
