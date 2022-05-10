@@ -2,47 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6529852190F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07929521A2B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243736AbiEJNnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        id S243905AbiEJNx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244543AbiEJNl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 579122C7A6B;
-        Tue, 10 May 2022 06:30:13 -0700 (PDT)
+        with ESMTP id S243961AbiEJNw0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1DB629B02F;
+        Tue, 10 May 2022 06:38:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AE6F6181B;
-        Tue, 10 May 2022 13:30:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 640E2C385A6;
-        Tue, 10 May 2022 13:30:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1DD8B81DAF;
+        Tue, 10 May 2022 13:37:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFDACC385C6;
+        Tue, 10 May 2022 13:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189408;
-        bh=L8p46TrX6saOs61n+6wrRr0KRxECWGPqTfJYH1OrAT0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yh5rsPaSdIBdkzP2UnuxQC1DmKm2QWzF/jSe1bdaneiO5Rt+rJ5rn/AXpOxn6ivA9
-         CbkYPmR04U4BvCBzzX+6JUXf0scMdRrwwtiy//cpIxAIm9mInbdv1J09EV+cB0ek2S
-         PEZ9D2fSWt8vcTVQBu7vXEflOzWXhT1cvpaZyLv8=
+        s=korg; t=1652189845;
+        bh=yMB6q4vnuQ5eyoKe9WOX7vJtq+BWmGMT1tFLKCHeCok=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nP68/jt3Zwf4ZZg8IzJGBnYJHX3tUkjYrO6lgU8cCJL3QQ8LaXmG3umhVVtyjCpme
+         T2bqMHpiBoBEbTKzV5bxOa0CAsNKQ5k22qp/HOdf/xfz/poUZYfRa0oBcgJwP4Hw4B
+         +oAtr4S54ovl0ZDm5swDtjaUno40rN/nmq76KvzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
-        Luca Weiss <luca@z3ntu.xyz>,
-        Brian Norris <briannorris@chromium.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 007/135] mmc: core: Set HS clock speed before sending HS CMD13
-Date:   Tue, 10 May 2022 15:06:29 +0200
-Message-Id: <20220510130740.607788689@linuxfoundation.org>
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.17 000/140] 5.17.7-rc1 review
+Date:   Tue, 10 May 2022 15:06:30 +0200
+Message-Id: <20220510130741.600270947@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.7-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.17.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.17.7-rc1
+X-KernelTest-Deadline: 2022-05-12T13:07+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,131 +62,576 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+This is the start of the stable review cycle for the 5.17.7 release.
+There are 140 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 4bc31edebde51fcf8ad0794763b8679a7ecb5ec0 upstream.
+Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+Anything received after that time might be too late.
 
-Way back in commit 4f25580fb84d ("mmc: core: changes frequency to
-hs_max_dtr when selecting hs400es"), Rockchip engineers noticed that
-some eMMC don't respond to SEND_STATUS commands very reliably if they're
-still running at a low initial frequency. As mentioned in that commit,
-JESD84-B51 P49 suggests a sequence in which the host:
-1. sets HS_TIMING
-2. bumps the clock ("<= 52 MHz")
-3. sends further commands
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.7-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+and the diffstat can be found below.
 
-It doesn't exactly require that we don't use a lower-than-52MHz
-frequency, but in practice, these eMMC don't like it.
+thanks,
 
-The aforementioned commit tried to get that right for HS400ES, although
-it's unclear whether this ever truly worked as committed into mainline,
-as other changes/refactoring adjusted the sequence in conflicting ways:
+greg k-h
 
-08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode
-switch")
+-------------
+Pseudo-Shortlog of commits:
 
-53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode
-for mmc")
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.17.7-rc1
 
-In any case, today we do step 3 before step 2. Let's fix that, and also
-apply the same logic to HS200/400, where this eMMC has problems too.
+Marek Behún <kabel@kernel.org>
+    PCI: aardvark: Update comment about link going down after link-up
 
-Resolves errors like this seen when booting some RK3399 Gru/Scarlet
-systems:
+Marek Behún <kabel@kernel.org>
+    PCI: aardvark: Drop __maybe_unused from advk_pcie_disable_phy()
 
-[    2.058881] mmc1: CQHCI version 5.10
-[    2.097545] mmc1: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
-[    2.209804] mmc1: mmc_select_hs400es failed, error -84
-[    2.215597] mmc1: error -84 whilst initialising MMC card
-[    2.417514] mmc1: mmc_select_hs400es failed, error -110
-[    2.423373] mmc1: error -110 whilst initialising MMC card
-[    2.605052] mmc1: mmc_select_hs400es failed, error -110
-[    2.617944] mmc1: error -110 whilst initialising MMC card
-[    2.835884] mmc1: mmc_select_hs400es failed, error -110
-[    2.841751] mmc1: error -110 whilst initialising MMC card
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Don't mask irq when mapping
 
-Ealier versions of this patch bumped to 200MHz/HS200 speeds too early,
-which caused issues on, e.g., qcom-msm8974-fairphone-fp2. (Thanks for
-the report Luca!) After a second look, it appears that aligns with
-JESD84 / page 45 / table 28, so we need to keep to lower (HS / 52 MHz)
-rates first.
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Remove irq_mask_ack() callback for INTx interrupts
 
-Fixes: 08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode switch")
-Fixes: 53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode for mmc")
-Fixes: 4f25580fb84d ("mmc: core: changes frequency to hs_max_dtr when selecting hs400es")
-Cc: Shawn Lin <shawn.lin@rock-chips.com>
-Link: https://lore.kernel.org/linux-mmc/11962455.O9o76ZdvQC@g550jk/
-Reported-by: Luca Weiss <luca@z3ntu.xyz>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Luca Weiss <luca@z3ntu.xyz>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220422100824.v4.1.I484f4ee35609f78b932bd50feed639c29e64997e@changeid
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/mmc/core/mmc.c |   23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Use separate INTA interrupt for emulated root bridge
 
---- a/drivers/mmc/core/mmc.c
-+++ b/drivers/mmc/core/mmc.c
-@@ -1381,13 +1381,17 @@ static int mmc_select_hs400es(struct mmc
- 		goto out_err;
- 	}
- 
-+	/*
-+	 * Bump to HS timing and frequency. Some cards don't handle
-+	 * SEND_STATUS reliably at the initial frequency.
-+	 */
- 	mmc_set_timing(host, MMC_TIMING_MMC_HS);
-+	mmc_set_bus_speed(card);
-+
- 	err = mmc_switch_status(card, true);
- 	if (err)
- 		goto out_err;
- 
--	mmc_set_clock(host, card->ext_csd.hs_max_dtr);
--
- 	/* Switch card to DDR with strobe bit */
- 	val = EXT_CSD_DDR_BUS_WIDTH_8 | EXT_CSD_BUS_WIDTH_STROBE;
- 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
-@@ -1445,7 +1449,7 @@ out_err:
- static int mmc_select_hs200(struct mmc_card *card)
- {
- 	struct mmc_host *host = card->host;
--	unsigned int old_timing, old_signal_voltage;
-+	unsigned int old_timing, old_signal_voltage, old_clock;
- 	int err = -EINVAL;
- 	u8 val;
- 
-@@ -1476,8 +1480,17 @@ static int mmc_select_hs200(struct mmc_c
- 				   false, true, MMC_CMD_RETRIES);
- 		if (err)
- 			goto err;
-+
-+		/*
-+		 * Bump to HS timing and frequency. Some cards don't handle
-+		 * SEND_STATUS reliably at the initial frequency.
-+		 * NB: We can't move to full (HS200) speeds until after we've
-+		 * successfully switched over.
-+		 */
- 		old_timing = host->ios.timing;
-+		old_clock = host->ios.clock;
- 		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
-+		mmc_set_clock(card->host, card->ext_csd.hs_max_dtr);
- 
- 		/*
- 		 * For HS200, CRC errors are not a reliable way to know the
-@@ -1490,8 +1503,10 @@ static int mmc_select_hs200(struct mmc_c
- 		 * mmc_select_timing() assumes timing has not changed if
- 		 * it is a switch error.
- 		 */
--		if (err == -EBADMSG)
-+		if (err == -EBADMSG) {
-+			mmc_set_clock(host, old_clock);
- 			mmc_set_timing(host, old_timing);
-+		}
- 	}
- err:
- 	if (err) {
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Fix support for PME requester on emulated bridge
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Add support for PME interrupts
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Optimize writing PCI_EXP_RTCTL_PMEIE and PCI_EXP_RTSTA_PME on emulated bridge
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Add support for ERR interrupt on emulated bridge
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Enable MSI-X support
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Fix setting MSI address
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Add support for masking MSI interrupts
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Refactor unmasking summary MSI interrupt
+
+Marek Behún <kabel@kernel.org>
+    PCI: aardvark: Use dev_fwnode() instead of of_node_to_fwnode(dev->of_node)
+
+Marek Behún <kabel@kernel.org>
+    PCI: aardvark: Make msi_domain_info structure a static driver structure
+
+Marek Behún <kabel@kernel.org>
+    PCI: aardvark: Make MSI irq_chip structures static driver structures
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Check return value of generic_handle_domain_irq() when processing INTx IRQ
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Rewrite IRQ code to chained IRQ handler
+
+Pali Rohár <pali@kernel.org>
+    PCI: aardvark: Replace custom PCIE_CORE_INT_* macros with PCI_INTERRUPT_*
+
+Ricky WU <ricky_wu@realtek.com>
+    mmc: rtsx: add 74 Clocks in power on flow
+
+Sidhartha Kumar <sidhartha.kumar@oracle.com>
+    selftest/vm: verify remap destination address in mremap_test
+
+Sidhartha Kumar <sidhartha.kumar@oracle.com>
+    selftest/vm: verify mmap addr in mremap_test
+
+Wanpeng Li <wanpengli@tencent.com>
+    KVM: LAPIC: Enable timer posted-interrupt only when mwait/hlt is advertised
+
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: x86/mmu: avoid NULL-pointer dereference on page freeing bugs
+
+Paolo Bonzini <pbonzini@redhat.com>
+    KVM: x86: Do not change ICR on write to APIC_SELF_IPI
+
+Wanpeng Li <wanpengli@tencent.com>
+    x86/kvm: Preserve BSP MSR_KVM_POLL_CONTROL across suspend/resume
+
+Thomas Huth <thuth@redhat.com>
+    KVM: selftests: Silence compiler warning in the kvm_page_table_test
+
+Paolo Bonzini <pbonzini@redhat.com>
+    kvm: selftests: do not use bitfields larger than 32-bits for PTEs
+
+Sean Christopherson <seanjc@google.com>
+    KVM: VMX: Exit to userspace if vCPU has injected exception and invalid state
+
+Peter Gonda <pgonda@google.com>
+    KVM: SEV: Mark nested locking of vcpu->lock
+
+Hector Martin <marcan@marcan.st>
+    iommu/dart: Add missing module owner to ops structure
+
+Javier Martinez Canillas <javierm@redhat.com>
+    fbdev: Make fb_release() return -ENODEV if fbdev was unregistered
+
+Sandipan Das <sandipan.das@amd.com>
+    kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    net: rds: acquire refcount on TCP sockets
+
+Baruch Siach <baruch@tkos.co.il>
+    gpio: mvebu: drop pwm base assignment
+
+Helge Deller <deller@gmx.de>
+    parisc: Mark cr16 clock unstable on all SMP machines
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: always log symlinks in full mode
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    smsc911x: allow using IRQ0
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    selftests: ocelot: tc_flower_chains: specify conform-exceed action for policer
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Fix unnecessary dropping of RX packets
+
+Somnath Kotur <somnath.kotur@broadcom.com>
+    bnxt_en: Fix possible bnxt_open() failure caused by wrong RFS flag
+
+Hector Martin <marcan@marcan.st>
+    dt-bindings: pci: apple,pcie: Drop max-link-speed from example
+
+Ido Schimmel <idosch@nvidia.com>
+    selftests: mirror_gre_bridge_1q: Avoid changing PVID while interface is operational
+
+David Howells <dhowells@redhat.com>
+    rxrpc: Enable IPv6 checksums on transport socket
+
+Eric Dumazet <edumazet@google.com>
+    mld: respect RCU rules in ip6_mc_source() and ip6_mc_msfilter()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Don't leak sockets in xs_local_connect()
+
+Qiao Ma <mqaio@linux.alibaba.com>
+    hinic: fix bug of wq out of bound access
+
+Kuogee Hsieh <quic_khsieh@quicinc.com>
+    drm/msm/dp: remove fail safe mode related code
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    selftests/net: so_txtime: usage(): fix documentation of default clock
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    selftests/net: so_txtime: fix parsing of start time stamp on 32 bit systems
+
+Shravya Kumbham <shravya.kumbham@xilinx.com>
+    net: emaclite: Add error handling for of_address_to_resource()
+
+Eric Dumazet <edumazet@google.com>
+    net: igmp: respect RCU rules in ip_mc_source() and ip_mc_msfilter()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: cpsw: add missing of_node_put() in cpsw_probe_dt()
+
+Niels Dossche <dossche.niels@gmail.com>
+    net: mdio: Fix ENOMEM return value in BCM6368 mux bus controller
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: stmmac: dwmac-sun8i: add missing of_node_put() in sun8i_dwmac_register_mdio_mux()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: dsa: mt7530: add missing of_node_put() in mt7530_setup()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: ethernet: mediatek: add missing of_node_put() in mtk_sgmii_init()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFSv4: Don't invalidate inode attributes on delegation return
+
+Mustafa Ismail <mustafa.ismail@intel.com>
+    RDMA/irdma: Fix possible crash due to NULL netdev in notifier
+
+Shiraz Saleem <shiraz.saleem@intel.com>
+    RDMA/irdma: Reduce iWARP QP destroy time
+
+Tatyana Nikolova <tatyana.e.nikolova@intel.com>
+    RDMA/irdma: Flush iWARP QP if modified to ERR from RTR state
+
+Cheng Xu <chengyou@linux.alibaba.com>
+    RDMA/siw: Fix a condition race issue in MPA request processing
+
+Olga Kornievskaia <kolga@netapp.com>
+    SUNRPC release the transport of a relocated task with an assigned transport
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda/realtek: Fix mute led issue on thinkpad with cs35l41 s-codec
+
+Jann Horn <jannh@google.com>
+    selftests/seccomp: Don't call read() on TTY from background pgrp
+
+Ariel Levkovich <lariel@nvidia.com>
+    net/mlx5e: TC, fix decap fallback to uplink when int port not supported
+
+Vlad Buslov <vladbu@nvidia.com>
+    net/mlx5e: Lag, Don't skip fib events on current dst
+
+Vlad Buslov <vladbu@nvidia.com>
+    net/mlx5e: Lag, Fix fib_info pointer assignment
+
+Vlad Buslov <vladbu@nvidia.com>
+    net/mlx5e: Lag, Fix use-after-free in fib event handler
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Fix deadlock in sync reset flow
+
+Moshe Shemesh <moshe@nvidia.com>
+    net/mlx5: Avoid double clear or set of sync reset requested
+
+Mark Bloch <mbloch@nvidia.com>
+    net/mlx5: Fix matching on inner TTC
+
+Mark Zhang <markzhang@nvidia.com>
+    net/mlx5e: Fix the calling of update_buffer_lossy() API
+
+Paul Blakey <paulb@nvidia.com>
+    net/mlx5e: CT: Fix queued up restore put() executing after relevant ft release
+
+Vlad Buslov <vladbu@nvidia.com>
+    net/mlx5e: Don't match double-vlan packets if cvlan is not set
+
+Ariel Levkovich <lariel@nvidia.com>
+    net/mlx5e: Fix wrong source vport matching on tunnel rule
+
+Aya Levin <ayal@nvidia.com>
+    net/mlx5: Fix slab-out-of-bounds while reading resource dump menu
+
+Moshe Tal <moshet@nvidia.com>
+    net/mlx5e: Fix trust state reset in reload
+
+Yang Yingliang <yangyingliang@huawei.com>
+    iommu/dart: check return value after calling platform_get_resource()
+
+Lu Baolu <baolu.lu@linux.intel.com>
+    iommu/vt-d: Drop stop marker messages
+
+Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+    ASoC: soc-ops: fix error handling
+
+Neil Armstrong <narmstrong@baylibre.com>
+    ASoC: meson: axg-card: Fix nonatomic links
+
+Neil Armstrong <narmstrong@baylibre.com>
+    ASoC: meson: axg-tdm-interface: Fix formatters in trigger"
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    ASoC: dmaengine: Restore NULL prepare_slave_config() callback
+
+Adam Wujek <dev_public@wujek.eu>
+    hwmon: (pmbus) disable PEC if not enabled
+
+Armin Wolf <W_Armin@gmx.de>
+    hwmon: (adt7470) Fix warning on module removal
+
+Puyou Lu <puyou.lu@gmail.com>
+    gpio: pca953x: fix irq_stat not updated when irq is disabled (irq_mask not set)
+
+Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+    gpio: visconti: Fix fwnode of GPIO IRQ
+
+Duoming Zhou <duoming@zju.edu.cn>
+    NFC: netlink: fix sleep in atomic bug when firmware download timeout
+
+Duoming Zhou <duoming@zju.edu.cn>
+    nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+
+Duoming Zhou <duoming@zju.edu.cn>
+    nfc: replace improper check device_is_registered() in netlink related functions
+
+Andreas Larsson <andreas@gaisler.com>
+    can: grcan: only use the NAPI poll budget for RX
+
+Andreas Larsson <andreas@gaisler.com>
+    can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
+
+Daniel Hellstrom <daniel@gaisler.com>
+    can: grcan: use ofdev->dev when allocating DMA memory
+
+Oliver Hartkopp <socketcan@hartkopp.net>
+    can: isotp: remove re-binding of bound socket
+
+Duoming Zhou <duoming@zju.edu.cn>
+    can: grcan: grcan_close(): fix deadlock
+
+Jan Höppner <hoeppner@linux.ibm.com>
+    s390/dasd: Fix read inconsistency for ESE DASD devices
+
+Jan Höppner <hoeppner@linux.ibm.com>
+    s390/dasd: Fix read for ESE with blksize < 4k
+
+Stefan Haberland <sth@linux.ibm.com>
+    s390/dasd: prevent double format of tracks for ESE devices
+
+Stefan Haberland <sth@linux.ibm.com>
+    s390/dasd: fix data corruption for ESE devices
+
+Mark Brown <broonie@kernel.org>
+    ASoC: meson: Fix event generation for AUI CODEC mux
+
+Mark Brown <broonie@kernel.org>
+    ASoC: meson: Fix event generation for G12A tohdmi mux
+
+Mark Brown <broonie@kernel.org>
+    ASoC: meson: Fix event generation for AUI ACODEC mux
+
+Mark Brown <broonie@kernel.org>
+    ASoC: wm8958: Fix change notifications for DSP controls
+
+ChiYuan Huang <cy_huang@richtek.com>
+    ASoC: rt9120: Correct the reg 0x09 size to one byte
+
+Mark Brown <broonie@kernel.org>
+    ASoC: da7219: Fix change notifications for tone generator frequency
+
+Thomas Pfaff <tpfaff@pcs.com>
+    genirq: Synchronize interrupt thread startup
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: skip compression property for anything other than files and dirs
+
+Chung-Chiang Cheng <cccheng@synology.com>
+    btrfs: do not allow compression on nodatacow files
+
+Chung-Chiang Cheng <cccheng@synology.com>
+    btrfs: export a helper for compression hard check
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: do not BUG_ON() on failure to update inode when setting xattr
+
+Qu Wenruo <wqu@suse.com>
+    btrfs: force v2 space cache usage for subpage mount
+
+David Sterba <dsterba@suse.com>
+    btrfs: sysfs: export the balance paused state of exclusive operation
+
+Tan Tee Min <tee.min.tan@linux.intel.com>
+    net: stmmac: disable Split Header (SPH) for Intel platforms
+
+Niels Dossche <dossche.niels@gmail.com>
+    firewire: core: extend card->lock in fw_core_handle_bus_reset
+
+Jakob Koschel <jakobkoschel@gmail.com>
+    firewire: remove check of list iterator against head past the loop body
+
+Chengfeng Ye <cyeaa@connect.ust.hk>
+    firewire: fix potential uaf in outbound_phy_packet_callback()
+
+Kurt Kanzenbach <kurt@linutronix.de>
+    timekeeping: Mark NMI safe time accessors as notrace
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    Revert "SUNRPC: attempt AF_LOCAL connect on setup"
+
+Zev Weiss <zev@bewilderbeest.net>
+    hwmon: (pmbus) delta-ahe50dc-fan: work around hardware quirk
+
+Nick Kossifidis <mick@ics.forth.gr>
+    RISC-V: relocate DTB if it's outside memory region
+
+Marek Marczykowski-Górecki <marmarek@invisiblethingslab.com>
+    drm/amdgpu: do not use passthrough mode in Xen dom0
+
+Harry Wentland <harry.wentland@amd.com>
+    drm/amd/display: Avoid reading audio pattern past AUDIO_CHANNELS_COUNT
+
+Nicolin Chen <nicolinc@nvidia.com>
+    iommu/arm-smmu-v3: Fix size calculation in arm_smmu_mm_invalidate_range()
+
+David Stevens <stevensd@chromium.org>
+    iommu/vt-d: Calculate mask for non-aligned flushes
+
+Kyle Huey <me@kylehuey.com>
+    KVM: x86/svm: Account for family 17h event renumberings in amd_pmc_perf_hw_id
+
+Thomas Gleixner <tglx@linutronix.de>
+    x86/fpu: Prevent FPU state corruption
+
+Andrei Lalaev <andrei.lalaev@emlid.com>
+    gpiolib: of: fix bounds check for 'gpio-reserved-ranges'
+
+Brian Norris <briannorris@chromium.org>
+    mmc: core: Set HS clock speed before sending HS CMD13
+
+Samuel Holland <samuel@sholland.org>
+    mmc: sunxi-mmc: Fix DMA descriptors allocated above 32 bits
+
+Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
+    mmc: sdhci-msm: Reset GCC_SDCC_BCR register for SDHC
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA: fireworks: fix wrong return count shorter than expected by 4 bytes
+
+Zihao Wang <wzhd@ustc.edu>
+    ALSA: hda/realtek: Add quirk for Yoga Duet 7 13ITL6 speakers
+
+Helge Deller <deller@gmx.de>
+    parisc: Merge model and model name into one line in /proc/cpuinfo
+
+Helge Deller <deller@gmx.de>
+    Revert "parisc: Mark sched_clock unstable only if clocks are not syncronized"
+
+Helge Deller <deller@gmx.de>
+    Revert "parisc: Mark cr16 CPU clocksource unstable on all SMP machines"
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    MIPS: Fix CP0 counter erratum detection for R4k CPUs
+
+Corey Minyard <cminyard@mvista.com>
+    ipmi:ipmi_ipmb: Fix null-ptr-deref in ipmi_unregister_smi()
+
+Corey Minyard <cminyard@mvista.com>
+    ipmi: When handling send message responses, don't process the message
+
+Thomas Gleixner <tglx@linutronix.de>
+    pci_irq_vector() can't be used in atomic context any longer. This conflicts with the usage of this function in nic_mbx_intr_handler(). age of this function in nic_mbx_intr_handler().
+
+
+-------------
+
+Diffstat:
+
+ .../devicetree/bindings/pci/apple,pcie.yaml        |   3 -
+ Makefile                                           |   4 +-
+ arch/mips/include/asm/timex.h                      |   8 +-
+ arch/mips/kernel/time.c                            |  11 +-
+ arch/parisc/kernel/processor.c                     |   3 +-
+ arch/parisc/kernel/setup.c                         |   2 +
+ arch/parisc/kernel/time.c                          |   6 +-
+ arch/riscv/mm/init.c                               |  21 +-
+ arch/x86/kernel/fpu/core.c                         |  67 ++--
+ arch/x86/kernel/kvm.c                              |  13 +
+ arch/x86/kvm/cpuid.c                               |   5 +
+ arch/x86/kvm/lapic.c                               |  10 +-
+ arch/x86/kvm/mmu/mmu.c                             |   2 +
+ arch/x86/kvm/svm/pmu.c                             |  28 +-
+ arch/x86/kvm/svm/sev.c                             |  42 ++-
+ arch/x86/kvm/vmx/vmx.c                             |   2 +-
+ drivers/char/ipmi/ipmi_msghandler.c                |   7 +-
+ drivers/char/ipmi/ipmi_si_intf.c                   |   5 +-
+ drivers/firewire/core-card.c                       |   3 +
+ drivers/firewire/core-cdev.c                       |   4 +-
+ drivers/firewire/core-topology.c                   |   9 +-
+ drivers/firewire/core-transaction.c                |  30 +-
+ drivers/firewire/sbp2.c                            |  13 +-
+ drivers/gpio/gpio-mvebu.c                          |   7 -
+ drivers/gpio/gpio-pca953x.c                        |   4 +-
+ drivers/gpio/gpio-visconti.c                       |   7 +-
+ drivers/gpio/gpiolib-of.c                          |   2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_virt.c           |   4 +-
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c   |   2 +-
+ drivers/gpu/drm/msm/dp/dp_display.c                |   6 -
+ drivers/gpu/drm/msm/dp/dp_panel.c                  |  11 -
+ drivers/gpu/drm/msm/dp/dp_panel.h                  |   1 -
+ drivers/hwmon/adt7470.c                            |   4 +-
+ drivers/hwmon/pmbus/delta-ahe50dc-fan.c            |  16 +
+ drivers/hwmon/pmbus/pmbus_core.c                   |   3 +
+ drivers/infiniband/hw/irdma/cm.c                   |  26 +-
+ drivers/infiniband/hw/irdma/utils.c                |  21 +-
+ drivers/infiniband/hw/irdma/verbs.c                |   4 +-
+ drivers/infiniband/sw/siw/siw_cm.c                 |   7 +-
+ drivers/iommu/apple-dart.c                         |  10 +-
+ drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c    |   9 +-
+ drivers/iommu/intel/iommu.c                        |  27 +-
+ drivers/iommu/intel/svm.c                          |   4 +
+ drivers/mmc/core/mmc.c                             |  23 +-
+ drivers/mmc/host/rtsx_pci_sdmmc.c                  |  29 +-
+ drivers/mmc/host/sdhci-msm.c                       |  42 +++
+ drivers/mmc/host/sunxi-mmc.c                       |   5 +-
+ drivers/net/can/grcan.c                            |  46 +--
+ drivers/net/dsa/mt7530.c                           |   1 +
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  13 +-
+ drivers/net/ethernet/cavium/thunder/nic_main.c     |  16 +-
+ drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c    |   7 +-
+ drivers/net/ethernet/mediatek/mtk_sgmii.c          |   1 +
+ .../ethernet/mellanox/mlx5/core/diag/rsc_dump.c    |  31 +-
+ .../ethernet/mellanox/mlx5/core/en/port_buffer.c   |   4 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c |   4 +
+ .../net/ethernet/mellanox/mlx5/core/en/tc_tun.c    |   3 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c |  10 +
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c    |  11 +
+ .../ethernet/mellanox/mlx5/core/eswitch_offloads.c |   2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |  60 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c   |  38 ++-
+ drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h   |   7 +-
+ .../net/ethernet/mellanox/mlx5/core/lag/port_sel.c |   2 +-
+ .../net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c   |   2 +
+ drivers/net/ethernet/smsc/smsc911x.c               |   2 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c  |   1 +
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c  |   1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   2 +-
+ drivers/net/ethernet/ti/cpsw_new.c                 |   5 +-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      |  15 +-
+ drivers/net/mdio/mdio-mux-bcm6368.c                |   2 +-
+ drivers/nfc/nfcmrvl/main.c                         |   2 +-
+ drivers/pci/controller/pci-aardvark.c              | 367 +++++++++++++++------
+ drivers/s390/block/dasd.c                          |  18 +-
+ drivers/s390/block/dasd_eckd.c                     |  28 +-
+ drivers/s390/block/dasd_int.h                      |  14 +
+ drivers/video/fbdev/core/fbmem.c                   |   5 +-
+ fs/btrfs/btrfs_inode.h                             |  11 +
+ fs/btrfs/disk-io.c                                 |  11 +
+ fs/btrfs/inode.c                                   |  15 +-
+ fs/btrfs/props.c                                   |  59 +++-
+ fs/btrfs/props.h                                   |   4 +-
+ fs/btrfs/sysfs.c                                   |   3 +
+ fs/btrfs/tree-log.c                                |  14 +-
+ fs/btrfs/xattr.c                                   |  11 +-
+ fs/nfs/nfs4proc.c                                  |  12 +-
+ include/linux/stmmac.h                             |   1 +
+ kernel/irq/internals.h                             |   2 +
+ kernel/irq/irqdesc.c                               |   2 +
+ kernel/irq/manage.c                                |  39 ++-
+ kernel/time/timekeeping.c                          |   4 +-
+ net/can/isotp.c                                    |  22 +-
+ net/ipv4/igmp.c                                    |   9 +-
+ net/ipv6/mcast.c                                   |   8 +-
+ net/nfc/core.c                                     |  29 +-
+ net/nfc/netlink.c                                  |   4 +-
+ net/rds/tcp.c                                      |   8 +
+ net/rxrpc/local_object.c                           |   3 +
+ net/sunrpc/clnt.c                                  |  11 +-
+ net/sunrpc/xprtsock.c                              |  14 +-
+ sound/firewire/fireworks/fireworks_hwdep.c         |   1 +
+ sound/pci/hda/patch_realtek.c                      |   3 +
+ sound/soc/codecs/da7219.c                          |  14 +-
+ sound/soc/codecs/rt9120.c                          |   1 -
+ sound/soc/codecs/wm8958-dsp2.c                     |   8 +-
+ sound/soc/meson/aiu-acodec-ctrl.c                  |   2 +-
+ sound/soc/meson/aiu-codec-ctrl.c                   |   2 +-
+ sound/soc/meson/axg-card.c                         |   1 -
+ sound/soc/meson/axg-tdm-interface.c                |  26 +-
+ sound/soc/meson/g12a-tohdmitx.c                    |   2 +-
+ sound/soc/soc-generic-dmaengine-pcm.c              |   6 +-
+ sound/soc/soc-ops.c                                |   2 +-
+ .../drivers/net/ocelot/tc_flower_chains.sh         |   2 +-
+ .../selftests/kvm/include/x86_64/processor.h       |  15 +
+ tools/testing/selftests/kvm/kvm_page_table_test.c  |   2 +-
+ tools/testing/selftests/kvm/lib/x86_64/processor.c | 192 +++++------
+ .../net/forwarding/mirror_gre_bridge_1q.sh         |   3 +
+ tools/testing/selftests/net/so_txtime.c            |   4 +-
+ tools/testing/selftests/seccomp/seccomp_bpf.c      |  10 +-
+ tools/testing/selftests/vm/mremap_test.c           |  53 +++
+ 121 files changed, 1274 insertions(+), 663 deletions(-)
 
 
