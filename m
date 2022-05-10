@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 408B8522000
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 883F0521FFD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:49:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346183AbiEJPxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:53:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58862 "EHLO
+        id S1346676AbiEJPxF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:53:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346999AbiEJPvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744D32311D5;
-        Tue, 10 May 2022 08:46:33 -0700 (PDT)
+        with ESMTP id S1347018AbiEJPvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:50 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CC6244F1C;
+        Tue, 10 May 2022 08:46:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1159DB81D0D;
-        Tue, 10 May 2022 15:46:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3EE5C385CC;
-        Tue, 10 May 2022 15:46:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B615BB81D7C;
+        Tue, 10 May 2022 15:46:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26B50C385C2;
+        Tue, 10 May 2022 15:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197590;
-        bh=xE9gKHyJRXSBGiBmo7TlloNcwGX7Ykc6NA1rvaKNwng=;
+        s=k20201202; t=1652197596;
+        bh=fBLJJBa4HMdeOHZr3X0XZgfHZVV7cWYDol4q08834Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bqE6IYmobqrSKMu6wldrRbcsed1tvb2X/5HcLpYtlou/aOIWvktpUljEkTvq6KgVf
-         gQzPmBxrUK3SVue3M/4+7VPmcDW2PWg7X0OFUNjyEdvZeDt5UT0dnmK+lm+OmbBiRe
-         gYb10Y9bx1DohZEFOf4T2uSrzLREXwE9xXICOvzzRlwHNjqvyqSTXMriiIK3c3r3rD
-         vcFm8BdXfLVZEtk1gTetZ+/98DV094HvRlxRNQyO2ITSkjXA01bkgbgh2nEGrUhQzQ
-         vZm4eucMWGrqDjeQM54NtDzIAncht9mZd7KT1bn0LIJYVY5Si4axt8zW5PE3SuQ+IN
-         m25Lx+WUJ2pjQ==
+        b=ISIk1hF/rgzpQRdIC3SQcuIHYHEq5daNPleLmaE3kx4n6nHJdz3WLzWdM/RJ4262l
+         IU8iYB6Ysn68DQmev2a4t7JGL9pRlwR1UbbtHYgXKMGqzCLkacb4KAaY5L10an5msc
+         Bq1F1+V3HWx0y//W8R/FQu3y9FB8ATh68R0gBFz0awWn+d622kUHrKSoq/PtvkNvEC
+         2qw1HC+ew4FHRdjeBN9///RSzHEMFXRwSBMJqJP2Ria9e8Aex9V6emZrJFCldq8ROE
+         OBX0OQQPYKrmNhEVgAf37vJQfGjyFKIlbJryoUN0GwydSPCo94BNfXXG07Ug4uu81L
+         bluXvx/zHWGqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/6] s390: disable -Warray-bounds
-Date:   Tue, 10 May 2022 11:46:13 -0400
-Message-Id: <20220510154614.154187-5-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        "Jason A . Donenfeld" <Jason@zx2c4.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 6/6] tcp: resalt the secret every 10 seconds
+Date:   Tue, 10 May 2022 11:46:14 -0400
+Message-Id: <20220510154614.154187-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154614.154187-1-sashal@kernel.org>
 References: <20220510154614.154187-1-sashal@kernel.org>
@@ -57,52 +61,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 8b202ee218395319aec1ef44f72043e1fbaccdd6 ]
+[ Upstream commit 4dfa9b438ee34caca4e6a4e5e961641807367f6f ]
 
-gcc-12 shows a lot of array bound warnings on s390. This is caused
-by the S390_lowcore macro which uses a hardcoded address of 0.
+In order to limit the ability for an observer to recognize the source
+ports sequence used to contact a set of destinations, we should
+periodically shuffle the secret. 10 seconds looks effective enough
+without causing particular issues.
 
-Wrapping that with absolute_pointer() works, but gcc no longer knows
-that a 12 bit displacement is sufficient to access lowcore. So it
-emits instructions like 'lghi %r1,0; l %rx,xxx(%r1)' instead of a
-single load/store instruction. As s390 stores variables often
-read/written in lowcore, this is considered problematic. Therefore
-disable -Warray-bounds on s390 for gcc-12 for the time being, until
-there is a better solution.
-
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Link: https://lore.kernel.org/r/yt9dzgkelelc.fsf@linux.ibm.com
-Link: https://lore.kernel.org/r/20220422134308.1613610-1-svens@linux.ibm.com
-Link: https://lore.kernel.org/r/20220425121742.3222133-1-svens@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Makefile | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ net/core/secure_seq.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index 9a3a698c8fca..4d0082f3de47 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -27,6 +27,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-option,-ffreestanding)
- KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
+index af6ad467ed61..3a8128341e6a 100644
+--- a/net/core/secure_seq.c
++++ b/net/core/secure_seq.c
+@@ -22,6 +22,8 @@
+ static siphash_key_t net_secret __read_mostly;
+ static siphash_key_t ts_secret __read_mostly;
+ 
++#define EPHEMERAL_PORT_SHUFFLE_PERIOD (10 * HZ)
 +
-+ifdef CONFIG_CC_IS_GCC
-+	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
-+		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
-+			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
-+			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
-+		endif
-+	endif
-+endif
-+
- UTS_MACHINE	:= s390x
- STACK_SIZE	:= 16384
- CHECKFLAGS	+= -D__s390__ -D__s390x__
+ static __always_inline void net_secret_init(void)
+ {
+ 	net_get_random_once(&net_secret, sizeof(net_secret));
+@@ -100,11 +102,13 @@ u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 	const struct {
+ 		struct in6_addr saddr;
+ 		struct in6_addr daddr;
++		unsigned int timeseed;
+ 		__be16 dport;
+ 	} __aligned(SIPHASH_ALIGNMENT) combined = {
+ 		.saddr = *(struct in6_addr *)saddr,
+ 		.daddr = *(struct in6_addr *)daddr,
+-		.dport = dport
++		.timeseed = jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
++		.dport = dport,
+ 	};
+ 	net_secret_init();
+ 	return siphash(&combined, offsetofend(typeof(combined), dport),
+@@ -145,8 +149,10 @@ EXPORT_SYMBOL_GPL(secure_tcp_seq);
+ u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
+ {
+ 	net_secret_init();
+-	return siphash_3u32((__force u32)saddr, (__force u32)daddr,
+-			    (__force u16)dport, &net_secret);
++	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
++			    (__force u16)dport,
++			    jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
++			    &net_secret);
+ }
+ EXPORT_SYMBOL_GPL(secure_ipv4_port_ephemeral);
+ #endif
 -- 
 2.35.1
 
