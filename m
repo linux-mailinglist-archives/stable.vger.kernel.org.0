@@ -2,92 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 607DD52142D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 13:48:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA69052145B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 13:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236900AbiEJLwB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 07:52:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58218 "EHLO
+        id S234192AbiEJL7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 07:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233105AbiEJLwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 07:52:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D8E625D110
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:48:03 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D15D16194B
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 11:48:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC95C385C2;
-        Tue, 10 May 2022 11:48:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652183282;
-        bh=9vJ3yeAp7V3LSAzCls+2oNMLm6Y/NWRodhpIOOlPlYk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=UC/ifrmeDSAxdBjBVBEmcvNUyfT9DELqAggFnN+wE33640H2jH95xB/XH+uDtpVaO
-         rOmS7HRNoLb/vIUbrVYxyZJWSOjA9BD8eZw/2XKHJJ037HVknmYbsA0M0QOeDV8FS2
-         4gteUzIyQQ1101f7IC8gqtIdLY1q449am8jsNezE=
-Date:   Tue, 10 May 2022 13:47:58 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Mikulas Patocka <mpatocka@redhat.com>
-Cc:     Mike Snitzer <msnitzer@redhat.com>, dm-devel@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v4.9] dm: interlock pending dm_io and
- dm_wait_for_bios_completion
-Message-ID: <YnpQ7gcGt872LstM@kroah.com>
-References: <alpine.LRH.2.02.2205031634520.11434@file01.intranet.prod.int.rdu2.redhat.com>
+        with ESMTP id S241299AbiEJL7m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 07:59:42 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBB21014
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:55:44 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id d6so19685640ede.8
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:55:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=9ygkrQc+ek2XiZL48rDG/nZ8HONRH2u6mkORGAxrJ18=;
+        b=OwHEiiq0pQ4WLb6IHbYPHgWA33riwzTpe+bLCUREWIKd0JtjG3nftDzA9GOJA3oLVV
+         O6L3As8xMki/zAtroL6LKbPVQBq1AjOp2l5CvYYPwsIkB4qX918soNVch7zwecEW0CH5
+         bKolH4MfA6/N2sb+bEcv7r90er1U+yZPIKLeU/lh57I2ROgUPh3H7qwjUNxs9o6x/HYR
+         qieOkZtDblnic+PTo7AWR3b9+mCpKEWso0SRGKvVz2Ym5SMq6JoYW0svjKnSksfPZLGB
+         O59Eck0Dn6kULbMkOEM1sHhbm9FJz8kTskPpMGlokkz1/MQpdXMCa/zQSr7XqW+mnuAE
+         /lKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=9ygkrQc+ek2XiZL48rDG/nZ8HONRH2u6mkORGAxrJ18=;
+        b=vkjh5qm/RwD2jwvlIL1gLGtLRGMUqZpmA7kMky461IgpaxsZ/9CzVxL8hL42QDUyPP
+         EbTdQHc+S7PgB9LY2w6ecz+A8Uw744oDkKrp/PC3/Aq+6WDqNOwGlmwv1f2FZPKlopvp
+         BHbLfFYVsxig0bpxYnATatE+NcNWpTQobufnxFBMOMLh1ghzntLMPjOlZu8K42AJHtkh
+         LO49b7dvKTYdKsgamgU3aWb8GQUTwciZJTO+TypVNVyPNH76lqo8m+g3NnzIjD6v7wAw
+         GVGZmCekuQxSMPmAol0RQw1ZCiKDE3sCxLMLPiiQhO6Pyy3Jc1fb6Eo0UE31CQg/Q7Il
+         9ySQ==
+X-Gm-Message-State: AOAM530FUWN3/4kH3mx9+xbfOirgZP3OS8OogLaXF4EP8SZ8e/w9Fq3g
+        DnyLutRkC20bqGorGTIQTQKSNejvCDbOuPiPqLM=
+X-Google-Smtp-Source: ABdhPJw+d0NDcQV8NnQuncKZww1RCwrRolOStR3bjufF7289hrZV8VJeysCefDRVnCemm3odbJmgL1/9gbI71ZJ2tNw=
+X-Received: by 2002:aa7:d610:0:b0:425:ccf8:c369 with SMTP id
+ c16-20020aa7d610000000b00425ccf8c369mr22624329edr.368.1652183742706; Tue, 10
+ May 2022 04:55:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.LRH.2.02.2205031634520.11434@file01.intranet.prod.int.rdu2.redhat.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a54:30c1:0:0:0:0:0 with HTTP; Tue, 10 May 2022 04:55:42
+ -0700 (PDT)
+Reply-To: sgtkayla2001@gmail.com
+From:   Kayla Manthey <eyanacthan.com@gmail.com>
+Date:   Tue, 10 May 2022 11:55:42 +0000
+Message-ID: <CAG3fTc=_o8OzneD9htVGwyBLePbUxjq6YU=GkR5Gf_bduqgMVg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.5 required=5.0 tests=BAYES_40,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
+        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
+        version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 03, 2022 at 04:35:44PM -0400, Mikulas Patocka wrote:
-> This is backport of the patch 9f6dc6337610 ("dm: interlock pending dm_io
-> and dm_wait_for_bios_completion") for the kernel 4.9.
-> 
-> The bugs fixed by this patch can cause random crashing when reloading dm
-> table, so it is eligible for stable backport.
-> 
-> Note that the kernel 4.9 uses md->pending to count the number of
-> in-progress I/Os and md->pending is decremented after dm_stats_account_io,
-> so the race condition doesn't really exist there (except for missing
-> smp_rmb()).
-> 
-> The percpu variable md->pending_io is not needed in the stable kernels,
-> because md->pending counts the same value, so it is not backported.
-> 
-> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-> Reviewed-by: Mike Snitzer <snitzer@kernel.org>
-> 
-> ---
->  drivers/md/dm.c |    2 ++
->  1 file changed, 2 insertions(+)
-> 
-> Index: linux-stable/drivers/md/dm.c
-> ===================================================================
-> --- linux-stable.orig/drivers/md/dm.c	2022-04-30 19:03:08.000000000 +0200
-> +++ linux-stable/drivers/md/dm.c	2022-04-30 19:03:46.000000000 +0200
-> @@ -2027,6 +2027,8 @@ static int dm_wait_for_completion(struct
->  	}
->  	finish_wait(&md->wait, &wait);
->  
-> +	smp_rmb(); /* paired with atomic_dec_return in end_io_acct */
-> +
->  	return r;
->  }
->  
-> 
-
-All now queued up, thanks.
-
-gre gk-h
+-- 
+Salut draga mea, te rog, vreau sa stiu daca ai primit mesajul meu
+anterior, multumesc.
