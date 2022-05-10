@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF619521991
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0EB521684
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244059AbiEJNtk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
+        id S235563AbiEJNPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:15:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244898AbiEJNrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E4751BADF3;
-        Tue, 10 May 2022 06:32:26 -0700 (PDT)
+        with ESMTP id S242311AbiEJNPM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E963BBCC;
+        Tue, 10 May 2022 06:11:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2955361889;
-        Tue, 10 May 2022 13:32:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B8E8C385A6;
-        Tue, 10 May 2022 13:32:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72CEEB81DA0;
+        Tue, 10 May 2022 13:11:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4BD1C385A6;
+        Tue, 10 May 2022 13:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189545;
-        bh=Mam2S/II9ark330tQJUdusEO1O9sMlGXgfWcVO8cxqY=;
+        s=korg; t=1652188264;
+        bh=OxnQB7/QxrTZahRDC9oFBGORMX0uRlChmyDd5jW8Gq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MimjHKqCjco1dWFLhS5BeoGS8D9R8tfvygB2nIhe7/9j1DfXeSadfWhMyRgyVKaB0
-         ch9GH1yL2wlfI3CFlpvSSsEqiAN+jlVqYfGwVdYKPZfnQ/KZIcCu1laJP/QHu5RSLA
-         YoD/US6cBzgGM8Lcl8bR6wOEfiXy02T9GtA84GFo=
+        b=2sBGzvDH8t2qMxrt0hx72zyVQED9xinlleXNpn8tUVwDL8Z1J7HPzcLP8c5QJeNz7
+         f5GCRzadnzHeMq1E85Nh0gzFThPnGBmQIzeUvAuLe65DzlDus+EGUiu4bso36Hq/kH
+         jpBzCF/dltKnoVy1cNQnl8OA1hNvIdSj2x4UwD4M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <sha@pengutronix.de>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.15 044/135] ASoC: dmaengine: Restore NULL prepare_slave_config() callback
+        stable@vger.kernel.org,
+        Vijayavardhan Vennapusa <vvreddy@codeaurora.org>,
+        Dan Vacura <w36195@motorola.com>, stable <stable@kernel.org>
+Subject: [PATCH 4.9 16/66] usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
 Date:   Tue, 10 May 2022 15:07:06 +0200
-Message-Id: <20220510130741.662590218@linuxfoundation.org>
+Message-Id: <20220510130730.241763536@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
 
-commit 660564fc9a92a893a14f255be434f7ea0b967901 upstream.
+commit bf95c4d4630c7a2c16e7b424fdea5177d9ce0864 upstream.
 
-As pointed out by Sascha Hauer, this patch changes:
-if (pmc->config && !pcm->config->prepare_slave_config)
-        <do nothing>
-to:
-if (pmc->config && !pcm->config->prepare_slave_config)
-        snd_dmaengine_pcm_prepare_slave_config()
+If any function like UVC is deactivating gadget as part of composition
+switch which results in not calling pullup enablement, it is not getting
+enabled after switch to new composition due to this deactivation flag
+not cleared. This results in USB enumeration not happening after switch
+to new USB composition. Hence clear deactivation flag inside gadget
+structure in configfs_composite_unbind() before switch to new USB
+composition.
 
-This breaks the drivers that do not need a call to
-dmaengine_slave_config(). Drivers that still need to call
-snd_dmaengine_pcm_prepare_slave_config(), but have a NULL
-pcm->config->prepare_slave_config should use
-snd_dmaengine_pcm_prepare_slave_config() as their prepare_slave_config
-callback.
-
-Fixes: 9a1e13440a4f ("ASoC: dmaengine: do not use a NULL prepare_slave_config() callback")
-Reported-by: Sascha Hauer <sha@pengutronix.de>
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220421125403.2180824-1-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220413211038.72797-1-w36195@motorola.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/gadget/configfs.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -82,10 +82,10 @@ static int dmaengine_pcm_hw_params(struc
- 
- 	memset(&slave_config, 0, sizeof(slave_config));
- 
--	if (pcm->config && pcm->config->prepare_slave_config)
--		prepare_slave_config = pcm->config->prepare_slave_config;
--	else
-+	if (!pcm->config)
- 		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
-+	else
-+		prepare_slave_config = pcm->config->prepare_slave_config;
- 
- 	if (prepare_slave_config) {
- 		int ret = prepare_slave_config(substream, params, &slave_config);
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1409,6 +1409,8 @@ static void configfs_composite_unbind(st
+ 	usb_ep_autoconfig_reset(cdev->gadget);
+ 	spin_lock_irqsave(&gi->spinlock, flags);
+ 	cdev->gadget = NULL;
++	cdev->deactivations = 0;
++	gadget->deactivated = false;
+ 	set_gadget_data(gadget, NULL);
+ 	spin_unlock_irqrestore(&gi->spinlock, flags);
+ }
 
 
