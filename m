@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE0A9521738
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1BD95218B6
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242945AbiEJNWn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46000 "EHLO
+        id S243651AbiEJNjl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242876AbiEJNVI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CB72BF30C;
-        Tue, 10 May 2022 06:13:59 -0700 (PDT)
+        with ESMTP id S244767AbiEJNiC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E00DE5838D;
+        Tue, 10 May 2022 06:26:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBC4D615FA;
-        Tue, 10 May 2022 13:13:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C661CC385A6;
-        Tue, 10 May 2022 13:13:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 730C2B81DA8;
+        Tue, 10 May 2022 13:26:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91E5C385C6;
+        Tue, 10 May 2022 13:26:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188438;
-        bh=mUVSaLcs7LePPpfEVIoSnmJu+fY7to4k78o+0jb0k2M=;
+        s=korg; t=1652189178;
+        bh=Q7tCidXFNBg5wGReamRFoXUum6q7cRGXz98pfpLdfkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V6Mqgj+qX8krci74d+W4KQOu7m7SpEeq7oQHj7pr56VkedCi85sVpbb0D3dVfFhNy
-         NrISkv7pScSEQneqrjfk/cBmIyK5eYtolS+VIZhV8THNTNexjyzFKlvM4t0rNv6447
-         evatSqMjmMx6uNL7kPe+kMg+p/CxDTfSZCCUWNuc=
+        b=b8kgaD5BUlRTrd82qnwJjidqNEbSCCgYKnRhrE8Nw6EDQveFECfsd0YPSFsYMQjJF
+         sQhuSBF8otPg5VpKeznAeF+ReVekZ2FZIx9chiRn6Rr26SJDlw/sXs3eHCKvCG/utF
+         Sqa+OhA0O9G3qbxI/50Mj/KN4m69TOufgHQtcm30=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 4.9 66/66] dm: interlock pending dm_io and dm_wait_for_bios_completion
-Date:   Tue, 10 May 2022 15:07:56 +0200
-Message-Id: <20220510130731.702590252@linuxfoundation.org>
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 38/70] net/mlx5e: Dont match double-vlan packets if cvlan is not set
+Date:   Tue, 10 May 2022 15:07:57 +0200
+Message-Id: <20220510130733.979174634@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit 9f6dc633761006f974701d4c88da71ab68670749 upstream.
+commit ada09af92e621ab500dd80a16d1d0299a18a1180 upstream.
 
-Commit d208b89401e0 ("dm: fix mempool NULL pointer race when
-completing IO") didn't go far enough.
+Currently, match VLAN rule also matches packets that have multiple VLAN
+headers. This behavior is similar to buggy flower classifier behavior that
+has recently been fixed. Fix the issue by matching on
+outer_second_cvlan_tag with value 0 which will cause the HW to verify the
+packet doesn't contain second vlan header.
 
-When bio_end_io_acct ends the count of in-flight I/Os may reach zero
-and the DM device may be suspended. There is a possibility that the
-suspend races with dm_stats_account_io.
-
-Fix this by adding percpu "pending_io" counters to track outstanding
-dm_io. Move kicking of suspend queue to dm_io_dec_pending(). Also,
-rename md_in_flight_bios() to dm_in_flight_bios() and update it to
-iterate all pending_io counters.
-
-Fixes: d208b89401e0 ("dm: fix mempool NULL pointer race when completing IO")
-Cc: stable@vger.kernel.org
-Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Fixes: 699e96ddf47f ("net/mlx5e: Support offloading tc double vlan headers match")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -2027,6 +2027,8 @@ static int dm_wait_for_completion(struct
- 	}
- 	finish_wait(&md->wait, &wait);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -2396,6 +2396,17 @@ static int __parse_cls_flower(struct mlx
+ 				 match.key->vlan_priority);
  
-+	smp_rmb(); /* paired with atomic_dec_return in end_io_acct */
+ 			*match_level = MLX5_MATCH_L2;
 +
- 	return r;
- }
- 
++			if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_CVLAN) &&
++			    match.mask->vlan_eth_type &&
++			    MLX5_CAP_FLOWTABLE_TYPE(priv->mdev,
++						    ft_field_support.outer_second_vid,
++						    fs_type)) {
++				MLX5_SET(fte_match_set_misc, misc_c,
++					 outer_second_cvlan_tag, 1);
++				spec->match_criteria_enable |=
++					MLX5_MATCH_MISC_PARAMETERS;
++			}
+ 		}
+ 	} else if (*match_level != MLX5_MATCH_NONE) {
+ 		/* cvlan_tag enabled in match criteria and
 
 
