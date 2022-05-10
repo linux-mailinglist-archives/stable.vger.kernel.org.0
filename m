@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BFB7521907
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E733D521724
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243697AbiEJNky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41352 "EHLO
+        id S242934AbiEJNXe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245177AbiEJNig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E6FB267083;
-        Tue, 10 May 2022 06:28:08 -0700 (PDT)
+        with ESMTP id S242879AbiEJNWj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82C7819FB03;
+        Tue, 10 May 2022 06:16:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0488DB81D24;
-        Tue, 10 May 2022 13:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE3FC385A6;
-        Tue, 10 May 2022 13:28:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3442B6165A;
+        Tue, 10 May 2022 13:16:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 486B5C385C9;
+        Tue, 10 May 2022 13:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189285;
-        bh=U40yL5VS3tAeHs+of+0ROB6xVZSyJLmV9gHU9KI1aSQ=;
+        s=korg; t=1652188614;
+        bh=PLBcffHUTxEwDYZ2I2HzXLMI033QZq0mU5i+o1QVl8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDjul8PiKr/yeGtxiKhcQuhBRrJpq8cIqIOZPojiixVfdmzY05tFYCez6P3Mz3UQj
-         J3mJxAuXlcJPldDMW2LlYmpOkw6n4xwY9H2AhC/Vxh9Fkaq8fJ4InufkXyFMAECRIt
-         Gxr2yQ9oEShD1CvdXHUvnS7syCIT35eTW4pDI4Rs=
+        b=InLX1GgHU1XLSBf6rPiRrOzffV7JTdWwie6LSBe0DG+j9FQOV0ex6bqDlkXOwRsEB
+         xXC5m5xs83dKFoHa/xT2/XwlR32KZEYoCintbJx7KY22DPp6b6qwFRP2jGC+cRk/Ve
+         l1WSwtNHy5QZhA2NG4Xd/ETckajRVIIIbulllivs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 31/70] nfc: replace improper check device_is_registered() in netlink related functions
+Subject: [PATCH 4.14 64/78] nfc: replace improper check device_is_registered() in netlink related functions
 Date:   Tue, 10 May 2022 15:07:50 +0200
-Message-Id: <20220510130733.780278076@linuxfoundation.org>
+Message-Id: <20220510130734.427117291@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,7 +46,7 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/nfc/core.c
 +++ b/net/nfc/core.c
-@@ -38,7 +38,7 @@ int nfc_fw_download(struct nfc_dev *dev,
+@@ -50,7 +50,7 @@ int nfc_fw_download(struct nfc_dev *dev,
  
  	device_lock(&dev->dev);
  
@@ -99,7 +99,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -94,7 +94,7 @@ int nfc_dev_up(struct nfc_dev *dev)
+@@ -106,7 +106,7 @@ int nfc_dev_up(struct nfc_dev *dev)
  
  	device_lock(&dev->dev);
  
@@ -108,7 +108,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -142,7 +142,7 @@ int nfc_dev_down(struct nfc_dev *dev)
+@@ -154,7 +154,7 @@ int nfc_dev_down(struct nfc_dev *dev)
  
  	device_lock(&dev->dev);
  
@@ -117,7 +117,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -206,7 +206,7 @@ int nfc_start_poll(struct nfc_dev *dev,
+@@ -218,7 +218,7 @@ int nfc_start_poll(struct nfc_dev *dev,
  
  	device_lock(&dev->dev);
  
@@ -126,7 +126,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -245,7 +245,7 @@ int nfc_stop_poll(struct nfc_dev *dev)
+@@ -257,7 +257,7 @@ int nfc_stop_poll(struct nfc_dev *dev)
  
  	device_lock(&dev->dev);
  
@@ -135,7 +135,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -290,7 +290,7 @@ int nfc_dep_link_up(struct nfc_dev *dev,
+@@ -302,7 +302,7 @@ int nfc_dep_link_up(struct nfc_dev *dev,
  
  	device_lock(&dev->dev);
  
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -334,7 +334,7 @@ int nfc_dep_link_down(struct nfc_dev *de
+@@ -346,7 +346,7 @@ int nfc_dep_link_down(struct nfc_dev *de
  
  	device_lock(&dev->dev);
  
@@ -153,7 +153,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -400,7 +400,7 @@ int nfc_activate_target(struct nfc_dev *
+@@ -412,7 +412,7 @@ int nfc_activate_target(struct nfc_dev *
  
  	device_lock(&dev->dev);
  
@@ -162,7 +162,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -446,7 +446,7 @@ int nfc_deactivate_target(struct nfc_dev
+@@ -458,7 +458,7 @@ int nfc_deactivate_target(struct nfc_dev
  
  	device_lock(&dev->dev);
  
@@ -171,7 +171,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -493,7 +493,7 @@ int nfc_data_exchange(struct nfc_dev *de
+@@ -505,7 +505,7 @@ int nfc_data_exchange(struct nfc_dev *de
  
  	device_lock(&dev->dev);
  
@@ -180,7 +180,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		kfree_skb(skb);
  		goto error;
-@@ -550,7 +550,7 @@ int nfc_enable_se(struct nfc_dev *dev, u
+@@ -562,7 +562,7 @@ int nfc_enable_se(struct nfc_dev *dev, u
  
  	device_lock(&dev->dev);
  
@@ -189,7 +189,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -599,7 +599,7 @@ int nfc_disable_se(struct nfc_dev *dev,
+@@ -611,7 +611,7 @@ int nfc_disable_se(struct nfc_dev *dev,
  
  	device_lock(&dev->dev);
  
@@ -198,7 +198,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		rc = -ENODEV;
  		goto error;
  	}
-@@ -1126,6 +1126,7 @@ int nfc_register_device(struct nfc_dev *
+@@ -1142,6 +1142,7 @@ int nfc_register_device(struct nfc_dev *
  			dev->rfkill = NULL;
  		}
  	}
@@ -206,7 +206,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	device_unlock(&dev->dev);
  
  	rc = nfc_genl_device_added(dev);
-@@ -1158,12 +1159,10 @@ void nfc_unregister_device(struct nfc_de
+@@ -1174,12 +1175,10 @@ void nfc_unregister_device(struct nfc_de
  		rfkill_unregister(dev->rfkill);
  		rfkill_destroy(dev->rfkill);
  	}
