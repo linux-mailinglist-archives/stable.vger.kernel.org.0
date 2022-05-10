@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB77521ACC
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EBC15218BE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242855AbiEJOEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:04:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
+        id S241342AbiEJNjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242297AbiEJOAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:00:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294E52716B;
-        Tue, 10 May 2022 06:39:54 -0700 (PDT)
+        with ESMTP id S244961AbiEJNiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A493878929;
+        Tue, 10 May 2022 06:26:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 233CC6195A;
-        Tue, 10 May 2022 13:39:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C159C385A6;
-        Tue, 10 May 2022 13:39:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 387E46170D;
+        Tue, 10 May 2022 13:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48F47C385C2;
+        Tue, 10 May 2022 13:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189993;
-        bh=ClrH9r6REJMY4gRv6YNSD6cNrPGYsFLSvLtpnlQJ+58=;
+        s=korg; t=1652189205;
+        bh=Y25/R4Z9zWRfq6oQO6x6b8SBv9CRfRZbAbHgBjQAO2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfUh+ogYROCs+P9YUO+g8D0w3vZXlZNLZLNgE26qrQjneWVz6wlnhykABp+cYCmDX
-         dV+9MWruxmhSenhdqPML2e1KB9Afz9O5KbDGMK+y/whQYPG/MnWd3K0LDopNxQN/Ax
-         PWBNAmFtYYCgUzrxvNWQIS8hSU+te7uX1BrwmwP0=
+        b=rYk+RlMyBOiPEGDl11TARMb1LeUvK9FCmuIMw8ZPrVO/1hd4RAs8C+BqbTtHtWBXi
+         kvTAoKEtSpHQ9G3jRP2TnSSjj2hP5jtm2rW5KKcsHF4olU9gp2CATTve4pr5/5uwhc
+         zaQDsMOqbltol8IuHk4M46ivuc8kxsygvvRbCf04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "wanghai (M)" <wanghai38@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.17 095/140] SUNRPC: Dont leak sockets in xs_local_connect()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 46/70] net: dsa: mt7530: add missing of_node_put() in mt7530_setup()
 Date:   Tue, 10 May 2022 15:08:05 +0200
-Message-Id: <20220510130744.324350750@linuxfoundation.org>
+Message-Id: <20220510130734.207506860@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit aad41a7d7cf6c6fa804c872a2480f8e541da37cf upstream.
+commit a9e9b091a1c14ecd8bd9d3214a62142a1786fe30 upstream.
 
-If there is still a closed socket associated with the transport, then we
-need to trigger an autoclose before we can set up a new connection.
+Add of_node_put() if of_get_phy_mode() fails in mt7530_setup()
 
-Reported-by: wanghai (M) <wanghai38@huawei.com>
-Fixes: f00432063db1 ("SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 0c65b2b90d13 ("net: of_get_phy_mode: Change API to solve int/unit warnings")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220428095317.538829-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprtsock.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/net/dsa/mt7530.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1967,6 +1967,9 @@ static void xs_local_connect(struct rpc_
- 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
- 	int ret;
- 
-+	if (transport->file)
-+		goto force_disconnect;
-+
- 	if (RPC_IS_ASYNC(task)) {
- 		/*
- 		 * We want the AF_LOCAL connect to be resolved in the
-@@ -1979,11 +1982,17 @@ static void xs_local_connect(struct rpc_
- 		 */
- 		task->tk_rpc_status = -ENOTCONN;
- 		rpc_exit(task, -ENOTCONN);
--		return;
-+		goto out_wake;
- 	}
- 	ret = xs_local_setup_socket(transport);
- 	if (ret && !RPC_IS_SOFTCONN(task))
- 		msleep_interruptible(15000);
-+	return;
-+force_disconnect:
-+	xprt_force_disconnect(xprt);
-+out_wake:
-+	xprt_clear_connecting(xprt);
-+	xprt_wake_pending_tasks(xprt, -ENOTCONN);
- }
- 
- #if IS_ENABLED(CONFIG_SUNRPC_SWAP)
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1663,6 +1663,7 @@ mt7530_setup(struct dsa_switch *ds)
+ 				ret = of_get_phy_mode(mac_np, &interface);
+ 				if (ret && ret != -ENODEV) {
+ 					of_node_put(mac_np);
++					of_node_put(phy_node);
+ 					return ret;
+ 				}
+ 				id = of_mdio_parse_addr(ds->dev, phy_node);
 
 
