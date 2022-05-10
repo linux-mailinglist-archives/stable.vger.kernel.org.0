@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C064A52187D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85BF5218C7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243395AbiEJNfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:35:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
+        id S243691AbiEJNkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243389AbiEJNfH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:35:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24A50239DB6;
-        Tue, 10 May 2022 06:24:37 -0700 (PDT)
+        with ESMTP id S245139AbiEJNie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14956246427;
+        Tue, 10 May 2022 06:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5847561312;
-        Tue, 10 May 2022 13:24:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63987C385CB;
-        Tue, 10 May 2022 13:24:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C33D4B81DA2;
+        Tue, 10 May 2022 13:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB42CC385C2;
+        Tue, 10 May 2022 13:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189071;
-        bh=lhlyI3znX6dtrShNNrMwoYW+E/xoH1BeBfExmXofJK8=;
+        s=korg; t=1652189239;
+        bh=ak1PU6vYkC/9zG/U/L+QP5Hp2f2tGX4tEkjKfUlRCH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=An3Lre0rL4QjirFYWumf4UYCWt+5myM1xORWNN5s83IswC0c3oi6tU5wf5hRiW6//
-         OCk8KWBDmAsxIK207VSawfdqmBiXLHf/8qK/Du0f6162JuLEK34kWsoJ2hVnmLD7kr
-         w9UH1GBBunDwRCJnRDdP1TPm5aAf2s/IR8epX8ek=
+        b=yn6h+2UUVX65cv7X90bmt4N1CNQ9q4XH7wyEWEdKI+V74SM0p2shASaORxKfgQJCx
+         R9krx2yvpBlQ6HdmcKTD99EGKo1/0QGJ4NIi0aqFpGZ9gjFN5fjsq84ae2BFR2PyOI
+         eofsHTf+3MfmW/eUmBmKy/V23a+1vUCt5FX/7pBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        syzbot+6e5c88838328e99c7e1c@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 46/52] ALSA: pcm: Fix potential AB/BA lock with buffer_mutex and mmap_lock
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 56/70] btrfs: always log symlinks in full mode
 Date:   Tue, 10 May 2022 15:08:15 +0200
-Message-Id: <20220510130731.202355917@linuxfoundation.org>
+Message-Id: <20220510130734.506158628@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,211 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit bc55cfd5718c7c23e5524582e9fa70b4d10f2433 upstream.
+commit d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 upstream.
 
-syzbot caught a potential deadlock between the PCM
-runtime->buffer_mutex and the mm->mmap_lock.  It was brought by the
-recent fix to cover the racy read/write and other ioctls, and in that
-commit, I overlooked a (hopefully only) corner case that may take the
-revert lock, namely, the OSS mmap.  The OSS mmap operation
-exceptionally allows to re-configure the parameters inside the OSS
-mmap syscall, where mm->mmap_mutex is already held.  Meanwhile, the
-copy_from/to_user calls at read/write operations also take the
-mm->mmap_lock internally, hence it may lead to a AB/BA deadlock.
+On Linux, empty symlinks are invalid, and attempting to create one with
+the system call symlink(2) results in an -ENOENT error and this is
+explicitly documented in the man page.
 
-A similar problem was already seen in the past and we fixed it with a
-refcount (in commit b248371628aa).  The former fix covered only the
-call paths with OSS read/write and OSS ioctls, while we need to cover
-the concurrent access via both ALSA and OSS APIs now.
+If we rename a symlink that was created in the current transaction and its
+parent directory was logged before, we actually end up logging the symlink
+without logging its content, which is stored in an inline extent. That
+means that after a power failure we can end up with an empty symlink,
+having no content and an i_size of 0 bytes.
 
-This patch addresses the problem above by replacing the buffer_mutex
-lock in the read/write operations with a refcount similar as we've
-used for OSS.  The new field, runtime->buffer_accessing, keeps the
-number of concurrent read/write operations.  Unlike the former
-buffer_mutex protection, this protects only around the
-copy_from/to_user() calls; the other codes are basically protected by
-the PCM stream lock.  The refcount can be a negative, meaning blocked
-by the ioctls.  If a negative value is seen, the read/write aborts
-with -EBUSY.  In the ioctl side, OTOH, they check this refcount, too,
-and set to a negative value for blocking unless it's already being
-accessed.
+It can be easily reproduced like this:
 
-Reported-by: syzbot+6e5c88838328e99c7e1c@syzkaller.appspotmail.com
-Fixes: dca947d4d26d ("ALSA: pcm: Fix races among concurrent read/write and buffer changes")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/000000000000381a0d05db622a81@google.com
-Link: https://lore.kernel.org/r/20220330120903.4738-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[OP: backport to 5.4: adjusted context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
+
+  $ mkdir /mnt/testdir
+  $ sync
+
+  # Create a file inside the directory and fsync the directory.
+  $ touch /mnt/testdir/foo
+  $ xfs_io -c "fsync" /mnt/testdir
+
+  # Create a symlink inside the directory and then rename the symlink.
+  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
+  $ mv /mnt/testdir/bar /mnt/testdir/baz
+
+  # Now fsync again the directory, this persist the log tree.
+  $ xfs_io -c "fsync" /mnt/testdir
+
+  <power failure>
+
+  $ mount /dev/sdc /mnt
+  $ stat -c %s /mnt/testdir/baz
+  0
+  $ readlink /mnt/testdir/baz
+  $
+
+Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
+their content is also logged.
+
+A test case for fstests will follow.
+
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/pcm.h     |    1 +
- sound/core/pcm.c        |    1 +
- sound/core/pcm_lib.c    |    9 +++++----
- sound/core/pcm_native.c |   39 ++++++++++++++++++++++++++++++++-------
- 4 files changed, 39 insertions(+), 11 deletions(-)
+ fs/btrfs/tree-log.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -396,6 +396,7 @@ struct snd_pcm_runtime {
- 	wait_queue_head_t tsleep;	/* transfer sleep */
- 	struct fasync_struct *fasync;
- 	struct mutex buffer_mutex;	/* protect for buffer changes */
-+	atomic_t buffer_accessing;	/* >0: in r/w operation, <0: blocked */
- 
- 	/* -- private section -- */
- 	void *private_data;
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -970,6 +970,7 @@ int snd_pcm_attach_substream(struct snd_
- 
- 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
- 	mutex_init(&runtime->buffer_mutex);
-+	atomic_set(&runtime->buffer_accessing, 0);
- 
- 	substream->runtime = runtime;
- 	substream->private_data = pcm->private_data;
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1861,11 +1861,9 @@ static int wait_for_avail(struct snd_pcm
- 		if (avail >= runtime->twake)
- 			break;
- 		snd_pcm_stream_unlock_irq(substream);
--		mutex_unlock(&runtime->buffer_mutex);
- 
- 		tout = schedule_timeout(wait_time);
- 
--		mutex_lock(&runtime->buffer_mutex);
- 		snd_pcm_stream_lock_irq(substream);
- 		set_current_state(TASK_INTERRUPTIBLE);
- 		switch (runtime->status->state) {
-@@ -2159,7 +2157,6 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
- 
- 	nonblock = !!(substream->f_flags & O_NONBLOCK);
- 
--	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	err = pcm_accessible_state(runtime);
- 	if (err < 0)
-@@ -2214,10 +2211,15 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
- 			err = -EINVAL;
- 			goto _end_unlock;
- 		}
-+		if (!atomic_inc_unless_negative(&runtime->buffer_accessing)) {
-+			err = -EBUSY;
-+			goto _end_unlock;
-+		}
- 		snd_pcm_stream_unlock_irq(substream);
- 		err = writer(substream, appl_ofs, data, offset, frames,
- 			     transfer);
- 		snd_pcm_stream_lock_irq(substream);
-+		atomic_dec(&runtime->buffer_accessing);
- 		if (err < 0)
- 			goto _end_unlock;
- 		err = pcm_accessible_state(runtime);
-@@ -2247,7 +2249,6 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
- 	if (xfer > 0 && err >= 0)
- 		snd_pcm_update_state(substream, runtime);
- 	snd_pcm_stream_unlock_irq(substream);
--	mutex_unlock(&runtime->buffer_mutex);
- 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
- }
- EXPORT_SYMBOL(__snd_pcm_lib_xfer);
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -630,6 +630,24 @@ static int snd_pcm_hw_params_choose(stru
- 	return 0;
- }
- 
-+/* acquire buffer_mutex; if it's in r/w operation, return -EBUSY, otherwise
-+ * block the further r/w operations
-+ */
-+static int snd_pcm_buffer_access_lock(struct snd_pcm_runtime *runtime)
-+{
-+	if (!atomic_dec_unless_positive(&runtime->buffer_accessing))
-+		return -EBUSY;
-+	mutex_lock(&runtime->buffer_mutex);
-+	return 0; /* keep buffer_mutex, unlocked by below */
-+}
-+
-+/* release buffer_mutex and clear r/w access flag */
-+static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
-+{
-+	mutex_unlock(&runtime->buffer_mutex);
-+	atomic_inc(&runtime->buffer_accessing);
-+}
-+
- #if IS_ENABLED(CONFIG_SND_PCM_OSS)
- #define is_oss_stream(substream)	((substream)->oss.oss)
- #else
-@@ -640,14 +658,16 @@ static int snd_pcm_hw_params(struct snd_
- 			     struct snd_pcm_hw_params *params)
- {
- 	struct snd_pcm_runtime *runtime;
--	int err = 0, usecs;
-+	int err, usecs;
- 	unsigned int bits;
- 	snd_pcm_uframes_t frames;
- 
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
--	mutex_lock(&runtime->buffer_mutex);
-+	err = snd_pcm_buffer_access_lock(runtime);
-+	if (err < 0)
-+		return err;
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_OPEN:
-@@ -752,7 +772,7 @@ static int snd_pcm_hw_params(struct snd_
- 			substream->ops->hw_free(substream);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5335,6 +5335,18 @@ static int btrfs_log_inode(struct btrfs_
  	}
-  unlock:
--	mutex_unlock(&runtime->buffer_mutex);
-+	snd_pcm_buffer_access_unlock(runtime);
- 	return err;
- }
  
-@@ -785,7 +805,9 @@ static int snd_pcm_hw_free(struct snd_pc
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
--	mutex_lock(&runtime->buffer_mutex);
-+	result = snd_pcm_buffer_access_lock(runtime);
-+	if (result < 0)
-+		return result;
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_SETUP:
-@@ -805,7 +827,7 @@ static int snd_pcm_hw_free(struct snd_pc
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
- 	pm_qos_remove_request(&substream->latency_pm_qos_req);
-  unlock:
--	mutex_unlock(&runtime->buffer_mutex);
-+	snd_pcm_buffer_access_unlock(runtime);
- 	return result;
- }
+ 	/*
++	 * For symlinks, we must always log their content, which is stored in an
++	 * inline extent, otherwise we could end up with an empty symlink after
++	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
++	 * one attempts to create an empty symlink).
++	 * We don't need to worry about flushing delalloc, because when we create
++	 * the inline extent when the symlink is created (we never have delalloc
++	 * for symlinks).
++	 */
++	if (S_ISLNK(inode->vfs_inode.i_mode))
++		inode_only = LOG_INODE_ALL;
++
++	/*
+ 	 * a brute force approach to making sure we get the most uptodate
+ 	 * copies of everything.
+ 	 */
+@@ -5724,7 +5736,7 @@ process_leaf:
+ 			}
  
-@@ -1221,12 +1243,15 @@ static int snd_pcm_action_nonatomic(cons
- 
- 	/* Guarantee the group members won't change during non-atomic action */
- 	down_read(&snd_pcm_link_rwsem);
--	mutex_lock(&substream->runtime->buffer_mutex);
-+	res = snd_pcm_buffer_access_lock(substream->runtime);
-+	if (res < 0)
-+		goto unlock;
- 	if (snd_pcm_stream_linked(substream))
- 		res = snd_pcm_action_group(ops, substream, state, 0);
- 	else
- 		res = snd_pcm_action_single(ops, substream, state);
--	mutex_unlock(&substream->runtime->buffer_mutex);
-+	snd_pcm_buffer_access_unlock(substream->runtime);
-+ unlock:
- 	up_read(&snd_pcm_link_rwsem);
- 	return res;
- }
+ 			ctx->log_new_dentries = false;
+-			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
++			if (type == BTRFS_FT_DIR)
+ 				log_mode = LOG_INODE_ALL;
+ 			ret = btrfs_log_inode(trans, root, BTRFS_I(di_inode),
+ 					      log_mode, ctx);
 
 
