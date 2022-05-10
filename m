@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98516521F7F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C241521F83
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:46:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346272AbiEJPuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:50:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
+        id S1346408AbiEJPu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:50:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346333AbiEJPsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:48:25 -0400
+        with ESMTP id S1346253AbiEJPsq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:48:46 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 635FA281348;
-        Tue, 10 May 2022 08:44:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4592281341;
+        Tue, 10 May 2022 08:44:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5073C614EA;
-        Tue, 10 May 2022 15:44:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D20A7C385A6;
-        Tue, 10 May 2022 15:44:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41B866142F;
+        Tue, 10 May 2022 15:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFEB8C385CA;
+        Tue, 10 May 2022 15:44:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197465;
-        bh=/WySDu8wnTntCqGUHjerN/beg29yM9aeGgeUfEc+4Zw=;
+        s=k20201202; t=1652197468;
+        bh=21bwpjNudExl89E+GWay/earnO1hhomI8Dv+7vwzFGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vp1NArSQX7IHrY/mvLkEpoZsUte3mziph4Zz74bmyBPS/zviPdQEGVOUCgL9Ve6yz
-         ++J1wC8M/g62BUOKYFrz5/kSrI3RSxjVpYXEglIOcs3VjbqkQSGtELHHMdByIWf7l6
-         FBMpTWX8YD8mb3ureGu1WFgohHXHGyTw6yZkr2DF1J9sFWeiU2IyY8U7ePaoFGcphl
-         XXLWATWFgmRYhOWrxbhhUADpC/cXpBFMzzwwVhZFreHM3guSk9vzr9f4uW/LP0BAAC
-         WTVT7m4stusszdsSQyFsHIooLQ57i4CntD2DuJ5olqRKG4kcN5Ie7ghK0IYzMMPabH
-         ZsKbE3+qfkuSQ==
+        b=sqpvUS8ZgmHhDeo0KFl0Nkrv41ZmRy2f4Gvezhty9ov9qd4cbBshyOjn1JugpF90R
+         /Q6dnOwktw7rHOMoSADOW1HQSVN/29Yasb9BcL0bvavjyhgG/8BjRyItSoFOkY3AUM
+         lzEtHdFvhNySKf5Ku7mvMzsJJjQwHcXsgt+/ZAQnMg+ct29eZEJn2l9pvcD7m40c8M
+         qWmNfMb21M6PjUb9vbjq4sm7cwOvvkqHkfcER7JdnJoCYI3npaCymLPDIkxh+udnRy
+         bblDgOAo3ghINMD+vgHreEDq6Lik8sUTf88ab7lwagq1VS/lzaJ5Xr897GIT5dDC5Z
+         D/Nt6aSSQlPzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        "Darrick J . Wong" <djwong@kernel.org>,
-        Brian Foster <bfoster@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, axboe@kernel.dk,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 20/21] block: Do not call folio_next() on an unreferenced folio
-Date:   Tue, 10 May 2022 11:43:39 -0400
-Message-Id: <20220510154340.153400-20-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, dave.anglin@bell.net,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 21/21] Revert "parisc: Fix patch code locking and flushing"
+Date:   Tue, 10 May 2022 11:43:40 -0400
+Message-Id: <20220510154340.153400-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154340.153400-1-sashal@kernel.org>
 References: <20220510154340.153400-1-sashal@kernel.org>
@@ -58,66 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 170f37d6aa6ad4582eefd7459015de79e244536e ]
+[ Upstream commit 6c800d7f55fcd78e17deae5ae4374d8e73482c13 ]
 
-It is unsafe to call folio_next() on a folio unless you hold a reference
-on it that prevents it from being split or freed.  After returning
-from the iterator, iomap calls folio_end_writeback() which may drop
-the last reference to the page, or allow the page to be split.  If that
-happens, the iterator will not advance far enough through the bio_vec,
-leading to assertion failures like the BUG() in folio_end_writeback()
-that checks we're not trying to end writeback on a page not currently
-under writeback.  Other assertion failures were also seen, but they're
-all explained by this one bug.
+This reverts commit a9fe7fa7d874a536e0540469f314772c054a0323.
 
-Fix the bug by remembering where the next folio starts before returning
-from the iterator.  There are other ways of fixing this bug, but this
-seems the simplest.
+Leads to segfaults on 32bit kernel.
 
-Reported-by: Darrick J. Wong <djwong@kernel.org>
-Tested-by: Darrick J. Wong <djwong@kernel.org>
-Reported-by: Brian Foster <bfoster@redhat.com>
-Tested-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bio.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/patch.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/include/linux/bio.h b/include/linux/bio.h
-index 117d7f248ac9..2ca54c084d5a 100644
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -272,6 +272,7 @@ struct folio_iter {
- 	size_t offset;
- 	size_t length;
- 	/* private: for use by the iterator */
-+	struct folio *_next;
- 	size_t _seg_count;
- 	int _i;
- };
-@@ -286,6 +287,7 @@ static inline void bio_first_folio(struct folio_iter *fi, struct bio *bio,
- 			PAGE_SIZE * (bvec->bv_page - &fi->folio->page);
- 	fi->_seg_count = bvec->bv_len;
- 	fi->length = min(folio_size(fi->folio) - fi->offset, fi->_seg_count);
-+	fi->_next = folio_next(fi->folio);
- 	fi->_i = i;
+diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
+index e59574f65e64..80a0ab372802 100644
+--- a/arch/parisc/kernel/patch.c
++++ b/arch/parisc/kernel/patch.c
+@@ -40,7 +40,10 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
+ 
+ 	*need_unmap = 1;
+ 	set_fixmap(fixmap, page_to_phys(page));
+-	raw_spin_lock_irqsave(&patch_lock, *flags);
++	if (flags)
++		raw_spin_lock_irqsave(&patch_lock, *flags);
++	else
++		__acquire(&patch_lock);
+ 
+ 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
+ }
+@@ -49,7 +52,10 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
+ {
+ 	clear_fixmap(fixmap);
+ 
+-	raw_spin_unlock_irqrestore(&patch_lock, *flags);
++	if (flags)
++		raw_spin_unlock_irqrestore(&patch_lock, *flags);
++	else
++		__release(&patch_lock);
  }
  
-@@ -293,9 +295,10 @@ static inline void bio_next_folio(struct folio_iter *fi, struct bio *bio)
- {
- 	fi->_seg_count -= fi->length;
- 	if (fi->_seg_count) {
--		fi->folio = folio_next(fi->folio);
-+		fi->folio = fi->_next;
- 		fi->offset = 0;
- 		fi->length = min(folio_size(fi->folio), fi->_seg_count);
-+		fi->_next = folio_next(fi->folio);
- 	} else if (fi->_i + 1 < bio->bi_vcnt) {
- 		bio_first_folio(fi, bio, fi->_i + 1);
- 	} else {
+ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+@@ -61,9 +67,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 	int mapped;
+ 
+ 	/* Make sure we don't have any aliases in cache */
+-	flush_kernel_dcache_range_asm(start, end);
+-	flush_kernel_icache_range_asm(start, end);
+-	flush_tlb_kernel_range(start, end);
++	flush_kernel_vmap_range(addr, len);
++	flush_icache_range(start, end);
+ 
+ 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
+ 
+@@ -76,10 +81,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 			 * We're crossing a page boundary, so
+ 			 * need to remap
+ 			 */
+-			flush_kernel_dcache_range_asm((unsigned long)fixmap,
+-						      (unsigned long)p);
+-			flush_tlb_kernel_range((unsigned long)fixmap,
+-					       (unsigned long)p);
++			flush_kernel_vmap_range((void *)fixmap,
++						(p-fixmap) * sizeof(*p));
+ 			if (mapped)
+ 				patch_unmap(FIX_TEXT_POKE0, &flags);
+ 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
+@@ -87,10 +90,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 		}
+ 	}
+ 
+-	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
+-	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
++	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
+ 	if (mapped)
+ 		patch_unmap(FIX_TEXT_POKE0, &flags);
++	flush_icache_range(start, end);
+ }
+ 
+ void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
