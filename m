@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D345522005
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78FCB521FE7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346601AbiEJPxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:53:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60636 "EHLO
+        id S1346620AbiEJPwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:52:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346933AbiEJPvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626BD62BE5;
-        Tue, 10 May 2022 08:46:14 -0700 (PDT)
+        with ESMTP id S1346948AbiEJPvq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA299C2CC;
+        Tue, 10 May 2022 08:46:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD98161373;
-        Tue, 10 May 2022 15:46:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DF5FC385C9;
-        Tue, 10 May 2022 15:46:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE2EBB81DF9;
+        Tue, 10 May 2022 15:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCD94C385C2;
+        Tue, 10 May 2022 15:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197573;
-        bh=21bwpjNudExl89E+GWay/earnO1hhomI8Dv+7vwzFGE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nlPITQTXIBFL3WQdkOw5g8It6pvqP4pu03cmobfFQ7DDOM0F9+/V9fmtx2sqEL5mb
-         9dXK3XcWurCon0AfNP1ClK7uPGnRQHv/yggW46N44EQ746UScW1kuxTtSF20t97NHE
-         rJxA4Qu/9cgZjpuc30cJWNSFvDB+HoJ1g6pq3e2lxvv+3q1jKPW3yKTstZdHAsAXXu
-         pVnMGG8EY5tS7l0oV92SP5FvV9SJNoZawU4NXuHnGxm8KTZlERRPRPpWJNNCWX3+CJ
-         UMrYTRx0U4GaGvj1ZUxjRjsieaG9kmR5fODCB66fLyhiCOMkFw/4+S9xnWlJPD2r+Y
-         PR+eNYsnVM4Bg==
+        s=k20201202; t=1652197577;
+        bh=k7NdOnPBJCcgtgOHqgdMJ6TXBvkuxMVH2PFiZnYqYvk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eJIPiDFzR9eZeLeJJ/LGwnY+Ja8pZwMMleHCKTXA7Z6lYn6r5jp+Bpk81pvhWR8p4
+         L652Aoh51XD/d+aaWwP6ub7N7a/LtktWLBvddJjJNnmvBdGLkkFUJDhF/3W/TY75eb
+         ZP74CnLnJp5wqTvF0vEz9OX56pxd1WcRMw+AgQs5ONgXEM0MAo6C50AYjlw10ecg1b
+         vYxDzS5m4/AENos9HTSNW5MTSgXIfDPlQiWZjTkK46p8IzcjeXZraujmMAtNpxOc/l
+         bzGaHjtlT/tZNoANCTygsWxaI7gOsYy2AOR9cL84gDo3tNfusWswt1knHCPO02tvlh
+         DGtKhLtytpQow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, dave.anglin@bell.net,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 8/8] Revert "parisc: Fix patch code locking and flushing"
-Date:   Tue, 10 May 2022 11:45:36 -0400
-Message-Id: <20220510154536.154070-8-sashal@kernel.org>
+Cc:     "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>,
+        Ji-Ze Hong <hpeter+linux_kernel@gmail.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-hwmon@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/6] hwmon: (f71882fg) Fix negative temperature
+Date:   Tue, 10 May 2022 11:46:09 -0400
+Message-Id: <20220510154614.154187-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220510154536.154070-1-sashal@kernel.org>
-References: <20220510154536.154070-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,86 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: "Ji-Ze Hong (Peter Hong)" <hpeter@gmail.com>
 
-[ Upstream commit 6c800d7f55fcd78e17deae5ae4374d8e73482c13 ]
+[ Upstream commit 4aaaaf0f279836f06d3b9d0ffeec7a1e1a04ceef ]
 
-This reverts commit a9fe7fa7d874a536e0540469f314772c054a0323.
+All temperature of Fintek superio hwmonitor that using 1-byte reg will use
+2's complement.
 
-Leads to segfaults on 32bit kernel.
+In show_temp()
+	temp = data->temp[nr] * 1000;
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+When data->temp[nr] read as 255, it indicate -1C, but this code will report
+255C to userspace. It'll be ok when change to:
+	temp = ((s8)data->temp[nr]) * 1000;
+
+Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
+Link: https://lore.kernel.org/r/20220418090706.6339-1-hpeter+linux_kernel@gmail.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/patch.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/hwmon/f71882fg.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
-index e59574f65e64..80a0ab372802 100644
---- a/arch/parisc/kernel/patch.c
-+++ b/arch/parisc/kernel/patch.c
-@@ -40,7 +40,10 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
+diff --git a/drivers/hwmon/f71882fg.c b/drivers/hwmon/f71882fg.c
+index ca54ce5c8e10..4010b61743f5 100644
+--- a/drivers/hwmon/f71882fg.c
++++ b/drivers/hwmon/f71882fg.c
+@@ -1590,8 +1590,9 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
+ 		temp *= 125;
+ 		if (sign)
+ 			temp -= 128000;
+-	} else
+-		temp = data->temp[nr] * 1000;
++	} else {
++		temp = ((s8)data->temp[nr]) * 1000;
++	}
  
- 	*need_unmap = 1;
- 	set_fixmap(fixmap, page_to_phys(page));
--	raw_spin_lock_irqsave(&patch_lock, *flags);
-+	if (flags)
-+		raw_spin_lock_irqsave(&patch_lock, *flags);
-+	else
-+		__acquire(&patch_lock);
- 
- 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
+ 	return sprintf(buf, "%d\n", temp);
  }
-@@ -49,7 +52,10 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
- {
- 	clear_fixmap(fixmap);
- 
--	raw_spin_unlock_irqrestore(&patch_lock, *flags);
-+	if (flags)
-+		raw_spin_unlock_irqrestore(&patch_lock, *flags);
-+	else
-+		__release(&patch_lock);
- }
- 
- void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
-@@ -61,9 +67,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 	int mapped;
- 
- 	/* Make sure we don't have any aliases in cache */
--	flush_kernel_dcache_range_asm(start, end);
--	flush_kernel_icache_range_asm(start, end);
--	flush_tlb_kernel_range(start, end);
-+	flush_kernel_vmap_range(addr, len);
-+	flush_icache_range(start, end);
- 
- 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
- 
-@@ -76,10 +81,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 			 * We're crossing a page boundary, so
- 			 * need to remap
- 			 */
--			flush_kernel_dcache_range_asm((unsigned long)fixmap,
--						      (unsigned long)p);
--			flush_tlb_kernel_range((unsigned long)fixmap,
--					       (unsigned long)p);
-+			flush_kernel_vmap_range((void *)fixmap,
-+						(p-fixmap) * sizeof(*p));
- 			if (mapped)
- 				patch_unmap(FIX_TEXT_POKE0, &flags);
- 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
-@@ -87,10 +90,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
- 		}
- 	}
- 
--	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
--	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
-+	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
- 	if (mapped)
- 		patch_unmap(FIX_TEXT_POKE0, &flags);
-+	flush_icache_range(start, end);
- }
- 
- void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
