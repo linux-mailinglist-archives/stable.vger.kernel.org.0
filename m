@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47B0D52190B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 558E152168C
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243921AbiEJNmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56330 "EHLO
+        id S242242AbiEJNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244773AbiEJNmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:08 -0400
+        with ESMTP id S242370AbiEJNPh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 301AE6C0F6;
-        Tue, 10 May 2022 06:30:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6F044A0C;
+        Tue, 10 May 2022 06:11:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59E406181B;
-        Tue, 10 May 2022 13:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6436CC385A6;
-        Tue, 10 May 2022 13:30:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28519615F4;
+        Tue, 10 May 2022 13:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C76C385C6;
+        Tue, 10 May 2022 13:11:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189429;
-        bh=g61op7ZwhDPVP/2KksLP31NrhdNotYN2BThA5StsoMo=;
+        s=korg; t=1652188282;
+        bh=vnTXKHoW+s1UCoDCJYnUiMkurm5wSeldRpOsZ741LXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xx74pf/g8WlazmaPNJIKWHGatsAOoqs89VyCIwHYMbaBv+eYLDgLNJxCzUXKqTbCI
-         E3W6o263vw6+kVoJIJEzmTxeqbM+jYqokr6zqmgoZaCaOfkGsD4+I4xDLdQ8c+nA1t
-         EdFfdCZEyKVHs+HH7b5M/r+MDk/qtcBN97JKYW2Q=
+        b=2DUZ7Q7RGyiDdlgg1B1OkK7b/GX4ZidaeynLXiXZMKicS5awAJdIDQm3HMkWVCMFf
+         Nw3FfFlpzNCK+khbsrs+R1n7YSuq7AwyjBe+XC/7JB9zBLPvOhTsfzu+JvY8kV1MAC
+         Mjnl2CVHIQuOAM+wzyFxBCJ1jWCuqQfBEz2LlKMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 049/135] net/mlx5e: Dont match double-vlan packets if cvlan is not set
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Tim Harvey <tharvey@gateworks.com>,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 21/66] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
 Date:   Tue, 10 May 2022 15:07:11 +0200
-Message-Id: <20220510130741.805647965@linuxfoundation.org>
+Message-Id: <20220510130730.383346503@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit ada09af92e621ab500dd80a16d1d0299a18a1180 upstream.
+[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
 
-Currently, match VLAN rule also matches packets that have multiple VLAN
-headers. This behavior is similar to buggy flower classifier behavior that
-has recently been fixed. Fix the issue by matching on
-outer_second_cvlan_tag with value 0 which will cause the HW to verify the
-packet doesn't contain second vlan header.
+On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
+on the SoM is often not detected and the following error message is
+seen when the sgtl5000 driver tries to read the ID register:
 
-Fixes: 699e96ddf47f ("net/mlx5e: Support offloading tc double vlan headers match")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+sgtl5000 1-000a: Error reading chip id -6
+
+The reason for the error is that the MCLK clock is not provided
+early enough.
+
+Fix the problem by describing the MCLK pinctrl inside the codec
+node instead of placing it inside the audmux pinctrl group.
+
+With this change applied the sgtl5000 is always detected on every boot.
+
+Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Tim Harvey <tharvey@gateworks.com>
+Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -2291,6 +2291,17 @@ static int __parse_cls_flower(struct mlx
- 				 match.key->vlan_priority);
+diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+index 99e323b57261..cbe7b0dcb6eb 100644
+--- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+@@ -324,6 +324,8 @@ vgen6_reg: vgen6 {
+ 	codec: sgtl5000@0a {
+ 		compatible = "fsl,sgtl5000";
+ 		reg = <0x0a>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_sgtl5000>;
+ 		clocks = <&clks IMX6QDL_CLK_CKO>;
+ 		VDDA-supply = <&reg_2p5v>;
+ 		VDDIO-supply = <&reg_3p3v>;
+@@ -550,8 +552,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
+-			/* SGTL5000 sys_mclk */
+-			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
+ 		>;
+ 	};
  
- 			*match_level = MLX5_MATCH_L2;
+@@ -812,6 +812,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
+ 		>;
+ 	};
+ 
++	pinctrl_sgtl5000: sgtl5000grp {
++		fsl,pins = <
++			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
++		>;
++	};
 +
-+			if (!flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_CVLAN) &&
-+			    match.mask->vlan_eth_type &&
-+			    MLX5_CAP_FLOWTABLE_TYPE(priv->mdev,
-+						    ft_field_support.outer_second_vid,
-+						    fs_type)) {
-+				MLX5_SET(fte_match_set_misc, misc_c,
-+					 outer_second_cvlan_tag, 1);
-+				spec->match_criteria_enable |=
-+					MLX5_MATCH_MISC_PARAMETERS;
-+			}
- 		}
- 	} else if (*match_level != MLX5_MATCH_NONE) {
- 		/* cvlan_tag enabled in match criteria and
+ 	pinctrl_spdif: spdifgrp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
+-- 
+2.35.1
+
 
 
