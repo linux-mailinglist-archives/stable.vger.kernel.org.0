@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F827521759
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 784A6521AAF
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242732AbiEJNYG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:24:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S242540AbiEJODV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242758AbiEJNVB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:01 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0045F2BB2D0;
-        Tue, 10 May 2022 06:13:46 -0700 (PDT)
+        with ESMTP id S1343696AbiEJN7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:59:30 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F94C3F8BB;
+        Tue, 10 May 2022 06:39:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4CE18CE1EE2;
-        Tue, 10 May 2022 13:13:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62230C385A6;
-        Tue, 10 May 2022 13:13:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE44B81DB8;
+        Tue, 10 May 2022 13:39:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A37A2C385A6;
+        Tue, 10 May 2022 13:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188423;
-        bh=4BevFSo4u1/OOEbkv59wJVzgE798kjeM/YDKIqMo4us=;
+        s=korg; t=1652189978;
+        bh=Weyb4TA3ATTSARhzD42JJKD7YbniFgc7Mc8OARMLrug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaLee5XcmUm9YaTkbRjxcGxD85i5ijsjjAOSCLEGsCXZYoaLCmCQ+/yX/mKrHVd1q
-         4+V3Mbhh45A9HErcuB9UWK9UH5AjQySCSiUarHwKN0PYeUjpW/lmX9PN0/h1gCrcBC
-         JbQTzjQvWCtiz8mN3dPz0VA0uHO6GH8mtAcDmimk=
+        b=Y/94IhYi2b55KzWwrZNRV5VDb6H4GGQFb7iAgwxm42w2//aVUKELzo5I6CIYMyxaZ
+         TxIM7pdlwjh6aJqjuq7iMgBxeKbDAVsiZUHBLWK2E3HcNwYpSwOrd+YbjDYPqi3af/
+         Wrupw4ynrHDSeEv9XT2cXFppy17eA2tYkx4NPDHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Doug Porter <dsp@fb.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 29/66] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.17 049/140] can: grcan: only use the NAPI poll budget for RX
 Date:   Tue, 10 May 2022 15:07:19 +0200
-Message-Id: <20220510130730.620579032@linuxfoundation.org>
+Message-Id: <20220510130743.022031810@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,145 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Andreas Larsson <andreas@gaisler.com>
 
-[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
+commit 2873d4d52f7c52d60b316ba6c47bd7122b5a9861 upstream.
 
-I had this bug sitting for too long in my pile, it is time to fix it.
+The previous split budget between TX and RX made it return not using
+the entire budget but at the same time not having calling called
+napi_complete. This sometimes led to the poll to not be called, and at
+the same time having TX and RX interrupts disabled resulting in the
+driver getting stuck.
 
-Thanks to Doug Porter for reminding me of it!
-
-We had various attempts in the past, including commit
-0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
-but the issue is that TCP stack currently only generates
-EPOLLOUT from input path, when tp->snd_una has advanced
-and skb(s) cleaned from rtx queue.
-
-If a flow has a big RTT, and/or receives SACKs, it is possible
-that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
-and no more data can be sent until tp->snd_una finally advances.
-
-What is needed is to also check if POLLOUT needs to be generated
-whenever tp->snd_nxt is advanced, from output path.
-
-This bug triggers more often after an idle period, as
-we do not receive ACK for at least one RTT. tcp_notsent_lowat
-could be a fraction of what CWND and pacing rate would allow to
-send during this RTT.
-
-In a followup patch, I will remove the bogus call
-to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
-from tcp_check_space(). Fact that we have decided to generate
-an EPOLLOUT does not mean the application has immediately
-refilled the transmit queue. This optimistic call
-might have been the reason the bug seemed not too serious.
-
-Tested:
-
-200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
-
-$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
-$ cat bench_rr.sh
-SUM=0
-for i in {1..10}
-do
- V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
- echo $V
- SUM=$(($SUM + $V))
-done
-echo SUM=$SUM
-
-Before patch:
-$ bench_rr.sh
-130000000
-80000000
-140000000
-140000000
-140000000
-140000000
-130000000
-40000000
-90000000
-110000000
-SUM=1140000000
-
-After patch:
-$ bench_rr.sh
-430000000
-590000000
-530000000
-450000000
-450000000
-350000000
-450000000
-490000000
-480000000
-460000000
-SUM=4680000000  # This is 410 % of the value before patch.
-
-Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Doug Porter <dsp@fb.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+Link: https://lore.kernel.org/all/20220429084656.29788-4-andreas@gaisler.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h     |  1 +
- net/ipv4/tcp_input.c  | 12 +++++++++++-
- net/ipv4/tcp_output.c |  1 +
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/can/grcan.c |   22 +++++++---------------
+ 1 file changed, 7 insertions(+), 15 deletions(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index f26f075250b4..97df2f6fcbd7 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -579,6 +579,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
- void tcp_reset(struct sock *sk);
- void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
- void tcp_fin(struct sock *sk);
-+void tcp_check_space(struct sock *sk);
- 
- /* tcp_timer.c */
- void tcp_init_xmit_timers(struct sock *);
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 01c73775ed00..7f48f8504284 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5159,7 +5159,17 @@ static void tcp_new_space(struct sock *sk)
- 	sk->sk_write_space(sk);
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1125,7 +1125,7 @@ static int grcan_close(struct net_device
+ 	return 0;
  }
  
--static void tcp_check_space(struct sock *sk)
-+/* Caller made space either from:
-+ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
-+ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
-+ *
-+ * We might be able to generate EPOLLOUT to the application if:
-+ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
-+ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
-+ *    small enough that tcp_stream_memory_free() decides it
-+ *    is time to generate EPOLLOUT.
-+ */
-+void tcp_check_space(struct sock *sk)
+-static int grcan_transmit_catch_up(struct net_device *dev, int budget)
++static void grcan_transmit_catch_up(struct net_device *dev)
  {
- 	if (sock_flag(sk, SOCK_QUEUE_SHRUNK)) {
- 		sock_reset_flag(sk, SOCK_QUEUE_SHRUNK);
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index aafea53c7c06..95b0f486cb10 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -83,6 +83,7 @@ static void tcp_event_new_data_sent(struct sock *sk, const struct sk_buff *skb)
+ 	struct grcan_priv *priv = netdev_priv(dev);
+ 	unsigned long flags;
+@@ -1133,7 +1133,7 @@ static int grcan_transmit_catch_up(struc
  
- 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
- 		      tcp_skb_pcount(skb));
-+	tcp_check_space(sk);
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
+-	work_done = catch_up_echo_skb(dev, budget, true);
++	work_done = catch_up_echo_skb(dev, -1, true);
+ 	if (work_done) {
+ 		if (!priv->resetting && !priv->closing &&
+ 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
+@@ -1147,8 +1147,6 @@ static int grcan_transmit_catch_up(struc
+ 	}
+ 
+ 	spin_unlock_irqrestore(&priv->lock, flags);
+-
+-	return work_done;
  }
  
- /* SND.NXT, if window was not shrunk.
--- 
-2.35.1
-
+ static int grcan_receive(struct net_device *dev, int budget)
+@@ -1230,19 +1228,13 @@ static int grcan_poll(struct napi_struct
+ 	struct net_device *dev = priv->dev;
+ 	struct grcan_registers __iomem *regs = priv->regs;
+ 	unsigned long flags;
+-	int tx_work_done, rx_work_done;
+-	int rx_budget = budget / 2;
+-	int tx_budget = budget - rx_budget;
++	int work_done;
+ 
+-	/* Half of the budget for receiving messages */
+-	rx_work_done = grcan_receive(dev, rx_budget);
++	work_done = grcan_receive(dev, budget);
+ 
+-	/* Half of the budget for transmitting messages as that can trigger echo
+-	 * frames being received
+-	 */
+-	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
++	grcan_transmit_catch_up(dev);
+ 
+-	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
++	if (work_done < budget) {
+ 		napi_complete(napi);
+ 
+ 		/* Guarantee no interference with a running reset that otherwise
+@@ -1259,7 +1251,7 @@ static int grcan_poll(struct napi_struct
+ 		spin_unlock_irqrestore(&priv->lock, flags);
+ 	}
+ 
+-	return rx_work_done + tx_work_done;
++	return work_done;
+ }
+ 
+ /* Work tx bug by waiting while for the risky situation to clear. If that fails,
 
 
