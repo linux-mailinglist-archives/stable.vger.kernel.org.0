@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 602F652199F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F45C5217AA
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234680AbiEJNuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53038 "EHLO
+        id S243088AbiEJN2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244692AbiEJNq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5906514CB68;
-        Tue, 10 May 2022 06:31:55 -0700 (PDT)
+        with ESMTP id S243625AbiEJN1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:12 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE6B2397B0;
+        Tue, 10 May 2022 06:20:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F1E760B12;
-        Tue, 10 May 2022 13:31:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D041C385A6;
-        Tue, 10 May 2022 13:31:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 97118CE1EA8;
+        Tue, 10 May 2022 13:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F3BC385A6;
+        Tue, 10 May 2022 13:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189513;
-        bh=X0ixFeNEvURfQKTkFaXnL+ELjrFBVzXxY/dWtVPiXhY=;
+        s=korg; t=1652188808;
+        bh=ri5FZx4k/xV0y56XosfN461TREudlontDU4CQIoNdhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tty34OpsNym02u0C2pmSh8lis5l/8IZ4R8gk+c98QtOJBgAuP4OUHoDdbmbjFBBWj
-         ML+KdAHwDhh1OHD0vFZ+aUJlOGGfXxfMHJB51mrl30oEcmq9s2A4aa2OIEECMnxncz
-         fJ/MXlNZOFBQKHbQEz9OGTnniwLnq0fxuRfyvT3g=
+        b=ay96emvMhukxDUoZYV+k0ovpmZVDcsSBjCvAIb5nV6E8CzGwzTTItHI0rhsYeVogg
+         +QQm0TKe1woa+ErxpBvqb6OLbiDcvrRrbpN1p34dZ7uGmZb72cmtXHGW3Alr+qVJsa
+         +i01k5aOgqJK2OPo8WwUXBip5VlFWOlaIz4wBJ3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-afs@lists.infradead.org
-Subject: [PATCH 5.15 074/135] rxrpc: Enable IPv6 checksums on transport socket
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH 4.19 51/88] netfilter: nft_socket: only do sk lookups when indev is available
 Date:   Tue, 10 May 2022 15:07:36 +0200
-Message-Id: <20220510130742.534618150@linuxfoundation.org>
+Message-Id: <20220510130735.230701489@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 39cb9faa5d46d0d0694f4b594ef905f517600c8e upstream.
+commit 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 upstream.
 
-AF_RXRPC doesn't currently enable IPv6 UDP Tx checksums on the transport
-socket it opens and the checksums in the packets it generates end up 0.
+Check if the incoming interface is available and NFT_BREAK
+in case neither skb->sk nor input device are set.
 
-It probably should also enable IPv6 UDP Rx checksums and IPv4 UDP
-checksums.  The latter only seem to be applied if the socket family is
-AF_INET and don't seem to apply if it's AF_INET6.  IPv4 packets from an
-IPv6 socket seem to have checksums anyway.
+Because nf_sk_lookup_slow*() assume packet headers are in the
+'in' direction, use in postrouting is not going to yield a meaningful
+result.  Same is true for the forward chain, so restrict the use
+to prerouting, input and output.
 
-What seems to have happened is that the inet_inv_convert_csum() call didn't
-get converted to the appropriate udp_port_cfg parameters - and
-udp_sock_create() disables checksums unless explicitly told not too.
+Use in output work if a socket is already attached to the skb.
 
-Fix this by enabling the three udp_port_cfg checksum options.
-
-Fixes: 1a9b86c9fd95 ("rxrpc: use udp tunnel APIs instead of open code in rxrpc_open_socket")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: Vadim Fedorenko <vfedorenko@novek.ru>
-cc: David S. Miller <davem@davemloft.net>
-cc: linux-afs@lists.infradead.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
+Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/local_object.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/netfilter/nft_socket.c |   52 ++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 38 insertions(+), 14 deletions(-)
 
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -117,6 +117,7 @@ static int rxrpc_open_socket(struct rxrp
- 	       local, srx->transport_type, srx->transport.family);
+--- a/net/netfilter/nft_socket.c
++++ b/net/netfilter/nft_socket.c
+@@ -14,6 +14,32 @@ struct nft_socket {
+ 	};
+ };
  
- 	udp_conf.family = srx->transport.family;
-+	udp_conf.use_udp_checksums = true;
- 	if (udp_conf.family == AF_INET) {
- 		udp_conf.local_ip = srx->transport.sin.sin_addr;
- 		udp_conf.local_udp_port = srx->transport.sin.sin_port;
-@@ -124,6 +125,8 @@ static int rxrpc_open_socket(struct rxrp
- 	} else {
- 		udp_conf.local_ip6 = srx->transport.sin6.sin6_addr;
- 		udp_conf.local_udp_port = srx->transport.sin6.sin6_port;
-+		udp_conf.use_udp6_tx_checksums = true;
-+		udp_conf.use_udp6_rx_checksums = true;
- #endif
- 	}
- 	ret = udp_sock_create(net, &udp_conf, &local->socket);
++static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
++{
++	const struct net_device *indev = nft_in(pkt);
++	const struct sk_buff *skb = pkt->skb;
++	struct sock *sk = NULL;
++
++	if (!indev)
++		return NULL;
++
++	switch (nft_pf(pkt)) {
++	case NFPROTO_IPV4:
++		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
++		break;
++#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
++	case NFPROTO_IPV6:
++		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
++		break;
++#endif
++	default:
++		WARN_ON_ONCE(1);
++		break;
++	}
++
++	return sk;
++}
++
+ static void nft_socket_eval(const struct nft_expr *expr,
+ 			    struct nft_regs *regs,
+ 			    const struct nft_pktinfo *pkt)
+@@ -27,20 +53,7 @@ static void nft_socket_eval(const struct
+ 		sk = NULL;
+ 
+ 	if (!sk)
+-		switch(nft_pf(pkt)) {
+-		case NFPROTO_IPV4:
+-			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
+-		case NFPROTO_IPV6:
+-			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
+-			break;
+-#endif
+-		default:
+-			WARN_ON_ONCE(1);
+-			regs->verdict.code = NFT_BREAK;
+-			return;
+-		}
++		sk = nft_socket_do_lookup(pkt);
+ 
+ 	if (!sk) {
+ 		regs->verdict.code = NFT_BREAK;
+@@ -123,6 +136,16 @@ static int nft_socket_dump(struct sk_buf
+ 	return 0;
+ }
+ 
++static int nft_socket_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain,
++					(1 << NF_INET_PRE_ROUTING) |
++					(1 << NF_INET_LOCAL_IN) |
++					(1 << NF_INET_LOCAL_OUT));
++}
++
+ static struct nft_expr_type nft_socket_type;
+ static const struct nft_expr_ops nft_socket_ops = {
+ 	.type		= &nft_socket_type,
+@@ -130,6 +153,7 @@ static const struct nft_expr_ops nft_soc
+ 	.eval		= nft_socket_eval,
+ 	.init		= nft_socket_init,
+ 	.dump		= nft_socket_dump,
++	.validate	= nft_socket_validate,
+ };
+ 
+ static struct nft_expr_type nft_socket_type __read_mostly = {
 
 
