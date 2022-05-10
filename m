@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B284521A22
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E5C752179E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244358AbiEJNxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44212 "EHLO
+        id S242774AbiEJN2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245428AbiEJNwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1447829B01D;
-        Tue, 10 May 2022 06:38:06 -0700 (PDT)
+        with ESMTP id S243467AbiEJN0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:53 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD8DD2375DE;
+        Tue, 10 May 2022 06:19:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12FBE6193B;
-        Tue, 10 May 2022 13:37:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F255BC385C2;
-        Tue, 10 May 2022 13:37:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63EF0B81D9A;
+        Tue, 10 May 2022 13:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE5ABC385C2;
+        Tue, 10 May 2022 13:19:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189877;
-        bh=hdGbXiZ7j3Xv43JBrJ2UKAMh9Rfoi9lnO0HEgJMe8o0=;
+        s=korg; t=1652188783;
+        bh=kP8vkEbi7l6zQ+HStJBxrehrXF5ycY+sgq3il3p6mlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LPspCGvIDevj7d7qJxosROmirqI/+fe5SSgrXig8nC+f7dxGD0w73NmYG9A/vUAdm
-         Hf01dzQsg3hR3C7UIlzMq9hOm/Fy4vKZlZufnBKj4Qvea+szvAHM88XN8nidNZPFYz
-         iiD24liATfEGrcfWMp8se6LEUuT7G8Gpz9fihZgE=
+        b=jWS1XHVJd8mnRji2sn0URXMDkLqsWoBNDS3jMOqJDSEbaJBIkZD63NuKdtJPDlyIH
+         +BW/a/tecjABOWmaEIouvO51YMyAXfuPlIESgEwWdL8NBoIhFgRCAXRRibfgmgRSws
+         hsc6c6ZxDOcYXlMlU9Ro7pjuyHXkOxtgf4KodzfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Shmidt <dimitrysh@google.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 058/140] ASoC: meson: axg-tdm-interface: Fix formatters in trigger"
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 43/88] ASoC: wm8731: Disable the regulator when probing fails
 Date:   Tue, 10 May 2022 15:07:28 +0200
-Message-Id: <20220510130743.278161397@linuxfoundation.org>
+Message-Id: <20220510130734.999412295@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit c26830b6c5c534d273ce007eb33d5a2d2ad4e969 upstream.
+[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
 
-This reverts commit bf5e4887eeddb48480568466536aa08ec7f179a5 because
-the following and required commit e138233e56e9829e65b6293887063a1a3ccb2d68
-causes the following system crash when using audio:
- BUG: sleeping function called from invalid context at kernel/locking/mutex.c:282
+When the driver fails during probing, the driver should disable the
+regulator, not just handle it in wm8731_hw_init().
 
-Fixes: bf5e4887eeddb4848056846 ("ASoC: meson: axg-tdm-interface: manage formatters in trigger")
-Reported-by: Dmitry Shmidt <dimitrysh@google.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Acked-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20220421155725.2589089-1-narmstrong@baylibre.com
+The following log reveals it:
+
+[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   17.824467] Call Trace:
+[   17.824774]  <TASK>
+[   17.825040]  regulator_bulk_free+0x82/0xe0
+[   17.825514]  devres_release_group+0x319/0x3d0
+[   17.825882]  i2c_device_probe+0x766/0x940
+[   17.829198]  i2c_register_driver+0xb5/0x130
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/meson/axg-tdm-interface.c | 26 +++++---------------------
- 1 file changed, 5 insertions(+), 21 deletions(-)
+ sound/soc/codecs/wm8731.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/sound/soc/meson/axg-tdm-interface.c b/sound/soc/meson/axg-tdm-interface.c
-index 0c31934a9630..e076ced30025 100644
---- a/sound/soc/meson/axg-tdm-interface.c
-+++ b/sound/soc/meson/axg-tdm-interface.c
-@@ -351,29 +351,13 @@ static int axg_tdm_iface_hw_free(struct snd_pcm_substream *substream,
- 	return 0;
- }
+diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
+index 7c8fad865d6b..3c5c02b034a9 100644
+--- a/sound/soc/codecs/wm8731.c
++++ b/sound/soc/codecs/wm8731.c
+@@ -604,7 +604,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	ret = wm8731_reset(wm8731->regmap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+-		goto err_regulator_enable;
++		goto err;
+ 	}
  
--static int axg_tdm_iface_trigger(struct snd_pcm_substream *substream,
--				 int cmd,
-+static int axg_tdm_iface_prepare(struct snd_pcm_substream *substream,
- 				 struct snd_soc_dai *dai)
- {
--	struct axg_tdm_stream *ts =
--		snd_soc_dai_get_dma_data(dai, substream);
+ 	/* Clear POWEROFF, keep everything else disabled */
+@@ -621,10 +621,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 
+ 	regcache_mark_dirty(wm8731->regmap);
+ 
+-err_regulator_enable:
+-	/* Regulators will be enabled by bias management */
+-	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
 -
--	switch (cmd) {
--	case SNDRV_PCM_TRIGGER_START:
--	case SNDRV_PCM_TRIGGER_RESUME:
--	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
--		axg_tdm_stream_start(ts);
--		break;
--	case SNDRV_PCM_TRIGGER_SUSPEND:
--	case SNDRV_PCM_TRIGGER_PAUSE_PUSH:
--	case SNDRV_PCM_TRIGGER_STOP:
--		axg_tdm_stream_stop(ts);
--		break;
--	default:
--		return -EINVAL;
--	}
-+	struct axg_tdm_stream *ts = snd_soc_dai_get_dma_data(dai, substream);
- 
--	return 0;
-+	/* Force all attached formatters to update */
-+	return axg_tdm_stream_reset(ts);
++err:
+ 	return ret;
  }
  
- static int axg_tdm_iface_remove_dai(struct snd_soc_dai *dai)
-@@ -413,8 +397,8 @@ static const struct snd_soc_dai_ops axg_tdm_iface_ops = {
- 	.set_fmt	= axg_tdm_iface_set_fmt,
- 	.startup	= axg_tdm_iface_startup,
- 	.hw_params	= axg_tdm_iface_hw_params,
-+	.prepare	= axg_tdm_iface_prepare,
- 	.hw_free	= axg_tdm_iface_hw_free,
--	.trigger	= axg_tdm_iface_trigger,
- };
+@@ -768,21 +765,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(wm8731->regmap);
+ 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
+ 			ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
  
- /* TDM Backend DAIs */
+ 	ret = wm8731_hw_init(&i2c->dev, wm8731);
+ 	if (ret != 0)
+-		return ret;
++		goto err_regulator_enable;
+ 
+ 	ret = devm_snd_soc_register_component(&i2c->dev,
+ 			&soc_component_dev_wm8731, &wm8731_dai, 1);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	return 0;
++
++err_regulator_enable:
++	/* Regulators will be enabled by bias management */
++	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++
++	return ret;
+ }
+ 
+ static int wm8731_i2c_remove(struct i2c_client *client)
 -- 
-2.36.1
+2.35.1
 
 
 
