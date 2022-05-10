@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B86D452167F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7B52521716
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242280AbiEJNO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:14:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58440 "EHLO
+        id S240107AbiEJNXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242279AbiEJNO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:14:56 -0400
+        with ESMTP id S242994AbiEJNVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1211A39B8C;
-        Tue, 10 May 2022 06:10:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BA4E2C0D33;
+        Tue, 10 May 2022 06:14:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3F62612E4;
-        Tue, 10 May 2022 13:10:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99E35C385C2;
-        Tue, 10 May 2022 13:10:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E2E161663;
+        Tue, 10 May 2022 13:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 856AAC385C2;
+        Tue, 10 May 2022 13:14:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188258;
-        bh=hnQrCi18EPXnNAEpTvcEcN8OpIE6HhfqnRYesWkdhVE=;
+        s=korg; t=1652188467;
+        bh=e37HFvfo6Eh+cEnaB37DYqiIqFmwsClWRGs6syWfbvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BOsvCImA0BTyja897BPuf/ruCyajaEe42bHjDtIQ4HGiqlSY5g+4nF69k4C84H+Et
-         0zhvGojwKB/E8eXnoNDvzj4RFWOIqANqbTQes6MM5f1EiOlOc7hRQ533gRPa/e5C37
-         9NTWyn4P0EiH8YPCKQu8BlJonaUNgNaMl0S/7Db8=
+        b=s+A8RR6fdZwgii8HmsGDABbjj8kcYsFoSK7mQUg5TAfban/STrnw15oUgGk0qtEnx
+         Vod/fEPyca8ALWzLTVm+7zZ7oNvlnHLtTcenopc8l23wyYdpAUlTO4Qb1Mn6Dt37RS
+         AyCCd1HDa2QMJC9I3ocIbaTOFCP6SDZpvWseaTyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, stable <stable@kernel.org>,
         Dongliang Mu <mudongliangabcd@gmail.com>,
         Hangyu Hua <hbh25y@gmail.com>
-Subject: [PATCH 4.9 14/66] usb: misc: fix improper handling of refcount in uss720_probe()
+Subject: [PATCH 4.14 18/78] usb: misc: fix improper handling of refcount in uss720_probe()
 Date:   Tue, 10 May 2022 15:07:04 +0200
-Message-Id: <20220510130730.185569358@linuxfoundation.org>
+Message-Id: <20220510130733.070480574@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,7 +47,7 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -77,7 +77,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/misc/uss720.c
 +++ b/drivers/usb/misc/uss720.c
-@@ -87,6 +87,7 @@ static void destroy_priv(struct kref *kr
+@@ -84,6 +84,7 @@ static void destroy_priv(struct kref *kr
  
  	dev_dbg(&priv->usbdev->dev, "destroying priv datastructure\n");
  	usb_put_dev(priv->usbdev);
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	kfree(priv);
  }
  
-@@ -750,7 +751,6 @@ static int uss720_probe(struct usb_inter
+@@ -749,7 +750,6 @@ static int uss720_probe(struct usb_inter
  	parport_announce_port(pp);
  
  	usb_set_intfdata(intf, pp);
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  
  probe_abort:
-@@ -770,7 +770,6 @@ static void uss720_disconnect(struct usb
+@@ -769,7 +769,6 @@ static void uss720_disconnect(struct usb
  	if (pp) {
  		priv = pp->private_data;
  		usbdev = priv->usbdev;
