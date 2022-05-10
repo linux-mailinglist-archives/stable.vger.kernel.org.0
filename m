@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9757521AB0
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 083E3521832
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244344AbiEJOD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47258 "EHLO
+        id S243420AbiEJNdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244252AbiEJOAI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:00:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDA02DE585;
-        Tue, 10 May 2022 06:39:51 -0700 (PDT)
+        with ESMTP id S243906AbiEJNcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C2B5185CB2;
+        Tue, 10 May 2022 06:23:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F367961950;
-        Tue, 10 May 2022 13:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5CF7C385C2;
-        Tue, 10 May 2022 13:39:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF7F56170D;
+        Tue, 10 May 2022 13:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D18C385A6;
+        Tue, 10 May 2022 13:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189990;
-        bh=VPmGLYyoid+7Hr0o4liQyLBaeJin3XuWlLByWtnfuCo=;
+        s=korg; t=1652189014;
+        bh=CUTSx5JHhvxG1hKiMMw+aI6eeyYNQfNKn7NxFpMc3VM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B84EGzG5iUUR5+SWN8kD3XgdjxZrqUB1vCIQ8kBqVzoqszAwDINqrf71VrWWV28Kl
-         mGI4iXzN69rr9/Kwks2yRj6F5mSm+g8/+QhU16Vza2M1py6F3T9ghcb1Zza9kRS6Bf
-         iZkoYlNVb7ECLKzXfdtApW/z9Lv/jpDPnJNh3cF4=
+        b=r7HVWPptZlq+pZjm8TWq7HGgJ3bcLDcvpaGGKHHrPKutSPGNwM2X0i+1B41Qhey6f
+         V6Q5+wIDcEg2mGRFYHNUz+IdqByxT+At4r0Hdtm0K+SRRiJSI6MaeeY3WQpyh9/oxW
+         BW2HLz1zSHIGGqfB4au0nfqkdzCvh5MnSAClEJjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiao Ma <mqaio@linux.alibaba.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 094/140] hinic: fix bug of wq out of bound access
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 35/52] NFSv4: Dont invalidate inode attributes on delegation return
 Date:   Tue, 10 May 2022 15:08:04 +0200
-Message-Id: <20220510130744.296900716@linuxfoundation.org>
+Message-Id: <20220510130730.880284603@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiao Ma <mqaio@linux.alibaba.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 52b2abef450a78e25d485ac61e32f4ce86a87701 upstream.
+[ Upstream commit 00c94ebec5925593c0377b941289224469e72ac7 ]
 
-If wq has only one page, we need to check wqe rolling over page by
-compare end_idx and curr_idx, and then copy wqe to shadow wqe to
-avoid out of bound access.
-This work has been done in hinic_get_wqe, but missed for hinic_read_wqe.
-This patch fixes it, and removes unnecessary MASKED_WQE_IDX().
+There is no need to declare attributes such as the ctime, mtime and
+block size invalid when we're just returning a delegation, so it is
+inappropriate to call nfs_post_op_update_inode_force_wcc().
+Instead, just call nfs_refresh_inode() after faking up the change
+attribute. We know that the GETATTR op occurs before the DELEGRETURN, so
+we are safe when doing this.
 
-Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
-Signed-off-by: Qiao Ma <mqaio@linux.alibaba.com>
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/282817b0e1ae2e28fdf3ed8271a04e77f57bf42e.1651148587.git.mqaio@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 0bc2c9b4dca9 ("NFSv4: Don't discard the attributes returned by asynchronous DELEGRETURN")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4proc.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-@@ -771,7 +771,7 @@ struct hinic_hw_wqe *hinic_get_wqe(struc
- 	/* If we only have one page, still need to get shadown wqe when
- 	 * wqe rolling-over page
- 	 */
--	if (curr_pg != end_pg || MASKED_WQE_IDX(wq, end_prod_idx) < *prod_idx) {
-+	if (curr_pg != end_pg || end_prod_idx < *prod_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 76baf7b441f3..cf3b00751ff6 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -359,6 +359,14 @@ static void nfs4_setup_readdir(u64 cookie, __be32 *verifier, struct dentry *dent
+ 	kunmap_atomic(start);
+ }
  
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *prod_idx);
-@@ -841,7 +841,10 @@ struct hinic_hw_wqe *hinic_read_wqe(stru
- 
- 	*cons_idx = curr_cons_idx;
- 
--	if (curr_pg != end_pg) {
-+	/* If we only have one page, still need to get shadown wqe when
-+	 * wqe rolling-over page
-+	 */
-+	if (curr_pg != end_pg || end_cons_idx < curr_cons_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
- 
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *cons_idx);
++static void nfs4_fattr_set_prechange(struct nfs_fattr *fattr, u64 version)
++{
++	if (!(fattr->valid & NFS_ATTR_FATTR_PRECHANGE)) {
++		fattr->pre_change_attr = version;
++		fattr->valid |= NFS_ATTR_FATTR_PRECHANGE;
++	}
++}
++
+ static void nfs4_test_and_free_stateid(struct nfs_server *server,
+ 		nfs4_stateid *stateid,
+ 		const struct cred *cred)
+@@ -6307,7 +6315,9 @@ static void nfs4_delegreturn_release(void *calldata)
+ 		pnfs_roc_release(&data->lr.arg, &data->lr.res,
+ 				 data->res.lr_ret);
+ 	if (inode) {
+-		nfs_post_op_update_inode_force_wcc(inode, &data->fattr);
++		nfs4_fattr_set_prechange(&data->fattr,
++					 inode_peek_iversion_raw(inode));
++		nfs_refresh_inode(inode, &data->fattr);
+ 		nfs_iput_and_deactive(inode);
+ 	}
+ 	kfree(calldata);
+-- 
+2.35.1
+
 
 
