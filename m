@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA37E5219BB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4D052172E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244566AbiEJNu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
+        id S242786AbiEJNX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244693AbiEJNq4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:56 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B7FB173350;
-        Tue, 10 May 2022 06:31:54 -0700 (PDT)
+        with ESMTP id S243564AbiEJNWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13D37532D1;
+        Tue, 10 May 2022 06:16:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5EF75CE1EF7;
-        Tue, 10 May 2022 13:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781F2C385A6;
-        Tue, 10 May 2022 13:31:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28FAE615FA;
+        Tue, 10 May 2022 13:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38EC1C385A6;
+        Tue, 10 May 2022 13:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189510;
-        bh=p3x2/3akNAtRt+p0xbegcWAmT13/WUYjwP+8L5oj3zY=;
+        s=korg; t=1652188563;
+        bh=rcPMcmx+O2Rg0m2AEX3UqeiP68IktvyIl4QmJckVrk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uryts6qXQvzgZh87+F/ZncU6pi8069Dj62VnV9qf85UFDekmLLexqbRBOgR5+W1k3
-         uk7R4Qp2za7fowvg3OwtxkZMueW6tGKKzoXoLwLqZ+UkrVoxaFjZAIFkJzOc9CibwL
-         vRizHbtFUPPPMkYvFfqdj+bOOp/hf3xNrbzJgA98=
+        b=pxD+QVcx+Q4CcaTPCrkLRokkfQpJFuBOdAGR4F1FV5bvD2l6qfXd5+Sr7ad/k50w5
+         FiZFtYpVAhyI/KYCSNKrrdaIJ0Ah3SgDcGOyzRTC5d8u8UZ+Y7fZ/kFo0sQgnAhwzj
+         UJF4uiI2pDx1MDbp7d/eAZD9aMySQ64Kn0H1vOjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 073/135] mld: respect RCU rules in ip6_mc_source() and ip6_mc_msfilter()
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.14 49/78] tty: n_gsm: fix missing explicit ldisc flush
 Date:   Tue, 10 May 2022 15:07:35 +0200
-Message-Id: <20220510130742.506192143@linuxfoundation.org>
+Message-Id: <20220510130733.989336187@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +52,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit a9384a4c1d250cb40cebf50e41459426d160b08e upstream.
+commit 17eac652028501df7ea296b1d9b9c134db262b7d upstream.
 
-Whenever RCU protected list replaces an object,
-the pointer to the new object needs to be updated
-_before_ the call to kfree_rcu() or call_rcu()
+In gsm_cleanup_mux() the muxer is closed down and all queues are removed.
+However, removing the queues is done without explicit control of the
+underlying buffers. Flush those before freeing up our queues to ensure
+that all outgoing queues are cleared consistently. Otherwise, a new mux
+connection establishment attempt may time out while the underlying tty is
+still busy sending out the remaining data from the previous connection.
 
-Also ip6_mc_msfilter() needs to update the pointer
-before releasing the mc_lock mutex.
-
-Note that linux-5.13 was supporting kfree_rcu(NULL, rcu),
-so this fix does not need the conditional test I was
-forced to use in the equivalent patch for IPv4.
-
-Fixes: 882ba1f73c06 ("mld: convert ipv6_mc_socklist->sflist to RCU")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-10-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 909f937befd7..7f695c39d9a8 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -460,10 +460,10 @@ int ip6_mc_source(int add, int omode, struct sock *sk,
- 				newpsl->sl_addr[i] = psl->sl_addr[i];
- 			atomic_sub(struct_size(psl, sl_addr, psl->sl_max),
- 				   &sk->sk_omem_alloc);
--			kfree_rcu(psl, rcu);
- 		}
-+		rcu_assign_pointer(pmc->sflist, newpsl);
-+		kfree_rcu(psl, rcu);
- 		psl = newpsl;
--		rcu_assign_pointer(pmc->sflist, psl);
- 	}
- 	rv = 1;	/* > 0 for insert logic below if sl_count is 0 */
- 	for (i = 0; i < psl->sl_count; i++) {
-@@ -565,12 +565,12 @@ int ip6_mc_msfilter(struct sock *sk, struct group_filter *gsf,
- 			       psl->sl_count, psl->sl_addr, 0);
- 		atomic_sub(struct_size(psl, sl_addr, psl->sl_max),
- 			   &sk->sk_omem_alloc);
--		kfree_rcu(psl, rcu);
- 	} else {
- 		ip6_mc_del_src(idev, group, pmc->sfmode, 0, NULL, 0);
- 	}
--	mutex_unlock(&idev->mc_lock);
- 	rcu_assign_pointer(pmc->sflist, newpsl);
-+	mutex_unlock(&idev->mc_lock);
-+	kfree_rcu(psl, rcu);
- 	pmc->sfmode = gsf->gf_fmode;
- 	err = 0;
- done:
--- 
-2.36.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -2113,6 +2113,7 @@ static void gsm_cleanup_mux(struct gsm_m
+ 			gsm_dlci_release(gsm->dlci[i]);
+ 	mutex_unlock(&gsm->mutex);
+ 	/* Now wipe the queues */
++	tty_ldisc_flush(gsm->tty);
+ 	list_for_each_entry_safe(txq, ntxq, &gsm->tx_list, list)
+ 		kfree(txq);
+ 	INIT_LIST_HEAD(&gsm->tx_list);
 
 
