@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9DA3521AA4
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E652F5218A5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241099AbiEJOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:02:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45306 "EHLO
+        id S241029AbiEJNje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244608AbiEJNz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:55:59 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7EB663FE;
-        Tue, 10 May 2022 06:38:37 -0700 (PDT)
+        with ESMTP id S244393AbiEJNhc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F6A162CEA;
+        Tue, 10 May 2022 06:25:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC85FB81DC7;
-        Tue, 10 May 2022 13:38:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41BFEC385A6;
-        Tue, 10 May 2022 13:38:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C93C61765;
+        Tue, 10 May 2022 13:25:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6123BC385C6;
+        Tue, 10 May 2022 13:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189914;
-        bh=1g6coX2ecD6ja2I4HHiOaPhcem39u5y+T3mHAMQOf/w=;
+        s=korg; t=1652189125;
+        bh=YpKJBiYbIBRLNkiHda5QMm3L+zXhaJseWyql1maFGDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1iCz5Y0FgZKd/yj+yMb5uwjO2s1QEklzlmEz6MuJvCI/ydCF6feULgq8sq8eh5uS
-         tjPHZNve/z4N2sADs2kTFBCYfsSuzTW9IvJ7+ZAOUA6KeCTHS/wbre49Ir/Lr/mJhX
-         3OqAqM74aZMCm4si/SAQ1cZ3Bdr9Scjvx3IIvaZo=
+        b=JSFwWGUMu/jfZ7JNBsI4UZZwuCmNKUYvDd0pAbovh3u1iGmoJhFdpfP77VtHZKJzq
+         qbZModR1fZnmUAXUei2kPy8aq7815YRXppKIuVtDl6aQsEbDdRomTbF6Cs792nHIh5
+         /AvwxezReycOKPHq0c9ieQoahFmp/ErpzcplKDYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Bloch <mbloch@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.17 069/140] net/mlx5: Fix matching on inner TTC
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH 5.10 20/70] ASoC: meson: Fix event generation for G12A tohdmi mux
 Date:   Tue, 10 May 2022 15:07:39 +0200
-Message-Id: <20220510130743.592071899@linuxfoundation.org>
+Message-Id: <20220510130733.458973298@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <mbloch@nvidia.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit a042d7f5bb68c47f6e0e546ca367d14e1e4b25ba upstream.
+commit 12131008fc13ff7f7690d170b7a8f72d24fd7d1e upstream.
 
-The cited commits didn't use proper matching on inner TTC
-as a result distribution of encapsulated packets wasn't symmetric
-between the physical ports.
+The G12A tohdmi has a custom put() operation which returns 0 when the value
+of the mux changes, meaning that events are not generated for userspace.
+Change to return 1 in this case, the function returns early in the case
+where there is no change.
 
-Fixes: 4c71ce50d2fe ("net/mlx5: Support partial TTC rules")
-Fixes: 8e25a2bc6687 ("net/mlx5: Lag, add support to create TTC tables for LAG port selection")
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20220421123803.292063-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/port_sel.c | 2 +-
- drivers/net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c   | 2 ++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/meson/g12a-tohdmitx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag/port_sel.c b/drivers/net/ethernet/mellanox/mlx5/core/lag/port_sel.c
-index a6592f9c3c05..5be322528279 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/port_sel.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/port_sel.c
-@@ -505,7 +505,7 @@ static int mlx5_lag_create_inner_ttc_table(struct mlx5_lag *ldev)
- 	struct ttc_params ttc_params = {};
+--- a/sound/soc/meson/g12a-tohdmitx.c
++++ b/sound/soc/meson/g12a-tohdmitx.c
+@@ -67,7 +67,7 @@ static int g12a_tohdmitx_i2s_mux_put_enu
  
- 	mlx5_lag_set_inner_ttc_params(ldev, &ttc_params);
--	port_sel->inner.ttc = mlx5_create_ttc_table(dev, &ttc_params);
-+	port_sel->inner.ttc = mlx5_create_inner_ttc_table(dev, &ttc_params);
- 	if (IS_ERR(port_sel->inner.ttc))
- 		return PTR_ERR(port_sel->inner.ttc);
+ 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c
-index b63dec24747a..b78f2ba25c19 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/fs_ttc.c
-@@ -408,6 +408,8 @@ static int mlx5_generate_inner_ttc_table_rules(struct mlx5_core_dev *dev,
- 	for (tt = 0; tt < MLX5_NUM_TT; tt++) {
- 		struct mlx5_ttc_rule *rule = &rules[tt];
+-	return 0;
++	return 1;
+ }
  
-+		if (test_bit(tt, params->ignore_dests))
-+			continue;
- 		rule->rule = mlx5_generate_inner_ttc_rule(dev, ft,
- 							  &params->dests[tt],
- 							  ttc_rules[tt].etype,
--- 
-2.36.1
-
+ static SOC_ENUM_SINGLE_DECL(g12a_tohdmitx_i2s_mux_enum, TOHDMITX_CTRL0,
 
 
