@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68545521ADA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A31F5218C0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242329AbiEJOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43934 "EHLO
+        id S243235AbiEJNj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243915AbiEJOAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:00:45 -0400
+        with ESMTP id S245010AbiEJNiW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F9322DE58A;
-        Tue, 10 May 2022 06:40:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E42AA98F44;
+        Tue, 10 May 2022 06:26:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41BD7617E4;
-        Tue, 10 May 2022 13:40:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4311DC385C6;
-        Tue, 10 May 2022 13:39:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22C1C61820;
+        Tue, 10 May 2022 13:26:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F279C385A6;
+        Tue, 10 May 2022 13:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189999;
-        bh=X0ixFeNEvURfQKTkFaXnL+ELjrFBVzXxY/dWtVPiXhY=;
+        s=korg; t=1652189211;
+        bh=f6/fAM20VGRb4U0ansRcxlQekxwjGuCT/6+lSGaEZz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOe/q7B3Z55x7d9z0HdaOt7suPOx0BE5FIuOvzwgbLk5N8SEAYykXGZplkFqEBzT5
-         xDU41GnfUQBi//Ng53TWJUa22YYHAi4q2wCugjjHdBpQqj+hLch/5EvzqLxulM8xLV
-         D2G6Y37kWc/Doc96MQLY8Oju+VWYZ4VQvfeSf2l0=
+        b=f0Gu6chCp4sTlO6Wq/tA9E1oXn8KAa/Q0Uk2/3EVW7LMvZ9DRzKaXmI1erysbuUZe
+         wDWtxyTqYvOhMmlJaRVjdg6hGeMIJ2VxhHtUN4ao15G2XXbGo3Od4mNjOo1VOQsyQh
+         gDnRuBsXW08h2YJh88600mjGI3jNxcXtniGKd8BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
-        David Howells <dhowells@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Vadim Fedorenko <vfedorenko@novek.ru>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-afs@lists.infradead.org
-Subject: [PATCH 5.17 097/140] rxrpc: Enable IPv6 checksums on transport socket
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 48/70] net: cpsw: add missing of_node_put() in cpsw_probe_dt()
 Date:   Tue, 10 May 2022 15:08:07 +0200
-Message-Id: <20220510130744.380429390@linuxfoundation.org>
+Message-Id: <20220510130734.266836554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 39cb9faa5d46d0d0694f4b594ef905f517600c8e upstream.
+commit 95098d5ac2551769807031444e55a0da5d4f0952 upstream.
 
-AF_RXRPC doesn't currently enable IPv6 UDP Tx checksums on the transport
-socket it opens and the checksums in the packets it generates end up 0.
+'tmp_node' need be put before returning from cpsw_probe_dt(),
+so add missing of_node_put() in error path.
 
-It probably should also enable IPv6 UDP Rx checksums and IPv4 UDP
-checksums.  The latter only seem to be applied if the socket family is
-AF_INET and don't seem to apply if it's AF_INET6.  IPv4 packets from an
-IPv6 socket seem to have checksums anyway.
-
-What seems to have happened is that the inet_inv_convert_csum() call didn't
-get converted to the appropriate udp_port_cfg parameters - and
-udp_sock_create() disables checksums unless explicitly told not too.
-
-Fix this by enabling the three udp_port_cfg checksum options.
-
-Fixes: 1a9b86c9fd95 ("rxrpc: use udp tunnel APIs instead of open code in rxrpc_open_socket")
-Reported-by: Marc Dionne <marc.dionne@auristor.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Xin Long <lucien.xin@gmail.com>
-Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
-cc: Vadim Fedorenko <vfedorenko@novek.ru>
-cc: David S. Miller <davem@davemloft.net>
-cc: linux-afs@lists.infradead.org
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rxrpc/local_object.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/ti/cpsw_new.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/rxrpc/local_object.c
-+++ b/net/rxrpc/local_object.c
-@@ -117,6 +117,7 @@ static int rxrpc_open_socket(struct rxrp
- 	       local, srx->transport_type, srx->transport.family);
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -1255,8 +1255,10 @@ static int cpsw_probe_dt(struct cpsw_com
+ 	data->slave_data = devm_kcalloc(dev, CPSW_SLAVE_PORTS_NUM,
+ 					sizeof(struct cpsw_slave_data),
+ 					GFP_KERNEL);
+-	if (!data->slave_data)
++	if (!data->slave_data) {
++		of_node_put(tmp_node);
+ 		return -ENOMEM;
++	}
  
- 	udp_conf.family = srx->transport.family;
-+	udp_conf.use_udp_checksums = true;
- 	if (udp_conf.family == AF_INET) {
- 		udp_conf.local_ip = srx->transport.sin.sin_addr;
- 		udp_conf.local_udp_port = srx->transport.sin.sin_port;
-@@ -124,6 +125,8 @@ static int rxrpc_open_socket(struct rxrp
- 	} else {
- 		udp_conf.local_ip6 = srx->transport.sin6.sin6_addr;
- 		udp_conf.local_udp_port = srx->transport.sin6.sin6_port;
-+		udp_conf.use_udp6_tx_checksums = true;
-+		udp_conf.use_udp6_rx_checksums = true;
- #endif
- 	}
- 	ret = udp_sock_create(net, &udp_conf, &local->socket);
+ 	/* Populate all the child nodes here...
+ 	 */
+@@ -1353,6 +1355,7 @@ static int cpsw_probe_dt(struct cpsw_com
+ 
+ err_node_put:
+ 	of_node_put(port_np);
++	of_node_put(tmp_node);
+ 	return ret;
+ }
+ 
 
 
