@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE1F521781
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC0B5217C9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243023AbiEJNZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60968 "EHLO
+        id S243204AbiEJN2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242904AbiEJNZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC3D11F92A4;
-        Tue, 10 May 2022 06:17:51 -0700 (PDT)
+        with ESMTP id S243246AbiEJN0j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BAC72317D5;
+        Tue, 10 May 2022 06:19:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C119CE1E67;
-        Tue, 10 May 2022 13:17:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA5CC385C6;
-        Tue, 10 May 2022 13:17:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F070661665;
+        Tue, 10 May 2022 13:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0984DC385C2;
+        Tue, 10 May 2022 13:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188668;
-        bh=WmU0JrNCPKKDk0egiaa5q5KGJgNq4xSZSHdSFEerGvw=;
+        s=korg; t=1652188752;
+        bh=7QJDgg4sfkmypf0Qd7Xo9nYtMAuC3p7KgxsYAL5z3QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPlEnqSoMx94214zBzKEiGcNe1xIrXjL2sENyqiSpDTukNZKvzsll2yVoTDJtomDU
-         AIhmaM23wqczcV94c4SfDIvpktRa3yGhKqo6tLDtRoWxRRHgyBskUuytk2a3ETQ/Cq
-         wupYLsnsjVWMV862fSboPwwXLztSjUrFqJaJwk4k=
+        b=eFWStOnhkuznbzJ7SfP5P2BDM+i4qKRLp13n4IcZMEVW60LzQaKh6Le0tDF25lXj5
+         9T8q6apHiYZYoBGvj92HlSQl8kplq/nAk35ehMSvslJEzrm0ioyj3gePc7NtAAJDkz
+         snNA3ewKZe/NLYORXs67RWl9dD29NgMbnxxH5kN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 32/78] mtd: rawnand: Fix return value check of wait_for_completion_timeout
+Subject: [PATCH 4.19 33/88] sctp: check asoc strreset_chunk in sctp_generate_reconf_event
 Date:   Tue, 10 May 2022 15:07:18 +0200
-Message-Id: <20220510130733.486432722@linuxfoundation.org>
+Message-Id: <20220510130734.707839964@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,82 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 084c16ab423a8890121b902b405823bfec5b4365 ]
+[ Upstream commit 165e3e17fe8fe6a8aab319bc6e631a2e23b9a857 ]
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+A null pointer reference issue can be triggered when the response of a
+stream reconf request arrives after the timer is triggered, such as:
 
-Fixes: 83738d87e3a0 ("mtd: sh_flctl: Add DMA capabilty")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220412083435.29254-1-linmq006@gmail.com
+  send Incoming SSN Reset Request --->
+  CPU0:
+   reconf timer is triggered,
+   go to the handler code before hold sk lock
+                            <--- reply with Outgoing SSN Reset Request
+  CPU1:
+   process Outgoing SSN Reset Request,
+   and set asoc->strreset_chunk to NULL
+  CPU0:
+   continue the handler code, hold sk lock,
+   and try to hold asoc->strreset_chunk, crash!
+
+In Ying Xu's testing, the call trace is:
+
+  [ ] BUG: kernel NULL pointer dereference, address: 0000000000000010
+  [ ] RIP: 0010:sctp_chunk_hold+0xe/0x40 [sctp]
+  [ ] Call Trace:
+  [ ]  <IRQ>
+  [ ]  sctp_sf_send_reconf+0x2c/0x100 [sctp]
+  [ ]  sctp_do_sm+0xa4/0x220 [sctp]
+  [ ]  sctp_generate_reconf_event+0xbd/0xe0 [sctp]
+  [ ]  call_timer_fn+0x26/0x130
+
+This patch is to fix it by returning from the timer handler if asoc
+strreset_chunk is already set to NULL.
+
+Fixes: 7b9438de0cd4 ("sctp: add stream reconf timer")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/sh_flctl.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/sctp/sm_sideeffect.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mtd/nand/sh_flctl.c b/drivers/mtd/nand/sh_flctl.c
-index f2ed03ee3035..eac65aff5401 100644
---- a/drivers/mtd/nand/sh_flctl.c
-+++ b/drivers/mtd/nand/sh_flctl.c
-@@ -399,7 +399,8 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 	dma_addr_t dma_addr;
- 	dma_cookie_t cookie;
- 	uint32_t reg;
--	int ret;
-+	int ret = 0;
-+	unsigned long time_left;
- 
- 	if (dir == DMA_FROM_DEVICE) {
- 		chan = flctl->chan_fifo0_rx;
-@@ -440,13 +441,14 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 		goto out;
+diff --git a/net/sctp/sm_sideeffect.c b/net/sctp/sm_sideeffect.c
+index 2a94240eac36..82d96441e64d 100644
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -473,6 +473,10 @@ void sctp_generate_reconf_event(struct timer_list *t)
+ 		goto out_unlock;
  	}
  
--	ret =
-+	time_left =
- 	wait_for_completion_timeout(&flctl->dma_complete,
- 				msecs_to_jiffies(3000));
- 
--	if (ret <= 0) {
-+	if (time_left == 0) {
- 		dmaengine_terminate_all(chan);
- 		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
-+		ret = -ETIMEDOUT;
- 	}
- 
- out:
-@@ -456,7 +458,7 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 
- 	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
- 
--	/* ret > 0 is success */
-+	/* ret == 0 is success */
- 	return ret;
- }
- 
-@@ -480,7 +482,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
- 
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
-+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
- 			goto convert;	/* DMA success */
- 
- 	/* do polling transfer */
-@@ -539,7 +541,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
- 
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
-+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
- 			return;	/* DMA success */
- 
- 	/* do polling transfer */
++	/* This happens when the response arrives after the timer is triggered. */
++	if (!asoc->strreset_chunk)
++		goto out_unlock;
++
+ 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
+ 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
+ 			   asoc->state, asoc->ep, asoc,
 -- 
 2.35.1
 
