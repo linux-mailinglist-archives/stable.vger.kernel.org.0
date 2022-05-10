@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20C455217C2
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A71B521998
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241912AbiEJN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50072 "EHLO
+        id S244273AbiEJNts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:49:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243792AbiEJN11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3F592BFBD2;
-        Tue, 10 May 2022 06:20:31 -0700 (PDT)
+        with ESMTP id S244902AbiEJNrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89E4F1D8640;
+        Tue, 10 May 2022 06:32:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69891616D0;
-        Tue, 10 May 2022 13:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 692BAC385C2;
-        Tue, 10 May 2022 13:20:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AB23617F5;
+        Tue, 10 May 2022 13:32:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24C60C385C2;
+        Tue, 10 May 2022 13:32:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188830;
-        bh=shvRf/SMuN2C4qkWzfKRtwCcm8FwCj/TkpyfwJJHOXE=;
+        s=korg; t=1652189551;
+        bh=AXVlMqWVh31M/5HakdprczmpNhoKSmd7rznleQMc9Hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7/1MzhBWasnG0x0neMk/JjVomEb3rB51EEpTGNxDIRUKn3mLQg0x2ubdBUrJd8lg
-         1HTtC3yJ+wvEEbyXDjxO0JXoeEYnfTmMUwnjx//p0QAHtvYmOSXzrdtLgPAmEZOYip
-         0AVGvhK7au0C9OuLWSUuImVvSvX+Ai7G3OTFeSdc=
+        b=gCUPV+UNvT36wM0FfcxHtw5qrIXR4p+VNSOogc2JtvczbUgjcU8RIF9wlaxw9Cgp7
+         MpyxJUlZHSR5CtAxCIAr0A3QgoUhyGwrJh1w2vmkjKgD7JjhA5C6RCj6IqG6otgnlO
+         a5ZhXXZ0V6k/wEo8GTmsZ25MERRX3tPhGe0Dnugk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
-        Weitao Wang <WeitaoWang-oc@zhaoxin.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 23/88] USB: Fix xhci event ring dequeue pointer ERDP update issue
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 046/135] iommu/vt-d: Drop stop marker messages
 Date:   Tue, 10 May 2022 15:07:08 +0200
-Message-Id: <20220510130734.420598020@linuxfoundation.org>
+Message-Id: <20220510130741.719786279@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
+From: Lu Baolu <baolu.lu@linux.intel.com>
 
-[ Upstream commit e91ac20889d1a26d077cc511365cd7ff4346a6f3 ]
+commit da8669ff41fa31573375c9a4180f5c080677204b upstream.
 
-In some situations software handles TRB events slower than adding TRBs.
-If the number of TRB events to be processed in a given interrupt is exactly
-the same as the event ring size 256, then the local variable
-"event_ring_deq" that holds the initial dequeue position is equal to
-software_dequeue after handling all 256 interrupts.
+The page fault handling framework in the IOMMU core explicitly states
+that it doesn't handle PCI PASID Stop Marker and the IOMMU drivers must
+discard them before reporting faults. This handles Stop Marker messages
+in prq_event_thread() before reporting events to the core.
 
-It will cause driver to not update ERDP to hardware,
+The VT-d driver explicitly drains the pending page requests when a CPU
+page table (represented by a mm struct) is unbound from a PASID according
+to the procedures defined in the VT-d spec. The Stop Marker messages do
+not need a response. Hence, it is safe to drop the Stop Marker messages
+silently if any of them is found in the page request queue.
 
-Software dequeue pointer is out of sync with ERDP on interrupt exit.
-On the next interrupt, the event ring may full but driver will not
-update ERDP as software_dequeue is equal to ERDP.
-
-[  536.377115] xhci_hcd 0000:00:12.0: ERROR unknown event type 37
-[  566.933173] sd 8:0:0:0: [sdb] tag#27 uas_eh_abort_handler 0 uas-tag 7 inflight: CMD OUT
-[  566.933181] sd 8:0:0:0: [sdb] tag#27 CDB: Write(10) 2a 00 17 71 e6 78 00 00 08 00
-[  572.041186] xhci_hcd On some situataions,the0000:00:12.0: xHCI host not responding to stop endpoint command.
-[  572.057193] xhci_hcd 0000:00:12.0: Host halt failed, -110
-[  572.057196] xhci_hcd 0000:00:12.0: xHCI host controller not responding, assume dead
-[  572.057236] sd 8:0:0:0: [sdb] tag#26 uas_eh_abort_handler 0 uas-tag 6 inflight: CMD
-[  572.057240] sd 8:0:0:0: [sdb] tag#26 CDB: Write(10) 2a 00 38 eb cc d8 00 00 08 00
-[  572.057244] sd 8:0:0:0: [sdb] tag#25 uas_eh_abort_handler 0 uas-tag 5 inflight: CMD
-
-Hardware ERDP is updated mid event handling if there are more than 128
-events in an interrupt (half of ring size).
-Fix this by updating the software local variable at the same time as
-hardware ERDP.
-
-[commit message rewording -Mathias]
-
-Fixes: dc0ffbea5729 ("usb: host: xhci: update event ring dequeue pointer on purpose")
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Weitao Wang <WeitaoWang-oc@zhaoxin.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220408134823.2527272-2-mathias.nyman@linux.intel.com
+Fixes: d5b9e4bfe0d88 ("iommu/vt-d: Report prq to io-pgfault framework")
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Reviewed-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Link: https://lore.kernel.org/r/20220421113558.3504874-1-baolu.lu@linux.intel.com
+Link: https://lore.kernel.org/r/20220423082330.3897867-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/intel/svm.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index f5bd91752f2d..e18b675fb7af 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -2848,6 +2848,8 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
- 		if (event_loop++ < TRBS_PER_SEGMENT / 2)
- 			continue;
- 		xhci_update_erst_dequeue(xhci, event_ring_deq);
-+		event_ring_deq = xhci->event_ring->dequeue;
-+
- 		event_loop = 0;
- 	}
+--- a/drivers/iommu/intel/svm.c
++++ b/drivers/iommu/intel/svm.c
+@@ -978,6 +978,10 @@ bad_req:
+ 			goto bad_req;
+ 		}
  
--- 
-2.35.1
-
++		/* Drop Stop Marker message. No need for a response. */
++		if (unlikely(req->lpig && !req->rd_req && !req->wr_req))
++			goto prq_advance;
++
+ 		if (!svm || svm->pasid != req->pasid) {
+ 			/*
+ 			 * It can't go away, because the driver is not permitted
 
 
