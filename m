@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7685B52199B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DF975218D8
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235740AbiEJNt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
+        id S243756AbiEJNlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:41:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245229AbiEJNrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:31 -0400
+        with ESMTP id S245317AbiEJNiq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE8832D4B70;
-        Tue, 10 May 2022 06:35:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9993231C88;
+        Tue, 10 May 2022 06:29:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55EF4B81DB0;
-        Tue, 10 May 2022 13:35:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EBB3C385A6;
-        Tue, 10 May 2022 13:35:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E02FB81DA2;
+        Tue, 10 May 2022 13:29:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4983C385C2;
+        Tue, 10 May 2022 13:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189732;
-        bh=AJ+gO/EpsEuTOmdauQVf2kJ+REMEPZB2E5c3urtWcxU=;
+        s=korg; t=1652189344;
+        bh=WtU2MifjE7WdVm6QX8N19707fXD4NfeoLMb7jSc2l6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZyeweYudORGGFOs+FrXrHBhf//rENo4jpRKZCRLIRDX/rKJ+bBGel0etvwz896fTf
-         qKXnAjWNQP18WNH2jxNl3IGav+ToLsPyBfiRXedAlj8uC/iOr7jZmJQmhwtjthE09H
-         El+XKvRZRzzUwgGeVED7RFfvXpyE0rgppHnqe420=
+        b=jXtLlNSJVT8GoYXFpNySRWhd1WjhQJkhkppjhSzSs8sjqEQx/dHD3c3eI3XcmheO/
+         4nXVzpUvnxIdYLIZOiBRqyziw37TItfuWBOW+L6rg5bD8lpc1/uZQwq+7nYWsRv3qB
+         VFoNyUccKYh56RrYbFfdJYAzxZl0HtRjWb3TlPN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.17 011/140] mmc: sunxi-mmc: Fix DMA descriptors allocated above 32 bits
-Date:   Tue, 10 May 2022 15:06:41 +0200
-Message-Id: <20220510130741.930539967@linuxfoundation.org>
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 020/135] firewire: core: extend card->lock in fw_core_handle_bus_reset
+Date:   Tue, 10 May 2022 15:06:42 +0200
+Message-Id: <20220510130740.977690731@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-commit e9f3fb523dbf476dc86beea23f5b5ca8f9687c93 upstream.
+commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
 
-Newer variants of the MMC controller support a 34-bit physical address
-space by using word addresses instead of byte addresses. However, the
-code truncates the DMA descriptor address to 32 bits before applying the
-shift. This breaks DMA for descriptors allocated above the 32-bit limit.
+card->local_node and card->bm_retries are both always accessed under
+card->lock.
+fw_core_handle_bus_reset has a check whose condition depends on
+card->local_node and whose body writes to card->bm_retries.
+Both of these accesses are not under card->lock. Move the lock acquiring
+of card->lock to before this check such that these accesses do happen
+when card->lock is held.
+fw_destroy_nodes is called inside the check.
+Since fw_destroy_nodes already acquires card->lock inside its function
+body, move this out to the callsites of fw_destroy_nodes.
+Also add a comment to indicate which locking is necessary when calling
+fw_destroy_nodes.
 
-Fixes: 3536b82e5853 ("mmc: sunxi: add support for A100 mmc controller")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220424231751.32053-1-samuel@sholland.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sunxi-mmc.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/firewire/core-card.c     |    3 +++
+ drivers/firewire/core-topology.c |    9 +++------
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/mmc/host/sunxi-mmc.c
-+++ b/drivers/mmc/host/sunxi-mmc.c
-@@ -377,8 +377,9 @@ static void sunxi_mmc_init_idma_des(stru
- 		pdes[i].buf_addr_ptr1 =
- 			cpu_to_le32(sg_dma_address(&data->sg[i]) >>
- 				    host->cfg->idma_des_shift);
--		pdes[i].buf_addr_ptr2 = cpu_to_le32((u32)next_desc >>
--						    host->cfg->idma_des_shift);
-+		pdes[i].buf_addr_ptr2 =
-+			cpu_to_le32(next_desc >>
-+				    host->cfg->idma_des_shift);
+--- a/drivers/firewire/core-card.c
++++ b/drivers/firewire/core-card.c
+@@ -668,6 +668,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
+ void fw_core_remove_card(struct fw_card *card)
+ {
+ 	struct fw_card_driver dummy_driver = dummy_driver_template;
++	unsigned long flags;
+ 
+ 	card->driver->update_phy_reg(card, 4,
+ 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
+@@ -682,7 +683,9 @@ void fw_core_remove_card(struct fw_card
+ 	dummy_driver.stop_iso		= card->driver->stop_iso;
+ 	card->driver = &dummy_driver;
+ 
++	spin_lock_irqsave(&card->lock, flags);
+ 	fw_destroy_nodes(card);
++	spin_unlock_irqrestore(&card->lock, flags);
+ 
+ 	/* Wait for all users, especially device workqueue jobs, to finish. */
+ 	fw_card_put(card);
+--- a/drivers/firewire/core-topology.c
++++ b/drivers/firewire/core-topology.c
+@@ -375,16 +375,13 @@ static void report_found_node(struct fw_
+ 	card->bm_retries = 0;
+ }
+ 
++/* Must be called with card->lock held */
+ void fw_destroy_nodes(struct fw_card *card)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&card->lock, flags);
+ 	card->color++;
+ 	if (card->local_node != NULL)
+ 		for_each_fw_node(card, card->local_node, report_lost_node);
+ 	card->local_node = NULL;
+-	spin_unlock_irqrestore(&card->lock, flags);
+ }
+ 
+ static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
+@@ -510,6 +507,8 @@ void fw_core_handle_bus_reset(struct fw_
+ 	struct fw_node *local_node;
+ 	unsigned long flags;
+ 
++	spin_lock_irqsave(&card->lock, flags);
++
+ 	/*
+ 	 * If the selfID buffer is not the immediate successor of the
+ 	 * previously processed one, we cannot reliably compare the
+@@ -521,8 +520,6 @@ void fw_core_handle_bus_reset(struct fw_
+ 		card->bm_retries = 0;
  	}
  
- 	pdes[0].config |= cpu_to_le32(SDXC_IDMAC_DES0_FD);
+-	spin_lock_irqsave(&card->lock, flags);
+-
+ 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
+ 	card->node_id = node_id;
+ 	/*
 
 
