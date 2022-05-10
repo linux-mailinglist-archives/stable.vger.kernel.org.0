@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AFEB5216F6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4185216C2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:14:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242862AbiEJNWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59628 "EHLO
+        id S242338AbiEJNS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:18:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243560AbiEJNWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ECCA53A44;
-        Tue, 10 May 2022 06:16:20 -0700 (PDT)
+        with ESMTP id S242457AbiEJNRA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:17:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CF3B3B579;
+        Tue, 10 May 2022 06:12:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47C65B81DA3;
-        Tue, 10 May 2022 13:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCD2C385A6;
-        Tue, 10 May 2022 13:16:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2B98B81D7C;
+        Tue, 10 May 2022 13:12:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14FBFC385A6;
+        Tue, 10 May 2022 13:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188576;
-        bh=JJe8sEvxS5e9xUkxokihEGFI8ATuPtWVWFYdW0GQdmI=;
+        s=korg; t=1652188364;
+        bh=toYvJ6hGHqimqqvlv0Z6FParKGxkAv835wQIL1uz/iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tMRrb0d1sEUFRA2c4bvzVkRGuxfwxmAiFSHYXdoy+YR+LOHTTBmgJGMPgrJ7Twxuo
-         vPJEEjpx+/GG1lk0Pf4XWRQZ6dOUvnX/NF+9qkWrMZ4icaTZqp9D0fcF6dhO2XrVic
-         jd0+YVmK9+Ilu9WCEl+6bT4g6428c/UMQwIpfykU=
+        b=02Rof8ycd+0S/eKk1TyY6KmxQAAs31uLdxJFAewXiQgOHIRcWwr63WeSFvm3xRxzJ
+         3Ai+iIAJlcmwOoM+B21o2HAbM1Rg2RAIxciEKerQ1TX0DGGM4OMzswnHZgnU2oIoia
+         xPZG1N+7lIM4Lt9elQC3SxjI1ArpmB/lNZafh7Rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.14 52/78] tty: n_gsm: fix incorrect UA handling
-Date:   Tue, 10 May 2022 15:07:38 +0200
-Message-Id: <20220510130734.079029094@linuxfoundation.org>
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 49/66] firewire: core: extend card->lock in fw_core_handle_bus_reset
+Date:   Tue, 10 May 2022 15:07:39 +0200
+Message-Id: <20220510130731.204287172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,38 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-commit ff9166c623704337bd6fe66fce2838d9768a6634 upstream.
+commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.4.2 states that any received unnumbered
-acknowledgment (UA) with its poll/final (PF) bit set to 0 shall be
-discarded. Currently, all UA frame are handled in the same way regardless
-of the PF bit. This does not comply with the standard.
-Remove the UA case in gsm_queue() to process only UA frames with PF bit set
-to 1 to abide the standard.
+card->local_node and card->bm_retries are both always accessed under
+card->lock.
+fw_core_handle_bus_reset has a check whose condition depends on
+card->local_node and whose body writes to card->bm_retries.
+Both of these accesses are not under card->lock. Move the lock acquiring
+of card->lock to before this check such that these accesses do happen
+when card->lock is held.
+fw_destroy_nodes is called inside the check.
+Since fw_destroy_nodes already acquires card->lock inside its function
+body, move this out to the callsites of fw_destroy_nodes.
+Also add a comment to indicate which locking is necessary when calling
+fw_destroy_nodes.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-20-daniel.starke@siemens.com
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/firewire/core-card.c     |    3 +++
+ drivers/firewire/core-topology.c |    9 +++------
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1825,7 +1825,6 @@ static void gsm_queue(struct gsm_mux *gs
- 		gsm_response(gsm, address, UA);
- 		gsm_dlci_close(dlci);
- 		break;
--	case UA:
- 	case UA|PF:
- 		if (cr == 0 || dlci == NULL)
- 			break;
+--- a/drivers/firewire/core-card.c
++++ b/drivers/firewire/core-card.c
+@@ -681,6 +681,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
+ void fw_core_remove_card(struct fw_card *card)
+ {
+ 	struct fw_card_driver dummy_driver = dummy_driver_template;
++	unsigned long flags;
+ 
+ 	card->driver->update_phy_reg(card, 4,
+ 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
+@@ -695,7 +696,9 @@ void fw_core_remove_card(struct fw_card
+ 	dummy_driver.stop_iso		= card->driver->stop_iso;
+ 	card->driver = &dummy_driver;
+ 
++	spin_lock_irqsave(&card->lock, flags);
+ 	fw_destroy_nodes(card);
++	spin_unlock_irqrestore(&card->lock, flags);
+ 
+ 	/* Wait for all users, especially device workqueue jobs, to finish. */
+ 	fw_card_put(card);
+--- a/drivers/firewire/core-topology.c
++++ b/drivers/firewire/core-topology.c
+@@ -387,16 +387,13 @@ static void report_found_node(struct fw_
+ 	card->bm_retries = 0;
+ }
+ 
++/* Must be called with card->lock held */
+ void fw_destroy_nodes(struct fw_card *card)
+ {
+-	unsigned long flags;
+-
+-	spin_lock_irqsave(&card->lock, flags);
+ 	card->color++;
+ 	if (card->local_node != NULL)
+ 		for_each_fw_node(card, card->local_node, report_lost_node);
+ 	card->local_node = NULL;
+-	spin_unlock_irqrestore(&card->lock, flags);
+ }
+ 
+ static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
+@@ -522,6 +519,8 @@ void fw_core_handle_bus_reset(struct fw_
+ 	struct fw_node *local_node;
+ 	unsigned long flags;
+ 
++	spin_lock_irqsave(&card->lock, flags);
++
+ 	/*
+ 	 * If the selfID buffer is not the immediate successor of the
+ 	 * previously processed one, we cannot reliably compare the
+@@ -533,8 +532,6 @@ void fw_core_handle_bus_reset(struct fw_
+ 		card->bm_retries = 0;
+ 	}
+ 
+-	spin_lock_irqsave(&card->lock, flags);
+-
+ 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
+ 	card->node_id = node_id;
+ 	/*
 
 
