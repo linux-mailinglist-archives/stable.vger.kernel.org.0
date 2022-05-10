@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F0975216CF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:15:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88738521ADD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242506AbiEJNTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
+        id S243050AbiEJOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242532AbiEJNSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:18:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D28148E7C;
-        Tue, 10 May 2022 06:13:04 -0700 (PDT)
+        with ESMTP id S245204AbiEJN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529412CC13F;
+        Tue, 10 May 2022 06:38:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46B9DB81DA0;
-        Tue, 10 May 2022 13:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2868C385C9;
-        Tue, 10 May 2022 13:13:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18639B81D7A;
+        Tue, 10 May 2022 13:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0BAC385A6;
+        Tue, 10 May 2022 13:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188382;
-        bh=u1cQkEjm2uylWaETzHonkQZYFcxnixFvu9JCXLBQQ0Y=;
+        s=korg; t=1652189932;
+        bh=FM+9f0lcvYb+RKVxJEYtJHTrKZyJPaTJRirnGzdUu8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cu/RxM04105WPULhSrE3WqbCpsD5CdNUpTI39QpdnuL3yMUg1V4IAEi5XByIsAlCO
-         VSntQUc3OU+1oiNi8uzsdQUMf6f5ZsY2dmWwkDvT9dbWooVAYqx51kCiBKHpBQudh/
-         pOYBLeE11v7yensiF50B8E8pLiV4GkouvseWmNHg=
+        b=nBjm09h9hiUhO7JytnheFScUWhHM8YvT1ifKHeFsMkt2GDFBuhk043JNhflgXcaIn
+         Zsbl2AvOvvr5QhoJdNK75AUsx6IpnacZp3TNfsjBNxmFd5PWvJbA5SSRrrHyndAMyK
+         PLvdKxU90ER3/DoGARLkPsNhY2mT1XRmc+vSNTL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 54/66] nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.17 074/140] net/mlx5e: Lag, Dont skip fib events on current dst
 Date:   Tue, 10 May 2022 15:07:44 +0200
-Message-Id: <20220510130731.350897432@linuxfoundation.org>
+Message-Id: <20220510130743.732558194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-commit d270453a0d9ec10bb8a802a142fb1b3601a83098 upstream.
+commit 4a2a664ed87962c4ddb806a84b5c9634820bcf55 upstream.
 
-There are destructive operations such as nfcmrvl_fw_dnld_abort and
-gpio_free in nfcmrvl_nci_unregister_dev. The resources such as firmware,
-gpio and so on could be destructed while the upper layer functions such as
-nfcmrvl_fw_dnld_start and nfcmrvl_nci_recv_frame is executing, which leads
-to double-free, use-after-free and null-ptr-deref bugs.
+Referenced change added check to skip updating fib when new fib instance
+has same or lower priority. However, new fib instance can be an update on
+same dst address as existing one even though the structure is another
+instance that has different address. Ignoring events on such instances
+causes multipath LAG state to not be correctly updated.
 
-There are three situations that could lead to double-free bugs.
+Track 'dst' and 'dst_len' fields of fib event fib_entry_notifier_info
+structure and don't skip events that have the same value of that fields.
 
-The first situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |  nfcmrvl_nci_unregister_dev
- release_firmware()           |   nfcmrvl_fw_dnld_abort
-  kfree(fw) //(1)             |    fw_dnld_over
-                              |     release_firmware
-  ...                         |      kfree(fw) //(2)
-                              |     ...
-
-The second situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |
- mod_timer                    |
- (wait a time)                |
- fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
-   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
-    release_firmware          |    fw_dnld_over
-     kfree(fw) //(1)          |     release_firmware
-     ...                      |      kfree(fw) //(2)
-
-The third situation is shown below:
-
-       (Thread 1)               |       (Thread 2)
-nfcmrvl_nci_recv_frame          |
- if(..->fw_download_in_progress)|
-  nfcmrvl_fw_dnld_recv_frame    |
-   queue_work                   |
-                                |
-fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
- fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
-  release_firmware              |   fw_dnld_over
-   kfree(fw) //(1)              |    release_firmware
-                                |     kfree(fw) //(2)
-
-The firmware struct is deallocated in position (1) and deallocated
-in position (2) again.
-
-The crash trace triggered by POC is like below:
-
-BUG: KASAN: double-free or invalid-free in fw_dnld_over
-Call Trace:
-  kfree
-  fw_dnld_over
-  nfcmrvl_nci_unregister_dev
-  nci_uart_tty_close
-  tty_ldisc_kill
-  tty_ldisc_hangup
-  __tty_hangup.part.0
-  tty_release
-  ...
-
-What's more, there are also use-after-free and null-ptr-deref bugs
-in nfcmrvl_fw_dnld_start. If we deallocate firmware struct, gpio or
-set null to the members of priv->fw_dnld in nfcmrvl_nci_unregister_dev,
-then, we dereference firmware, gpio or the members of priv->fw_dnld in
-nfcmrvl_fw_dnld_start, the UAF or NPD bugs will happen.
-
-This patch reorders destructive operations after nci_unregister_device
-in order to synchronize between cleanup routine and firmware download
-routine.
-
-The nci_unregister_device is well synchronized. If the device is
-detaching, the firmware download routine will goto error. If firmware
-download routine is executing, nci_unregister_device will wait until
-firmware download routine is finished.
-
-Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ad11c4f1d8fd ("net/mlx5e: Lag, Only handle events from highest priority multipath entry")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nfcmrvl/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c |   20 ++++++++++++--------
+ drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h |    2 ++
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -194,6 +194,7 @@ void nfcmrvl_nci_unregister_dev(struct n
- {
- 	struct nci_dev *ndev = priv->ndev;
- 
-+	nci_unregister_device(ndev);
- 	if (priv->ndev->nfc_dev->fw_download_in_progress)
- 		nfcmrvl_fw_dnld_abort(priv);
- 
-@@ -202,7 +203,6 @@ void nfcmrvl_nci_unregister_dev(struct n
- 	if (priv->config.reset_n_io)
- 		gpio_free(priv->config.reset_n_io);
- 
--	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- 	kfree(priv);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
+@@ -100,10 +100,12 @@ static void mlx5_lag_fib_event_flush(str
+ 	flush_workqueue(mp->wq);
  }
+ 
+-static void mlx5_lag_fib_set(struct lag_mp *mp, struct fib_info *fi)
++static void mlx5_lag_fib_set(struct lag_mp *mp, struct fib_info *fi, u32 dst, int dst_len)
+ {
+ 	mp->fib.mfi = fi;
+ 	mp->fib.priority = fi->fib_priority;
++	mp->fib.dst = dst;
++	mp->fib.dst_len = dst_len;
+ }
+ 
+ struct mlx5_fib_event_work {
+@@ -116,10 +118,10 @@ struct mlx5_fib_event_work {
+ 	};
+ };
+ 
+-static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
+-				     unsigned long event,
+-				     struct fib_info *fi)
++static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev, unsigned long event,
++				     struct fib_entry_notifier_info *fen_info)
+ {
++	struct fib_info *fi = fen_info->fi;
+ 	struct lag_mp *mp = &ldev->lag_mp;
+ 	struct fib_nh *fib_nh0, *fib_nh1;
+ 	unsigned int nhs;
+@@ -133,7 +135,9 @@ static void mlx5_lag_fib_route_event(str
+ 	}
+ 
+ 	/* Handle multipath entry with lower priority value */
+-	if (mp->fib.mfi && mp->fib.mfi != fi && fi->fib_priority >= mp->fib.priority)
++	if (mp->fib.mfi && mp->fib.mfi != fi &&
++	    (mp->fib.dst != fen_info->dst || mp->fib.dst_len != fen_info->dst_len) &&
++	    fi->fib_priority >= mp->fib.priority)
+ 		return;
+ 
+ 	/* Handle add/replace event */
+@@ -149,7 +153,7 @@ static void mlx5_lag_fib_route_event(str
+ 
+ 			i++;
+ 			mlx5_lag_set_port_affinity(ldev, i);
+-			mlx5_lag_fib_set(mp, fi);
++			mlx5_lag_fib_set(mp, fi, fen_info->dst, fen_info->dst_len);
+ 		}
+ 
+ 		return;
+@@ -179,7 +183,7 @@ static void mlx5_lag_fib_route_event(str
+ 	}
+ 
+ 	mlx5_lag_set_port_affinity(ldev, MLX5_LAG_NORMAL_AFFINITY);
+-	mlx5_lag_fib_set(mp, fi);
++	mlx5_lag_fib_set(mp, fi, fen_info->dst, fen_info->dst_len);
+ }
+ 
+ static void mlx5_lag_fib_nexthop_event(struct mlx5_lag *ldev,
+@@ -220,7 +224,7 @@ static void mlx5_lag_fib_update(struct w
+ 	case FIB_EVENT_ENTRY_REPLACE:
+ 	case FIB_EVENT_ENTRY_DEL:
+ 		mlx5_lag_fib_route_event(ldev, fib_work->event,
+-					 fib_work->fen_info.fi);
++					 &fib_work->fen_info);
+ 		fib_info_put(fib_work->fen_info.fi);
+ 		break;
+ 	case FIB_EVENT_NH_ADD:
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h
+@@ -18,6 +18,8 @@ struct lag_mp {
+ 	struct {
+ 		const void        *mfi; /* used in tracking fib events */
+ 		u32               priority;
++		u32               dst;
++		int               dst_len;
+ 	} fib;
+ 	struct workqueue_struct   *wq;
+ };
 
 
