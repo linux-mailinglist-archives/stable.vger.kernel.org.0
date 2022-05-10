@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD93652181A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D4C521A00
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243370AbiEJNdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57844 "EHLO
+        id S240481AbiEJNxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243392AbiEJNao (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:44 -0400
+        with ESMTP id S245057AbiEJNrP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A968222B38D;
-        Tue, 10 May 2022 06:21:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A946562CE7;
+        Tue, 10 May 2022 06:34:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2EE96B81B32;
-        Tue, 10 May 2022 13:21:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A071C385A6;
-        Tue, 10 May 2022 13:21:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5ACB4B81D24;
+        Tue, 10 May 2022 13:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CBA1C385A6;
+        Tue, 10 May 2022 13:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188892;
-        bh=gdUdKjW7XpBqC98ng8uSCII3uv6RmKTxh7z3nkYusHc=;
+        s=korg; t=1652189679;
+        bh=uXVUgdg7ZHr2bztvi9Su39/YGXsR1PEpjkKu/jWDzMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kf2OqDRi1ZyNtutywswqP3Y4TRXStAVrVhgq+YppDBvAEXoLL/ZQTvTVV1+kPItgu
-         hEdFbhxnN+JCxrM3KEBFzfWm6lRBfBEWVhpoohx699aMgu1bBCxU6bUA5fXp6UiAm3
-         sX3KlqCF6nw/dlg4pJp/YBXtuYdg8nQOJwNEN0P0=
+        b=y9OgO4gtHOPnQNbZ1tLKAMcEi5TX9u02j1ErA5Ml3Xgt8efpp1SdjFJHjTtF7Zie8
+         I/8wWpX81kycpBZez2Kimg0oD3EI7VB9hsPZxMn0oMd/f9SxcLeP3Qp4uAJcJ7Sr7k
+         zBbHGLasBQIgYS2X6h544IznQ4vVqBdVoyxZqtV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 65/88] firewire: core: extend card->lock in fw_core_handle_bus_reset
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Junxiao Chang <junxiao.chang@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 088/135] fbdev: Make fb_release() return -ENODEV if fbdev was unregistered
 Date:   Tue, 10 May 2022 15:07:50 +0200
-Message-Id: <20220510130735.627286891@linuxfoundation.org>
+Message-Id: <20220510130742.935517350@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
+[ Upstream commit aafa025c76dcc7d1a8c8f0bdefcbe4eb480b2f6a ]
 
-card->local_node and card->bm_retries are both always accessed under
-card->lock.
-fw_core_handle_bus_reset has a check whose condition depends on
-card->local_node and whose body writes to card->bm_retries.
-Both of these accesses are not under card->lock. Move the lock acquiring
-of card->lock to before this check such that these accesses do happen
-when card->lock is held.
-fw_destroy_nodes is called inside the check.
-Since fw_destroy_nodes already acquires card->lock inside its function
-body, move this out to the callsites of fw_destroy_nodes.
-Also add a comment to indicate which locking is necessary when calling
-fw_destroy_nodes.
+A reference to the framebuffer device struct fb_info is stored in the file
+private data, but this reference could no longer be valid and must not be
+accessed directly. Instead, the file_fb_info() accessor function must be
+used since it does sanity checking to make sure that the fb_info is valid.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This can happen for example if the registered framebuffer device is for a
+driver that just uses a framebuffer provided by the system firmware. In
+that case, the fbdev core would unregister the framebuffer device when a
+real video driver is probed and ask to remove conflicting framebuffers.
+
+The bug has been present for a long time but commit 27599aacbaef ("fbdev:
+Hot-unplug firmware fb devices on forced removal") unmasked it since the
+fbdev core started unregistering the framebuffers' devices associated.
+
+Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
+Reported-by: Maxime Ripard <maxime@cerno.tech>
+Reported-by: Junxiao Chang <junxiao.chang@intel.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220502135014.377945-1-javierm@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firewire/core-card.c     |    3 +++
- drivers/firewire/core-topology.c |    9 +++------
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/video/fbdev/core/fbmem.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/firewire/core-card.c
-+++ b/drivers/firewire/core-card.c
-@@ -681,6 +681,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
- void fw_core_remove_card(struct fw_card *card)
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 0371ad233fdf..8e38a7a5cf2f 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1436,7 +1436,10 @@ fb_release(struct inode *inode, struct file *file)
+ __acquires(&info->lock)
+ __releases(&info->lock)
  {
- 	struct fw_card_driver dummy_driver = dummy_driver_template;
-+	unsigned long flags;
- 
- 	card->driver->update_phy_reg(card, 4,
- 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
-@@ -695,7 +696,9 @@ void fw_core_remove_card(struct fw_card
- 	dummy_driver.stop_iso		= card->driver->stop_iso;
- 	card->driver = &dummy_driver;
- 
-+	spin_lock_irqsave(&card->lock, flags);
- 	fw_destroy_nodes(card);
-+	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	/* Wait for all users, especially device workqueue jobs, to finish. */
- 	fw_card_put(card);
---- a/drivers/firewire/core-topology.c
-+++ b/drivers/firewire/core-topology.c
-@@ -386,16 +386,13 @@ static void report_found_node(struct fw_
- 	card->bm_retries = 0;
- }
- 
-+/* Must be called with card->lock held */
- void fw_destroy_nodes(struct fw_card *card)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&card->lock, flags);
- 	card->color++;
- 	if (card->local_node != NULL)
- 		for_each_fw_node(card, card->local_node, report_lost_node);
- 	card->local_node = NULL;
--	spin_unlock_irqrestore(&card->lock, flags);
- }
- 
- static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
-@@ -521,6 +518,8 @@ void fw_core_handle_bus_reset(struct fw_
- 	struct fw_node *local_node;
- 	unsigned long flags;
- 
-+	spin_lock_irqsave(&card->lock, flags);
+-	struct fb_info * const info = file->private_data;
++	struct fb_info * const info = file_fb_info(file);
 +
- 	/*
- 	 * If the selfID buffer is not the immediate successor of the
- 	 * previously processed one, we cannot reliably compare the
-@@ -532,8 +531,6 @@ void fw_core_handle_bus_reset(struct fw_
- 		card->bm_retries = 0;
- 	}
++	if (!info)
++		return -ENODEV;
  
--	spin_lock_irqsave(&card->lock, flags);
--
- 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
- 	card->node_id = node_id;
- 	/*
+ 	lock_fb_info(info);
+ 	if (info->fbops->fb_release)
+-- 
+2.35.1
+
 
 
