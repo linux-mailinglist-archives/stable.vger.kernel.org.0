@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6CE0521735
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C613E5217B2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242693AbiEJNYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:24:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
+        id S243096AbiEJN2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242720AbiEJNW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DDE71632A7;
-        Tue, 10 May 2022 06:16:50 -0700 (PDT)
+        with ESMTP id S243804AbiEJN11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94082BD0D4;
+        Tue, 10 May 2022 06:20:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C170FB81DA7;
-        Tue, 10 May 2022 13:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166E6C385C9;
-        Tue, 10 May 2022 13:16:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A049616EC;
+        Tue, 10 May 2022 13:20:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 363B1C385A6;
+        Tue, 10 May 2022 13:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188593;
-        bh=lyBqSR0EnOVA8i/cJ7U1vjDXnqHAh9OtfQbsNi3k8Ys=;
+        s=korg; t=1652188833;
+        bh=HzT4e//cRWYScmtmkllaGVg74dsuod3wBbHRjHLM0ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aFozMqH3v16zvI+2cPOdl8+Zk+AvZIumItKiOJ/erGYn4uqivycC/AY6g8D1pbVq2
-         4EoaZtNmG5MK20ulPjjjOLe8oQ8XVXLvQrOzj5n/B1PEMLWKmZb30w16VqgYIoTinG
-         ZeRcueKjv8RhxBxn1tc6LC4OIWyl2znJQlrKRJn0=
+        b=nSzzX0zHUzdMBCHfqdaMSJzpMkWgCVrlDF9Hjz5N4OsrW+r/ZidIVVzxayxTWvMS6
+         LsN0F/fqaL5gBDzrhQWrNXqv+9g5qq6RWiTDlDF8fk2TA9EzzSNxWflE/p1rGQ4Qol
+         Zr2Q/7wG+VXHM+AR8Yt7nMUmM2bfHU7nm/pEJ/mM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 58/78] firewire: fix potential uaf in outbound_phy_packet_callback()
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 59/88] parisc: Merge model and model name into one line in /proc/cpuinfo
 Date:   Tue, 10 May 2022 15:07:44 +0200
-Message-Id: <20220510130734.251438789@linuxfoundation.org>
+Message-Id: <20220510130735.456907210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Helge Deller <deller@gmx.de>
 
-commit b7c81f80246fac44077166f3e07103affe6db8ff upstream.
+commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
 
-&e->event and e point to the same address, and &e->event could
-be freed in queue_event. So there is a potential uaf issue if
-we dereference e after calling queue_event(). Fix this by adding
-a temporary variable to maintain e->client in advance, this can
-avoid the potential uaf issue.
+The Linux tool "lscpu" shows the double amount of CPUs if we have
+"model" and "model name" in two different lines in /proc/cpuinfo.
+This change combines the model and the model name into one line.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/core-cdev.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/processor.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/firewire/core-cdev.c
-+++ b/drivers/firewire/core-cdev.c
-@@ -1495,6 +1495,7 @@ static void outbound_phy_packet_callback
- {
- 	struct outbound_phy_packet_event *e =
- 		container_of(packet, struct outbound_phy_packet_event, p);
-+	struct client *e_client;
+--- a/arch/parisc/kernel/processor.c
++++ b/arch/parisc/kernel/processor.c
+@@ -423,8 +423,7 @@ show_cpuinfo (struct seq_file *m, void *
+ 		}
+ 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
  
- 	switch (status) {
- 	/* expected: */
-@@ -1511,9 +1512,10 @@ static void outbound_phy_packet_callback
- 	}
- 	e->phy_packet.data[0] = packet->timestamp;
- 
-+	e_client = e->client;
- 	queue_event(e->client, &e->event, &e->phy_packet,
- 		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
--	client_put(e->client);
-+	client_put(e_client);
- }
- 
- static int ioctl_send_phy_packet(struct client *client, union ioctl_arg *arg)
+-		seq_printf(m, "model\t\t: %s\n"
+-				"model name\t: %s\n",
++		seq_printf(m, "model\t\t: %s - %s\n",
+ 				 boot_cpu_data.pdc.sys_model_name,
+ 				 cpuinfo->dev ?
+ 				 cpuinfo->dev->name : "Unknown");
 
 
