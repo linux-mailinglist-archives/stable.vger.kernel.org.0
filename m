@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B5F521933
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45FD75219E7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243965AbiEJNnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:43:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
+        id S237146AbiEJNw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243999AbiEJNnI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:43:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1497286FA;
-        Tue, 10 May 2022 06:30:59 -0700 (PDT)
+        with ESMTP id S1343950AbiEJNso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4531C6CF7E;
+        Tue, 10 May 2022 06:37:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63BC4B81DAF;
-        Tue, 10 May 2022 13:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF9A2C385C6;
-        Tue, 10 May 2022 13:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D32761889;
+        Tue, 10 May 2022 13:36:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E56FC385A6;
+        Tue, 10 May 2022 13:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189455;
-        bh=BEL/QK5o7Uyv5QUi+azeEgIO671K4UQlx+HYxKtUE/8=;
+        s=korg; t=1652189799;
+        bh=06T+wi3k7GR9wZRnA1KB+vc7h+zs5j00p6E81Cpo/YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQ3kqK3HMXK+c/a9IlKXJ9Q8mOyOlaK8ZLO2s0Fhvg/W23T9EfBzEdbljahCBbDan
-         Qi66Y73vS9+G8TPhjsoaQluqDK4FKpQnHlIEcrIHv06jvDIjxO+Rw/TV/1aPhdSBN5
-         YbsgP1QUMW9HvkvrkTunE67fId4jEeMsnhBoD8yk=
+        b=Z3+atyteHyDFCe6tUCT7dKhcoYsy2lgbPEC6BIailMfmC+rQlSxeji2dCkgce08sW
+         BN1loa7R/yPJM0l41dxyxs7GkrrY2ZKAPDNNw+2SYd3TNwVliU8Nwb8t83SwI1TWAP
+         fmukdr3vzE3ntoHW1JA1ziqSWX/osTKkr1y0vjIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 039/135] NFC: netlink: fix sleep in atomic bug when firmware download timeout
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Chung-Chiang Cheng <cccheng@synology.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 031/140] btrfs: export a helper for compression hard check
 Date:   Tue, 10 May 2022 15:07:01 +0200
-Message-Id: <20220510130741.523329244@linuxfoundation.org>
+Message-Id: <20220510130742.505080142@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Chung-Chiang Cheng <cccheng@synology.com>
 
-commit 4071bf121d59944d5cd2238de0642f3d7995a997 upstream.
+commit e6f9d69648029e48b8f97db09368d419b5e2614a upstream.
 
-There are sleep in atomic bug that could cause kernel panic during
-firmware download process. The root cause is that nlmsg_new with
-GFP_KERNEL parameter is called in fw_dnld_timeout which is a timer
-handler. The call trace is shown below:
+inode_can_compress will be used outside of inode.c to check the
+availability of setting compression flag by xattr. This patch moves
+this function as an internal helper and renames it to
+btrfs_inode_can_compress.
 
-BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
-Call Trace:
-kmem_cache_alloc_node
-__alloc_skb
-nfc_genl_fw_download_done
-call_timer_fn
-__run_timers.part.0
-run_timer_softirq
-__do_softirq
-...
-
-The nlmsg_new with GFP_KERNEL parameter may sleep during memory
-allocation process, and the timer handler is run as the result of
-a "software interrupt" that should not call any other function
-that could sleep.
-
-This patch changes allocation mode of netlink message from GFP_KERNEL
-to GFP_ATOMIC in order to prevent sleep in atomic bug. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: 9674da8759df ("NFC: Add firmware upload netlink command")
-Fixes: 9ea7187c53f6 ("NFC: netlink: Rename CMD_FW_UPLOAD to CMD_FW_DOWNLOAD")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220504055847.38026-1-duoming@zju.edu.cn
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Chung-Chiang Cheng <cccheng@synology.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/netlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/btrfs_inode.h |   11 +++++++++++
+ fs/btrfs/inode.c       |   15 ++-------------
+ 2 files changed, 13 insertions(+), 13 deletions(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1244,7 +1244,7 @@ int nfc_genl_fw_download_done(struct nfc
- 	struct sk_buff *msg;
- 	void *hdr;
+--- a/fs/btrfs/btrfs_inode.h
++++ b/fs/btrfs/btrfs_inode.h
+@@ -346,6 +346,17 @@ static inline bool btrfs_inode_in_log(st
+ 	return ret;
+ }
  
--	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-+	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
- 	if (!msg)
- 		return -ENOMEM;
++/*
++ * Check if the inode has flags compatible with compression
++ */
++static inline bool btrfs_inode_can_compress(const struct btrfs_inode *inode)
++{
++	if (inode->flags & BTRFS_INODE_NODATACOW ||
++	    inode->flags & BTRFS_INODE_NODATASUM)
++		return false;
++	return true;
++}
++
+ struct btrfs_dio_private {
+ 	struct inode *inode;
  
-@@ -1260,7 +1260,7 @@ int nfc_genl_fw_download_done(struct nfc
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -486,17 +486,6 @@ static noinline int add_async_extent(str
+ }
  
- 	genlmsg_end(msg, hdr);
+ /*
+- * Check if the inode has flags compatible with compression
+- */
+-static inline bool inode_can_compress(struct btrfs_inode *inode)
+-{
+-	if (inode->flags & BTRFS_INODE_NODATACOW ||
+-	    inode->flags & BTRFS_INODE_NODATASUM)
+-		return false;
+-	return true;
+-}
+-
+-/*
+  * Check if the inode needs to be submitted to compression, based on mount
+  * options, defragmentation, properties or heuristics.
+  */
+@@ -505,7 +494,7 @@ static inline int inode_need_compress(st
+ {
+ 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
  
--	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_KERNEL);
-+	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_ATOMIC);
- 
- 	return 0;
- 
+-	if (!inode_can_compress(inode)) {
++	if (!btrfs_inode_can_compress(inode)) {
+ 		WARN(IS_ENABLED(CONFIG_BTRFS_DEBUG),
+ 			KERN_ERR "BTRFS: unexpected compression for ino %llu\n",
+ 			btrfs_ino(inode));
+@@ -2015,7 +2004,7 @@ int btrfs_run_delalloc_range(struct btrf
+ 		       (zoned && btrfs_is_data_reloc_root(inode->root)));
+ 		ret = run_delalloc_nocow(inode, locked_page, start, end,
+ 					 page_started, nr_written);
+-	} else if (!inode_can_compress(inode) ||
++	} else if (!btrfs_inode_can_compress(inode) ||
+ 		   !inode_need_compress(inode, start, end)) {
+ 		if (zoned)
+ 			ret = run_delalloc_zoned(inode, locked_page, start, end,
 
 
