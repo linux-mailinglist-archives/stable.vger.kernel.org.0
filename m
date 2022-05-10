@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44985216C3
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E8052174A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242391AbiEJNSc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:18:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
+        id S242559AbiEJNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:24:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242570AbiEJNRi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:17:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8040F54BFA;
-        Tue, 10 May 2022 06:12:57 -0700 (PDT)
+        with ESMTP id S242662AbiEJNU2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:20:28 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E10F325473B;
+        Tue, 10 May 2022 06:13:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E486A6163C;
-        Tue, 10 May 2022 13:12:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0309DC385C2;
-        Tue, 10 May 2022 13:12:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3E007CE1EE3;
+        Tue, 10 May 2022 13:13:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAADC385A6;
+        Tue, 10 May 2022 13:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188376;
-        bh=T7RLLRF+WnGxdF5U/uDdWdVdC42qAGpkSOv5yV9pbIw=;
+        s=korg; t=1652188408;
+        bh=SkicZJaon+6r860YY3xSembF7T/c32xtoZ769rYVxNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yu0wmP1JLhP7C7Mdkbs08PynwE1i0ptLuaBNti1mGDQph+GQNFzUWFwr7NlR1fw/k
-         alqSPZOU1JkR5gXT8Gdt/ciKmgHB9gPi13W+pV4Up2eyOj+l986yV8cg+kKm+4obH5
-         jl3m1AJyC7HlPxsneqyHWlOdxIkkMa4yws3HLgMA=
+        b=TTr3NiaPyhCjCrBJezyDgGYx7pZ462xw7tvfE3qG6T5ABq3aIzgEBXAEZstohHPPb
+         fZK7Cn6sdCx3cpiYmC6KVDIggaKuczCO1Htpi5+sV01rPpHaZvqU0arjS+LhCxV/7C
+         48j2DZyQjs4krdpR+T0Zl7PMlt772PRTbDgxEImw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Lv Ruyi <lv.ruyi@zte.com.cn>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 26/66] mtd: rawnand: Fix return value check of wait_for_completion_timeout
-Date:   Tue, 10 May 2022 15:07:16 +0200
-Message-Id: <20220510130730.532084656@linuxfoundation.org>
+Subject: [PATCH 4.9 27/66] pinctrl: pistachio: fix use of irq_of_parse_and_map()
+Date:   Tue, 10 May 2022 15:07:17 +0200
+Message-Id: <20220510130730.560236635@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
 References: <20220510130729.762341544@linuxfoundation.org>
@@ -54,82 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit 084c16ab423a8890121b902b405823bfec5b4365 ]
+[ Upstream commit 0c9843a74a85224a89daa81fa66891dae2f930e1 ]
 
-wait_for_completion_timeout() returns unsigned long not int.
-It returns 0 if timed out, and positive if completed.
-The check for <= 0 is ambiguous and should be == 0 here
-indicating timeout which is the only error case.
+The irq_of_parse_and_map() function returns 0 on failure, and does not
+return an negative value.
 
-Fixes: 83738d87e3a0 ("mtd: sh_flctl: Add DMA capabilty")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20220412083435.29254-1-linmq006@gmail.com
+Fixes: cefc03e5995e ("pinctrl: Add Pistachio SoC pin control driver")
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Link: https://lore.kernel.org/r/20220424031430.3170759-1-lv.ruyi@zte.com.cn
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/sh_flctl.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/pinctrl/pinctrl-pistachio.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/sh_flctl.c b/drivers/mtd/nand/sh_flctl.c
-index 31f98acdba07..17e15bd05442 100644
---- a/drivers/mtd/nand/sh_flctl.c
-+++ b/drivers/mtd/nand/sh_flctl.c
-@@ -399,7 +399,8 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 	dma_addr_t dma_addr;
- 	dma_cookie_t cookie;
- 	uint32_t reg;
--	int ret;
-+	int ret = 0;
-+	unsigned long time_left;
+diff --git a/drivers/pinctrl/pinctrl-pistachio.c b/drivers/pinctrl/pinctrl-pistachio.c
+index b2b7e238bda9..fc8c57527fb7 100644
+--- a/drivers/pinctrl/pinctrl-pistachio.c
++++ b/drivers/pinctrl/pinctrl-pistachio.c
+@@ -1374,10 +1374,10 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
+ 		}
  
- 	if (dir == DMA_FROM_DEVICE) {
- 		chan = flctl->chan_fifo0_rx;
-@@ -440,13 +441,14 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 		goto out;
- 	}
+ 		irq = irq_of_parse_and_map(child, 0);
+-		if (irq < 0) {
+-			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
++		if (!irq) {
++			dev_err(pctl->dev, "No IRQ for bank %u\n", i);
+ 			of_node_put(child);
+-			ret = irq;
++			ret = -EINVAL;
+ 			goto err;
+ 		}
  
--	ret =
-+	time_left =
- 	wait_for_completion_timeout(&flctl->dma_complete,
- 				msecs_to_jiffies(3000));
- 
--	if (ret <= 0) {
-+	if (time_left == 0) {
- 		dmaengine_terminate_all(chan);
- 		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
-+		ret = -ETIMEDOUT;
- 	}
- 
- out:
-@@ -456,7 +458,7 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
- 
- 	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
- 
--	/* ret > 0 is success */
-+	/* ret == 0 is success */
- 	return ret;
- }
- 
-@@ -480,7 +482,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
- 
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
-+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
- 			goto convert;	/* DMA success */
- 
- 	/* do polling transfer */
-@@ -539,7 +541,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
- 
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
-+		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
- 			return;	/* DMA success */
- 
- 	/* do polling transfer */
 -- 
 2.35.1
 
