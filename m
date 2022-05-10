@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 795505217CA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2CEA52172D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243212AbiEJN2s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60624 "EHLO
+        id S243055AbiEJNXu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243081AbiEJNZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205F023021D;
-        Tue, 10 May 2022 06:18:47 -0700 (PDT)
+        with ESMTP id S243270AbiEJNVo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86C8B2C3354;
+        Tue, 10 May 2022 06:15:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B446B61663;
-        Tue, 10 May 2022 13:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFEEAC385C2;
-        Tue, 10 May 2022 13:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9C4CCB81DA5;
+        Tue, 10 May 2022 13:15:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01974C385CE;
+        Tue, 10 May 2022 13:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188726;
-        bh=8lm3thwt99G1i9oKsvxb5K2n7Qp9sOJOBnjoL2NNz4E=;
+        s=korg; t=1652188522;
+        bh=nbW0eEsimMVjlHNbmfDsIhmqa2VhhW8vzws7CUyZMzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CvFfCqqrxwZdJrkhOPxQymfFvRB++rF+6ZyoHgp5Y9dVVpJG4CEs2FOUIUeK3n3Na
-         aJ2jwotfz3egIycPv1TENrBnggCyjI+DgcmMhfC6KZeMtzPT8i6FnVoZd/K9NbiRJt
-         sJ8cZjo/47bIrYutq56hQOsZY+dPeUh4o4HSWAg8=
+        b=g+fwc+glpETUpm8GfsVDak4lWMdKQB24A0FIvN+Nj+Er5pR9CZB4QUSB1JVDWV8fj
+         SfQzPYaszqRYylwHE41pto19gDrRYfgdgDFu6G1aTsifKPN5Vq21eHKMLiIFy2ZL09
+         WFelJzMTXoJzbMepQZouetuDxvkwGMwDAoNs1/Lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 07/88] USB: serial: option: add Telit 0x1057, 0x1058, 0x1075 compositions
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 06/78] lightnvm: disable the subsystem
 Date:   Tue, 10 May 2022 15:06:52 +0200
-Message-Id: <20220510130733.954582778@linuxfoundation.org>
+Message-Id: <20220510130732.716003625@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+In commit 9ea9b9c48387 ("remove the lightnvm subsystem") the lightnvm
+subsystem was removed as there is no hardware in the wild for it, and
+the code is known to have problems.  This should also be disabled for
+older LTS kernels as well to prevent anyone from accidentally using it.
 
-commit f32c5a0423400e01f4d7c607949fa3a1f006e8fa upstream.
-
-Add support for the following Telit FN980 and FN990 compositions:
-
-0x1057: tty, adb, rmnet, tty, tty, tty, tty, tty
-0x1058: tty, adb, tty, tty, tty, tty, tty
-0x1075: adb, tty
-
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20220406141408.580669-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Matias Bjørling <mb@lightnvm.io>
+Cc: Javier González <javier@javigon.com>
+Cc: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/lightnvm/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1219,6 +1219,10 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1057, 0xff),	/* Telit FN980 */
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1058, 0xff),	/* Telit FN980 (PCIe) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1060, 0xff),	/* Telit LN920 (rmnet) */
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1061, 0xff),	/* Telit LN920 (MBIM) */
-@@ -1235,6 +1239,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1075, 0xff),	/* Telit FN990 (PCIe) */
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+--- a/drivers/lightnvm/Kconfig
++++ b/drivers/lightnvm/Kconfig
+@@ -4,7 +4,7 @@
+ 
+ menuconfig NVM
+ 	bool "Open-Channel SSD target support"
+-	depends on BLOCK && HAS_DMA
++	depends on BLOCK && HAS_DMA && BROKEN
+ 	help
+ 	  Say Y here to get to enable Open-channel SSDs.
+ 
 
 
