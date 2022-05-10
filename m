@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5ECD5216EE
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:18:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51CFC52176D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:23:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242689AbiEJNW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
+        id S242759AbiEJNZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:25:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243021AbiEJNVT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:19 -0400
+        with ESMTP id S243026AbiEJNZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:27 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857AE3968F;
-        Tue, 10 May 2022 06:14:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55AD022EA4F;
+        Tue, 10 May 2022 06:18:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 227A5B81D7A;
-        Tue, 10 May 2022 13:14:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B75C36AE3;
-        Tue, 10 May 2022 13:14:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41F52B81DA2;
+        Tue, 10 May 2022 13:18:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D112C385A6;
+        Tue, 10 May 2022 13:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188474;
-        bh=c1/bfUy1hCg7H/0hj5x8AM49hoYla+If72E2RyUqP9c=;
+        s=korg; t=1652188713;
+        bh=iw5r7VXYhZZ7jk1+tRISB95kKILUAHqZqpWpvMsK8Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/CyT2yKrcy4bjegIV+Uo/tsyDYngF0GFa2xJ+rf4HCmtrktOhIuTZ5FB/6oNXxXz
-         uVgNAOpiD9BpsMURgcyEwYzlNZ5YWYYZqsgR4t6lOcSLdyDMJaplRgSRqERNTLosFK
-         Pu+NCbcbr9IEOnhNR9Xd7GNfFR+IWNW2mRYZTWyI=
+        b=cgBy18GBOS6dTW6LXCQeuWOZ9ebQ99ssSfWk0y3JXtDUkC30Nv2dK7O7eTCTVwEn6
+         4SE+5yjAKOYeeIb+CYqm+T/2CjLo9ppAo+2d/FydBgyZ+GZUIjal2SSkymkgn9xrti
+         nPTz3lRL66npkK4GiaBw3tq0lZ4+yAW/OROa6hK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 02/78] hamradio: defer 6pack kfree after unregister_netdev
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 03/88] USB: quirks: add STRING quirk for VCOM device
 Date:   Tue, 10 May 2022 15:06:48 +0200
-Message-Id: <20220510130732.599308981@linuxfoundation.org>
+Message-Id: <20220510130733.838144982@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 0b9111922b1f399aba6ed1e1b8f2079c3da1aed8 upstream.
+commit ec547af8a9ea6441864bad34172676b5652ceb96 upstream.
 
-There is a possible race condition (use-after-free) like below
+This has been reported to stall if queried
 
- (USE)                       |  (FREE)
-  dev_queue_xmit             |
-   __dev_queue_xmit          |
-    __dev_xmit_skb           |
-     sch_direct_xmit         | ...
-      xmit_one               |
-       netdev_start_xmit     | tty_ldisc_kill
-        __netdev_start_xmit  |  6pack_close
-         sp_xmit             |   kfree
-          sp_encaps          |
-                             |
-
-According to the patch "defer ax25 kfree after unregister_netdev", this
-patch reorder the kfree after the unregister_netdev to avoid the possible
-UAF as the unregister_netdev() is well synchronized and won't return if
-there is a running routine.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220414123152.1700-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/6pack.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -690,9 +690,11 @@ static void sixpack_close(struct tty_str
- 	del_timer_sync(&sp->tx_t);
- 	del_timer_sync(&sp->resync_t);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -511,6 +511,9 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
--	/* Free all 6pack frame buffers. */
-+	/* Free all 6pack frame buffers after unreg. */
- 	kfree(sp->rbuff);
- 	kfree(sp->xbuff);
++	/* VCOM device */
++	{ USB_DEVICE(0x4296, 0x7570), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
 +
-+	free_netdev(sp->dev);
- }
+ 	/* INTEL VALUE SSD */
+ 	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
  
- /* Perform I/O control on an active 6pack channel. */
 
 
