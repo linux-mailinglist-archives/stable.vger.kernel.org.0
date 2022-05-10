@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AAA55218AE
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0A9521738
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243629AbiEJNji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56516 "EHLO
+        id S242945AbiEJNWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244724AbiEJNh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:59 -0400
+        with ESMTP id S242876AbiEJNVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70DBD55215;
-        Tue, 10 May 2022 06:26:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8CB72BF30C;
+        Tue, 10 May 2022 06:13:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB274617FB;
-        Tue, 10 May 2022 13:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12EEC385A6;
-        Tue, 10 May 2022 13:26:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBC4D615FA;
+        Tue, 10 May 2022 13:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C661CC385A6;
+        Tue, 10 May 2022 13:13:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189175;
-        bh=HPVP31vAjPkHUnU9b5hGIr1A908pgX7khXLUvHy4qUM=;
+        s=korg; t=1652188438;
+        bh=mUVSaLcs7LePPpfEVIoSnmJu+fY7to4k78o+0jb0k2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhXzSqkjGH043w7SPTJ/jiXGkC/mTuw6xaR+oZQs8/qZVWcgx7Qg8Ty2p+iUwTku1
-         zrpTYdsTpJMSoQxDyeg0d4kZ+oZOw7RYWw0KNjjl3lFMkAzckFg3JaAt8ZEsRoa+c+
-         ljHyI8FVnmebQMMMvXryveIQjF+6EazSpkvblO54=
+        b=V6Mqgj+qX8krci74d+W4KQOu7m7SpEeq7oQHj7pr56VkedCi85sVpbb0D3dVfFhNy
+         NrISkv7pScSEQneqrjfk/cBmIyK5eYtolS+VIZhV8THNTNexjyzFKlvM4t0rNv6447
+         evatSqMjmMx6uNL7kPe+kMg+p/CxDTfSZCCUWNuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.10 37/70] net/mlx5e: Fix trust state reset in reload
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Mike Snitzer <snitzer@kernel.org>
+Subject: [PATCH 4.9 66/66] dm: interlock pending dm_io and dm_wait_for_bios_completion
 Date:   Tue, 10 May 2022 15:07:56 +0200
-Message-Id: <20220510130733.949942723@linuxfoundation.org>
+Message-Id: <20220510130731.702590252@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Tal <moshet@nvidia.com>
+From: Mike Snitzer <snitzer@redhat.com>
 
-commit b781bff882d16175277ca129c382886cb4c74a2c upstream.
+commit 9f6dc633761006f974701d4c88da71ab68670749 upstream.
 
-Setting dscp2prio during the driver reload can cause dcb ieee app list to
-be not empty after the reload finish and as a result to a conflict between
-the priority trust state reported by the app and the state in the device
-register.
+Commit d208b89401e0 ("dm: fix mempool NULL pointer race when
+completing IO") didn't go far enough.
 
-Reset the dcb ieee app list on initialization in case this is
-conflicting with the register status.
+When bio_end_io_acct ends the count of in-flight I/Os may reach zero
+and the DM device may be suspended. There is a possibility that the
+suspend races with dm_stats_account_io.
 
-Fixes: 2a5e7a1344f4 ("net/mlx5e: Add dcbnl dscp to priority support")
-Signed-off-by: Moshe Tal <moshet@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fix this by adding percpu "pending_io" counters to track outstanding
+dm_io. Move kicking of suspend queue to dm_io_dec_pending(). Also,
+rename md_in_flight_bios() to dm_in_flight_bios() and update it to
+iterate all pending_io counters.
+
+Fixes: d208b89401e0 ("dm: fix mempool NULL pointer race when completing IO")
+Cc: stable@vger.kernel.org
+Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Mike Snitzer <snitzer@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/md/dm.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-@@ -1210,6 +1210,16 @@ static int mlx5e_trust_initialize(struct
- 	if (err)
- 		return err;
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -2027,6 +2027,8 @@ static int dm_wait_for_completion(struct
+ 	}
+ 	finish_wait(&md->wait, &wait);
  
-+	if (priv->dcbx_dp.trust_state == MLX5_QPTS_TRUST_PCP && priv->dcbx.dscp_app_cnt) {
-+		/*
-+		 * Align the driver state with the register state.
-+		 * Temporary state change is required to enable the app list reset.
-+		 */
-+		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_DSCP;
-+		mlx5e_dcbnl_delete_app(priv);
-+		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_PCP;
-+	}
++	smp_rmb(); /* paired with atomic_dec_return in end_io_acct */
 +
- 	mlx5e_params_calc_trust_tx_min_inline_mode(priv->mdev, &priv->channels.params,
- 						   priv->dcbx_dp.trust_state);
+ 	return r;
+ }
  
 
 
