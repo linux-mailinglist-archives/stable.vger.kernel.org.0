@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B1C752191A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5ECD5216EE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:18:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243858AbiEJNmW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49466 "EHLO
+        id S242689AbiEJNW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245494AbiEJNjB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:39:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0191728F1F2;
-        Tue, 10 May 2022 06:29:24 -0700 (PDT)
+        with ESMTP id S243021AbiEJNVT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 857AE3968F;
+        Tue, 10 May 2022 06:14:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F56F60C1C;
-        Tue, 10 May 2022 13:29:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53029C385A6;
-        Tue, 10 May 2022 13:29:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 227A5B81D7A;
+        Tue, 10 May 2022 13:14:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B75C36AE3;
+        Tue, 10 May 2022 13:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189362;
-        bh=YpKJBiYbIBRLNkiHda5QMm3L+zXhaJseWyql1maFGDA=;
+        s=korg; t=1652188474;
+        bh=c1/bfUy1hCg7H/0hj5x8AM49hoYla+If72E2RyUqP9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UefwNQ2HGYritiBrJQ7Dd3/q/4vtNms8bfnqmTSi4O3LSCrIVtiuMm/64CjkSCaQe
-         H5EqrWitu+lxoAfCh1pYBvHaF2mHtW9XmUfjr/X7UIR181XLjtl2ywMP5BpgtYxxHT
-         SKWfRSgDM02QkMoim0dKTO35MdALYbNgvrzqyx4U=
+        b=m/CyT2yKrcy4bjegIV+Uo/tsyDYngF0GFa2xJ+rf4HCmtrktOhIuTZ5FB/6oNXxXz
+         uVgNAOpiD9BpsMURgcyEwYzlNZ5YWYYZqsgR4t6lOcSLdyDMJaplRgSRqERNTLosFK
+         Pu+NCbcbr9IEOnhNR9Xd7GNfFR+IWNW2mRYZTWyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Jerome Brunet <jbrunet@baylibre.com>
-Subject: [PATCH 5.15 026/135] ASoC: meson: Fix event generation for G12A tohdmi mux
+        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 02/78] hamradio: defer 6pack kfree after unregister_netdev
 Date:   Tue, 10 May 2022 15:06:48 +0200
-Message-Id: <20220510130741.150894960@linuxfoundation.org>
+Message-Id: <20220510130732.599308981@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit 12131008fc13ff7f7690d170b7a8f72d24fd7d1e upstream.
+commit 0b9111922b1f399aba6ed1e1b8f2079c3da1aed8 upstream.
 
-The G12A tohdmi has a custom put() operation which returns 0 when the value
-of the mux changes, meaning that events are not generated for userspace.
-Change to return 1 in this case, the function returns early in the case
-where there is no change.
+There is a possible race condition (use-after-free) like below
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20220421123803.292063-4-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
+ (USE)                       |  (FREE)
+  dev_queue_xmit             |
+   __dev_queue_xmit          |
+    __dev_xmit_skb           |
+     sch_direct_xmit         | ...
+      xmit_one               |
+       netdev_start_xmit     | tty_ldisc_kill
+        __netdev_start_xmit  |  6pack_close
+         sp_xmit             |   kfree
+          sp_encaps          |
+                             |
+
+According to the patch "defer ax25 kfree after unregister_netdev", this
+patch reorder the kfree after the unregister_netdev to avoid the possible
+UAF as the unregister_netdev() is well synchronized and won't return if
+there is a running routine.
+
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/meson/g12a-tohdmitx.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/hamradio/6pack.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/meson/g12a-tohdmitx.c
-+++ b/sound/soc/meson/g12a-tohdmitx.c
-@@ -67,7 +67,7 @@ static int g12a_tohdmitx_i2s_mux_put_enu
+--- a/drivers/net/hamradio/6pack.c
++++ b/drivers/net/hamradio/6pack.c
+@@ -690,9 +690,11 @@ static void sixpack_close(struct tty_str
+ 	del_timer_sync(&sp->tx_t);
+ 	del_timer_sync(&sp->resync_t);
  
- 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
- 
--	return 0;
-+	return 1;
+-	/* Free all 6pack frame buffers. */
++	/* Free all 6pack frame buffers after unreg. */
+ 	kfree(sp->rbuff);
+ 	kfree(sp->xbuff);
++
++	free_netdev(sp->dev);
  }
  
- static SOC_ENUM_SINGLE_DECL(g12a_tohdmitx_i2s_mux_enum, TOHDMITX_CTRL0,
+ /* Perform I/O control on an active 6pack channel. */
 
 
