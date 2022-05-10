@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD26521A1B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF97D521AE4
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241635AbiEJNxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42646 "EHLO
+        id S242839AbiEJOEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:04:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245034AbiEJNrM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83853F37;
-        Tue, 10 May 2022 06:33:59 -0700 (PDT)
+        with ESMTP id S244708AbiEJODa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:03:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BED2E07EB;
+        Tue, 10 May 2022 06:40:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 212C3615C8;
-        Tue, 10 May 2022 13:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EA89C385A6;
-        Tue, 10 May 2022 13:33:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2723F6195F;
+        Tue, 10 May 2022 13:40:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BD8BC385C9;
+        Tue, 10 May 2022 13:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189638;
-        bh=UhBKpGL8cPyYowpKftBHgS+lPYgVg1AsN+aW/7096eI=;
+        s=korg; t=1652190031;
+        bh=tFBjLhkyPHG2we+mnumSh33pt05zBmr0pMSY5dq+rXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VpmNEpDBG7egfpwitvuhqqXiDaupt+QfPvSv4CuYp/PRZxA4XuYWrnyNwgg7MhXH
-         8frW7Xpb9mvaf/k/JAPC1/i07YyInkxsIVitn6zAjyrdUTW4bXU5l9OSuCP8DW27kO
-         +Io/ONYuyFafHgtlcBKJiLo6UjaQdI73v3dGOVDg=
+        b=IPQMyBv247qjbgth9TO3d18sP5U3q71EI4HPZ2GMiehKOeHdEdea/2leDgqU6+drT
+         cS3QJcqyCuQ88ztYwDCjeAuY/JwESTds3jHmfoI7Qe5CFznxl3TDtBdezM4mut+sAl
+         mfOsYtVyxFSSHW268E6jYKQHr1mlJxnFzVIiGiHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 114/135] PCI: aardvark: Assert PERST# when unbinding driver
+        stable@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 106/140] gpio: mvebu: drop pwm base assignment
 Date:   Tue, 10 May 2022 15:08:16 +0200
-Message-Id: <20220510130743.672985202@linuxfoundation.org>
+Message-Id: <20220510130744.635445874@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Baruch Siach <baruch@tkos.co.il>
 
-commit 1f54391be8ce0c981d312cb93acdc5608def576a upstream.
+[ Upstream commit e5f6e5d554ac274f9c8ba60078103d0425b93c19 ]
 
-Put the PCIe card into reset by asserting PERST# signal when unbinding
-driver. It doesn't make sense to leave the card working if it can't
-communicate with the host. This should also save some power.
+pwmchip_add() unconditionally assigns the base ID dynamically. Commit
+f9a8ee8c8bcd1 ("pwm: Always allocate PWM chip base ID dynamically")
+dropped all base assignment from drivers under drivers/pwm/. It missed
+this driver. Fix that.
 
-Link: https://lore.kernel.org/r/20211130172913.9727-10-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f9a8ee8c8bcd1 ("pwm: Always allocate PWM chip base ID dynamically")
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Reviewed-by: Uwe Kleine-KÃ¶nig <u.kleine-koenig@pengutronix.de>
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpio/gpio-mvebu.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1721,6 +1721,10 @@ static int advk_pcie_remove(struct platf
- 	/* Free config space for emulated root bridge */
- 	pci_bridge_emul_cleanup(&pcie->bridge);
+diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
+index 4c1f9e1091b7..a2c8dd329b31 100644
+--- a/drivers/gpio/gpio-mvebu.c
++++ b/drivers/gpio/gpio-mvebu.c
+@@ -871,13 +871,6 @@ static int mvebu_pwm_probe(struct platform_device *pdev,
+ 	mvpwm->chip.dev = dev;
+ 	mvpwm->chip.ops = &mvebu_pwm_ops;
+ 	mvpwm->chip.npwm = mvchip->chip.ngpio;
+-	/*
+-	 * There may already be some PWM allocated, so we can't force
+-	 * mvpwm->chip.base to a fixed point like mvchip->chip.base.
+-	 * So, we let pwmchip_add() do the numbering and take the next free
+-	 * region.
+-	 */
+-	mvpwm->chip.base = -1;
  
-+	/* Assert PERST# signal which prepares PCIe card for power down */
-+	if (pcie->reset_gpio)
-+		gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-+
- 	/* Disable outbound address windows mapping */
- 	for (i = 0; i < OB_WIN_COUNT; i++)
- 		advk_pcie_disable_ob_win(pcie, i);
+ 	spin_lock_init(&mvpwm->lock);
+ 
+-- 
+2.35.1
+
 
 
