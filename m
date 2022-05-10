@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D27F7521920
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF6005217C4
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243816AbiEJNmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54786 "EHLO
+        id S243193AbiEJN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244687AbiEJNmF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:05 -0400
+        with ESMTP id S243899AbiEJN1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6926663E3;
-        Tue, 10 May 2022 06:30:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6665C2C255E;
+        Tue, 10 May 2022 06:20:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 56ED861763;
-        Tue, 10 May 2022 13:30:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D193C385A6;
-        Tue, 10 May 2022 13:30:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA3F616D0;
+        Tue, 10 May 2022 13:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11E4C385A6;
+        Tue, 10 May 2022 13:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189423;
-        bh=Y5enQchBqWtPw3dWMTz3w6z5H0ksi/HU71mEpy8zCqA=;
+        s=korg; t=1652188845;
+        bh=/A+a3bk4xx74A+u/WRwLO3Lza7C3KHpa+IWrB4azzCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oj8NDw556+FfubpMIcTwT6U0t7dE4Ub+3LORegS/xVpMueWTUg07t53D4np+HeFea
-         g17cp5j9cJSM4l0bWOsUtHjHzZ4rGk7GCrZUDEDMxvpQzb7FL8sQDKHJicVQj0TGqV
-         2uEoSSmOoXbz/SUtp86z2eibCNTHqbB4zOIrLE2w=
+        b=OZHvBT5q1gNF9/e32nL+auABysYIyCY0/gJ1d9DUmkrVit2YZrUsFA85rz/ebJ0Me
+         td48BdLq36Diff6cLt2UY9k1EYG2XPc3/PKBvOw32U39s1HrneFuXhq0U+7bbIu8cz
+         nhn5BxeruIFGkXOS3CClEBkq0jmXJJswIMp+1lKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Sven Peter <sven@svenpeter.dev>, Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.15 047/135] iommu/dart: check return value after calling platform_get_resource()
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Tim Harvey <tharvey@gateworks.com>,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/88] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
 Date:   Tue, 10 May 2022 15:07:09 +0200
-Message-Id: <20220510130741.748749921@linuxfoundation.org>
+Message-Id: <20220510130734.447917545@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,47 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit a15932f4377062364d22096afe25bc579134a1c3 upstream.
+[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
 
-It will cause null-ptr-deref in resource_size(), if platform_get_resource()
-returns NULL, move calling resource_size() after devm_ioremap_resource() that
-will check 'res' to avoid null-ptr-deref.
-And use devm_platform_get_and_ioremap_resource() to simplify code.
+On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
+on the SoM is often not detected and the following error message is
+seen when the sgtl5000 driver tries to read the ID register:
 
-Fixes: 46d1fb072e76 ("iommu/dart: Add DART iommu driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Sven Peter <sven@svenpeter.dev>
-Link: https://lore.kernel.org/r/20220425090826.2532165-1-yangyingliang@huawei.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+sgtl5000 1-000a: Error reading chip id -6
+
+The reason for the error is that the MCLK clock is not provided
+early enough.
+
+Fix the problem by describing the MCLK pinctrl inside the codec
+node instead of placing it inside the audmux pinctrl group.
+
+With this change applied the sgtl5000 is always detected on every boot.
+
+Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Tim Harvey <tharvey@gateworks.com>
+Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/apple-dart.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/iommu/apple-dart.c
-+++ b/drivers/iommu/apple-dart.c
-@@ -832,16 +832,15 @@ static int apple_dart_probe(struct platf
- 	dart->dev = dev;
- 	spin_lock_init(&dart->lock);
+diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+index 05f07ea3e8c8..ed783c91b002 100644
+--- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+@@ -313,6 +313,8 @@ vgen6_reg: vgen6 {
+ 	codec: sgtl5000@a {
+ 		compatible = "fsl,sgtl5000";
+ 		reg = <0x0a>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_sgtl5000>;
+ 		clocks = <&clks IMX6QDL_CLK_CKO>;
+ 		VDDA-supply = <&reg_module_3v3_audio>;
+ 		VDDIO-supply = <&reg_module_3v3>;
+@@ -540,8 +542,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
+-			/* SGTL5000 sys_mclk */
+-			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
+ 		>;
+ 	};
  
--	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	dart->regs = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
-+	if (IS_ERR(dart->regs))
-+		return PTR_ERR(dart->regs);
+@@ -807,6 +807,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
+ 		>;
+ 	};
+ 
++	pinctrl_sgtl5000: sgtl5000grp {
++		fsl,pins = <
++			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
++		>;
++	};
 +
- 	if (resource_size(res) < 0x4000) {
- 		dev_err(dev, "MMIO region too small (%pr)\n", res);
- 		return -EINVAL;
- 	}
- 
--	dart->regs = devm_ioremap_resource(dev, res);
--	if (IS_ERR(dart->regs))
--		return PTR_ERR(dart->regs);
--
- 	dart->irq = platform_get_irq(pdev, 0);
- 	if (dart->irq < 0)
- 		return -ENODEV;
+ 	pinctrl_spdif: spdifgrp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
+-- 
+2.35.1
+
 
 
