@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C613B52181F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 705E252199D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242219AbiEJNdX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
+        id S244362AbiEJNt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:49:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243786AbiEJNcO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CCE2CF2AF;
-        Tue, 10 May 2022 06:22:10 -0700 (PDT)
+        with ESMTP id S244949AbiEJNrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E746C21B178;
+        Tue, 10 May 2022 06:32:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8EAFB81DA2;
-        Tue, 10 May 2022 13:22:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4709CC385A6;
-        Tue, 10 May 2022 13:22:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E0F618A0;
+        Tue, 10 May 2022 13:32:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBB5C385A6;
+        Tue, 10 May 2022 13:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188928;
-        bh=Sv3CNk8W8AyFsAotdqqX5Fu23F++KbT6VeiopuDiOko=;
+        s=korg; t=1652189573;
+        bh=ueB1Y6/yuNWGMloKhd/JUy0TqGqlP4o97wbX0fFeZTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ipqb7bndCe0rOdjAgb7WAqZhevDrspGteYf5BnTIl1WcJMQC59FAIHKvqkhwd0QUd
-         01uyvt4ElnLMDTczyGoLXwZuZ9cvExdr+Mv1Y/e1IlUC70HrFHHfBgrucS2b9r0O9h
-         aw34TbeEZ4sOJYO7K8QPJqvJPdVgJl9C7eXhVf5A=
+        b=Pk2KDvE2F4dJLlGsM79y6251i9aZie0Bj9YtOJhEYTDuPyF/R36+gQTd+da/ElPv0
+         DwPPXAkZ3YsKBwu5fxeJFcUUSDwQ1CpzxF+ysQqtMPd3Qw77WmOqTfAoscllmCs/a2
+         ktGqqUilwos5VaPzBdauN4cYCvQJpQWuruBGhzJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 4.19 72/88] NFC: netlink: fix sleep in atomic bug when firmware download timeout
+        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 095/135] KVM: selftests: Silence compiler warning in the kvm_page_table_test
 Date:   Tue, 10 May 2022 15:07:57 +0200
-Message-Id: <20220510130735.824731709@linuxfoundation.org>
+Message-Id: <20220510130743.134928802@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Thomas Huth <thuth@redhat.com>
 
-commit 4071bf121d59944d5cd2238de0642f3d7995a997 upstream.
+[ Upstream commit 266a19a0bc4fbfab4d981a47640ca98972a01865 ]
 
-There are sleep in atomic bug that could cause kernel panic during
-firmware download process. The root cause is that nlmsg_new with
-GFP_KERNEL parameter is called in fw_dnld_timeout which is a timer
-handler. The call trace is shown below:
+When compiling kvm_page_table_test.c, I get this compiler warning
+with gcc 11.2:
 
-BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
-Call Trace:
-kmem_cache_alloc_node
-__alloc_skb
-nfc_genl_fw_download_done
-call_timer_fn
-__run_timers.part.0
-run_timer_softirq
-__do_softirq
-...
+kvm_page_table_test.c: In function 'pre_init_before_test':
+../../../../tools/include/linux/kernel.h:44:24: warning: comparison of
+ distinct pointer types lacks a cast
+   44 |         (void) (&_max1 == &_max2);              \
+      |                        ^~
+kvm_page_table_test.c:281:21: note: in expansion of macro 'max'
+  281 |         alignment = max(0x100000, alignment);
+      |                     ^~~
 
-The nlmsg_new with GFP_KERNEL parameter may sleep during memory
-allocation process, and the timer handler is run as the result of
-a "software interrupt" that should not call any other function
-that could sleep.
+Fix it by adjusting the type of the absolute value.
 
-This patch changes allocation mode of netlink message from GFP_KERNEL
-to GFP_ATOMIC in order to prevent sleep in atomic bug. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: 9674da8759df ("NFC: Add firmware upload netlink command")
-Fixes: 9ea7187c53f6 ("NFC: netlink: Rename CMD_FW_UPLOAD to CMD_FW_DOWNLOAD")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220504055847.38026-1-duoming@zju.edu.cn
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Huth <thuth@redhat.com>
+Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Message-Id: <20220414103031.565037-1-thuth@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/netlink.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/testing/selftests/kvm/kvm_page_table_test.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/nfc/netlink.c
-+++ b/net/nfc/netlink.c
-@@ -1262,7 +1262,7 @@ int nfc_genl_fw_download_done(struct nfc
- 	struct sk_buff *msg;
- 	void *hdr;
+diff --git a/tools/testing/selftests/kvm/kvm_page_table_test.c b/tools/testing/selftests/kvm/kvm_page_table_test.c
+index 36407cb0ec85..f1ddfe4c4a03 100644
+--- a/tools/testing/selftests/kvm/kvm_page_table_test.c
++++ b/tools/testing/selftests/kvm/kvm_page_table_test.c
+@@ -278,7 +278,7 @@ static struct kvm_vm *pre_init_before_test(enum vm_guest_mode mode, void *arg)
+ 	else
+ 		guest_test_phys_mem = p->phys_offset;
+ #ifdef __s390x__
+-	alignment = max(0x100000, alignment);
++	alignment = max(0x100000UL, alignment);
+ #endif
+ 	guest_test_phys_mem &= ~(alignment - 1);
  
--	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-+	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
- 	if (!msg)
- 		return -ENOMEM;
- 
-@@ -1278,7 +1278,7 @@ int nfc_genl_fw_download_done(struct nfc
- 
- 	genlmsg_end(msg, hdr);
- 
--	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_KERNEL);
-+	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_ATOMIC);
- 
- 	return 0;
- 
+-- 
+2.35.1
+
 
 
