@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 705E252199D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D06E5219C2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244362AbiEJNt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51296 "EHLO
+        id S244661AbiEJNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:51:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244949AbiEJNrI (ORCPT
+        with ESMTP id S244955AbiEJNrI (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E746C21B178;
-        Tue, 10 May 2022 06:32:54 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1640A35DE6;
+        Tue, 10 May 2022 06:32:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83E0F618A0;
-        Tue, 10 May 2022 13:32:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBB5C385A6;
-        Tue, 10 May 2022 13:32:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB9FB81D24;
+        Tue, 10 May 2022 13:32:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F196C385C2;
+        Tue, 10 May 2022 13:32:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189573;
-        bh=ueB1Y6/yuNWGMloKhd/JUy0TqGqlP4o97wbX0fFeZTk=;
+        s=korg; t=1652189576;
+        bh=68/j1f2siY5vbwja/tKj5PvdogndN7w1f7F6F5vMHDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pk2KDvE2F4dJLlGsM79y6251i9aZie0Bj9YtOJhEYTDuPyF/R36+gQTd+da/ElPv0
-         DwPPXAkZ3YsKBwu5fxeJFcUUSDwQ1CpzxF+ysQqtMPd3Qw77WmOqTfAoscllmCs/a2
-         ktGqqUilwos5VaPzBdauN4cYCvQJpQWuruBGhzJs=
+        b=J4ptrCC5dsXh/0GNvDpTS8GaYQFaX1KA1nOxFwu83tFNg5VjBdcYwiy3ke/Wabdmk
+         EW701hRs8XZU/3qGXt1M9EV6Z9fNYncQ/PIavf4BbkPZlgSDUntFSQ5qHos7AxhIIS
+         PqLFoqTyOMEDJrQmzJSu0AGeoxoXf0G+Kx1HsGKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        stable@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/135] KVM: selftests: Silence compiler warning in the kvm_page_table_test
-Date:   Tue, 10 May 2022 15:07:57 +0200
-Message-Id: <20220510130743.134928802@linuxfoundation.org>
+Subject: [PATCH 5.15 096/135] x86/kvm: Preserve BSP MSR_KVM_POLL_CONTROL across suspend/resume
+Date:   Tue, 10 May 2022 15:07:58 +0200
+Message-Id: <20220510130743.163561108@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
@@ -55,46 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Huth <thuth@redhat.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 266a19a0bc4fbfab4d981a47640ca98972a01865 ]
+[ Upstream commit 0361bdfddca20c8855ea3bdbbbc9c999912b10ff ]
 
-When compiling kvm_page_table_test.c, I get this compiler warning
-with gcc 11.2:
+MSR_KVM_POLL_CONTROL is cleared on reset, thus reverting guests to
+host-side polling after suspend/resume.  Non-bootstrap CPUs are
+restored correctly by the haltpoll driver because they are hot-unplugged
+during suspend and hot-plugged during resume; however, the BSP
+is not hotpluggable and remains in host-sde polling mode after
+the guest resume.  The makes the guest pay for the cost of vmexits
+every time the guest enters idle.
 
-kvm_page_table_test.c: In function 'pre_init_before_test':
-../../../../tools/include/linux/kernel.h:44:24: warning: comparison of
- distinct pointer types lacks a cast
-   44 |         (void) (&_max1 == &_max2);              \
-      |                        ^~
-kvm_page_table_test.c:281:21: note: in expansion of macro 'max'
-  281 |         alignment = max(0x100000, alignment);
-      |                     ^~~
+Fix it by recording BSP's haltpoll state and resuming it during guest
+resume.
 
-Fix it by adjusting the type of the absolute value.
-
-Signed-off-by: Thomas Huth <thuth@redhat.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Message-Id: <20220414103031.565037-1-thuth@redhat.com>
+Cc: Marcelo Tosatti <mtosatti@redhat.com>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1650267752-46796-1-git-send-email-wanpengli@tencent.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/kvm/kvm_page_table_test.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/kvm.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/tools/testing/selftests/kvm/kvm_page_table_test.c b/tools/testing/selftests/kvm/kvm_page_table_test.c
-index 36407cb0ec85..f1ddfe4c4a03 100644
---- a/tools/testing/selftests/kvm/kvm_page_table_test.c
-+++ b/tools/testing/selftests/kvm/kvm_page_table_test.c
-@@ -278,7 +278,7 @@ static struct kvm_vm *pre_init_before_test(enum vm_guest_mode mode, void *arg)
- 	else
- 		guest_test_phys_mem = p->phys_offset;
- #ifdef __s390x__
--	alignment = max(0x100000, alignment);
-+	alignment = max(0x100000UL, alignment);
- #endif
- 	guest_test_phys_mem &= ~(alignment - 1);
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index bd7b65081eb0..d36b58e705b6 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -66,6 +66,7 @@ static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __align
+ DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visible;
+ static int has_steal_clock = 0;
  
++static int has_guest_poll = 0;
+ /*
+  * No need for any "IO delay" on KVM
+  */
+@@ -650,14 +651,26 @@ static int kvm_cpu_down_prepare(unsigned int cpu)
+ 
+ static int kvm_suspend(void)
+ {
++	u64 val = 0;
++
+ 	kvm_guest_cpu_offline(false);
+ 
++#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
++	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
++		rdmsrl(MSR_KVM_POLL_CONTROL, val);
++	has_guest_poll = !(val & 1);
++#endif
+ 	return 0;
+ }
+ 
+ static void kvm_resume(void)
+ {
+ 	kvm_cpu_online(raw_smp_processor_id());
++
++#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
++	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL) && has_guest_poll)
++		wrmsrl(MSR_KVM_POLL_CONTROL, 0);
++#endif
+ }
+ 
+ static struct syscore_ops kvm_syscore_ops = {
 -- 
 2.35.1
 
