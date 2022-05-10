@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4A5521AC9
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF25A5219B6
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244973AbiEJODM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
+        id S243522AbiEJNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244730AbiEJN4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:56:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F4429BC53;
-        Tue, 10 May 2022 06:38:41 -0700 (PDT)
+        with ESMTP id S244836AbiEJNrC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7510419CB79;
+        Tue, 10 May 2022 06:32:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 034B8617E4;
-        Tue, 10 May 2022 13:38:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C1C4C385A6;
-        Tue, 10 May 2022 13:38:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 027E660B12;
+        Tue, 10 May 2022 13:32:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C7CC385A6;
+        Tue, 10 May 2022 13:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189920;
-        bh=JdwPYYeWhgloCEDNw4IAQ8boW9KZ6wt72JaKCJLWB+M=;
+        s=korg; t=1652189530;
+        bh=YmCIwfczu1mXcczkqwoETbSEQm5ZZgmkMLoLZWVLehw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JlT0ev1QISLs7KLlV+OpE64Y/i76XjSZHFaxV7zax7Hxp0omyf5ser4iGaaaLGRzn
-         mIV8I2oGn4KPJKdRZpRIhRl3szCfvbMUzfD//Df0l2rpURl+YFJCuap453jU8xC3tx
-         V9DurjZlcTAZlfKsQHuYVTURRYDtoFrcWdPA+1BQ=
+        b=fG9OX/rQeiKa5SjDBLN2NPABn3errfa+LYoElo8X9tbElnIvRVzmOamuvCrrQP8cu
+         8QfG0yEC7rnt6Em6+ujHeKo4DVOtb0hdylbmhlitmDTTLO5mommJ6C35gVkNYc8HKX
+         3bltjTl6akoq4lUCL8/DnR1XXYyzuPprBAhPas9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
-        Maher Sanalla <msanalla@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.17 070/140] net/mlx5: Avoid double clear or set of sync reset requested
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 078/135] selftests: ocelot: tc_flower_chains: specify conform-exceed action for policer
 Date:   Tue, 10 May 2022 15:07:40 +0200
-Message-Id: <20220510130743.620635514@linuxfoundation.org>
+Message-Id: <20220510130742.648476715@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,102 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit fc3d3db07b35885f238e1fa06b9f04a8fa7a62d0 upstream.
+commit 5a7c5f70c743c6cf32b44b05bd6b19d4ad82f49d upstream.
 
-Double clear of reset requested state can lead to NULL pointer as it
-will try to delete the timer twice. This can happen for example on a
-race between abort from FW and pci error or reset. Avoid such case using
-test_and_clear_bit() to verify only one time reset requested state clear
-flow. Similarly use test_and_set_bit() to verify only one time reset
-requested state set flow.
+As discussed here with Ido Schimmel:
+https://patchwork.kernel.org/project/netdevbpf/patch/20220224102908.5255-2-jianbol@nvidia.com/
 
-Fixes: 7dd6df329d4c ("net/mlx5: Handle sync reset abort event")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Maher Sanalla <msanalla@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+the default conform-exceed action is "reclassify", for a reason we don't
+really understand.
+
+The point is that hardware can't offload that police action, so not
+specifying "conform-exceed" was always wrong, even though the command
+used to work in hardware (but not in software) until the kernel started
+adding validation for it.
+
+Fix the command used by the selftest by making the policer drop on
+exceed, and pass the packet to the next action (goto) on conform.
+
+Fixes: 8cd6b020b644 ("selftests: ocelot: add some example VCAP IS1, IS2 and ES0 tc offloads")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
+Link: https://lore.kernel.org/r/20220503121428.842906-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |   28 ++++++++++++++-------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-@@ -135,14 +135,19 @@ static void mlx5_stop_sync_reset_poll(st
- 	del_timer_sync(&fw_reset->timer);
- }
+--- a/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
++++ b/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
+@@ -185,7 +185,7 @@ setup_prepare()
  
--static void mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
-+static int mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
- {
- 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
- 
-+	if (!test_and_clear_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags)) {
-+		mlx5_core_warn(dev, "Reset request was already cleared\n");
-+		return -EALREADY;
-+	}
-+
- 	mlx5_stop_sync_reset_poll(dev);
--	clear_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags);
- 	if (poll_health)
- 		mlx5_start_health_poll(dev);
-+	return 0;
- }
- 
- #define MLX5_RESET_POLL_INTERVAL	(HZ / 10)
-@@ -186,13 +191,17 @@ static int mlx5_fw_reset_set_reset_sync_
- 	return mlx5_reg_mfrl_set(dev, MLX5_MFRL_REG_RESET_LEVEL3, 0, 2, false);
- }
- 
--static void mlx5_sync_reset_set_reset_requested(struct mlx5_core_dev *dev)
-+static int mlx5_sync_reset_set_reset_requested(struct mlx5_core_dev *dev)
- {
- 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
- 
-+	if (test_and_set_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags)) {
-+		mlx5_core_warn(dev, "Reset request was already set\n");
-+		return -EALREADY;
-+	}
- 	mlx5_stop_health_poll(dev, true);
--	set_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags);
- 	mlx5_start_sync_reset_poll(dev);
-+	return 0;
- }
- 
- static void mlx5_fw_live_patch_event(struct work_struct *work)
-@@ -221,7 +230,9 @@ static void mlx5_sync_reset_request_even
- 			       err ? "Failed" : "Sent");
- 		return;
- 	}
--	mlx5_sync_reset_set_reset_requested(dev);
-+	if (mlx5_sync_reset_set_reset_requested(dev))
-+		return;
-+
- 	err = mlx5_fw_reset_set_reset_sync_ack(dev);
- 	if (err)
- 		mlx5_core_warn(dev, "PCI Sync FW Update Reset Ack Failed. Error code: %d\n", err);
-@@ -319,7 +330,8 @@ static void mlx5_sync_reset_now_event(st
- 	struct mlx5_core_dev *dev = fw_reset->dev;
- 	int err;
- 
--	mlx5_sync_reset_clear_reset_requested(dev, false);
-+	if (mlx5_sync_reset_clear_reset_requested(dev, false))
-+		return;
- 
- 	mlx5_core_warn(dev, "Sync Reset now. Device is going to reset.\n");
- 
-@@ -348,10 +360,8 @@ static void mlx5_sync_reset_abort_event(
- 						      reset_abort_work);
- 	struct mlx5_core_dev *dev = fw_reset->dev;
- 
--	if (!test_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags))
-+	if (mlx5_sync_reset_clear_reset_requested(dev, true))
- 		return;
--
--	mlx5_sync_reset_clear_reset_requested(dev, true);
- 	mlx5_core_warn(dev, "PCI Sync FW Update Reset Aborted.\n");
+ 	tc filter add dev $eth0 ingress chain $(IS2 0 0) pref 1 \
+ 		protocol ipv4 flower skip_sw ip_proto udp dst_port 5201 \
+-		action police rate 50mbit burst 64k \
++		action police rate 50mbit burst 64k conform-exceed drop/pipe \
+ 		action goto chain $(IS2 1 0)
  }
  
 
