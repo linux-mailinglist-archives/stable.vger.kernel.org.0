@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FF7521B4F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2DDE521B18
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245537AbiEJOKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
+        id S245010AbiEJOIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:08:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343844AbiEJOHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:07:15 -0400
+        with ESMTP id S1343907AbiEJOHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:07:19 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57F53142801;
-        Tue, 10 May 2022 06:41:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85B918996B;
+        Tue, 10 May 2022 06:41:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 144BEB81D24;
-        Tue, 10 May 2022 13:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 785AFC385A6;
-        Tue, 10 May 2022 13:41:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49B20B81DC6;
+        Tue, 10 May 2022 13:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84ECAC385A6;
+        Tue, 10 May 2022 13:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190077;
-        bh=mMFKM45XzYbNuQwJ0AXvnB2RbndOAu20xyyssyqRm5o=;
+        s=korg; t=1652190081;
+        bh=omCwwj1V9gdXnPBkxflgMCC/ZXqPVg3mzsyBr2cA380=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wYUgyeNA146s1UkFSTLKAY90NxHDppIjRkpQrgEUU1PVWlq4YgYi4Kd66sL4nHBTq
-         6EWcXsTCsDapi9+KdOPI+iGr4vmr4pyWnj0vzCCom7/1bCv8IxkiFXSNEv0i0uDRkj
-         ouYJ2WE43O8OiTu0UmW26Qo72HKXFfWuQIYsCO7o=
+        b=PVCDKGLFaln+3SZ9xHgXaiHXXfmJGZkR9BZlWzzYjXh4sxfZzedCS1SAMA0Q18394
+         LNuIHoyeWDnjEAT+mzZBF5Jjxw5g+kkl9bemc6hCG79LdDiZTEKnJU6D6OrtESEL9m
+         jQUGo8hNjxdnpDwupNl7DFVMfoIjS7yb7BcbH4ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sidhartha Kumar <sidhartha.kumar@oracle.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 120/140] selftest/vm: verify remap destination address in mremap_test
-Date:   Tue, 10 May 2022 15:08:30 +0200
-Message-Id: <20220510130745.033154097@linuxfoundation.org>
+        stable@vger.kernel.org, Ricky Wu <ricky_wu@realtek.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        =?UTF-8?q?Christian=20L=C3=B6hle?= <CLoehle@hyperstone.com>
+Subject: [PATCH 5.17 121/140] mmc: rtsx: add 74 Clocks in power on flow
+Date:   Tue, 10 May 2022 15:08:31 +0200
+Message-Id: <20220510130745.060712210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
 References: <20220510130741.600270947@linuxfoundation.org>
@@ -57,66 +54,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sidhartha Kumar <sidhartha.kumar@oracle.com>
+From: Ricky WU <ricky_wu@realtek.com>
 
-[ Upstream commit 18d609daa546c919fd36b62a7b510c18de4b4af8 ]
+commit 1f311c94aabdb419c28e3147bcc8ab89269f1a7e upstream.
 
-Because mremap does not have a MAP_FIXED_NOREPLACE flag, it can destroy
-existing mappings.  This causes a segfault when regions such as text are
-remapped and the permissions are changed.
+SD spec definition:
+"Host provides at least 74 Clocks before issuing first command"
+After 1ms for the voltage stable then start issuing the Clock signals
 
-Verify the requested mremap destination address does not overlap any
-existing mappings by using mmap's MAP_FIXED_NOREPLACE flag.  Keep
-incrementing the destination address until a valid mapping is found or
-fail the current test once the max address is reached.
+if POWER STATE is
+MMC_POWER_OFF to MMC_POWER_UP to issue Clock signal to card
+MMC_POWER_UP to MMC_POWER_ON to stop issuing signal to card
 
-Link: https://lkml.kernel.org/r/20220420215721.4868-2-sidhartha.kumar@oracle.com
-Signed-off-by: Sidhartha Kumar <sidhartha.kumar@oracle.com>
-Reviewed-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ricky Wu <ricky_wu@realtek.com>
+Link: https://lore.kernel.org/r/1badf10aba764191a1a752edcbf90389@realtek.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Christian Löhle <CLoehle@hyperstone.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/vm/mremap_test.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/mmc/host/rtsx_pci_sdmmc.c |   29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/tools/testing/selftests/vm/mremap_test.c b/tools/testing/selftests/vm/mremap_test.c
-index 380a4593dbd6..5ef41640d657 100644
---- a/tools/testing/selftests/vm/mremap_test.c
-+++ b/tools/testing/selftests/vm/mremap_test.c
-@@ -65,6 +65,30 @@ enum {
- 	.expect_failure = should_fail				\
+--- a/drivers/mmc/host/rtsx_pci_sdmmc.c
++++ b/drivers/mmc/host/rtsx_pci_sdmmc.c
+@@ -38,10 +38,7 @@ struct realtek_pci_sdmmc {
+ 	bool			double_clk;
+ 	bool			eject;
+ 	bool			initial_mode;
+-	int			power_state;
+-#define SDMMC_POWER_ON		1
+-#define SDMMC_POWER_OFF		0
+-
++	int			prev_power_state;
+ 	int			sg_count;
+ 	s32			cookie;
+ 	int			cookie_sg_count;
+@@ -905,7 +902,7 @@ static int sd_set_bus_width(struct realt
+ 	return err;
  }
  
-+/*
-+ * Returns false if the requested remap region overlaps with an
-+ * existing mapping (e.g text, stack) else returns true.
-+ */
-+static bool is_remap_region_valid(void *addr, unsigned long long size)
-+{
-+	void *remap_addr = NULL;
-+	bool ret = true;
-+
-+	/* Use MAP_FIXED_NOREPLACE flag to ensure region is not mapped */
-+	remap_addr = mmap(addr, size, PROT_READ | PROT_WRITE,
-+					 MAP_FIXED_NOREPLACE | MAP_ANONYMOUS | MAP_SHARED,
-+					 -1, 0);
-+
-+	if (remap_addr == MAP_FAILED) {
-+		if (errno == EEXIST)
-+			ret = false;
-+	} else {
-+		munmap(remap_addr, size);
+-static int sd_power_on(struct realtek_pci_sdmmc *host)
++static int sd_power_on(struct realtek_pci_sdmmc *host, unsigned char power_mode)
+ {
+ 	struct rtsx_pcr *pcr = host->pcr;
+ 	struct mmc_host *mmc = host->mmc;
+@@ -913,9 +910,14 @@ static int sd_power_on(struct realtek_pc
+ 	u32 val;
+ 	u8 test_mode;
+ 
+-	if (host->power_state == SDMMC_POWER_ON)
++	if (host->prev_power_state == MMC_POWER_ON)
+ 		return 0;
+ 
++	if (host->prev_power_state == MMC_POWER_UP) {
++		rtsx_pci_write_register(pcr, SD_BUS_STAT, SD_CLK_TOGGLE_EN, 0);
++		goto finish;
 +	}
 +
-+	return ret;
-+}
+ 	msleep(100);
+ 
+ 	rtsx_pci_init_cmd(pcr);
+@@ -936,10 +938,15 @@ static int sd_power_on(struct realtek_pc
+ 	if (err < 0)
+ 		return err;
+ 
++	mdelay(1);
 +
- /* Returns mmap_min_addr sysctl tunable from procfs */
- static unsigned long long get_mmap_min_addr(void)
- {
--- 
-2.35.1
-
+ 	err = rtsx_pci_write_register(pcr, CARD_OE, SD_OUTPUT_EN, SD_OUTPUT_EN);
+ 	if (err < 0)
+ 		return err;
+ 
++	/* send at least 74 clocks */
++	rtsx_pci_write_register(pcr, SD_BUS_STAT, SD_CLK_TOGGLE_EN, SD_CLK_TOGGLE_EN);
++
+ 	if (PCI_PID(pcr) == PID_5261) {
+ 		/*
+ 		 * If test mode is set switch to SD Express mandatorily,
+@@ -964,7 +971,8 @@ static int sd_power_on(struct realtek_pc
+ 		}
+ 	}
+ 
+-	host->power_state = SDMMC_POWER_ON;
++finish:
++	host->prev_power_state = power_mode;
+ 	return 0;
+ }
+ 
+@@ -973,7 +981,7 @@ static int sd_power_off(struct realtek_p
+ 	struct rtsx_pcr *pcr = host->pcr;
+ 	int err;
+ 
+-	host->power_state = SDMMC_POWER_OFF;
++	host->prev_power_state = MMC_POWER_OFF;
+ 
+ 	rtsx_pci_init_cmd(pcr);
+ 
+@@ -999,7 +1007,7 @@ static int sd_set_power_mode(struct real
+ 	if (power_mode == MMC_POWER_OFF)
+ 		err = sd_power_off(host);
+ 	else
+-		err = sd_power_on(host);
++		err = sd_power_on(host, power_mode);
+ 
+ 	return err;
+ }
+@@ -1482,10 +1490,11 @@ static int rtsx_pci_sdmmc_drv_probe(stru
+ 
+ 	host = mmc_priv(mmc);
+ 	host->pcr = pcr;
++	mmc->ios.power_delay_ms = 5;
+ 	host->mmc = mmc;
+ 	host->pdev = pdev;
+ 	host->cookie = -1;
+-	host->power_state = SDMMC_POWER_OFF;
++	host->prev_power_state = MMC_POWER_OFF;
+ 	INIT_WORK(&host->work, sd_request);
+ 	platform_set_drvdata(pdev, host);
+ 	pcr->slots[RTSX_SD_CARD].p_dev = pdev;
 
 
