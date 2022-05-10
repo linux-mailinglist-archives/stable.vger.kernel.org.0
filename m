@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0A4521785
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C5A5216FF
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243565AbiEJN1q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:27:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
+        id S243068AbiEJNWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242912AbiEJNZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41E321A94A;
-        Tue, 10 May 2022 06:18:13 -0700 (PDT)
+        with ESMTP id S242934AbiEJNVL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:11 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E132C07DC;
+        Tue, 10 May 2022 06:14:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D63161665;
-        Tue, 10 May 2022 13:18:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C550C385A6;
-        Tue, 10 May 2022 13:18:12 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3C108CE1EE3;
+        Tue, 10 May 2022 13:14:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E24DC385C2;
+        Tue, 10 May 2022 13:14:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188693;
-        bh=zL7m3jJKBlSnNR74+VWXMFcYh75Cfk2X59tlw/vprHk=;
+        s=korg; t=1652188449;
+        bh=JYrQNoyzGo89v5Na0CK11ojhEGnLEC9j0O5N7oqqcsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFVErV6zjDNHdQuYxTFVcJmRNtNvAChQ2CBKiiZUX82v9O5YkXEeWbdg3/TZTO7Ll
-         OYgEoz3nUztgjYCI8bqHe4mNOzywWh9hbHWm3DM9fskYIQzxC+7436lUsBshlzkdED
-         5+tj7gUDdc4ehjleQ4fegvf22mtr6IUqJuOJd4TI=
+        b=LlygFJLxU4DbssXckP3RhJDKWXNBJIKuQAJ8hSX6MCGukogsmyZK3lx2HQ0WPRD6S
+         w0qojvQewiXWC8a6w3mtesWLdX+1WUFiT9hFTGrQEdcLzo0+b2IQ8BP4ECpLKvCIdC
+         NT6VsIgBwAjyKiKuGzg7NNCvI5TW+PLLpC0fzcTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
-Subject: [PATCH 4.19 13/88] usb: gadget: uvc: Fix crash when encoding data for usb request
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 12/78] USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
 Date:   Tue, 10 May 2022 15:06:58 +0200
-Message-Id: <20220510130734.133672673@linuxfoundation.org>
+Message-Id: <20220510130732.897045687@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,82 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Vacura <w36195@motorola.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit 71d471e3faf90c9674cadc7605ac719e82cb7fac upstream.
+commit b4a64ed6e7b857317070fcb9d87ff5d4a73be3e8 upstream.
 
-During the uvcg_video_pump() process, if an error occurs and
-uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
-the current marker (queue->buf_used) of the active buffer (no longer
-active) is not reset. On the next iteration of uvcg_video_pump() the
-stale buf_used count will be used and the logic of min((unsigned
-int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
-nbytes size, causing an invalid memory access.
+Add support for Cinterion device MV32-WA/MV32-WB. MV32-WA PID is
+0x00F1, and MV32-WB PID is 0x00F2.
 
-[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
-with status -18.
-[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
-with status -18.
-...
-uvcg_queue_cancel() is called and the queue is cleared out, but the
-marker queue->buf_used is not reset.
-...
-[80802.262328][ T8682] Unable to handle kernel paging request at virtual
-address ffffffc03af9f000
-...
-...
-[80802.263138][ T8682] Call trace:
-[80802.263146][ T8682]  __memcpy+0x12c/0x180
-[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
-[80802.263165][ T8682]  process_one_work+0x2cc/0x568
-[80802.263173][ T8682]  worker_thread+0x28c/0x518
-[80802.263181][ T8682]  kthread+0x160/0x170
-[80802.263188][ T8682]  ret_from_fork+0x10/0x18
-[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
+Test evidence as below:
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f1 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F1 USB Mobile Broadband
+S:  SerialNumber=78ada8c4
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Dan Vacura <w36195@motorola.com>
-Link: https://lore.kernel.org/r/20220331184024.23918-1-w36195@motorola.com
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f2 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F2 USB Mobile Broadband
+S:  SerialNumber=cdd06a78
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
+
+Interface 0&1: MBIM, 2:Modem, 3: GNSS, 4: NMEA, 5: Diag
+GNSS port don't use serial driver.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20220414074434.5699-1-slark_xiao@163.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/uvc_queue.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/usb/gadget/function/uvc_queue.c
-+++ b/drivers/usb/gadget/function/uvc_queue.c
-@@ -242,6 +242,8 @@ void uvcg_queue_cancel(struct uvc_video_
- 		buf->state = UVC_BUF_STATE_ERROR;
- 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
- 	}
-+	queue->buf_used = 0;
-+
- 	/* This must be protected by the irqlock spinlock to avoid race
- 	 * conditions between uvc_queue_buffer and the disconnection event that
- 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -435,6 +435,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_CLS8			0x00b0
+ #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
+ #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
++#define CINTERION_PRODUCT_MV32_WA		0x00f1
++#define CINTERION_PRODUCT_MV32_WB		0x00f2
+ 
+ /* Olivetti products */
+ #define OLIVETTI_VENDOR_ID			0x0b3c
+@@ -1972,6 +1974,10 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
+ 	  .driver_info = RSVD(0)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
++	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
 
 
