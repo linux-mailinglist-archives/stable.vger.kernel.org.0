@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E09521AB6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7CB5216E0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:16:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243922AbiEJOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46720 "EHLO
+        id S242575AbiEJNUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245278AbiEJN5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 701F32D4B56;
-        Tue, 10 May 2022 06:39:06 -0700 (PDT)
+        with ESMTP id S242595AbiEJNSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:18:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37C4599685;
+        Tue, 10 May 2022 06:13:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09148615E9;
-        Tue, 10 May 2022 13:39:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22EBC385A6;
-        Tue, 10 May 2022 13:39:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9F8AB81B32;
+        Tue, 10 May 2022 13:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 626D8C385C2;
+        Tue, 10 May 2022 13:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189945;
-        bh=H80LzjsCwwDuMoTh8aPlJp2dEdjqVJunQqjAV47P7vE=;
+        s=korg; t=1652188393;
+        bh=PpHB42D2WhzR1hdSa3ILbnlTtl5eQexm51QPCFTqxsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ayohSOjUylXRgcTXmXLE1jrt+OORp/WrBZQpMXCYup2wirN0NzbCJAnIGXedMeF1d
-         WmsMVxKPrmgi2v4uyaUkOGY6e1K7QRxfqFHZznuzXl3yLdPA89p1cOYpTjIpYhbPJ4
-         Ma/6jBbS46EzY+Zz/ElaSnBaC3GzIDVJlXprRW8Q=
+        b=isZ7S1yC2sGxsBsxiwMp5aGnGnXCATv5BagYXho2zjQ0TaA6R9PW6VQOpvqtSGL48
+         wz3TP3SANniA/XAHTaJLXg6AhU0ao5H5JoQbn33aF0qCYAUoceC6Ffp7hhLeV7hp30
+         H7N54E340vUL3U9dnEdKlhPOzOQ6EEIZMMEAiW2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.17 078/140] SUNRPC release the transport of a relocated task with an assigned transport
+        stable@vger.kernel.org,
+        Shravya Kumbham <shravya.kumbham@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 4.9 58/66] net: emaclite: Add error handling for of_address_to_resource()
 Date:   Tue, 10 May 2022 15:07:48 +0200
-Message-Id: <20220510130743.844609243@linuxfoundation.org>
+Message-Id: <20220510130731.467781204@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,39 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Shravya Kumbham <shravya.kumbham@xilinx.com>
 
-commit e13433b4416fa31a24e621cbbbb39227a3d651dd upstream.
+commit 7a6bc33ab54923d325d9a1747ec9652c4361ebd1 upstream.
 
-A relocated task must release its previous transport.
+check the return value of of_address_to_resource() and also add
+missing of_node_put() for np and npp nodes.
 
-Fixes: 82ee41b85cef1 ("SUNRPC don't resend a task on an offlined transport")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: e0a3bc65448c ("net: emaclite: Support multiple phys connected to one MDIO bus")
+Addresses-Coverity: Event check_return value.
+Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/clnt.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1065,10 +1065,13 @@ rpc_task_get_next_xprt(struct rpc_clnt *
- static
- void rpc_task_set_transport(struct rpc_task *task, struct rpc_clnt *clnt)
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -817,10 +817,10 @@ static int xemaclite_mdio_write(struct m
+ static int xemaclite_mdio_setup(struct net_local *lp, struct device *dev)
  {
--	if (task->tk_xprt &&
--			!(test_bit(XPRT_OFFLINE, &task->tk_xprt->state) &&
--                        (task->tk_flags & RPC_TASK_MOVEABLE)))
--		return;
-+	if (task->tk_xprt) {
-+		if (!(test_bit(XPRT_OFFLINE, &task->tk_xprt->state) &&
-+		      (task->tk_flags & RPC_TASK_MOVEABLE)))
-+			return;
-+		xprt_release(task);
-+		xprt_put(task->tk_xprt);
+ 	struct mii_bus *bus;
+-	int rc;
+ 	struct resource res;
+ 	struct device_node *np = of_get_parent(lp->phy_node);
+ 	struct device_node *npp;
++	int rc, ret;
+ 
+ 	/* Don't register the MDIO bus if the phy_node or its parent node
+ 	 * can't be found.
+@@ -830,8 +830,14 @@ static int xemaclite_mdio_setup(struct n
+ 		return -ENODEV;
+ 	}
+ 	npp = of_get_parent(np);
+-
+-	of_address_to_resource(npp, 0, &res);
++	ret = of_address_to_resource(npp, 0, &res);
++	of_node_put(npp);
++	if (ret) {
++		dev_err(dev, "%s resource error!\n",
++			dev->of_node->full_name);
++		of_node_put(np);
++		return ret;
 +	}
- 	if (task->tk_flags & RPC_TASK_NO_ROUND_ROBIN)
- 		task->tk_xprt = rpc_task_get_first_xprt(clnt);
- 	else
+ 	if (lp->ndev->mem_start != res.start) {
+ 		struct phy_device *phydev;
+ 		phydev = of_phy_find_device(lp->phy_node);
+@@ -840,6 +846,7 @@ static int xemaclite_mdio_setup(struct n
+ 				 "MDIO of the phy is not registered yet\n");
+ 		else
+ 			put_device(&phydev->mdio.dev);
++		of_node_put(np);
+ 		return 0;
+ 	}
+ 
+@@ -852,6 +859,7 @@ static int xemaclite_mdio_setup(struct n
+ 	bus = mdiobus_alloc();
+ 	if (!bus) {
+ 		dev_err(dev, "Failed to allocate mdiobus\n");
++		of_node_put(np);
+ 		return -ENOMEM;
+ 	}
+ 
+@@ -866,6 +874,7 @@ static int xemaclite_mdio_setup(struct n
+ 	lp->mii_bus = bus;
+ 
+ 	rc = of_mdiobus_register(bus, np);
++	of_node_put(np);
+ 	if (rc) {
+ 		dev_err(dev, "Failed to register mdio bus.\n");
+ 		goto err_register;
 
 
