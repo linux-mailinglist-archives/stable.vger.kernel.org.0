@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0DA521687
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628CD521924
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239460AbiEJNQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59726 "EHLO
+        id S243608AbiEJNmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242366AbiEJNPd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:33 -0400
+        with ESMTP id S237242AbiEJNkd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:40:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2323BA65;
-        Tue, 10 May 2022 06:11:18 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B901298385;
+        Tue, 10 May 2022 06:29:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83C41B81D7A;
-        Tue, 10 May 2022 13:11:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D341EC385C2;
-        Tue, 10 May 2022 13:11:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C7F6B81DA8;
+        Tue, 10 May 2022 13:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49726C385A6;
+        Tue, 10 May 2022 13:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188276;
-        bh=sh06TBAH1ezWV6utqcJE5j/Qf8oUhesqUDZWGeWV1Jc=;
+        s=korg; t=1652189377;
+        bh=bdlir941cJPdvV0WLmjHhFND7q7Dk2ei9JvxwOveNsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wt0zqS77w+fpNJVxPW1PEk7G2qOwswmUoutYycHWx69mCGogZbat5MRCwbuwgK5QG
-         sbq65Qo3Vv0/oNji/Cb8eRvqFb1sg3ASyCgH5hDREwtTMFK05Z8myBcz0ur1AK+6rw
-         LVaRD4gMbNvYnreac1nuS0dlQwo09yguG4bOu0Uk=
+        b=sanN1lH8V0rI0MNjsUT016I5utjX1JkLTX7Ln+oArbaIyYHdN5LpMkkutT7eiZuKy
+         sTkRBnxsDGQ8W8t8NebaAGQpICcLCSM59EZ13qWRZ2ENM2aaiLA6O86FCK28SU7MrQ
+         03irU4shzZ06nSfCHGPyQRB4KTFwYbMfOoBVWiSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/66] Revert "net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link"
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 030/135] s390/dasd: Fix read for ESE with blksize < 4k
 Date:   Tue, 10 May 2022 15:06:52 +0200
-Message-Id: <20220510130729.835099538@linuxfoundation.org>
+Message-Id: <20220510130741.265942817@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit edba120f094394454f5b9511d04abd7e8c2c31ee which is
-commit a6aaa00324240967272b451bfa772547bd576ee6 upstream.
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-Pavel reports that it causes boot issues, so revert it for now.
+commit cd68c48ea15c85f1577a442dc4c285e112ff1b37 upstream.
 
-Link: https://lore.kernel.org/r/20220429074341.GB1423@amd
-Reported-by: Pavel Machek <pavel@denx.de>
-Cc: Dinh Nguyen <dinguyen@kernel.org>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Sasha Levin <sashal@kernel.org>
+When reading unformatted tracks on ESE devices, the corresponding memory
+areas are simply set to zero for each segment. This is done incorrectly
+for blocksizes < 4096.
+
+There are two problems. First, the increment of dst is done using the
+counter of the loop (off), which is increased by blksize every
+iteration. This leads to a much bigger increment for dst as actually
+intended. Second, the increment of dst is done before the memory area
+is set to 0, skipping a significant amount of bytes of memory.
+
+This leads to illegal overwriting of memory and ultimately to a kernel
+panic.
+
+This is not a problem with 4k blocksize because
+blk_queue_max_segment_size is set to PAGE_SIZE, always resulting in a
+single iteration for the inner segment loop (bv.bv_len == blksize). The
+incorrectly used 'off' value to increment dst is 0 and the correct
+memory area is used.
+
+In order to fix this for blksize < 4k, increment dst correctly using the
+blksize and only do it at the end of the loop.
+
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-4-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c  |    8 ++++++++
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h  |    4 ----
- drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c |   13 ++++++++-----
- 3 files changed, 16 insertions(+), 9 deletions(-)
+ drivers/s390/block/dasd_eckd.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c
-@@ -68,6 +68,10 @@
- #define TSE_PCS_USE_SGMII_ENA				BIT(0)
- #define TSE_PCS_IF_USE_SGMII				0x03
- 
-+#define SGMII_ADAPTER_CTRL_REG				0x00
-+#define SGMII_ADAPTER_DISABLE				0x0001
-+#define SGMII_ADAPTER_ENABLE				0x0000
-+
- #define AUTONEGO_LINK_TIMER				20
- 
- static int tse_pcs_reset(void __iomem *base, struct tse_pcs *pcs)
-@@ -211,8 +215,12 @@ void tse_pcs_fix_mac_speed(struct tse_pc
- 			   unsigned int speed)
- {
- 	void __iomem *tse_pcs_base = pcs->tse_pcs_base;
-+	void __iomem *sgmii_adapter_base = pcs->sgmii_adapter_base;
- 	u32 val;
- 
-+	writew(SGMII_ADAPTER_ENABLE,
-+	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+
- 	pcs->autoneg = phy_dev->autoneg;
- 
- 	if (phy_dev->autoneg == AUTONEG_ENABLE) {
---- a/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h
-@@ -21,10 +21,6 @@
- #include <linux/phy.h>
- #include <linux/timer.h>
- 
--#define SGMII_ADAPTER_CTRL_REG		0x00
--#define SGMII_ADAPTER_ENABLE		0x0000
--#define SGMII_ADAPTER_DISABLE		0x0001
--
- struct tse_pcs {
- 	struct device *dev;
- 	void __iomem *tse_pcs_base;
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-socfpga.c
-@@ -29,6 +29,9 @@
- 
- #include "altr_tse_pcs.h"
- 
-+#define SGMII_ADAPTER_CTRL_REG                          0x00
-+#define SGMII_ADAPTER_DISABLE                           0x0001
-+
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_GMII_MII 0x0
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RGMII 0x1
- #define SYSMGR_EMACGRP_CTRL_PHYSEL_ENUM_RMII 0x2
-@@ -62,14 +65,16 @@ static void socfpga_dwmac_fix_mac_speed(
- {
- 	struct socfpga_dwmac *dwmac = (struct socfpga_dwmac *)priv;
- 	void __iomem *splitter_base = dwmac->splitter_base;
-+	void __iomem *tse_pcs_base = dwmac->pcs.tse_pcs_base;
- 	void __iomem *sgmii_adapter_base = dwmac->pcs.sgmii_adapter_base;
- 	struct device *dev = dwmac->dev;
- 	struct net_device *ndev = dev_get_drvdata(dev);
- 	struct phy_device *phy_dev = ndev->phydev;
- 	u32 val;
- 
--	writew(SGMII_ADAPTER_DISABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
-+	if ((tse_pcs_base) && (sgmii_adapter_base))
-+		writew(SGMII_ADAPTER_DISABLE,
-+		       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
- 
- 	if (splitter_base) {
- 		val = readl(splitter_base + EMAC_SPLITTER_CTRL_REG);
-@@ -91,9 +96,7 @@ static void socfpga_dwmac_fix_mac_speed(
- 		writel(val, splitter_base + EMAC_SPLITTER_CTRL_REG);
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3297,12 +3297,11 @@ static int dasd_eckd_ese_read(struct das
+ 				cqr->proc_bytes = blk_count * blksize;
+ 				return 0;
+ 			}
+-			if (dst && !skip_block) {
+-				dst += off;
++			if (dst && !skip_block)
+ 				memset(dst, 0, blksize);
+-			} else {
++			else
+ 				skip_block--;
+-			}
++			dst += blksize;
+ 			blk_count++;
+ 		}
  	}
- 
--	writew(SGMII_ADAPTER_ENABLE,
--	       sgmii_adapter_base + SGMII_ADAPTER_CTRL_REG);
--	if (phy_dev)
-+	if (tse_pcs_base && sgmii_adapter_base)
- 		tse_pcs_fix_mac_speed(&dwmac->pcs, phy_dev, speed);
- }
- 
 
 
