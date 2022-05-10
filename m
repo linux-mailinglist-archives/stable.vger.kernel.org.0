@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F3B521F8A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:46:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21A09521F8B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346244AbiEJPue (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:50:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60280 "EHLO
+        id S1346489AbiEJPuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346204AbiEJPuZ (ORCPT
+        with ESMTP id S1346246AbiEJPuZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:50:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB8E285AF7;
-        Tue, 10 May 2022 08:44:44 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7424C285EC4;
+        Tue, 10 May 2022 08:44:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B3076142F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 039B061426;
+        Tue, 10 May 2022 15:44:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166FBC385C2;
         Tue, 10 May 2022 15:44:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C915DC385A6;
-        Tue, 10 May 2022 15:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197483;
-        bh=D10GPRbEwKJfKsKN2QwvZzhLZ1ISe1aCW6XloW6wvuE=;
+        s=k20201202; t=1652197485;
+        bh=omJeBGX28SkPxdoJonDoRUB1KOVyZzromm7NoJwczQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MjQ8B0R5lDY7zJRYPAQVZ0nIV0PiC7FkM9JJ3Yoqk7cYXkBD8U1OIQvsXpVuffYgj
-         hcFD0eoZFs5BTMRy6bGlRVTZNrHjjdn5m85+ZaXfX8X2doWZFmwXCrD2HSI3lR9Cll
-         3zji3ds5lWUwxM/c7h6d/fGG4ntFYRGmg/bD07zoqZr+sor4heMtEN4ElrighfK3Km
-         xSfAFj8231m2ztgdwNhybqVwQkZn6WO2JNMbvPlKHS06b0zlaI56amIP9Mv/Lc+rc+
-         FWbMmlkZFr0JGQA6CBz1fV1lD1cPlqn5kiC//Aw28V9gUxC+9EyNnWFr/YS7LKbaMU
-         jArcXkrSRhOOg==
+        b=X+vLc2SnRJ9/PlweEuVBgJ8bVaVAIS3/+Pn2pJ2dCdVru/VPNmcxHOXoBIM+boCSy
+         mfmsZAXjmsWj+I0FuDtpcLS9ztg9i9FGKcs5nthhwfs2G/YBnLstDWIRdx9dn8bHvX
+         6cFA/RFJyYzbJ118mfh1KLleu2KaA4c6x8AoKv4QuZ7R2VQyYRsToYYIKbs6mSdoYo
+         RlYr2jvXDTYpfyl2imKLuyGMeeo79oI6clKgXgiBM4uHSS312Fg9uZOUwt4ZJ+b4Qn
+         +xzyPFyggUKrNjhyMhk+nBO+zlQZPKBMaRVcN6X2MOp0j8kj1ULUzrXL6mEi8mtQf0
+         bkp9MQ1j96OjQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schnelle <svens@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 07/19] s390: disable -Warray-bounds
-Date:   Tue, 10 May 2022 11:44:17 -0400
-Message-Id: <20220510154429.153677-7-sashal@kernel.org>
+Cc:     Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        kai.vehmanen@linux.intel.com, daniel.baluta@nxp.com,
+        perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 08/19] ASoC: SOF: Fix NULL pointer exception in sof_pci_probe callback
+Date:   Tue, 10 May 2022 11:44:18 -0400
+Message-Id: <20220510154429.153677-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154429.153677-1-sashal@kernel.org>
 References: <20220510154429.153677-1-sashal@kernel.org>
@@ -57,52 +61,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schnelle <svens@linux.ibm.com>
+From: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
 
-[ Upstream commit 8b202ee218395319aec1ef44f72043e1fbaccdd6 ]
+[ Upstream commit c61711c1c95791850be48dd65a1d72eb34ba719f ]
 
-gcc-12 shows a lot of array bound warnings on s390. This is caused
-by the S390_lowcore macro which uses a hardcoded address of 0.
+We are accessing "desc->ops" in sof_pci_probe without checking "desc"
+pointer. This results in NULL pointer exception if pci_id->driver_data
+i.e desc pointer isn't defined in sof device probe:
 
-Wrapping that with absolute_pointer() works, but gcc no longer knows
-that a 12 bit displacement is sufficient to access lowcore. So it
-emits instructions like 'lghi %r1,0; l %rx,xxx(%r1)' instead of a
-single load/store instruction. As s390 stores variables often
-read/written in lowcore, this is considered problematic. Therefore
-disable -Warray-bounds on s390 for gcc-12 for the time being, until
-there is a better solution.
+BUG: kernel NULL pointer dereference, address: 0000000000000060
+PGD 0 P4D 0
+Oops: 0000 [#1] PREEMPT SMP NOPTI
+RIP: 0010:sof_pci_probe+0x1e/0x17f [snd_sof_pci]
+Code: Unable to access opcode bytes at RIP 0xffffffffc043dff4.
+RSP: 0018:ffffac4b03b9b8d8 EFLAGS: 00010246
 
-Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
-Link: https://lore.kernel.org/r/yt9dzgkelelc.fsf@linux.ibm.com
-Link: https://lore.kernel.org/r/20220422134308.1613610-1-svens@linux.ibm.com
-Link: https://lore.kernel.org/r/20220425121742.3222133-1-svens@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Add NULL pointer check for sof_dev_desc pointer to avoid such exception.
+
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220426183357.102155-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/Makefile | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ sound/soc/sof/sof-pci-dev.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/s390/Makefile b/arch/s390/Makefile
-index d4fd1426a822..c7b7a60f6405 100644
---- a/arch/s390/Makefile
-+++ b/arch/s390/Makefile
-@@ -32,6 +32,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
- KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
- KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
+diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
+index bc9e70765678..b773289c928d 100644
+--- a/sound/soc/sof/sof-pci-dev.c
++++ b/sound/soc/sof/sof-pci-dev.c
+@@ -129,6 +129,11 @@ int sof_pci_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+ 
+ 	dev_dbg(&pci->dev, "PCI DSP detected");
+ 
++	if (!desc) {
++		dev_err(dev, "error: no matching PCI descriptor\n");
++		return -ENODEV;
++	}
 +
-+ifdef CONFIG_CC_IS_GCC
-+	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
-+		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
-+			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
-+			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
-+		endif
-+	endif
-+endif
-+
- UTS_MACHINE	:= s390x
- STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
- CHECKFLAGS	+= -D__s390__ -D__s390x__
+ 	if (!desc->ops) {
+ 		dev_err(dev, "error: no matching PCI descriptor ops\n");
+ 		return -ENODEV;
 -- 
 2.35.1
 
