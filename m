@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 784A6521AAF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC2355217A5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242540AbiEJODV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43422 "EHLO
+        id S242795AbiEJN2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343696AbiEJN7a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:59:30 -0400
+        with ESMTP id S243274AbiEJN0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:40 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F94C3F8BB;
-        Tue, 10 May 2022 06:39:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A7E8231CB1;
+        Tue, 10 May 2022 06:19:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DE44B81DB8;
-        Tue, 10 May 2022 13:39:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A37A2C385A6;
-        Tue, 10 May 2022 13:39:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF8B4B81D7A;
+        Tue, 10 May 2022 13:19:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 083F7C385A6;
+        Tue, 10 May 2022 13:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189978;
-        bh=Weyb4TA3ATTSARhzD42JJKD7YbniFgc7Mc8OARMLrug=;
+        s=korg; t=1652188755;
+        bh=VkjXY59wzMY0vN+1WTwZLVdRbwyG7gsNrtDViAswDNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/94IhYi2b55KzWwrZNRV5VDb6H4GGQFb7iAgwxm42w2//aVUKELzo5I6CIYMyxaZ
-         TxIM7pdlwjh6aJqjuq7iMgBxeKbDAVsiZUHBLWK2E3HcNwYpSwOrd+YbjDYPqi3af/
-         Wrupw4ynrHDSeEv9XT2cXFppy17eA2tYkx4NPDHY=
+        b=MJRxvnDyFNMraFGBgR2++JkhTbezLWjge7vRJyrLe3YdGLP8sawvwEeoF6RSM9GaQ
+         Ak6csjPOv4IzHhFvNQnVVEQK+TadUaN1qjKtKoNqUjv6P/MzidNYuh/XcqHBLodGHU
+         GXIGz4Xc/gsXmijLiLTSNALGCsfeajUqjr59Moi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.17 049/140] can: grcan: only use the NAPI poll budget for RX
+        stable@vger.kernel.org,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Denys Drozdov <denys.drozdov@toradex.com>,
+        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 34/88] ARM: dts: imx6ull-colibri: fix vqmmc regulator
 Date:   Tue, 10 May 2022 15:07:19 +0200
-Message-Id: <20220510130743.022031810@linuxfoundation.org>
+Message-Id: <20220510130734.736251531@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Max Krummenacher <max.krummenacher@toradex.com>
 
-commit 2873d4d52f7c52d60b316ba6c47bd7122b5a9861 upstream.
+[ Upstream commit 45974e4276a8d6653394f66666fc57d8ffa6de9a ]
 
-The previous split budget between TX and RX made it return not using
-the entire budget but at the same time not having calling called
-napi_complete. This sometimes led to the poll to not be called, and at
-the same time having TX and RX interrupts disabled resulting in the
-driver getting stuck.
+The correct spelling for the property is gpios. Otherwise, the regulator
+will neither reserve nor control any GPIOs. Thus, any SD/MMC card which
+can use UHS-I modes will fail.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-4-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c2e4987e0e02 ("ARM: dts: imx6ull: add Toradex Colibri iMX6ULL support")
+Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Denys Drozdov <denys.drozdov@toradex.com>
+Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/grcan.c |   22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ arch/arm/boot/dts/imx6ull-colibri.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -1125,7 +1125,7 @@ static int grcan_close(struct net_device
- 	return 0;
- }
+diff --git a/arch/arm/boot/dts/imx6ull-colibri.dtsi b/arch/arm/boot/dts/imx6ull-colibri.dtsi
+index 6c63a7384611..4219239f0b58 100644
+--- a/arch/arm/boot/dts/imx6ull-colibri.dtsi
++++ b/arch/arm/boot/dts/imx6ull-colibri.dtsi
+@@ -37,7 +37,7 @@ reg_module_3v3_avdd: regulator-module-3v3-avdd {
  
--static int grcan_transmit_catch_up(struct net_device *dev, int budget)
-+static void grcan_transmit_catch_up(struct net_device *dev)
- {
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	unsigned long flags;
-@@ -1133,7 +1133,7 @@ static int grcan_transmit_catch_up(struc
- 
- 	spin_lock_irqsave(&priv->lock, flags);
- 
--	work_done = catch_up_echo_skb(dev, budget, true);
-+	work_done = catch_up_echo_skb(dev, -1, true);
- 	if (work_done) {
- 		if (!priv->resetting && !priv->closing &&
- 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
-@@ -1147,8 +1147,6 @@ static int grcan_transmit_catch_up(struc
- 	}
- 
- 	spin_unlock_irqrestore(&priv->lock, flags);
--
--	return work_done;
- }
- 
- static int grcan_receive(struct net_device *dev, int budget)
-@@ -1230,19 +1228,13 @@ static int grcan_poll(struct napi_struct
- 	struct net_device *dev = priv->dev;
- 	struct grcan_registers __iomem *regs = priv->regs;
- 	unsigned long flags;
--	int tx_work_done, rx_work_done;
--	int rx_budget = budget / 2;
--	int tx_budget = budget - rx_budget;
-+	int work_done;
- 
--	/* Half of the budget for receiving messages */
--	rx_work_done = grcan_receive(dev, rx_budget);
-+	work_done = grcan_receive(dev, budget);
- 
--	/* Half of the budget for transmitting messages as that can trigger echo
--	 * frames being received
--	 */
--	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
-+	grcan_transmit_catch_up(dev);
- 
--	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
-+	if (work_done < budget) {
- 		napi_complete(napi);
- 
- 		/* Guarantee no interference with a running reset that otherwise
-@@ -1259,7 +1251,7 @@ static int grcan_poll(struct napi_struct
- 		spin_unlock_irqrestore(&priv->lock, flags);
- 	}
- 
--	return rx_work_done + tx_work_done;
-+	return work_done;
- }
- 
- /* Work tx bug by waiting while for the risky situation to clear. If that fails,
+ 	reg_sd1_vmmc: regulator-sd1-vmmc {
+ 		compatible = "regulator-gpio";
+-		gpio = <&gpio5 9 GPIO_ACTIVE_HIGH>;
++		gpios = <&gpio5 9 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&pinctrl_snvs_reg_sd>;
+ 		regulator-always-on;
+-- 
+2.35.1
+
 
 
