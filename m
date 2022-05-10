@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E9D5218BC
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0590D521787
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238388AbiEJNju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54838 "EHLO
+        id S243994AbiEJN1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244967AbiEJNiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0965F7890D;
-        Tue, 10 May 2022 06:26:45 -0700 (PDT)
+        with ESMTP id S242902AbiEJNZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5CC2013BF;
+        Tue, 10 May 2022 06:17:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF2E6B81DA0;
-        Tue, 10 May 2022 13:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D598C385A6;
-        Tue, 10 May 2022 13:26:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C1D861574;
+        Tue, 10 May 2022 13:17:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81FD1C385C2;
+        Tue, 10 May 2022 13:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189202;
-        bh=P3SVQNOO3B7N/QZLCcWPzgOahP2/LyoDyJ/f3OPaNKs=;
+        s=korg; t=1652188675;
+        bh=Mjqm6ST4VdKm9gYNxUOqp1Z19TuJPOHgsc7bkCMeYfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sa5V4oN6bXEMzn+MX1/7DxbY+Ssj85yLVDeozjtehHvq9LeVipm1IPKZ3a4uBJE1j
-         rymVLY5ycOji505yYlJ22uQloEoHfDvJ0w37wVpUK3E9EU7iWFsnbbVMcGgZYl4TYG
-         0ltB4CxBdXXLHy9FXh38ThtmI6wRTahhgueFxGk8=
+        b=fLRAOk5QzVfoHxHSvPxhJdVzWaaVzqg7DG2cZ0Vuw7SO3LPl7aD7lCa8akvgavqYI
+         +4ZTgc9JTahK16/fJurCcuqGMJymoprXPgTos6PtTFU697mq3UIFJsfsfbJ7V7cwWE
+         d98Djyw3GULzb6ipxY8Q92whV0E3J7HBG/dMIeyc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 45/70] net: ethernet: mediatek: add missing of_node_put() in mtk_sgmii_init()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 4.14 78/78] PCI: aardvark: Fix reading MSI interrupt number
 Date:   Tue, 10 May 2022 15:08:04 +0200
-Message-Id: <20220510130734.180217074@linuxfoundation.org>
+Message-Id: <20220510130734.835879313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit ff5265d45345d01fefc98fcb9ae891b59633c919 upstream.
+commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 upstream.
 
-The node pointer returned by of_parse_phandle() with refcount incremented,
-so add of_node_put() after using it in mtk_sgmii_init().
+In advk_pcie_handle_msi() it is expected that when bit i in the W1C
+register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
+updated to contain the MSI number corresponding to index i.
 
-Fixes: 9ffee4a8276c ("net: ethernet: mediatek: Extend SGMII related functions")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220428062543.64883-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
+always contains the number of the last received MSI, overall.
+
+Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
+number. Since Aardvark already forbids more than 32 interrupts and uses
+own allocated hwirq numbers, the msi_idx already corresponds to the
+received MSI number.
+
+Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
+Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_sgmii.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/pci/host/pci-aardvark.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/mediatek/mtk_sgmii.c
-+++ b/drivers/net/ethernet/mediatek/mtk_sgmii.c
-@@ -26,6 +26,7 @@ int mtk_sgmii_init(struct mtk_sgmii *ss,
- 			break;
+--- a/drivers/pci/host/pci-aardvark.c
++++ b/drivers/pci/host/pci-aardvark.c
+@@ -1036,7 +1036,7 @@ static void advk_pcie_remove_irq_domain(
+ static void advk_pcie_handle_msi(struct advk_pcie *pcie)
+ {
+ 	u32 msi_val, msi_mask, msi_status, msi_idx;
+-	u16 msi_data;
++	int virq;
  
- 		ss->regmap[i] = syscon_node_to_regmap(np);
-+		of_node_put(np);
- 		if (IS_ERR(ss->regmap[i]))
- 			return PTR_ERR(ss->regmap[i]);
+ 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
+ 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
+@@ -1046,13 +1046,9 @@ static void advk_pcie_handle_msi(struct
+ 		if (!(BIT(msi_idx) & msi_status))
+ 			continue;
+ 
+-		/*
+-		 * msi_idx contains bits [4:0] of the msi_data and msi_data
+-		 * contains 16bit MSI interrupt number
+-		 */
+ 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
+-		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
+-		generic_handle_irq(msi_data);
++		virq = irq_find_mapping(pcie->msi_inner_domain, msi_idx);
++		generic_handle_irq(virq);
  	}
+ 
+ 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 
 
