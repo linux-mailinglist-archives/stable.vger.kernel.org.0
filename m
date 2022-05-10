@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3875218AD
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8522521849
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243592AbiEJNjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
+        id S243453AbiEJNeE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244625AbiEJNhx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:53 -0400
+        with ESMTP id S243837AbiEJNcR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:17 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CFCA4706D;
-        Tue, 10 May 2022 06:26:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2552D2E39;
+        Tue, 10 May 2022 06:22:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B117B81DA8;
-        Tue, 10 May 2022 13:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E29AC385A6;
-        Tue, 10 May 2022 13:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D1EEB81D7A;
+        Tue, 10 May 2022 13:22:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF03C385A6;
+        Tue, 10 May 2022 13:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189159;
-        bh=2mI/zjP+CAsjMl5kh45R2T1s5t3QVcMCqLJriNcVJ8w=;
+        s=korg; t=1652188951;
+        bh=YFMiPN3l9Oyq2ed9fTRIzlo7Xd7Djs77hjfpETWPvtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McPIDPp/U00cl1YajAVmGx9exALUeV7hiEPRnfkJETwv6Q5WFdH51LkCbNJ0fBb+H
-         2lJrjzBKnBF8zz6+EDGllKtvFOU9TJIYcAzXT4PWiN5Wc2NBCx8Ce2s/WN5sgYXigj
-         iNBVbT2SZsslDBAZWoIEZB0+FO4s8ETs/BuUp40w=
+        b=2ZVB42fGKSST1wb4BxTq5P/u7THAGR7708PH8VwMg0DXJll8P3aS56hpJO8WYooIR
+         pykPHpc4ndv3JTuZqXzUHt4mFZlGatcHa5cbYiEJBUrY1tcEDHC1eR9nHFFR748BpT
+         TH8AXiX5LUK9H831tyUmQXKa7Os/XIiLtXK7ZiRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
         Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 24/70] s390/dasd: Fix read for ESE with blksize < 4k
-Date:   Tue, 10 May 2022 15:07:43 +0200
-Message-Id: <20220510130733.575368874@linuxfoundation.org>
+Subject: [PATCH 5.4 15/52] s390/dasd: prevent double format of tracks for ESE devices
+Date:   Tue, 10 May 2022 15:07:44 +0200
+Message-Id: <20220510130730.303946309@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit cd68c48ea15c85f1577a442dc4c285e112ff1b37 upstream.
+commit 71f3871657370dbbaf942a1c758f64e49a36c70f upstream.
 
-When reading unformatted tracks on ESE devices, the corresponding memory
-areas are simply set to zero for each segment. This is done incorrectly
-for blocksizes < 4096.
+For ESE devices we get an error for write operations on an unformatted
+track. Afterwards the track will be formatted and the IO operation
+restarted.
+When using alias devices a track might be accessed by multiple requests
+simultaneously and there is a race window that a track gets formatted
+twice resulting in data loss.
 
-There are two problems. First, the increment of dst is done using the
-counter of the loop (off), which is increased by blksize every
-iteration. This leads to a much bigger increment for dst as actually
-intended. Second, the increment of dst is done before the memory area
-is set to 0, skipping a significant amount of bytes of memory.
+Prevent this by remembering the amount of formatted tracks when starting
+a request and comparing this number before actually formatting a track
+on the fly. If the number has changed there is a chance that the current
+track was finally formatted in between. As a result do not format the
+track and restart the current IO to check.
 
-This leads to illegal overwriting of memory and ultimately to a kernel
-panic.
-
-This is not a problem with 4k blocksize because
-blk_queue_max_segment_size is set to PAGE_SIZE, always resulting in a
-single iteration for the inner segment loop (bv.bv_len == blksize). The
-incorrectly used 'off' value to increment dst is 0 and the correct
-memory area is used.
-
-In order to fix this for blksize < 4k, increment dst correctly using the
-blksize and only do it at the end of the loop.
+The number of formatted tracks does not match the overall number of
+formatted tracks on the device and it might wrap around but this is no
+problem. It is only needed to recognize that a track has been formatted at
+all in between.
 
 Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220505141733.1989450-4-sth@linux.ibm.com
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-3-sth@linux.ibm.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_eckd.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/s390/block/dasd.c      |    7 +++++++
+ drivers/s390/block/dasd_eckd.c |   19 +++++++++++++++++--
+ drivers/s390/block/dasd_int.h  |    2 ++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1462,6 +1462,13 @@ int dasd_start_IO(struct dasd_ccw_req *c
+ 		if (!cqr->lpm)
+ 			cqr->lpm = dasd_path_get_opm(device);
+ 	}
++	/*
++	 * remember the amount of formatted tracks to prevent double format on
++	 * ESE devices
++	 */
++	if (cqr->block)
++		cqr->trkcount = atomic_read(&cqr->block->trkcount);
++
+ 	if (cqr->cpmode == 1) {
+ 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
+ 					 (long) cqr, cqr->lpm);
 --- a/drivers/s390/block/dasd_eckd.c
 +++ b/drivers/s390/block/dasd_eckd.c
-@@ -3228,12 +3228,11 @@ static int dasd_eckd_ese_read(struct das
- 				cqr->proc_bytes = blk_count * blksize;
- 				return 0;
- 			}
--			if (dst && !skip_block) {
--				dst += off;
-+			if (dst && !skip_block)
- 				memset(dst, 0, blksize);
--			} else {
-+			else
- 				skip_block--;
--			}
-+			dst += blksize;
- 			blk_count++;
- 		}
+@@ -3026,13 +3026,24 @@ static int dasd_eckd_format_device(struc
+ }
+ 
+ static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+-				      struct dasd_block *block)
++				      struct dasd_ccw_req *cqr)
+ {
++	struct dasd_block *block = cqr->block;
+ 	struct dasd_format_entry *format;
+ 	unsigned long flags;
+ 	bool rc = false;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	if (cqr->trkcount != atomic_read(&block->trkcount)) {
++		/*
++		 * The number of formatted tracks has changed after request
++		 * start and we can not tell if the current track was involved.
++		 * To avoid data corruption treat it as if the current track is
++		 * involved
++		 */
++		rc = true;
++		goto out;
++	}
+ 	list_for_each_entry(format, &block->format_list, list) {
+ 		if (format->track == to_format->track) {
+ 			rc = true;
+@@ -3052,6 +3063,7 @@ static void clear_format_track(struct da
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	atomic_inc(&block->trkcount);
+ 	list_del_init(&format->list);
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+@@ -3113,8 +3125,11 @@ dasd_eckd_ese_format(struct dasd_device
  	}
+ 	format->track = curr_trk;
+ 	/* test if track is already in formatting by another thread */
+-	if (test_and_set_format_track(format, block))
++	if (test_and_set_format_track(format, cqr)) {
++		/* this is no real error so do not count down retries */
++		cqr->retries++;
+ 		return ERR_PTR(-EEXIST);
++	}
+ 
+ 	fdata.start_unit = curr_trk;
+ 	fdata.stop_unit = curr_trk;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -188,6 +188,7 @@ struct dasd_ccw_req {
+ 	void (*callback)(struct dasd_ccw_req *, void *data);
+ 	void *callback_data;
+ 	unsigned int proc_bytes;	/* bytes for partial completion */
++	unsigned int trkcount;		/* count formatted tracks */
+ };
+ 
+ /*
+@@ -575,6 +576,7 @@ struct dasd_block {
+ 
+ 	struct list_head format_list;
+ 	spinlock_t format_lock;
++	atomic_t trkcount;
+ };
+ 
+ struct dasd_attention_data {
 
 
