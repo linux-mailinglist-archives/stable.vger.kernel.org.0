@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A65F52192E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B668B5216F7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244266AbiEJNn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:43:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47278 "EHLO
+        id S242839AbiEJNWi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244810AbiEJNmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB4A81991;
-        Tue, 10 May 2022 06:30:35 -0700 (PDT)
+        with ESMTP id S243189AbiEJNVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F4155A0B1;
+        Tue, 10 May 2022 06:15:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3BB461763;
-        Tue, 10 May 2022 13:30:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94B8C385C2;
-        Tue, 10 May 2022 13:30:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B67B6B81DA4;
+        Tue, 10 May 2022 13:14:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A7AC385C2;
+        Tue, 10 May 2022 13:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189433;
-        bh=bZpbnHDawu3VCWMLYiGy43zxTarsma7M7G7naDOwl/8=;
+        s=korg; t=1652188498;
+        bh=pz8zjZPWrbsGCPy0NPZ+4qZXWpmaB0sZuWf9cMya9uU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHHDj38GX4WBsxMtFT119xfrPyB2F5UwLG5fd+k+R+x/ZTrUIWNz48NPb2c84GnQr
-         3ONmIYq/UZzAWFbIJRVe73GG4jO8R/rTsARW7jsQdaJV6wfhQn4qkjq/+NF47Ik+D7
-         KsECsk1SIoypHZbRR7hCODnxBEE0iZMXH9++m1rw=
+        b=jIxWpzBfykGzxT5p5cjk9CC1sePHSojML9zMqx50Q0h2xPZHW2/F1QbRzh11H2/Xg
+         86kcdZu9+3xdPmuvzD9pMxtxQRXYDHsBH9dfI0Q+aWF3zK9Ys+bOnqkQeDsZZMV5Rs
+         W203EmXT9zQmLHNCfSuji1HZjL4u/Qgic+8hnnF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oz Shlomo <ozsh@nvidia.com>,
-        Paul Blakey <paulb@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 050/135] net/mlx5e: CT: Fix queued up restore put() executing after relevant ft release
-Date:   Tue, 10 May 2022 15:07:12 +0200
-Message-Id: <20220510130741.835869717@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/78] phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
+Date:   Tue, 10 May 2022 15:07:13 +0200
+Message-Id: <20220510130733.339939152@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit b069e14fff46c8da9fcc79957f8acaa3e2dfdb6b upstream.
+[ Upstream commit 388ec8f079f2f20d5cd183c3bc6f33cbc3ffd3ef ]
 
-__mlx5_tc_ct_entry_put() queues release of tuple related to some ct FT,
-if that is the last reference to that tuple, the actual deletion of
-the tuple can happen after the FT is already destroyed and freed.
+The device_node pointer is returned by of_parse_phandle() with refcount
+incremented. We should use of_node_put() on it when done.
 
-Flush the used workqueue before destroying the ct FT.
-
-Fixes: a2173131526d ("net/mlx5e: CT: manage the lifetime of the ct entry object")
-Reviewed-by: Oz Shlomo <ozsh@nvidia.com>
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220407091857.230386-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/phy/samsung/phy-exynos5250-sata.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_ct.c
-@@ -1699,6 +1699,8 @@ mlx5_tc_ct_flush_ft_entry(void *ptr, voi
- static void
- mlx5_tc_ct_del_ft_cb(struct mlx5_tc_ct_priv *ct_priv, struct mlx5_ct_ft *ft)
- {
-+	struct mlx5e_priv *priv;
-+
- 	if (!refcount_dec_and_test(&ft->refcount))
- 		return;
+diff --git a/drivers/phy/samsung/phy-exynos5250-sata.c b/drivers/phy/samsung/phy-exynos5250-sata.c
+index 60e13afcd9b8..7960c69d09a6 100644
+--- a/drivers/phy/samsung/phy-exynos5250-sata.c
++++ b/drivers/phy/samsung/phy-exynos5250-sata.c
+@@ -193,6 +193,7 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
+ 		return -EINVAL;
  
-@@ -1708,6 +1710,8 @@ mlx5_tc_ct_del_ft_cb(struct mlx5_tc_ct_p
- 	rhashtable_free_and_destroy(&ft->ct_entries_ht,
- 				    mlx5_tc_ct_flush_ft_entry,
- 				    ct_priv);
-+	priv = netdev_priv(ct_priv->netdev);
-+	flush_workqueue(priv->wq);
- 	mlx5_tc_ct_free_pre_ct_tables(ft);
- 	mapping_remove(ct_priv->zone_mapping, ft->zone_restore_id);
- 	kfree(ft);
+ 	sata_phy->client = of_find_i2c_device_by_node(node);
++	of_node_put(node);
+ 	if (!sata_phy->client)
+ 		return -EPROBE_DEFER;
+ 
+-- 
+2.35.1
+
 
 
