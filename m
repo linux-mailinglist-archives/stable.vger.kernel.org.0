@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6005217C4
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56A6452170F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243193AbiEJN2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S242896AbiEJNXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243899AbiEJN1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:35 -0400
+        with ESMTP id S243059AbiEJNVW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6665C2C255E;
-        Tue, 10 May 2022 06:20:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1732C13CF;
+        Tue, 10 May 2022 06:14:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABA3F616D0;
-        Tue, 10 May 2022 13:20:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B11E4C385A6;
-        Tue, 10 May 2022 13:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 222AE61663;
+        Tue, 10 May 2022 13:14:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2023FC385A6;
+        Tue, 10 May 2022 13:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188845;
-        bh=/A+a3bk4xx74A+u/WRwLO3Lza7C3KHpa+IWrB4azzCQ=;
+        s=korg; t=1652188485;
+        bh=2g/WMPTJPer4iFcfPM0Og5LI/Edv3RTtBnSON5Vy+tU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OZHvBT5q1gNF9/e32nL+auABysYIyCY0/gJ1d9DUmkrVit2YZrUsFA85rz/ebJ0Me
-         td48BdLq36Diff6cLt2UY9k1EYG2XPc3/PKBvOw32U39s1HrneFuXhq0U+7bbIu8cz
-         nhn5BxeruIFGkXOS3CClEBkq0jmXJJswIMp+1lKM=
+        b=mu89ZQwzxn4VSJL2tcS6r5iZyi9WN42JcBa426/WVpmGp9UHej3XxFndybDCEw5UN
+         TQ67k0DHxrEZ/Mru14TDQeGADVtC/gmTTUwgezpqEfdOvc445v0qy2+oRuB7w6nftg
+         dAY/+w8MlKCkCT2N/ON+R2iHrfoFBCQ/yX7i2atA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Tim Harvey <tharvey@gateworks.com>,
-        Max Krummenacher <max.krummenacher@toradex.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/88] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 23/78] hex2bin: make the function hex_to_bin constant-time
 Date:   Tue, 10 May 2022 15:07:09 +0200
-Message-Id: <20220510130734.447917545@linuxfoundation.org>
+Message-Id: <20220510130733.218279755@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,78 +46,98 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
+commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
 
-On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
-on the SoM is often not detected and the following error message is
-seen when the sgtl5000 driver tries to read the ID register:
+The function hex2bin is used to load cryptographic keys into device
+mapper targets dm-crypt and dm-integrity.  It should take constant time
+independent on the processed data, so that concurrently running
+unprivileged code can't infer any information about the keys via
+microarchitectural convert channels.
 
-sgtl5000 1-000a: Error reading chip id -6
+This patch changes the function hex_to_bin so that it contains no
+branches and no memory accesses.
 
-The reason for the error is that the MCLK clock is not provided
-early enough.
+Note that this shouldn't cause performance degradation because the size
+of the new function is the same as the size of the old function (on
+x86-64) - and the new function causes no branch misprediction penalties.
 
-Fix the problem by describing the MCLK pinctrl inside the codec
-node instead of placing it inside the audmux pinctrl group.
+I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
+i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
+sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
+powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
+no branches in the generated code.
 
-With this change applied the sgtl5000 is always detected on every boot.
-
-Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Reviewed-by: Tim Harvey <tharvey@gateworks.com>
-Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ include/linux/kernel.h |    2 +-
+ lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-index 05f07ea3e8c8..ed783c91b002 100644
---- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
-@@ -313,6 +313,8 @@ vgen6_reg: vgen6 {
- 	codec: sgtl5000@a {
- 		compatible = "fsl,sgtl5000";
- 		reg = <0x0a>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&pinctrl_sgtl5000>;
- 		clocks = <&clks IMX6QDL_CLK_CKO>;
- 		VDDA-supply = <&reg_module_3v3_audio>;
- 		VDDIO-supply = <&reg_module_3v3>;
-@@ -540,8 +542,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
- 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
- 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
- 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
--			/* SGTL5000 sys_mclk */
--			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
- 		>;
- 	};
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -582,7 +582,7 @@ static inline char *hex_byte_pack_upper(
+ 	return buf;
+ }
  
-@@ -807,6 +807,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
- 		>;
- 	};
+-extern int hex_to_bin(char ch);
++extern int hex_to_bin(unsigned char ch);
+ extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
+ extern char *bin2hex(char *dst, const void *src, size_t count);
  
-+	pinctrl_sgtl5000: sgtl5000grp {
-+		fsl,pins = <
-+			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
-+		>;
-+	};
-+
- 	pinctrl_spdif: spdifgrp {
- 		fsl,pins = <
- 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
--- 
-2.35.1
-
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -25,15 +25,33 @@ EXPORT_SYMBOL(hex_asc_upper);
+  *
+  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
+  * input.
++ *
++ * This function is used to load cryptographic keys, so it is coded in such a
++ * way that there are no conditions or memory accesses that depend on data.
++ *
++ * Explanation of the logic:
++ * (ch - '9' - 1) is negative if ch <= '9'
++ * ('0' - 1 - ch) is negative if ch >= '0'
++ * we "and" these two values, so the result is negative if ch is in the range
++ *	'0' ... '9'
++ * we are only interested in the sign, so we do a shift ">> 8"; note that right
++ *	shift of a negative value is implementation-defined, so we cast the
++ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
++ *	the range '0' ... '9', 0 otherwise
++ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
++ *	in the range '0' ... '9', 0 otherwise
++ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
++ *	... '9', -1 otherwise
++ * the next line is similar to the previous one, but we need to decode both
++ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
++ *	lowercase to uppercase
+  */
+-int hex_to_bin(char ch)
++int hex_to_bin(unsigned char ch)
+ {
+-	if ((ch >= '0') && (ch <= '9'))
+-		return ch - '0';
+-	ch = tolower(ch);
+-	if ((ch >= 'a') && (ch <= 'f'))
+-		return ch - 'a' + 10;
+-	return -1;
++	unsigned char cu = ch & 0xdf;
++	return -1 +
++		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
++		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
+ }
+ EXPORT_SYMBOL(hex_to_bin);
+ 
 
 
