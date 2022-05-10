@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D689521AEA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CAB8521A02
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244468AbiEJOF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:05:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
+        id S234166AbiEJNxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244424AbiEJOEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 269CB222BC;
-        Tue, 10 May 2022 06:40:41 -0700 (PDT)
+        with ESMTP id S245042AbiEJNrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F86B7F3;
+        Tue, 10 May 2022 06:34:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA01B81DCA;
-        Tue, 10 May 2022 13:40:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5420C385C6;
-        Tue, 10 May 2022 13:40:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2ADC6188A;
+        Tue, 10 May 2022 13:34:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8330C385A6;
+        Tue, 10 May 2022 13:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190038;
-        bh=D3D4OX/i3VVkp/n4mMBq9oy31ANSXfIKdQr4uvNKyoI=;
+        s=korg; t=1652189645;
+        bh=xDBG48H8JUArnxSH+LrcBuHE2jzK2zNhldUVVo+j+N8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2sWsmyUkXTQFRg6i+j3aOspqc9VtDIKYdumz+i7hK8rSWlhpxNYLoaAthkkG2xYSz
-         sOAxR1jDRGAiY0S2v8K6ZgUhSoTQ+CrimKSv6nlegRjZomNb90fH8cugGPOYuD3hof
-         OBcXBPoVPsxgECuGpGi4SZkV/sUFtxWLAKUds/P4=
+        b=WYxiq233wJfnwhD3uJ8iqdUOVQ96LxFKKrLbeW1lUK0978542QbOOqo3c1y1sW0oH
+         roEm32BHe9sp477csQJ2fvEeXIlmtjyS4ukprIeUVGhlvxkHJfoPCYVL7ualeD/m7+
+         JzYAkYb4LdQgFmPBURqppyHaP0pl+CkaOjRijIGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
-        Sandipan Das <sandipan.das@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 108/140] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 116/135] PCI: aardvark: Disable common PHY when unbinding driver
 Date:   Tue, 10 May 2022 15:08:18 +0200
-Message-Id: <20220510130744.692603075@linuxfoundation.org>
+Message-Id: <20220510130743.728459925@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan.das@amd.com>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
+commit fdbbe242c15a8f2cd0e3ad8a56cd0a447b771d0d upstream.
 
-On some x86 processors, CPUID leaf 0xA provides information
-on Architectural Performance Monitoring features. It
-advertises a PMU version which Qemu uses to determine the
-availability of additional MSRs to manage the PMCs.
+Disable the PCIe PHY when unbinding driver. This should save some power.
 
-Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
-the same, the kernel constructs return values based on the
-x86_pmu_capability irrespective of the vendor.
-
-This leaf and the additional MSRs are not supported on AMD
-and Hygon processors. If AMD PerfMonV2 is detected, the PMU
-version is set to 2 and guest startup breaks because of an
-attempt to access a non-existent MSR. Return zeros to avoid
-this.
-
-Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
-Reported-by: Vasant Hegde <vasant.hegde@amd.com>
-Signed-off-by: Sandipan Das <sandipan.das@amd.com>
-Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20211130172913.9727-12-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index b8f8d268d058..ee15db75fd62 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -865,6 +865,11 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
- 		union cpuid10_eax eax;
- 		union cpuid10_edx edx;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -1734,6 +1734,9 @@ static int advk_pcie_remove(struct platf
+ 	for (i = 0; i < OB_WIN_COUNT; i++)
+ 		advk_pcie_disable_ob_win(pcie, i);
  
-+		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
-+			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
-+			break;
-+		}
++	/* Disable phy */
++	advk_pcie_disable_phy(pcie);
 +
- 		perf_get_x86_pmu_capability(&cap);
+ 	return 0;
+ }
  
- 		/*
--- 
-2.35.1
-
 
 
