@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA07521839
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C613B52181F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242944AbiEJNdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S242219AbiEJNdX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243888AbiEJNcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:19 -0400
+        with ESMTP id S243786AbiEJNcO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7739316D48F;
-        Tue, 10 May 2022 06:23:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50CCE2CF2AF;
+        Tue, 10 May 2022 06:22:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2885AB81D7A;
-        Tue, 10 May 2022 13:23:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC7BC385C2;
-        Tue, 10 May 2022 13:23:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8EAFB81DA2;
+        Tue, 10 May 2022 13:22:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4709CC385A6;
+        Tue, 10 May 2022 13:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188990;
-        bh=WWcJJPaW4s0frkbSK/ZxJ/KyPtXnNk7ZjXtjDnn1RI4=;
+        s=korg; t=1652188928;
+        bh=Sv3CNk8W8AyFsAotdqqX5Fu23F++KbT6VeiopuDiOko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8xzD2cI22VIfrjnr5F+wp3f0pEbiSlqsxBVHQuztb8Bl43heAcpa5alMqErEHeKt
-         p5r3PfiG5bGdInS6mZG/TRau++J8FW09YaE05Pn42JccPzsW3kB3Erb9Y1BUlF4cM6
-         aZWIppBKkmnRS+cJXeTahEQP9zvnodbi6RfrVCCk=
+        b=Ipqb7bndCe0rOdjAgb7WAqZhevDrspGteYf5BnTIl1WcJMQC59FAIHKvqkhwd0QUd
+         01uyvt4ElnLMDTczyGoLXwZuZ9cvExdr+Mv1Y/e1IlUC70HrFHHfBgrucS2b9r0O9h
+         aw34TbeEZ4sOJYO7K8QPJqvJPdVgJl9C7eXhVf5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.4 28/52] net: emaclite: Add error handling for of_address_to_resource()
+Subject: [PATCH 4.19 72/88] NFC: netlink: fix sleep in atomic bug when firmware download timeout
 Date:   Tue, 10 May 2022 15:07:57 +0200
-Message-Id: <20220510130730.677804403@linuxfoundation.org>
+Message-Id: <20220510130735.824731709@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 7a6bc33ab54923d325d9a1747ec9652c4361ebd1 upstream.
+commit 4071bf121d59944d5cd2238de0642f3d7995a997 upstream.
 
-check the return value of of_address_to_resource() and also add
-missing of_node_put() for np and npp nodes.
+There are sleep in atomic bug that could cause kernel panic during
+firmware download process. The root cause is that nlmsg_new with
+GFP_KERNEL parameter is called in fw_dnld_timeout which is a timer
+handler. The call trace is shown below:
 
-Fixes: e0a3bc65448c ("net: emaclite: Support multiple phys connected to one MDIO bus")
-Addresses-Coverity: Event check_return value.
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+BUG: sleeping function called from invalid context at include/linux/sched/mm.h:265
+Call Trace:
+kmem_cache_alloc_node
+__alloc_skb
+nfc_genl_fw_download_done
+call_timer_fn
+__run_timers.part.0
+run_timer_softirq
+__do_softirq
+...
+
+The nlmsg_new with GFP_KERNEL parameter may sleep during memory
+allocation process, and the timer handler is run as the result of
+a "software interrupt" that should not call any other function
+that could sleep.
+
+This patch changes allocation mode of netlink message from GFP_KERNEL
+to GFP_ATOMIC in order to prevent sleep in atomic bug. The GFP_ATOMIC
+flag makes memory allocation operation could be used in atomic context.
+
+Fixes: 9674da8759df ("NFC: Add firmware upload netlink command")
+Fixes: 9ea7187c53f6 ("NFC: netlink: Rename CMD_FW_UPLOAD to CMD_FW_DOWNLOAD")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220504055847.38026-1-duoming@zju.edu.cn
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ net/nfc/netlink.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -820,10 +820,10 @@ static int xemaclite_mdio_write(struct m
- static int xemaclite_mdio_setup(struct net_local *lp, struct device *dev)
- {
- 	struct mii_bus *bus;
--	int rc;
- 	struct resource res;
- 	struct device_node *np = of_get_parent(lp->phy_node);
- 	struct device_node *npp;
-+	int rc, ret;
+--- a/net/nfc/netlink.c
++++ b/net/nfc/netlink.c
+@@ -1262,7 +1262,7 @@ int nfc_genl_fw_download_done(struct nfc
+ 	struct sk_buff *msg;
+ 	void *hdr;
  
- 	/* Don't register the MDIO bus if the phy_node or its parent node
- 	 * can't be found.
-@@ -833,8 +833,14 @@ static int xemaclite_mdio_setup(struct n
- 		return -ENODEV;
- 	}
- 	npp = of_get_parent(np);
--
--	of_address_to_resource(npp, 0, &res);
-+	ret = of_address_to_resource(npp, 0, &res);
-+	of_node_put(npp);
-+	if (ret) {
-+		dev_err(dev, "%s resource error!\n",
-+			dev->of_node->full_name);
-+		of_node_put(np);
-+		return ret;
-+	}
- 	if (lp->ndev->mem_start != res.start) {
- 		struct phy_device *phydev;
- 		phydev = of_phy_find_device(lp->phy_node);
-@@ -843,6 +849,7 @@ static int xemaclite_mdio_setup(struct n
- 				 "MDIO of the phy is not registered yet\n");
- 		else
- 			put_device(&phydev->mdio.dev);
-+		of_node_put(np);
- 		return 0;
- 	}
- 
-@@ -855,6 +862,7 @@ static int xemaclite_mdio_setup(struct n
- 	bus = mdiobus_alloc();
- 	if (!bus) {
- 		dev_err(dev, "Failed to allocate mdiobus\n");
-+		of_node_put(np);
+-	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
++	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_ATOMIC);
+ 	if (!msg)
  		return -ENOMEM;
- 	}
  
-@@ -867,6 +875,7 @@ static int xemaclite_mdio_setup(struct n
- 	bus->parent = dev;
+@@ -1278,7 +1278,7 @@ int nfc_genl_fw_download_done(struct nfc
  
- 	rc = of_mdiobus_register(bus, np);
-+	of_node_put(np);
- 	if (rc) {
- 		dev_err(dev, "Failed to register mdio bus.\n");
- 		goto err_register;
+ 	genlmsg_end(msg, hdr);
+ 
+-	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_KERNEL);
++	genlmsg_multicast(&nfc_genl_family, msg, 0, 0, GFP_ATOMIC);
+ 
+ 	return 0;
+ 
 
 
