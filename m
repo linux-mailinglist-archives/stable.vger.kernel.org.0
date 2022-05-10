@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31D6C521930
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7D152177E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243750AbiEJNoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:44:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53226 "EHLO
+        id S244040AbiEJN14 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243499AbiEJNmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9DF31908;
-        Tue, 10 May 2022 06:30:51 -0700 (PDT)
+        with ESMTP id S243022AbiEJNZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF5BB1A44BD;
+        Tue, 10 May 2022 06:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54AFFB81DAB;
-        Tue, 10 May 2022 13:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB9EC385C9;
-        Tue, 10 May 2022 13:30:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F227615F8;
+        Tue, 10 May 2022 13:19:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B886C385A6;
+        Tue, 10 May 2022 13:19:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189446;
-        bh=S6iESqWsvrhbvbkUTioFW+6EaW8QdM0/2OaPIP0PLMY=;
+        s=korg; t=1652188746;
+        bh=S/+SzEMNOP0N4XjUzqg+WnqgASmCVr/RyU9JiZu12Mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ghDX50oPwo/UEfevOgg6nf1FaKGPosw2M4btrXqnbkoT4pD2GqEvPd10Gu6655+yg
-         B+aGngth4VMrx8JFd3O4AuXn5c6f4FBxreizL+jIN4KdO+aNZg0FCxU66YNF1ky+6d
-         I8YBK6apSIs5gQUttdsqNOGJSTsHh40B9S8C/vJk=
+        b=QMrUKDlkh8K6IIzBLZkyfRaHLO/cn2wvGkTjx3KqYBW53m0Y5mlyoI/C+iSNOW5uo
+         XN7HZfppH94azMQtDZfV3Aw3bH5B794r5v4s5UAJotiCjR19YiFWuSNL5GLNgL7vpG
+         Da0w+RfXyWei4wXzgZNolenJDZptnk8zby1g1q70=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.15 054/135] selftests/seccomp: Dont call read() on TTY from background pgrp
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/88] mtd: rawnand: Fix return value check of wait_for_completion_timeout
 Date:   Tue, 10 May 2022 15:07:16 +0200
-Message-Id: <20220510130741.955512439@linuxfoundation.org>
+Message-Id: <20220510130734.650797002@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2bfed7d2ffa5d86c462d3e2067f2832eaf8c04c7 upstream.
+[ Upstream commit 084c16ab423a8890121b902b405823bfec5b4365 ]
 
-Since commit 92d25637a3a4 ("kselftest: signal all child processes"), tests
-are executed in background process groups. This means that trying to read
-from stdin now throws SIGTTIN when stdin is a TTY, which breaks some
-seccomp selftests that try to use read(0, NULL, 0) as a dummy syscall.
+wait_for_completion_timeout() returns unsigned long not int.
+It returns 0 if timed out, and positive if completed.
+The check for <= 0 is ambiguous and should be == 0 here
+indicating timeout which is the only error case.
 
-The simplest way to fix that is probably to just use -1 instead of 0 as
-the dummy read()'s FD.
-
-Fixes: 92d25637a3a4 ("kselftest: signal all child processes")
-Signed-off-by: Jann Horn <jannh@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220319010011.1374622-1-jannh@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 83738d87e3a0 ("mtd: sh_flctl: Add DMA capabilty")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20220412083435.29254-1-linmq006@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/seccomp/seccomp_bpf.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mtd/nand/raw/sh_flctl.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/tools/testing/selftests/seccomp/seccomp_bpf.c
-+++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
-@@ -955,7 +955,7 @@ TEST(ERRNO_valid)
- 	ASSERT_EQ(0, ret);
+diff --git a/drivers/mtd/nand/raw/sh_flctl.c b/drivers/mtd/nand/raw/sh_flctl.c
+index 683df1a12989..07ba149fa971 100644
+--- a/drivers/mtd/nand/raw/sh_flctl.c
++++ b/drivers/mtd/nand/raw/sh_flctl.c
+@@ -399,7 +399,8 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 	dma_addr_t dma_addr;
+ 	dma_cookie_t cookie;
+ 	uint32_t reg;
+-	int ret;
++	int ret = 0;
++	unsigned long time_left;
  
- 	EXPECT_EQ(parent, syscall(__NR_getppid));
--	EXPECT_EQ(-1, read(0, NULL, 0));
-+	EXPECT_EQ(-1, read(-1, NULL, 0));
- 	EXPECT_EQ(E2BIG, errno);
+ 	if (dir == DMA_FROM_DEVICE) {
+ 		chan = flctl->chan_fifo0_rx;
+@@ -440,13 +441,14 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 		goto out;
+ 	}
+ 
+-	ret =
++	time_left =
+ 	wait_for_completion_timeout(&flctl->dma_complete,
+ 				msecs_to_jiffies(3000));
+ 
+-	if (ret <= 0) {
++	if (time_left == 0) {
+ 		dmaengine_terminate_all(chan);
+ 		dev_err(&flctl->pdev->dev, "wait_for_completion_timeout\n");
++		ret = -ETIMEDOUT;
+ 	}
+ 
+ out:
+@@ -456,7 +458,7 @@ static int flctl_dma_fifo0_transfer(struct sh_flctl *flctl, unsigned long *buf,
+ 
+ 	dma_unmap_single(chan->device->dev, dma_addr, len, dir);
+ 
+-	/* ret > 0 is success */
++	/* ret == 0 is success */
+ 	return ret;
  }
  
-@@ -974,7 +974,7 @@ TEST(ERRNO_zero)
+@@ -480,7 +482,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
  
- 	EXPECT_EQ(parent, syscall(__NR_getppid));
- 	/* "errno" of 0 is ok. */
--	EXPECT_EQ(0, read(0, NULL, 0));
-+	EXPECT_EQ(0, read(-1, NULL, 0));
- }
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
++		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE))
+ 			goto convert;	/* DMA success */
  
- /*
-@@ -995,7 +995,7 @@ TEST(ERRNO_capped)
- 	ASSERT_EQ(0, ret);
+ 	/* do polling transfer */
+@@ -539,7 +541,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
  
- 	EXPECT_EQ(parent, syscall(__NR_getppid));
--	EXPECT_EQ(-1, read(0, NULL, 0));
-+	EXPECT_EQ(-1, read(-1, NULL, 0));
- 	EXPECT_EQ(4095, errno);
- }
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
++		!flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE))
+ 			return;	/* DMA success */
  
-@@ -1026,7 +1026,7 @@ TEST(ERRNO_order)
- 	ASSERT_EQ(0, ret);
- 
- 	EXPECT_EQ(parent, syscall(__NR_getppid));
--	EXPECT_EQ(-1, read(0, NULL, 0));
-+	EXPECT_EQ(-1, read(-1, NULL, 0));
- 	EXPECT_EQ(12, errno);
- }
- 
-@@ -2579,7 +2579,7 @@ void *tsync_sibling(void *data)
- 	ret = prctl(PR_GET_NO_NEW_PRIVS, 0, 0, 0, 0);
- 	if (!ret)
- 		return (void *)SIBLING_EXIT_NEWPRIVS;
--	read(0, NULL, 0);
-+	read(-1, NULL, 0);
- 	return (void *)SIBLING_EXIT_UNKILLED;
- }
- 
+ 	/* do polling transfer */
+-- 
+2.35.1
+
 
 
