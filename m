@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE01521AA8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D2D752171E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242759AbiEJODF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44212 "EHLO
+        id S242960AbiEJNXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245134AbiEJN5P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79402C96E8;
-        Tue, 10 May 2022 06:38:46 -0700 (PDT)
+        with ESMTP id S243716AbiEJNWU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985C7134E15;
+        Tue, 10 May 2022 06:16:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 939CAB81DC3;
-        Tue, 10 May 2022 13:38:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4B6C385A6;
-        Tue, 10 May 2022 13:38:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 534C7616D0;
+        Tue, 10 May 2022 13:16:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB45C385D8;
+        Tue, 10 May 2022 13:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189923;
-        bh=eCnaFYbbuU0OxvBtFtBv0weJme631iBH3c8BwEoEMdw=;
+        s=korg; t=1652188584;
+        bh=aVuH+MV+446GnglHFZUuaSvVDT1o8j9Oc6/CrUI0p00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KmNW++6fZ12lwzVZ15u0dX5deoBDUc/qtKBHR7mIrdJ6+3N0LjJTPaf9fD6Muvt66
-         3fiZvTD52ePvhzgh4S9iR+y2Q/BoDjsfAQw8VvOU4h/9ZJACwGh1/VSr5uPIIAlAc3
-         PFpnca2nRom0S+qfBzE32rNdoX7vkxxTastqVsm0=
+        b=bPTfDkyB6UWziItKV/7mqtlfaDhp1xAtBoKRq5d8Iq+tTtkIMK5GlnfySe+0fKkpY
+         0l6kxW4NxDVnhN87T2PFJfpDfCSUmm+nc04zFrF7WC8gEb/TjKutQun/7oeFmLeKUM
+         Dq+RuuU/HSm5Z5wIUYq1YFRjLnFfx83U4ZmI170U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
-        Maher Sanalla <msanalla@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.17 071/140] net/mlx5: Fix deadlock in sync reset flow
+        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.14 55/78] parisc: Merge model and model name into one line in /proc/cpuinfo
 Date:   Tue, 10 May 2022 15:07:41 +0200
-Message-Id: <20220510130743.648068609@linuxfoundation.org>
+Message-Id: <20220510130734.167169023@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,100 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Helge Deller <deller@gmx.de>
 
-commit cb7786a76ea39f394f0a059787fe24fa8e340fb6 upstream.
+commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
 
-The sync reset flow can lead to the following deadlock when
-poll_sync_reset() is called by timer softirq and waiting on
-del_timer_sync() for the same timer. Fix that by moving the part of the
-flow that waits for the timer to reset_reload_work.
+The Linux tool "lscpu" shows the double amount of CPUs if we have
+"model" and "model name" in two different lines in /proc/cpuinfo.
+This change combines the model and the model name into one line.
 
-It fixes the following kernel Trace:
-RIP: 0010:del_timer_sync+0x32/0x40
-...
-Call Trace:
- <IRQ>
- mlx5_sync_reset_clear_reset_requested+0x26/0x50 [mlx5_core]
- poll_sync_reset.cold+0x36/0x52 [mlx5_core]
- call_timer_fn+0x32/0x130
- __run_timers.part.0+0x180/0x280
- ? tick_sched_handle+0x33/0x60
- ? tick_sched_timer+0x3d/0x80
- ? ktime_get+0x3e/0xa0
- run_timer_softirq+0x2a/0x50
- __do_softirq+0xe1/0x2d6
- ? hrtimer_interrupt+0x136/0x220
- irq_exit+0xae/0xb0
- smp_apic_timer_interrupt+0x7b/0x140
- apic_timer_interrupt+0xf/0x20
- </IRQ>
-
-Fixes: 3c5193a87b0f ("net/mlx5: Use del_timer_sync in fw reset flow of halting poll")
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Maher Sanalla <msanalla@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |   34 ++++++++++-----------
- 1 file changed, 17 insertions(+), 17 deletions(-)
+ arch/parisc/kernel/processor.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-@@ -112,22 +112,6 @@ static void mlx5_fw_reset_complete_reloa
- 	}
- }
+--- a/arch/parisc/kernel/processor.c
++++ b/arch/parisc/kernel/processor.c
+@@ -408,8 +408,7 @@ show_cpuinfo (struct seq_file *m, void *
+ 		}
+ 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
  
--static void mlx5_sync_reset_reload_work(struct work_struct *work)
--{
--	struct mlx5_fw_reset *fw_reset = container_of(work, struct mlx5_fw_reset,
--						      reset_reload_work);
--	struct mlx5_core_dev *dev = fw_reset->dev;
--	int err;
--
--	mlx5_enter_error_state(dev, true);
--	mlx5_unload_one(dev);
--	err = mlx5_health_wait_pci_up(dev);
--	if (err)
--		mlx5_core_err(dev, "reset reload flow aborted, PCI reads still not working\n");
--	fw_reset->ret = err;
--	mlx5_fw_reset_complete_reload(dev);
--}
--
- static void mlx5_stop_sync_reset_poll(struct mlx5_core_dev *dev)
- {
- 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
-@@ -150,6 +134,23 @@ static int mlx5_sync_reset_clear_reset_r
- 	return 0;
- }
- 
-+static void mlx5_sync_reset_reload_work(struct work_struct *work)
-+{
-+	struct mlx5_fw_reset *fw_reset = container_of(work, struct mlx5_fw_reset,
-+						      reset_reload_work);
-+	struct mlx5_core_dev *dev = fw_reset->dev;
-+	int err;
-+
-+	mlx5_sync_reset_clear_reset_requested(dev, false);
-+	mlx5_enter_error_state(dev, true);
-+	mlx5_unload_one(dev);
-+	err = mlx5_health_wait_pci_up(dev);
-+	if (err)
-+		mlx5_core_err(dev, "reset reload flow aborted, PCI reads still not working\n");
-+	fw_reset->ret = err;
-+	mlx5_fw_reset_complete_reload(dev);
-+}
-+
- #define MLX5_RESET_POLL_INTERVAL	(HZ / 10)
- static void poll_sync_reset(struct timer_list *t)
- {
-@@ -164,7 +165,6 @@ static void poll_sync_reset(struct timer
- 
- 	if (fatal_error) {
- 		mlx5_core_warn(dev, "Got Device Reset\n");
--		mlx5_sync_reset_clear_reset_requested(dev, false);
- 		queue_work(fw_reset->wq, &fw_reset->reset_reload_work);
- 		return;
- 	}
+-		seq_printf(m, "model\t\t: %s\n"
+-				"model name\t: %s\n",
++		seq_printf(m, "model\t\t: %s - %s\n",
+ 				 boot_cpu_data.pdc.sys_model_name,
+ 				 cpuinfo->dev ?
+ 				 cpuinfo->dev->name : "Unknown");
 
 
