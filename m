@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 987535218C6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C25521AD2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243674AbiEJNkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
+        id S242942AbiEJOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:02:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245118AbiEJNic (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC46245611;
-        Tue, 10 May 2022 06:27:10 -0700 (PDT)
+        with ESMTP id S245215AbiEJN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384012CCD16;
+        Tue, 10 May 2022 06:38:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E0F57CE1EDE;
-        Tue, 10 May 2022 13:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE414C385C6;
-        Tue, 10 May 2022 13:27:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65FC9615E9;
+        Tue, 10 May 2022 13:38:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F1AC385C2;
+        Tue, 10 May 2022 13:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189227;
-        bh=IWBx+5sO3Vp2iBsahPhayhdg6TUAZM8E8BQ3PDzgWgI=;
+        s=korg; t=1652189935;
+        bh=7UDtlGi6A/Gn3d8hvqZBkSdisAh77sQVG6YWWiHMq/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1j2iIujho08PF6DqqogWkkKeGYkFitKx+FgCxlo5ZtYvIR6FBP3tPU/QMUj3UXGt
-         IIcvv7dCVU2s+Uoo960eXhCp3voMAXvjInZVmMy74oKydzesRBu9HagFeBj5/VH4D2
-         pS6j8GYhxSOHh4oWs6iuLBpG3ZTo66zSapvPSztI=
+        b=qktXuVQzRBc+mqIGXjbI/lm/wWyAQerGlW42KpjTqlpm30q2Ze58jZkj7igk0IxZ7
+         EAp7BBfxKEz3zgtu5ii8Pp1Wuo+g2nJe130DIvo0NpKJTKeKj3Z0PKwSJlLtOj78+r
+         DBJsptFO1/jIDAmXZuZrX7gffERynLLoungEPCNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 26/70] can: grcan: grcan_close(): fix deadlock
+        stable@vger.kernel.org, Ariel Levkovich <lariel@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.17 075/140] net/mlx5e: TC, fix decap fallback to uplink when int port not supported
 Date:   Tue, 10 May 2022 15:07:45 +0200
-Message-Id: <20220510130733.634427211@linuxfoundation.org>
+Message-Id: <20220510130743.760248346@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Ariel Levkovich <lariel@nvidia.com>
 
-commit 47f070a63e735bcc8d481de31be1b5a1aa62b31c upstream.
+commit e3fdc71bcb6ffe1d4870a89252ba296a9558e294 upstream.
 
-There are deadlocks caused by del_timer_sync(&priv->hang_timer) and
-del_timer_sync(&priv->rr_timer) in grcan_close(), one of the deadlocks
-are shown below:
+When resolving the decap route device for a tunnel decap rule,
+the result may be an OVS internal port device.
 
-   (Thread 1)              |      (Thread 2)
-                           | grcan_reset_timer()
-grcan_close()              |  mod_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | grcan_initiate_running_reset()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
+Prior to adding the support for internal port offload, such case
+would result in using the uplink as the default decap route device
+which allowed devices that can't support internal port offload
+to offload this decap rule.
 
-We hold priv->lock in position (1) of thread 1 and use
-del_timer_sync() to wait timer to stop, but timer handler also need
-priv->lock in position (2) of thread 2. As a result, grcan_close()
-will block forever.
+This behavior got broken by adding the internal port offload which
+will fail in case the device can't support internal port offload.
 
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain the
-needed lock.
+To restore the old behavior, use the uplink device as the decap
+route as before when internal port offload is not supported.
 
-Link: https://lore.kernel.org/all/20220425042400.66517-1-duoming@zju.edu.cn
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Cc: stable@vger.kernel.org
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: b16eb3c81fe2 ("net/mlx5: Support internal port as decap route device")
+Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -1113,8 +1113,10 @@ static int grcan_close(struct net_device
- 
- 	priv->closing = true;
- 	if (priv->need_txbug_workaround) {
-+		spin_unlock_irqrestore(&priv->lock, flags);
- 		del_timer_sync(&priv->hang_timer);
- 		del_timer_sync(&priv->rr_timer);
-+		spin_lock_irqsave(&priv->lock, flags);
- 	}
- 	netif_stop_queue(dev);
- 	grcan_stop_hardware(dev);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
+@@ -713,6 +713,7 @@ int mlx5e_tc_tun_route_lookup(struct mlx
+ 			      struct net_device *filter_dev)
+ {
+ 	struct mlx5_esw_flow_attr *esw_attr = flow_attr->esw_attr;
++	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+ 	struct mlx5e_tc_int_port *int_port;
+ 	TC_TUN_ROUTE_ATTR_INIT(attr);
+ 	u16 vport_num;
+@@ -747,7 +748,7 @@ int mlx5e_tc_tun_route_lookup(struct mlx
+ 		esw_attr->rx_tun_attr->vni = MLX5_GET(fte_match_param, spec->match_value,
+ 						      misc_parameters.vxlan_vni);
+ 		esw_attr->rx_tun_attr->decap_vport = vport_num;
+-	} else if (netif_is_ovs_master(attr.route_dev)) {
++	} else if (netif_is_ovs_master(attr.route_dev) && mlx5e_tc_int_port_supported(esw)) {
+ 		int_port = mlx5e_tc_int_port_get(mlx5e_get_int_port_priv(priv),
+ 						 attr.route_dev->ifindex,
+ 						 MLX5E_TC_INT_PORT_INGRESS);
 
 
