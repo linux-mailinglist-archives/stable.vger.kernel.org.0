@@ -2,44 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03DC25219D0
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3A8E5218CF
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244895AbiEJNv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        id S243411AbiEJNkY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245053AbiEJNrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB8551339;
-        Tue, 10 May 2022 06:34:24 -0700 (PDT)
+        with ESMTP id S245163AbiEJNig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09353262643;
+        Tue, 10 May 2022 06:27:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C82A6165A;
-        Tue, 10 May 2022 13:34:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49E3CC385C6;
-        Tue, 10 May 2022 13:34:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5B33B81DA2;
+        Tue, 10 May 2022 13:27:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE139C385C6;
+        Tue, 10 May 2022 13:27:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189663;
-        bh=Rm2T/hMeDswMU2o1bPZjdjw++Wz2KHX8zBWK5TdXEqk=;
+        s=korg; t=1652189267;
+        bh=NMFFJtZLPoq1knCC/w0d1kwtFNpn/m+HxWT5aO4P7g0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GhPFG/PB1sVU2pXWyXApDHhg+SkF+GjjLnKDihi8xhjTwLFQTG42VcHYA2J+dOZCo
-         ij0jW+R5mNbECeUlAfJ1PJ+aNdhy6RgnGRDOGg4MJH3tJ0tHq5MU/3YdPINb8Ykr5A
-         C5P90Jzk+1X1stq1g/VjxTTV4GCGtkmVmtoFaGb8=
+        b=iFzrkqqWcFHuqGknCvnPOwA0OMAtzq+rgdMjObePyDRbBqrnWG6bgRXucIkRKtyo0
+         WImRhGo6kv3kCCxN5G+B0jLVTnaUcvpHBNAL08RsTAOOW4UbUEvMxwKOQXxiZ/Rr1K
+         ey36orMIPitqIVvVLETCESkONDR+2VYYZYX+g2CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 121/135] PCI: aardvark: Make msi_domain_info structure a static driver structure
+        stable@vger.kernel.org,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Neeraj Upadhyay <neeraju@codeaurora.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.10 64/70] rcu: Fix callbacks processing time limit retaining cond_resched()
 Date:   Tue, 10 May 2022 15:08:23 +0200
-Message-Id: <20220510130743.868373375@linuxfoundation.org>
+Message-Id: <20220510130734.740079392@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +63,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Marek Behún" <kabel@kernel.org>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-commit 26bcd54e4a5cd51ec12d06fdc30e22863ed4c422 upstream.
+commit 3e61e95e2d095e308616cba4ffb640f95a480e01 upstream.
 
-Make Aardvark's msi_domain_info structure into a private driver structure.
-Domain info is same for every potential instatination of a controller.
+The callbacks processing time limit makes sure we are not exceeding a
+given amount of time executing the queue.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-8-kabel@kernel.org
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+However its "continue" clause bypasses the cond_resched() call on
+rcuc and NOCB kthreads, delaying it until we reach the limit, which can
+be very long...
+
+Make sure the scheduler has a higher priority than the time limit.
+
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Valentin Schneider <valentin.schneider@arm.com>
+Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Valentin Schneider <valentin.schneider@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+[UR: backport to 5.10-stable + commit update]
+Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ kernel/rcu/tree.c |   28 ++++++++++++++++------------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -274,7 +274,6 @@ struct advk_pcie {
- 	raw_spinlock_t irq_lock;
- 	struct irq_domain *msi_domain;
- 	struct irq_domain *msi_inner_domain;
--	struct msi_domain_info msi_domain_info;
- 	DECLARE_BITMAP(msi_used, MSI_IRQ_NUM);
- 	struct mutex msi_used_lock;
- 	u16 msi_msg;
-@@ -1288,20 +1287,20 @@ static struct irq_chip advk_msi_irq_chip
- 	.name = "advk-MSI",
- };
- 
-+static struct msi_domain_info advk_msi_domain_info = {
-+	.flags	= MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
-+		  MSI_FLAG_MULTI_PCI_MSI,
-+	.chip	= &advk_msi_irq_chip,
-+};
+--- a/kernel/rcu/tree.c
++++ b/kernel/rcu/tree.c
+@@ -2490,10 +2490,22 @@ static void rcu_do_batch(struct rcu_data
+ 		 * Stop only if limit reached and CPU has something to do.
+ 		 * Note: The rcl structure counts down from zero.
+ 		 */
+-		if (-rcl.len >= bl && !offloaded &&
+-		    (need_resched() ||
+-		     (!is_idle_task(current) && !rcu_is_callbacks_kthread())))
+-			break;
++		if (in_serving_softirq()) {
++			if (-rcl.len >= bl && (need_resched() ||
++					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
++				break;
++		} else {
++			local_bh_enable();
++			lockdep_assert_irqs_enabled();
++			cond_resched_tasks_rcu_qs();
++			lockdep_assert_irqs_enabled();
++			local_bh_disable();
++		}
 +
- static int advk_pcie_init_msi_irq_domain(struct advk_pcie *pcie)
- {
- 	struct device *dev = &pcie->pdev->dev;
- 	struct device_node *node = dev->of_node;
--	struct msi_domain_info *msi_di;
- 	phys_addr_t msi_msg_phys;
++		/*
++		 * Make sure we don't spend too much time here and deprive other
++		 * softirq vectors of CPU cycles.
++		 */
+ 		if (unlikely(tlimit)) {
+ 			/* only call local_clock() every 32 callbacks */
+ 			if (likely((-rcl.len & 31) || local_clock() < tlimit))
+@@ -2501,14 +2513,6 @@ static void rcu_do_batch(struct rcu_data
+ 			/* Exceeded the time limit, so leave. */
+ 			break;
+ 		}
+-		if (offloaded) {
+-			WARN_ON_ONCE(in_serving_softirq());
+-			local_bh_enable();
+-			lockdep_assert_irqs_enabled();
+-			cond_resched_tasks_rcu_qs();
+-			lockdep_assert_irqs_enabled();
+-			local_bh_disable();
+-		}
+ 	}
  
- 	mutex_init(&pcie->msi_used_lock);
- 
--	msi_di = &pcie->msi_domain_info;
--	msi_di->flags = MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
--		MSI_FLAG_MULTI_PCI_MSI;
--	msi_di->chip = &advk_msi_irq_chip;
--
- 	msi_msg_phys = virt_to_phys(&pcie->msi_msg);
- 
- 	advk_writel(pcie, lower_32_bits(msi_msg_phys),
-@@ -1317,7 +1316,8 @@ static int advk_pcie_init_msi_irq_domain
- 
- 	pcie->msi_domain =
- 		pci_msi_create_irq_domain(of_node_to_fwnode(node),
--					  msi_di, pcie->msi_inner_domain);
-+					  &advk_msi_domain_info,
-+					  pcie->msi_inner_domain);
- 	if (!pcie->msi_domain) {
- 		irq_domain_remove(pcie->msi_inner_domain);
- 		return -ENOMEM;
+ 	local_irq_save(flags);
 
 
