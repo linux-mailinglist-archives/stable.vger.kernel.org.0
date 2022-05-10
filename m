@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D2E521912
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A4452172B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243571AbiEJNnl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:43:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
+        id S242802AbiEJNWh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243689AbiEJNmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D1093585E;
-        Tue, 10 May 2022 06:30:51 -0700 (PDT)
+        with ESMTP id S243114AbiEJNVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:35 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEC42C13E3;
+        Tue, 10 May 2022 06:14:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5544F61765;
-        Tue, 10 May 2022 13:30:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 621C5C385C2;
-        Tue, 10 May 2022 13:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A85A1B81CE7;
+        Tue, 10 May 2022 13:14:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 205E0C385C2;
+        Tue, 10 May 2022 13:14:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189426;
-        bh=ZHYzabtid5rGR1vUHabUw8fvas6K2SQA2jyLWJ7U7ig=;
+        s=korg; t=1652188488;
+        bh=YI5UjmM43NAUlBOvm8tcF0gqikdn9+lJvBigtD/JjAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uxivpQdCjmVsEVqMIhjkCxRcE9kS0i2Rey3LLXKsYcnX9rOZwh5zeW8pMPli58wPS
-         kcUGzC7X93N9HG1mG3VwAgTIaPtH3vPBaeiCZzFyssF3jF6lZS5584ALMKWGjeMXBF
-         prflNDOrgqlUC3j2foBix3qcIF2stWeL+oc8MzJM=
+        b=GR546NNqOfdGiJhovY+nHCMqRpOSlwSEnq/ts0gqn5Yf/nhAv/wRPhvjzjxxQSX3k
+         TTLWCRMimT+6jN1heBvgNls5F7IAxKWXW/ItsFI3eqiJR6JZjDz2NG6EqZI8iXy3jB
+         +/xgecUiW5koYsPD9907WMXJ2dk5wZEUhIO/JHlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Tal <moshet@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.15 048/135] net/mlx5e: Fix trust state reset in reload
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 24/78] hex2bin: fix access beyond string end
 Date:   Tue, 10 May 2022 15:07:10 +0200
-Message-Id: <20220510130741.776889360@linuxfoundation.org>
+Message-Id: <20220510130733.247460246@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Tal <moshet@nvidia.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit b781bff882d16175277ca129c382886cb4c74a2c upstream.
+commit e4d8a29997731b3bb14059024b24df9f784288d0 upstream.
 
-Setting dscp2prio during the driver reload can cause dcb ieee app list to
-be not empty after the reload finish and as a result to a conflict between
-the priority trust state reported by the app and the state in the device
-register.
+If we pass too short string to "hex2bin" (and the string size without
+the terminating NUL character is even), "hex2bin" reads one byte after
+the terminating NUL character.  This patch fixes it.
 
-Reset the dcb ieee app list on initialization in case this is
-conflicting with the register status.
+Note that hex_to_bin returns -1 on error and hex2bin return -EINVAL on
+error - so we can't just return the variable "hi" or "lo" on error.
+This inconsistency may be fixed in the next merge window, but for the
+purpose of fixing this bug, we just preserve the existing behavior and
+return -1 and -EINVAL.
 
-Fixes: 2a5e7a1344f4 ("net/mlx5e: Add dcbnl dscp to priority support")
-Signed-off-by: Moshe Tal <moshet@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: b78049831ffe ("lib: add error checking to hex2bin")
+Cc: stable@vger.kernel.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ lib/hexdump.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_dcbnl.c
-@@ -1198,6 +1198,16 @@ static int mlx5e_trust_initialize(struct
- 	if (err)
- 		return err;
+--- a/lib/hexdump.c
++++ b/lib/hexdump.c
+@@ -66,10 +66,13 @@ EXPORT_SYMBOL(hex_to_bin);
+ int hex2bin(u8 *dst, const char *src, size_t count)
+ {
+ 	while (count--) {
+-		int hi = hex_to_bin(*src++);
+-		int lo = hex_to_bin(*src++);
++		int hi, lo;
  
-+	if (priv->dcbx_dp.trust_state == MLX5_QPTS_TRUST_PCP && priv->dcbx.dscp_app_cnt) {
-+		/*
-+		 * Align the driver state with the register state.
-+		 * Temporary state change is required to enable the app list reset.
-+		 */
-+		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_DSCP;
-+		mlx5e_dcbnl_delete_app(priv);
-+		priv->dcbx_dp.trust_state = MLX5_QPTS_TRUST_PCP;
-+	}
-+
- 	mlx5e_params_calc_trust_tx_min_inline_mode(priv->mdev, &priv->channels.params,
- 						   priv->dcbx_dp.trust_state);
+-		if ((hi < 0) || (lo < 0))
++		hi = hex_to_bin(*src++);
++		if (unlikely(hi < 0))
++			return -EINVAL;
++		lo = hex_to_bin(*src++);
++		if (unlikely(lo < 0))
+ 			return -EINVAL;
  
+ 		*dst++ = (hi << 4) | lo;
 
 
