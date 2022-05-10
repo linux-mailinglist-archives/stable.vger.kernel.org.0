@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6916521938
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53A67521A24
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243759AbiEJNmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
+        id S243605AbiEJNwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244554AbiEJNl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:59 -0400
+        with ESMTP id S245144AbiEJNr0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:26 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 823B72C8BF9;
-        Tue, 10 May 2022 06:30:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560CB2C13CB;
+        Tue, 10 May 2022 06:35:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58EEA61841;
-        Tue, 10 May 2022 13:30:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 613CAC385A6;
-        Tue, 10 May 2022 13:30:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D7172618A0;
+        Tue, 10 May 2022 13:35:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D84E9C385A6;
+        Tue, 10 May 2022 13:35:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189411;
-        bh=oXK+xeO7TyS/609kqkxla+MZL2jQ1JRBvy7n7RIohAA=;
+        s=korg; t=1652189726;
+        bh=/avtzuZvfnMi1NnIu7uKKrjB03sJRY+GFZrwoZkIdA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5QFqvlTI7Dfl4aDsKOjFsIClyGyLPOWD7arpc7GMOksC4HfDNUVXFbYKwSihWUoc
-         0eYdVLrB7rpslTt+HhNSgC3129AE3LWjrny/N4cxfC8gbpk/Yg0pMVRz416L9R60eQ
-         rvogbTfbiJSIKNEzAxZrlQ5StR59giiK/68iB/hs=
+        b=1+3Bcslfp2vl5Ycev8DQ5k/6ogIVZdy33DMSHSGOHwsXOamhkfhWvy3TdRLKbbC6E
+         1d0WPvWqYVeYK3qvTo5TCnQs7wci2gSKKWOvmfyaCeYBKrSU+X06ea2VwVuL/60XFH
+         O2mV2dbLrqCYHpdMkrImzuAdaCmvIaehSvjnJgpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Lalaev <andrei.lalaev@emlid.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.15 008/135] gpiolib: of: fix bounds check for gpio-reserved-ranges
-Date:   Tue, 10 May 2022 15:06:30 +0200
-Message-Id: <20220510130740.635765669@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sunil Goutham <sgoutham@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org
+Subject: [PATCH 5.17 001/140] pci_irq_vector() cant be used in atomic context any longer. This conflicts with the usage of this function in nic_mbx_intr_handler(). =?UTF-8?q?age=20of=20this=20function=20in=20nic=5Fmbx=5Fintr=5Fhandler().?=
+Date:   Tue, 10 May 2022 15:06:31 +0200
+Message-Id: <20220510130741.644300046@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,47 +59,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Lalaev <andrei.lalaev@emlid.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit e75f88efac05bf4e107e4171d8db6d8c3937252d upstream.
+commit 6b292a04c694573a302686323fe15b1c7e673e5b upstream.
 
-Gpiolib interprets the elements of "gpio-reserved-ranges" as "start,size"
-because it clears "size" bits starting from the "start" bit in the according
-bitmap. So it has to use "greater" instead of "greater or equal" when performs
-bounds check to make sure that GPIOs are in the available range.
-Previous implementation skipped ranges that include the last GPIO in
-the range.
+Cache the Linux interrupt numbers in struct nicpf and use that cache in the
+interrupt handler to select the mailbox.
 
-I wrote the mail to the maintainers
-(https://lore.kernel.org/linux-gpio/20220412115554.159435-1-andrei.lalaev@emlid.com/T/#u)
-of the questioned DTSes (because I couldn't understand how the maintainers
-interpreted this property), but I haven't received a response.
-Since the questioned DTSes use "gpio-reserved-ranges = <0 4>"
-(i.e., the beginning of the range), this patch doesn't affect these DTSes at all.
-TBH this patch doesn't break any existing DTSes because none of them
-reserve gpios at the end of range.
-
-Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
-Signed-off-by: Andrei Lalaev <andrei.lalaev@emlid.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 495c66aca3da ("genirq/msi: Convert to new functions")
+Reported-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Sunil Goutham <sgoutham@marvell.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
 Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2041772
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib-of.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cavium/thunder/nic_main.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -912,7 +912,7 @@ static void of_gpiochip_init_valid_mask(
- 					   i, &start);
- 		of_property_read_u32_index(np, "gpio-reserved-ranges",
- 					   i + 1, &count);
--		if (start >= chip->ngpio || start + count >= chip->ngpio)
-+		if (start >= chip->ngpio || start + count > chip->ngpio)
- 			continue;
+--- a/drivers/net/ethernet/cavium/thunder/nic_main.c
++++ b/drivers/net/ethernet/cavium/thunder/nic_main.c
+@@ -59,7 +59,7 @@ struct nicpf {
  
- 		bitmap_clear(chip->valid_mask, start, count);
+ 	/* MSI-X */
+ 	u8			num_vec;
+-	bool			irq_allocated[NIC_PF_MSIX_VECTORS];
++	unsigned int		irq_allocated[NIC_PF_MSIX_VECTORS];
+ 	char			irq_name[NIC_PF_MSIX_VECTORS][20];
+ };
+ 
+@@ -1150,7 +1150,7 @@ static irqreturn_t nic_mbx_intr_handler(
+ 	u64 intr;
+ 	u8  vf;
+ 
+-	if (irq == pci_irq_vector(nic->pdev, NIC_PF_INTR_ID_MBOX0))
++	if (irq == nic->irq_allocated[NIC_PF_INTR_ID_MBOX0])
+ 		mbx = 0;
+ 	else
+ 		mbx = 1;
+@@ -1176,14 +1176,14 @@ static void nic_free_all_interrupts(stru
+ 
+ 	for (irq = 0; irq < nic->num_vec; irq++) {
+ 		if (nic->irq_allocated[irq])
+-			free_irq(pci_irq_vector(nic->pdev, irq), nic);
+-		nic->irq_allocated[irq] = false;
++			free_irq(nic->irq_allocated[irq], nic);
++		nic->irq_allocated[irq] = 0;
+ 	}
+ }
+ 
+ static int nic_register_interrupts(struct nicpf *nic)
+ {
+-	int i, ret;
++	int i, ret, irq;
+ 	nic->num_vec = pci_msix_vec_count(nic->pdev);
+ 
+ 	/* Enable MSI-X */
+@@ -1201,13 +1201,13 @@ static int nic_register_interrupts(struc
+ 		sprintf(nic->irq_name[i],
+ 			"NICPF Mbox%d", (i - NIC_PF_INTR_ID_MBOX0));
+ 
+-		ret = request_irq(pci_irq_vector(nic->pdev, i),
+-				  nic_mbx_intr_handler, 0,
++		irq = pci_irq_vector(nic->pdev, i);
++		ret = request_irq(irq, nic_mbx_intr_handler, 0,
+ 				  nic->irq_name[i], nic);
+ 		if (ret)
+ 			goto fail;
+ 
+-		nic->irq_allocated[i] = true;
++		nic->irq_allocated[i] = irq;
+ 	}
+ 
+ 	/* Enable mailbox interrupt */
 
 
