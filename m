@@ -2,77 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC77C521359
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 13:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62D4B521364
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 13:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240811AbiEJLR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 07:17:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51998 "EHLO
+        id S232618AbiEJLUA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 07:20:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240782AbiEJLRu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 07:17:50 -0400
-Received: from out3-smtp.messagingengine.com (out3-smtp.messagingengine.com [66.111.4.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A31D2A9764;
-        Tue, 10 May 2022 04:13:53 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 696B95C01AC;
-        Tue, 10 May 2022 07:13:52 -0400 (EDT)
+        with ESMTP id S240506AbiEJLT7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 07:19:59 -0400
+Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 274F21868CB
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 04:16:01 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.west.internal (Postfix) with ESMTP id 6B4853200786;
+        Tue, 10 May 2022 07:15:59 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 10 May 2022 07:13:52 -0400
+  by compute5.internal (MEProxy); Tue, 10 May 2022 07:16:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
         :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
         :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1652181232; x=1652267632; bh=v1AUMe2H5y
-        jb10graXLGgnMmPSWt+Y9DqKU1OZcVoY8=; b=JCeLgAZQEVcWBB3Idj6rtS+tMy
-        4KylvmewMli1Gq8aEubGF6JDHKdRSp1hAAqm2eAuephyXWhgJjEM+kXMQfWMM6IC
-        u0PzPUWcWycwNT0ZkD49jmC7NE7P47IXl7XOSp3tP8wGpL4Wzn+4grj+Jh+npC5B
-        gvuRldGztu8PFmQx4cpeVOexxrJm0yS9W0+GAr9ZxWNCTAqTC4ahjYik4066N1b3
-        ko7KzIQvANT9MIbnmKmrsYGzrIoRVY/3gWrCE6pmvr3+KbHKCwLabwdTBQC0D/w2
-        xT7VFbhTerd60gHe2+a5XqqWQZ1bQgWFsgZGG9B3Em8ohH3QFM8KFOSh2VVA==
+        :subject:to:to; s=fm1; t=1652181358; x=1652267758; bh=YyM7yeUs3a
+        HFiLPCPRAvBYCeFNVAzx6V2dCbjJ3xBh0=; b=K3tAwaxvsBuqd8/JeIVxpoDQPv
+        8bjNRmSvnPTppPIURbuc30ib8xB4ChSrXVE05833dMu97vQojtZlcwNvUeazRcAv
+        EAxAnQ3H0LqA50fVhNucINfNY16dD+BtWTRrwJhmnli+Q7YsRpwjSj+gZcCZEcqY
+        x4M2bR8zml54Z5M6dnEsMg/I+mkAHhKzQfArQvPofMTIth5qL5gqwEMzz4O7xVrc
+        wUg0XbPusAg9SgK75qksegeC56Mc5Dyx8tdHUjTp7FRGvLr0olbNL6m5swqKMkxr
+        a+iGkPdTokGZW9KrvdG3gn03ASORgqJqX5huLpDJDhYeLgE+Mf9KhK7gIoPA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-type:date:date:from:from
         :in-reply-to:in-reply-to:message-id:mime-version:references
         :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1652181232; x=
-        1652267632; bh=v1AUMe2H5yjb10graXLGgnMmPSWt+Y9DqKU1OZcVoY8=; b=m
-        NFYCg54VxqHfFgGwaSjaiIWIoBiWr9Li0nLsvqsmlgMjggyhf96qGlwvg8hXrZ/U
-        lrn558kWikFNPb6kiOsSXECZF3wy5gYRdbdYo0tmfmFV3cL32lijrDl1mYSyeJSf
-        3zELh058YbtSNDeE8/pHeW9sBGqzfS+dJFlqkv+rBod4BAFcpeeaCQ2zbGHqVzd9
-        uCMqrodEJ6qfAmD6Z10FaAekSlnXTpJrUJXVv8QeqDiARauC5wwJt3Rua7Db3GD2
-        IU+zhm/vRQtoJdmtFSoKP8+8RRjVm2nMJxgKJDb+5fLI1VUgchNDbg0QY1rcOZkQ
-        s2YqtO29xyhl10GP/8kiQ==
-X-ME-Sender: <xms:70h6YjysmPSRJiol8OsLgz7aceTPbNw63XptrSBmx_RWfzpGTGkusA>
-    <xme:70h6YrRZBWdaPu_xNiLJni0d4nys8YIZ0LXM9Di86vHOWs8uM5l_MpiNyZEfv8Jkv
-    MvMb8jJSw32ag>
-X-ME-Received: <xmr:70h6YtVBL235KMe-1KaIFEboWy4CQ-9F-3bAIwQGANvRfDZLb2Ztll47bgxDzqB3pICODqPNYsj7Kwo3htGWskKVi8kZItpG>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrgedugdefgecutefuodetggdotefrodftvf
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1652181358; x=
+        1652267758; bh=YyM7yeUs3aHFiLPCPRAvBYCeFNVAzx6V2dCbjJ3xBh0=; b=S
+        Ko69YE/zBIGWN5wXpqvQJv22nRSVY1f1KwbIOj/7obCRYLtPJwOABsEWHJaIW4Vb
+        HLXcvZx9OS8luD9Jr7pqfVHfeEocckSgIpxvgRBTSh7vGTsC7Qt+rEsmnHzfvW0X
+        XbxS5begyZfeqd6UeKJd0hU7ayG6oTwbO4KdQ7Ah1y9QrqcKaAADZ2aeWZ892gTz
+        aECl1c2wpqc73ZZLdLFEEIqGUzC1B1l/vSELsDyFXT44lgF3jVQ4eZ+xssjaWIOf
+        vVoKMjuRIaHPlttc2vI4HmN3qfG06Swvf5upYoGXSMGKb8rpt8Gc3ZlswLYUk86w
+        BSDNeROsWs9LguvCeY9yg==
+X-ME-Sender: <xms:bkl6YlkMqKv-4fnZXsTzd5g7LJSAO1hRbrM8Ss3AL0B64mzLgV1pag>
+    <xme:bkl6Yg1Up-ktL-lDQU94HIknDljqBOKo-3V4iUVm0PvoYGbFjvwL_uMAB0zUKIg_7
+    zA-mDVGL29jLA>
+X-ME-Received: <xmr:bkl6YrrPHouSo_WMCOPTZBx5m725cb9obee-ziXAofydRgCRTcCzB93-Rog3FQ3cj7-6xdH25v8Xsq6qBagH5r2bpmR0OEDS>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrgedugdeffecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
     mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehgedvve
     dvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhushht
-    vghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
+    vghrufhiiigvpedunecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhh
     drtghomh
-X-ME-Proxy: <xmx:70h6YtjRg51TipwwUT3JlUX54eqZkK-IY_KU1MBueTNRLXMIR3MjMw>
-    <xmx:70h6YlAtDH_TPhGxRSMWNayMspNcgZwwBLc8vubfR4rq6Ic4EoCVJg>
-    <xmx:70h6YmLHi68m-NffJ8oxTNcxpV4vdLQ2FXSo0GastGDGJ7Q1LOru1g>
-    <xmx:8Eh6YnxqjzpOhifxrhkk1nlNHGJdetm4BU10MLGXlfIMqMu07EvTBQ>
+X-ME-Proxy: <xmx:bkl6Yln6GvtCrr53KyuOQcF_VhCMKM9aN8UyETCYfKdpo_e-ouEwWA>
+    <xmx:bkl6Yj1SuFvdIqJlUfVy9CxKjgbvqU7c2wQI14a8M-aMgTROUkqUpA>
+    <xmx:bkl6YktugN7vRFPeo3aH8UoAueIQ_4MyYY-1Rjqxv-6jN-t1chwX0A>
+    <xmx:bkl6YsIaaagLIeT_cEscDK1CTS8jqGWGN9b_IY9CvEQoblnvF53mXg>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 10 May 2022 07:13:51 -0400 (EDT)
-Date:   Tue, 10 May 2022 13:13:48 +0200
+ 10 May 2022 07:15:58 -0400 (EDT)
+Date:   Tue, 10 May 2022 13:15:56 +0200
 From:   Greg KH <greg@kroah.com>
-To:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Cc:     stable@vger.kernel.org, netdev@vger.kernel.org, kuba@kernel.org,
-        davem@davemloft.net, jiri@resnulli.us, xiyou.wangcong@gmail.com,
-        jhs@mojatatu.com, vladbu@mellanox.com
-Subject: Re: [PATCH 4.9.y] net: sched: prevent UAF on tc_ctl_tfilter when
- temporarily dropping rtnl_lock
-Message-ID: <YnpI7Pqp/PmgD8WW@kroah.com>
-References: <20220502204924.3456590-1-cascardo@canonical.com>
+To:     Johannes Nixdorf <j.nixdorf@avm.de>
+Cc:     stable@vger.kernel.org,
+        Christoph =?iso-8859-1?Q?B=FCttner?= <c.buettner@avm.de>,
+        Nicolas Schier <n.schier@avm.de>,
+        "David S . Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.19 5.4] net: ipv6: ensure we call ipv6_mc_down() at
+ most once
+Message-ID: <YnpJbLU+lszXf4P/@kroah.com>
+References: <20220504140610.880318-1-j.nixdorf@avm.de>
+ <20220504140610.880318-2-j.nixdorf@avm.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220502204924.3456590-1-cascardo@canonical.com>
+In-Reply-To: <20220504140610.880318-2-j.nixdorf@avm.de>
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
         SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
@@ -83,158 +85,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 02, 2022 at 05:49:24PM -0300, Thadeu Lima de Souza Cascardo wrote:
-> When dropping the rtnl_lock for looking up for a module, the device may be
-> removed, releasing the qdisc and class memory. Right after trying to load
-> the module, cl_ops->put is called, leading to a potential use-after-free.
+On Wed, May 04, 2022 at 04:06:10PM +0200, Johannes Nixdorf wrote:
+> commit 9995b408f17ff8c7f11bc725c8aa225ba3a63b1c upstream.
 > 
-> Though commit e368fdb61d8e ("net: sched: use Qdisc rcu API instead of
-> relying on rtnl lock") fixes this, it involves a lot of refactoring of the
-> net/sched/ code, complicating its backport.
+> There are two reasons for addrconf_notify() to be called with NETDEV_DOWN:
+> either the network device is actually going down, or IPv6 was disabled
+> on the interface.
 > 
-> This fix calls cl_ops->put before dropping rtnl_lock as it will be called
-> either way, and zeroes it out so it won't be called again on the exit path.
+> If either of them stays down while the other is toggled, we repeatedly
+> call the code for NETDEV_DOWN, including ipv6_mc_down(), while never
+> calling the corresponding ipv6_mc_up() in between. This will cause a
+> new entry in idev->mc_tomb to be allocated for each multicast group
+> the interface is subscribed to, which in turn leaks one struct ifmcaddr6
+> per nontrivial multicast group the interface is subscribed to.
 > 
-> This has been shown to stop the following KASAN report with the reproducer:
+> The following reproducer will leak at least $n objects:
 > 
-> [  256.609111] ==================================================================
-> [  256.609585] BUG: KASAN: use-after-free in cbq_put+0x20/0xd0 at addr ffff880021daaba0
-> [  256.610078] Read of size 4 by task total_cbq/11184
-> [  256.610380] CPU: 0 PID: 11184 Comm: total_cbq Not tainted 4.9.311 #78
-> [  256.610778]  ffff8800215875a8 ffffffff96e18735 ffff880024803080 ffff880021daaa80
-> [  256.611274]  ffff8800215875d0 ffffffff96334841 ffffed00043b5574 ffffed00043b5574
-> [  256.611768]  ffff880024803080 ffff880021587658 ffffffff96334af8 0000000000000000
-> [  256.612186] Call Trace:
-> [  256.612344]  [<ffffffff96e18735>] dump_stack+0x6d/0x8b
-> [  256.612632]  [<ffffffff96334841>] kasan_object_err+0x21/0x70
-> [  256.612973]  [<ffffffff96334af8>] kasan_report.part.1+0x218/0x4f0
-> [  256.613349]  [<ffffffff96c5a2e0>] ? cbq_put+0x20/0xd0
-> [  256.613634]  [<ffffffff96333cd6>] ? kasan_unpoison_shadow+0x36/0x50
-> [  256.613993]  [<ffffffff96335105>] kasan_report+0x25/0x30
-> [  256.614288]  [<ffffffff96333701>] __asan_load4+0x61/0x80
-> [  256.614580]  [<ffffffff96c5a2e0>] cbq_put+0x20/0xd0
-> [  256.614862]  [<ffffffff96c53184>] tc_ctl_tfilter+0x4f4/0xb80
-> [  256.615151]  [<ffffffff96c52c90>] ? tfilter_notify+0x140/0x140
-> [  256.615478]  [<ffffffff960056ef>] ? do_syscall_64+0xef/0x190
-> [  256.615799]  [<ffffffff96e28a8e>] ? entry_SYSCALL_64_after_swapgs+0x58/0xc6
-> [  256.616190]  [<ffffffff96bce3f6>] ? sock_sendmsg+0x76/0x80
-> [  256.616484]  [<ffffffff96bce53f>] ? sock_write_iter+0x13f/0x1f0
-> [  256.616833]  [<ffffffff96367b02>] ? __vfs_write+0x262/0x3c0
-> [  256.617152]  [<ffffffff96369dc9>] ? vfs_write+0xf9/0x260
-> [  256.617451]  [<ffffffff9636c009>] ? SyS_write+0xc9/0x1b0
-> [  256.617754]  [<ffffffff960decda>] ? ns_capable_common+0x5a/0xa0
-> [  256.618067]  [<ffffffff960ded33>] ? ns_capable+0x13/0x20
-> [  256.618334]  [<ffffffff96c9125d>] ? __netlink_ns_capable+0x6d/0x80
-> [  256.618666]  [<ffffffff96c2750f>] rtnetlink_rcv_msg+0x1af/0x410
-> [  256.618969]  [<ffffffff96c90d6b>] ? netlink_compare+0x5b/0x70
-> [  256.619295]  [<ffffffff96c27360>] ? rtnl_newlink+0xc60/0xc60
-> [  256.619587]  [<ffffffff96c94214>] ? __netlink_lookup+0x1a4/0x240
-> [  256.619885]  [<ffffffff96c94070>] ? netlink_broadcast+0x20/0x20
-> [  256.620179]  [<ffffffff96c97815>] netlink_rcv_skb+0x155/0x190
-> [  256.620463]  [<ffffffff96c27360>] ? rtnl_newlink+0xc60/0xc60
-> [  256.620748]  [<ffffffff96c1e758>] rtnetlink_rcv+0x28/0x30
-> [  256.621015]  [<ffffffff96c96d11>] netlink_unicast+0x2f1/0x3b0
-> [  256.621354]  [<ffffffff96c96a20>] ? netlink_attachskb+0x340/0x340
-> [  256.621765]  [<ffffffff96c9733e>] netlink_sendmsg+0x56e/0x6f0
-> [  256.622181]  [<ffffffff96c96dd0>] ? netlink_unicast+0x3b0/0x3b0
-> [  256.622578]  [<ffffffff96c96dd0>] ? netlink_unicast+0x3b0/0x3b0
-> [  256.622893]  [<ffffffff96bce3f6>] sock_sendmsg+0x76/0x80
-> [  256.623157]  [<ffffffff96bce53f>] sock_write_iter+0x13f/0x1f0
-> [  256.623440]  [<ffffffff96bce400>] ? sock_sendmsg+0x80/0x80
-> [  256.623729]  [<ffffffff966a8032>] ? iov_iter_init+0x82/0xc0
-> [  256.624006]  [<ffffffff96367b02>] __vfs_write+0x262/0x3c0
-> [  256.624274]  [<ffffffff963678a0>] ? default_llseek+0x120/0x120
-> [  256.624566]  [<ffffffff965e8c02>] ? common_file_perm+0x92/0x170
-> [  256.624925]  [<ffffffff96369a58>] ? rw_verify_area+0x78/0x140
-> [  256.625277]  [<ffffffff96369dc9>] vfs_write+0xf9/0x260
-> [  256.625593]  [<ffffffff9636c009>] SyS_write+0xc9/0x1b0
-> [  256.625891]  [<ffffffff9636bf40>] ? SyS_read+0x1b0/0x1b0
-> [  256.626154]  [<ffffffff9636bf40>] ? SyS_read+0x1b0/0x1b0
-> [  256.626422]  [<ffffffff960056ef>] do_syscall_64+0xef/0x190
-> [  256.626697]  [<ffffffff96e28a8e>] entry_SYSCALL_64_after_swapgs+0x58/0xc6
-> [  256.627033] Object at ffff880021daaa80, in cache kmalloc-512 size: 512
-> [  256.627415] Allocated:
-> [  256.627563] PID = 164
-> [  256.627711]  save_stack_trace+0x1b/0x20
-> [  256.627947]  save_stack+0x46/0xd0
-> [  256.628151]  kasan_kmalloc+0xad/0xe0
-> [  256.628362]  kmem_cache_alloc_trace+0xe8/0x1e0
-> [  256.628637]  cbq_change_class+0x8b6/0xde0
-> [  256.628896]  tc_ctl_tclass+0x56a/0x5b0
-> [  256.629129]  rtnetlink_rcv_msg+0x1af/0x410
-> [  256.629380]  netlink_rcv_skb+0x155/0x190
-> [  256.629621]  rtnetlink_rcv+0x28/0x30
-> [  256.629840]  netlink_unicast+0x2f1/0x3b0
-> [  256.630066]  netlink_sendmsg+0x56e/0x6f0
-> [  256.630263]  sock_sendmsg+0x76/0x80
-> [  256.630456]  sock_write_iter+0x13f/0x1f0
-> [  256.630698]  __vfs_write+0x262/0x3c0
-> [  256.630918]  vfs_write+0xf9/0x260
-> [  256.631123]  SyS_write+0xc9/0x1b0
-> [  256.631327]  do_syscall_64+0xef/0x190
-> [  256.631553]  entry_SYSCALL_64_after_swapgs+0x58/0xc6
-> [  256.631827] Freed:
-> [  256.631931] PID = 164
-> [  256.632048]  save_stack_trace+0x1b/0x20
-> [  256.632241]  save_stack+0x46/0xd0
-> [  256.632408]  kasan_slab_free+0x71/0xb0
-> [  256.632597]  kfree+0x8c/0x1a0
-> [  256.632751]  cbq_destroy_class+0x85/0xa0
-> [  256.632948]  cbq_destroy+0xfa/0x120
-> [  256.633125]  qdisc_destroy+0xa1/0x140
-> [  256.633309]  dev_shutdown+0x12d/0x190
-> [  256.633497]  rollback_registered_many+0x43c/0x5b0
-> [  256.633753]  unregister_netdevice_many+0x2c/0x130
-> [  256.634041]  rtnl_delete_link+0xb3/0x100
-> [  256.634283]  rtnl_dellink+0x19c/0x360
-> [  256.634509]  rtnetlink_rcv_msg+0x1af/0x410
-> [  256.634760]  netlink_rcv_skb+0x155/0x190
-> [  256.635001]  rtnetlink_rcv+0x28/0x30
-> [  256.635221]  netlink_unicast+0x2f1/0x3b0
-> [  256.635463]  netlink_sendmsg+0x56e/0x6f0
-> [  256.635700]  sock_sendmsg+0x76/0x80
-> [  256.635915]  sock_write_iter+0x13f/0x1f0
-> [  256.636156]  __vfs_write+0x262/0x3c0
-> [  256.636376]  vfs_write+0xf9/0x260
-> [  256.636580]  SyS_write+0xc9/0x1b0
-> [  256.636787]  do_syscall_64+0xef/0x190
-> [  256.637013]  entry_SYSCALL_64_after_swapgs+0x58/0xc6
-> [  256.637316] Memory state around the buggy address:
-> [  256.637610]  ffff880021daaa80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  256.638047]  ffff880021daab00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  256.638487] >ffff880021daab80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  256.638924]                                ^
-> [  256.639186]  ffff880021daac00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  256.639624]  ffff880021daac80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+> ip addr add ff2e::4242/32 dev eth0 autojoin
+> sysctl -w net.ipv6.conf.eth0.disable_ipv6=1
+> for i in $(seq 1 $n); do
+> 	ip link set up eth0; ip link set down eth0
+> done
 > 
-> Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+> Joining groups with IPV6_ADD_MEMBERSHIP (unprivileged) or setting the
+> sysctl net.ipv6.conf.eth0.forwarding to 1 (=> subscribing to ff02::2)
+> can also be used to create a nontrivial idev->mc_list, which will the
+> leak objects with the right up-down-sequence.
+> 
+> Based on both sources for NETDEV_DOWN events the interface IPv6 state
+> should be considered:
+> 
+>  - not ready if the network interface is not ready OR IPv6 is disabled
+>    for it
+>  - ready if the network interface is ready AND IPv6 is enabled for it
+> 
+> The functions ipv6_mc_up() and ipv6_down() should only be run when this
+> state changes.
+> 
+> Implement this by remembering when the IPv6 state is ready, and only
+> run ipv6_mc_down() if it actually changed from ready to not ready.
+> 
+> The other direction (not ready -> ready) already works correctly, as:
+> 
+>  - the interface notification triggered codepath for NETDEV_UP /
+>    NETDEV_CHANGE returns early if ipv6 is disabled, and
+>  - the disable_ipv6=0 triggered codepath skips fully initializing the
+>    interface as long as addrconf_link_ready(dev) returns false
+>  - calling ipv6_mc_up() repeatedly does not leak anything
+> 
+> Fixes: 3ce62a84d53c ("ipv6: exit early in addrconf_notify() if IPv6 is disabled")
+> Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> [jnixdorf: context updated for bpo to v4.19/v5.4]
+> Signed-off-by: Johannes Nixdorf <j.nixdorf@avm.de>
 > ---
->  net/sched/cls_api.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+>  net/ipv6/addrconf.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-> index c1a4b5d30814..330a2c9d1907 100644
-> --- a/net/sched/cls_api.c
-> +++ b/net/sched/cls_api.c
-> @@ -268,10 +268,13 @@ static int tc_ctl_tfilter(struct sk_buff *skb, struct nlmsghdr *n)
->  		err = -ENOENT;
->  		tp_ops = tcf_proto_lookup_ops(tca[TCA_KIND]);
->  		if (tp_ops == NULL) {
-> -#ifdef CONFIG_MODULES
->  			struct nlattr *kind = tca[TCA_KIND];
->  			char name[IFNAMSIZ];
+> diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+> index 9d8b791f63ef..295adfabf870 100644
+> --- a/net/ipv6/addrconf.c
+> +++ b/net/ipv6/addrconf.c
+> @@ -3660,6 +3660,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+>  	struct inet6_dev *idev;
+>  	struct inet6_ifaddr *ifa, *tmp;
+>  	bool keep_addr = false;
+> +	bool was_ready;
+>  	int state, i;
 >  
-> +			if (cl)
-> +				cops->put(q, cl);
-> +			cl = 0;
-> +#ifdef CONFIG_MODULES
->  			if (kind != NULL &&
->  			    nla_strlcpy(name, kind, IFNAMSIZ) < IFNAMSIZ) {
->  				rtnl_unlock();
+>  	ASSERT_RTNL();
+> @@ -3725,7 +3726,10 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+>  
+>  	addrconf_del_rs_timer(idev);
+>  
+> -	/* Step 2: clear flags for stateless addrconf */
+> +	/* Step 2: clear flags for stateless addrconf, repeated down
+> +	 *         detection
+> +	 */
+> +	was_ready = idev->if_flags & IF_READY;
+>  	if (!how)
+>  		idev->if_flags &= ~(IF_RS_SENT|IF_RA_RCVD|IF_READY);
+>  
+> @@ -3799,7 +3803,7 @@ static int addrconf_ifdown(struct net_device *dev, int how)
+>  	if (how) {
+>  		ipv6_ac_destroy_dev(idev);
+>  		ipv6_mc_destroy_dev(idev);
+> -	} else {
+> +	} else if (was_ready) {
+>  		ipv6_mc_down(idev);
+>  	}
+>  
 > -- 
-> 2.32.0
+> 2.36.0
 > 
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
