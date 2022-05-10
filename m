@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD945219CB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07F0F521A11
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244799AbiEJNvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        id S237134AbiEJNx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343711AbiEJNsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A56772D9EFA;
-        Tue, 10 May 2022 06:36:47 -0700 (PDT)
+        with ESMTP id S244870AbiEJNrE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBAF1B176F;
+        Tue, 10 May 2022 06:32:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E966618CF;
-        Tue, 10 May 2022 13:36:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33039C385C2;
-        Tue, 10 May 2022 13:36:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF89E615C8;
+        Tue, 10 May 2022 13:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E37E4C385C9;
+        Tue, 10 May 2022 13:32:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189805;
-        bh=7EOlkagCuaSCpsJRB/bfcScFi2TgH0RRwlzbd6ObCfE=;
+        s=korg; t=1652189539;
+        bh=kbIMyA20MLb5r88e4+yEMtTP3fJ10IDe37wFkR1I50g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SH/4e6y/z52RDM+H9Q5YNYT4b+dDWDILmQ1dIdlGcX4oIqS8wxJUcmwUnAyHDEsPg
-         HJX4lzPkHHkoqwg9zwexfZUIpOz/y29GI55kaOCHylxEBAPbz/7F2Ow5F83/cBHkld
-         6vyxM3C1CALFM21/hCtqXXzoUAf0wNdWwlTOQMpo=
+        b=ma1mAT9UIBiD/zIEHVs/9y/rb2k+p88LbsBitItvALc5koCTyYDnQ40XTF5210w9D
+         JnFuqTPouDAEXrX4l2vhkDJZYXcgf5fPerEOJfFVDctM2bxGIOYySpwdvxMdrV9iVZ
+         uaNmpwlyTNBnOb5NjeKo7DKuufxSCbc6kt+aY2WU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.17 033/140] btrfs: skip compression property for anything other than files and dirs
-Date:   Tue, 10 May 2022 15:07:03 +0200
-Message-Id: <20220510130742.563550943@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Armin Wolf <W_Armin@gmx.de>, Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 042/135] hwmon: (adt7470) Fix warning on module removal
+Date:   Tue, 10 May 2022 15:07:04 +0200
+Message-Id: <20220510130741.607331293@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,149 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Armin Wolf <W_Armin@gmx.de>
 
-commit 4b73c55fdebd8939f0f6000921075f7f6fa41397 upstream.
+commit 7b2666ce445c700b8dcee994da44ddcf050a0842 upstream.
 
-The compression property only has effect on regular files and directories
-(so that it's propagated to files and subdirectories created inside a
-directory). For any other inode type (symlink, fifo, device, socket),
-it's pointless to set the compression property because it does nothing
-and ends up unnecessarily wasting leaf space due to the pointless xattr
-(75 or 76 bytes, depending on the compression value). Symlinks in
-particular are very common (for example, I have almost 10k symlinks under
-/etc, /usr and /var alone) and therefore it's worth to avoid wasting
-leaf space with the compression xattr.
+When removing the adt7470 module, a warning might be printed:
 
-For example, the compression property can end up on a symlink or character
-device implicitly, through inheritance from a parent directory
+do not call blocking ops when !TASK_RUNNING; state=1
+set at [<ffffffffa006052b>] adt7470_update_thread+0x7b/0x130 [adt7470]
 
-  $ mkdir /mnt/testdir
-  $ btrfs property set /mnt/testdir compression lzo
+This happens because adt7470_update_thread() can leave the kthread in
+TASK_INTERRUPTIBLE state when the kthread is being stopped before
+the call of set_current_state(). Since kthread_exit() might sleep in
+exit_signals(), the warning is printed.
+Fix that by using schedule_timeout_interruptible() and removing
+the call of set_current_state().
+This causes TASK_INTERRUPTIBLE to be set after kthread_should_stop()
+which might cause the kthread to exit.
 
-  $ ln -s yadayada /mnt/testdir/lnk
-  $ mknod /mnt/testdir/dev c 0 0
-
-Or explicitly like this:
-
-  $ ln -s yadayda /mnt/lnk
-  $ setfattr -h -n btrfs.compression -v lzo /mnt/lnk
-
-So skip the compression property on inodes that are neither a regular
-file nor a directory.
-
-CC: stable@vger.kernel.org # 5.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Fixes: 93cacfd41f82 (hwmon: (adt7470) Allow faster removal)
+Signed-off-by: Armin Wolf <W_Armin@gmx.de>
+Tested-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220407101312.13331-1-W_Armin@gmx.de
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/props.c |   43 +++++++++++++++++++++++++++++++++++++++++++
- fs/btrfs/props.h |    1 +
- fs/btrfs/xattr.c |    3 +++
- 3 files changed, 47 insertions(+)
+ drivers/hwmon/adt7470.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/props.c
-+++ b/fs/btrfs/props.c
-@@ -21,6 +21,7 @@ struct prop_handler {
- 			size_t len);
- 	int (*apply)(struct inode *inode, const char *value, size_t len);
- 	const char *(*extract)(struct inode *inode);
-+	bool (*ignore)(const struct btrfs_inode *inode);
- 	int inheritable;
- };
+--- a/drivers/hwmon/adt7470.c
++++ b/drivers/hwmon/adt7470.c
+@@ -19,6 +19,7 @@
+ #include <linux/log2.h>
+ #include <linux/kthread.h>
+ #include <linux/regmap.h>
++#include <linux/sched.h>
+ #include <linux/slab.h>
+ #include <linux/util_macros.h>
  
-@@ -74,6 +75,28 @@ int btrfs_validate_prop(const struct btr
- 	return handler->validate(inode, value, value_len);
- }
+@@ -294,11 +295,10 @@ static int adt7470_update_thread(void *p
+ 		adt7470_read_temperatures(data);
+ 		mutex_unlock(&data->lock);
  
-+/*
-+ * Check if a property should be ignored (not set) for an inode.
-+ *
-+ * @inode:     The target inode.
-+ * @name:      The property's name.
-+ *
-+ * The caller must be sure the given property name is valid, for example by
-+ * having previously called btrfs_validate_prop().
-+ *
-+ * Returns:    true if the property should be ignored for the given inode
-+ *             false if the property must not be ignored for the given inode
-+ */
-+bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name)
-+{
-+	const struct prop_handler *handler;
-+
-+	handler = find_prop_handler(name, NULL);
-+	ASSERT(handler != NULL);
-+
-+	return handler->ignore(inode);
-+}
-+
- int btrfs_set_prop(struct btrfs_trans_handle *trans, struct inode *inode,
- 		   const char *name, const char *value, size_t value_len,
- 		   int flags)
-@@ -316,6 +339,22 @@ static int prop_compression_apply(struct
+-		set_current_state(TASK_INTERRUPTIBLE);
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		schedule_timeout(msecs_to_jiffies(data->auto_update_interval));
++		schedule_timeout_interruptible(msecs_to_jiffies(data->auto_update_interval));
+ 	}
+ 
  	return 0;
- }
- 
-+static bool prop_compression_ignore(const struct btrfs_inode *inode)
-+{
-+	/*
-+	 * Compression only has effect for regular files, and for directories
-+	 * we set it just to propagate it to new files created inside them.
-+	 * Everything else (symlinks, devices, sockets, fifos) is pointless as
-+	 * it will do nothing, so don't waste metadata space on a compression
-+	 * xattr for anything that is neither a file nor a directory.
-+	 */
-+	if (!S_ISREG(inode->vfs_inode.i_mode) &&
-+	    !S_ISDIR(inode->vfs_inode.i_mode))
-+		return true;
-+
-+	return false;
-+}
-+
- static const char *prop_compression_extract(struct inode *inode)
- {
- 	switch (BTRFS_I(inode)->prop_compress) {
-@@ -336,6 +375,7 @@ static struct prop_handler prop_handlers
- 		.validate = prop_compression_validate,
- 		.apply = prop_compression_apply,
- 		.extract = prop_compression_extract,
-+		.ignore = prop_compression_ignore,
- 		.inheritable = 1
- 	},
- };
-@@ -362,6 +402,9 @@ static int inherit_props(struct btrfs_tr
- 		if (!h->inheritable)
- 			continue;
- 
-+		if (h->ignore(BTRFS_I(inode)))
-+			continue;
-+
- 		value = h->extract(parent);
- 		if (!value)
- 			continue;
---- a/fs/btrfs/props.h
-+++ b/fs/btrfs/props.h
-@@ -15,6 +15,7 @@ int btrfs_set_prop(struct btrfs_trans_ha
- 		   int flags);
- int btrfs_validate_prop(const struct btrfs_inode *inode, const char *name,
- 			const char *value, size_t value_len);
-+bool btrfs_ignore_prop(const struct btrfs_inode *inode, const char *name);
- 
- int btrfs_load_inode_props(struct inode *inode, struct btrfs_path *path);
- 
---- a/fs/btrfs/xattr.c
-+++ b/fs/btrfs/xattr.c
-@@ -408,6 +408,9 @@ static int btrfs_xattr_handler_set_prop(
- 	if (ret)
- 		return ret;
- 
-+	if (btrfs_ignore_prop(BTRFS_I(inode), name))
-+		return 0;
-+
- 	trans = btrfs_start_transaction(root, 2);
- 	if (IS_ERR(trans))
- 		return PTR_ERR(trans);
 
 
