@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56AD75219AC
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CA152187B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240366AbiEJNug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
+        id S243219AbiEJNf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:35:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245043AbiEJNrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CCC7E080;
-        Tue, 10 May 2022 06:34:11 -0700 (PDT)
+        with ESMTP id S243553AbiEJNfX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:35:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C75332BA992;
+        Tue, 10 May 2022 06:24:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C43B3B81DA8;
-        Tue, 10 May 2022 13:34:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058B1C385A6;
-        Tue, 10 May 2022 13:34:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5152E60B12;
+        Tue, 10 May 2022 13:24:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45AC0C385C2;
+        Tue, 10 May 2022 13:24:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189648;
-        bh=pVaz+wkZjguHefPMnnE6xU5RTtQ+84NCQi/e2p+M3vg=;
+        s=korg; t=1652189083;
+        bh=sJxeO9sMJFI1xBoVwUlNtKWuNrKbanphGiKBiRHFciE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RHPJCorqp93eQiVRGxvr/HHAhG8y+HTVG+eh2++TFlP/EpjIkpMzJK2AcN5uvk/0A
-         1lOsygwHsD2bwpGmlDUmZ0vH+eMmlaO1YQU1BMjHl2r1p0msGM6LzOm2oj0+9FhId8
-         3Q6Wp13wLdhkYEX75QwaEG/e5VLUBhdXavmxM44E=
+        b=cb6R3buZSd2bhWPP8mI5GFUyYXNXfjAHW1+GpGFCyvbLwZhNy9rTPoI9YdJfwnjs/
+         VuQ38kzEqbOzHxxZz+prj4nfaTY7b+VS71D6QimY8t8dp+jDIOJ0G/vPxtT2wbwrdW
+         Gu9JQ8j7k1NwH1W10vnYC+D5u5OI9DVdKvQx9Rfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.15 117/135] PCI: aardvark: Replace custom PCIE_CORE_INT_* macros with PCI_INTERRUPT_*
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 50/52] PCI: aardvark: Clear all MSIs at setup
 Date:   Tue, 10 May 2022 15:08:19 +0200
-Message-Id: <20220510130743.756175307@linuxfoundation.org>
+Message-Id: <20220510130731.315446427@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Pali RohÃ¡r <pali@kernel.org>
 
-commit 1d86abf1f89672a70f2ab65f6000299feb1f1781 upstream.
+commit 7d8dc1f7cd007a7ce94c5b4c20d63a8b8d6d7751 upstream.
 
-Header file linux/pci.h defines enum pci_interrupt_pin with corresponding
-PCI_INTERRUPT_* values.
+We already clear all the other interrupts (ISR0, ISR1, HOST_CTRL_INT).
 
-Link: https://lore.kernel.org/r/20220110015018.26359-2-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Define a new macro PCIE_MSI_ALL_MASK and do the same clearing for MSIs,
+to ensure that we don't start receiving spurious interrupts.
+
+Use this new mask in advk_pcie_handle_msi();
+
+Link: https://lore.kernel.org/r/20211130172913.9727-5-kabel@kernel.org
+Signed-off-by: Pali RohÃ¡r <pali@kernel.org>
+Signed-off-by: Marek BehÃºn <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -38,10 +38,6 @@
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN			BIT(6)
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK			BIT(7)
- #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK_RCV			BIT(8)
--#define     PCIE_CORE_INT_A_ASSERT_ENABLE			1
--#define     PCIE_CORE_INT_B_ASSERT_ENABLE			2
--#define     PCIE_CORE_INT_C_ASSERT_ENABLE			3
--#define     PCIE_CORE_INT_D_ASSERT_ENABLE			4
- /* PIO registers base address and register offsets */
- #define PIO_BASE_ADDR				0x4000
- #define PIO_CTRL				(PIO_BASE_ADDR + 0x0)
-@@ -961,7 +957,7 @@ static int advk_sw_pci_bridge_init(struc
- 	bridge->conf.pref_mem_limit = cpu_to_le16(PCI_PREF_RANGE_TYPE_64);
+@@ -108,6 +108,7 @@
+ #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
+ #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
+ #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
++#define     PCIE_MSI_ALL_MASK			GENMASK(31, 0)
+ #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
+ #define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
  
- 	/* Support interrupt A for MSI feature */
--	bridge->conf.intpin = PCIE_CORE_INT_A_ASSERT_ENABLE;
-+	bridge->conf.intpin = PCI_INTERRUPT_INTA;
+@@ -561,6 +562,7 @@ static void advk_pcie_setup_hw(struct ad
+ 	advk_writel(pcie, reg, PCIE_CORE_CTRL2_REG);
  
- 	/* Aardvark HW provides PCIe Capability structure in version 2 */
- 	bridge->pcie_conf.cap = cpu_to_le16(2);
+ 	/* Clear all interrupts */
++	advk_writel(pcie, PCIE_MSI_ALL_MASK, PCIE_MSI_STATUS_REG);
+ 	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_REG);
+ 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
+ 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
+@@ -573,7 +575,7 @@ static void advk_pcie_setup_hw(struct ad
+ 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_MASK_REG);
+ 
+ 	/* Unmask all MSIs */
+-	advk_writel(pcie, 0, PCIE_MSI_MASK_REG);
++	advk_writel(pcie, ~(u32)PCIE_MSI_ALL_MASK, PCIE_MSI_MASK_REG);
+ 
+ 	/* Enable summary interrupt for GIC SPI source */
+ 	reg = PCIE_IRQ_ALL_MASK & (~PCIE_IRQ_ENABLE_INTS_MASK);
+@@ -1374,7 +1376,7 @@ static void advk_pcie_handle_msi(struct
+ 
+ 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
+ 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
+-	msi_status = msi_val & ~msi_mask;
++	msi_status = msi_val & ((~msi_mask) & PCIE_MSI_ALL_MASK);
+ 
+ 	for (msi_idx = 0; msi_idx < MSI_IRQ_NUM; msi_idx++) {
+ 		if (!(BIT(msi_idx) & msi_status))
 
 
