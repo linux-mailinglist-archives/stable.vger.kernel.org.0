@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7C17521ABF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF0F521864
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242563AbiEJODj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S243222AbiEJNfe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:35:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244605AbiEJOC1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:02:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3656E2DE5AC;
-        Tue, 10 May 2022 06:40:17 -0700 (PDT)
+        with ESMTP id S243456AbiEJNeM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:34:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57657238D75;
+        Tue, 10 May 2022 06:24:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD8F5B81DCD;
-        Tue, 10 May 2022 13:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC9EC385A6;
-        Tue, 10 May 2022 13:40:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C3D761768;
+        Tue, 10 May 2022 13:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 724FEC385C2;
+        Tue, 10 May 2022 13:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190014;
-        bh=sv2hjGyjBcuJdU2vhkrhCU7EMqqYtp/aYPxVnvsQjCE=;
+        s=korg; t=1652189062;
+        bh=dwo1c1VqB1TjhnB+lmO0evpTKYjAmpjBUdoni3XMw14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eGNL870TQwHTle/l0b1c3AYZL1v8DMmOToKxCXiqQ+HZMcTZD49V2fqocwaXQxx2E
-         /SccFWWmuARrCIykD5a3OkY91YA4KjT9E8KhIItdyVXMP8frZA/BUARKHXHTMJvEda
-         jPMxS7nTFBPUJUBKIxDE9pwGgnadvhwmd9Kl6HoQ=
+        b=uG5P7bC38VJFI5zBaFd5K6kf30OwVzI3+J1FKTrNBYrNbeC3aktHoP0r92ey6A23y
+         RZ9RflW6axqvC2Et0BiLIITkkzvZWmcmLqQZJNygytgFmfsgBiCRt2akiL1n2dBQp6
+         Of5rmVAr6490CjLZtFAna+ADjJUekCF3y+DdmEEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.17 102/140] selftests: ocelot: tc_flower_chains: specify conform-exceed action for policer
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.4 43/52] ALSA: pcm: Fix races among concurrent read/write and buffer changes
 Date:   Tue, 10 May 2022 15:08:12 +0200
-Message-Id: <20220510130744.521684188@linuxfoundation.org>
+Message-Id: <20220510130731.112125943@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5a7c5f70c743c6cf32b44b05bd6b19d4ad82f49d upstream.
+commit dca947d4d26dbf925a64a6cfb2ddbc035e831a3d upstream.
 
-As discussed here with Ido Schimmel:
-https://patchwork.kernel.org/project/netdevbpf/patch/20220224102908.5255-2-jianbol@nvidia.com/
+In the current PCM design, the read/write syscalls (as well as the
+equivalent ioctls) are allowed before the PCM stream is running, that
+is, at PCM PREPARED state.  Meanwhile, we also allow to re-issue
+hw_params and hw_free ioctl calls at the PREPARED state that may
+change or free the buffers, too.  The problem is that there is no
+protection against those mix-ups.
 
-the default conform-exceed action is "reclassify", for a reason we don't
-really understand.
+This patch applies the previously introduced runtime->buffer_mutex to
+the read/write operations so that the concurrent hw_params or hw_free
+call can no longer interfere during the operation.  The mutex is
+unlocked before scheduling, so we don't take it too long.
 
-The point is that hardware can't offload that police action, so not
-specifying "conform-exceed" was always wrong, even though the command
-used to work in hardware (but not in software) until the kernel started
-adding validation for it.
-
-Fix the command used by the selftest by making the policer drop on
-exceed, and pass the packet to the next action (goto) on conform.
-
-Fixes: 8cd6b020b644 ("selftests: ocelot: add some example VCAP IS1, IS2 and ES0 tc offloads")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Link: https://lore.kernel.org/r/20220503121428.842906-1-vladimir.oltean@nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322170720.3529-3-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/pcm_lib.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-+++ b/tools/testing/selftests/drivers/net/ocelot/tc_flower_chains.sh
-@@ -190,7 +190,7 @@ setup_prepare()
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1861,9 +1861,11 @@ static int wait_for_avail(struct snd_pcm
+ 		if (avail >= runtime->twake)
+ 			break;
+ 		snd_pcm_stream_unlock_irq(substream);
++		mutex_unlock(&runtime->buffer_mutex);
  
- 	tc filter add dev $eth0 ingress chain $(IS2 0 0) pref 1 \
- 		protocol ipv4 flower skip_sw ip_proto udp dst_port 5201 \
--		action police rate 50mbit burst 64k \
-+		action police rate 50mbit burst 64k conform-exceed drop/pipe \
- 		action goto chain $(IS2 1 0)
+ 		tout = schedule_timeout(wait_time);
+ 
++		mutex_lock(&runtime->buffer_mutex);
+ 		snd_pcm_stream_lock_irq(substream);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		switch (runtime->status->state) {
+@@ -2157,6 +2159,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
+ 
+ 	nonblock = !!(substream->f_flags & O_NONBLOCK);
+ 
++	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	err = pcm_accessible_state(runtime);
+ 	if (err < 0)
+@@ -2244,6 +2247,7 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
+ 	if (xfer > 0 && err >= 0)
+ 		snd_pcm_update_state(substream, runtime);
+ 	snd_pcm_stream_unlock_irq(substream);
++	mutex_unlock(&runtime->buffer_mutex);
+ 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
  }
- 
+ EXPORT_SYMBOL(__snd_pcm_lib_xfer);
 
 
