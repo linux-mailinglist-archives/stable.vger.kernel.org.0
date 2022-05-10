@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C64AE521714
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCD06521697
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232460AbiEJNXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45984 "EHLO
+        id S242395AbiEJNQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35042 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243232AbiEJNVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F3C2C2572;
-        Tue, 10 May 2022 06:15:18 -0700 (PDT)
+        with ESMTP id S242482AbiEJNQI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D8752E73;
+        Tue, 10 May 2022 06:11:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3245615DD;
-        Tue, 10 May 2022 13:15:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10232C385C2;
-        Tue, 10 May 2022 13:15:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B8636163C;
+        Tue, 10 May 2022 13:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B17C385A6;
+        Tue, 10 May 2022 13:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188516;
-        bh=m2ASRB4GczbfdDdQ1RmKGS9fhnmfR0jNT5aBSJnnqzA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSUEhTUxqzyRmCVubK72GxjxJ0d1kMnAKn3iK3Vy1Y0sbauYVUAiGruEKPlNRYHFp
-         Siaq079YI6kGdcHPpHZt6d3eYF/wWnr2ZPsbG9oo39OtyUpKqNqddbAEJtf6EDVuxu
-         Lm/TK531XfSlXR0z475UvJ2Gaz+rNLRZglfXmL60=
+        s=korg; t=1652188308;
+        bh=JrgLePucDGGs+dl77A4GkLm+cCFnUTU4jkFnVWtfPQI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=JIJ0LekSlhtuksuO4jEIQc693KTphSb3tx+JePij4Jk2Jc+gYTYTFjQ1lTcsRD7IK
+         wqI0odVVViFxEN5Sqi7qTgpK8IyVBOOInCfCh9kZKMdvnMay5Ok12vWxhkT41iyvz2
+         9OMXTiGNRhRmL9zyEAqoOlD0+eA5Fn4BoLvbUMaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Robert Kolchmeyer <rkolchmeyer@google.com>
-Subject: [PATCH 4.14 04/78] net/sched: cls_u32: fix netns refcount changes in u32_change()
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 4.9 00/66] 4.9.313-rc1 review
 Date:   Tue, 10 May 2022 15:06:50 +0200
-Message-Id: <20220510130732.657790863@linuxfoundation.org>
+Message-Id: <20220510130729.762341544@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.313-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.313-rc1
+X-KernelTest-Deadline: 2022-05-12T13:07+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -58,142 +61,299 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+This is the start of the stable review cycle for the 4.9.313 release.
+There are 66 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 3db09e762dc79584a69c10d74a6b98f89a9979f8 upstream.
+Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+Anything received after that time might be too late.
 
-We are now able to detect extra put_net() at the moment
-they happen, instead of much later in correct code paths.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.313-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-u32_init_knode() / tcf_exts_init() populates the ->exts.net
-pointer, but as mentioned in tcf_exts_init(),
-the refcount on netns has not been elevated yet.
+thanks,
 
-The refcount is taken only once tcf_exts_get_net()
-is called.
+greg k-h
 
-So the two u32_destroy_key() calls from u32_change()
-are attempting to release an invalid reference on the netns.
+-------------
+Pseudo-Shortlog of commits:
 
-syzbot report:
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.313-rc1
 
-refcount_t: decrement hit 0; leaking memory.
-WARNING: CPU: 0 PID: 21708 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Modules linked in:
-CPU: 0 PID: 21708 Comm: syz-executor.5 Not tainted 5.18.0-rc2-next-20220412-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Code: 1d 14 b6 b2 09 31 ff 89 de e8 6d e9 89 fd 84 db 75 e0 e8 84 e5 89 fd 48 c7 c7 40 aa 26 8a c6 05 f4 b5 b2 09 01 e8 e5 81 2e 05 <0f> 0b eb c4 e8 68 e5 89 fd 0f b6 1d e3 b5 b2 09 31 ff 89 de e8 38
-RSP: 0018:ffffc900051af1b0 EFLAGS: 00010286
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000040000 RSI: ffffffff8160a0c8 RDI: fffff52000a35e28
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff81604a9e R11: 0000000000000000 R12: 1ffff92000a35e3b
-R13: 00000000ffffffef R14: ffff8880211a0194 R15: ffff8880577d0a00
-FS:  00007f25d183e700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f19c859c028 CR3: 0000000051009000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __refcount_dec include/linux/refcount.h:344 [inline]
- refcount_dec include/linux/refcount.h:359 [inline]
- ref_tracker_free+0x535/0x6b0 lib/ref_tracker.c:118
- netns_tracker_free include/net/net_namespace.h:327 [inline]
- put_net_track include/net/net_namespace.h:341 [inline]
- tcf_exts_put_net include/net/pkt_cls.h:255 [inline]
- u32_destroy_key.isra.0+0xa7/0x2b0 net/sched/cls_u32.c:394
- u32_change+0xe01/0x3140 net/sched/cls_u32.c:909
- tc_new_tfilter+0x98d/0x2200 net/sched/cls_api.c:2148
- rtnetlink_rcv_msg+0x80d/0xb80 net/core/rtnetlink.c:6016
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2495
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:705 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:725
- ____sys_sendmsg+0x6e2/0x800 net/socket.c:2413
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f25d0689049
-Code: ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 40 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f25d183e168 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00007f25d079c030 RCX: 00007f25d0689049
-RDX: 0000000000000000 RSI: 0000000020000340 RDI: 0000000000000005
-RBP: 00007f25d06e308d R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffd0b752e3f R14: 00007f25d183e300 R15: 0000000000022000
- </TASK>
+Mike Snitzer <snitzer@redhat.com>
+    dm: interlock pending dm_io and dm_wait_for_bios_completion
 
-Fixes: 35c55fc156d8 ("cls_u32: use tcf_exts_get_net() before call_rcu()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[rkolchmeyer: Backported to 4.14: adjusted u32_destroy_key() signature]
-Signed-off-by: Robert Kolchmeyer <rkolchmeyer@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/sched/cls_u32.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+Jiazi Li <jqqlijiazi@gmail.com>
+    dm: fix mempool NULL pointer race when completing IO
 
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -395,15 +395,20 @@ static int u32_init(struct tcf_proto *tp
- 	return 0;
- }
- 
--static int u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
--			   bool free_pf)
-+static void __u32_destroy_key(struct tc_u_knode *n)
- {
- 	struct tc_u_hnode *ht = rtnl_dereference(n->ht_down);
- 
- 	tcf_exts_destroy(&n->exts);
--	tcf_exts_put_net(&n->exts);
- 	if (ht && --ht->refcnt == 0)
- 		kfree(ht);
-+	kfree(n);
-+}
-+
-+static void u32_destroy_key(struct tcf_proto *tp, struct tc_u_knode *n,
-+			   bool free_pf)
-+{
-+	tcf_exts_put_net(&n->exts);
- #ifdef CONFIG_CLS_U32_PERF
- 	if (free_pf)
- 		free_percpu(n->pf);
-@@ -412,8 +417,7 @@ static int u32_destroy_key(struct tcf_pr
- 	if (free_pf)
- 		free_percpu(n->pcpu_success);
- #endif
--	kfree(n);
--	return 0;
-+	__u32_destroy_key(n);
- }
- 
- /* u32_delete_key_rcu should be called when free'ing a copied
-@@ -942,13 +946,13 @@ static int u32_change(struct net *net, s
- 				    tca[TCA_RATE], ovr);
- 
- 		if (err) {
--			u32_destroy_key(tp, new, false);
-+			__u32_destroy_key(new);
- 			return err;
- 		}
- 
- 		err = u32_replace_hw_knode(tp, new, flags);
- 		if (err) {
--			u32_destroy_key(tp, new, false);
-+			__u32_destroy_key(new);
- 			return err;
- 		}
- 
+j.nixdorf@avm.de <j.nixdorf@avm.de>
+    net: ipv6: ensure we call ipv6_mc_down() at most once
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    net: sched: prevent UAF on tc_ctl_tfilter when temporarily dropping rtnl_lock
+
+Sandipan Das <sandipan.das@amd.com>
+    kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
+
+Eric Dumazet <edumazet@google.com>
+    net: igmp: respect RCU rules in ip_mc_source() and ip_mc_msfilter()
+
+Filipe Manana <fdmanana@suse.com>
+    btrfs: always log symlinks in full mode
+
+Sergey Shtylyov <s.shtylyov@omp.ru>
+    smsc911x: allow using IRQ0
+
+Shravya Kumbham <shravya.kumbham@xilinx.com>
+    net: emaclite: Add error handling for of_address_to_resource()
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    ASoC: dmaengine: Restore NULL prepare_slave_config() callback
+
+Armin Wolf <W_Armin@gmx.de>
+    hwmon: (adt7470) Fix warning on module removal
+
+Duoming Zhou <duoming@zju.edu.cn>
+    NFC: netlink: fix sleep in atomic bug when firmware download timeout
+
+Duoming Zhou <duoming@zju.edu.cn>
+    nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+
+Duoming Zhou <duoming@zju.edu.cn>
+    nfc: replace improper check device_is_registered() in netlink related functions
+
+Daniel Hellstrom <daniel@gaisler.com>
+    can: grcan: use ofdev->dev when allocating DMA memory
+
+Duoming Zhou <duoming@zju.edu.cn>
+    can: grcan: grcan_close(): fix deadlock
+
+Mark Brown <broonie@kernel.org>
+    ASoC: wm8958: Fix change notifications for DSP controls
+
+Niels Dossche <dossche.niels@gmail.com>
+    firewire: core: extend card->lock in fw_core_handle_bus_reset
+
+Jakob Koschel <jakobkoschel@gmail.com>
+    firewire: remove check of list iterator against head past the loop body
+
+Chengfeng Ye <cyeaa@connect.ust.hk>
+    firewire: fix potential uaf in outbound_phy_packet_callback()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    Revert "SUNRPC: attempt AF_LOCAL connect on setup"
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA: fireworks: fix wrong return count shorter than expected by 4 bytes
+
+Helge Deller <deller@gmx.de>
+    parisc: Merge model and model name into one line in /proc/cpuinfo
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    MIPS: Fix CP0 counter erratum detection for R4k CPUs
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix incorrect UA handling
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix wrong command frame length field encoding
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix wrong command retry handling
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix missing explicit ldisc flush
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix insufficient txframe size
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix malformed counter for out of frame data
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix wrong signal octet encoding in convergence layer type 2
+
+Borislav Petkov <bp@suse.de>
+    x86/cpu: Load microcode during restore_processor_state()
+
+Duoming Zhou <duoming@zju.edu.cn>
+    drivers: net: hippi: Fix deadlock in rr_close()
+
+Zheyu Ma <zheyuma97@gmail.com>
+    ASoC: wm8731: Disable the regulator when probing fails
+
+Manish Chopra <manishc@marvell.com>
+    bnx2x: fix napi API usage sequence
+
+Yang Yingliang <yangyingliang@huawei.com>
+    clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
+
+Eric Dumazet <edumazet@google.com>
+    tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
+
+Peilin Ye <peilin.ye@bytedance.com>
+    ip_gre: Make o_seqno start from 0 in native mode
+
+Lv Ruyi <lv.ruyi@zte.com.cn>
+    pinctrl: pistachio: fix use of irq_of_parse_and_map()
+
+Miaoqian Lin <linmq006@gmail.com>
+    mtd: rawnand: Fix return value check of wait_for_completion_timeout
+
+H. Nikolaus Schaller <hns@goldelico.com>
+    ARM: dts: Fix mmc order for omap3-gta04
+
+Miaoqian Lin <linmq006@gmail.com>
+    ARM: OMAP2+: Fix refcount leak in omap_gic_of_init
+
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+    phy: samsung: exynos5250-sata: fix missing device put in probe error paths
+
+Miaoqian Lin <linmq006@gmail.com>
+    phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
+
+Fabio Estevam <festevam@gmail.com>
+    ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
+
+Mikulas Patocka <mpatocka@redhat.com>
+    hex2bin: fix access beyond string end
+
+Mikulas Patocka <mpatocka@redhat.com>
+    hex2bin: make the function hex_to_bin constant-time
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    serial: 8250: Correct the clock for EndRun PTP/1588 PCIe device
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    serial: 8250: Also set sticky MCR bits in console restoration
+
+Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+    usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
+
+Dan Vacura <w36195@motorola.com>
+    usb: gadget: uvc: Fix crash when encoding data for usb request
+
+Hangyu Hua <hbh25y@gmail.com>
+    usb: misc: fix improper handling of refcount in uss720_probe()
+
+Zheyu Ma <zheyuma97@gmail.com>
+    iio: magnetometer: ak8975: Fix the error handling in ak8975_power_on()
+
+Michael Hennerich <michael.hennerich@analog.com>
+    iio: dac: ad5446: Fix read_raw not returning set value
+
+Zizhuang Deng <sunsetdzz@gmail.com>
+    iio: dac: ad5592r: Fix the missing return value.
+
+Henry Lin <henryl@nvidia.com>
+    xhci: stop polling roothubs after shutdown
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add Telit 0x1057, 0x1058, 0x1075 compositions
+
+Slark Xiao <slark_xiao@163.com>
+    USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
+
+Bruno Thomsen <bruno.thomsen@gmail.com>
+    USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
+
+Kees Cook <keescook@chromium.org>
+    USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
+
+Oliver Neukum <oneukum@suse.com>
+    USB: quirks: add STRING quirk for VCOM device
+
+Oliver Neukum <oneukum@suse.com>
+    USB: quirks: add a Realtek card reader
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    lightnvm: disable the subsystem
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link"
+
+Willy Tarreau <w@1wt.eu>
+    floppy: disable FDRAWCMD by default
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/boot/dts/imx6qdl-apalis.dtsi              | 10 ++++-
+ arch/arm/boot/dts/omap3-gta04.dtsi                 |  2 +
+ arch/arm/mach-omap2/omap4-common.c                 |  2 +
+ arch/mips/include/asm/timex.h                      |  8 ++--
+ arch/mips/kernel/time.c                            | 11 ++----
+ arch/parisc/kernel/processor.c                     |  3 +-
+ arch/x86/include/asm/microcode.h                   |  2 +
+ arch/x86/kernel/cpu/microcode/core.c               |  6 +--
+ arch/x86/kvm/cpuid.c                               |  5 +++
+ arch/x86/power/cpu.c                               |  8 ++++
+ drivers/block/Kconfig                              | 16 ++++++++
+ drivers/block/floppy.c                             | 43 ++++++++++++++++------
+ drivers/bus/sunxi-rsb.c                            |  2 +
+ drivers/clk/sunxi/clk-sun9i-mmc.c                  |  2 +
+ drivers/firewire/core-card.c                       |  3 ++
+ drivers/firewire/core-cdev.c                       |  4 +-
+ drivers/firewire/core-topology.c                   |  9 ++---
+ drivers/firewire/core-transaction.c                | 30 ++++++++-------
+ drivers/firewire/sbp2.c                            | 13 ++++---
+ drivers/hwmon/adt7470.c                            |  4 +-
+ drivers/iio/dac/ad5446.c                           |  2 +-
+ drivers/iio/dac/ad5592r-base.c                     |  2 +-
+ drivers/iio/magnetometer/ak8975.c                  |  1 +
+ drivers/lightnvm/Kconfig                           |  2 +-
+ drivers/md/dm.c                                    | 19 ++++++----
+ drivers/mtd/nand/sh_flctl.c                        | 14 ++++---
+ drivers/net/can/grcan.c                            |  8 +++-
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c   |  9 +++--
+ drivers/net/ethernet/smsc/smsc911x.c               |  2 +-
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c |  8 ++++
+ drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h |  4 --
+ .../net/ethernet/stmicro/stmmac/dwmac-socfpga.c    | 13 ++++---
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      | 15 ++++++--
+ drivers/net/hippi/rrunner.c                        |  2 +
+ drivers/nfc/nfcmrvl/main.c                         |  2 +-
+ drivers/phy/phy-exynos5250-sata.c                  | 21 ++++++++---
+ drivers/pinctrl/pinctrl-pistachio.c                |  6 +--
+ drivers/tty/n_gsm.c                                | 40 ++++++++++----------
+ drivers/tty/serial/8250/8250_pci.c                 |  8 ++--
+ drivers/tty/serial/8250/8250_port.c                |  2 +-
+ drivers/usb/core/quirks.c                          |  6 +++
+ drivers/usb/gadget/configfs.c                      |  2 +
+ drivers/usb/gadget/function/uvc_queue.c            |  2 +
+ drivers/usb/host/xhci.c                            | 11 ++++++
+ drivers/usb/misc/uss720.c                          |  3 +-
+ drivers/usb/serial/cp210x.c                        |  2 +
+ drivers/usb/serial/option.c                        | 12 ++++++
+ drivers/usb/serial/whiteheat.c                     |  5 +--
+ fs/btrfs/tree-log.c                                | 14 ++++++-
+ include/linux/kernel.h                             |  2 +-
+ include/net/tcp.h                                  |  1 +
+ lib/hexdump.c                                      | 41 ++++++++++++++++-----
+ net/ipv4/igmp.c                                    |  9 +++--
+ net/ipv4/ip_gre.c                                  |  8 ++--
+ net/ipv4/tcp_input.c                               | 12 +++++-
+ net/ipv4/tcp_output.c                              |  1 +
+ net/ipv6/addrconf.c                                |  8 +++-
+ net/nfc/core.c                                     | 29 +++++++--------
+ net/nfc/netlink.c                                  |  4 +-
+ net/sched/cls_api.c                                |  5 ++-
+ net/sunrpc/xprtsock.c                              |  3 --
+ sound/firewire/fireworks/fireworks_hwdep.c         |  1 +
+ sound/soc/codecs/wm8731.c                          | 19 ++++++----
+ sound/soc/codecs/wm8958-dsp2.c                     |  8 ++--
+ sound/soc/soc-generic-dmaengine-pcm.c              |  6 +--
+ 66 files changed, 387 insertions(+), 194 deletions(-)
 
 
