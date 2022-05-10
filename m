@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC17A5219BA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BC552178B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244405AbiEJNuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47210 "EHLO
+        id S244010AbiEJN1t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343680AbiEJNsU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1952B8D09;
-        Tue, 10 May 2022 06:36:45 -0700 (PDT)
+        with ESMTP id S242910AbiEJNZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA3784EA3E;
+        Tue, 10 May 2022 06:18:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63EF7618BB;
-        Tue, 10 May 2022 13:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E88C385C2;
-        Tue, 10 May 2022 13:36:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8372561661;
+        Tue, 10 May 2022 13:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86DC4C385C6;
+        Tue, 10 May 2022 13:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189777;
-        bh=3H1BjRzDHUjxEnk9QTEfAYQL8EISB2HXM59jjO3NEzo=;
+        s=korg; t=1652188683;
+        bh=LlaNvZNC6zMQ2YYn7Jimy2RhtIUwN/GT9NAOZ5adIg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1kaV42gVcuJyHYM6xgnADrFElpwxplWrRBMFbZw+a/7K/yyljYuMRcSapA3Zh3UUc
-         6T/fjBv/17FN/PrAGGP25XeZGtx7MfASvVyktp8agVhLe6M++HLoVRhZqwS3kc+m0X
-         I1ldVy7QmaOM7+M/wJAmdycVp9RlMy8LHgijg8L0=
+        b=OrlYIN9EZU5fud9CsrLxlldCb8RrgthmD4zIvY/8AaSy4BmJERlEY5047BtiQJK3O
+         luXpBNs0/BmNMpVJ2z7vDLAZRloFCLznZkosmGYCEa7W4FX2Gxsa1DgF3mCmJ4L3bz
+         F38nUWfA/0XdonQ3jGhfjQzAjGG5EqZ6rb2WvAko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 025/140] firewire: remove check of list iterator against head past the loop body
+        stable@vger.kernel.org,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 10/88] iio: dac: ad5446: Fix read_raw not returning set value
 Date:   Tue, 10 May 2022 15:06:55 +0200
-Message-Id: <20220510130742.331173258@linuxfoundation.org>
+Message-Id: <20220510130734.044592292@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,140 +56,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Michael Hennerich <michael.hennerich@analog.com>
 
-commit 9423973869bd4632ffe669f950510c49296656e0 upstream.
+commit 89a01cd688d3c0ac983ef0b0e5f40018ab768317 upstream.
 
-When list_for_each_entry() completes the iteration over the whole list
-without breaking the loop, the iterator value will be a bogus pointer
-computed based on the head element.
+read_raw should return the un-scaled value.
 
-While it is safe to use the pointer to determine if it was computed
-based on the head element, either with list_entry_is_head() or
-&pos->member == head, using the iterator variable after the loop should
-be avoided.
-
-In preparation to limit the scope of a list iterator to the list
-traversal loop, use a dedicated pointer to point to the found element [1].
-
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-3-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 5e06bdfb46e8b ("staging:iio:dac:ad5446: Return cached value for 'raw' attribute")
+Signed-off-by: Michael Hennerich <michael.hennerich@analog.com>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Link: https://lore.kernel.org/r/20220406105620.1171340-1-michael.hennerich@analog.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/core-transaction.c |   30 ++++++++++++++++--------------
- drivers/firewire/sbp2.c             |   13 +++++++------
- 2 files changed, 23 insertions(+), 20 deletions(-)
+ drivers/iio/dac/ad5446.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firewire/core-transaction.c
-+++ b/drivers/firewire/core-transaction.c
-@@ -73,24 +73,25 @@ static int try_cancel_split_timeout(stru
- static int close_transaction(struct fw_transaction *transaction,
- 			     struct fw_card *card, int rcode)
- {
--	struct fw_transaction *t;
-+	struct fw_transaction *t = NULL, *iter;
- 	unsigned long flags;
+--- a/drivers/iio/dac/ad5446.c
++++ b/drivers/iio/dac/ad5446.c
+@@ -171,7 +171,7 @@ static int ad5446_read_raw(struct iio_de
  
- 	spin_lock_irqsave(&card->lock, flags);
--	list_for_each_entry(t, &card->transaction_list, link) {
--		if (t == transaction) {
--			if (!try_cancel_split_timeout(t)) {
-+	list_for_each_entry(iter, &card->transaction_list, link) {
-+		if (iter == transaction) {
-+			if (!try_cancel_split_timeout(iter)) {
- 				spin_unlock_irqrestore(&card->lock, flags);
- 				goto timed_out;
- 			}
--			list_del_init(&t->link);
--			card->tlabel_mask &= ~(1ULL << t->tlabel);
-+			list_del_init(&iter->link);
-+			card->tlabel_mask &= ~(1ULL << iter->tlabel);
-+			t = iter;
- 			break;
- 		}
- 	}
- 	spin_unlock_irqrestore(&card->lock, flags);
- 
--	if (&t->link != &card->transaction_list) {
-+	if (t) {
- 		t->callback(card, rcode, NULL, 0, t->callback_data);
- 		return 0;
- 	}
-@@ -935,7 +936,7 @@ EXPORT_SYMBOL(fw_core_handle_request);
- 
- void fw_core_handle_response(struct fw_card *card, struct fw_packet *p)
- {
--	struct fw_transaction *t;
-+	struct fw_transaction *t = NULL, *iter;
- 	unsigned long flags;
- 	u32 *data;
- 	size_t data_length;
-@@ -947,20 +948,21 @@ void fw_core_handle_response(struct fw_c
- 	rcode	= HEADER_GET_RCODE(p->header[1]);
- 
- 	spin_lock_irqsave(&card->lock, flags);
--	list_for_each_entry(t, &card->transaction_list, link) {
--		if (t->node_id == source && t->tlabel == tlabel) {
--			if (!try_cancel_split_timeout(t)) {
-+	list_for_each_entry(iter, &card->transaction_list, link) {
-+		if (iter->node_id == source && iter->tlabel == tlabel) {
-+			if (!try_cancel_split_timeout(iter)) {
- 				spin_unlock_irqrestore(&card->lock, flags);
- 				goto timed_out;
- 			}
--			list_del_init(&t->link);
--			card->tlabel_mask &= ~(1ULL << t->tlabel);
-+			list_del_init(&iter->link);
-+			card->tlabel_mask &= ~(1ULL << iter->tlabel);
-+			t = iter;
- 			break;
- 		}
- 	}
- 	spin_unlock_irqrestore(&card->lock, flags);
- 
--	if (&t->link == &card->transaction_list) {
-+	if (!t) {
-  timed_out:
- 		fw_notice(card, "unsolicited response (source %x, tlabel %x)\n",
- 			  source, tlabel);
---- a/drivers/firewire/sbp2.c
-+++ b/drivers/firewire/sbp2.c
-@@ -408,7 +408,7 @@ static void sbp2_status_write(struct fw_
- 			      void *payload, size_t length, void *callback_data)
- {
- 	struct sbp2_logical_unit *lu = callback_data;
--	struct sbp2_orb *orb;
-+	struct sbp2_orb *orb = NULL, *iter;
- 	struct sbp2_status status;
- 	unsigned long flags;
- 
-@@ -433,17 +433,18 @@ static void sbp2_status_write(struct fw_
- 
- 	/* Lookup the orb corresponding to this status write. */
- 	spin_lock_irqsave(&lu->tgt->lock, flags);
--	list_for_each_entry(orb, &lu->orb_list, link) {
-+	list_for_each_entry(iter, &lu->orb_list, link) {
- 		if (STATUS_GET_ORB_HIGH(status) == 0 &&
--		    STATUS_GET_ORB_LOW(status) == orb->request_bus) {
--			orb->rcode = RCODE_COMPLETE;
--			list_del(&orb->link);
-+		    STATUS_GET_ORB_LOW(status) == iter->request_bus) {
-+			iter->rcode = RCODE_COMPLETE;
-+			list_del(&iter->link);
-+			orb = iter;
- 			break;
- 		}
- 	}
- 	spin_unlock_irqrestore(&lu->tgt->lock, flags);
- 
--	if (&orb->link != &lu->orb_list) {
-+	if (orb) {
- 		orb->callback(orb, &status);
- 		kref_put(&orb->kref, free_orb); /* orb callback reference */
- 	} else {
+ 	switch (m) {
+ 	case IIO_CHAN_INFO_RAW:
+-		*val = st->cached_val;
++		*val = st->cached_val >> chan->scan_type.shift;
+ 		return IIO_VAL_INT;
+ 	case IIO_CHAN_INFO_SCALE:
+ 		*val = st->vref_mv;
 
 
