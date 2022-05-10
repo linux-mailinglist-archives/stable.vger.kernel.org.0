@@ -2,112 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AAAB521161
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 11:48:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 095CC521176
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 11:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239265AbiEJJwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 05:52:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46208 "EHLO
+        id S239337AbiEJJ4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 05:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239222AbiEJJwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 05:52:04 -0400
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7ADE237BA6;
-        Tue, 10 May 2022 02:48:07 -0700 (PDT)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4KyCrH2ZdKzhZ60;
-        Tue, 10 May 2022 17:47:27 +0800 (CST)
-Received: from dggpemm500013.china.huawei.com (7.185.36.172) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 10 May 2022 17:48:04 +0800
-Received: from ubuntu1804.huawei.com (10.67.175.36) by
- dggpemm500013.china.huawei.com (7.185.36.172) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.24; Tue, 10 May 2022 17:48:03 +0800
-From:   Chen Zhongjin <chenzhongjin@huawei.com>
-To:     <linux-kernel@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-arch@vger.kernel.org>, <linuxppc-dev@lists.ozlabs.org>,
-        <stable@vger.kernel.org>
-CC:     <peterz@infradead.org>, <tglx@linutronix.de>, <namit@vmware.com>,
-        <gor@linux.ibm.com>, <rdunlap@infradead.org>, <paulmck@kernel.org>,
-        <mingo@kernel.org>, <jgross@suse.com>,
-        <gregkh@linuxfoundation.org>, <mpe@ellerman.id.au>,
-        <chenzhongjin@huawei.com>
-Subject: [PATCH v4] locking/csd_lock: change csdlock_debug from early_param to __setup
-Date:   Tue, 10 May 2022 17:46:39 +0800
-Message-ID: <20220510094639.106661-1-chenzhongjin@huawei.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S239093AbiEJJ4r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 05:56:47 -0400
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA5CE2A1FD5
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 02:52:50 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id u3so23013889wrg.3
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 02:52:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=hR+ipPq2gap4bXepi4EzWC/gfjexmZUBGu30czl6wWU=;
+        b=BeFQAi9aZgk45QJ7w9Vhk3mGoIsSKbyQ4S5AFdZo5s1FX3Z7q9fG5J4UqIVmaCsBtb
+         9LzMPnCSCxwWOfo2lYUgOvmFROVKWYS8Uo3XLX478oURoNgyS3fOhrwqvsvYuawK0Y7l
+         P+kD6mNlsvvBKRzdPc7WJ+SvW4+4bd8QwPpXL1rY3AGwcaCsuVGPV0pE0F1/i+LjR+Mk
+         TGfUYClXbLCSmLIh/PA2nLoBvPH0wcXvX9wMLcYzMWfwISFrc7L8WZkVS/tKk/T/JxFZ
+         C2YI/zvqS8YECAs331IRBH/TW35nYM/onXkSXwacy9TNkI8W7QvW09uudNKZVXYTufAM
+         O7VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=hR+ipPq2gap4bXepi4EzWC/gfjexmZUBGu30czl6wWU=;
+        b=vbQwPVvebtPXIKesFOSeRJPfzWNKMWGw8D+j0Yte3Zl2pu7b/ZgDtJKHm35mRncJtY
+         T6kit4G4K0M6ddnIIxB300Vulde9c17agHVwzpBB6uK0yg2fhj8H1YCeanASIHrYy3Ku
+         9VhS+4rKjPrmKKUReN3kz/xDxsFTpoefdYu9cvC/W7vqQhsw+YFGWKeB8XmhfcvWgkNC
+         RY8mhhkhGjq7rXQNgzVN7647dFfm5Amiz0rXqFul76Xr91+xuMUcuhiM+L3ge8uYUqxG
+         xJtV8qQhD5e5ELxmPesJQwCzfG7BH1M/F0NT0p7kCfV2Tz7eIxWzmL/xgxp++e4G49fO
+         9/pA==
+X-Gm-Message-State: AOAM5325pCEsQHaAXHF8rVMwiqKf1kuyp1F3D4lFh3U3chU/hQSS0hXk
+        Qo/ApoZuVXqnvr3T1DK4mhsn0g==
+X-Google-Smtp-Source: ABdhPJyJns+f0pETxhqMd5d8T1+t0MZFj/yGNaffAv20q0sMO3H9qDh3MqaWBUXTdm48Rbey5F5z4w==
+X-Received: by 2002:a5d:4312:0:b0:20c:af5f:bdcf with SMTP id h18-20020a5d4312000000b0020caf5fbdcfmr14910971wrq.498.1652176369243;
+        Tue, 10 May 2022 02:52:49 -0700 (PDT)
+Received: from srini-hackbox.lan (cpc90716-aztw32-2-0-cust825.18-1.cable.virginm.net. [86.26.103.58])
+        by smtp.gmail.com with ESMTPSA id j23-20020a05600c1c1700b003942a244f40sm2268252wms.25.2022.05.10.02.52.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 May 2022 02:52:48 -0700 (PDT)
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH v2 1/2] slimbus: qcom: Fix IRQ check in qcom_slim_probe
+Date:   Tue, 10 May 2022 10:52:04 +0100
+Message-Id: <20220510095205.337-2-srinivas.kandagatla@linaro.org>
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20220510095205.337-1-srinivas.kandagatla@linaro.org>
+References: <20220510095205.337-1-srinivas.kandagatla@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.175.36]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggpemm500013.china.huawei.com (7.185.36.172)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-csdlock_debug uses early_param and static_branch_enable() to enable
-csd_lock_wait feature, which triggers a panic on arm64 with config:
-CONFIG_SPARSEMEM=y
-CONFIG_SPARSEMEM_VMEMMAP=n
+From: Miaoqian Lin <linmq006@gmail.com>
 
-With CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section is called in
-static_key_enable() and returns NULL which makes NULL dereference
-because mem_section is initialized in sparse_init() which is later
-than parse_early_param() stage.
+platform_get_irq() returns non-zero IRQ number on success,
+negative error number on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-For powerpc this is also broken, because early_param stage is
-earlier than jump_label_init() so static_key_enable won't work.
-powerpc throws an warning: "static key 'xxx' used before call
-to jump_label_init()".
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Thus, early_param is too early for csd_lock_wait to run
-static_branch_enable(), so changes it to __setup to fix these.
+Fix the check of return value to catch errors correctly.
 
-Fixes: 8d0968cc6b8f ("locking/csd_lock: Add boot parameter for controlling CSD lock debugging")
 Cc: stable@vger.kernel.org
-Reported-by: Chen jingwen <chenjingwen6@huawei.com>
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Fixes: ad7fcbc308b0 ("slimbus: qcom: Add Qualcomm Slimbus controller driver")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
-Change v3 -> v4:
-Fix title and description because this fix is also applied
-to powerpc.
-For more detailed arm64 bug report see:
-https://lore.kernel.org/linux-arm-kernel/e8715911-f835-059d-27f8-cc5f5ad30a07@huawei.com/t/
-
-Change v2 -> v3:
-Add module name in title
-
-Change v1 -> v2:
-Fix return 1 for __setup
----
- kernel/smp.c | 4 ++--
+ drivers/slimbus/qcom-ctrl.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/smp.c b/kernel/smp.c
-index 65a630f62363..381eb15cd28f 100644
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
- 	if (val)
- 		static_branch_enable(&csdlock_debug_enabled);
+diff --git a/drivers/slimbus/qcom-ctrl.c b/drivers/slimbus/qcom-ctrl.c
+index f04b961b96cd..ec58091fc948 100644
+--- a/drivers/slimbus/qcom-ctrl.c
++++ b/drivers/slimbus/qcom-ctrl.c
+@@ -510,9 +510,9 @@ static int qcom_slim_probe(struct platform_device *pdev)
+ 	}
  
--	return 0;
-+	return 1;
- }
--early_param("csdlock_debug", csdlock_debug);
-+__setup("csdlock_debug=", csdlock_debug);
+ 	ctrl->irq = platform_get_irq(pdev, 0);
+-	if (!ctrl->irq) {
++	if (ctrl->irq < 0) {
+ 		dev_err(&pdev->dev, "no slimbus IRQ\n");
+-		return -ENODEV;
++		return ctrl->irq;
+ 	}
  
- static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
- static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
+ 	sctrl = &ctrl->ctrl;
 -- 
-2.17.1
+2.21.0
 
