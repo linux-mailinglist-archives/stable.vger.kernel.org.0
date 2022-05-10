@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BE0B52177D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E69F85218FE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244017AbiEJN1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:27:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58404 "EHLO
+        id S243791AbiEJNlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:41:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242815AbiEJNYv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:24:51 -0400
+        with ESMTP id S244483AbiEJNhp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:45 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 286911DF679;
-        Tue, 10 May 2022 06:17:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A2D23F33C;
+        Tue, 10 May 2022 06:25:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B84326123F;
-        Tue, 10 May 2022 13:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0148C385C6;
-        Tue, 10 May 2022 13:17:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC2F60B12;
+        Tue, 10 May 2022 13:25:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B226FC385D8;
+        Tue, 10 May 2022 13:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188657;
-        bh=MKudbu7vHv3XJ8MbvM3xZDs4i7yKHou2tCtg+kv73Gc=;
+        s=korg; t=1652189141;
+        bh=g+CxDpsJrUR4Wrwj2lmQW1ntkowQuLzhfCR3upGflZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMQ3H341tl95AD4z+mLnElCD9PTDjFMV9JbXvKdhNn6YWutHO1z3ZakDcJLbCx0ZP
-         PGCzHNfxwnVJ0kS6jwMcHiWR93hOg69pH8+C/CXr5otJWnAQ/25X8h+RcrLUvl0jEj
-         nd8GlBlNZCMBav6wYe9bijjLhdc+5Hl5tznT4Nmw=
+        b=oxSKRxCsu7ZA7cVsctQhexzxTULMcVIUwCflsEOPY9P/+5oLNQzea7Ui2ghKwh7HC
+         8pg8qL9Si8fEu/lKE3ZExNv1DdrSczRTxvOXzW2dQhQZqC14FrlkqzfoYU2uV12XSg
+         q4GYHVzVXtxE5HCbtmJ9Q6adKzq1W1+HLA0qpltk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/78] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+        stable@vger.kernel.org,
+        Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 05/70] mmc: sdhci-msm: Reset GCC_SDCC_BCR register for SDHC
 Date:   Tue, 10 May 2022 15:07:24 +0200
-Message-Id: <20220510130733.661922005@linuxfoundation.org>
+Message-Id: <20220510130733.021043995@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,38 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
 
-[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
+commit 3e5a8e8494a8122fe4eb3f167662f406cab753b9 upstream.
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+Reset GCC_SDCC_BCR register before every fresh initilazation. This will
+reset whole SDHC-msm controller, clears the previous power control
+states and avoids, software reset timeout issues as below.
 
-Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[ 5.458061][ T262] mmc1: Reset 0x1 never completed.
+[ 5.462454][ T262] mmc1: sdhci: ============ SDHCI REGISTER DUMP ===========
+[ 5.469065][ T262] mmc1: sdhci: Sys addr: 0x00000000 | Version: 0x00007202
+[ 5.475688][ T262] mmc1: sdhci: Blk size: 0x00000000 | Blk cnt: 0x00000000
+[ 5.482315][ T262] mmc1: sdhci: Argument: 0x00000000 | Trn mode: 0x00000000
+[ 5.488927][ T262] mmc1: sdhci: Present: 0x01f800f0 | Host ctl: 0x00000000
+[ 5.495539][ T262] mmc1: sdhci: Power: 0x00000000 | Blk gap: 0x00000000
+[ 5.502162][ T262] mmc1: sdhci: Wake-up: 0x00000000 | Clock: 0x00000003
+[ 5.508768][ T262] mmc1: sdhci: Timeout: 0x00000000 | Int stat: 0x00000000
+[ 5.515381][ T262] mmc1: sdhci: Int enab: 0x00000000 | Sig enab: 0x00000000
+[ 5.521996][ T262] mmc1: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
+[ 5.528607][ T262] mmc1: sdhci: Caps: 0x362dc8b2 | Caps_1: 0x0000808f
+[ 5.535227][ T262] mmc1: sdhci: Cmd: 0x00000000 | Max curr: 0x00000000
+[ 5.541841][ T262] mmc1: sdhci: Resp[0]: 0x00000000 | Resp[1]: 0x00000000
+[ 5.548454][ T262] mmc1: sdhci: Resp[2]: 0x00000000 | Resp[3]: 0x00000000
+[ 5.555079][ T262] mmc1: sdhci: Host ctl2: 0x00000000
+[ 5.559651][ T262] mmc1: sdhci_msm: ----------- VENDOR REGISTER DUMP-----------
+[ 5.566621][ T262] mmc1: sdhci_msm: DLL sts: 0x00000000 | DLL cfg: 0x6000642c | DLL cfg2: 0x0020a000
+[ 5.575465][ T262] mmc1: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl: 0x00010800 | DDR cfg: 0x80040873
+[ 5.584658][ T262] mmc1: sdhci_msm: Vndr func: 0x00018a9c | Vndr func2 : 0xf88218a8 Vndr func3: 0x02626040
+
+Fixes: 0eb0d9f4de34 ("mmc: sdhci-msm: Initial support for Qualcomm chipsets")
+Signed-off-by: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Tested-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1650816153-23797-1-git-send-email-quic_c_sbhanu@quicinc.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci-msm.c |   42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
-index f69f9e8c6f38..7e9d1624032f 100644
---- a/drivers/clk/sunxi/clk-sun9i-mmc.c
-+++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
-@@ -117,6 +117,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
- 	spin_lock_init(&data->lock);
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -16,6 +16,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/interconnect.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/reset.h>
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -EINVAL;
- 	/* one clock/reset pair per word */
- 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
- 	data->membase = devm_ioremap_resource(&pdev->dev, r);
--- 
-2.35.1
-
+ #include "sdhci-pltfm.h"
+ #include "cqhci.h"
+@@ -2228,6 +2229,43 @@ static inline void sdhci_msm_get_of_prop
+ 	of_property_read_u32(node, "qcom,dll-config", &msm_host->dll_config);
+ }
+ 
++static int sdhci_msm_gcc_reset(struct device *dev, struct sdhci_host *host)
++{
++	struct reset_control *reset;
++	int ret = 0;
++
++	reset = reset_control_get_optional_exclusive(dev, NULL);
++	if (IS_ERR(reset))
++		return dev_err_probe(dev, PTR_ERR(reset),
++				"unable to acquire core_reset\n");
++
++	if (!reset)
++		return ret;
++
++	ret = reset_control_assert(reset);
++	if (ret) {
++		reset_control_put(reset);
++		return dev_err_probe(dev, ret, "core_reset assert failed\n");
++	}
++
++	/*
++	 * The hardware requirement for delay between assert/deassert
++	 * is at least 3-4 sleep clock (32.7KHz) cycles, which comes to
++	 * ~125us (4/32768). To be on the safe side add 200us delay.
++	 */
++	usleep_range(200, 210);
++
++	ret = reset_control_deassert(reset);
++	if (ret) {
++		reset_control_put(reset);
++		return dev_err_probe(dev, ret, "core_reset deassert failed\n");
++	}
++
++	usleep_range(200, 210);
++	reset_control_put(reset);
++
++	return ret;
++}
+ 
+ static int sdhci_msm_probe(struct platform_device *pdev)
+ {
+@@ -2276,6 +2314,10 @@ static int sdhci_msm_probe(struct platfo
+ 
+ 	msm_host->saved_tuning_phase = INVALID_TUNING_PHASE;
+ 
++	ret = sdhci_msm_gcc_reset(&pdev->dev, host);
++	if (ret)
++		goto pltfm_free;
++
+ 	/* Setup SDCC bus voter clock. */
+ 	msm_host->bus_clk = devm_clk_get(&pdev->dev, "bus");
+ 	if (!IS_ERR(msm_host->bus_clk)) {
 
 
