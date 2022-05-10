@@ -2,97 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D288352118B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 11:57:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 654565211AD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 12:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239163AbiEJKBP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 06:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
+        id S239496AbiEJKJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 06:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239375AbiEJKBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 06:01:13 -0400
-Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F24F68B8
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 02:57:16 -0700 (PDT)
-Received: by mail-lf1-x12a.google.com with SMTP id d15so19831757lfk.5
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 02:57:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=m3iAFIP4OMSq8KQP1j7SVBKWO8n8BXwTBCZYgtGpfJA=;
-        b=XOD7CIe6QugAPdXy/D2qzQ5VXi+F6iYQdFliexYWfpHfAYJDAUSnbDQbscvnT4GGK6
-         Re07x2ZupXs1kMpVXVwuOYHGNJpYf3Q+Jup4+CPzthqLCgX04CdkGLgduw+yf2en6zA7
-         0IxxQwWRCtQa1CAz/CvK6IWdFHR1BeCzgSFFXF/DRmLF05DOp/zKnwVd8VpUi5Imvmvr
-         XQMt4QLUsDI//XK7Ot/uI+9d3l3k1fIizTaUzsZ6PxjP7bU94s46R19FYs2mXWQ6auM1
-         G9plVmfpa0aCToSvaQKVihswo4QH3Jd4iZnnHkI0y/rVZyzFnE2o1td4eGaA77KDeynC
-         PyJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=m3iAFIP4OMSq8KQP1j7SVBKWO8n8BXwTBCZYgtGpfJA=;
-        b=tJ1U3VyOetzp1rzIDWql0qiA+PAvUh7wPC1lXaNrutoRfcSA2gmF7QsYLv6c5QQ3Sb
-         P5VVHTj3vXlD3qz7JYpXamZexDLu27esCoQzH7hHsOGcR5PbG+WAlQ98jvtjNxw7Uvil
-         TFBsDWCjFB53AZe6tIxans80Btr+wXcVBMAy4Tum6oz4SpzNfbK9eUUXQKGpLl43xNn0
-         b/IixWrURHetj4NTNOXh1WLlBraUaan8B/K0F0u2U3VUOJuvB1BkNvx7mzTrfHdyMSDm
-         smvZtc9ZTTgZ3phUkyX4vBb1l2/LmEtL/Gt5zc9iQ4miOINxWumXuPXYsQVgFjbQ0BAH
-         INBw==
-X-Gm-Message-State: AOAM531/YN2GVA+lerehoncVkEQJy1KgKn/mVtmmvMZZPf7/z4412yGK
-        m+Klv5KZ9DvK9cOPH0dIU+JtVVr1UIslqYLAjFYeDQ==
-X-Google-Smtp-Source: ABdhPJxL4NKh539TGVeg+05mFm/Hb3XS/hD+s1HzPp85CNXNX/uhcWbw2ohXqvPy/MEwQ1plCcnOwdrzkrItgvgf78U=
-X-Received: by 2002:ac2:4646:0:b0:472:108e:51af with SMTP id
- s6-20020ac24646000000b00472108e51afmr16072941lfo.184.1652176634708; Tue, 10
- May 2022 02:57:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <fb7cda69c5c244dfa579229ee2f0da83@realtek.com> <CAPDyKFrYWgCbwk6-hNZjtx4mdn7Sx1NJLie+f8wEjS==_HXR5Q@mail.gmail.com>
- <add6c326a5b04525965ffa1e9e96ea41@hyperstone.com> <YnjjR8pouD4KtHtT@kroah.com>
- <050affc68f7f4861b35a1ab96e228fec@hyperstone.com>
-In-Reply-To: <050affc68f7f4861b35a1ab96e228fec@hyperstone.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Tue, 10 May 2022 11:56:38 +0200
-Message-ID: <CAPDyKFqh15PFKza8vQpaq7HK_DH3w4q8AvpskZv=vzNYfSdqJQ@mail.gmail.com>
-Subject: Re: [PATCH] mmc: rtsx: add 74 Clocks in power on flow
-To:     =?UTF-8?Q?Christian_L=C3=B6hle?= <CLoehle@hyperstone.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     Ricky WU <ricky_wu@realtek.com>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
+        with ESMTP id S239487AbiEJKJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 06:09:06 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1C7D2AACD3;
+        Tue, 10 May 2022 03:05:08 -0700 (PDT)
+X-UUID: 97949dcf59e342528875487229659511-20220510
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.4,REQID:91b56daf-122c-4884-8ab3-0f66a8d86018,OB:0,LO
+        B:0,IP:0,URL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACTI
+        ON:release,TS:0
+X-CID-META: VersionHash:faefae9,CLOUDID:456045b3-56b5-4c9e-8d83-0070b288eb6a,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,File:nil,QS:0,BEC:nil
+X-UUID: 97949dcf59e342528875487229659511-20220510
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        (envelope-from <macpaul.lin@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1646658976; Tue, 10 May 2022 18:05:04 +0800
+Received: from mtkmbs07n1.mediatek.inc (172.21.101.16) by
+ mtkmbs11n1.mediatek.inc (172.21.101.185) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
+ Tue, 10 May 2022 18:05:02 +0800
+Received: from mtkcas10.mediatek.inc (172.21.101.39) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Tue, 10 May 2022 18:05:02 +0800
+Received: from mtksdccf07 (172.21.84.99) by mtkcas10.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
+ Transport; Tue, 10 May 2022 18:05:02 +0800
+Message-ID: <2f88f72b957e73787686dfd131dac3a11a4c4341.camel@mediatek.com>
+Subject: Re: [PATCH v2] usb: typec: tcpci_mt6360: Update for BMC PHY setting
+From:   Macpaul Lin <macpaul.lin@mediatek.com>
+To:     cy_huang <u0084500@gmail.com>, <linux@roeck-us.net>,
+        <heikki.krogerus@linux.intel.com>, <gregkh@linuxfoundation.org>,
+        <matthias.bgg@gmail.com>
+CC:     <cy_huang@richtek.com>, <bryan_huang@richtek.com>,
+        <linux-usb@vger.kernel.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        "Fabien Parent" <fparent@baylibre.com>,
+        stable <stable@vger.kernel.org>,
+        Bear Wang <bear.wang@mediatek.com>,
+        Eddie Hung <eddie.hung@mediatek.com>,
+        Pablo Sun <pablo.sun@mediatek.com>
+Date:   Tue, 10 May 2022 18:05:02 +0800
+In-Reply-To: <1652159580-30959-1-git-send-email-u0084500@gmail.com>
+References: <1652159580-30959-1-git-send-email-u0084500@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 9 May 2022 at 12:12, Christian L=C3=B6hle <CLoehle@hyperstone.com> =
-wrote:
->
-> >> Can we get 1f311c94aabdb419c28e3147bcc8ab89269f1a7e merged into the st=
-able tree?
-> >
-> >Which stable branches do you want this added to?
-> >
-> >thanks,
-> >
-> >greg k-h
->
-> From what I can tell the issue is present since the addition of the drive=
-r in ff984e57d36e8
-> So I would suggest adding them to all? Maybe Ricky and Ulf could comment?
+On Tue, 2022-05-10 at 13:13 +0800, cy_huang wrote:
+> From: ChiYuan Huang <cy_huang@richtek.com>
+> 
+> Update MT6360 BMC PHY Tx/Rx setting for the compatibility.
+> 
+> Macpaul reported this CtoDP cable attention message cannot be
+> received from
+> MT6360 TCPC. But actually, attention message really sent from UFP_D
+> device.
+> 
+> After RD's comment, there may be BMC PHY Tx/Rx setting causes this
+> issue.
+> 
+> Below's the detailed TCPM log and DP attention message didn't
+> received from 6360
+> TCPCI.
+> [ 1206.367775] Identity: 0000:0000.0000
+> [ 1206.416570] Alternate mode 0: SVID 0xff01, VDO 1: 0x00000405
+> [ 1206.447378] AMS DFP_TO_UFP_ENTER_MODE start
+> [ 1206.447383] PD TX, header: 0x1d6f
+> [ 1206.449393] PD TX complete, status: 0
+> [ 1206.454110] PD RX, header: 0x184f [1]
+> [ 1206.456867] Rx VDM cmd 0xff018144 type 1 cmd 4 len 1
+> [ 1206.456872] AMS DFP_TO_UFP_ENTER_MODE finished
+> [ 1206.456873] cc:=4
+> [ 1206.473100] AMS STRUCTURED_VDMS start
+> [ 1206.473103] PD TX, header: 0x2f6f
+> [ 1206.475397] PD TX complete, status: 0
+> [ 1206.480442] PD RX, header: 0x2a4f [1]
+> [ 1206.483145] Rx VDM cmd 0xff018150 type 1 cmd 16 len 2
+> [ 1206.483150] AMS STRUCTURED_VDMS finished
+> [ 1206.483151] cc:=4
+> [ 1206.505643] AMS STRUCTURED_VDMS start
+> [ 1206.505646] PD TX, header: 0x216f
+> [ 1206.507933] PD TX complete, status: 0
+> [ 1206.512664] PD RX, header: 0x1c4f [1]
+> [ 1206.515456] Rx VDM cmd 0xff018151 type 1 cmd 17 len 1
+> [ 1206.515460] AMS STRUCTURED_VDMS finished
+> [ 1206.515461] cc:=4
+> 
+> Fixes: e1aefcdd394fd ("usb typec: mt6360: Add support for mt6360
+> Type-C driver")
+> Reported-by: Macpaul Lin <macpaul.lin@mediatek.com>
+> Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> Cc: stable <stable@vger.kernel.org>
+> ---
+>  drivers/usb/typec/tcpm/tcpci_mt6360.c | 26
+> ++++++++++++++++++++++++++
+>  1 file changed, 26 insertions(+)
+> 
+> diff --git a/drivers/usb/typec/tcpm/tcpci_mt6360.c
+> b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+> index f1bd9e0..8a952ea 100644
+> --- a/drivers/usb/typec/tcpm/tcpci_mt6360.c
+> +++ b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+> @@ -15,6 +15,9 @@
+>  
+>  #include "tcpci.h"
+>  
+> +#define MT6360_REG_PHYCTRL1	0x80
+> +#define MT6360_REG_PHYCTRL3	0x82
+> +#define MT6360_REG_PHYCTRL7	0x86
+>  #define MT6360_REG_VCONNCTRL1	0x8C
+>  #define MT6360_REG_MODECTRL2	0x8F
+>  #define MT6360_REG_SWRESET	0xA0
+> @@ -22,6 +25,8 @@
+>  #define MT6360_REG_DRPCTRL1	0xA2
+>  #define MT6360_REG_DRPCTRL2	0xA3
+>  #define MT6360_REG_I2CTORST	0xBF
+> +#define MT6360_REG_PHYCTRL11	0xCA
+> +#define MT6360_REG_RXCTRL1	0xCE
+>  #define MT6360_REG_RXCTRL2	0xCF
+>  #define MT6360_REG_CTDCTRL2	0xEC
+>  
+> @@ -106,6 +111,27 @@ static int mt6360_tcpc_init(struct tcpci *tcpci,
+> struct tcpci_data *tdata)
+>  	if (ret)
+>  		return ret;
+>  
+> +	/* BMC PHY */
+> +	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL1, 0x3A70);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(regmap, MT6360_REG_PHYCTRL3,  0x82);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(regmap, MT6360_REG_PHYCTRL7, 0x36);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL11,
+> 0x3C60);
+> +	if (ret)
+> +		return ret;
+> +
+> +	ret = regmap_write(regmap, MT6360_REG_RXCTRL1, 0xE8);
+> +	if (ret)
+> +		return ret;
+> +
+>  	/* Set shipping mode off, AUTOIDLE on */
+>  	return regmap_write(regmap, MT6360_REG_MODECTRL2, 0x7A);
+>  }
 
-That seems correct.
+Thanks for helping me to fix this issue.
 
-Although, it's likely that 1f311c94aabd doesn't apply to older stable
-trees, but I guess we can try and see how it goes.
+Tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
 
-Perhaps an even better option is that you submit a backported patch to
-Greg for those stable kernels you want it to be applied to.
+Regards,
+Macpaul Lin
 
-Kind regards
-Uffe
