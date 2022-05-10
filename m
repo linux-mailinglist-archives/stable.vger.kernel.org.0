@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B092B521910
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF68521698
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232006AbiEJNnf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:43:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43062 "EHLO
+        id S237262AbiEJNQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244372AbiEJNlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D58D2A152B;
-        Tue, 10 May 2022 06:30:03 -0700 (PDT)
+        with ESMTP id S242424AbiEJNP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:59 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57681396A3;
+        Tue, 10 May 2022 06:11:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A843B81DAB;
-        Tue, 10 May 2022 13:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78960C385A6;
-        Tue, 10 May 2022 13:29:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5A73615FE;
+        Tue, 10 May 2022 13:11:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78FCC385D2;
+        Tue, 10 May 2022 13:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189390;
-        bh=vhZPAZC12jopcl22RGk4KShYkyUbXa5G4GTjYZOb4Gc=;
+        s=korg; t=1652188297;
+        bh=4kzENMZz9lzHqiKlT2tYJDJzG0vuYCBxT1iApVxZoxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h+mXTdPdZyUSxo7lMh+PVUoTKp4z8JEM3OrQpyVL8JQXyZ8sYNwiYiCk0+p/KZayE
-         QTfmt0ydvgSRc7iR0E/T8pwsO3uJNO+4dtXj9ObdOVtsbPPUbNGeHzm4lroQS+zIgW
-         Yvva/tBlvjNXrhdgMOiSJdmF89kIkSUV7xuham2Y=
+        b=f8xD0xUXWmGT2gfRk2Cd6A73S9zJquIf3pznva+CqlbeP5QAkZHDWQoggHw0xP9VT
+         XNtffHZbb4m0wnl/WVsei9J2qFBIK9ndjGf43cFfnhsh1XsG6arxW5rWNvJtPJX+c6
+         k1VuPp6rKXpN6YxXoL71xFiOYZ6XzpKT4WIFlUn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Hellstrom <daniel@gaisler.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 034/135] can: grcan: use ofdev->dev when allocating DMA memory
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 06/66] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
 Date:   Tue, 10 May 2022 15:06:56 +0200
-Message-Id: <20220510130741.379956111@linuxfoundation.org>
+Message-Id: <20220510130729.950176234@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Hellstrom <daniel@gaisler.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 101da4268626b00d16356a6bf284d66e44c46ff9 upstream.
+commit e23e50e7acc8d8f16498e9c129db33e6a00e80eb upstream.
 
-Use the device of the device tree node should be rather than the
-device of the struct net_device when allocating DMA buffers.
+The sizeof(struct whitehat_dr_info) can be 4 bytes under CONFIG_AEABI=n
+due to "-mabi=apcs-gnu", even though it has a single u8:
 
-The driver got away with it on sparc32 until commit 53b7670e5735
-("sparc: factor the dma coherent mapping into helper") after which the
-driver oopses.
+whiteheat_private {
+        __u8                       mcr;                  /*     0     1 */
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-2-andreas@gaisler.com
+        /* size: 4, cachelines: 1, members: 1 */
+        /* padding: 3 */
+        /* last cacheline: 4 bytes */
+};
+
+The result is technically harmless, as both the source and the
+destinations are currently the same allocation size (4 bytes) and don't
+use their padding, but if anything were to ever be added after the
+"mcr" member in "struct whiteheat_private", it would be overwritten. The
+structs both have a single u8 "mcr" member, but are 4 bytes in padded
+size. The memcpy() destination was explicitly targeting the u8 member
+(size 1) with the length of the whole structure (size 4), triggering
+the memcpy buffer overflow warning:
+
+In file included from include/linux/string.h:253,
+                 from include/linux/bitmap.h:11,
+                 from include/linux/cpumask.h:12,
+                 from include/linux/smp.h:13,
+                 from include/linux/lockdep.h:14,
+                 from include/linux/spinlock.h:62,
+                 from include/linux/mmzone.h:8,
+                 from include/linux/gfp.h:6,
+                 from include/linux/slab.h:15,
+                 from drivers/usb/serial/whiteheat.c:17:
+In function 'fortify_memcpy_chk',
+    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
+include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+  328 |                         __write_overflow_field(p_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead, just assign the one byte directly.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220421001234.2421107-1-keescook@chromium.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/serial/whiteheat.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -248,6 +248,7 @@ struct grcan_device_config {
- struct grcan_priv {
- 	struct can_priv can;	/* must be the first member */
- 	struct net_device *dev;
-+	struct device *ofdev_dev;
- 	struct napi_struct napi;
- 
- 	struct grcan_registers __iomem *regs;	/* ioremap'ed registers */
-@@ -924,7 +925,7 @@ static void grcan_free_dma_buffers(struc
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	struct grcan_dma *dma = &priv->dma;
- 
--	dma_free_coherent(&dev->dev, dma->base_size, dma->base_buf,
-+	dma_free_coherent(priv->ofdev_dev, dma->base_size, dma->base_buf,
- 			  dma->base_handle);
- 	memset(dma, 0, sizeof(*dma));
- }
-@@ -949,7 +950,7 @@ static int grcan_allocate_dma_buffers(st
- 
- 	/* Extra GRCAN_BUFFER_ALIGNMENT to allow for alignment */
- 	dma->base_size = lsize + ssize + GRCAN_BUFFER_ALIGNMENT;
--	dma->base_buf = dma_alloc_coherent(&dev->dev,
-+	dma->base_buf = dma_alloc_coherent(priv->ofdev_dev,
- 					   dma->base_size,
- 					   &dma->base_handle,
- 					   GFP_KERNEL);
-@@ -1602,6 +1603,7 @@ static int grcan_setup_netdev(struct pla
- 	memcpy(&priv->config, &grcan_module_config,
- 	       sizeof(struct grcan_device_config));
- 	priv->dev = dev;
-+	priv->ofdev_dev = &ofdev->dev;
- 	priv->regs = base;
- 	priv->can.bittiming_const = &grcan_bittiming_const;
- 	priv->can.do_set_bittiming = grcan_set_bittiming;
+--- a/drivers/usb/serial/whiteheat.c
++++ b/drivers/usb/serial/whiteheat.c
+@@ -644,9 +644,8 @@ static int firm_send_command(struct usb_
+ 		switch (command) {
+ 		case WHITEHEAT_GET_DTR_RTS:
+ 			info = usb_get_serial_port_data(port);
+-			memcpy(&info->mcr, command_info->result_buffer,
+-					sizeof(struct whiteheat_dr_info));
+-				break;
++			info->mcr = command_info->result_buffer[0];
++			break;
+ 		}
+ 	}
+ exit:
 
 
