@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9882B5219CA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBBE1521A12
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244792AbiEJNvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50734 "EHLO
+        id S244520AbiEJNx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343783AbiEJNs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE99F6BFC2;
-        Tue, 10 May 2022 06:36:52 -0700 (PDT)
+        with ESMTP id S244886AbiEJNrE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C3161B7901;
+        Tue, 10 May 2022 06:32:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E5806193B;
-        Tue, 10 May 2022 13:36:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EE76C385A6;
-        Tue, 10 May 2022 13:36:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE675B81DA0;
+        Tue, 10 May 2022 13:32:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09D36C385A6;
+        Tue, 10 May 2022 13:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189811;
-        bh=2HnKUKKeygCNULEDLTGebDWd/Upf5P086EXE4P6TmGo=;
+        s=korg; t=1652189542;
+        bh=i8n7JjW6cfCdxN4ywe85b4MBmku8Dba+zS2qUV3MPcU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=orVcPb7GCruTZwDd5sCW002o3SDZ5jR4xU2tiTcgNOX/baTEm5AIR8pqVGSJbPuHj
-         3f4WtSjIMfhS6A62Z5Q8YsM/rWqOA7z0ZtbESfBrMbuBLt3tmDnqSLtOyFA7hXhqBF
-         IUURQc40Jilbjk7KhoszxRXVMO22BJoxUuBpAk/g=
+        b=f/dRISKuEirKs4py2pGyd62R7mjT/getRvAw3SYzOcQjkKQV32gv1b//LJll7Lzd0
+         xOBYDDSJDV5eVv/cPufe7KTaV5sHFY/GZJcEgwjhkq1h7i5O/Cgy4PuBUaoMgfz08C
+         HhGaYDfHBecYBBYE/auBoY9o/s6974GMDmz7iCxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Subject: [PATCH 5.17 035/140] ASoC: da7219: Fix change notifications for tone generator frequency
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 043/135] hwmon: (pmbus) disable PEC if not enabled
 Date:   Tue, 10 May 2022 15:07:05 +0200
-Message-Id: <20220510130742.622953937@linuxfoundation.org>
+Message-Id: <20220510130741.634904397@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Adam Wujek <dev_public@wujek.eu>
 
-commit 08ef48404965cfef99343d6bbbcf75b88c74aa0e upstream.
+commit 75d2b2b06bd8407d03a3f126bc8b95eb356906c7 upstream.
 
-The tone generator frequency control just returns 0 on successful write,
-not a boolean value indicating if there was a change or not.  Compare
-what was written with the value that was there previously so that
-notifications are generated appropriately when the value changes.
+Explicitly disable PEC when the client does not support it.
+The problematic scenario is the following. A device with enabled PEC
+support is up and running and a kernel driver is loaded.
+Then the driver is unloaded (or device unbound), the HW device
+is reconfigured externally (e.g. by i2cset) to advertise itself as not
+supporting PEC. Without a new code, at the second load of the driver
+(or bind) the "flags" variable is not updated to avoid PEC usage. As a
+consequence the further communication with the device is done with
+the PEC enabled, which is wrong and may fail.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220420133437.569229-1-broonie@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The implementation first disable the I2C_CLIENT_PEC flag, then the old
+code enable it if needed.
+
+Fixes: 4e5418f787ec ("hwmon: (pmbus_core) Check adapter PEC support")
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20220420145059.431061-1-dev_public@wujek.eu
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/da7219.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/hwmon/pmbus/pmbus_core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/soc/codecs/da7219.c
-+++ b/sound/soc/codecs/da7219.c
-@@ -446,7 +446,7 @@ static int da7219_tonegen_freq_put(struc
- 	struct soc_mixer_control *mixer_ctrl =
- 		(struct soc_mixer_control *) kcontrol->private_value;
- 	unsigned int reg = mixer_ctrl->reg;
--	__le16 val;
-+	__le16 val_new, val_old;
- 	int ret;
+diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
+index b2618b1d529e..d93574d6a1fb 100644
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -2326,6 +2326,9 @@ static int pmbus_init_common(struct i2c_client *client, struct pmbus_data *data,
+ 		data->has_status_word = true;
+ 	}
  
- 	/*
-@@ -454,13 +454,19 @@ static int da7219_tonegen_freq_put(struc
- 	 * Therefore we need to convert to little endian here to align with
- 	 * HW registers.
- 	 */
--	val = cpu_to_le16(ucontrol->value.integer.value[0]);
-+	val_new = cpu_to_le16(ucontrol->value.integer.value[0]);
- 
- 	mutex_lock(&da7219->ctrl_lock);
--	ret = regmap_raw_write(da7219->regmap, reg, &val, sizeof(val));
-+	ret = regmap_raw_read(da7219->regmap, reg, &val_old, sizeof(val_old));
-+	if (ret == 0 && (val_old != val_new))
-+		ret = regmap_raw_write(da7219->regmap, reg,
-+				&val_new, sizeof(val_new));
- 	mutex_unlock(&da7219->ctrl_lock);
- 
--	return ret;
-+	if (ret < 0)
-+		return ret;
++	/* Make sure PEC is disabled, will be enabled later if needed */
++	client->flags &= ~I2C_CLIENT_PEC;
 +
-+	return val_old != val_new;
- }
- 
- 
+ 	/* Enable PEC if the controller and bus supports it */
+ 	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
+ 		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
+-- 
+2.36.1
+
 
 
