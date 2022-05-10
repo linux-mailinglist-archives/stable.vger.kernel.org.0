@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 871F9521737
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 711B1521A1A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242825AbiEJNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:24:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60814 "EHLO
+        id S243513AbiEJNxe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242870AbiEJNXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:23:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 460C61BE94A;
-        Tue, 10 May 2022 06:17:11 -0700 (PDT)
+        with ESMTP id S245060AbiEJNrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B535271DA1;
+        Tue, 10 May 2022 06:34:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 080B3B81DA6;
-        Tue, 10 May 2022 13:16:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6608DC385C6;
-        Tue, 10 May 2022 13:16:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70D8DB81D24;
+        Tue, 10 May 2022 13:34:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D62C385A6;
+        Tue, 10 May 2022 13:34:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188617;
-        bh=tUBIoF9N6X0NiJbBCmDtbiWMfzpX2+Dhrt4Z/jqBemM=;
+        s=korg; t=1652189682;
+        bh=p02favSh34gZ7SnATdPQxE9+DHKE8XXIFTE9gvxO68Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WrpXPFPWEh9VD5O9KfajGgWQuydzLHIb99ggk0QB+iOTU99Mp1ylPFbxPKF8aNKgb
-         A3jFfunRhmdhp4K8aUbabXJ/U/yRCce95I18GqF4EHrAdwasH34XLXprPlMXGxcJUB
-         c56oUjoLm1o8iDCgbwUQEYRqMc89PCPWoLXF6PFM=
+        b=opbniN2aVlG+aJVOV7mn7TPc/eSMa27fVtQyoW0n7zE5riZAR4yPPuwc/fBCpKyGN
+         9wFu2ysNPGirrTs8JpxW9Zaddo/VpoMKNfXkrgnA1viodPjFxHhwXhWhmvrNhk+ZNx
+         aReR6jdn5raeUdoOnlcvFsSGqnDgIxmcqVGmJp6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 65/78] nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 089/135] net/mlx5: Fix slab-out-of-bounds while reading resource dump menu
 Date:   Tue, 10 May 2022 15:07:51 +0200
-Message-Id: <20220510130734.455069801@linuxfoundation.org>
+Message-Id: <20220510130742.964343543@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +55,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Aya Levin <ayal@nvidia.com>
 
-commit d270453a0d9ec10bb8a802a142fb1b3601a83098 upstream.
+[ Upstream commit 7ba2d9d8de96696c1451fee1b01da11f45bdc2b9 ]
 
-There are destructive operations such as nfcmrvl_fw_dnld_abort and
-gpio_free in nfcmrvl_nci_unregister_dev. The resources such as firmware,
-gpio and so on could be destructed while the upper layer functions such as
-nfcmrvl_fw_dnld_start and nfcmrvl_nci_recv_frame is executing, which leads
-to double-free, use-after-free and null-ptr-deref bugs.
+Resource dump menu may span over more than a single page, support it.
+Otherwise, menu read may result in a memory access violation: reading
+outside of the allocated page.
+Note that page format of the first menu page contains menu headers while
+the proceeding menu pages contain only records.
 
-There are three situations that could lead to double-free bugs.
+The KASAN logs are as follows:
+BUG: KASAN: slab-out-of-bounds in strcmp+0x9b/0xb0
+Read of size 1 at addr ffff88812b2e1fd0 by task systemd-udevd/496
 
-The first situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |  nfcmrvl_nci_unregister_dev
- release_firmware()           |   nfcmrvl_fw_dnld_abort
-  kfree(fw) //(1)             |    fw_dnld_over
-                              |     release_firmware
-  ...                         |      kfree(fw) //(2)
-                              |     ...
-
-The second situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |
- mod_timer                    |
- (wait a time)                |
- fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
-   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
-    release_firmware          |    fw_dnld_over
-     kfree(fw) //(1)          |     release_firmware
-     ...                      |      kfree(fw) //(2)
-
-The third situation is shown below:
-
-       (Thread 1)               |       (Thread 2)
-nfcmrvl_nci_recv_frame          |
- if(..->fw_download_in_progress)|
-  nfcmrvl_fw_dnld_recv_frame    |
-   queue_work                   |
-                                |
-fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
- fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
-  release_firmware              |   fw_dnld_over
-   kfree(fw) //(1)              |    release_firmware
-                                |     kfree(fw) //(2)
-
-The firmware struct is deallocated in position (1) and deallocated
-in position (2) again.
-
-The crash trace triggered by POC is like below:
-
-BUG: KASAN: double-free or invalid-free in fw_dnld_over
+CPU: 5 PID: 496 Comm: systemd-udevd Tainted: G    B  5.16.0_for_upstream_debug_2022_01_10_23_12 #1
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
 Call Trace:
-  kfree
-  fw_dnld_over
-  nfcmrvl_nci_unregister_dev
-  nci_uart_tty_close
-  tty_ldisc_kill
-  tty_ldisc_hangup
-  __tty_hangup.part.0
-  tty_release
-  ...
+ <TASK>
+ dump_stack_lvl+0x57/0x7d
+ print_address_description.constprop.0+0x1f/0x140
+ ? strcmp+0x9b/0xb0
+ ? strcmp+0x9b/0xb0
+ kasan_report.cold+0x83/0xdf
+ ? strcmp+0x9b/0xb0
+ strcmp+0x9b/0xb0
+ mlx5_rsc_dump_init+0x4ab/0x780 [mlx5_core]
+ ? mlx5_rsc_dump_destroy+0x80/0x80 [mlx5_core]
+ ? lockdep_hardirqs_on_prepare+0x286/0x400
+ ? raw_spin_unlock_irqrestore+0x47/0x50
+ ? aomic_notifier_chain_register+0x32/0x40
+ mlx5_load+0x104/0x2e0 [mlx5_core]
+ mlx5_init_one+0x41b/0x610 [mlx5_core]
+ ....
+The buggy address belongs to the object at ffff88812b2e0000
+ which belongs to the cache kmalloc-4k of size 4096
+The buggy address is located 4048 bytes to the right of
+ 4096-byte region [ffff88812b2e0000, ffff88812b2e1000)
+The buggy address belongs to the page:
+page:000000009d69807a refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88812b2e6000 pfn:0x12b2e0
+head:000000009d69807a order:3 compound_mapcount:0 compound_pincount:0
+flags: 0x8000000000010200(slab|head|zone=2)
+raw: 8000000000010200 0000000000000000 dead000000000001 ffff888100043040
+raw: ffff88812b2e6000 0000000080040000 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
 
-What's more, there are also use-after-free and null-ptr-deref bugs
-in nfcmrvl_fw_dnld_start. If we deallocate firmware struct, gpio or
-set null to the members of priv->fw_dnld in nfcmrvl_nci_unregister_dev,
-then, we dereference firmware, gpio or the members of priv->fw_dnld in
-nfcmrvl_fw_dnld_start, the UAF or NPD bugs will happen.
+Memory state around the buggy address:
+ ffff88812b2e1e80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff88812b2e1f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+>ffff88812b2e1f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                                                 ^
+ ffff88812b2e2000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff88812b2e2080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+==================================================================
 
-This patch reorders destructive operations after nci_unregister_device
-in order to synchronize between cleanup routine and firmware download
-routine.
-
-The nci_unregister_device is well synchronized. If the device is
-detaching, the firmware download routine will goto error. If firmware
-download routine is executing, nci_unregister_device will wait until
-firmware download routine is finished.
-
-Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 12206b17235a ("net/mlx5: Add support for resource dump")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/nfcmrvl/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../mellanox/mlx5/core/diag/rsc_dump.c        | 31 +++++++++++++++----
+ 1 file changed, 25 insertions(+), 6 deletions(-)
 
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -194,6 +194,7 @@ void nfcmrvl_nci_unregister_dev(struct n
- {
- 	struct nci_dev *ndev = priv->ndev;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
+index ed4fb79b4db7..75b6060f7a9a 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
+@@ -31,6 +31,7 @@ static const char *const mlx5_rsc_sgmt_name[] = {
+ struct mlx5_rsc_dump {
+ 	u32 pdn;
+ 	struct mlx5_core_mkey mkey;
++	u32 number_of_menu_items;
+ 	u16 fw_segment_type[MLX5_SGMT_TYPE_NUM];
+ };
  
-+	nci_unregister_device(ndev);
- 	if (priv->ndev->nfc_dev->fw_download_in_progress)
- 		nfcmrvl_fw_dnld_abort(priv);
- 
-@@ -202,7 +203,6 @@ void nfcmrvl_nci_unregister_dev(struct n
- 	if (gpio_is_valid(priv->config.reset_n_io))
- 		gpio_free(priv->config.reset_n_io);
- 
--	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- 	kfree(priv);
+@@ -50,21 +51,37 @@ static int mlx5_rsc_dump_sgmt_get_by_name(char *name)
+ 	return -EINVAL;
  }
+ 
+-static void mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page)
++#define MLX5_RSC_DUMP_MENU_HEADER_SIZE (MLX5_ST_SZ_BYTES(resource_dump_info_segment) + \
++					MLX5_ST_SZ_BYTES(resource_dump_command_segment) + \
++					MLX5_ST_SZ_BYTES(resource_dump_menu_segment))
++
++static int mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page,
++					int read_size, int start_idx)
+ {
+ 	void *data = page_address(page);
+ 	enum mlx5_sgmt_type sgmt_idx;
+ 	int num_of_items;
+ 	char *sgmt_name;
+ 	void *member;
++	int size = 0;
+ 	void *menu;
+ 	int i;
+ 
+-	menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
+-	num_of_items = MLX5_GET(resource_dump_menu_segment, menu, num_of_records);
++	if (!start_idx) {
++		menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
++		rsc_dump->number_of_menu_items = MLX5_GET(resource_dump_menu_segment, menu,
++							  num_of_records);
++		size = MLX5_RSC_DUMP_MENU_HEADER_SIZE;
++		data += size;
++	}
++	num_of_items = rsc_dump->number_of_menu_items;
++
++	for (i = 0; start_idx + i < num_of_items; i++) {
++		size += MLX5_ST_SZ_BYTES(resource_dump_menu_record);
++		if (size >= read_size)
++			return start_idx + i;
+ 
+-	for (i = 0; i < num_of_items; i++) {
+-		member = MLX5_ADDR_OF(resource_dump_menu_segment, menu, record[i]);
++		member = data + MLX5_ST_SZ_BYTES(resource_dump_menu_record) * i;
+ 		sgmt_name =  MLX5_ADDR_OF(resource_dump_menu_record, member, segment_name);
+ 		sgmt_idx = mlx5_rsc_dump_sgmt_get_by_name(sgmt_name);
+ 		if (sgmt_idx == -EINVAL)
+@@ -72,6 +89,7 @@ static void mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct
+ 		rsc_dump->fw_segment_type[sgmt_idx] = MLX5_GET(resource_dump_menu_record,
+ 							       member, segment_type);
+ 	}
++	return 0;
+ }
+ 
+ static int mlx5_rsc_dump_trigger(struct mlx5_core_dev *dev, struct mlx5_rsc_dump_cmd *cmd,
+@@ -168,6 +186,7 @@ static int mlx5_rsc_dump_menu(struct mlx5_core_dev *dev)
+ 	struct mlx5_rsc_dump_cmd *cmd = NULL;
+ 	struct mlx5_rsc_key key = {};
+ 	struct page *page;
++	int start_idx = 0;
+ 	int size;
+ 	int err;
+ 
+@@ -189,7 +208,7 @@ static int mlx5_rsc_dump_menu(struct mlx5_core_dev *dev)
+ 		if (err < 0)
+ 			goto destroy_cmd;
+ 
+-		mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page);
++		start_idx = mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page, size, start_idx);
+ 
+ 	} while (err > 0);
+ 
+-- 
+2.35.1
+
 
 
