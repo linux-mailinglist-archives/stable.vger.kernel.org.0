@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F86B521936
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36765219A3
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243538AbiEJNme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
+        id S232665AbiEJNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244532AbiEJNhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B2EB7F3;
-        Tue, 10 May 2022 06:25:53 -0700 (PDT)
+        with ESMTP id S244117AbiEJNpI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:45:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C612EAD1E;
+        Tue, 10 May 2022 06:31:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 193626170D;
-        Tue, 10 May 2022 13:25:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25939C385C2;
-        Tue, 10 May 2022 13:25:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41B0A61763;
+        Tue, 10 May 2022 13:31:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3E5C385C6;
+        Tue, 10 May 2022 13:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189150;
-        bh=+s4ngMBxOytcXovP8uK7iv8qXRfC12Uas4BGp8mGNzo=;
+        s=korg; t=1652189482;
+        bh=AAu3wZQM5TXMCSefAdcqdNYX8X6nheEiGnbu9e2bf/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T2HJx0xX9egFxW9YnCqESd3/G06r9CbPZLQFIUwt10UT5/X8je7L5FqpDR4A6cmnG
-         Fp+B+9tcROPMkyomCkMcALPkU6gBXE36SDoE3jjIcJqL9ObZwwfT9rLsCEza7iLZA2
-         xn2FSHsDz4/mb87LnguID1ZlGU8fZ9uquRLa4cLA=
+        b=BSpOHlyOrnwHeg9fwkCnuvVjrOQFBnn9tCPC7KH4W/WavP/rd193REOF2GBpyixMY
+         jadqMKacwk5L0DOSD+3NUBWzD848qBAhQSVsNT3NULD33f4Mj6lSDJ36PfPBsEiPfI
+         w3qkbjMzAIUaaabv64lNA6dk0v6ri6voggK3ZmIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 08/70] KVM: x86/svm: Account for family 17h event renumberings in amd_pmc_perf_hw_id
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 065/135] net: cpsw: add missing of_node_put() in cpsw_probe_dt()
 Date:   Tue, 10 May 2022 15:07:27 +0200
-Message-Id: <20220510130733.107273459@linuxfoundation.org>
+Message-Id: <20220510130742.276322740@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,84 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Huey <me@kylehuey.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 5eb849322d7f7ae9d5c587c7bc3b4f7c6872cd2f upstream.
+commit 95098d5ac2551769807031444e55a0da5d4f0952 upstream.
 
-Zen renumbered some of the performance counters that correspond to the
-well known events in perf_hw_id. This code in KVM was never updated for
-that, so guest that attempt to use counters on Zen that correspond to the
-pre-Zen perf_hw_id values will silently receive the wrong values.
+'tmp_node' need be put before returning from cpsw_probe_dt(),
+so add missing of_node_put() in error path.
 
-This has been observed in the wild with rr[0] when running in Zen 3
-guests. rr uses the retired conditional branch counter 00d1 which is
-incorrectly recognized by KVM as PERF_COUNT_HW_STALLED_CYCLES_BACKEND.
-
-[0] https://rr-project.org/
-
-Signed-off-by: Kyle Huey <me@kylehuey.com>
-Message-Id: <20220503050136.86298-1-khuey@kylehuey.com>
-Cc: stable@vger.kernel.org
-[Check guest family, not host. - Paolo]
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: ed3525eda4c4 ("net: ethernet: ti: introduce cpsw switchdev based driver part 1 - dual-emac")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/pmu.c |   28 +++++++++++++++++++++++++---
- 1 file changed, 25 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ti/cpsw_new.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kvm/svm/pmu.c
-+++ b/arch/x86/kvm/svm/pmu.c
-@@ -44,6 +44,22 @@ static struct kvm_event_hw_type_mapping
- 	[7] = { 0xd1, 0x00, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
- };
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -1246,8 +1246,10 @@ static int cpsw_probe_dt(struct cpsw_com
+ 	data->slave_data = devm_kcalloc(dev, CPSW_SLAVE_PORTS_NUM,
+ 					sizeof(struct cpsw_slave_data),
+ 					GFP_KERNEL);
+-	if (!data->slave_data)
++	if (!data->slave_data) {
++		of_node_put(tmp_node);
+ 		return -ENOMEM;
++	}
  
-+/* duplicated from amd_f17h_perfmon_event_map. */
-+static struct kvm_event_hw_type_mapping amd_f17h_event_mapping[] = {
-+	[0] = { 0x76, 0x00, PERF_COUNT_HW_CPU_CYCLES },
-+	[1] = { 0xc0, 0x00, PERF_COUNT_HW_INSTRUCTIONS },
-+	[2] = { 0x60, 0xff, PERF_COUNT_HW_CACHE_REFERENCES },
-+	[3] = { 0x64, 0x09, PERF_COUNT_HW_CACHE_MISSES },
-+	[4] = { 0xc2, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
-+	[5] = { 0xc3, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
-+	[6] = { 0x87, 0x02, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND },
-+	[7] = { 0x87, 0x01, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
-+};
-+
-+/* amd_pmc_perf_hw_id depends on these being the same size */
-+static_assert(ARRAY_SIZE(amd_event_mapping) ==
-+	     ARRAY_SIZE(amd_f17h_event_mapping));
-+
- static unsigned int get_msr_base(struct kvm_pmu *pmu, enum pmu_type type)
- {
- 	struct kvm_vcpu *vcpu = pmu_to_vcpu(pmu);
-@@ -128,19 +144,25 @@ static inline struct kvm_pmc *get_gp_pmc
+ 	/* Populate all the child nodes here...
+ 	 */
+@@ -1341,6 +1343,7 @@ static int cpsw_probe_dt(struct cpsw_com
  
- static unsigned int amd_pmc_perf_hw_id(struct kvm_pmc *pmc)
- {
-+	struct kvm_event_hw_type_mapping *event_mapping;
- 	u8 event_select = pmc->eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
- 	u8 unit_mask = (pmc->eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
- 	int i;
- 
-+	if (guest_cpuid_family(pmc->vcpu) >= 0x17)
-+		event_mapping = amd_f17h_event_mapping;
-+	else
-+		event_mapping = amd_event_mapping;
-+
- 	for (i = 0; i < ARRAY_SIZE(amd_event_mapping); i++)
--		if (amd_event_mapping[i].eventsel == event_select
--		    && amd_event_mapping[i].unit_mask == unit_mask)
-+		if (event_mapping[i].eventsel == event_select
-+		    && event_mapping[i].unit_mask == unit_mask)
- 			break;
- 
- 	if (i == ARRAY_SIZE(amd_event_mapping))
- 		return PERF_COUNT_HW_MAX;
- 
--	return amd_event_mapping[i].event_type;
-+	return event_mapping[i].event_type;
+ err_node_put:
+ 	of_node_put(port_np);
++	of_node_put(tmp_node);
+ 	return ret;
  }
  
- /* return PERF_COUNT_HW_MAX as AMD doesn't have fixed events */
 
 
