@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 511B45219D1
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC7A8521900
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244911AbiEJNv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45614 "EHLO
+        id S243734AbiEJNlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245054AbiEJNrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8433B583A6;
-        Tue, 10 May 2022 06:34:32 -0700 (PDT)
+        with ESMTP id S245169AbiEJNig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62299263DA5;
+        Tue, 10 May 2022 06:27:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F525B81D24;
-        Tue, 10 May 2022 13:34:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B66C385A6;
-        Tue, 10 May 2022 13:34:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3298615C8;
+        Tue, 10 May 2022 13:27:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE23C385C2;
+        Tue, 10 May 2022 13:27:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189670;
-        bh=z8hq8fLZpFA7icnRzDjRC1UziW/f67KhSR5BDDrhu5M=;
+        s=korg; t=1652189273;
+        bh=7YK7im3ERblhZ5O91Xt2vvBiiKK/aV4yCGuCiom7j9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yz5FBQcYpbW45z66hhDVcJC61Na6gZhI9IO823K8NuZmReu5itcySd3Z9hT1qWiQV
-         hdbKmAvrB0HU7kRBJ3ftae3EssAijcsodDsSh1FIU9tpnGk5KNn+ciSVgUKA3SmDIf
-         929G7XkmUVu6B2GSX5M3s6qvSjSBZ4lG38BPNcfM=
+        b=arxno62haOyilszwua/H/3Kb6J8jkBdzPmvNY/GIfwHMzP6DGyx0Ym5I6fENxIMCP
+         7KVX3DOZsNzSMTZ0YgqJGQtLG5LBmdrWNuuwuRpwgNWD3y9xDzM8TGbJzidTrNKLO1
+         cI7aM/BJwVIBZFNnCQTIpBqUnqElxZ11OhZd4S0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, pali@kernel.org,
-        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 123/135] PCI: aardvark: Refactor unmasking summary MSI interrupt
+        stable@vger.kernel.org, Haimin Zhang <tcs.kernel@gmail.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Nobel Barakat <nobelbarakat@google.com>
+Subject: [PATCH 5.10 66/70] block-map: add __GFP_ZERO flag for alloc_page in function bio_copy_kern
 Date:   Tue, 10 May 2022 15:08:25 +0200
-Message-Id: <20220510130743.926053291@linuxfoundation.org>
+Message-Id: <20220510130734.798923810@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Haimin Zhang <tcs.kernel@gmail.com>
 
-commit 4689c0916320f112a8a33f2689d3addc3262f02c upstream.
+commit cc8f7fe1f5eab010191aa4570f27641876fa1267 upstream.
 
-Refactor the masking of ISR0/1 Sources and unmasking of summary MSI interrupt
-so that it corresponds to the comments:
-- first mask all ISR0/1
-- then unmask all MSIs
-- then unmask summary MSI interrupt
+Add __GFP_ZERO flag for alloc_page in function bio_copy_kern to initialize
+the buffer of a bio.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-10-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Haimin Zhang <tcs.kernel@gmail.com>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20220216084038.15635-1-tcs.kernel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[nobelbarakat: Backported to 5.10: Manually added flag] 
+Signed-off-by: Nobel Barakat <nobelbarakat@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ block/blk-map.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -571,15 +571,17 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
+--- a/block/blk-map.c
++++ b/block/blk-map.c
+@@ -488,7 +488,7 @@ static struct bio *bio_copy_kern(struct
+ 		if (bytes > len)
+ 			bytes = len;
  
- 	/* Disable All ISR0/1 Sources */
--	reg = PCIE_ISR0_ALL_MASK;
--	reg &= ~PCIE_ISR0_MSI_INT_PENDING;
--	advk_writel(pcie, reg, PCIE_ISR0_MASK_REG);
--
-+	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_MASK_REG);
- 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_MASK_REG);
+-		page = alloc_page(q->bounce_gfp | gfp_mask);
++		page = alloc_page(q->bounce_gfp | __GFP_ZERO | gfp_mask);
+ 		if (!page)
+ 			goto cleanup;
  
- 	/* Unmask all MSIs */
- 	advk_writel(pcie, ~(u32)PCIE_MSI_ALL_MASK, PCIE_MSI_MASK_REG);
- 
-+	/* Unmask summary MSI interrupt */
-+	reg = advk_readl(pcie, PCIE_ISR0_MASK_REG);
-+	reg &= ~PCIE_ISR0_MSI_INT_PENDING;
-+	advk_writel(pcie, reg, PCIE_ISR0_MASK_REG);
-+
- 	/* Enable summary interrupt for GIC SPI source */
- 	reg = PCIE_IRQ_ALL_MASK & (~PCIE_IRQ_ENABLE_INTS_MASK);
- 	advk_writel(pcie, reg, HOST_CTRL_INT_MASK_REG);
 
 
