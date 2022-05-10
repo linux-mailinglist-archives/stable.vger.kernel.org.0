@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FA3E521904
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D8FE521981
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243480AbiEJNkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56522 "EHLO
+        id S243886AbiEJNtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:49:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245184AbiEJNih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F1822EA48;
-        Tue, 10 May 2022 06:28:18 -0700 (PDT)
+        with ESMTP id S245076AbiEJNrV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC1D22EA74;
+        Tue, 10 May 2022 06:35:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F94160C1C;
-        Tue, 10 May 2022 13:28:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64437C385A6;
-        Tue, 10 May 2022 13:28:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2B9BECE1EDE;
+        Tue, 10 May 2022 13:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34985C385C2;
+        Tue, 10 May 2022 13:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189297;
-        bh=WQwhnw/nMcyPpLmH1SAIERa97FlQsNeB+f1I6RWjUgA=;
+        s=korg; t=1652189699;
+        bh=GMk/FTiZNuJINrvD/5eVq2bJ3KaCN5rDMfVzshQ+yrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtoZ55YMAawyzGBXnv3yzrDhtZZqZKKdyb+j7KS410QNrEAOhsoi6/pYeWEyXyanh
-         0nHflqxS6Dgf2+f4gMS8No5i3Or+2nbGLRvootLGvy6bcXKdtmvjbsVXOQxphzw0qg
-         eK5uYUcueuMgCX4C5hL7V8dZZA60a5oRIV8h7lZs=
+        b=g5ew5w6sE+zD4d0Ipvn3F/UNEXYTwInb9evrpkynDyXvO5xYAhmlv6lg3e8ZUOfIf
+         DYwbibg2WXcEUUpBH2cga6XdVKJHljxMoV3wPQBlYfGPBkqwtKkWmPndtgPpzYPr/G
+         6ugbOgIiC4L1d3XrIc94id+JlCzWd0SyCX2HYo8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.10 69/70] PCI: aardvark: Fix reading MSI interrupt number
+Subject: [PATCH 5.15 126/135] PCI: aardvark: Enable MSI-X support
 Date:   Tue, 10 May 2022 15:08:28 +0200
-Message-Id: <20220510130734.883757283@linuxfoundation.org>
+Message-Id: <20220510130744.010873265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali RohÃ¡r <pali@kernel.org>
+From: Pali Rohár <pali@kernel.org>
 
-commit 805dfc18dd3d4dd97a987d4406593b5a225b1253 upstream.
+commit 754e449889b22fc3c34235e8836f08f51121d307 upstream.
 
-In advk_pcie_handle_msi() it is expected that when bit i in the W1C
-register PCIE_MSI_STATUS_REG is cleared, the PCIE_MSI_PAYLOAD_REG is
-updated to contain the MSI number corresponding to index i.
+According to PCI 3.0 specification, sending both MSI and MSI-X interrupts
+is done by DWORD memory write operation to doorbell message address. The
+write operation for MSI has zero upper 16 bits and the MSI interrupt number
+in the lower 16 bits, while the write operation for MSI-X contains a 32-bit
+value from MSI-X table.
 
-Experiments show that this is not so, and instead PCIE_MSI_PAYLOAD_REG
-always contains the number of the last received MSI, overall.
+Since the driver only uses interrupt numbers from range 0..31, the upper
+16 bits of the DWORD memory write operation to doorbell message address
+are zero even for MSI-X interrupts. Thus we can enable MSI-X interrupts.
 
-Do not read PCIE_MSI_PAYLOAD_REG register for determining MSI interrupt
-number. Since Aardvark already forbids more than 32 interrupts and uses
-own allocated hwirq numbers, the msi_idx already corresponds to the
-received MSI number.
+Testing proves that kernel can correctly receive MSI-X interrupts from PCIe
+cards which supports both MSI and MSI-X interrupts.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-3-kabel@kernel.org
-Fixes: 8c39d710363c ("PCI: aardvark: Add Aardvark PCI host controller driver")
-Signed-off-by: Pali RohÃ¡r <pali@kernel.org>
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
+Link: https://lore.kernel.org/r/20220110015018.26359-13-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1388,7 +1388,7 @@ static void advk_pcie_remove_irq_domain(
- static void advk_pcie_handle_msi(struct advk_pcie *pcie)
- {
- 	u32 msi_val, msi_mask, msi_status, msi_idx;
--	u16 msi_data;
-+	int virq;
+@@ -1339,7 +1339,7 @@ static struct irq_chip advk_msi_irq_chip
  
- 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
- 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
-@@ -1398,13 +1398,9 @@ static void advk_pcie_handle_msi(struct
- 		if (!(BIT(msi_idx) & msi_status))
- 			continue;
+ static struct msi_domain_info advk_msi_domain_info = {
+ 	.flags	= MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
+-		  MSI_FLAG_MULTI_PCI_MSI,
++		  MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX,
+ 	.chip	= &advk_msi_irq_chip,
+ };
  
--		/*
--		 * msi_idx contains bits [4:0] of the msi_data and msi_data
--		 * contains 16bit MSI interrupt number
--		 */
- 		advk_writel(pcie, BIT(msi_idx), PCIE_MSI_STATUS_REG);
--		msi_data = advk_readl(pcie, PCIE_MSI_PAYLOAD_REG) & PCIE_MSI_DATA_MASK;
--		generic_handle_irq(msi_data);
-+		virq = irq_find_mapping(pcie->msi_inner_domain, msi_idx);
-+		generic_handle_irq(virq);
- 	}
- 
- 	advk_writel(pcie, PCIE_ISR0_MSI_INT_PENDING,
 
 
