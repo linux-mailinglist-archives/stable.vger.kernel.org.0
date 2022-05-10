@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9707D52192C
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A0A4521785
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243779AbiEJNmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47144 "EHLO
+        id S243565AbiEJN1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244614AbiEJNmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341EA2CCD16;
-        Tue, 10 May 2022 06:30:18 -0700 (PDT)
+        with ESMTP id S242912AbiEJNZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F41E321A94A;
+        Tue, 10 May 2022 06:18:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C252B81DA0;
-        Tue, 10 May 2022 13:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3FAC385D8;
-        Tue, 10 May 2022 13:29:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D63161665;
+        Tue, 10 May 2022 13:18:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C550C385A6;
+        Tue, 10 May 2022 13:18:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189396;
-        bh=sYcx22CNtW7hSY2tI7NBOUw3XnIwaKgfLUJasIi6tks=;
+        s=korg; t=1652188693;
+        bh=zL7m3jJKBlSnNR74+VWXMFcYh75Cfk2X59tlw/vprHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ykz2cUcu90pKcArr8GDvsCanf9Xq2jIQPXhUJ5uTtzotfxEbFhTbWr3wnf4KjJaw7
-         nknrHY1ElYdKR0VFJ2CbOIC9edjYgTYgxlD3aIIS7sEuN7eAd4x2Lo1Jf39ucW9U+0
-         v0Eqbm9IcpaPO7vMptHWzu0Rhb5WR5vIz2SmamHE=
+        b=eFVErV6zjDNHdQuYxTFVcJmRNtNvAChQ2CBKiiZUX82v9O5YkXEeWbdg3/TZTO7Ll
+         OYgEoz3nUztgjYCI8bqHe4mNOzywWh9hbHWm3DM9fskYIQzxC+7436lUsBshlzkdED
+         5+tj7gUDdc4ehjleQ4fegvf22mtr6IUqJuOJd4TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 036/135] can: grcan: only use the NAPI poll budget for RX
+        stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
+Subject: [PATCH 4.19 13/88] usb: gadget: uvc: Fix crash when encoding data for usb request
 Date:   Tue, 10 May 2022 15:06:58 +0200
-Message-Id: <20220510130741.439388975@linuxfoundation.org>
+Message-Id: <20220510130734.133672673@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +52,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Dan Vacura <w36195@motorola.com>
 
-commit 2873d4d52f7c52d60b316ba6c47bd7122b5a9861 upstream.
+commit 71d471e3faf90c9674cadc7605ac719e82cb7fac upstream.
 
-The previous split budget between TX and RX made it return not using
-the entire budget but at the same time not having calling called
-napi_complete. This sometimes led to the poll to not be called, and at
-the same time having TX and RX interrupts disabled resulting in the
-driver getting stuck.
+During the uvcg_video_pump() process, if an error occurs and
+uvcg_queue_cancel() is called, the buffer queue will be cleared out, but
+the current marker (queue->buf_used) of the active buffer (no longer
+active) is not reset. On the next iteration of uvcg_video_pump() the
+stale buf_used count will be used and the logic of min((unsigned
+int)len, buf->bytesused - queue->buf_used) may incorrectly calculate a
+nbytes size, causing an invalid memory access.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-4-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+[80802.185460][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+[80802.185519][  T315] configfs-gadget gadget: uvc: VS request completed
+with status -18.
+...
+uvcg_queue_cancel() is called and the queue is cleared out, but the
+marker queue->buf_used is not reset.
+...
+[80802.262328][ T8682] Unable to handle kernel paging request at virtual
+address ffffffc03af9f000
+...
+...
+[80802.263138][ T8682] Call trace:
+[80802.263146][ T8682]  __memcpy+0x12c/0x180
+[80802.263155][ T8682]  uvcg_video_pump+0xcc/0x1e0
+[80802.263165][ T8682]  process_one_work+0x2cc/0x568
+[80802.263173][ T8682]  worker_thread+0x28c/0x518
+[80802.263181][ T8682]  kthread+0x160/0x170
+[80802.263188][ T8682]  ret_from_fork+0x10/0x18
+[80802.263198][ T8682] Code: a8c12829 a88130cb a8c130
+
+Fixes: d692522577c0 ("usb: gadget/uvc: Port UVC webcam gadget to use videobuf2 framework")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Link: https://lore.kernel.org/r/20220331184024.23918-1-w36195@motorola.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |   22 +++++++---------------
- 1 file changed, 7 insertions(+), 15 deletions(-)
+ drivers/usb/gadget/function/uvc_queue.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -1137,7 +1137,7 @@ static int grcan_close(struct net_device
- 	return 0;
- }
- 
--static int grcan_transmit_catch_up(struct net_device *dev, int budget)
-+static void grcan_transmit_catch_up(struct net_device *dev)
- {
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	unsigned long flags;
-@@ -1145,7 +1145,7 @@ static int grcan_transmit_catch_up(struc
- 
- 	spin_lock_irqsave(&priv->lock, flags);
- 
--	work_done = catch_up_echo_skb(dev, budget, true);
-+	work_done = catch_up_echo_skb(dev, -1, true);
- 	if (work_done) {
- 		if (!priv->resetting && !priv->closing &&
- 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
-@@ -1159,8 +1159,6 @@ static int grcan_transmit_catch_up(struc
+--- a/drivers/usb/gadget/function/uvc_queue.c
++++ b/drivers/usb/gadget/function/uvc_queue.c
+@@ -242,6 +242,8 @@ void uvcg_queue_cancel(struct uvc_video_
+ 		buf->state = UVC_BUF_STATE_ERROR;
+ 		vb2_buffer_done(&buf->buf.vb2_buf, VB2_BUF_STATE_ERROR);
  	}
- 
- 	spin_unlock_irqrestore(&priv->lock, flags);
--
--	return work_done;
- }
- 
- static int grcan_receive(struct net_device *dev, int budget)
-@@ -1242,19 +1240,13 @@ static int grcan_poll(struct napi_struct
- 	struct net_device *dev = priv->dev;
- 	struct grcan_registers __iomem *regs = priv->regs;
- 	unsigned long flags;
--	int tx_work_done, rx_work_done;
--	int rx_budget = budget / 2;
--	int tx_budget = budget - rx_budget;
-+	int work_done;
- 
--	/* Half of the budget for receiving messages */
--	rx_work_done = grcan_receive(dev, rx_budget);
-+	work_done = grcan_receive(dev, budget);
- 
--	/* Half of the budget for transmitting messages as that can trigger echo
--	 * frames being received
--	 */
--	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
-+	grcan_transmit_catch_up(dev);
- 
--	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
-+	if (work_done < budget) {
- 		napi_complete(napi);
- 
- 		/* Guarantee no interference with a running reset that otherwise
-@@ -1271,7 +1263,7 @@ static int grcan_poll(struct napi_struct
- 		spin_unlock_irqrestore(&priv->lock, flags);
- 	}
- 
--	return rx_work_done + tx_work_done;
-+	return work_done;
- }
- 
- /* Work tx bug by waiting while for the risky situation to clear. If that fails,
++	queue->buf_used = 0;
++
+ 	/* This must be protected by the irqlock spinlock to avoid race
+ 	 * conditions between uvc_queue_buffer and the disconnection event that
+ 	 * could result in an interruptible wait in uvc_dequeue_buffer. Do not
 
 
