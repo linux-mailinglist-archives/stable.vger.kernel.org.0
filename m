@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41DEF52171D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D875C521AA9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240405AbiEJNX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
+        id S243055AbiEJODH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242878AbiEJNWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A4381A29DE;
-        Tue, 10 May 2022 06:16:57 -0700 (PDT)
+        with ESMTP id S245281AbiEJN5Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14CBF2CCD09;
+        Tue, 10 May 2022 06:39:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC42EB81D7A;
-        Tue, 10 May 2022 13:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590ECC385C6;
-        Tue, 10 May 2022 13:16:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF9DCB81DC2;
+        Tue, 10 May 2022 13:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD1A6C385C2;
+        Tue, 10 May 2022 13:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188602;
-        bh=7ni6v9EcwTeRnymZXJCe2F2vv9mVcGy9VAalwjR/0ls=;
+        s=korg; t=1652189942;
+        bh=ja0ijxZvm9OzHxdtl9DZF2+y3dpt4d6NdYljy+53o+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9itMwvt8im3pN8BvabH2mjS981tB854PiDgRejri6Vj+hj8HX5mXLGkhUrU1Dlpo
-         TYbFzre/5E+s3cnWuFDqs3Cg+nQ7HhlPFwpJLfyZMnHWASC4uGjMN81wsO81Wuro19
-         xSNFUBAceeaQZXjRUKjWs0A6wEL+Dt3jh6qcXJ3g=
+        b=lWbEHJ03GTOzja3lGEZSz2lkJq34tDHCpAR27U+q9jtcPIOPdYytgS36CNF+0OdCK
+         do5A1ZkQOTXp8urPKlB0kV/TVdh002WPi8yEYE+/UeHe1/ReVxW3XADSHgnpA/zwB5
+         YJYJ2LjV5BRP54myWh4PbArg1ZEMM9n44UXgnsgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH 4.14 61/78] ASoC: wm8958: Fix change notifications for DSP controls
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.17 077/140] ALSA: hda/realtek: Fix mute led issue on thinkpad with cs35l41 s-codec
 Date:   Tue, 10 May 2022 15:07:47 +0200
-Message-Id: <20220510130734.338358207@linuxfoundation.org>
+Message-Id: <20220510130743.816837722@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit b4f5c6b2e52b27462c0599e64e96e53b58438de1 upstream.
+commit a6ac60b36dade525c13c5bb0838589619533efb7 upstream.
 
-The WM8958 DSP controls all return 0 on successful write, not a boolean
-value indicating if the write changed the value of the control. Fix this
-by returning 1 after a change, there is already a check at the start of
-each put() that skips the function in the case that there is no change.
+The quirk ALC287_FIXUP_CS35L41_I2C_2 needs to chain the quirk
+ALC269_FIXUP_THINKPAD_ACPI, otherwise the mute led will not work if a
+thinkpad machine applies that quirk.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220416125408.197440-1-broonie@kernel.org
-Cc: stable@vger.kernel.org
+And it will be safe if non-thinkpad machines apply that quirk since
+hda_fixup_thinkpad_acpi() will check and return in this case.
+
+Fixes: ae7abe36e352e ("ALSA: hda/realtek: Add CS35L41 support for Thinkpad laptops")
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20220422073937.10073-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8958-dsp2.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/codecs/wm8958-dsp2.c
-+++ b/sound/soc/codecs/wm8958-dsp2.c
-@@ -533,7 +533,7 @@ static int wm8958_mbc_put(struct snd_kco
- 
- 	wm8958_dsp_apply(codec, mbc, wm8994->mbc_ena[mbc]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_MBC_SWITCH(xname, xval) {\
-@@ -659,7 +659,7 @@ static int wm8958_vss_put(struct snd_kco
- 
- 	wm8958_dsp_apply(codec, vss, wm8994->vss_ena[vss]);
- 
--	return 0;
-+	return 1;
- }
- 
- 
-@@ -733,7 +733,7 @@ static int wm8958_hpf_put(struct snd_kco
- 
- 	wm8958_dsp_apply(codec, hpf % 3, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_HPF_SWITCH(xname, xval) {\
-@@ -827,7 +827,7 @@ static int wm8958_enh_eq_put(struct snd_
- 
- 	wm8958_dsp_apply(codec, eq, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_ENH_EQ_SWITCH(xname, xval) {\
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8759,6 +8759,8 @@ static const struct hda_fixup alc269_fix
+ 	[ALC287_FIXUP_CS35L41_I2C_2] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = cs35l41_fixup_i2c_two,
++		.chained = true,
++		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
+ 	},
+ 	[ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED] = {
+ 		.type = HDA_FIXUP_VERBS,
 
 
