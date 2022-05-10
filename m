@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A77B7521949
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A92B25218EA
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239493AbiEJNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:42:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46960 "EHLO
+        id S243472AbiEJNkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244823AbiEJNmK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60265819A3;
-        Tue, 10 May 2022 06:30:36 -0700 (PDT)
+        with ESMTP id S245190AbiEJNih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B1CD54;
+        Tue, 10 May 2022 06:28:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54E4E615C8;
-        Tue, 10 May 2022 13:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 648A2C385A6;
-        Tue, 10 May 2022 13:30:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 80F3FCE1EE2;
+        Tue, 10 May 2022 13:28:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 862FFC385C2;
+        Tue, 10 May 2022 13:28:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189414;
-        bh=EjlviHrtXJMXgN9I+g+CCb6AQ//L9SQBZ6ZMZ93GDJM=;
+        s=korg; t=1652189310;
+        bh=v7Yqa6zur4G9nPPs/iLeF0a/0w7hCDhIoRVk6yIDzJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0yqeC3/NvkcvKpdcUlH2avbpTOenDOwItHq8uep/MJJVHw6im8zQYS1OaEpw3sB63
-         7jeA6YoXVr6EHqqgjzZpzycT8r0e9e7j4MMRQVL2q6JWAFALSCByJFwlm0vGpXxSrh
-         uwQmU0R7B2VYwYMsAq/+nEZrxhXBe8RJAPK1eT7M=
+        b=TSa3soPkG0/lRM7DQrq9dzjEfQlQj91xHoRZBdwZy0RDTK90go3JcGxnpG8bztieL
+         C+3uggVBGvOsmv2SJn+b+wijIZXUdXqsEp4c6ZJiymyyJIeEgfHxb81P30d/xpoQPM
+         Sd4vJcBZURfunTJAv2sZlHjNflWDpRCZFEJTZFB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.15 009/135] x86/fpu: Prevent FPU state corruption
-Date:   Tue, 10 May 2022 15:06:31 +0200
-Message-Id: <20220510130740.664230646@linuxfoundation.org>
+        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 010/135] KVM: x86/svm: Account for family 17h event renumberings in amd_pmc_perf_hw_id
+Date:   Tue, 10 May 2022 15:06:32 +0200
+Message-Id: <20220510130740.692228214@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
@@ -54,140 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Kyle Huey <me@kylehuey.com>
 
-commit 59f5ede3bc0f00eb856425f636dab0c10feb06d8 upstream.
+commit 5eb849322d7f7ae9d5c587c7bc3b4f7c6872cd2f upstream.
 
-The FPU usage related to task FPU management is either protected by
-disabling interrupts (switch_to, return to user) or via fpregs_lock() which
-is a wrapper around local_bh_disable(). When kernel code wants to use the
-FPU then it has to check whether it is possible by calling irq_fpu_usable().
+Zen renumbered some of the performance counters that correspond to the
+well known events in perf_hw_id. This code in KVM was never updated for
+that, so guest that attempt to use counters on Zen that correspond to the
+pre-Zen perf_hw_id values will silently receive the wrong values.
 
-But the condition in irq_fpu_usable() is wrong. It allows FPU to be used
-when:
+This has been observed in the wild with rr[0] when running in Zen 3
+guests. rr uses the retired conditional branch counter 00d1 which is
+incorrectly recognized by KVM as PERF_COUNT_HW_STALLED_CYCLES_BACKEND.
 
-   !in_interrupt() || interrupted_user_mode() || interrupted_kernel_fpu_idle()
+[0] https://rr-project.org/
 
-The latter is checking whether some other context already uses FPU in the
-kernel, but if that's not the case then it allows FPU to be used
-unconditionally even if the calling context interrupted a fpregs_lock()
-critical region. If that happens then the FPU state of the interrupted
-context becomes corrupted.
-
-Allow in kernel FPU usage only when no other context has in kernel FPU
-usage and either the calling context is not hard interrupt context or the
-hard interrupt did not interrupt a local bottomhalf disabled region.
-
-It's hard to find a proper Fixes tag as the condition was broken in one way
-or the other for a very long time and the eager/lazy FPU changes caused a
-lot of churn. Picked something remotely connected from the history.
-
-This survived undetected for quite some time as FPU usage in interrupt
-context is rare, but the recent changes to the random code unearthed it at
-least on a kernel which had FPU debugging enabled. There is probably a
-higher rate of silent corruption as not all issues can be detected by the
-FPU debugging code. This will be addressed in a subsequent change.
-
-Fixes: 5d2bd7009f30 ("x86, fpu: decouple non-lazy/eager fpu restore from xsave")
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Borislav Petkov <bp@suse.de>
+Signed-off-by: Kyle Huey <me@kylehuey.com>
+Message-Id: <20220503050136.86298-1-khuey@kylehuey.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220501193102.588689270@linutronix.de
+[Check guest family, not host. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/core.c |   67 +++++++++++++++++----------------------------
- 1 file changed, 26 insertions(+), 41 deletions(-)
+ arch/x86/kvm/svm/pmu.c |   28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/fpu/core.c
-+++ b/arch/x86/kernel/fpu/core.c
-@@ -25,17 +25,7 @@
-  */
- union fpregs_state init_fpstate __ro_after_init;
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -44,6 +44,22 @@ static struct kvm_event_hw_type_mapping
+ 	[7] = { 0xd1, 0x00, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
+ };
  
--/*
-- * Track whether the kernel is using the FPU state
-- * currently.
-- *
-- * This flag is used:
-- *
-- *   - by IRQ context code to potentially use the FPU
-- *     if it's unused.
-- *
-- *   - to debug kernel_fpu_begin()/end() correctness
-- */
-+/* Track in-kernel FPU usage */
- static DEFINE_PER_CPU(bool, in_kernel_fpu);
- 
- /*
-@@ -43,42 +33,37 @@ static DEFINE_PER_CPU(bool, in_kernel_fp
-  */
- DEFINE_PER_CPU(struct fpu *, fpu_fpregs_owner_ctx);
- 
--static bool kernel_fpu_disabled(void)
--{
--	return this_cpu_read(in_kernel_fpu);
--}
--
--static bool interrupted_kernel_fpu_idle(void)
--{
--	return !kernel_fpu_disabled();
--}
--
--/*
-- * Were we in user mode (or vm86 mode) when we were
-- * interrupted?
-- *
-- * Doing kernel_fpu_begin/end() is ok if we are running
-- * in an interrupt context from user mode - we'll just
-- * save the FPU state as required.
-- */
--static bool interrupted_user_mode(void)
--{
--	struct pt_regs *regs = get_irq_regs();
--	return regs && user_mode(regs);
--}
--
- /*
-  * Can we use the FPU in kernel mode with the
-  * whole "kernel_fpu_begin/end()" sequence?
-- *
-- * It's always ok in process context (ie "not interrupt")
-- * but it is sometimes ok even from an irq.
-  */
- bool irq_fpu_usable(void)
++/* duplicated from amd_f17h_perfmon_event_map. */
++static struct kvm_event_hw_type_mapping amd_f17h_event_mapping[] = {
++	[0] = { 0x76, 0x00, PERF_COUNT_HW_CPU_CYCLES },
++	[1] = { 0xc0, 0x00, PERF_COUNT_HW_INSTRUCTIONS },
++	[2] = { 0x60, 0xff, PERF_COUNT_HW_CACHE_REFERENCES },
++	[3] = { 0x64, 0x09, PERF_COUNT_HW_CACHE_MISSES },
++	[4] = { 0xc2, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
++	[5] = { 0xc3, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
++	[6] = { 0x87, 0x02, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND },
++	[7] = { 0x87, 0x01, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
++};
++
++/* amd_pmc_perf_hw_id depends on these being the same size */
++static_assert(ARRAY_SIZE(amd_event_mapping) ==
++	     ARRAY_SIZE(amd_f17h_event_mapping));
++
+ static unsigned int get_msr_base(struct kvm_pmu *pmu, enum pmu_type type)
  {
--	return !in_interrupt() ||
--		interrupted_user_mode() ||
--		interrupted_kernel_fpu_idle();
-+	if (WARN_ON_ONCE(in_nmi()))
-+		return false;
-+
-+	/* In kernel FPU usage already active? */
-+	if (this_cpu_read(in_kernel_fpu))
-+		return false;
-+
-+	/*
-+	 * When not in NMI or hard interrupt context, FPU can be used in:
-+	 *
-+	 * - Task context except from within fpregs_lock()'ed critical
-+	 *   regions.
-+	 *
-+	 * - Soft interrupt processing context which cannot happen
-+	 *   while in a fpregs_lock()'ed critical region.
-+	 */
-+	if (!in_hardirq())
-+		return true;
-+
-+	/*
-+	 * In hard interrupt context it's safe when soft interrupts
-+	 * are enabled, which means the interrupt did not hit in
-+	 * a fpregs_lock()'ed critical region.
-+	 */
-+	return !softirq_count();
- }
- EXPORT_SYMBOL(irq_fpu_usable);
+ 	struct kvm_vcpu *vcpu = pmu_to_vcpu(pmu);
+@@ -136,19 +152,25 @@ static inline struct kvm_pmc *get_gp_pmc
  
+ static unsigned int amd_pmc_perf_hw_id(struct kvm_pmc *pmc)
+ {
++	struct kvm_event_hw_type_mapping *event_mapping;
+ 	u8 event_select = pmc->eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
+ 	u8 unit_mask = (pmc->eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
+ 	int i;
+ 
++	if (guest_cpuid_family(pmc->vcpu) >= 0x17)
++		event_mapping = amd_f17h_event_mapping;
++	else
++		event_mapping = amd_event_mapping;
++
+ 	for (i = 0; i < ARRAY_SIZE(amd_event_mapping); i++)
+-		if (amd_event_mapping[i].eventsel == event_select
+-		    && amd_event_mapping[i].unit_mask == unit_mask)
++		if (event_mapping[i].eventsel == event_select
++		    && event_mapping[i].unit_mask == unit_mask)
+ 			break;
+ 
+ 	if (i == ARRAY_SIZE(amd_event_mapping))
+ 		return PERF_COUNT_HW_MAX;
+ 
+-	return amd_event_mapping[i].event_type;
++	return event_mapping[i].event_type;
+ }
+ 
+ /* return PERF_COUNT_HW_MAX as AMD doesn't have fixed events */
 
 
