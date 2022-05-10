@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEB5B521692
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C1B8521791
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242335AbiEJNQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60850 "EHLO
+        id S244036AbiEJN1z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242349AbiEJNPw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:52 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6374488B6;
-        Tue, 10 May 2022 06:11:31 -0700 (PDT)
+        with ESMTP id S243092AbiEJNZa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 431BF185C8F;
+        Tue, 10 May 2022 06:18:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 237FACE1EE2;
-        Tue, 10 May 2022 13:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 306AEC385A6;
-        Tue, 10 May 2022 13:11:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D12D961574;
+        Tue, 10 May 2022 13:18:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0DBBC385C2;
+        Tue, 10 May 2022 13:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188288;
-        bh=nbW0eEsimMVjlHNbmfDsIhmqa2VhhW8vzws7CUyZMzo=;
+        s=korg; t=1652188732;
+        bh=sXILfzq9IW3DCNFKyH1tGuQNRkOLW85EMG6ylDqHGXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LhWFqe5N8TAi74IIKrE7SgEY3PDQRytbiOhMUrwz25qsEc6mzga2zauo4/44D0Yoz
-         EzotzOiTrHgAUzpUc8Bc+bviw7nQszen5gcIsc9ybUAxN2rO+SGpEZ8BSfKJYQyEo4
-         4aDEEVPalMppjLJRb7hfVdbdTchNULlcbA0TsyWo=
+        b=0VNr79mSkRRMylbvytpex57m+NHNLxfm+0l3NuFuKAioEQgGmoqEAQ0XALBElJAQJ
+         MCQkrWmWqgBQ2QXkx3Kqr97jNQwlpNVFX55UT5qj2S4glkMUyYGaL1p7mJ7W28vhN2
+         6UpSULqyqfbU+hHW3z2xQpCSO2X6b7M0kG0kS53s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.9 03/66] lightnvm: disable the subsystem
-Date:   Tue, 10 May 2022 15:06:53 +0200
-Message-Id: <20220510130729.862939629@linuxfoundation.org>
+        stable@vger.kernel.org, Zizhuang Deng <sunsetdzz@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 09/88] iio: dac: ad5592r: Fix the missing return value.
+Date:   Tue, 10 May 2022 15:06:54 +0200
+Message-Id: <20220510130734.015700859@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,30 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit 9ea9b9c48387 ("remove the lightnvm subsystem") the lightnvm
-subsystem was removed as there is no hardware in the wild for it, and
-the code is known to have problems.  This should also be disabled for
-older LTS kernels as well to prevent anyone from accidentally using it.
+From: Zizhuang Deng <sunsetdzz@gmail.com>
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Matias Bjørling <mb@lightnvm.io>
-Cc: Javier González <javier@javigon.com>
-Cc: Jens Axboe <axboe@kernel.dk>
+commit b55b38f7cc12da3b9ef36e7a3b7f8f96737df4d5 upstream.
+
+The third call to `fwnode_property_read_u32` did not record
+the return value, resulting in `channel_offstate` possibly
+being assigned the wrong value.
+
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Zizhuang Deng <sunsetdzz@gmail.com>
+Link: https://lore.kernel.org/r/20220310125450.4164164-1-sunsetdzz@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/lightnvm/Kconfig |    2 +-
+ drivers/iio/dac/ad5592r-base.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/lightnvm/Kconfig
-+++ b/drivers/lightnvm/Kconfig
-@@ -4,7 +4,7 @@
+--- a/drivers/iio/dac/ad5592r-base.c
++++ b/drivers/iio/dac/ad5592r-base.c
+@@ -531,7 +531,7 @@ static int ad5592r_alloc_channels(struct
+ 		if (!ret)
+ 			st->channel_modes[reg] = tmp;
  
- menuconfig NVM
- 	bool "Open-Channel SSD target support"
--	depends on BLOCK && HAS_DMA
-+	depends on BLOCK && HAS_DMA && BROKEN
- 	help
- 	  Say Y here to get to enable Open-channel SSDs.
- 
+-		fwnode_property_read_u32(child, "adi,off-state", &tmp);
++		ret = fwnode_property_read_u32(child, "adi,off-state", &tmp);
+ 		if (!ret)
+ 			st->channel_offstate[reg] = tmp;
+ 	}
 
 
