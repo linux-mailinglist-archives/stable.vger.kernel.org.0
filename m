@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E095219EF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29E1D521921
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239174AbiEJNwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42646 "EHLO
+        id S243656AbiEJNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343560AbiEJNsO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:14 -0400
+        with ESMTP id S234163AbiEJNkQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:40:16 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB582B1652;
-        Tue, 10 May 2022 06:36:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 154C42370E7;
+        Tue, 10 May 2022 06:29:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7FC8B81DB0;
-        Tue, 10 May 2022 13:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FE0EC385A6;
-        Tue, 10 May 2022 13:36:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2989B81DA0;
+        Tue, 10 May 2022 13:29:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE63C385A6;
+        Tue, 10 May 2022 13:29:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189765;
-        bh=bZJsAhefE7TmQsxHE4HZUSdcOMaxLZwLBWLG/XeVUpY=;
+        s=korg; t=1652189371;
+        bh=WAC2T/PFvI26Rh781lfEXaly7tnF4TXThSPFMyXmm1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BF1kO9crXbGvl9Nk3ZPRuL+AxAAbWTjLbrQhDqD7mUHDEXRMxZ4LM1lZC9SSIdUY/
-         qXIe1RMC32h6g7jQxHyOPuHcLPa4s+HGu6J+cMCwT3AvJCzV6u9nC8GNX5WwnjaY/K
-         X8cot39tk23BCEY3+JVUOM1vQaXi8FXr4AwMXjJc=
+        b=jurWyp+ogJ8cuc9V/DrMT2PrqtMMe65VzQ3zvv7YF+bywUJ6FZIa1v7n1xhSjx6Cu
+         Qd94YUpPb2WMIEUUsH6UeCwWpZFmo8MxEFyOVou7OqNOxY2C2wcSQY+pADEzcVqQvo
+         mMbndVx8cQ1FSFYx3O5tzQgT1pegpP/x1rvzuI8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zev Weiss <zev@bewilderbeest.net>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.17 021/140] hwmon: (pmbus) delta-ahe50dc-fan: work around hardware quirk
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 029/135] s390/dasd: prevent double format of tracks for ESE devices
 Date:   Tue, 10 May 2022 15:06:51 +0200
-Message-Id: <20220510130742.216781277@linuxfoundation.org>
+Message-Id: <20220510130741.237133863@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zev Weiss <zev@bewilderbeest.net>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 08da09f028043fed9653331ae75bc310411f72e6 upstream.
+commit 71f3871657370dbbaf942a1c758f64e49a36c70f upstream.
 
-CLEAR_FAULTS commands can apparently sometimes trigger catastrophic
-power output glitches on the ahe-50dc, so block them from being sent
-at all.
+For ESE devices we get an error for write operations on an unformatted
+track. Afterwards the track will be formatted and the IO operation
+restarted.
+When using alias devices a track might be accessed by multiple requests
+simultaneously and there is a race window that a track gets formatted
+twice resulting in data loss.
 
-Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220427035109.3819-1-zev@bewilderbeest.net
-Fixes: d387d88ed045 ("hwmon: (pmbus) Add Delta AHE-50DC fan control module driver")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Prevent this by remembering the amount of formatted tracks when starting
+a request and comparing this number before actually formatting a track
+on the fly. If the number has changed there is a chance that the current
+track was finally formatted in between. As a result do not format the
+track and restart the current IO to check.
+
+The number of formatted tracks does not match the overall number of
+formatted tracks on the device and it might wrap around but this is no
+problem. It is only needed to recognize that a track has been formatted at
+all in between.
+
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-3-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pmbus/delta-ahe50dc-fan.c |   16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/s390/block/dasd.c      |    7 +++++++
+ drivers/s390/block/dasd_eckd.c |   19 +++++++++++++++++--
+ drivers/s390/block/dasd_int.h  |    2 ++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
---- a/drivers/hwmon/pmbus/delta-ahe50dc-fan.c
-+++ b/drivers/hwmon/pmbus/delta-ahe50dc-fan.c
-@@ -14,6 +14,21 @@
- 
- #define AHE50DC_PMBUS_READ_TEMP4 0xd0
- 
-+static int ahe50dc_fan_write_byte(struct i2c_client *client, int page, u8 value)
-+{
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1422,6 +1422,13 @@ int dasd_start_IO(struct dasd_ccw_req *c
+ 		if (!cqr->lpm)
+ 			cqr->lpm = dasd_path_get_opm(device);
+ 	}
 +	/*
-+	 * The CLEAR_FAULTS operation seems to sometimes (unpredictably, perhaps
-+	 * 5% of the time or so) trigger a problematic phenomenon in which the
-+	 * fan speeds surge momentarily and at least some (perhaps all?) of the
-+	 * system's power outputs experience a glitch.
-+	 *
-+	 * However, according to Delta it should be OK to simply not send any
-+	 * CLEAR_FAULTS commands (the device doesn't seem to be capable of
-+	 * reporting any faults anyway), so just blackhole them unconditionally.
++	 * remember the amount of formatted tracks to prevent double format on
++	 * ESE devices
 +	 */
-+	return value == PMBUS_CLEAR_FAULTS ? -EOPNOTSUPP : -ENODATA;
-+}
++	if (cqr->block)
++		cqr->trkcount = atomic_read(&cqr->block->trkcount);
 +
- static int ahe50dc_fan_read_word_data(struct i2c_client *client, int page, int phase, int reg)
+ 	if (cqr->cpmode == 1) {
+ 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
+ 					 (long) cqr, cqr->lpm);
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3095,13 +3095,24 @@ static int dasd_eckd_format_device(struc
+ }
+ 
+ static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+-				      struct dasd_block *block)
++				      struct dasd_ccw_req *cqr)
  {
- 	/* temp1 in (virtual) page 1 is remapped to mfr-specific temp4 */
-@@ -68,6 +83,7 @@ static struct pmbus_driver_info ahe50dc_
- 		PMBUS_HAVE_VIN | PMBUS_HAVE_FAN12 | PMBUS_HAVE_FAN34 |
- 		PMBUS_HAVE_STATUS_FAN12 | PMBUS_HAVE_STATUS_FAN34 | PMBUS_PAGE_VIRTUAL,
- 	.func[1] = PMBUS_HAVE_TEMP | PMBUS_PAGE_VIRTUAL,
-+	.write_byte = ahe50dc_fan_write_byte,
- 	.read_word_data = ahe50dc_fan_read_word_data,
++	struct dasd_block *block = cqr->block;
+ 	struct dasd_format_entry *format;
+ 	unsigned long flags;
+ 	bool rc = false;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	if (cqr->trkcount != atomic_read(&block->trkcount)) {
++		/*
++		 * The number of formatted tracks has changed after request
++		 * start and we can not tell if the current track was involved.
++		 * To avoid data corruption treat it as if the current track is
++		 * involved
++		 */
++		rc = true;
++		goto out;
++	}
+ 	list_for_each_entry(format, &block->format_list, list) {
+ 		if (format->track == to_format->track) {
+ 			rc = true;
+@@ -3121,6 +3132,7 @@ static void clear_format_track(struct da
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	atomic_inc(&block->trkcount);
+ 	list_del_init(&format->list);
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+@@ -3182,8 +3194,11 @@ dasd_eckd_ese_format(struct dasd_device
+ 	}
+ 	format->track = curr_trk;
+ 	/* test if track is already in formatting by another thread */
+-	if (test_and_set_format_track(format, block))
++	if (test_and_set_format_track(format, cqr)) {
++		/* this is no real error so do not count down retries */
++		cqr->retries++;
+ 		return ERR_PTR(-EEXIST);
++	}
+ 
+ 	fdata.start_unit = curr_trk;
+ 	fdata.stop_unit = curr_trk;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -188,6 +188,7 @@ struct dasd_ccw_req {
+ 	void (*callback)(struct dasd_ccw_req *, void *data);
+ 	void *callback_data;
+ 	unsigned int proc_bytes;	/* bytes for partial completion */
++	unsigned int trkcount;		/* count formatted tracks */
  };
  
+ /*
+@@ -611,6 +612,7 @@ struct dasd_block {
+ 
+ 	struct list_head format_list;
+ 	spinlock_t format_lock;
++	atomic_t trkcount;
+ };
+ 
+ struct dasd_attention_data {
 
 
