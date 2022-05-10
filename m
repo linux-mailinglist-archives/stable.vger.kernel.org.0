@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33DC6521763
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602F652199F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242792AbiEJNWg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45570 "EHLO
+        id S234680AbiEJNuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243450AbiEJNVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52CB84EF58;
-        Tue, 10 May 2022 06:16:08 -0700 (PDT)
+        with ESMTP id S244692AbiEJNq4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5906514CB68;
+        Tue, 10 May 2022 06:31:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EBCD61663;
-        Tue, 10 May 2022 13:16:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF8AC385A6;
-        Tue, 10 May 2022 13:16:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F1E760B12;
+        Tue, 10 May 2022 13:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D041C385A6;
+        Tue, 10 May 2022 13:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188566;
-        bh=rrHsYt9Qs4PHF/mVTk+Pvgt2CBMycA8rpv2zIgNl2mE=;
+        s=korg; t=1652189513;
+        bh=X0ixFeNEvURfQKTkFaXnL+ELjrFBVzXxY/dWtVPiXhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q0IdvtVW/PJG73rDMFMm6yzY2BFe5mpsJr4cKeY5I2IAleDCaO/S+M7iOHG3U7obe
-         bNHDKpA4/nlKfxWjiyg5M+rzIVVdhrZ4H2KhbTnXF7FT1sYsS9fuFo0MsFiPlBgn3f
-         UbS9l5ZQrkptZqt/Zv9RTTwCz1/sdUopSi2/Vkm0=
+        b=Tty34OpsNym02u0C2pmSh8lis5l/8IZ4R8gk+c98QtOJBgAuP4OUHoDdbmbjFBBWj
+         ML+KdAHwDhh1OHD0vFZ+aUJlOGGfXxfMHJB51mrl30oEcmq9s2A4aa2OIEECMnxncz
+         fJ/MXlNZOFBQKHbQEz9OGTnniwLnq0fxuRfyvT3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.14 50/78] tty: n_gsm: fix wrong command retry handling
+        stable@vger.kernel.org, Marc Dionne <marc.dionne@auristor.com>,
+        David Howells <dhowells@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Vadim Fedorenko <vfedorenko@novek.ru>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-afs@lists.infradead.org
+Subject: [PATCH 5.15 074/135] rxrpc: Enable IPv6 checksums on transport socket
 Date:   Tue, 10 May 2022 15:07:36 +0200
-Message-Id: <20220510130734.019028524@linuxfoundation.org>
+Message-Id: <20220510130742.534618150@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: David Howells <dhowells@redhat.com>
 
-commit d0bcdffcad5a22f202e3bf37190c0dd8c080ea92 upstream.
+commit 39cb9faa5d46d0d0694f4b594ef905f517600c8e upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.7.3 states that the valid range for the
-maximum number of retransmissions (N2) is from 0 to 255 (both including).
-gsm_config() fails to limit this range correctly. Furthermore,
-gsm_control_retransmit() handles this number incorrectly by performing
-N2 - 1 retransmission attempts. Setting N2 to zero results in more than 255
-retransmission attempts.
-Fix the range check in gsm_config() and the value handling in
-gsm_control_send() and gsm_control_retransmit() to comply with 3GPP 27.010.
+AF_RXRPC doesn't currently enable IPv6 UDP Tx checksums on the transport
+socket it opens and the checksums in the packets it generates end up 0.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-11-daniel.starke@siemens.com
+It probably should also enable IPv6 UDP Rx checksums and IPv4 UDP
+checksums.  The latter only seem to be applied if the socket family is
+AF_INET and don't seem to apply if it's AF_INET6.  IPv4 packets from an
+IPv6 socket seem to have checksums anyway.
+
+What seems to have happened is that the inet_inv_convert_csum() call didn't
+get converted to the appropriate udp_port_cfg parameters - and
+udp_sock_create() disables checksums unless explicitly told not too.
+
+Fix this by enabling the three udp_port_cfg checksum options.
+
+Fixes: 1a9b86c9fd95 ("rxrpc: use udp tunnel APIs instead of open code in rxrpc_open_socket")
+Reported-by: Marc Dionne <marc.dionne@auristor.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: Vadim Fedorenko <vfedorenko@novek.ru>
+cc: David S. Miller <davem@davemloft.net>
+cc: linux-afs@lists.infradead.org
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/rxrpc/local_object.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1341,7 +1341,6 @@ static void gsm_control_retransmit(unsig
- 	spin_lock_irqsave(&gsm->control_lock, flags);
- 	ctrl = gsm->pending_cmd;
- 	if (ctrl) {
--		gsm->cretries--;
- 		if (gsm->cretries == 0) {
- 			gsm->pending_cmd = NULL;
- 			ctrl->error = -ETIMEDOUT;
-@@ -1350,6 +1349,7 @@ static void gsm_control_retransmit(unsig
- 			wake_up(&gsm->event);
- 			return;
- 		}
-+		gsm->cretries--;
- 		gsm_control_transmit(gsm, ctrl);
- 		mod_timer(&gsm->t2_timer, jiffies + gsm->t2 * HZ / 100);
+--- a/net/rxrpc/local_object.c
++++ b/net/rxrpc/local_object.c
+@@ -117,6 +117,7 @@ static int rxrpc_open_socket(struct rxrp
+ 	       local, srx->transport_type, srx->transport.family);
+ 
+ 	udp_conf.family = srx->transport.family;
++	udp_conf.use_udp_checksums = true;
+ 	if (udp_conf.family == AF_INET) {
+ 		udp_conf.local_ip = srx->transport.sin.sin_addr;
+ 		udp_conf.local_udp_port = srx->transport.sin.sin_port;
+@@ -124,6 +125,8 @@ static int rxrpc_open_socket(struct rxrp
+ 	} else {
+ 		udp_conf.local_ip6 = srx->transport.sin6.sin6_addr;
+ 		udp_conf.local_udp_port = srx->transport.sin6.sin6_port;
++		udp_conf.use_udp6_tx_checksums = true;
++		udp_conf.use_udp6_rx_checksums = true;
+ #endif
  	}
-@@ -1390,7 +1390,7 @@ retry:
- 
- 	/* If DLCI0 is in ADM mode skip retries, it won't respond */
- 	if (gsm->dlci[0]->mode == DLCI_MODE_ADM)
--		gsm->cretries = 1;
-+		gsm->cretries = 0;
- 	else
- 		gsm->cretries = gsm->n2;
- 
-@@ -2531,7 +2531,7 @@ static int gsmld_config(struct tty_struc
- 	/* Check the MRU/MTU range looks sane */
- 	if (c->mru > MAX_MRU || c->mtu > MAX_MTU || c->mru < 8 || c->mtu < 8)
- 		return -EINVAL;
--	if (c->n2 < 3)
-+	if (c->n2 > 255)
- 		return -EINVAL;
- 	if (c->encapsulation > 1)	/* Basic, advanced, no I */
- 		return -EINVAL;
+ 	ret = udp_sock_create(net, &udp_conf, &local->socket);
 
 
