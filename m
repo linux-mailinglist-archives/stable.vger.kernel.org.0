@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E09AC5218DD
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81A34521768
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:23:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244135AbiEJNlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55166 "EHLO
+        id S243002AbiEJNZ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:25:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244842AbiEJNiI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C863861624;
-        Tue, 10 May 2022 06:26:27 -0700 (PDT)
+        with ESMTP id S242610AbiEJNYR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:24:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3869C54682;
+        Tue, 10 May 2022 06:17:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C039DB81D24;
-        Tue, 10 May 2022 13:26:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E70D8C385A6;
-        Tue, 10 May 2022 13:26:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9665B81D0D;
+        Tue, 10 May 2022 13:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 480B8C385C2;
+        Tue, 10 May 2022 13:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189184;
-        bh=DHz9FBVHZk9j/KZCg+ljNfPo6VkSfiVP4tnwrZI+KG0=;
+        s=korg; t=1652188644;
+        bh=hwo8XwOH5FAgJgZVLngvecjaImRzHhr+s7d0muU2US0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kRkfB3VlDeUJZtf83UBqYZU/2qCgmDuINn2F65h44b8aAB1b6Rdx8FgsRK2CuU5vj
-         4wdkcDJRpdVg9UEohwzqwFTGcUri24DR8IEtURZttp2ic1nQwmrb353q0LI+sFUKVp
-         /ZhCnQHI1haMq607u2MIxa6ESmUpPKmdkPk22OTc=
+        b=CSo6ah9Z8Gy7ErJvooKELAVbAUxLxHBP6mkiawZSdhXOemdOFlF5Hm7twqYGRJ/9U
+         BSHxs3aJvnAQJPh09ewvQ6W0LVSF0RcHYxXLddIjTGmEpzcOYB8cuY0jSE4dWl2NhS
+         TozF/WwX74ayDd8Oc4ezFlpm34INgmSKAshHxG98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
-        Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.10 40/70] net/mlx5e: Fix the calling of update_buffer_lossy() API
+        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
+        Sandipan Das <sandipan.das@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 73/78] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
 Date:   Tue, 10 May 2022 15:07:59 +0200
-Message-Id: <20220510130734.036026407@linuxfoundation.org>
+Message-Id: <20220510130734.690549554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Zhang <markzhang@nvidia.com>
+From: Sandipan Das <sandipan.das@amd.com>
 
-commit c4d963a588a6e7c4ef31160e80697ae8e5a47746 upstream.
+[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
 
-The arguments of update_buffer_lossy() is in a wrong order. Fix it.
+On some x86 processors, CPUID leaf 0xA provides information
+on Architectural Performance Monitoring features. It
+advertises a PMU version which Qemu uses to determine the
+availability of additional MSRs to manage the PMCs.
 
-Fixes: 88b3d5c90e96 ("net/mlx5e: Fix port buffers cell size value")
-Signed-off-by: Mark Zhang <markzhang@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
+the same, the kernel constructs return values based on the
+x86_pmu_capability irrespective of the vendor.
+
+This leaf and the additional MSRs are not supported on AMD
+and Hygon processors. If AMD PerfMonV2 is detected, the PMU
+version is set to 2 and guest startup breaks because of an
+attempt to access a non-existent MSR. Return zeros to avoid
+this.
+
+Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
+Reported-by: Vasant Hegde <vasant.hegde@amd.com>
+Signed-off-by: Sandipan Das <sandipan.das@amd.com>
+Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kvm/cpuid.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
-@@ -309,8 +309,8 @@ int mlx5e_port_manual_buffer_config(stru
- 		if (err)
- 			return err;
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index 7e1ab0e0f3f2..fd1eb8600ccf 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -517,6 +517,11 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+ 		union cpuid10_eax eax;
+ 		union cpuid10_edx edx;
  
--		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, port_buff_cell_sz,
--					  xoff, &port_buffer, &update_buffer);
-+		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, xoff,
-+					  port_buff_cell_sz, &port_buffer, &update_buffer);
- 		if (err)
- 			return err;
- 	}
++		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
++			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
++			break;
++		}
++
+ 		perf_get_x86_pmu_capability(&cap);
+ 
+ 		/*
+-- 
+2.35.1
+
 
 
