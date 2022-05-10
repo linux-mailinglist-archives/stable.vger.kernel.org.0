@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF3325219D4
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AD08521775
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:23:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244922AbiEJNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
+        id S243012AbiEJNZr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:25:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244908AbiEJNrF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
+        with ESMTP id S242913AbiEJNZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB571E8E23;
-        Tue, 10 May 2022 06:32:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE11A22406F;
+        Tue, 10 May 2022 06:18:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 26E7C615C8;
-        Tue, 10 May 2022 13:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25ACBC385C2;
-        Tue, 10 May 2022 13:32:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5924A615F8;
+        Tue, 10 May 2022 13:18:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A8B0C385C6;
+        Tue, 10 May 2022 13:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189554;
-        bh=r/8WhCII/QSwBbGHS0M4iDqpyet3/YT26qUmf2G5itc=;
+        s=korg; t=1652188695;
+        bh=eFPjMgElhDEszECLNXLR9KghKw55KcyONnperHZm5LM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrMy6dI/LE//5W+6fRJNBXlXOOa4KzqYuEzfxxHoV+hbL46LydOdYmm9vWIAkhznj
-         v4zhlZafVYytOIDSUbk9i2y7zijoc7+hA7dLVzo0T9GmcU1Jgzs+5KKS9wqqGlH6eC
-         3yP5IOeda9DYopmR5FLAvcfWI5fGEtjS4im9PRUA=
+        b=tOTPSSSSWzbXJZ34Fir2MuSqxLVbr2JKD9FcKGZhPk6y0Freh7TsXQ8avZ3hVq2G3
+         67MHC4IRzGtZ5PhEhvRwzNIcC/6gjtiyXepgIxnMUzl7lEpHafDM2DdoNoXrbxUQaT
+         Zhrk8beZvXdofhZD0qKO7P3t4cPiM7a86AIiOzN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 037/135] nfc: replace improper check device_is_registered() in netlink related functions
+        stable@vger.kernel.org,
+        Vijayavardhan Vennapusa <vvreddy@codeaurora.org>,
+        Dan Vacura <w36195@motorola.com>, stable <stable@kernel.org>
+Subject: [PATCH 4.19 14/88] usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
 Date:   Tue, 10 May 2022 15:06:59 +0200
-Message-Id: <20220510130741.467352394@linuxfoundation.org>
+Message-Id: <20220510130734.162062350@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,172 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
 
-commit da5c0f119203ad9728920456a0f52a6d850c01cd upstream.
+commit bf95c4d4630c7a2c16e7b424fdea5177d9ce0864 upstream.
 
-The device_is_registered() in nfc core is used to check whether
-nfc device is registered in netlink related functions such as
-nfc_fw_download(), nfc_dev_up() and so on. Although device_is_registered()
-is protected by device_lock, there is still a race condition between
-device_del() and device_is_registered(). The root cause is that
-kobject_del() in device_del() is not protected by device_lock.
+If any function like UVC is deactivating gadget as part of composition
+switch which results in not calling pullup enablement, it is not getting
+enabled after switch to new composition due to this deactivation flag
+not cleared. This results in USB enumeration not happening after switch
+to new USB composition. Hence clear deactivation flag inside gadget
+structure in configfs_composite_unbind() before switch to new USB
+composition.
 
-   (cleanup task)         |     (netlink task)
-                          |
-nfc_unregister_device     | nfc_fw_download
- device_del               |  device_lock
-  ...                     |   if (!device_is_registered)//(1)
-  kobject_del//(2)        |   ...
- ...                      |  device_unlock
-
-The device_is_registered() returns the value of state_in_sysfs and
-the state_in_sysfs is set to zero in kobject_del(). If we pass check in
-position (1), then set zero in position (2). As a result, the check
-in position (1) is useless.
-
-This patch uses bool variable instead of device_is_registered() to judge
-whether the nfc device is registered, which is well synchronized.
-
-Fixes: 3e256b8f8dfa ("NFC: add nfc subsystem core")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
+Signed-off-by: Dan Vacura <w36195@motorola.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20220413211038.72797-1-w36195@motorola.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/core.c |   29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ drivers/usb/gadget/configfs.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/nfc/core.c
-+++ b/net/nfc/core.c
-@@ -38,7 +38,7 @@ int nfc_fw_download(struct nfc_dev *dev,
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -94,7 +94,7 @@ int nfc_dev_up(struct nfc_dev *dev)
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -142,7 +142,7 @@ int nfc_dev_down(struct nfc_dev *dev)
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -207,7 +207,7 @@ int nfc_start_poll(struct nfc_dev *dev,
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -246,7 +246,7 @@ int nfc_stop_poll(struct nfc_dev *dev)
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -291,7 +291,7 @@ int nfc_dep_link_up(struct nfc_dev *dev,
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -335,7 +335,7 @@ int nfc_dep_link_down(struct nfc_dev *de
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -401,7 +401,7 @@ int nfc_activate_target(struct nfc_dev *
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -448,7 +448,7 @@ int nfc_deactivate_target(struct nfc_dev
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -495,7 +495,7 @@ int nfc_data_exchange(struct nfc_dev *de
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		kfree_skb(skb);
- 		goto error;
-@@ -552,7 +552,7 @@ int nfc_enable_se(struct nfc_dev *dev, u
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -601,7 +601,7 @@ int nfc_disable_se(struct nfc_dev *dev,
- 
- 	device_lock(&dev->dev);
- 
--	if (!device_is_registered(&dev->dev)) {
-+	if (dev->shutting_down) {
- 		rc = -ENODEV;
- 		goto error;
- 	}
-@@ -1134,6 +1134,7 @@ int nfc_register_device(struct nfc_dev *
- 			dev->rfkill = NULL;
- 		}
- 	}
-+	dev->shutting_down = false;
- 	device_unlock(&dev->dev);
- 
- 	rc = nfc_genl_device_added(dev);
-@@ -1166,12 +1167,10 @@ void nfc_unregister_device(struct nfc_de
- 		rfkill_unregister(dev->rfkill);
- 		rfkill_destroy(dev->rfkill);
- 	}
-+	dev->shutting_down = true;
- 	device_unlock(&dev->dev);
- 
- 	if (dev->ops->check_presence) {
--		device_lock(&dev->dev);
--		dev->shutting_down = true;
--		device_unlock(&dev->dev);
- 		del_timer_sync(&dev->check_pres_timer);
- 		cancel_work_sync(&dev->check_pres_work);
- 	}
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1412,6 +1412,8 @@ static void configfs_composite_unbind(st
+ 	usb_ep_autoconfig_reset(cdev->gadget);
+ 	spin_lock_irqsave(&gi->spinlock, flags);
+ 	cdev->gadget = NULL;
++	cdev->deactivations = 0;
++	gadget->deactivated = false;
+ 	set_gadget_data(gadget, NULL);
+ 	spin_unlock_irqrestore(&gi->spinlock, flags);
+ }
 
 
