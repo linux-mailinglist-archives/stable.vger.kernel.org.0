@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA22552221B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 19:15:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2F052221F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 19:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237570AbiEJRTF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 13:19:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51746 "EHLO
+        id S1347847AbiEJRTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 13:19:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347842AbiEJRTD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 13:19:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683C82BF30A;
-        Tue, 10 May 2022 10:15:05 -0700 (PDT)
+        with ESMTP id S1347842AbiEJRTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 13:19:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 086DF2BF30D;
+        Tue, 10 May 2022 10:15:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E8226618C8;
-        Tue, 10 May 2022 17:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23158C385C2;
-        Tue, 10 May 2022 17:15:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD506B81D1B;
+        Tue, 10 May 2022 17:15:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50B1C385A6;
+        Tue, 10 May 2022 17:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652202904;
-        bh=We30BpURThSPanjcjvObsJg9dKTv/5nJYdNbMXF1cPI=;
+        s=k20201202; t=1652202931;
+        bh=3SPKoFOYyuffaMVZSlMvPXlXDdyS0LlwxMHm/X8w98o=;
         h=From:To:Cc:Subject:Date:From;
-        b=eyFIyuObES/DayhJQaudpj5BlkqaVeRDsRRENxRUeW6I5H2t5A58Hz0DQKR7iADE9
-         LUummU+aiVsmRQy/be3DzncR8wEIjDBXkN0JI9mNGz+YiRfh5DH1M+YwZZx68D5jOL
-         Gkayx/ZzwepaB6VLDo9hthh8q0B9Ax72MvisMyCPQcRRturBk2c+Cg1nD3IsJDGmuk
-         KAe9aJXFgUa0gnD5nGJLQj1orFqaF/N+2QaK+tWKrguX+UqF4BOxkOxeyXlzntK4S5
-         XZ9IWcrFZpZrKCXa+qqfX7BUwI9lGmMewDuYTnWYYZaxa/GYRoz3R1/ausgx1OAjcn
-         3zNcyHV68mG0w==
+        b=mEjd+r9TyxI2QYloyZt/IOLRi1Uc3qkqE+h/42Rj+nicsqBuAAhbHBNCJNobVPYpG
+         A6p8Sa7JTlWJJHnw66z7OIQ5R2732mGzrzr7m8VzhEsz7QQKNXCa3f//G5xHh+RSGz
+         ZSPym+/V22XfuqW4sdl2iBd4l827N6SYipwiTlXUAIyMVy3rdghL/G6PPX87+5SwS/
+         p4Rdw9b6Am95+slXJLktUcx7JpBGsZaaEEf+RofsIbqw2WXPyOMfA9r1NiP1uv8gBt
+         H/angUjO0bwJlmxlnsVZDSueWsGGLNDutFyNqAzg6Wfn17zlJ4coNhArefawvNuc1c
+         84l3W4lqfQ1BA==
 From:   Mike Rapoport <rppt@kernel.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
@@ -40,9 +40,9 @@ Cc:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
         kernel test robot <lkp@intel.com>,
         linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
         stable@vger.kernel.org
-Subject: [PATCH 5.4] arm: remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
-Date:   Tue, 10 May 2022 20:14:56 +0300
-Message-Id: <20220510171456.98886-1-rppt@kernel.org>
+Subject: [PATCH 5.10] arm: remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+Date:   Tue, 10 May 2022 20:15:23 +0300
+Message-Id: <20220510171523.98999-1-rppt@kernel.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -103,22 +103,22 @@ Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
  arch/arm/mach-davinci/Kconfig     |  1 -
  arch/arm/mach-exynos/Kconfig      |  1 -
  arch/arm/mach-highbank/Kconfig    |  1 -
- arch/arm/mach-omap2/Kconfig       |  2 +-
+ arch/arm/mach-omap2/Kconfig       |  1 -
  arch/arm/mach-s5pv210/Kconfig     |  1 -
  arch/arm/mach-tango/Kconfig       |  1 -
  fs/proc/kcore.c                   |  2 --
  include/linux/mmzone.h            | 31 -------------------------------
  mm/mmzone.c                       | 14 --------------
  mm/vmstat.c                       |  4 ----
- 13 files changed, 4 insertions(+), 66 deletions(-)
+ 13 files changed, 3 insertions(+), 66 deletions(-)
 
 diff --git a/Documentation/vm/memory-model.rst b/Documentation/vm/memory-model.rst
-index 58a12376b7df..94db75ba7fbe 100644
+index 9daadf9faba1..ce398a7dc6cd 100644
 --- a/Documentation/vm/memory-model.rst
 +++ b/Documentation/vm/memory-model.rst
-@@ -52,8 +52,7 @@ wrapper :c:func:`free_area_init`. Yet, the mappings array is not
- usable until the call to :c:func:`memblock_free_all` that hands all
- the memory to the page allocator.
+@@ -51,8 +51,7 @@ call :c:func:`free_area_init` function. Yet, the mappings array is not
+ usable until the call to :c:func:`memblock_free_all` that hands all the
+ memory to the page allocator.
  
 -If an architecture enables `CONFIG_ARCH_HAS_HOLES_MEMORYMODEL` option,
 -it may free parts of the `mem_map` array that do not cover the
@@ -127,10 +127,10 @@ index 58a12376b7df..94db75ba7fbe 100644
  :c:func:`pfn_valid` implementation should take the holes in the
  `mem_map` into account.
 diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index 4b36bbcf5a5b..a1622b9290fd 100644
+index a0eac00e2c81..b587ecc6f949 100644
 --- a/arch/arm/Kconfig
 +++ b/arch/arm/Kconfig
-@@ -26,7 +26,7 @@ config ARM
+@@ -25,7 +25,7 @@ config ARM
  	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
  	select ARCH_HAVE_CUSTOM_GPIO_H
  	select ARCH_HAS_GCOV_PROFILE_ALL
@@ -147,18 +147,18 @@ index 4b36bbcf5a5b..a1622b9290fd 100644
  	select ARCH_OMAP
  	select CLKDEV_LOOKUP
  	select CLKSRC_MMIO
-@@ -1518,9 +1517,6 @@ config OABI_COMPAT
+@@ -1481,9 +1480,6 @@ config OABI_COMPAT
  	  UNPREDICTABLE (in fact it can be predicted that it won't work
  	  at all). If in doubt say N.
  
 -config ARCH_HAS_HOLES_MEMORYMODEL
 -	bool
 -
- config ARCH_SPARSEMEM_ENABLE
+ config ARCH_SELECT_MEMORY_MODEL
  	bool
  
-@@ -1528,7 +1524,7 @@ config ARCH_SPARSEMEM_DEFAULT
- 	def_bool ARCH_SPARSEMEM_ENABLE
+@@ -1495,7 +1491,7 @@ config ARCH_SPARSEMEM_ENABLE
+ 	select SPARSEMEM_STATIC if SPARSEMEM
  
  config HAVE_ARCH_PFN_VALID
 -	def_bool ARCH_HAS_HOLES_MEMORYMODEL || !SPARSEMEM
@@ -167,11 +167,11 @@ index 4b36bbcf5a5b..a1622b9290fd 100644
  config HIGHMEM
  	bool "High Memory Support"
 diff --git a/arch/arm/mach-bcm/Kconfig b/arch/arm/mach-bcm/Kconfig
-index 5e5f1fabc3d4..634d1bc3c011 100644
+index ae790908fc74..9b594ae98153 100644
 --- a/arch/arm/mach-bcm/Kconfig
 +++ b/arch/arm/mach-bcm/Kconfig
-@@ -214,7 +214,6 @@ config ARCH_BRCMSTB
- 	select HAVE_ARM_ARCH_TIMER
+@@ -211,7 +211,6 @@ config ARCH_BRCMSTB
+ 	select BCM7038_L1_IRQ
  	select BRCMSTB_L2_IRQ
  	select BCM7120_L2_IRQ
 -	select ARCH_HAS_HOLES_MEMORYMODEL
@@ -179,7 +179,7 @@ index 5e5f1fabc3d4..634d1bc3c011 100644
  	select SOC_BRCMSTB
  	select SOC_BUS
 diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
-index 02b180ad7245..4d3b7d0418c4 100644
+index f56ff8c24043..de11030748d0 100644
 --- a/arch/arm/mach-davinci/Kconfig
 +++ b/arch/arm/mach-davinci/Kconfig
 @@ -5,7 +5,6 @@ menuconfig ARCH_DAVINCI
@@ -191,12 +191,12 @@ index 02b180ad7245..4d3b7d0418c4 100644
  	select PM_GENERIC_DOMAINS_OF if PM && OF
  	select REGMAP_MMIO
 diff --git a/arch/arm/mach-exynos/Kconfig b/arch/arm/mach-exynos/Kconfig
-index 9dab1f50a02f..fc01137628e4 100644
+index 56314b1c7408..b5df98ee5d17 100644
 --- a/arch/arm/mach-exynos/Kconfig
 +++ b/arch/arm/mach-exynos/Kconfig
 @@ -8,7 +8,6 @@
  menuconfig ARCH_EXYNOS
- 	bool "Samsung EXYNOS"
+ 	bool "Samsung Exynos"
  	depends on ARCH_MULTI_V7
 -	select ARCH_HAS_HOLES_MEMORYMODEL
  	select ARCH_SUPPORTS_BIG_ENDIAN
@@ -215,20 +215,19 @@ index 1bc68913d62c..9de38ce8124f 100644
  	select ARM_AMBA
  	select ARM_ERRATA_764369 if SMP
 diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
-index fdb6743760a2..0211f4aa8cc7 100644
+index 3f62a0c9450d..164985505f9e 100644
 --- a/arch/arm/mach-omap2/Kconfig
 +++ b/arch/arm/mach-omap2/Kconfig
-@@ -94,7 +94,7 @@ config SOC_DRA7XX
+@@ -93,7 +93,6 @@ config SOC_DRA7XX
  config ARCH_OMAP2PLUS
  	bool
  	select ARCH_HAS_BANDGAP
 -	select ARCH_HAS_HOLES_MEMORYMODEL
-+	select ARCH_HAS_RESET_CONTROLLER
+ 	select ARCH_HAS_RESET_CONTROLLER
  	select ARCH_OMAP
  	select CLKSRC_MMIO
- 	select GENERIC_IRQ_CHIP
 diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
-index 03984a791879..69ff1bb89f38 100644
+index 95d4e8284866..d644b45bc29d 100644
 --- a/arch/arm/mach-s5pv210/Kconfig
 +++ b/arch/arm/mach-s5pv210/Kconfig
 @@ -8,7 +8,6 @@
@@ -252,7 +251,7 @@ index 25b2fd434861..a9eeda36aeb1 100644
  	select ARM_ERRATA_764369 if SMP
  	select ARM_ERRATA_775420
 diff --git a/fs/proc/kcore.c b/fs/proc/kcore.c
-index e2ed8e08cc7a..d1cabccc02b7 100644
+index e502414b3556..4d2e64e9016c 100644
 --- a/fs/proc/kcore.c
 +++ b/fs/proc/kcore.c
 @@ -193,8 +193,6 @@ kclist_add_private(unsigned long pfn, unsigned long nr_pages, void *arg)
@@ -265,10 +264,10 @@ index e2ed8e08cc7a..d1cabccc02b7 100644
  	ent = kmalloc(sizeof(*ent), GFP_KERNEL);
  	if (!ent)
 diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
-index e4f9df955040..b138ddad619e 100644
+index f3016b8e698a..b2e4599b8883 100644
 --- a/include/linux/mmzone.h
 +++ b/include/linux/mmzone.h
-@@ -1438,37 +1438,6 @@ void memory_present(int nid, unsigned long start, unsigned long end);
+@@ -1443,37 +1443,6 @@ struct mminit_pfnnid_cache {
  #define pfn_valid_within(pfn) (1)
  #endif
  
@@ -332,10 +331,10 @@ index 4686fdc23bb9..f337831affc2 100644
  {
  	enum lru_list lru;
 diff --git a/mm/vmstat.c b/mm/vmstat.c
-index a8222041bd44..240fe2153ca9 100644
+index 698bc0bc18d1..e292e63afebf 100644
 --- a/mm/vmstat.c
 +++ b/mm/vmstat.c
-@@ -1444,10 +1444,6 @@ static void pagetypeinfo_showblockcount_print(struct seq_file *m,
+@@ -1503,10 +1503,6 @@ static void pagetypeinfo_showblockcount_print(struct seq_file *m,
  		if (!page)
  			continue;
  
