@@ -2,55 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 05D6B5223CB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 20:20:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 218FF5223D5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 20:23:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243917AbiEJSYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 14:24:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51694 "EHLO
+        id S1348898AbiEJS1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 14:27:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243132AbiEJSYr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 14:24:47 -0400
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCD11D502A
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 11:20:48 -0700 (PDT)
+        with ESMTP id S1348902AbiEJS0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 14:26:23 -0400
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A635950B08;
+        Tue, 10 May 2022 11:22:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1652206848; x=1683742848;
+  t=1652206944; x=1683742944;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
   bh=sSmQP3uhDLR96PsowzYCDVSU0HDCkoGesSibvvpbnN8=;
-  b=QIU+fZ2C8JqPsoIVhics+QgHdHbkhVOy1c+IOmiXSqH4KvvvuHR9g34d
-   RiOKnzDophmEdo8pUviOtOAbMAcNCCoM7uou4ecQ55sklgESfCmDK5S/n
-   E5TSdtO1bgIt2CIp6PNVenZ1Z+w1WT5rymSKx8NBqHu8sQpUh0+qK7GCY
-   Vdm43X0au4rI/TUXXVLzp456NI0RKlqjCeTB7x9BkVmONQSNXDy/aRPSu
-   3RMqyLEpnFjgSx88jNXp3cUODVvqpnTcKaNiAEmQ+DM2bGwV5kcggmSCZ
-   yMqIqfuaK0+moTjfHo+ESuY67HtXQ7hCPs6I2XVgbXj6k0iGrE6dXDDIV
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10343"; a="257002182"
+  b=hz0+L91/mag6bEQ396ibYjw9w3L+XLhS5Ne60aDeMfb+gdqGDlDUCdWQ
+   0HWhUkTz2Is6DPzbp0C3AP0oOpQruqbZsAIIgYhXIKPj6gG/NUYTNCZI1
+   1xSR3uvLaVfnpighI5jru4L85pLjSvDs/NEl35zaW6Xfca686dhE7YDCK
+   0VvIQDBGNxOZuHfaG0RA+A93KkNcTFhzfOh4zWh+s8HV3E7+B++xNmXiD
+   icm0BCzOohcW/DFKgMJfHN/ltEG/ikpLu2P/wSoQFz3QFhmawWci04cQI
+   5a4cqgczArUHsNTSZDlO7pZZu1K9w/gmc1RfNUwuiwxCtlQveD4nV9RhG
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10343"; a="355891446"
 X-IronPort-AV: E=Sophos;i="5.91,214,1647327600"; 
-   d="scan'208";a="257002182"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2022 11:20:48 -0700
+   d="scan'208";a="355891446"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2022 11:22:24 -0700
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.91,214,1647327600"; 
-   d="scan'208";a="894993289"
+   d="scan'208";a="636072237"
 Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
-  by fmsmga005.fm.intel.com with ESMTP; 10 May 2022 11:20:47 -0700
+  by fmsmga004.fm.intel.com with ESMTP; 10 May 2022 11:22:24 -0700
 From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     srinivas.pandruvada@linux.intel.com
-Cc:     stable@vger.kernel.org
+To:     rafael@kernel.org, daniel.lezcano@linaro.org, amitk@kernel.org,
+        rui.zhang@intel.com
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org
 Subject: [UPDATE][PATCH] thermal: int340x: Mode setting with new OS handshake
-Date:   Tue, 10 May 2022 11:20:44 -0700
-Message-Id: <20220510182044.3990160-1-srinivas.pandruvada@linux.intel.com>
+Date:   Tue, 10 May 2022 11:22:21 -0700
+Message-Id: <20220510182221.3990256-1-srinivas.pandruvada@linux.intel.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
