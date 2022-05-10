@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA5B05219DB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEED85216A2
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244986AbiEJNvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
+        id S242352AbiEJNQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244546AbiEJNqu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ADB0158FAF;
-        Tue, 10 May 2022 06:31:40 -0700 (PDT)
+        with ESMTP id S242386AbiEJNQV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CD539B84;
+        Tue, 10 May 2022 06:12:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 665B8615C8;
-        Tue, 10 May 2022 13:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5731BC385A6;
-        Tue, 10 May 2022 13:31:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C260BB81D7A;
+        Tue, 10 May 2022 13:12:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34DFCC385A6;
+        Tue, 10 May 2022 13:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189491;
-        bh=vtwB/M6DbWEB3HCR614K+ENnJNH/T7Xx8PGNzY39/xU=;
+        s=korg; t=1652188334;
+        bh=oNEVOACShz5Vg5qpBKriSDBye5th5s4kFjJ7D1n5L+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/UGEJSLq5XyKOvDCcAdCx6CySXAeOdo01K1N6j8h3o0w5ZWHEt16CP3rZVcWutK3
-         d898JoAU8wt+J+XJwqdOKL2Pv/Ho7TwvA37e8iWhfouryzIEJUn33ksTMWRdCfaerf
-         0jxOcynbNQQsjvHF6skQMquLK6dzr+LE+SYkBxeU=
+        b=UdYOzoL58QTszpDg19u3761+IpaN+pGds6zawdY6LYpnT4mvJ2T+b8WzCNYetcEZB
+         bvbtyxVW/KyOaULXaPR9kl+Wdle+e3cDV5Tc2b6nzTqzapgyn72qMMJRv+XNf78qsS
+         umlySUIqylyhCYkHxX+4H0Qmdcgb+Ah+T2aD7oBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 067/135] net: emaclite: Add error handling for of_address_to_resource()
-Date:   Tue, 10 May 2022 15:07:29 +0200
-Message-Id: <20220510130742.332592037@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.9 40/66] tty: n_gsm: fix wrong command retry handling
+Date:   Tue, 10 May 2022 15:07:30 +0200
+Message-Id: <20220510130730.943978056@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 7a6bc33ab54923d325d9a1747ec9652c4361ebd1 upstream.
+commit d0bcdffcad5a22f202e3bf37190c0dd8c080ea92 upstream.
 
-check the return value of of_address_to_resource() and also add
-missing of_node_put() for np and npp nodes.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.7.3 states that the valid range for the
+maximum number of retransmissions (N2) is from 0 to 255 (both including).
+gsm_config() fails to limit this range correctly. Furthermore,
+gsm_control_retransmit() handles this number incorrectly by performing
+N2 - 1 retransmission attempts. Setting N2 to zero results in more than 255
+retransmission attempts.
+Fix the range check in gsm_config() and the value handling in
+gsm_control_send() and gsm_control_retransmit() to comply with 3GPP 27.010.
 
-Fixes: e0a3bc65448c ("net: emaclite: Support multiple phys connected to one MDIO bus")
-Addresses-Coverity: Event check_return value.
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-11-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/tty/n_gsm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -822,10 +822,10 @@ static int xemaclite_mdio_write(struct m
- static int xemaclite_mdio_setup(struct net_local *lp, struct device *dev)
- {
- 	struct mii_bus *bus;
--	int rc;
- 	struct resource res;
- 	struct device_node *np = of_get_parent(lp->phy_node);
- 	struct device_node *npp;
-+	int rc, ret;
- 
- 	/* Don't register the MDIO bus if the phy_node or its parent node
- 	 * can't be found.
-@@ -835,8 +835,14 @@ static int xemaclite_mdio_setup(struct n
- 		return -ENODEV;
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -1345,7 +1345,6 @@ static void gsm_control_retransmit(unsig
+ 	spin_lock_irqsave(&gsm->control_lock, flags);
+ 	ctrl = gsm->pending_cmd;
+ 	if (ctrl) {
+-		gsm->cretries--;
+ 		if (gsm->cretries == 0) {
+ 			gsm->pending_cmd = NULL;
+ 			ctrl->error = -ETIMEDOUT;
+@@ -1354,6 +1353,7 @@ static void gsm_control_retransmit(unsig
+ 			wake_up(&gsm->event);
+ 			return;
+ 		}
++		gsm->cretries--;
+ 		gsm_control_transmit(gsm, ctrl);
+ 		mod_timer(&gsm->t2_timer, jiffies + gsm->t2 * HZ / 100);
  	}
- 	npp = of_get_parent(np);
--
--	of_address_to_resource(npp, 0, &res);
-+	ret = of_address_to_resource(npp, 0, &res);
-+	of_node_put(npp);
-+	if (ret) {
-+		dev_err(dev, "%s resource error!\n",
-+			dev->of_node->full_name);
-+		of_node_put(np);
-+		return ret;
-+	}
- 	if (lp->ndev->mem_start != res.start) {
- 		struct phy_device *phydev;
- 		phydev = of_phy_find_device(lp->phy_node);
-@@ -845,6 +851,7 @@ static int xemaclite_mdio_setup(struct n
- 				 "MDIO of the phy is not registered yet\n");
- 		else
- 			put_device(&phydev->mdio.dev);
-+		of_node_put(np);
- 		return 0;
- 	}
+@@ -1394,7 +1394,7 @@ retry:
  
-@@ -857,6 +864,7 @@ static int xemaclite_mdio_setup(struct n
- 	bus = mdiobus_alloc();
- 	if (!bus) {
- 		dev_err(dev, "Failed to allocate mdiobus\n");
-+		of_node_put(np);
- 		return -ENOMEM;
- 	}
+ 	/* If DLCI0 is in ADM mode skip retries, it won't respond */
+ 	if (gsm->dlci[0]->mode == DLCI_MODE_ADM)
+-		gsm->cretries = 1;
++		gsm->cretries = 0;
+ 	else
+ 		gsm->cretries = gsm->n2;
  
-@@ -869,6 +877,7 @@ static int xemaclite_mdio_setup(struct n
- 	bus->parent = dev;
- 
- 	rc = of_mdiobus_register(bus, np);
-+	of_node_put(np);
- 	if (rc) {
- 		dev_err(dev, "Failed to register mdio bus.\n");
- 		goto err_register;
+@@ -2519,7 +2519,7 @@ static int gsmld_config(struct tty_struc
+ 	/* Check the MRU/MTU range looks sane */
+ 	if (c->mru > MAX_MRU || c->mtu > MAX_MTU || c->mru < 8 || c->mtu < 8)
+ 		return -EINVAL;
+-	if (c->n2 < 3)
++	if (c->n2 > 255)
+ 		return -EINVAL;
+ 	if (c->encapsulation > 1)	/* Basic, advanced, no I */
+ 		return -EINVAL;
 
 
