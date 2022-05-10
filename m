@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DEDA521A07
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9D452180A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244323AbiEJNxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47050 "EHLO
+        id S242991AbiEJNcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:32:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244993AbiEJNrK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:10 -0400
+        with ESMTP id S243378AbiEJNam (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:42 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BFE39BBB;
-        Tue, 10 May 2022 06:33:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750812C511A;
+        Tue, 10 May 2022 06:21:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D211A6188A;
-        Tue, 10 May 2022 13:33:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5715C385C2;
-        Tue, 10 May 2022 13:33:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1555F616D0;
+        Tue, 10 May 2022 13:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2103AC385A6;
+        Tue, 10 May 2022 13:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189604;
-        bh=KqOU/pUGQdhnvyBqs5TI1Kuqwvj5N0BbGyVQazdzZco=;
+        s=korg; t=1652188886;
+        bh=NmlfjBAVVEP/vw+cxYqZN4npXt02El+JYjH9uacL4go=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jHTWJzK4zEKIHso88ry9f+sLMmO9Ytz267LpH2UrUONwmmK1yH5hS70STLsLwXf88
-         PtsG5hlMAHJdsNlRqwV/8wyhNbndFIbLht/XlIw9mpk3As80dgg5SQnggV7Z/NIMTR
-         /Ksa0hN0eaA86ciLVr7pzay8MZjMaYBf3Abtonow=
+        b=DQCh7XtIEUUU3dr4s85wAprRgDQqiIQ69jkKAiucbhSIPYiU6QM8MeP2GRWVqOOqT
+         weD2q6Pz5cB+ah6nxohD3QiA0ciGNJBr6piuZjlDxmWDPc7440d7JbLb+qOXeKpUmN
+         66B5h0eG9do6ErMVA5LmiwrBUtM+9IoimhWqek3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Neeraj Upadhyay <neeraju@codeaurora.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.15 104/135] rcu: Fix callbacks processing time limit retaining cond_resched()
+        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
+        Sandipan Das <sandipan.das@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 81/88] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
 Date:   Tue, 10 May 2022 15:08:06 +0200
-Message-Id: <20220510130743.390330035@linuxfoundation.org>
+Message-Id: <20220510130736.084725368@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,82 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Sandipan Das <sandipan.das@amd.com>
 
-commit 3e61e95e2d095e308616cba4ffb640f95a480e01 upstream.
+[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
 
-The callbacks processing time limit makes sure we are not exceeding a
-given amount of time executing the queue.
+On some x86 processors, CPUID leaf 0xA provides information
+on Architectural Performance Monitoring features. It
+advertises a PMU version which Qemu uses to determine the
+availability of additional MSRs to manage the PMCs.
 
-However its "continue" clause bypasses the cond_resched() call on
-rcuc and NOCB kthreads, delaying it until we reach the limit, which can
-be very long...
+Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
+the same, the kernel constructs return values based on the
+x86_pmu_capability irrespective of the vendor.
 
-Make sure the scheduler has a higher priority than the time limit.
+This leaf and the additional MSRs are not supported on AMD
+and Hygon processors. If AMD PerfMonV2 is detected, the PMU
+version is set to 2 and guest startup breaks because of an
+attempt to access a non-existent MSR. Return zeros to avoid
+this.
 
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Valentin Schneider <valentin.schneider@arm.com>
-Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Valentin Schneider <valentin.schneider@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Neeraj Upadhyay <neeraju@codeaurora.org>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-[UR: backport to 5.15-stable + commit update]
-Signed-off-by: Uladzislau Rezki (Sony) <urezki@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
+Reported-by: Vasant Hegde <vasant.hegde@amd.com>
+Signed-off-by: Sandipan Das <sandipan.das@amd.com>
+Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree.c |   27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ arch/x86/kvm/cpuid.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -2513,10 +2513,22 @@ static void rcu_do_batch(struct rcu_data
- 		/*
- 		 * Stop only if limit reached and CPU has something to do.
- 		 */
--		if (count >= bl && !offloaded &&
--		    (need_resched() ||
--		     (!is_idle_task(current) && !rcu_is_callbacks_kthread())))
--			break;
-+		if (in_serving_softirq()) {
-+			if (count >= bl && (need_resched() ||
-+					(!is_idle_task(current) && !rcu_is_callbacks_kthread())))
-+				break;
-+		} else {
-+			local_bh_enable();
-+			lockdep_assert_irqs_enabled();
-+			cond_resched_tasks_rcu_qs();
-+			lockdep_assert_irqs_enabled();
-+			local_bh_disable();
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index 097eef712cdc..0489ffc3dfe5 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -532,6 +532,11 @@ static inline int __do_cpuid_ent(struct kvm_cpuid_entry2 *entry, u32 function,
+ 		union cpuid10_eax eax;
+ 		union cpuid10_edx edx;
+ 
++		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
++			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
++			break;
 +		}
 +
-+		/*
-+		 * Make sure we don't spend too much time here and deprive other
-+		 * softirq vectors of CPU cycles.
-+		 */
- 		if (unlikely(tlimit)) {
- 			/* only call local_clock() every 32 callbacks */
- 			if (likely((count & 31) || local_clock() < tlimit))
-@@ -2524,13 +2536,6 @@ static void rcu_do_batch(struct rcu_data
- 			/* Exceeded the time limit, so leave. */
- 			break;
- 		}
--		if (!in_serving_softirq()) {
--			local_bh_enable();
--			lockdep_assert_irqs_enabled();
--			cond_resched_tasks_rcu_qs();
--			lockdep_assert_irqs_enabled();
--			local_bh_disable();
--		}
- 	}
+ 		perf_get_x86_pmu_capability(&cap);
  
- 	local_irq_save(flags);
+ 		/*
+-- 
+2.35.1
+
 
 
