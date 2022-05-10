@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A56E521890
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C02352175A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245544AbiEJNjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56596 "EHLO
+        id S242785AbiEJNWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243605AbiEJNfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:35:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B29222C0D3E;
-        Tue, 10 May 2022 06:24:56 -0700 (PDT)
+        with ESMTP id S243578AbiEJNWM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D66056768;
+        Tue, 10 May 2022 06:16:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4EFF460C1C;
-        Tue, 10 May 2022 13:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505D4C385C2;
-        Tue, 10 May 2022 13:24:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B109EB81D7A;
+        Tue, 10 May 2022 13:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE53C385A6;
+        Tue, 10 May 2022 13:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189095;
-        bh=Lx98zUlyk0W158fveUZIRuOcG6TRDnGJ1FQPgqbBrfk=;
+        s=korg; t=1652188547;
+        bh=O726eevFd4aa9bv4B67BLbuQbMjvTTVMMcyh219BVxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQUrdJCjg7S5FvgOf+EEiBmfUhA+grQeyMEJz/2GeMNWuQg2M+hjkpS/YIrtg5Ysg
-         kxdw2YpuUpf4KStFITYySrKlBJtQtm5lcodzxv6e1sxwUuHqDFfI7a3rl8XreX+0TM
-         SqcXgS90fensSp8MXbQCAoHxeuwquyrFmg3878LU=
+        b=U2mq2JCWT2frtWWGagREk2iw4pUIKH2aU4bKe8zeJHn2R5PGdaAIMFbnGOpv926YK
+         NIXYegdV1KwjDuB0mLF8QkXUTkYOYqAIU6Fz4Ux/rt/VeRK74YJPAHZNOpIACEZRsc
+         lbsLZtMpEYenSPP11F7ZQ545kSARO5DDiFyiefzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "wanghai (M)" <wanghai38@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 11/70] Revert "SUNRPC: attempt AF_LOCAL connect on setup"
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 44/78] drivers: net: hippi: Fix deadlock in rr_close()
 Date:   Tue, 10 May 2022 15:07:30 +0200
-Message-Id: <20220510130733.198286305@linuxfoundation.org>
+Message-Id: <20220510130733.839982828@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit a3d0562d4dc039bca39445e1cddde7951662e17d upstream.
+[ Upstream commit bc6de2878429e85c1f1afaa566f7b5abb2243eef ]
 
-This reverts commit 7073ea8799a8cf73db60270986f14e4aae20fa80.
+There is a deadlock in rr_close(), which is shown below:
 
-We must not try to connect the socket while the transport is under
-construction, because the mechanisms to safely tear it down are not in
-place. As the code stands, we end up leaking the sockets on a connection
-error.
+   (Thread 1)                |      (Thread 2)
+                             | rr_open()
+rr_close()                   |  add_timer()
+ spin_lock_irqsave() //(1)   |  (wait a time)
+ ...                         | rr_timer()
+ del_timer_sync()            |  spin_lock_irqsave() //(2)
+ (wait timer to stop)        |  ...
 
-Reported-by: wanghai (M) <wanghai38@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We hold rrpriv->lock in position (1) of thread 1 and
+use del_timer_sync() to wait timer to stop, but timer handler
+also need rrpriv->lock in position (2) of thread 2.
+As a result, rr_close() will block forever.
+
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irqsave(), which could let timer handler to obtain
+the needed lock.
+
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Link: https://lore.kernel.org/r/20220417125519.82618-1-duoming@zju.edu.cn
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprtsock.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/hippi/rrunner.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2826,9 +2826,6 @@ static struct rpc_xprt *xs_setup_local(s
- 		}
- 		xprt_set_bound(xprt);
- 		xs_format_peer_addresses(xprt, "local", RPCBIND_NETID_LOCAL);
--		ret = ERR_PTR(xs_local_setup_socket(transport));
--		if (ret)
--			goto out_err;
- 		break;
- 	default:
- 		ret = ERR_PTR(-EAFNOSUPPORT);
+diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
+index 40ef4aeb0ef0..3a73ac03fb2b 100644
+--- a/drivers/net/hippi/rrunner.c
++++ b/drivers/net/hippi/rrunner.c
+@@ -1354,7 +1354,9 @@ static int rr_close(struct net_device *dev)
+ 
+ 	rrpriv->fw_running = 0;
+ 
++	spin_unlock_irqrestore(&rrpriv->lock, flags);
+ 	del_timer_sync(&rrpriv->timer);
++	spin_lock_irqsave(&rrpriv->lock, flags);
+ 
+ 	writel(0, &regs->TxPi);
+ 	writel(0, &regs->IpRxPi);
+-- 
+2.35.1
+
 
 
