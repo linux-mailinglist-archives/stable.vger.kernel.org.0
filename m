@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7109C521691
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF821521A46
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242302AbiEJNQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+        id S231440AbiEJNyq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242315AbiEJNPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:49 -0400
+        with ESMTP id S244350AbiEJNwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD9D048316;
-        Tue, 10 May 2022 06:11:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABCCD7A80C;
+        Tue, 10 May 2022 06:38:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A215615F6;
-        Tue, 10 May 2022 13:11:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39B26C385C2;
-        Tue, 10 May 2022 13:11:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51C44615C8;
+        Tue, 10 May 2022 13:38:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54BA8C385C6;
+        Tue, 10 May 2022 13:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188285;
-        bh=j4PcXJsjL/hECOwko18xaKCIErLy1pvHvAg5qkb9TAo=;
+        s=korg; t=1652189883;
+        bh=1Cs4CGR/T9aWauJL6iNFtwdxt8Jg/kB7NldSroRV47k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiSve1dP3CrRseFn0LIKbgjnV+S7EZnK1pNvbPo3e5lZlrXTU3cX9V63+KLgzl7el
-         DUnBLWfoC48xrW3ZRJPdP+B4grQcEUh7WAVgkVEkYBV7gdVouh7L6ap8ntm/im3BJm
-         I3hxPOIj1h0q9X3I51ohUru1EAijWYCYY7am7zH0=
+        b=PCYo8yz5KE09ntmr3Jef+1UKr/IPN4WNM7RXt7IH0F2xdSmQuUauN8b23fdsPkMJl
+         dAZtaEYCjVcfTXHrYQ2WyhKNjM7w1yxodhMzc3JlS/tEIPHHoUd3oC95iX0xYUcD4M
+         OtPjAaSJYrcmKl2BusKr6mmJrIhBkPV1TmoRHtZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 22/66] phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 042/140] s390/dasd: prevent double format of tracks for ESE devices
 Date:   Tue, 10 May 2022 15:07:12 +0200
-Message-Id: <20220510130730.415323343@linuxfoundation.org>
+Message-Id: <20220510130742.823129293@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-[ Upstream commit 388ec8f079f2f20d5cd183c3bc6f33cbc3ffd3ef ]
+commit 71f3871657370dbbaf942a1c758f64e49a36c70f upstream.
 
-The device_node pointer is returned by of_parse_phandle() with refcount
-incremented. We should use of_node_put() on it when done.
+For ESE devices we get an error for write operations on an unformatted
+track. Afterwards the track will be formatted and the IO operation
+restarted.
+When using alias devices a track might be accessed by multiple requests
+simultaneously and there is a race window that a track gets formatted
+twice resulting in data loss.
 
-Fixes: bcff4cba41bc ("PHY: Exynos: Add Exynos5250 SATA PHY driver")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220407091857.230386-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Prevent this by remembering the amount of formatted tracks when starting
+a request and comparing this number before actually formatting a track
+on the fly. If the number has changed there is a chance that the current
+track was finally formatted in between. As a result do not format the
+track and restart the current IO to check.
+
+The number of formatted tracks does not match the overall number of
+formatted tracks on the device and it might wrap around but this is no
+problem. It is only needed to recognize that a track has been formatted at
+all in between.
+
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-3-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/phy-exynos5250-sata.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/s390/block/dasd.c      |    7 +++++++
+ drivers/s390/block/dasd_eckd.c |   19 +++++++++++++++++--
+ drivers/s390/block/dasd_int.h  |    2 ++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/phy/phy-exynos5250-sata.c b/drivers/phy/phy-exynos5250-sata.c
-index 60e13afcd9b8..7960c69d09a6 100644
---- a/drivers/phy/phy-exynos5250-sata.c
-+++ b/drivers/phy/phy-exynos5250-sata.c
-@@ -193,6 +193,7 @@ static int exynos_sata_phy_probe(struct platform_device *pdev)
- 		return -EINVAL;
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1422,6 +1422,13 @@ int dasd_start_IO(struct dasd_ccw_req *c
+ 		if (!cqr->lpm)
+ 			cqr->lpm = dasd_path_get_opm(device);
+ 	}
++	/*
++	 * remember the amount of formatted tracks to prevent double format on
++	 * ESE devices
++	 */
++	if (cqr->block)
++		cqr->trkcount = atomic_read(&cqr->block->trkcount);
++
+ 	if (cqr->cpmode == 1) {
+ 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
+ 					 (long) cqr, cqr->lpm);
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3083,13 +3083,24 @@ static int dasd_eckd_format_device(struc
+ }
  
- 	sata_phy->client = of_find_i2c_device_by_node(node);
-+	of_node_put(node);
- 	if (!sata_phy->client)
- 		return -EPROBE_DEFER;
+ static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+-				      struct dasd_block *block)
++				      struct dasd_ccw_req *cqr)
+ {
++	struct dasd_block *block = cqr->block;
+ 	struct dasd_format_entry *format;
+ 	unsigned long flags;
+ 	bool rc = false;
  
--- 
-2.35.1
-
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	if (cqr->trkcount != atomic_read(&block->trkcount)) {
++		/*
++		 * The number of formatted tracks has changed after request
++		 * start and we can not tell if the current track was involved.
++		 * To avoid data corruption treat it as if the current track is
++		 * involved
++		 */
++		rc = true;
++		goto out;
++	}
+ 	list_for_each_entry(format, &block->format_list, list) {
+ 		if (format->track == to_format->track) {
+ 			rc = true;
+@@ -3109,6 +3120,7 @@ static void clear_format_track(struct da
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	atomic_inc(&block->trkcount);
+ 	list_del_init(&format->list);
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+@@ -3170,8 +3182,11 @@ dasd_eckd_ese_format(struct dasd_device
+ 	}
+ 	format->track = curr_trk;
+ 	/* test if track is already in formatting by another thread */
+-	if (test_and_set_format_track(format, block))
++	if (test_and_set_format_track(format, cqr)) {
++		/* this is no real error so do not count down retries */
++		cqr->retries++;
+ 		return ERR_PTR(-EEXIST);
++	}
+ 
+ 	fdata.start_unit = curr_trk;
+ 	fdata.stop_unit = curr_trk;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -188,6 +188,7 @@ struct dasd_ccw_req {
+ 	void (*callback)(struct dasd_ccw_req *, void *data);
+ 	void *callback_data;
+ 	unsigned int proc_bytes;	/* bytes for partial completion */
++	unsigned int trkcount;		/* count formatted tracks */
+ };
+ 
+ /*
+@@ -611,6 +612,7 @@ struct dasd_block {
+ 
+ 	struct list_head format_list;
+ 	spinlock_t format_lock;
++	atomic_t trkcount;
+ };
+ 
+ struct dasd_attention_data {
 
 
