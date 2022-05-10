@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF821521A46
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:51:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD06521762
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231440AbiEJNyq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:54:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
+        id S242736AbiEJNWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244350AbiEJNwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABCCD7A80C;
-        Tue, 10 May 2022 06:38:19 -0700 (PDT)
+        with ESMTP id S243162AbiEJNVh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67DB6579B6;
+        Tue, 10 May 2022 06:14:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51C44615C8;
-        Tue, 10 May 2022 13:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54BA8C385C6;
-        Tue, 10 May 2022 13:38:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC942B81B32;
+        Tue, 10 May 2022 13:14:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8A0C385C2;
+        Tue, 10 May 2022 13:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189883;
-        bh=1Cs4CGR/T9aWauJL6iNFtwdxt8Jg/kB7NldSroRV47k=;
+        s=korg; t=1652188495;
+        bh=+mMHRRKrQHamkN6Ya6mXon/4x8LvbSJ7PD4Lv5wUly8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PCYo8yz5KE09ntmr3Jef+1UKr/IPN4WNM7RXt7IH0F2xdSmQuUauN8b23fdsPkMJl
-         dAZtaEYCjVcfTXHrYQ2WyhKNjM7w1yxodhMzc3JlS/tEIPHHoUd3oC95iX0xYUcD4M
-         OtPjAaSJYrcmKl2BusKr6mmJrIhBkPV1TmoRHtZE=
+        b=z78dg3w+pZ4a8pQ0eubpejPsSbstSe/jm9wQjEinKjhYF57U7pCMOk5ZP+90DpuwS
+         K6biZcReszI0pJ1FSzKhPW47PZTQ9Pyj7T05Z/M1//sFU62XlHz9MVguBUd63/ABLf
+         Xj6BuUHVFMCFzQcwffAI98mDhANUqb5Rwh4mHuFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
-        Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 042/140] s390/dasd: prevent double format of tracks for ESE devices
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Tim Harvey <tharvey@gateworks.com>,
+        Max Krummenacher <max.krummenacher@toradex.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/78] ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
 Date:   Tue, 10 May 2022 15:07:12 +0200
-Message-Id: <20220510130742.823129293@linuxfoundation.org>
+Message-Id: <20220510130733.309672319@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,123 +56,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Fabio Estevam <festevam@gmail.com>
 
-commit 71f3871657370dbbaf942a1c758f64e49a36c70f upstream.
+[ Upstream commit fa51e1dc4b91375bc18349663a52395ad585bd3c ]
 
-For ESE devices we get an error for write operations on an unformatted
-track. Afterwards the track will be formatted and the IO operation
-restarted.
-When using alias devices a track might be accessed by multiple requests
-simultaneously and there is a race window that a track gets formatted
-twice resulting in data loss.
+On a custom carrier board with a i.MX6Q Apalis SoM, the sgtl5000 codec
+on the SoM is often not detected and the following error message is
+seen when the sgtl5000 driver tries to read the ID register:
 
-Prevent this by remembering the amount of formatted tracks when starting
-a request and comparing this number before actually formatting a track
-on the fly. If the number has changed there is a chance that the current
-track was finally formatted in between. As a result do not format the
-track and restart the current IO to check.
+sgtl5000 1-000a: Error reading chip id -6
 
-The number of formatted tracks does not match the overall number of
-formatted tracks on the device and it might wrap around but this is no
-problem. It is only needed to recognize that a track has been formatted at
-all in between.
+The reason for the error is that the MCLK clock is not provided
+early enough.
 
-Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
-Cc: stable@vger.kernel.org # 5.3+
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220505141733.1989450-3-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix the problem by describing the MCLK pinctrl inside the codec
+node instead of placing it inside the audmux pinctrl group.
+
+With this change applied the sgtl5000 is always detected on every boot.
+
+Fixes: 693e3ffaae5a ("ARM: dts: imx6: Add support for Toradex Apalis iMX6Q/D SoM")
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Reviewed-by: Tim Harvey <tharvey@gateworks.com>
+Acked-by: Max Krummenacher <max.krummenacher@toradex.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/block/dasd.c      |    7 +++++++
- drivers/s390/block/dasd_eckd.c |   19 +++++++++++++++++--
- drivers/s390/block/dasd_int.h  |    2 ++
- 3 files changed, 26 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx6qdl-apalis.dtsi | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -1422,6 +1422,13 @@ int dasd_start_IO(struct dasd_ccw_req *c
- 		if (!cqr->lpm)
- 			cqr->lpm = dasd_path_get_opm(device);
- 	}
-+	/*
-+	 * remember the amount of formatted tracks to prevent double format on
-+	 * ESE devices
-+	 */
-+	if (cqr->block)
-+		cqr->trkcount = atomic_read(&cqr->block->trkcount);
+diff --git a/arch/arm/boot/dts/imx6qdl-apalis.dtsi b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+index ea339fa58f4a..2477883c0efb 100644
+--- a/arch/arm/boot/dts/imx6qdl-apalis.dtsi
++++ b/arch/arm/boot/dts/imx6qdl-apalis.dtsi
+@@ -316,6 +316,8 @@ vgen6_reg: vgen6 {
+ 	codec: sgtl5000@0a {
+ 		compatible = "fsl,sgtl5000";
+ 		reg = <0x0a>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pinctrl_sgtl5000>;
+ 		clocks = <&clks IMX6QDL_CLK_CKO>;
+ 		VDDA-supply = <&reg_2p5v>;
+ 		VDDIO-supply = <&reg_3p3v>;
+@@ -543,8 +545,6 @@ MX6QDL_PAD_DISP0_DAT20__AUD4_TXC	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT21__AUD4_TXD	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT22__AUD4_TXFS	0x130b0
+ 			MX6QDL_PAD_DISP0_DAT23__AUD4_RXD	0x130b0
+-			/* SGTL5000 sys_mclk */
+-			MX6QDL_PAD_GPIO_5__CCM_CLKO1		0x130b0
+ 		>;
+ 	};
+ 
+@@ -810,6 +810,12 @@ MX6QDL_PAD_NANDF_CS1__GPIO6_IO14 0x000b0
+ 		>;
+ 	};
+ 
++	pinctrl_sgtl5000: sgtl5000grp {
++		fsl,pins = <
++			MX6QDL_PAD_GPIO_5__CCM_CLKO1	0x130b0
++		>;
++	};
 +
- 	if (cqr->cpmode == 1) {
- 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
- 					 (long) cqr, cqr->lpm);
---- a/drivers/s390/block/dasd_eckd.c
-+++ b/drivers/s390/block/dasd_eckd.c
-@@ -3083,13 +3083,24 @@ static int dasd_eckd_format_device(struc
- }
- 
- static bool test_and_set_format_track(struct dasd_format_entry *to_format,
--				      struct dasd_block *block)
-+				      struct dasd_ccw_req *cqr)
- {
-+	struct dasd_block *block = cqr->block;
- 	struct dasd_format_entry *format;
- 	unsigned long flags;
- 	bool rc = false;
- 
- 	spin_lock_irqsave(&block->format_lock, flags);
-+	if (cqr->trkcount != atomic_read(&block->trkcount)) {
-+		/*
-+		 * The number of formatted tracks has changed after request
-+		 * start and we can not tell if the current track was involved.
-+		 * To avoid data corruption treat it as if the current track is
-+		 * involved
-+		 */
-+		rc = true;
-+		goto out;
-+	}
- 	list_for_each_entry(format, &block->format_list, list) {
- 		if (format->track == to_format->track) {
- 			rc = true;
-@@ -3109,6 +3120,7 @@ static void clear_format_track(struct da
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&block->format_lock, flags);
-+	atomic_inc(&block->trkcount);
- 	list_del_init(&format->list);
- 	spin_unlock_irqrestore(&block->format_lock, flags);
- }
-@@ -3170,8 +3182,11 @@ dasd_eckd_ese_format(struct dasd_device
- 	}
- 	format->track = curr_trk;
- 	/* test if track is already in formatting by another thread */
--	if (test_and_set_format_track(format, block))
-+	if (test_and_set_format_track(format, cqr)) {
-+		/* this is no real error so do not count down retries */
-+		cqr->retries++;
- 		return ERR_PTR(-EEXIST);
-+	}
- 
- 	fdata.start_unit = curr_trk;
- 	fdata.stop_unit = curr_trk;
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -188,6 +188,7 @@ struct dasd_ccw_req {
- 	void (*callback)(struct dasd_ccw_req *, void *data);
- 	void *callback_data;
- 	unsigned int proc_bytes;	/* bytes for partial completion */
-+	unsigned int trkcount;		/* count formatted tracks */
- };
- 
- /*
-@@ -611,6 +612,7 @@ struct dasd_block {
- 
- 	struct list_head format_list;
- 	spinlock_t format_lock;
-+	atomic_t trkcount;
- };
- 
- struct dasd_attention_data {
+ 	pinctrl_spdif: spdifgrp {
+ 		fsl,pins = <
+ 			MX6QDL_PAD_GPIO_16__SPDIF_IN  0x1b0b0
+-- 
+2.35.1
+
 
 
