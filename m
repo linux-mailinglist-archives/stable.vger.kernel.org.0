@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E870521919
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E3D5219B0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243471AbiEJNoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:44:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55152 "EHLO
+        id S240098AbiEJNuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244676AbiEJNmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43FD72C96DE;
-        Tue, 10 May 2022 06:30:24 -0700 (PDT)
+        with ESMTP id S1343903AbiEJNsm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875E76CF55;
+        Tue, 10 May 2022 06:37:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1557BB81DAF;
-        Tue, 10 May 2022 13:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E9E9C385C6;
-        Tue, 10 May 2022 13:30:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3803E6165A;
+        Tue, 10 May 2022 13:36:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE31C385C2;
+        Tue, 10 May 2022 13:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189420;
-        bh=9K72YIuqnFZ74bLMN4NZLheBjx01HBS0DoUJAc1ZgOQ=;
+        s=korg; t=1652189796;
+        bh=XQ0h2uHZUhjeoY/xJUSScnleGdGqjSR97mfvJn+xSR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2muPRftN+QXRpMGJmSldKfj8MXCuXMoS/RokCZl8CMIG8zcvIsobkW2uRLofhwIek
-         X7LUE9CnlD3ssR2wgi5pTOeVndwcMviBnG+GReVOexKlUptZxyB5+xWdIZd1Ei35ai
-         U6bJ4tb4UI0Q4qmhqFcrmjjlk3Hv7pC91p6OH49Y=
+        b=CUCPoUfLtz8nZhWa3JqE2/4SbARubXa6/zZCXkS3cFYq5dR7IUNTS9ZWWEAncAEC4
+         GyPq6tqw1D8dlH+Xhpc/wfHtvyA7tGQ7jEKw/QYPqacSH+Q4oPqKWsmCO5+pLhw67j
+         iRH+sBTXAba2/w+9F6pFClJ94+mO2iJ3cHvcp5Gw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 038/135] nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.17 030/140] btrfs: do not BUG_ON() on failure to update inode when setting xattr
 Date:   Tue, 10 May 2022 15:07:00 +0200
-Message-Id: <20220510130741.495515553@linuxfoundation.org>
+Message-Id: <20220510130742.476046800@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,113 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit d270453a0d9ec10bb8a802a142fb1b3601a83098 upstream.
+commit 193b4e83986d7ee6caa8ceefb5ee9f58240fbee0 upstream.
 
-There are destructive operations such as nfcmrvl_fw_dnld_abort and
-gpio_free in nfcmrvl_nci_unregister_dev. The resources such as firmware,
-gpio and so on could be destructed while the upper layer functions such as
-nfcmrvl_fw_dnld_start and nfcmrvl_nci_recv_frame is executing, which leads
-to double-free, use-after-free and null-ptr-deref bugs.
+We are doing a BUG_ON() if we fail to update an inode after setting (or
+clearing) a xattr, but there's really no reason to not instead simply
+abort the transaction and return the error to the caller. This should be
+a rare error because we have previously reserved enough metadata space to
+update the inode and the delayed inode should have already been setup, so
+an -ENOSPC or -ENOMEM, which are the possible errors, are very unlikely to
+happen.
 
-There are three situations that could lead to double-free bugs.
+So replace the BUG_ON()s with a transaction abort.
 
-The first situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |  nfcmrvl_nci_unregister_dev
- release_firmware()           |   nfcmrvl_fw_dnld_abort
-  kfree(fw) //(1)             |    fw_dnld_over
-                              |     release_firmware
-  ...                         |      kfree(fw) //(2)
-                              |     ...
-
-The second situation is shown below:
-
-   (Thread 1)                 |      (Thread 2)
-nfcmrvl_fw_dnld_start         |
- ...                          |
- mod_timer                    |
- (wait a time)                |
- fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
-   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
-    release_firmware          |    fw_dnld_over
-     kfree(fw) //(1)          |     release_firmware
-     ...                      |      kfree(fw) //(2)
-
-The third situation is shown below:
-
-       (Thread 1)               |       (Thread 2)
-nfcmrvl_nci_recv_frame          |
- if(..->fw_download_in_progress)|
-  nfcmrvl_fw_dnld_recv_frame    |
-   queue_work                   |
-                                |
-fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
- fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
-  release_firmware              |   fw_dnld_over
-   kfree(fw) //(1)              |    release_firmware
-                                |     kfree(fw) //(2)
-
-The firmware struct is deallocated in position (1) and deallocated
-in position (2) again.
-
-The crash trace triggered by POC is like below:
-
-BUG: KASAN: double-free or invalid-free in fw_dnld_over
-Call Trace:
-  kfree
-  fw_dnld_over
-  nfcmrvl_nci_unregister_dev
-  nci_uart_tty_close
-  tty_ldisc_kill
-  tty_ldisc_hangup
-  __tty_hangup.part.0
-  tty_release
-  ...
-
-What's more, there are also use-after-free and null-ptr-deref bugs
-in nfcmrvl_fw_dnld_start. If we deallocate firmware struct, gpio or
-set null to the members of priv->fw_dnld in nfcmrvl_nci_unregister_dev,
-then, we dereference firmware, gpio or the members of priv->fw_dnld in
-nfcmrvl_fw_dnld_start, the UAF or NPD bugs will happen.
-
-This patch reorders destructive operations after nci_unregister_device
-in order to synchronize between cleanup routine and firmware download
-routine.
-
-The nci_unregister_device is well synchronized. If the device is
-detaching, the firmware download routine will goto error. If firmware
-download routine is executing, nci_unregister_device will wait until
-firmware download routine is finished.
-
-Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/nfcmrvl/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/xattr.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/nfc/nfcmrvl/main.c
-+++ b/drivers/nfc/nfcmrvl/main.c
-@@ -183,6 +183,7 @@ void nfcmrvl_nci_unregister_dev(struct n
- {
- 	struct nci_dev *ndev = priv->ndev;
+--- a/fs/btrfs/xattr.c
++++ b/fs/btrfs/xattr.c
+@@ -262,7 +262,8 @@ int btrfs_setxattr_trans(struct inode *i
+ 	inode_inc_iversion(inode);
+ 	inode->i_ctime = current_time(inode);
+ 	ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+-	BUG_ON(ret);
++	if (ret)
++		btrfs_abort_transaction(trans, ret);
+ out:
+ 	if (start_trans)
+ 		btrfs_end_transaction(trans);
+@@ -416,7 +417,8 @@ static int btrfs_xattr_handler_set_prop(
+ 		inode_inc_iversion(inode);
+ 		inode->i_ctime = current_time(inode);
+ 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+-		BUG_ON(ret);
++		if (ret)
++			btrfs_abort_transaction(trans, ret);
+ 	}
  
-+	nci_unregister_device(ndev);
- 	if (priv->ndev->nfc_dev->fw_download_in_progress)
- 		nfcmrvl_fw_dnld_abort(priv);
- 
-@@ -191,7 +192,6 @@ void nfcmrvl_nci_unregister_dev(struct n
- 	if (gpio_is_valid(priv->config.reset_n_io))
- 		gpio_free(priv->config.reset_n_io);
- 
--	nci_unregister_device(ndev);
- 	nci_free_device(ndev);
- 	kfree(priv);
- }
+ 	btrfs_end_transaction(trans);
 
 
