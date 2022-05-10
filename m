@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C33952168A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8053B521A2A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242321AbiEJNPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:15:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60870 "EHLO
+        id S244431AbiEJNx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242318AbiEJNPc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:32 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9B8A369CD;
-        Tue, 10 May 2022 06:11:16 -0700 (PDT)
+        with ESMTP id S245333AbiEJNwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7034929B026;
+        Tue, 10 May 2022 06:38:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B976ACE1EE2;
-        Tue, 10 May 2022 13:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4D0EC385D3;
-        Tue, 10 May 2022 13:11:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDB5F615EF;
+        Tue, 10 May 2022 13:37:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2103C385C2;
+        Tue, 10 May 2022 13:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188273;
-        bh=xNaN2J7XaIrUH2DW0OpIFN3289nXX4c1YssyrcL1db8=;
+        s=korg; t=1652189824;
+        bh=YpKJBiYbIBRLNkiHda5QMm3L+zXhaJseWyql1maFGDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pw8pOGGubpV+CxEvoWX0cVWgJtpVS7YE+kuPgt8Dk4IDVeNQrTqnb9gjYLkrHBWOE
-         8Id6VIzafnH5/GB0Bi4MZlUUP1A0A018j+sk4QDu/a7TyDrKUw+6Sv3z1XiVDdVV6N
-         F0pXuCp7Ho6BsJ5+37i7FhiIdckUMzRnQ4mYQwS4=
+        b=ZlqMgVaZSPiFhdWi+kc0HJU7HV3g9Y8lH5FzXFXvVNcXqQEBKWSc/8BdBuO8L0RbI
+         Z3OFAJBhHo+/do1IEnAMg4ZXibnEXemrmKe4Uu/l2woDTedxu1HU4hNCPy3eLyucqT
+         Fmk9gV0h3nheqOQX9IreBIuaVH3+IXCWEJtdQF18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 19/66] hex2bin: make the function hex_to_bin constant-time
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Jerome Brunet <jbrunet@baylibre.com>
+Subject: [PATCH 5.17 039/140] ASoC: meson: Fix event generation for G12A tohdmi mux
 Date:   Tue, 10 May 2022 15:07:09 +0200
-Message-Id: <20220510130730.327688811@linuxfoundation.org>
+Message-Id: <20220510130742.736878992@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,91 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Mark Brown <broonie@kernel.org>
 
-commit e5be15767e7e284351853cbaba80cde8620341fb upstream.
+commit 12131008fc13ff7f7690d170b7a8f72d24fd7d1e upstream.
 
-The function hex2bin is used to load cryptographic keys into device
-mapper targets dm-crypt and dm-integrity.  It should take constant time
-independent on the processed data, so that concurrently running
-unprivileged code can't infer any information about the keys via
-microarchitectural convert channels.
+The G12A tohdmi has a custom put() operation which returns 0 when the value
+of the mux changes, meaning that events are not generated for userspace.
+Change to return 1 in this case, the function returns early in the case
+where there is no change.
 
-This patch changes the function hex_to_bin so that it contains no
-branches and no memory accesses.
-
-Note that this shouldn't cause performance degradation because the size
-of the new function is the same as the size of the old function (on
-x86-64) - and the new function causes no branch misprediction penalties.
-
-I compile-tested this function with gcc on aarch64 alpha arm hppa hppa64
-i386 ia64 m68k mips32 mips64 powerpc powerpc64 riscv sh4 s390x sparc32
-sparc64 x86_64 and with clang on aarch64 arm hexagon i386 mips32 mips64
-powerpc powerpc64 s390x sparc32 sparc64 x86_64 to verify that there are
-no branches in the generated code.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20220421123803.292063-4-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/kernel.h |    2 +-
- lib/hexdump.c          |   32 +++++++++++++++++++++++++-------
- 2 files changed, 26 insertions(+), 8 deletions(-)
+ sound/soc/meson/g12a-tohdmitx.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -530,7 +530,7 @@ static inline char *hex_byte_pack_upper(
- 	return buf;
+--- a/sound/soc/meson/g12a-tohdmitx.c
++++ b/sound/soc/meson/g12a-tohdmitx.c
+@@ -67,7 +67,7 @@ static int g12a_tohdmitx_i2s_mux_put_enu
+ 
+ 	snd_soc_dapm_mux_update_power(dapm, kcontrol, mux, e, NULL);
+ 
+-	return 0;
++	return 1;
  }
  
--extern int hex_to_bin(char ch);
-+extern int hex_to_bin(unsigned char ch);
- extern int __must_check hex2bin(u8 *dst, const char *src, size_t count);
- extern char *bin2hex(char *dst, const void *src, size_t count);
- 
---- a/lib/hexdump.c
-+++ b/lib/hexdump.c
-@@ -24,15 +24,33 @@ EXPORT_SYMBOL(hex_asc_upper);
-  *
-  * hex_to_bin() converts one hex digit to its actual value or -1 in case of bad
-  * input.
-+ *
-+ * This function is used to load cryptographic keys, so it is coded in such a
-+ * way that there are no conditions or memory accesses that depend on data.
-+ *
-+ * Explanation of the logic:
-+ * (ch - '9' - 1) is negative if ch <= '9'
-+ * ('0' - 1 - ch) is negative if ch >= '0'
-+ * we "and" these two values, so the result is negative if ch is in the range
-+ *	'0' ... '9'
-+ * we are only interested in the sign, so we do a shift ">> 8"; note that right
-+ *	shift of a negative value is implementation-defined, so we cast the
-+ *	value to (unsigned) before the shift --- we have 0xffffff if ch is in
-+ *	the range '0' ... '9', 0 otherwise
-+ * we "and" this value with (ch - '0' + 1) --- we have a value 1 ... 10 if ch is
-+ *	in the range '0' ... '9', 0 otherwise
-+ * we add this value to -1 --- we have a value 0 ... 9 if ch is in the range '0'
-+ *	... '9', -1 otherwise
-+ * the next line is similar to the previous one, but we need to decode both
-+ *	uppercase and lowercase letters, so we use (ch & 0xdf), which converts
-+ *	lowercase to uppercase
-  */
--int hex_to_bin(char ch)
-+int hex_to_bin(unsigned char ch)
- {
--	if ((ch >= '0') && (ch <= '9'))
--		return ch - '0';
--	ch = tolower(ch);
--	if ((ch >= 'a') && (ch <= 'f'))
--		return ch - 'a' + 10;
--	return -1;
-+	unsigned char cu = ch & 0xdf;
-+	return -1 +
-+		((ch - '0' +  1) & (unsigned)((ch - '9' - 1) & ('0' - 1 - ch)) >> 8) +
-+		((cu - 'A' + 11) & (unsigned)((cu - 'F' - 1) & ('A' - 1 - cu)) >> 8);
- }
- EXPORT_SYMBOL(hex_to_bin);
- 
+ static SOC_ENUM_SINGLE_DECL(g12a_tohdmitx_i2s_mux_enum, TOHDMITX_CTRL0,
 
 
