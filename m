@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CD352169A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF3325219D4
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242406AbiEJNQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35074 "EHLO
+        id S244922AbiEJNvb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:51:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242468AbiEJNQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B564A916;
-        Tue, 10 May 2022 06:11:48 -0700 (PDT)
+        with ESMTP id S244908AbiEJNrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB571E8E23;
+        Tue, 10 May 2022 06:32:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79FB5615FC;
-        Tue, 10 May 2022 13:11:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FC22C385C6;
-        Tue, 10 May 2022 13:11:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26E7C615C8;
+        Tue, 10 May 2022 13:32:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25ACBC385C2;
+        Tue, 10 May 2022 13:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188305;
-        bh=KrmrHxN/MRgGZte1TsTRlM3hbo4IwWi9CTaTAqB81dM=;
+        s=korg; t=1652189554;
+        bh=r/8WhCII/QSwBbGHS0M4iDqpyet3/YT26qUmf2G5itc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MV6nTm+4OIdAeIH6fTVn3IcDlr7uNieJsX6RgRA2Nz89hqP/i8tfLCemMv6+MXJUl
-         A0fQtwAgzBc8VhnLUVxLiA6SlxUpEPWeommKjPMs7VUNarxesqpxUDsnDXxsu1MGiN
-         UvMKhTw1UliAzGVY67BWyYpK94EhaFUMDtrIBY/w=
+        b=nrMy6dI/LE//5W+6fRJNBXlXOOa4KzqYuEzfxxHoV+hbL46LydOdYmm9vWIAkhznj
+         v4zhlZafVYytOIDSUbk9i2y7zijoc7+hA7dLVzo0T9GmcU1Jgzs+5KKS9wqqGlH6eC
+         3yP5IOeda9DYopmR5FLAvcfWI5fGEtjS4im9PRUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 09/66] USB: serial: option: add Telit 0x1057, 0x1058, 0x1075 compositions
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 037/135] nfc: replace improper check device_is_registered() in netlink related functions
 Date:   Tue, 10 May 2022 15:06:59 +0200
-Message-Id: <20220510130730.042978438@linuxfoundation.org>
+Message-Id: <20220510130741.467352394@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +53,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniele Palmas <dnlplm@gmail.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit f32c5a0423400e01f4d7c607949fa3a1f006e8fa upstream.
+commit da5c0f119203ad9728920456a0f52a6d850c01cd upstream.
 
-Add support for the following Telit FN980 and FN990 compositions:
+The device_is_registered() in nfc core is used to check whether
+nfc device is registered in netlink related functions such as
+nfc_fw_download(), nfc_dev_up() and so on. Although device_is_registered()
+is protected by device_lock, there is still a race condition between
+device_del() and device_is_registered(). The root cause is that
+kobject_del() in device_del() is not protected by device_lock.
 
-0x1057: tty, adb, rmnet, tty, tty, tty, tty, tty
-0x1058: tty, adb, tty, tty, tty, tty, tty
-0x1075: adb, tty
+   (cleanup task)         |     (netlink task)
+                          |
+nfc_unregister_device     | nfc_fw_download
+ device_del               |  device_lock
+  ...                     |   if (!device_is_registered)//(1)
+  kobject_del//(2)        |   ...
+ ...                      |  device_unlock
 
-Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
-Link: https://lore.kernel.org/r/20220406141408.580669-1-dnlplm@gmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+The device_is_registered() returns the value of state_in_sysfs and
+the state_in_sysfs is set to zero in kobject_del(). If we pass check in
+position (1), then set zero in position (2). As a result, the check
+in position (1) is useless.
+
+This patch uses bool variable instead of device_is_registered() to judge
+whether the nfc device is registered, which is well synchronized.
+
+Fixes: 3e256b8f8dfa ("NFC: add nfc subsystem core")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ net/nfc/core.c |   29 ++++++++++++++---------------
+ 1 file changed, 14 insertions(+), 15 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1195,6 +1195,10 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1056, 0xff),	/* Telit FD980 */
- 	  .driver_info = NCTRL(2) | RSVD(3) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1057, 0xff),	/* Telit FN980 */
-+	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1058, 0xff),	/* Telit FN980 (PCIe) */
-+	  .driver_info = NCTRL(0) | RSVD(1) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1060, 0xff),	/* Telit LN920 (rmnet) */
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1061, 0xff),	/* Telit LN920 (MBIM) */
-@@ -1211,6 +1215,8 @@ static const struct usb_device_id option
- 	  .driver_info = NCTRL(2) | RSVD(3) },
- 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1073, 0xff),	/* Telit FN990 (ECM) */
- 	  .driver_info = NCTRL(0) | RSVD(1) },
-+	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1075, 0xff),	/* Telit FN990 (PCIe) */
-+	  .driver_info = RSVD(0) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910),
- 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(3) },
- 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_ME910_DUAL_MODEM),
+--- a/net/nfc/core.c
++++ b/net/nfc/core.c
+@@ -38,7 +38,7 @@ int nfc_fw_download(struct nfc_dev *dev,
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -94,7 +94,7 @@ int nfc_dev_up(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -142,7 +142,7 @@ int nfc_dev_down(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -207,7 +207,7 @@ int nfc_start_poll(struct nfc_dev *dev,
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -246,7 +246,7 @@ int nfc_stop_poll(struct nfc_dev *dev)
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -291,7 +291,7 @@ int nfc_dep_link_up(struct nfc_dev *dev,
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -335,7 +335,7 @@ int nfc_dep_link_down(struct nfc_dev *de
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -401,7 +401,7 @@ int nfc_activate_target(struct nfc_dev *
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -448,7 +448,7 @@ int nfc_deactivate_target(struct nfc_dev
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -495,7 +495,7 @@ int nfc_data_exchange(struct nfc_dev *de
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		kfree_skb(skb);
+ 		goto error;
+@@ -552,7 +552,7 @@ int nfc_enable_se(struct nfc_dev *dev, u
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -601,7 +601,7 @@ int nfc_disable_se(struct nfc_dev *dev,
+ 
+ 	device_lock(&dev->dev);
+ 
+-	if (!device_is_registered(&dev->dev)) {
++	if (dev->shutting_down) {
+ 		rc = -ENODEV;
+ 		goto error;
+ 	}
+@@ -1134,6 +1134,7 @@ int nfc_register_device(struct nfc_dev *
+ 			dev->rfkill = NULL;
+ 		}
+ 	}
++	dev->shutting_down = false;
+ 	device_unlock(&dev->dev);
+ 
+ 	rc = nfc_genl_device_added(dev);
+@@ -1166,12 +1167,10 @@ void nfc_unregister_device(struct nfc_de
+ 		rfkill_unregister(dev->rfkill);
+ 		rfkill_destroy(dev->rfkill);
+ 	}
++	dev->shutting_down = true;
+ 	device_unlock(&dev->dev);
+ 
+ 	if (dev->ops->check_presence) {
+-		device_lock(&dev->dev);
+-		dev->shutting_down = true;
+-		device_unlock(&dev->dev);
+ 		del_timer_sync(&dev->check_pres_timer);
+ 		cancel_work_sync(&dev->check_pres_work);
+ 	}
 
 
