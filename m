@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1696C5217B5
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E67521A44
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243114AbiEJN2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56150 "EHLO
+        id S244382AbiEJNyl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243347AbiEJN0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:45 -0400
+        with ESMTP id S244286AbiEJNwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:54 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1820F1B1CEC;
-        Tue, 10 May 2022 06:19:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01A246C0F4;
+        Tue, 10 May 2022 06:38:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5A7BB81DA3;
-        Tue, 10 May 2022 13:19:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1732EC385C2;
-        Tue, 10 May 2022 13:19:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91098B81DB2;
+        Tue, 10 May 2022 13:37:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1261C385C2;
+        Tue, 10 May 2022 13:37:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188766;
-        bh=I1U55y+kNna/a0XyQCHcwkElB9gZez0gqrjcr4EkknI=;
+        s=korg; t=1652189861;
+        bh=jFjwf+37Eb9UmLxCksgbMDhGLmrjgVyM4X2iBi+3J54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m0cAJd7g3tSbg+Niftz/3fJ5v4R0ZprbKM1c49/1BCLS5aZZhWyAreD42LC5KWIvM
-         OXyMVSzD9ODj5EgkEmRIK+8rcEm79wB4nb4DghlvDC8lGB4YvoNzhnT3VDpXydJrvY
-         TTncLD1rcaCx3ayp1wYiTHVro7JqXKGGkY7PXM14=
+        b=hth/wUcKhjtpZu0NGSzFQkQOO0I3ca6nbpalDEMbHYXIA7ZDXLIg0t3QGEalsDC6w
+         YuVo6h6tMP8pxdFD/Tq8jNfcC8vxqBgkiWbt4raPsVQAk0kJ4TxasE2AZAyqkpupA2
+         fwc0dFBZSoMFJ+vck3WIOyLOsy2hl13Ki3l5C3k4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Doug Porter <dsp@fb.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 38/88] tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
+        stable@vger.kernel.org,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.17 053/140] gpio: visconti: Fix fwnode of GPIO IRQ
 Date:   Tue, 10 May 2022 15:07:23 +0200
-Message-Id: <20220510130734.852784026@linuxfoundation.org>
+Message-Id: <20220510130743.137492573@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,145 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-[ Upstream commit 4bfe744ff1644fbc0a991a2677dc874475dd6776 ]
+commit 171865dab096da1ab980a32eeea5d1b88cd7bc50 upstream.
 
-I had this bug sitting for too long in my pile, it is time to fix it.
+The fwnode of GPIO IRQ must be set to its own fwnode, not the fwnode of the
+parent IRQ. Therefore, this sets own fwnode instead of the parent IRQ fwnode to
+GPIO IRQ's.
 
-Thanks to Doug Porter for reminding me of it!
-
-We had various attempts in the past, including commit
-0cbe6a8f089e ("tcp: remove SOCK_QUEUE_SHRUNK"),
-but the issue is that TCP stack currently only generates
-EPOLLOUT from input path, when tp->snd_una has advanced
-and skb(s) cleaned from rtx queue.
-
-If a flow has a big RTT, and/or receives SACKs, it is possible
-that the notsent part (tp->write_seq - tp->snd_nxt) reaches 0
-and no more data can be sent until tp->snd_una finally advances.
-
-What is needed is to also check if POLLOUT needs to be generated
-whenever tp->snd_nxt is advanced, from output path.
-
-This bug triggers more often after an idle period, as
-we do not receive ACK for at least one RTT. tcp_notsent_lowat
-could be a fraction of what CWND and pacing rate would allow to
-send during this RTT.
-
-In a followup patch, I will remove the bogus call
-to tcp_chrono_stop(sk, TCP_CHRONO_SNDBUF_LIMITED)
-from tcp_check_space(). Fact that we have decided to generate
-an EPOLLOUT does not mean the application has immediately
-refilled the transmit queue. This optimistic call
-might have been the reason the bug seemed not too serious.
-
-Tested:
-
-200 ms rtt, 1% packet loss, 32 MB tcp_rmem[2] and tcp_wmem[2]
-
-$ echo 500000 >/proc/sys/net/ipv4/tcp_notsent_lowat
-$ cat bench_rr.sh
-SUM=0
-for i in {1..10}
-do
- V=`netperf -H remote_host -l30 -t TCP_RR -- -r 10000000,10000 -o LOCAL_BYTES_SENT | egrep -v "MIGRATED|Bytes"`
- echo $V
- SUM=$(($SUM + $V))
-done
-echo SUM=$SUM
-
-Before patch:
-$ bench_rr.sh
-130000000
-80000000
-140000000
-140000000
-140000000
-140000000
-130000000
-40000000
-90000000
-110000000
-SUM=1140000000
-
-After patch:
-$ bench_rr.sh
-430000000
-590000000
-530000000
-450000000
-450000000
-350000000
-450000000
-490000000
-480000000
-460000000
-SUM=4680000000  # This is 410 % of the value before patch.
-
-Fixes: c9bee3b7fdec ("tcp: TCP_NOTSENT_LOWAT socket option")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Doug Porter <dsp@fb.com>
-Cc: Soheil Hassas Yeganeh <soheil@google.com>
-Cc: Neal Cardwell <ncardwell@google.com>
-Acked-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2ad74f40dacc ("gpio: visconti: Add Toshiba Visconti GPIO support")
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tcp.h     |  1 +
- net/ipv4/tcp_input.c  | 12 +++++++++++-
- net/ipv4/tcp_output.c |  1 +
- 3 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-visconti.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/tcp.h b/include/net/tcp.h
-index 3f0d654984cf..f0d2e2571f56 100644
---- a/include/net/tcp.h
-+++ b/include/net/tcp.h
-@@ -594,6 +594,7 @@ void tcp_synack_rtt_meas(struct sock *sk, struct request_sock *req);
- void tcp_reset(struct sock *sk);
- void tcp_skb_mark_lost_uncond_verify(struct tcp_sock *tp, struct sk_buff *skb);
- void tcp_fin(struct sock *sk);
-+void tcp_check_space(struct sock *sk);
+--- a/drivers/gpio/gpio-visconti.c
++++ b/drivers/gpio/gpio-visconti.c
+@@ -130,7 +130,6 @@ static int visconti_gpio_probe(struct pl
+ 	struct gpio_irq_chip *girq;
+ 	struct irq_domain *parent;
+ 	struct device_node *irq_parent;
+-	struct fwnode_handle *fwnode;
+ 	int ret;
  
- /* tcp_timer.c */
- void tcp_init_xmit_timers(struct sock *);
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 757e1f60e00d..d71326f3777c 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -5167,7 +5167,17 @@ static void tcp_new_space(struct sock *sk)
- 	sk->sk_write_space(sk);
- }
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+@@ -150,14 +149,12 @@ static int visconti_gpio_probe(struct pl
+ 	}
  
--static void tcp_check_space(struct sock *sk)
-+/* Caller made space either from:
-+ * 1) Freeing skbs in rtx queues (after tp->snd_una has advanced)
-+ * 2) Sent skbs from output queue (and thus advancing tp->snd_nxt)
-+ *
-+ * We might be able to generate EPOLLOUT to the application if:
-+ * 1) Space consumed in output/rtx queues is below sk->sk_sndbuf/2
-+ * 2) notsent amount (tp->write_seq - tp->snd_nxt) became
-+ *    small enough that tcp_stream_memory_free() decides it
-+ *    is time to generate EPOLLOUT.
-+ */
-+void tcp_check_space(struct sock *sk)
- {
- 	if (sock_flag(sk, SOCK_QUEUE_SHRUNK)) {
- 		sock_reset_flag(sk, SOCK_QUEUE_SHRUNK);
-diff --git a/net/ipv4/tcp_output.c b/net/ipv4/tcp_output.c
-index 97c3b616d594..8543cd724d54 100644
---- a/net/ipv4/tcp_output.c
-+++ b/net/ipv4/tcp_output.c
-@@ -69,6 +69,7 @@ static void tcp_event_new_data_sent(struct sock *sk, struct sk_buff *skb)
+ 	parent = irq_find_host(irq_parent);
++	of_node_put(irq_parent);
+ 	if (!parent) {
+ 		dev_err(dev, "No IRQ parent domain\n");
+ 		return -ENODEV;
+ 	}
  
- 	NET_ADD_STATS(sock_net(sk), LINUX_MIB_TCPORIGDATASENT,
- 		      tcp_skb_pcount(skb));
-+	tcp_check_space(sk);
- }
+-	fwnode = of_node_to_fwnode(irq_parent);
+-	of_node_put(irq_parent);
+-
+ 	ret = bgpio_init(&priv->gpio_chip, dev, 4,
+ 			 priv->base + GPIO_IDATA,
+ 			 priv->base + GPIO_OSET,
+@@ -180,7 +177,7 @@ static int visconti_gpio_probe(struct pl
  
- /* SND.NXT, if window was not shrunk or the amount of shrunk was less than one
--- 
-2.35.1
-
+ 	girq = &priv->gpio_chip.irq;
+ 	girq->chip = irq_chip;
+-	girq->fwnode = fwnode;
++	girq->fwnode = of_node_to_fwnode(dev->of_node);
+ 	girq->parent_domain = parent;
+ 	girq->child_to_parent_hwirq = visconti_gpio_child_to_parent_hwirq;
+ 	girq->populate_parent_alloc_arg = visconti_gpio_populate_parent_fwspec;
 
 
