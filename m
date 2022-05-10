@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6834521AB7
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B18D521937
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244261AbiEJODa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48538 "EHLO
+        id S244193AbiEJNns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:43:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343555AbiEJN7E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:59:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97666D8090;
-        Tue, 10 May 2022 06:39:37 -0700 (PDT)
+        with ESMTP id S243632AbiEJNmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C1F46B1F;
+        Tue, 10 May 2022 06:30:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 44838B81D24;
-        Tue, 10 May 2022 13:39:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B9DC385A6;
-        Tue, 10 May 2022 13:39:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DFE8B81D24;
+        Tue, 10 May 2022 13:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8CBBC385A6;
+        Tue, 10 May 2022 13:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189975;
-        bh=xXJx6p9kaW3KxYiu/puI7rEWMdgmXgXQuAUB7kqjMFA=;
+        s=korg; t=1652189452;
+        bh=KROBn0sVKqejLhXC5hNUtuLqTsLA0EpNTTg+h0Jc3Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i91ykjz9XoBSh/h8vwLsfvu7L8Hy8uiYkL8ZWBoHqGt5BaGfc+H9ja7diVSrKlvDw
-         lc90Ewi+kjUtP7alhvjQ7pJ2z/XP/IEpbxZUesuhJGXy5IbwA0NsbdDlJbvAd+na/B
-         wZCGCKWgpmIF2sjohb8/XJaU3voL/YcCb56q4Rfw=
+        b=XwU9qx0kXZlE8phq+qcIqSspQ4gb0LeMgtSs7cJ6P9gjVaYmAi3plhB9zMaNuYyJV
+         FCKVphv8jD4dFu8FIgl/OI2R01IA70hU5DrDerXEJklMCsUNXZPB89hzTmQQz79ede
+         w2Z+H39crTLXN7nt1tv4Izy4vvwKeRQ4sBHlEdBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.17 048/140] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
+        stable@vger.kernel.org, Luis Chamberlain <mcgrof@kernel.org>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Cheng Xu <chengyou@linux.alibaba.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.15 056/135] RDMA/siw: Fix a condition race issue in MPA request processing
 Date:   Tue, 10 May 2022 15:07:18 +0200
-Message-Id: <20220510130742.994114000@linuxfoundation.org>
+Message-Id: <20220510130742.013033917@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +55,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Cheng Xu <chengyou@linux.alibaba.com>
 
-commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
+commit ef91271c65c12d36e4c2b61c61d4849fb6d11aa0 upstream.
 
-The systemid property was checked for in the wrong place of the device
-tree and compared to the wrong value.
+The calling of siw_cm_upcall and detaching new_cep with its listen_cep
+should be atomistic semantics. Otherwise siw_reject may be called in a
+temporary state, e,g, siw_cm_upcall is called but the new_cep->listen_cep
+has not being cleared.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This fixes a WARN:
+
+  WARNING: CPU: 7 PID: 201 at drivers/infiniband/sw/siw/siw_cm.c:255 siw_cep_put+0x125/0x130 [siw]
+  CPU: 2 PID: 201 Comm: kworker/u16:22 Kdump: loaded Tainted: G            E     5.17.0-rc7 #1
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
+  Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+  RIP: 0010:siw_cep_put+0x125/0x130 [siw]
+  Call Trace:
+   <TASK>
+   siw_reject+0xac/0x180 [siw]
+   iw_cm_reject+0x68/0xc0 [iw_cm]
+   cm_work_handler+0x59d/0xe20 [iw_cm]
+   process_one_work+0x1e2/0x3b0
+   worker_thread+0x50/0x3a0
+   ? rescuer_thread+0x390/0x390
+   kthread+0xe5/0x110
+   ? kthread_complete_and_exit+0x20/0x20
+   ret_from_fork+0x1f/0x30
+   </TASK>
+
+Fixes: 6c52fdc244b5 ("rdma/siw: connection management")
+Link: https://lore.kernel.org/r/d528d83466c44687f3872eadcb8c184528b2e2d4.1650526554.git.chengyou@linux.alibaba.com
+Reported-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Cheng Xu <chengyou@linux.alibaba.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/siw/siw_cm.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -241,7 +241,7 @@ struct grcan_device_config {
- 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
+--- a/drivers/infiniband/sw/siw/siw_cm.c
++++ b/drivers/infiniband/sw/siw/siw_cm.c
+@@ -968,14 +968,15 @@ static void siw_accept_newconn(struct si
+ 
+ 		siw_cep_set_inuse(new_cep);
+ 		rv = siw_proc_mpareq(new_cep);
+-		siw_cep_set_free(new_cep);
+-
+ 		if (rv != -EAGAIN) {
+ 			siw_cep_put(cep);
+ 			new_cep->listen_cep = NULL;
+-			if (rv)
++			if (rv) {
++				siw_cep_set_free(new_cep);
+ 				goto error;
++			}
  		}
++		siw_cep_set_free(new_cep);
+ 	}
+ 	return;
  
--#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
-+#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
- #define GRLIB_VERSION_MASK		0xffff
- 
- /* GRCAN private data structure */
-@@ -1643,6 +1643,7 @@ exit_free_candev:
- static int grcan_probe(struct platform_device *ofdev)
- {
- 	struct device_node *np = ofdev->dev.of_node;
-+	struct device_node *sysid_parent;
- 	u32 sysid, ambafreq;
- 	int irq, err;
- 	void __iomem *base;
-@@ -1651,10 +1652,15 @@ static int grcan_probe(struct platform_d
- 	/* Compare GRLIB version number with the first that does not
- 	 * have the tx bug (see start_xmit)
- 	 */
--	err = of_property_read_u32(np, "systemid", &sysid);
--	if (!err && ((sysid & GRLIB_VERSION_MASK)
--		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
--		txbug = false;
-+	sysid_parent = of_find_node_by_path("/ambapp0");
-+	if (sysid_parent) {
-+		of_node_get(sysid_parent);
-+		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
-+		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
-+			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
-+			txbug = false;
-+		of_node_put(sysid_parent);
-+	}
- 
- 	err = of_property_read_u32(np, "freq", &ambafreq);
- 	if (err) {
 
 
