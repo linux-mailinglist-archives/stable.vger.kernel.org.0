@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 744B7521732
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D37225219C5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242727AbiEJNW3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
+        id S244707AbiEJNvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:51:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243506AbiEJNWA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612424F9C2;
-        Tue, 10 May 2022 06:16:11 -0700 (PDT)
+        with ESMTP id S244732AbiEJNq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035971668A9;
+        Tue, 10 May 2022 06:31:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 627D461574;
-        Tue, 10 May 2022 13:16:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B2FC385A6;
-        Tue, 10 May 2022 13:16:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94141615C8;
+        Tue, 10 May 2022 13:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F63C385C9;
+        Tue, 10 May 2022 13:31:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188569;
-        bh=jNZnxmiMZ53JTlAIFKpA7EvVzwcYlv69uGX2/qyvw2I=;
+        s=korg; t=1652189517;
+        bh=FxIhdZqIw91pbHMbO5gwTOdjHrJnWK2rh0Rb9gXuISc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jEzj8B1jVtrw3O+LCz0fAbVc2Kxlm0cQNFOPk3QXrYRE8QEIKXqnUXxbY3abPdmCu
-         AOj+zv2Ar4VZz1yEE5Tkd+sYBKxOWWnhf24d5xX6YACb+InldMxApT2TRvoGShhWRC
-         NBmLyTxzhP65RotybjGzhhPAEgwkWBZ/ckS5UgIA=
+        b=xAPJySPr6EtALD/+BYtvt8CrDwPN+AbI4mviagNSf1NbljVeOtIS8EyrS4wXQrQJh
+         /aCih0Lqxg93q92/G7zHakuKngqbHA5o71ShJeVCieKDHPkKZmXrW5PigV4ciXMitW
+         UPfUJn2SHVEQ0ULk0v3AT1FQKYWJ7H/QCxQCLSAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.14 51/78] tty: n_gsm: fix wrong command frame length field encoding
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.15 075/135] selftests: mirror_gre_bridge_1q: Avoid changing PVID while interface is operational
 Date:   Tue, 10 May 2022 15:07:37 +0200
-Message-Id: <20220510130734.048919100@linuxfoundation.org>
+Message-Id: <20220510130742.563598393@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,76 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit 398867f59f956985f4c324f173eff7b946e14bd8 upstream.
+commit 3122257c02afd9f199a8fc84ae981e1fc4958532 upstream.
 
-n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
-See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
-The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
-the newer 27.010 here. Chapter 5.4.6.1 states that each command frame shall
-be made up from type, length and value. Looking for example in chapter
-5.4.6.3.5 at the description for the encoding of a flow control on command
-it becomes obvious, that the type and length field is always present
-whereas the value may be zero bytes long. The current implementation omits
-the length field if the value is not present. This is wrong.
-Correct this by always sending the length in gsm_control_transmit().
-So far only the modem status command (MSC) has included a value and encoded
-its length directly. Therefore, also change gsmtty_modem_update().
+In emulated environments, the bridge ports enslaved to br1 get a carrier
+before changing br1's PVID. This means that by the time the PVID is
+changed, br1 is already operational and configured with an IPv6
+link-local address.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-12-daniel.starke@siemens.com
+When the test is run with netdevs registered by mlxsw, changing the PVID
+is vetoed, as changing the VID associated with an existing L3 interface
+is forbidden. This restriction is similar to the 8021q driver's
+restriction of changing the VID of an existing interface.
+
+Fix this by taking br1 down and bringing it back up when it is fully
+configured.
+
+With this fix, the test reliably passes on top of both the SW and HW
+data paths (emulated or not).
+
+Fixes: 239e754af854 ("selftests: forwarding: Test mirror-to-gretap w/ UL 802.1q")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20220502084507.364774-1-idosch@nvidia.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |   23 +++++++++++------------
- 1 file changed, 11 insertions(+), 12 deletions(-)
+ tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1314,11 +1314,12 @@ static void gsm_control_response(struct
+--- a/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
++++ b/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
+@@ -61,9 +61,12 @@ setup_prepare()
  
- static void gsm_control_transmit(struct gsm_mux *gsm, struct gsm_control *ctrl)
- {
--	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 1, gsm->ftype);
-+	struct gsm_msg *msg = gsm_data_alloc(gsm, 0, ctrl->len + 2, gsm->ftype);
- 	if (msg == NULL)
- 		return;
--	msg->data[0] = (ctrl->cmd << 1) | 2 | EA;	/* command */
--	memcpy(msg->data + 1, ctrl->data, ctrl->len);
-+	msg->data[0] = (ctrl->cmd << 1) | CR | EA;	/* command */
-+	msg->data[1] = (ctrl->len << 1) | EA;
-+	memcpy(msg->data + 2, ctrl->data, ctrl->len);
- 	gsm_data_queue(gsm->dlci[0], msg);
- }
+ 	vrf_prepare
+ 	mirror_gre_topo_create
++	# Avoid changing br1's PVID while it is operational as a L3 interface.
++	ip link set dev br1 down
  
-@@ -2874,19 +2875,17 @@ static struct tty_ldisc_ops tty_ldisc_pa
+ 	ip link set dev $swp3 master br1
+ 	bridge vlan add dev br1 vid 555 pvid untagged self
++	ip link set dev br1 up
+ 	ip address add dev br1 192.0.2.129/28
+ 	ip address add dev br1 2001:db8:2::1/64
  
- static int gsmtty_modem_update(struct gsm_dlci *dlci, u8 brk)
- {
--	u8 modembits[5];
-+	u8 modembits[3];
- 	struct gsm_control *ctrl;
- 	int len = 2;
- 
--	if (brk)
-+	modembits[0] = (dlci->addr << 2) | 2 | EA;  /* DLCI, Valid, EA */
-+	modembits[1] = (gsm_encode_modem(dlci) << 1) | EA;
-+	if (brk) {
-+		modembits[2] = (brk << 4) | 2 | EA; /* Length, Break, EA */
- 		len++;
--
--	modembits[0] = len << 1 | EA;		/* Data bytes */
--	modembits[1] = dlci->addr << 2 | 3;	/* DLCI, EA, 1 */
--	modembits[2] = gsm_encode_modem(dlci) << 1 | EA;
--	if (brk)
--		modembits[3] = brk << 4 | 2 | EA;	/* Valid, EA */
--	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len + 1);
-+	}
-+	ctrl = gsm_control_send(dlci->gsm, CMD_MSC, modembits, len);
- 	if (ctrl == NULL)
- 		return -ENOMEM;
- 	return gsm_control_wait(dlci->gsm, ctrl);
 
 
