@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1E15219E6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04EB752175C
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232876AbiEJNw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:52:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40916 "EHLO
+        id S242935AbiEJNWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343721AbiEJNsX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31CE26B011;
-        Tue, 10 May 2022 06:36:47 -0700 (PDT)
+        with ESMTP id S242886AbiEJNVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7D82BF33C;
+        Tue, 10 May 2022 06:14:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 057E6B81DB5;
-        Tue, 10 May 2022 13:36:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B6A8C385CB;
-        Tue, 10 May 2022 13:36:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84A6B61574;
+        Tue, 10 May 2022 13:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F82CC385C2;
+        Tue, 10 May 2022 13:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189780;
-        bh=WtU2MifjE7WdVm6QX8N19707fXD4NfeoLMb7jSc2l6A=;
+        s=korg; t=1652188444;
+        bh=MqtgFF+buggGYF2O1oUcULtKmpd2uz5IheHUTdQuv8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+WUk3avrMtkK0BvgMlnBLE72gM1N/GjMLxxkVEFFUJhVjcRoSYx9rZoB75psJR5a
-         DFJ2bOZyTeEyIYDCDGUk37kOB7qdsOwX5RaJAjqjWE4S02K/8YC35XnzEjPm9ah+kJ
-         zNpSlZ8h8DQJVP7vf0s7Y/P9LGHxjwatXGWpxMTQ=
+        b=Zg2GPyt4bDN7VrqJnyzz1vRYw6F4EvNGjANDZuo1ZIzylsz3dQXNsmH/bAwrQAAjL
+         /3vj1zwqz9jFIB0Do9j1SdU3VqBtPsTRnDOk+aZwIKr1zvT75TvQPdTMVL8YcZOFP3
+         y9zbJN77xH6E1yVtqnXWroc2QEiU2ksmP6PouD4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.17 026/140] firewire: core: extend card->lock in fw_core_handle_bus_reset
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 10/78] USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
 Date:   Tue, 10 May 2022 15:06:56 +0200
-Message-Id: <20220510130742.360046251@linuxfoundation.org>
+Message-Id: <20220510130732.841430894@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,98 +47,79 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
+commit e23e50e7acc8d8f16498e9c129db33e6a00e80eb upstream.
 
-card->local_node and card->bm_retries are both always accessed under
-card->lock.
-fw_core_handle_bus_reset has a check whose condition depends on
-card->local_node and whose body writes to card->bm_retries.
-Both of these accesses are not under card->lock. Move the lock acquiring
-of card->lock to before this check such that these accesses do happen
-when card->lock is held.
-fw_destroy_nodes is called inside the check.
-Since fw_destroy_nodes already acquires card->lock inside its function
-body, move this out to the callsites of fw_destroy_nodes.
-Also add a comment to indicate which locking is necessary when calling
-fw_destroy_nodes.
+The sizeof(struct whitehat_dr_info) can be 4 bytes under CONFIG_AEABI=n
+due to "-mabi=apcs-gnu", even though it has a single u8:
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+whiteheat_private {
+        __u8                       mcr;                  /*     0     1 */
+
+        /* size: 4, cachelines: 1, members: 1 */
+        /* padding: 3 */
+        /* last cacheline: 4 bytes */
+};
+
+The result is technically harmless, as both the source and the
+destinations are currently the same allocation size (4 bytes) and don't
+use their padding, but if anything were to ever be added after the
+"mcr" member in "struct whiteheat_private", it would be overwritten. The
+structs both have a single u8 "mcr" member, but are 4 bytes in padded
+size. The memcpy() destination was explicitly targeting the u8 member
+(size 1) with the length of the whole structure (size 4), triggering
+the memcpy buffer overflow warning:
+
+In file included from include/linux/string.h:253,
+                 from include/linux/bitmap.h:11,
+                 from include/linux/cpumask.h:12,
+                 from include/linux/smp.h:13,
+                 from include/linux/lockdep.h:14,
+                 from include/linux/spinlock.h:62,
+                 from include/linux/mmzone.h:8,
+                 from include/linux/gfp.h:6,
+                 from include/linux/slab.h:15,
+                 from drivers/usb/serial/whiteheat.c:17:
+In function 'fortify_memcpy_chk',
+    inlined from 'firm_send_command' at drivers/usb/serial/whiteheat.c:587:4:
+include/linux/fortify-string.h:328:25: warning: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Wattribute-warning]
+  328 |                         __write_overflow_field(p_size_field, size);
+      |                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead, just assign the one byte directly.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202204142318.vDqjjSFn-lkp@intel.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220421001234.2421107-1-keescook@chromium.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/core-card.c     |    3 +++
- drivers/firewire/core-topology.c |    9 +++------
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/serial/whiteheat.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/drivers/firewire/core-card.c
-+++ b/drivers/firewire/core-card.c
-@@ -668,6 +668,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
- void fw_core_remove_card(struct fw_card *card)
- {
- 	struct fw_card_driver dummy_driver = dummy_driver_template;
-+	unsigned long flags;
- 
- 	card->driver->update_phy_reg(card, 4,
- 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
-@@ -682,7 +683,9 @@ void fw_core_remove_card(struct fw_card
- 	dummy_driver.stop_iso		= card->driver->stop_iso;
- 	card->driver = &dummy_driver;
- 
-+	spin_lock_irqsave(&card->lock, flags);
- 	fw_destroy_nodes(card);
-+	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	/* Wait for all users, especially device workqueue jobs, to finish. */
- 	fw_card_put(card);
---- a/drivers/firewire/core-topology.c
-+++ b/drivers/firewire/core-topology.c
-@@ -375,16 +375,13 @@ static void report_found_node(struct fw_
- 	card->bm_retries = 0;
- }
- 
-+/* Must be called with card->lock held */
- void fw_destroy_nodes(struct fw_card *card)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&card->lock, flags);
- 	card->color++;
- 	if (card->local_node != NULL)
- 		for_each_fw_node(card, card->local_node, report_lost_node);
- 	card->local_node = NULL;
--	spin_unlock_irqrestore(&card->lock, flags);
- }
- 
- static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
-@@ -510,6 +507,8 @@ void fw_core_handle_bus_reset(struct fw_
- 	struct fw_node *local_node;
- 	unsigned long flags;
- 
-+	spin_lock_irqsave(&card->lock, flags);
-+
- 	/*
- 	 * If the selfID buffer is not the immediate successor of the
- 	 * previously processed one, we cannot reliably compare the
-@@ -521,8 +520,6 @@ void fw_core_handle_bus_reset(struct fw_
- 		card->bm_retries = 0;
+--- a/drivers/usb/serial/whiteheat.c
++++ b/drivers/usb/serial/whiteheat.c
+@@ -615,9 +615,8 @@ static int firm_send_command(struct usb_
+ 		switch (command) {
+ 		case WHITEHEAT_GET_DTR_RTS:
+ 			info = usb_get_serial_port_data(port);
+-			memcpy(&info->mcr, command_info->result_buffer,
+-					sizeof(struct whiteheat_dr_info));
+-				break;
++			info->mcr = command_info->result_buffer[0];
++			break;
+ 		}
  	}
- 
--	spin_lock_irqsave(&card->lock, flags);
--
- 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
- 	card->node_id = node_id;
- 	/*
+ exit:
 
 
