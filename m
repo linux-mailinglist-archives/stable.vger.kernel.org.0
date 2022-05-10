@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8AE52176B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D84F75216A9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243108AbiEJNZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
+        id S241456AbiEJNQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242826AbiEJNY4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:24:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95A5156232;
-        Tue, 10 May 2022 06:17:45 -0700 (PDT)
+        with ESMTP id S242346AbiEJNQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25BA0433B5;
+        Tue, 10 May 2022 06:12:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36586B81CE7;
-        Tue, 10 May 2022 13:17:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 981D2C385C9;
-        Tue, 10 May 2022 13:17:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93B7D612E4;
+        Tue, 10 May 2022 13:12:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9EC53C385C2;
+        Tue, 10 May 2022 13:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188663;
-        bh=A6nbKo2UCo0NnMh93O2arkPNWIPu1uBb02A/MRDScxw=;
+        s=korg; t=1652188323;
+        bh=ZFKz7D5VMBgdP5HYgXbth0GjUNlu9Z2TL8vZsHJON3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjT5dqXgDq65oAAhn5LD2sJ7dbCOkgqwaJ380AF6g18sWr6ebqJ4E0bvGuoafe8u0
-         fMQSZuzP2FbTL6FdpgzJ1k5SLOv4DtiQytXgkVv/jDOsGeyZ+53mDsDuhNgA89S8mL
-         z3nBCcLfcdOtYtj0fjULDxoPRMKlcFkcvurEqZy4=
+        b=uieG78kWd0BTfu4oKUBXz+K82UTaPMjXLMo6Eia8Hfn5qNfW0eAHDqSu2Gl6VTFIB
+         MkVXz9iUNy40N/+qhCmygD0Tgot5vrinTWfK8aP5zbkSum4BwV4XDgElcrb6RTbR44
+         LxtuBhx7D9vB+BLH3D49pNoxc3WezfT1edOqyrI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Christensen <drc@linux.vnet.ibm.com>,
-        Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/78] bnx2x: fix napi API usage sequence
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.9 36/66] tty: n_gsm: fix wrong signal octet encoding in convergence layer type 2
 Date:   Tue, 10 May 2022 15:07:26 +0200
-Message-Id: <20220510130733.721181840@linuxfoundation.org>
+Message-Id: <20220510130730.828522012@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,152 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-[ Upstream commit af68656d66eda219b7f55ce8313a1da0312c79e1 ]
+commit 06d5afd4d640eea67f5623e76cd5fc03359b7f3c upstream.
 
-While handling PCI errors (AER flow) driver tries to
-disable NAPI [napi_disable()] after NAPI is deleted
-[__netif_napi_del()] which causes unexpected system
-hang/crash.
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.5.2 describes that the signal octet in
+convergence layer type 2 can be either one or two bytes. The length is
+encoded in the EA bit. This is set 1 for the last byte in the sequence.
+gsmtty_modem_update() handles this correctly but gsm_dlci_data_output()
+fails to set EA to 1. There is no case in which we encode two signal octets
+as there is no case in which we send out a break signal.
+Therefore, always set the EA bit to 1 for the signal octet to fix this.
 
-System message log shows the following:
-=======================================
-[ 3222.537510] EEH: Detected PCI bus error on PHB#384-PE#800000 [ 3222.537511] EEH: This PCI device has failed 2 times in the last hour and will be permanently disabled after 5 failures.
-[ 3222.537512] EEH: Notify device drivers to shutdown [ 3222.537513] EEH: Beginning: 'error_detected(IO frozen)'
-[ 3222.537514] EEH: PE#800000 (PCI 0384:80:00.0): Invoking
-bnx2x->error_detected(IO frozen)
-[ 3222.537516] bnx2x: [bnx2x_io_error_detected:14236(eth14)]IO error detected [ 3222.537650] EEH: PE#800000 (PCI 0384:80:00.0): bnx2x driver reports:
-'need reset'
-[ 3222.537651] EEH: PE#800000 (PCI 0384:80:00.1): Invoking
-bnx2x->error_detected(IO frozen)
-[ 3222.537651] bnx2x: [bnx2x_io_error_detected:14236(eth13)]IO error detected [ 3222.537729] EEH: PE#800000 (PCI 0384:80:00.1): bnx2x driver reports:
-'need reset'
-[ 3222.537729] EEH: Finished:'error_detected(IO frozen)' with aggregate recovery state:'need reset'
-[ 3222.537890] EEH: Collect temporary log [ 3222.583481] EEH: of node=0384:80:00.0 [ 3222.583519] EEH: PCI device/vendor: 168e14e4 [ 3222.583557] EEH: PCI cmd/status register: 00100140 [ 3222.583557] EEH: PCI-E capabilities and status follow:
-[ 3222.583744] EEH: PCI-E 00: 00020010 012c8da2 00095d5e 00455c82 [ 3222.583892] EEH: PCI-E 10: 10820000 00000000 00000000 00000000 [ 3222.583893] EEH: PCI-E 20: 00000000 [ 3222.583893] EEH: PCI-E AER capability register set follows:
-[ 3222.584079] EEH: PCI-E AER 00: 13c10001 00000000 00000000 00062030 [ 3222.584230] EEH: PCI-E AER 10: 00002000 000031c0 000001e0 00000000 [ 3222.584378] EEH: PCI-E AER 20: 00000000 00000000 00000000 00000000 [ 3222.584416] EEH: PCI-E AER 30: 00000000 00000000 [ 3222.584416] EEH: of node=0384:80:00.1 [ 3222.584454] EEH: PCI device/vendor: 168e14e4 [ 3222.584491] EEH: PCI cmd/status register: 00100140 [ 3222.584492] EEH: PCI-E capabilities and status follow:
-[ 3222.584677] EEH: PCI-E 00: 00020010 012c8da2 00095d5e 00455c82 [ 3222.584825] EEH: PCI-E 10: 10820000 00000000 00000000 00000000 [ 3222.584826] EEH: PCI-E 20: 00000000 [ 3222.584826] EEH: PCI-E AER capability register set follows:
-[ 3222.585011] EEH: PCI-E AER 00: 13c10001 00000000 00000000 00062030 [ 3222.585160] EEH: PCI-E AER 10: 00002000 000031c0 000001e0 00000000 [ 3222.585309] EEH: PCI-E AER 20: 00000000 00000000 00000000 00000000 [ 3222.585347] EEH: PCI-E AER 30: 00000000 00000000 [ 3222.586872] RTAS: event: 5, Type: Platform Error (224), Severity: 2 [ 3222.586873] EEH: Reset without hotplug activity [ 3224.762767] EEH: Beginning: 'slot_reset'
-[ 3224.762770] EEH: PE#800000 (PCI 0384:80:00.0): Invoking
-bnx2x->slot_reset()
-[ 3224.762771] bnx2x: [bnx2x_io_slot_reset:14271(eth14)]IO slot reset initializing...
-[ 3224.762887] bnx2x 0384:80:00.0: enabling device (0140 -> 0142) [ 3224.768157] bnx2x: [bnx2x_io_slot_reset:14287(eth14)]IO slot reset
---> driver unload
-
-Uninterruptible tasks
-=====================
-crash> ps | grep UN
-     213      2  11  c000000004c89e00  UN   0.0       0      0  [eehd]
-     215      2   0  c000000004c80000  UN   0.0       0      0
-[kworker/0:2]
-    2196      1  28  c000000004504f00  UN   0.1   15936  11136  wickedd
-    4287      1   9  c00000020d076800  UN   0.0    4032   3008  agetty
-    4289      1  20  c00000020d056680  UN   0.0    7232   3840  agetty
-   32423      2  26  c00000020038c580  UN   0.0       0      0
-[kworker/26:3]
-   32871   4241  27  c0000002609ddd00  UN   0.1   18624  11648  sshd
-   32920  10130  16  c00000027284a100  UN   0.1   48512  12608  sendmail
-   33092  32987   0  c000000205218b00  UN   0.1   48512  12608  sendmail
-   33154   4567  16  c000000260e51780  UN   0.1   48832  12864  pickup
-   33209   4241  36  c000000270cb6500  UN   0.1   18624  11712  sshd
-   33473  33283   0  c000000205211480  UN   0.1   48512  12672  sendmail
-   33531   4241  37  c00000023c902780  UN   0.1   18624  11648  sshd
-
-EEH handler hung while bnx2x sleeping and holding RTNL lock
-===========================================================
-crash> bt 213
-PID: 213    TASK: c000000004c89e00  CPU: 11  COMMAND: "eehd"
-  #0 [c000000004d477e0] __schedule at c000000000c70808
-  #1 [c000000004d478b0] schedule at c000000000c70ee0
-  #2 [c000000004d478e0] schedule_timeout at c000000000c76dec
-  #3 [c000000004d479c0] msleep at c0000000002120cc
-  #4 [c000000004d479f0] napi_disable at c000000000a06448
-                                        ^^^^^^^^^^^^^^^^
-  #5 [c000000004d47a30] bnx2x_netif_stop at c0080000018dba94 [bnx2x]
-  #6 [c000000004d47a60] bnx2x_io_slot_reset at c0080000018a551c [bnx2x]
-  #7 [c000000004d47b20] eeh_report_reset at c00000000004c9bc
-  #8 [c000000004d47b90] eeh_pe_report at c00000000004d1a8
-  #9 [c000000004d47c40] eeh_handle_normal_event at c00000000004da64
-
-And the sleeping source code
-============================
-crash> dis -ls c000000000a06448
-FILE: ../net/core/dev.c
-LINE: 6702
-
-   6697  {
-   6698          might_sleep();
-   6699          set_bit(NAPI_STATE_DISABLE, &n->state);
-   6700
-   6701          while (test_and_set_bit(NAPI_STATE_SCHED, &n->state))
-* 6702                  msleep(1);
-   6703          while (test_and_set_bit(NAPI_STATE_NPSVC, &n->state))
-   6704                  msleep(1);
-   6705
-   6706          hrtimer_cancel(&n->timer);
-   6707
-   6708          clear_bit(NAPI_STATE_DISABLE, &n->state);
-   6709  }
-
-EEH calls into bnx2x twice based on the system log above, first through
-bnx2x_io_error_detected() and then bnx2x_io_slot_reset(), and executes
-the following call chains:
-
-bnx2x_io_error_detected()
-  +-> bnx2x_eeh_nic_unload()
-       +-> bnx2x_del_all_napi()
-            +-> __netif_napi_del()
-
-bnx2x_io_slot_reset()
-  +-> bnx2x_netif_stop()
-       +-> bnx2x_napi_disable()
-            +->napi_disable()
-
-Fix this by correcting the sequence of NAPI APIs usage,
-that is delete the NAPI after disabling it.
-
-Fixes: 7fa6f34081f1 ("bnx2x: AER revised")
-Reported-by: David Christensen <drc@linux.vnet.ibm.com>
-Tested-by: David Christensen <drc@linux.vnet.ibm.com>
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Link: https://lore.kernel.org/r/20220426153913.6966-1-manishc@marvell.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-5-daniel.starke@siemens.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/tty/n_gsm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-index b0ada7eac652..7925c40c0062 100644
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-@@ -14317,10 +14317,6 @@ static int bnx2x_eeh_nic_unload(struct bnx2x *bp)
- 
- 	/* Stop Tx */
- 	bnx2x_tx_disable(bp);
--	/* Delete all NAPI objects */
--	bnx2x_del_all_napi(bp);
--	if (CNIC_LOADED(bp))
--		bnx2x_del_all_napi_cnic(bp);
- 	netdev_reset_tc(bp->dev);
- 
- 	del_timer_sync(&bp->timer);
-@@ -14425,6 +14421,11 @@ static pci_ers_result_t bnx2x_io_slot_reset(struct pci_dev *pdev)
- 		bnx2x_drain_tx_queues(bp);
- 		bnx2x_send_unload_req(bp, UNLOAD_RECOVERY);
- 		bnx2x_netif_stop(bp, 1);
-+		bnx2x_del_all_napi(bp);
-+
-+		if (CNIC_LOADED(bp))
-+			bnx2x_del_all_napi_cnic(bp);
-+
- 		bnx2x_free_irq(bp);
- 
- 		/* Report UNLOAD_DONE to MCP */
--- 
-2.35.1
-
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -839,7 +839,7 @@ static int gsm_dlci_data_output(struct g
+ 			break;
+ 		case 2:	/* Unstructed with modem bits.
+ 		Always one byte as we never send inline break data */
+-			*dp++ = gsm_encode_modem(dlci);
++			*dp++ = (gsm_encode_modem(dlci) << 1) | EA;
+ 			break;
+ 		}
+ 		WARN_ON(kfifo_out_locked(dlci->fifo, dp , len, &dlci->lock) != len);
 
 
