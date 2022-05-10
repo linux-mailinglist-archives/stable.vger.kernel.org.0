@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8FE521981
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5655219FD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243886AbiEJNtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S244335AbiEJNw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245076AbiEJNrV (ORCPT
+        with ESMTP id S245081AbiEJNrV (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAC1D22EA74;
-        Tue, 10 May 2022 06:35:02 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD1D2317DB;
+        Tue, 10 May 2022 06:35:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2B9BECE1EDE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08B476188A;
+        Tue, 10 May 2022 13:35:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16495C385C2;
         Tue, 10 May 2022 13:35:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34985C385C2;
-        Tue, 10 May 2022 13:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189699;
-        bh=GMk/FTiZNuJINrvD/5eVq2bJ3KaCN5rDMfVzshQ+yrg=;
+        s=korg; t=1652189702;
+        bh=Rkh+144k4iUlSkLpEIMZg4P+EkOe9XVhs9V5XUEYbCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5ew5w6sE+zD4d0Ipvn3F/UNEXYTwInb9evrpkynDyXvO5xYAhmlv6lg3e8ZUOfIf
-         DYwbibg2WXcEUUpBH2cga6XdVKJHljxMoV3wPQBlYfGPBkqwtKkWmPndtgPpzYPr/G
-         6ugbOgIiC4L1d3XrIc94id+JlCzWd0SyCX2HYo8A=
+        b=VGMWmPLPQUE9XHLvq+kpBVf1REtMVgoHgeCbmIrAgjsJQSxI/IdRiMjWoIYZvsjjS
+         Sh7xHuq4tayMOeH7ap56iZf1nK2WyNJQ4RG4JmFlB65MS1qCQvT2EvnTtrxQxXQR1z
+         f3g0KqInqLT0xpOnVpuOyjollxsasa/7J+XzR82U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 126/135] PCI: aardvark: Enable MSI-X support
-Date:   Tue, 10 May 2022 15:08:28 +0200
-Message-Id: <20220510130744.010873265@linuxfoundation.org>
+Subject: [PATCH 5.15 127/135] PCI: aardvark: Add support for ERR interrupt on emulated bridge
+Date:   Tue, 10 May 2022 15:08:29 +0200
+Message-Id: <20220510130744.041648273@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
@@ -56,41 +56,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 754e449889b22fc3c34235e8836f08f51121d307 upstream.
+commit 3ebfefa396ebee21061fd5fa36073368ed2cd467 upstream.
 
-According to PCI 3.0 specification, sending both MSI and MSI-X interrupts
-is done by DWORD memory write operation to doorbell message address. The
-write operation for MSI has zero upper 16 bits and the MSI interrupt number
-in the lower 16 bits, while the write operation for MSI-X contains a 32-bit
-value from MSI-X table.
+ERR interrupt is triggered when corresponding bit is unmasked in both ISR0
+and PCI_EXP_DEVCTL registers. Unmasking ERR bits in PCI_EXP_DEVCTL register
+is not enough. This means that currently the ERR interrupt is never
+triggered.
 
-Since the driver only uses interrupt numbers from range 0..31, the upper
-16 bits of the DWORD memory write operation to doorbell message address
-are zero even for MSI-X interrupts. Thus we can enable MSI-X interrupts.
+Unmask ERR bits in ISR0 register at driver probe time. ERR interrupt is not
+triggered until ERR bits are unmasked also in PCI_EXP_DEVCTL register,
+which is done by AER driver. So it is safe to unconditionally unmask all
+ERR bits in aardvark probe.
 
-Testing proves that kernel can correctly receive MSI-X interrupts from PCIe
-cards which supports both MSI and MSI-X interrupts.
+Aardvark HW sets PCI_ERR_ROOT_AER_IRQ to zero and when corresponding bits
+in ISR0 and PCI_EXP_DEVCTL are enabled, the HW triggers a generic interrupt
+on GIC. Chain this interrupt to PCIe interrupt 0 with
+generic_handle_domain_irq() to allow processing of ERR interrupts.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-13-kabel@kernel.org
+Link: https://lore.kernel.org/r/20220110015018.26359-14-kabel@kernel.org
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |   35 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 34 insertions(+), 1 deletion(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1339,7 +1339,7 @@ static struct irq_chip advk_msi_irq_chip
+@@ -98,6 +98,10 @@
+ #define PCIE_MSG_PM_PME_MASK			BIT(7)
+ #define PCIE_ISR0_MASK_REG			(CONTROL_BASE_ADDR + 0x44)
+ #define     PCIE_ISR0_MSI_INT_PENDING		BIT(24)
++#define     PCIE_ISR0_CORR_ERR			BIT(11)
++#define     PCIE_ISR0_NFAT_ERR			BIT(12)
++#define     PCIE_ISR0_FAT_ERR			BIT(13)
++#define     PCIE_ISR0_ERR_MASK			GENMASK(13, 11)
+ #define     PCIE_ISR0_INTX_ASSERT(val)		BIT(16 + (val))
+ #define     PCIE_ISR0_INTX_DEASSERT(val)	BIT(20 + (val))
+ #define     PCIE_ISR0_ALL_MASK			GENMASK(31, 0)
+@@ -778,11 +782,15 @@ advk_pci_bridge_emul_base_conf_read(stru
+ 	case PCI_INTERRUPT_LINE: {
+ 		/*
+ 		 * From the whole 32bit register we support reading from HW only
+-		 * one bit: PCI_BRIDGE_CTL_BUS_RESET.
++		 * two bits: PCI_BRIDGE_CTL_BUS_RESET and PCI_BRIDGE_CTL_SERR.
+ 		 * Other bits are retrieved only from emulated config buffer.
+ 		 */
+ 		__le32 *cfgspace = (__le32 *)&bridge->conf;
+ 		u32 val = le32_to_cpu(cfgspace[PCI_INTERRUPT_LINE / 4]);
++		if (advk_readl(pcie, PCIE_ISR0_MASK_REG) & PCIE_ISR0_ERR_MASK)
++			val &= ~(PCI_BRIDGE_CTL_SERR << 16);
++		else
++			val |= PCI_BRIDGE_CTL_SERR << 16;
+ 		if (advk_readl(pcie, PCIE_CORE_CTRL1_REG) & HOT_RESET_GEN)
+ 			val |= PCI_BRIDGE_CTL_BUS_RESET << 16;
+ 		else
+@@ -808,6 +816,19 @@ advk_pci_bridge_emul_base_conf_write(str
+ 		break;
  
- static struct msi_domain_info advk_msi_domain_info = {
- 	.flags	= MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
--		  MSI_FLAG_MULTI_PCI_MSI,
-+		  MSI_FLAG_MULTI_PCI_MSI | MSI_FLAG_PCI_MSIX,
- 	.chip	= &advk_msi_irq_chip,
- };
+ 	case PCI_INTERRUPT_LINE:
++		/*
++		 * According to Figure 6-3: Pseudo Logic Diagram for Error
++		 * Message Controls in PCIe base specification, SERR# Enable bit
++		 * in Bridge Control register enable receiving of ERR_* messages
++		 */
++		if (mask & (PCI_BRIDGE_CTL_SERR << 16)) {
++			u32 val = advk_readl(pcie, PCIE_ISR0_MASK_REG);
++			if (new & (PCI_BRIDGE_CTL_SERR << 16))
++				val &= ~PCIE_ISR0_ERR_MASK;
++			else
++				val |= PCIE_ISR0_ERR_MASK;
++			advk_writel(pcie, val, PCIE_ISR0_MASK_REG);
++		}
+ 		if (mask & (PCI_BRIDGE_CTL_BUS_RESET << 16)) {
+ 			u32 val = advk_readl(pcie, PCIE_CORE_CTRL1_REG);
+ 			if (new & (PCI_BRIDGE_CTL_BUS_RESET << 16))
+@@ -1457,6 +1478,18 @@ static void advk_pcie_handle_int(struct
+ 	isr1_mask = advk_readl(pcie, PCIE_ISR1_MASK_REG);
+ 	isr1_status = isr1_val & ((~isr1_mask) & PCIE_ISR1_ALL_MASK);
  
++	/* Process ERR interrupt */
++	if (isr0_status & PCIE_ISR0_ERR_MASK) {
++		advk_writel(pcie, PCIE_ISR0_ERR_MASK, PCIE_ISR0_REG);
++
++		/*
++		 * Aardvark HW returns zero for PCI_ERR_ROOT_AER_IRQ, so use
++		 * PCIe interrupt 0
++		 */
++		if (generic_handle_domain_irq(pcie->irq_domain, 0) == -EINVAL)
++			dev_err_ratelimited(&pcie->pdev->dev, "unhandled ERR IRQ\n");
++	}
++
+ 	/* Process MSI interrupts */
+ 	if (isr0_status & PCIE_ISR0_MSI_INT_PENDING)
+ 		advk_pcie_handle_msi(pcie);
 
 
