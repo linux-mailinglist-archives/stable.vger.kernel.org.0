@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D40521719
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6834521AB7
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242423AbiEJNXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37530 "EHLO
+        id S244261AbiEJODa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241546AbiEJNUx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:20:53 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AABD2BA99F;
-        Tue, 10 May 2022 06:13:41 -0700 (PDT)
+        with ESMTP id S1343555AbiEJN7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:59:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97666D8090;
+        Tue, 10 May 2022 06:39:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8621E61574;
-        Tue, 10 May 2022 13:13:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97C41C385C2;
-        Tue, 10 May 2022 13:13:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44838B81D24;
+        Tue, 10 May 2022 13:39:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0B9DC385A6;
+        Tue, 10 May 2022 13:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188421;
-        bh=LaDG7CapcarKnFOEKMZMJPT3w1lOlsP0oILBZQfjazE=;
+        s=korg; t=1652189975;
+        bh=xXJx6p9kaW3KxYiu/puI7rEWMdgmXgXQuAUB7kqjMFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=keR0KxHlIZRniJmEPvjCDDYQ63tIfR0bK4iTcw+Yf3AQ4nniwL2jhRtK5DDXPnWKZ
-         L2PZhpUXS/YJIK8vmBjkoyjj0+fnW99Afa074rR1H3QRUOEDMTQ/wUIudN90HSflyQ
-         MdnqnmDsmzXmFHc2/oGcI/PLzKEi+GEd+BK7CX1w=
+        b=i91ykjz9XoBSh/h8vwLsfvu7L8Hy8uiYkL8ZWBoHqGt5BaGfc+H9ja7diVSrKlvDw
+         lc90Ewi+kjUtP7alhvjQ7pJ2z/XP/IEpbxZUesuhJGXy5IbwA0NsbdDlJbvAd+na/B
+         wZCGCKWgpmIF2sjohb8/XJaU3voL/YcCb56q4Rfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 28/66] ip_gre: Make o_seqno start from 0 in native mode
+        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.17 048/140] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
 Date:   Tue, 10 May 2022 15:07:18 +0200
-Message-Id: <20220510130730.590531468@linuxfoundation.org>
+Message-Id: <20220510130742.994114000@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peilin Ye <peilin.ye@bytedance.com>
+From: Andreas Larsson <andreas@gaisler.com>
 
-[ Upstream commit ff827beb706ed719c766acf36449801ded0c17fc ]
+commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
 
-For GRE and GRETAP devices, currently o_seqno starts from 1 in native
-mode.  According to RFC 2890 2.2., "The first datagram is sent with a
-sequence number of 0."  Fix it.
+The systemid property was checked for in the wrong place of the device
+tree and compared to the wrong value.
 
-It is worth mentioning that o_seqno already starts from 0 in collect_md
-mode, see gre_fb_xmit(), where tunnel->o_seqno is passed to
-gre_build_header() before getting incremented.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
-Acked-by: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ip_gre.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/can/grcan.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index fe1801d9f059..eec225c637f0 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -339,14 +339,12 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
- 		       __be16 proto)
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -241,7 +241,7 @@ struct grcan_device_config {
+ 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
+ 		}
+ 
+-#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
++#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
+ #define GRLIB_VERSION_MASK		0xffff
+ 
+ /* GRCAN private data structure */
+@@ -1643,6 +1643,7 @@ exit_free_candev:
+ static int grcan_probe(struct platform_device *ofdev)
  {
- 	struct ip_tunnel *tunnel = netdev_priv(dev);
--
--	if (tunnel->parms.o_flags & TUNNEL_SEQ)
--		tunnel->o_seqno++;
-+	__be16 flags = tunnel->parms.o_flags;
+ 	struct device_node *np = ofdev->dev.of_node;
++	struct device_node *sysid_parent;
+ 	u32 sysid, ambafreq;
+ 	int irq, err;
+ 	void __iomem *base;
+@@ -1651,10 +1652,15 @@ static int grcan_probe(struct platform_d
+ 	/* Compare GRLIB version number with the first that does not
+ 	 * have the tx bug (see start_xmit)
+ 	 */
+-	err = of_property_read_u32(np, "systemid", &sysid);
+-	if (!err && ((sysid & GRLIB_VERSION_MASK)
+-		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
+-		txbug = false;
++	sysid_parent = of_find_node_by_path("/ambapp0");
++	if (sysid_parent) {
++		of_node_get(sysid_parent);
++		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
++		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
++			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
++			txbug = false;
++		of_node_put(sysid_parent);
++	}
  
- 	/* Push GRE header. */
- 	gre_build_header(skb, tunnel->tun_hlen,
--			 tunnel->parms.o_flags, proto, tunnel->parms.o_key,
--			 htonl(tunnel->o_seqno));
-+			 flags, proto, tunnel->parms.o_key,
-+			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
- 
- 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
- }
--- 
-2.35.1
-
+ 	err = of_property_read_u32(np, "freq", &ambafreq);
+ 	if (err) {
 
 
