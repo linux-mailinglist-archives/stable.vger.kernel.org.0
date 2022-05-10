@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E37BB521847
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5A4521726
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbiEJNeK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:34:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
+        id S243049AbiEJNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243765AbiEJNcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F59E2CE21D;
-        Tue, 10 May 2022 06:22:01 -0700 (PDT)
+        with ESMTP id S243104AbiEJNWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:55 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAB7B1B1844;
+        Tue, 10 May 2022 06:17:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5A916165A;
-        Tue, 10 May 2022 13:22:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44F6C385C2;
-        Tue, 10 May 2022 13:21:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD536B81DA0;
+        Tue, 10 May 2022 13:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E03C385C2;
+        Tue, 10 May 2022 13:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188920;
-        bh=iXVVI4US+Q041s1HhJh5ERMO/BF9bJSOGPx+QLMsC9s=;
+        s=korg; t=1652188626;
+        bh=6TDfajJ8pBMh+JcLy099ip64RR+pHVaqJxecjE9Erfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdSAmKXKJ4XWRk1ViTIEDzw0bXW7ZIb27xa/+qifwA9lM8hGb+2imyKdYLbO+Z0Ld
-         4eRyKEbVdtkhonhHLIwzvDYe2K3uyAJdidEKEbh93RxQql0BeNl5NJA0gWPCA3DfK8
-         Df2DLSTskFPmZPbfYJ6oml0GcnNoR0IJ/A2kMloU=
+        b=oc6aaJWka96HAvjG6Qu/8EPCrlPllO5wZ5EqWVPJp0EGR5uUJNueAerEbxBv2us0m
+         L9SyeQgH6pgeZ9KVD9C38bSM91qKAvMiuErDzhMc6YQUNWIuUHQUPOKsf/1chDfazH
+         fTYkuW7ZK7pvxeHbNbedoEFRp9Vhm28TjQwCWy5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Hellstrom <daniel@gaisler.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 69/88] can: grcan: use ofdev->dev when allocating DMA memory
+        stable@vger.kernel.org, Sascha Hauer <sha@pengutronix.de>,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.14 68/78] ASoC: dmaengine: Restore NULL prepare_slave_config() callback
 Date:   Tue, 10 May 2022 15:07:54 +0200
-Message-Id: <20220510130735.739737967@linuxfoundation.org>
+Message-Id: <20220510130734.543705295@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Hellstrom <daniel@gaisler.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-commit 101da4268626b00d16356a6bf284d66e44c46ff9 upstream.
+commit 660564fc9a92a893a14f255be434f7ea0b967901 upstream.
 
-Use the device of the device tree node should be rather than the
-device of the struct net_device when allocating DMA buffers.
+As pointed out by Sascha Hauer, this patch changes:
+if (pmc->config && !pcm->config->prepare_slave_config)
+        <do nothing>
+to:
+if (pmc->config && !pcm->config->prepare_slave_config)
+        snd_dmaengine_pcm_prepare_slave_config()
 
-The driver got away with it on sparc32 until commit 53b7670e5735
-("sparc: factor the dma coherent mapping into helper") after which the
-driver oopses.
+This breaks the drivers that do not need a call to
+dmaengine_slave_config(). Drivers that still need to call
+snd_dmaengine_pcm_prepare_slave_config(), but have a NULL
+pcm->config->prepare_slave_config should use
+snd_dmaengine_pcm_prepare_slave_config() as their prepare_slave_config
+callback.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-2-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 9a1e13440a4f ("ASoC: dmaengine: do not use a NULL prepare_slave_config() callback")
+Reported-by: Sascha Hauer <sha@pengutronix.de>
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220421125403.2180824-1-codrin.ciubotariu@microchip.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/soc/soc-generic-dmaengine-pcm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -252,6 +252,7 @@ struct grcan_device_config {
- struct grcan_priv {
- 	struct can_priv can;	/* must be the first member */
- 	struct net_device *dev;
-+	struct device *ofdev_dev;
- 	struct napi_struct napi;
+--- a/sound/soc/soc-generic-dmaengine-pcm.c
++++ b/sound/soc/soc-generic-dmaengine-pcm.c
+@@ -98,10 +98,10 @@ static int dmaengine_pcm_hw_params(struc
  
- 	struct grcan_registers __iomem *regs;	/* ioremap'ed registers */
-@@ -928,7 +929,7 @@ static void grcan_free_dma_buffers(struc
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	struct grcan_dma *dma = &priv->dma;
+ 	memset(&slave_config, 0, sizeof(slave_config));
  
--	dma_free_coherent(&dev->dev, dma->base_size, dma->base_buf,
-+	dma_free_coherent(priv->ofdev_dev, dma->base_size, dma->base_buf,
- 			  dma->base_handle);
- 	memset(dma, 0, sizeof(*dma));
- }
-@@ -953,7 +954,7 @@ static int grcan_allocate_dma_buffers(st
+-	if (pcm->config && pcm->config->prepare_slave_config)
+-		prepare_slave_config = pcm->config->prepare_slave_config;
+-	else
++	if (!pcm->config)
+ 		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
++	else
++		prepare_slave_config = pcm->config->prepare_slave_config;
  
- 	/* Extra GRCAN_BUFFER_ALIGNMENT to allow for alignment */
- 	dma->base_size = lsize + ssize + GRCAN_BUFFER_ALIGNMENT;
--	dma->base_buf = dma_alloc_coherent(&dev->dev,
-+	dma->base_buf = dma_alloc_coherent(priv->ofdev_dev,
- 					   dma->base_size,
- 					   &dma->base_handle,
- 					   GFP_KERNEL);
-@@ -1606,6 +1607,7 @@ static int grcan_setup_netdev(struct pla
- 	memcpy(&priv->config, &grcan_module_config,
- 	       sizeof(struct grcan_device_config));
- 	priv->dev = dev;
-+	priv->ofdev_dev = &ofdev->dev;
- 	priv->regs = base;
- 	priv->can.bittiming_const = &grcan_bittiming_const;
- 	priv->can.do_set_bittiming = grcan_set_bittiming;
+ 	if (prepare_slave_config) {
+ 		ret = prepare_slave_config(substream, params, &slave_config);
 
 
