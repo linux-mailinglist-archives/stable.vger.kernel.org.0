@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CC29521B15
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6367C521B2C
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245443AbiEJOIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:08:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53542 "EHLO
+        id S244554AbiEJOI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:08:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244142AbiEJOH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:07:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DD282268B6;
-        Tue, 10 May 2022 06:42:14 -0700 (PDT)
+        with ESMTP id S244728AbiEJOIG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:08:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B4E523E28C;
+        Tue, 10 May 2022 06:42:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D19DA618E6;
-        Tue, 10 May 2022 13:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10B6C385A6;
-        Tue, 10 May 2022 13:42:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D41AB81D24;
+        Tue, 10 May 2022 13:42:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA87DC385A6;
+        Tue, 10 May 2022 13:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190133;
-        bh=e0M+IDH0ed3gsuTENoGo0PZf/xef+c37kCmm6wGjOqQ=;
+        s=korg; t=1652190136;
+        bh=0T9G6o0zL4mfgca2SDq0wxe6BxWXo299ohe6/PGho10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WI7GO5AEyBoMaG3f0VfGEIQd8cxDALlAE54H5Rq2ljggAldT5nAsYqTRsLmB3ZWrB
-         ObtbHCNzFfqKU5AAIIwaRjpDc/IER6KTvIJ0djmlzuXtX9b+IInnQRaf5mcsW8uvrt
-         3ib9syl46coEJFLxMZs4XwxTYLCip4kMWDFJQxJ8=
+        b=zq9lgm7xBo1JA66VoiLWc5b3pBzchM5eIuQWqxPB3a9DXKn98FrBOahPrEVLkWAuw
+         3YqeqIQT2G+AV9H+SPFynj5bwte+8eofI0OPIf2oaMKEJzpBEtdFEd+oig41wgs0Zr
+         OAe0sEoBs58/dnYaRK845bwXEKC3MAbjiBKnDLfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, pali@kernel.org,
         =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.17 139/140] PCI: aardvark: Drop __maybe_unused from advk_pcie_disable_phy()
-Date:   Tue, 10 May 2022 15:08:49 +0200
-Message-Id: <20220510130745.560970374@linuxfoundation.org>
+Subject: [PATCH 5.17 140/140] PCI: aardvark: Update comment about link going down after link-up
+Date:   Tue, 10 May 2022 15:08:50 +0200
+Message-Id: <20220510130745.588250738@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
 References: <20220510130741.600270947@linuxfoundation.org>
@@ -56,30 +56,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Marek Behún" <kabel@kernel.org>
 
-commit 0c36ab437e1d94b6628b006a1d48f05ea3b0b222 upstream.
+commit 92f4ffecc4170ce29e67a1f8d51c168c3de95fb2 upstream.
 
-This function is now always used in driver remove method, drop the
-__maybe_unused attribute.
+Update the comment about what happens when link goes down after we have
+checked for link-up. If a PIO request is done while link-down, we have
+a serious problem.
 
-Link: https://lore.kernel.org/r/20220110015018.26359-22-kabel@kernel.org
+Link: https://lore.kernel.org/r/20220110015018.26359-23-kabel@kernel.org
 Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/pci-aardvark.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
 --- a/drivers/pci/controller/pci-aardvark.c
 +++ b/drivers/pci/controller/pci-aardvark.c
-@@ -1603,7 +1603,7 @@ static int advk_pcie_map_irq(const struc
- 		return of_irq_parse_and_map_pci(dev, slot, pin);
- }
+@@ -998,8 +998,12 @@ static bool advk_pcie_valid_device(struc
+ 		return false;
  
--static void __maybe_unused advk_pcie_disable_phy(struct advk_pcie *pcie)
-+static void advk_pcie_disable_phy(struct advk_pcie *pcie)
- {
- 	phy_power_off(pcie->phy);
- 	phy_exit(pcie->phy);
+ 	/*
+-	 * If the link goes down after we check for link-up, nothing bad
+-	 * happens but the config access times out.
++	 * If the link goes down after we check for link-up, we have a problem:
++	 * if a PIO request is executed while link-down, the whole controller
++	 * gets stuck in a non-functional state, and even after link comes up
++	 * again, PIO requests won't work anymore, and a reset of the whole PCIe
++	 * controller is needed. Therefore we need to prevent sending PIO
++	 * requests while the link is down.
+ 	 */
+ 	if (!pci_is_root_bus(bus) && !advk_pcie_link_up(pcie))
+ 		return false;
 
 
