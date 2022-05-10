@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B759521A1F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F86B521936
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244455AbiEJNxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50732 "EHLO
+        id S243538AbiEJNme (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244557AbiEJNu4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:50:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04BD9296BC5;
-        Tue, 10 May 2022 06:37:55 -0700 (PDT)
+        with ESMTP id S244532AbiEJNhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B2EB7F3;
+        Tue, 10 May 2022 06:25:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DAC50618A6;
-        Tue, 10 May 2022 13:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C78C9C385C6;
-        Tue, 10 May 2022 13:37:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 193626170D;
+        Tue, 10 May 2022 13:25:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25939C385C2;
+        Tue, 10 May 2022 13:25:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189874;
-        bh=WXSNMrp0qzPhfuD6Y3qb5bOnrpSU5f7R2X8o0aXPoxw=;
+        s=korg; t=1652189150;
+        bh=+s4ngMBxOytcXovP8uK7iv8qXRfC12Uas4BGp8mGNzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tc66fhK74t5rbgHR4BVGN3n8LG0yIPeqt2xkTnsJM14/RLAi+9L7ZpdIe6EgElstf
-         3WgSFly38O74KuwZJ79sM2Y1DiZo6xaQCw+IlS7/vCv3/FipWP8S6qbLF3KlO/wMws
-         +S7yyhdSFeOMcfE9JOcebRp389VfJQKjyV3waXPA=
+        b=T2HJx0xX9egFxW9YnCqESd3/G06r9CbPZLQFIUwt10UT5/X8je7L5FqpDR4A6cmnG
+         Fp+B+9tcROPMkyomCkMcALPkU6gBXE36SDoE3jjIcJqL9ObZwwfT9rLsCEza7iLZA2
+         xn2FSHsDz4/mb87LnguID1ZlGU8fZ9uquRLa4cLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sascha Hauer <sha@pengutronix.de>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.17 057/140] ASoC: dmaengine: Restore NULL prepare_slave_config() callback
+        stable@vger.kernel.org, Kyle Huey <me@kylehuey.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 08/70] KVM: x86/svm: Account for family 17h event renumberings in amd_pmc_perf_hw_id
 Date:   Tue, 10 May 2022 15:07:27 +0200
-Message-Id: <20220510130743.249571831@linuxfoundation.org>
+Message-Id: <20220510130733.107273459@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+From: Kyle Huey <me@kylehuey.com>
 
-commit 660564fc9a92a893a14f255be434f7ea0b967901 upstream.
+commit 5eb849322d7f7ae9d5c587c7bc3b4f7c6872cd2f upstream.
 
-As pointed out by Sascha Hauer, this patch changes:
-if (pmc->config && !pcm->config->prepare_slave_config)
-        <do nothing>
-to:
-if (pmc->config && !pcm->config->prepare_slave_config)
-        snd_dmaengine_pcm_prepare_slave_config()
+Zen renumbered some of the performance counters that correspond to the
+well known events in perf_hw_id. This code in KVM was never updated for
+that, so guest that attempt to use counters on Zen that correspond to the
+pre-Zen perf_hw_id values will silently receive the wrong values.
 
-This breaks the drivers that do not need a call to
-dmaengine_slave_config(). Drivers that still need to call
-snd_dmaengine_pcm_prepare_slave_config(), but have a NULL
-pcm->config->prepare_slave_config should use
-snd_dmaengine_pcm_prepare_slave_config() as their prepare_slave_config
-callback.
+This has been observed in the wild with rr[0] when running in Zen 3
+guests. rr uses the retired conditional branch counter 00d1 which is
+incorrectly recognized by KVM as PERF_COUNT_HW_STALLED_CYCLES_BACKEND.
 
-Fixes: 9a1e13440a4f ("ASoC: dmaengine: do not use a NULL prepare_slave_config() callback")
-Reported-by: Sascha Hauer <sha@pengutronix.de>
-Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Link: https://lore.kernel.org/r/20220421125403.2180824-1-codrin.ciubotariu@microchip.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[0] https://rr-project.org/
+
+Signed-off-by: Kyle Huey <me@kylehuey.com>
+Message-Id: <20220503050136.86298-1-khuey@kylehuey.com>
+Cc: stable@vger.kernel.org
+[Check guest family, not host. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/soc-generic-dmaengine-pcm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/svm/pmu.c |   28 +++++++++++++++++++++++++---
+ 1 file changed, 25 insertions(+), 3 deletions(-)
 
---- a/sound/soc/soc-generic-dmaengine-pcm.c
-+++ b/sound/soc/soc-generic-dmaengine-pcm.c
-@@ -86,10 +86,10 @@ static int dmaengine_pcm_hw_params(struc
+--- a/arch/x86/kvm/svm/pmu.c
++++ b/arch/x86/kvm/svm/pmu.c
+@@ -44,6 +44,22 @@ static struct kvm_event_hw_type_mapping
+ 	[7] = { 0xd1, 0x00, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
+ };
  
- 	memset(&slave_config, 0, sizeof(slave_config));
++/* duplicated from amd_f17h_perfmon_event_map. */
++static struct kvm_event_hw_type_mapping amd_f17h_event_mapping[] = {
++	[0] = { 0x76, 0x00, PERF_COUNT_HW_CPU_CYCLES },
++	[1] = { 0xc0, 0x00, PERF_COUNT_HW_INSTRUCTIONS },
++	[2] = { 0x60, 0xff, PERF_COUNT_HW_CACHE_REFERENCES },
++	[3] = { 0x64, 0x09, PERF_COUNT_HW_CACHE_MISSES },
++	[4] = { 0xc2, 0x00, PERF_COUNT_HW_BRANCH_INSTRUCTIONS },
++	[5] = { 0xc3, 0x00, PERF_COUNT_HW_BRANCH_MISSES },
++	[6] = { 0x87, 0x02, PERF_COUNT_HW_STALLED_CYCLES_FRONTEND },
++	[7] = { 0x87, 0x01, PERF_COUNT_HW_STALLED_CYCLES_BACKEND },
++};
++
++/* amd_pmc_perf_hw_id depends on these being the same size */
++static_assert(ARRAY_SIZE(amd_event_mapping) ==
++	     ARRAY_SIZE(amd_f17h_event_mapping));
++
+ static unsigned int get_msr_base(struct kvm_pmu *pmu, enum pmu_type type)
+ {
+ 	struct kvm_vcpu *vcpu = pmu_to_vcpu(pmu);
+@@ -128,19 +144,25 @@ static inline struct kvm_pmc *get_gp_pmc
  
--	if (pcm->config && pcm->config->prepare_slave_config)
--		prepare_slave_config = pcm->config->prepare_slave_config;
--	else
-+	if (!pcm->config)
- 		prepare_slave_config = snd_dmaengine_pcm_prepare_slave_config;
+ static unsigned int amd_pmc_perf_hw_id(struct kvm_pmc *pmc)
+ {
++	struct kvm_event_hw_type_mapping *event_mapping;
+ 	u8 event_select = pmc->eventsel & ARCH_PERFMON_EVENTSEL_EVENT;
+ 	u8 unit_mask = (pmc->eventsel & ARCH_PERFMON_EVENTSEL_UMASK) >> 8;
+ 	int i;
+ 
++	if (guest_cpuid_family(pmc->vcpu) >= 0x17)
++		event_mapping = amd_f17h_event_mapping;
 +	else
-+		prepare_slave_config = pcm->config->prepare_slave_config;
++		event_mapping = amd_event_mapping;
++
+ 	for (i = 0; i < ARRAY_SIZE(amd_event_mapping); i++)
+-		if (amd_event_mapping[i].eventsel == event_select
+-		    && amd_event_mapping[i].unit_mask == unit_mask)
++		if (event_mapping[i].eventsel == event_select
++		    && event_mapping[i].unit_mask == unit_mask)
+ 			break;
  
- 	if (prepare_slave_config) {
- 		int ret = prepare_slave_config(substream, params, &slave_config);
+ 	if (i == ARRAY_SIZE(amd_event_mapping))
+ 		return PERF_COUNT_HW_MAX;
+ 
+-	return amd_event_mapping[i].event_type;
++	return event_mapping[i].event_type;
+ }
+ 
+ /* return PERF_COUNT_HW_MAX as AMD doesn't have fixed events */
 
 
