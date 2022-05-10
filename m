@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 711B1521A1A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56E65521AAE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243513AbiEJNxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
+        id S245223AbiEJODQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245060AbiEJNrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B535271DA1;
-        Tue, 10 May 2022 06:34:44 -0700 (PDT)
+        with ESMTP id S245402AbiEJN5g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F635BA9B6;
+        Tue, 10 May 2022 06:39:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70D8DB81D24;
-        Tue, 10 May 2022 13:34:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1D62C385A6;
-        Tue, 10 May 2022 13:34:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E20CE615E9;
+        Tue, 10 May 2022 13:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F3FC385A6;
+        Tue, 10 May 2022 13:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189682;
-        bh=p02favSh34gZ7SnATdPQxE9+DHKE8XXIFTE9gvxO68Q=;
+        s=korg; t=1652189958;
+        bh=+mJTXgsOIxd3Wmqr468P9HZLAksdzKwrV1S7ZpA+WV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=opbniN2aVlG+aJVOV7mn7TPc/eSMa27fVtQyoW0n7zE5riZAR4yPPuwc/fBCpKyGN
-         9wFu2ysNPGirrTs8JpxW9Zaddo/VpoMKNfXkrgnA1viodPjFxHhwXhWhmvrNhk+ZNx
-         aReR6jdn5raeUdoOnlcvFsSGqnDgIxmcqVGmJp6k=
+        b=y8rZlnkQv+5NWqtxBs8Fb1iT7ET6ymVhAxjuxYeteeQYEbNmrTeqKsg1IeLR1LDE9
+         0aZ+eYP1zC1obOlnaQaHwoVQhT+I3XleQC/dPQZVh6NaqzBmA9kfPIXRz37XN2QFJj
+         o9rkEvGpRZ3fB7+DO3hh/ZT5+XkdvUMrzKkGISqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/135] net/mlx5: Fix slab-out-of-bounds while reading resource dump menu
+        stable@vger.kernel.org, Shiraz Saleem <shiraz.saleem@intel.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.17 081/140] RDMA/irdma: Reduce iWARP QP destroy time
 Date:   Tue, 10 May 2022 15:07:51 +0200
-Message-Id: <20220510130742.964343543@linuxfoundation.org>
+Message-Id: <20220510130743.929800313@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,151 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Shiraz Saleem <shiraz.saleem@intel.com>
 
-[ Upstream commit 7ba2d9d8de96696c1451fee1b01da11f45bdc2b9 ]
+commit 2df6d895907b2f5dfbc558cbff7801bba82cb3cc upstream.
 
-Resource dump menu may span over more than a single page, support it.
-Otherwise, menu read may result in a memory access violation: reading
-outside of the allocated page.
-Note that page format of the first menu page contains menu headers while
-the proceeding menu pages contain only records.
+QP destroy is synchronous and waits for its refcnt to be decremented in
+irdma_cm_node_free_cb (for iWARP) which fires after the RCU grace period
+elapses.
 
-The KASAN logs are as follows:
-BUG: KASAN: slab-out-of-bounds in strcmp+0x9b/0xb0
-Read of size 1 at addr ffff88812b2e1fd0 by task systemd-udevd/496
+Applications running a large number of connections are exposed to high
+wait times on destroy QP for events like SIGABORT.
 
-CPU: 5 PID: 496 Comm: systemd-udevd Tainted: G    B  5.16.0_for_upstream_debug_2022_01_10_23_12 #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Call Trace:
- <TASK>
- dump_stack_lvl+0x57/0x7d
- print_address_description.constprop.0+0x1f/0x140
- ? strcmp+0x9b/0xb0
- ? strcmp+0x9b/0xb0
- kasan_report.cold+0x83/0xdf
- ? strcmp+0x9b/0xb0
- strcmp+0x9b/0xb0
- mlx5_rsc_dump_init+0x4ab/0x780 [mlx5_core]
- ? mlx5_rsc_dump_destroy+0x80/0x80 [mlx5_core]
- ? lockdep_hardirqs_on_prepare+0x286/0x400
- ? raw_spin_unlock_irqrestore+0x47/0x50
- ? aomic_notifier_chain_register+0x32/0x40
- mlx5_load+0x104/0x2e0 [mlx5_core]
- mlx5_init_one+0x41b/0x610 [mlx5_core]
- ....
-The buggy address belongs to the object at ffff88812b2e0000
- which belongs to the cache kmalloc-4k of size 4096
-The buggy address is located 4048 bytes to the right of
- 4096-byte region [ffff88812b2e0000, ffff88812b2e1000)
-The buggy address belongs to the page:
-page:000000009d69807a refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88812b2e6000 pfn:0x12b2e0
-head:000000009d69807a order:3 compound_mapcount:0 compound_pincount:0
-flags: 0x8000000000010200(slab|head|zone=2)
-raw: 8000000000010200 0000000000000000 dead000000000001 ffff888100043040
-raw: ffff88812b2e6000 0000000080040000 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+The long pole for this wait time is the firing of the call_rcu callback
+during a CM node destroy which can be slow. It holds the QP reference
+count and blocks the destroy QP from completing.
 
-Memory state around the buggy address:
- ffff88812b2e1e80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88812b2e1f00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff88812b2e1f80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                                 ^
- ffff88812b2e2000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff88812b2e2080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-==================================================================
+call_rcu only needs to make sure that list walkers have a reference to the
+cm_node object before freeing it and thus need to wait for grace period
+elapse. The rest of the connection teardown in irdma_cm_node_free_cb is
+moved out of the grace period wait in irdma_destroy_connection. Also,
+replace call_rcu with a simple kfree_rcu as it just needs to do a kfree on
+the cm_node
 
-Fixes: 12206b17235a ("net/mlx5: Add support for resource dump")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
+Link: https://lore.kernel.org/r/20220425181703.1634-3-shiraz.saleem@intel.com
+Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../mellanox/mlx5/core/diag/rsc_dump.c        | 31 +++++++++++++++----
- 1 file changed, 25 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/irdma/cm.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
-index ed4fb79b4db7..75b6060f7a9a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/rsc_dump.c
-@@ -31,6 +31,7 @@ static const char *const mlx5_rsc_sgmt_name[] = {
- struct mlx5_rsc_dump {
- 	u32 pdn;
- 	struct mlx5_core_mkey mkey;
-+	u32 number_of_menu_items;
- 	u16 fw_segment_type[MLX5_SGMT_TYPE_NUM];
- };
- 
-@@ -50,21 +51,37 @@ static int mlx5_rsc_dump_sgmt_get_by_name(char *name)
- 	return -EINVAL;
+--- a/drivers/infiniband/hw/irdma/cm.c
++++ b/drivers/infiniband/hw/irdma/cm.c
+@@ -2305,10 +2305,8 @@ err:
+ 	return NULL;
  }
  
--static void mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page)
-+#define MLX5_RSC_DUMP_MENU_HEADER_SIZE (MLX5_ST_SZ_BYTES(resource_dump_info_segment) + \
-+					MLX5_ST_SZ_BYTES(resource_dump_command_segment) + \
-+					MLX5_ST_SZ_BYTES(resource_dump_menu_segment))
-+
-+static int mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct page *page,
-+					int read_size, int start_idx)
+-static void irdma_cm_node_free_cb(struct rcu_head *rcu_head)
++static void irdma_destroy_connection(struct irdma_cm_node *cm_node)
  {
- 	void *data = page_address(page);
- 	enum mlx5_sgmt_type sgmt_idx;
- 	int num_of_items;
- 	char *sgmt_name;
- 	void *member;
-+	int size = 0;
- 	void *menu;
- 	int i;
- 
--	menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
--	num_of_items = MLX5_GET(resource_dump_menu_segment, menu, num_of_records);
-+	if (!start_idx) {
-+		menu = MLX5_ADDR_OF(menu_resource_dump_response, data, menu);
-+		rsc_dump->number_of_menu_items = MLX5_GET(resource_dump_menu_segment, menu,
-+							  num_of_records);
-+		size = MLX5_RSC_DUMP_MENU_HEADER_SIZE;
-+		data += size;
-+	}
-+	num_of_items = rsc_dump->number_of_menu_items;
-+
-+	for (i = 0; start_idx + i < num_of_items; i++) {
-+		size += MLX5_ST_SZ_BYTES(resource_dump_menu_record);
-+		if (size >= read_size)
-+			return start_idx + i;
- 
--	for (i = 0; i < num_of_items; i++) {
--		member = MLX5_ADDR_OF(resource_dump_menu_segment, menu, record[i]);
-+		member = data + MLX5_ST_SZ_BYTES(resource_dump_menu_record) * i;
- 		sgmt_name =  MLX5_ADDR_OF(resource_dump_menu_record, member, segment_name);
- 		sgmt_idx = mlx5_rsc_dump_sgmt_get_by_name(sgmt_name);
- 		if (sgmt_idx == -EINVAL)
-@@ -72,6 +89,7 @@ static void mlx5_rsc_dump_read_menu_sgmt(struct mlx5_rsc_dump *rsc_dump, struct
- 		rsc_dump->fw_segment_type[sgmt_idx] = MLX5_GET(resource_dump_menu_record,
- 							       member, segment_type);
+-	struct irdma_cm_node *cm_node =
+-			    container_of(rcu_head, struct irdma_cm_node, rcu_head);
+ 	struct irdma_cm_core *cm_core = cm_node->cm_core;
+ 	struct irdma_qp *iwqp;
+ 	struct irdma_cm_info nfo;
+@@ -2356,7 +2354,6 @@ static void irdma_cm_node_free_cb(struct
  	}
-+	return 0;
+ 
+ 	cm_core->cm_free_ah(cm_node);
+-	kfree(cm_node);
  }
  
- static int mlx5_rsc_dump_trigger(struct mlx5_core_dev *dev, struct mlx5_rsc_dump_cmd *cmd,
-@@ -168,6 +186,7 @@ static int mlx5_rsc_dump_menu(struct mlx5_core_dev *dev)
- 	struct mlx5_rsc_dump_cmd *cmd = NULL;
- 	struct mlx5_rsc_key key = {};
- 	struct page *page;
-+	int start_idx = 0;
- 	int size;
- 	int err;
+ /**
+@@ -2384,8 +2381,9 @@ void irdma_rem_ref_cm_node(struct irdma_
  
-@@ -189,7 +208,7 @@ static int mlx5_rsc_dump_menu(struct mlx5_core_dev *dev)
- 		if (err < 0)
- 			goto destroy_cmd;
+ 	spin_unlock_irqrestore(&cm_core->ht_lock, flags);
  
--		mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page);
-+		start_idx = mlx5_rsc_dump_read_menu_sgmt(dev->rsc_dump, page, size, start_idx);
+-	/* wait for all list walkers to exit their grace period */
+-	call_rcu(&cm_node->rcu_head, irdma_cm_node_free_cb);
++	irdma_destroy_connection(cm_node);
++
++	kfree_rcu(cm_node, rcu_head);
+ }
  
- 	} while (err > 0);
- 
--- 
-2.35.1
-
+ /**
 
 
