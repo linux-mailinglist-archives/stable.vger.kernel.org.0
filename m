@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D846521747
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA07521839
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242563AbiEJNZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:25:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60154 "EHLO
+        id S242944AbiEJNdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242991AbiEJNXn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:23:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 112A21CD24C;
-        Tue, 10 May 2022 06:17:19 -0700 (PDT)
+        with ESMTP id S243888AbiEJNcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7739316D48F;
+        Tue, 10 May 2022 06:23:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1496B81DA2;
-        Tue, 10 May 2022 13:17:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30418C385A6;
-        Tue, 10 May 2022 13:17:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2885AB81D7A;
+        Tue, 10 May 2022 13:23:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC7BC385C2;
+        Tue, 10 May 2022 13:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188635;
-        bh=CQI6WkPQGuCBQ1p6kqFgS0LIfUWapXnfnxB/65SJFDQ=;
+        s=korg; t=1652188990;
+        bh=WWcJJPaW4s0frkbSK/ZxJ/KyPtXnNk7ZjXtjDnn1RI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0FPf1Uvs4aubHfs01GWMsZrp1sUGYdKvF3JJJJgsh6bAzMcqd7vlovdNxcPiIXQKo
-         az1MRYF5wxxJayy1ORYuU+zdS+PW3aeYUCO3tJHePA+k2Id5DUeF53dgS6l9vBfcx5
-         DJqRkD5TysBYoJLp0ML80SVy7eYA1NpOW8JkxIZc=
+        b=v8xzD2cI22VIfrjnr5F+wp3f0pEbiSlqsxBVHQuztb8Bl43heAcpa5alMqErEHeKt
+         p5r3PfiG5bGdInS6mZG/TRau++J8FW09YaE05Pn42JccPzsW3kB3Erb9Y1BUlF4cM6
+         aZWIppBKkmnRS+cJXeTahEQP9zvnodbi6RfrVCCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 71/78] btrfs: always log symlinks in full mode
+        stable@vger.kernel.org,
+        Shravya Kumbham <shravya.kumbham@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 5.4 28/52] net: emaclite: Add error handling for of_address_to_resource()
 Date:   Tue, 10 May 2022 15:07:57 +0200
-Message-Id: <20220510130734.631397637@linuxfoundation.org>
+Message-Id: <20220510130730.677804403@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Shravya Kumbham <shravya.kumbham@xilinx.com>
 
-commit d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 upstream.
+commit 7a6bc33ab54923d325d9a1747ec9652c4361ebd1 upstream.
 
-On Linux, empty symlinks are invalid, and attempting to create one with
-the system call symlink(2) results in an -ENOENT error and this is
-explicitly documented in the man page.
+check the return value of of_address_to_resource() and also add
+missing of_node_put() for np and npp nodes.
 
-If we rename a symlink that was created in the current transaction and its
-parent directory was logged before, we actually end up logging the symlink
-without logging its content, which is stored in an inline extent. That
-means that after a power failure we can end up with an empty symlink,
-having no content and an i_size of 0 bytes.
-
-It can be easily reproduced like this:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  $ mkdir /mnt/testdir
-  $ sync
-
-  # Create a file inside the directory and fsync the directory.
-  $ touch /mnt/testdir/foo
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  # Create a symlink inside the directory and then rename the symlink.
-  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
-  $ mv /mnt/testdir/bar /mnt/testdir/baz
-
-  # Now fsync again the directory, this persist the log tree.
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  <power failure>
-
-  $ mount /dev/sdc /mnt
-  $ stat -c %s /mnt/testdir/baz
-  0
-  $ readlink /mnt/testdir/baz
-  $
-
-Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
-their content is also logged.
-
-A test case for fstests will follow.
-
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: e0a3bc65448c ("net: emaclite: Support multiple phys connected to one MDIO bus")
+Addresses-Coverity: Event check_return value.
+Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4869,6 +4869,18 @@ static int btrfs_log_inode(struct btrfs_
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -820,10 +820,10 @@ static int xemaclite_mdio_write(struct m
+ static int xemaclite_mdio_setup(struct net_local *lp, struct device *dev)
+ {
+ 	struct mii_bus *bus;
+-	int rc;
+ 	struct resource res;
+ 	struct device_node *np = of_get_parent(lp->phy_node);
+ 	struct device_node *npp;
++	int rc, ret;
+ 
+ 	/* Don't register the MDIO bus if the phy_node or its parent node
+ 	 * can't be found.
+@@ -833,8 +833,14 @@ static int xemaclite_mdio_setup(struct n
+ 		return -ENODEV;
+ 	}
+ 	npp = of_get_parent(np);
+-
+-	of_address_to_resource(npp, 0, &res);
++	ret = of_address_to_resource(npp, 0, &res);
++	of_node_put(npp);
++	if (ret) {
++		dev_err(dev, "%s resource error!\n",
++			dev->of_node->full_name);
++		of_node_put(np);
++		return ret;
++	}
+ 	if (lp->ndev->mem_start != res.start) {
+ 		struct phy_device *phydev;
+ 		phydev = of_phy_find_device(lp->phy_node);
+@@ -843,6 +849,7 @@ static int xemaclite_mdio_setup(struct n
+ 				 "MDIO of the phy is not registered yet\n");
+ 		else
+ 			put_device(&phydev->mdio.dev);
++		of_node_put(np);
+ 		return 0;
  	}
  
- 	/*
-+	 * For symlinks, we must always log their content, which is stored in an
-+	 * inline extent, otherwise we could end up with an empty symlink after
-+	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
-+	 * one attempts to create an empty symlink).
-+	 * We don't need to worry about flushing delalloc, because when we create
-+	 * the inline extent when the symlink is created (we never have delalloc
-+	 * for symlinks).
-+	 */
-+	if (S_ISLNK(inode->vfs_inode.i_mode))
-+		inode_only = LOG_INODE_ALL;
-+
-+	/*
- 	 * a brute force approach to making sure we get the most uptodate
- 	 * copies of everything.
- 	 */
-@@ -5430,7 +5442,7 @@ process_leaf:
- 			}
+@@ -855,6 +862,7 @@ static int xemaclite_mdio_setup(struct n
+ 	bus = mdiobus_alloc();
+ 	if (!bus) {
+ 		dev_err(dev, "Failed to allocate mdiobus\n");
++		of_node_put(np);
+ 		return -ENOMEM;
+ 	}
  
- 			ctx->log_new_dentries = false;
--			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
-+			if (type == BTRFS_FT_DIR)
- 				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, root, BTRFS_I(di_inode),
- 					      log_mode, 0, LLONG_MAX, ctx);
+@@ -867,6 +875,7 @@ static int xemaclite_mdio_setup(struct n
+ 	bus->parent = dev;
+ 
+ 	rc = of_mdiobus_register(bus, np);
++	of_node_put(np);
+ 	if (rc) {
+ 		dev_err(dev, "Failed to register mdio bus.\n");
+ 		goto err_register;
 
 
