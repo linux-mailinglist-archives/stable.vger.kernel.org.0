@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 074715219D5
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A650521905
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244941AbiEJNvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50734 "EHLO
+        id S243417AbiEJNkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245711AbiEJNsH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46B52A975B;
-        Tue, 10 May 2022 06:36:16 -0700 (PDT)
+        with ESMTP id S245193AbiEJNih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 821F22607;
+        Tue, 10 May 2022 06:28:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A72F1B81DB2;
-        Tue, 10 May 2022 13:36:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 107AAC385C2;
-        Tue, 10 May 2022 13:35:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D5FC60B12;
+        Tue, 10 May 2022 13:28:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C436C385A6;
+        Tue, 10 May 2022 13:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189759;
-        bh=lr/NUffgJ5GFBk69yG43Atq4uEX7MxnvVMYzJipYg/c=;
+        s=korg; t=1652189313;
+        bh=BlSBKqRLvgK530VPBNAMcxZrWi7LH3J/C5ljGzJEf9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iQ/Bv3NbjE+A0wx/NmJ8jsefkgZOtizwQLXTTQf33V2nIF1xce4aInksHQwmqwsDo
-         jCIWmiAT3+yE0lCH4tuHqhkYe/dX03JttYAkVL5Z5btWaN6Ulc3Xge77YUfgJpJEG4
-         tX0inieIx5aXTUZlxnrpGoyl7N+MiCn2kQncpNo8=
+        b=dc3iqWrN18fseR1SfoAe2DuAdexLx2bU6eGJQJ0hgflmj68juM0fZwpmf1DtLeCcV
+         u59DOH7OWw/NO9wr5QoImFL4pT8dnXsiPGgyNZNKHYJmC4+LMTMzWBKmnrDQ0HV2Rk
+         xS6HTng2e7dZHaP2BYQ7pUzrVuhbu7BGnlRihwlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Wiese <jwiese@rackspace.com>,
-        Corey Minyard <cminyard@mvista.com>
-Subject: [PATCH 5.17 002/140] ipmi: When handling send message responses, dont process the message
-Date:   Tue, 10 May 2022 15:06:32 +0200
-Message-Id: <20220510130741.672481054@linuxfoundation.org>
+        stable@vger.kernel.org, David Stevens <stevensd@chromium.org>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.15 011/135] iommu/vt-d: Calculate mask for non-aligned flushes
+Date:   Tue, 10 May 2022 15:06:33 +0200
+Message-Id: <20220510130740.720551912@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +55,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: David Stevens <stevensd@chromium.org>
 
-commit 3d092ef09303e615707dc5755cf0e29b4df7555f upstream.
+commit 59bf3557cf2f8a469a554aea1e3d2c8e72a579f7 upstream.
 
-A chunk was dropped when the code handling send messages was rewritten.
-Those messages shouldn't be processed normally, they are just an
-indication that the message was successfully sent and the timers should
-be started for the real response that should be coming later.
+Calculate the appropriate mask for non-size-aligned page selective
+invalidation. Since psi uses the mask value to mask out the lower order
+bits of the target address, properly flushing the iotlb requires using a
+mask value such that [pfn, pfn+pages) all lie within the flushed
+size-aligned region.  This is not normally an issue because iova.c
+always allocates iovas that are aligned to their size. However, iovas
+which come from other sources (e.g. userspace via VFIO) may not be
+aligned.
 
-Add back in the missing chunk to just discard the message and go on.
+To properly flush the IOTLB, both the start and end pfns need to be
+equal after applying the mask. That means that the most efficient mask
+to use is the index of the lowest bit that is equal where all higher
+bits are also equal. For example, if pfn=0x17f and pages=3, then
+end_pfn=0x181, so the smallest mask we can use is 8. Any differences
+above the highest bit of pages are due to carrying, so by xnor'ing pfn
+and end_pfn and then masking out the lower order bits based on pages, we
+get 0xffffff00, where the first set bit is the mask we want to use.
 
-Fixes: 059747c245f0 ("ipmi: Add support for IPMB direct messages")
-Reported-by: Joe Wiese <jwiese@rackspace.com>
-Cc: stable@vger.kernel.org # v5.16+
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
-Tested-by: Joe Wiese <jwiese@rackspace.com>
+Fixes: 6fe1010d6d9c ("vfio/type1: DMA unmap chunking")
+Cc: stable@vger.kernel.org
+Signed-off-by: David Stevens <stevensd@chromium.org>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Link: https://lore.kernel.org/r/20220401022430.1262215-1-stevensd@google.com
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20220410013533.3959168-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iommu/intel/iommu.c |   27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
 
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -4518,6 +4518,8 @@ return_unspecified:
- 		} else
- 			/* The message was sent, start the timer. */
- 			intf_start_seq_timer(intf, msg->msgid);
-+		requeue = 0;
-+		goto out;
- 	} else if (((msg->rsp[0] >> 2) != ((msg->data[0] >> 2) | 1))
- 		   || (msg->rsp[1] != msg->data[1])) {
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -1637,7 +1637,8 @@ static void iommu_flush_iotlb_psi(struct
+ 				  unsigned long pfn, unsigned int pages,
+ 				  int ih, int map)
+ {
+-	unsigned int mask = ilog2(__roundup_pow_of_two(pages));
++	unsigned int aligned_pages = __roundup_pow_of_two(pages);
++	unsigned int mask = ilog2(aligned_pages);
+ 	uint64_t addr = (uint64_t)pfn << VTD_PAGE_SHIFT;
+ 	u16 did = domain->iommu_did[iommu->seq_id];
+ 
+@@ -1649,10 +1650,30 @@ static void iommu_flush_iotlb_psi(struct
+ 	if (domain_use_first_level(domain)) {
+ 		domain_flush_piotlb(iommu, domain, addr, pages, ih);
+ 	} else {
++		unsigned long bitmask = aligned_pages - 1;
++
++		/*
++		 * PSI masks the low order bits of the base address. If the
++		 * address isn't aligned to the mask, then compute a mask value
++		 * needed to ensure the target range is flushed.
++		 */
++		if (unlikely(bitmask & pfn)) {
++			unsigned long end_pfn = pfn + pages - 1, shared_bits;
++
++			/*
++			 * Since end_pfn <= pfn + bitmask, the only way bits
++			 * higher than bitmask can differ in pfn and end_pfn is
++			 * by carrying. This means after masking out bitmask,
++			 * high bits starting with the first set bit in
++			 * shared_bits are all equal in both pfn and end_pfn.
++			 */
++			shared_bits = ~(pfn ^ end_pfn) & ~bitmask;
++			mask = shared_bits ? __ffs(shared_bits) : BITS_PER_LONG;
++		}
++
  		/*
+ 		 * Fallback to domain selective flush if no PSI support or
+-		 * the size is too big. PSI requires page size to be 2 ^ x,
+-		 * and the base address is naturally aligned to the size.
++		 * the size is too big.
+ 		 */
+ 		if (!cap_pgsel_inv(iommu->cap) ||
+ 		    mask > cap_max_amask_val(iommu->cap))
 
 
