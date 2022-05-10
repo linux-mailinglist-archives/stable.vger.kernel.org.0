@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5B4D5218BD
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 714FC52180D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238117AbiEJNjr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56608 "EHLO
+        id S240149AbiEJNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244927AbiEJNiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D20B1737B1;
-        Tue, 10 May 2022 06:26:40 -0700 (PDT)
+        with ESMTP id S243295AbiEJNaB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79872C3346;
+        Tue, 10 May 2022 06:21:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08D4F6170D;
-        Tue, 10 May 2022 13:26:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AA80C385CB;
-        Tue, 10 May 2022 13:26:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CA4EB81DA3;
+        Tue, 10 May 2022 13:21:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6794C385C2;
+        Tue, 10 May 2022 13:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189199;
-        bh=D8r2jFoTEUVlsyCv66uIxzQz4KMltHDjNuYGVD5H6EE=;
+        s=korg; t=1652188881;
+        bh=9AB0eIkm2p52mhcWgP0ARdREWpNnfAQ5M4KPSUn+kQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gld/VLoWvEY26mu/aoeFOsiyl4oTLHHRN4/zwHm1H6N2dTP93fCMavxUq6s0fcKPy
-         vw2NXWkUv+x2TuO+oqr10es0AY5cc9owj4mjjy58nwJuIBBllZ4dBt/Qq1Y3sovNi8
-         H94O1C+4qWaoqGJ7QUC0DNbUlXIfnSfIteHMgBCs=
+        b=Iz86m1RPI6xqLla01n9e0+p1Fe/vQFzUspTJ6j53HPGWdY5OVCzcDBj5NvV2/3HvN
+         FjILaM1W6NNndpyBtBTrHyjvl1wiVfeVHpJsHQqcfiPK275PGo7kkPiTJR4LHE+CF6
+         2bAlAI0sOh0V3UtvQfm1XjA9wEfjlG8VNbnho+EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 44/70] NFSv4: Dont invalidate inode attributes on delegation return
-Date:   Tue, 10 May 2022 15:08:03 +0200
-Message-Id: <20220510130734.150568877@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 79/88] btrfs: always log symlinks in full mode
+Date:   Tue, 10 May 2022 15:08:04 +0200
+Message-Id: <20220510130736.023490077@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +53,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 00c94ebec5925593c0377b941289224469e72ac7 upstream.
+commit d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 upstream.
 
-There is no need to declare attributes such as the ctime, mtime and
-block size invalid when we're just returning a delegation, so it is
-inappropriate to call nfs_post_op_update_inode_force_wcc().
-Instead, just call nfs_refresh_inode() after faking up the change
-attribute. We know that the GETATTR op occurs before the DELEGRETURN, so
-we are safe when doing this.
+On Linux, empty symlinks are invalid, and attempting to create one with
+the system call symlink(2) results in an -ENOENT error and this is
+explicitly documented in the man page.
 
-Fixes: 0bc2c9b4dca9 ("NFSv4: Don't discard the attributes returned by asynchronous DELEGRETURN")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+If we rename a symlink that was created in the current transaction and its
+parent directory was logged before, we actually end up logging the symlink
+without logging its content, which is stored in an inline extent. That
+means that after a power failure we can end up with an empty symlink,
+having no content and an i_size of 0 bytes.
+
+It can be easily reproduced like this:
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
+
+  $ mkdir /mnt/testdir
+  $ sync
+
+  # Create a file inside the directory and fsync the directory.
+  $ touch /mnt/testdir/foo
+  $ xfs_io -c "fsync" /mnt/testdir
+
+  # Create a symlink inside the directory and then rename the symlink.
+  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
+  $ mv /mnt/testdir/bar /mnt/testdir/baz
+
+  # Now fsync again the directory, this persist the log tree.
+  $ xfs_io -c "fsync" /mnt/testdir
+
+  <power failure>
+
+  $ mount /dev/sdc /mnt
+  $ stat -c %s /mnt/testdir/baz
+  0
+  $ readlink /mnt/testdir/baz
+  $
+
+Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
+their content is also logged.
+
+A test case for fstests will follow.
+
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ fs/btrfs/tree-log.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -369,6 +369,14 @@ static void nfs4_setup_readdir(u64 cooki
- 	kunmap_atomic(start);
- }
- 
-+static void nfs4_fattr_set_prechange(struct nfs_fattr *fattr, u64 version)
-+{
-+	if (!(fattr->valid & NFS_ATTR_FATTR_PRECHANGE)) {
-+		fattr->pre_change_attr = version;
-+		fattr->valid |= NFS_ATTR_FATTR_PRECHANGE;
-+	}
-+}
-+
- static void nfs4_test_and_free_stateid(struct nfs_server *server,
- 		nfs4_stateid *stateid,
- 		const struct cred *cred)
-@@ -6464,7 +6472,9 @@ static void nfs4_delegreturn_release(voi
- 		pnfs_roc_release(&data->lr.arg, &data->lr.res,
- 				 data->res.lr_ret);
- 	if (inode) {
--		nfs_post_op_update_inode_force_wcc(inode, &data->fattr);
-+		nfs4_fattr_set_prechange(&data->fattr,
-+					 inode_peek_iversion_raw(inode));
-+		nfs_refresh_inode(inode, &data->fattr);
- 		nfs_iput_and_deactive(inode);
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -4907,6 +4907,18 @@ static int btrfs_log_inode(struct btrfs_
  	}
- 	kfree(calldata);
+ 
+ 	/*
++	 * For symlinks, we must always log their content, which is stored in an
++	 * inline extent, otherwise we could end up with an empty symlink after
++	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
++	 * one attempts to create an empty symlink).
++	 * We don't need to worry about flushing delalloc, because when we create
++	 * the inline extent when the symlink is created (we never have delalloc
++	 * for symlinks).
++	 */
++	if (S_ISLNK(inode->vfs_inode.i_mode))
++		inode_only = LOG_INODE_ALL;
++
++	/*
+ 	 * a brute force approach to making sure we get the most uptodate
+ 	 * copies of everything.
+ 	 */
+@@ -5462,7 +5474,7 @@ process_leaf:
+ 			}
+ 
+ 			ctx->log_new_dentries = false;
+-			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
++			if (type == BTRFS_FT_DIR)
+ 				log_mode = LOG_INODE_ALL;
+ 			ret = btrfs_log_inode(trans, root, BTRFS_I(di_inode),
+ 					      log_mode, 0, LLONG_MAX, ctx);
 
 
