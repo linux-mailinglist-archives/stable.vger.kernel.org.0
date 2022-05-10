@@ -2,163 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 522BD522186
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 18:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A555221A0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 18:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347609AbiEJQrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 12:47:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51272 "EHLO
+        id S1347633AbiEJQuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 12:50:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347610AbiEJQrO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 12:47:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E45B62CC8;
-        Tue, 10 May 2022 09:43:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDD26183D;
-        Tue, 10 May 2022 16:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C14C385A6;
-        Tue, 10 May 2022 16:43:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652200991;
-        bh=Osg1O0gfa6ZkJPjBpOrkM1rXaweWgHooysorOXbKftU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=SG253suakgSw/EN+cXtrkyjj6aWCkxwrbCbP7C0HSUz/KfL9A6Vx4aeAY6gHLL/zK
-         Ig/jhuTc7srNJMuXg8I3xGqrmiHxoSwZQiu5XNG+vcxoeaNuD8SwYUmAwdpg2PvtsX
-         MpPy2zHkZCbErrHZecpOuX2nCTX41ds2hoJA0idx7X7ROHLRuS93+5p7XfBG9vBJBD
-         +vkSNa3ypaT5L6QmF6BfBVCSIK9q3bhncdsZ5Yu4H/cJ+Yulisq7PiKnwg/z/cBrCR
-         mVqqxmHRCgXEPo2OqbB+8jN15fPu9j2moaT3HEQDubZBxY0v4EEMpEQZCjIxPT4y4b
-         YYOf7ALzDkFLw==
-Date:   Tue, 10 May 2022 11:43:05 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Mohamed Khalfella <mkhalfella@purestorage.com>
-Cc:     stable@vger.kernel.org, Meeta Saggi <msaggi@purestorage.com>,
-        Eric Badger <ebadger@purestorage.com>,
-        Russell Currey <ruscur@russell.cc>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        Rajat Jain <rajatja@google.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "open list:PCI ENHANCED ERROR HANDLING (EEH) FOR POWERPC" 
-        <linuxppc-dev@lists.ozlabs.org>,
-        "open list:PCI SUBSYSTEM" <linux-pci@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] PCI/AER: Iterate over error counters instead of error
- strings
-Message-ID: <20220510164305.GA678149@bhelgaas>
+        with ESMTP id S1347632AbiEJQuH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 12:50:07 -0400
+Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDBC1546B1;
+        Tue, 10 May 2022 09:46:09 -0700 (PDT)
+Received: by mail-pl1-x629.google.com with SMTP id d17so17278741plg.0;
+        Tue, 10 May 2022 09:46:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=jYvLRLOMEJER6ORgYpb83b9QnvEzMgcekAJkss3qlts=;
+        b=OmFW1mzHmn9plLXOldiTMFtWLitHaDkw2HgKE5Ijgx2qWonq9r3bVXYU8mXsnKEnIk
+         dpI7sC5NewDPX2Q3gInh2qvpiKg6cFY4aJe3Bz5XZTd6ow2USSWHTo2D0I4r2fCymNPQ
+         5IQcdx19TbPxSt3VsLMUDGMQ8urfQF6zB6Ap5JKX6MhE4t7PUiimrd55icglrUAj/TsS
+         fpQtg+EMYIMNjkvCnE4u2gq9RVCIqiYXi1uER+l59OOPXxasTne1fMGwBDgzb1y0as82
+         eO9CAfx1F8q805+D3se+UQUtD1kr/UwqqtqkHE0bfJh9A4HImXCWjBeYnuS40ccOnkvM
+         4t9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=jYvLRLOMEJER6ORgYpb83b9QnvEzMgcekAJkss3qlts=;
+        b=CEskf9AMdBTXfbq0/YGUQywcE/ajGITaZ/DwbAGZyuiQk2h4alK+t01e4Iwgpo5GT/
+         ryiEDeB+Af7+CM8JIgQY4Rv9qkuqmEuqSKbY5RHw5VLw3kwW0lys4BiWwppwDrAxIRu5
+         xTbjmM+LXfbqsTD88/xCCLtjiLZVEUD2/Pjofn5mWlac6rLnwXfTOfekI931PkpGI5mE
+         AR6Fwmw5/tIlgN+wbvwqIQaZW1iiTP/gzkKs6eNsVk2k2jOQGnMfK3naLwRHZMwHe3uv
+         nEgT+P+ttqqFUx7QCeQXpywLzFt4aNBgR+yQg1gCdc7BYdYZOsnkp7QiWPTa5KQljxuC
+         2w8w==
+X-Gm-Message-State: AOAM531ZfuVcjPLsWBuFrfLHGoa5ItLntDKumm0SyIFDz6tIfhGYMzec
+        a452tDOy+Ttha9ISPANWKGg=
+X-Google-Smtp-Source: ABdhPJxqmtVg6qVUZoRWZktpbtNbyGB5Q4GoEP0d3wH2XBumLnUV1VFvR7cr8o5QF8DR10PwnNny3w==
+X-Received: by 2002:a17:903:240e:b0:158:eab9:2662 with SMTP id e14-20020a170903240e00b00158eab92662mr21446189plo.87.1652201169378;
+        Tue, 10 May 2022 09:46:09 -0700 (PDT)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id y21-20020a626415000000b0050dc762819esm10978904pfb.120.2022.05.10.09.46.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 10 May 2022 09:46:09 -0700 (PDT)
+Message-ID: <72c233bc-32fe-87af-ada9-d18577d10e00@gmail.com>
+Date:   Tue, 10 May 2022 09:46:04 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220509181441.31884-1-mkhalfella@purestorage.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Subject: Re: [PATCH 4.9 00/66] 4.9.313-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220510130729.762341544@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[+cc Rajat]
-
-On Mon, May 09, 2022 at 06:14:41PM +0000, Mohamed Khalfella wrote:
-> PCI AER stats counters sysfs attributes need to iterate over
-> stats counters instead of stats names. 
-
-Thanks for catching this; it definitely looks like a real issue!  I
-guess you're probably seeing junk in the sysfs files?
-
-It would be helpful to reviewers if this said *why* we need to iterate
-over the counters instead of the names.  I think the problem is that
-the current code reads past the end of the stats counters.
-
-There are parallel arrays here:
-
-  #define AER_MAX_TYPEOF_COR_ERRS         16
-  #define AER_MAX_TYPEOF_UNCOR_ERRS       27
-
-  aer_correctable_error_string[32]                               # 32
-  pdev->aer_stats->dev_cor_errs[AER_MAX_TYPEOF_COR_ERRS]         # 16
-  aer_uncorrectable_error_string[32]                             # 32
-  pdev->aer_stats->dev_fatal_errs[AER_MAX_TYPEOF_UNCOR_ERRS]     # 27
-  pdev->aer_stats->dev_nonfatal_errs[AER_MAX_TYPEOF_UNCOR_ERRS]  # 27
-
-And here's the current use of them:
-
-  #define aer_stats_dev_attr(..., stats_array, strings_array, ...)
-    for (i = 0; i < ARRAY_SIZE(strings_array); i++) {
-      if (strings_array[i])
-	sysfs_emit_at(..., strings_array[i], stats[i]);          (1)
-      else if (stats[i])
-	sysfs_emit_at(..., stats[i]);                            (2)
-
-  aer_stats_dev_attr(..., dev_cor_errs, aer_correctable_error_string,
-  aer_stats_dev_attr(..., dev_fatal_errs, aer_uncorrectable_error_string,
-  aer_stats_dev_attr(..., dev_nonfatal_errs, aer_uncorrectable_error_string,
-
-The current loop iterates over 0..31, which is safe at (1) because the
-non-NULL strings are at aer_correctable_error_string[0..15] and
-aer_uncorrectable_error_string[0..26].
-
-But it is unsafe at (2) because it references dev_cor_errs[16..31],
-dev_fatal_errs[27..31], and dev_nonfatal_errs[27..31], which are past
-the end of the arrays.
-
-> Also, added a build time check to make sure all counters have
-> entries in strings array.
->
-> Fixes: 0678e3109a3c ("PCI/AER: Simplify __aer_print_error()")
-
-Yep, I blew it there.  Rajat did it correctly when he added this with
-81aa5206f9a7 ("PCI/AER: Add sysfs attributes to provide AER stats and
-breakdown"), and I broke it by extending the string arrays to 32
-entries.
-
-> Cc: stable@vger.kernel.org
-> Reported-by: Meeta Saggi <msaggi@purestorage.com>
-> Signed-off-by: Mohamed Khalfella <mkhalfella@purestorage.com>
-> Reviewed-by: Meeta Saggi <msaggi@purestorage.com>
-> Reviewed-by: Eric Badger <ebadger@purestorage.com>
-> ---
->  drivers/pci/pcie/aer.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+On 5/10/22 06:06, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.313 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-> index 9fa1f97e5b27..ce99a6d44786 100644
-> --- a/drivers/pci/pcie/aer.c
-> +++ b/drivers/pci/pcie/aer.c
-> @@ -533,7 +533,7 @@ static const char *aer_agent_string[] = {
->  	u64 *stats = pdev->aer_stats->stats_array;			\
->  	size_t len = 0;							\
->  									\
-> -	for (i = 0; i < ARRAY_SIZE(strings_array); i++) {		\
-> +	for (i = 0; i < ARRAY_SIZE(pdev->aer_stats->stats_array); i++) {\
->  		if (strings_array[i])					\
->  			len += sysfs_emit_at(buf, len, "%s %llu\n",	\
->  					     strings_array[i],		\
+> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.313-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-I think maybe we should populate the currently NULL entries in the
-string[] arrays and simplify the code here, e.g.,
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-  static const char *aer_correctable_error_string[] = {
-        "RxErr",                        /* Bit Position 0       */
-        "dev_cor_errs_bit[1]",
-	...
-
-  if (stats[i])
-    len += sysfs_emit_at(buf, len, "%s %llu\n", strings_array[i], stats[i]);
-
-It's a little more data space, but easier to verify.
-
-> @@ -1342,6 +1342,11 @@ static int aer_probe(struct pcie_device *dev)
->  	struct device *device = &dev->device;
->  	struct pci_dev *port = dev->port;
->  
-> +	BUILD_BUG_ON(ARRAY_SIZE(aer_correctable_error_string) <
-> +		     AER_MAX_TYPEOF_COR_ERRS);
-> +	BUILD_BUG_ON(ARRAY_SIZE(aer_uncorrectable_error_string) <
-> +		     AER_MAX_TYPEOF_UNCOR_ERRS);
-
-And make these check for "!=" instead of "<".
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
