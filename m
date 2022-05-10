@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8ADD5219F4
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 802D9521696
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242155AbiEJNwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
+        id S242318AbiEJNQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245666AbiEJNsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C715456200;
-        Tue, 10 May 2022 06:36:24 -0700 (PDT)
+        with ESMTP id S242462AbiEJNQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2808249F18;
+        Tue, 10 May 2022 06:11:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C3D5618B4;
-        Tue, 10 May 2022 13:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F32C385A6;
-        Tue, 10 May 2022 13:36:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A519A61574;
+        Tue, 10 May 2022 13:11:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2120C385C2;
+        Tue, 10 May 2022 13:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189784;
-        bh=US8X43Rh5j+4y6FKP6v9+3eLwbnOi3Z71ZpJneSh7n4=;
+        s=korg; t=1652188303;
+        bh=A/JRDkuq2cNykGWSuoZt6p3ZN9nfI+Zo+Gq7fBTW8h8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcaJK3sGpqepjTuZOMkAIVz02W+spYFzQqPJPQ9cSXwB/2pV92ePZE4F+dKXnZfXE
-         2Ls0mLeOjPQ1kuoK7uysQZHErO6QmtS1G159fSKsBP9YUpweL+kwPekfBwU9dzNsJB
-         2BRV2Gmg05Th3OYbRym/HM47rA79TKu+NPrxzECU=
+        b=BxuY2JwaTgm/shgeWSPVF0rlepxZ6Rg70rMs7Pep5f9xk9sq1qCpxjM0HE8LkI//e
+         7m80zuKRzZZJt4jCMQnXujmd20j2/0EwPl4KYapXsRymKsa+z1JG6pCwptWu+eXKEP
+         gnZ4LhwXhAohagzD/KvDC2N2i0Vm+vBMQDCV0z2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ong, Boon Leong" <boon.leong.ong@intel.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>, Ong@vger.kernel.org
-Subject: [PATCH 5.17 027/140] net: stmmac: disable Split Header (SPH) for Intel platforms
-Date:   Tue, 10 May 2022 15:06:57 +0200
-Message-Id: <20220510130742.389045834@linuxfoundation.org>
+        stable@vger.kernel.org, Slark Xiao <slark_xiao@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 08/66] USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
+Date:   Tue, 10 May 2022 15:06:58 +0200
+Message-Id: <20220510130730.014747979@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,65 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
+From: Slark Xiao <slark_xiao@163.com>
 
-commit 47f753c1108e287edb3e27fad8a7511a9d55578e upstream.
+commit b4a64ed6e7b857317070fcb9d87ff5d4a73be3e8 upstream.
 
-Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
-of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
-This SPH limitation will cause ping failure when the packets size exceed
-the MTU size. For example, the issue happens once the basic ping packet
-size is larger than the configured MTU size and the data is lost inside
-the fragmented packet, replaced by zeros/corrupted values, and leads to
-ping fail.
+Add support for Cinterion device MV32-WA/MV32-WB. MV32-WA PID is
+0x00F1, and MV32-WB PID is 0x00F2.
 
-So, disable the Split Header for Intel platforms.
+Test evidence as below:
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  4 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f1 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F1 USB Mobile Broadband
+S:  SerialNumber=78ada8c4
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-v2: Add fixes tag in commit message.
+T:  Bus=04 Lev=01 Prnt=01 Port=01 Cnt=01 Dev#=  3 Spd=5000 MxCh= 0
+D:  Ver= 3.20 Cls=ef(misc ) Sub=02 Prot=01 MxPS= 9 #Cfgs=  1
+P:  Vendor=1e2d ProdID=00f2 Rev=05.04
+S:  Manufacturer=Cinterion
+S:  Product=Cinterion PID 0x00F2 USB Mobile Broadband
+S:  SerialNumber=cdd06a78
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=896mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=40 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=60 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=30 Driver=option
 
-Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Interface 0&1: MBIM, 2:Modem, 3: GNSS, 4: NMEA, 5: Diag
+GNSS port don't use serial driver.
+
+Signed-off-by: Slark Xiao <slark_xiao@163.com>
+Link: https://lore.kernel.org/r/20220414074434.5699-1-slark_xiao@163.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    1 +
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 +-
- include/linux/stmmac.h                            |    1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
-@@ -454,6 +454,7 @@ static int intel_mgbe_common_data(struct
- 	plat->has_gmac4 = 1;
- 	plat->force_sf_dma_mode = 0;
- 	plat->tso_en = 1;
-+	plat->sph_disable = 1;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -430,6 +430,8 @@ static void option_instat_callback(struc
+ #define CINTERION_PRODUCT_CLS8			0x00b0
+ #define CINTERION_PRODUCT_MV31_MBIM		0x00b3
+ #define CINTERION_PRODUCT_MV31_RMNET		0x00b7
++#define CINTERION_PRODUCT_MV32_WA		0x00f1
++#define CINTERION_PRODUCT_MV32_WB		0x00f2
  
- 	/* Multiplying factor to the clk_eee_i clock time
- 	 * period to make it closer to 100 ns. This value
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -7077,7 +7077,7 @@ int stmmac_dvr_probe(struct device *devi
- 		dev_info(priv->device, "TSO feature enabled\n");
- 	}
- 
--	if (priv->dma_cap.sphen) {
-+	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
- 		ndev->hw_features |= NETIF_F_GRO;
- 		priv->sph_cap = true;
- 		priv->sph = priv->sph_cap;
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -270,5 +270,6 @@ struct plat_stmmacenet_data {
- 	int msi_rx_base_vec;
- 	int msi_tx_base_vec;
- 	bool use_phy_wol;
-+	bool sph_disable;
- };
- #endif
+ /* Olivetti products */
+ #define OLIVETTI_VENDOR_ID			0x0b3c
+@@ -1945,6 +1947,10 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV31_RMNET, 0xff),
+ 	  .driver_info = RSVD(0)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WA, 0xff),
++	  .driver_info = RSVD(3)},
++	{ USB_DEVICE_INTERFACE_CLASS(CINTERION_VENDOR_ID, CINTERION_PRODUCT_MV32_WB, 0xff),
++	  .driver_info = RSVD(3)},
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD100),
+ 	  .driver_info = RSVD(4) },
+ 	{ USB_DEVICE(OLIVETTI_VENDOR_ID, OLIVETTI_PRODUCT_OLICARD120),
 
 
