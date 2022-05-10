@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1360F5218A8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB85521A39
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233868AbiEJNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49106 "EHLO
+        id S235092AbiEJNyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244534AbiEJNhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:48 -0400
+        with ESMTP id S244205AbiEJNwx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A391129;
-        Tue, 10 May 2022 06:25:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002736C0DD;
+        Tue, 10 May 2022 06:38:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEEB7B81DA9;
-        Tue, 10 May 2022 13:25:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCB5C385A6;
-        Tue, 10 May 2022 13:25:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1239B81DB3;
+        Tue, 10 May 2022 13:37:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4825CC385C6;
+        Tue, 10 May 2022 13:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189147;
-        bh=oXK+xeO7TyS/609kqkxla+MZL2jQ1JRBvy7n7RIohAA=;
+        s=korg; t=1652189870;
+        bh=zlEMjjuzr3mcxVhnutTM6/09TaldW+hL/6Nh9t7O0Zk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AC+orTsLxEnGuGHyA8ONJWgMRzmeD3nnJhj0x3eq1l5mqzc3Q5bJGkrbGc/CNQsxJ
-         qG7dTk28yg2ZIBnpAD7Abb14L0pVLkjcGggBOH0H+WfmZ5aDYY8xpHPywaQLEC9G63
-         mCafKJV7ZJeibQFcJ0/3CSwpyiGbHic7gkXdaNwE=
+        b=axOW4MCfOow57M4lgEo+SwzK19qsF/43NZd8x1sB82LLQGf8ViKwvIQVtSvlv4APt
+         aEBHIXsbTDC/UKJSS72BrKtgNvLVDaVw/sfpuINiENbWae6Q+/2sxbm9bsLzV5vEIT
+         O4unf5XyaKHC9FqkW5uqs6sCJy2gz/unVfCG92xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Lalaev <andrei.lalaev@emlid.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.10 07/70] gpiolib: of: fix bounds check for gpio-reserved-ranges
+        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.17 056/140] hwmon: (pmbus) disable PEC if not enabled
 Date:   Tue, 10 May 2022 15:07:26 +0200
-Message-Id: <20220510130733.079273199@linuxfoundation.org>
+Message-Id: <20220510130743.221225564@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Lalaev <andrei.lalaev@emlid.com>
+From: Adam Wujek <dev_public@wujek.eu>
 
-commit e75f88efac05bf4e107e4171d8db6d8c3937252d upstream.
+commit 75d2b2b06bd8407d03a3f126bc8b95eb356906c7 upstream.
 
-Gpiolib interprets the elements of "gpio-reserved-ranges" as "start,size"
-because it clears "size" bits starting from the "start" bit in the according
-bitmap. So it has to use "greater" instead of "greater or equal" when performs
-bounds check to make sure that GPIOs are in the available range.
-Previous implementation skipped ranges that include the last GPIO in
-the range.
+Explicitly disable PEC when the client does not support it.
+The problematic scenario is the following. A device with enabled PEC
+support is up and running and a kernel driver is loaded.
+Then the driver is unloaded (or device unbound), the HW device
+is reconfigured externally (e.g. by i2cset) to advertise itself as not
+supporting PEC. Without a new code, at the second load of the driver
+(or bind) the "flags" variable is not updated to avoid PEC usage. As a
+consequence the further communication with the device is done with
+the PEC enabled, which is wrong and may fail.
 
-I wrote the mail to the maintainers
-(https://lore.kernel.org/linux-gpio/20220412115554.159435-1-andrei.lalaev@emlid.com/T/#u)
-of the questioned DTSes (because I couldn't understand how the maintainers
-interpreted this property), but I haven't received a response.
-Since the questioned DTSes use "gpio-reserved-ranges = <0 4>"
-(i.e., the beginning of the range), this patch doesn't affect these DTSes at all.
-TBH this patch doesn't break any existing DTSes because none of them
-reserve gpios at the end of range.
+The implementation first disable the I2C_CLIENT_PEC flag, then the old
+code enable it if needed.
 
-Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
-Signed-off-by: Andrei Lalaev <andrei.lalaev@emlid.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: 4e5418f787ec ("hwmon: (pmbus_core) Check adapter PEC support")
+Signed-off-by: Adam Wujek <dev_public@wujek.eu>
+Link: https://lore.kernel.org/r/20220420145059.431061-1-dev_public@wujek.eu
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib-of.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pmbus/pmbus_core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -912,7 +912,7 @@ static void of_gpiochip_init_valid_mask(
- 					   i, &start);
- 		of_property_read_u32_index(np, "gpio-reserved-ranges",
- 					   i + 1, &count);
--		if (start >= chip->ngpio || start + count >= chip->ngpio)
-+		if (start >= chip->ngpio || start + count > chip->ngpio)
- 			continue;
+--- a/drivers/hwmon/pmbus/pmbus_core.c
++++ b/drivers/hwmon/pmbus/pmbus_core.c
+@@ -2326,6 +2326,9 @@ static int pmbus_init_common(struct i2c_
+ 		data->has_status_word = true;
+ 	}
  
- 		bitmap_clear(chip->valid_mask, start, count);
++	/* Make sure PEC is disabled, will be enabled later if needed */
++	client->flags &= ~I2C_CLIENT_PEC;
++
+ 	/* Enable PEC if the controller and bus supports it */
+ 	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
+ 		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
 
 
