@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F21F65217BF
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5D105218DB
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243148AbiEJN2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56730 "EHLO
+        id S243720AbiEJNkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243768AbiEJN1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497D92BD217;
-        Tue, 10 May 2022 06:20:28 -0700 (PDT)
+        with ESMTP id S245180AbiEJNih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C718C2670B5;
+        Tue, 10 May 2022 06:28:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78A21B81CF8;
-        Tue, 10 May 2022 13:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4504C385C2;
-        Tue, 10 May 2022 13:20:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 647FE60B12;
+        Tue, 10 May 2022 13:28:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71D15C385C2;
+        Tue, 10 May 2022 13:28:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188825;
-        bh=dnjGH4X54RaK+1LVipStRQRfJJyRB8ZUDUbQ9R3Sj8s=;
+        s=korg; t=1652189291;
+        bh=YFMiPN3l9Oyq2ed9fTRIzlo7Xd7Djs77hjfpETWPvtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0cP42nx9jKGt3J4IraM3AlwY+QuQ73heQZnHVckZz7UZqq8gArcGE8iF3DoLpg5H
-         e43wm3GMyTVrkq6l4QsiYjPPu+BSjCCMTyXIhUTsfJbpEG14x4ULTVkMyVGVd2n3hj
-         7fLICB44fEiKggrACBU9muuWLKze9TutSfZFeQk0=
+        b=WsVQLtbbI9eDYeeldXJkXb4cpq/Kyq2gREuhsGoTN7+brvyZGiW1dr3PHCEjDxdNR
+         TGRsJ8TuAWCd2dmU6dWWI9Nlz7hI3lzWXRgd3V2uJO4So7KWSBI7yvgm5pTwj9D7VZ
+         9yVq88XEIwvcEDeJWwl7TQiu8Ywj+o8orQG89+w8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hillf Danton <hdanton@sina.com>,
-        syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <seanpaul@chromium.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Eric Anholt <eric@anholt.net>, Sam Ravnborg <sam@ravnborg.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 57/88] drm/vgem: Close use-after-free race in vgem_gem_create
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 23/70] s390/dasd: prevent double format of tracks for ESE devices
 Date:   Tue, 10 May 2022 15:07:42 +0200
-Message-Id: <20220510130735.399310423@linuxfoundation.org>
+Message-Id: <20220510130733.546385272@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,74 +54,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 4b848f20eda5974020f043ca14bacf7a7e634fc8 upstream.
+commit 71f3871657370dbbaf942a1c758f64e49a36c70f upstream.
 
-There's two references floating around here (for the object reference,
-not the handle_count reference, that's a different thing):
+For ESE devices we get an error for write operations on an unformatted
+track. Afterwards the track will be formatted and the IO operation
+restarted.
+When using alias devices a track might be accessed by multiple requests
+simultaneously and there is a race window that a track gets formatted
+twice resulting in data loss.
 
-- The temporary reference held by vgem_gem_create, acquired by
-  creating the object and released by calling
-  drm_gem_object_put_unlocked.
+Prevent this by remembering the amount of formatted tracks when starting
+a request and comparing this number before actually formatting a track
+on the fly. If the number has changed there is a chance that the current
+track was finally formatted in between. As a result do not format the
+track and restart the current IO to check.
 
-- The reference held by the object handle, created by
-  drm_gem_handle_create. This one generally outlives the function,
-  except if a 2nd thread races with a GEM_CLOSE ioctl call.
+The number of formatted tracks does not match the overall number of
+formatted tracks on the device and it might wrap around but this is no
+problem. It is only needed to recognize that a track has been formatted at
+all in between.
 
-So usually everything is correct, except in that race case, where the
-access to gem_object->size could be looking at freed data already.
-Which again isn't a real problem (userspace shot its feet off already
-with the race, we could return garbage), but maybe someone can exploit
-this as an information leak.
-
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Hillf Danton <hdanton@sina.com>
-Reported-by: syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Eric Anholt <eric@anholt.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202132133.1891846-1-daniel.vetter@ffwll.ch
-[OP: backport to 4.19: adjusted DRM_DEBUG() -> DRM_DEBUG_DRIVER()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-3-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/vgem/vgem_drv.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/s390/block/dasd.c      |    7 +++++++
+ drivers/s390/block/dasd_eckd.c |   19 +++++++++++++++++--
+ drivers/s390/block/dasd_int.h  |    2 ++
+ 3 files changed, 26 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -189,9 +189,10 @@ static struct drm_gem_object *vgem_gem_c
- 		return ERR_CAST(obj);
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1462,6 +1462,13 @@ int dasd_start_IO(struct dasd_ccw_req *c
+ 		if (!cqr->lpm)
+ 			cqr->lpm = dasd_path_get_opm(device);
+ 	}
++	/*
++	 * remember the amount of formatted tracks to prevent double format on
++	 * ESE devices
++	 */
++	if (cqr->block)
++		cqr->trkcount = atomic_read(&cqr->block->trkcount);
++
+ 	if (cqr->cpmode == 1) {
+ 		rc = ccw_device_tm_start(device->cdev, cqr->cpaddr,
+ 					 (long) cqr, cqr->lpm);
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3026,13 +3026,24 @@ static int dasd_eckd_format_device(struc
+ }
  
- 	ret = drm_gem_handle_create(file, &obj->base, handle);
--	drm_gem_object_put_unlocked(&obj->base);
--	if (ret)
-+	if (ret) {
-+		drm_gem_object_put_unlocked(&obj->base);
- 		return ERR_PTR(ret);
+ static bool test_and_set_format_track(struct dasd_format_entry *to_format,
+-				      struct dasd_block *block)
++				      struct dasd_ccw_req *cqr)
+ {
++	struct dasd_block *block = cqr->block;
+ 	struct dasd_format_entry *format;
+ 	unsigned long flags;
+ 	bool rc = false;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	if (cqr->trkcount != atomic_read(&block->trkcount)) {
++		/*
++		 * The number of formatted tracks has changed after request
++		 * start and we can not tell if the current track was involved.
++		 * To avoid data corruption treat it as if the current track is
++		 * involved
++		 */
++		rc = true;
++		goto out;
++	}
+ 	list_for_each_entry(format, &block->format_list, list) {
+ 		if (format->track == to_format->track) {
+ 			rc = true;
+@@ -3052,6 +3063,7 @@ static void clear_format_track(struct da
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&block->format_lock, flags);
++	atomic_inc(&block->trkcount);
+ 	list_del_init(&format->list);
+ 	spin_unlock_irqrestore(&block->format_lock, flags);
+ }
+@@ -3113,8 +3125,11 @@ dasd_eckd_ese_format(struct dasd_device
+ 	}
+ 	format->track = curr_trk;
+ 	/* test if track is already in formatting by another thread */
+-	if (test_and_set_format_track(format, block))
++	if (test_and_set_format_track(format, cqr)) {
++		/* this is no real error so do not count down retries */
++		cqr->retries++;
+ 		return ERR_PTR(-EEXIST);
 +	}
  
- 	return &obj->base;
- }
-@@ -214,7 +215,9 @@ static int vgem_gem_dumb_create(struct d
- 	args->size = gem_object->size;
- 	args->pitch = pitch;
+ 	fdata.start_unit = curr_trk;
+ 	fdata.stop_unit = curr_trk;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -188,6 +188,7 @@ struct dasd_ccw_req {
+ 	void (*callback)(struct dasd_ccw_req *, void *data);
+ 	void *callback_data;
+ 	unsigned int proc_bytes;	/* bytes for partial completion */
++	unsigned int trkcount;		/* count formatted tracks */
+ };
  
--	DRM_DEBUG_DRIVER("Created object of size %lld\n", size);
-+	drm_gem_object_put_unlocked(gem_object);
-+
-+	DRM_DEBUG_DRIVER("Created object of size %llu\n", args->size);
+ /*
+@@ -575,6 +576,7 @@ struct dasd_block {
  
- 	return 0;
- }
+ 	struct list_head format_list;
+ 	spinlock_t format_lock;
++	atomic_t trkcount;
+ };
+ 
+ struct dasd_attention_data {
 
 
