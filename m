@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FEDC5219AA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:47:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135ED521AAC
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232561AbiEJNuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54506 "EHLO
+        id S245217AbiEJODO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244783AbiEJNrA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA93718E1DF;
-        Tue, 10 May 2022 06:32:02 -0700 (PDT)
+        with ESMTP id S244264AbiEJNzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:55:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4068A2AC6CF;
+        Tue, 10 May 2022 06:38:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46B7AB81DAB;
-        Tue, 10 May 2022 13:32:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFDD6C385A6;
-        Tue, 10 May 2022 13:31:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D164BB81DC3;
+        Tue, 10 May 2022 13:38:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD09C385A6;
+        Tue, 10 May 2022 13:38:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189520;
-        bh=eep/UWxZ1ZaW7xY+fv2HrHD4JEKoYXq7ZZ+B4VdYUIk=;
+        s=korg; t=1652189911;
+        bh=DHz9FBVHZk9j/KZCg+ljNfPo6VkSfiVP4tnwrZI+KG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xMYP7D1X7Tj5y3rr6extBbmecKPdrdGnlFMu4fWiz0Fwhx4KsH2CMrFRuTKs9VpCg
-         sm3k0Gg5QamTBXTEFfyTxAJSrxAgfO3mukdPvWm6PPaRIx2BF0zQuTyrKUAOx/yhBQ
-         1BrVtJUanMa1TYmJET8A9cpfQTYzvaXgFaMxvUNw=
+        b=XyCWqhDSRaxFRzto4oWei3wu+WnaAcKa9wOyiw8yz5UqBPBPmhSmFFHW51WdmXhJK
+         GS2BcoWpVS2wLR6BmMXLSztdy+Y+UFSSbKqu6qF+eX2QfirhcjpwKKPMJ5lt9ufXQq
+         K5HY/UTY8MLFMAAE7NKa8kJ9vQAtpzftE00Wtuu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Somnath Kotur <somnath.kotur@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 076/135] bnxt_en: Fix possible bnxt_open() failure caused by wrong RFS flag
+        stable@vger.kernel.org, Mark Zhang <markzhang@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.17 068/140] net/mlx5e: Fix the calling of update_buffer_lossy() API
 Date:   Tue, 10 May 2022 15:07:38 +0200
-Message-Id: <20220510130742.591947350@linuxfoundation.org>
+Message-Id: <20220510130743.563654473@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,76 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Somnath Kotur <somnath.kotur@broadcom.com>
+From: Mark Zhang <markzhang@nvidia.com>
 
-commit 13ba794397e45e52893cfc21d7a69cb5f341b407 upstream.
+commit c4d963a588a6e7c4ef31160e80697ae8e5a47746 upstream.
 
-bnxt_open() can fail in this code path, especially on a VF when
-it fails to reserve default rings:
+The arguments of update_buffer_lossy() is in a wrong order. Fix it.
 
-bnxt_open()
-  __bnxt_open_nic()
-    bnxt_clear_int_mode()
-    bnxt_init_dflt_ring_mode()
-
-RX rings would be set to 0 when we hit this error path.
-
-It is possible for a subsequent bnxt_open() call to potentially succeed
-with a code path like this:
-
-bnxt_open()
-  bnxt_hwrm_if_change()
-    bnxt_fw_init_one()
-      bnxt_fw_init_one_p3()
-        bnxt_set_dflt_rfs()
-          bnxt_rfs_capable()
-            bnxt_hwrm_reserve_rings()
-
-On older chips, RFS is capable if we can reserve the number of vnics that
-is equal to RX rings + 1.  But since RX rings is still set to 0 in this
-code path, we may mistakenly think that RFS is supported for 0 RX rings.
-
-Later, when the default RX rings are reserved and we try to enable
-RFS, it would fail and cause bnxt_open() to fail unnecessarily.
-
-We fix this in 2 places.  bnxt_rfs_capable() will always return false if
-RX rings is not yet set.  bnxt_init_dflt_ring_mode() will call
-bnxt_set_dflt_rfs() which will always clear the RFS flags if RFS is not
-supported.
-
-Fixes: 20d7d1c5c9b1 ("bnxt_en: reliably allocate IRQ table on reset to avoid crash")
-Signed-off-by: Somnath Kotur <somnath.kotur@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 88b3d5c90e96 ("net/mlx5e: Fix port buffers cell size value")
+Signed-off-by: Mark Zhang <markzhang@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -10881,7 +10881,7 @@ static bool bnxt_rfs_capable(struct bnxt
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/port_buffer.c
+@@ -309,8 +309,8 @@ int mlx5e_port_manual_buffer_config(stru
+ 		if (err)
+ 			return err;
  
- 	if (bp->flags & BNXT_FLAG_CHIP_P5)
- 		return bnxt_rfs_supported(bp);
--	if (!(bp->flags & BNXT_FLAG_MSIX_CAP) || !bnxt_can_reserve_rings(bp))
-+	if (!(bp->flags & BNXT_FLAG_MSIX_CAP) || !bnxt_can_reserve_rings(bp) || !bp->rx_nr_rings)
- 		return false;
- 
- 	vnics = 1 + bp->rx_nr_rings;
-@@ -13087,10 +13087,9 @@ static int bnxt_init_dflt_ring_mode(stru
- 		goto init_dflt_ring_err;
- 
- 	bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
--	if (bnxt_rfs_supported(bp) && bnxt_rfs_capable(bp)) {
--		bp->flags |= BNXT_FLAG_RFS;
--		bp->dev->features |= NETIF_F_NTUPLE;
--	}
-+
-+	bnxt_set_dflt_rfs(bp);
-+
- init_dflt_ring_err:
- 	bnxt_ulp_irq_restart(bp, rc);
- 	return rc;
+-		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, port_buff_cell_sz,
+-					  xoff, &port_buffer, &update_buffer);
++		err = update_buffer_lossy(max_mtu, curr_pfc_en, prio2buffer, xoff,
++					  port_buff_cell_sz, &port_buffer, &update_buffer);
+ 		if (err)
+ 			return err;
+ 	}
 
 
