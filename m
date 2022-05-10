@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DE1F5217BB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB05F521AAB
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243112AbiEJN21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
+        id S245137AbiEJODM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243235AbiEJN0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:38 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97171AD59A;
-        Tue, 10 May 2022 06:19:10 -0700 (PDT)
+        with ESMTP id S245676AbiEJN6f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:58:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D3479B192;
+        Tue, 10 May 2022 06:39:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A0361574;
-        Tue, 10 May 2022 13:19:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E940C385D9;
-        Tue, 10 May 2022 13:19:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97DCE615C8;
+        Tue, 10 May 2022 13:39:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195D5C385A6;
+        Tue, 10 May 2022 13:39:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188749;
-        bh=s5f/t7GKIrC/DOo4GxniZ8U7AtBWL3nX1eULqNQQRlc=;
+        s=korg; t=1652189972;
+        bh=Upg2fVux1kOn9Xu3eb4RDmui7oOrZF25naDZqBVlILI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmCknKvhPwKXRrGeIN9vQIsexIa8ka9idH1Qd2M9in84R0teWYfHtmoeU9WmbVPQ5
-         /r7VPAm3UYnG6aoyNlX17dy75fKrjnaKQ7KQb7InAkHmRQzD+iUCI06u1dn94wgqmk
-         RjHyxPReum4bM1nYdVtNRVE5MFIcYGJ8xLLeVqXo=
+        b=Ei9J6o8oNb+lPghtyX/8nJRhEzTOd0OiAVfXhryAZgDc9cStTqdnvWtiz4p83YkVi
+         Mws4ERhM3Vhbsb+vg6gTc5k+czEWdqSLVzVrjaNJaX4NQsIrWufaVoAgpIcVWApY73
+         5R2mXhJYyB5U5uvCB9s/ALlDZR7Y3I9iB3hbwxy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 32/88] tcp: md5: incorrect tcp_header_len for incoming connections
+        stable@vger.kernel.org, Daniel Hellstrom <daniel@gaisler.com>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.17 047/140] can: grcan: use ofdev->dev when allocating DMA memory
 Date:   Tue, 10 May 2022 15:07:17 +0200
-Message-Id: <20220510130734.679595336@linuxfoundation.org>
+Message-Id: <20220510130742.966376928@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Ruggeri <fruggeri@arista.com>
+From: Daniel Hellstrom <daniel@gaisler.com>
 
-[ Upstream commit 5b0b9e4c2c895227c8852488b3f09839233bba54 ]
+commit 101da4268626b00d16356a6bf284d66e44c46ff9 upstream.
 
-In tcp_create_openreq_child we adjust tcp_header_len for md5 using the
-remote address in newsk. But that address is still 0 in newsk at this
-point, and it is only set later by the callers (tcp_v[46]_syn_recv_sock).
-Use the address from the request socket instead.
+Use the device of the device tree node should be rather than the
+device of the struct net_device when allocating DMA buffers.
 
-Fixes: cfb6eeb4c860 ("[TCP]: MD5 Signature Option (RFC2385) support.")
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20220421005026.686A45EC01F2@us226.sjc.aristanetworks.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The driver got away with it on sparc32 until commit 53b7670e5735
+("sparc: factor the dma coherent mapping into helper") after which the
+driver oopses.
+
+Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+Link: https://lore.kernel.org/all/20220429084656.29788-2-andreas@gaisler.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
+Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_minisocks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/grcan.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
-index a20b393b4501..c79cb949da66 100644
---- a/net/ipv4/tcp_minisocks.c
-+++ b/net/ipv4/tcp_minisocks.c
-@@ -550,7 +550,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
- 	newtp->tsoffset = treq->ts_off;
- #ifdef CONFIG_TCP_MD5SIG
- 	newtp->md5sig_info = NULL;	/*XXX*/
--	if (newtp->af_specific->md5_lookup(sk, newsk))
-+	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
- 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
- #endif
- 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
--- 
-2.35.1
-
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -248,6 +248,7 @@ struct grcan_device_config {
+ struct grcan_priv {
+ 	struct can_priv can;	/* must be the first member */
+ 	struct net_device *dev;
++	struct device *ofdev_dev;
+ 	struct napi_struct napi;
+ 
+ 	struct grcan_registers __iomem *regs;	/* ioremap'ed registers */
+@@ -921,7 +922,7 @@ static void grcan_free_dma_buffers(struc
+ 	struct grcan_priv *priv = netdev_priv(dev);
+ 	struct grcan_dma *dma = &priv->dma;
+ 
+-	dma_free_coherent(&dev->dev, dma->base_size, dma->base_buf,
++	dma_free_coherent(priv->ofdev_dev, dma->base_size, dma->base_buf,
+ 			  dma->base_handle);
+ 	memset(dma, 0, sizeof(*dma));
+ }
+@@ -946,7 +947,7 @@ static int grcan_allocate_dma_buffers(st
+ 
+ 	/* Extra GRCAN_BUFFER_ALIGNMENT to allow for alignment */
+ 	dma->base_size = lsize + ssize + GRCAN_BUFFER_ALIGNMENT;
+-	dma->base_buf = dma_alloc_coherent(&dev->dev,
++	dma->base_buf = dma_alloc_coherent(priv->ofdev_dev,
+ 					   dma->base_size,
+ 					   &dma->base_handle,
+ 					   GFP_KERNEL);
+@@ -1589,6 +1590,7 @@ static int grcan_setup_netdev(struct pla
+ 	memcpy(&priv->config, &grcan_module_config,
+ 	       sizeof(struct grcan_device_config));
+ 	priv->dev = dev;
++	priv->ofdev_dev = &ofdev->dev;
+ 	priv->regs = base;
+ 	priv->can.bittiming_const = &grcan_bittiming_const;
+ 	priv->can.do_set_bittiming = grcan_set_bittiming;
 
 
