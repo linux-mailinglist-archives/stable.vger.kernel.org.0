@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC32521AD9
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D689521AEA
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242433AbiEJOEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:04:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
+        id S244468AbiEJOF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:05:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242506AbiEJOEA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:00 -0400
+        with ESMTP id S244424AbiEJOEn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16CE98085;
-        Tue, 10 May 2022 06:40:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 269CB222BC;
+        Tue, 10 May 2022 06:40:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49C8CB81D24;
-        Tue, 10 May 2022 13:40:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD728C385A6;
-        Tue, 10 May 2022 13:40:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EA01B81DCA;
+        Tue, 10 May 2022 13:40:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5420C385C6;
+        Tue, 10 May 2022 13:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190035;
-        bh=pzdjDdykdV0GuijjeSO1zMlMsGhcfnxWnN7/tA5VIEk=;
+        s=korg; t=1652190038;
+        bh=D3D4OX/i3VVkp/n4mMBq9oy31ANSXfIKdQr4uvNKyoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRfirbS7dlvxxuR2AlLczhDWiJz1qIrRo7sx9dT0lq4hxxxQ2YXx9AVOA3JOrxh0d
-         XPYmY4m5oxIOyHw4AgFvjB4Ux2FcRpkqB43JkRd9Ya5Alx3Sn3JGaVm0magykMNv7G
-         7Fg8l0llsRhTvCBpfShkUZ9JRHrFBhZvWmRI4up0=
+        b=2sWsmyUkXTQFRg6i+j3aOspqc9VtDIKYdumz+i7hK8rSWlhpxNYLoaAthkkG2xYSz
+         sOAxR1jDRGAiY0S2v8K6ZgUhSoTQ+CrimKSv6nlegRjZomNb90fH8cugGPOYuD3hof
+         OBcXBPoVPsxgECuGpGi4SZkV/sUFtxWLAKUds/P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
+        Sandipan Das <sandipan.das@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 107/140] net: rds: acquire refcount on TCP sockets
-Date:   Tue, 10 May 2022 15:08:17 +0200
-Message-Id: <20220510130744.664750864@linuxfoundation.org>
+Subject: [PATCH 5.17 108/140] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
+Date:   Tue, 10 May 2022 15:08:18 +0200
+Message-Id: <20220510130744.692603075@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
 References: <20220510130741.600270947@linuxfoundation.org>
@@ -56,48 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Sandipan Das <sandipan.das@amd.com>
 
-[ Upstream commit 3a58f13a881ed351198ffab4cf9953cf19d2ab3a ]
+[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
 
-syzbot is reporting use-after-free read in tcp_retransmit_timer() [1],
-for TCP socket used by RDS is accessing sock_net() without acquiring a
-refcount on net namespace. Since TCP's retransmission can happen after
-a process which created net namespace terminated, we need to explicitly
-acquire a refcount.
+On some x86 processors, CPUID leaf 0xA provides information
+on Architectural Performance Monitoring features. It
+advertises a PMU version which Qemu uses to determine the
+availability of additional MSRs to manage the PMCs.
 
-Link: https://syzkaller.appspot.com/bug?extid=694120e1002c117747ed [1]
-Reported-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
-Fixes: 26abe14379f8e2fa ("net: Modify sk_alloc to not reference count the netns of kernel sockets.")
-Fixes: 8a68173691f03661 ("net: sk_clone_lock() should only do get_net() if the parent is not a kernel socket")
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+694120e1002c117747ed@syzkaller.appspotmail.com>
-Link: https://lore.kernel.org/r/a5fb1fc4-2284-3359-f6a0-e4e390239d7b@I-love.SAKURA.ne.jp
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
+the same, the kernel constructs return values based on the
+x86_pmu_capability irrespective of the vendor.
+
+This leaf and the additional MSRs are not supported on AMD
+and Hygon processors. If AMD PerfMonV2 is detected, the PMU
+version is set to 2 and guest startup breaks because of an
+attempt to access a non-existent MSR. Return zeros to avoid
+this.
+
+Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
+Reported-by: Vasant Hegde <vasant.hegde@amd.com>
+Signed-off-by: Sandipan Das <sandipan.das@amd.com>
+Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/tcp.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/x86/kvm/cpuid.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/rds/tcp.c b/net/rds/tcp.c
-index 5327d130c4b5..2f638f8b7b1e 100644
---- a/net/rds/tcp.c
-+++ b/net/rds/tcp.c
-@@ -495,6 +495,14 @@ void rds_tcp_tune(struct socket *sock)
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index b8f8d268d058..ee15db75fd62 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -865,6 +865,11 @@ static inline int __do_cpuid_func(struct kvm_cpuid_array *array, u32 function)
+ 		union cpuid10_eax eax;
+ 		union cpuid10_edx edx;
  
- 	tcp_sock_set_nodelay(sock->sk);
- 	lock_sock(sk);
-+	/* TCP timer functions might access net namespace even after
-+	 * a process which created this net namespace terminated.
-+	 */
-+	if (!sk->sk_net_refcnt) {
-+		sk->sk_net_refcnt = 1;
-+		get_net_track(net, &sk->ns_tracker, GFP_KERNEL);
-+		sock_inuse_add(net, 1);
-+	}
- 	if (rtn->sndbuf_size > 0) {
- 		sk->sk_sndbuf = rtn->sndbuf_size;
- 		sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
++		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
++			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
++			break;
++		}
++
+ 		perf_get_x86_pmu_capability(&cap);
+ 
+ 		/*
 -- 
 2.35.1
 
