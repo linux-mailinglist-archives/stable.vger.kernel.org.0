@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1970521713
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A8B7521722
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233525AbiEJNXM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38558 "EHLO
+        id S242954AbiEJNXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242809AbiEJNVD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F2D22BAE6D;
-        Tue, 10 May 2022 06:13:52 -0700 (PDT)
+        with ESMTP id S243742AbiEJNWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A28D113F93D;
+        Tue, 10 May 2022 06:16:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5254B81CE7;
-        Tue, 10 May 2022 13:13:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24AAAC385A6;
-        Tue, 10 May 2022 13:13:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56F9D61574;
+        Tue, 10 May 2022 13:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CD78C385A6;
+        Tue, 10 May 2022 13:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188429;
-        bh=MKudbu7vHv3XJ8MbvM3xZDs4i7yKHou2tCtg+kv73Gc=;
+        s=korg; t=1652188605;
+        bh=Aguhp1BFM4cMbxLn8rL9GAdEBOd9nfdi2j6i0pTxaxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WLxXs2SbKJHRWhr3pgJmM7Ji48XnkAQdPXe17c45sg7gPTx3jNWhvPIZG+nkUoIht
-         nwnlEyAC/t2HVPGdSWSrSbFNCQPugbo71XeUhLQARL92wvJOO6qhY2jmGrpOidhnL+
-         iSHLdkD68a7rv7Z+Tkx/1vkqHpl6S6oJXEp4lzrc=
+        b=KXeYDqHuTmue6lROai3I/48qXWVZzGKhLP5JdCt3FkTNg8RmLwgXtz7tlqIuGoI5I
+         iYcTAs3gQ1jzPkoEzsV9WKD5tpLI+DuY99zyWIQnnSOaswWo8R5HzzsTQO/WCgUCjS
+         v+8VdcC90JMnFb9P7wC1Uqwze2EdW15PcWK0j9fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org, Peilin Ye <peilin.ye@bytedance.com>,
+        William Tu <u9012063@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 31/66] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+Subject: [PATCH 4.14 35/78] ip_gre: Make o_seqno start from 0 in native mode
 Date:   Tue, 10 May 2022 15:07:21 +0200
-Message-Id: <20220510130730.679342061@linuxfoundation.org>
+Message-Id: <20220510130733.574189963@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Peilin Ye <peilin.ye@bytedance.com>
 
-[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
+[ Upstream commit ff827beb706ed719c766acf36449801ded0c17fc ]
 
-It will cause null-ptr-deref if platform_get_resource() returns NULL,
-we need check the return value.
+For GRE and GRETAP devices, currently o_seqno starts from 1 in native
+mode.  According to RFC 2890 2.2., "The first datagram is sent with a
+sequence number of 0."  Fix it.
 
-Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Reviewed-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
+It is worth mentioning that o_seqno already starts from 0 in collect_md
+mode, see gre_fb_xmit(), where tunnel->o_seqno is passed to
+gre_build_header() before getting incremented.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Peilin Ye <peilin.ye@bytedance.com>
+Acked-by: William Tu <u9012063@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/ip_gre.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
-index f69f9e8c6f38..7e9d1624032f 100644
---- a/drivers/clk/sunxi/clk-sun9i-mmc.c
-+++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
-@@ -117,6 +117,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
- 	spin_lock_init(&data->lock);
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 1a4d89f8361c..d916accd9783 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -429,14 +429,12 @@ static void __gre_xmit(struct sk_buff *skb, struct net_device *dev,
+ 		       __be16 proto)
+ {
+ 	struct ip_tunnel *tunnel = netdev_priv(dev);
+-
+-	if (tunnel->parms.o_flags & TUNNEL_SEQ)
+-		tunnel->o_seqno++;
++	__be16 flags = tunnel->parms.o_flags;
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!r)
-+		return -EINVAL;
- 	/* one clock/reset pair per word */
- 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
- 	data->membase = devm_ioremap_resource(&pdev->dev, r);
+ 	/* Push GRE header. */
+ 	gre_build_header(skb, tunnel->tun_hlen,
+-			 tunnel->parms.o_flags, proto, tunnel->parms.o_key,
+-			 htonl(tunnel->o_seqno));
++			 flags, proto, tunnel->parms.o_key,
++			 (flags & TUNNEL_SEQ) ? htonl(tunnel->o_seqno++) : 0);
+ 
+ 	ip_tunnel_xmit(skb, dev, tnl_params, tnl_params->protocol);
+ }
 -- 
 2.35.1
 
