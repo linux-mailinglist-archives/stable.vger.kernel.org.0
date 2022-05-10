@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8133A521927
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8ADD5219F4
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243677AbiEJNoG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:44:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55146 "EHLO
+        id S242155AbiEJNwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244394AbiEJNlx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:53 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5C62A188E;
-        Tue, 10 May 2022 06:30:04 -0700 (PDT)
+        with ESMTP id S245666AbiEJNsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C715456200;
+        Tue, 10 May 2022 06:36:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 78BADCE1E67;
-        Tue, 10 May 2022 13:29:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A169C385C9;
-        Tue, 10 May 2022 13:29:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C3D5618B4;
+        Tue, 10 May 2022 13:36:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79F32C385A6;
+        Tue, 10 May 2022 13:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189393;
-        bh=5cNK+wuvoX5vTKWBRONcqZCKvqOu/lyCY19Iqr7BuQA=;
+        s=korg; t=1652189784;
+        bh=US8X43Rh5j+4y6FKP6v9+3eLwbnOi3Z71ZpJneSh7n4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJR1xTutCwDhD7gbPY4iocS/w3KASjyYmeBHtgYnirm1d9ltsXJCOoy23NlZrtdpp
-         zxy5c3aQEZvN8Zp+XbciUez002ztD4914yP/NZJca3jHT+YDnMoSSbvvpGrvlQtgXx
-         hXJbTRXZpXsCjDiSLDwSUtbPVHMPv+x2bo8Dk8Gs=
+        b=qcaJK3sGpqepjTuZOMkAIVz02W+spYFzQqPJPQ9cSXwB/2pV92ePZE4F+dKXnZfXE
+         2Ls0mLeOjPQ1kuoK7uysQZHErO6QmtS1G159fSKsBP9YUpweL+kwPekfBwU9dzNsJB
+         2BRV2Gmg05Th3OYbRym/HM47rA79TKu+NPrxzECU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.15 035/135] can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
+        stable@vger.kernel.org,
+        "Ong, Boon Leong" <boon.leong.ong@intel.com>,
+        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
+        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
+        Tan Tee Min <tee.min.tan@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>, Ong@vger.kernel.org
+Subject: [PATCH 5.17 027/140] net: stmmac: disable Split Header (SPH) for Intel platforms
 Date:   Tue, 10 May 2022 15:06:57 +0200
-Message-Id: <20220510130741.408496737@linuxfoundation.org>
+Message-Id: <20220510130742.389045834@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Larsson <andreas@gaisler.com>
+From: Tan Tee Min <tee.min.tan@linux.intel.com>
 
-commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
+commit 47f753c1108e287edb3e27fad8a7511a9d55578e upstream.
 
-The systemid property was checked for in the wrong place of the device
-tree and compared to the wrong value.
+Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
+of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
+This SPH limitation will cause ping failure when the packets size exceed
+the MTU size. For example, the issue happens once the basic ping packet
+size is larger than the configured MTU size and the data is lost inside
+the fragmented packet, replaced by zeros/corrupted values, and leads to
+ping fail.
 
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+So, disable the Split Header for Intel platforms.
+
+v2: Add fixes tag in commit message.
+
+Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it in XGMAC cores")
+Cc: <stable@vger.kernel.org> # 5.10.x
+Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
+Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c |    1 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 +-
+ include/linux/stmmac.h                            |    1 +
+ 3 files changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -241,7 +241,7 @@ struct grcan_device_config {
- 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
- 		}
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-intel.c
+@@ -454,6 +454,7 @@ static int intel_mgbe_common_data(struct
+ 	plat->has_gmac4 = 1;
+ 	plat->force_sf_dma_mode = 0;
+ 	plat->tso_en = 1;
++	plat->sph_disable = 1;
  
--#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
-+#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
- #define GRLIB_VERSION_MASK		0xffff
+ 	/* Multiplying factor to the clk_eee_i clock time
+ 	 * period to make it closer to 100 ns. This value
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -7077,7 +7077,7 @@ int stmmac_dvr_probe(struct device *devi
+ 		dev_info(priv->device, "TSO feature enabled\n");
+ 	}
  
- /* GRCAN private data structure */
-@@ -1656,6 +1656,7 @@ exit_free_candev:
- static int grcan_probe(struct platform_device *ofdev)
- {
- 	struct device_node *np = ofdev->dev.of_node;
-+	struct device_node *sysid_parent;
- 	u32 sysid, ambafreq;
- 	int irq, err;
- 	void __iomem *base;
-@@ -1664,10 +1665,15 @@ static int grcan_probe(struct platform_d
- 	/* Compare GRLIB version number with the first that does not
- 	 * have the tx bug (see start_xmit)
- 	 */
--	err = of_property_read_u32(np, "systemid", &sysid);
--	if (!err && ((sysid & GRLIB_VERSION_MASK)
--		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
--		txbug = false;
-+	sysid_parent = of_find_node_by_path("/ambapp0");
-+	if (sysid_parent) {
-+		of_node_get(sysid_parent);
-+		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
-+		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
-+			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
-+			txbug = false;
-+		of_node_put(sysid_parent);
-+	}
- 
- 	err = of_property_read_u32(np, "freq", &ambafreq);
- 	if (err) {
+-	if (priv->dma_cap.sphen) {
++	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
+ 		ndev->hw_features |= NETIF_F_GRO;
+ 		priv->sph_cap = true;
+ 		priv->sph = priv->sph_cap;
+--- a/include/linux/stmmac.h
++++ b/include/linux/stmmac.h
+@@ -270,5 +270,6 @@ struct plat_stmmacenet_data {
+ 	int msi_rx_base_vec;
+ 	int msi_tx_base_vec;
+ 	bool use_phy_wol;
++	bool sph_disable;
+ };
+ #endif
 
 
