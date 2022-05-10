@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 714FC52180D
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9757521AB0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240149AbiEJNc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50084 "EHLO
+        id S244344AbiEJOD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243295AbiEJNaB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79872C3346;
-        Tue, 10 May 2022 06:21:23 -0700 (PDT)
+        with ESMTP id S244252AbiEJOAI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:00:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADDA02DE585;
+        Tue, 10 May 2022 06:39:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4CA4EB81DA3;
-        Tue, 10 May 2022 13:21:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6794C385C2;
-        Tue, 10 May 2022 13:21:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F367961950;
+        Tue, 10 May 2022 13:39:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5CF7C385C2;
+        Tue, 10 May 2022 13:39:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188881;
-        bh=9AB0eIkm2p52mhcWgP0ARdREWpNnfAQ5M4KPSUn+kQw=;
+        s=korg; t=1652189990;
+        bh=VPmGLYyoid+7Hr0o4liQyLBaeJin3XuWlLByWtnfuCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iz86m1RPI6xqLla01n9e0+p1Fe/vQFzUspTJ6j53HPGWdY5OVCzcDBj5NvV2/3HvN
-         FjILaM1W6NNndpyBtBTrHyjvl1wiVfeVHpJsHQqcfiPK275PGo7kkPiTJR4LHE+CF6
-         2bAlAI0sOh0V3UtvQfm1XjA9wEfjlG8VNbnho+EI=
+        b=B84EGzG5iUUR5+SWN8kD3XgdjxZrqUB1vCIQ8kBqVzoqszAwDINqrf71VrWWV28Kl
+         mGI4iXzN69rr9/Kwks2yRj6F5mSm+g8/+QhU16Vza2M1py6F3T9ghcb1Zza9kRS6Bf
+         iZkoYlNVb7ECLKzXfdtApW/z9Lv/jpDPnJNh3cF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 79/88] btrfs: always log symlinks in full mode
+        stable@vger.kernel.org, Qiao Ma <mqaio@linux.alibaba.com>,
+        Xunlei Pang <xlpang@linux.alibaba.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 094/140] hinic: fix bug of wq out of bound access
 Date:   Tue, 10 May 2022 15:08:04 +0200
-Message-Id: <20220510130736.023490077@linuxfoundation.org>
+Message-Id: <20220510130744.296900716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Qiao Ma <mqaio@linux.alibaba.com>
 
-commit d0e64a981fd841cb0f28fcd6afcac55e6f1e6994 upstream.
+commit 52b2abef450a78e25d485ac61e32f4ce86a87701 upstream.
 
-On Linux, empty symlinks are invalid, and attempting to create one with
-the system call symlink(2) results in an -ENOENT error and this is
-explicitly documented in the man page.
+If wq has only one page, we need to check wqe rolling over page by
+compare end_idx and curr_idx, and then copy wqe to shadow wqe to
+avoid out of bound access.
+This work has been done in hinic_get_wqe, but missed for hinic_read_wqe.
+This patch fixes it, and removes unnecessary MASKED_WQE_IDX().
 
-If we rename a symlink that was created in the current transaction and its
-parent directory was logged before, we actually end up logging the symlink
-without logging its content, which is stored in an inline extent. That
-means that after a power failure we can end up with an empty symlink,
-having no content and an i_size of 0 bytes.
-
-It can be easily reproduced like this:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  $ mkdir /mnt/testdir
-  $ sync
-
-  # Create a file inside the directory and fsync the directory.
-  $ touch /mnt/testdir/foo
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  # Create a symlink inside the directory and then rename the symlink.
-  $ ln -s /mnt/testdir/foo /mnt/testdir/bar
-  $ mv /mnt/testdir/bar /mnt/testdir/baz
-
-  # Now fsync again the directory, this persist the log tree.
-  $ xfs_io -c "fsync" /mnt/testdir
-
-  <power failure>
-
-  $ mount /dev/sdc /mnt
-  $ stat -c %s /mnt/testdir/baz
-  0
-  $ readlink /mnt/testdir/baz
-  $
-
-Fix this by always logging symlinks in full mode (LOG_INODE_ALL), so that
-their content is also logged.
-
-A test case for fstests will follow.
-
-CC: stable@vger.kernel.org # 4.9+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
+Signed-off-by: Qiao Ma <mqaio@linux.alibaba.com>
+Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
+Link: https://lore.kernel.org/r/282817b0e1ae2e28fdf3ed8271a04e77f57bf42e.1651148587.git.mqaio@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4907,6 +4907,18 @@ static int btrfs_log_inode(struct btrfs_
- 	}
- 
- 	/*
-+	 * For symlinks, we must always log their content, which is stored in an
-+	 * inline extent, otherwise we could end up with an empty symlink after
-+	 * log replay, which is invalid on linux (symlink(2) returns -ENOENT if
-+	 * one attempts to create an empty symlink).
-+	 * We don't need to worry about flushing delalloc, because when we create
-+	 * the inline extent when the symlink is created (we never have delalloc
-+	 * for symlinks).
-+	 */
-+	if (S_ISLNK(inode->vfs_inode.i_mode))
-+		inode_only = LOG_INODE_ALL;
-+
-+	/*
- 	 * a brute force approach to making sure we get the most uptodate
- 	 * copies of everything.
+--- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
++++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
+@@ -771,7 +771,7 @@ struct hinic_hw_wqe *hinic_get_wqe(struc
+ 	/* If we only have one page, still need to get shadown wqe when
+ 	 * wqe rolling-over page
  	 */
-@@ -5462,7 +5474,7 @@ process_leaf:
- 			}
+-	if (curr_pg != end_pg || MASKED_WQE_IDX(wq, end_prod_idx) < *prod_idx) {
++	if (curr_pg != end_pg || end_prod_idx < *prod_idx) {
+ 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
  
- 			ctx->log_new_dentries = false;
--			if (type == BTRFS_FT_DIR || type == BTRFS_FT_SYMLINK)
-+			if (type == BTRFS_FT_DIR)
- 				log_mode = LOG_INODE_ALL;
- 			ret = btrfs_log_inode(trans, root, BTRFS_I(di_inode),
- 					      log_mode, 0, LLONG_MAX, ctx);
+ 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *prod_idx);
+@@ -841,7 +841,10 @@ struct hinic_hw_wqe *hinic_read_wqe(stru
+ 
+ 	*cons_idx = curr_cons_idx;
+ 
+-	if (curr_pg != end_pg) {
++	/* If we only have one page, still need to get shadown wqe when
++	 * wqe rolling-over page
++	 */
++	if (curr_pg != end_pg || end_cons_idx < curr_cons_idx) {
+ 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
+ 
+ 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *cons_idx);
 
 
