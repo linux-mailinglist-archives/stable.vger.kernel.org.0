@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D2D752171E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 945CB5216C9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242960AbiEJNXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58028 "EHLO
+        id S242497AbiEJNSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:18:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243716AbiEJNWU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:20 -0400
+        with ESMTP id S242547AbiEJNRS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:17:18 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985C7134E15;
-        Tue, 10 May 2022 06:16:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A494093D;
+        Tue, 10 May 2022 06:12:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 534C7616D0;
-        Tue, 10 May 2022 13:16:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FB45C385D8;
-        Tue, 10 May 2022 13:16:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30CAD6123F;
+        Tue, 10 May 2022 13:12:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E35C385A6;
+        Tue, 10 May 2022 13:12:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188584;
-        bh=aVuH+MV+446GnglHFZUuaSvVDT1o8j9Oc6/CrUI0p00=;
+        s=korg; t=1652188370;
+        bh=2SQP/iK9dFo1azXQPmUtMwnMxA2HAIdd4EY0EdaBOnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPTfDkyB6UWziItKV/7mqtlfaDhp1xAtBoKRq5d8Iq+tTtkIMK5GlnfySe+0fKkpY
-         0l6kxW4NxDVnhN87T2PFJfpDfCSUmm+nc04zFrF7WC8gEb/TjKutQun/7oeFmLeKUM
-         Dq+RuuU/HSm5Z5wIUYq1YFRjLnFfx83U4ZmI170U=
+        b=kXxT+OTDXnIshBvRaO1rpWvGNMIloZEh8Egd5ULqR67rLK+g3QMcVJfn9iQM9BQG0
+         iWexNbEQtzNqENYPunLXJRHMCuBpH9id9V/Kq2oiTRMZmEiy76fiX2OJ9xwkhx0NnX
+         8r4MnaldSU07kqaurXxoRXx6aNRGH0073uaUzfxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 55/78] parisc: Merge model and model name into one line in /proc/cpuinfo
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Andreas Larsson <andreas@gaisler.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 51/66] can: grcan: grcan_close(): fix deadlock
 Date:   Tue, 10 May 2022 15:07:41 +0200
-Message-Id: <20220510130734.167169023@linuxfoundation.org>
+Message-Id: <20220510130731.260968927@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,32 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
+commit 47f070a63e735bcc8d481de31be1b5a1aa62b31c upstream.
 
-The Linux tool "lscpu" shows the double amount of CPUs if we have
-"model" and "model name" in two different lines in /proc/cpuinfo.
-This change combines the model and the model name into one line.
+There are deadlocks caused by del_timer_sync(&priv->hang_timer) and
+del_timer_sync(&priv->rr_timer) in grcan_close(), one of the deadlocks
+are shown below:
 
-Signed-off-by: Helge Deller <deller@gmx.de>
+   (Thread 1)              |      (Thread 2)
+                           | grcan_reset_timer()
+grcan_close()              |  mod_timer()
+ spin_lock_irqsave() //(1) |  (wait a time)
+ ...                       | grcan_initiate_running_reset()
+ del_timer_sync()          |  spin_lock_irqsave() //(2)
+ (wait timer to stop)      |  ...
+
+We hold priv->lock in position (1) of thread 1 and use
+del_timer_sync() to wait timer to stop, but timer handler also need
+priv->lock in position (2) of thread 2. As a result, grcan_close()
+will block forever.
+
+This patch extracts del_timer_sync() from the protection of
+spin_lock_irqsave(), which could let timer handler to obtain the
+needed lock.
+
+Link: https://lore.kernel.org/all/20220425042400.66517-1-duoming@zju.edu.cn
+Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
 Cc: stable@vger.kernel.org
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Andreas Larsson <andreas@gaisler.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/processor.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/can/grcan.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/parisc/kernel/processor.c
-+++ b/arch/parisc/kernel/processor.c
-@@ -408,8 +408,7 @@ show_cpuinfo (struct seq_file *m, void *
- 		}
- 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
+--- a/drivers/net/can/grcan.c
++++ b/drivers/net/can/grcan.c
+@@ -1117,8 +1117,10 @@ static int grcan_close(struct net_device
  
--		seq_printf(m, "model\t\t: %s\n"
--				"model name\t: %s\n",
-+		seq_printf(m, "model\t\t: %s - %s\n",
- 				 boot_cpu_data.pdc.sys_model_name,
- 				 cpuinfo->dev ?
- 				 cpuinfo->dev->name : "Unknown");
+ 	priv->closing = true;
+ 	if (priv->need_txbug_workaround) {
++		spin_unlock_irqrestore(&priv->lock, flags);
+ 		del_timer_sync(&priv->hang_timer);
+ 		del_timer_sync(&priv->rr_timer);
++		spin_lock_irqsave(&priv->lock, flags);
+ 	}
+ 	netif_stop_queue(dev);
+ 	grcan_stop_hardware(dev);
 
 
