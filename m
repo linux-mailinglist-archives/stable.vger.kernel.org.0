@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D94D521820
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04C41521ABA
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243026AbiEJNdY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
+        id S242462AbiEJODf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243436AbiEJNa4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:30:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088792C96E1;
-        Tue, 10 May 2022 06:21:44 -0700 (PDT)
+        with ESMTP id S245149AbiEJOCK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:02:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 590F22DFF45;
+        Tue, 10 May 2022 06:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF848615C8;
-        Tue, 10 May 2022 13:21:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED148C385C2;
-        Tue, 10 May 2022 13:21:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0FA2B81D24;
+        Tue, 10 May 2022 13:40:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53A67C385A6;
+        Tue, 10 May 2022 13:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188903;
-        bh=0zLrIOIS/uXNi/PoMZbKBbUyQytHmArs1AmrourD0Hc=;
+        s=korg; t=1652190011;
+        bh=5FHKqCevaZ4Z6CAFDYNCySqWPWHqfsu1Z0kLppqCT9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDGnZpT8+inlPIAZP7gn5vQpqMVTPwUpyTkwoTcwBIAF//KxHz0nKqePH8ZPeGhq4
-         cITkfzUVgtXT8E4d/Zc3rN5LuKNC4Li/bw9aD47c9NCueN/mxplZQoGWNIgM7ZeCAp
-         JJp6uL71Iqet1zJfUWdhpZ1WontuSGTJR46hHPUI=
+        b=cddB+MWVm1qFeXQHy8NKx1LrhOz3zg8QYVFl3BWFQ8rGjaqv6D1dwa4woOf0kjkn9
+         AEKKULVvFycjoo67qiGcYFDGphw0FhGRYioj4d0aJMOGXuXj0Nlrm9cBdp2RGmwS63
+         zO/sG1CpPAjy8AjqLDNGxqIuYTDX8asyHw+lbSi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 4.19 86/88] PCI: aardvark: Clear all MSIs at setup
+        Andy Gospodarek <andrew.gospodarek@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 101/140] bnxt_en: Fix unnecessary dropping of RX packets
 Date:   Tue, 10 May 2022 15:08:11 +0200
-Message-Id: <20220510130736.230112786@linuxfoundation.org>
+Message-Id: <20220510130744.493573240@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,62 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 7d8dc1f7cd007a7ce94c5b4c20d63a8b8d6d7751 upstream.
+commit 195af57914d15229186658ed26dab24b9ada4122 upstream.
 
-We already clear all the other interrupts (ISR0, ISR1, HOST_CTRL_INT).
+In bnxt_poll_p5(), we first check cpr->has_more_work.  If it is true,
+we are in NAPI polling mode and we will call __bnxt_poll_cqs() to
+continue polling.  It is possible to exhanust the budget again when
+__bnxt_poll_cqs() returns.
 
-Define a new macro PCIE_MSI_ALL_MASK and do the same clearing for MSIs,
-to ensure that we don't start receiving spurious interrupts.
+We then enter the main while loop to check for new entries in the NQ.
+If we had previously exhausted the NAPI budget, we may call
+__bnxt_poll_work() to process an RX entry with zero budget.  This will
+cause packets to be dropped unnecessarily, thinking that we are in the
+netpoll path.  Fix it by breaking out of the while loop if we need
+to process an RX NQ entry with no budget left.  We will then exit
+NAPI and stay in polling mode.
 
-Use this new mask in advk_pcie_handle_msi();
-
-Link: https://lore.kernel.org/r/20211130172913.9727-5-kabel@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Marek Behún <kabel@kernel.org>
+Fixes: 389a877a3b20 ("bnxt_en: Process the NQ under NAPI continuous polling.")
+Reviewed-by: Andy Gospodarek <andrew.gospodarek@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -103,6 +103,7 @@
- #define PCIE_MSI_ADDR_HIGH_REG			(CONTROL_BASE_ADDR + 0x54)
- #define PCIE_MSI_STATUS_REG			(CONTROL_BASE_ADDR + 0x58)
- #define PCIE_MSI_MASK_REG			(CONTROL_BASE_ADDR + 0x5C)
-+#define     PCIE_MSI_ALL_MASK			GENMASK(31, 0)
- #define PCIE_MSI_PAYLOAD_REG			(CONTROL_BASE_ADDR + 0x9C)
- #define     PCIE_MSI_DATA_MASK			GENMASK(15, 0)
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -2678,6 +2678,10 @@ static int bnxt_poll_p5(struct napi_stru
+ 			u32 idx = le32_to_cpu(nqcmp->cq_handle_low);
+ 			struct bnxt_cp_ring_info *cpr2;
  
-@@ -489,6 +490,7 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, reg, PCIE_CORE_CTRL2_REG);
- 
- 	/* Clear all interrupts */
-+	advk_writel(pcie, PCIE_MSI_ALL_MASK, PCIE_MSI_STATUS_REG);
- 	advk_writel(pcie, PCIE_ISR0_ALL_MASK, PCIE_ISR0_REG);
- 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
- 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
-@@ -501,7 +503,7 @@ static void advk_pcie_setup_hw(struct ad
- 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_MASK_REG);
- 
- 	/* Unmask all MSI's */
--	advk_writel(pcie, 0, PCIE_MSI_MASK_REG);
-+	advk_writel(pcie, ~(u32)PCIE_MSI_ALL_MASK, PCIE_MSI_MASK_REG);
- 
- 	/* Enable summary interrupt for GIC SPI source */
- 	reg = PCIE_IRQ_ALL_MASK & (~PCIE_IRQ_ENABLE_INTS_MASK);
-@@ -1037,7 +1039,7 @@ static void advk_pcie_handle_msi(struct
- 
- 	msi_mask = advk_readl(pcie, PCIE_MSI_MASK_REG);
- 	msi_val = advk_readl(pcie, PCIE_MSI_STATUS_REG);
--	msi_status = msi_val & ~msi_mask;
-+	msi_status = msi_val & ((~msi_mask) & PCIE_MSI_ALL_MASK);
- 
- 	for (msi_idx = 0; msi_idx < MSI_IRQ_NUM; msi_idx++) {
- 		if (!(BIT(msi_idx) & msi_status))
++			/* No more budget for RX work */
++			if (budget && work_done >= budget && idx == BNXT_RX_HDL)
++				break;
++
+ 			cpr2 = cpr->cp_ring_arr[idx];
+ 			work_done += __bnxt_poll_work(bp, cpr2,
+ 						      budget - work_done);
 
 
