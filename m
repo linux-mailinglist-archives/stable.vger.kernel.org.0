@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 641985216A1
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B600521789
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241617AbiEJNQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36228 "EHLO
+        id S244005AbiEJN1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:27:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241535AbiEJNQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8FF73EF23;
-        Tue, 10 May 2022 06:12:14 -0700 (PDT)
+        with ESMTP id S242872AbiEJNZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB03148316;
+        Tue, 10 May 2022 06:17:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DA6B615F8;
-        Tue, 10 May 2022 13:12:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F1BC385A6;
-        Tue, 10 May 2022 13:12:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67F196123F;
+        Tue, 10 May 2022 13:17:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78003C385A6;
+        Tue, 10 May 2022 13:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188325;
-        bh=5JcHX9Wa3Mes2Izs1ipgsGcdg9EM9TbFHe/TyofPpc8=;
+        s=korg; t=1652188665;
+        bh=IahD/UGbAtp5D8KEjlB7ZHxiAoNcd+ZHPnhmK08V4LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3TBl+jvjbqOv5mwMuT7X1b5Pu0g//OQJmYLEpZlcr+A3dAf4G0U0/NrQ0EZAkwU9
-         22w+xzTB2zOD4eOxOZMBIUQ4g+EuLtZRh3X25hUn7GJzJu1cIn/FZnN6k9yV0NhzpT
-         3OP7p8PUlMma3LjwvOpe9ssxiX/HM52DWSM9Ggk0=
+        b=FQHUzD0xEQiv6Hupxj/Afy9gCL/qQkRJe6fnieelz+VUhyNvvmfOq6fYjkewmdGpY
+         hVmK9IMQrwAxLieCDHKZINViUbDF5OJv1++Nfg4o79dbRDkVu748hZGJCLNCOX9fxP
+         Vh9aJuE1zEEoaWSBkBqgmiJF5etKn3AIsVIF3Z94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 4.9 37/66] tty: n_gsm: fix malformed counter for out of frame data
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 41/78] ASoC: wm8731: Disable the regulator when probing fails
 Date:   Tue, 10 May 2022 15:07:27 +0200
-Message-Id: <20220510130730.857381555@linuxfoundation.org>
+Message-Id: <20220510130733.751427333@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,35 +54,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit a24b4b2f660b7ddf3f484b37600bba382cb28a9d upstream.
+[ Upstream commit 92ccbf17eeacf510cf1eed9c252d9332ca24f02d ]
 
-The gsm_mux field 'malformed' represents the number of malformed frames
-received. However, gsm1_receive() also increases this counter for any out
-of frame byte.
-Fix this by ignoring out of frame data for the malformed counter.
+When the driver fails during probing, the driver should disable the
+regulator, not just handle it in wm8731_hw_init().
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220414094225.4527-7-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The following log reveals it:
+
+[   17.812483] WARNING: CPU: 1 PID: 364 at drivers/regulator/core.c:2257 _regulator_put+0x3ec/0x4e0
+[   17.815958] RIP: 0010:_regulator_put+0x3ec/0x4e0
+[   17.824467] Call Trace:
+[   17.824774]  <TASK>
+[   17.825040]  regulator_bulk_free+0x82/0xe0
+[   17.825514]  devres_release_group+0x319/0x3d0
+[   17.825882]  i2c_device_probe+0x766/0x940
+[   17.829198]  i2c_register_driver+0xb5/0x130
+
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/20220405121038.4094051-1-zheyuma97@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/codecs/wm8731.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -1977,7 +1977,8 @@ static void gsm1_receive(struct gsm_mux
- 		}
- 		/* Any partial frame was a runt so go back to start */
- 		if (gsm->state != GSM_START) {
--			gsm->malformed++;
-+			if (gsm->state != GSM_SEARCH)
-+				gsm->malformed++;
- 			gsm->state = GSM_START;
- 		}
- 		/* A SOF in GSM_START means we are still reading idling or
+diff --git a/sound/soc/codecs/wm8731.c b/sound/soc/codecs/wm8731.c
+index 4f9a1eb28120..abe5e77ba171 100644
+--- a/sound/soc/codecs/wm8731.c
++++ b/sound/soc/codecs/wm8731.c
+@@ -604,7 +604,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 	ret = wm8731_reset(wm8731->regmap);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to issue reset: %d\n", ret);
+-		goto err_regulator_enable;
++		goto err;
+ 	}
+ 
+ 	/* Clear POWEROFF, keep everything else disabled */
+@@ -621,10 +621,7 @@ static int wm8731_hw_init(struct device *dev, struct wm8731_priv *wm8731)
+ 
+ 	regcache_mark_dirty(wm8731->regmap);
+ 
+-err_regulator_enable:
+-	/* Regulators will be enabled by bias management */
+-	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
+-
++err:
+ 	return ret;
+ }
+ 
+@@ -768,21 +765,27 @@ static int wm8731_i2c_probe(struct i2c_client *i2c,
+ 		ret = PTR_ERR(wm8731->regmap);
+ 		dev_err(&i2c->dev, "Failed to allocate register map: %d\n",
+ 			ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	ret = wm8731_hw_init(&i2c->dev, wm8731);
+ 	if (ret != 0)
+-		return ret;
++		goto err_regulator_enable;
+ 
+ 	ret = snd_soc_register_codec(&i2c->dev,
+ 			&soc_codec_dev_wm8731, &wm8731_dai, 1);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "Failed to register CODEC: %d\n", ret);
+-		return ret;
++		goto err_regulator_enable;
+ 	}
+ 
+ 	return 0;
++
++err_regulator_enable:
++	/* Regulators will be enabled by bias management */
++	regulator_bulk_disable(ARRAY_SIZE(wm8731->supplies), wm8731->supplies);
++
++	return ret;
+ }
+ 
+ static int wm8731_i2c_remove(struct i2c_client *client)
+-- 
+2.35.1
+
 
 
