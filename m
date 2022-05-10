@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88738521ADD
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C46F5218BA
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243050AbiEJOCz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:02:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47118 "EHLO
+        id S237354AbiEJNjp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245204AbiEJN5S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529412CC13F;
-        Tue, 10 May 2022 06:38:55 -0700 (PDT)
+        with ESMTP id S244891AbiEJNiK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 617F272216;
+        Tue, 10 May 2022 06:26:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18639B81D7A;
-        Tue, 10 May 2022 13:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B0BAC385A6;
-        Tue, 10 May 2022 13:38:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB556B81DA2;
+        Tue, 10 May 2022 13:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DA6DC385C2;
+        Tue, 10 May 2022 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189932;
-        bh=FM+9f0lcvYb+RKVxJEYtJHTrKZyJPaTJRirnGzdUu8M=;
+        s=korg; t=1652189193;
+        bh=ZC2xq8mT32uAvdq52x5pVe1krkLHonF2/gxynch+b54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBjm09h9hiUhO7JytnheFScUWhHM8YvT1ifKHeFsMkt2GDFBuhk043JNhflgXcaIn
-         Zsbl2AvOvvr5QhoJdNK75AUsx6IpnacZp3TNfsjBNxmFd5PWvJbA5SSRrrHyndAMyK
-         PLvdKxU90ER3/DoGARLkPsNhY2mT1XRmc+vSNTL0=
+        b=LeJLp22HOCzekF55mEPxb7fjFfMXGSUwAggzoOKTPeRmrORfPAWFxT2JerPl+IOjW
+         nh6CmMYgp9DSyz9b3jkQygh+oAMk/mN+aEp64vZvOG1yMBv8Q43ss68AAjj9XNC5vr
+         ZTNv1eoRRQ3lduv2tUtP1KOTwb+vvDA5skXXNqLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Maor Dickman <maord@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.17 074/140] net/mlx5e: Lag, Dont skip fib events on current dst
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 25/70] s390/dasd: Fix read inconsistency for ESE DASD devices
 Date:   Tue, 10 May 2022 15:07:44 +0200
-Message-Id: <20220510130743.732558194@linuxfoundation.org>
+Message-Id: <20220510130733.604849603@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,107 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-commit 4a2a664ed87962c4ddb806a84b5c9634820bcf55 upstream.
+commit b9c10f68e23c13f56685559a0d6fdaca9f838324 upstream.
 
-Referenced change added check to skip updating fib when new fib instance
-has same or lower priority. However, new fib instance can be an update on
-same dst address as existing one even though the structure is another
-instance that has different address. Ignoring events on such instances
-causes multipath LAG state to not be correctly updated.
+Read requests that return with NRF error are partially completed in
+dasd_eckd_ese_read(). The function keeps track of the amount of
+processed bytes and the driver will eventually return this information
+back to the block layer for further processing via __dasd_cleanup_cqr()
+when the request is in the final stage of processing (from the driver's
+perspective).
 
-Track 'dst' and 'dst_len' fields of fib event fib_entry_notifier_info
-structure and don't skip events that have the same value of that fields.
+For this, blk_update_request() is used which requires the number of
+bytes to complete the request. As per documentation the nr_bytes
+parameter is described as follows:
+   "number of bytes to complete for @req".
 
-Fixes: ad11c4f1d8fd ("net/mlx5e: Lag, Only handle events from highest priority multipath entry")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Maor Dickman <maord@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+This was mistakenly interpreted as "number of bytes _left_ for @req"
+leading to new requests with incorrect data length. The consequence are
+inconsistent and completely wrong read requests as data from random
+memory areas are read back.
+
+Fix this by correctly specifying the amount of bytes that should be used
+to complete the request.
+
+Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned devices")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-5-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c |   20 ++++++++++++--------
- drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h |    2 ++
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/s390/block/dasd.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.c
-@@ -100,10 +100,12 @@ static void mlx5_lag_fib_event_flush(str
- 	flush_workqueue(mp->wq);
- }
- 
--static void mlx5_lag_fib_set(struct lag_mp *mp, struct fib_info *fi)
-+static void mlx5_lag_fib_set(struct lag_mp *mp, struct fib_info *fi, u32 dst, int dst_len)
- {
- 	mp->fib.mfi = fi;
- 	mp->fib.priority = fi->fib_priority;
-+	mp->fib.dst = dst;
-+	mp->fib.dst_len = dst_len;
- }
- 
- struct mlx5_fib_event_work {
-@@ -116,10 +118,10 @@ struct mlx5_fib_event_work {
- 	};
- };
- 
--static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev,
--				     unsigned long event,
--				     struct fib_info *fi)
-+static void mlx5_lag_fib_route_event(struct mlx5_lag *ldev, unsigned long event,
-+				     struct fib_entry_notifier_info *fen_info)
- {
-+	struct fib_info *fi = fen_info->fi;
- 	struct lag_mp *mp = &ldev->lag_mp;
- 	struct fib_nh *fib_nh0, *fib_nh1;
- 	unsigned int nhs;
-@@ -133,7 +135,9 @@ static void mlx5_lag_fib_route_event(str
- 	}
- 
- 	/* Handle multipath entry with lower priority value */
--	if (mp->fib.mfi && mp->fib.mfi != fi && fi->fib_priority >= mp->fib.priority)
-+	if (mp->fib.mfi && mp->fib.mfi != fi &&
-+	    (mp->fib.dst != fen_info->dst || mp->fib.dst_len != fen_info->dst_len) &&
-+	    fi->fib_priority >= mp->fib.priority)
- 		return;
- 
- 	/* Handle add/replace event */
-@@ -149,7 +153,7 @@ static void mlx5_lag_fib_route_event(str
- 
- 			i++;
- 			mlx5_lag_set_port_affinity(ldev, i);
--			mlx5_lag_fib_set(mp, fi);
-+			mlx5_lag_fib_set(mp, fi, fen_info->dst, fen_info->dst_len);
- 		}
- 
- 		return;
-@@ -179,7 +183,7 @@ static void mlx5_lag_fib_route_event(str
- 	}
- 
- 	mlx5_lag_set_port_affinity(ldev, MLX5_LAG_NORMAL_AFFINITY);
--	mlx5_lag_fib_set(mp, fi);
-+	mlx5_lag_fib_set(mp, fi, fen_info->dst, fen_info->dst_len);
- }
- 
- static void mlx5_lag_fib_nexthop_event(struct mlx5_lag *ldev,
-@@ -220,7 +224,7 @@ static void mlx5_lag_fib_update(struct w
- 	case FIB_EVENT_ENTRY_REPLACE:
- 	case FIB_EVENT_ENTRY_DEL:
- 		mlx5_lag_fib_route_event(ldev, fib_work->event,
--					 fib_work->fen_info.fi);
-+					 &fib_work->fen_info);
- 		fib_info_put(fib_work->fen_info.fi);
- 		break;
- 	case FIB_EVENT_NH_ADD:
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag/mp.h
-@@ -18,6 +18,8 @@ struct lag_mp {
- 	struct {
- 		const void        *mfi; /* used in tracking fib events */
- 		u32               priority;
-+		u32               dst;
-+		int               dst_len;
- 	} fib;
- 	struct workqueue_struct   *wq;
- };
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2812,8 +2812,7 @@ static void __dasd_cleanup_cqr(struct da
+ 		 * complete a request partially.
+ 		 */
+ 		if (proc_bytes) {
+-			blk_update_request(req, BLK_STS_OK,
+-					   blk_rq_bytes(req) - proc_bytes);
++			blk_update_request(req, BLK_STS_OK, proc_bytes);
+ 			blk_mq_requeue_request(req, true);
+ 		} else if (likely(!blk_should_fake_timeout(req->q))) {
+ 			blk_mq_complete_request(req);
 
 
