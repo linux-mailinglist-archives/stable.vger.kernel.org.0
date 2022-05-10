@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4891B5218F6
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 300D05219EC
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243509AbiEJNkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:40:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55148 "EHLO
+        id S237934AbiEJNwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245195AbiEJNii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47A25FCA;
-        Tue, 10 May 2022 06:28:39 -0700 (PDT)
+        with ESMTP id S243896AbiEJNtS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:49:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82CBB6FD3D;
+        Tue, 10 May 2022 06:37:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 55A86CE1EED;
-        Tue, 10 May 2022 13:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24595C385C2;
-        Tue, 10 May 2022 13:28:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0F1CB81DAB;
+        Tue, 10 May 2022 13:37:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D5BC385C2;
+        Tue, 10 May 2022 13:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189316;
-        bh=tDDRTR4hAcafWMH1wych2cfeBCdy8kCp9bNyavD8AN0=;
+        s=korg; t=1652189827;
+        bh=RIK5MElVo47bD1tsF8v3qbeY9yUwA6PQltPBj+Q7u+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zJOBfdt70myElGS/zWWRj9yeY0W4geUGGMmh4GdGkP+DHUkjlpPDgt9fP8IHd+j9q
-         BjnvxIKMBKsFIhXm1zRP73eFtZkhQapDIhpOSt0nk2xRTXEaJCxuuktfy+sjaPDHf5
-         9EW1SZljY99l9BriomaIMK+wIk0JUFbWvmou9ass=
+        b=SeTYsq9ooa/QinIXIJbC/MhXaLprlqzrzVnNZ6hYtBm2lb6OZ6wp0ZDATySAhdqWV
+         vi0KM2p4jHaWrsPY1RLi1fbFOrJj0jBqlEiH8nPqAqgvx7ALPyCs1SL6GHiQ0DFdsf
+         /VybVptkkbOu39YRNZNcuQn0tnKmgoa6TMwB9e6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolin Chen <nicolinc@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.15 012/135] iommu/arm-smmu-v3: Fix size calculation in arm_smmu_mm_invalidate_range()
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.17 004/140] MIPS: Fix CP0 counter erratum detection for R4k CPUs
 Date:   Tue, 10 May 2022 15:06:34 +0200
-Message-Id: <20220510130740.748771520@linuxfoundation.org>
+Message-Id: <20220510130741.729581715@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,57 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicolinc@nvidia.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 95d4782c34a60800ccf91d9f0703137d4367a2fc upstream.
+commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
 
-The arm_smmu_mm_invalidate_range function is designed to be called
-by mm core for Shared Virtual Addressing purpose between IOMMU and
-CPU MMU. However, the ways of two subsystems defining their "end"
-addresses are slightly different. IOMMU defines its "end" address
-using the last address of an address range, while mm core defines
-that using the following address of an address range:
+Fix the discrepancy between the two places we check for the CP0 counter
+erratum in along with the incorrect comparison of the R4400 revision
+number against 0x30 which matches none and consistently consider all
+R4000 and R4400 processors affected, as documented in processor errata
+publications[1][2][3], following the mapping between CP0 PRId register
+values and processor models:
 
-	include/linux/mm_types.h:
-		unsigned long vm_end;
-		/* The first byte after our end address ...
+  PRId   |  Processor Model
+---------+--------------------
+00000422 | R4000 Revision 2.2
+00000430 | R4000 Revision 3.0
+00000440 | R4400 Revision 1.0
+00000450 | R4400 Revision 2.0
+00000460 | R4400 Revision 3.0
 
-This mismatch resulted in an incorrect calculation for size so it
-failed to be page-size aligned. Further, it caused a dead loop at
-"while (iova < end)" check in __arm_smmu_tlb_inv_range function.
+No other revision of either processor has ever been spotted.
 
-This patch fixes the issue by doing the calculation correctly.
+Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
+R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
+CP0 counter as buggy does not preclude it from being used as either a
+clock event or a clock source device.  It just cannot be used as both at
+a time, because in that case clock event interrupts will be occasionally
+lost, and the use as a clock event device takes precedence.
 
-Fixes: 2f7e8c553e98 ("iommu/arm-smmu-v3: Hook up ATC invalidation to mm ops")
-Cc: stable@vger.kernel.org
-Signed-off-by: Nicolin Chen <nicolinc@nvidia.com>
-Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Link: https://lore.kernel.org/r/20220419210158.21320-1-nicolinc@nvidia.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Compare against 0x4ff in `can_use_mips_counter' so that a single machine
+instruction is produced.
+
+
+[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+    Technologies Inc., May 10, 1994, Erratum 53, p.13
+
+[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+    Inc., February 9, 1994, Erratum 21, p.4
+
+[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
+    Technologies Inc., January 24, 1995, Erratum 14, p.3
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+Cc: stable@vger.kernel.org # v2.6.24+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/timex.h |    8 ++++----
+ arch/mips/kernel/time.c       |   11 +++--------
+ 2 files changed, 7 insertions(+), 12 deletions(-)
 
---- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-+++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
-@@ -183,7 +183,14 @@ static void arm_smmu_mm_invalidate_range
- {
- 	struct arm_smmu_mmu_notifier *smmu_mn = mn_to_smmu(mn);
- 	struct arm_smmu_domain *smmu_domain = smmu_mn->domain;
--	size_t size = end - start + 1;
-+	size_t size;
-+
-+	/*
-+	 * The mm_types defines vm_end as the first byte after the end address,
-+	 * different from IOMMU subsystem using the last address of an address
-+	 * range. So do a simple translation here by calculating size correctly.
-+	 */
-+	size = end - start;
+--- a/arch/mips/include/asm/timex.h
++++ b/arch/mips/include/asm/timex.h
+@@ -40,9 +40,9 @@
+ typedef unsigned int cycles_t;
  
- 	if (!(smmu_domain->smmu->features & ARM_SMMU_FEAT_BTM))
- 		arm_smmu_tlb_inv_range_asid(start, size, smmu_mn->cd->asid,
+ /*
+- * On R4000/R4400 before version 5.0 an erratum exists such that if the
+- * cycle counter is read in the exact moment that it is matching the
+- * compare register, no interrupt will be generated.
++ * On R4000/R4400 an erratum exists such that if the cycle counter is
++ * read in the exact moment that it is matching the compare register,
++ * no interrupt will be generated.
+  *
+  * There is a suggested workaround and also the erratum can't strike if
+  * the compare interrupt isn't being used as the clock source device.
+@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
+ 	if (!__builtin_constant_p(cpu_has_counter))
+ 		asm volatile("" : "=m" (cpu_data[0].options));
+ 	if (likely(cpu_has_counter &&
+-		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
++		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
+ 		return 1;
+ 	else
+ 		return 0;
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -141,15 +141,10 @@ static __init int cpu_has_mfc0_count_bug
+ 	case CPU_R4400MC:
+ 		/*
+ 		 * The published errata for the R4400 up to 3.0 say the CPU
+-		 * has the mfc0 from count bug.
++		 * has the mfc0 from count bug.  This seems the last version
++		 * produced.
+ 		 */
+-		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
+-			return 1;
+-
+-		/*
+-		 * we assume newer revisions are ok
+-		 */
+-		return 0;
++		return 1;
+ 	}
+ 
+ 	return 0;
 
 
