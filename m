@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3E6521A20
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72367521712
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243577AbiEJNxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:53:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
+        id S242849AbiEJNXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244656AbiEJNqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B336F16ABE2;
-        Tue, 10 May 2022 06:31:49 -0700 (PDT)
+        with ESMTP id S243565AbiEJNWE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3416F53A72;
+        Tue, 10 May 2022 06:16:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EFFC6188A;
-        Tue, 10 May 2022 13:31:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E269C385C6;
-        Tue, 10 May 2022 13:31:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C30A861532;
+        Tue, 10 May 2022 13:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2755C385C2;
+        Tue, 10 May 2022 13:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189507;
-        bh=SPKHJzcgJ56VPE5cKV3jdHlDmRXxnFUXxwWYSwBiLF0=;
+        s=korg; t=1652188560;
+        bh=MKK5ZJ9IUYz5rN4WMjJXXQlyeAz3VtRXT4EZBFNKVVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lk7fScRz7OLQIMOFiljw+WqAZ/nH4ZdxumD+KaIptsX4nup497HKAjZROtMDPj8y6
-         pNFLWLsvoD0U1GgvQRu/AYvom+HB9a5dJVURNmLZLsUO3X1UOHPCiKqEoFQxZQPJ24
-         i6Z2wp7INUs8XbwCRF7maLi+vLjaTaos4SmoBH24=
+        b=U/TXfjZKdPTeDjh1klSu2FubaHFKDOBUt423jdFAWZUIvJ64wmy8Cqi45thLeU0Ne
+         EReN5GzuGs36qJVB/MjX0RRWzMWjWdzWNFZI+hlIrYDJIyc6HHZkra0iKkfw1HGWL/
+         4c9ORd1pOre1VdpUHHj0igOOD2GQa3RLHB81j0w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiao Ma <mqaio@linux.alibaba.com>,
-        Xunlei Pang <xlpang@linux.alibaba.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 072/135] hinic: fix bug of wq out of bound access
+        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
+Subject: [PATCH 4.14 48/78] tty: n_gsm: fix insufficient txframe size
 Date:   Tue, 10 May 2022 15:07:34 +0200
-Message-Id: <20220510130742.478072326@linuxfoundation.org>
+Message-Id: <20220510130733.959398362@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,48 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiao Ma <mqaio@linux.alibaba.com>
+From: Daniel Starke <daniel.starke@siemens.com>
 
-commit 52b2abef450a78e25d485ac61e32f4ce86a87701 upstream.
+commit 535bf600de75a859698892ee873521a48d289ec1 upstream.
 
-If wq has only one page, we need to check wqe rolling over page by
-compare end_idx and curr_idx, and then copy wqe to shadow wqe to
-avoid out of bound access.
-This work has been done in hinic_get_wqe, but missed for hinic_read_wqe.
-This patch fixes it, and removes unnecessary MASKED_WQE_IDX().
+n_gsm is based on the 3GPP 07.010 and its newer version is the 3GPP 27.010.
+See https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=1516
+The changes from 07.010 to 27.010 are non-functional. Therefore, I refer to
+the newer 27.010 here. Chapter 5.7.2 states that the maximum frame size
+(N1) refers to the length of the information field (i.e. user payload).
+However, 'txframe' stores the whole frame including frame header, checksum
+and start/end flags. We also need to consider the byte stuffing overhead.
+Define constant for the protocol overhead and adjust the 'txframe' size
+calculation accordingly to reserve enough space for a complete mux frame
+including byte stuffing for advanced option mode. Note that no byte
+stuffing is applied to the start and end flag.
+Also use MAX_MTU instead of MAX_MRU as this buffer is used for data
+transmission.
 
-Fixes: 7dd29ee12865 ("hinic: add sriov feature support")
-Signed-off-by: Qiao Ma <mqaio@linux.alibaba.com>
-Reviewed-by: Xunlei Pang <xlpang@linux.alibaba.com>
-Link: https://lore.kernel.org/r/282817b0e1ae2e28fdf3ed8271a04e77f57bf42e.1651148587.git.mqaio@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
+Link: https://lore.kernel.org/r/20220414094225.4527-8-daniel.starke@siemens.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/tty/n_gsm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-+++ b/drivers/net/ethernet/huawei/hinic/hinic_hw_wq.c
-@@ -772,7 +772,7 @@ struct hinic_hw_wqe *hinic_get_wqe(struc
- 	/* If we only have one page, still need to get shadown wqe when
- 	 * wqe rolling-over page
- 	 */
--	if (curr_pg != end_pg || MASKED_WQE_IDX(wq, end_prod_idx) < *prod_idx) {
-+	if (curr_pg != end_pg || end_prod_idx < *prod_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
+--- a/drivers/tty/n_gsm.c
++++ b/drivers/tty/n_gsm.c
+@@ -84,6 +84,8 @@ module_param(debug, int, 0600);
+  */
+ #define MAX_MRU 1500
+ #define MAX_MTU 1500
++/* SOF, ADDR, CTRL, LEN1, LEN2, ..., FCS, EOF */
++#define PROT_OVERHEAD 7
+ #define	GSM_NET_TX_TIMEOUT (HZ*10)
  
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *prod_idx);
-@@ -842,7 +842,10 @@ struct hinic_hw_wqe *hinic_read_wqe(stru
- 
- 	*cons_idx = curr_cons_idx;
- 
--	if (curr_pg != end_pg) {
-+	/* If we only have one page, still need to get shadown wqe when
-+	 * wqe rolling-over page
-+	 */
-+	if (curr_pg != end_pg || end_cons_idx < curr_cons_idx) {
- 		void *shadow_addr = &wq->shadow_wqe[curr_pg * wq->max_wqe_size];
- 
- 		copy_wqe_to_shadow(wq, shadow_addr, num_wqebbs, *cons_idx);
+ /**
+@@ -2211,7 +2213,7 @@ static struct gsm_mux *gsm_alloc_mux(voi
+ 		kfree(gsm);
+ 		return NULL;
+ 	}
+-	gsm->txframe = kmalloc(2 * MAX_MRU + 2, GFP_KERNEL);
++	gsm->txframe = kmalloc(2 * (MAX_MTU + PROT_OVERHEAD - 1), GFP_KERNEL);
+ 	if (gsm->txframe == NULL) {
+ 		kfree(gsm->buf);
+ 		kfree(gsm);
 
 
