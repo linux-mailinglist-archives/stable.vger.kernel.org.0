@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D424E521941
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E29BD52192D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243383AbiEJNoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:44:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55152 "EHLO
+        id S243625AbiEJNoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:44:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244378AbiEJNlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:51 -0400
+        with ESMTP id S244445AbiEJNlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:41:55 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EBBD2A1539;
-        Tue, 10 May 2022 06:30:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C0752AC6CF;
+        Tue, 10 May 2022 06:30:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7ED30615C8;
-        Tue, 10 May 2022 13:30:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9268EC385C2;
-        Tue, 10 May 2022 13:29:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 760AC61765;
+        Tue, 10 May 2022 13:30:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B304C385C6;
+        Tue, 10 May 2022 13:30:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189399;
-        bh=M++pNsSDyjD/GlMxredGq+cpP1ZDMWAdbPKhR1TW1Ls=;
+        s=korg; t=1652189402;
+        bh=jw3YM3GI0MfIJHwjnsu/c/BMP3KcLxcJzJF8j/JYdbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTqR5CHHWvdUbA3ZxYCw5lsqo4vScpAMAsZVYvfhY+0aCnAcOhKXzsF+aUg5/5Mlw
-         sUzyQgJwg1GoHPZSAXbAbQKSOilRjjLR4PdLnnYoStUk4Puf/16SZ6KHFci5N9HqS+
-         WzDT6ZA+Tg5fqGA+Kcb1VOp75WOEJhndR6w7rB3M=
+        b=pq0zmGv3G8KF9QEriN0a3e6keKJ0kUkfzZTMp9RkSA4j79nkAQMqhtR8Sl+8YeUGO
+         sUItrCAlS24BLHsRR2ZBFNWIjEnIjV3VWhZjuvaNOyQ2nnWqLVyo/eejYDS/j8J8MW
+         Tx798X6UVRhQM0ATwfnahnAPNE2j7E2Va1b02n9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 004/135] ALSA: fireworks: fix wrong return count shorter than expected by 4 bytes
-Date:   Tue, 10 May 2022 15:06:26 +0200
-Message-Id: <20220510130740.524398135@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 005/135] mmc: sdhci-msm: Reset GCC_SDCC_BCR register for SDHC
+Date:   Tue, 10 May 2022 15:06:27 +0200
+Message-Id: <20220510130740.552176396@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 References: <20220510130740.392653815@linuxfoundation.org>
@@ -53,34 +57,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
 
-commit eb9d84b0ffe39893cb23b0b6712bbe3637fa25fa upstream.
+commit 3e5a8e8494a8122fe4eb3f167662f406cab753b9 upstream.
 
-ALSA fireworks driver has a bug in its initial state to return count
-shorter than expected by 4 bytes to userspace applications when handling
-response frame for Echo Audio Fireworks transaction. It's due to missing
-addition of the size for the type of event in ALSA firewire stack.
+Reset GCC_SDCC_BCR register before every fresh initilazation. This will
+reset whole SDHC-msm controller, clears the previous power control
+states and avoids, software reset timeout issues as below.
 
-Fixes: 555e8a8f7f14 ("ALSA: fireworks: Add command/response functionality into hwdep interface")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220424102428.21109-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[ 5.458061][ T262] mmc1: Reset 0x1 never completed.
+[ 5.462454][ T262] mmc1: sdhci: ============ SDHCI REGISTER DUMP ===========
+[ 5.469065][ T262] mmc1: sdhci: Sys addr: 0x00000000 | Version: 0x00007202
+[ 5.475688][ T262] mmc1: sdhci: Blk size: 0x00000000 | Blk cnt: 0x00000000
+[ 5.482315][ T262] mmc1: sdhci: Argument: 0x00000000 | Trn mode: 0x00000000
+[ 5.488927][ T262] mmc1: sdhci: Present: 0x01f800f0 | Host ctl: 0x00000000
+[ 5.495539][ T262] mmc1: sdhci: Power: 0x00000000 | Blk gap: 0x00000000
+[ 5.502162][ T262] mmc1: sdhci: Wake-up: 0x00000000 | Clock: 0x00000003
+[ 5.508768][ T262] mmc1: sdhci: Timeout: 0x00000000 | Int stat: 0x00000000
+[ 5.515381][ T262] mmc1: sdhci: Int enab: 0x00000000 | Sig enab: 0x00000000
+[ 5.521996][ T262] mmc1: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
+[ 5.528607][ T262] mmc1: sdhci: Caps: 0x362dc8b2 | Caps_1: 0x0000808f
+[ 5.535227][ T262] mmc1: sdhci: Cmd: 0x00000000 | Max curr: 0x00000000
+[ 5.541841][ T262] mmc1: sdhci: Resp[0]: 0x00000000 | Resp[1]: 0x00000000
+[ 5.548454][ T262] mmc1: sdhci: Resp[2]: 0x00000000 | Resp[3]: 0x00000000
+[ 5.555079][ T262] mmc1: sdhci: Host ctl2: 0x00000000
+[ 5.559651][ T262] mmc1: sdhci_msm: ----------- VENDOR REGISTER DUMP-----------
+[ 5.566621][ T262] mmc1: sdhci_msm: DLL sts: 0x00000000 | DLL cfg: 0x6000642c | DLL cfg2: 0x0020a000
+[ 5.575465][ T262] mmc1: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl: 0x00010800 | DDR cfg: 0x80040873
+[ 5.584658][ T262] mmc1: sdhci_msm: Vndr func: 0x00018a9c | Vndr func2 : 0xf88218a8 Vndr func3: 0x02626040
+
+Fixes: 0eb0d9f4de34 ("mmc: sdhci-msm: Initial support for Qualcomm chipsets")
+Signed-off-by: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Tested-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/1650816153-23797-1-git-send-email-quic_c_sbhanu@quicinc.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/fireworks/fireworks_hwdep.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/sdhci-msm.c |   42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
---- a/sound/firewire/fireworks/fireworks_hwdep.c
-+++ b/sound/firewire/fireworks/fireworks_hwdep.c
-@@ -34,6 +34,7 @@ hwdep_read_resp_buf(struct snd_efw *efw,
- 	type = SNDRV_FIREWIRE_EVENT_EFW_RESPONSE;
- 	if (copy_to_user(buf, &type, sizeof(type)))
- 		return -EFAULT;
-+	count += sizeof(type);
- 	remained -= sizeof(type);
- 	buf += sizeof(type);
+--- a/drivers/mmc/host/sdhci-msm.c
++++ b/drivers/mmc/host/sdhci-msm.c
+@@ -17,6 +17,7 @@
+ #include <linux/regulator/consumer.h>
+ #include <linux/interconnect.h>
+ #include <linux/pinctrl/consumer.h>
++#include <linux/reset.h>
  
+ #include "sdhci-pltfm.h"
+ #include "cqhci.h"
+@@ -2482,6 +2483,43 @@ static inline void sdhci_msm_get_of_prop
+ 	of_property_read_u32(node, "qcom,dll-config", &msm_host->dll_config);
+ }
+ 
++static int sdhci_msm_gcc_reset(struct device *dev, struct sdhci_host *host)
++{
++	struct reset_control *reset;
++	int ret = 0;
++
++	reset = reset_control_get_optional_exclusive(dev, NULL);
++	if (IS_ERR(reset))
++		return dev_err_probe(dev, PTR_ERR(reset),
++				"unable to acquire core_reset\n");
++
++	if (!reset)
++		return ret;
++
++	ret = reset_control_assert(reset);
++	if (ret) {
++		reset_control_put(reset);
++		return dev_err_probe(dev, ret, "core_reset assert failed\n");
++	}
++
++	/*
++	 * The hardware requirement for delay between assert/deassert
++	 * is at least 3-4 sleep clock (32.7KHz) cycles, which comes to
++	 * ~125us (4/32768). To be on the safe side add 200us delay.
++	 */
++	usleep_range(200, 210);
++
++	ret = reset_control_deassert(reset);
++	if (ret) {
++		reset_control_put(reset);
++		return dev_err_probe(dev, ret, "core_reset deassert failed\n");
++	}
++
++	usleep_range(200, 210);
++	reset_control_put(reset);
++
++	return ret;
++}
+ 
+ static int sdhci_msm_probe(struct platform_device *pdev)
+ {
+@@ -2529,6 +2567,10 @@ static int sdhci_msm_probe(struct platfo
+ 
+ 	msm_host->saved_tuning_phase = INVALID_TUNING_PHASE;
+ 
++	ret = sdhci_msm_gcc_reset(&pdev->dev, host);
++	if (ret)
++		goto pltfm_free;
++
+ 	/* Setup SDCC bus voter clock. */
+ 	msm_host->bus_clk = devm_clk_get(&pdev->dev, "bus");
+ 	if (!IS_ERR(msm_host->bus_clk)) {
 
 
