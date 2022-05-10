@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89E515217C8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCD15216A5
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243198AbiEJN2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
+        id S242464AbiEJNQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:16:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243536AbiEJN07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93022380E1;
-        Tue, 10 May 2022 06:19:57 -0700 (PDT)
+        with ESMTP id S242465AbiEJNQm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:42 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41A144749;
+        Tue, 10 May 2022 06:12:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 851D161532;
-        Tue, 10 May 2022 13:19:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BF7C385C9;
-        Tue, 10 May 2022 13:19:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6955FB81DA4;
+        Tue, 10 May 2022 13:12:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DE54C385C2;
+        Tue, 10 May 2022 13:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188797;
-        bh=+IHCmlfZLlbxV1NwVzghPxvmkXQ1TyiCwy+ytS5Gm3s=;
+        s=korg; t=1652188347;
+        bh=eGKVehjnwRCQlSs6dV3Bpvrmr8cNDnLluYxZbJGRHOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lWNq+C1eJj0yeCkjilNDMJlsKwcBubLm83SFnlotyjimn/WzX3ZW2oOA28INqS7CH
-         Az6CYpQ99yUqspHJYI0D9ikJmJeyu+pCYM4JWFccT9UKClv7eP2KRft3dUnQl3+/cS
-         APFVctVfBxhJpxL7o5UcNQU3ROX/EDeoZ9CXen1M=
+        b=Mu4YqwEcRiWUyw8wTITuYm6Cbvcoo7VjKnY5iO2oknrcBpKevQaTUGxppNRSln4Ds
+         PwumNmwB1i0S2rF4xTfR3xTDtybymB06i91hf4Jrtv3u3vMrxpu4wRpsCmFDnzIejJ
+         Xw09yUg3VOPxC05OJY4YuxGX5POlsMrDh99a5bWw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Kyle D. Pelton" <kyle.d.pelton@intel.com>,
-        Borislav Petkov <bp@suse.de>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Subject: [PATCH 4.19 48/88] x86/cpu: Load microcode during restore_processor_state()
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 4.9 43/66] MIPS: Fix CP0 counter erratum detection for R4k CPUs
 Date:   Tue, 10 May 2022 15:07:33 +0200
-Message-Id: <20220510130735.145025332@linuxfoundation.org>
+Message-Id: <20220510130731.029472163@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,119 +54,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit f9e14dbbd454581061c736bf70bf5cbb15ac927c upstream.
+commit f0a6c68f69981214cb7858738dd2bc81475111f7 upstream.
 
-When resuming from system sleep state, restore_processor_state()
-restores the boot CPU MSRs. These MSRs could be emulated by microcode.
-If microcode is not loaded yet, writing to emulated MSRs leads to
-unchecked MSR access error:
+Fix the discrepancy between the two places we check for the CP0 counter
+erratum in along with the incorrect comparison of the R4400 revision
+number against 0x30 which matches none and consistently consider all
+R4000 and R4400 processors affected, as documented in processor errata
+publications[1][2][3], following the mapping between CP0 PRId register
+values and processor models:
 
-  ...
-  PM: Calling lapic_suspend+0x0/0x210
-  unchecked MSR access error: WRMSR to 0x10f (tried to write 0x0...0) at rIP: ... (native_write_msr)
-  Call Trace:
-    <TASK>
-    ? restore_processor_state
-    x86_acpi_suspend_lowlevel
-    acpi_suspend_enter
-    suspend_devices_and_enter
-    pm_suspend.cold
-    state_store
-    kobj_attr_store
-    sysfs_kf_write
-    kernfs_fop_write_iter
-    new_sync_write
-    vfs_write
-    ksys_write
-    __x64_sys_write
-    do_syscall_64
-    entry_SYSCALL_64_after_hwframe
-   RIP: 0033:0x7fda13c260a7
+  PRId   |  Processor Model
+---------+--------------------
+00000422 | R4000 Revision 2.2
+00000430 | R4000 Revision 3.0
+00000440 | R4400 Revision 1.0
+00000450 | R4400 Revision 2.0
+00000460 | R4400 Revision 3.0
 
-To ensure microcode emulated MSRs are available for restoration, load
-the microcode on the boot CPU before restoring these MSRs.
+No other revision of either processor has ever been spotted.
 
-  [ Pawan: write commit message and productize it. ]
+Contrary to what has been stated in commit ce202cbb9e0b ("[MIPS] Assume
+R4000/R4400 newer than 3.0 don't have the mfc0 count bug") marking the
+CP0 counter as buggy does not preclude it from being used as either a
+clock event or a clock source device.  It just cannot be used as both at
+a time, because in that case clock event interrupts will be occasionally
+lost, and the use as a clock event device takes precedence.
 
-Fixes: e2a1256b17b1 ("x86/speculation: Restore speculation related MSRs during S3 resume")
-Reported-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Tested-by: Kyle D. Pelton <kyle.d.pelton@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215841
-Link: https://lore.kernel.org/r/4350dfbf785cd482d3fafa72b2b49c83102df3ce.1650386317.git.pawan.kumar.gupta@linux.intel.com
+Compare against 0x4ff in `can_use_mips_counter' so that a single machine
+instruction is produced.
+
+
+[1] "MIPS R4000PC/SC Errata, Processor Revision 2.2 and 3.0", MIPS
+    Technologies Inc., May 10, 1994, Erratum 53, p.13
+
+[2] "MIPS R4400PC/SC Errata, Processor Revision 1.0", MIPS Technologies
+    Inc., February 9, 1994, Erratum 21, p.4
+
+[3] "MIPS R4400PC/SC Errata, Processor Revision 2.0 & 3.0", MIPS
+    Technologies Inc., January 24, 1995, Erratum 14, p.3
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: ce202cbb9e0b ("[MIPS] Assume R4000/R4400 newer than 3.0 don't have the mfc0 count bug")
+Cc: stable@vger.kernel.org # v2.6.24+
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/microcode.h     |    2 ++
- arch/x86/kernel/cpu/microcode/core.c |    6 +++---
- arch/x86/power/cpu.c                 |    8 ++++++++
- 3 files changed, 13 insertions(+), 3 deletions(-)
+ arch/mips/include/asm/timex.h |    8 ++++----
+ arch/mips/kernel/time.c       |   11 +++--------
+ 2 files changed, 7 insertions(+), 12 deletions(-)
 
---- a/arch/x86/include/asm/microcode.h
-+++ b/arch/x86/include/asm/microcode.h
-@@ -133,11 +133,13 @@ extern void load_ucode_ap(void);
- void reload_early_microcode(void);
- extern bool get_builtin_firmware(struct cpio_data *cd, const char *name);
- extern bool initrd_gone;
-+void microcode_bsp_resume(void);
- #else
- static inline int __init microcode_init(void)			{ return 0; };
- static inline void __init load_ucode_bsp(void)			{ }
- static inline void load_ucode_ap(void)				{ }
- static inline void reload_early_microcode(void)			{ }
-+static inline void microcode_bsp_resume(void)			{ }
- static inline bool
- get_builtin_firmware(struct cpio_data *cd, const char *name)	{ return false; }
- #endif
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -773,9 +773,9 @@ static struct subsys_interface mc_cpu_in
- };
+--- a/arch/mips/include/asm/timex.h
++++ b/arch/mips/include/asm/timex.h
+@@ -40,9 +40,9 @@
+ typedef unsigned int cycles_t;
  
- /**
-- * mc_bp_resume - Update boot CPU microcode during resume.
-+ * microcode_bsp_resume - Update boot CPU microcode during resume.
-  */
--static void mc_bp_resume(void)
-+void microcode_bsp_resume(void)
- {
- 	int cpu = smp_processor_id();
- 	struct ucode_cpu_info *uci = ucode_cpu_info + cpu;
-@@ -787,7 +787,7 @@ static void mc_bp_resume(void)
- }
+ /*
+- * On R4000/R4400 before version 5.0 an erratum exists such that if the
+- * cycle counter is read in the exact moment that it is matching the
+- * compare register, no interrupt will be generated.
++ * On R4000/R4400 an erratum exists such that if the cycle counter is
++ * read in the exact moment that it is matching the compare register,
++ * no interrupt will be generated.
+  *
+  * There is a suggested workaround and also the erratum can't strike if
+  * the compare interrupt isn't being used as the clock source device.
+@@ -63,7 +63,7 @@ static inline int can_use_mips_counter(u
+ 	if (!__builtin_constant_p(cpu_has_counter))
+ 		asm volatile("" : "=m" (cpu_data[0].options));
+ 	if (likely(cpu_has_counter &&
+-		   prid >= (PRID_IMP_R4000 | PRID_REV_ENCODE_44(5, 0))))
++		   prid > (PRID_IMP_R4000 | PRID_REV_ENCODE_44(15, 15))))
+ 		return 1;
+ 	else
+ 		return 0;
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -168,15 +168,10 @@ static __init int cpu_has_mfc0_count_bug
+ 	case CPU_R4400MC:
+ 		/*
+ 		 * The published errata for the R4400 up to 3.0 say the CPU
+-		 * has the mfc0 from count bug.
++		 * has the mfc0 from count bug.  This seems the last version
++		 * produced.
+ 		 */
+-		if ((current_cpu_data.processor_id & 0xff) <= 0x30)
+-			return 1;
+-
+-		/*
+-		 * we assume newer revisions are ok
+-		 */
+-		return 0;
++		return 1;
+ 	}
  
- static struct syscore_ops mc_syscore_ops = {
--	.resume			= mc_bp_resume,
-+	.resume			= microcode_bsp_resume,
- };
- 
- static int mc_cpu_starting(unsigned int cpu)
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -26,6 +26,7 @@
- #include <asm/cpu.h>
- #include <asm/mmu_context.h>
- #include <asm/cpu_device_id.h>
-+#include <asm/microcode.h>
- 
- #ifdef CONFIG_X86_32
- __visible unsigned long saved_context_ebx;
-@@ -268,6 +269,13 @@ static void notrace __restore_processor_
- 	x86_platform.restore_sched_clock_state();
- 	mtrr_bp_restore();
- 	perf_restore_debug_store();
-+
-+	microcode_bsp_resume();
-+
-+	/*
-+	 * This needs to happen after the microcode has been updated upon resume
-+	 * because some of the MSRs are "emulated" in microcode.
-+	 */
- 	msr_restore_context(ctxt);
- }
- 
+ 	return 0;
 
 
