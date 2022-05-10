@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9E8052174A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DE1F5217BB
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242559AbiEJNYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:24:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45940 "EHLO
+        id S243112AbiEJN21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242662AbiEJNU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:20:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E10F325473B;
-        Tue, 10 May 2022 06:13:31 -0700 (PDT)
+        with ESMTP id S243235AbiEJN0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:26:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97171AD59A;
+        Tue, 10 May 2022 06:19:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3E007CE1EE3;
-        Tue, 10 May 2022 13:13:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EAADC385A6;
-        Tue, 10 May 2022 13:13:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A0361574;
+        Tue, 10 May 2022 13:19:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E940C385D9;
+        Tue, 10 May 2022 13:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188408;
-        bh=SkicZJaon+6r860YY3xSembF7T/c32xtoZ769rYVxNU=;
+        s=korg; t=1652188749;
+        bh=s5f/t7GKIrC/DOo4GxniZ8U7AtBWL3nX1eULqNQQRlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTr3NiaPyhCjCrBJezyDgGYx7pZ462xw7tvfE3qG6T5ABq3aIzgEBXAEZstohHPPb
-         fZK7Cn6sdCx3cpiYmC6KVDIggaKuczCO1Htpi5+sV01rPpHaZvqU0arjS+LhCxV/7C
-         48j2DZyQjs4krdpR+T0Zl7PMlt772PRTbDgxEImw=
+        b=WmCknKvhPwKXRrGeIN9vQIsexIa8ka9idH1Qd2M9in84R0teWYfHtmoeU9WmbVPQ5
+         /r7VPAm3UYnG6aoyNlX17dy75fKrjnaKQ7KQb7InAkHmRQzD+iUCI06u1dn94wgqmk
+         RjHyxPReum4bM1nYdVtNRVE5MFIcYGJ8xLLeVqXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Lv Ruyi <lv.ruyi@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 27/66] pinctrl: pistachio: fix use of irq_of_parse_and_map()
+Subject: [PATCH 4.19 32/88] tcp: md5: incorrect tcp_header_len for incoming connections
 Date:   Tue, 10 May 2022 15:07:17 +0200
-Message-Id: <20220510130730.560236635@linuxfoundation.org>
+Message-Id: <20220510130734.679595336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Ruyi <lv.ruyi@zte.com.cn>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit 0c9843a74a85224a89daa81fa66891dae2f930e1 ]
+[ Upstream commit 5b0b9e4c2c895227c8852488b3f09839233bba54 ]
 
-The irq_of_parse_and_map() function returns 0 on failure, and does not
-return an negative value.
+In tcp_create_openreq_child we adjust tcp_header_len for md5 using the
+remote address in newsk. But that address is still 0 in newsk at this
+point, and it is only set later by the callers (tcp_v[46]_syn_recv_sock).
+Use the address from the request socket instead.
 
-Fixes: cefc03e5995e ("pinctrl: Add Pistachio SoC pin control driver")
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
-Link: https://lore.kernel.org/r/20220424031430.3170759-1-lv.ruyi@zte.com.cn
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: cfb6eeb4c860 ("[TCP]: MD5 Signature Option (RFC2385) support.")
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20220421005026.686A45EC01F2@us226.sjc.aristanetworks.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-pistachio.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv4/tcp_minisocks.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-pistachio.c b/drivers/pinctrl/pinctrl-pistachio.c
-index b2b7e238bda9..fc8c57527fb7 100644
---- a/drivers/pinctrl/pinctrl-pistachio.c
-+++ b/drivers/pinctrl/pinctrl-pistachio.c
-@@ -1374,10 +1374,10 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
- 		}
- 
- 		irq = irq_of_parse_and_map(child, 0);
--		if (irq < 0) {
--			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
-+		if (!irq) {
-+			dev_err(pctl->dev, "No IRQ for bank %u\n", i);
- 			of_node_put(child);
--			ret = irq;
-+			ret = -EINVAL;
- 			goto err;
- 		}
- 
+diff --git a/net/ipv4/tcp_minisocks.c b/net/ipv4/tcp_minisocks.c
+index a20b393b4501..c79cb949da66 100644
+--- a/net/ipv4/tcp_minisocks.c
++++ b/net/ipv4/tcp_minisocks.c
+@@ -550,7 +550,7 @@ struct sock *tcp_create_openreq_child(const struct sock *sk,
+ 	newtp->tsoffset = treq->ts_off;
+ #ifdef CONFIG_TCP_MD5SIG
+ 	newtp->md5sig_info = NULL;	/*XXX*/
+-	if (newtp->af_specific->md5_lookup(sk, newsk))
++	if (treq->af_specific->req_md5_lookup(sk, req_to_sk(req)))
+ 		newtp->tcp_header_len += TCPOLEN_MD5SIG_ALIGNED;
+ #endif
+ 	if (skb->len >= TCP_MSS_DEFAULT + newtp->tcp_header_len)
 -- 
 2.35.1
 
