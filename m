@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B4EA521F5F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3576E521F4F
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:44:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346215AbiEJPsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:48:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59526 "EHLO
+        id S1346271AbiEJPsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346189AbiEJPsL (ORCPT
+        with ESMTP id S1346190AbiEJPsL (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:48:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0084327F138;
-        Tue, 10 May 2022 08:44:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E14D2802C4;
+        Tue, 10 May 2022 08:44:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D986614A9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FD9461329;
+        Tue, 10 May 2022 15:44:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C307C385C2;
         Tue, 10 May 2022 15:44:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C452C385A6;
-        Tue, 10 May 2022 15:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197440;
-        bh=ZO5qsyXdW8wuKjQ+Ebr8/toVqnfcSnecFh2EH4y2c9E=;
+        s=k20201202; t=1652197441;
+        bh=yH5M1c0ldN5R+FkK/zu3biDlTtfEvvdoiBULCRmiLhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5rfVX8sKnlg4XeIVXEZoPlLw2QbyvGMwGOs7PsbRMYx1+MEc+ALQh3G+qZXbYJb8
-         5+esoIRZXIEpLkd6vAJ8mRiSZUIigqKDuEQ+8qGE3xD32dkkzftluKHduLXlgSc6WB
-         J2eScZ6GQ6E8PlNPOltfjjK5+6xH1MV7v7r2QhO8w3ZCYzkCr5dZzWJ0tyabpvYx3Q
-         Zo1pqZ+2T5HUYVfZUIAJpkqOp51SA6oBPAQOPwDSK1/NGuNykIUv1JelFjXp+yF/kJ
-         MLC+sImt5ZfvCu5QaLUI3qGzfyBk4PDUMYAvzBuc+izfAfbY7V7/Mh+0GNPuxpTfwU
-         b4RGqDNKy5ztA==
+        b=fkoQ5I6F9BF5mV19aHe3/YQ4iYqZTHaCQXSKYsZk8cLxEpRKL1XCieZ9icBO9RYee
+         sawe9fWx9vFYD4DNM+058n6JEMvl/9waAfg1/n/WQC2roAIqVoX8rIlcVTZoMSZ2zA
+         GKw/51cAgZ7wZ3FHTZsarc32WlKW0tZuJhSwo51af6l0RfzlA22QWJi3bvfoat/8it
+         Ji6BMKSpYhOdZv5+zGS8JiqDpixXqlU7sGtLO4uyPWrJkwOnqW0n4G139Gl4Mxbcce
+         W8xcL+MvtgOZ/BuG9kNcVNoxtFitboOdFYeUvN/FeKNmXAlyygQdTCgNvmn2jxNotY
+         Dm0+4pSW0VNJQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        kai.vehmanen@linux.intel.com, daniel.baluta@nxp.com,
-        perex@perex.cz, tiwai@suse.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 09/21] ASoC: SOF: Fix NULL pointer exception in sof_pci_probe callback
-Date:   Tue, 10 May 2022 11:43:28 -0400
-Message-Id: <20220510154340.153400-9-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 10/21] io_uring: assign non-fixed early for async work
+Date:   Tue, 10 May 2022 11:43:29 -0400
+Message-Id: <20220510154340.153400-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154340.153400-1-sashal@kernel.org>
 References: <20220510154340.153400-1-sashal@kernel.org>
@@ -61,49 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit c61711c1c95791850be48dd65a1d72eb34ba719f ]
+[ Upstream commit a196c78b5443fc61af2c0490213b9d125482cbd1 ]
 
-We are accessing "desc->ops" in sof_pci_probe without checking "desc"
-pointer. This results in NULL pointer exception if pci_id->driver_data
-i.e desc pointer isn't defined in sof device probe:
+We defer file assignment to ensure that fixed files work with links
+between a direct accept/open and the links that follow it. But this has
+the side effect that normal file assignment is then not complete by the
+time that request submission has been done.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000060
-PGD 0 P4D 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-RIP: 0010:sof_pci_probe+0x1e/0x17f [snd_sof_pci]
-Code: Unable to access opcode bytes at RIP 0xffffffffc043dff4.
-RSP: 0018:ffffac4b03b9b8d8 EFLAGS: 00010246
+For deferred execution, if the file is a regular file, assign it when
+we do the async prep anyway.
 
-Add NULL pointer check for sof_dev_desc pointer to avoid such exception.
-
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20220426183357.102155-1-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/sof-pci-dev.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/io_uring.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/sof-pci-dev.c b/sound/soc/sof/sof-pci-dev.c
-index 20c6ca37dbc4..53e97abbe6e3 100644
---- a/sound/soc/sof/sof-pci-dev.c
-+++ b/sound/soc/sof/sof-pci-dev.c
-@@ -130,6 +130,11 @@ int sof_pci_probe(struct pci_dev *pci, const struct pci_device_id *pci_id)
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 87df37912055..a0680046ff3c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6572,7 +6572,12 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
  
- 	dev_dbg(&pci->dev, "PCI DSP detected");
- 
-+	if (!desc) {
-+		dev_err(dev, "error: no matching PCI descriptor\n");
-+		return -ENODEV;
-+	}
+ static int io_req_prep_async(struct io_kiocb *req)
+ {
+-	if (!io_op_defs[req->opcode].needs_async_setup)
++	const struct io_op_def *def = &io_op_defs[req->opcode];
 +
- 	if (!desc->ops) {
- 		dev_err(dev, "error: no matching PCI descriptor ops\n");
- 		return -ENODEV;
++	/* assign early for deferred execution for non-fixed file */
++	if (def->needs_file && !(req->flags & REQ_F_FIXED_FILE))
++		req->file = io_file_get_normal(req, req->fd);
++	if (!def->needs_async_setup)
+ 		return 0;
+ 	if (WARN_ON_ONCE(req_has_async_data(req)))
+ 		return -EFAULT;
 -- 
 2.35.1
 
