@@ -2,102 +2,350 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 611635221F7
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 19:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA22552221B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 19:15:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345076AbiEJRNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 13:13:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
+        id S237570AbiEJRTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 13:19:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347777AbiEJRNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 13:13:10 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0A9F28F1CA;
-        Tue, 10 May 2022 10:09:12 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id 137so512568pgb.5;
-        Tue, 10 May 2022 10:09:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=/FpK6VScNnGdYvVWjfbMzCEvV0vnsdU5JraJWpdw6NQ=;
-        b=eIG9LIjYEpODWbxl+jhEanYQZVc6sbNpOHCLTZ7YSnQVSYvLacc509tzjhqKa7hvdZ
-         i8KEn1iXOBApxA7BNwgLa78lWo53C3AEeRC6j4KGlX0TzMAmqo4+WsxUfpApqrkbuwIq
-         Y4sX7A0K4SVdZ9xy9L5ogEy98TztMb7Q3B4DVqrSayjbXJ6be6Dn3PIyCNPRLs/Xcfzr
-         mdGeqeF8/CkKCG1gy0C4gb5boCqphciAB4UVfTwla68is0HVrXi2CdC6Tn9pQNB4CAtb
-         XuO2U64kyT9P0NoTogMnGpVfv6UF7tUYtPtMna98Bg4Uaf7qqAupU/X7MYyzc5ybzSFu
-         kMJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=/FpK6VScNnGdYvVWjfbMzCEvV0vnsdU5JraJWpdw6NQ=;
-        b=dhT6aRqP8di0kUFMCV5pbPDtwkex8x1FAU7syFw+2GJpjd2qWexwMgyXwkC6cP/i3V
-         whHp2DxORRFSm5tmhdB7hZvQxL0EXcpHOlMOmCR9dn48x4JP9pGT77MRaMVqHzmOLNch
-         VlIfbRbj9ToyirGiMrQ4+L9iuHB9LkupduVGessYNnxadKBYm7kwmB7jiAS4v9Bw6DEu
-         xDSVJefAcXt4v30tMWBdrPoET5R54Ix7impqhuFSYkqv+nagpD0xJnEC5jyNIPYMt/u/
-         ZvnUndL+VxBNyUQCRfmnzDb7Pj9Eo56JNv1yeXN2vbb0ztXKi1eqcpLPDV1tjK2lYlIk
-         zC2g==
-X-Gm-Message-State: AOAM5305m9CdnPwLAi7Kwoc20HprG/uA04dxspmClT03W8pl9JRdAoXA
-        eyZPRYARpu8z9PvCgj3qe0+Yhph8j/A=
-X-Google-Smtp-Source: ABdhPJxvpGKL00fHh2ZoGaduDxMqrIJ7gIOdWwSxH2XNiAeuJq/p4XeAcR3pfPqw/BSZJDG3COdBvg==
-X-Received: by 2002:a63:e108:0:b0:3c6:6833:9192 with SMTP id z8-20020a63e108000000b003c668339192mr14372019pgh.616.1652202552337;
-        Tue, 10 May 2022 10:09:12 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id gw19-20020a17090b0a5300b001cd4989ff60sm2179382pjb.39.2022.05.10.10.09.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 May 2022 10:09:11 -0700 (PDT)
-Message-ID: <9f3e807a-8011-8573-e663-39aeb36bf3f8@gmail.com>
-Date:   Tue, 10 May 2022 10:09:09 -0700
+        with ESMTP id S1347842AbiEJRTD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 13:19:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 683C82BF30A;
+        Tue, 10 May 2022 10:15:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8226618C8;
+        Tue, 10 May 2022 17:15:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23158C385C2;
+        Tue, 10 May 2022 17:15:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652202904;
+        bh=We30BpURThSPanjcjvObsJg9dKTv/5nJYdNbMXF1cPI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eyFIyuObES/DayhJQaudpj5BlkqaVeRDsRRENxRUeW6I5H2t5A58Hz0DQKR7iADE9
+         LUummU+aiVsmRQy/be3DzncR8wEIjDBXkN0JI9mNGz+YiRfh5DH1M+YwZZx68D5jOL
+         Gkayx/ZzwepaB6VLDo9hthh8q0B9Ax72MvisMyCPQcRRturBk2c+Cg1nD3IsJDGmuk
+         KAe9aJXFgUa0gnD5nGJLQj1orFqaF/N+2QaK+tWKrguX+UqF4BOxkOxeyXlzntK4S5
+         XZ9IWcrFZpZrKCXa+qqfX7BUwI9lGmMewDuYTnWYYZaxa/GYRoz3R1/ausgx1OAjcn
+         3zNcyHV68mG0w==
+From:   Mike Rapoport <rppt@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
+        Mike Rapoport <rppt@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Russell King <linux@armlinux.org.uk>, kbuild-all@lists.01.org,
+        kernel test robot <lkp@intel.com>,
+        linux-kernel@vger.kernel.org, llvm@lists.linux.dev,
+        stable@vger.kernel.org
+Subject: [PATCH 5.4] arm: remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+Date:   Tue, 10 May 2022 20:14:56 +0300
+Message-Id: <20220510171456.98886-1-rppt@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 5.4 00/52] 5.4.193-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220510130729.852544477@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/10/22 06:07, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.193 release.
-> There are 52 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.193-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+From: Mike Rapoport <rppt@linux.ibm.com>
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+commit 5e545df3292fbd3d5963c68980f1527ead2a2b3f upstream.
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+ARM is the only architecture that defines CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+which in turn enables memmap_valid_within() function that is intended to
+verify existence  of struct page associated with a pfn when there are holes
+in the memory map.
+
+However, the ARCH_HAS_HOLES_MEMORYMODEL also enables HAVE_ARCH_PFN_VALID
+and arch-specific pfn_valid() implementation that also deals with the holes
+in the memory map.
+
+The only two users of memmap_valid_within() call this function after
+a call to pfn_valid() so the memmap_valid_within() check becomes redundant.
+
+Remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL and memmap_valid_within() and rely
+entirely on ARM's implementation of pfn_valid() that is now enabled
+unconditionally.
+
+Link: https://lkml.kernel.org/r/20201101170454.9567-9-rppt@kernel.org
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Ungerer <gerg@linux-m68k.org>
+Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Meelis Roos <mroos@linux.ee>
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 8dd559d53b3b ("arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+---
+ Documentation/vm/memory-model.rst |  3 +--
+ arch/arm/Kconfig                  |  8 ++------
+ arch/arm/mach-bcm/Kconfig         |  1 -
+ arch/arm/mach-davinci/Kconfig     |  1 -
+ arch/arm/mach-exynos/Kconfig      |  1 -
+ arch/arm/mach-highbank/Kconfig    |  1 -
+ arch/arm/mach-omap2/Kconfig       |  2 +-
+ arch/arm/mach-s5pv210/Kconfig     |  1 -
+ arch/arm/mach-tango/Kconfig       |  1 -
+ fs/proc/kcore.c                   |  2 --
+ include/linux/mmzone.h            | 31 -------------------------------
+ mm/mmzone.c                       | 14 --------------
+ mm/vmstat.c                       |  4 ----
+ 13 files changed, 4 insertions(+), 66 deletions(-)
+
+diff --git a/Documentation/vm/memory-model.rst b/Documentation/vm/memory-model.rst
+index 58a12376b7df..94db75ba7fbe 100644
+--- a/Documentation/vm/memory-model.rst
++++ b/Documentation/vm/memory-model.rst
+@@ -52,8 +52,7 @@ wrapper :c:func:`free_area_init`. Yet, the mappings array is not
+ usable until the call to :c:func:`memblock_free_all` that hands all
+ the memory to the page allocator.
+ 
+-If an architecture enables `CONFIG_ARCH_HAS_HOLES_MEMORYMODEL` option,
+-it may free parts of the `mem_map` array that do not cover the
++An architecture may free parts of the `mem_map` array that do not cover the
+ actual physical pages. In such case, the architecture specific
+ :c:func:`pfn_valid` implementation should take the holes in the
+ `mem_map` into account.
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 4b36bbcf5a5b..a1622b9290fd 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -26,7 +26,7 @@ config ARM
+ 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
+ 	select ARCH_HAVE_CUSTOM_GPIO_H
+ 	select ARCH_HAS_GCOV_PROFILE_ALL
+-	select ARCH_KEEP_MEMBLOCK if HAVE_ARCH_PFN_VALID || KEXEC
++	select ARCH_KEEP_MEMBLOCK
+ 	select ARCH_MIGHT_HAVE_PC_PARPORT
+ 	select ARCH_NO_SG_CHAIN if !ARM_HAS_SG_CHAIN
+ 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
+@@ -521,7 +521,6 @@ config ARCH_S3C24XX
+ config ARCH_OMAP1
+ 	bool "TI OMAP1"
+ 	depends on MMU
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ARCH_OMAP
+ 	select CLKDEV_LOOKUP
+ 	select CLKSRC_MMIO
+@@ -1518,9 +1517,6 @@ config OABI_COMPAT
+ 	  UNPREDICTABLE (in fact it can be predicted that it won't work
+ 	  at all). If in doubt say N.
+ 
+-config ARCH_HAS_HOLES_MEMORYMODEL
+-	bool
+-
+ config ARCH_SPARSEMEM_ENABLE
+ 	bool
+ 
+@@ -1528,7 +1524,7 @@ config ARCH_SPARSEMEM_DEFAULT
+ 	def_bool ARCH_SPARSEMEM_ENABLE
+ 
+ config HAVE_ARCH_PFN_VALID
+-	def_bool ARCH_HAS_HOLES_MEMORYMODEL || !SPARSEMEM
++	def_bool y
+ 
+ config HIGHMEM
+ 	bool "High Memory Support"
+diff --git a/arch/arm/mach-bcm/Kconfig b/arch/arm/mach-bcm/Kconfig
+index 5e5f1fabc3d4..634d1bc3c011 100644
+--- a/arch/arm/mach-bcm/Kconfig
++++ b/arch/arm/mach-bcm/Kconfig
+@@ -214,7 +214,6 @@ config ARCH_BRCMSTB
+ 	select HAVE_ARM_ARCH_TIMER
+ 	select BRCMSTB_L2_IRQ
+ 	select BCM7120_L2_IRQ
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ZONE_DMA if ARM_LPAE
+ 	select SOC_BRCMSTB
+ 	select SOC_BUS
+diff --git a/arch/arm/mach-davinci/Kconfig b/arch/arm/mach-davinci/Kconfig
+index 02b180ad7245..4d3b7d0418c4 100644
+--- a/arch/arm/mach-davinci/Kconfig
++++ b/arch/arm/mach-davinci/Kconfig
+@@ -5,7 +5,6 @@ menuconfig ARCH_DAVINCI
+ 	depends on ARCH_MULTI_V5
+ 	select DAVINCI_TIMER
+ 	select ZONE_DMA
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select PM_GENERIC_DOMAINS if PM
+ 	select PM_GENERIC_DOMAINS_OF if PM && OF
+ 	select REGMAP_MMIO
+diff --git a/arch/arm/mach-exynos/Kconfig b/arch/arm/mach-exynos/Kconfig
+index 9dab1f50a02f..fc01137628e4 100644
+--- a/arch/arm/mach-exynos/Kconfig
++++ b/arch/arm/mach-exynos/Kconfig
+@@ -8,7 +8,6 @@
+ menuconfig ARCH_EXYNOS
+ 	bool "Samsung EXYNOS"
+ 	depends on ARCH_MULTI_V7
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ARCH_SUPPORTS_BIG_ENDIAN
+ 	select ARM_AMBA
+ 	select ARM_GIC
+diff --git a/arch/arm/mach-highbank/Kconfig b/arch/arm/mach-highbank/Kconfig
+index 1bc68913d62c..9de38ce8124f 100644
+--- a/arch/arm/mach-highbank/Kconfig
++++ b/arch/arm/mach-highbank/Kconfig
+@@ -2,7 +2,6 @@
+ config ARCH_HIGHBANK
+ 	bool "Calxeda ECX-1000/2000 (Highbank/Midway)"
+ 	depends on ARCH_MULTI_V7
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ARCH_SUPPORTS_BIG_ENDIAN
+ 	select ARM_AMBA
+ 	select ARM_ERRATA_764369 if SMP
+diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
+index fdb6743760a2..0211f4aa8cc7 100644
+--- a/arch/arm/mach-omap2/Kconfig
++++ b/arch/arm/mach-omap2/Kconfig
+@@ -94,7 +94,7 @@ config SOC_DRA7XX
+ config ARCH_OMAP2PLUS
+ 	bool
+ 	select ARCH_HAS_BANDGAP
+-	select ARCH_HAS_HOLES_MEMORYMODEL
++	select ARCH_HAS_RESET_CONTROLLER
+ 	select ARCH_OMAP
+ 	select CLKSRC_MMIO
+ 	select GENERIC_IRQ_CHIP
+diff --git a/arch/arm/mach-s5pv210/Kconfig b/arch/arm/mach-s5pv210/Kconfig
+index 03984a791879..69ff1bb89f38 100644
+--- a/arch/arm/mach-s5pv210/Kconfig
++++ b/arch/arm/mach-s5pv210/Kconfig
+@@ -8,7 +8,6 @@
+ config ARCH_S5PV210
+ 	bool "Samsung S5PV210/S5PC110"
+ 	depends on ARCH_MULTI_V7
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ARM_VIC
+ 	select CLKSRC_SAMSUNG_PWM
+ 	select COMMON_CLK_SAMSUNG
+diff --git a/arch/arm/mach-tango/Kconfig b/arch/arm/mach-tango/Kconfig
+index 25b2fd434861..a9eeda36aeb1 100644
+--- a/arch/arm/mach-tango/Kconfig
++++ b/arch/arm/mach-tango/Kconfig
+@@ -3,7 +3,6 @@ config ARCH_TANGO
+ 	bool "Sigma Designs Tango4 (SMP87xx)"
+ 	depends on ARCH_MULTI_V7
+ 	# Cortex-A9 MPCore r3p0, PL310 r3p2
+-	select ARCH_HAS_HOLES_MEMORYMODEL
+ 	select ARM_ERRATA_754322
+ 	select ARM_ERRATA_764369 if SMP
+ 	select ARM_ERRATA_775420
+diff --git a/fs/proc/kcore.c b/fs/proc/kcore.c
+index e2ed8e08cc7a..d1cabccc02b7 100644
+--- a/fs/proc/kcore.c
++++ b/fs/proc/kcore.c
+@@ -193,8 +193,6 @@ kclist_add_private(unsigned long pfn, unsigned long nr_pages, void *arg)
+ 		return 1;
+ 
+ 	p = pfn_to_page(pfn);
+-	if (!memmap_valid_within(pfn, p, page_zone(p)))
+-		return 1;
+ 
+ 	ent = kmalloc(sizeof(*ent), GFP_KERNEL);
+ 	if (!ent)
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index e4f9df955040..b138ddad619e 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -1438,37 +1438,6 @@ void memory_present(int nid, unsigned long start, unsigned long end);
+ #define pfn_valid_within(pfn) (1)
+ #endif
+ 
+-#ifdef CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+-/*
+- * pfn_valid() is meant to be able to tell if a given PFN has valid memmap
+- * associated with it or not. This means that a struct page exists for this
+- * pfn. The caller cannot assume the page is fully initialized in general.
+- * Hotplugable pages might not have been onlined yet. pfn_to_online_page()
+- * will ensure the struct page is fully online and initialized. Special pages
+- * (e.g. ZONE_DEVICE) are never onlined and should be treated accordingly.
+- *
+- * In FLATMEM, it is expected that holes always have valid memmap as long as
+- * there is valid PFNs either side of the hole. In SPARSEMEM, it is assumed
+- * that a valid section has a memmap for the entire section.
+- *
+- * However, an ARM, and maybe other embedded architectures in the future
+- * free memmap backing holes to save memory on the assumption the memmap is
+- * never used. The page_zone linkages are then broken even though pfn_valid()
+- * returns true. A walker of the full memmap must then do this additional
+- * check to ensure the memmap they are looking at is sane by making sure
+- * the zone and PFN linkages are still valid. This is expensive, but walkers
+- * of the full memmap are extremely rare.
+- */
+-bool memmap_valid_within(unsigned long pfn,
+-					struct page *page, struct zone *zone);
+-#else
+-static inline bool memmap_valid_within(unsigned long pfn,
+-					struct page *page, struct zone *zone)
+-{
+-	return true;
+-}
+-#endif /* CONFIG_ARCH_HAS_HOLES_MEMORYMODEL */
+-
+ #endif /* !__GENERATING_BOUNDS.H */
+ #endif /* !__ASSEMBLY__ */
+ #endif /* _LINUX_MMZONE_H */
+diff --git a/mm/mmzone.c b/mm/mmzone.c
+index 4686fdc23bb9..f337831affc2 100644
+--- a/mm/mmzone.c
++++ b/mm/mmzone.c
+@@ -72,20 +72,6 @@ struct zoneref *__next_zones_zonelist(struct zoneref *z,
+ 	return z;
+ }
+ 
+-#ifdef CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+-bool memmap_valid_within(unsigned long pfn,
+-					struct page *page, struct zone *zone)
+-{
+-	if (page_to_pfn(page) != pfn)
+-		return false;
+-
+-	if (page_zone(page) != zone)
+-		return false;
+-
+-	return true;
+-}
+-#endif /* CONFIG_ARCH_HAS_HOLES_MEMORYMODEL */
+-
+ void lruvec_init(struct lruvec *lruvec)
+ {
+ 	enum lru_list lru;
+diff --git a/mm/vmstat.c b/mm/vmstat.c
+index a8222041bd44..240fe2153ca9 100644
+--- a/mm/vmstat.c
++++ b/mm/vmstat.c
+@@ -1444,10 +1444,6 @@ static void pagetypeinfo_showblockcount_print(struct seq_file *m,
+ 		if (!page)
+ 			continue;
+ 
+-		/* Watch for unexpected holes punched in the memmap */
+-		if (!memmap_valid_within(pfn, page, zone))
+-			continue;
+-
+ 		if (page_zone(page) != zone)
+ 			continue;
+ 
 -- 
-Florian
+2.34.1
+
