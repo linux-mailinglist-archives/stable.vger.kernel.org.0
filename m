@@ -2,69 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF295225BD
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 22:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A3C25225DE
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 22:52:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbiEJUpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 16:45:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56020 "EHLO
+        id S230108AbiEJUwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 16:52:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiEJUpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 16:45:04 -0400
-Received: from mail-yw1-x112d.google.com (mail-yw1-x112d.google.com [IPv6:2607:f8b0:4864:20::112d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2B22A28F6;
-        Tue, 10 May 2022 13:45:02 -0700 (PDT)
-Received: by mail-yw1-x112d.google.com with SMTP id 00721157ae682-2f7bb893309so193180737b3.12;
-        Tue, 10 May 2022 13:45:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BrRJYBjS3oQOjizWwUlaoTbPU5hZi97x1mqlvUymfoo=;
-        b=XQfxFjb6eCfUJ/OGp0e5FtspQty+u+fX95U2bLklHVuQI+I4OnEZmBWN2Yd5UXoN03
-         tWUwhDAumcnvaSVWzgHH9SZF8rWlu+IKYeX9TmLl3qsE0RSTuy+jBY0Oxiz1nMGarjQc
-         NhnNps6uBvtGsjaIsPclMz9+pRXyGY9pXJgB+tretpXCX3VtbNDAH5K1Dnt4NqeXkGjq
-         vOe78g3VIdGSPYSHTLT8AQpdzZFm4ENroeD3cPI/3MI42X4DpKlRou8AdsYBP1GN/QIs
-         Nvm5t/iY6T2SRLJrVTahz7Vf0bTktj6dnQZY8ezx7umP526yIkIjzv9Lc9cbF+dafQNe
-         UL1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BrRJYBjS3oQOjizWwUlaoTbPU5hZi97x1mqlvUymfoo=;
-        b=CFJftJcZkXtg/ym0i5ChwmhUPEIZQL6AXbF++/e2SwmUddhqlX3FY7timCgjf6k0Yv
-         xxY+pludES16EdvpCYjOfs9RrlWs2oP47+8Z98A0kBIX2UbS78802EZo3ahiVzwrI6kL
-         Ekne0/aa2PFC3dA1tNyRe8D9q2igYD2bikd+FKPQoId1vxomeW1HhsMk2TLnALLSQrSl
-         vvMilO/XM05tUrWSIjUZvo6ZuGeOT1QCRcHoKbuTt52j9JCdAHbi0n9iCP1VKy3fkkBf
-         Txxgp8trrPMrGYZ/Zc7xg6xhJ8btQeiXQ2Q3b4HtIqT9cWo2kOU8qOuHz+mANdnyMvxA
-         5b6Q==
-X-Gm-Message-State: AOAM53243hi1GMHICWLQ2UBbkL1G2GOn6MpBxnmaPVKJ2pIGWf+A+wA2
-        TvHpKJPlOJF7L22k/FvyaZJhOj1NgXuiIlSGnZk=
-X-Google-Smtp-Source: ABdhPJwnewgoQKLhIkzPf7D369Q+CSf7gvEBJNCOhwvaZqVd7IKm197Kq3ivHnsUA6DUpfxqeryq5cfLDxtupFAHVX4=
-X-Received: by 2002:a81:50c5:0:b0:2f7:b5e4:218e with SMTP id
- e188-20020a8150c5000000b002f7b5e4218emr21854329ywb.361.1652215501936; Tue, 10
- May 2022 13:45:01 -0700 (PDT)
+        with ESMTP id S237085AbiEJUvw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 16:51:52 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8840D517FB;
+        Tue, 10 May 2022 13:51:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1652215909; x=1683751909;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Z6AYtUl6pSxkUDotnea/tzBkTCWcYCFzfWEKuVXB61M=;
+  b=akk9VjV2p16g1v06Ku7mpPjMvVJaySSuDA37nFwID+X+8RFYfgZ5eBAo
+   zyVlJ42x4rf38J/RCbA4KxkV64q3Aw+CFY8Yi54vOvWq6ud18Efehy94E
+   e6+0rJZ2LC4/RvLS7y7WuSs5pUvOfThS8H7fHGMRESljOIN8jnf/9zXIz
+   CwcSql5bLHZxZyXRJtu5ZkRVZMYKPv7aCqVQokHCbSbKu2FGx25WyBdnm
+   c8CkSrGO9gJshCiguQbV+TG1r2gYSpe0+blunqq9QWHlUo3EZRIoN2b91
+   NVVWQEfgeH2I7ZoyCXQmv0gcTY9HtTo6cYgigPsduSLTor7nvOPG5QnKn
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10343"; a="268341424"
+X-IronPort-AV: E=Sophos;i="5.91,215,1647327600"; 
+   d="scan'208";a="268341424"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 May 2022 13:51:45 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,215,1647327600"; 
+   d="scan'208";a="553013236"
+Received: from anguy11-desk2.jf.intel.com ([10.166.244.147])
+  by orsmga002.jf.intel.com with ESMTP; 10 May 2022 13:51:45 -0700
+From:   Tony Nguyen <anthony.l.nguyen@intel.com>
+To:     davem@davemloft.net, kuba@kernel.org, pabeni@redhat.com,
+        edumazet@google.com
+Cc:     Xiaomeng Tong <xiam0nd.tong@gmail.com>, netdev@vger.kernel.org,
+        anthony.l.nguyen@intel.com, sassmann@redhat.com,
+        stable@vger.kernel.org, Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH net v2 1/1] i40e: i40e_main: fix a missing check on list iterator
+Date:   Tue, 10 May 2022 13:48:46 -0700
+Message-Id: <20220510204846.2166999-1-anthony.l.nguyen@intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-References: <20220510130732.861729621@linuxfoundation.org>
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Date:   Tue, 10 May 2022 21:44:26 +0100
-Message-ID: <CADVatmNyky-XXaeAiQ5ypZ7+7F7fzLshB4bNWt5v3RdnXStsOg@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/70] 5.10.115-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,34 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
 
-On Tue, May 10, 2022 at 2:25 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.115 release.
-> There are 70 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
-> Anything received after that time might be too late.
+The bug is here:
+	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
 
-Just some initial report for you.
-As mentioned in the mail for 4.19-stable, it will also need
-d422c6c0644b ("MIPS: Use address-of operator on section symbols").
+The list iterator 'ch' will point to a bogus position containing
+HEAD if the list is empty or no element is found. This case must
+be checked before any use of the iterator, otherwise it will
+lead to a invalid memory access.
 
-But apart from that, there is also another failure.
-drivers/usb/phy/phy-generic.c: In function 'usb_phy_gen_create_phy':
-drivers/usb/phy/phy-generic.c:271:26: error: implicit declaration of
-function 'devm_regulator_get_exclusive'; did you mean
-'regulator_get_exclusive'? [-Werror=implicit-function-declaration]
-  271 |         nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
+To fix this bug, use a new variable 'iter' as the list iterator,
+while use the origin variable 'ch' as a dedicated pointer to
+point to the found element.
 
-This was introduced in v5.10.114 by d22d92230ffb ("usb: phy: generic:
-Get the vbus supply") but I missed testing that release. :(
+Cc: stable@vger.kernel.org
+Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
+Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+---
+v2: Dropped patch "iavf: Fix error when changing ring parameters on ice PF"
+as its being reworked
 
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 27 +++++++++++----------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
---
-Regards
-Sudip
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 6778df2177a1..98871f014994 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -7549,42 +7549,43 @@ static void i40e_free_macvlan_channels(struct i40e_vsi *vsi)
+ static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
+ 			    struct i40e_fwd_adapter *fwd)
+ {
++	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
+ 	int ret = 0, num_tc = 1,  i, aq_err;
+-	struct i40e_channel *ch, *ch_tmp;
+ 	struct i40e_pf *pf = vsi->back;
+ 	struct i40e_hw *hw = &pf->hw;
+ 
+-	if (list_empty(&vsi->macvlan_list))
+-		return -EINVAL;
+-
+ 	/* Go through the list and find an available channel */
+-	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
+-		if (!i40e_is_channel_macvlan(ch)) {
+-			ch->fwd = fwd;
++	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
++		if (!i40e_is_channel_macvlan(iter)) {
++			iter->fwd = fwd;
+ 			/* record configuration for macvlan interface in vdev */
+ 			for (i = 0; i < num_tc; i++)
+ 				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
+ 							     i,
+-							     ch->num_queue_pairs,
+-							     ch->base_queue);
+-			for (i = 0; i < ch->num_queue_pairs; i++) {
++							     iter->num_queue_pairs,
++							     iter->base_queue);
++			for (i = 0; i < iter->num_queue_pairs; i++) {
+ 				struct i40e_ring *tx_ring, *rx_ring;
+ 				u16 pf_q;
+ 
+-				pf_q = ch->base_queue + i;
++				pf_q = iter->base_queue + i;
+ 
+ 				/* Get to TX ring ptr */
+ 				tx_ring = vsi->tx_rings[pf_q];
+-				tx_ring->ch = ch;
++				tx_ring->ch = iter;
+ 
+ 				/* Get the RX ring ptr */
+ 				rx_ring = vsi->rx_rings[pf_q];
+-				rx_ring->ch = ch;
++				rx_ring->ch = iter;
+ 			}
++			ch = iter;
+ 			break;
+ 		}
+ 	}
+ 
++	if (!ch)
++		return -EINVAL;
++
+ 	/* Guarantee all rings are updated before we update the
+ 	 * MAC address filter.
+ 	 */
+-- 
+2.35.1
+
