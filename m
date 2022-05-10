@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47336521834
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 737045216B1
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241089AbiEJNdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56970 "EHLO
+        id S242500AbiEJNRU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:17:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243993AbiEJNcZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 122BB1B5FAE;
-        Tue, 10 May 2022 06:23:59 -0700 (PDT)
+        with ESMTP id S242501AbiEJNQn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:43 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A0B49C80;
+        Tue, 10 May 2022 06:12:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 88AC76175F;
-        Tue, 10 May 2022 13:23:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EA2C385C2;
-        Tue, 10 May 2022 13:23:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 80017CE1EE5;
+        Tue, 10 May 2022 13:12:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 949F1C385A6;
+        Tue, 10 May 2022 13:12:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189038;
-        bh=uZMOLfy6eiL9LYCuuMPoUD+KDOWsUnsgqeVOwCZTtgk=;
+        s=korg; t=1652188352;
+        bh=xcXfCRcoyhfyUlxipCdVEsXYo0JlNezMMEx8Crxqedw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eYo1TvmkiyMz5fvI5VzX2fgq2XuW5lUQT3G7gQmtj3/1iXTIWkZM+5dSpXvQDAdR8
-         XcEXgCYzwKRaY4PB07TjT0xOotc6yeh46ja0CGB+OunxY/F+y0P/3looqCuUd6sAXv
-         xFSQ66/8tEVh5xdDhsg/CBjUa8mUzahxge1db4kE=
+        b=vI3AnWVmVz2eyEJi80ZcdTh78S/n948CeS+XPg4463RmH6HHlmqnwDPOMhLfdt4Eo
+         6FgdQoyA8Q2uqz47utQJ2bydA4SWUxjjm04JikLAEq3akBMvMD2wA4Fsa2W4Bd9SJT
+         NlPE6fJtJxfsMvwAG8WdT8DEUJ+wrqL+SHMMEFRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 06/52] firewire: fix potential uaf in outbound_phy_packet_callback()
+Subject: [PATCH 4.9 45/66] ALSA: fireworks: fix wrong return count shorter than expected by 4 bytes
 Date:   Tue, 10 May 2022 15:07:35 +0200
-Message-Id: <20220510130730.044041189@linuxfoundation.org>
+Message-Id: <20220510130731.088702139@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit b7c81f80246fac44077166f3e07103affe6db8ff upstream.
+commit eb9d84b0ffe39893cb23b0b6712bbe3637fa25fa upstream.
 
-&e->event and e point to the same address, and &e->event could
-be freed in queue_event. So there is a potential uaf issue if
-we dereference e after calling queue_event(). Fix this by adding
-a temporary variable to maintain e->client in advance, this can
-avoid the potential uaf issue.
+ALSA fireworks driver has a bug in its initial state to return count
+shorter than expected by 4 bytes to userspace applications when handling
+response frame for Echo Audio Fireworks transaction. It's due to missing
+addition of the size for the type of event in ALSA firewire stack.
 
+Fixes: 555e8a8f7f14 ("ALSA: fireworks: Add command/response functionality into hwdep interface")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
 Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-2-o-takashi@sakamocchi.jp
+Link: https://lore.kernel.org/r/20220424102428.21109-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/core-cdev.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/firewire/fireworks/fireworks_hwdep.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/firewire/core-cdev.c
-+++ b/drivers/firewire/core-cdev.c
-@@ -1482,6 +1482,7 @@ static void outbound_phy_packet_callback
- {
- 	struct outbound_phy_packet_event *e =
- 		container_of(packet, struct outbound_phy_packet_event, p);
-+	struct client *e_client;
+--- a/sound/firewire/fireworks/fireworks_hwdep.c
++++ b/sound/firewire/fireworks/fireworks_hwdep.c
+@@ -35,6 +35,7 @@ hwdep_read_resp_buf(struct snd_efw *efw,
+ 	type = SNDRV_FIREWIRE_EVENT_EFW_RESPONSE;
+ 	if (copy_to_user(buf, &type, sizeof(type)))
+ 		return -EFAULT;
++	count += sizeof(type);
+ 	remained -= sizeof(type);
+ 	buf += sizeof(type);
  
- 	switch (status) {
- 	/* expected: */
-@@ -1498,9 +1499,10 @@ static void outbound_phy_packet_callback
- 	}
- 	e->phy_packet.data[0] = packet->timestamp;
- 
-+	e_client = e->client;
- 	queue_event(e->client, &e->event, &e->phy_packet,
- 		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
--	client_put(e->client);
-+	client_put(e_client);
- }
- 
- static int ioctl_send_phy_packet(struct client *client, union ioctl_arg *arg)
 
 
