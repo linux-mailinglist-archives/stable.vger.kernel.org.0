@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E69F85218FE
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81F4521A29
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243791AbiEJNlO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
+        id S244045AbiEJNyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244483AbiEJNhp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A2D23F33C;
-        Tue, 10 May 2022 06:25:49 -0700 (PDT)
+        with ESMTP id S245328AbiEJNwP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC542375D4;
+        Tue, 10 May 2022 06:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC2F60B12;
-        Tue, 10 May 2022 13:25:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B226FC385D8;
-        Tue, 10 May 2022 13:25:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E65E9618B4;
+        Tue, 10 May 2022 13:37:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1575C385A6;
+        Tue, 10 May 2022 13:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189141;
-        bh=g+CxDpsJrUR4Wrwj2lmQW1ntkowQuLzhfCR3upGflZo=;
+        s=korg; t=1652189864;
+        bh=/jM/xkpLU4pNVj7m9v810zL6YmMq+x9MUFy1AJ5qtFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxSKRxCsu7ZA7cVsctQhexzxTULMcVIUwCflsEOPY9P/+5oLNQzea7Ui2ghKwh7HC
-         8pg8qL9Si8fEu/lKE3ZExNv1DdrSczRTxvOXzW2dQhQZqC14FrlkqzfoYU2uV12XSg
-         q4GYHVzVXtxE5HCbtmJ9Q6adKzq1W1+HLA0qpltk=
+        b=uXpG8sitF6PnOLYnxhI+v0WYMpgeauqUtHZ7Wpl/xdiUj1SpY0/55cqQfPJAFkYUe
+         ogCRnlXGKuRXFevL6co+0rlMJopizZYoFAoofhtAhO0nKiq5RDKCon4gGLHTtG0fz5
+         4Tj8vgyswHIhNhg9TyGgDJ+bmqaVE2oaz6Xcg9uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 05/70] mmc: sdhci-msm: Reset GCC_SDCC_BCR register for SDHC
+        stable@vger.kernel.org, Puyou Lu <puyou.lu@gmail.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.17 054/140] gpio: pca953x: fix irq_stat not updated when irq is disabled (irq_mask not set)
 Date:   Tue, 10 May 2022 15:07:24 +0200
-Message-Id: <20220510130733.021043995@linuxfoundation.org>
+Message-Id: <20220510130743.165069556@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,112 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
+From: Puyou Lu <puyou.lu@gmail.com>
 
-commit 3e5a8e8494a8122fe4eb3f167662f406cab753b9 upstream.
+commit dba785798526a3282cc4d0f0ea751883715dbbb4 upstream.
 
-Reset GCC_SDCC_BCR register before every fresh initilazation. This will
-reset whole SDHC-msm controller, clears the previous power control
-states and avoids, software reset timeout issues as below.
+When one port's input state get inverted (eg. from low to hight) after
+pca953x_irq_setup but before setting irq_mask (by some other driver such as
+"gpio-keys"), the next inversion of this port (eg. from hight to low) will not
+be triggered any more (because irq_stat is not updated at the first time). Issue
+should be fixed after this commit.
 
-[ 5.458061][ T262] mmc1: Reset 0x1 never completed.
-[ 5.462454][ T262] mmc1: sdhci: ============ SDHCI REGISTER DUMP ===========
-[ 5.469065][ T262] mmc1: sdhci: Sys addr: 0x00000000 | Version: 0x00007202
-[ 5.475688][ T262] mmc1: sdhci: Blk size: 0x00000000 | Blk cnt: 0x00000000
-[ 5.482315][ T262] mmc1: sdhci: Argument: 0x00000000 | Trn mode: 0x00000000
-[ 5.488927][ T262] mmc1: sdhci: Present: 0x01f800f0 | Host ctl: 0x00000000
-[ 5.495539][ T262] mmc1: sdhci: Power: 0x00000000 | Blk gap: 0x00000000
-[ 5.502162][ T262] mmc1: sdhci: Wake-up: 0x00000000 | Clock: 0x00000003
-[ 5.508768][ T262] mmc1: sdhci: Timeout: 0x00000000 | Int stat: 0x00000000
-[ 5.515381][ T262] mmc1: sdhci: Int enab: 0x00000000 | Sig enab: 0x00000000
-[ 5.521996][ T262] mmc1: sdhci: ACmd stat: 0x00000000 | Slot int: 0x00000000
-[ 5.528607][ T262] mmc1: sdhci: Caps: 0x362dc8b2 | Caps_1: 0x0000808f
-[ 5.535227][ T262] mmc1: sdhci: Cmd: 0x00000000 | Max curr: 0x00000000
-[ 5.541841][ T262] mmc1: sdhci: Resp[0]: 0x00000000 | Resp[1]: 0x00000000
-[ 5.548454][ T262] mmc1: sdhci: Resp[2]: 0x00000000 | Resp[3]: 0x00000000
-[ 5.555079][ T262] mmc1: sdhci: Host ctl2: 0x00000000
-[ 5.559651][ T262] mmc1: sdhci_msm: ----------- VENDOR REGISTER DUMP-----------
-[ 5.566621][ T262] mmc1: sdhci_msm: DLL sts: 0x00000000 | DLL cfg: 0x6000642c | DLL cfg2: 0x0020a000
-[ 5.575465][ T262] mmc1: sdhci_msm: DLL cfg3: 0x00000000 | DLL usr ctl: 0x00010800 | DDR cfg: 0x80040873
-[ 5.584658][ T262] mmc1: sdhci_msm: Vndr func: 0x00018a9c | Vndr func2 : 0xf88218a8 Vndr func3: 0x02626040
-
-Fixes: 0eb0d9f4de34 ("mmc: sdhci-msm: Initial support for Qualcomm chipsets")
-Signed-off-by: Shaik Sajida Bhanu <quic_c_sbhanu@quicinc.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Tested-by: Konrad Dybcio <konrad.dybcio@somainline.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/1650816153-23797-1-git-send-email-quic_c_sbhanu@quicinc.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 89ea8bbe9c3e ("gpio: pca953x.c: add interrupt handling capability")
+Signed-off-by: Puyou Lu <puyou.lu@gmail.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-msm.c |   42 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ drivers/gpio/gpio-pca953x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/mmc/host/sdhci-msm.c
-+++ b/drivers/mmc/host/sdhci-msm.c
-@@ -16,6 +16,7 @@
- #include <linux/regulator/consumer.h>
- #include <linux/interconnect.h>
- #include <linux/pinctrl/consumer.h>
-+#include <linux/reset.h>
+--- a/drivers/gpio/gpio-pca953x.c
++++ b/drivers/gpio/gpio-pca953x.c
+@@ -762,11 +762,11 @@ static bool pca953x_irq_pending(struct p
+ 	bitmap_xor(cur_stat, new_stat, old_stat, gc->ngpio);
+ 	bitmap_and(trigger, cur_stat, chip->irq_mask, gc->ngpio);
  
- #include "sdhci-pltfm.h"
- #include "cqhci.h"
-@@ -2228,6 +2229,43 @@ static inline void sdhci_msm_get_of_prop
- 	of_property_read_u32(node, "qcom,dll-config", &msm_host->dll_config);
- }
++	bitmap_copy(chip->irq_stat, new_stat, gc->ngpio);
++
+ 	if (bitmap_empty(trigger, gc->ngpio))
+ 		return false;
  
-+static int sdhci_msm_gcc_reset(struct device *dev, struct sdhci_host *host)
-+{
-+	struct reset_control *reset;
-+	int ret = 0;
-+
-+	reset = reset_control_get_optional_exclusive(dev, NULL);
-+	if (IS_ERR(reset))
-+		return dev_err_probe(dev, PTR_ERR(reset),
-+				"unable to acquire core_reset\n");
-+
-+	if (!reset)
-+		return ret;
-+
-+	ret = reset_control_assert(reset);
-+	if (ret) {
-+		reset_control_put(reset);
-+		return dev_err_probe(dev, ret, "core_reset assert failed\n");
-+	}
-+
-+	/*
-+	 * The hardware requirement for delay between assert/deassert
-+	 * is at least 3-4 sleep clock (32.7KHz) cycles, which comes to
-+	 * ~125us (4/32768). To be on the safe side add 200us delay.
-+	 */
-+	usleep_range(200, 210);
-+
-+	ret = reset_control_deassert(reset);
-+	if (ret) {
-+		reset_control_put(reset);
-+		return dev_err_probe(dev, ret, "core_reset deassert failed\n");
-+	}
-+
-+	usleep_range(200, 210);
-+	reset_control_put(reset);
-+
-+	return ret;
-+}
- 
- static int sdhci_msm_probe(struct platform_device *pdev)
- {
-@@ -2276,6 +2314,10 @@ static int sdhci_msm_probe(struct platfo
- 
- 	msm_host->saved_tuning_phase = INVALID_TUNING_PHASE;
- 
-+	ret = sdhci_msm_gcc_reset(&pdev->dev, host);
-+	if (ret)
-+		goto pltfm_free;
-+
- 	/* Setup SDCC bus voter clock. */
- 	msm_host->bus_clk = devm_clk_get(&pdev->dev, "bus");
- 	if (!IS_ERR(msm_host->bus_clk)) {
+-	bitmap_copy(chip->irq_stat, new_stat, gc->ngpio);
+-
+ 	bitmap_and(cur_stat, chip->irq_trig_fall, old_stat, gc->ngpio);
+ 	bitmap_and(old_stat, chip->irq_trig_raise, new_stat, gc->ngpio);
+ 	bitmap_or(new_stat, old_stat, cur_stat, gc->ngpio);
 
 
