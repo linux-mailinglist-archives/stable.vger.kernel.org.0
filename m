@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DF975218D8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 306945219BD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243756AbiEJNlG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47270 "EHLO
+        id S244599AbiEJNvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:51:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245317AbiEJNiq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9993231C88;
-        Tue, 10 May 2022 06:29:06 -0700 (PDT)
+        with ESMTP id S245266AbiEJNrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5A722D9ECF;
+        Tue, 10 May 2022 06:35:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E02FB81DA2;
-        Tue, 10 May 2022 13:29:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4983C385C2;
-        Tue, 10 May 2022 13:29:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 12E3BB81DBA;
+        Tue, 10 May 2022 13:35:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 765A5C385C9;
+        Tue, 10 May 2022 13:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189344;
-        bh=WtU2MifjE7WdVm6QX8N19707fXD4NfeoLMb7jSc2l6A=;
+        s=korg; t=1652189734;
+        bh=v4yK3W+OZJc+saSgXRdA4ahyX7pWMFp6G6UNM6ToZ4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jXtLlNSJVT8GoYXFpNySRWhd1WjhQJkhkppjhSzSs8sjqEQx/dHD3c3eI3XcmheO/
-         4nXVzpUvnxIdYLIZOiBRqyziw37TItfuWBOW+L6rg5bD8lpc1/uZQwq+7nYWsRv3qB
-         VFoNyUccKYh56RrYbFfdJYAzxZl0HtRjWb3TlPN8=
+        b=xv+d8pAQoqNxz5Q2sTrPgmAxjNhFnSceCr/O81QBHcSXSCSZsWquCuInxDTXgQRTC
+         dlR4EEKg+o+lhdVRRVxAWQjTLg8oT1DWaTkn2Lp5c/E5+vRKaKdiARsAKN0EylSCy/
+         VBFD/xTjd/VLEdemORAXTo0BxqlHbOowUFaUYZ2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 020/135] firewire: core: extend card->lock in fw_core_handle_bus_reset
+        stable@vger.kernel.org, Shawn Lin <shawn.lin@rock-chips.com>,
+        Luca Weiss <luca@z3ntu.xyz>,
+        Brian Norris <briannorris@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.17 012/140] mmc: core: Set HS clock speed before sending HS CMD13
 Date:   Tue, 10 May 2022 15:06:42 +0200
-Message-Id: <20220510130740.977690731@linuxfoundation.org>
+Message-Id: <20220510130741.959382210@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit a7ecbe92b9243edbe94772f6f2c854e4142a3345 upstream.
+commit 4bc31edebde51fcf8ad0794763b8679a7ecb5ec0 upstream.
 
-card->local_node and card->bm_retries are both always accessed under
-card->lock.
-fw_core_handle_bus_reset has a check whose condition depends on
-card->local_node and whose body writes to card->bm_retries.
-Both of these accesses are not under card->lock. Move the lock acquiring
-of card->lock to before this check such that these accesses do happen
-when card->lock is held.
-fw_destroy_nodes is called inside the check.
-Since fw_destroy_nodes already acquires card->lock inside its function
-body, move this out to the callsites of fw_destroy_nodes.
-Also add a comment to indicate which locking is necessary when calling
-fw_destroy_nodes.
+Way back in commit 4f25580fb84d ("mmc: core: changes frequency to
+hs_max_dtr when selecting hs400es"), Rockchip engineers noticed that
+some eMMC don't respond to SEND_STATUS commands very reliably if they're
+still running at a low initial frequency. As mentioned in that commit,
+JESD84-B51 P49 suggests a sequence in which the host:
+1. sets HS_TIMING
+2. bumps the clock ("<= 52 MHz")
+3. sends further commands
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20220409041243.603210-4-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+It doesn't exactly require that we don't use a lower-than-52MHz
+frequency, but in practice, these eMMC don't like it.
+
+The aforementioned commit tried to get that right for HS400ES, although
+it's unclear whether this ever truly worked as committed into mainline,
+as other changes/refactoring adjusted the sequence in conflicting ways:
+
+08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode
+switch")
+
+53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode
+for mmc")
+
+In any case, today we do step 3 before step 2. Let's fix that, and also
+apply the same logic to HS200/400, where this eMMC has problems too.
+
+Resolves errors like this seen when booting some RK3399 Gru/Scarlet
+systems:
+
+[    2.058881] mmc1: CQHCI version 5.10
+[    2.097545] mmc1: SDHCI controller on fe330000.mmc [fe330000.mmc] using ADMA
+[    2.209804] mmc1: mmc_select_hs400es failed, error -84
+[    2.215597] mmc1: error -84 whilst initialising MMC card
+[    2.417514] mmc1: mmc_select_hs400es failed, error -110
+[    2.423373] mmc1: error -110 whilst initialising MMC card
+[    2.605052] mmc1: mmc_select_hs400es failed, error -110
+[    2.617944] mmc1: error -110 whilst initialising MMC card
+[    2.835884] mmc1: mmc_select_hs400es failed, error -110
+[    2.841751] mmc1: error -110 whilst initialising MMC card
+
+Ealier versions of this patch bumped to 200MHz/HS200 speeds too early,
+which caused issues on, e.g., qcom-msm8974-fairphone-fp2. (Thanks for
+the report Luca!) After a second look, it appears that aligns with
+JESD84 / page 45 / table 28, so we need to keep to lower (HS / 52 MHz)
+rates first.
+
+Fixes: 08573eaf1a70 ("mmc: mmc: do not use CMD13 to get status after speed mode switch")
+Fixes: 53e60650f74e ("mmc: core: Allow CMD13 polling when switching to HS mode for mmc")
+Fixes: 4f25580fb84d ("mmc: core: changes frequency to hs_max_dtr when selecting hs400es")
+Cc: Shawn Lin <shawn.lin@rock-chips.com>
+Link: https://lore.kernel.org/linux-mmc/11962455.O9o76ZdvQC@g550jk/
+Reported-by: Luca Weiss <luca@z3ntu.xyz>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Tested-by: Luca Weiss <luca@z3ntu.xyz>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220422100824.v4.1.I484f4ee35609f78b932bd50feed639c29e64997e@changeid
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firewire/core-card.c     |    3 +++
- drivers/firewire/core-topology.c |    9 +++------
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/mmc/core/mmc.c |   23 +++++++++++++++++++----
+ 1 file changed, 19 insertions(+), 4 deletions(-)
 
---- a/drivers/firewire/core-card.c
-+++ b/drivers/firewire/core-card.c
-@@ -668,6 +668,7 @@ EXPORT_SYMBOL_GPL(fw_card_release);
- void fw_core_remove_card(struct fw_card *card)
- {
- 	struct fw_card_driver dummy_driver = dummy_driver_template;
-+	unsigned long flags;
- 
- 	card->driver->update_phy_reg(card, 4,
- 				     PHY_LINK_ACTIVE | PHY_CONTENDER, 0);
-@@ -682,7 +683,9 @@ void fw_core_remove_card(struct fw_card
- 	dummy_driver.stop_iso		= card->driver->stop_iso;
- 	card->driver = &dummy_driver;
- 
-+	spin_lock_irqsave(&card->lock, flags);
- 	fw_destroy_nodes(card);
-+	spin_unlock_irqrestore(&card->lock, flags);
- 
- 	/* Wait for all users, especially device workqueue jobs, to finish. */
- 	fw_card_put(card);
---- a/drivers/firewire/core-topology.c
-+++ b/drivers/firewire/core-topology.c
-@@ -375,16 +375,13 @@ static void report_found_node(struct fw_
- 	card->bm_retries = 0;
- }
- 
-+/* Must be called with card->lock held */
- void fw_destroy_nodes(struct fw_card *card)
- {
--	unsigned long flags;
--
--	spin_lock_irqsave(&card->lock, flags);
- 	card->color++;
- 	if (card->local_node != NULL)
- 		for_each_fw_node(card, card->local_node, report_lost_node);
- 	card->local_node = NULL;
--	spin_unlock_irqrestore(&card->lock, flags);
- }
- 
- static void move_tree(struct fw_node *node0, struct fw_node *node1, int port)
-@@ -510,6 +507,8 @@ void fw_core_handle_bus_reset(struct fw_
- 	struct fw_node *local_node;
- 	unsigned long flags;
- 
-+	spin_lock_irqsave(&card->lock, flags);
-+
- 	/*
- 	 * If the selfID buffer is not the immediate successor of the
- 	 * previously processed one, we cannot reliably compare the
-@@ -521,8 +520,6 @@ void fw_core_handle_bus_reset(struct fw_
- 		card->bm_retries = 0;
+--- a/drivers/mmc/core/mmc.c
++++ b/drivers/mmc/core/mmc.c
+@@ -1389,13 +1389,17 @@ static int mmc_select_hs400es(struct mmc
+ 		goto out_err;
  	}
  
--	spin_lock_irqsave(&card->lock, flags);
++	/*
++	 * Bump to HS timing and frequency. Some cards don't handle
++	 * SEND_STATUS reliably at the initial frequency.
++	 */
+ 	mmc_set_timing(host, MMC_TIMING_MMC_HS);
++	mmc_set_bus_speed(card);
++
+ 	err = mmc_switch_status(card, true);
+ 	if (err)
+ 		goto out_err;
+ 
+-	mmc_set_clock(host, card->ext_csd.hs_max_dtr);
 -
- 	card->broadcast_channel_allocated = card->broadcast_channel_auto_allocated;
- 	card->node_id = node_id;
- 	/*
+ 	/* Switch card to DDR with strobe bit */
+ 	val = EXT_CSD_DDR_BUS_WIDTH_8 | EXT_CSD_BUS_WIDTH_STROBE;
+ 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+@@ -1453,7 +1457,7 @@ out_err:
+ static int mmc_select_hs200(struct mmc_card *card)
+ {
+ 	struct mmc_host *host = card->host;
+-	unsigned int old_timing, old_signal_voltage;
++	unsigned int old_timing, old_signal_voltage, old_clock;
+ 	int err = -EINVAL;
+ 	u8 val;
+ 
+@@ -1484,8 +1488,17 @@ static int mmc_select_hs200(struct mmc_c
+ 				   false, true, MMC_CMD_RETRIES);
+ 		if (err)
+ 			goto err;
++
++		/*
++		 * Bump to HS timing and frequency. Some cards don't handle
++		 * SEND_STATUS reliably at the initial frequency.
++		 * NB: We can't move to full (HS200) speeds until after we've
++		 * successfully switched over.
++		 */
+ 		old_timing = host->ios.timing;
++		old_clock = host->ios.clock;
+ 		mmc_set_timing(host, MMC_TIMING_MMC_HS200);
++		mmc_set_clock(card->host, card->ext_csd.hs_max_dtr);
+ 
+ 		/*
+ 		 * For HS200, CRC errors are not a reliable way to know the
+@@ -1498,8 +1511,10 @@ static int mmc_select_hs200(struct mmc_c
+ 		 * mmc_select_timing() assumes timing has not changed if
+ 		 * it is a switch error.
+ 		 */
+-		if (err == -EBADMSG)
++		if (err == -EBADMSG) {
++			mmc_set_clock(host, old_clock);
+ 			mmc_set_timing(host, old_timing);
++		}
+ 	}
+ err:
+ 	if (err) {
 
 
