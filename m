@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67ACE52172A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D957552167A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242915AbiEJNWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
+        id S242258AbiEJNOu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242950AbiEJNVM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36DA82C07FD;
-        Tue, 10 May 2022 06:14:18 -0700 (PDT)
+        with ESMTP id S242259AbiEJNOt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:14:49 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5BC0DE8F;
+        Tue, 10 May 2022 06:10:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC191B81DA2;
-        Tue, 10 May 2022 13:14:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35D7AC385A6;
-        Tue, 10 May 2022 13:14:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BAF1B81DA0;
+        Tue, 10 May 2022 13:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C26ABC385A6;
+        Tue, 10 May 2022 13:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188455;
-        bh=rv5YClglW/BeeR7VokaDgRvc3nal0GlKMs5Rdx/I3YE=;
+        s=korg; t=1652188249;
+        bh=ycpbxAto+dh1Mn2Va8iL5uowbHR53RqJ38c0L1VvIxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeUYb86foMmTbeXxkUytl3ZppB7ApYITngdUmJh1arYHVecWAJqVH4oByA0hivrnP
-         KhnMmoB1bqJrVOaYVOOcN7EC0OtorKr1+6dSutAinvd2rtyzcq9Sx23TG6R6OxkKRd
-         qvRGVQtGZunjbqSEBKaESpsRIo6BkwwSAjHPEToc=
+        b=URNxyDP+XrT2qf7w6hqOjkc0oKQH381Bq91RZsxjIa96c0SOmYCE9w2dXs8c8nPyd
+         FQa2hD0CwQ+2EyvD91jNkbq9hyGJfZRlbfbEAgqdNoJP07JT4Q6BHPrTbVyq9i4wli
+         SylvSzf57ueBog5+wkDmrGm1PecFADvLtjA4+ZS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 14/78] xhci: stop polling roothubs after shutdown
-Date:   Tue, 10 May 2022 15:07:00 +0200
-Message-Id: <20220510130732.955604657@linuxfoundation.org>
+        stable@vger.kernel.org, Zizhuang Deng <sunsetdzz@gmail.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 11/66] iio: dac: ad5592r: Fix the missing return value.
+Date:   Tue, 10 May 2022 15:07:01 +0200
+Message-Id: <20220510130730.100058610@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+From: Zizhuang Deng <sunsetdzz@gmail.com>
 
-commit dc92944a014cd6a6f6c94299aaa36164dd2c238a upstream.
+commit b55b38f7cc12da3b9ef36e7a3b7f8f96737df4d5 upstream.
 
-While rebooting, XHCI controller and its bus device will be shut down
-in order by .shutdown callback. Stopping roothubs polling in
-xhci_shutdown() can prevent XHCI driver from accessing port status
-after its bus device shutdown.
+The third call to `fwnode_property_read_u32` did not record
+the return value, resulting in `channel_offstate` possibly
+being assigned the wrong value.
 
-Take PCIe XHCI controller as example, if XHCI driver doesn't stop roothubs
-polling, XHCI driver may access PCIe BAR register for port status after
-parent PCIe root port driver is shutdown and cause PCIe bus error.
-
-[check shared hcd exist before stopping its roothub polling -Mathias]
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Henry Lin <henryl@nvidia.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20220408134823.2527272-3-mathias.nyman@linux.intel.com
+Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
+Signed-off-by: Zizhuang Deng <sunsetdzz@gmail.com>
+Link: https://lore.kernel.org/r/20220310125450.4164164-1-sunsetdzz@gmail.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/iio/dac/ad5592r-base.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -724,6 +724,17 @@ void xhci_shutdown(struct usb_hcd *hcd)
- 	if (xhci->quirks & XHCI_SPURIOUS_REBOOT)
- 		usb_disable_xhci_ports(to_pci_dev(hcd->self.sysdev));
+--- a/drivers/iio/dac/ad5592r-base.c
++++ b/drivers/iio/dac/ad5592r-base.c
+@@ -532,7 +532,7 @@ static int ad5592r_alloc_channels(struct
+ 		if (!ret)
+ 			st->channel_modes[reg] = tmp;
  
-+	/* Don't poll the roothubs after shutdown. */
-+	xhci_dbg(xhci, "%s: stopping usb%d port polling.\n",
-+			__func__, hcd->self.busnum);
-+	clear_bit(HCD_FLAG_POLL_RH, &hcd->flags);
-+	del_timer_sync(&hcd->rh_timer);
-+
-+	if (xhci->shared_hcd) {
-+		clear_bit(HCD_FLAG_POLL_RH, &xhci->shared_hcd->flags);
-+		del_timer_sync(&xhci->shared_hcd->rh_timer);
-+	}
-+
- 	spin_lock_irq(&xhci->lock);
- 	xhci_halt(xhci);
- 	/* Workaround for spurious wakeups at shutdown with HSW */
+-		fwnode_property_read_u32(child, "adi,off-state", &tmp);
++		ret = fwnode_property_read_u32(child, "adi,off-state", &tmp);
+ 		if (!ret)
+ 			st->channel_offstate[reg] = tmp;
+ 	}
 
 
