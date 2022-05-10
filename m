@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB26521A2E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1360F5218A8
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236911AbiEJNyH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:54:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40046 "EHLO
+        id S233868AbiEJNjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244928AbiEJNvc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:51:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F36299573;
-        Tue, 10 May 2022 06:38:04 -0700 (PDT)
+        with ESMTP id S244534AbiEJNhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05A391129;
+        Tue, 10 May 2022 06:25:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18F5C618C8;
-        Tue, 10 May 2022 13:37:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BCB7C385C2;
-        Tue, 10 May 2022 13:37:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEEB7B81DA9;
+        Tue, 10 May 2022 13:25:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DCB5C385A6;
+        Tue, 10 May 2022 13:25:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189867;
-        bh=kbIMyA20MLb5r88e4+yEMtTP3fJ10IDe37wFkR1I50g=;
+        s=korg; t=1652189147;
+        bh=oXK+xeO7TyS/609kqkxla+MZL2jQ1JRBvy7n7RIohAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uOAPBJGWNK/Fqf7Z8H83PVGRCc3096YZ/C1YWQuUxBF7E5K4HoHkV8c1hQpRWAGqJ
-         +n4c9D3OsPSnF/ETF2jKy7DV0hTJEQ0VpPk8HEGHZc4EIJ9wd3ugzKGj/HVv35sORr
-         tEEnoSniqD2pnycKboPNqUOz8xvEhDtWQ5ViGPxM=
+        b=AC+orTsLxEnGuGHyA8ONJWgMRzmeD3nnJhj0x3eq1l5mqzc3Q5bJGkrbGc/CNQsxJ
+         qG7dTk28yg2ZIBnpAD7Abb14L0pVLkjcGggBOH0H+WfmZ5aDYY8xpHPywaQLEC9G63
+         mCafKJV7ZJeibQFcJ0/3CSwpyiGbHic7gkXdaNwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Armin Wolf <W_Armin@gmx.de>, Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.17 055/140] hwmon: (adt7470) Fix warning on module removal
-Date:   Tue, 10 May 2022 15:07:25 +0200
-Message-Id: <20220510130743.193221985@linuxfoundation.org>
+        stable@vger.kernel.org, Andrei Lalaev <andrei.lalaev@emlid.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.10 07/70] gpiolib: of: fix bounds check for gpio-reserved-ranges
+Date:   Tue, 10 May 2022 15:07:26 +0200
+Message-Id: <20220510130733.079273199@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Andrei Lalaev <andrei.lalaev@emlid.com>
 
-commit 7b2666ce445c700b8dcee994da44ddcf050a0842 upstream.
+commit e75f88efac05bf4e107e4171d8db6d8c3937252d upstream.
 
-When removing the adt7470 module, a warning might be printed:
+Gpiolib interprets the elements of "gpio-reserved-ranges" as "start,size"
+because it clears "size" bits starting from the "start" bit in the according
+bitmap. So it has to use "greater" instead of "greater or equal" when performs
+bounds check to make sure that GPIOs are in the available range.
+Previous implementation skipped ranges that include the last GPIO in
+the range.
 
-do not call blocking ops when !TASK_RUNNING; state=1
-set at [<ffffffffa006052b>] adt7470_update_thread+0x7b/0x130 [adt7470]
+I wrote the mail to the maintainers
+(https://lore.kernel.org/linux-gpio/20220412115554.159435-1-andrei.lalaev@emlid.com/T/#u)
+of the questioned DTSes (because I couldn't understand how the maintainers
+interpreted this property), but I haven't received a response.
+Since the questioned DTSes use "gpio-reserved-ranges = <0 4>"
+(i.e., the beginning of the range), this patch doesn't affect these DTSes at all.
+TBH this patch doesn't break any existing DTSes because none of them
+reserve gpios at the end of range.
 
-This happens because adt7470_update_thread() can leave the kthread in
-TASK_INTERRUPTIBLE state when the kthread is being stopped before
-the call of set_current_state(). Since kthread_exit() might sleep in
-exit_signals(), the warning is printed.
-Fix that by using schedule_timeout_interruptible() and removing
-the call of set_current_state().
-This causes TASK_INTERRUPTIBLE to be set after kthread_should_stop()
-which might cause the kthread to exit.
-
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Fixes: 93cacfd41f82 (hwmon: (adt7470) Allow faster removal)
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Tested-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/20220407101312.13331-1-W_Armin@gmx.de
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
+Signed-off-by: Andrei Lalaev <andrei.lalaev@emlid.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/adt7470.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib-of.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/adt7470.c
-+++ b/drivers/hwmon/adt7470.c
-@@ -19,6 +19,7 @@
- #include <linux/log2.h>
- #include <linux/kthread.h>
- #include <linux/regmap.h>
-+#include <linux/sched.h>
- #include <linux/slab.h>
- #include <linux/util_macros.h>
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -912,7 +912,7 @@ static void of_gpiochip_init_valid_mask(
+ 					   i, &start);
+ 		of_property_read_u32_index(np, "gpio-reserved-ranges",
+ 					   i + 1, &count);
+-		if (start >= chip->ngpio || start + count >= chip->ngpio)
++		if (start >= chip->ngpio || start + count > chip->ngpio)
+ 			continue;
  
-@@ -294,11 +295,10 @@ static int adt7470_update_thread(void *p
- 		adt7470_read_temperatures(data);
- 		mutex_unlock(&data->lock);
- 
--		set_current_state(TASK_INTERRUPTIBLE);
- 		if (kthread_should_stop())
- 			break;
- 
--		schedule_timeout(msecs_to_jiffies(data->auto_update_interval));
-+		schedule_timeout_interruptible(msecs_to_jiffies(data->auto_update_interval));
- 	}
- 
- 	return 0;
+ 		bitmap_clear(chip->valid_mask, start, count);
 
 
