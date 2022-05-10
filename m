@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0D052180F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB77521ACC
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242610AbiEJNdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48638 "EHLO
+        id S242855AbiEJOEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:04:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243920AbiEJNcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0853418E85A;
-        Tue, 10 May 2022 06:23:40 -0700 (PDT)
+        with ESMTP id S242297AbiEJOAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:00:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 294E52716B;
+        Tue, 10 May 2022 06:39:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A67B5B81D7A;
-        Tue, 10 May 2022 13:23:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00EBC385C2;
-        Tue, 10 May 2022 13:23:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 233CC6195A;
+        Tue, 10 May 2022 13:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C159C385A6;
+        Tue, 10 May 2022 13:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189017;
-        bh=D1VXFo6qqlH4lFnwkcS9ZYjsRWKKgtRlc0OfHs2aT0k=;
+        s=korg; t=1652189993;
+        bh=ClrH9r6REJMY4gRv6YNSD6cNrPGYsFLSvLtpnlQJ+58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOnNV5LvnYmExN9Tu0+KdxmeUB65Bjjz9nKPzIYjO9NLvhO5pTyt4Dtg8cM5vty3m
-         Rnrl88SuB9X87+eJ1FDsY4yZk15/6Xi6345tToW3Kmf4L3T4y9kkZq88Jdla5tDzT/
-         OEbfI08xtRYwS6G71Kj/l3pcQ69f5A5l/b250qtA=
+        b=GfUh+ogYROCs+P9YUO+g8D0w3vZXlZNLZLNgE26qrQjneWVz6wlnhykABp+cYCmDX
+         dV+9MWruxmhSenhdqPML2e1KB9Afz9O5KbDGMK+y/whQYPG/MnWd3K0LDopNxQN/Ax
+         PWBNAmFtYYCgUzrxvNWQIS8hSU+te7uX1BrwmwP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
-        Sandipan Das <sandipan.das@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 36/52] kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
+        stable@vger.kernel.org, "wanghai (M)" <wanghai38@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.17 095/140] SUNRPC: Dont leak sockets in xs_local_connect()
 Date:   Tue, 10 May 2022 15:08:05 +0200
-Message-Id: <20220510130730.907553249@linuxfoundation.org>
+Message-Id: <20220510130744.324350750@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sandipan Das <sandipan.das@amd.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 5a1bde46f98b893cda6122b00e94c0c40a6ead3c ]
+commit aad41a7d7cf6c6fa804c872a2480f8e541da37cf upstream.
 
-On some x86 processors, CPUID leaf 0xA provides information
-on Architectural Performance Monitoring features. It
-advertises a PMU version which Qemu uses to determine the
-availability of additional MSRs to manage the PMCs.
+If there is still a closed socket associated with the transport, then we
+need to trigger an autoclose before we can set up a new connection.
 
-Upon receiving a KVM_GET_SUPPORTED_CPUID ioctl request for
-the same, the kernel constructs return values based on the
-x86_pmu_capability irrespective of the vendor.
-
-This leaf and the additional MSRs are not supported on AMD
-and Hygon processors. If AMD PerfMonV2 is detected, the PMU
-version is set to 2 and guest startup breaks because of an
-attempt to access a non-existent MSR. Return zeros to avoid
-this.
-
-Fixes: a6c06ed1a60a ("KVM: Expose the architectural performance monitoring CPUID leaf")
-Reported-by: Vasant Hegde <vasant.hegde@amd.com>
-Signed-off-by: Sandipan Das <sandipan.das@amd.com>
-Message-Id: <3fef83d9c2b2f7516e8ff50d60851f29a4bcb716.1651058600.git.sandipan.das@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: wanghai (M) <wanghai38@huawei.com>
+Fixes: f00432063db1 ("SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/sunrpc/xprtsock.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
-index 6a8db8eb0e94..62c7f771a7cf 100644
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -592,6 +592,11 @@ static inline int __do_cpuid_func(struct kvm_cpuid_entry2 *entry, u32 function,
- 		union cpuid10_eax eax;
- 		union cpuid10_edx edx;
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -1967,6 +1967,9 @@ static void xs_local_connect(struct rpc_
+ 	struct sock_xprt *transport = container_of(xprt, struct sock_xprt, xprt);
+ 	int ret;
  
-+		if (!static_cpu_has(X86_FEATURE_ARCH_PERFMON)) {
-+			entry->eax = entry->ebx = entry->ecx = entry->edx = 0;
-+			break;
-+		}
++	if (transport->file)
++		goto force_disconnect;
 +
- 		perf_get_x86_pmu_capability(&cap);
- 
+ 	if (RPC_IS_ASYNC(task)) {
  		/*
--- 
-2.35.1
-
+ 		 * We want the AF_LOCAL connect to be resolved in the
+@@ -1979,11 +1982,17 @@ static void xs_local_connect(struct rpc_
+ 		 */
+ 		task->tk_rpc_status = -ENOTCONN;
+ 		rpc_exit(task, -ENOTCONN);
+-		return;
++		goto out_wake;
+ 	}
+ 	ret = xs_local_setup_socket(transport);
+ 	if (ret && !RPC_IS_SOFTCONN(task))
+ 		msleep_interruptible(15000);
++	return;
++force_disconnect:
++	xprt_force_disconnect(xprt);
++out_wake:
++	xprt_clear_connecting(xprt);
++	xprt_wake_pending_tasks(xprt, -ENOTCONN);
+ }
+ 
+ #if IS_ENABLED(CONFIG_SUNRPC_SWAP)
 
 
