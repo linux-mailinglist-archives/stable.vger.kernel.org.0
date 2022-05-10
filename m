@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EEF6521725
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B1F521ABD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243045AbiEJNXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
+        id S241456AbiEJODi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:03:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243106AbiEJNW5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F4553A76;
-        Tue, 10 May 2022 06:17:17 -0700 (PDT)
+        with ESMTP id S245161AbiEJOC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:02:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C87E52DFF6C;
+        Tue, 10 May 2022 06:40:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEE3BB81DA4;
-        Tue, 10 May 2022 13:17:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D73C385C6;
-        Tue, 10 May 2022 13:17:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 294F4B81D7A;
+        Tue, 10 May 2022 13:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92960C385C2;
+        Tue, 10 May 2022 13:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188629;
-        bh=PpHB42D2WhzR1hdSa3ILbnlTtl5eQexm51QPCFTqxsg=;
+        s=korg; t=1652190019;
+        bh=+CdKEBrJOZ14N3GaTYo8fVIQEL64bR5Zsspbwf4pWUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cMSn5tESh7Lmo5WWSamzIqIijcZr5nuU9+Kt+WK9tuf0+4sVKdcttPsEw6NDmMHP5
-         bmDWp5js6Vd7yQsK9i0yL9W5lZp+n6MYYVO5UQwHt9EXVRXw/ESvPuholaeuRS1IuC
-         PQx+RrYssTdk/FNs3XN8KKRTrJCqZu/dzJBSKDnQ=
+        b=YU58wQ+TpkcuSpBBIy9s50BMYym3e0BKVM6s6TQkmyon0OFl2yPRgMyMzpIppD3Un
+         aSB8div0HppwMniOJu/Vg8+SCbVB5z+Dq6fUFF81K+qrpj2Fk5/CjYgumA5752LUc0
+         ozRRrn56kcagaGa9eI/gaR11amBSyu0z9wfWw+cI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 4.14 69/78] net: emaclite: Add error handling for of_address_to_resource()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 085/140] net: dsa: mt7530: add missing of_node_put() in mt7530_setup()
 Date:   Tue, 10 May 2022 15:07:55 +0200
-Message-Id: <20220510130734.573146434@linuxfoundation.org>
+Message-Id: <20220510130744.041391285@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 7a6bc33ab54923d325d9a1747ec9652c4361ebd1 upstream.
+commit a9e9b091a1c14ecd8bd9d3214a62142a1786fe30 upstream.
 
-check the return value of of_address_to_resource() and also add
-missing of_node_put() for np and npp nodes.
+Add of_node_put() if of_get_phy_mode() fails in mt7530_setup()
 
-Fixes: e0a3bc65448c ("net: emaclite: Support multiple phys connected to one MDIO bus")
-Addresses-Coverity: Event check_return value.
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 0c65b2b90d13 ("net: of_get_phy_mode: Change API to solve int/unit warnings")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220428095317.538829-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/dsa/mt7530.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -817,10 +817,10 @@ static int xemaclite_mdio_write(struct m
- static int xemaclite_mdio_setup(struct net_local *lp, struct device *dev)
- {
- 	struct mii_bus *bus;
--	int rc;
- 	struct resource res;
- 	struct device_node *np = of_get_parent(lp->phy_node);
- 	struct device_node *npp;
-+	int rc, ret;
- 
- 	/* Don't register the MDIO bus if the phy_node or its parent node
- 	 * can't be found.
-@@ -830,8 +830,14 @@ static int xemaclite_mdio_setup(struct n
- 		return -ENODEV;
- 	}
- 	npp = of_get_parent(np);
--
--	of_address_to_resource(npp, 0, &res);
-+	ret = of_address_to_resource(npp, 0, &res);
-+	of_node_put(npp);
-+	if (ret) {
-+		dev_err(dev, "%s resource error!\n",
-+			dev->of_node->full_name);
-+		of_node_put(np);
-+		return ret;
-+	}
- 	if (lp->ndev->mem_start != res.start) {
- 		struct phy_device *phydev;
- 		phydev = of_phy_find_device(lp->phy_node);
-@@ -840,6 +846,7 @@ static int xemaclite_mdio_setup(struct n
- 				 "MDIO of the phy is not registered yet\n");
- 		else
- 			put_device(&phydev->mdio.dev);
-+		of_node_put(np);
- 		return 0;
- 	}
- 
-@@ -852,6 +859,7 @@ static int xemaclite_mdio_setup(struct n
- 	bus = mdiobus_alloc();
- 	if (!bus) {
- 		dev_err(dev, "Failed to allocate mdiobus\n");
-+		of_node_put(np);
- 		return -ENOMEM;
- 	}
- 
-@@ -866,6 +874,7 @@ static int xemaclite_mdio_setup(struct n
- 	lp->mii_bus = bus;
- 
- 	rc = of_mdiobus_register(bus, np);
-+	of_node_put(np);
- 	if (rc) {
- 		dev_err(dev, "Failed to register mdio bus.\n");
- 		goto err_register;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -2224,6 +2224,7 @@ mt7530_setup(struct dsa_switch *ds)
+ 				ret = of_get_phy_mode(mac_np, &interface);
+ 				if (ret && ret != -ENODEV) {
+ 					of_node_put(mac_np);
++					of_node_put(phy_node);
+ 					return ret;
+ 				}
+ 				id = of_mdio_parse_addr(ds->dev, phy_node);
 
 
