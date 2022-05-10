@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74CA2521828
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0638B5217BC
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243388AbiEJNdd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56590 "EHLO
+        id S243097AbiEJN2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:28:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243843AbiEJNcS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759BB2D3D48;
-        Tue, 10 May 2022 06:22:39 -0700 (PDT)
+        with ESMTP id S243866AbiEJN1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2BDE2607;
+        Tue, 10 May 2022 06:20:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 238A1B81D7A;
-        Tue, 10 May 2022 13:22:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41FAEC385A6;
-        Tue, 10 May 2022 13:22:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C72FB61663;
+        Tue, 10 May 2022 13:20:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C32C385C2;
+        Tue, 10 May 2022 13:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188956;
-        bh=VZBU5EK9WYoEOxgUclrIhEfeEZZe27R3K4dFXcHEnvk=;
+        s=korg; t=1652188839;
+        bh=BaHdsdUszsfplAcfCPAXTALVmrrQ/oBKRZO7Yib0Los=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WmiGA77j4/8DnlGNp/8+B6XDxagFjKRAUmGOj2z+ES9+D82G4BCYcZP3v7Xtj+AWc
-         zjTozKnl0gZ/4Ve+MT/3qDocQoHARtqwTNHRN9cHFu7CgMuPWLhczzLJYdn1MZgyJH
-         e0nuzxv5omdSCuOZoaS8RmUy9i1JpDkYNIB15RNo=
+        b=PNBlo2BDGCKkaT68rLa9DrLBfVAUKu9vKZEmggDnPeWcEASFsBHjbyZm1WC5nKMUr
+         IS8zkevtt0ddE1iaISeWXJELe9LLq4tk09drGx1f7+SiNyHvXj23akYwBHn783+IaQ
+         fN6DsTc4GSGm1vcJRKpaff36vrGMZyQgA8vaVaN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.4 17/52] s390/dasd: Fix read inconsistency for ESE DASD devices
+        stable@vger.kernel.org, Andrei Lalaev <andrei.lalaev@emlid.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 4.19 61/88] gpiolib: of: fix bounds check for gpio-reserved-ranges
 Date:   Tue, 10 May 2022 15:07:46 +0200
-Message-Id: <20220510130730.361096600@linuxfoundation.org>
+Message-Id: <20220510130735.513439196@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
+References: <20220510130733.735278074@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Andrei Lalaev <andrei.lalaev@emlid.com>
 
-commit b9c10f68e23c13f56685559a0d6fdaca9f838324 upstream.
+commit e75f88efac05bf4e107e4171d8db6d8c3937252d upstream.
 
-Read requests that return with NRF error are partially completed in
-dasd_eckd_ese_read(). The function keeps track of the amount of
-processed bytes and the driver will eventually return this information
-back to the block layer for further processing via __dasd_cleanup_cqr()
-when the request is in the final stage of processing (from the driver's
-perspective).
+Gpiolib interprets the elements of "gpio-reserved-ranges" as "start,size"
+because it clears "size" bits starting from the "start" bit in the according
+bitmap. So it has to use "greater" instead of "greater or equal" when performs
+bounds check to make sure that GPIOs are in the available range.
+Previous implementation skipped ranges that include the last GPIO in
+the range.
 
-For this, blk_update_request() is used which requires the number of
-bytes to complete the request. As per documentation the nr_bytes
-parameter is described as follows:
-   "number of bytes to complete for @req".
+I wrote the mail to the maintainers
+(https://lore.kernel.org/linux-gpio/20220412115554.159435-1-andrei.lalaev@emlid.com/T/#u)
+of the questioned DTSes (because I couldn't understand how the maintainers
+interpreted this property), but I haven't received a response.
+Since the questioned DTSes use "gpio-reserved-ranges = <0 4>"
+(i.e., the beginning of the range), this patch doesn't affect these DTSes at all.
+TBH this patch doesn't break any existing DTSes because none of them
+reserve gpios at the end of range.
 
-This was mistakenly interpreted as "number of bytes _left_ for @req"
-leading to new requests with incorrect data length. The consequence are
-inconsistent and completely wrong read requests as data from random
-memory areas are read back.
-
-Fix this by correctly specifying the amount of bytes that should be used
-to complete the request.
-
-Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned devices")
-Cc: stable@vger.kernel.org # 5.3+
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220505141733.1989450-5-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
+Signed-off-by: Andrei Lalaev <andrei.lalaev@emlid.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpio/gpiolib-of.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -2812,8 +2812,7 @@ static void __dasd_cleanup_cqr(struct da
- 		 * complete a request partially.
- 		 */
- 		if (proc_bytes) {
--			blk_update_request(req, BLK_STS_OK,
--					   blk_rq_bytes(req) - proc_bytes);
-+			blk_update_request(req, BLK_STS_OK, proc_bytes);
- 			blk_mq_requeue_request(req, true);
- 		} else {
- 			blk_mq_complete_request(req);
+--- a/drivers/gpio/gpiolib-of.c
++++ b/drivers/gpio/gpiolib-of.c
+@@ -525,7 +525,7 @@ static void of_gpiochip_init_valid_mask(
+ 					   i, &start);
+ 		of_property_read_u32_index(np, "gpio-reserved-ranges",
+ 					   i + 1, &count);
+-		if (start >= chip->ngpio || start + count >= chip->ngpio)
++		if (start >= chip->ngpio || start + count > chip->ngpio)
+ 			continue;
+ 
+ 		bitmap_clear(chip->valid_mask, start, count);
 
 
