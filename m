@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC599521711
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C16E552190A
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242889AbiEJNXK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45950 "EHLO
+        id S243892AbiEJNmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243203AbiEJNVj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E0792C183F;
-        Tue, 10 May 2022 06:15:11 -0700 (PDT)
+        with ESMTP id S243516AbiEJNje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:39:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF9D5291E7D;
+        Tue, 10 May 2022 06:29:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 725C2B81DAA;
-        Tue, 10 May 2022 13:15:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E598FC385A6;
-        Tue, 10 May 2022 13:15:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D10B615C8;
+        Tue, 10 May 2022 13:29:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABCCC385A6;
+        Tue, 10 May 2022 13:29:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188507;
-        bh=VtJerBDQCYbUCgpxXLdGU8t1nlWfii6eDosdmY9hF0w=;
+        s=korg; t=1652189368;
+        bh=ISMfMhtXfu2Pk7+NSCCly6n7NsxSXlWEoWIa/Hw3yS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0mAqS3Zfdi0NS+57tmp/Q0jyInaDB6RGYUuVqrp2LMIz1SvBIXQ8mMedhHM2LajV
-         678Aw2yC1B/7sZlGdl1AegAO78Y9pz+NKDXYibSHHH39jcC77Yy4q2cDPXEygMJpZ2
-         Acjk3Zn63yMEH0xemsXLKDFsrdMkpx68Bw6c/kRA=
+        b=QcKI5b89IQvVynUKFwpcFWo+IwtPKsUWbEul+icsRmdqJ3jIHde5R1YnXsVXgQtw3
+         HLhNrKx3YL/EnBu5suMZ1/V9uwiy/nSl3Ur+wE3DXaX+ATd4ps6oIE7ltCpCm+0f6I
+         3pS868r9Z+u+0tqDEWIxNYsFkua0AIOpVS4MQbGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 03/78] hamradio: remove needs_free_netdev to avoid UAF
-Date:   Tue, 10 May 2022 15:06:49 +0200
-Message-Id: <20220510130732.628205315@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+        Jan Hoeppner <hoeppner@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 028/135] s390/dasd: fix data corruption for ESE devices
+Date:   Tue, 10 May 2022 15:06:50 +0200
+Message-Id: <20220510130741.207089029@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Stefan Haberland <sth@linux.ibm.com>
 
-commit 81b1d548d00bcd028303c4f3150fa753b9b8aa71 upstream.
+commit 5b53a405e4658580e1faf7c217db3f55a21ba849 upstream.
 
-The former patch "defer 6pack kfree after unregister_netdev" reorders
-the kfree of two buffer after the unregister_netdev to prevent the race
-condition. It also adds free_netdev() function in sixpack_close(), which
-is a direct copy from the similar code in mkiss_close().
+For ESE devices we get an error when accessing an unformatted track.
+The handling of this error will return zero data for read requests and
+format the track on demand before writing to it. To do this the code needs
+to distinguish between read and write requests. This is done with data from
+the blocklayer request. A pointer to the blocklayer request is stored in
+the CQR.
 
-However, in sixpack driver, the flag needs_free_netdev is set to true in
-sp_setup(), hence the unregister_netdev() will free the netdev
-automatically. Therefore, as the sp is netdev_priv, use-after-free
-occurs.
+If there is an error on the device an ERP request is built to do error
+recovery. While the ERP request is mostly a copy of the original CQR the
+pointer to the blocklayer request is not copied to not accidentally pass
+it back to the blocklayer without cleanup.
 
-This patch removes the needs_free_netdev = true and just let the
-free_netdev to finish this deallocation task.
+This leads to the error that during ESE handling after an ERP request was
+built it is not possible to determine the IO direction. This leads to the
+formatting of a track for read requests which might in turn lead to data
+corruption.
 
-Fixes: 0b9111922b1f ("hamradio: defer 6pack kfree after unregister_netdev")
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20211111141402.7551-1-linma@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fixes: 5e2b17e712cf ("s390/dasd: Add dynamic formatting support for ESE volumes")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
+Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-2-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hamradio/6pack.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/s390/block/dasd.c      |    8 +++++++-
+ drivers/s390/block/dasd_eckd.c |    2 +-
+ drivers/s390/block/dasd_int.h  |   12 ++++++++++++
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
---- a/drivers/net/hamradio/6pack.c
-+++ b/drivers/net/hamradio/6pack.c
-@@ -311,7 +311,6 @@ static void sp_setup(struct net_device *
- {
- 	/* Finish setting up the DEVICE info. */
- 	dev->netdev_ops		= &sp_netdev_ops;
--	dev->needs_free_netdev	= true;
- 	dev->mtu		= SIXP_MTU;
- 	dev->hard_header_len	= AX25_MAX_HEADER_LEN;
- 	dev->header_ops 	= &ax25_header_ops;
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -1639,6 +1639,7 @@ void dasd_int_handler(struct ccw_device
+ 	unsigned long now;
+ 	int nrf_suppressed = 0;
+ 	int fp_suppressed = 0;
++	struct request *req;
+ 	u8 *sense = NULL;
+ 	int expires;
+ 
+@@ -1739,7 +1740,12 @@ void dasd_int_handler(struct ccw_device
+ 	}
+ 
+ 	if (dasd_ese_needs_format(cqr->block, irb)) {
+-		if (rq_data_dir((struct request *)cqr->callback_data) == READ) {
++		req = dasd_get_callback_data(cqr);
++		if (!req) {
++			cqr->status = DASD_CQR_ERROR;
++			return;
++		}
++		if (rq_data_dir(req) == READ) {
+ 			device->discipline->ese_read(cqr, irb);
+ 			cqr->status = DASD_CQR_SUCCESS;
+ 			cqr->stopclk = now;
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3157,7 +3157,7 @@ dasd_eckd_ese_format(struct dasd_device
+ 	sector_t curr_trk;
+ 	int rc;
+ 
+-	req = cqr->callback_data;
++	req = dasd_get_callback_data(cqr);
+ 	block = cqr->block;
+ 	base = block->base;
+ 	private = base->private;
+--- a/drivers/s390/block/dasd_int.h
++++ b/drivers/s390/block/dasd_int.h
+@@ -757,6 +757,18 @@ dasd_check_blocksize(int bsize)
+ 	return 0;
+ }
+ 
++/*
++ * return the callback data of the original request in case there are
++ * ERP requests build on top of it
++ */
++static inline void *dasd_get_callback_data(struct dasd_ccw_req *cqr)
++{
++	while (cqr->refers)
++		cqr = cqr->refers;
++
++	return cqr->callback_data;
++}
++
+ /* externals in dasd.c */
+ #define DASD_PROFILE_OFF	 0
+ #define DASD_PROFILE_ON 	 1
 
 
