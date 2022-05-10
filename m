@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCD06521697
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 078FB5219F0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242395AbiEJNQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:16:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35042 "EHLO
+        id S241038AbiEJNwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242482AbiEJNQI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D8752E73;
-        Tue, 10 May 2022 06:11:49 -0700 (PDT)
+        with ESMTP id S1343561AbiEJNsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:48:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB3E2A9745;
+        Tue, 10 May 2022 06:36:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B8636163C;
-        Tue, 10 May 2022 13:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03B17C385A6;
-        Tue, 10 May 2022 13:11:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F976B81DA8;
+        Tue, 10 May 2022 13:36:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E96F7C385C2;
+        Tue, 10 May 2022 13:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188308;
-        bh=JrgLePucDGGs+dl77A4GkLm+cCFnUTU4jkFnVWtfPQI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=JIJ0LekSlhtuksuO4jEIQc693KTphSb3tx+JePij4Jk2Jc+gYTYTFjQ1lTcsRD7IK
-         wqI0odVVViFxEN5Sqi7qTgpK8IyVBOOInCfCh9kZKMdvnMay5Ok12vWxhkT41iyvz2
-         9OMXTiGNRhRmL9zyEAqoOlD0+eA5Fn4BoLvbUMaM=
+        s=korg; t=1652189762;
+        bh=g5UBZp+2USPIn2FEpaOg28GOitSo7hEN7Gzi6GiXqv8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=YitJqT77Vh+UfbFjnWVBfrE5GdBQuYKGjiPt4dE85rG9+dCjzDEQ0pgOUkYgD9nq1
+         31aVs519JKmz+vIJTO9QzLHv5hKaRAsABLlpJyISmUnBCvM2cKjOY9FLXIy0XAY72S
+         Rl9UlA9uESTbPlg+LFFNrHRCrQNt4+AVQ5JyOLbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.9 00/66] 4.9.313-rc1 review
+        stable@vger.kernel.org, Nick Kossifidis <mick@ics.forth.gr>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.17 020/140] RISC-V: relocate DTB if its outside memory region
 Date:   Tue, 10 May 2022 15:06:50 +0200
-Message-Id: <20220510130729.762341544@linuxfoundation.org>
+Message-Id: <20220510130742.188465469@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.313-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.9.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.9.313-rc1
-X-KernelTest-Deadline: 2022-05-12T13:07+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,299 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.9.313 release.
-There are 66 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.313-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.9.313-rc1
-
-Mike Snitzer <snitzer@redhat.com>
-    dm: interlock pending dm_io and dm_wait_for_bios_completion
-
-Jiazi Li <jqqlijiazi@gmail.com>
-    dm: fix mempool NULL pointer race when completing IO
-
-j.nixdorf@avm.de <j.nixdorf@avm.de>
-    net: ipv6: ensure we call ipv6_mc_down() at most once
-
-Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-    net: sched: prevent UAF on tc_ctl_tfilter when temporarily dropping rtnl_lock
-
-Sandipan Das <sandipan.das@amd.com>
-    kvm: x86/cpuid: Only provide CPUID leaf 0xA if host has architectural PMU
-
-Eric Dumazet <edumazet@google.com>
-    net: igmp: respect RCU rules in ip_mc_source() and ip_mc_msfilter()
-
-Filipe Manana <fdmanana@suse.com>
-    btrfs: always log symlinks in full mode
-
-Sergey Shtylyov <s.shtylyov@omp.ru>
-    smsc911x: allow using IRQ0
-
-Shravya Kumbham <shravya.kumbham@xilinx.com>
-    net: emaclite: Add error handling for of_address_to_resource()
-
-Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-    ASoC: dmaengine: Restore NULL prepare_slave_config() callback
-
-Armin Wolf <W_Armin@gmx.de>
-    hwmon: (adt7470) Fix warning on module removal
-
-Duoming Zhou <duoming@zju.edu.cn>
-    NFC: netlink: fix sleep in atomic bug when firmware download timeout
-
-Duoming Zhou <duoming@zju.edu.cn>
-    nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
-
-Duoming Zhou <duoming@zju.edu.cn>
-    nfc: replace improper check device_is_registered() in netlink related functions
-
-Daniel Hellstrom <daniel@gaisler.com>
-    can: grcan: use ofdev->dev when allocating DMA memory
-
-Duoming Zhou <duoming@zju.edu.cn>
-    can: grcan: grcan_close(): fix deadlock
-
-Mark Brown <broonie@kernel.org>
-    ASoC: wm8958: Fix change notifications for DSP controls
-
-Niels Dossche <dossche.niels@gmail.com>
-    firewire: core: extend card->lock in fw_core_handle_bus_reset
-
-Jakob Koschel <jakobkoschel@gmail.com>
-    firewire: remove check of list iterator against head past the loop body
-
-Chengfeng Ye <cyeaa@connect.ust.hk>
-    firewire: fix potential uaf in outbound_phy_packet_callback()
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    Revert "SUNRPC: attempt AF_LOCAL connect on setup"
-
-Takashi Sakamoto <o-takashi@sakamocchi.jp>
-    ALSA: fireworks: fix wrong return count shorter than expected by 4 bytes
-
-Helge Deller <deller@gmx.de>
-    parisc: Merge model and model name into one line in /proc/cpuinfo
-
-Maciej W. Rozycki <macro@orcam.me.uk>
-    MIPS: Fix CP0 counter erratum detection for R4k CPUs
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix incorrect UA handling
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix wrong command frame length field encoding
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix wrong command retry handling
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix missing explicit ldisc flush
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix insufficient txframe size
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix malformed counter for out of frame data
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix wrong signal octet encoding in convergence layer type 2
-
-Borislav Petkov <bp@suse.de>
-    x86/cpu: Load microcode during restore_processor_state()
-
-Duoming Zhou <duoming@zju.edu.cn>
-    drivers: net: hippi: Fix deadlock in rr_close()
-
-Zheyu Ma <zheyuma97@gmail.com>
-    ASoC: wm8731: Disable the regulator when probing fails
-
-Manish Chopra <manishc@marvell.com>
-    bnx2x: fix napi API usage sequence
-
-Yang Yingliang <yangyingliang@huawei.com>
-    clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    bus: sunxi-rsb: Fix the return value of sunxi_rsb_device_create()
-
-Eric Dumazet <edumazet@google.com>
-    tcp: fix potential xmit stalls caused by TCP_NOTSENT_LOWAT
-
-Peilin Ye <peilin.ye@bytedance.com>
-    ip_gre: Make o_seqno start from 0 in native mode
-
-Lv Ruyi <lv.ruyi@zte.com.cn>
-    pinctrl: pistachio: fix use of irq_of_parse_and_map()
-
-Miaoqian Lin <linmq006@gmail.com>
-    mtd: rawnand: Fix return value check of wait_for_completion_timeout
-
-H. Nikolaus Schaller <hns@goldelico.com>
-    ARM: dts: Fix mmc order for omap3-gta04
-
-Miaoqian Lin <linmq006@gmail.com>
-    ARM: OMAP2+: Fix refcount leak in omap_gic_of_init
-
-Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-    phy: samsung: exynos5250-sata: fix missing device put in probe error paths
-
-Miaoqian Lin <linmq006@gmail.com>
-    phy: samsung: Fix missing of_node_put() in exynos_sata_phy_probe
-
-Fabio Estevam <festevam@gmail.com>
-    ARM: dts: imx6qdl-apalis: Fix sgtl5000 detection issue
-
-Mikulas Patocka <mpatocka@redhat.com>
-    hex2bin: fix access beyond string end
-
-Mikulas Patocka <mpatocka@redhat.com>
-    hex2bin: make the function hex_to_bin constant-time
-
-Maciej W. Rozycki <macro@orcam.me.uk>
-    serial: 8250: Correct the clock for EndRun PTP/1588 PCIe device
-
-Maciej W. Rozycki <macro@orcam.me.uk>
-    serial: 8250: Also set sticky MCR bits in console restoration
-
-Vijayavardhan Vennapusa <vvreddy@codeaurora.org>
-    usb: gadget: configfs: clear deactivation flag in configfs_composite_unbind()
-
-Dan Vacura <w36195@motorola.com>
-    usb: gadget: uvc: Fix crash when encoding data for usb request
-
-Hangyu Hua <hbh25y@gmail.com>
-    usb: misc: fix improper handling of refcount in uss720_probe()
-
-Zheyu Ma <zheyuma97@gmail.com>
-    iio: magnetometer: ak8975: Fix the error handling in ak8975_power_on()
-
-Michael Hennerich <michael.hennerich@analog.com>
-    iio: dac: ad5446: Fix read_raw not returning set value
-
-Zizhuang Deng <sunsetdzz@gmail.com>
-    iio: dac: ad5592r: Fix the missing return value.
-
-Henry Lin <henryl@nvidia.com>
-    xhci: stop polling roothubs after shutdown
-
-Daniele Palmas <dnlplm@gmail.com>
-    USB: serial: option: add Telit 0x1057, 0x1058, 0x1075 compositions
-
-Slark Xiao <slark_xiao@163.com>
-    USB: serial: option: add support for Cinterion MV32-WA/MV32-WB
-
-Bruno Thomsen <bruno.thomsen@gmail.com>
-    USB: serial: cp210x: add PIDs for Kamstrup USB Meter Reader
-
-Kees Cook <keescook@chromium.org>
-    USB: serial: whiteheat: fix heap overflow in WHITEHEAT_GET_DTR_RTS
-
-Oliver Neukum <oneukum@suse.com>
-    USB: quirks: add STRING quirk for VCOM device
-
-Oliver Neukum <oneukum@suse.com>
-    USB: quirks: add a Realtek card reader
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    lightnvm: disable the subsystem
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "net: ethernet: stmmac: fix altr_tse_pcs function when using a fixed-link"
-
-Willy Tarreau <w@1wt.eu>
-    floppy: disable FDRAWCMD by default
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/boot/dts/imx6qdl-apalis.dtsi              | 10 ++++-
- arch/arm/boot/dts/omap3-gta04.dtsi                 |  2 +
- arch/arm/mach-omap2/omap4-common.c                 |  2 +
- arch/mips/include/asm/timex.h                      |  8 ++--
- arch/mips/kernel/time.c                            | 11 ++----
- arch/parisc/kernel/processor.c                     |  3 +-
- arch/x86/include/asm/microcode.h                   |  2 +
- arch/x86/kernel/cpu/microcode/core.c               |  6 +--
- arch/x86/kvm/cpuid.c                               |  5 +++
- arch/x86/power/cpu.c                               |  8 ++++
- drivers/block/Kconfig                              | 16 ++++++++
- drivers/block/floppy.c                             | 43 ++++++++++++++++------
- drivers/bus/sunxi-rsb.c                            |  2 +
- drivers/clk/sunxi/clk-sun9i-mmc.c                  |  2 +
- drivers/firewire/core-card.c                       |  3 ++
- drivers/firewire/core-cdev.c                       |  4 +-
- drivers/firewire/core-topology.c                   |  9 ++---
- drivers/firewire/core-transaction.c                | 30 ++++++++-------
- drivers/firewire/sbp2.c                            | 13 ++++---
- drivers/hwmon/adt7470.c                            |  4 +-
- drivers/iio/dac/ad5446.c                           |  2 +-
- drivers/iio/dac/ad5592r-base.c                     |  2 +-
- drivers/iio/magnetometer/ak8975.c                  |  1 +
- drivers/lightnvm/Kconfig                           |  2 +-
- drivers/md/dm.c                                    | 19 ++++++----
- drivers/mtd/nand/sh_flctl.c                        | 14 ++++---
- drivers/net/can/grcan.c                            |  8 +++-
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c   |  9 +++--
- drivers/net/ethernet/smsc/smsc911x.c               |  2 +-
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.c |  8 ++++
- drivers/net/ethernet/stmicro/stmmac/altr_tse_pcs.h |  4 --
- .../net/ethernet/stmicro/stmmac/dwmac-socfpga.c    | 13 ++++---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c      | 15 ++++++--
- drivers/net/hippi/rrunner.c                        |  2 +
- drivers/nfc/nfcmrvl/main.c                         |  2 +-
- drivers/phy/phy-exynos5250-sata.c                  | 21 ++++++++---
- drivers/pinctrl/pinctrl-pistachio.c                |  6 +--
- drivers/tty/n_gsm.c                                | 40 ++++++++++----------
- drivers/tty/serial/8250/8250_pci.c                 |  8 ++--
- drivers/tty/serial/8250/8250_port.c                |  2 +-
- drivers/usb/core/quirks.c                          |  6 +++
- drivers/usb/gadget/configfs.c                      |  2 +
- drivers/usb/gadget/function/uvc_queue.c            |  2 +
- drivers/usb/host/xhci.c                            | 11 ++++++
- drivers/usb/misc/uss720.c                          |  3 +-
- drivers/usb/serial/cp210x.c                        |  2 +
- drivers/usb/serial/option.c                        | 12 ++++++
- drivers/usb/serial/whiteheat.c                     |  5 +--
- fs/btrfs/tree-log.c                                | 14 ++++++-
- include/linux/kernel.h                             |  2 +-
- include/net/tcp.h                                  |  1 +
- lib/hexdump.c                                      | 41 ++++++++++++++++-----
- net/ipv4/igmp.c                                    |  9 +++--
- net/ipv4/ip_gre.c                                  |  8 ++--
- net/ipv4/tcp_input.c                               | 12 +++++-
- net/ipv4/tcp_output.c                              |  1 +
- net/ipv6/addrconf.c                                |  8 +++-
- net/nfc/core.c                                     | 29 +++++++--------
- net/nfc/netlink.c                                  |  4 +-
- net/sched/cls_api.c                                |  5 ++-
- net/sunrpc/xprtsock.c                              |  3 --
- sound/firewire/fireworks/fireworks_hwdep.c         |  1 +
- sound/soc/codecs/wm8731.c                          | 19 ++++++----
- sound/soc/codecs/wm8958-dsp2.c                     |  8 ++--
- sound/soc/soc-generic-dmaengine-pcm.c              |  6 +--
- 66 files changed, 387 insertions(+), 194 deletions(-)
+From: Nick Kossifidis <mick@ics.forth.gr>
+
+commit c6fe81191bd74f7e6ae9ce96a4837df9485f3ab8 upstream.
+
+In case the DTB provided by the bootloader/BootROM is before the kernel
+image or outside /memory, we won't be able to access it through the
+linear mapping, and get a segfault on setup_arch(). Currently OpenSBI
+relocates DTB but that's not always the case (e.g. if FW_JUMP_FDT_ADDR
+is not specified), and it's also not the most portable approach since
+the default FW_JUMP_FDT_ADDR of the generic platform relocates the DTB
+at a specific offset that may not be available. To avoid this situation
+copy DTB so that it's visible through the linear mapping.
+
+Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
+Link: https://lore.kernel.org/r/20220322132839.3653682-1-mick@ics.forth.gr
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Fixes: f105aa940e78 ("riscv: add BUILTIN_DTB support for MMU-enabled targets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/riscv/mm/init.c |   21 +++++++++++++++++++--
+ 1 file changed, 19 insertions(+), 2 deletions(-)
+
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -206,8 +206,25 @@ static void __init setup_bootmem(void)
+ 	 * early_init_fdt_reserve_self() since __pa() does
+ 	 * not work for DTB pointers that are fixmap addresses
+ 	 */
+-	if (!IS_ENABLED(CONFIG_BUILTIN_DTB))
+-		memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
++	if (!IS_ENABLED(CONFIG_BUILTIN_DTB)) {
++		/*
++		 * In case the DTB is not located in a memory region we won't
++		 * be able to locate it later on via the linear mapping and
++		 * get a segfault when accessing it via __va(dtb_early_pa).
++		 * To avoid this situation copy DTB to a memory region.
++		 * Note that memblock_phys_alloc will also reserve DTB region.
++		 */
++		if (!memblock_is_memory(dtb_early_pa)) {
++			size_t fdt_size = fdt_totalsize(dtb_early_va);
++			phys_addr_t new_dtb_early_pa = memblock_phys_alloc(fdt_size, PAGE_SIZE);
++			void *new_dtb_early_va = early_memremap(new_dtb_early_pa, fdt_size);
++
++			memcpy(new_dtb_early_va, dtb_early_va, fdt_size);
++			early_memunmap(new_dtb_early_va, fdt_size);
++			_dtb_early_pa = new_dtb_early_pa;
++		} else
++			memblock_reserve(dtb_early_pa, fdt_totalsize(dtb_early_va));
++	}
+ 
+ 	early_init_fdt_scan_reserved_mem();
+ 	dma_contiguous_reserve(dma32_phys_limit);
 
 
