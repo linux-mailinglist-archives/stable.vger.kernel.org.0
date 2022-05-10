@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAD852170B
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519985219C0
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242897AbiEJNXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
+        id S244650AbiEJNvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243037AbiEJNVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:21 -0400
+        with ESMTP id S244896AbiEJNrF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:05 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415D853B6C;
-        Tue, 10 May 2022 06:14:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A4BF1C9AC7;
+        Tue, 10 May 2022 06:32:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25FD6615FA;
-        Tue, 10 May 2022 13:14:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38C68C385A6;
-        Tue, 10 May 2022 13:14:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19868615C8;
+        Tue, 10 May 2022 13:32:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111B0C385C2;
+        Tue, 10 May 2022 13:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188479;
-        bh=R5zxNH/6ea6tY49yUZgBAJKjIXrIpEJh7MaPAFq5tNc=;
+        s=korg; t=1652189548;
+        bh=jFNsAr8q+Gwibdcr8AbpN4HVIGa3UxHaF27fE5URDyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZXvfXqqpo+bKnfFBpnKbiemNlUO3xylD1GTDta4y+7OuqKYCJswY9KrNr/Z2lKUI
-         Pi7lbBeFIetezGeJSaa15anxoWfM6LuMAFviyYu7zoWb2X0Iqaniuga/gfsKI9A2Ey
-         Z+tm/C40j3RY2irDmzfaB/vDSbasTReiXsRa5ehc=
+        b=Uw09+/XpGcwIe34y9MoqNDEYykZ9NBQ5UqTyfrVdntZIiZAQxzLaM4AKlBrFB1MCV
+         M7ctzXxpiHAl630Obuy8/yQ9O3tYcmZydNL7gJa7fIoI6RjG5vMSR77h1BxWhN39K5
+         Na8DBKG9K7cJZ3dfOYloRk2zwh8lpFA0Vz284U9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH 4.14 21/78] serial: 8250: Also set sticky MCR bits in console restoration
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 045/135] ASoC: soc-ops: fix error handling
 Date:   Tue, 10 May 2022 15:07:07 +0200
-Message-Id: <20220510130733.157855699@linuxfoundation.org>
+Message-Id: <20220510130741.690464759@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +50,48 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 6e6eebdf5e2455f089ccd000754a0deaeb79af82 upstream.
+commit eb5773201b1c5d603424bd21f161c8c2d1075b42 upstream.
 
-Sticky MCR bits are lost in console restoration if console suspending
-has been disabled.  This currently affects the AFE bit, which works in
-combination with RTS which we set, so we want to make sure the UART
-retains control of its FIFO where previously requested.  Also specific
-drivers may need other bits in the future.
+cppcheck throws the following warning:
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 4516d50aabed ("serial: 8250: Use canary to restart console after suspend")
-Cc: stable@vger.kernel.org # v4.0+
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2204181518490.9383@angie.orcam.me.uk
+sound/soc/soc-ops.c:461:8: style: Variable 'ret' is assigned a value
+that is never used. [unreadVariable]
+   ret = err;
+       ^
+
+This seems to be a missing change in the return value.
+
+Fixes: 7f3d90a351968 ("ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_sx()")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220421162328.302017-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_port.c |    2 +-
+ sound/soc/soc-ops.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_port.c
-+++ b/drivers/tty/serial/8250/8250_port.c
-@@ -3240,7 +3240,7 @@ static void serial8250_console_restore(s
- 
- 	serial8250_set_divisor(port, baud, quot, frac);
- 	serial_port_out(port, UART_LCR, up->lcr);
--	serial8250_out_MCR(up, UART_MCR_DTR | UART_MCR_RTS);
-+	serial8250_out_MCR(up, up->mcr | UART_MCR_DTR | UART_MCR_RTS);
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -461,7 +461,7 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 			ret = err;
+ 		}
+ 	}
+-	return err;
++	return ret;
  }
+ EXPORT_SYMBOL_GPL(snd_soc_put_volsw_sx);
  
- /*
 
 
