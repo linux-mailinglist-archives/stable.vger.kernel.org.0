@@ -2,52 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC899521753
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 940F5521844
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242617AbiEJNXS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:23:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45948 "EHLO
+        id S242913AbiEJNeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:34:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243563AbiEJNWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:04 -0400
+        with ESMTP id S243808AbiEJNcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:15 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21AD852530;
-        Tue, 10 May 2022 06:16:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 596A82CE21B;
+        Tue, 10 May 2022 06:22:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61129615DD;
-        Tue, 10 May 2022 13:16:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46067C385C2;
-        Tue, 10 May 2022 13:16:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA447616E8;
+        Tue, 10 May 2022 13:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E7AC385C2;
+        Tue, 10 May 2022 13:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188578;
-        bh=NI3jWGh0Qcgl5TwhM/Wovh4SvdT7Ryx5lfnD/o7tqM0=;
+        s=korg; t=1652188937;
+        bh=ryGuLZuTVvELjmOAxyFYd+KsX+jKUysPaiqjQMBv6xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDqhUEr/oQnDm5DaF5bGz7DGmNKODtQrM3uZUcZslQLL/rwEchuRykshZ9cKNkNQM
-         osRn17TUjJsHPtu8eifKN/saxCHRAOuLqoarP2s88Fui5GoPLHPwaU8akzihes20un
-         1++speVEOW6xLjtlTISmZPqHSfiT9nUUag/G5440=
+        b=NfeZMt7I1Kw/RX+KMO4eZHThjTo6LBfU5P4IiHeAF5iNviDnhZH9+rOXdELc2shKS
+         a6WDWH60uXrg7xqMbAsjHd2STS2PiNYK39LxuLKT3/XxzYrIO7AU5uX+prYpsr6jwQ
+         qypNxp+i70itNQbK/ARvUf2ZpwYhhuHiHsfRmHW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Hillf Danton <hdanton@sina.com>,
-        syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com,
-        Emil Velikov <emil.velikov@collabora.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sean Paul <seanpaul@chromium.org>,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        Eric Anholt <eric@anholt.net>, Sam Ravnborg <sam@ravnborg.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 53/78] drm/vgem: Close use-after-free race in vgem_gem_create
+        stable@vger.kernel.org, Thomas Pfaff <tpfaff@pcs.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 10/52] genirq: Synchronize interrupt thread startup
 Date:   Tue, 10 May 2022 15:07:39 +0200
-Message-Id: <20220510130734.108704531@linuxfoundation.org>
+Message-Id: <20220510130730.159096997@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,74 +54,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Thomas Pfaff <tpfaff@pcs.com>
 
-commit 4b848f20eda5974020f043ca14bacf7a7e634fc8 upstream.
+commit 8707898e22fd665bc1d7b18b809be4b56ce25bdd upstream.
 
-There's two references floating around here (for the object reference,
-not the handle_count reference, that's a different thing):
+A kernel hang can be observed when running setserial in a loop on a kernel
+with force threaded interrupts. The sequence of events is:
 
-- The temporary reference held by vgem_gem_create, acquired by
-  creating the object and released by calling
-  drm_gem_object_put_unlocked.
+   setserial
+     open("/dev/ttyXXX")
+       request_irq()
+     do_stuff()
+      -> serial interrupt
+         -> wake(irq_thread)
+	      desc->threads_active++;
+     close()
+       free_irq()
+         kthread_stop(irq_thread)
+     synchronize_irq() <- hangs because desc->threads_active != 0
 
-- The reference held by the object handle, created by
-  drm_gem_handle_create. This one generally outlives the function,
-  except if a 2nd thread races with a GEM_CLOSE ioctl call.
+The thread is created in request_irq() and woken up, but does not get on a
+CPU to reach the actual thread function, which would handle the pending
+wake-up. kthread_stop() sets the should stop condition which makes the
+thread immediately exit, which in turn leaves the stale threads_active
+count around.
 
-So usually everything is correct, except in that race case, where the
-access to gem_object->size could be looking at freed data already.
-Which again isn't a real problem (userspace shot its feet off already
-with the race, we could return garbage), but maybe someone can exploit
-this as an information leak.
+This problem was introduced with commit 519cc8652b3a, which addressed a
+interrupt sharing issue in the PCIe code.
 
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Hillf Danton <hdanton@sina.com>
-Reported-by: syzbot+0dc4444774d419e916c8@syzkaller.appspotmail.com
+Before that commit free_irq() invoked synchronize_irq(), which waits for
+the hard interrupt handler and also for associated threads to complete.
+
+To address the PCIe issue synchronize_irq() was replaced with
+__synchronize_hardirq(), which only waits for the hard interrupt handler to
+complete, but not for threaded handlers.
+
+This was done under the assumption, that the interrupt thread already
+reached the thread function and waits for a wake-up, which is guaranteed to
+be handled before acting on the stop condition. The problematic case, that
+the thread would not reach the thread function, was obviously overlooked.
+
+Make sure that the interrupt thread is really started and reaches
+thread_fn() before returning from __setup_irq().
+
+This utilizes the existing wait queue in the interrupt descriptor. The
+wait queue is unused for non-shared interrupts. For shared interrupts the
+usage might cause a spurious wake-up of a waiter in synchronize_irq() or the
+completion of a threaded handler might cause a spurious wake-up of the
+waiter for the ready flag. Both are harmless and have no functional impact.
+
+[ tglx: Amended changelog ]
+
+Fixes: 519cc8652b3a ("genirq: Synchronize only with single thread on free_irq()")
+Signed-off-by: Thomas Pfaff <tpfaff@pcs.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Cc: Emil Velikov <emil.velikov@collabora.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Eric Anholt <eric@anholt.net>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Rob Clark <robdclark@chromium.org>
-Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200202132133.1891846-1-daniel.vetter@ffwll.ch
-[OP: backport to 4.19: adjusted DRM_DEBUG() -> DRM_DEBUG_DRIVER()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Link: https://lore.kernel.org/r/552fe7b4-9224-b183-bb87-a8f36d335690@pcs.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/vgem/vgem_drv.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ kernel/irq/internals.h |    2 ++
+ kernel/irq/irqdesc.c   |    2 ++
+ kernel/irq/manage.c    |   39 +++++++++++++++++++++++++++++----------
+ 3 files changed, 33 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -190,9 +190,10 @@ static struct drm_gem_object *vgem_gem_c
- 		return ERR_CAST(obj);
+--- a/kernel/irq/internals.h
++++ b/kernel/irq/internals.h
+@@ -29,12 +29,14 @@ extern struct irqaction chained_action;
+  * IRQTF_WARNED    - warning "IRQ_WAKE_THREAD w/o thread_fn" has been printed
+  * IRQTF_AFFINITY  - irq thread is requested to adjust affinity
+  * IRQTF_FORCED_THREAD  - irq action is force threaded
++ * IRQTF_READY     - signals that irq thread is ready
+  */
+ enum {
+ 	IRQTF_RUNTHREAD,
+ 	IRQTF_WARNED,
+ 	IRQTF_AFFINITY,
+ 	IRQTF_FORCED_THREAD,
++	IRQTF_READY,
+ };
  
- 	ret = drm_gem_handle_create(file, &obj->base, handle);
--	drm_gem_object_put_unlocked(&obj->base);
--	if (ret)
-+	if (ret) {
-+		drm_gem_object_put_unlocked(&obj->base);
- 		return ERR_PTR(ret);
-+	}
+ /*
+--- a/kernel/irq/irqdesc.c
++++ b/kernel/irq/irqdesc.c
+@@ -405,6 +405,7 @@ static struct irq_desc *alloc_desc(int i
+ 	lockdep_set_class(&desc->lock, &irq_desc_lock_class);
+ 	mutex_init(&desc->request_mutex);
+ 	init_rcu_head(&desc->rcu);
++	init_waitqueue_head(&desc->wait_for_threads);
  
- 	return &obj->base;
+ 	desc_set_defaults(irq, desc, node, affinity, owner);
+ 	irqd_set(&desc->irq_data, flags);
+@@ -573,6 +574,7 @@ int __init early_irq_init(void)
+ 		raw_spin_lock_init(&desc[i].lock);
+ 		lockdep_set_class(&desc[i].lock, &irq_desc_lock_class);
+ 		mutex_init(&desc[i].request_mutex);
++		init_waitqueue_head(&desc[i].wait_for_threads);
+ 		desc_set_defaults(i, &desc[i], node, NULL, NULL);
+ 	}
+ 	return arch_early_irq_init();
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -1103,6 +1103,31 @@ static void irq_wake_secondary(struct ir
  }
-@@ -215,7 +216,9 @@ static int vgem_gem_dumb_create(struct d
- 	args->size = gem_object->size;
- 	args->pitch = pitch;
  
--	DRM_DEBUG_DRIVER("Created object of size %lld\n", size);
-+	drm_gem_object_put_unlocked(gem_object);
+ /*
++ * Internal function to notify that a interrupt thread is ready.
++ */
++static void irq_thread_set_ready(struct irq_desc *desc,
++				 struct irqaction *action)
++{
++	set_bit(IRQTF_READY, &action->thread_flags);
++	wake_up(&desc->wait_for_threads);
++}
 +
-+	DRM_DEBUG_DRIVER("Created object of size %llu\n", args->size);
++/*
++ * Internal function to wake up a interrupt thread and wait until it is
++ * ready.
++ */
++static void wake_up_and_wait_for_irq_thread_ready(struct irq_desc *desc,
++						  struct irqaction *action)
++{
++	if (!action || !action->thread)
++		return;
++
++	wake_up_process(action->thread);
++	wait_event(desc->wait_for_threads,
++		   test_bit(IRQTF_READY, &action->thread_flags));
++}
++
++/*
+  * Interrupt handler thread
+  */
+ static int irq_thread(void *data)
+@@ -1113,6 +1138,8 @@ static int irq_thread(void *data)
+ 	irqreturn_t (*handler_fn)(struct irq_desc *desc,
+ 			struct irqaction *action);
  
- 	return 0;
- }
++	irq_thread_set_ready(desc, action);
++
+ 	if (force_irqthreads && test_bit(IRQTF_FORCED_THREAD,
+ 					&action->thread_flags))
+ 		handler_fn = irq_forced_thread_fn;
+@@ -1541,8 +1568,6 @@ __setup_irq(unsigned int irq, struct irq
+ 	}
+ 
+ 	if (!shared) {
+-		init_waitqueue_head(&desc->wait_for_threads);
+-
+ 		/* Setup the type (level, edge polarity) if configured: */
+ 		if (new->flags & IRQF_TRIGGER_MASK) {
+ 			ret = __irq_set_trigger(desc,
+@@ -1632,14 +1657,8 @@ __setup_irq(unsigned int irq, struct irq
+ 
+ 	irq_setup_timings(desc, new);
+ 
+-	/*
+-	 * Strictly no need to wake it up, but hung_task complains
+-	 * when no hard interrupt wakes the thread up.
+-	 */
+-	if (new->thread)
+-		wake_up_process(new->thread);
+-	if (new->secondary)
+-		wake_up_process(new->secondary->thread);
++	wake_up_and_wait_for_irq_thread_ready(desc, new);
++	wake_up_and_wait_for_irq_thread_ready(desc, new->secondary);
+ 
+ 	register_irq_proc(irq, desc);
+ 	new->dir = NULL;
 
 
