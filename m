@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C02352175A
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:21:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87406521A28
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242785AbiEJNWf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:22:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
+        id S244330AbiEJNxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243578AbiEJNWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:22:12 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D66056768;
-        Tue, 10 May 2022 06:16:28 -0700 (PDT)
+        with ESMTP id S245432AbiEJNwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0477523726B;
+        Tue, 10 May 2022 06:38:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B109EB81D7A;
-        Tue, 10 May 2022 13:15:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE53C385A6;
-        Tue, 10 May 2022 13:15:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 213FE61938;
+        Tue, 10 May 2022 13:38:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32ED5C385C9;
+        Tue, 10 May 2022 13:38:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188547;
-        bh=O726eevFd4aa9bv4B67BLbuQbMjvTTVMMcyh219BVxE=;
+        s=korg; t=1652189886;
+        bh=jFNsAr8q+Gwibdcr8AbpN4HVIGa3UxHaF27fE5URDyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2mq2JCWT2frtWWGagREk2iw4pUIKH2aU4bKe8zeJHn2R5PGdaAIMFbnGOpv926YK
-         NIXYegdV1KwjDuB0mLF8QkXUTkYOYqAIU6Fz4Ux/rt/VeRK74YJPAHZNOpIACEZRsc
-         lbsLZtMpEYenSPP11F7ZQ545kSARO5DDiFyiefzs=
+        b=l4Hl+Fdr+/xdbFc3NfIDCGFAkmZLt3dxVUP2aC+Q9BrY8RxtnEy5Mm6ixvddmzAZJ
+         RGc0t/SrdADaX3do56cXqUi9vjsRSUjcFYESNFp0ZuMDYmADy1YpGSz6SMCGOftQnW
+         Dc8ncVmxmFN3H4UFzEpBny0lKoIsZNMkDCUbyyWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/78] drivers: net: hippi: Fix deadlock in rr_close()
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.17 060/140] ASoC: soc-ops: fix error handling
 Date:   Tue, 10 May 2022 15:07:30 +0200
-Message-Id: <20220510130733.839982828@linuxfoundation.org>
+Message-Id: <20220510130743.335634345@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
-References: <20220510130732.522479698@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit bc6de2878429e85c1f1afaa566f7b5abb2243eef ]
+commit eb5773201b1c5d603424bd21f161c8c2d1075b42 upstream.
 
-There is a deadlock in rr_close(), which is shown below:
+cppcheck throws the following warning:
 
-   (Thread 1)                |      (Thread 2)
-                             | rr_open()
-rr_close()                   |  add_timer()
- spin_lock_irqsave() //(1)   |  (wait a time)
- ...                         | rr_timer()
- del_timer_sync()            |  spin_lock_irqsave() //(2)
- (wait timer to stop)        |  ...
+sound/soc/soc-ops.c:461:8: style: Variable 'ret' is assigned a value
+that is never used. [unreadVariable]
+   ret = err;
+       ^
 
-We hold rrpriv->lock in position (1) of thread 1 and
-use del_timer_sync() to wait timer to stop, but timer handler
-also need rrpriv->lock in position (2) of thread 2.
-As a result, rr_close() will block forever.
+This seems to be a missing change in the return value.
 
-This patch extracts del_timer_sync() from the protection of
-spin_lock_irqsave(), which could let timer handler to obtain
-the needed lock.
-
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220417125519.82618-1-duoming@zju.edu.cn
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7f3d90a351968 ("ASoC: ops: Fix stereo change notifications in snd_soc_put_volsw_sx()")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20220421162328.302017-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/hippi/rrunner.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/soc-ops.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/hippi/rrunner.c b/drivers/net/hippi/rrunner.c
-index 40ef4aeb0ef0..3a73ac03fb2b 100644
---- a/drivers/net/hippi/rrunner.c
-+++ b/drivers/net/hippi/rrunner.c
-@@ -1354,7 +1354,9 @@ static int rr_close(struct net_device *dev)
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -461,7 +461,7 @@ int snd_soc_put_volsw_sx(struct snd_kcon
+ 			ret = err;
+ 		}
+ 	}
+-	return err;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(snd_soc_put_volsw_sx);
  
- 	rrpriv->fw_running = 0;
- 
-+	spin_unlock_irqrestore(&rrpriv->lock, flags);
- 	del_timer_sync(&rrpriv->timer);
-+	spin_lock_irqsave(&rrpriv->lock, flags);
- 
- 	writel(0, &regs->TxPi);
- 	writel(0, &regs->IpRxPi);
--- 
-2.35.1
-
 
 
