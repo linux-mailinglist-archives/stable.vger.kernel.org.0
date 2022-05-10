@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D97852189E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44F1D5216B6
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:13:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236900AbiEJNja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41062 "EHLO
+        id S242442AbiEJNRr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244194AbiEJNhL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29BE32D9EEF;
-        Tue, 10 May 2022 06:25:27 -0700 (PDT)
+        with ESMTP id S242528AbiEJNQp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:16:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CCF3BA65;
+        Tue, 10 May 2022 06:12:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59F1B617A5;
-        Tue, 10 May 2022 13:25:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5842EC385C6;
-        Tue, 10 May 2022 13:25:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D6DE612E4;
+        Tue, 10 May 2022 13:12:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F28C385A6;
+        Tue, 10 May 2022 13:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189116;
-        bh=U3t5kK9OCHwvOySeFZuGHZJrRFzboJZwTeQJEzdZGVU=;
+        s=korg; t=1652188358;
+        bh=Bn5ILpV3s+Rbw2XFY28VLlaXni3LCUf0kZlkGm9EbU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkF6BWo8Nx8DrO0ClAjD1N6uQx52hxP9frXwhiPMTjsRleJtKmGfhUxef2P+3kUAa
-         TAU214bFH2H4aCdL994CcPgs2DeL8WnTU9BDenwCiosb8ymx+WpTXHWUdxV4m7q5jG
-         xgLUflk31xi9MynCrJm31+or73oNM9SnEnTsktRQ=
+        b=OkUOCBKpOintcRowpd6oVdcBY4jt6PacninEUopc5+0s2EMjOzXJGHBPOBUSvKMRc
+         nKhkg43K27QBsmIYRDlt8tOAOp3S7P2VSL+6xz42aOrGN8zltUbb0YndgVvXVkZ9tA
+         t1Lqc9ujxIQ9oo0Jr6pUdJYVr/aNAW//Qj099X38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>
-Subject: [PATCH 5.10 18/70] ASoC: wm8958: Fix change notifications for DSP controls
+        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 47/66] firewire: fix potential uaf in outbound_phy_packet_callback()
 Date:   Tue, 10 May 2022 15:07:37 +0200
-Message-Id: <20220510130733.401041023@linuxfoundation.org>
+Message-Id: <20220510130731.146172938@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Chengfeng Ye <cyeaa@connect.ust.hk>
 
-commit b4f5c6b2e52b27462c0599e64e96e53b58438de1 upstream.
+commit b7c81f80246fac44077166f3e07103affe6db8ff upstream.
 
-The WM8958 DSP controls all return 0 on successful write, not a boolean
-value indicating if the write changed the value of the control. Fix this
-by returning 1 after a change, there is already a check at the start of
-each put() that skips the function in the case that there is no change.
+&e->event and e point to the same address, and &e->event could
+be freed in queue_event. So there is a potential uaf issue if
+we dereference e after calling queue_event(). Fix this by adding
+a temporary variable to maintain e->client in advance, this can
+avoid the potential uaf issue.
 
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220416125408.197440-1-broonie@kernel.org
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/wm8958-dsp2.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/firewire/core-cdev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/soc/codecs/wm8958-dsp2.c
-+++ b/sound/soc/codecs/wm8958-dsp2.c
-@@ -530,7 +530,7 @@ static int wm8958_mbc_put(struct snd_kco
+--- a/drivers/firewire/core-cdev.c
++++ b/drivers/firewire/core-cdev.c
+@@ -1496,6 +1496,7 @@ static void outbound_phy_packet_callback
+ {
+ 	struct outbound_phy_packet_event *e =
+ 		container_of(packet, struct outbound_phy_packet_event, p);
++	struct client *e_client;
  
- 	wm8958_dsp_apply(component, mbc, wm8994->mbc_ena[mbc]);
+ 	switch (status) {
+ 	/* expected: */
+@@ -1512,9 +1513,10 @@ static void outbound_phy_packet_callback
+ 	}
+ 	e->phy_packet.data[0] = packet->timestamp;
  
--	return 0;
-+	return 1;
++	e_client = e->client;
+ 	queue_event(e->client, &e->event, &e->phy_packet,
+ 		    sizeof(e->phy_packet) + e->phy_packet.length, NULL, 0);
+-	client_put(e->client);
++	client_put(e_client);
  }
  
- #define WM8958_MBC_SWITCH(xname, xval) {\
-@@ -656,7 +656,7 @@ static int wm8958_vss_put(struct snd_kco
- 
- 	wm8958_dsp_apply(component, vss, wm8994->vss_ena[vss]);
- 
--	return 0;
-+	return 1;
- }
- 
- 
-@@ -730,7 +730,7 @@ static int wm8958_hpf_put(struct snd_kco
- 
- 	wm8958_dsp_apply(component, hpf % 3, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_HPF_SWITCH(xname, xval) {\
-@@ -824,7 +824,7 @@ static int wm8958_enh_eq_put(struct snd_
- 
- 	wm8958_dsp_apply(component, eq, ucontrol->value.integer.value[0]);
- 
--	return 0;
-+	return 1;
- }
- 
- #define WM8958_ENH_EQ_SWITCH(xname, xval) {\
+ static int ioctl_send_phy_packet(struct client *client, union ioctl_arg *arg)
 
 
