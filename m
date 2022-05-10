@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE7C5217D8
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4525521ACB
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243029AbiEJN3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56842 "EHLO
+        id S244301AbiEJOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239589AbiEJN3F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:29:05 -0400
+        with ESMTP id S245376AbiEJN5f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07B5D366BF;
-        Tue, 10 May 2022 06:20:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA268FD69;
+        Tue, 10 May 2022 06:39:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CCEF61663;
-        Tue, 10 May 2022 13:20:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC30FC385A6;
-        Tue, 10 May 2022 13:20:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BFF96615C8;
+        Tue, 10 May 2022 13:39:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84271C385C6;
+        Tue, 10 May 2022 13:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188856;
-        bh=laynf76DuemHAcHFOzu1PPKqPkAK/Zd29BLiX/RFYHQ=;
+        s=korg; t=1652189952;
+        bh=9pxyK0GKEphEY4ydetmT/RXOXOC4/m+3r46HStjAp24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=028mdfjE39TYjHl6BBc4uGaS+RRrgBwuVtPgVqLvi61vSDBxcYnW81pmjO+4oGqW+
-         Kw8x2NL7TeVMrMDMAeOwvj4tXxBNTJ3ACTkkI/zLYOMApHRst7eI6PhnDAsid6xLg9
-         g3cznQHdwxMHk+zS2B6bjlC/Yl3lOGZqWpnlVq80=
+        b=h5uXKZ3SMw9pYR2OsCxqOzGgExYFbhC2ey5oxCa6odnuqKwGLkIirZRREgTQvPCKp
+         x1sY9fg3kMQl5MOevkL5a/ZLswwLWy1QoNLEN2jjf0ZVbV1Yg8/WrTNAd7HkzqEEQG
+         BfUtF3jFaCXI/3AVlzlmCn158sMWW3T60/daGMaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/88] ARM: dts: Fix mmc order for omap3-gta04
-Date:   Tue, 10 May 2022 15:07:13 +0200
-Message-Id: <20220510130734.564462760@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
+        Stefan Haberland <sth@linux.ibm.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.17 044/140] s390/dasd: Fix read inconsistency for ESE DASD devices
+Date:   Tue, 10 May 2022 15:07:14 +0200
+Message-Id: <20220510130742.881678224@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Jan Höppner <hoeppner@linux.ibm.com>
 
-[ Upstream commit 09269dd050094593fc747f2a5853d189fefcb6b5 ]
+commit b9c10f68e23c13f56685559a0d6fdaca9f838324 upstream.
 
-Commit a1ebdb374199 ("ARM: dts: Fix swapped mmc order for omap3")
-introduces general mmc aliases. Let's tailor them to the need
-of the GTA04 board which does not make use of mmc2 and mmc3 interfaces.
+Read requests that return with NRF error are partially completed in
+dasd_eckd_ese_read(). The function keeps track of the amount of
+processed bytes and the driver will eventually return this information
+back to the block layer for further processing via __dasd_cleanup_cqr()
+when the request is in the final stage of processing (from the driver's
+perspective).
 
-Fixes: a1ebdb374199 ("ARM: dts: Fix swapped mmc order for omap3")
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Message-Id: <dc9173ee3d391d9e92b7ab8ed4f84b29f0a21c83.1646744420.git.hns@goldelico.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For this, blk_update_request() is used which requires the number of
+bytes to complete the request. As per documentation the nr_bytes
+parameter is described as follows:
+   "number of bytes to complete for @req".
+
+This was mistakenly interpreted as "number of bytes _left_ for @req"
+leading to new requests with incorrect data length. The consequence are
+inconsistent and completely wrong read requests as data from random
+memory areas are read back.
+
+Fix this by correctly specifying the amount of bytes that should be used
+to complete the request.
+
+Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned devices")
+Cc: stable@vger.kernel.org # 5.3+
+Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
+Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220505141733.1989450-5-sth@linux.ibm.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/s390/block/dasd.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index a5aed92ab54b..820bdd5326ab 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -29,6 +29,8 @@ memory@80000000 {
- 	aliases {
- 		display0 = &lcd;
- 		display1 = &tv0;
-+		/delete-property/ mmc2;
-+		/delete-property/ mmc3;
- 	};
- 
- 	/* fixed 26MHz oscillator */
--- 
-2.35.1
-
+--- a/drivers/s390/block/dasd.c
++++ b/drivers/s390/block/dasd.c
+@@ -2778,8 +2778,7 @@ static void __dasd_cleanup_cqr(struct da
+ 		 * complete a request partially.
+ 		 */
+ 		if (proc_bytes) {
+-			blk_update_request(req, BLK_STS_OK,
+-					   blk_rq_bytes(req) - proc_bytes);
++			blk_update_request(req, BLK_STS_OK, proc_bytes);
+ 			blk_mq_requeue_request(req, true);
+ 		} else if (likely(!blk_should_fake_timeout(req->q))) {
+ 			blk_mq_complete_request(req);
 
 
