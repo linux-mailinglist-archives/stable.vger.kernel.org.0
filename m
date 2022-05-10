@@ -2,42 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3576E521F4F
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F21521F52
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:44:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346271AbiEJPsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:48:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60186 "EHLO
+        id S1346281AbiEJPsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:48:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346190AbiEJPsL (ORCPT
+        with ESMTP id S1346226AbiEJPsL (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:48:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E14D2802C4;
-        Tue, 10 May 2022 08:44:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C51280E18;
+        Tue, 10 May 2022 08:44:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FD9461329;
-        Tue, 10 May 2022 15:44:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C307C385C2;
-        Tue, 10 May 2022 15:44:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01810614A9;
+        Tue, 10 May 2022 15:44:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC0DC385C2;
+        Tue, 10 May 2022 15:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197441;
-        bh=yH5M1c0ldN5R+FkK/zu3biDlTtfEvvdoiBULCRmiLhA=;
+        s=k20201202; t=1652197446;
+        bh=DNkhD6VTUM7fXUikvAIycfwNIqFBbm8FeVeT6ISDgZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fkoQ5I6F9BF5mV19aHe3/YQ4iYqZTHaCQXSKYsZk8cLxEpRKL1XCieZ9icBO9RYee
-         sawe9fWx9vFYD4DNM+058n6JEMvl/9waAfg1/n/WQC2roAIqVoX8rIlcVTZoMSZ2zA
-         GKw/51cAgZ7wZ3FHTZsarc32WlKW0tZuJhSwo51af6l0RfzlA22QWJi3bvfoat/8it
-         Ji6BMKSpYhOdZv5+zGS8JiqDpixXqlU7sGtLO4uyPWrJkwOnqW0n4G139Gl4Mxbcce
-         W8xcL+MvtgOZ/BuG9kNcVNoxtFitboOdFYeUvN/FeKNmXAlyygQdTCgNvmn2jxNotY
-         Dm0+4pSW0VNJQ==
+        b=B9D5dHX0uglBH69wzaeBFTkj7Gt6xla+ijzRrG9SB1sDS/HbQBf6sVMrY8PpETEmV
+         3J6cgizqEjYSbiNvBFHlBd2iQ8J1nHK7FyPfF3xaZ2p299mkwox327KpkYpUtBlHM8
+         A+x824I4XUFwO9T5fcWALRCPoEDJF8mlYT1uZp6tabsKUaa/6iUu7Ph+gx0umS1aHa
+         ARM10QgnVrCD2I55BjE9IhnzhOjAFSRS/VHGS1upG4e4xEgyn3VrQaT2Iln7mQ1VPf
+         128lBH+w7hh7Dea9X8I3sGSQTIauVYJO/TDeSPoB8TB8CuJ3rlk19hlqU/vf+QmkdG
+         4bUCNZqLpT1Pw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 10/21] io_uring: assign non-fixed early for async work
-Date:   Tue, 10 May 2022 11:43:29 -0400
-Message-Id: <20220510154340.153400-10-sashal@kernel.org>
+Cc:     Shravya Kumbham <shravya.kumbham@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, michal.simek@xilinx.com,
+        arnd@arndb.de, yuehaibing@huawei.com,
+        prabhakar.mahadev-lad.rj@bp.renesas.com, linmq006@gmail.com,
+        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.17 11/21] net: emaclite: Don't advertise 1000BASE-T and do auto negotiation
+Date:   Tue, 10 May 2022 11:43:30 -0400
+Message-Id: <20220510154340.153400-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154340.153400-1-sashal@kernel.org>
 References: <20220510154340.153400-1-sashal@kernel.org>
@@ -55,42 +61,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Shravya Kumbham <shravya.kumbham@xilinx.com>
 
-[ Upstream commit a196c78b5443fc61af2c0490213b9d125482cbd1 ]
+[ Upstream commit b800528b97d0adc3a5ba42d78a8b0d3f07a31f44 ]
 
-We defer file assignment to ensure that fixed files work with links
-between a direct accept/open and the links that follow it. But this has
-the side effect that normal file assignment is then not complete by the
-time that request submission has been done.
+In xemaclite_open() function we are setting the max speed of
+emaclite to 100Mb using phy_set_max_speed() function so,
+there is no need to write the advertising registers to stop
+giga-bit speed and the phy_start() function starts the
+auto-negotiation so, there is no need to handle it separately
+using advertising registers. Remove the phy_read and phy_write
+of advertising registers in xemaclite_open() function.
 
-For deferred execution, if the file is a regular file, assign it when
-we do the async prep anyway.
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c | 15 ---------------
+ 1 file changed, 15 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 87df37912055..a0680046ff3c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6572,7 +6572,12 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 77fa2cb03aca..29e942cd3c44 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -926,8 +926,6 @@ static int xemaclite_open(struct net_device *dev)
+ 	xemaclite_disable_interrupts(lp);
  
- static int io_req_prep_async(struct io_kiocb *req)
- {
--	if (!io_op_defs[req->opcode].needs_async_setup)
-+	const struct io_op_def *def = &io_op_defs[req->opcode];
-+
-+	/* assign early for deferred execution for non-fixed file */
-+	if (def->needs_file && !(req->flags & REQ_F_FIXED_FILE))
-+		req->file = io_file_get_normal(req, req->fd);
-+	if (!def->needs_async_setup)
- 		return 0;
- 	if (WARN_ON_ONCE(req_has_async_data(req)))
- 		return -EFAULT;
+ 	if (lp->phy_node) {
+-		u32 bmcr;
+-
+ 		lp->phy_dev = of_phy_connect(lp->ndev, lp->phy_node,
+ 					     xemaclite_adjust_link, 0,
+ 					     PHY_INTERFACE_MODE_MII);
+@@ -938,19 +936,6 @@ static int xemaclite_open(struct net_device *dev)
+ 
+ 		/* EmacLite doesn't support giga-bit speeds */
+ 		phy_set_max_speed(lp->phy_dev, SPEED_100);
+-
+-		/* Don't advertise 1000BASE-T Full/Half duplex speeds */
+-		phy_write(lp->phy_dev, MII_CTRL1000, 0);
+-
+-		/* Advertise only 10 and 100mbps full/half duplex speeds */
+-		phy_write(lp->phy_dev, MII_ADVERTISE, ADVERTISE_ALL |
+-			  ADVERTISE_CSMA);
+-
+-		/* Restart auto negotiation */
+-		bmcr = phy_read(lp->phy_dev, MII_BMCR);
+-		bmcr |= (BMCR_ANENABLE | BMCR_ANRESTART);
+-		phy_write(lp->phy_dev, MII_BMCR, bmcr);
+-
+ 		phy_start(lp->phy_dev);
+ 	}
+ 
 -- 
 2.35.1
 
