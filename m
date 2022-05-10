@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A54B2521996
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88BA65216F9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244256AbiEJNtq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:49:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
+        id S242980AbiEJNWu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244239AbiEJNpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:45:38 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A5629137C;
-        Tue, 10 May 2022 06:31:17 -0700 (PDT)
+        with ESMTP id S243339AbiEJNVs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B97EE32079;
+        Tue, 10 May 2022 06:15:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DBD75CE1EDE;
-        Tue, 10 May 2022 13:30:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3DD3C385C2;
-        Tue, 10 May 2022 13:30:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 543CD6166C;
+        Tue, 10 May 2022 13:15:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E6FC385A6;
+        Tue, 10 May 2022 13:15:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189458;
-        bh=vmU4qBASEUpfgc/BCPgOm30brd4+MRNEFxdubd5lS4s=;
+        s=korg; t=1652188538;
+        bh=36p3854PZ7hZDvZb9kEHObmWlzU8+m1CZyy2hKINlLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ls0fT2i50tvpTM4eQQ9yyI/HSSOWj4P14i2NpwM+9ASMIgQLmKsPBbTwZOuCGt05l
-         sANAlHEKeO1IHdCdNtvtM00iVK3/YtUyhSu7Af0f2fyptyEROhdQ0GQRkInZ71bk1S
-         eE5xUA3v7BiFAoTFZj9GRjjZ22LBx+AkTy2ilG8E=
+        b=vota2cn3Cti+vFYbuuK+5xm1ZLLaURGuXJ28YEiZ30tcQezkY+o4Q+zHIl8PTUrEp
+         C+ZfQ975EhQvXMBzolupieVEVvs3tux7EO2F85vSjSF8rKiNx2aZpsgkZe7eRf15Xd
+         MMkS75dmHLY20GbfpXry8i2m5MM1xnMZEBU9lg/U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tatyana Nikolova <tatyana.e.nikolova@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 057/135] RDMA/irdma: Flush iWARP QP if modified to ERR from RTR state
+        stable@vger.kernel.org, Ying Xu <yinxu@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 33/78] sctp: check asoc strreset_chunk in sctp_generate_reconf_event
 Date:   Tue, 10 May 2022 15:07:19 +0200
-Message-Id: <20220510130742.041305605@linuxfoundation.org>
+Message-Id: <20220510130733.515442574@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +56,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 7b8943b821bafab492f43aafbd006b57c6b65845 upstream.
+[ Upstream commit 165e3e17fe8fe6a8aab319bc6e631a2e23b9a857 ]
 
-When connection establishment fails in iWARP mode, an app can drain the
-QPs and hang because flush isn't issued when the QP is modified from RTR
-state to error. Issue a flush in this case using function
-irdma_cm_disconn().
+A null pointer reference issue can be triggered when the response of a
+stream reconf request arrives after the timer is triggered, such as:
 
-Update irdma_cm_disconn() to do flush when cm_id is NULL, which is the
-case when the QP is in RTR state and there is an error in the connection
-establishment.
+  send Incoming SSN Reset Request --->
+  CPU0:
+   reconf timer is triggered,
+   go to the handler code before hold sk lock
+                            <--- reply with Outgoing SSN Reset Request
+  CPU1:
+   process Outgoing SSN Reset Request,
+   and set asoc->strreset_chunk to NULL
+  CPU0:
+   continue the handler code, hold sk lock,
+   and try to hold asoc->strreset_chunk, crash!
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Link: https://lore.kernel.org/r/20220425181703.1634-2-shiraz.saleem@intel.com
-Signed-off-by: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In Ying Xu's testing, the call trace is:
+
+  [ ] BUG: kernel NULL pointer dereference, address: 0000000000000010
+  [ ] RIP: 0010:sctp_chunk_hold+0xe/0x40 [sctp]
+  [ ] Call Trace:
+  [ ]  <IRQ>
+  [ ]  sctp_sf_send_reconf+0x2c/0x100 [sctp]
+  [ ]  sctp_do_sm+0xa4/0x220 [sctp]
+  [ ]  sctp_generate_reconf_event+0xbd/0xe0 [sctp]
+  [ ]  call_timer_fn+0x26/0x130
+
+This patch is to fix it by returning from the timer handler if asoc
+strreset_chunk is already set to NULL.
+
+Fixes: 7b9438de0cd4 ("sctp: add stream reconf timer")
+Reported-by: Ying Xu <yinxu@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.c    |   16 +++++-----------
- drivers/infiniband/hw/irdma/verbs.c |    4 ++--
- 2 files changed, 7 insertions(+), 13 deletions(-)
+ net/sctp/sm_sideeffect.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -3465,12 +3465,6 @@ static void irdma_cm_disconn_true(struct
+diff --git a/net/sctp/sm_sideeffect.c b/net/sctp/sm_sideeffect.c
+index 1a1128355d86..169819263c0b 100644
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -456,6 +456,10 @@ void sctp_generate_reconf_event(unsigned long data)
+ 		goto out_unlock;
  	}
  
- 	cm_id = iwqp->cm_id;
--	/* make sure we havent already closed this connection */
--	if (!cm_id) {
--		spin_unlock_irqrestore(&iwqp->lock, flags);
--		return;
--	}
--
- 	original_hw_tcp_state = iwqp->hw_tcp_state;
- 	original_ibqp_state = iwqp->ibqp_state;
- 	last_ae = iwqp->last_aeq;
-@@ -3492,11 +3486,11 @@ static void irdma_cm_disconn_true(struct
- 			disconn_status = -ECONNRESET;
- 	}
- 
--	if ((original_hw_tcp_state == IRDMA_TCP_STATE_CLOSED ||
--	     original_hw_tcp_state == IRDMA_TCP_STATE_TIME_WAIT ||
--	     last_ae == IRDMA_AE_RDMAP_ROE_BAD_LLP_CLOSE ||
--	     last_ae == IRDMA_AE_BAD_CLOSE ||
--	     last_ae == IRDMA_AE_LLP_CONNECTION_RESET || iwdev->rf->reset)) {
-+	if (original_hw_tcp_state == IRDMA_TCP_STATE_CLOSED ||
-+	    original_hw_tcp_state == IRDMA_TCP_STATE_TIME_WAIT ||
-+	    last_ae == IRDMA_AE_RDMAP_ROE_BAD_LLP_CLOSE ||
-+	    last_ae == IRDMA_AE_BAD_CLOSE ||
-+	    last_ae == IRDMA_AE_LLP_CONNECTION_RESET || iwdev->rf->reset || !cm_id) {
- 		issue_close = 1;
- 		iwqp->cm_id = NULL;
- 		qp->term_flags = 0;
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -1617,13 +1617,13 @@ int irdma_modify_qp(struct ib_qp *ibqp,
- 
- 	if (issue_modify_qp && iwqp->ibqp_state > IB_QPS_RTS) {
- 		if (dont_wait) {
--			if (iwqp->cm_id && iwqp->hw_tcp_state) {
-+			if (iwqp->hw_tcp_state) {
- 				spin_lock_irqsave(&iwqp->lock, flags);
- 				iwqp->hw_tcp_state = IRDMA_TCP_STATE_CLOSED;
- 				iwqp->last_aeq = IRDMA_AE_RESET_SENT;
- 				spin_unlock_irqrestore(&iwqp->lock, flags);
--				irdma_cm_disconn(iwqp);
- 			}
-+			irdma_cm_disconn(iwqp);
- 		} else {
- 			int close_timer_started;
- 
++	/* This happens when the response arrives after the timer is triggered. */
++	if (!asoc->strreset_chunk)
++		goto out_unlock;
++
+ 	error = sctp_do_sm(net, SCTP_EVENT_T_TIMEOUT,
+ 			   SCTP_ST_TIMEOUT(SCTP_EVENT_TIMEOUT_RECONF),
+ 			   asoc->state, asoc->ep, asoc,
+-- 
+2.35.1
+
 
 
