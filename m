@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8DA521824
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA675218BF
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:36:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243375AbiEJNd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:33:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56386 "EHLO
+        id S236445AbiEJNjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243923AbiEJNcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D051994A0;
-        Tue, 10 May 2022 06:23:41 -0700 (PDT)
+        with ESMTP id S244983AbiEJNiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 136F48022F;
+        Tue, 10 May 2022 06:26:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D293960C1C;
-        Tue, 10 May 2022 13:23:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E547CC385C2;
-        Tue, 10 May 2022 13:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 376FC617F5;
+        Tue, 10 May 2022 13:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44B6EC385C2;
+        Tue, 10 May 2022 13:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189020;
-        bh=Q2Wg0f11Q6IIlcPJ/b7UtaXwtP9iKWdEGB/4BG3k6bo=;
+        s=korg; t=1652189208;
+        bh=sepjU7tRU13o/CeRhHjVMN4T6eotrZo2Y0GY3FV6c/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvC1qpoDgLJ1LoR2VKnJoMsoqlIE6BHd04PUXFg+rNJqlBCEKg7u3XmrsOKLlQhMK
-         4i3qaJYHAjiS4aGUlnuRCH1YCSJ5MyZgTwe7TTKfFNDC/XxY+iuV+1kGp63jJR+1RC
-         Iqe7RezwR0wlCK9B6UEwnuRnuw5hR69/vNS+AfgY=
+        b=NaaHM0Pln90CFFWdOhb3e8Qc2qaj60GnfnD+Ni3TOKjLuADf7UV1XhfXXpJ4oSzoE
+         tF5tJn3hEMWTHjMK3+bGYZmZFXMyHblHoLJCga1OuyVW2uuKdE+ftN+4wIUjexWGSw
+         rtPexCJOtRDS9qvq0wVZCKGVMoRCqzzYJPz5N39M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/52] x86/kvm: Preserve BSP MSR_KVM_POLL_CONTROL across suspend/resume
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 47/70] net: stmmac: dwmac-sun8i: add missing of_node_put() in sun8i_dwmac_register_mdio_mux()
 Date:   Tue, 10 May 2022 15:08:06 +0200
-Message-Id: <20220510130730.936138964@linuxfoundation.org>
+Message-Id: <20220510130734.239367180@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+References: <20220510130732.861729621@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 0361bdfddca20c8855ea3bdbbbc9c999912b10ff ]
+commit 1a15267b7be77e0792cf0c7b36ca65c8eb2df0d8 upstream.
 
-MSR_KVM_POLL_CONTROL is cleared on reset, thus reverting guests to
-host-side polling after suspend/resume.  Non-bootstrap CPUs are
-restored correctly by the haltpoll driver because they are hot-unplugged
-during suspend and hot-plugged during resume; however, the BSP
-is not hotpluggable and remains in host-sde polling mode after
-the guest resume.  The makes the guest pay for the cost of vmexits
-every time the guest enters idle.
+The node pointer returned by of_get_child_by_name() with refcount incremented,
+so add of_node_put() after using it.
 
-Fix it by recording BSP's haltpoll state and resuming it during guest
-resume.
-
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1650267752-46796-1-git-send-email-wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 634db83b8265 ("net: stmmac: dwmac-sun8i: Handle integrated/external MDIOs")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220428095716.540452-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/kvm.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 408b51aba293..f582dda8dd34 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -59,6 +59,7 @@ static DEFINE_PER_CPU_DECRYPTED(struct kvm_vcpu_pv_apf_data, apf_reason) __align
- DEFINE_PER_CPU_DECRYPTED(struct kvm_steal_time, steal_time) __aligned(64) __visible;
- static int has_steal_clock = 0;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -895,6 +895,7 @@ static int sun8i_dwmac_register_mdio_mux
  
-+static int has_guest_poll = 0;
- /*
-  * No need for any "IO delay" on KVM
-  */
-@@ -584,14 +585,26 @@ static int kvm_cpu_down_prepare(unsigned int cpu)
- 
- static int kvm_suspend(void)
- {
-+	u64 val = 0;
-+
- 	kvm_guest_cpu_offline(false);
- 
-+#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
-+	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL))
-+		rdmsrl(MSR_KVM_POLL_CONTROL, val);
-+	has_guest_poll = !(val & 1);
-+#endif
- 	return 0;
+ 	ret = mdio_mux_init(priv->device, mdio_mux, mdio_mux_syscon_switch_fn,
+ 			    &gmac->mux_handle, priv, priv->mii);
++	of_node_put(mdio_mux);
+ 	return ret;
  }
  
- static void kvm_resume(void)
- {
- 	kvm_cpu_online(raw_smp_processor_id());
-+
-+#ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
-+	if (kvm_para_has_feature(KVM_FEATURE_POLL_CONTROL) && has_guest_poll)
-+		wrmsrl(MSR_KVM_POLL_CONTROL, 0);
-+#endif
- }
- 
- static struct syscore_ops kvm_syscore_ops = {
--- 
-2.35.1
-
 
 
