@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5435521FDE
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CD1B521FCD
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 17:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346610AbiEJPwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 11:52:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34722 "EHLO
+        id S1346562AbiEJPwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 11:52:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346367AbiEJPu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:50:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3BB828ABAA;
-        Tue, 10 May 2022 08:45:09 -0700 (PDT)
+        with ESMTP id S1346496AbiEJPvA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 11:51:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 015B228B696;
+        Tue, 10 May 2022 08:45:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80706614AF;
-        Tue, 10 May 2022 15:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8B63C385CB;
-        Tue, 10 May 2022 15:45:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BE27614E8;
+        Tue, 10 May 2022 15:45:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D06C385CB;
+        Tue, 10 May 2022 15:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652197508;
-        bh=2OX837V48LPWy+fohNmbgAQwoavPUJVKqMpgPMB4Acg=;
+        s=k20201202; t=1652197511;
+        bh=21bwpjNudExl89E+GWay/earnO1hhomI8Dv+7vwzFGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ePpNm/iiAm5IsIQnmP9iykSNAPrmCbCsv6rmrFRooSwffD3bIjErVEsfaoh3V9YIT
-         HdX7XNWBxL/cupuzxBcbMJWxs+pvyyfpSl9G31a1ce0500JgUW1+ofS6EQpmGWMAH8
-         71kRmGIl5yQDgVdsyL4kBdkymux1hGgc1SWphZApXxqTMIuzcqgPV7lpsXgWmc8+np
-         edQi7QMVINLZsb8imsPY4Mr/NW7GBwmQ4007z5tgQRudT4c8GwQFtYBI2J9WRIKEK8
-         FAhil2PhKbe+2iR8JdHveZOX3d4XsKXC+Zi8bxlZjf//HI1TyQiXgfkeVOj1p3YmKW
-         xYY4pIDtJpoJQ==
+        b=aGQHn3PhinxxrPmgBQONV3sx1z3It5AS/LMDw1STNIOxOdPZsfkjPwl1PLYfD6FQ5
+         YxxuQuYrGf4hB/2kt5d86kcYdUvFynlzR+T919Iw91s1lapqvBxYHstDALK4jugub9
+         E6Y0XDtTMWrcs5HeA3Ny2AWveiC8jUqp+nxK7Q26BMpgL78z/cK/6IlffyXiU8E+yF
+         Vc1c8YaFrNrsty9Kmy/oD5WI4b7g0wt8GVTsWpL6KHrrLbyq3hPBoLkqkoTRBkagYW
+         VBU2fUUVmmKqNZ6jZj4lpmVOfUrM8Yy8YwYyPWytr63lkYPx+CGN1ZyGay5/UTPhDT
+         WTM5XcLyyGZrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Willy Tarreau <w@1wt.eu>, Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        yoshfuji@linux-ipv6.org, dsahern@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 18/19] tcp: drop the hash_32() part from the index calculation
-Date:   Tue, 10 May 2022 11:44:28 -0400
-Message-Id: <20220510154429.153677-18-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, dave.anglin@bell.net,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/19] Revert "parisc: Fix patch code locking and flushing"
+Date:   Tue, 10 May 2022 11:44:29 -0400
+Message-Id: <20220510154429.153677-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220510154429.153677-1-sashal@kernel.org>
 References: <20220510154429.153677-1-sashal@kernel.org>
@@ -59,39 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit e8161345ddbb66e449abde10d2fdce93f867eba9 ]
+[ Upstream commit 6c800d7f55fcd78e17deae5ae4374d8e73482c13 ]
 
-In commit 190cc82489f4 ("tcp: change source port randomizarion at
-connect() time"), the table_perturb[] array was introduced and an
-index was taken from the port_offset via hash_32(). But it turns
-out that hash_32() performs a multiplication while the input here
-comes from the output of SipHash in secure_seq, that is well
-distributed enough to avoid the need for yet another hash.
+This reverts commit a9fe7fa7d874a536e0540469f314772c054a0323.
 
-Suggested-by: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Leads to segfaults on 32bit kernel.
+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/kernel/patch.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index f76e4ac1ba3a..ee9c587031b4 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -778,7 +778,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+diff --git a/arch/parisc/kernel/patch.c b/arch/parisc/kernel/patch.c
+index e59574f65e64..80a0ab372802 100644
+--- a/arch/parisc/kernel/patch.c
++++ b/arch/parisc/kernel/patch.c
+@@ -40,7 +40,10 @@ static void __kprobes *patch_map(void *addr, int fixmap, unsigned long *flags,
  
- 	net_get_random_once(table_perturb,
- 			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
--	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
-+	index = port_offset & (INET_TABLE_PERTURB_SIZE - 1);
+ 	*need_unmap = 1;
+ 	set_fixmap(fixmap, page_to_phys(page));
+-	raw_spin_lock_irqsave(&patch_lock, *flags);
++	if (flags)
++		raw_spin_lock_irqsave(&patch_lock, *flags);
++	else
++		__acquire(&patch_lock);
  
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
- 	offset %= remaining;
+ 	return (void *) (__fix_to_virt(fixmap) + (uintaddr & ~PAGE_MASK));
+ }
+@@ -49,7 +52,10 @@ static void __kprobes patch_unmap(int fixmap, unsigned long *flags)
+ {
+ 	clear_fixmap(fixmap);
+ 
+-	raw_spin_unlock_irqrestore(&patch_lock, *flags);
++	if (flags)
++		raw_spin_unlock_irqrestore(&patch_lock, *flags);
++	else
++		__release(&patch_lock);
+ }
+ 
+ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+@@ -61,9 +67,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 	int mapped;
+ 
+ 	/* Make sure we don't have any aliases in cache */
+-	flush_kernel_dcache_range_asm(start, end);
+-	flush_kernel_icache_range_asm(start, end);
+-	flush_tlb_kernel_range(start, end);
++	flush_kernel_vmap_range(addr, len);
++	flush_icache_range(start, end);
+ 
+ 	p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags, &mapped);
+ 
+@@ -76,10 +81,8 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 			 * We're crossing a page boundary, so
+ 			 * need to remap
+ 			 */
+-			flush_kernel_dcache_range_asm((unsigned long)fixmap,
+-						      (unsigned long)p);
+-			flush_tlb_kernel_range((unsigned long)fixmap,
+-					       (unsigned long)p);
++			flush_kernel_vmap_range((void *)fixmap,
++						(p-fixmap) * sizeof(*p));
+ 			if (mapped)
+ 				patch_unmap(FIX_TEXT_POKE0, &flags);
+ 			p = fixmap = patch_map(addr, FIX_TEXT_POKE0, &flags,
+@@ -87,10 +90,10 @@ void __kprobes __patch_text_multiple(void *addr, u32 *insn, unsigned int len)
+ 		}
+ 	}
+ 
+-	flush_kernel_dcache_range_asm((unsigned long)fixmap, (unsigned long)p);
+-	flush_tlb_kernel_range((unsigned long)fixmap, (unsigned long)p);
++	flush_kernel_vmap_range((void *)fixmap, (p-fixmap) * sizeof(*p));
+ 	if (mapped)
+ 		patch_unmap(FIX_TEXT_POKE0, &flags);
++	flush_icache_range(start, end);
+ }
+ 
+ void __kprobes __patch_text(void *addr, u32 insn)
 -- 
 2.35.1
 
