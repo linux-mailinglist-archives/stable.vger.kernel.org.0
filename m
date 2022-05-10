@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CB85521A39
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5FC7521A3D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235092AbiEJNyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:54:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39690 "EHLO
+        id S234058AbiEJNy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:54:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244205AbiEJNwx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:52:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002736C0DD;
-        Tue, 10 May 2022 06:38:17 -0700 (PDT)
+        with ESMTP id S244302AbiEJNqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:46:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47F5313C095;
+        Tue, 10 May 2022 06:31:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1239B81DB3;
-        Tue, 10 May 2022 13:37:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4825CC385C6;
-        Tue, 10 May 2022 13:37:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37C0D617F5;
+        Tue, 10 May 2022 13:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30573C385A6;
+        Tue, 10 May 2022 13:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189870;
-        bh=zlEMjjuzr3mcxVhnutTM6/09TaldW+hL/6Nh9t7O0Zk=;
+        s=korg; t=1652189479;
+        bh=CvPKW8GRBCllmv1GPycQLudYR03UIUxGKRWDVAVIx0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=axOW4MCfOow57M4lgEo+SwzK19qsF/43NZd8x1sB82LLQGf8ViKwvIQVtSvlv4APt
-         aEBHIXsbTDC/UKJSS72BrKtgNvLVDaVw/sfpuINiENbWae6Q+/2sxbm9bsLzV5vEIT
-         O4unf5XyaKHC9FqkW5uqs6sCJy2gz/unVfCG92xY=
+        b=g8X1FqHYIpsb0LB6mV2I27jNRejKSKXW6HCDdNjMdcf1NQPQNZL+vR8QmMMB8rm85
+         cfekGsoYqMOortGFa1lIcGxTUQe5pGZVPzF+B1d0p+5SbK/QovnZ9B3BqnR2JN4KtD
+         vpz4RkHghz8RkPX5tjrW3ElcYF6oXBpf3FkoZx4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Wujek <dev_public@wujek.eu>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.17 056/140] hwmon: (pmbus) disable PEC if not enabled
+        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 064/135] net: mdio: Fix ENOMEM return value in BCM6368 mux bus controller
 Date:   Tue, 10 May 2022 15:07:26 +0200
-Message-Id: <20220510130743.221225564@linuxfoundation.org>
+Message-Id: <20220510130742.247906403@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,43 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Wujek <dev_public@wujek.eu>
+From: Niels Dossche <dossche.niels@gmail.com>
 
-commit 75d2b2b06bd8407d03a3f126bc8b95eb356906c7 upstream.
+commit e87f66b38e66dffdec9daa9f8f0eb044e9a62e3b upstream.
 
-Explicitly disable PEC when the client does not support it.
-The problematic scenario is the following. A device with enabled PEC
-support is up and running and a kernel driver is loaded.
-Then the driver is unloaded (or device unbound), the HW device
-is reconfigured externally (e.g. by i2cset) to advertise itself as not
-supporting PEC. Without a new code, at the second load of the driver
-(or bind) the "flags" variable is not updated to avoid PEC usage. As a
-consequence the further communication with the device is done with
-the PEC enabled, which is wrong and may fail.
+Error values inside the probe function must be < 0. The ENOMEM return
+value has the wrong sign: it is positive instead of negative.
+Add a minus sign.
 
-The implementation first disable the I2C_CLIENT_PEC flag, then the old
-code enable it if needed.
-
-Fixes: 4e5418f787ec ("hwmon: (pmbus_core) Check adapter PEC support")
-Signed-off-by: Adam Wujek <dev_public@wujek.eu>
-Link: https://lore.kernel.org/r/20220420145059.431061-1-dev_public@wujek.eu
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: e239756717b5 ("net: mdio: Add BCM6368 MDIO mux bus controller")
+Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220428211931.8130-1-dossche.niels@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/mdio/mdio-mux-bcm6368.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -2326,6 +2326,9 @@ static int pmbus_init_common(struct i2c_
- 		data->has_status_word = true;
+--- a/drivers/net/mdio/mdio-mux-bcm6368.c
++++ b/drivers/net/mdio/mdio-mux-bcm6368.c
+@@ -115,7 +115,7 @@ static int bcm6368_mdiomux_probe(struct
+ 	md->mii_bus = devm_mdiobus_alloc(&pdev->dev);
+ 	if (!md->mii_bus) {
+ 		dev_err(&pdev->dev, "mdiomux bus alloc failed\n");
+-		return ENOMEM;
++		return -ENOMEM;
  	}
  
-+	/* Make sure PEC is disabled, will be enabled later if needed */
-+	client->flags &= ~I2C_CLIENT_PEC;
-+
- 	/* Enable PEC if the controller and bus supports it */
- 	if (!(data->flags & PMBUS_NO_CAPABILITY)) {
- 		ret = i2c_smbus_read_byte_data(client, PMBUS_CAPABILITY);
+ 	bus = md->mii_bus;
 
 
