@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1B8521791
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D44505216B9
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:14:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244036AbiEJN1z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:27:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41370 "EHLO
+        id S242331AbiEJNR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:17:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243092AbiEJNZa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:25:30 -0400
+        with ESMTP id S242396AbiEJNPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:53 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 431BF185C8F;
-        Tue, 10 May 2022 06:18:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D5A48E40;
+        Tue, 10 May 2022 06:11:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D12D961574;
-        Tue, 10 May 2022 13:18:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0DBBC385C2;
-        Tue, 10 May 2022 13:18:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0378361532;
+        Tue, 10 May 2022 13:11:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FB76C385A6;
+        Tue, 10 May 2022 13:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188732;
-        bh=sXILfzq9IW3DCNFKyH1tGuQNRkOLW85EMG6ylDqHGXM=;
+        s=korg; t=1652188291;
+        bh=q+s6FJfbA7d6EcGsRe441ZZ2FTLTaNIUc3UIe2otjyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0VNr79mSkRRMylbvytpex57m+NHNLxfm+0l3NuFuKAioEQgGmoqEAQ0XALBElJAQJ
-         MCQkrWmWqgBQ2QXkx3Kqr97jNQwlpNVFX55UT5qj2S4glkMUyYGaL1p7mJ7W28vhN2
-         6UpSULqyqfbU+hHW3z2xQpCSO2X6b7M0kG0kS53s=
+        b=hjkgiv0H8CRQQie/S6VS6QjL/YYVlx41kvS4gTf43jOGHSOvsAOIDRKxYn7sRDlEa
+         izMEj7tlHTAFpm4xIb4e74OalYQbfcMRELeJTkcaydGGj5h4vjJ445yJuuSgtl6rbk
+         n3jOzBTC2Xba49RNLg5Wb7qNiyS4zY6sjKCbZjPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zizhuang Deng <sunsetdzz@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 09/88] iio: dac: ad5592r: Fix the missing return value.
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.9 04/66] USB: quirks: add a Realtek card reader
 Date:   Tue, 10 May 2022 15:06:54 +0200
-Message-Id: <20220510130734.015700859@linuxfoundation.org>
+Message-Id: <20220510130729.891962151@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +52,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zizhuang Deng <sunsetdzz@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit b55b38f7cc12da3b9ef36e7a3b7f8f96737df4d5 upstream.
+commit 2a7ccf6bb6f147f64c025ad68f4255d8e1e0ce6d upstream.
 
-The third call to `fwnode_property_read_u32` did not record
-the return value, resulting in `channel_offstate` possibly
-being assigned the wrong value.
+This device is reported to stall when enummerated.
 
-Fixes: 56ca9db862bf ("iio: dac: Add support for the AD5592R/AD5593R ADCs/DACs")
-Signed-off-by: Zizhuang Deng <sunsetdzz@gmail.com>
-Link: https://lore.kernel.org/r/20220310125450.4164164-1-sunsetdzz@gmail.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220414110209.30924-1-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/dac/ad5592r-base.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/iio/dac/ad5592r-base.c
-+++ b/drivers/iio/dac/ad5592r-base.c
-@@ -531,7 +531,7 @@ static int ad5592r_alloc_channels(struct
- 		if (!ret)
- 			st->channel_modes[reg] = tmp;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -243,6 +243,9 @@ static const struct usb_device_id usb_qu
+ 	{ USB_DEVICE(0x0b05, 0x17e0), .driver_info =
+ 			USB_QUIRK_IGNORE_REMOTE_WAKEUP },
  
--		fwnode_property_read_u32(child, "adi,off-state", &tmp);
-+		ret = fwnode_property_read_u32(child, "adi,off-state", &tmp);
- 		if (!ret)
- 			st->channel_offstate[reg] = tmp;
- 	}
++	/* Realtek Semiconductor Corp. Mass Storage Device (Multicard Reader)*/
++	{ USB_DEVICE(0x0bda, 0x0151), .driver_info = USB_QUIRK_CONFIG_INTF_STRINGS },
++
+ 	/* Realtek hub in Dell WD19 (Type-C) */
+ 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
+ 	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
 
 
