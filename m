@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB05F521AAB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D560552196E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:46:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245137AbiEJODM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46840 "EHLO
+        id S241530AbiEJNs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:48:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245676AbiEJN6f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:58:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D3479B192;
-        Tue, 10 May 2022 06:39:33 -0700 (PDT)
+        with ESMTP id S243493AbiEJNpi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:45:38 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB7953E00;
+        Tue, 10 May 2022 06:31:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97DCE615C8;
-        Tue, 10 May 2022 13:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195D5C385A6;
-        Tue, 10 May 2022 13:39:30 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AF50FCE1E67;
+        Tue, 10 May 2022 13:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AD9C385A6;
+        Tue, 10 May 2022 13:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189972;
-        bh=Upg2fVux1kOn9Xu3eb4RDmui7oOrZF25naDZqBVlILI=;
+        s=korg; t=1652189449;
+        bh=H80LzjsCwwDuMoTh8aPlJp2dEdjqVJunQqjAV47P7vE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ei9J6o8oNb+lPghtyX/8nJRhEzTOd0OiAVfXhryAZgDc9cStTqdnvWtiz4p83YkVi
-         Mws4ERhM3Vhbsb+vg6gTc5k+czEWdqSLVzVrjaNJaX4NQsIrWufaVoAgpIcVWApY73
-         5R2mXhJYyB5U5uvCB9s/ALlDZR7Y3I9iB3hbwxy8=
+        b=LRkMMc+wdA/W2MWEkG5pbb3oUOT4QwisVbUVSSNmzb2ZAb2x9V/DOgmbAA2bWDJXD
+         lEufoEC+Zor5MphOVwTnQ6sWop1VeCmn3ouo8Y0TY9oRRo2QDXi4tWy1c994IZWWVf
+         wb2hzlof7LTcJwtEITlQbC2kNScVBSiHD/byUg20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Hellstrom <daniel@gaisler.com>,
-        Andreas Larsson <andreas@gaisler.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.17 047/140] can: grcan: use ofdev->dev when allocating DMA memory
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.15 055/135] SUNRPC release the transport of a relocated task with an assigned transport
 Date:   Tue, 10 May 2022 15:07:17 +0200
-Message-Id: <20220510130742.966376928@linuxfoundation.org>
+Message-Id: <20220510130741.984760719@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Hellstrom <daniel@gaisler.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 101da4268626b00d16356a6bf284d66e44c46ff9 upstream.
+commit e13433b4416fa31a24e621cbbbb39227a3d651dd upstream.
 
-Use the device of the device tree node should be rather than the
-device of the struct net_device when allocating DMA buffers.
+A relocated task must release its previous transport.
 
-The driver got away with it on sparc32 until commit 53b7670e5735
-("sparc: factor the dma coherent mapping into helper") after which the
-driver oopses.
-
-Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
-Link: https://lore.kernel.org/all/20220429084656.29788-2-andreas@gaisler.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Hellstrom <daniel@gaisler.com>
-Signed-off-by: Andreas Larsson <andreas@gaisler.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 82ee41b85cef1 ("SUNRPC don't resend a task on an offlined transport")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/grcan.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sunrpc/clnt.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -248,6 +248,7 @@ struct grcan_device_config {
- struct grcan_priv {
- 	struct can_priv can;	/* must be the first member */
- 	struct net_device *dev;
-+	struct device *ofdev_dev;
- 	struct napi_struct napi;
- 
- 	struct grcan_registers __iomem *regs;	/* ioremap'ed registers */
-@@ -921,7 +922,7 @@ static void grcan_free_dma_buffers(struc
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	struct grcan_dma *dma = &priv->dma;
- 
--	dma_free_coherent(&dev->dev, dma->base_size, dma->base_buf,
-+	dma_free_coherent(priv->ofdev_dev, dma->base_size, dma->base_buf,
- 			  dma->base_handle);
- 	memset(dma, 0, sizeof(*dma));
- }
-@@ -946,7 +947,7 @@ static int grcan_allocate_dma_buffers(st
- 
- 	/* Extra GRCAN_BUFFER_ALIGNMENT to allow for alignment */
- 	dma->base_size = lsize + ssize + GRCAN_BUFFER_ALIGNMENT;
--	dma->base_buf = dma_alloc_coherent(&dev->dev,
-+	dma->base_buf = dma_alloc_coherent(priv->ofdev_dev,
- 					   dma->base_size,
- 					   &dma->base_handle,
- 					   GFP_KERNEL);
-@@ -1589,6 +1590,7 @@ static int grcan_setup_netdev(struct pla
- 	memcpy(&priv->config, &grcan_module_config,
- 	       sizeof(struct grcan_device_config));
- 	priv->dev = dev;
-+	priv->ofdev_dev = &ofdev->dev;
- 	priv->regs = base;
- 	priv->can.bittiming_const = &grcan_bittiming_const;
- 	priv->can.do_set_bittiming = grcan_set_bittiming;
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -1065,10 +1065,13 @@ rpc_task_get_next_xprt(struct rpc_clnt *
+ static
+ void rpc_task_set_transport(struct rpc_task *task, struct rpc_clnt *clnt)
+ {
+-	if (task->tk_xprt &&
+-			!(test_bit(XPRT_OFFLINE, &task->tk_xprt->state) &&
+-                        (task->tk_flags & RPC_TASK_MOVEABLE)))
+-		return;
++	if (task->tk_xprt) {
++		if (!(test_bit(XPRT_OFFLINE, &task->tk_xprt->state) &&
++		      (task->tk_flags & RPC_TASK_MOVEABLE)))
++			return;
++		xprt_release(task);
++		xprt_put(task->tk_xprt);
++	}
+ 	if (task->tk_flags & RPC_TASK_NO_ROUND_ROBIN)
+ 		task->tk_xprt = rpc_task_get_first_xprt(clnt);
+ 	else
 
 
