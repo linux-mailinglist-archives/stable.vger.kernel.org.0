@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC56521682
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77054521701
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242277AbiEJNPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:15:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
+        id S243099AbiEJNWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:22:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242257AbiEJNPG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:15:06 -0400
+        with ESMTP id S243005AbiEJNVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 173793968F;
-        Tue, 10 May 2022 06:11:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFDA3B57E;
+        Tue, 10 May 2022 06:14:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6539B615DD;
-        Tue, 10 May 2022 13:11:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E29C385C6;
-        Tue, 10 May 2022 13:11:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7682961668;
+        Tue, 10 May 2022 13:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E771C385A6;
+        Tue, 10 May 2022 13:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188260;
+        s=korg; t=1652188470;
         bh=23NIjSuIAxDr+YqpEEABu2BsmOfakhswdhx5AG3Xwb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUbYpZeJIW/d6hDLfAbwrq9ecQWrLx8H0dAmQOwhHAEGmCjGMLNpGcDU0OKaPSuz+
-         NK0bVi6/THICHkpuJY+9KTnRkOEWXJYMQb6G/TmdDUqexhfMRpbEFGjbO31CNf+yHi
-         8LcbPPYL8f4toR1/BRkdPuBCxDZfWDiz0EMwxDSg=
+        b=hyLyhsUpsftI9CHkDq3Oi9zPqVRdvwUfvGyQo1mS4anVbscY2YGGFB5m7/XkrZW5S
+         ddrY9CaOeSSNyJN1GlZs4PtKJFe6ek65hqBrKuwFM7oE+x4hJMW7RtD4S1DabID5Gs
+         rv766kD1uP0HPDFzfnv4/bT6sf2wZzep081zVneU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Vacura <w36195@motorola.com>
-Subject: [PATCH 4.9 15/66] usb: gadget: uvc: Fix crash when encoding data for usb request
+Subject: [PATCH 4.14 19/78] usb: gadget: uvc: Fix crash when encoding data for usb request
 Date:   Tue, 10 May 2022 15:07:05 +0200
-Message-Id: <20220510130730.213554487@linuxfoundation.org>
+Message-Id: <20220510130733.099465057@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
-References: <20220510130729.762341544@linuxfoundation.org>
+In-Reply-To: <20220510130732.522479698@linuxfoundation.org>
+References: <20220510130732.522479698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,7 +45,7 @@ Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
