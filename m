@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A05E152188E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56AD75219AC
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:47:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245535AbiEJNjH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56582 "EHLO
+        id S240366AbiEJNug (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:50:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243459AbiEJNfW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:35:22 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BD822B9CB0;
-        Tue, 10 May 2022 06:24:43 -0700 (PDT)
+        with ESMTP id S245043AbiEJNrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CCC7E080;
+        Tue, 10 May 2022 06:34:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5790BCE1EED;
-        Tue, 10 May 2022 13:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AD3DC385A6;
-        Tue, 10 May 2022 13:24:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C43B3B81DA8;
+        Tue, 10 May 2022 13:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058B1C385A6;
+        Tue, 10 May 2022 13:34:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189080;
-        bh=tVVWGkF/iT6p3c+HWVoArkGTv1eamDF6usUjCAoXFHM=;
+        s=korg; t=1652189648;
+        bh=pVaz+wkZjguHefPMnnE6xU5RTtQ+84NCQi/e2p+M3vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTr7wbeOWfnweWN/w1ycAyYj1dLmXckUct3TCv8i/cc4EyUR3nr47I/EoHZ4gn60b
-         /OQ34G469IRCg7PzcLtKkcfcz75/PYBHkw9GMQe/DKWzZoQ/4bdd+Yxgz2s/2cQtBi
-         WEh8oXBe9SnB1/dCU8pP6xS57MkJbkbDr70l8/b0=
+        b=RHPJCorqp93eQiVRGxvr/HHAhG8y+HTVG+eh2++TFlP/EpjIkpMzJK2AcN5uvk/0A
+         1lOsygwHsD2bwpGmlDUmZ0vH+eMmlaO1YQU1BMjHl2r1p0msGM6LzOm2oj0+9FhId8
+         3Q6Wp13wLdhkYEX75QwaEG/e5VLUBhdXavmxM44E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Mike Snitzer <snitzer@kernel.org>
-Subject: [PATCH 5.4 49/52] dm: interlock pending dm_io and dm_wait_for_bios_completion
-Date:   Tue, 10 May 2022 15:08:18 +0200
-Message-Id: <20220510130731.288376880@linuxfoundation.org>
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.15 117/135] PCI: aardvark: Replace custom PCIE_CORE_INT_* macros with PCI_INTERRUPT_*
+Date:   Tue, 10 May 2022 15:08:19 +0200
+Message-Id: <20220510130743.756175307@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
-References: <20220510130729.852544477@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Snitzer <snitzer@redhat.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 9f6dc633761006f974701d4c88da71ab68670749 upstream.
+commit 1d86abf1f89672a70f2ab65f6000299feb1f1781 upstream.
 
-Commit d208b89401e0 ("dm: fix mempool NULL pointer race when
-completing IO") didn't go far enough.
+Header file linux/pci.h defines enum pci_interrupt_pin with corresponding
+PCI_INTERRUPT_* values.
 
-When bio_end_io_acct ends the count of in-flight I/Os may reach zero
-and the DM device may be suspended. There is a possibility that the
-suspend races with dm_stats_account_io.
-
-Fix this by adding percpu "pending_io" counters to track outstanding
-dm_io. Move kicking of suspend queue to dm_io_dec_pending(). Also,
-rename md_in_flight_bios() to dm_in_flight_bios() and update it to
-iterate all pending_io counters.
-
-Fixes: d208b89401e0 ("dm: fix mempool NULL pointer race when completing IO")
-Cc: stable@vger.kernel.org
-Co-developed-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Mike Snitzer <snitzer@kernel.org>
+Link: https://lore.kernel.org/r/20220110015018.26359-2-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -681,14 +681,16 @@ static void end_io_acct(struct mapped_de
- {
- 	unsigned long duration = jiffies - start_time;
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -38,10 +38,6 @@
+ #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHK_TX_EN			BIT(6)
+ #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK			BIT(7)
+ #define     PCIE_CORE_ERR_CAPCTL_ECRC_CHCK_RCV			BIT(8)
+-#define     PCIE_CORE_INT_A_ASSERT_ENABLE			1
+-#define     PCIE_CORE_INT_B_ASSERT_ENABLE			2
+-#define     PCIE_CORE_INT_C_ASSERT_ENABLE			3
+-#define     PCIE_CORE_INT_D_ASSERT_ENABLE			4
+ /* PIO registers base address and register offsets */
+ #define PIO_BASE_ADDR				0x4000
+ #define PIO_CTRL				(PIO_BASE_ADDR + 0x0)
+@@ -961,7 +957,7 @@ static int advk_sw_pci_bridge_init(struc
+ 	bridge->conf.pref_mem_limit = cpu_to_le16(PCI_PREF_RANGE_TYPE_64);
  
--	generic_end_io_acct(md->queue, bio_op(bio), &dm_disk(md)->part0,
--			    start_time);
--
- 	if (unlikely(dm_stats_used(&md->stats)))
- 		dm_stats_account_io(&md->stats, bio_data_dir(bio),
- 				    bio->bi_iter.bi_sector, bio_sectors(bio),
- 				    true, duration, stats_aux);
+ 	/* Support interrupt A for MSI feature */
+-	bridge->conf.intpin = PCIE_CORE_INT_A_ASSERT_ENABLE;
++	bridge->conf.intpin = PCI_INTERRUPT_INTA;
  
-+	smp_wmb();
-+
-+	generic_end_io_acct(md->queue, bio_op(bio), &dm_disk(md)->part0,
-+			    start_time);
-+
- 	/* nudge anyone waiting on suspend queue */
- 	if (unlikely(wq_has_sleeper(&md->wait)))
- 		wake_up(&md->wait);
-@@ -2494,6 +2496,8 @@ static int dm_wait_for_completion(struct
- 	}
- 	finish_wait(&md->wait, &wait);
- 
-+	smp_rmb();
-+
- 	return r;
- }
- 
+ 	/* Aardvark HW provides PCIe Capability structure in version 2 */
+ 	bridge->pcie_conf.cap = cpu_to_le16(2);
 
 
