@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03DC65218D7
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF1C521AED
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243768AbiEJNlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54830 "EHLO
+        id S244629AbiEJOFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245158AbiEJNif (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DEE1261953;
-        Tue, 10 May 2022 06:27:37 -0700 (PDT)
+        with ESMTP id S244729AbiEJOEq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0623D980B5;
+        Tue, 10 May 2022 06:40:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FCCCB81DA9;
-        Tue, 10 May 2022 13:27:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79D49C385A6;
-        Tue, 10 May 2022 13:27:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B46F3615C8;
+        Tue, 10 May 2022 13:40:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1605C385A6;
+        Tue, 10 May 2022 13:40:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189254;
-        bh=dhkW1ASMyZWLN/zK5ccMxBpm7mwVmOaNbaYYAvXnbn4=;
+        s=korg; t=1652190044;
+        bh=5RCcXThUFzSNyUhsvTR0v2sb3kkSfTl2uoQ6d7Azquw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JxzFxJdA0wfqRpemUkzZi/dp27p7iSABKRVb74eYCh+fd2FrSxvnFlB1mqnjvLmvj
-         Fp3Ld5leSJx9IvLu5bXyr1lcEEjOcrwI51Rmw8fGYj6uiBvu0KkDCa6u2PfRuRmd1t
-         f5M+8j+U+pi8PfjF5Kxh7/g+IiNLVm6WEizH0pUM=
+        b=VRUKDYTMlQxAnyykIKvmtdSCB7yreCHQEHiWt0eJ/c7P9ldoTaIek+tEn5bEQ1E2k
+         wn+rr4O1nYlatNvIvX/szPZTOSuxCc9GW9/ID/gNLEjeN6/1pRQYpJNa+hHsuWKvjK
+         Avm5/a+UICk/1vRduKFNm+j4+ZhVr3uJZF/XSZRI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Gao <chao.gao@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 61/70] KVM: x86: Do not change ICR on write to APIC_SELF_IPI
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
+        Sven Peter <sven@svenpeter.dev>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 110/140] iommu/dart: Add missing module owner to ops structure
 Date:   Tue, 10 May 2022 15:08:20 +0200
-Message-Id: <20220510130734.653510441@linuxfoundation.org>
+Message-Id: <20220510130744.748791643@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130741.600270947@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit d22a81b304a27fca6124174a8e842e826c193466 ]
+[ Upstream commit 2ac2fab52917ae82cbca97cf6e5d2993530257ed ]
 
-Emulating writes to SELF_IPI with a write to ICR has an unwanted side effect:
-the value of ICR in vAPIC page gets changed.  The lists SELF_IPI as write-only,
-with no associated MMIO offset, so any write should have no visible side
-effect in the vAPIC page.
+This is required to make loading this as a module work.
 
-Reported-by: Chao Gao <chao.gao@intel.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Hector Martin <marcan@marcan.st>
+Fixes: 46d1fb072e76 ("iommu/dart: Add DART iommu driver")
+Reviewed-by: Sven Peter <sven@svenpeter.dev>
+Link: https://lore.kernel.org/r/20220502092238.30486-1-marcan@marcan.st
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/iommu/apple-dart.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index de11149e28e0..e45ebf0870b6 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -2106,10 +2106,9 @@ int kvm_lapic_reg_write(struct kvm_lapic *apic, u32 reg, u32 val)
- 		break;
+diff --git a/drivers/iommu/apple-dart.c b/drivers/iommu/apple-dart.c
+index 6c111bd8283d..68821f86b063 100644
+--- a/drivers/iommu/apple-dart.c
++++ b/drivers/iommu/apple-dart.c
+@@ -782,6 +782,7 @@ static const struct iommu_ops apple_dart_iommu_ops = {
+ 	.get_resv_regions = apple_dart_get_resv_regions,
+ 	.put_resv_regions = generic_iommu_put_resv_regions,
+ 	.pgsize_bitmap = -1UL, /* Restricted during dart probe */
++	.owner = THIS_MODULE,
+ };
  
- 	case APIC_SELF_IPI:
--		if (apic_x2apic_mode(apic)) {
--			kvm_lapic_reg_write(apic, APIC_ICR,
--					    APIC_DEST_SELF | (val & APIC_VECTOR_MASK));
--		} else
-+		if (apic_x2apic_mode(apic))
-+			kvm_apic_send_ipi(apic, APIC_DEST_SELF | (val & APIC_VECTOR_MASK), 0);
-+		else
- 			ret = 1;
- 		break;
- 	default:
+ static irqreturn_t apple_dart_irq(int irq, void *dev)
 -- 
 2.35.1
 
