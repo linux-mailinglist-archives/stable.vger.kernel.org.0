@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C528521934
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E1970521713
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243865AbiEJNo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:44:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53228 "EHLO
+        id S233525AbiEJNXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244142AbiEJNnX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:43:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321FF338B2;
-        Tue, 10 May 2022 06:31:04 -0700 (PDT)
+        with ESMTP id S242809AbiEJNVD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:21:03 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F2D22BAE6D;
+        Tue, 10 May 2022 06:13:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BC6761821;
-        Tue, 10 May 2022 13:31:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195D0C385C2;
-        Tue, 10 May 2022 13:31:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5254B81CE7;
+        Tue, 10 May 2022 13:13:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24AAAC385A6;
+        Tue, 10 May 2022 13:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189461;
-        bh=+mJTXgsOIxd3Wmqr468P9HZLAksdzKwrV1S7ZpA+WV8=;
+        s=korg; t=1652188429;
+        bh=MKudbu7vHv3XJ8MbvM3xZDs4i7yKHou2tCtg+kv73Gc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LHJPqfXVR/fGhndkIyYAbq7tHhv4fnVbuBJzESqCGhe51aywDlAOkc27N/GdoahCS
-         6+vSAK6s8brwPt7+/3w3mR6acXGO1csridOE1DVDrmrUC+DEBSSWuLAKO9mqZoZ2DI
-         eLAG7RB7GSfmRDE2zExmZdwx5F3lp3ccPqEY1zmo=
+        b=WLxXs2SbKJHRWhr3pgJmM7Ji48XnkAQdPXe17c45sg7gPTx3jNWhvPIZG+nkUoIht
+         nwnlEyAC/t2HVPGdSWSrSbFNCQPugbo71XeUhLQARL92wvJOO6qhY2jmGrpOidhnL+
+         iSHLdkD68a7rv7Z+Tkx/1vkqHpl6S6oJXEp4lzrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 058/135] RDMA/irdma: Reduce iWARP QP destroy time
-Date:   Tue, 10 May 2022 15:07:20 +0200
-Message-Id: <20220510130742.073546413@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 31/66] clk: sunxi: sun9i-mmc: check return value after calling platform_get_resource()
+Date:   Tue, 10 May 2022 15:07:21 +0200
+Message-Id: <20220510130730.679342061@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
-References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+References: <20220510130729.762341544@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shiraz Saleem <shiraz.saleem@intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 2df6d895907b2f5dfbc558cbff7801bba82cb3cc upstream.
+[ Upstream commit f58ca215cda1975f77b2b762903684a3c101bec9 ]
 
-QP destroy is synchronous and waits for its refcnt to be decremented in
-irdma_cm_node_free_cb (for iWARP) which fires after the RCU grace period
-elapses.
+It will cause null-ptr-deref if platform_get_resource() returns NULL,
+we need check the return value.
 
-Applications running a large number of connections are exposed to high
-wait times on destroy QP for events like SIGABORT.
-
-The long pole for this wait time is the firing of the call_rcu callback
-during a CM node destroy which can be slow. It holds the QP reference
-count and blocks the destroy QP from completing.
-
-call_rcu only needs to make sure that list walkers have a reference to the
-cm_node object before freeing it and thus need to wait for grace period
-elapse. The rest of the connection teardown in irdma_cm_node_free_cb is
-moved out of the grace period wait in irdma_destroy_connection. Also,
-replace call_rcu with a simple kfree_rcu as it just needs to do a kfree on
-the cm_node
-
-Fixes: 146b9756f14c ("RDMA/irdma: Add connection manager")
-Link: https://lore.kernel.org/r/20220425181703.1634-3-shiraz.saleem@intel.com
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7a6fca879f59 ("clk: sunxi: Add driver for A80 MMC config clocks/resets")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://lore.kernel.org/r/20220421134308.2885094-1-yangyingliang@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/clk/sunxi/clk-sun9i-mmc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -2305,10 +2305,8 @@ err:
- 	return NULL;
- }
+diff --git a/drivers/clk/sunxi/clk-sun9i-mmc.c b/drivers/clk/sunxi/clk-sun9i-mmc.c
+index f69f9e8c6f38..7e9d1624032f 100644
+--- a/drivers/clk/sunxi/clk-sun9i-mmc.c
++++ b/drivers/clk/sunxi/clk-sun9i-mmc.c
+@@ -117,6 +117,8 @@ static int sun9i_a80_mmc_config_clk_probe(struct platform_device *pdev)
+ 	spin_lock_init(&data->lock);
  
--static void irdma_cm_node_free_cb(struct rcu_head *rcu_head)
-+static void irdma_destroy_connection(struct irdma_cm_node *cm_node)
- {
--	struct irdma_cm_node *cm_node =
--			    container_of(rcu_head, struct irdma_cm_node, rcu_head);
- 	struct irdma_cm_core *cm_core = cm_node->cm_core;
- 	struct irdma_qp *iwqp;
- 	struct irdma_cm_info nfo;
-@@ -2356,7 +2354,6 @@ static void irdma_cm_node_free_cb(struct
- 	}
- 
- 	cm_core->cm_free_ah(cm_node);
--	kfree(cm_node);
- }
- 
- /**
-@@ -2384,8 +2381,9 @@ void irdma_rem_ref_cm_node(struct irdma_
- 
- 	spin_unlock_irqrestore(&cm_core->ht_lock, flags);
- 
--	/* wait for all list walkers to exit their grace period */
--	call_rcu(&cm_node->rcu_head, irdma_cm_node_free_cb);
-+	irdma_destroy_connection(cm_node);
-+
-+	kfree_rcu(cm_node, rcu_head);
- }
- 
- /**
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!r)
++		return -EINVAL;
+ 	/* one clock/reset pair per word */
+ 	count = DIV_ROUND_UP((resource_size(r)), SUN9I_MMC_WIDTH);
+ 	data->membase = devm_ioremap_resource(&pdev->dev, r);
+-- 
+2.35.1
+
 
 
