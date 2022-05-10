@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B36E52189C
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7854E5218A1
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:35:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238486AbiEJNj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:39:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44228 "EHLO
+        id S243380AbiEJNjc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:39:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244123AbiEJNgv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:36:51 -0400
+        with ESMTP id S244333AbiEJNh3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:37:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 603CC2D9ED1;
-        Tue, 10 May 2022 06:25:24 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C26462CC6;
+        Tue, 10 May 2022 06:25:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EAFD617B0;
-        Tue, 10 May 2022 13:25:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B9ADC385C2;
-        Tue, 10 May 2022 13:25:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8528161767;
+        Tue, 10 May 2022 13:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C7A3C385C2;
+        Tue, 10 May 2022 13:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189122;
-        bh=NZhQevZcqdnSmjHIeiRhCKNQNiuW3X6d3Bp6k7e4zGc=;
+        s=korg; t=1652189134;
+        bh=fzdfAEKxwWwnKcFkBTlhyxorVAZZr97R3k+ylvtGsGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHYswWnubzQuT+DmyWFzjGCWwXqiF2yhCRt60ufJDJQovHwVCtnZqhbB0j5BblrVn
-         kc5BUH3wTi2tUnobGT3UPaOC1UHFhb9Dgt080p1RsPX5pPtFsKaKrwtyqn/Ud3Vb9Y
-         pBrnu2AsBKuXhN3JTOyxjqRzIXR8SIzRNQMXQaRw=
+        b=GKfwDitnJC4RGyGEFaWdZRl1zUuE1rc1lViTW/OSC6i03yP3Um2UqpqSSeY68vMN8
+         HCxZxCAM1tWc203k3VtW7pkTxQEiicBMwN1cEVg4vJF+0TIs/jMQz9mKBfyceGIjii
+         Ksbx0aosQX0t2hPTlE0AUTMiRAKGDVXv056muEPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 02/70] parisc: Merge model and model name into one line in /proc/cpuinfo
-Date:   Tue, 10 May 2022 15:07:21 +0200
-Message-Id: <20220510130732.935799125@linuxfoundation.org>
+        stable@vger.kernel.org, Zihao Wang <wzhd@ustc.edu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 03/70] ALSA: hda/realtek: Add quirk for Yoga Duet 7 13ITL6 speakers
+Date:   Tue, 10 May 2022 15:07:22 +0200
+Message-Id: <20220510130732.964782467@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
 References: <20220510130732.861729621@linuxfoundation.org>
@@ -52,32 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Zihao Wang <wzhd@ustc.edu>
 
-commit 5b89966bc96a06f6ad65f64ae4b0461918fcc9d3 upstream.
+commit 3b79954fd00d540677c97a560622b73f3a1f4e28 upstream.
 
-The Linux tool "lscpu" shows the double amount of CPUs if we have
-"model" and "model name" in two different lines in /proc/cpuinfo.
-This change combines the model and the model name into one line.
+Lenovo Yoga Duet 7 13ITL6 has Realtek ALC287 and built-in
+speakers do not work out of the box. The fix developed for
+Yoga 7i 14ITL5 also enables speaker output for this model.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org
+Signed-off-by: Zihao Wang <wzhd@ustc.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220424084120.74125-1-wzhd@ustc.edu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/processor.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/parisc/kernel/processor.c
-+++ b/arch/parisc/kernel/processor.c
-@@ -419,8 +419,7 @@ show_cpuinfo (struct seq_file *m, void *
- 		}
- 		seq_printf(m, " (0x%02lx)\n", boot_cpu_data.pdc.capabilities);
- 
--		seq_printf(m, "model\t\t: %s\n"
--				"model name\t: %s\n",
-+		seq_printf(m, "model\t\t: %s - %s\n",
- 				 boot_cpu_data.pdc.sys_model_name,
- 				 cpuinfo->dev ?
- 				 cpuinfo->dev->name : "Unknown");
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8969,6 +8969,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
+ 	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
++	SND_PCI_QUIRK(0x17aa, 0x3820, "Yoga Duet 7 13ITL6", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
+ 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
+ 	SND_PCI_QUIRK(0x17aa, 0x3834, "Lenovo IdeaPad Slim 9i 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
 
 
