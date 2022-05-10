@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F45C5217AA
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C255E52182B
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:29:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243088AbiEJN2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:28:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47754 "EHLO
+        id S242870AbiEJNdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243625AbiEJN1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:27:12 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE6B2397B0;
-        Tue, 10 May 2022 06:20:11 -0700 (PDT)
+        with ESMTP id S244073AbiEJNce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB112317D8;
+        Tue, 10 May 2022 06:24:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 97118CE1EA8;
-        Tue, 10 May 2022 13:20:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F3BC385A6;
-        Tue, 10 May 2022 13:20:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFDD6B81D7A;
+        Tue, 10 May 2022 13:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59F3BC385A6;
+        Tue, 10 May 2022 13:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652188808;
-        bh=ri5FZx4k/xV0y56XosfN461TREudlontDU4CQIoNdhY=;
+        s=korg; t=1652189040;
+        bh=3H1BjRzDHUjxEnk9QTEfAYQL8EISB2HXM59jjO3NEzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ay96emvMhukxDUoZYV+k0ovpmZVDcsSBjCvAIb5nV6E8CzGwzTTItHI0rhsYeVogg
-         +QQm0TKe1woa+ErxpBvqb6OLbiDcvrRrbpN1p34dZ7uGmZb72cmtXHGW3Alr+qVJsa
-         +i01k5aOgqJK2OPo8WwUXBip5VlFWOlaIz4wBJ3g=
+        b=Keugl/jL5S1LiWQ+MzVvJTWYpBdbp9DRTSiTaUpqlxN/SlH0MxieSkuIfsvAtu4R2
+         B/P+9P2tHLFBv8szsos7O44sVQdNMB9Ut6OfN5diHyc5yAMl4wK+8a3mcWIUFGJ3Ut
+         +8867JN39w5e2ldrVmaL67UMkwVB6SxCwymQwPbs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH 4.19 51/88] netfilter: nft_socket: only do sk lookups when indev is available
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 07/52] firewire: remove check of list iterator against head past the loop body
 Date:   Tue, 10 May 2022 15:07:36 +0200
-Message-Id: <20220510130735.230701489@linuxfoundation.org>
+Message-Id: <20220510130730.072415907@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130733.735278074@linuxfoundation.org>
-References: <20220510130733.735278074@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,110 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-commit 743b83f15d4069ea57c3e40996bf4a1077e0cdc1 upstream.
+commit 9423973869bd4632ffe669f950510c49296656e0 upstream.
 
-Check if the incoming interface is available and NFT_BREAK
-in case neither skb->sk nor input device are set.
+When list_for_each_entry() completes the iteration over the whole list
+without breaking the loop, the iterator value will be a bogus pointer
+computed based on the head element.
 
-Because nf_sk_lookup_slow*() assume packet headers are in the
-'in' direction, use in postrouting is not going to yield a meaningful
-result.  Same is true for the forward chain, so restrict the use
-to prerouting, input and output.
+While it is safe to use the pointer to determine if it was computed
+based on the head element, either with list_entry_is_head() or
+&pos->member == head, using the iterator variable after the loop should
+be avoided.
 
-Use in output work if a socket is already attached to the skb.
+In preparation to limit the scope of a list iterator to the list
+traversal loop, use a dedicated pointer to point to the found element [1].
 
-Fixes: 554ced0a6e29 ("netfilter: nf_tables: add support for native socket matching")
-Reported-and-tested-by: Topi Miettinen <toiwoton@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20220409041243.603210-3-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_socket.c |   52 ++++++++++++++++++++++++++++++++-------------
- 1 file changed, 38 insertions(+), 14 deletions(-)
+ drivers/firewire/core-transaction.c |   30 ++++++++++++++++--------------
+ drivers/firewire/sbp2.c             |   13 +++++++------
+ 2 files changed, 23 insertions(+), 20 deletions(-)
 
---- a/net/netfilter/nft_socket.c
-+++ b/net/netfilter/nft_socket.c
-@@ -14,6 +14,32 @@ struct nft_socket {
- 	};
- };
+--- a/drivers/firewire/core-transaction.c
++++ b/drivers/firewire/core-transaction.c
+@@ -73,24 +73,25 @@ static int try_cancel_split_timeout(stru
+ static int close_transaction(struct fw_transaction *transaction,
+ 			     struct fw_card *card, int rcode)
+ {
+-	struct fw_transaction *t;
++	struct fw_transaction *t = NULL, *iter;
+ 	unsigned long flags;
  
-+static struct sock *nft_socket_do_lookup(const struct nft_pktinfo *pkt)
-+{
-+	const struct net_device *indev = nft_in(pkt);
-+	const struct sk_buff *skb = pkt->skb;
-+	struct sock *sk = NULL;
-+
-+	if (!indev)
-+		return NULL;
-+
-+	switch (nft_pf(pkt)) {
-+	case NFPROTO_IPV4:
-+		sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, indev);
-+		break;
-+#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
-+	case NFPROTO_IPV6:
-+		sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, indev);
-+		break;
-+#endif
-+	default:
-+		WARN_ON_ONCE(1);
-+		break;
-+	}
-+
-+	return sk;
-+}
-+
- static void nft_socket_eval(const struct nft_expr *expr,
- 			    struct nft_regs *regs,
- 			    const struct nft_pktinfo *pkt)
-@@ -27,20 +53,7 @@ static void nft_socket_eval(const struct
- 		sk = NULL;
+ 	spin_lock_irqsave(&card->lock, flags);
+-	list_for_each_entry(t, &card->transaction_list, link) {
+-		if (t == transaction) {
+-			if (!try_cancel_split_timeout(t)) {
++	list_for_each_entry(iter, &card->transaction_list, link) {
++		if (iter == transaction) {
++			if (!try_cancel_split_timeout(iter)) {
+ 				spin_unlock_irqrestore(&card->lock, flags);
+ 				goto timed_out;
+ 			}
+-			list_del_init(&t->link);
+-			card->tlabel_mask &= ~(1ULL << t->tlabel);
++			list_del_init(&iter->link);
++			card->tlabel_mask &= ~(1ULL << iter->tlabel);
++			t = iter;
+ 			break;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&card->lock, flags);
  
- 	if (!sk)
--		switch(nft_pf(pkt)) {
--		case NFPROTO_IPV4:
--			sk = nf_sk_lookup_slow_v4(nft_net(pkt), skb, nft_in(pkt));
--			break;
--#if IS_ENABLED(CONFIG_NF_TABLES_IPV6)
--		case NFPROTO_IPV6:
--			sk = nf_sk_lookup_slow_v6(nft_net(pkt), skb, nft_in(pkt));
--			break;
--#endif
--		default:
--			WARN_ON_ONCE(1);
--			regs->verdict.code = NFT_BREAK;
--			return;
--		}
-+		sk = nft_socket_do_lookup(pkt);
+-	if (&t->link != &card->transaction_list) {
++	if (t) {
+ 		t->callback(card, rcode, NULL, 0, t->callback_data);
+ 		return 0;
+ 	}
+@@ -935,7 +936,7 @@ EXPORT_SYMBOL(fw_core_handle_request);
  
- 	if (!sk) {
- 		regs->verdict.code = NFT_BREAK;
-@@ -123,6 +136,16 @@ static int nft_socket_dump(struct sk_buf
- 	return 0;
- }
+ void fw_core_handle_response(struct fw_card *card, struct fw_packet *p)
+ {
+-	struct fw_transaction *t;
++	struct fw_transaction *t = NULL, *iter;
+ 	unsigned long flags;
+ 	u32 *data;
+ 	size_t data_length;
+@@ -947,20 +948,21 @@ void fw_core_handle_response(struct fw_c
+ 	rcode	= HEADER_GET_RCODE(p->header[1]);
  
-+static int nft_socket_validate(const struct nft_ctx *ctx,
-+			       const struct nft_expr *expr,
-+			       const struct nft_data **data)
-+{
-+	return nft_chain_validate_hooks(ctx->chain,
-+					(1 << NF_INET_PRE_ROUTING) |
-+					(1 << NF_INET_LOCAL_IN) |
-+					(1 << NF_INET_LOCAL_OUT));
-+}
-+
- static struct nft_expr_type nft_socket_type;
- static const struct nft_expr_ops nft_socket_ops = {
- 	.type		= &nft_socket_type,
-@@ -130,6 +153,7 @@ static const struct nft_expr_ops nft_soc
- 	.eval		= nft_socket_eval,
- 	.init		= nft_socket_init,
- 	.dump		= nft_socket_dump,
-+	.validate	= nft_socket_validate,
- };
+ 	spin_lock_irqsave(&card->lock, flags);
+-	list_for_each_entry(t, &card->transaction_list, link) {
+-		if (t->node_id == source && t->tlabel == tlabel) {
+-			if (!try_cancel_split_timeout(t)) {
++	list_for_each_entry(iter, &card->transaction_list, link) {
++		if (iter->node_id == source && iter->tlabel == tlabel) {
++			if (!try_cancel_split_timeout(iter)) {
+ 				spin_unlock_irqrestore(&card->lock, flags);
+ 				goto timed_out;
+ 			}
+-			list_del_init(&t->link);
+-			card->tlabel_mask &= ~(1ULL << t->tlabel);
++			list_del_init(&iter->link);
++			card->tlabel_mask &= ~(1ULL << iter->tlabel);
++			t = iter;
+ 			break;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&card->lock, flags);
  
- static struct nft_expr_type nft_socket_type __read_mostly = {
+-	if (&t->link == &card->transaction_list) {
++	if (!t) {
+  timed_out:
+ 		fw_notice(card, "unsolicited response (source %x, tlabel %x)\n",
+ 			  source, tlabel);
+--- a/drivers/firewire/sbp2.c
++++ b/drivers/firewire/sbp2.c
+@@ -408,7 +408,7 @@ static void sbp2_status_write(struct fw_
+ 			      void *payload, size_t length, void *callback_data)
+ {
+ 	struct sbp2_logical_unit *lu = callback_data;
+-	struct sbp2_orb *orb;
++	struct sbp2_orb *orb = NULL, *iter;
+ 	struct sbp2_status status;
+ 	unsigned long flags;
+ 
+@@ -433,17 +433,18 @@ static void sbp2_status_write(struct fw_
+ 
+ 	/* Lookup the orb corresponding to this status write. */
+ 	spin_lock_irqsave(&lu->tgt->lock, flags);
+-	list_for_each_entry(orb, &lu->orb_list, link) {
++	list_for_each_entry(iter, &lu->orb_list, link) {
+ 		if (STATUS_GET_ORB_HIGH(status) == 0 &&
+-		    STATUS_GET_ORB_LOW(status) == orb->request_bus) {
+-			orb->rcode = RCODE_COMPLETE;
+-			list_del(&orb->link);
++		    STATUS_GET_ORB_LOW(status) == iter->request_bus) {
++			iter->rcode = RCODE_COMPLETE;
++			list_del(&iter->link);
++			orb = iter;
+ 			break;
+ 		}
+ 	}
+ 	spin_unlock_irqrestore(&lu->tgt->lock, flags);
+ 
+-	if (&orb->link != &lu->orb_list) {
++	if (orb) {
+ 		orb->callback(orb, &status);
+ 		kref_put(&orb->kref, free_orb); /* orb callback reference */
+ 	} else {
 
 
