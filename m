@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58FBE521AB1
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:59:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A730352183E
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244583AbiEJOD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40946 "EHLO
+        id S243430AbiEJNdy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:33:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245384AbiEJN5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA50BA99A;
-        Tue, 10 May 2022 06:39:16 -0700 (PDT)
+        with ESMTP id S243868AbiEJNcT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:32:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8D85142809;
+        Tue, 10 May 2022 06:22:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2FC9615E9;
-        Tue, 10 May 2022 13:39:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28F3C385A6;
-        Tue, 10 May 2022 13:39:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 57D3261763;
+        Tue, 10 May 2022 13:22:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E3BC385C2;
+        Tue, 10 May 2022 13:22:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189955;
-        bh=Npll0bIzELg7Cimq0/UJWbziWMNdzG1D97DZlEZJQ9U=;
+        s=korg; t=1652188970;
+        bh=tUBIoF9N6X0NiJbBCmDtbiWMfzpX2+Dhrt4Z/jqBemM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNPHuRS+t372bNTfwy4zOjxVLZ8zFoE5/0Z2FXbxZ/QpC72NhgruVcTqF0Tmzbk44
-         sO5+vX0bHG2GqIPepGobegzw8lzPLTn/96WmCyQtW4/IjmJaUNJB80treqwBlRZLdN
-         cLFj25D3SRCqMgdsTR7oDuBRQJFGsH6IpYFfPeu0=
+        b=zA+UFecsuBlGZgMm3rF4JwxIZaqGCHXQNAjL0B3SGwMf7SHDHtamOGGrqtLq00s4W
+         ibO2v3vLjz6zItogZq1YHeZnBGzam/aYEB1fMEcNlUlKO7XQttgJoOrqd37xidajjn
+         /hSk2GVJCCHziLVGNMMU0FsKe0WCcVYZHaStYpNE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tatyana Nikolova <tatyana.e.nikolova@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.17 080/140] RDMA/irdma: Flush iWARP QP if modified to ERR from RTR state
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 21/52] nfc: nfcmrvl: main: reorder destructive operations in nfcmrvl_nci_unregister_dev to avoid bugs
 Date:   Tue, 10 May 2022 15:07:50 +0200
-Message-Id: <20220510130743.901483246@linuxfoundation.org>
+Message-Id: <20220510130730.473905363@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130729.852544477@linuxfoundation.org>
+References: <20220510130729.852544477@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 7b8943b821bafab492f43aafbd006b57c6b65845 upstream.
+commit d270453a0d9ec10bb8a802a142fb1b3601a83098 upstream.
 
-When connection establishment fails in iWARP mode, an app can drain the
-QPs and hang because flush isn't issued when the QP is modified from RTR
-state to error. Issue a flush in this case using function
-irdma_cm_disconn().
+There are destructive operations such as nfcmrvl_fw_dnld_abort and
+gpio_free in nfcmrvl_nci_unregister_dev. The resources such as firmware,
+gpio and so on could be destructed while the upper layer functions such as
+nfcmrvl_fw_dnld_start and nfcmrvl_nci_recv_frame is executing, which leads
+to double-free, use-after-free and null-ptr-deref bugs.
 
-Update irdma_cm_disconn() to do flush when cm_id is NULL, which is the
-case when the QP is in RTR state and there is an error in the connection
-establishment.
+There are three situations that could lead to double-free bugs.
 
-Fixes: b48c24c2d710 ("RDMA/irdma: Implement device supported verb APIs")
-Link: https://lore.kernel.org/r/20220425181703.1634-2-shiraz.saleem@intel.com
-Signed-off-by: Tatyana Nikolova <tatyana.e.nikolova@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+The first situation is shown below:
+
+   (Thread 1)                 |      (Thread 2)
+nfcmrvl_fw_dnld_start         |
+ ...                          |  nfcmrvl_nci_unregister_dev
+ release_firmware()           |   nfcmrvl_fw_dnld_abort
+  kfree(fw) //(1)             |    fw_dnld_over
+                              |     release_firmware
+  ...                         |      kfree(fw) //(2)
+                              |     ...
+
+The second situation is shown below:
+
+   (Thread 1)                 |      (Thread 2)
+nfcmrvl_fw_dnld_start         |
+ ...                          |
+ mod_timer                    |
+ (wait a time)                |
+ fw_dnld_timeout              |  nfcmrvl_nci_unregister_dev
+   fw_dnld_over               |   nfcmrvl_fw_dnld_abort
+    release_firmware          |    fw_dnld_over
+     kfree(fw) //(1)          |     release_firmware
+     ...                      |      kfree(fw) //(2)
+
+The third situation is shown below:
+
+       (Thread 1)               |       (Thread 2)
+nfcmrvl_nci_recv_frame          |
+ if(..->fw_download_in_progress)|
+  nfcmrvl_fw_dnld_recv_frame    |
+   queue_work                   |
+                                |
+fw_dnld_rx_work                 | nfcmrvl_nci_unregister_dev
+ fw_dnld_over                   |  nfcmrvl_fw_dnld_abort
+  release_firmware              |   fw_dnld_over
+   kfree(fw) //(1)              |    release_firmware
+                                |     kfree(fw) //(2)
+
+The firmware struct is deallocated in position (1) and deallocated
+in position (2) again.
+
+The crash trace triggered by POC is like below:
+
+BUG: KASAN: double-free or invalid-free in fw_dnld_over
+Call Trace:
+  kfree
+  fw_dnld_over
+  nfcmrvl_nci_unregister_dev
+  nci_uart_tty_close
+  tty_ldisc_kill
+  tty_ldisc_hangup
+  __tty_hangup.part.0
+  tty_release
+  ...
+
+What's more, there are also use-after-free and null-ptr-deref bugs
+in nfcmrvl_fw_dnld_start. If we deallocate firmware struct, gpio or
+set null to the members of priv->fw_dnld in nfcmrvl_nci_unregister_dev,
+then, we dereference firmware, gpio or the members of priv->fw_dnld in
+nfcmrvl_fw_dnld_start, the UAF or NPD bugs will happen.
+
+This patch reorders destructive operations after nci_unregister_device
+in order to synchronize between cleanup routine and firmware download
+routine.
+
+The nci_unregister_device is well synchronized. If the device is
+detaching, the firmware download routine will goto error. If firmware
+download routine is executing, nci_unregister_device will wait until
+firmware download routine is finished.
+
+Fixes: 3194c6870158 ("NFC: nfcmrvl: add firmware download support")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/irdma/cm.c    |   16 +++++-----------
- drivers/infiniband/hw/irdma/verbs.c |    4 ++--
- 2 files changed, 7 insertions(+), 13 deletions(-)
+ drivers/nfc/nfcmrvl/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -3465,12 +3465,6 @@ static void irdma_cm_disconn_true(struct
- 	}
+--- a/drivers/nfc/nfcmrvl/main.c
++++ b/drivers/nfc/nfcmrvl/main.c
+@@ -194,6 +194,7 @@ void nfcmrvl_nci_unregister_dev(struct n
+ {
+ 	struct nci_dev *ndev = priv->ndev;
  
- 	cm_id = iwqp->cm_id;
--	/* make sure we havent already closed this connection */
--	if (!cm_id) {
--		spin_unlock_irqrestore(&iwqp->lock, flags);
--		return;
--	}
--
- 	original_hw_tcp_state = iwqp->hw_tcp_state;
- 	original_ibqp_state = iwqp->ibqp_state;
- 	last_ae = iwqp->last_aeq;
-@@ -3492,11 +3486,11 @@ static void irdma_cm_disconn_true(struct
- 			disconn_status = -ECONNRESET;
- 	}
++	nci_unregister_device(ndev);
+ 	if (priv->ndev->nfc_dev->fw_download_in_progress)
+ 		nfcmrvl_fw_dnld_abort(priv);
  
--	if ((original_hw_tcp_state == IRDMA_TCP_STATE_CLOSED ||
--	     original_hw_tcp_state == IRDMA_TCP_STATE_TIME_WAIT ||
--	     last_ae == IRDMA_AE_RDMAP_ROE_BAD_LLP_CLOSE ||
--	     last_ae == IRDMA_AE_BAD_CLOSE ||
--	     last_ae == IRDMA_AE_LLP_CONNECTION_RESET || iwdev->rf->reset)) {
-+	if (original_hw_tcp_state == IRDMA_TCP_STATE_CLOSED ||
-+	    original_hw_tcp_state == IRDMA_TCP_STATE_TIME_WAIT ||
-+	    last_ae == IRDMA_AE_RDMAP_ROE_BAD_LLP_CLOSE ||
-+	    last_ae == IRDMA_AE_BAD_CLOSE ||
-+	    last_ae == IRDMA_AE_LLP_CONNECTION_RESET || iwdev->rf->reset || !cm_id) {
- 		issue_close = 1;
- 		iwqp->cm_id = NULL;
- 		qp->term_flags = 0;
---- a/drivers/infiniband/hw/irdma/verbs.c
-+++ b/drivers/infiniband/hw/irdma/verbs.c
-@@ -1620,13 +1620,13 @@ int irdma_modify_qp(struct ib_qp *ibqp,
+@@ -202,7 +203,6 @@ void nfcmrvl_nci_unregister_dev(struct n
+ 	if (gpio_is_valid(priv->config.reset_n_io))
+ 		gpio_free(priv->config.reset_n_io);
  
- 	if (issue_modify_qp && iwqp->ibqp_state > IB_QPS_RTS) {
- 		if (dont_wait) {
--			if (iwqp->cm_id && iwqp->hw_tcp_state) {
-+			if (iwqp->hw_tcp_state) {
- 				spin_lock_irqsave(&iwqp->lock, flags);
- 				iwqp->hw_tcp_state = IRDMA_TCP_STATE_CLOSED;
- 				iwqp->last_aeq = IRDMA_AE_RESET_SENT;
- 				spin_unlock_irqrestore(&iwqp->lock, flags);
--				irdma_cm_disconn(iwqp);
- 			}
-+			irdma_cm_disconn(iwqp);
- 		} else {
- 			int close_timer_started;
- 
+-	nci_unregister_device(ndev);
+ 	nci_free_device(ndev);
+ 	kfree(priv);
+ }
 
 
