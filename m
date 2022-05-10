@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4525521ACB
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89595521946
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244301AbiEJOC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53734 "EHLO
+        id S233492AbiEJNn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:43:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245376AbiEJN5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:57:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA268FD69;
-        Tue, 10 May 2022 06:39:13 -0700 (PDT)
+        with ESMTP id S244876AbiEJNmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:42:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78CB4E31;
+        Tue, 10 May 2022 06:30:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFF96615C8;
-        Tue, 10 May 2022 13:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84271C385C6;
-        Tue, 10 May 2022 13:39:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5D58B81DA8;
+        Tue, 10 May 2022 13:30:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BFEC385C2;
+        Tue, 10 May 2022 13:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189952;
-        bh=9pxyK0GKEphEY4ydetmT/RXOXOC4/m+3r46HStjAp24=;
+        s=korg; t=1652189439;
+        bh=jVFazhQi8/W8+rEyYNcN7Ki5gek2t4YTsrbnXKN4TvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h5uXKZ3SMw9pYR2OsCxqOzGgExYFbhC2ey5oxCa6odnuqKwGLkIirZRREgTQvPCKp
-         x1sY9fg3kMQl5MOevkL5a/ZLswwLWy1QoNLEN2jjf0ZVbV1Yg8/WrTNAd7HkzqEEQG
-         BfUtF3jFaCXI/3AVlzlmCn158sMWW3T60/daGMaA=
+        b=MJ+7BSKt6uG1SuWORXOhhPWmt43SjOH/EHPCzjvUmzb1wJc9wZqzO/VNAceI9GyRE
+         pB9DZTpHlYEOswby/agGQITv5gajXCaa7/pWeAxhWZOQpeZxat3/5fbJXVUztDnlXp
+         IDPMfNni5PQtuOtU8x7oNI0FoAtr6DgG16ymWFd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20H=C3=B6ppner?= <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.17 044/140] s390/dasd: Fix read inconsistency for ESE DASD devices
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Maher Sanalla <msanalla@nvidia.com>,
+        Shay Drory <shayd@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.15 052/135] net/mlx5: Avoid double clear or set of sync reset requested
 Date:   Tue, 10 May 2022 15:07:14 +0200
-Message-Id: <20220510130742.881678224@linuxfoundation.org>
+Message-Id: <20220510130741.892975198@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,52 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Höppner <hoeppner@linux.ibm.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-commit b9c10f68e23c13f56685559a0d6fdaca9f838324 upstream.
+commit fc3d3db07b35885f238e1fa06b9f04a8fa7a62d0 upstream.
 
-Read requests that return with NRF error are partially completed in
-dasd_eckd_ese_read(). The function keeps track of the amount of
-processed bytes and the driver will eventually return this information
-back to the block layer for further processing via __dasd_cleanup_cqr()
-when the request is in the final stage of processing (from the driver's
-perspective).
+Double clear of reset requested state can lead to NULL pointer as it
+will try to delete the timer twice. This can happen for example on a
+race between abort from FW and pci error or reset. Avoid such case using
+test_and_clear_bit() to verify only one time reset requested state clear
+flow. Similarly use test_and_set_bit() to verify only one time reset
+requested state set flow.
 
-For this, blk_update_request() is used which requires the number of
-bytes to complete the request. As per documentation the nr_bytes
-parameter is described as follows:
-   "number of bytes to complete for @req".
-
-This was mistakenly interpreted as "number of bytes _left_ for @req"
-leading to new requests with incorrect data length. The consequence are
-inconsistent and completely wrong read requests as data from random
-memory areas are read back.
-
-Fix this by correctly specifying the amount of bytes that should be used
-to complete the request.
-
-Fixes: 5e6bdd37c552 ("s390/dasd: fix data corruption for thin provisioned devices")
-Cc: stable@vger.kernel.org # 5.3+
-Signed-off-by: Jan Höppner <hoeppner@linux.ibm.com>
-Reviewed-by: Stefan Haberland <sth@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220505141733.1989450-5-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 7dd6df329d4c ("net/mlx5: Handle sync reset abort event")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c |   28 ++++++++++++++-------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/drivers/s390/block/dasd.c
-+++ b/drivers/s390/block/dasd.c
-@@ -2778,8 +2778,7 @@ static void __dasd_cleanup_cqr(struct da
- 		 * complete a request partially.
- 		 */
- 		if (proc_bytes) {
--			blk_update_request(req, BLK_STS_OK,
--					   blk_rq_bytes(req) - proc_bytes);
-+			blk_update_request(req, BLK_STS_OK, proc_bytes);
- 			blk_mq_requeue_request(req, true);
- 		} else if (likely(!blk_should_fake_timeout(req->q))) {
- 			blk_mq_complete_request(req);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
+@@ -134,14 +134,19 @@ static void mlx5_stop_sync_reset_poll(st
+ 	del_timer_sync(&fw_reset->timer);
+ }
+ 
+-static void mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
++static int mlx5_sync_reset_clear_reset_requested(struct mlx5_core_dev *dev, bool poll_health)
+ {
+ 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
+ 
++	if (!test_and_clear_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags)) {
++		mlx5_core_warn(dev, "Reset request was already cleared\n");
++		return -EALREADY;
++	}
++
+ 	mlx5_stop_sync_reset_poll(dev);
+-	clear_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags);
+ 	if (poll_health)
+ 		mlx5_start_health_poll(dev);
++	return 0;
+ }
+ 
+ #define MLX5_RESET_POLL_INTERVAL	(HZ / 10)
+@@ -185,13 +190,17 @@ static int mlx5_fw_reset_set_reset_sync_
+ 	return mlx5_reg_mfrl_set(dev, MLX5_MFRL_REG_RESET_LEVEL3, 0, 2, false);
+ }
+ 
+-static void mlx5_sync_reset_set_reset_requested(struct mlx5_core_dev *dev)
++static int mlx5_sync_reset_set_reset_requested(struct mlx5_core_dev *dev)
+ {
+ 	struct mlx5_fw_reset *fw_reset = dev->priv.fw_reset;
+ 
++	if (test_and_set_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags)) {
++		mlx5_core_warn(dev, "Reset request was already set\n");
++		return -EALREADY;
++	}
+ 	mlx5_stop_health_poll(dev, true);
+-	set_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags);
+ 	mlx5_start_sync_reset_poll(dev);
++	return 0;
+ }
+ 
+ static void mlx5_fw_live_patch_event(struct work_struct *work)
+@@ -220,7 +229,9 @@ static void mlx5_sync_reset_request_even
+ 			       err ? "Failed" : "Sent");
+ 		return;
+ 	}
+-	mlx5_sync_reset_set_reset_requested(dev);
++	if (mlx5_sync_reset_set_reset_requested(dev))
++		return;
++
+ 	err = mlx5_fw_reset_set_reset_sync_ack(dev);
+ 	if (err)
+ 		mlx5_core_warn(dev, "PCI Sync FW Update Reset Ack Failed. Error code: %d\n", err);
+@@ -320,7 +331,8 @@ static void mlx5_sync_reset_now_event(st
+ 	struct mlx5_core_dev *dev = fw_reset->dev;
+ 	int err;
+ 
+-	mlx5_sync_reset_clear_reset_requested(dev, false);
++	if (mlx5_sync_reset_clear_reset_requested(dev, false))
++		return;
+ 
+ 	mlx5_core_warn(dev, "Sync Reset now. Device is going to reset.\n");
+ 
+@@ -349,10 +361,8 @@ static void mlx5_sync_reset_abort_event(
+ 						      reset_abort_work);
+ 	struct mlx5_core_dev *dev = fw_reset->dev;
+ 
+-	if (!test_bit(MLX5_FW_RESET_FLAGS_RESET_REQUESTED, &fw_reset->reset_flags))
++	if (mlx5_sync_reset_clear_reset_requested(dev, true))
+ 		return;
+-
+-	mlx5_sync_reset_clear_reset_requested(dev, true);
+ 	mlx5_core_warn(dev, "PCI Sync FW Update Reset Aborted.\n");
+ }
+ 
 
 
