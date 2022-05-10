@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 343045218F9
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72E66521A1D
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243811AbiEJNlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:41:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
+        id S244123AbiEJNxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:53:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245068AbiEJNi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:38:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE211C764C;
-        Tue, 10 May 2022 06:27:01 -0700 (PDT)
+        with ESMTP id S245017AbiEJNrL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 995D733A3A;
+        Tue, 10 May 2022 06:33:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 254C360C1C;
-        Tue, 10 May 2022 13:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EBA2C385C2;
-        Tue, 10 May 2022 13:26:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36A446165A;
+        Tue, 10 May 2022 13:33:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE7CC385A6;
+        Tue, 10 May 2022 13:33:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189220;
-        bh=FxIhdZqIw91pbHMbO5gwTOdjHrJnWK2rh0Rb9gXuISc=;
+        s=korg; t=1652189616;
+        bh=hjjv61DLIoqcqHa+NvNQrQWmKG8KvV2OuvoF3AMYuYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YcZn49jzG8LR0MJXP6XXHn9X6kvspPzxz4YfDT8E8FG3HEQfCTze3NlQMOYEoaFcQ
-         l8WrgMM0bXXLy5Ka1rhBEXwhq8moQ+E79zi+zfhjY1yg1OOgOnXeUWPWMGngzPsDXE
-         zA5o3uVfpiSyNc/e9oBpLUfYmp5mD4W3ZkU24Zj4=
+        b=OI8mgexDFWzYzX2FcYucZhkrmRJRP+lmtP+Z91TosjZlOwRjspOVrZTupvOc/eETD
+         HBfdWYh9pDd4LwVYrM/5WRfSthIGBR0S2od/D8ugEnxMaGe9akvOf7ZqsKRTzVEI4Q
+         UmsrvwCODbVMv+cAQljd9RLHNf5VKs0rMRoCIbT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
-        Petr Machata <petrm@nvidia.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.10 51/70] selftests: mirror_gre_bridge_1q: Avoid changing PVID while interface is operational
+        stable@vger.kernel.org, pali@kernel.org,
+        =?UTF-8?q?Marek=20Beh=FAn?= <kabel@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.15 108/135] PCI: aardvark: Add support for DEVCAP2, DEVCTL2, LNKCAP2 and LNKCTL2 registers on emulated bridge
 Date:   Tue, 10 May 2022 15:08:10 +0200
-Message-Id: <20220510130734.355010102@linuxfoundation.org>
+Message-Id: <20220510130743.505102002@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
-References: <20220510130732.861729621@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,50 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 3122257c02afd9f199a8fc84ae981e1fc4958532 upstream.
+commit 1d3e170344dff2cef8827db6c09909b78cbc11d7 upstream.
 
-In emulated environments, the bridge ports enslaved to br1 get a carrier
-before changing br1's PVID. This means that by the time the PVID is
-changed, br1 is already operational and configured with an IPv6
-link-local address.
+PCI aardvark hardware supports access to DEVCAP2, DEVCTL2, LNKCAP2 and
+LNKCTL2 configuration registers of PCIe core via PCIE_CORE_PCIEXP_CAP.
+Export them via emulated software root bridge.
 
-When the test is run with netdevs registered by mlxsw, changing the PVID
-is vetoed, as changing the VID associated with an existing L3 interface
-is forbidden. This restriction is similar to the 8021q driver's
-restriction of changing the VID of an existing interface.
-
-Fix this by taking br1 down and bringing it back up when it is fully
-configured.
-
-With this fix, the test reliably passes on top of both the SW and HW
-data paths (emulated or not).
-
-Fixes: 239e754af854 ("selftests: forwarding: Test mirror-to-gretap w/ UL 802.1q")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: Petr Machata <petrm@nvidia.com>
-Link: https://lore.kernel.org/r/20220502084507.364774-1-idosch@nvidia.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Link: https://lore.kernel.org/r/20211130172913.9727-4-kabel@kernel.org
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Marek Behún <kabel@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/pci/controller/pci-aardvark.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
-+++ b/tools/testing/selftests/net/forwarding/mirror_gre_bridge_1q.sh
-@@ -61,9 +61,12 @@ setup_prepare()
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -876,8 +876,13 @@ advk_pci_bridge_emul_pcie_conf_read(stru
  
- 	vrf_prepare
- 	mirror_gre_topo_create
-+	# Avoid changing br1's PVID while it is operational as a L3 interface.
-+	ip link set dev br1 down
+ 	case PCI_EXP_DEVCAP:
+ 	case PCI_EXP_DEVCTL:
++	case PCI_EXP_DEVCAP2:
++	case PCI_EXP_DEVCTL2:
++	case PCI_EXP_LNKCAP2:
++	case PCI_EXP_LNKCTL2:
+ 		*value = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
+ 		return PCI_BRIDGE_EMUL_HANDLED;
++
+ 	default:
+ 		return PCI_BRIDGE_EMUL_NOT_HANDLED;
+ 	}
+@@ -891,10 +896,6 @@ advk_pci_bridge_emul_pcie_conf_write(str
+ 	struct advk_pcie *pcie = bridge->data;
  
- 	ip link set dev $swp3 master br1
- 	bridge vlan add dev br1 vid 555 pvid untagged self
-+	ip link set dev br1 up
- 	ip address add dev br1 192.0.2.129/28
- 	ip address add dev br1 2001:db8:2::1/64
+ 	switch (reg) {
+-	case PCI_EXP_DEVCTL:
+-		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
+-		break;
+-
+ 	case PCI_EXP_LNKCTL:
+ 		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
+ 		if (new & PCI_EXP_LNKCTL_RL)
+@@ -916,6 +917,12 @@ advk_pci_bridge_emul_pcie_conf_write(str
+ 		advk_writel(pcie, new, PCIE_ISR0_REG);
+ 		break;
  
++	case PCI_EXP_DEVCTL:
++	case PCI_EXP_DEVCTL2:
++	case PCI_EXP_LNKCTL2:
++		advk_writel(pcie, new, PCIE_CORE_PCIEXP_CAP + reg);
++		break;
++
+ 	default:
+ 		break;
+ 	}
 
 
