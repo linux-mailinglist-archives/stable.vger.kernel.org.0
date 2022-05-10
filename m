@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A0FC521B2E
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA29F521AF1
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 16:03:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244576AbiEJOJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 10:09:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42868 "EHLO
+        id S243174AbiEJOFp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 10:05:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344174AbiEJOHk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:07:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2020B1FE1C6;
-        Tue, 10 May 2022 06:41:54 -0700 (PDT)
+        with ESMTP id S244622AbiEJOEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 10:04:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBF7980A0;
+        Tue, 10 May 2022 06:40:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE81D615C8;
-        Tue, 10 May 2022 13:41:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E11A9C385C2;
-        Tue, 10 May 2022 13:41:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77CFBB81038;
+        Tue, 10 May 2022 13:40:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D83C385A6;
+        Tue, 10 May 2022 13:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652190113;
-        bh=9CSoLroFbSTvPx0vay7I1wRnNOPAKHtc8NonX8gn7hQ=;
+        s=korg; t=1652190041;
+        bh=JLqwSEOcIWigLI0SHDOYihooy4qv25j0tvogRuqMs6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pGOWAS1RvGwMy7rYvCztDhV+4zkQCgjPyXkdrVUE/m96C0E2Vod9sNrk7l+HE6Thi
-         G/lCamInBdgmrlNW2T69UOab/G1ZzblDLiVS5D0cKot6pHehriwe8P3gxMWzT103Em
-         PYi3zic45Opp1M6b7GQlMOv5l9RcD+tTPoushoa8=
+        b=UE8JDWbGJJ8vpHBk74xaTUIlbk4faL+d+xNcFzevtaz3cT7dUQBMWdWiSZcKnAumv
+         7lymna1gxr5GTSh7gSLYPRglSTML5Jt7A9re2Q+SHri7MuoXp3hjAXlkBu2//XN7Fa
+         2RB5jH7avqGg/s+VE4qZT1dgUf4FF7yZ15QN472o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carlos Llamas <cmllamas@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.17 092/140] selftests/net: so_txtime: usage(): fix documentation of default clock
-Date:   Tue, 10 May 2022 15:08:02 +0200
-Message-Id: <20220510130744.239554837@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Junxiao Chang <junxiao.chang@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 109/140] fbdev: Make fb_release() return -ENODEV if fbdev was unregistered
+Date:   Tue, 10 May 2022 15:08:19 +0200
+Message-Id: <20220510130744.720335167@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
 References: <20220510130741.600270947@linuxfoundation.org>
@@ -55,40 +56,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-commit f5c2174a3775491e890ce285df52f5715fbef875 upstream.
+[ Upstream commit aafa025c76dcc7d1a8c8f0bdefcbe4eb480b2f6a ]
 
-The program uses CLOCK_TAI as default clock since it was added to the
-Linux repo. In commit:
-| 040806343bb4 ("selftests/net: so_txtime multi-host support")
-a help text stating the wrong default clock was added.
+A reference to the framebuffer device struct fb_info is stored in the file
+private data, but this reference could no longer be valid and must not be
+accessed directly. Instead, the file_fb_info() accessor function must be
+used since it does sanity checking to make sure that the fb_info is valid.
 
-This patch fixes the help text.
+This can happen for example if the registered framebuffer device is for a
+driver that just uses a framebuffer provided by the system firmware. In
+that case, the fbdev core would unregister the framebuffer device when a
+real video driver is probed and ask to remove conflicting framebuffers.
 
-Fixes: 040806343bb4 ("selftests/net: so_txtime multi-host support")
-Cc: Carlos Llamas <cmllamas@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Carlos Llamas <cmllamas@google.com>
-Link: https://lore.kernel.org/r/20220502094638.1921702-3-mkl@pengutronix.de
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The bug has been present for a long time but commit 27599aacbaef ("fbdev:
+Hot-unplug firmware fb devices on forced removal") unmasked it since the
+fbdev core started unregistering the framebuffers' devices associated.
+
+Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
+Reported-by: Maxime Ripard <maxime@cerno.tech>
+Reported-by: Junxiao Chang <junxiao.chang@intel.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220502135014.377945-1-javierm@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/so_txtime.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/core/fbmem.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/net/so_txtime.c
-+++ b/tools/testing/selftests/net/so_txtime.c
-@@ -421,7 +421,7 @@ static void usage(const char *progname)
- 			"Options:\n"
- 			"  -4            only IPv4\n"
- 			"  -6            only IPv6\n"
--			"  -c <clock>    monotonic (default) or tai\n"
-+			"  -c <clock>    monotonic or tai (default)\n"
- 			"  -D <addr>     destination IP address (server)\n"
- 			"  -S <addr>     source IP address (client)\n"
- 			"  -r            run rx mode\n"
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 00f0f282e7a1..10a9369c9dea 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1438,7 +1438,10 @@ fb_release(struct inode *inode, struct file *file)
+ __acquires(&info->lock)
+ __releases(&info->lock)
+ {
+-	struct fb_info * const info = file->private_data;
++	struct fb_info * const info = file_fb_info(file);
++
++	if (!info)
++		return -ENODEV;
+ 
+ 	lock_fb_info(info);
+ 	if (info->fbops->fb_release)
+-- 
+2.35.1
+
 
 
