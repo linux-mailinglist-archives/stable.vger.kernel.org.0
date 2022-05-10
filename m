@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 740525219D9
-	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:48:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F115219F8
+	for <lists+stable@lfdr.de>; Tue, 10 May 2022 15:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244954AbiEJNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 09:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47386 "EHLO
+        id S243570AbiEJNwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 09:52:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245292AbiEJNre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:34 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18D7C4E3BC;
-        Tue, 10 May 2022 06:35:40 -0700 (PDT)
+        with ESMTP id S245389AbiEJNrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 09:47:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9575960BA2;
+        Tue, 10 May 2022 06:35:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 17414CE1EE2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 904E5B81DAB;
+        Tue, 10 May 2022 13:35:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E16E5C385A6;
         Tue, 10 May 2022 13:35:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28ECCC385C2;
-        Tue, 10 May 2022 13:35:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652189737;
-        bh=oXK+xeO7TyS/609kqkxla+MZL2jQ1JRBvy7n7RIohAA=;
+        s=korg; t=1652189740;
+        bh=ovzqq1GLrorpGTsrq4MpUV1qbQaSEUKqp5DT427Lm2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B95FaSPXmDw/EfQ2RfrRH+fkUr+iyn/wlxrYkN+BKIduDBfVramYI3FAnWqdgCY94
-         aceCh/IiKmtJdgVnL5vrJootonoOnOaU2WdFBDu3JbCbLAwfmc7La5nkGFeZGCPdZS
-         CyQH/2MVqHPZQCLV3KnpgStGkkyhFxUFYcAbHTbI=
+        b=Tpf1GGN4VLy1MBjLYcSx8zDGg2fyfwe3gG6Oi3lZcWYfPc6bDKKHI2kQzfHRqCksy
+         fAmvgNJ83x+jRAdL682j4tC8STPbBJPwqVjQqUyHsvs/6m0HwA/smcJ9StV2yYPKjl
+         8ZAG0ezqNPr4r77HyG1m2roMBqxaEsEw08aeTDLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrei Lalaev <andrei.lalaev@emlid.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: [PATCH 5.17 013/140] gpiolib: of: fix bounds check for gpio-reserved-ranges
-Date:   Tue, 10 May 2022 15:06:43 +0200
-Message-Id: <20220510130741.986726495@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.17 014/140] x86/fpu: Prevent FPU state corruption
+Date:   Tue, 10 May 2022 15:06:44 +0200
+Message-Id: <20220510130742.015180321@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
 References: <20220510130741.600270947@linuxfoundation.org>
@@ -55,47 +54,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Lalaev <andrei.lalaev@emlid.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit e75f88efac05bf4e107e4171d8db6d8c3937252d upstream.
+commit 59f5ede3bc0f00eb856425f636dab0c10feb06d8 upstream.
 
-Gpiolib interprets the elements of "gpio-reserved-ranges" as "start,size"
-because it clears "size" bits starting from the "start" bit in the according
-bitmap. So it has to use "greater" instead of "greater or equal" when performs
-bounds check to make sure that GPIOs are in the available range.
-Previous implementation skipped ranges that include the last GPIO in
-the range.
+The FPU usage related to task FPU management is either protected by
+disabling interrupts (switch_to, return to user) or via fpregs_lock() which
+is a wrapper around local_bh_disable(). When kernel code wants to use the
+FPU then it has to check whether it is possible by calling irq_fpu_usable().
 
-I wrote the mail to the maintainers
-(https://lore.kernel.org/linux-gpio/20220412115554.159435-1-andrei.lalaev@emlid.com/T/#u)
-of the questioned DTSes (because I couldn't understand how the maintainers
-interpreted this property), but I haven't received a response.
-Since the questioned DTSes use "gpio-reserved-ranges = <0 4>"
-(i.e., the beginning of the range), this patch doesn't affect these DTSes at all.
-TBH this patch doesn't break any existing DTSes because none of them
-reserve gpios at the end of range.
+But the condition in irq_fpu_usable() is wrong. It allows FPU to be used
+when:
 
-Fixes: 726cb3ba4969 ("gpiolib: Support 'gpio-reserved-ranges' property")
-Signed-off-by: Andrei Lalaev <andrei.lalaev@emlid.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+   !in_interrupt() || interrupted_user_mode() || interrupted_kernel_fpu_idle()
+
+The latter is checking whether some other context already uses FPU in the
+kernel, but if that's not the case then it allows FPU to be used
+unconditionally even if the calling context interrupted a fpregs_lock()
+critical region. If that happens then the FPU state of the interrupted
+context becomes corrupted.
+
+Allow in kernel FPU usage only when no other context has in kernel FPU
+usage and either the calling context is not hard interrupt context or the
+hard interrupt did not interrupt a local bottomhalf disabled region.
+
+It's hard to find a proper Fixes tag as the condition was broken in one way
+or the other for a very long time and the eager/lazy FPU changes caused a
+lot of churn. Picked something remotely connected from the history.
+
+This survived undetected for quite some time as FPU usage in interrupt
+context is rare, but the recent changes to the random code unearthed it at
+least on a kernel which had FPU debugging enabled. There is probably a
+higher rate of silent corruption as not all issues can be detected by the
+FPU debugging code. This will be addressed in a subsequent change.
+
+Fixes: 5d2bd7009f30 ("x86, fpu: decouple non-lazy/eager fpu restore from xsave")
+Reported-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Link: https://lore.kernel.org/r/20220501193102.588689270@linutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpiolib-of.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/fpu/core.c |   67 +++++++++++++++++----------------------------
+ 1 file changed, 26 insertions(+), 41 deletions(-)
 
---- a/drivers/gpio/gpiolib-of.c
-+++ b/drivers/gpio/gpiolib-of.c
-@@ -912,7 +912,7 @@ static void of_gpiochip_init_valid_mask(
- 					   i, &start);
- 		of_property_read_u32_index(np, "gpio-reserved-ranges",
- 					   i + 1, &count);
--		if (start >= chip->ngpio || start + count >= chip->ngpio)
-+		if (start >= chip->ngpio || start + count > chip->ngpio)
- 			continue;
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -41,17 +41,7 @@ struct fpu_state_config fpu_user_cfg __r
+  */
+ struct fpstate init_fpstate __ro_after_init;
  
- 		bitmap_clear(chip->valid_mask, start, count);
+-/*
+- * Track whether the kernel is using the FPU state
+- * currently.
+- *
+- * This flag is used:
+- *
+- *   - by IRQ context code to potentially use the FPU
+- *     if it's unused.
+- *
+- *   - to debug kernel_fpu_begin()/end() correctness
+- */
++/* Track in-kernel FPU usage */
+ static DEFINE_PER_CPU(bool, in_kernel_fpu);
+ 
+ /*
+@@ -59,42 +49,37 @@ static DEFINE_PER_CPU(bool, in_kernel_fp
+  */
+ DEFINE_PER_CPU(struct fpu *, fpu_fpregs_owner_ctx);
+ 
+-static bool kernel_fpu_disabled(void)
+-{
+-	return this_cpu_read(in_kernel_fpu);
+-}
+-
+-static bool interrupted_kernel_fpu_idle(void)
+-{
+-	return !kernel_fpu_disabled();
+-}
+-
+-/*
+- * Were we in user mode (or vm86 mode) when we were
+- * interrupted?
+- *
+- * Doing kernel_fpu_begin/end() is ok if we are running
+- * in an interrupt context from user mode - we'll just
+- * save the FPU state as required.
+- */
+-static bool interrupted_user_mode(void)
+-{
+-	struct pt_regs *regs = get_irq_regs();
+-	return regs && user_mode(regs);
+-}
+-
+ /*
+  * Can we use the FPU in kernel mode with the
+  * whole "kernel_fpu_begin/end()" sequence?
+- *
+- * It's always ok in process context (ie "not interrupt")
+- * but it is sometimes ok even from an irq.
+  */
+ bool irq_fpu_usable(void)
+ {
+-	return !in_interrupt() ||
+-		interrupted_user_mode() ||
+-		interrupted_kernel_fpu_idle();
++	if (WARN_ON_ONCE(in_nmi()))
++		return false;
++
++	/* In kernel FPU usage already active? */
++	if (this_cpu_read(in_kernel_fpu))
++		return false;
++
++	/*
++	 * When not in NMI or hard interrupt context, FPU can be used in:
++	 *
++	 * - Task context except from within fpregs_lock()'ed critical
++	 *   regions.
++	 *
++	 * - Soft interrupt processing context which cannot happen
++	 *   while in a fpregs_lock()'ed critical region.
++	 */
++	if (!in_hardirq())
++		return true;
++
++	/*
++	 * In hard interrupt context it's safe when soft interrupts
++	 * are enabled, which means the interrupt did not hit in
++	 * a fpregs_lock()'ed critical region.
++	 */
++	return !softirq_count();
+ }
+ EXPORT_SYMBOL(irq_fpu_usable);
+ 
 
 
