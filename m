@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3A7522B73
-	for <lists+stable@lfdr.de>; Wed, 11 May 2022 07:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF1E3522B91
+	for <lists+stable@lfdr.de>; Wed, 11 May 2022 07:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbiEKFF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 01:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41562 "EHLO
+        id S236788AbiEKFQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 01:16:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235306AbiEKFFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 01:05:55 -0400
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E2BE32
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 22:05:47 -0700 (PDT)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-2f7bb893309so7649197b3.12
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 22:05:47 -0700 (PDT)
+        with ESMTP id S229628AbiEKFQz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 01:16:55 -0400
+Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B7752E6F
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 22:16:53 -0700 (PDT)
+Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-2fb9a85a124so4901647b3.13
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 22:16:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=MhVaK2UMmz9aVyXD+hvkdzgYYQj9DazVB960P4H/k/M=;
-        b=EK1SiBcFg0lrktvlSVACMwv+dzhRCqXcr1kKfIbjmAU6lYaxAHVFCszlBfMnJGpf6R
-         IJ9j/UMXxhqPueTnnCT0d6ZxgtVBMKMf5QEzIc0ganzVf2dTVyd1MxV62OqcBNnQ5zgK
-         aYBdcxBztPP9/7r67GfvgnfKgd9FPgPHXwLlTY82WBlubJT0CZbGar0e9ZPkIbk43DmE
-         e+b17b+LKp2OqbzdVI1u6B0XooKoJ2vF3KI47Z3OtExasLHdyzZZ5cD/8d/Dz2MF2KbH
-         1tlg/Mxd3jqO8tzr8bfpqKbDCsKGeBoOHD2HunSH3nfZzt7S+I9bM6m0bH4LIB5Z495n
-         dngg==
+        bh=K7vluCZEPRmcKgiJXvMD7fUmvJ/aH53x/09ad+GgHBE=;
+        b=gLLOvMo/RuPEjsE+pHY40C1Y8GNlNEN/5IT2ix3jhWDY5XordkvFaFtJLdtkJAkP19
+         k1VlMpycA5ecu9CqXR/R/xCdNyJ6X8PlXhgtk59cCkUADS9+6oBCS6/0NXnWEqKJ5Wb5
+         wNA3ns01G0P1WwQEOXVqpdGRv4ixxRpIx4B+A2zTxypQaHp9HVVTsqX170Ds40kCEVao
+         eB33lILpSpAUgG8007snqrX5nbuidcvST69cE5iSZdmfcr6zt3suwuCbybNLMwUnuiul
+         HszgLVp2G8inhV3+zlfgPl6eeDiASgELm/BBbpvXIX2B71cnnk7Ux9XrVKNmM2jlnutk
+         0c0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=MhVaK2UMmz9aVyXD+hvkdzgYYQj9DazVB960P4H/k/M=;
-        b=cRxWZhe9MmWtpnLSc1/pWODAqKLBxPWBXzQRpzcyOWAWoIPv+sN0E6ljoPRcN8uqIO
-         mfd2TGVzipJj5k9qoKdb94G8HZJ7pc1wD8d79P86bsCvkkXhAaOUY5ufq86sv02SLiSv
-         5E8IVH7yV7VUrkM2MTi7u20/s6+qpyc5lVPpcI1gmDmSK5PNhViaF6Dzre3a3cRvxdYO
-         Q1NvuDz28OlItARhxTP4rwzJ9Ydj5f2LVS4ur5fLzccZfR0t3Y/teNJJtGCn+54tA7Ek
-         79NoAF3MtDPtzet8olR4OWtA6UIGN8hVdqt19RPfMYMzraJKEkVStXFl+YjKkZOi2bhC
-         vaQw==
-X-Gm-Message-State: AOAM531aglepLoDLA+h9avNvdYG1oxFsSii0rQD0p18X6VhfzMumeUVc
-        9BXf64iexmdGtYBZ9ouAfgIgNEI3Z79E6Lv1CNQ/Zg==
-X-Google-Smtp-Source: ABdhPJxL5ik9EhJBfFUa1gy8CFf8lhx9ZwjLe52HtqCUSsxxBlT/o+6hshHyZBIx9uOdJof5ZZGgAPYe9WWSJW5SqbE=
-X-Received: by 2002:a81:3ac2:0:b0:2f7:f777:a43 with SMTP id
- h185-20020a813ac2000000b002f7f7770a43mr23498381ywa.60.1652245546597; Tue, 10
- May 2022 22:05:46 -0700 (PDT)
+        bh=K7vluCZEPRmcKgiJXvMD7fUmvJ/aH53x/09ad+GgHBE=;
+        b=URc+K4NCZEaDSFJTtUCnfXDVUqXHQVT7L5E3v3VCMyxAH3KyIj//QeGVt0ZPjkPZH3
+         zTNy04wGdScBZFgcfWXK5jNXzM9RUtUd/FcczIvXG9dgfTK24VFbAOa0PdsW4UEilW7c
+         zseZzn6X4C3FlJ7Pnnnf8/3AWX6AItKfMqd5hugjwjbieR9D+C1TIpRSFWBS7793onDc
+         qwIKpAGc9qVsIfafLJjDXHBXKn4BUc+yiswDKij/LN46ypRsosVrV7SA+d2DgYB1cDEy
+         jUmdIjgQDG+F8WO+nV2j5Sf4pK57MvlP8zmFt38QPba76a/YZa9hjkBQetX++kG5cGa5
+         Xbng==
+X-Gm-Message-State: AOAM532vc/KJxC6p5pyr3ti6rvGwmQxfSb+mIsxBo1Kb6i1Dmf7OLmK/
+        9c/9JnN1ObkiDtQwWuU5R5N6DFZwzjot/x0d8Rhe/Q==
+X-Google-Smtp-Source: ABdhPJy64xOdrMNxugRq3EWe7akbLXc+bIB7h7uYmhW2YbTvkv+HCuR3JKsn7DyqPB9G5pGT82lSQCVWglUj9nvTmwE=
+X-Received: by 2002:a0d:ffc3:0:b0:2eb:2327:3361 with SMTP id
+ p186-20020a0dffc3000000b002eb23273361mr23097388ywf.36.1652246213044; Tue, 10
+ May 2022 22:16:53 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220510130741.600270947@linuxfoundation.org>
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
+References: <20220510130740.392653815@linuxfoundation.org>
+In-Reply-To: <20220510130740.392653815@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 11 May 2022 10:35:35 +0530
-Message-ID: <CA+G9fYswcAEE=S45Pf6VpvX+riar9YYdaXz3in9sf1u7j+0AGA@mail.gmail.com>
-Subject: Re: [PATCH 5.17 000/140] 5.17.7-rc1 review
+Date:   Wed, 11 May 2022 10:46:41 +0530
+Message-ID: <CA+G9fYvgoK6PVm495QjQ004WszeNdt+zkw-hYfArE_p1mNmmkw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/135] 5.15.39-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -70,11 +70,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 May 2022 at 19:07, Greg Kroah-Hartman
+On Tue, 10 May 2022 at 19:00, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.17.7 release.
-> There are 140 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.15.39 release.
+> There are 135 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,10 +83,10 @@ On Tue, 10 May 2022 at 19:07, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.17.7-rc1.gz
+5.15.39-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.17.y
+-rc.git linux-5.15.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -98,35 +98,30 @@ No regressions on arm64, arm, x86_64, and i386.
 
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-NOTE:
-I have reported kernel warning earlier [1],
-[1] https://lore.kernel.org/all/CA+G9fYuBNB+iuVLFG4t-=3D5fsRsPdeXSSafkQECf3=
-53VxikmW-w@mail.gmail.com/
-
 ## Build
-* kernel: 5.17.7-rc1
+* kernel: 5.15.39-rc1
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.17.y
-* git commit: 34d85184d6b8dbdd82e77eb732f79fb305520aed
-* git describe: v5.17.5-366-g34d85184d6b8
+* git branch: linux-5.15.y
+* git commit: 60041d0985244b5cda37d857a7807f2d572b3762
+* git describe: v5.15.37-314-g60041d098524
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.17.y/build/v5.17=
-.5-366-g34d85184d6b8
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.37-314-g60041d098524
 
-## Test Regressions (compared to v5.17.5-2-gb59a5f68feee)
+## Test Regressions (compared to v5.15.37-259-gab77581473a3)
 No test regressions found.
 
-## Metric Regressions (compared to v5.17.5-2-gb59a5f68feee)
+## Metric Regressions (compared to v5.15.37-259-gab77581473a3)
 No metric regressions found.
 
-## Test Fixes (compared to v5.17.5-2-gb59a5f68feee)
+## Test Fixes (compared to v5.15.37-259-gab77581473a3)
 No test fixes found.
 
-## Metric Fixes (compared to v5.17.5-2-gb59a5f68feee)
+## Metric Fixes (compared to v5.15.37-259-gab77581473a3)
 No metric fixes found.
 
 ## Test result summary
-total: 104884, pass: 88950, fail: 766, skip: 13958, xfail: 1210
+total: 103063, pass: 87539, fail: 626, skip: 13925, xfail: 973
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
@@ -176,6 +171,8 @@ total: 104884, pass: 88950, fail: 766, skip: 13958, xfail: 1210
 * kselftest-mount
 * kselftest-mqueue
 * kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
 * kselftest-openat2
 * kselftest-pid_namespace
 * kselftest-pidfd
@@ -236,6 +233,7 @@ total: 104884, pass: 88950, fail: 766, skip: 13958, xfail: 1210
 * perf/Zstd-perf.data-compression
 * rcutorture
 * ssuite
+* timesync-off
 * v4l2-compliance
 * vdso
 
