@@ -2,56 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 142D1523ECE
-	for <lists+stable@lfdr.de>; Wed, 11 May 2022 22:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57E17523E47
+	for <lists+stable@lfdr.de>; Wed, 11 May 2022 22:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345223AbiEKUV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 16:21:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48142 "EHLO
+        id S1347510AbiEKUCY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 16:02:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238984AbiEKUV2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 16:21:28 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163D6703DD
-        for <stable@vger.kernel.org>; Wed, 11 May 2022 13:21:27 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id x12so2731812pgj.7
-        for <stable@vger.kernel.org>; Wed, 11 May 2022 13:21:27 -0700 (PDT)
+        with ESMTP id S1347496AbiEKUCS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 16:02:18 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3B821D48C7;
+        Wed, 11 May 2022 13:02:16 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id w24so3836647edx.3;
+        Wed, 11 May 2022 13:02:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to
+        h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=QZJxyTNwcdR6jXJ6iqWTpwb254N1hEDKTMQ0/smdJ2s=;
-        b=bku7XICsIXZbA9Z6HhuU9GZmYpZKXEHyEGQkTtzeMYwQhpGuGcfL2sjLJ8zI1/Ca02
-         E7buvmaZGuzcdIhvq411Ox3hlk2df2Xg3wTOz09fF3XSpHHV/0WLWFmYhcdXZcV7+mpr
-         mdXJPnWQk3LSOmtMDjUaGI0ugs0SDDelDMv/VA4cQS1ZzxQE6l9sn/h9W7AY3bDLdfZV
-         b9So1jL0iLs1bYKUP8zBaKnBd/BpGX+ScNcd2q3ae7++OrALQaKY/6JxzxchrLUITAgN
-         0N5KBhXh7WLNbCnTOQAQ4MK/5D1f+0NUfpm0FmF+ToHBck6AOfNYykdpDGV9ARJbEwO1
-         BgSA==
+        bh=Kjm5oS3T2QJVIaXZ5HMZbY1xpEdNpJDDRAUvlhwNL3U=;
+        b=fWLBtbzzyS2l1AlhhPCQYPbP0/60RK4VuD7QGsdqBsun6IeBZ6VTM5h24bDkrGOSlr
+         lJrBNXdfN4rJXa0yKhXjdEDaWxrDgdI+4G6soL2J+jOZwz5Lt4asExh7ji6syOUh5fWD
+         P0ir99Ci4OoyAGJJMxErxke1NVt3tUuzD3aebDWaj+AvgZ/K3vWFcd/hx9riGmx5F9B9
+         ufNribfsGhluK6DJsCdb6FE9NZ0Er3WFJ24uFmDoZspty1JQS0h8vT3l8gfltWEbh43v
+         hQfndi/TW5GFxdS1q0BmyH7oXU7DR++pXUHbOd2HGgYgqLMfgYdph9MCybFMPiD5Oys/
+         YMhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=QZJxyTNwcdR6jXJ6iqWTpwb254N1hEDKTMQ0/smdJ2s=;
-        b=qESujeg/l7L92QZiV37ef1uvGil3fmX87KqFPV1G8v3MBhkFhdCOYxRc+pIeD5BtVQ
-         opLK7EIk0q07ZcpqgrAuCxxmt3m51+UW56C0K4JEsqU96cfIPH8kxVZ4FAkTH97r5Gpy
-         6FKtT1QbS9bV/NsCUwCAQFAK4XYwD2+uojDMlcJu2AeuN3NljzRMhL0ntBFhjAo+B3xA
-         ZXRDNqpOfZ7lMytClL3HhfQgtN+XGLYfxNv2cPthBZ6YS7EmhGII9uo40bU9F6WwICQk
-         +j61icZneXJ7rAMbFUSzyl1t5xVDfK8rup4O76KTk/JCqhO1aTJfP3/z9WCjm8xpjQWL
-         jrwQ==
-X-Gm-Message-State: AOAM530JYf5u+IBiTqGr75xbKYJb9Q7NPWQ//+EJJrimiuZdtbuc2TU+
-        0momjfygLrAR710ru141l2pY0t1z4Nn4yJTxlx8=
-X-Google-Smtp-Source: ABdhPJwAEYLfX/EXIy84w5OX2KUBDleBo0BpharMmRB2mOLpv3Spuk8NBADL0TFZOa8QEpCaRXpU1rHlP4NKX2QbgjU=
-X-Received: by 2002:a63:e108:0:b0:3c6:6833:9192 with SMTP id
- z8-20020a63e108000000b003c668339192mr18772598pgh.616.1652300486658; Wed, 11
- May 2022 13:21:26 -0700 (PDT)
+        bh=Kjm5oS3T2QJVIaXZ5HMZbY1xpEdNpJDDRAUvlhwNL3U=;
+        b=ssgOTGYqLjtS9ooR6mr6cV+hR5MGmwuRHLNzZqfIh6KRKp7vOxPT0Sada0o9et2t2v
+         SbUjEEARBENwt8b/3rtk6ZpqlJKUxfPQ7QL3WZJ+BrXw8KEQl/VEAnYoy1dd0KOVEWYs
+         leBJB6Enbau5CYd19xDzTRYKmWa19ghy0b3L2ryZKGXqhnEqQc4QVIIPEqDrRkg0zwoA
+         jkF/ykx+JW2TfTN6UPjOkgycDeOo0GbLftoMN6XVheTdtWkqxYC7UEJiVMsdiyUUPtQT
+         ZRxhpZY5uidnXR1bpwyZlxo/l9wrrZ6cREuLBGYv15OyrpuI8yPYP81zLB8m6bmXm1At
+         OKpw==
+X-Gm-Message-State: AOAM533xV/sq7izbeSIcD5QP4eg5lJuaAYS9UwIKu6bNihEZ/Vv1Fr93
+        ie4JTgDetVSP6h0LKs+qd54=
+X-Google-Smtp-Source: ABdhPJwuzCry90j1P+q2DVpYYiCsCxEejAfdbC7nAd7VZk2GginTD4rVQkbU+m7YqZcYCq5h35e5fg==
+X-Received: by 2002:a05:6402:d0e:b0:413:3d99:f2d6 with SMTP id eb14-20020a0564020d0e00b004133d99f2d6mr31504260edb.189.1652299335444;
+        Wed, 11 May 2022 13:02:15 -0700 (PDT)
+Received: from kista.localdomain (cpe1-3-76.cable.triera.net. [213.161.3.76])
+        by smtp.gmail.com with ESMTPSA id s8-20020a170906060800b006f3ef214e0esm1347602ejb.116.2022.05.11.13.02.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 13:02:14 -0700 (PDT)
+From:   Jernej Skrabec <jernej.skrabec@gmail.com>
+To:     mturquette@baylibre.com, sboyd@kernel.org, a.zummo@towertech.it,
+        alexandre.belloni@bootlin.com
+Cc:     wens@csie.org, samuel@sholland.org, linux-clk@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] Revert "clk: sunxi-ng: sun6i-rtc: Add support for H6"
+Date:   Wed, 11 May 2022 22:02:06 +0200
+Message-Id: <20220511200206.2458274-1-jernej.skrabec@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-From:   Jack J <jackjosepheq@gmail.com>
-Date:   Wed, 11 May 2022 20:21:13 +0200
-Message-ID: <CAOKoJwV5LCcs976RF=Ujh=rK982dY2twsn6h3skMit-9wwoHBQ@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
@@ -62,8 +71,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-LS0gDQrXmdeV150g15jXldeRLA0K15nXqSDXm9eh16TXmSDXmdeo15XXqdeUINep15TXldeo15nX
-qdeVINei15wg16nXnteaINee15zXp9eV15fXqteZINeU157XoNeV15cg16nXmdepINec15Ug15DX
-qiDXkNeV16rXlSDXqdedINee16nXpNeX15QNCteV15zXkNeV150g15DXmdeq15ouINeQ16DXkCDX
-pteV16gg15DXmdeq15kg16fXqdeoINec16TXqNeY15nXnSDXoNeV16HXpNeZ150uDQoNCteb15wg
-15jXldeRLg0K15HXqC4g15In16cg15In15XXltejLg0K
+This reverts commit 1738890a3165ccd0da98ebd3e2d5f9b230d5afa8.
+
+Commit 1738890a3165 ("clk: sunxi-ng: sun6i-rtc: Add support for H6")
+breaks HDMI output on Tanix TX6 mini board. Exact reason isn't known,
+but because that commit doesn't actually improve anything, let's just
+revert it.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+---
+ drivers/clk/sunxi-ng/ccu-sun6i-rtc.c | 15 ---------------
+ drivers/rtc/rtc-sun6i.c              | 17 +++++++++++++++++
+ 2 files changed, 17 insertions(+), 15 deletions(-)
+
+diff --git a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
+index 2f3ddc908ebd..d65398497d5f 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
++++ b/drivers/clk/sunxi-ng/ccu-sun6i-rtc.c
+@@ -298,10 +298,6 @@ static const struct sunxi_ccu_desc sun6i_rtc_ccu_desc = {
+ 	.hw_clks	= &sun6i_rtc_ccu_hw_clks,
+ };
+ 
+-static const struct clk_parent_data sun50i_h6_osc32k_fanout_parents[] = {
+-	{ .hw = &osc32k_clk.common.hw },
+-};
+-
+ static const struct clk_parent_data sun50i_h616_osc32k_fanout_parents[] = {
+ 	{ .hw = &osc32k_clk.common.hw },
+ 	{ .fw_name = "pll-32k" },
+@@ -314,13 +310,6 @@ static const struct clk_parent_data sun50i_r329_osc32k_fanout_parents[] = {
+ 	{ .hw = &osc24M_32k_clk.common.hw }
+ };
+ 
+-static const struct sun6i_rtc_match_data sun50i_h6_rtc_ccu_data = {
+-	.have_ext_osc32k	= true,
+-	.have_iosc_calibration	= true,
+-	.osc32k_fanout_parents	= sun50i_h6_osc32k_fanout_parents,
+-	.osc32k_fanout_nparents	= ARRAY_SIZE(sun50i_h6_osc32k_fanout_parents),
+-};
+-
+ static const struct sun6i_rtc_match_data sun50i_h616_rtc_ccu_data = {
+ 	.have_iosc_calibration	= true,
+ 	.rtc_32k_single_parent	= true,
+@@ -335,10 +324,6 @@ static const struct sun6i_rtc_match_data sun50i_r329_rtc_ccu_data = {
+ };
+ 
+ static const struct of_device_id sun6i_rtc_ccu_match[] = {
+-	{
+-		.compatible	= "allwinner,sun50i-h6-rtc",
+-		.data		= &sun50i_h6_rtc_ccu_data,
+-	},
+ 	{
+ 		.compatible	= "allwinner,sun50i-h616-rtc",
+ 		.data		= &sun50i_h616_rtc_ccu_data,
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index 5b3e4da63406..5252ce4cbda4 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -370,6 +370,23 @@ CLK_OF_DECLARE_DRIVER(sun8i_h3_rtc_clk, "allwinner,sun8i-h3-rtc",
+ CLK_OF_DECLARE_DRIVER(sun50i_h5_rtc_clk, "allwinner,sun50i-h5-rtc",
+ 		      sun8i_h3_rtc_clk_init);
+ 
++static const struct sun6i_rtc_clk_data sun50i_h6_rtc_data = {
++	.rc_osc_rate = 16000000,
++	.fixed_prescaler = 32,
++	.has_prescaler = 1,
++	.has_out_clk = 1,
++	.export_iosc = 1,
++	.has_losc_en = 1,
++	.has_auto_swt = 1,
++};
++
++static void __init sun50i_h6_rtc_clk_init(struct device_node *node)
++{
++	sun6i_rtc_clk_init(node, &sun50i_h6_rtc_data);
++}
++CLK_OF_DECLARE_DRIVER(sun50i_h6_rtc_clk, "allwinner,sun50i-h6-rtc",
++		      sun50i_h6_rtc_clk_init);
++
+ /*
+  * The R40 user manual is self-conflicting on whether the prescaler is
+  * fixed or configurable. The clock diagram shows it as fixed, but there
+-- 
+2.36.1
+
