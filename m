@@ -2,103 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 152AD522957
-	for <lists+stable@lfdr.de>; Wed, 11 May 2022 04:03:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52DAB5229EC
+	for <lists+stable@lfdr.de>; Wed, 11 May 2022 04:47:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238903AbiEKCDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 22:03:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42194 "EHLO
+        id S232391AbiEKCrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 22:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237411AbiEKCDf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 22:03:35 -0400
-Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com [IPv6:2607:f8b0:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CD254FC67
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 19:03:34 -0700 (PDT)
-Received: by mail-oi1-x230.google.com with SMTP id v66so1123099oib.3
-        for <stable@vger.kernel.org>; Tue, 10 May 2022 19:03:34 -0700 (PDT)
+        with ESMTP id S229972AbiEKCdg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 22:33:36 -0400
+Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2044BAD122
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 19:33:35 -0700 (PDT)
+Received: by mail-io1-xd30.google.com with SMTP id z18so733465iob.5
+        for <stable@vger.kernel.org>; Tue, 10 May 2022 19:33:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=BPuZwTRAcK1aVkTrzfu5XlgmJIljuYkBZ8h1rOImJvY=;
-        b=UqMFCT5RvQf1Ng0SBW7GbCqkvjEcnBHcUPPh2jyDahwpGHF6kEG8px8vXRGDtvG0TC
-         vaRhA5ZM6aOuiZQKll9lXCL6lIYykyU8tgnnZveUi9Ptl0lgJva0rVjY+ehjgDWl1+CU
-         8zYKmlebtYYpIWNfTewoyQNIxADTvAFxS6Tx0=
+        d=google.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=VgUWM24YOAoDEDe6lyTvccl/P1eCIUHp7mNok/BNUdY=;
+        b=a7ZOPzRp29cx+0Z24hYIwdEK4RVohurnXXfPEJj4glErrL6HmC0tPzx9UEi5PrxkhD
+         h8l0Re+bVWl/fdH2CBz1FLVai/IQL2mcsVzSRh7zraQhe3J8BUQwJ6msCnOO+iavw2Df
+         7dpFj5nTIXY/nc5ZzvFBOmnjsqQ7Ng0CdmXxZadvRBMspnQ7YfImsYnqjr206n4uGSBz
+         neqwTz6HNyz3EDxNqtUw7DuxEzAQYtdQUKCkDYL+oYugydDdEyY0gAmo3+ZY0O0ZkNjg
+         YoKMrsNkErTRXeSSteqrOGkjZebPT3ekCPpvjQ0/l+d04p4CYcFb3t2xcvMvqlPpg5UO
+         Klyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=BPuZwTRAcK1aVkTrzfu5XlgmJIljuYkBZ8h1rOImJvY=;
-        b=aRWkOJRIHNkXFO0A3UBkOSBU9ovr6bBO6Y5Vq8+9PlkGtkLuQ6C2nISwZfmY9p6ded
-         Qux+zLR/DdmQcY5ZSz2gvz7ZD0IYohRvseEsD6BfrkJN2Pm0mJvL+OpENuu+wuTsCEjq
-         +6HAgOcbyF8/apTYBnepusnxnScIGhLDl+J651u1AbAEYBb2zjNK0pYj+iDI4KZeNUMJ
-         ErWNd1BdbTXJX3IRalHKFgGXYhDdbLgxD8PC11Q2QDlzPXrzeSmZGUgdXXpT9uE/nEJL
-         TcwTqZLGS64uCP1CMnSrSf5y1mnx3/DSNs91DJW8WldcaAtbGh4SbHnXwOzU2+IRe8J1
-         nvhA==
-X-Gm-Message-State: AOAM533v805a90rV9HX3aSZ4T2koqrUAtRrPapcN4U4tgni1Lu0ia1oh
-        rI3jhS/gemgzBj6lk8ObqCWJHg==
-X-Google-Smtp-Source: ABdhPJx11vYt13wso0aL0+8rQRAQBpnD7dhPwcTNssJVCfB1F9Y69OIi7K9vDKnBhgSpPUE5HFXa5g==
-X-Received: by 2002:aca:62c5:0:b0:326:b067:ac89 with SMTP id w188-20020aca62c5000000b00326b067ac89mr1355127oib.281.1652234613444;
-        Tue, 10 May 2022 19:03:33 -0700 (PDT)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id 63-20020a9d0c45000000b00606ad72bdcbsm333502otr.38.2022.05.10.19.03.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 10 May 2022 19:03:32 -0700 (PDT)
-Subject: Re: [PATCH 5.17 000/140] 5.17.7-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220510130741.600270947@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <7cd5c77b-5ee4-e2ca-0cb7-0f25646b50a5@linuxfoundation.org>
-Date:   Tue, 10 May 2022 20:03:31 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=VgUWM24YOAoDEDe6lyTvccl/P1eCIUHp7mNok/BNUdY=;
+        b=QUYi73OHB5NrXmjmmRF8mBOt17N+FO/KKSE4Exp/Gjn5JWB7hsT6jpy4f22vcudYDe
+         /cuwWe4E2HUTPzkmMBO6leNEcnnUDX3+M749dDXwrsY0PnPyZmTi3k8rfyOMb725LuVX
+         5lEVVooeXEEkl8hCn2jjYyGoxopBIEeIzV9M1ovN2r3Q7ETyvY6r7Jgm9ce5yAKsRcii
+         xqMTvFXpTD8LHzQdUKU6wtMqIviSRpa5JVpgWE7HNlTHBwNMO8Bo8vi+2+eHhFL1nKq8
+         UlQKDgHX/HGpKoISr5nlF7DeDM25NWhS927KC5Y5YL2DgTKm0qhCWAJ0i//NcMW/2hUp
+         4Taw==
+X-Gm-Message-State: AOAM5323F5Yd2M0xDjPmc4/d2r3lUGgWNehCsm9iuLYVoJM6l220Z+af
+        hYE/e0p92nKnO0saZSKwJefELEfu68WGM0vsQbjwFCVoXgdjUQ==
+X-Google-Smtp-Source: ABdhPJybR70itmvjXxb/8Eg0pWRx5H3SXUHXRgYZ95CL01msnUya7R9fTdqoiGBS9agtRiwskLBuIkROcaUICXM6+Go=
+X-Received: by 2002:a05:6638:24d6:b0:32b:e72d:1a33 with SMTP id
+ y22-20020a05663824d600b0032be72d1a33mr8011479jat.226.1652236414310; Tue, 10
+ May 2022 19:33:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20220510130741.600270947@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.6
+From:   Meena Shanmugam <meenashanmugam@google.com>
+Date:   Tue, 10 May 2022 19:33:23 -0700
+Message-ID: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
+Subject: Request to cherry-pick f00432063db1 to 5.10
+To:     stable@vger.kernel.org
+Cc:     gregkh@linuxfoundation.org, trond.myklebust@hammerspace.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/10/22 7:06 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.17.7 release.
-> There are 140 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.7-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Hi all,
 
-Compiled and booted on my test system. No dmesg regressions.
+The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRPC:
+Ensure we flush any closed sockets before xs_xprt_free()) fixes
+CVE-2022-28893, hence good candidate for stable trees.
+The above commit depends on 3be232f(SUNRPC: Prevent immediate
+close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more than
+once on a TCP socket). Commit 3be232f depends on commit
+e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
+kernel. commit 89f4249 didn't apply cleanly. I have patch for 89f4249
+below.
 
-thanks,
--- Shuah
+Thanks,
+Meena
 
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Wed, 16 Mar 2022 19:10:43 -0400
+Subject: [PATCH] SUNRPC: Don't call connect() more than once on a TCP socket
+
+commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
+
+Avoid socket state races due to repeated calls to ->connect() using the
+same socket. If connect() returns 0 due to the connection having
+completed, but we are in fact in a closing state, then we may leave the
+XPRT_CONNECTING flag set on the transport.
+
+Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[meenashanmugam: Backported to 5.10: Fixed merge conflict in
+xs_tcp_setup_socket]
+Signed-off-by: Meena Shanmugam <meena.shanmugam@google.com>
+---
+ include/linux/sunrpc/xprtsock.h |  1 +
+ net/sunrpc/xprtsock.c           | 21 +++++++++++----------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
+
+diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
+index 8c2a712cb242..689062afdd61 100644
+--- a/include/linux/sunrpc/xprtsock.h
++++ b/include/linux/sunrpc/xprtsock.h
+@@ -89,5 +89,6 @@ struct sock_xprt {
+ #define XPRT_SOCK_WAKE_WRITE (5)
+ #define XPRT_SOCK_WAKE_PENDING (6)
+ #define XPRT_SOCK_WAKE_DISCONNECT (7)
++#define XPRT_SOCK_CONNECT_SENT (8)
+
+ #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 60c58eb9a456..33a81f9703b1 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -2260,10 +2260,14 @@ static void xs_tcp_setup_socket(struct
+work_struct *work)
+  struct rpc_xprt *xprt = &transport->xprt;
+  int status = -EIO;
+
+- if (!sock) {
+- sock = xs_create_sock(xprt, transport,
+- xs_addr(xprt)->sa_family, SOCK_STREAM,
+- IPPROTO_TCP, true);
++ if (xprt_connected(xprt))
++ goto out;
++ if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
++        &transport->sock_state) ||
++     !sock) {
++ xs_reset_transport(transport);
++ sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
++       SOCK_STREAM, IPPROTO_TCP, true);
+  if (IS_ERR(sock)) {
+  status = PTR_ERR(sock);
+  goto out;
+@@ -2294,6 +2298,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
+  break;
+  case 0:
+  case -EINPROGRESS:
++ set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
+  case -EALREADY:
+  xprt_unlock_connect(xprt, transport);
+  return;
+@@ -2345,13 +2350,9 @@ static void xs_connect(struct rpc_xprt *xprt,
+struct rpc_task *task)
+
+  WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
+
+- if (transport->sock != NULL && !xprt_connecting(xprt)) {
++ if (transport->sock != NULL) {
+  dprintk("RPC:       xs_connect delayed xprt %p for %lu "
+- "seconds\n",
+- xprt, xprt->reestablish_timeout / HZ);
+-
+- /* Start by resetting any existing state */
+- xs_reset_transport(transport);
++ "seconds\n", xprt, xprt->reestablish_timeout / HZ);
+
+  delay = xprt_reconnect_delay(xprt);
+  xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
+-- 
+2.36.0.512.ge40c2bad7a-goog
