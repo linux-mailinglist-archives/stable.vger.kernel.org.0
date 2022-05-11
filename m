@@ -2,153 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB87F524030
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 00:24:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D66EB524032
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 00:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348697AbiEKWYU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 18:24:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37508 "EHLO
+        id S1348701AbiEKWYb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 18:24:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234788AbiEKWYQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 18:24:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF8AFEAD09;
-        Wed, 11 May 2022 15:24:14 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DB62B82637;
-        Wed, 11 May 2022 22:24:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F260EC340EE;
-        Wed, 11 May 2022 22:24:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652307852;
-        bh=BfTpXL3NjR4e6g+Q/T4BbQTGZ9tGQWTxBSuv9bZuhao=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=tPKgz3dxWELXVfE1icHDaigxUm7pYnEGoN+U5ma1VOmgR+msoq+Jo5QPSiQE2WTNE
-         dQGfPqbHVkxhuN9wxkAJ9YDLlcA0s4Oog2L8MTHOT2ER6FEVyV5jXFNWi1+UzJNA4e
-         ngKfFChQqj+xFTAnnKc4zZ6Uu/2I45rMs/jUg9+Xsxpte6+Qa8EAVg0KWpLSpJgRWa
-         9mY/3MSatRe2XQ6exyOKBxtgyQ5DOD0MXM42EP+kfPSIjeCZVlp9twjWNHbbeBNrD+
-         4jjUmU6vlsghD0Ry0BXtWsoGgTf/O+sSrXSCB3msHO/nuc+Jbp+30JgeF06iFY1aNh
-         44ik93AUbElUg==
-Date:   Wed, 11 May 2022 15:24:10 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Tony Nguyen <anthony.l.nguyen@intel.com>
-Cc:     davem@davemloft.net, pabeni@redhat.com, edumazet@google.com,
-        Xiaomeng Tong <xiam0nd.tong@gmail.com>, netdev@vger.kernel.org,
-        sassmann@redhat.com, stable@vger.kernel.org,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: Re: [PATCH net v2 1/1] i40e: i40e_main: fix a missing check on list
- iterator
-Message-ID: <20220511152410.465ea444@kernel.org>
-In-Reply-To: <20220510204846.2166999-1-anthony.l.nguyen@intel.com>
-References: <20220510204846.2166999-1-anthony.l.nguyen@intel.com>
+        with ESMTP id S1348703AbiEKWYa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 18:24:30 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A703117B60A
+        for <stable@vger.kernel.org>; Wed, 11 May 2022 15:24:28 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id c11so3162566plg.13
+        for <stable@vger.kernel.org>; Wed, 11 May 2022 15:24:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=bkEvxmf++0/1Z3NhBLUJ0Bd0Qdckmkyapkxmn8pFKKg=;
+        b=RPYqPxldLXGe5E3nLc8bQsDqsq5SKl+pVIL98x9tsZFVB9GGdiefrAetcbBPNErEtI
+         tH6g3+eKgUfnuLs2XOyZ3lYHqpc2IdBNgIXPsflzEIyk5r4OzXdppdOHMwITBDoG1A1R
+         IYm8z7DKh6SmjvHvR4TJXkjJIH6ogQOy4djvpy/deL/X3aHKmyIP9CAqvLpq1mJpIZXI
+         RsJxSWJfmPMlESRD13T86++AnsBTjCC7cFY04+M8B50MyWzTx3Huz7nANufOmRmcQGEL
+         Fu6cvG29+ADOIT7qlYSwxliPqes4oUml1dFhlL9OV2W7FbplxrvbCeI8AXKTeGyaaGso
+         6mfA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=bkEvxmf++0/1Z3NhBLUJ0Bd0Qdckmkyapkxmn8pFKKg=;
+        b=F0R1MQRQWMWsNMNu3DVc09dk36KfgZMp3Z0UDJZVPLgqz3C4VOzbtq4ZyM3Nlb891V
+         XrJn0JWnmK8E16KMdtK0B+oA5njsJyNbiCQDIYz+Dw11QeoNwcghEARC+f9Ii5+3OEzx
+         Q18zl6HcPKVL31Fr8jDd14AASgckXSV06sl6ggHk9f5Mma083FgLb7TjaE4fTGkcey+5
+         L0uhIZ1KAoel5vDQ/66IxKfxU1PDB69pcJtrfOdkNU+0Y8l0N1QCXnivoX3S8VolvLgF
+         oRTrSIdJwtBTrBgzrmyu/+B9Ee25AXOEWF9nU8hK1INzbPaseZ+M7tMZT/9/UJwge7qa
+         IkwA==
+X-Gm-Message-State: AOAM530nFMWHLjafwx7Poeihh4j2Hj3ialsT+lyo7/iYN4hHatAbmp98
+        fCZ1czll+BikuWF8cX4haLagrpa9HC7ocn8jvTo=
+X-Google-Smtp-Source: ABdhPJw2k+zNfgAxSNprtVsq3RwbVMgqiSj9O4VpfnCLNhExM/FRDbDTnr+2nEa58F6SA/0eHTMQHw==
+X-Received: by 2002:a17:90b:1649:b0:1dc:890e:2407 with SMTP id il9-20020a17090b164900b001dc890e2407mr7616818pjb.113.1652307867895;
+        Wed, 11 May 2022 15:24:27 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o5-20020aa79785000000b0050dc762815csm2303581pfp.54.2022.05.11.15.24.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 15:24:27 -0700 (PDT)
+Message-ID: <627c379b.1c69fb81.c7cd8.51d9@mx.google.com>
+Date:   Wed, 11 May 2022 15:24:27 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.17
+X-Kernelci-Kernel: v5.17.6-140-g25206fede2d8
+Subject: stable-rc/queue/5.17 baseline: 162 runs,
+ 1 regressions (v5.17.6-140-g25206fede2d8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 10 May 2022 13:48:46 -0700 Tony Nguyen wrote:
-> From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> 
-> The bug is here:
-> 	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
-> 
-> The list iterator 'ch' will point to a bogus position containing
-> HEAD if the list is empty or no element is found. This case must
-> be checked before any use of the iterator, otherwise it will
-> lead to a invalid memory access.
-> 
-> To fix this bug, use a new variable 'iter' as the list iterator,
-> while use the origin variable 'ch' as a dedicated pointer to
-> point to the found element.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
-> Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-> Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-> Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-> ---
-> v2: Dropped patch "iavf: Fix error when changing ring parameters on ice PF"
-> as its being reworked
-> 
->  drivers/net/ethernet/intel/i40e/i40e_main.c | 27 +++++++++++----------
->  1 file changed, 14 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-> index 6778df2177a1..98871f014994 100644
-> --- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-> +++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-> @@ -7549,42 +7549,43 @@ static void i40e_free_macvlan_channels(struct i40e_vsi *vsi)
->  static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
->  			    struct i40e_fwd_adapter *fwd)
->  {
-> +	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
->  	int ret = 0, num_tc = 1,  i, aq_err;
-> -	struct i40e_channel *ch, *ch_tmp;
->  	struct i40e_pf *pf = vsi->back;
->  	struct i40e_hw *hw = &pf->hw;
->  
-> -	if (list_empty(&vsi->macvlan_list))
-> -		return -EINVAL;
-> -
->  	/* Go through the list and find an available channel */
-> -	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
-> -		if (!i40e_is_channel_macvlan(ch)) {
-> -			ch->fwd = fwd;
-> +	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
-> +		if (!i40e_is_channel_macvlan(iter)) {
-> +			iter->fwd = fwd;
->  			/* record configuration for macvlan interface in vdev */
->  			for (i = 0; i < num_tc; i++)
->  				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
->  							     i,
-> -							     ch->num_queue_pairs,
-> -							     ch->base_queue);
-> -			for (i = 0; i < ch->num_queue_pairs; i++) {
-> +							     iter->num_queue_pairs,
-> +							     iter->base_queue);
-> +			for (i = 0; i < iter->num_queue_pairs; i++) {
->  				struct i40e_ring *tx_ring, *rx_ring;
->  				u16 pf_q;
->  
-> -				pf_q = ch->base_queue + i;
-> +				pf_q = iter->base_queue + i;
->  
->  				/* Get to TX ring ptr */
->  				tx_ring = vsi->tx_rings[pf_q];
-> -				tx_ring->ch = ch;
-> +				tx_ring->ch = iter;
->  
->  				/* Get the RX ring ptr */
->  				rx_ring = vsi->rx_rings[pf_q];
-> -				rx_ring->ch = ch;
-> +				rx_ring->ch = iter;
->  			}
-> +			ch = iter;
->  			break;
+stable-rc/queue/5.17 baseline: 162 runs, 1 regressions (v5.17.6-140-g25206f=
+ede2d8)
 
-I guess this is some form of an intentional pattern so I won't delay
-the fix. But Paolo pointed out in previous reviews of similar patches
-that if the assignment to the old iterator name (ch in this case) was
-done earlier in the function (right before iter->fwd = fwd;) we would
-not have to modify so many lines of this function.
+Regressions Summary
+-------------------
 
->  		}
->  	}
->  
-> +	if (!ch)
-> +		return -EINVAL;
-> +
->  	/* Guarantee all rings are updated before we update the
->  	 * MAC address filter.
->  	 */
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
+nel/v5.17.6-140-g25206fede2d8/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.17
+  Describe: v5.17.6-140-g25206fede2d8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      25206fede2d8b0dc32c72949043e11aad9c8aae2 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                | arch  | lab        | compiler | defconfig | regre=
+ssions
+------------------------+-------+------------+----------+-----------+------=
+------
+sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
+      =
+
+
+  Details:     https://kernelci.org/test/plan/id/627c0610ae4f62e18d8f571d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.6-1=
+40-g25206fede2d8/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.6-1=
+40-g25206fede2d8/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
+napi-m64.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220506.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/627c0610ae4f62e18d8f5=
+71e
+        new failure (last pass: v5.17.5-365-gc68c3b953062) =
+
+ =20
