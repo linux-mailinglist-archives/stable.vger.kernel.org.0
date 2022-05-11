@@ -2,140 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C055522874
-	for <lists+stable@lfdr.de>; Wed, 11 May 2022 02:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 948E85228B0
+	for <lists+stable@lfdr.de>; Wed, 11 May 2022 03:11:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234352AbiEKA1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 10 May 2022 20:27:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49126 "EHLO
+        id S240130AbiEKBKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 10 May 2022 21:10:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbiEKA1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 20:27:38 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C52BD5D1BE;
-        Tue, 10 May 2022 17:27:37 -0700 (PDT)
-Date:   Wed, 11 May 2022 00:27:34 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1652228856;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NuL0QXGzQE4f61TV1wvzJ0QEqgqQg7LnaavuAtJN2XM=;
-        b=xbxpE/aueQ3SRa2csZeVrfQOrc6Y188CB4332pQlSguKFf2sIOlXxLgjcnljIlrz6J44Yh
-        V9dEJTitZie1K4mwgdI0LMMM42IGMK4iOpx6Ry+BGinnkDmnHPpf6mdxEnQlhiHDg0Bmbu
-        W5Bu7Kt7KE6lhNIYL8jgUixJmJX1ehSWLPjZoFlTQ9FMUyPKPXhKhgcIxRp6Sk6/7M+QIk
-        DqYhOkkqA5ahSz6fMIbZZhj/0gOoF57xF+g2eFy/l13oHTRD2au+ahrmaqL4AxrehPnYvT
-        xsZMG27zCnKX8VtBT3MgQrHN4YvqNzgJZylwYlzDsRIGp+ieXw+g/S+mVqO3zQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1652228856;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=NuL0QXGzQE4f61TV1wvzJ0QEqgqQg7LnaavuAtJN2XM=;
-        b=S/EkPhEC+g44LnTYgM55PntsA1YCK8U2IFcPqXtNdXoqgLuAo38jv1wMwO75fGpx8KaDa6
-        kuNfdEIZta97pCAw==
-From:   "tip-bot2 for Lukas Wunner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] genirq: Remove WARN_ON_ONCE() in
- generic_handle_domain_irq()
-Cc:     Lukas Wunner <lukas@wunner.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Marc Zyngier <maz@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Octavian Purdila <octavian.purdila@nxp.com>,
-        stable@vger.kernel.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20220505113207.487861b2@kernel.org>
-References: <20220505113207.487861b2@kernel.org>
+        with ESMTP id S240046AbiEKBK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 10 May 2022 21:10:26 -0400
+Received: from mail-oi1-x229.google.com (mail-oi1-x229.google.com [IPv6:2607:f8b0:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12B3221551E;
+        Tue, 10 May 2022 18:10:24 -0700 (PDT)
+Received: by mail-oi1-x229.google.com with SMTP id i66so968117oia.11;
+        Tue, 10 May 2022 18:10:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=4RYsvfj51TW59tKHSOkguY2UjpOlT1Q0GK2exBAIZwg=;
+        b=DQ9mErP9MqY/nkkEfK17lMLOQoQ4oui6GRauv8Zp7W7TcITibrHNT6sYylFi9k2IEE
+         KBqGjij5gxMXAqwgpmm5b3ZGylU5lN2bFPvYFc83jGWansis1NH03opcTWZvqI42he1r
+         mB8deyCXVvKr4noXEXibYYqEzlC2G9he7qDE8poaB3fwGGcyiTQSw+EHk8QsJuveXa+Q
+         yR62J9VRJVYHYGFLPRGjXpU9Gfo6vK8SC9xlbruDRmGZjJ3KO44lSASTs6KjDz0zwkQ6
+         qr6QvXvfO0fjqMu6qFy0xPWPfYj1fmBHwzjGbUl868Eiq/jC4MtJYzKQbp8VZsvIhLzr
+         KCzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=4RYsvfj51TW59tKHSOkguY2UjpOlT1Q0GK2exBAIZwg=;
+        b=pC8W5o+H+IH1b32vi1Lp7cxFyys2ejFZsStcd2ZatK497aByuCM6nYxewgur87MXxA
+         nIjU87nLtsUxTgDKGAIJCqpMGSBn7e4YMcA8Hayw4nVXIEXQ5RFRiLu8Y/ZvLJMWl8PK
+         N8GrbpvkNBu7HS2D4U57g6rUkNdNzvMRrC1RsOPWaaxxALUJuzfjCroPD+3pqF62lHGx
+         TDxZi8wwa7AndeW1CcBPrG+rUsByND1GgSJMGJJI7Hh49cz/9Lhymlqyj+728ONIBgOq
+         qzfs78TRWWoW9uvnjZyEi5hbtuzb5DPlxEmhdtFVj/uPZSCFtbbqyyQq2eAIuz7b1pG1
+         b3CQ==
+X-Gm-Message-State: AOAM53219KAQznoaelsUnQDWVtR9sCjTOeMolQ0D+Fq4xTEzcZu28Vvc
+        JC9bJRVqw8oW27IU6gEe6HKdrbAUG8tz1Q==
+X-Google-Smtp-Source: ABdhPJxJvvWEU1bpNQHmhF73V/v80xw/2MlLlWq/x4MXroMUhOaC851Jz6RZHuRZvg0IjVIAOtjbig==
+X-Received: by 2002:a05:6808:3010:b0:2f7:3e71:88b2 with SMTP id ay16-20020a056808301000b002f73e7188b2mr1373068oib.102.1652231424190;
+        Tue, 10 May 2022 18:10:24 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id h36-20020a4a9427000000b0035eb4e5a6d6sm331726ooi.44.2022.05.10.18.10.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 May 2022 18:10:23 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 10 May 2022 18:10:22 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/66] 4.9.313-rc1 review
+Message-ID: <20220511011022.GA2315160@roeck-us.net>
+References: <20220510130729.762341544@linuxfoundation.org>
 MIME-Version: 1.0
-Message-ID: <165222885472.4207.9060710349562031230.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220510130729.762341544@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+On Tue, May 10, 2022 at 03:06:50PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.313 release.
+> There are 66 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+> Anything received after that time might be too late.
+> 
 
-Commit-ID:     792ea6a074ae7ea5ab6f1b8b31f76bb0297de66c
-Gitweb:        https://git.kernel.org/tip/792ea6a074ae7ea5ab6f1b8b31f76bb0297de66c
-Author:        Lukas Wunner <lukas@wunner.de>
-AuthorDate:    Tue, 10 May 2022 09:56:05 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Wed, 11 May 2022 02:22:52 +02:00
+Build results:
+	total: 163 pass: 163 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-genirq: Remove WARN_ON_ONCE() in generic_handle_domain_irq()
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Since commit 0953fb263714 ("irq: remove handle_domain_{irq,nmi}()"),
-generic_handle_domain_irq() warns if called outside hardirq context, even
-though the function calls down to handle_irq_desc(), which warns about the
-same, but conditionally on handle_enforce_irqctx().
-
-The newly added warning is a false positive if the interrupt originates
-from any other irqchip than x86 APIC or ARM GIC/GICv3.  Those are the only
-ones for which handle_enforce_irqctx() returns true.  Per commit
-c16816acd086 ("genirq: Add protection against unsafe usage of
-generic_handle_irq()"):
-
- "In general calling generic_handle_irq() with interrupts disabled from non
-  interrupt context is harmless. For some interrupt controllers like the
-  x86 trainwrecks this is outright dangerous as it might corrupt state if
-  an interrupt affinity change is pending."
-
-Examples for interrupt chips where the warning is a false positive are
-USB-attached GPIO controllers such as drivers/gpio/gpio-dln2.c:
-
-  USB gadgets are incapable of directly signaling an interrupt because they
-  cannot initiate a bus transaction by themselves.  All communication on
-  the bus is initiated by the host controller, which polls a gadget's
-  Interrupt Endpoint in regular intervals.  If an interrupt is pending,
-  that information is passed up the stack in softirq context, from which a
-  hardirq is synthesized via generic_handle_domain_irq().
-
-Remove the warning to eliminate such false positives.
-
-Fixes: 0953fb263714 ("irq: remove handle_domain_{irq,nmi}()")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-CC: Linus Walleij <linus.walleij@linaro.org>
-Cc: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Octavian Purdila <octavian.purdila@nxp.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220505113207.487861b2@kernel.org
-Link: https://lore.kernel.org/r/20220506203242.GA1855@wunner.de
-Link: https://lore.kernel.org/r/c3caf60bfa78e5fdbdf483096b7174da65d1813a.1652168866.git.lukas@wunner.de
----
- kernel/irq/irqdesc.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/kernel/irq/irqdesc.c b/kernel/irq/irqdesc.c
-index 0099b87..d323b18 100644
---- a/kernel/irq/irqdesc.c
-+++ b/kernel/irq/irqdesc.c
-@@ -701,7 +701,6 @@ EXPORT_SYMBOL_GPL(generic_handle_irq_safe);
-  */
- int generic_handle_domain_irq(struct irq_domain *domain, unsigned int hwirq)
- {
--	WARN_ON_ONCE(!in_hardirq());
- 	return handle_irq_desc(irq_resolve_mapping(domain, hwirq));
- }
- EXPORT_SYMBOL_GPL(generic_handle_domain_irq);
+Guenter
