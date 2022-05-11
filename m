@@ -2,90 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91624523050
-	for <lists+stable@lfdr.de>; Wed, 11 May 2022 12:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD7F523041
+	for <lists+stable@lfdr.de>; Wed, 11 May 2022 12:07:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231542AbiEKKJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 06:09:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50576 "EHLO
+        id S229507AbiEKKFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 06:05:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241014AbiEKKJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 06:09:23 -0400
-X-Greylist: delayed 359 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 11 May 2022 03:09:13 PDT
-Received: from email.studentenwerk.mhn.de (dresden.studentenwerk.mhn.de [141.84.225.229])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B2C17A828;
-        Wed, 11 May 2022 03:09:12 -0700 (PDT)
-Received: from mailhub.studentenwerk.mhn.de (mailhub.studentenwerk.mhn.de [127.0.0.1])
-        by email.studentenwerk.mhn.de (Postfix) with ESMTPS id 4Kyr7z1hfMzRhSb;
-        Wed, 11 May 2022 12:03:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=stwm.de; s=stwm-20170627;
-        t=1652263391;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=paHzsJSUUUK2l3doauEwUmwh24Gg8aqJ/AhHP760snk=;
-        b=Qp5JKFdwGYj8Gar70vooSb2H3bWE0kAS4UYpnePxXIykfKcymrLtiBPn/7Ux5zAKL6MUkD
-        ZQbx+twkue0/4TpKQl+UbCjWIAhbGkX6L7mJez7jwUQ3ySD+cHYwwnoXfiD8AE1LOuOXQF
-        Zd7zp0mc3Mly/9duv2GsTMfspRsupIUj6nD0hh1E8R6zFyKO7xT4YuwGVAu0nTbjIhkNX+
-        wIh40zOoBSCvn/PcE2sAQ6dtDR+0Ykq37clezF892Ak+iW4Wx0FJQbG6s7HPqFy0oFLvA3
-        KIZt83R8J7V2qEt62wEKmWbS5H+O557uF9Vpg08ivGGLStoz+ej7h+LWGyviYA==
+        with ESMTP id S238513AbiEKKFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 06:05:19 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CA935DA68;
+        Wed, 11 May 2022 03:05:17 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id s15so927377wrb.7;
+        Wed, 11 May 2022 03:05:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=a78p1AjzrapLqC0ERAtlikRKGtUZly0gff/iNB5DsF4=;
+        b=L1EpaP1GsqseXhKqiTJUTeYmtOApce0H2IMGbP68Ua9uHDWq1KDsGPDzyOJIvA/06f
+         6PRhA5/Wf8DdZUootLdQUgH+NlzyJw6gVIsPQbznbYGQxJcyKu97A2DnIM0Uy5V+HFDG
+         /l6DR2SbD8Jy2vdPRPMQK7M8ZyPUkzsoUILsYTmtZs3OrVc8KkJwcjJsGNhFvfYGgDaE
+         pBoX3m8EJk7W5TEE5307oR3DuaIbYFIx1rhwkSQn26k0nqGyJrk4oz/0X6dUY13RlUv2
+         oNz2BNNTDfFzUC9C+d5jjwR1F7JtBxlUeBDun/GeFnDwRJaRtVtTimyovzJTOOYuj5fk
+         k5Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=a78p1AjzrapLqC0ERAtlikRKGtUZly0gff/iNB5DsF4=;
+        b=8FAq3+vp0GWeahqnHFq8DW9BGqqBHiOb9QQKabFbBlc2OSvjM88hdB4eZHsD7+8U/z
+         QYB+PTQvE9pxwuUbTSp3fECHkIz1I5uHnEz60bWPjJeVFnklKCTlbGIm5VJuQejfhKEa
+         fUPxjCK+QfCvreLEkx26J886IJPT5s7q47bBEmiNx4FfZmVqYt1onCFj1N6AbBXKlkUF
+         NPRmRsr7aZhpwyBPcvhWhPDFS/hQjYYBuJccSdysT3jxzymM7yghlq/8wCsig/MX543D
+         dRD5bV+n0PTFzGDf7vPz6uIUvUZ2UI6Rk4OyYAETIOSlQale2knGVFH9cU9HNJLVO5W4
+         Mwrw==
+X-Gm-Message-State: AOAM530ZnGjg3FNIYlGy7EASKnHJUU2H9fjSIJ4LQ05Gmj3Jhg/VwvlB
+        riF2bjW7GmxvtLvbLb/XKrc=
+X-Google-Smtp-Source: ABdhPJwLwzmIo8fcmm8XOYcwiy/1EqvXdCuMvJT4lQxkLjhnMPfwJVWY7dmdRC6ufIZT5IdzpOUeWQ==
+X-Received: by 2002:a5d:5885:0:b0:20c:7048:2951 with SMTP id n5-20020a5d5885000000b0020c70482951mr22457098wrf.28.1652263516031;
+        Wed, 11 May 2022 03:05:16 -0700 (PDT)
+Received: from debian ([167.98.27.226])
+        by smtp.gmail.com with ESMTPSA id a8-20020a7bc1c8000000b00394867d66ddsm1617158wmj.35.2022.05.11.03.05.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 03:05:15 -0700 (PDT)
+Date:   Wed, 11 May 2022 11:05:13 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
+Subject: Re: [PATCH 5.10 00/70] 5.10.115-rc1 review
+Message-ID: <YnuKWQzXyoGhEElv@debian>
+References: <20220510130732.861729621@linuxfoundation.org>
 MIME-Version: 1.0
-Date:   Wed, 11 May 2022 12:03:13 +0200
-From:   Wolfgang Walter <linux@stwm.de>
-To:     stable@vger.kernel.org, Trond Myklebust <trondmy@gmail.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        linux-nfs@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: 5.4.188 and later: massive performance regression with nfsd
-Message-ID: <f8d9b9112607df4807fba8948ac6e145@stwm.de>
-X-Sender: linux@stwm.de
-Organization: =?UTF-8?Q?Studentenwerk_M=C3=BCnchen?=
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.2 required=5.0 tests=BAYES_20,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220510130732.861729621@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Hi Greg,
 
-starting with 5.4.188 wie see a massive performance regression on our 
-nfs-server. It basically is serving requests very very slowly with cpu 
-utilization of 100% (with 5.4.187 and earlier it is 10%) so that it is 
-unusable as a fileserver.
+On Tue, May 10, 2022 at 03:07:19PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.115 release.
+> There are 70 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+> Anything received after that time might be too late.
 
-The culprit are commits (or one of it):
+Build test (gcc-11):
+mips (gcc version 11.2.1 20220408): 63 configs -> 1 new failure
+arm (gcc version 11.2.1 20220408): 105 configs -> 1 new failure
+arm64 (gcc version 11.2.1 20220408): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20220408): 4 configs -> no failure
 
-c32f1041382a88b17da5736886da4a492353a1bb "nfsd: cleanup 
-nfsd_file_lru_dispose()"
-628adfa21815f74c04724abc85847f24b5dd1645 "nfsd: Containerise filecache 
-laundrette"
+mips xway_defconfig and arm hisi_defconfig both failed with:
 
-(upstream 36ebbdb96b694dd9c6b25ad98f2bbd263d022b63 and 
-9542e6a643fc69d528dfb3303f145719c61d3050)
+drivers/usb/phy/phy-generic.c: In function 'usb_phy_gen_create_phy':
+drivers/usb/phy/phy-generic.c:271:26: error: implicit declaration of function 'devm_regulator_get_exclusive'; did you mean 'regulator_get_exclusive'? [-Werror=implicit-function-declaration]
+  271 |         nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
 
-If I revert them in v5.4.192 the kernel works as before and performance 
-is ok again.
+It was introduced in v5.10.114 by d22d92230ffb ("usb: phy: generic: Get the vbus supply")
 
-I did not try to revert them one by one as any disruption of our 
-nfs-server is a severe problem for us and I'm not sure if they are 
-related.
+Build test (gcc-12):
+Mips builds are failing. Needs d422c6c0644b ("MIPS: Use address-of operator on section
+symbols")
+arm64 allmodconfig failed. Will check later what is needed for arm64.
 
-5.10 and 5.15 both always performed very badly on our nfs-server in a 
-similar way so we were stuck with 5.4.
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+arm64: Booted on rpi4b (4GB model). No regression. [2]
 
-I now think this is because of 36ebbdb96b694dd9c6b25ad98f2bbd263d022b63 
-and/or 9542e6a643fc69d528dfb3303f145719c61d3050 though I didn't tried to 
-revert them in 5.15 yet.
+[1]. https://openqa.qa.codethink.co.uk/tests/1123
+[2]. https://openqa.qa.codethink.co.uk/tests/1125
 
 
-Regards,
--- 
-Wolfgang Walter
-Studentenwerk München
-Anstalt des öffentlichen Rechts
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
+
