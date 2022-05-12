@@ -2,97 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED9FD52514D
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 17:30:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 967B452516D
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 17:40:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242288AbiELPa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 May 2022 11:30:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50892 "EHLO
+        id S1356039AbiELPkz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 May 2022 11:40:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355646AbiELPa3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 11:30:29 -0400
-Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31EC4994CB
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 08:30:28 -0700 (PDT)
-Received: by mail-vs1-xe29.google.com with SMTP id q2so5549524vsr.5
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 08:30:28 -0700 (PDT)
+        with ESMTP id S1352406AbiELPky (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 11:40:54 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF7E9193C1;
+        Thu, 12 May 2022 08:40:52 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id kq17so11049045ejb.4;
+        Thu, 12 May 2022 08:40:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=OGjovOLLCNX5QV/XTVfdAcAkHFV5TFmZScvINXsyNcw=;
-        b=VW8JGIJuwO2+Hy5FY5ZYnO/iXPiB1Glr7x4a9PQE3mg89fbqbqp6qe1Pz6eVNFg9KG
-         jH+um2tVLFP19Cgz9bHmmL1/zLknO4ETrTRyor7GZfmX2yTcrMzL/xKDyL2xHl7PWz6Z
-         XBWloKepVvKiwa2/Es52RaVxtZ2XwMQENjrvvg695jcgY8fl5swlB/Ailn6GhSQRVYEv
-         6+3ppgqDTboiJ2GCjL1/rbjrhoQgTnjZ2ql6dKNWhTlnYy3SBO7fwUS8i//TsTGYr7rO
-         iPQMWoyJXim12/EnaR+EFB94FHQvi0GZ8h+v8cZ56gb6qeuNlre+rh6Vm2RNX2s5fba5
-         V0HQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UGcecE8BJ2FQvYEPbpshw8t/4GdCHo6m2IbbNvZmX18=;
+        b=YpP2HBriKH6aDqYSwuGrjGBgjvzePevL24cgOetsAZrrTa6lA3/NSsyOZFkfufw0lt
+         lJBFYiJw+y9js57P1EjojQUDGrQ1eKEIqYBFYriAc/TiIKkvwpOPevhyLHj0TzV3gjrS
+         HA08imVpavvzbT0kxF6Sg/HybSGDYvXvTNDZYU+krnbCrZmhcN3ba8Gv/9F8APLbp9NF
+         QKpeRYw8LN8BQ79b7yBceBvGkLFH5HkcgHpn17vt3z0Hsh3xQfC5onU4QQ50/NjzjYm8
+         pxfyDegPkWjW44FmHM97QE0avUGSFDiuELMvpINEJaH4w5rwMnc6VFiEILb14ZVOxH9N
+         XiVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=OGjovOLLCNX5QV/XTVfdAcAkHFV5TFmZScvINXsyNcw=;
-        b=hS6MiM5//Qv8XpQOwyySHjrcsL5pUflQixYpozwmSX6vc8vLFs8Iws9cnLghytkXWo
-         uQUUt7rSasEFmkg7WYDVCGak/XfDleiTG9bnQBaXwP07sqpvnHZLnOnOOnvMksZ8hGK0
-         hKzieASHFquz8S+ie8M18/WNulhhs6TUGVIDlvs9HbAwdZJe86QCAV2QxOsOcFJqlkjI
-         5SZntqP1FyXGwlNdo/QrsrZ0c23KLvyZz8zdXq9dDXqn0APi7SdsnpoB/PWCmFAifaFg
-         2JuG86hvQsYIf3YkMcBvQ2yiuzg0JA5t3u/0Yucz6dnXfdlDl68ykT956YwmYftawPMe
-         +P0w==
-X-Gm-Message-State: AOAM531HjhPqcwXjVROSsf51gt6fw3ijIPQ9WR0ujMKj/J5t4hmqJ3Wj
-        vNTjuRWTgDxI+Vv7hG+C9hF31H4EhnBQh/hPzs8=
-X-Google-Smtp-Source: ABdhPJwYP2vP9240D+11ybumDCqsfa7mNch7cD1GA/IcvCgSjvp+Fblifl0JGvcDlxT9GsBlYs9F3mnUprSR3blYnF0=
-X-Received: by 2002:a05:6102:226c:b0:333:c0e7:77ea with SMTP id
- v12-20020a056102226c00b00333c0e777eamr441440vsd.16.1652369426610; Thu, 12 May
- 2022 08:30:26 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UGcecE8BJ2FQvYEPbpshw8t/4GdCHo6m2IbbNvZmX18=;
+        b=c3bEwBuV7hQKNxg4+E/TnU3YVPoV2gKgaSEB8oH2m6f2f1O30l8rb1XolIX0+Fj2Y8
+         nF0Tl/a5pqwlhIumfu5WlIOToMnetY1NcPuGlErFV92/YBWJScNG0Dgnyfk2H4zc/Kxy
+         HtDL1ksbGEw5hRY2fdsr95uKgcghrOi2gYKl35YeONle68F4oXGU/YWyxEWadJxjSH9l
+         4hoVCqQYPDVdrFBp1gKURV/PJmRfdYFw6/q7EXGnUCrIzaylsoda1Ta4TSZfXCIAE3qD
+         tklWx2z8oMcEqZnrDAgd+6m2e0XIUA4m6heS9YtYtHM5/dFHJhi0nRm5d5U2eGM8840t
+         Fxwg==
+X-Gm-Message-State: AOAM531ZzlTwQLzTxFKGRTuHtqLKnoodnlXMhT46mlcxXc6bYUWXfiFj
+        y13r9MbMQsomFXy/rjWD6Z0L9aZuTv/pO7xA68w=
+X-Google-Smtp-Source: ABdhPJxGNhZlhRylD568whW5WraQanH+Vx3FH9d+5bihMvaQ1NHaargKlr/MxbBEjytQcdV3JECNwKU2N03kmrCkHts=
+X-Received: by 2002:a17:906:2e8d:b0:6f3:a30e:15c9 with SMTP id
+ o13-20020a1709062e8d00b006f3a30e15c9mr441682eji.333.1652370051509; Thu, 12
+ May 2022 08:40:51 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a67:4302:0:0:0:0:0 with HTTP; Thu, 12 May 2022 08:30:25
- -0700 (PDT)
-Reply-To: rolandnyemih200@gmail.com
-From:   Rowland Nyemih <guedjouirene@gmail.com>
-Date:   Thu, 12 May 2022 16:30:25 +0100
-Message-ID: <CACrAO7Ber+jeHXWNqmsY7cXH7cgFnMz0is9N7Q-kE69jQdC74A@mail.gmail.com>
-Subject: Rowland N.
-To:     undisclosed-recipients:;
+References: <20220510130740.392653815@linuxfoundation.org> <YnuMDWIReGg6z0Al@debian>
+In-Reply-To: <YnuMDWIReGg6z0Al@debian>
+From:   Allen Pais <stable.kernel.dev@gmail.com>
+Date:   Thu, 12 May 2022 08:40:40 -0700
+Message-ID: <CAJq+SaC2kd1DRSjL=1t+PZrpTHrZmuOJ=Pfy7C4cBJHFnToN8A@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/135] 5.15.39-rc1 review
+To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, slade@sladewatkins.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.3 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:e29 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4981]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [guedjouirene[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [rolandnyemih200[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.5 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-HI,
-Good day.
-Kindly confirm to me if this is your correct email Address and get
-back to me for our interest.
-Sincerely,
-Rowland
+> > This is the start of the stable review cycle for the 5.15.39 release.
+> > There are 135 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
+> > Anything received after that time might be too late.
+>
+
+Compiled and booted on x86 & arm64 systems. No dmesg regressions.
+
+Tested-by: Allen Pais <apais@linux.microsoft.com>
