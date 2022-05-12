@@ -2,221 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44358524256
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 04:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B350B5242C3
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 04:34:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237246AbiELCJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 22:09:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
+        id S240794AbiELCeP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 22:34:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237019AbiELCJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 22:09:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2426D4E5;
-        Wed, 11 May 2022 19:09:48 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F17DC60DB4;
-        Thu, 12 May 2022 02:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C39DC340EE;
-        Thu, 12 May 2022 02:09:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1652321387;
-        bh=RhwVvAsOWJi9eexvPIZLTK3QhastGCm1ntCdCWggm94=;
-        h=Date:To:From:Subject:From;
-        b=oo6tedGG47mNfFLHO2dtMm5amsMQ9fMoPHCfMPN1uvo6jSqlHOKzDBwqnpdjmENLf
-         UQHCLPtfuns6yBlrSV+MAgneP+HR3WnIZmGMO15cGetFXt/5h1/8ocuPL0jUIdjeXb
-         5yp6hZpwgCJyXgDU/kNvz+NXXe9a0fnMxsgTeR/0=
-Date:   Wed, 11 May 2022 19:09:46 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        len.baker@gmx.com, gustavoars@kernel.org, dhowells@redhat.com,
-        stephen.s.brennan@oracle.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + assoc_array-fix-bug_on-during-garbage-collect.patch added to mm-hotfixes-unstable branch
-Message-Id: <20220512020947.4C39DC340EE@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S233594AbiELCeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 22:34:13 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B1C48134E36
+        for <stable@vger.kernel.org>; Wed, 11 May 2022 19:34:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1652322851;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=p1RM6J3uuTVxgrBSDhjonzu3khLVyy7UfT2z18Xr7/8=;
+        b=CU2JrXKRzM3yVYdSqrGdd1bi2JhlNW/FzPyTNFm097pLH+bCOYwBT+HZheRi6JBIuy4U1d
+        jeUvZCQhg8yStoERhz1woU66w6SmUXdZqs0qpTc4d9kyZxSZK4E5CbIZmWL8HQFZOgUzeG
+        9J+gfkNCDON4Fo1LpozKl8cKBXpCGuE=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-583-VhBrZaULNQGaidzi6EZzMg-1; Wed, 11 May 2022 22:34:10 -0400
+X-MC-Unique: VhBrZaULNQGaidzi6EZzMg-1
+Received: by mail-pj1-f71.google.com with SMTP id i12-20020a17090a64cc00b001dccafbd493so3893870pjm.3
+        for <stable@vger.kernel.org>; Wed, 11 May 2022 19:34:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=p1RM6J3uuTVxgrBSDhjonzu3khLVyy7UfT2z18Xr7/8=;
+        b=TOp8OBpUiuc/cF+ELx9JzAm8gPi4sBOVZYc5YZ6au+8dWjMVSfj/IKojgvzvWPeckt
+         QEpGtZz2NSX4N2nyqcH5WMUXlh08+LFLZnFMriS+bkpV7ZpgKzjpzFhOUt3OpML7o4c3
+         PrGVljB4opQA/BSFLilw1eqLXVg0LIQuy11h9XjhbM2cy5TXhTkIqbBBjoFUmZkmeGjA
+         qEB3WD1ORskKH9d7jwuK4x9vZh6W0jQk/db6oiYeX9Fe5DltXQRfmikxDlPT0F0O7Lt9
+         0LbwmeJlD+L+qlr7dm/8Y5F5+DWXfU+0X38CQJ+4gTPbxOxjqjVDRMIduaEVe/a9nzyr
+         B1gA==
+X-Gm-Message-State: AOAM5333i6dKvWT7nVKR90EUAoepvaalytmDqXO+ib+0epIDFnsVq4ev
+        gAD1w0tF6Y70HApYJVh2JBS3KKDqZsX+W6rkS47he3/VFE63F7/IyxYUfFrTGnFZutMmKvtyNK3
+        OOH3oBdn0QnQcH9ej
+X-Received: by 2002:a17:903:230b:b0:15e:bc9c:18c7 with SMTP id d11-20020a170903230b00b0015ebc9c18c7mr28317285plh.29.1652322849331;
+        Wed, 11 May 2022 19:34:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyBLwmAnT3YjOM0+q7aOBCPUuYBD9cDVb22vSPfF5bLWDIiVaY+O2ApMQ8Fxd/8OpkQUf8EAA==
+X-Received: by 2002:a17:903:230b:b0:15e:bc9c:18c7 with SMTP id d11-20020a170903230b00b0015ebc9c18c7mr28317266plh.29.1652322849104;
+        Wed, 11 May 2022 19:34:09 -0700 (PDT)
+Received: from localhost ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id 7-20020a621507000000b0050dc762812asm2475053pfv.4.2022.05.11.19.34.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 May 2022 19:34:08 -0700 (PDT)
+From:   Coiby Xu <coxu@redhat.com>
+To:     kexec@lists.infradead.org
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Baoquan He <bhe@redhat.com>, Dave Young <dyoung@redhat.com>,
+        Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Mimi Zohar <zohar@linux.ibm.com>, Chun-Yi Lee <jlee@suse.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v7 1/4] kexec: clean up arch_kexec_kernel_verify_sig
+Date:   Thu, 12 May 2022 10:33:59 +0800
+Message-Id: <20220512023402.9913-2-coxu@redhat.com>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220512023402.9913-1-coxu@redhat.com>
+References: <20220512023402.9913-1-coxu@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-3.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Currently there is no arch-specific implementation of
+arch_kexec_kernel_verify_sig. Even if we want to add an implementation
+for an architecture in the future, we can simply use "(struct
+kexec_file_ops*)->verify_sig". So clean it up.
 
-The patch titled
-     Subject: lib/assoc_array.c: fix BUG_ON during garbage collect
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     assoc_array-fix-bug_on-during-garbage-collect.patch
+Note this patch is needed by later patches so Cc it to the stable tree
+as well.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/assoc_array-fix-bug_on-during-garbage-collect.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Stephen Brennan <stephen.s.brennan@oracle.com>
-Subject: lib/assoc_array.c: fix BUG_ON during garbage collect
-
-A rare BUG_ON triggered in assoc_array_gc:
-
-    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
-
-Which corresponded to the statement currently at line 1593 upstream:
-
-    BUG_ON(assoc_array_ptr_is_meta(p));
-
-Using the data from the core dump, I was able to generate a userspace
-reproducer[1] and determine the cause of the bug.
-
-[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
-
-After running the iterator on the entire branch, an internal tree node
-looked like the following:
-
-    NODE (nr_leaves_on_branch: 3)
-      SLOT [0] NODE (2 leaves)
-      SLOT [1] NODE (1 leaf)
-      SLOT [2..f] NODE (empty)
-
-In the userspace reproducer, the pr_devel output when compressing this
-node was:
-
-    -- compress node 0x5607cc089380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    after: 3
-
-At slot 0, an internal node with 2 leaves could not be folded into the
-node, because there was only one available slot (slot 0).  Thus, the
-internal node was retained.  At slot 1, the node had one leaf, and was
-able to be folded in successfully.  The remaining nodes had no leaves, and
-so were removed.  By the end of the compression stage, there were 14 free
-slots, and only 3 leaf nodes.  The tree was ascended and then its parent
-node was compressed.  When this node was seen, it could not be folded, due
-to the internal node it contained.
-
-The invariant for compression in this function is: whenever
-nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
-leaf nodes.  The compression step currently cannot guarantee this, given
-the corner case shown above.
-
-To fix this issue, retry compression whenever we have retained a node, and
-yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT.  This second compression
-will then allow the node in slot 1 to be folded in, satisfying the
-invariant.  Below is the output of the reproducer once the fix is applied:
-
-    -- compress node 0x560e9c562380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    internal nodes remain despite enough space, retrying
-    -- compress node 0x560e9c562380 --
-    free=14, leaves=1
-    [0] fold node 2/15 [nx 0]
-    after: 3
-
-Link: https://lkml.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com
-Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Len Baker <len.baker@gmx.com>
-Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Suggested-by: Eric W. Biederman <ebiederm@xmission.com>
+Reviewed-by: Michal Suchanek <msuchanek@suse.de>
+Acked-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Coiby Xu <coxu@redhat.com>
 ---
+ include/linux/kexec.h |  4 ----
+ kernel/kexec_file.c   | 34 +++++++++++++---------------------
+ 2 files changed, 13 insertions(+), 25 deletions(-)
 
- lib/assoc_array.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
---- a/lib/assoc_array.c~assoc_array-fix-bug_on-during-garbage-collect
-+++ a/lib/assoc_array.c
-@@ -1462,6 +1462,7 @@ int assoc_array_gc(struct assoc_array *a
- 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
- 	unsigned long nr_leaves_on_tree;
- 	int keylen, slot, nr_free, next_slot, i;
-+	bool retained;
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 58d1b58a971e..413235c6c797 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -202,10 +202,6 @@ int arch_kexec_apply_relocations(struct purgatory_info *pi,
+ 				 const Elf_Shdr *relsec,
+ 				 const Elf_Shdr *symtab);
+ int arch_kimage_file_post_load_cleanup(struct kimage *image);
+-#ifdef CONFIG_KEXEC_SIG
+-int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-				 unsigned long buf_len);
+-#endif
+ int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
  
- 	pr_devel("-->%s()\n", __func__);
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 8347fc158d2b..3720435807eb 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -89,25 +89,6 @@ int __weak arch_kimage_file_post_load_cleanup(struct kimage *image)
+ 	return kexec_image_post_load_cleanup_default(image);
+ }
  
-@@ -1536,6 +1537,7 @@ continue_node:
- 		goto descend;
- 	}
+-#ifdef CONFIG_KEXEC_SIG
+-static int kexec_image_verify_sig_default(struct kimage *image, void *buf,
+-					  unsigned long buf_len)
+-{
+-	if (!image->fops || !image->fops->verify_sig) {
+-		pr_debug("kernel loader does not support signature verification.\n");
+-		return -EKEYREJECTED;
+-	}
+-
+-	return image->fops->verify_sig(buf, buf_len);
+-}
+-
+-int __weak arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+-					unsigned long buf_len)
+-{
+-	return kexec_image_verify_sig_default(image, buf, buf_len);
+-}
+-#endif
+-
+ /*
+  * arch_kexec_apply_relocations_add - apply relocations of type RELA
+  * @pi:		Purgatory to be relocated.
+@@ -184,13 +165,24 @@ void kimage_file_post_load_cleanup(struct kimage *image)
+ }
  
-+retry_compress:
- 	pr_devel("-- compress node %p --\n", new_n);
- 
- 	/* Count up the number of empty slots in this node and work out the
-@@ -1554,6 +1556,7 @@ continue_node:
- 
- 	/* See what we can fold in */
- 	next_slot = 0;
-+	retained = 0;
- 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
- 		struct assoc_array_shortcut *s;
- 		struct assoc_array_node *child;
-@@ -1602,9 +1605,14 @@ continue_node:
- 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
- 				 slot, child->nr_leaves_on_branch, nr_free + 1,
- 				 next_slot);
-+			retained = true;
- 		}
- 	}
- 
-+	if (retained && new_n->nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT) {
-+		pr_devel("internal nodes remain despite neough space, retrying\n");
-+		goto retry_compress;
+ #ifdef CONFIG_KEXEC_SIG
++static int kexec_image_verify_sig(struct kimage *image, void *buf,
++		unsigned long buf_len)
++{
++	if (!image->fops || !image->fops->verify_sig) {
++		pr_debug("kernel loader does not support signature verification.\n");
++		return -EKEYREJECTED;
 +	}
- 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
++
++	return image->fops->verify_sig(buf, buf_len);
++}
++
+ static int
+ kimage_validate_signature(struct kimage *image)
+ {
+ 	int ret;
  
- 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
-_
-
-Patches currently in -mm which might be from stephen.s.brennan@oracle.com are
-
-assoc_array-fix-bug_on-during-garbage-collect.patch
+-	ret = arch_kexec_kernel_verify_sig(image, image->kernel_buf,
+-					   image->kernel_buf_len);
++	ret = kexec_image_verify_sig(image, image->kernel_buf,
++			image->kernel_buf_len);
+ 	if (ret) {
+ 
+ 		if (IS_ENABLED(CONFIG_KEXEC_SIG_FORCE)) {
+-- 
+2.35.3
 
