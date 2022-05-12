@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99132524E57
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 15:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F9DB524E5F
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 15:36:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354455AbiELNcp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 May 2022 09:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55330 "EHLO
+        id S242178AbiELNg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 May 2022 09:36:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354446AbiELNcn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 09:32:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 400C013CA02;
-        Thu, 12 May 2022 06:32:43 -0700 (PDT)
+        with ESMTP id S1354501AbiELNgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 09:36:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83E4286E0
+        for <stable@vger.kernel.org>; Thu, 12 May 2022 06:36:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4C060FF9;
-        Thu, 12 May 2022 13:32:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E26C385B8;
-        Thu, 12 May 2022 13:32:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4637CB826AE
+        for <stable@vger.kernel.org>; Thu, 12 May 2022 13:36:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8FAC385B8;
+        Thu, 12 May 2022 13:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652362362;
-        bh=iea0wvYMraNHhc9IlNAJyT9swOt+7dgRX/XiM8IK73E=;
+        s=korg; t=1652362578;
+        bh=vtNyACv1GDds57wk0/3xK+KFuOW2R4mH4WQUTyTX3os=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V9r8yQIeB0P4EdEg/9ZFaSn9+w3/lt4RTec+WroBnpB3Obe613rBheuB95t2Jc2BX
-         rkuLU46AhA9Ar/cCLsSjEHVl02GieI6j2b3F+HZlHkWS452JUZX6Bg2KeE5B+tnthp
-         8aJeCVvMxLaGdkwIWw8+tNlr0Y+DfxmXQvs9O1vk=
-Date:   Thu, 12 May 2022 15:32:39 +0200
+        b=WNgeKpSYwdR77+nHeQ9LpSy5EY8F43n4EIp/8pLqhiJcJWrovNweOB/YK9olf8nYV
+         EoVDawe+xf+ZiCjSoQ4f94P52z51DUexp2Hj/kLGpq/0U7OYBz6FFYB7+YVkEOlhKx
+         GAwLr5HMbVm/yri4wzYFlF4OwWly9sGb9Tc13XxU=
+Date:   Thu, 12 May 2022 15:36:16 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Stable <stable@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>, slade@sladewatkins.com
-Subject: Re: [PATCH 5.10 00/70] 5.10.115-rc1 review
-Message-ID: <Yn0Md78PJu1+nIKP@kroah.com>
-References: <20220510130732.861729621@linuxfoundation.org>
- <CADVatmNyky-XXaeAiQ5ypZ7+7F7fzLshB4bNWt5v3RdnXStsOg@mail.gmail.com>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Tom Rix <trix@redhat.com>, llvm@lists.linux.dev
+Subject: Re: Warning fixes for clang + x86_64 allmodconfig on 5.10 and 5.4
+Message-ID: <Yn0NUKoWB2V87R4G@kroah.com>
+References: <YnqlnFWCrEz11T5Y@dev-arch.thelio-3990X>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CADVatmNyky-XXaeAiQ5ypZ7+7F7fzLshB4bNWt5v3RdnXStsOg@mail.gmail.com>
+In-Reply-To: <YnqlnFWCrEz11T5Y@dev-arch.thelio-3990X>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -58,34 +51,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 10, 2022 at 09:44:26PM +0100, Sudip Mukherjee wrote:
-> Hi Greg,
+On Tue, May 10, 2022 at 10:49:16AM -0700, Nathan Chancellor wrote:
+> Hi Greg and Sasha,
 > 
-> On Tue, May 10, 2022 at 2:25 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.10.115 release.
-> > There are 70 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Thu, 12 May 2022 13:07:16 +0000.
-> > Anything received after that time might be too late.
+> A recent change in LLVM [1] strengthened -Wenum-conversion, which
+> revealed a couple of instances in 5.10 and 5.4 (the oldest release that
+> I personally build test). They are fixed with the following changes,
+> please consider applying them wherever they apply cleanly (I have
+> included the release they first appeared in):
 > 
-> Just some initial report for you.
-> As mentioned in the mail for 4.19-stable, it will also need
-> d422c6c0644b ("MIPS: Use address-of operator on section symbols").
+> 1f1e87b4dc45 ("block: drbd: drbd_nl: Make conversion to 'enum drbd_ret_code' explicit") [5.13]
+> 353f7f3a9dd5 ("drm/amd/display/dc/gpio/gpio_service: Pass around correct dce_{version, environment} types") [5.14]
 > 
-> But apart from that, there is also another failure.
-> drivers/usb/phy/phy-generic.c: In function 'usb_phy_gen_create_phy':
-> drivers/usb/phy/phy-generic.c:271:26: error: implicit declaration of
-> function 'devm_regulator_get_exclusive'; did you mean
-> 'regulator_get_exclusive'? [-Werror=implicit-function-declaration]
->   271 |         nop->vbus_draw = devm_regulator_get_exclusive(dev, "vbus");
+> Since I am here already, please consider applying the following
+> additional changes where they cleanly apply, as they resolve other
+> warnings present in x86_64 allmodconfig with clang:
 > 
-> This was introduced in v5.10.114 by d22d92230ffb ("usb: phy: generic:
-> Get the vbus supply") but I missed testing that release. :(
+> 7bf03e7504e4 ("drm/i915: Cast remain to unsigned long in eb_relocate_vma") [5.8]
+> 8a64ef042eab ("nfp: bpf: silence bitwise vs. logical OR warning") [5.15]
+> 
+> If there are any problems or questions, please let me know!
+> 
+> [1]: https://github.com/llvm/llvm-project/commit/882915df61e33f3a2b7f58e52f572717e1c11499
 
-Should now be fixed, thanks.
+All now queued up, thanks.
 
 greg k-h
