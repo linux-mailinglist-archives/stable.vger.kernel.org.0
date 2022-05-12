@@ -2,74 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 556BC524090
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 01:12:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44358524256
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 04:09:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239776AbiEKXMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 11 May 2022 19:12:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54910 "EHLO
+        id S237246AbiELCJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 11 May 2022 22:09:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235432AbiEKXMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 19:12:06 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21F3B166D69;
-        Wed, 11 May 2022 16:12:04 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d22so3257120plr.9;
-        Wed, 11 May 2022 16:12:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=DUv1H+jnNS72Cgs6yWB8Bi4tP13NzB8jjCDndTMF8+I=;
-        b=ppRcsj/P3i32cgR8EG+vZChJ1appBXU+gsRrT8INVOuTHoH0T17uZQGgBU8Z7CuFVy
-         p+btZOQmIHix89dfdK92O9EHk7kAEXx+PLEIdebzhxotbS4PgpbsFWfuzILzkS18nNBM
-         bgaMefBjyKX7nWiEKh2dXhYhlXa+JX3RdaKyt3L/mUtkU96o5weFRYiS2w+O7bjQEJLQ
-         rf2oUOkifcQNf9UW55kUV6N3LjZTKN5Ij8rtyv7no05tZKBdHqIpdJgppauwvRBmzWjY
-         me07CdCskRiIXSVzpQD174k/w5mwCqOfTllJooXzLWIktu6StDYMkUTW6ZeSPUo1Sz3Y
-         upcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=DUv1H+jnNS72Cgs6yWB8Bi4tP13NzB8jjCDndTMF8+I=;
-        b=mAtZ2YnzzMtnscBOwUVvyyiFUQZopgXQMsG0RHQBaowaU8mIH/ymWuKkSC9UYu3pqq
-         9tgcljdnVHffMPkSb/7FRCPqXmMg6rbb908PL1Jhl87EnPG3lL6HV9fmgqmdgLDlduUQ
-         Ou2QMfKLkFbOpXUtJv4NHVxOeR58/tf6k8VUAdCdlbAiysPCtBzM2IJQad4icNG1/GaO
-         3xY1whFRYXABKOCSgI8NQTFq4ybEAR2kiyR4BLsVqhg833+16THAbFChQPk0pUXGTGEH
-         4NV5H94XP3xj15BUBEIZd9+iN3+h/DzomalqyTfkoBP7F3rtbvXPyysSy9hUK8kvEaG/
-         9UPw==
-X-Gm-Message-State: AOAM530gxLuzcELsULhw241qBqo4Qz85zkPLiKhaDhPvYaGrSDKC1Odr
-        gPHIZpFLFYhMSLOdI70/yOVjO4eUpJw=
-X-Google-Smtp-Source: ABdhPJzhteElceeuVnZQP9OEuRFPtKDfFPM3glDSUQV0jCZR41svwcddTJF5MNrHenx3XEiEP+5xQA==
-X-Received: by 2002:a17:903:1252:b0:154:ca85:59a0 with SMTP id u18-20020a170903125200b00154ca8559a0mr27746614plh.169.1652310723575;
-        Wed, 11 May 2022 16:12:03 -0700 (PDT)
-Received: from google.com ([2620:15c:211:201:69ef:9c87:7816:4f74])
-        by smtp.gmail.com with ESMTPSA id b9-20020a170902d50900b0015e8d4eb2e3sm2491273plg.301.2022.05.11.16.12.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 May 2022 16:12:03 -0700 (PDT)
-Sender: Minchan Kim <minchan.kim@gmail.com>
-Date:   Wed, 11 May 2022 16:12:01 -0700
-From:   Minchan Kim <minchan@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Sultan Alsawaf <sultan@kerneltoast.com>, stable@vger.kernel.org,
-        Nitin Gupta <ngupta@vflare.org>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zsmalloc: Fix races between asynchronous zspage free and
- page migration
-Message-ID: <YnxCwefm6a2zuT0G@google.com>
-References: <20220509024703.243847-1-sultan@kerneltoast.com>
- <Ynv53fkx8cG0ixaE@google.com>
- <YnwTfBLn+6vYSe59@sultan-box.localdomain>
- <20220511134322.54c44cb0cdd17a0f7fd9f761@linux-foundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220511134322.54c44cb0cdd17a0f7fd9f761@linux-foundation.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        with ESMTP id S237019AbiELCJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 11 May 2022 22:09:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2426D4E5;
+        Wed, 11 May 2022 19:09:48 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F17DC60DB4;
+        Thu, 12 May 2022 02:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C39DC340EE;
+        Thu, 12 May 2022 02:09:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1652321387;
+        bh=RhwVvAsOWJi9eexvPIZLTK3QhastGCm1ntCdCWggm94=;
+        h=Date:To:From:Subject:From;
+        b=oo6tedGG47mNfFLHO2dtMm5amsMQ9fMoPHCfMPN1uvo6jSqlHOKzDBwqnpdjmENLf
+         UQHCLPtfuns6yBlrSV+MAgneP+HR3WnIZmGMO15cGetFXt/5h1/8ocuPL0jUIdjeXb
+         5yp6hZpwgCJyXgDU/kNvz+NXXe9a0fnMxsgTeR/0=
+Date:   Wed, 11 May 2022 19:09:46 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        len.baker@gmx.com, gustavoars@kernel.org, dhowells@redhat.com,
+        stephen.s.brennan@oracle.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + assoc_array-fix-bug_on-during-garbage-collect.patch added to mm-hotfixes-unstable branch
+Message-Id: <20220512020947.4C39DC340EE@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
         version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,21 +45,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 11, 2022 at 01:43:22PM -0700, Andrew Morton wrote:
-> On Wed, 11 May 2022 12:50:20 -0700 Sultan Alsawaf <sultan@kerneltoast.com> wrote:
-> 
-> > > Shouldn't the fix be Fixes: 77ff465799c6 ("zsmalloc: zs_page_migrate: skip
-> > > unnecessary loops but not return -EBUSY if zspage is not inuse)?
-> > > Because we didn't migrate ZS_EMPTY pages before.
-> > 
-> > Hi,
-> > 
-> > Yeah, 77ff465799c6 indeed seems like the commit that introduced the bug.
-> 
-> I updated the changelog, thanks.
 
-Thanhks, Andrew.
+The patch titled
+     Subject: lib/assoc_array.c: fix BUG_ON during garbage collect
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     assoc_array-fix-bug_on-during-garbage-collect.patch
 
-Feel free to include my
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/assoc_array-fix-bug_on-during-garbage-collect.patch
 
-Acked-by: Minchan Kim <minchan@kernel.org>
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
+Subject: lib/assoc_array.c: fix BUG_ON during garbage collect
+
+A rare BUG_ON triggered in assoc_array_gc:
+
+    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
+
+Which corresponded to the statement currently at line 1593 upstream:
+
+    BUG_ON(assoc_array_ptr_is_meta(p));
+
+Using the data from the core dump, I was able to generate a userspace
+reproducer[1] and determine the cause of the bug.
+
+[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
+
+After running the iterator on the entire branch, an internal tree node
+looked like the following:
+
+    NODE (nr_leaves_on_branch: 3)
+      SLOT [0] NODE (2 leaves)
+      SLOT [1] NODE (1 leaf)
+      SLOT [2..f] NODE (empty)
+
+In the userspace reproducer, the pr_devel output when compressing this
+node was:
+
+    -- compress node 0x5607cc089380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    after: 3
+
+At slot 0, an internal node with 2 leaves could not be folded into the
+node, because there was only one available slot (slot 0).  Thus, the
+internal node was retained.  At slot 1, the node had one leaf, and was
+able to be folded in successfully.  The remaining nodes had no leaves, and
+so were removed.  By the end of the compression stage, there were 14 free
+slots, and only 3 leaf nodes.  The tree was ascended and then its parent
+node was compressed.  When this node was seen, it could not be folded, due
+to the internal node it contained.
+
+The invariant for compression in this function is: whenever
+nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
+leaf nodes.  The compression step currently cannot guarantee this, given
+the corner case shown above.
+
+To fix this issue, retry compression whenever we have retained a node, and
+yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT.  This second compression
+will then allow the node in slot 1 to be folded in, satisfying the
+invariant.  Below is the output of the reproducer once the fix is applied:
+
+    -- compress node 0x560e9c562380 --
+    free=0, leaves=0
+    [0] retain node 2/1 [nx 0]
+    [1] fold node 1/1 [nx 0]
+    [2] fold node 0/1 [nx 2]
+    [3] fold node 0/2 [nx 2]
+    [4] fold node 0/3 [nx 2]
+    [5] fold node 0/4 [nx 2]
+    [6] fold node 0/5 [nx 2]
+    [7] fold node 0/6 [nx 2]
+    [8] fold node 0/7 [nx 2]
+    [9] fold node 0/8 [nx 2]
+    [10] fold node 0/9 [nx 2]
+    [11] fold node 0/10 [nx 2]
+    [12] fold node 0/11 [nx 2]
+    [13] fold node 0/12 [nx 2]
+    [14] fold node 0/13 [nx 2]
+    [15] fold node 0/14 [nx 2]
+    internal nodes remain despite enough space, retrying
+    -- compress node 0x560e9c562380 --
+    free=14, leaves=1
+    [0] fold node 2/15 [nx 0]
+    after: 3
+
+Link: https://lkml.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com
+Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Len Baker <len.baker@gmx.com>
+Cc: "Gustavo A. R. Silva" <gustavoars@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ lib/assoc_array.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+--- a/lib/assoc_array.c~assoc_array-fix-bug_on-during-garbage-collect
++++ a/lib/assoc_array.c
+@@ -1462,6 +1462,7 @@ int assoc_array_gc(struct assoc_array *a
+ 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
+ 	unsigned long nr_leaves_on_tree;
+ 	int keylen, slot, nr_free, next_slot, i;
++	bool retained;
+ 
+ 	pr_devel("-->%s()\n", __func__);
+ 
+@@ -1536,6 +1537,7 @@ continue_node:
+ 		goto descend;
+ 	}
+ 
++retry_compress:
+ 	pr_devel("-- compress node %p --\n", new_n);
+ 
+ 	/* Count up the number of empty slots in this node and work out the
+@@ -1554,6 +1556,7 @@ continue_node:
+ 
+ 	/* See what we can fold in */
+ 	next_slot = 0;
++	retained = 0;
+ 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
+ 		struct assoc_array_shortcut *s;
+ 		struct assoc_array_node *child;
+@@ -1602,9 +1605,14 @@ continue_node:
+ 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
+ 				 slot, child->nr_leaves_on_branch, nr_free + 1,
+ 				 next_slot);
++			retained = true;
+ 		}
+ 	}
+ 
++	if (retained && new_n->nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT) {
++		pr_devel("internal nodes remain despite neough space, retrying\n");
++		goto retry_compress;
++	}
+ 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
+ 
+ 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
+_
+
+Patches currently in -mm which might be from stephen.s.brennan@oracle.com are
+
+assoc_array-fix-bug_on-during-garbage-collect.patch
+
