@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F9DB524E5F
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 15:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D9B524E90
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 15:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242178AbiELNg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 May 2022 09:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35820 "EHLO
+        id S240139AbiELNqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 May 2022 09:46:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354501AbiELNgW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 09:36:22 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C83E4286E0
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 06:36:21 -0700 (PDT)
+        with ESMTP id S1354583AbiELNqP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 09:46:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6789D47AE9;
+        Thu, 12 May 2022 06:46:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4637CB826AE
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 13:36:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F8FAC385B8;
-        Thu, 12 May 2022 13:36:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28702B82824;
+        Thu, 12 May 2022 13:46:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 019F6C385B8;
+        Thu, 12 May 2022 13:46:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652362578;
-        bh=vtNyACv1GDds57wk0/3xK+KFuOW2R4mH4WQUTyTX3os=;
+        s=korg; t=1652363171;
+        bh=vZ6/OZIkEWwSIxrSHgS+8wTTvNq6uLtF+yp8x0ESdYM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WNgeKpSYwdR77+nHeQ9LpSy5EY8F43n4EIp/8pLqhiJcJWrovNweOB/YK9olf8nYV
-         EoVDawe+xf+ZiCjSoQ4f94P52z51DUexp2Hj/kLGpq/0U7OYBz6FFYB7+YVkEOlhKx
-         GAwLr5HMbVm/yri4wzYFlF4OwWly9sGb9Tc13XxU=
-Date:   Thu, 12 May 2022 15:36:16 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Tom Rix <trix@redhat.com>, llvm@lists.linux.dev
-Subject: Re: Warning fixes for clang + x86_64 allmodconfig on 5.10 and 5.4
-Message-ID: <Yn0NUKoWB2V87R4G@kroah.com>
-References: <YnqlnFWCrEz11T5Y@dev-arch.thelio-3990X>
+        b=H+/8uvWcJ+9/rKwYFkE4RsPxrm3PwYfEipReFn+jMCCEKK0Udm49dgJtfDXUMTDPa
+         +2Pzbu6vB8GqdoHWp/Ypt6ybmRlny9sh8lNIj5abUms6HRlv05DsCKixpKvEFqAZUa
+         nBkLQAzBN3ZUL7KEp1ynrEJJVOswj4EPABsDH8tE=
+Date:   Thu, 12 May 2022 15:45:47 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Andreas Larsson <andreas@gaisler.com>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: Re: [PATCH 5.4 1/2] can: grcan: grcan_probe(): fix broken system id
+ check for errata workaround needs
+Message-ID: <Yn0Pi0WtLcChqjZt@kroah.com>
+References: <20220511093503.14117-1-andreas@gaisler.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YnqlnFWCrEz11T5Y@dev-arch.thelio-3990X>
+In-Reply-To: <20220511093503.14117-1-andreas@gaisler.com>
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -51,29 +51,21 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 10, 2022 at 10:49:16AM -0700, Nathan Chancellor wrote:
-> Hi Greg and Sasha,
+On Wed, May 11, 2022 at 11:35:02AM +0200, Andreas Larsson wrote:
+> backport of commit 1e93ed26acf03fe6c97c6d573a10178596aadd43 upstream.
 > 
-> A recent change in LLVM [1] strengthened -Wenum-conversion, which
-> revealed a couple of instances in 5.10 and 5.4 (the oldest release that
-> I personally build test). They are fixed with the following changes,
-> please consider applying them wherever they apply cleanly (I have
-> included the release they first appeared in):
+> The systemid property was checked for in the wrong place of the device
+> tree and compared to the wrong value.
 > 
-> 1f1e87b4dc45 ("block: drbd: drbd_nl: Make conversion to 'enum drbd_ret_code' explicit") [5.13]
-> 353f7f3a9dd5 ("drm/amd/display/dc/gpio/gpio_service: Pass around correct dce_{version, environment} types") [5.14]
-> 
-> Since I am here already, please consider applying the following
-> additional changes where they cleanly apply, as they resolve other
-> warnings present in x86_64 allmodconfig with clang:
-> 
-> 7bf03e7504e4 ("drm/i915: Cast remain to unsigned long in eb_relocate_vma") [5.8]
-> 8a64ef042eab ("nfp: bpf: silence bitwise vs. logical OR warning") [5.15]
-> 
-> If there are any problems or questions, please let me know!
-> 
-> [1]: https://github.com/llvm/llvm-project/commit/882915df61e33f3a2b7f58e52f572717e1c11499
+> Fixes: 6cec9b07fe6a ("can: grcan: Add device driver for GRCAN and GRHCAN cores")
+> Link: https://lore.kernel.org/all/20220429084656.29788-3-andreas@gaisler.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Andreas Larsson <andreas@gaisler.com>
+> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+> ---
+>  drivers/net/can/grcan.c | 16 +++++++++++-----
+>  1 file changed, 11 insertions(+), 5 deletions(-)
 
-All now queued up, thanks.
+All backports now queued up, thanks.
 
 greg k-h
