@@ -2,74 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1244525275
-	for <lists+stable@lfdr.de>; Thu, 12 May 2022 18:23:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EAD5252A3
+	for <lists+stable@lfdr.de>; Thu, 12 May 2022 18:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356443AbiELQXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 12 May 2022 12:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33806 "EHLO
+        id S1352803AbiELQdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 12 May 2022 12:33:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356435AbiELQXs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 12:23:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C80D01EE0B7
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 09:23:47 -0700 (PDT)
+        with ESMTP id S1356068AbiELQde (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 12 May 2022 12:33:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB2563BDC
+        for <stable@vger.kernel.org>; Thu, 12 May 2022 09:33:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A35EB82910
-        for <stable@vger.kernel.org>; Thu, 12 May 2022 16:23:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2327AC385B8;
-        Thu, 12 May 2022 16:23:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD280B829E9
+        for <stable@vger.kernel.org>; Thu, 12 May 2022 16:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 256E4C34116;
+        Thu, 12 May 2022 16:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652372625;
-        bh=N/M747+r/CA0amjpS6gshcI9F5RbqJl7rtN7DBtRoEg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=sD9QPtUniWGTglMIXCtf6GCBnHLNeTbsghWslwEEEOz0wyinYfkntUhqVCVGWslqU
-         yXhYjuNhc0XJn2yXcJA5WEGn1rQA5KIT56LNRog+ONRYfLQzNUa4YDhnK8HUD3YijD
-         58iHTDTHme/Uh9N8Oxl/+P5D6bAO5AZQ+obYm8y8=
-Date:   Thu, 12 May 2022 18:23:41 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Meena Shanmugam <meenashanmugam@google.com>
-Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
-Subject: Re: Request to cherry-pick f00432063db1 to 5.10
-Message-ID: <Yn00jd+uX8PVZv/9@kroah.com>
-References: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
+        s=korg; t=1652373210;
+        bh=D4nHClSzbKDR7p3NQKyvTpO9PSw9UHN+eEa+jzNyzug=;
+        h=Subject:To:From:Date:From;
+        b=w7LhnXF57EQYIx5m4HpdRFCpxVgaBtuLn6yE+0gXKlF/Y6OP+bGg6DdzB+s1ywy8b
+         G6kuv9IksqLXBfEMWkh1K6DwO5liqDctKsqzHC8fZWm6pKvkVocUdGde12eh6RWcfF
+         njeujxBo5/UgZZn7YeVCtTnc44FVukklgnaoR9qo=
+Subject: patch "usb: typec: tcpci_mt6360: Update for BMC PHY setting" added to usb-linus
+To:     cy_huang@richtek.com, fparent@baylibre.com,
+        gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
+        linux@roeck-us.net, macpaul.lin@mediatek.com,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 12 May 2022 18:33:27 +0200
+Message-ID: <1652373207240252@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-5.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 10, 2022 at 07:33:23PM -0700, Meena Shanmugam wrote:
-> Hi all,
-> 
-> The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRPC:
-> Ensure we flush any closed sockets before xs_xprt_free()) fixes
-> CVE-2022-28893, hence good candidate for stable trees.
-> The above commit depends on 3be232f(SUNRPC: Prevent immediate
-> close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more than
-> once on a TCP socket). Commit 3be232f depends on commit
-> e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
-> 
-> Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
-> kernel. commit 89f4249 didn't apply cleanly. I have patch for 89f4249
-> below.
 
-We also need this for 5.15.y first, before we can apply it to 5.10.y.
-Can you provide a working backport for that tree as well?
+This is a note to let you know that I've just added the patch titled
 
-And as others pointed out, your patch is totally corrupted and can not
-be used, please fix your email client.
+    usb: typec: tcpci_mt6360: Update for BMC PHY setting
 
-thanks,
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
-greg k-h
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 4031cd95cba70c72e4cadc2d46624bcd31e5a6c0 Mon Sep 17 00:00:00 2001
+From: ChiYuan Huang <cy_huang@richtek.com>
+Date: Tue, 10 May 2022 13:13:00 +0800
+Subject: usb: typec: tcpci_mt6360: Update for BMC PHY setting
+
+Update MT6360 BMC PHY Tx/Rx setting for the compatibility.
+
+Macpaul reported this CtoDP cable attention message cannot be received from
+MT6360 TCPC. But actually, attention message really sent from UFP_D
+device.
+
+After RD's comment, there may be BMC PHY Tx/Rx setting causes this issue.
+
+Below's the detailed TCPM log and DP attention message didn't received from 6360
+TCPCI.
+[ 1206.367775] Identity: 0000:0000.0000
+[ 1206.416570] Alternate mode 0: SVID 0xff01, VDO 1: 0x00000405
+[ 1206.447378] AMS DFP_TO_UFP_ENTER_MODE start
+[ 1206.447383] PD TX, header: 0x1d6f
+[ 1206.449393] PD TX complete, status: 0
+[ 1206.454110] PD RX, header: 0x184f [1]
+[ 1206.456867] Rx VDM cmd 0xff018144 type 1 cmd 4 len 1
+[ 1206.456872] AMS DFP_TO_UFP_ENTER_MODE finished
+[ 1206.456873] cc:=4
+[ 1206.473100] AMS STRUCTURED_VDMS start
+[ 1206.473103] PD TX, header: 0x2f6f
+[ 1206.475397] PD TX complete, status: 0
+[ 1206.480442] PD RX, header: 0x2a4f [1]
+[ 1206.483145] Rx VDM cmd 0xff018150 type 1 cmd 16 len 2
+[ 1206.483150] AMS STRUCTURED_VDMS finished
+[ 1206.483151] cc:=4
+[ 1206.505643] AMS STRUCTURED_VDMS start
+[ 1206.505646] PD TX, header: 0x216f
+[ 1206.507933] PD TX complete, status: 0
+[ 1206.512664] PD RX, header: 0x1c4f [1]
+[ 1206.515456] Rx VDM cmd 0xff018151 type 1 cmd 17 len 1
+[ 1206.515460] AMS STRUCTURED_VDMS finished
+[ 1206.515461] cc:=4
+
+Fixes: e1aefcdd394fd ("usb typec: mt6360: Add support for mt6360 Type-C driver")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Link: https://lore.kernel.org/r/1652159580-30959-1-git-send-email-u0084500@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/typec/tcpm/tcpci_mt6360.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
+
+diff --git a/drivers/usb/typec/tcpm/tcpci_mt6360.c b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+index f1bd9e09bc87..8a952eaf9016 100644
+--- a/drivers/usb/typec/tcpm/tcpci_mt6360.c
++++ b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+@@ -15,6 +15,9 @@
+ 
+ #include "tcpci.h"
+ 
++#define MT6360_REG_PHYCTRL1	0x80
++#define MT6360_REG_PHYCTRL3	0x82
++#define MT6360_REG_PHYCTRL7	0x86
+ #define MT6360_REG_VCONNCTRL1	0x8C
+ #define MT6360_REG_MODECTRL2	0x8F
+ #define MT6360_REG_SWRESET	0xA0
+@@ -22,6 +25,8 @@
+ #define MT6360_REG_DRPCTRL1	0xA2
+ #define MT6360_REG_DRPCTRL2	0xA3
+ #define MT6360_REG_I2CTORST	0xBF
++#define MT6360_REG_PHYCTRL11	0xCA
++#define MT6360_REG_RXCTRL1	0xCE
+ #define MT6360_REG_RXCTRL2	0xCF
+ #define MT6360_REG_CTDCTRL2	0xEC
+ 
+@@ -106,6 +111,27 @@ static int mt6360_tcpc_init(struct tcpci *tcpci, struct tcpci_data *tdata)
+ 	if (ret)
+ 		return ret;
+ 
++	/* BMC PHY */
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL1, 0x3A70);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL3,  0x82);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL7, 0x36);
++	if (ret)
++		return ret;
++
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL11, 0x3C60);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_RXCTRL1, 0xE8);
++	if (ret)
++		return ret;
++
+ 	/* Set shipping mode off, AUTOIDLE on */
+ 	return regmap_write(regmap, MT6360_REG_MODECTRL2, 0x7A);
+ }
+-- 
+2.36.1
+
+
