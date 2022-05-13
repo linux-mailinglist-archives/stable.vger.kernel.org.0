@@ -2,56 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A19E4526490
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFF59526468
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381108AbiEMOcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:32:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
+        id S1380898AbiEMObi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381099AbiEMOay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:54 -0400
+        with ESMTP id S1381278AbiEMObP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7275994D0;
-        Fri, 13 May 2022 07:28:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BAE1AB7B4;
+        Fri, 13 May 2022 07:29:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B118B82F64;
-        Fri, 13 May 2022 14:28:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E04DC34100;
-        Fri, 13 May 2022 14:28:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5CECB82F64;
+        Fri, 13 May 2022 14:29:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01DEC34100;
+        Fri, 13 May 2022 14:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452106;
-        bh=5ZCbbjalRN0VDnRXvXaRT54sdbfjnMs9SWLD6ofNXW4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeQhgbmBYXQukJsBR+ZKNWH1jM49SvIy4SW5Mbr3RhdhoUnVJ24MuHyc7g+waaHJY
-         7h5koS/00zIw8xAYkq2qVvaQ9chaaOuY9ZO7mDb1uAi8h7ZTZjIV5iYUz24N850UpL
-         rluKhZMKSh+gEoc0wKgRSMAgHsJIV3w481Aguxzo=
+        s=korg; t=1652452146;
+        bh=z9GmZZIrI8Ekfpz76cjKYYfFFX50TIWlwptiScaqNsM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mOGRKufGLiBolgimhTpskiR3XPlvJKrp6cAf14Zr2etUI93gmAXf3d12AAdl6jUDB
+         ikcvMmTH5owSndhxseT9Y+OKwp8RoiyxhjB9E2XYIu8N67IV8EeuHIxqMypSzlGV6M
+         JW3j3aaq16TNAevsgrA+VGWh62iEvvBCzK/7Il1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Xiongchun Duan <duanxiongchun@bytedance.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 18/21] mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.17 00/12] 5.17.8-rc1 review
 Date:   Fri, 13 May 2022 16:24:00 +0200
-Message-Id: <20220513142230.403397523@linuxfoundation.org>
+Message-Id: <20220513142228.651822943@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
-References: <20220513142229.874949670@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.17.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.17.8-rc1
+X-KernelTest-Deadline: 2022-05-15T14:22+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -63,55 +61,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+This is the start of the stable review cycle for the 5.17.8 release.
+There are 12 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 7c25a0b89a487878b0691e6524fb5a8827322194 upstream.
+Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
+Anything received after that time might be too late.
 
-userfaultfd calls mcopy_atomic_pte() and __mcopy_atomic() which do not
-do any cache flushing for the target page.  Then the target page will be
-mapped to the user space with a different address (user address), which
-might have an alias issue with the kernel address used to copy the data
-from the user to.  Fix this by insert flush_dcache_page() after
-copy_from_user() succeeds.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+and the diffstat can be found below.
 
-Link: https://lkml.kernel.org/r/20220210123058.79206-7-songmuchun@bytedance.com
-Fixes: b6ebaedb4cb1 ("userfaultfd: avoid mmap_sem read recursion in mcopy_atomic")
-Fixes: c1a4de99fada ("userfaultfd: mcopy_atomic|mfill_zeropage: UFFDIO_COPY|UFFDIO_ZEROPAGE preparation")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Fam Zheng <fam.zheng@bytedance.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Lars Persson <lars.persson@axis.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/userfaultfd.c |    3 +++
- 1 file changed, 3 insertions(+)
+thanks,
 
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -151,6 +151,8 @@ static int mcopy_atomic_pte(struct mm_st
- 			/* don't free the page */
- 			goto out;
- 		}
-+
-+		flush_dcache_page(page);
- 	} else {
- 		page = *pagep;
- 		*pagep = NULL;
-@@ -621,6 +623,7 @@ retry:
- 				err = -EFAULT;
- 				goto out;
- 			}
-+			flush_dcache_page(page);
- 			goto retry;
- 		} else
- 			BUG_ON(page);
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.17.8-rc1
+
+Peter Xu <peterx@redhat.com>
+    mm: fix invalid page pointer returned with FOLL_PIN gups
+
+Huang Ying <ying.huang@intel.com>
+    mm,migrate: fix establishing demotion target
+
+Miaohe Lin <linmiaohe@huawei.com>
+    mm/mlock: fix potential imbalanced rlimit ucounts adjustment
+
+Naoya Horiguchi <naoya.horiguchi@nec.com>
+    mm/hwpoison: fix error page recovered but reported "not recovered"
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: shmem: fix missing cache flush in shmem_mfill_atomic_pte()
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlb: fix missing cache flush in hugetlb_mcopy_atomic_pte()
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: hugetlb: fix missing cache flush in copy_huge_page_from_user()
+
+Muchun Song <songmuchun@bytedance.com>
+    mm: fix missing cache flush for all tail pages of compound page
+
+Jan Kara <jack@suse.cz>
+    udf: Avoid using stale lengthOfImpUse
+
+Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+    rfkill: uapi: fix RFKILL_IOCTL_MAX_SIZE ioctl request definition
+
+Itay Iellin <ieitayie@gmail.com>
+    Bluetooth: Fix the creation of hdev->name
+
+
+-------------
+
+Diffstat:
+
+ Makefile                         |  4 ++--
+ fs/udf/namei.c                   |  8 ++++----
+ include/net/bluetooth/hci_core.h |  3 +++
+ include/uapi/linux/rfkill.h      |  2 +-
+ mm/gup.c                         |  2 +-
+ mm/hugetlb.c                     |  3 ++-
+ mm/memory-failure.c              |  4 +++-
+ mm/memory.c                      |  2 ++
+ mm/migrate.c                     | 14 ++++++++++----
+ mm/mlock.c                       |  1 +
+ mm/shmem.c                       |  4 +++-
+ mm/userfaultfd.c                 |  3 +++
+ net/bluetooth/hci_core.c         |  6 +++---
+ 13 files changed, 38 insertions(+), 18 deletions(-)
 
 
