@@ -2,60 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EEF2C526042
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 12:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461E65260FB
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 13:29:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379597AbiEMKpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 06:45:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50804 "EHLO
+        id S1358190AbiEML3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 07:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379578AbiEMKpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 06:45:03 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B305E2A0A53;
-        Fri, 13 May 2022 03:45:00 -0700 (PDT)
-Date:   Fri, 13 May 2022 10:44:57 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1652438699;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EkUKbhIzdWY6DspgZgLqMzIdvrE6pzQPrbY/UY1c64c=;
-        b=gqealpZhrinicZHEZ+BPg/kD3YKC7UeYXQsYz2q2XwynyzlvEOXSHlRoOsWafLtWmX6pPS
-        PW9PrNqAPIkh0o7SNonXLufZ1ZNAInfQMW39lfpAeIgvcg4Aq80jJweSd0a8JWTjRgATlm
-        iDGwuKK+tKDM2Wmuw1FHlFZJC5fFbbbBmZa87cAbOTH88j0brrp/RTqtKgEmhJ9vWpXCEM
-        mS3nrOKXRN/XE/ES7dx4Eg8b+p/epK4luKYeFpYKESzTjse3mP+tV2z75hKyVkzYz6BGjR
-        69bNqjPsZw9sthnQ2RsHJ/WnKBlZgVxFy5caMbNpYSrQNHa+2UJ2Iqz34u9ugQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1652438699;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=EkUKbhIzdWY6DspgZgLqMzIdvrE6pzQPrbY/UY1c64c=;
-        b=aWflv7Ujn7hIkDlXmn/LVtKU2E8C+Tm/4mKBJl8xl34p8Ojo+3wzvTsN0UQkmC8ydnGmZI
-        SlvceryQKdLXjsCQ==
-From:   "tip-bot2 for Adrian-Ken Rueegsegger" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/mm: Fix marking of unused sub-pmd ranges
-Cc:     "Adrian-Ken Rueegsegger" <ken@codelabs.ch>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220509090637.24152-2-ken@codelabs.ch>
-References: <20220509090637.24152-2-ken@codelabs.ch>
+        with ESMTP id S1348786AbiEML3F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 07:29:05 -0400
+Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED81327E3D5;
+        Fri, 13 May 2022 04:29:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1652441345; x=1683977345;
+  h=from:to:cc:subject:date:message-id:mime-version;
+  bh=P/NlOnIOwLTJMaLQ0xxo/4m2h4ZXIfabeanSs7X/D70=;
+  b=gOvL6jNGKQtmzT8nQdJYNxqTNp3xBrwTLSc0/T12T9JKg5H5DdriG32+
+   fVsk4+zIdNwjdcKnrcWqo1CZdXCnFefD8muSxcGN7jduAg2pEZUFHddcN
+   utP/+GZZcOdkS70FqUQV5JetUPjkSg7Dc5VXN4GTJs6MueFUl6+5dFlRm
+   Q=;
+Received: from unknown (HELO ironmsg02-sd.qualcomm.com) ([10.53.140.142])
+  by alexa-out-sd-01.qualcomm.com with ESMTP; 13 May 2022 04:29:04 -0700
+X-QCInternal: smtphost
+Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
+  by ironmsg02-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2022 04:29:04 -0700
+Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
+ nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Fri, 13 May 2022 04:29:03 -0700
+Received: from hu-charante-hyd.qualcomm.com (10.80.80.8) by
+ nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Fri, 13 May 2022 04:28:59 -0700
+From:   Charan Teja Kalla <quic_charante@quicinc.com>
+To:     <gregkh@linuxfoundation.org>, <christian.koenig@amd.com>,
+        <sumit.semwal@linaro.org>, <hridya@google.com>,
+        <daniel.vetter@ffwll.ch>, <tjmercier@google.com>
+CC:     <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
+        <dri-devel@lists.freedesktop.org>,
+        <linaro-mm-sig@lists.linaro.org>,
+        "Charan Teja Kalla" <quic_charante@quicinc.com>,
+        "# 5 . 15 . x+" <stable@vger.kernel.org>
+Subject: [PATCH V3 RESEND] dma-buf: ensure unique directory name for dmabuf stats
+Date:   Fri, 13 May 2022 16:58:16 +0530
+Message-ID: <1652441296-1986-1-git-send-email-quic_charante@quicinc.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Message-ID: <165243869785.4207.350965258098905435.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -66,54 +64,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+The dmabuf file uses get_next_ino()(through dma_buf_getfile() ->
+alloc_anon_inode()) to get an inode number and uses the same as a
+directory name under /sys/kernel/dmabuf/buffers/<ino>. This directory is
+used to collect the dmabuf stats and it is created through
+dma_buf_stats_setup(). At current, failure to create this directory
+entry can make the dma_buf_export() to fail.
 
-Commit-ID:     280abe14b6e0a38de9cc86fe6a019523aadd8f70
-Gitweb:        https://git.kernel.org/tip/280abe14b6e0a38de9cc86fe6a019523aadd8f70
-Author:        Adrian-Ken Rueegsegger <ken@codelabs.ch>
-AuthorDate:    Mon, 09 May 2022 11:06:37 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Fri, 13 May 2022 12:41:21 +02:00
+Now, as the get_next_ino() can definitely give a repetitive inode no
+causing the directory entry creation to fail with -EEXIST. This is a
+problem on the systems where dmabuf stats functionality is enabled on
+the production builds can make the dma_buf_export(), though the dmabuf
+memory is allocated successfully, to fail just because it couldn't
+create stats entry.
 
-x86/mm: Fix marking of unused sub-pmd ranges
+This issue we are able to see on the snapdragon system within 13 days
+where there already exists a directory with inode no "122602" so
+dma_buf_stats_setup() failed with -EEXIST as it is trying to create
+the same directory entry.
 
-The unused part precedes the new range spanned by the start, end parameters
-of vmemmap_use_new_sub_pmd(). This means it actually goes from
-ALIGN_DOWN(start, PMD_SIZE) up to start.
+To make the dentry name as unique, use the dmabuf fs specific inode
+which is based on the simple atomic variable increment. There is tmpfs
+subsystem too which relies on its own inode generation rather than
+relying on the get_next_ino() for the same reason of avoiding the
+duplicate inodes[1].
 
-Use the correct address when applying the mark using memset.
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/patch/?id=e809d5f0b5c912fe981dce738f3283b2010665f0
 
-Fixes: 8d400913c231 ("x86/vmemmap: handle unpopulated sub-pmd ranges")
-Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220509090637.24152-2-ken@codelabs.ch
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Cc: <stable@vger.kernel.org> # 5.15.x+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/init_64.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Changes in V3-resend:
+  -- Collect all the tags and apply stable tag.
 
-diff --git a/arch/x86/mm/init_64.c b/arch/x86/mm/init_64.c
-index 96d34eb..e294233 100644
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -902,6 +902,8 @@ static void __meminit vmemmap_use_sub_pmd(unsigned long start, unsigned long end
+Changes in V3:
+  -- Used the atomic64 variable to have dmabuf files its own inodes.
+  -- Ensured no UAPI breakage as suggested by Christian.
+
+Changes in V2:
+  -- Used the atomic64_t variable to generate a unique_id to be appended to inode
+     to have an unique directory with name <inode_number-unique_id> -- Suggested by christian
+  -- Updated the ABI documentation -- Identified by Greg.
+  -- Massaged the commit log.
+  -- https://lore.kernel.org/all/1652191562-18700-1-git-send-email-quic_charante@quicinc.com/
+
+Changes in V1:
+  -- Used the inode->i_ctime->tv_secs as an id appended to inode to create the
+     unique directory with name <inode_number-time_in_secs>.
+  -- https://lore.kernel.org/all/1652178212-22383-1-git-send-email-quic_charante@quicinc.com/
+
+ drivers/dma-buf/dma-buf.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index a6fc96e..0ad5039 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -407,6 +407,7 @@ static inline int is_dma_buf_file(struct file *file)
  
- static void __meminit vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
+ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
  {
-+	const unsigned long page = ALIGN_DOWN(start, PMD_SIZE);
-+
- 	vmemmap_flush_unused_pmd();
++	static atomic64_t dmabuf_inode = ATOMIC64_INIT(0);
+ 	struct file *file;
+ 	struct inode *inode = alloc_anon_inode(dma_buf_mnt->mnt_sb);
  
- 	/*
-@@ -914,8 +916,7 @@ static void __meminit vmemmap_use_new_sub_pmd(unsigned long start, unsigned long
- 	 * Mark with PAGE_UNUSED the unused parts of the new memmap range
- 	 */
- 	if (!IS_ALIGNED(start, PMD_SIZE))
--		memset((void *)start, PAGE_UNUSED,
--			start - ALIGN_DOWN(start, PMD_SIZE));
-+		memset((void *)page, PAGE_UNUSED, start - page);
+@@ -416,6 +417,13 @@ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
+ 	inode->i_size = dmabuf->size;
+ 	inode_set_bytes(inode, dmabuf->size);
  
- 	/*
- 	 * We want to avoid memset(PAGE_UNUSED) when populating the vmemmap of
++	/*
++	 * The ->i_ino acquired from get_next_ino() is not unique thus
++	 * not suitable for using it as dentry name by dmabuf stats.
++	 * Override ->i_ino with the unique and dmabuffs specific
++	 * value.
++	 */
++	inode->i_ino = atomic64_add_return(1, &dmabuf_inode);
+ 	file = alloc_file_pseudo(inode, dma_buf_mnt, "dmabuf",
+ 				 flags, &dma_buf_fops);
+ 	if (IS_ERR(file))
+-- 
+2.7.4
+
