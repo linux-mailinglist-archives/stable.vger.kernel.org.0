@@ -2,65 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3915268E5
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:00:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B11526906
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:11:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382772AbiEMSAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 14:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51364 "EHLO
+        id S1383244AbiEMSLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 14:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378971AbiEMSAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:00:10 -0400
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DC9F53B6E
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:00:08 -0700 (PDT)
-Received: by mail-pg1-x549.google.com with SMTP id s25-20020a656459000000b003c6086e82f2so4518326pgv.8
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:00:08 -0700 (PDT)
+        with ESMTP id S1383266AbiEMSLB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:11:01 -0400
+Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD6855201
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:11:00 -0700 (PDT)
+Received: by mail-il1-x134.google.com with SMTP id b11so2324542ilr.4
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:11:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=sJDDjQPfXxH/KwunThpteMwBMb1LnkMVrpUXdqH1qOk=;
-        b=bBd8tsDQpxF9YWvQuVfiDrJf+dCgYGElFdY8NAc5FMFM30ciAeaiwzqWicy3PwJ8Nx
-         J7c8EUt3qBQxwTpoYF8I195JEZhksf5Jd/7iejhEGcWnv533uJWkbA7DDpTPR6GTjfbH
-         bKJb3VVKjverwnDKF/+JvqAu2YF3PcOz9fMcozWzuMUOm7qBfpIUCH+drOGJYDJBmF1H
-         JmGZj4H+ryi8znSntvNt6VxVlj0mtMz7ShV4Fldqq1YLsZJEyY6nTIccTW+X7JgtVpNl
-         1/CAvPrIlkP/cqvrWj1ilrxnlkXF1ARLypceVaHY1vqZVTya2ejfHrGVzOn2NJ4geER9
-         ljhw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=7SDwbJugi9Qfbn4daJj+diikXnvNofEBDHPc9CZadFk=;
+        b=jypKQrZRkiIiFOhNux6npwp6EN7GbEprJ2qK28XnpeqWBreY12uRwhmRJMGY3XkWib
+         L+tRjC2PzClSJ3FAqIsE1HlsbpkfG58PiClf7dyv60iw8drw1TeErjSeOSQBKZvSg6/r
+         vlQmU904xiCboTuH+a6pHVHRFxI6MTMKmxI8v50+OjTi+GMa7cYud9q1XPL1Xrzv95FP
+         QHhOS5xQp/VphP3UfQ6LcZxYJ4qjPRME3GVgsMepyBt6ru/CiUvVt3P3eNZLXN54FJpq
+         BnmjDgUJpYy4aDEUXauO9qjyedZXIKKXdlCS8AoAyyz+hU2cFvtWf46ewiTjJE9DjgM/
+         ONkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=sJDDjQPfXxH/KwunThpteMwBMb1LnkMVrpUXdqH1qOk=;
-        b=nuWwCzAlKeYFBHhTTO3Q7mHfH374t1okKHGosPC6IP23H78Abt5N/x0/o4ojDdicE8
-         /QOqxcnE0EiJTzHH7gKAn9baoCekKpfSgllhlc61+VMVCXcRFvbyKbLVD1LMRiXi1ht7
-         9ce41433xusuIuo6bvTOwTHYZJl4ZcYFAzQIfLXweveou81M13wev81wIbYcpTmS+aSV
-         lUEfkjdkeqz4k/dZl3JNvulY+qTgmPDHSaLHVVue5uLR7Cr0aNZ2zMHSKLg2P6lIEesV
-         nvNmIaVuOm9EYkuBhvkH0qZuvYrXfDs6TUbeiqS2zYjv02t3BnI2jq+N+uxUW29W2919
-         T1YQ==
-X-Gm-Message-State: AOAM5325KOuRD+11RVG5hzVFx4aLIC/GtDkO3uXqvOKkxVzKWY3d2r+2
-        NvXshlhNG95l622O87afys8PG+NnhVyNWFhG1EMamQ==
-X-Google-Smtp-Source: ABdhPJxmNF+5c3a8PWTrQ7HI7phq+dIMX6FstOzGQy12DVlJ6a2g6zu8OEwM6jW5xS35HQSZnsr42UtZ1mz3pNE9tmL9YA==
-X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a63:8b42:0:b0:3c6:2f31:2dfc with
- SMTP id j63-20020a638b42000000b003c62f312dfcmr4804243pge.285.1652464807925;
- Fri, 13 May 2022 11:00:07 -0700 (PDT)
-Date:   Fri, 13 May 2022 17:59:59 +0000
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=7SDwbJugi9Qfbn4daJj+diikXnvNofEBDHPc9CZadFk=;
+        b=lAzXCwgsaI834UWgtrjA3pK4cT/Z4KFvYG8xfI3chyatZNJHt9WzOGzpQnRXBLX1a6
+         odcIwjH3dEw3c9QoVhxO440w/m+u6uI2GN6mubITeoG46PLwt6LWQjtdbH/qPoWJttOR
+         1+yovpDEtcevPUwFoT6yuyKPBpjdQqYoiMa1iPAJK811FpcD0gMhBUJ3c01nH7qpuEYG
+         xUU1rIAnZKnd2cWTgSm9ei1kCneLHyDCceXgohU+kS4KV8AuF95cS4tdop3g8J0jdHe1
+         DX3VncEfqbvk/CPVDh72WloCwjvT2OihIgLfKpWLQpoGmzVTUyLZyU3FojPv7l0b2en3
+         zU5w==
+X-Gm-Message-State: AOAM530jeOeHDteST4WfcgSvPOCHAuHNW+C3DZT7/7xoCBD3O1o9KxP9
+        v6PddrwCq5SCiguJRiTPv7TvPJU/iz+9CNBdwiTN6FVFSpovcQ==
+X-Google-Smtp-Source: ABdhPJw8WCPE31UhB0lOQ1CIYC4UhriWltJ7VbIhJneGzKpi4PerrIEYEkRD5Hg6b5Y0T9ALAWIXOvm+vNELG9PuRjc=
+X-Received: by 2002:a05:6e02:188a:b0:2d0:f58e:fe1a with SMTP id
+ o10-20020a056e02188a00b002d0f58efe1amr2662810ilu.303.1652465459632; Fri, 13
+ May 2022 11:10:59 -0700 (PDT)
+MIME-Version: 1.0
+References: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
+ <Yn00jd+uX8PVZv/9@kroah.com> <CAMdnWFBCyiU-p1ww5NQnvMxVUnVyCkzoS6D+6Hg=7aJR4Bwn5Q@mail.gmail.com>
+ <Yn4V4HdJFyHARf1b@kroah.com>
 In-Reply-To: <Yn4V4HdJFyHARf1b@kroah.com>
-Message-Id: <20220513175959.3179701-1-meenashanmugam@google.com>
-Mime-Version: 1.0
-References: <Yn4V4HdJFyHARf1b@kroah.com>
-X-Mailer: git-send-email 2.36.0.550.gb090851708-goog
-Subject: [PATCH] SUNRPC: Don't call connect() more than once on a TCP socket
 From:   Meena Shanmugam <meenashanmugam@google.com>
-To:     gregkh@linuxfoundation.org
-Cc:     meenashanmugam@google.com, stable@vger.kernel.org,
-        trond.myklebust@hammerspace.com,
-        Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Date:   Fri, 13 May 2022 11:10:48 -0700
+Message-ID: <CAMdnWFAeViOvwOkkzZ2vdz3TpdE_1JbkanmHhsg1WxP2M79uDQ@mail.gmail.com>
+Subject: Re: Request to cherry-pick f00432063db1 to 5.10
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,83 +68,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+I tested my original patch(which was corrupted by email client).
+When the patch is manually backported to fix white space, the patch
+was fixed wrongly :(
+I sent my original patch again for 5.10.y without any corruption.
+Sorry for the inconvenience caused.
 
-commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
+For 5.15.y, this is the cherry-pick order:
 
-Avoid socket state races due to repeated calls to ->connect() using the
-same socket. If connect() returns 0 due to the connection having
-completed, but we are in fact in a closing state, then we may leave the
-XPRT_CONNECTING flag set on the transport.
+3be232f11a3cc9b0ef0795e39fa11bdb8e422a06(SUNRPC: Prevent immediate
+close+reconnect)
+f00432063db1a0db484e85193eccc6845435b80e(SUNRPC: Ensure we flush any
+closed sockets before xs_xprt_free())
 
-Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[meenashanmugam: Backported to 5.10: Fixed merge conflict in xs_tcp_setup_socket]
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
----
- include/linux/sunrpc/xprtsock.h |  1 +
- net/sunrpc/xprtsock.c           | 21 +++++++++++----------
- 2 files changed, 12 insertions(+), 10 deletions(-)
+Thanks,
+Meena
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 8c2a712cb242..689062afdd61 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -89,5 +89,6 @@ struct sock_xprt {
- #define XPRT_SOCK_WAKE_WRITE	(5)
- #define XPRT_SOCK_WAKE_PENDING	(6)
- #define XPRT_SOCK_WAKE_DISCONNECT	(7)
-+#define XPRT_SOCK_CONNECT_SENT	(8)
- 
- #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 60c58eb9a456..33a81f9703b1 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2260,10 +2260,14 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 	struct rpc_xprt *xprt = &transport->xprt;
- 	int status = -EIO;
- 
--	if (!sock) {
--		sock = xs_create_sock(xprt, transport,
--				xs_addr(xprt)->sa_family, SOCK_STREAM,
--				IPPROTO_TCP, true);
-+	if (xprt_connected(xprt))
-+		goto out;
-+	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
-+			       &transport->sock_state) ||
-+	    !sock) {
-+		xs_reset_transport(transport);
-+		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
-+				      SOCK_STREAM, IPPROTO_TCP, true);
- 		if (IS_ERR(sock)) {
- 			status = PTR_ERR(sock);
- 			goto out;
-@@ -2294,6 +2298,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
- 		break;
- 	case 0:
- 	case -EINPROGRESS:
-+		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
- 	case -EALREADY:
- 		xprt_unlock_connect(xprt, transport);
- 		return;
-@@ -2345,13 +2350,9 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
- 
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
- 
--	if (transport->sock != NULL && !xprt_connecting(xprt)) {
-+	if (transport->sock != NULL) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
--				"seconds\n",
--				xprt, xprt->reestablish_timeout / HZ);
--
--		/* Start by resetting any existing state */
--		xs_reset_transport(transport);
-+			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
- 
- 		delay = xprt_reconnect_delay(xprt);
- 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
--- 
-2.36.0.512.ge40c2bad7a-goog
-
+On Fri, May 13, 2022 at 1:25 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, May 12, 2022 at 10:38:04AM -0700, Meena Shanmugam wrote:
+> > On Thu, May 12, 2022 at 9:23 AM Greg KH <gregkh@linuxfoundation.org> wr=
+ote:
+> > >
+> > > On Tue, May 10, 2022 at 07:33:23PM -0700, Meena Shanmugam wrote:
+> > > > Hi all,
+> > > >
+> > > > The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRP=
+C:
+> > > > Ensure we flush any closed sockets before xs_xprt_free()) fixes
+> > > > CVE-2022-28893, hence good candidate for stable trees.
+> > > > The above commit depends on 3be232f(SUNRPC: Prevent immediate
+> > > > close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more th=
+an
+> > > > once on a TCP socket). Commit 3be232f depends on commit
+> > > > e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
+> > > >
+> > > > Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
+> > > > kernel. commit 89f4249 didn't apply cleanly. I have patch for 89f42=
+49
+> > > > below.
+> > >
+> > > We also need this for 5.15.y first, before we can apply it to 5.10.y.
+> > > Can you provide a working backport for that tree as well?
+> > >
+> > > And as others pointed out, your patch is totally corrupted and can no=
+t
+> > > be used, please fix your email client.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> > For 5.15.y commit f00432063db1a0db484e85193eccc6845435b80e((SUNRPC:
+> > Ensure we flush any closed sockets before xs_xprt_free())) applies
+> > cleanly. The depend patch
+> > 3be232f(SUNRPC: Prevent immediate close+reconnect) also applies
+> > cleanly. Patch  89f4249
+> > (SUNRPC: Don't call connect() more than once on a TCP socket) is
+> > already present in 5.15.34 onwards.
+> >
+> > Sorry about the patch corruption, I will fix it.
+>
+> Sorry, but this did not work out at all, I get build errors when
+> attempting it for 5.10.y:
+>
+>   CC [M]  net/sunrpc/xprtsock.o
+> net/sunrpc/xprtsock.c: In function =E2=80=98xs_tcp_setup_socket=E2=80=99:
+> net/sunrpc/xprtsock.c:2276:13: error: too few arguments to function =E2=
+=80=98test_and_clear_bit=E2=80=99
+>  2276 |         if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT),
+>       |             ^~~~~~~~~~~~~~~~~~
+> In file included from ./arch/x86/include/asm/bitops.h:391,
+>                  from ./include/linux/bitops.h:29,
+>                  from ./include/linux/kernel.h:12,
+>                  from ./include/asm-generic/bug.h:20,
+>                  from ./arch/x86/include/asm/bug.h:93,
+>                  from ./include/linux/bug.h:5,
+>                  from ./include/linux/mmdebug.h:5,
+>                  from ./include/linux/gfp.h:5,
+>                  from ./include/linux/slab.h:15,
+>                  from net/sunrpc/xprtsock.c:24:
+> ./include/asm-generic/bitops/instrumented-atomic.h:81:20: note: declared =
+here
+>    81 | static inline bool test_and_clear_bit(long nr, volatile unsigned =
+long *addr)
+>       |                    ^~~~~~~~~~~~~~~~~~
+> net/sunrpc/xprtsock.c:2276:55: warning: left-hand operand of comma expres=
+sion has no effect [-Wunused-value]
+>  2276 |         if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT),
+>       |                                                       ^
+> net/sunrpc/xprtsock.c:2312:17: warning: this statement may fall through [=
+-Wimplicit-fallthrough=3D]
+>  2312 |                 set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_=
+state);
+>       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~=
+~~~~~~
+> net/sunrpc/xprtsock.c:2313:9: note: here
+>  2313 |         case -EALREADY:
+>       |         ^~~~
+> make[2]: *** [scripts/Makefile.build:280: net/sunrpc/xprtsock.o] Error 1
+> make[1]: *** [scripts/Makefile.build:497: net/sunrpc] Error 2
+>
+>
+> And I am not quite sure what order you want me to apply things for 5.15.y=
+.
+>
+> So please, send me a properly backported series of patches for this for 5=
+.15.y
+> and 5.10.y and I will be glad to pick them up.  Right now I'm just confus=
+ed as
+> this was obviously not tested at all :(
+>
+> thanks,
+>
+> greg k-h
