@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 621C652645B
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCC86526485
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380964AbiEMO3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
+        id S1381007AbiEMObt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380956AbiEMO1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005CA5E751;
-        Fri, 13 May 2022 07:27:29 -0700 (PDT)
+        with ESMTP id S1381198AbiEMObK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:10 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A54A0985B0;
+        Fri, 13 May 2022 07:28:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6C162155;
-        Fri, 13 May 2022 14:27:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A68FC34100;
-        Fri, 13 May 2022 14:27:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 192EECE3237;
+        Fri, 13 May 2022 14:28:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274EEC36AF2;
+        Fri, 13 May 2022 14:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452049;
-        bh=sq81QGVFmgwEXyTV9tn2A2eomrsrJjkZ0LhxQElS6oM=;
+        s=korg; t=1652452118;
+        bh=VkPUj72UpbJFCY22ks6F56UqOwRU9wtq4zC3+pJvIkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjOOgPcrL8dKnYexrL4irYkNQ4rc9unCDNm44+9jmFCtWE8EXtMdbdqlBXJvNqNNH
-         RZmMo8fUn/VsLWjZcQWlxmKwYAKeyKuIXfztvzk6/E9HfbAe8+to8y2UU8+Ijd9bCS
-         H+UXbLYNCx0DVP97m0T8zzbTNzVDdCHx8MMVvt90=
+        b=Tx5aNeJVZeHXIUwxHEksjaepFAIWmBSsQ0/qtuhqyxm2A+A4XQetsgdY/q899uylz
+         AcokfPIrS2Jb1z3uZfXA3b9WWJYKrWK0CQ8XYF0N13eEyoZDh7/YVailUAuvOqtsbD
+         HQ5YpYnR9FXCSwyOfvfbH9zZmOqTA5bYCUG0rdl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, drbd-dev@lists.linbit.com,
-        linux-block@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.10 03/10] block: drbd: drbd_nl: Make conversion to enum drbd_ret_code explicit
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 05/21] x86/alternative: Relax text_poke_bp() constraint
 Date:   Fri, 13 May 2022 16:23:47 +0200
-Message-Id: <20220513142228.405740832@linuxfoundation.org>
+Message-Id: <20220513142230.035244880@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
-References: <20220513142228.303546319@linuxfoundation.org>
+In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
+References: <20220513142229.874949670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,80 +54,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 1f1e87b4dc4598eac57a69868534b92d65e47e82 upstream.
+[ Upstream commit 26c44b776dba4ac692a0bf5a3836feb8a63fea6b ]
 
-Fixes the following W=1 kernel build warning(s):
+Currently, text_poke_bp() is very strict to only allow patching a
+single instruction; however with straight-line-speculation it will be
+required to patch: ret; int3, which is two instructions.
 
- from drivers/block/drbd/drbd_nl.c:24:
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_set_role’:
- drivers/block/drbd/drbd_nl.c:793:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c:795:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_attach’:
- drivers/block/drbd/drbd_nl.c:1965:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_connect’:
- drivers/block/drbd/drbd_nl.c:2690:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_disconnect’:
- drivers/block/drbd/drbd_nl.c:2803:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+As such, relax the constraints a little to allow int3 padding for all
+instructions that do not imply the execution of the next instruction,
+ie: RET, JMP.d8 and JMP.d32.
 
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: drbd-dev@lists.linbit.com
-Cc: linux-block@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20210312105530.2219008-8-lee.jones@linaro.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Nathan Chancellor <nathan@kernel.org>
+While there, rename the text_poke_loc::rel32 field to ::disp.
+
+Note: this fills up the text_poke_loc structure which is now a round
+  16 bytes big.
+
+  [ bp: Put comments ontop instead of on the side. ]
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211204134908.082342723@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/drbd/drbd_nl.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/x86/kernel/alternative.c |   49 +++++++++++++++++++++++++++++-------------
+ 1 file changed, 34 insertions(+), 15 deletions(-)
 
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -790,9 +790,11 @@ int drbd_adm_set_role(struct sk_buff *sk
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -930,10 +930,13 @@ void text_poke_sync(void)
+ }
  
- 	if (info->genlhdr->cmd == DRBD_ADM_PRIMARY)
--		retcode = drbd_set_role(adm_ctx.device, R_PRIMARY, parms.assume_uptodate);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_PRIMARY, parms.assume_uptodate);
- 	else
--		retcode = drbd_set_role(adm_ctx.device, R_SECONDARY, 0);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_SECONDARY, 0);
+ struct text_poke_loc {
+-	s32 rel_addr; /* addr := _stext + rel_addr */
+-	s32 rel32;
++	/* addr := _stext + rel_addr */
++	s32 rel_addr;
++	s32 disp;
++	u8 len;
+ 	u8 opcode;
+ 	const u8 text[POKE_MAX_OPCODE_SIZE];
++	/* see text_poke_bp_batch() */
+ 	u8 old;
+ };
  
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
- 	genl_lock();
-@@ -1962,7 +1964,7 @@ int drbd_adm_attach(struct sk_buff *skb,
- 	drbd_flush_workqueue(&connection->sender_work);
+@@ -948,7 +951,8 @@ static struct bp_patching_desc *bp_desc;
+ static __always_inline
+ struct bp_patching_desc *try_get_desc(struct bp_patching_desc **descp)
+ {
+-	struct bp_patching_desc *desc = __READ_ONCE(*descp); /* rcu_dereference */
++	/* rcu_dereference */
++	struct bp_patching_desc *desc = __READ_ONCE(*descp);
  
- 	rv = _drbd_request_state(device, NS(disk, D_ATTACHING), CS_VERBOSE);
--	retcode = rv;  /* FIXME: Type mismatch. */
-+	retcode = (enum drbd_ret_code)rv;
- 	drbd_resume_io(device);
- 	if (rv < SS_SUCCESS)
- 		goto fail;
-@@ -2687,7 +2689,8 @@ int drbd_adm_connect(struct sk_buff *skb
+ 	if (!desc || !arch_atomic_inc_not_zero(&desc->refs))
+ 		return NULL;
+@@ -982,7 +986,7 @@ noinstr int poke_int3_handler(struct pt_
+ {
+ 	struct bp_patching_desc *desc;
+ 	struct text_poke_loc *tp;
+-	int len, ret = 0;
++	int ret = 0;
+ 	void *ip;
+ 
+ 	if (user_mode(regs))
+@@ -1022,8 +1026,7 @@ noinstr int poke_int3_handler(struct pt_
+ 			goto out_put;
  	}
- 	rcu_read_unlock();
  
--	retcode = conn_request_state(connection, NS(conn, C_UNCONNECTED), CS_VERBOSE);
-+	retcode = (enum drbd_ret_code)conn_request_state(connection,
-+					NS(conn, C_UNCONNECTED), CS_VERBOSE);
+-	len = text_opcode_size(tp->opcode);
+-	ip += len;
++	ip += tp->len;
  
- 	conn_reconfig_done(connection);
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
-@@ -2800,7 +2803,7 @@ int drbd_adm_disconnect(struct sk_buff *
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
- 	rv = conn_try_disconnect(connection, parms.force_disconnect);
- 	if (rv < SS_SUCCESS)
--		retcode = rv;  /* FIXME: Type mismatch. */
-+		retcode = (enum drbd_ret_code)rv;
- 	else
- 		retcode = NO_ERROR;
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+ 	switch (tp->opcode) {
+ 	case INT3_INSN_OPCODE:
+@@ -1038,12 +1041,12 @@ noinstr int poke_int3_handler(struct pt_
+ 		break;
+ 
+ 	case CALL_INSN_OPCODE:
+-		int3_emulate_call(regs, (long)ip + tp->rel32);
++		int3_emulate_call(regs, (long)ip + tp->disp);
+ 		break;
+ 
+ 	case JMP32_INSN_OPCODE:
+ 	case JMP8_INSN_OPCODE:
+-		int3_emulate_jmp(regs, (long)ip + tp->rel32);
++		int3_emulate_jmp(regs, (long)ip + tp->disp);
+ 		break;
+ 
+ 	default:
+@@ -1118,7 +1121,7 @@ static void text_poke_bp_batch(struct te
+ 	 */
+ 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
+ 		u8 old[POKE_MAX_OPCODE_SIZE] = { tp[i].old, };
+-		int len = text_opcode_size(tp[i].opcode);
++		int len = tp[i].len;
+ 
+ 		if (len - INT3_INSN_SIZE > 0) {
+ 			memcpy(old + INT3_INSN_SIZE,
+@@ -1195,21 +1198,37 @@ static void text_poke_loc_init(struct te
+ 			       const void *opcode, size_t len, const void *emulate)
+ {
+ 	struct insn insn;
+-	int ret;
++	int ret, i;
+ 
+ 	memcpy((void *)tp->text, opcode, len);
+ 	if (!emulate)
+ 		emulate = opcode;
+ 
+ 	ret = insn_decode_kernel(&insn, emulate);
+-
+ 	BUG_ON(ret < 0);
+-	BUG_ON(len != insn.length);
+ 
+ 	tp->rel_addr = addr - (void *)_stext;
++	tp->len = len;
+ 	tp->opcode = insn.opcode.bytes[0];
+ 
+ 	switch (tp->opcode) {
++	case RET_INSN_OPCODE:
++	case JMP32_INSN_OPCODE:
++	case JMP8_INSN_OPCODE:
++		/*
++		 * Control flow instructions without implied execution of the
++		 * next instruction can be padded with INT3.
++		 */
++		for (i = insn.length; i < len; i++)
++			BUG_ON(tp->text[i] != INT3_INSN_OPCODE);
++		break;
++
++	default:
++		BUG_ON(len != insn.length);
++	};
++
++
++	switch (tp->opcode) {
+ 	case INT3_INSN_OPCODE:
+ 	case RET_INSN_OPCODE:
+ 		break;
+@@ -1217,7 +1236,7 @@ static void text_poke_loc_init(struct te
+ 	case CALL_INSN_OPCODE:
+ 	case JMP32_INSN_OPCODE:
+ 	case JMP8_INSN_OPCODE:
+-		tp->rel32 = insn.immediate.value;
++		tp->disp = insn.immediate.value;
+ 		break;
+ 
+ 	default: /* assume NOP */
+@@ -1225,13 +1244,13 @@ static void text_poke_loc_init(struct te
+ 		case 2: /* NOP2 -- emulate as JMP8+0 */
+ 			BUG_ON(memcmp(emulate, x86_nops[len], len));
+ 			tp->opcode = JMP8_INSN_OPCODE;
+-			tp->rel32 = 0;
++			tp->disp = 0;
+ 			break;
+ 
+ 		case 5: /* NOP5 -- emulate as JMP32+0 */
+ 			BUG_ON(memcmp(emulate, x86_nops[len], len));
+ 			tp->opcode = JMP32_INSN_OPCODE;
+-			tp->rel32 = 0;
++			tp->disp = 0;
+ 			break;
+ 
+ 		default: /* unknown instruction */
 
 
