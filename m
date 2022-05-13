@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E91B352648D
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621C652645B
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381490AbiEMOb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
+        id S1380964AbiEMO3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381057AbiEMOaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:18 -0400
+        with ESMTP id S1380956AbiEMO1d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05998B0AA;
-        Fri, 13 May 2022 07:28:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 005CA5E751;
+        Fri, 13 May 2022 07:27:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BBC62100;
-        Fri, 13 May 2022 14:28:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29D0EC34116;
-        Fri, 13 May 2022 14:28:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E6C162155;
+        Fri, 13 May 2022 14:27:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A68FC34100;
+        Fri, 13 May 2022 14:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452087;
-        bh=IY9684GaV3FAMyB5H9w1Ya/09baI6tKjodMucQO2nSU=;
+        s=korg; t=1652452049;
+        bh=sq81QGVFmgwEXyTV9tn2A2eomrsrJjkZ0LhxQElS6oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5Cl0Ycmm/jofuOOIg5G2WeGdRW3Lne7jCKs6pQ0PQtuJ9u3jAQw4674wWdedBVdf
-         AEoE2XnXccl2/RyyR2ruZ+JSjUJQRgQ/9c299oklEtUNT/zQ482pb4ck00xTGTvmcG
-         BZhd6QJ6XGBht1OzL4K8i7DgRoBVjz3Z99S5MhzM=
+        b=KjOOgPcrL8dKnYexrL4irYkNQ4rc9unCDNm44+9jmFCtWE8EXtMdbdqlBXJvNqNNH
+         RZmMo8fUn/VsLWjZcQWlxmKwYAKeyKuIXfztvzk6/E9HfbAe8+to8y2UU8+Ijd9bCS
+         H+UXbLYNCx0DVP97m0T8zzbTNzVDdCHx8MMVvt90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 04/21] objtool: Add straight-line-speculation validation
-Date:   Fri, 13 May 2022 16:23:46 +0200
-Message-Id: <20220513142230.007174110@linuxfoundation.org>
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, drbd-dev@lists.linbit.com,
+        linux-block@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.10 03/10] block: drbd: drbd_nl: Make conversion to enum drbd_ret_code explicit
+Date:   Fri, 13 May 2022 16:23:47 +0200
+Message-Id: <20220513142228.405740832@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
-References: <20220513142229.874949670@linuxfoundation.org>
+In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
+References: <20220513142228.303546319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,130 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 1cc1e4c8aab4213bd4e6353dec2620476a233d6d ]
+commit 1f1e87b4dc4598eac57a69868534b92d65e47e82 upstream.
 
-Teach objtool to validate the straight-line-speculation constraints:
+Fixes the following W=1 kernel build warning(s):
 
- - speculation trap after indirect calls
- - speculation trap after RET
+ from drivers/block/drbd/drbd_nl.c:24:
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_set_role’:
+ drivers/block/drbd/drbd_nl.c:793:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c:795:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_attach’:
+ drivers/block/drbd/drbd_nl.c:1965:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_connect’:
+ drivers/block/drbd/drbd_nl.c:2690:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_disconnect’:
+ drivers/block/drbd/drbd_nl.c:2803:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
 
-Notable: when an instruction is annotated RETPOLINE_SAFE, indicating
-  speculation isn't a problem, also don't care about sls for that
-  instruction.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211204134908.023037659@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: drbd-dev@lists.linbit.com
+Cc: linux-block@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20210312105530.2219008-8-lee.jones@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/objtool/arch/x86/decode.c         |   13 +++++++++----
- tools/objtool/builtin-check.c           |    3 ++-
- tools/objtool/check.c                   |   14 ++++++++++++++
- tools/objtool/include/objtool/arch.h    |    1 +
- tools/objtool/include/objtool/builtin.h |    2 +-
- 5 files changed, 27 insertions(+), 6 deletions(-)
+ drivers/block/drbd/drbd_nl.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/tools/objtool/arch/x86/decode.c
-+++ b/tools/objtool/arch/x86/decode.c
-@@ -529,6 +529,11 @@ int arch_decode_instruction(const struct
- 		}
- 		break;
+--- a/drivers/block/drbd/drbd_nl.c
++++ b/drivers/block/drbd/drbd_nl.c
+@@ -790,9 +790,11 @@ int drbd_adm_set_role(struct sk_buff *sk
+ 	mutex_lock(&adm_ctx.resource->adm_mutex);
  
-+	case 0xcc:
-+		/* int3 */
-+		*type = INSN_TRAP;
-+		break;
-+
- 	case 0xe3:
- 		/* jecxz/jrcxz */
- 		*type = INSN_JUMP_CONDITIONAL;
-@@ -665,10 +670,10 @@ const char *arch_ret_insn(int len)
- {
- 	static const char ret[5][5] = {
- 		{ BYTE_RET },
--		{ BYTE_RET, BYTES_NOP1 },
--		{ BYTE_RET, BYTES_NOP2 },
--		{ BYTE_RET, BYTES_NOP3 },
--		{ BYTE_RET, BYTES_NOP4 },
-+		{ BYTE_RET, 0xcc },
-+		{ BYTE_RET, 0xcc, BYTES_NOP1 },
-+		{ BYTE_RET, 0xcc, BYTES_NOP2 },
-+		{ BYTE_RET, 0xcc, BYTES_NOP3 },
- 	};
+ 	if (info->genlhdr->cmd == DRBD_ADM_PRIMARY)
+-		retcode = drbd_set_role(adm_ctx.device, R_PRIMARY, parms.assume_uptodate);
++		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
++						R_PRIMARY, parms.assume_uptodate);
+ 	else
+-		retcode = drbd_set_role(adm_ctx.device, R_SECONDARY, 0);
++		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
++						R_SECONDARY, 0);
  
- 	if (len < 1 || len > 5) {
---- a/tools/objtool/builtin-check.c
-+++ b/tools/objtool/builtin-check.c
-@@ -20,7 +20,7 @@
- #include <objtool/objtool.h>
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+ 	genl_lock();
+@@ -1962,7 +1964,7 @@ int drbd_adm_attach(struct sk_buff *skb,
+ 	drbd_flush_workqueue(&connection->sender_work);
  
- bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
--     validate_dup, vmlinux, mcount, noinstr, backup;
-+     validate_dup, vmlinux, mcount, noinstr, backup, sls;
+ 	rv = _drbd_request_state(device, NS(disk, D_ATTACHING), CS_VERBOSE);
+-	retcode = rv;  /* FIXME: Type mismatch. */
++	retcode = (enum drbd_ret_code)rv;
+ 	drbd_resume_io(device);
+ 	if (rv < SS_SUCCESS)
+ 		goto fail;
+@@ -2687,7 +2689,8 @@ int drbd_adm_connect(struct sk_buff *skb
+ 	}
+ 	rcu_read_unlock();
  
- static const char * const check_usage[] = {
- 	"objtool check [<options>] file.o",
-@@ -45,6 +45,7 @@ const struct option check_options[] = {
- 	OPT_BOOLEAN('l', "vmlinux", &vmlinux, "vmlinux.o validation"),
- 	OPT_BOOLEAN('M', "mcount", &mcount, "generate __mcount_loc"),
- 	OPT_BOOLEAN('B', "backup", &backup, "create .orig files before modification"),
-+	OPT_BOOLEAN('S', "sls", &sls, "validate straight-line-speculation"),
- 	OPT_END(),
- };
+-	retcode = conn_request_state(connection, NS(conn, C_UNCONNECTED), CS_VERBOSE);
++	retcode = (enum drbd_ret_code)conn_request_state(connection,
++					NS(conn, C_UNCONNECTED), CS_VERBOSE);
  
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -2776,6 +2776,12 @@ static int validate_branch(struct objtoo
- 		switch (insn->type) {
- 
- 		case INSN_RETURN:
-+			if (next_insn && next_insn->type == INSN_TRAP) {
-+				next_insn->ignore = true;
-+			} else if (sls && !insn->retpoline_safe) {
-+				WARN_FUNC("missing int3 after ret",
-+					  insn->sec, insn->offset);
-+			}
- 			return validate_return(func, insn, &state);
- 
- 		case INSN_CALL:
-@@ -2819,6 +2825,14 @@ static int validate_branch(struct objtoo
- 			break;
- 
- 		case INSN_JUMP_DYNAMIC:
-+			if (next_insn && next_insn->type == INSN_TRAP) {
-+				next_insn->ignore = true;
-+			} else if (sls && !insn->retpoline_safe) {
-+				WARN_FUNC("missing int3 after indirect jump",
-+					  insn->sec, insn->offset);
-+			}
-+
-+			/* fallthrough */
- 		case INSN_JUMP_DYNAMIC_CONDITIONAL:
- 			if (is_sibling_call(insn)) {
- 				ret = validate_sibling_call(insn, &state);
---- a/tools/objtool/include/objtool/arch.h
-+++ b/tools/objtool/include/objtool/arch.h
-@@ -26,6 +26,7 @@ enum insn_type {
- 	INSN_CLAC,
- 	INSN_STD,
- 	INSN_CLD,
-+	INSN_TRAP,
- 	INSN_OTHER,
- };
- 
---- a/tools/objtool/include/objtool/builtin.h
-+++ b/tools/objtool/include/objtool/builtin.h
-@@ -9,7 +9,7 @@
- 
- extern const struct option check_options[];
- extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
--            validate_dup, vmlinux, mcount, noinstr, backup;
-+            validate_dup, vmlinux, mcount, noinstr, backup, sls;
- 
- extern int cmd_parse_options(int argc, const char **argv, const char * const usage[]);
- 
+ 	conn_reconfig_done(connection);
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+@@ -2800,7 +2803,7 @@ int drbd_adm_disconnect(struct sk_buff *
+ 	mutex_lock(&adm_ctx.resource->adm_mutex);
+ 	rv = conn_try_disconnect(connection, parms.force_disconnect);
+ 	if (rv < SS_SUCCESS)
+-		retcode = rv;  /* FIXME: Type mismatch. */
++		retcode = (enum drbd_ret_code)rv;
+ 	else
+ 		retcode = NO_ERROR;
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
 
 
