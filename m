@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3736752643D
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43AE1526423
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380729AbiEMO17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45284 "EHLO
+        id S1380701AbiEMO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380739AbiEMO1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248D4DFB7;
-        Fri, 13 May 2022 07:26:59 -0700 (PDT)
+        with ESMTP id S1381081AbiEMO0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:30 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A06D5F8F6;
+        Fri, 13 May 2022 07:26:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E01586216C;
-        Fri, 13 May 2022 14:26:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19A0C36AE2;
-        Fri, 13 May 2022 14:26:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EA792CE3233;
+        Fri, 13 May 2022 14:26:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08279C34115;
+        Fri, 13 May 2022 14:26:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452018;
-        bh=8nYjadxN9N1RTFRbp0seHgxawJmSGG0+3SicY1sPKHM=;
+        s=korg; t=1652451973;
+        bh=oBP614t9fTptQhQswUAjX6Y5Y8f75tmsz/oYWzjS59U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTtJ6nZUyUWDNx+Qf3rl9LI2Ur0Qi/F1JbzIHdMkr4URhc1UfsqjUGmwDPyUNW87Y
-         cX55ODQIUzSJPtnix4K80unqQw8P6LbKlM5W4aXjCxmLYVDAQiep52f6Wr3culwBhi
-         n+iGzSKScZ/4DPtPpDufGmHEZKfMTmrweo3VYpC8=
+        b=LE6nH1veG0f4SNQ9252awCRD6qxWbCnV2ZkvS3nFG9PZdJeEUtVaX1wAFy+fVuo9G
+         yIcipi/CvI1LSkrfu+oFSFc3yqcOe45eTX9eJlJPVTlFyatHJScbg1SLvJlJKogsM1
+         PFsLSALFa0HnCo5Da+Kdb/LwLplsTG9NWyToBeJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 5.4 04/18] drm/i915: Cast remain to unsigned long in eb_relocate_vma
+        Hu Jiahui <kirin.say@gmail.com>,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 08/15] ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
 Date:   Fri, 13 May 2022 16:23:30 +0200
-Message-Id: <20220513142229.281127401@linuxfoundation.org>
+Message-Id: <20220513142228.140882635@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
-References: <20220513142229.153291230@linuxfoundation.org>
+In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
+References: <20220513142227.897535454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +54,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7bf03e7504e433da274963c447648876902b86df upstream.
+commit 92ee3c60ec9fe64404dc035e7c41277d74aa26cb upstream.
 
-A recent commit in clang added -Wtautological-compare to -Wall, which is
-enabled for i915 after -Wtautological-compare is disabled for the rest
-of the kernel so we see the following warning on x86_64:
+Currently we have neither proper check nor protection against the
+concurrent calls of PCM hw_params and hw_free ioctls, which may result
+in a UAF.  Since the existing PCM stream lock can't be used for
+protecting the whole ioctl operations, we need a new mutex to protect
+those racy calls.
 
- ../drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c:1433:22: warning:
- result of comparison of constant 576460752303423487 with expression of
- type 'unsigned int' is always false
- [-Wtautological-constant-out-of-range-compare]
-         if (unlikely(remain > N_RELOC(ULONG_MAX)))
-            ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
- ../include/linux/compiler.h:78:42: note: expanded from macro 'unlikely'
- # define unlikely(x)    __builtin_expect(!!(x), 0)
-                                            ^
- 1 warning generated.
+This patch introduced a new mutex, runtime->buffer_mutex, and applies
+it to both hw_params and hw_free ioctl code paths.  Along with it, the
+both functions are slightly modified (the mmap_count check is moved
+into the state-check block) for code simplicity.
 
-It is not wrong in the case where ULONG_MAX > UINT_MAX but it does not
-account for the case where this file is built for 32-bit x86, where
-ULONG_MAX == UINT_MAX and this check is still relevant.
-
-Cast remain to unsigned long, which keeps the generated code the same
-(verified with clang-11 on x86_64 and GCC 9.2.0 on x86 and x86_64) and
-the warning is silenced so we can catch more potential issues in the
-future.
-
-Closes: https://github.com/ClangBuiltLinux/linux/issues/778
-Suggested-by: Michel Dänzer <michel@daenzer.net>
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200214054706.33870-1-natechancellor@gmail.com
+Reported-by: Hu Jiahui <kirin.say@gmail.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322170720.3529-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[OP: backport to 4.19: adjusted context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/sound/pcm.h     |    1 
+ sound/core/pcm.c        |    2 +
+ sound/core/pcm_native.c |   55 +++++++++++++++++++++++++++++++-----------------
+ 3 files changed, 39 insertions(+), 19 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1452,7 +1452,7 @@ static int eb_relocate_vma(struct i915_e
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -404,6 +404,7 @@ struct snd_pcm_runtime {
+ 	wait_queue_head_t sleep;	/* poll sleep */
+ 	wait_queue_head_t tsleep;	/* transfer sleep */
+ 	struct fasync_struct *fasync;
++	struct mutex buffer_mutex;	/* protect for buffer changes */
  
- 	urelocs = u64_to_user_ptr(entry->relocs_ptr);
- 	remain = entry->relocation_count;
--	if (unlikely(remain > N_RELOC(ULONG_MAX)))
-+	if (unlikely((unsigned long)remain > N_RELOC(ULONG_MAX)))
- 		return -EINVAL;
+ 	/* -- private section -- */
+ 	void *private_data;
+--- a/sound/core/pcm.c
++++ b/sound/core/pcm.c
+@@ -1031,6 +1031,7 @@ int snd_pcm_attach_substream(struct snd_
+ 	init_waitqueue_head(&runtime->tsleep);
  
- 	/*
+ 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
++	mutex_init(&runtime->buffer_mutex);
+ 
+ 	substream->runtime = runtime;
+ 	substream->private_data = pcm->private_data;
+@@ -1062,6 +1063,7 @@ void snd_pcm_detach_substream(struct snd
+ 	substream->runtime = NULL;
+ 	if (substream->timer)
+ 		spin_unlock_irq(&substream->timer->lock);
++	mutex_destroy(&runtime->buffer_mutex);
+ 	kfree(runtime);
+ 	put_pid(substream->pid);
+ 	substream->pid = NULL;
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -666,33 +666,40 @@ static int snd_pcm_hw_params_choose(stru
+ 	return 0;
+ }
+ 
++#if IS_ENABLED(CONFIG_SND_PCM_OSS)
++#define is_oss_stream(substream)	((substream)->oss.oss)
++#else
++#define is_oss_stream(substream)	false
++#endif
++
+ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
+ 			     struct snd_pcm_hw_params *params)
+ {
+ 	struct snd_pcm_runtime *runtime;
+-	int err, usecs;
++	int err = 0, usecs;
+ 	unsigned int bits;
+ 	snd_pcm_uframes_t frames;
+ 
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 	runtime = substream->runtime;
++	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_OPEN:
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++		if (!is_oss_stream(substream) &&
++		    atomic_read(&substream->mmap_count))
++			err = -EBADFD;
+ 		break;
+ 	default:
+-		snd_pcm_stream_unlock_irq(substream);
+-		return -EBADFD;
++		err = -EBADFD;
++		break;
+ 	}
+ 	snd_pcm_stream_unlock_irq(substream);
+-#if IS_ENABLED(CONFIG_SND_PCM_OSS)
+-	if (!substream->oss.oss)
+-#endif
+-		if (atomic_read(&substream->mmap_count))
+-			return -EBADFD;
++	if (err)
++		goto unlock;
+ 
+ 	params->rmask = ~0U;
+ 	err = snd_pcm_hw_refine(substream, params);
+@@ -769,14 +776,19 @@ static int snd_pcm_hw_params(struct snd_
+ 	if ((usecs = period_to_usecs(runtime)) >= 0)
+ 		pm_qos_add_request(&substream->latency_pm_qos_req,
+ 				   PM_QOS_CPU_DMA_LATENCY, usecs);
+-	return 0;
++	err = 0;
+  _error:
+-	/* hardware might be unusable from this time,
+-	   so we force application to retry to set
+-	   the correct hardware parameter settings */
+-	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+-	if (substream->ops->hw_free != NULL)
+-		substream->ops->hw_free(substream);
++	if (err) {
++		/* hardware might be unusable from this time,
++		 * so we force application to retry to set
++		 * the correct hardware parameter settings
++		 */
++		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
++		if (substream->ops->hw_free != NULL)
++			substream->ops->hw_free(substream);
++	}
++ unlock:
++	mutex_unlock(&runtime->buffer_mutex);
+ 	return err;
+ }
+ 
+@@ -809,22 +821,27 @@ static int snd_pcm_hw_free(struct snd_pc
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 	runtime = substream->runtime;
++	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_SETUP:
+ 	case SNDRV_PCM_STATE_PREPARED:
++		if (atomic_read(&substream->mmap_count))
++			result = -EBADFD;
+ 		break;
+ 	default:
+-		snd_pcm_stream_unlock_irq(substream);
+-		return -EBADFD;
++		result = -EBADFD;
++		break;
+ 	}
+ 	snd_pcm_stream_unlock_irq(substream);
+-	if (atomic_read(&substream->mmap_count))
+-		return -EBADFD;
++	if (result)
++		goto unlock;
+ 	if (substream->ops->hw_free)
+ 		result = substream->ops->hw_free(substream);
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+ 	pm_qos_remove_request(&substream->latency_pm_qos_req);
++ unlock:
++	mutex_unlock(&runtime->buffer_mutex);
+ 	return result;
+ }
+ 
 
 
