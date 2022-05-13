@@ -2,199 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA43526976
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:38:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE40526985
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:45:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383355AbiEMSii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 14:38:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39630 "EHLO
+        id S1383283AbiEMSpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 14:45:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383222AbiEMSig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:38:36 -0400
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9A1A13F6E
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:38:30 -0700 (PDT)
-Received: by mail-pl1-x633.google.com with SMTP id q4so8735628plr.11
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:38:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:content-language:to:cc
-         :references:from:subject:in-reply-to:content-transfer-encoding;
-        bh=bUll9EZdTqdsVM4QKgbt5mHzhJZWttOT3qxL7FR14WM=;
-        b=oKXAjDiycQ+Xl95nE6rgB+ktCMLwY/tqptAt8RwtI8tWNNEmOCh/ZaJgnE979uldkv
-         rNRtLb0SW/+4xgBwxY7PFzfR4D4LiTLFcFPA8Pzxz9hnHbvkH8lYtl3+bUs+Q6OiYPlp
-         IDClf8QTqyaEN+EMugVck5CVl3s2uTfqm9hsW+KJFXExijs3Nw/NDixOg9IMaexAVDHl
-         V1IcWfH8C2ZQ79ZDHVuMexe4s0lqM0VwhJXCYK0eSE2RXYFPpyNtWwxSsuZLD/fNf3OF
-         fzu37XqCqgPjxzfC90EHvluJZDe304JJBjcm32hiGpB8H7KUjJ3e3tP5TNGG8ItWH10n
-         w4kw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=bUll9EZdTqdsVM4QKgbt5mHzhJZWttOT3qxL7FR14WM=;
-        b=YIvtF1QJd85zvHpSF1uPVm7ga+1xApCNQt5gNgAjnQpPvcZlfhUeT2g1SYwkq5Wcda
-         Q5qecDRFuLtYVb710V0UKrsert3drFkAn8A4zL3wxRLpU1SwetEWPDV5qVVg47cjwqKE
-         dTNaLRRmkxj2tOHGeYoR7a+YfgApKv6K8mcENUN438A0UZpzV6S7ZUL+/yVBHguaqC4u
-         wJ4rFUeWzeEVFgZg+9egjD1dN2X3h4er/hN9a5KnIXhJtwS0e9oFRukXF4tTc1IlbT1f
-         tDAsNIrZuWUqkz02e5XMSb1AKNffSj+plO+c8+FUrCz+yFCg99qKOPNpvlx/aBgJW3Fm
-         BnPA==
-X-Gm-Message-State: AOAM530a0cXeg2wCcLLHUOhD7kZCrQbUEbppBC6sqPBbngjaWpf+xUSK
-        0T3baZn+p1nFjJHyzSpO6wKHrg==
-X-Google-Smtp-Source: ABdhPJygXvdM77Qs1Phfsnv0IQN/lWgaQlWeL3omu1KKDpZJfEDXiWrvXt+LWmuScYehHcRKS2rR2g==
-X-Received: by 2002:a17:902:f684:b0:15e:8c4a:c54b with SMTP id l4-20020a170902f68400b0015e8c4ac54bmr5986060plg.21.1652467110296;
-        Fri, 13 May 2022 11:38:30 -0700 (PDT)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id a9-20020a62bd09000000b0050dc762818csm2092022pff.102.2022.05.13.11.38.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 May 2022 11:38:29 -0700 (PDT)
-Message-ID: <49f0ab7d-def2-811a-d414-37369faf882e@linaro.org>
-Date:   Fri, 13 May 2022 11:38:28 -0700
+        with ESMTP id S1380379AbiEMSpC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:45:02 -0400
+Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C28123BDD;
+        Fri, 13 May 2022 11:44:58 -0700 (PDT)
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 4AF0C1C0B92; Fri, 13 May 2022 20:44:56 +0200 (CEST)
+Date:   Fri, 13 May 2022 20:44:55 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 0/7] 4.9.314-rc1 review
+Message-ID: <20220513184455.GA28582@duo.ucw.cz>
+References: <20220513142225.909697091@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Content-Language: en-US
-To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc:     Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
-References: <CAEf4BzbiVeQfhxEu908w2mU4d8+5kKeMknuvhzCXuxM9pJ1jmQ@mail.gmail.com>
- <20220415141355.4329-1-tadeusz.struk@linaro.org>
- <CAEf4Bzah9K7dEa_7sXE4TnkuMTRHypMU9DxiLezgRvLjcqE_YA@mail.gmail.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: Re: [PATCH v2] bpf: Fix KASAN use-after-free Read in
- compute_effective_progs
-In-Reply-To: <CAEf4Bzah9K7dEa_7sXE4TnkuMTRHypMU9DxiLezgRvLjcqE_YA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="dDRMvlgZJXvWKvBx"
+Content-Disposition: inline
+In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NEUTRAL,T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrii,
-On 4/20/22 10:07, Andrii Nakryiko wrote:
->> diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
->> index 128028efda64..5a64cece09f3 100644
->> --- a/kernel/bpf/cgroup.c
->> +++ b/kernel/bpf/cgroup.c
->> @@ -723,10 +723,8 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
->>          pl->link = NULL;
->>
->>          err = update_effective_progs(cgrp, atype);
->> -       if (err)
->> -               goto cleanup;
->>
->> -       /* now can actually delete it from this cgroup list */
->> +       /* now can delete it from this cgroup list */
->>          list_del(&pl->node);
->>          kfree(pl);
->>          if (list_empty(progs))
->> @@ -735,12 +733,55 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
->>          if (old_prog)
->>                  bpf_prog_put(old_prog);
->>          static_branch_dec(&cgroup_bpf_enabled_key[atype]);
->> -       return 0;
->> +
->> +       if (!err)
->> +               return 0;
->>
->>   cleanup:
->> -       /* restore back prog or link */
->> -       pl->prog = old_prog;
->> -       pl->link = link;
->> +       /*
->> +        * If compute_effective_progs failed with -ENOMEM, i.e. alloc for
->> +        * cgrp->bpf.inactive table failed, we can recover by removing
->> +        * the detached prog from effective table and rearranging it.
->> +        */
->> +       if (err == -ENOMEM) {
->> +               struct bpf_prog_array_item *item;
->> +               struct bpf_prog *prog_tmp, *prog_detach, *prog_last;
->> +               struct bpf_prog_array *array;
->> +               int index = 0, index_detach = -1;
->> +
->> +               array = cgrp->bpf.effective[atype];
->> +               item = &array->items[0];
->> +
->> +               if (prog)
->> +                       prog_detach = prog;
->> +               else
->> +                       prog_detach = link->link.prog;
->> +
->> +               if (!prog_detach)
->> +                       return -EINVAL;
->> +
->> +               while ((prog_tmp = READ_ONCE(item->prog))) {
->> +                       if (prog_tmp == prog_detach)
->> +                               index_detach = index;
->> +                       item++;
->> +                       index++;
->> +                       prog_last = prog_tmp;
->> +               }
->> +
->> +               /* Check if we found what's needed for removing the prog */
->> +               if (index_detach == -1 || index_detach == index-1)
->> +                       return -EINVAL;
->> +
->> +               /* Remove the last program in the array */
->> +               if (bpf_prog_array_delete_safe_at(array, index-1))
->> +                       return -EINVAL;
->> +
->> +               /* and update the detached with the last just removed */
->> +               if (bpf_prog_array_update_at(array, index_detach, prog_last))
->> +                       return -EINVAL;
->> +
->> +               err = 0;
->> +       }
 
-Thanks for feedback, and sorry for delay. I got pulled into something else.
+--dDRMvlgZJXvWKvBx
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> There are a bunch of problems with this implementation.
-> 
-> 1. We should do this fallback right after update_effective_progs()
-> returns error, before we get to list_del(&pl->node) and subsequent
-> code that does some additional things (like clearing flags and stuff).
-> This additional code needs to run even if update_effective_progs()
-> fails. So I suggest to extract the logic of removing program from
-> effective prog arrays into a helper function and doing
-> 
-> err = update_effective_progs(...);
-> if (err)
->      purge_effective_progs();
-> 
-> where purge_effective_progs() will be the logic you are adding. And it
-> will be void function because it can't fail.
+Hi!
 
-I have implemented that in v3, will send that out soon.
+> This is the start of the stable review cycle for the 4.9.314 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-> 
-> 2. We have to update not just cgrp->bpf.effective array, but all the
-> descendants' lists as well. See what update_effective_progs() is
-> doing, it has css_for_each_descendant_pre() iteration. You need to do
-> it here as well. But instead of doing compute_effective_progs() which
-> allocates a new copy of an array we'll need to update existing array
-> in place.
-> 
-> 3. Not clear why you need to do both bpf_prog_array_delete_safe_at()
-> and bpf_prog_array_update_at(), isn't delete_safe_at() enought?
+CIP testing did not find any problems here:
 
-I thought that we need to reshuffle the table and move the progs around,
-but your are right, delete_safe_at() is enough.
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+4.9.y
 
--- 
-Thanks,
-Tadeusz
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
+
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--dDRMvlgZJXvWKvBx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYn6nJwAKCRAw5/Bqldv6
+8t1rAJ9bHXZcXk9ZTGYtV3AyArFnJ53KQgCfUScn2MLq+aNWBAcBAKMDdX9dAGQ=
+=DDz2
+-----END PGP SIGNATURE-----
+
+--dDRMvlgZJXvWKvBx--
