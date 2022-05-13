@@ -2,123 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 761705262AB
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 15:10:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF17526323
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 15:52:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380546AbiEMNKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 09:10:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42700 "EHLO
+        id S245080AbiEMNuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 09:50:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379583AbiEMNKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 09:10:36 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F27964EDFB
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 06:10:35 -0700 (PDT)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1npV3o-0002QY-04; Fri, 13 May 2022 15:10:24 +0200
-Received: from pengutronix.de (unknown [IPv6:2a01:4f8:1c1c:29e9:22:41ff:fe00:1400])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        (Authenticated sender: mkl-all@blackshift.org)
-        by smtp.blackshift.org (Postfix) with ESMTPSA id 5977D7DA6F;
-        Fri, 13 May 2022 13:10:19 +0000 (UTC)
-Date:   Fri, 13 May 2022 15:10:18 +0200
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Cc:     linux-can@vger.kernel.org,
-        Chandrasekar Ramakrishnan <rcsekar@samsung.com>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Chee Hou Ong <chee.houx.ong@intel.com>,
-        Aman Kumar <aman.kumar@intel.com>,
-        Pallavi Kumari <kumari.pallavi@intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] Revert "can: m_can: pci: use custom bit timings for
- Elkhart Lake"
-Message-ID: <20220513131018.x4xgeqtgamo4pm43@pengutronix.de>
-References: <20220512124144.536850-1-jarkko.nikula@linux.intel.com>
+        with ESMTP id S1381023AbiEMNjc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 09:39:32 -0400
+Received: from smtp11.infineon.com (smtp11.infineon.com [IPv6:2a00:18f0:1e00:4::5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E9013CFF;
+        Fri, 13 May 2022 06:39:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=infineon.com; i=@infineon.com; q=dns/txt; s=IFXMAIL;
+  t=1652449165; x=1683985165;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=4mi3d0qtu3W+Emy4+uUsD9l4HPVBt6DKNVl7oLxijQI=;
+  b=TSKq1ObomKi8YXiUqHf22ek1A+7Qpvjn4hL9YyIysxXCntfRa/69mLXg
+   kjSsQqrHJUNuMgF0Ppvf3w85hWuXHPRdeR9ckYtdAOpmY/KSjaXqT2k3h
+   ByUXYJv9hJ7m9y5RPVf7a6jagLHO266kcGrkZBbVL4FYTNwADpDCmdxKq
+   8=;
+X-SBRS: None
+X-IronPort-AV: E=McAfee;i="6400,9594,10345"; a="294595334"
+X-IronPort-AV: E=Sophos;i="5.91,223,1647298800"; 
+   d="scan'208";a="294595334"
+Received: from unknown (HELO mucxv001.muc.infineon.com) ([172.23.11.16])
+  by smtp11.infineon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2022 15:39:12 +0200
+Received: from MUCSE814.infineon.com (MUCSE814.infineon.com [172.23.29.40])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mucxv001.muc.infineon.com (Postfix) with ESMTPS;
+        Fri, 13 May 2022 15:39:11 +0200 (CEST)
+Received: from MUCSE818.infineon.com (172.23.29.44) by MUCSE814.infineon.com
+ (172.23.29.40) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.22; Fri, 13 May
+ 2022 15:39:11 +0200
+Received: from smaha-lin-dev01.agb.infineon.com (172.23.8.247) by
+ MUCSE818.infineon.com (172.23.29.44) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Fri, 13 May 2022 15:39:10 +0200
+From:   Stefan Mahnke-Hartmann <stefan.mahnke-hartmann@infineon.com>
+To:     <jarkko@kernel.org>, <linux-integrity@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <peterhuewe@gmx.de>, <jgg@ziepe.ca>, <jsnitsel@redhat.com>,
+        <nayna@linux.vnet.ibm.com>, <stefan.mahnke-hartmann@infineon.com>,
+        <alexander.steffen@infineon.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2 1/2] tpm: Fix buffer access in tpm2_get_tpm_pt()
+Date:   Fri, 13 May 2022 15:41:51 +0200
+Message-ID: <20220513134152.270442-1-stefan.mahnke-hartmann@infineon.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="noyjhbacdu6a2cvp"
-Content-Disposition: inline
-In-Reply-To: <20220512124144.536850-1-jarkko.nikula@linux.intel.com>
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [172.23.8.247]
+X-ClientProxiedBy: MUCSE813.infineon.com (172.23.29.39) To
+ MUCSE818.infineon.com (172.23.29.44)
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Under certain conditions uninitialized memory will be accessed.
+As described by TCG Trusted Platform Module Library Specification,
+rev. 1.59 (Part 3: Commands), if a TPM2_GetCapability is received,
+requesting a capability, the TPM in field upgrade mode may return a
+zero length list.
+Check the property count in tpm2_get_tpm_pt().
 
---noyjhbacdu6a2cvp
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Fixes: 2ab3241161b3 ("tpm: migrate tpm2_get_tpm_pt() to use struct tpm_buf")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stefan Mahnke-Hartmann <stefan.mahnke-hartmann@infineon.com>
+---
+Changelog:
+ * v2:
+   * Add inline comment to indicate the root cause to may access unitilized
+     memory.
+   * Change 'field upgrade mode' to lower case.
 
-On 12.05.2022 15:41:43, Jarkko Nikula wrote:
-> This reverts commit 0e8ffdf3b86dfd44b651f91b12fcae76c25c453b.
->=20
-> Commit 0e8ffdf3b86d ("can: m_can: pci: use custom bit timings for
-> Elkhart Lake") broke the test case using bitrate switching.
->=20
-> 	ip link set can0 up type can bitrate 500000 dbitrate 4000000 fd on
-> 	ip link set can1 up type can bitrate 500000 dbitrate 4000000 fd on
-> 	candump can0 &
-> 	cangen can1 -I 0x800 -L 64 -e -fb -D 11223344deadbeef55667788feedf00daab=
-bccdd44332211 -n 1 -v -v
->=20
-> Above commit does everything correctly according to the datasheet.
-> However datasheet wasn't correct.
->=20
-> I got confirmation from hardware engineers that the actual CAN hardware
-> on Intel Elkhart Lake is based on M_CAN version v3.2.0. Datasheet was
-> mirroring values from an another specification which was based on earlier
-> M_CAN version leading to wrong bit timings.
->=20
-> Therefore revert the commit and switch back to common bit timings.
->=20
-> Fixes: 0e8ffdf3b86d ("can: m_can: pci: use custom bit timings for Elkhart=
- Lake")
-> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-> Reported-by: Chee Hou Ong <chee.houx.ong@intel.com>
-> Reported-by: Aman Kumar <aman.kumar@intel.com>
-> Reported-by: Pallavi Kumari <kumari.pallavi@intel.com>
-> Cc: <stable@vger.kernel.org> # v5.16+
+ drivers/char/tpm/tpm2-cmd.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-Added to can/testing.
+diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
+index 4704fa553098..04a3e23a4afc 100644
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -400,7 +400,16 @@ ssize_t tpm2_get_tpm_pt(struct tpm_chip *chip, u32 property_id,  u32 *value,
+ 	if (!rc) {
+ 		out = (struct tpm2_get_cap_out *)
+ 			&buf.data[TPM_HEADER_SIZE];
+-		*value = be32_to_cpu(out->value);
++		/*
++		 * To prevent failing boot up of some systems, Infineon TPM2.0
++		 * returns SUCCESS on TPM2_Startup in field upgrade mode. Also
++		 * the TPM2_Getcapability command returns a zero length list
++		 * in field upgrade mode.
++		 */
++		if (be32_to_cpu(out->property_cnt) > 0)
++			*value = be32_to_cpu(out->value);
++		else
++			rc = -ENODATA;
+ 	}
+ 	tpm_buf_destroy(&buf);
+ 	return rc;
+-- 
+2.25.1
 
-Thanks,
-Marc
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde           |
-Embedded Linux                   | https://www.pengutronix.de  |
-Vertretung West/Dortmund         | Phone: +49-231-2826-924     |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-5555 |
-
---noyjhbacdu6a2cvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEBsvAIBsPu6mG7thcrX5LkNig010FAmJ+WLgACgkQrX5LkNig
-0125jQgAkUQSFWcR4lAaEI04wCZ8S9IKxFmEG+kP+Q/QTfGTbZTXMbg/5HrdjSjf
-nrC/hI0nEZsLfQzRYJVlcfiv44PS7ci0PfIKX9lfULAQV2OjppPIXYmCoYShBn1c
-2VsGi17XaYXXoJV+tNAFoh3MPv2yNrTOTmFS8qOfNfMDVNC8nPNXx/nNDo07cC+5
-bVVcIV00uvBogxNXjFIKCpTj0M4bgyV3wCqAqcu1AVl4otb9cO1NN2MJ/GBQ0DVJ
-gU2WKs246fkA+EDRcz+yk7L8Vyon9203Hao6vSITcNy11ddHUoOd8ANSaAY/s6F/
-B8Hxe8R/YDJ/PfXL5Ndehg+dkiq4JA==
-=J3St
------END PGP SIGNATURE-----
-
---noyjhbacdu6a2cvp--
