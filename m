@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 150B952643A
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E91B352648D
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380738AbiEMO2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46810 "EHLO
+        id S1381490AbiEMOb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380950AbiEMO1d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D16951E5B;
-        Fri, 13 May 2022 07:27:28 -0700 (PDT)
+        with ESMTP id S1381057AbiEMOaS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05998B0AA;
+        Fri, 13 May 2022 07:28:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF62B82C9D;
-        Fri, 13 May 2022 14:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D9EC34100;
-        Fri, 13 May 2022 14:27:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 72BBC62100;
+        Fri, 13 May 2022 14:28:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29D0EC34116;
+        Fri, 13 May 2022 14:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452046;
-        bh=YlDEhlXBGYtbdJUL3Q03K95zPl+30yat+t0Bqzl5I2o=;
+        s=korg; t=1652452087;
+        bh=IY9684GaV3FAMyB5H9w1Ya/09baI6tKjodMucQO2nSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4Mrgb1CWrj0dhvRk4GSXKILfzZe/FwVKXl2HqFkqT4S2ofZ9zrsarr0X2hQ1daNQ
-         S4noEaRJdcaCN7H4xQWgOojv2kd6w5cALTarO1g3QtUlXzf1YioHUWPXBibmmMpIwr
-         /W1TS8l3iIHQe6/U2ric5tifPxh7i8Rms4QJS+3g=
+        b=s5Cl0Ycmm/jofuOOIg5G2WeGdRW3Lne7jCKs6pQ0PQtuJ9u3jAQw4674wWdedBVdf
+         AEoE2XnXccl2/RyyR2ruZ+JSjUJQRgQ/9c299oklEtUNT/zQ482pb4ck00xTGTvmcG
+         BZhd6QJ6XGBht1OzL4K8i7DgRoBVjz3Z99S5MhzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.10 02/10] regulator: consumer: Add missing stubs to regulator/consumer.h
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 04/21] objtool: Add straight-line-speculation validation
 Date:   Fri, 13 May 2022 16:23:46 +0200
-Message-Id: <20220513142228.377014996@linuxfoundation.org>
+Message-Id: <20220513142230.007174110@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
-References: <20220513142228.303546319@linuxfoundation.org>
+In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
+References: <20220513142229.874949670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,77 +54,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 51dfb6ca3728bd0a0a3c23776a12d2a15a1d2457 upstream.
+[ Upstream commit 1cc1e4c8aab4213bd4e6353dec2620476a233d6d ]
 
-Add missing stubs to regulator/consumer.h in order to fix COMPILE_TEST
-of the kernel. In particular this should fix compile-testing of OPP core
-because of a missing stub for regulator_sync_voltage().
+Teach objtool to validate the straight-line-speculation constraints:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Link: https://lore.kernel.org/r/20210120205844.12658-1-digetx@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: Bjørn Mork <bjorn@mork.no>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+ - speculation trap after indirect calls
+ - speculation trap after RET
+
+Notable: when an instruction is annotated RETPOLINE_SAFE, indicating
+  speculation isn't a problem, also don't care about sls for that
+  instruction.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211204134908.023037659@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/regulator/consumer.h |   30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ tools/objtool/arch/x86/decode.c         |   13 +++++++++----
+ tools/objtool/builtin-check.c           |    3 ++-
+ tools/objtool/check.c                   |   14 ++++++++++++++
+ tools/objtool/include/objtool/arch.h    |    1 +
+ tools/objtool/include/objtool/builtin.h |    2 +-
+ 5 files changed, 27 insertions(+), 6 deletions(-)
 
---- a/include/linux/regulator/consumer.h
-+++ b/include/linux/regulator/consumer.h
-@@ -332,6 +332,12 @@ regulator_get_exclusive(struct device *d
- }
+--- a/tools/objtool/arch/x86/decode.c
++++ b/tools/objtool/arch/x86/decode.c
+@@ -529,6 +529,11 @@ int arch_decode_instruction(const struct
+ 		}
+ 		break;
  
- static inline struct regulator *__must_check
-+devm_regulator_get_exclusive(struct device *dev, const char *id)
-+{
-+	return ERR_PTR(-ENODEV);
-+}
++	case 0xcc:
++		/* int3 */
++		*type = INSN_TRAP;
++		break;
 +
-+static inline struct regulator *__must_check
- regulator_get_optional(struct device *dev, const char *id)
+ 	case 0xe3:
+ 		/* jecxz/jrcxz */
+ 		*type = INSN_JUMP_CONDITIONAL;
+@@ -665,10 +670,10 @@ const char *arch_ret_insn(int len)
  {
- 	return ERR_PTR(-ENODEV);
-@@ -486,6 +492,11 @@ static inline int regulator_get_voltage(
- 	return -EINVAL;
- }
+ 	static const char ret[5][5] = {
+ 		{ BYTE_RET },
+-		{ BYTE_RET, BYTES_NOP1 },
+-		{ BYTE_RET, BYTES_NOP2 },
+-		{ BYTE_RET, BYTES_NOP3 },
+-		{ BYTE_RET, BYTES_NOP4 },
++		{ BYTE_RET, 0xcc },
++		{ BYTE_RET, 0xcc, BYTES_NOP1 },
++		{ BYTE_RET, 0xcc, BYTES_NOP2 },
++		{ BYTE_RET, 0xcc, BYTES_NOP3 },
+ 	};
  
-+static inline int regulator_sync_voltage(struct regulator *regulator)
-+{
-+	return -EINVAL;
-+}
-+
- static inline int regulator_is_supported_voltage(struct regulator *regulator,
- 				   int min_uV, int max_uV)
- {
-@@ -578,6 +589,25 @@ static inline int devm_regulator_unregis
- 	return 0;
- }
+ 	if (len < 1 || len > 5) {
+--- a/tools/objtool/builtin-check.c
++++ b/tools/objtool/builtin-check.c
+@@ -20,7 +20,7 @@
+ #include <objtool/objtool.h>
  
-+static inline int regulator_suspend_enable(struct regulator_dev *rdev,
-+					   suspend_state_t state)
-+{
-+	return -EINVAL;
-+}
+ bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+-     validate_dup, vmlinux, mcount, noinstr, backup;
++     validate_dup, vmlinux, mcount, noinstr, backup, sls;
+ 
+ static const char * const check_usage[] = {
+ 	"objtool check [<options>] file.o",
+@@ -45,6 +45,7 @@ const struct option check_options[] = {
+ 	OPT_BOOLEAN('l', "vmlinux", &vmlinux, "vmlinux.o validation"),
+ 	OPT_BOOLEAN('M', "mcount", &mcount, "generate __mcount_loc"),
+ 	OPT_BOOLEAN('B', "backup", &backup, "create .orig files before modification"),
++	OPT_BOOLEAN('S', "sls", &sls, "validate straight-line-speculation"),
+ 	OPT_END(),
+ };
+ 
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -2776,6 +2776,12 @@ static int validate_branch(struct objtoo
+ 		switch (insn->type) {
+ 
+ 		case INSN_RETURN:
++			if (next_insn && next_insn->type == INSN_TRAP) {
++				next_insn->ignore = true;
++			} else if (sls && !insn->retpoline_safe) {
++				WARN_FUNC("missing int3 after ret",
++					  insn->sec, insn->offset);
++			}
+ 			return validate_return(func, insn, &state);
+ 
+ 		case INSN_CALL:
+@@ -2819,6 +2825,14 @@ static int validate_branch(struct objtoo
+ 			break;
+ 
+ 		case INSN_JUMP_DYNAMIC:
++			if (next_insn && next_insn->type == INSN_TRAP) {
++				next_insn->ignore = true;
++			} else if (sls && !insn->retpoline_safe) {
++				WARN_FUNC("missing int3 after indirect jump",
++					  insn->sec, insn->offset);
++			}
 +
-+static inline int regulator_suspend_disable(struct regulator_dev *rdev,
-+					    suspend_state_t state)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline int regulator_set_suspend_voltage(struct regulator *regulator,
-+						int min_uV, int max_uV,
-+						suspend_state_t state)
-+{
-+	return -EINVAL;
-+}
-+
- static inline void *regulator_get_drvdata(struct regulator *regulator)
- {
- 	return NULL;
++			/* fallthrough */
+ 		case INSN_JUMP_DYNAMIC_CONDITIONAL:
+ 			if (is_sibling_call(insn)) {
+ 				ret = validate_sibling_call(insn, &state);
+--- a/tools/objtool/include/objtool/arch.h
++++ b/tools/objtool/include/objtool/arch.h
+@@ -26,6 +26,7 @@ enum insn_type {
+ 	INSN_CLAC,
+ 	INSN_STD,
+ 	INSN_CLD,
++	INSN_TRAP,
+ 	INSN_OTHER,
+ };
+ 
+--- a/tools/objtool/include/objtool/builtin.h
++++ b/tools/objtool/include/objtool/builtin.h
+@@ -9,7 +9,7 @@
+ 
+ extern const struct option check_options[];
+ extern bool no_fp, no_unreachable, retpoline, module, backtrace, uaccess, stats,
+-            validate_dup, vmlinux, mcount, noinstr, backup;
++            validate_dup, vmlinux, mcount, noinstr, backup, sls;
+ 
+ extern int cmd_parse_options(int argc, const char **argv, const char * const usage[]);
+ 
 
 
