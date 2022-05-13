@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7578B52646A
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47CA95264A1
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359307AbiEMObb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45224 "EHLO
+        id S1350311AbiEMObd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380886AbiEMOaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D943D972C8;
-        Fri, 13 May 2022 07:28:11 -0700 (PDT)
+        with ESMTP id S1381072AbiEMOak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8885E980B3;
+        Fri, 13 May 2022 07:28:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 72510621A8;
-        Fri, 13 May 2022 14:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 768F9C34100;
-        Fri, 13 May 2022 14:28:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 316BBB83069;
+        Fri, 13 May 2022 14:28:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9872DC34100;
+        Fri, 13 May 2022 14:28:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452090;
-        bh=xp+u8NygbVxoi99MAWO9qUlTrei9uqsPK0jfOp9gZ8o=;
+        s=korg; t=1652452094;
+        bh=sDqknvl/Pn++QqE43sj1doJEwJZRrTv0llb3fsN2P1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMbTHjYpgUGvq6FvIS1sHPESXthReXnUxOrAVpIUSPTyA9PbNUOPIzCVTTkFnO67e
-         5laoO9bQh+6U/9TQFYbOclXpYX5IZLuYiSk+rwSdWP1QhfJc+sYY9SKEcwOMC8phGJ
-         /FgdGtARZkjsFjqSjntJGdOhZwkMU5ldHFmmJen0=
+        b=l69ngyJ0uswT4cum1AyvC8lxGvVezuqypxDI+ooOkvl2OFRbKS17mu0yne+M11Nan
+         XXFYkb225MN6p9IHszpzSshJSLbMlPT2HbyYfi290lA2FTc3IH1mH2hD07cCSEHUoX
+         ox8PsNsnFNrPQj+OGV3dakABxvqSSR0jh1NtdtOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>,
-        "Dmitry V. Levin" <ldv@altlinux.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 13/21] rfkill: uapi: fix RFKILL_IOCTL_MAX_SIZE ioctl request definition
-Date:   Fri, 13 May 2022 16:23:55 +0200
-Message-Id: <20220513142230.261338033@linuxfoundation.org>
+        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 14/21] udf: Avoid using stale lengthOfImpUse
+Date:   Fri, 13 May 2022 16:23:56 +0200
+Message-Id: <20220513142230.289833050@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
 References: <20220513142229.874949670@linuxfoundation.org>
@@ -55,38 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
+From: Jan Kara <jack@suse.cz>
 
-commit a36e07dfe6ee71e209383ea9288cd8d1617e14f9 upstream.
+commit c1ad35dd0548ce947d97aaf92f7f2f9a202951cf upstream.
 
-The definition of RFKILL_IOCTL_MAX_SIZE introduced by commit
-54f586a91532 ("rfkill: make new event layout opt-in") is unusable
-since it is based on RFKILL_IOC_EXT_SIZE which has not been defined.
-Fix that by replacing the undefined constant with the constant which
-is intended to be used in this definition.
+udf_write_fi() uses lengthOfImpUse of the entry it is writing to.
+However this field has not yet been initialized so it either contains
+completely bogus value or value from last directory entry at that place.
+In either case this is wrong and can lead to filesystem corruption or
+kernel crashes.
 
-Fixes: 54f586a91532 ("rfkill: make new event layout opt-in")
-Cc: stable@vger.kernel.org # 5.11+
-Signed-off-by: Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-Signed-off-by: Dmitry V. Levin <ldv@altlinux.org>
-Link: https://lore.kernel.org/r/20220506172454.120319-1-glebfm@altlinux.org
-[add commit message provided later by Dmitry]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+CC: stable@vger.kernel.org
+Fixes: 979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/rfkill.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/udf/namei.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/uapi/linux/rfkill.h
-+++ b/include/uapi/linux/rfkill.h
-@@ -184,7 +184,7 @@ struct rfkill_event_ext {
- #define RFKILL_IOC_NOINPUT	1
- #define RFKILL_IOCTL_NOINPUT	_IO(RFKILL_IOC_MAGIC, RFKILL_IOC_NOINPUT)
- #define RFKILL_IOC_MAX_SIZE	2
--#define RFKILL_IOCTL_MAX_SIZE	_IOW(RFKILL_IOC_MAGIC, RFKILL_IOC_EXT_SIZE, __u32)
-+#define RFKILL_IOCTL_MAX_SIZE	_IOW(RFKILL_IOC_MAGIC, RFKILL_IOC_MAX_SIZE, __u32)
+--- a/fs/udf/namei.c
++++ b/fs/udf/namei.c
+@@ -75,11 +75,11 @@ int udf_write_fi(struct inode *inode, st
  
- /* and that's all userspace gets */
+ 	if (fileident) {
+ 		if (adinicb || (offset + lfi < 0)) {
+-			memcpy(udf_get_fi_ident(sfi), fileident, lfi);
++			memcpy(sfi->impUse + liu, fileident, lfi);
+ 		} else if (offset >= 0) {
+ 			memcpy(fibh->ebh->b_data + offset, fileident, lfi);
+ 		} else {
+-			memcpy(udf_get_fi_ident(sfi), fileident, -offset);
++			memcpy(sfi->impUse + liu, fileident, -offset);
+ 			memcpy(fibh->ebh->b_data, fileident - offset,
+ 				lfi + offset);
+ 		}
+@@ -88,11 +88,11 @@ int udf_write_fi(struct inode *inode, st
+ 	offset += lfi;
+ 
+ 	if (adinicb || (offset + padlen < 0)) {
+-		memset(udf_get_fi_ident(sfi) + lfi, 0x00, padlen);
++		memset(sfi->impUse + liu + lfi, 0x00, padlen);
+ 	} else if (offset >= 0) {
+ 		memset(fibh->ebh->b_data + offset, 0x00, padlen);
+ 	} else {
+-		memset(udf_get_fi_ident(sfi) + lfi, 0x00, -offset);
++		memset(sfi->impUse + liu + lfi, 0x00, -offset);
+ 		memset(fibh->ebh->b_data, 0x00, padlen + offset);
+ 	}
  
 
 
