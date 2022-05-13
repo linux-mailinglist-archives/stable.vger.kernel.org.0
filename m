@@ -2,54 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF59526468
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1455952649E
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380898AbiEMObi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
+        id S1381019AbiEMOby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381278AbiEMObP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:15 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9BAE1AB7B4;
-        Fri, 13 May 2022 07:29:08 -0700 (PDT)
+        with ESMTP id S1381135AbiEMOa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1866C994EA;
+        Fri, 13 May 2022 07:28:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5CECB82F64;
-        Fri, 13 May 2022 14:29:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01DEC34100;
-        Fri, 13 May 2022 14:29:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AA3E61F99;
+        Fri, 13 May 2022 14:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FEAC34100;
+        Fri, 13 May 2022 14:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452146;
-        bh=z9GmZZIrI8Ekfpz76cjKYYfFFX50TIWlwptiScaqNsM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mOGRKufGLiBolgimhTpskiR3XPlvJKrp6cAf14Zr2etUI93gmAXf3d12AAdl6jUDB
-         ikcvMmTH5owSndhxseT9Y+OKwp8RoiyxhjB9E2XYIu8N67IV8EeuHIxqMypSzlGV6M
-         JW3j3aaq16TNAevsgrA+VGWh62iEvvBCzK/7Il1g=
+        s=korg; t=1652452109;
+        bh=SZDidThTxrSwy7TK6gVo0MGXhtuEdWJ6gJKEZ+IvH8o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=vCT/7Gq6CyZDRyC5dP/I/EwNyIqx8o+a1jyqAoROdrav9/kb6FBkIhAQ/T3tMUy9i
+         5eTIc9gErtY66ApecnXN2LxGFA1UnfauE+Cqyzoqt0c3oXJtYJoEErjykS0k1fHPsh
+         9eDNYmByxz0u47vzmr7z+oxfH+I5+FL7pXaGL+qA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.17 00/12] 5.17.8-rc1 review
-Date:   Fri, 13 May 2022 16:24:00 +0200
-Message-Id: <20220513142228.651822943@linuxfoundation.org>
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Youquan Song <youquan.song@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 19/21] mm/hwpoison: fix error page recovered but reported "not recovered"
+Date:   Fri, 13 May 2022 16:24:01 +0200
+Message-Id: <20220513142230.431675712@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
+References: <20220513142229.874949670@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.17.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.17.8-rc1
-X-KernelTest-Deadline: 2022-05-15T14:22+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,84 +56,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.17.8 release.
-There are 12 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
-Anything received after that time might be too late.
+commit 046545a661af2beec21de7b90ca0e35f05088a81 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-and the diffstat can be found below.
+When an uncorrected memory error is consumed there is a race between the
+CMCI from the memory controller reporting an uncorrected error with a
+UCNA signature, and the core reporting and SRAR signature machine check
+when the data is about to be consumed.
 
-thanks,
+If the CMCI wins that race, the page is marked poisoned when
+uc_decode_notifier() calls memory_failure() and the machine check
+processing code finds the page already poisoned.  It calls
+kill_accessing_process() to make sure a SIGBUS is sent.  But returns the
+wrong error code.
 
-greg k-h
+Console log looks like this:
 
--------------
-Pseudo-Shortlog of commits:
+  mce: Uncorrected hardware memory error in user-access at 3710b3400
+  Memory failure: 0x3710b3: recovery action for dirty LRU page: Recovered
+  Memory failure: 0x3710b3: already hardware poisoned
+  Memory failure: 0x3710b3: Sending SIGBUS to einj_mem_uc:361438 due to hardware memory corruption
+  mce: Memory error not recovered
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.17.8-rc1
+kill_accessing_process() is supposed to return -EHWPOISON to notify that
+SIGBUS is already set to the process and kill_me_maybe() doesn't have to
+send it again.  But current code simply fails to do this, so fix it to
+make sure to work as intended.  This change avoids the noise message
+"Memory error not recovered" and skips duplicate SIGBUSs.
 
-Peter Xu <peterx@redhat.com>
-    mm: fix invalid page pointer returned with FOLL_PIN gups
+[tony.luck@intel.com: reword some parts of commit message]
 
-Huang Ying <ying.huang@intel.com>
-    mm,migrate: fix establishing demotion target
+Link: https://lkml.kernel.org/r/20220113231117.1021405-1-naoya.horiguchi@linux.dev
+Fixes: a3f5d80ea401 ("mm,hwpoison: send SIGBUS with error virutal address")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reported-by: Youquan Song <youquan.song@intel.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ mm/memory-failure.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Miaohe Lin <linmiaohe@huawei.com>
-    mm/mlock: fix potential imbalanced rlimit ucounts adjustment
-
-Naoya Horiguchi <naoya.horiguchi@nec.com>
-    mm/hwpoison: fix error page recovered but reported "not recovered"
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: shmem: fix missing cache flush in shmem_mfill_atomic_pte()
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: hugetlb: fix missing cache flush in hugetlb_mcopy_atomic_pte()
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: hugetlb: fix missing cache flush in copy_huge_page_from_user()
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: fix missing cache flush for all tail pages of compound page
-
-Jan Kara <jack@suse.cz>
-    udf: Avoid using stale lengthOfImpUse
-
-Gleb Fotengauer-Malinovskiy <glebfm@altlinux.org>
-    rfkill: uapi: fix RFKILL_IOCTL_MAX_SIZE ioctl request definition
-
-Itay Iellin <ieitayie@gmail.com>
-    Bluetooth: Fix the creation of hdev->name
-
-
--------------
-
-Diffstat:
-
- Makefile                         |  4 ++--
- fs/udf/namei.c                   |  8 ++++----
- include/net/bluetooth/hci_core.h |  3 +++
- include/uapi/linux/rfkill.h      |  2 +-
- mm/gup.c                         |  2 +-
- mm/hugetlb.c                     |  3 ++-
- mm/memory-failure.c              |  4 +++-
- mm/memory.c                      |  2 ++
- mm/migrate.c                     | 14 ++++++++++----
- mm/mlock.c                       |  1 +
- mm/shmem.c                       |  4 +++-
- mm/userfaultfd.c                 |  3 +++
- net/bluetooth/hci_core.c         |  6 +++---
- 13 files changed, 38 insertions(+), 18 deletions(-)
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -705,8 +705,10 @@ static int kill_accessing_process(struct
+ 			      (void *)&priv);
+ 	if (ret == 1 && priv.tk.addr)
+ 		kill_proc(&priv.tk, pfn, flags);
++	else
++		ret = 0;
+ 	mmap_read_unlock(p->mm);
+-	return ret ? -EFAULT : -EHWPOISON;
++	return ret > 0 ? -EHWPOISON : -EFAULT;
+ }
+ 
+ static const char *action_name[] = {
 
 
