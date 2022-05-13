@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA71526472
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F4E552644B
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:30:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380929AbiEMObk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
+        id S1380865AbiEMOaW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:30:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381345AbiEMObT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECCEE1A15FC;
-        Fri, 13 May 2022 07:28:56 -0700 (PDT)
+        with ESMTP id S1380999AbiEMO3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:29:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0001E6FD29;
+        Fri, 13 May 2022 07:27:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D1FFB82F64;
-        Fri, 13 May 2022 14:28:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A99B5C34100;
-        Fri, 13 May 2022 14:28:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90EB562154;
+        Fri, 13 May 2022 14:27:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A5E9C34100;
+        Fri, 13 May 2022 14:27:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452134;
-        bh=Jm1SiJOCbWqN5PInfJPZ6hehw9BUa08q1O4/ehm4ejY=;
+        s=korg; t=1652452069;
+        bh=Nsl3c4EPwB+iES/gV4zHk3txJ0MAEytWCtBQqbVe0Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BHGDub5nALXkK67UW2XI2GNi1Ln0WSuqtT8tlJV9jreV3p5YNj0d8m0tXMUho3Y/M
-         YyWgng9xP7gpQuTVDf5IId71cE+79VCd5Lx8gu6YVi4h0YSL+1lAtLo5pCE0u93mCY
-         mhW+mnf4NxUzH+ClIxR6dl3st7G8pHjoanCv2fIA=
+        b=Lp6+ylO2wpf8N1FhrslkwQJsRdwvikG706mTChGqfdEBcrEJoUXXs7B+44oQQrOl/
+         u7/B7XlY4d2lvpGyZmruY/d95W5EMAONCRntrC5hNBcJXA2yGpWYVIEH2VyT+HgSsK
+         D+PQdixoLn+sEjQ94K7MyiooUNPgykf8YDfmFfAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 10/21] crypto: x86/poly1305 - Fixup SLS
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Zi Yan <ziy@nvidia.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 08/10] mm: fix missing cache flush for all tail pages of compound page
 Date:   Fri, 13 May 2022 16:23:52 +0200
-Message-Id: <20220513142230.178012305@linuxfoundation.org>
+Message-Id: <20220513142228.552417320@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
-References: <20220513142229.874949670@linuxfoundation.org>
+In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
+References: <20220513142228.303546319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,208 +63,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Muchun Song <songmuchun@bytedance.com>
 
-[ Upstream commit 7ed7aa4de9421229be6d331ed52d5cd09c99f409 ]
+commit 2771739a7162782c0aa6424b2e3dd874e884a15d upstream.
 
-Due to being a perl generated asm file, it got missed by the mass
-convertion script.
+The D-cache maintenance inside move_to_new_page() only consider one
+page, there is still D-cache maintenance issue for tail pages of
+compound page (e.g. THP or HugeTLB).
 
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_init_x86_64()+0x3a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_x86_64()+0xf2: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_emit_x86_64()+0x37: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: __poly1305_block()+0x6d: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: __poly1305_init_avx()+0x1e8: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx()+0xaf8: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_emit_avx()+0x99: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx2()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx2()+0x776: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x18a: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x796: missing int3 after ret
-arch/x86/crypto/poly1305-x86_64-cryptogams.o: warning: objtool: poly1305_blocks_avx512()+0x10bd: missing int3 after ret
+THP migration is only enabled on x86_64, ARM64 and powerpc, while
+powerpc and arm64 need to maintain the consistency between I-Cache and
+D-Cache, which depends on flush_dcache_page() to maintain the
+consistency between I-Cache and D-Cache.
 
-Fixes: f94909ceb1ed ("x86: Prepare asm files for straight-line-speculation")
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+But there is no issues on arm64 and powerpc since they already considers
+the compound page cache flushing in their icache flush function.
+HugeTLB migration is enabled on arm, arm64, mips, parisc, powerpc,
+riscv, s390 and sh, while arm has handled the compound page cache flush
+in flush_dcache_page(), but most others do not.
+
+In theory, the issue exists on many architectures.  Fix this by not
+using flush_dcache_folio() since it is not backportable.
+
+Link: https://lkml.kernel.org/r/20220210123058.79206-3-songmuchun@bytedance.com
+Fixes: 290408d4a250 ("hugetlb: hugepage migration core")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Lars Persson <lars.persson@axis.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/crypto/poly1305-x86_64-cryptogams.pl |   38 +++++++++++++-------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ mm/migrate.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/arch/x86/crypto/poly1305-x86_64-cryptogams.pl
-+++ b/arch/x86/crypto/poly1305-x86_64-cryptogams.pl
-@@ -297,7 +297,7 @@ ___
- $code.=<<___;
- 	mov	\$1,%eax
- .Lno_key:
--	ret
-+	RET
- ___
- &end_function("poly1305_init_x86_64");
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -1010,9 +1010,12 @@ static int move_to_new_page(struct page
+ 		if (!PageMappingFlags(page))
+ 			page->mapping = NULL;
  
-@@ -373,7 +373,7 @@ $code.=<<___;
- .cfi_adjust_cfa_offset	-48
- .Lno_data:
- .Lblocks_epilogue:
--	ret
-+	RET
- .cfi_endproc
- ___
- &end_function("poly1305_blocks_x86_64");
-@@ -399,7 +399,7 @@ $code.=<<___;
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
+-		if (likely(!is_zone_device_page(newpage)))
+-			flush_dcache_page(newpage);
++		if (likely(!is_zone_device_page(newpage))) {
++			int i, nr = compound_nr(newpage);
  
--	ret
-+	RET
- ___
- &end_function("poly1305_emit_x86_64");
- if ($avx) {
-@@ -429,7 +429,7 @@ ___
- 	&poly1305_iteration();
- $code.=<<___;
- 	pop $ctx
--	ret
-+	RET
- .size	__poly1305_block,.-__poly1305_block
- 
- .type	__poly1305_init_avx,\@abi-omnipotent
-@@ -594,7 +594,7 @@ __poly1305_init_avx:
- 
- 	lea	-48-64($ctx),$ctx	# size [de-]optimization
- 	pop %rbp
--	ret
-+	RET
- .size	__poly1305_init_avx,.-__poly1305_init_avx
- ___
- 
-@@ -747,7 +747,7 @@ $code.=<<___;
- .cfi_restore	%rbp
- .Lno_data_avx:
- .Lblocks_avx_epilogue:
--	ret
-+	RET
- .cfi_endproc
- 
- .align	32
-@@ -1452,7 +1452,7 @@ $code.=<<___	if (!$win64);
- ___
- $code.=<<___;
- 	vzeroupper
--	ret
-+	RET
- .cfi_endproc
- ___
- &end_function("poly1305_blocks_avx");
-@@ -1508,7 +1508,7 @@ $code.=<<___;
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
- 
--	ret
-+	RET
- ___
- &end_function("poly1305_emit_avx");
- 
-@@ -1675,7 +1675,7 @@ $code.=<<___;
- .cfi_restore 	%rbp
- .Lno_data_avx2$suffix:
- .Lblocks_avx2_epilogue$suffix:
--	ret
-+	RET
- .cfi_endproc
- 
- .align	32
-@@ -2201,7 +2201,7 @@ $code.=<<___	if (!$win64);
- ___
- $code.=<<___;
- 	vzeroupper
--	ret
-+	RET
- .cfi_endproc
- ___
- if($avx > 2 && $avx512) {
-@@ -2792,7 +2792,7 @@ $code.=<<___	if (!$win64);
- .cfi_def_cfa_register	%rsp
- ___
- $code.=<<___;
--	ret
-+	RET
- .cfi_endproc
- ___
- 
-@@ -2893,7 +2893,7 @@ $code.=<<___	if ($flavour =~ /elf32/);
- ___
- $code.=<<___;
- 	mov	\$1,%eax
--	ret
-+	RET
- .size	poly1305_init_base2_44,.-poly1305_init_base2_44
- ___
- {
-@@ -3010,7 +3010,7 @@ poly1305_blocks_vpmadd52:
- 	jnz		.Lblocks_vpmadd52_4x
- 
- .Lno_data_vpmadd52:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52,.-poly1305_blocks_vpmadd52
- ___
- }
-@@ -3451,7 +3451,7 @@ poly1305_blocks_vpmadd52_4x:
- 	vzeroall
- 
- .Lno_data_vpmadd52_4x:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52_4x,.-poly1305_blocks_vpmadd52_4x
- ___
- }
-@@ -3824,7 +3824,7 @@ $code.=<<___;
- 	vzeroall
- 
- .Lno_data_vpmadd52_8x:
--	ret
-+	RET
- .size	poly1305_blocks_vpmadd52_8x,.-poly1305_blocks_vpmadd52_8x
- ___
- }
-@@ -3861,7 +3861,7 @@ poly1305_emit_base2_44:
- 	mov	%rax,0($mac)	# write result
- 	mov	%rcx,8($mac)
- 
--	ret
-+	RET
- .size	poly1305_emit_base2_44,.-poly1305_emit_base2_44
- ___
- }	}	}
-@@ -3916,7 +3916,7 @@ xor128_encrypt_n_pad:
- 
- .Ldone_enc:
- 	mov	$otp,%rax
--	ret
-+	RET
- .size	xor128_encrypt_n_pad,.-xor128_encrypt_n_pad
- 
- .globl	xor128_decrypt_n_pad
-@@ -3967,7 +3967,7 @@ xor128_decrypt_n_pad:
- 
- .Ldone_dec:
- 	mov	$otp,%rax
--	ret
-+	RET
- .size	xor128_decrypt_n_pad,.-xor128_decrypt_n_pad
- ___
- }
-@@ -4109,7 +4109,7 @@ avx_handler:
- 	pop	%rbx
- 	pop	%rdi
- 	pop	%rsi
--	ret
-+	RET
- .size	avx_handler,.-avx_handler
- 
- .section	.pdata
++			for (i = 0; i < nr; i++)
++				flush_dcache_page(newpage + i);
++		}
+ 	}
+ out:
+ 	return rc;
 
 
