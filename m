@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D09AD52640C
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3736752643D
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345399AbiEMO0v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:26:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40500 "EHLO
+        id S1380729AbiEMO17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380750AbiEMOZn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:25:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2525F5F259;
-        Fri, 13 May 2022 07:25:06 -0700 (PDT)
+        with ESMTP id S1380739AbiEMO1H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:07 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 248D4DFB7;
+        Fri, 13 May 2022 07:26:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A74C0B83066;
-        Fri, 13 May 2022 14:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFB38C34115;
-        Fri, 13 May 2022 14:25:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E01586216C;
+        Fri, 13 May 2022 14:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E19A0C36AE2;
+        Fri, 13 May 2022 14:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451903;
-        bh=c8Mvs5GwKx6JMeIIjEDEuOroyuuVw9MWMKbMQesBvPk=;
+        s=korg; t=1652452018;
+        bh=8nYjadxN9N1RTFRbp0seHgxawJmSGG0+3SicY1sPKHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CpCn8D0Zj9F/rcdDJBmyIapeTQDAknYG2Q2Aro4DxLDAOVn3J6er9L6mdlvMyc/SK
-         FqaxFVOI1zy/9eQeBGCz3jOLhVD/BcPYp1yTeNQSSSxV3AftT6CP97Mh9NOIJNx1WI
-         g0WL7S8gYJq/pA0PkQHEQb2C5VkbqPRjH66ObXbM=
+        b=CTtJ6nZUyUWDNx+Qf3rl9LI2Ur0Qi/F1JbzIHdMkr4URhc1UfsqjUGmwDPyUNW87Y
+         cX55ODQIUzSJPtnix4K80unqQw8P6LbKlM5W4aXjCxmLYVDAQiep52f6Wr3culwBhi
+         n+iGzSKScZ/4DPtPpDufGmHEZKfMTmrweo3VYpC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>
-Subject: [PATCH 4.14 14/14] VFS: Fix memory leak caused by concurrently mounting fs with subtype
+        stable@vger.kernel.org,
+        =?UTF-8?q?Michel=20D=C3=A4nzer?= <michel@daenzer.net>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH 5.4 04/18] drm/i915: Cast remain to unsigned long in eb_relocate_vma
 Date:   Fri, 13 May 2022 16:23:30 +0200
-Message-Id: <20220513142227.804773083@linuxfoundation.org>
+Message-Id: <20220513142229.281127401@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
-References: <20220513142227.381154244@linuxfoundation.org>
+In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
+References: <20220513142229.153291230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-If two processes mount same superblock, memory leak occurs:
+commit 7bf03e7504e433da274963c447648876902b86df upstream.
 
-CPU0               |  CPU1
-do_new_mount       |  do_new_mount
-  fs_set_subtype   |    fs_set_subtype
-    kstrdup        |
-                   |      kstrdup
-    memrory leak   |
+A recent commit in clang added -Wtautological-compare to -Wall, which is
+enabled for i915 after -Wtautological-compare is disabled for the rest
+of the kernel so we see the following warning on x86_64:
 
-The following reproducer triggers the problem:
+ ../drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c:1433:22: warning:
+ result of comparison of constant 576460752303423487 with expression of
+ type 'unsigned int' is always false
+ [-Wtautological-constant-out-of-range-compare]
+         if (unlikely(remain > N_RELOC(ULONG_MAX)))
+            ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~
+ ../include/linux/compiler.h:78:42: note: expanded from macro 'unlikely'
+ # define unlikely(x)    __builtin_expect(!!(x), 0)
+                                            ^
+ 1 warning generated.
 
-1. shell command: mount -t ntfs /dev/sda1 /mnt &
-2. c program: mount("/dev/sda1", "/mnt", "fuseblk", 0, "...")
+It is not wrong in the case where ULONG_MAX > UINT_MAX but it does not
+account for the case where this file is built for 32-bit x86, where
+ULONG_MAX == UINT_MAX and this check is still relevant.
 
-with kmemleak report being along the lines of
+Cast remain to unsigned long, which keeps the generated code the same
+(verified with clang-11 on x86_64 and GCC 9.2.0 on x86 and x86_64) and
+the warning is silenced so we can catch more potential issues in the
+future.
 
-unreferenced object 0xffff888235f1a5c0 (size 8):
-  comm "mount.ntfs", pid 2860, jiffies 4295757824 (age 43.423s)
-  hex dump (first 8 bytes):
-    00 a5 f1 35 82 88 ff ff                          ...5....
-  backtrace:
-    [<00000000656e30cc>] __kmalloc_track_caller+0x16e/0x430
-    [<000000008e591727>] kstrdup+0x3e/0x90
-    [<000000008430d12b>] do_mount.cold+0x7b/0xd9
-    [<0000000078d639cd>] ksys_mount+0xb2/0x150
-    [<000000006015988d>] __x64_sys_mount+0x29/0x40
-    [<00000000e0a7c118>] do_syscall_64+0xc1/0x1d0
-    [<00000000bcea7df5>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<00000000803a4067>] 0xffffffffffffffff
-
-Linus's tree already have refactoring patchset [1], one of them can fix this bug:
-        c30da2e981a7 ("fuse: convert to use the new mount API")
-After refactoring, init super_block->s_subtype in fuse_fill_super.
-
-Since we did not merge the refactoring patchset in this branch, I create this patch.
-This patch fix this by adding a write lock while calling fs_set_subtype.
-
-[1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
-
-Fixes: 79c0b2df79eb ("add filesystem subtype support")
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Closes: https://github.com/ClangBuiltLinux/linux/issues/778
+Suggested-by: Michel Dänzer <michel@daenzer.net>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200214054706.33870-1-natechancellor@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk memory leak caused by mount concurrency)
-v2: Use write lock while writing superblock ([PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount concurrency)
-v3: Update commit message
+ drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- fs/namespace.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2570,9 +2570,12 @@ static int do_new_mount(struct path *pat
- 		return -ENODEV;
+--- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
+@@ -1452,7 +1452,7 @@ static int eb_relocate_vma(struct i915_e
  
- 	mnt = vfs_kern_mount(type, sb_flags, name, data);
--	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
--	    !mnt->mnt_sb->s_subtype)
--		mnt = fs_set_subtype(mnt, fstype);
-+	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE)) {
-+		down_write(&mnt->mnt_sb->s_umount);
-+		if (!mnt->mnt_sb->s_subtype)
-+			mnt = fs_set_subtype(mnt, fstype);
-+		up_write(&mnt->mnt_sb->s_umount);
-+	}
+ 	urelocs = u64_to_user_ptr(entry->relocs_ptr);
+ 	remain = entry->relocation_count;
+-	if (unlikely(remain > N_RELOC(ULONG_MAX)))
++	if (unlikely((unsigned long)remain > N_RELOC(ULONG_MAX)))
+ 		return -EINVAL;
  
- 	put_filesystem(type);
- 	if (IS_ERR(mnt))
+ 	/*
 
 
