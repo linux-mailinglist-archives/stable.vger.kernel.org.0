@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AB75263E7
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0000526400
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376443AbiEMOYt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:24:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
+        id S1357985AbiEMO0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:26:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42188 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377121AbiEMOYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:24:42 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C24EC5E776;
-        Fri, 13 May 2022 07:24:38 -0700 (PDT)
+        with ESMTP id S1380785AbiEMOZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:25:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6933A60AB2;
+        Fri, 13 May 2022 07:25:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16882B83066;
-        Fri, 13 May 2022 14:24:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 785ADC34100;
-        Fri, 13 May 2022 14:24:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8EB062122;
+        Fri, 13 May 2022 14:25:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5280C3411A;
+        Fri, 13 May 2022 14:25:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451875;
-        bh=PBa8sL0oCxRUeHCvlHrhvKzDLOopX+Bs1SglWaSBGi4=;
+        s=korg; t=1652451915;
+        bh=F0lQZuEbHNF1sktmVC4G2CljFHeN7ha9IWcPPtrc6MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHjx+8saEJaYsVRxgjKiZL+GoCksflC6C2WIZ7Cjndt2AqSKxwlD8grc0WngNAQuJ
-         GzpHSbd+82fNhezvZg9F3sXFcJe0QahkP8b86+mDiOYx1Rmb82hW/RSTed0mdRNopS
-         sLTjGftCW5ZzGA+2vvU0JmuNycYmjwhEoCIhTIYo=
+        b=kAW2alSQDHU75ca92ZG1T7s+RlF+Qf9YhLI3i2MSIgml+wbXXFDrW5XFGwI6WBf52
+         GIYplKLrs8tG6xYu8n0ZGnfOF+tyLog+MnkBvXtUQEehkJNItQsT5evjsIKPuBq9Mg
+         yA+XLXPTFAM5Na6OCEZMi2pR1A5bS+AsfdGHzTFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 4.9 5/7] Bluetooth: Fix the creation of hdev->name
-Date:   Fri, 13 May 2022 16:23:20 +0200
-Message-Id: <20220513142226.071179784@linuxfoundation.org>
+Subject: [PATCH 4.14 05/14] Bluetooth: Fix the creation of hdev->name
+Date:   Fri, 13 May 2022 16:23:21 +0200
+Message-Id: <20220513142227.541945502@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
-References: <20220513142225.909697091@linuxfoundation.org>
+In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
+References: <20220513142227.381154244@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -79,7 +79,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/net/bluetooth/hci_core.h
 +++ b/include/net/bluetooth/hci_core.h
-@@ -32,6 +32,9 @@
+@@ -34,6 +34,9 @@
  /* HCI priority */
  #define HCI_PRIO_MAX	7
  
@@ -91,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	bdaddr_t	bdaddr;
 --- a/net/bluetooth/hci_core.c
 +++ b/net/bluetooth/hci_core.c
-@@ -3064,10 +3064,10 @@ int hci_register_dev(struct hci_dev *hde
+@@ -3100,10 +3100,10 @@ int hci_register_dev(struct hci_dev *hde
  	 */
  	switch (hdev->dev_type) {
  	case HCI_PRIMARY:
@@ -104,7 +104,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		break;
  	default:
  		return -EINVAL;
-@@ -3076,7 +3076,7 @@ int hci_register_dev(struct hci_dev *hde
+@@ -3112,7 +3112,7 @@ int hci_register_dev(struct hci_dev *hde
  	if (id < 0)
  		return id;
  
