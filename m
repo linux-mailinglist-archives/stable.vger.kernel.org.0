@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D0552644D
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63784526478
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380781AbiEMO3d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:29:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
+        id S1381011AbiEMObv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380714AbiEMO1m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116FC50E18;
-        Fri, 13 May 2022 07:27:33 -0700 (PDT)
+        with ESMTP id S1381194AbiEMObJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5AF919C3BD;
+        Fri, 13 May 2022 07:28:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9458462155;
-        Fri, 13 May 2022 14:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66961C34100;
-        Fri, 13 May 2022 14:27:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 190F662175;
+        Fri, 13 May 2022 14:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF23AC34100;
+        Fri, 13 May 2022 14:28:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452052;
-        bh=1AoLTDAALQr7QOhpcU99xOeIqr+N6b46LV8dUcsNKbs=;
+        s=korg; t=1652452121;
+        bh=rOu789wVzOD6bYsiCxLndfe4675ny745B3rwyw6CJXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpBWzMIn5uHHY2no+27zb+/KGRH4NGUzEO7+SrtOhW7gguOeKfAkihd8UaRgGCwXa
-         ZYfCesZYi1+SE/3U4tHq2HT3SflakMlnaBxbtaFoLcqQioY2Z/Enc+zTFryqq9QHh5
-         2KKetrW7RJABo9l7Fz1YpqFGE3grK5Z6G3V/SXpk=
+        b=w/kVPwLxHnVYHJolDTHTHgAdl/Bz3Bi3K8HdxX/uB358M4qjU+PEtEj/bUxRBGRJN
+         1fEN7b/WSXx0lHfSAVsRaSMGLCxaibd7u0xhZQiMlfUDEME+0Gy4uar6gVsffhYzzq
+         o3nCr8XwI+cfr+z7MAj5awicqS45+Z8afYxvLjR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Lee Jones <lee.jones@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.10 04/10] drm/amd/display/dc/gpio/gpio_service: Pass around correct dce_{version, environment} types
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 06/21] kbuild: move objtool_args back to scripts/Makefile.build
 Date:   Fri, 13 May 2022 16:23:48 +0200
-Message-Id: <20220513142228.435635841@linuxfoundation.org>
+Message-Id: <20220513142230.062663025@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
-References: <20220513142228.303546319@linuxfoundation.org>
+In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
+References: <20220513142229.874949670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,77 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-commit 353f7f3a9dd5fd2833b6462bac89ec1654c9c3aa upstream.
+[ Upstream commit 8f0c32c788fffa8e88f995372415864039347c8a ]
 
-Fixes the following W=1 kernel build warning(s):
+Commit b1a1a1a09b46 ("kbuild: lto: postpone objtool") moved objtool_args
+to Makefile.lib, so the arguments can be used in Makefile.modfinal as
+well as Makefile.build.
 
- drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c: In function ‘dal_gpio_service_create’:
- drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:71:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
- drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:77:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
+With commit 850ded46c642 ("kbuild: Fix TRIM_UNUSED_KSYMS with
+LTO_CLANG"), module LTO linking came back to scripts/Makefile.build
+again.
 
-Cc: Harry Wentland <harry.wentland@amd.com>
-Cc: Leo Li <sunpeng.li@amd.com>
-Cc: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Christian König" <christian.koenig@amd.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: amd-gfx@lists.freedesktop.org
-Cc: dri-devel@lists.freedesktop.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
+So, there is no more reason to keep objtool_args in a separate file.
+
+Get it back to the original place, close to the objtool command.
+
+Remove the stale comment too.
+
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c           |   12 +++++------
- drivers/gpu/drm/amd/display/include/gpio_service_interface.h |    4 +--
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ scripts/Makefile.build |   10 ++++++++++
+ scripts/Makefile.lib   |   11 -----------
+ 2 files changed, 10 insertions(+), 11 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
-@@ -53,8 +53,8 @@
-  */
+--- a/scripts/Makefile.build
++++ b/scripts/Makefile.build
+@@ -224,6 +224,16 @@ cmd_record_mcount = $(if $(findstring $(
+ endif # CONFIG_FTRACE_MCOUNT_USE_RECORDMCOUNT
  
- struct gpio_service *dal_gpio_service_create(
--	enum dce_version dce_version_major,
--	enum dce_version dce_version_minor,
-+	enum dce_version dce_version,
-+	enum dce_environment dce_environment,
- 	struct dc_context *ctx)
- {
- 	struct gpio_service *service;
-@@ -67,14 +67,14 @@ struct gpio_service *dal_gpio_service_cr
- 		return NULL;
- 	}
+ ifdef CONFIG_STACK_VALIDATION
++
++objtool_args =								\
++	$(if $(CONFIG_UNWINDER_ORC),orc generate,check)			\
++	$(if $(part-of-module), --module)				\
++	$(if $(CONFIG_FRAME_POINTER),, --no-fp)				\
++	$(if $(CONFIG_GCOV_KERNEL)$(CONFIG_LTO_CLANG), --no-unreachable)\
++	$(if $(CONFIG_RETPOLINE), --retpoline)				\
++	$(if $(CONFIG_X86_SMAP), --uaccess)				\
++	$(if $(CONFIG_FTRACE_MCOUNT_USE_OBJTOOL), --mcount)
++
+ ifndef CONFIG_LTO_CLANG
  
--	if (!dal_hw_translate_init(&service->translate, dce_version_major,
--			dce_version_minor)) {
-+	if (!dal_hw_translate_init(&service->translate, dce_version,
-+			dce_environment)) {
- 		BREAK_TO_DEBUGGER();
- 		goto failure_1;
- 	}
+ __objtool_obj := $(objtree)/tools/objtool/objtool
+--- a/scripts/Makefile.lib
++++ b/scripts/Makefile.lib
+@@ -232,17 +232,6 @@ ifeq ($(CONFIG_LTO_CLANG),y)
+ mod-prelink-ext := .lto
+ endif
  
--	if (!dal_hw_factory_init(&service->factory, dce_version_major,
--			dce_version_minor)) {
-+	if (!dal_hw_factory_init(&service->factory, dce_version,
-+			dce_environment)) {
- 		BREAK_TO_DEBUGGER();
- 		goto failure_1;
- 	}
---- a/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
-+++ b/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
-@@ -42,8 +42,8 @@ void dal_gpio_destroy(
- 	struct gpio **ptr);
- 
- struct gpio_service *dal_gpio_service_create(
--	enum dce_version dce_version_major,
--	enum dce_version dce_version_minor,
-+	enum dce_version dce_version,
-+	enum dce_environment dce_environment,
- 	struct dc_context *ctx);
- 
- struct gpio *dal_gpio_service_create_irq(
+-# Objtool arguments are also needed for modfinal with LTO, so we define
+-# then here to avoid duplication.
+-objtool_args =								\
+-	$(if $(CONFIG_UNWINDER_ORC),orc generate,check)			\
+-	$(if $(part-of-module), --module)				\
+-	$(if $(CONFIG_FRAME_POINTER),, --no-fp)				\
+-	$(if $(CONFIG_GCOV_KERNEL)$(CONFIG_LTO_CLANG), --no-unreachable)\
+-	$(if $(CONFIG_RETPOLINE), --retpoline)				\
+-	$(if $(CONFIG_X86_SMAP), --uaccess)				\
+-	$(if $(CONFIG_FTRACE_MCOUNT_USE_OBJTOOL), --mcount)
+-
+ # Useful for describing the dependency of composite objects
+ # Usage:
+ #   $(call multi_depend, multi_used_targets, suffix_to_remove, suffix_to_add)
 
 
