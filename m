@@ -2,50 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A2752643B
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C625152641C
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377384AbiEMO14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40056 "EHLO
+        id S1357833AbiEMO1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380910AbiEMO0P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279D951318;
-        Fri, 13 May 2022 07:25:48 -0700 (PDT)
+        with ESMTP id S1380942AbiEMO0S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49B385F8E2;
+        Fri, 13 May 2022 07:25:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7D3962159;
-        Fri, 13 May 2022 14:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90954C34115;
-        Fri, 13 May 2022 14:25:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9B77B8306F;
+        Fri, 13 May 2022 14:25:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E01DC34100;
+        Fri, 13 May 2022 14:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451947;
-        bh=uzEHjHDWLguBXYjfTqs0u3kFAhT29DbpDmBLr/hjc1E=;
+        s=korg; t=1652451951;
+        bh=3ZAQoHJRAorjhE63N9J2GNWT/DBzxa637Mj9/BzDMmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGVnrf/GlZMe7iJJQfNwZKoSAcurS94cL0Q0NSXFikZYZMjjtGLWjAI2izu/+hFA8
-         OmJMZQ173EiICKYeukNCCTQmqKCNM4/8w8PmPyW7e3K9o1w0IKXLMAh/mT7MSiEk17
-         qOzOdB7UQ7kiPd9wssUf+e3UzgOMtdouGMlxxnlI=
+        b=0OYEq3/QdjkmG/2dCQbjMUeid3PUAGUqPfPzllHHeRGsG34HaQLb95evAKkMBYbRA
+         l0aJm3leAmUAD5rSUaw/9cxSudi50uCsFM2KFwPe7pujExcFJMQE0XJ6EtC5P1HNsG
+         /5ETxIG67ZNgjTrChv7dXY0vkiKjzcNRLUesKveQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Xiongchun Duan <duanxiongchun@bytedance.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 14/15] mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
-Date:   Fri, 13 May 2022 16:23:36 +0200
-Message-Id: <20220513142228.318854560@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        ChenXiaoSong <chenxiaosong2@huawei.com>
+Subject: [PATCH 4.19 15/15] VFS: Fix memory leak caused by concurrently mounting fs with subtype
+Date:   Fri, 13 May 2022 16:23:37 +0200
+Message-Id: <20220513142228.347780404@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
 References: <20220513142227.897535454@linuxfoundation.org>
@@ -63,55 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: ChenXiaoSong <chenxiaosong2@huawei.com>
 
-commit 7c25a0b89a487878b0691e6524fb5a8827322194 upstream.
+If two processes mount same superblock, memory leak occurs:
 
-userfaultfd calls mcopy_atomic_pte() and __mcopy_atomic() which do not
-do any cache flushing for the target page.  Then the target page will be
-mapped to the user space with a different address (user address), which
-might have an alias issue with the kernel address used to copy the data
-from the user to.  Fix this by insert flush_dcache_page() after
-copy_from_user() succeeds.
+CPU0               |  CPU1
+do_new_mount       |  do_new_mount
+  fs_set_subtype   |    fs_set_subtype
+    kstrdup        |
+                   |      kstrdup
+    memrory leak   |
 
-Link: https://lkml.kernel.org/r/20220210123058.79206-7-songmuchun@bytedance.com
-Fixes: b6ebaedb4cb1 ("userfaultfd: avoid mmap_sem read recursion in mcopy_atomic")
-Fixes: c1a4de99fada ("userfaultfd: mcopy_atomic|mfill_zeropage: UFFDIO_COPY|UFFDIO_ZEROPAGE preparation")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Fam Zheng <fam.zheng@bytedance.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Lars Persson <lars.persson@axis.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The following reproducer triggers the problem:
+
+1. shell command: mount -t ntfs /dev/sda1 /mnt &
+2. c program: mount("/dev/sda1", "/mnt", "fuseblk", 0, "...")
+
+with kmemleak report being along the lines of
+
+unreferenced object 0xffff888235f1a5c0 (size 8):
+  comm "mount.ntfs", pid 2860, jiffies 4295757824 (age 43.423s)
+  hex dump (first 8 bytes):
+    00 a5 f1 35 82 88 ff ff                          ...5....
+  backtrace:
+    [<00000000656e30cc>] __kmalloc_track_caller+0x16e/0x430
+    [<000000008e591727>] kstrdup+0x3e/0x90
+    [<000000008430d12b>] do_mount.cold+0x7b/0xd9
+    [<0000000078d639cd>] ksys_mount+0xb2/0x150
+    [<000000006015988d>] __x64_sys_mount+0x29/0x40
+    [<00000000e0a7c118>] do_syscall_64+0xc1/0x1d0
+    [<00000000bcea7df5>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    [<00000000803a4067>] 0xffffffffffffffff
+
+Linus's tree already have refactoring patchset [1], one of them can fix this bug:
+        c30da2e981a7 ("fuse: convert to use the new mount API")
+After refactoring, init super_block->s_subtype in fuse_fill_super.
+
+Since we did not merge the refactoring patchset in this branch, I create this patch.
+This patch fix this by adding a write lock while calling fs_set_subtype.
+
+[1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
+
+Fixes: 79c0b2df79eb ("add filesystem subtype support")
+Cc: David Howells <dhowells@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/userfaultfd.c |    3 +++
- 1 file changed, 3 insertions(+)
+v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk memory leak caused by mount concurrency)
+v2: Use write lock while writing superblock ([PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount concurrency)
+v3: Update commit message
 
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -55,6 +55,8 @@ static int mcopy_atomic_pte(struct mm_st
- 			/* don't free the page */
- 			goto out;
- 		}
-+
-+		flush_dcache_page(page);
- 	} else {
- 		page = *pagep;
- 		*pagep = NULL;
-@@ -574,6 +576,7 @@ retry:
- 				err = -EFAULT;
- 				goto out;
- 			}
-+			flush_dcache_page(page);
- 			goto retry;
- 		} else
- 			BUG_ON(page);
+ fs/namespace.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
+
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -2490,9 +2490,12 @@ static int do_new_mount(struct path *pat
+ 		return -ENODEV;
+ 
+ 	mnt = vfs_kern_mount(type, sb_flags, name, data);
+-	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
+-	    !mnt->mnt_sb->s_subtype)
+-		mnt = fs_set_subtype(mnt, fstype);
++	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE)) {
++		down_write(&mnt->mnt_sb->s_umount);
++		if (!mnt->mnt_sb->s_subtype)
++			mnt = fs_set_subtype(mnt, fstype);
++		up_write(&mnt->mnt_sb->s_umount);
++	}
+ 
+ 	put_filesystem(type);
+ 	if (IS_ERR(mnt))
 
 
