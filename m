@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1455952649E
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCC65264DB
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381019AbiEMOby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
+        id S1381143AbiEMOee (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:34:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381135AbiEMOa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1866C994EA;
-        Fri, 13 May 2022 07:28:31 -0700 (PDT)
+        with ESMTP id S1381073AbiEMOd7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:33:59 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871971C0F36;
+        Fri, 13 May 2022 07:29:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AA3E61F99;
-        Fri, 13 May 2022 14:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43FEAC34100;
-        Fri, 13 May 2022 14:28:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0829DB8306B;
+        Fri, 13 May 2022 14:29:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CF03C34100;
+        Fri, 13 May 2022 14:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452109;
-        bh=SZDidThTxrSwy7TK6gVo0MGXhtuEdWJ6gJKEZ+IvH8o=;
+        s=korg; t=1652452185;
+        bh=Y1TzF/YMwvC8/mzO9SoTHJEd1QC2dRV7GhkkWpcNl+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCT/7Gq6CyZDRyC5dP/I/EwNyIqx8o+a1jyqAoROdrav9/kb6FBkIhAQ/T3tMUy9i
-         5eTIc9gErtY66ApecnXN2LxGFA1UnfauE+Cqyzoqt0c3oXJtYJoEErjykS0k1fHPsh
-         9eDNYmByxz0u47vzmr7z+oxfH+I5+FL7pXaGL+qA=
+        b=czOJfCgHzR7BXCLY7Ff1z4Yqa9giSlsG6mtQEvqVctVLS2BC+fgCT/sygzdLzxCtt
+         DswTWcVq2ry2IKVdj1HHqspTRcHhTXcj1mQpozQ5G1Tgogo4YVeTlBRMw+1K5Drxcx
+         aIKbJYFUpRCwWXz0r7KIA/oKIuFEjPt2Q3U9nMNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Youquan Song <youquan.song@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 19/21] mm/hwpoison: fix error page recovered but reported "not recovered"
+        stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Subject: [PATCH 5.17 01/12] Bluetooth: Fix the creation of hdev->name
 Date:   Fri, 13 May 2022 16:24:01 +0200
-Message-Id: <20220513142230.431675712@linuxfoundation.org>
+Message-Id: <20220513142228.696497916@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
-References: <20220513142229.874949670@linuxfoundation.org>
+In-Reply-To: <20220513142228.651822943@linuxfoundation.org>
+References: <20220513142228.651822943@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,62 +55,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
+From: Itay Iellin <ieitayie@gmail.com>
 
-commit 046545a661af2beec21de7b90ca0e35f05088a81 upstream.
+commit 103a2f3255a95991252f8f13375c3a96a75011cd upstream.
 
-When an uncorrected memory error is consumed there is a race between the
-CMCI from the memory controller reporting an uncorrected error with a
-UCNA signature, and the core reporting and SRAR signature machine check
-when the data is about to be consumed.
+Set a size limit of 8 bytes of the written buffer to "hdev->name"
+including the terminating null byte, as the size of "hdev->name" is 8
+bytes. If an id value which is greater than 9999 is allocated,
+then the "snprintf(hdev->name, sizeof(hdev->name), "hci%d", id)"
+function call would lead to a truncation of the id value in decimal
+notation.
 
-If the CMCI wins that race, the page is marked poisoned when
-uc_decode_notifier() calls memory_failure() and the machine check
-processing code finds the page already poisoned.  It calls
-kill_accessing_process() to make sure a SIGBUS is sent.  But returns the
-wrong error code.
+Set an explicit maximum id parameter in the id allocation function call.
+The id allocation function defines the maximum allocated id value as the
+maximum id parameter value minus one. Therefore, HCI_MAX_ID is defined
+as 10000.
 
-Console log looks like this:
-
-  mce: Uncorrected hardware memory error in user-access at 3710b3400
-  Memory failure: 0x3710b3: recovery action for dirty LRU page: Recovered
-  Memory failure: 0x3710b3: already hardware poisoned
-  Memory failure: 0x3710b3: Sending SIGBUS to einj_mem_uc:361438 due to hardware memory corruption
-  mce: Memory error not recovered
-
-kill_accessing_process() is supposed to return -EHWPOISON to notify that
-SIGBUS is already set to the process and kill_me_maybe() doesn't have to
-send it again.  But current code simply fails to do this, so fix it to
-make sure to work as intended.  This change avoids the noise message
-"Memory error not recovered" and skips duplicate SIGBUSs.
-
-[tony.luck@intel.com: reword some parts of commit message]
-
-Link: https://lkml.kernel.org/r/20220113231117.1021405-1-naoya.horiguchi@linux.dev
-Fixes: a3f5d80ea401 ("mm,hwpoison: send SIGBUS with error virutal address")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Reported-by: Youquan Song <youquan.song@intel.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Itay Iellin <ieitayie@gmail.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/bluetooth/hci_core.h |    3 +++
+ net/bluetooth/hci_core.c         |    6 +++---
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -705,8 +705,10 @@ static int kill_accessing_process(struct
- 			      (void *)&priv);
- 	if (ret == 1 && priv.tk.addr)
- 		kill_proc(&priv.tk, pfn, flags);
-+	else
-+		ret = 0;
- 	mmap_read_unlock(p->mm);
--	return ret ? -EFAULT : -EHWPOISON;
-+	return ret > 0 ? -EHWPOISON : -EFAULT;
- }
+--- a/include/net/bluetooth/hci_core.h
++++ b/include/net/bluetooth/hci_core.h
+@@ -36,6 +36,9 @@
+ /* HCI priority */
+ #define HCI_PRIO_MAX	7
  
- static const char *action_name[] = {
++/* HCI maximum id value */
++#define HCI_MAX_ID 10000
++
+ /* HCI Core structures */
+ struct inquiry_data {
+ 	bdaddr_t	bdaddr;
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -2554,10 +2554,10 @@ int hci_register_dev(struct hci_dev *hde
+ 	 */
+ 	switch (hdev->dev_type) {
+ 	case HCI_PRIMARY:
+-		id = ida_simple_get(&hci_index_ida, 0, 0, GFP_KERNEL);
++		id = ida_simple_get(&hci_index_ida, 0, HCI_MAX_ID, GFP_KERNEL);
+ 		break;
+ 	case HCI_AMP:
+-		id = ida_simple_get(&hci_index_ida, 1, 0, GFP_KERNEL);
++		id = ida_simple_get(&hci_index_ida, 1, HCI_MAX_ID, GFP_KERNEL);
+ 		break;
+ 	default:
+ 		return -EINVAL;
+@@ -2566,7 +2566,7 @@ int hci_register_dev(struct hci_dev *hde
+ 	if (id < 0)
+ 		return id;
+ 
+-	sprintf(hdev->name, "hci%d", id);
++	snprintf(hdev->name, sizeof(hdev->name), "hci%d", id);
+ 	hdev->id = id;
+ 
+ 	BT_DBG("%p name %s bus %d", hdev, hdev->name, hdev->bus);
 
 
