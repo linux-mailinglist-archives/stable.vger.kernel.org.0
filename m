@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43AE1526423
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ECAB526444
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380701AbiEMO1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
+        id S1380708AbiEMO1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381081AbiEMO0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:30 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A06D5F8F6;
-        Fri, 13 May 2022 07:26:16 -0700 (PDT)
+        with ESMTP id S1380787AbiEMO13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E065EDF7;
+        Fri, 13 May 2022 07:27:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EA792CE3233;
-        Fri, 13 May 2022 14:26:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08279C34115;
-        Fri, 13 May 2022 14:26:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 840BFB82C9D;
+        Fri, 13 May 2022 14:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E15C3C34100;
+        Fri, 13 May 2022 14:27:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451973;
-        bh=oBP614t9fTptQhQswUAjX6Y5Y8f75tmsz/oYWzjS59U=;
+        s=korg; t=1652452021;
+        bh=l0wXDFVrQkp+DaaqJRFPdaUiGUGaqXl4hB6va4+NAQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LE6nH1veG0f4SNQ9252awCRD6qxWbCnV2ZkvS3nFG9PZdJeEUtVaX1wAFy+fVuo9G
-         yIcipi/CvI1LSkrfu+oFSFc3yqcOe45eTX9eJlJPVTlFyatHJScbg1SLvJlJKogsM1
-         PFsLSALFa0HnCo5Da+Kdb/LwLplsTG9NWyToBeJ8=
+        b=g8Q6EwHj5Bccg8R0DrI5FZqaaia1g7N1V4m45nM7/G0PqF1pmjlo0lZndcWGUbYzt
+         UaO1OlYRgknAUDkwMgms9V8dRx6pvRiSW9Yp54iHtUV1ZD/DoB5jWR+14Qa1PA/ODb
+         raWVE3wWARIqqpkZ1W7UWhmbRiXrYth6W1WRSw3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hu Jiahui <kirin.say@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 08/15] ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
-Date:   Fri, 13 May 2022 16:23:30 +0200
-Message-Id: <20220513142228.140882635@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 05/18] nfp: bpf: silence bitwise vs. logical OR warning
+Date:   Fri, 13 May 2022 16:23:31 +0200
+Message-Id: <20220513142229.310212274@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
-References: <20220513142227.897535454@linuxfoundation.org>
+In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
+References: <20220513142229.153291230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,172 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 92ee3c60ec9fe64404dc035e7c41277d74aa26cb upstream.
+commit 8a64ef042eab8a6cec04a6c79d44d1af79b628ca upstream.
 
-Currently we have neither proper check nor protection against the
-concurrent calls of PCM hw_params and hw_free ioctls, which may result
-in a UAF.  Since the existing PCM stream lock can't be used for
-protecting the whole ioctl operations, we need a new mutex to protect
-those racy calls.
+A new warning in clang points out two places in this driver where
+boolean expressions are being used with a bitwise OR instead of a
+logical one:
 
-This patch introduced a new mutex, runtime->buffer_mutex, and applies
-it to both hw_params and hw_free ioctl code paths.  Along with it, the
-both functions are slightly modified (the mmap_count check is moved
-into the state-check block) for code simplicity.
+drivers/net/ethernet/netronome/nfp/nfp_asm.c:199:20: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+        reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
+                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                             ||
+drivers/net/ethernet/netronome/nfp/nfp_asm.c:199:20: note: cast one or both operands to int to silence this warning
+drivers/net/ethernet/netronome/nfp/nfp_asm.c:280:20: error: use of bitwise '|' with boolean operands [-Werror,-Wbitwise-instead-of-logical]
+        reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
+                          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                                             ||
+drivers/net/ethernet/netronome/nfp/nfp_asm.c:280:20: note: cast one or both operands to int to silence this warning
+2 errors generated.
 
-Reported-by: Hu Jiahui <kirin.say@gmail.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[OP: backport to 4.19: adjusted context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+The motivation for the warning is that logical operations short circuit
+while bitwise operations do not. In this case, it does not seem like
+short circuiting is harmful so implement the suggested fix of changing
+to a logical operation to fix the warning.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1479
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211018193101.2340261-1-nathan@kernel.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/pcm.h     |    1 
- sound/core/pcm.c        |    2 +
- sound/core/pcm_native.c |   55 +++++++++++++++++++++++++++++++-----------------
- 3 files changed, 39 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/netronome/nfp/nfp_asm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -404,6 +404,7 @@ struct snd_pcm_runtime {
- 	wait_queue_head_t sleep;	/* poll sleep */
- 	wait_queue_head_t tsleep;	/* transfer sleep */
- 	struct fasync_struct *fasync;
-+	struct mutex buffer_mutex;	/* protect for buffer changes */
+--- a/drivers/net/ethernet/netronome/nfp/nfp_asm.c
++++ b/drivers/net/ethernet/netronome/nfp/nfp_asm.c
+@@ -196,7 +196,7 @@ int swreg_to_unrestricted(swreg dst, swr
+ 	}
  
- 	/* -- private section -- */
- 	void *private_data;
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -1031,6 +1031,7 @@ int snd_pcm_attach_substream(struct snd_
- 	init_waitqueue_head(&runtime->tsleep);
+ 	reg->dst_lmextn = swreg_lmextn(dst);
+-	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
++	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
  
- 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
-+	mutex_init(&runtime->buffer_mutex);
- 
- 	substream->runtime = runtime;
- 	substream->private_data = pcm->private_data;
-@@ -1062,6 +1063,7 @@ void snd_pcm_detach_substream(struct snd
- 	substream->runtime = NULL;
- 	if (substream->timer)
- 		spin_unlock_irq(&substream->timer->lock);
-+	mutex_destroy(&runtime->buffer_mutex);
- 	kfree(runtime);
- 	put_pid(substream->pid);
- 	substream->pid = NULL;
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -666,33 +666,40 @@ static int snd_pcm_hw_params_choose(stru
  	return 0;
  }
- 
-+#if IS_ENABLED(CONFIG_SND_PCM_OSS)
-+#define is_oss_stream(substream)	((substream)->oss.oss)
-+#else
-+#define is_oss_stream(substream)	false
-+#endif
-+
- static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 			     struct snd_pcm_hw_params *params)
- {
- 	struct snd_pcm_runtime *runtime;
--	int err, usecs;
-+	int err = 0, usecs;
- 	unsigned int bits;
- 	snd_pcm_uframes_t frames;
- 
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_OPEN:
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (!is_oss_stream(substream) &&
-+		    atomic_read(&substream->mmap_count))
-+			err = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		err = -EBADFD;
-+		break;
+@@ -277,7 +277,7 @@ int swreg_to_restricted(swreg dst, swreg
  	}
- 	snd_pcm_stream_unlock_irq(substream);
--#if IS_ENABLED(CONFIG_SND_PCM_OSS)
--	if (!substream->oss.oss)
--#endif
--		if (atomic_read(&substream->mmap_count))
--			return -EBADFD;
-+	if (err)
-+		goto unlock;
  
- 	params->rmask = ~0U;
- 	err = snd_pcm_hw_refine(substream, params);
-@@ -769,14 +776,19 @@ static int snd_pcm_hw_params(struct snd_
- 	if ((usecs = period_to_usecs(runtime)) >= 0)
- 		pm_qos_add_request(&substream->latency_pm_qos_req,
- 				   PM_QOS_CPU_DMA_LATENCY, usecs);
--	return 0;
-+	err = 0;
-  _error:
--	/* hardware might be unusable from this time,
--	   so we force application to retry to set
--	   the correct hardware parameter settings */
--	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
--	if (substream->ops->hw_free != NULL)
--		substream->ops->hw_free(substream);
-+	if (err) {
-+		/* hardware might be unusable from this time,
-+		 * so we force application to retry to set
-+		 * the correct hardware parameter settings
-+		 */
-+		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
-+		if (substream->ops->hw_free != NULL)
-+			substream->ops->hw_free(substream);
-+	}
-+ unlock:
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return err;
+ 	reg->dst_lmextn = swreg_lmextn(dst);
+-	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
++	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
+ 
+ 	return 0;
  }
- 
-@@ -809,22 +821,27 @@ static int snd_pcm_hw_free(struct snd_pc
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (atomic_read(&substream->mmap_count))
-+			result = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		result = -EBADFD;
-+		break;
- 	}
- 	snd_pcm_stream_unlock_irq(substream);
--	if (atomic_read(&substream->mmap_count))
--		return -EBADFD;
-+	if (result)
-+		goto unlock;
- 	if (substream->ops->hw_free)
- 		result = substream->ops->hw_free(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
- 	pm_qos_remove_request(&substream->latency_pm_qos_req);
-+ unlock:
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return result;
- }
- 
 
 
