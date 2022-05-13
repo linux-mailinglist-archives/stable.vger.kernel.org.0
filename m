@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F0C52642A
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 668A852649F
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380776AbiEMO1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44512 "EHLO
+        id S1380918AbiEMObj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358882AbiEMO0x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:53 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6032F2D8;
-        Fri, 13 May 2022 07:26:52 -0700 (PDT)
+        with ESMTP id S1381398AbiEMObW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 450701A7D02;
+        Fri, 13 May 2022 07:29:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FB10B8305B;
-        Fri, 13 May 2022 14:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42130C34100;
-        Fri, 13 May 2022 14:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C6912621A9;
+        Fri, 13 May 2022 14:29:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE5F1C34100;
+        Fri, 13 May 2022 14:29:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452009;
-        bh=LlQbheZQzV7Mk0qNq8vbWSUFM1smMc3+eMIRlpmwgXw=;
+        s=korg; t=1652452143;
+        bh=eV4ZT1JHdZBrwzJ4fhmScpaWEESNg35gtavKqTCc4ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KV47AoiEIkpKoNg1ijZxYQCnnG76e13cx9ysV9fX+0Hi4ZdRVBiPhvr6FsG52KLvJ
-         7p3xtJdG8UAI4pDRDTq3qXroCfTXJOl2UTgjjgp8wWtDfgp5CyrQrDo4tgIVeHQsO6
-         OFlmAvXAyIH9siYkov7M5S4rDHs00OThNlY26sug=
+        b=KxdA7JqrWZXBnYjmzDFjNemgl+9Q/AQ86s1RKIAK8HjivC2xMqQhN0UGOF5tEpKtj
+         kxlsn8sJrRtHTeGeC+cxOHOm5uM8NQHL/et7XBeXyvahawHlCXEvEYT2PJkTNANi4b
+         IB+puHV9RlkDrGmq+lP5Ygodgxjpm1aiFjppvEXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Xiongchun Duan <duanxiongchun@bytedance.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 18/18] mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
-Date:   Fri, 13 May 2022 16:23:44 +0200
-Message-Id: <20220513142229.682741906@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 03/21] x86: Prepare inline-asm for straight-line-speculation
+Date:   Fri, 13 May 2022 16:23:45 +0200
+Message-Id: <20220513142229.978979020@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
-References: <20220513142229.153291230@linuxfoundation.org>
+In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
+References: <20220513142229.874949670@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,55 +54,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 7c25a0b89a487878b0691e6524fb5a8827322194 upstream.
+[ Upstream commit b17c2baa305cccbd16bafa289fd743cc2db77966 ]
 
-userfaultfd calls mcopy_atomic_pte() and __mcopy_atomic() which do not
-do any cache flushing for the target page.  Then the target page will be
-mapped to the user space with a different address (user address), which
-might have an alias issue with the kernel address used to copy the data
-from the user to.  Fix this by insert flush_dcache_page() after
-copy_from_user() succeeds.
+Replace all ret/retq instructions with ASM_RET in preparation of
+making it more than a single instruction.
 
-Link: https://lkml.kernel.org/r/20220210123058.79206-7-songmuchun@bytedance.com
-Fixes: b6ebaedb4cb1 ("userfaultfd: avoid mmap_sem read recursion in mcopy_atomic")
-Fixes: c1a4de99fada ("userfaultfd: mcopy_atomic|mfill_zeropage: UFFDIO_COPY|UFFDIO_ZEROPAGE preparation")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Fam Zheng <fam.zheng@bytedance.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Lars Persson <lars.persson@axis.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211204134907.964635458@infradead.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/userfaultfd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/include/asm/linkage.h            |    4 ++++
+ arch/x86/include/asm/paravirt.h           |    2 +-
+ arch/x86/include/asm/qspinlock_paravirt.h |    4 ++--
+ arch/x86/kernel/alternative.c             |    2 +-
+ arch/x86/kernel/kprobes/core.c            |    2 +-
+ arch/x86/kernel/paravirt.c                |    2 +-
+ arch/x86/kvm/emulate.c                    |    4 ++--
+ arch/x86/lib/error-inject.c               |    3 ++-
+ samples/ftrace/ftrace-direct-modify.c     |    4 ++--
+ samples/ftrace/ftrace-direct-too.c        |    2 +-
+ samples/ftrace/ftrace-direct.c            |    2 +-
+ 11 files changed, 18 insertions(+), 13 deletions(-)
 
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -53,6 +53,8 @@ static int mcopy_atomic_pte(struct mm_st
- 			/* don't free the page */
- 			goto out;
- 		}
+--- a/arch/x86/include/asm/linkage.h
++++ b/arch/x86/include/asm/linkage.h
+@@ -18,6 +18,10 @@
+ #define __ALIGN_STR	__stringify(__ALIGN)
+ #endif
+ 
++#else /* __ASSEMBLY__ */
 +
-+		flush_dcache_page(page);
- 	} else {
- 		page = *pagep;
- 		*pagep = NULL;
-@@ -572,6 +574,7 @@ retry:
- 				err = -EFAULT;
- 				goto out;
- 			}
-+			flush_dcache_page(page);
- 			goto retry;
- 		} else
- 			BUG_ON(page);
++#define ASM_RET	"ret\n\t"
++
+ #endif /* __ASSEMBLY__ */
+ 
+ #endif /* _ASM_X86_LINKAGE_H */
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -665,7 +665,7 @@ bool __raw_callee_save___native_vcpu_is_
+ 	    "call " #func ";"						\
+ 	    PV_RESTORE_ALL_CALLER_REGS					\
+ 	    FRAME_END							\
+-	    "ret;"							\
++	    ASM_RET							\
+ 	    ".size " PV_THUNK_NAME(func) ", .-" PV_THUNK_NAME(func) ";"	\
+ 	    ".popsection")
+ 
+--- a/arch/x86/include/asm/qspinlock_paravirt.h
++++ b/arch/x86/include/asm/qspinlock_paravirt.h
+@@ -48,7 +48,7 @@ asm    (".pushsection .text;"
+ 	"jne   .slowpath;"
+ 	"pop   %rdx;"
+ 	FRAME_END
+-	"ret;"
++	ASM_RET
+ 	".slowpath: "
+ 	"push   %rsi;"
+ 	"movzbl %al,%esi;"
+@@ -56,7 +56,7 @@ asm    (".pushsection .text;"
+ 	"pop    %rsi;"
+ 	"pop    %rdx;"
+ 	FRAME_END
+-	"ret;"
++	ASM_RET
+ 	".size " PV_UNLOCK ", .-" PV_UNLOCK ";"
+ 	".popsection");
+ 
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -537,7 +537,7 @@ asm (
+ "	.type		int3_magic, @function\n"
+ "int3_magic:\n"
+ "	movl	$1, (%" _ASM_ARG1 ")\n"
+-"	ret\n"
++	ASM_RET
+ "	.size		int3_magic, .-int3_magic\n"
+ "	.popsection\n"
+ );
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -1044,7 +1044,7 @@ asm(
+ 	RESTORE_REGS_STRING
+ 	"	popfl\n"
+ #endif
+-	"	ret\n"
++	ASM_RET
+ 	".size kretprobe_trampoline, .-kretprobe_trampoline\n"
+ );
+ NOKPROBE_SYMBOL(kretprobe_trampoline);
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -41,7 +41,7 @@ extern void _paravirt_nop(void);
+ asm (".pushsection .entry.text, \"ax\"\n"
+      ".global _paravirt_nop\n"
+      "_paravirt_nop:\n\t"
+-     "ret\n\t"
++     ASM_RET
+      ".size _paravirt_nop, . - _paravirt_nop\n\t"
+      ".type _paravirt_nop, @function\n\t"
+      ".popsection");
+--- a/arch/x86/kvm/emulate.c
++++ b/arch/x86/kvm/emulate.c
+@@ -315,7 +315,7 @@ static int fastop(struct x86_emulate_ctx
+ 	__FOP_FUNC(#name)
+ 
+ #define __FOP_RET(name) \
+-	"ret \n\t" \
++	ASM_RET \
+ 	".size " name ", .-" name "\n\t"
+ 
+ #define FOP_RET(name) \
+@@ -435,7 +435,7 @@ static int fastop(struct x86_emulate_ctx
+ 	__FOP_RET(#op)
+ 
+ asm(".pushsection .fixup, \"ax\"\n"
+-    "kvm_fastop_exception: xor %esi, %esi; ret\n"
++    "kvm_fastop_exception: xor %esi, %esi; " ASM_RET
+     ".popsection");
+ 
+ FOP_START(setcc)
+--- a/arch/x86/lib/error-inject.c
++++ b/arch/x86/lib/error-inject.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ 
++#include <linux/linkage.h>
+ #include <linux/error-injection.h>
+ #include <linux/kprobes.h>
+ 
+@@ -10,7 +11,7 @@ asm(
+ 	".type just_return_func, @function\n"
+ 	".globl just_return_func\n"
+ 	"just_return_func:\n"
+-	"	ret\n"
++		ASM_RET
+ 	".size just_return_func, .-just_return_func\n"
+ );
+ 
+--- a/samples/ftrace/ftrace-direct-modify.c
++++ b/samples/ftrace/ftrace-direct-modify.c
+@@ -31,7 +31,7 @@ asm (
+ "	call my_direct_func1\n"
+ "	leave\n"
+ "	.size		my_tramp1, .-my_tramp1\n"
+-"	ret\n"
++	ASM_RET
+ "	.type		my_tramp2, @function\n"
+ "	.globl		my_tramp2\n"
+ "   my_tramp2:"
+@@ -39,7 +39,7 @@ asm (
+ "	movq %rsp, %rbp\n"
+ "	call my_direct_func2\n"
+ "	leave\n"
+-"	ret\n"
++	ASM_RET
+ "	.size		my_tramp2, .-my_tramp2\n"
+ "	.popsection\n"
+ );
+--- a/samples/ftrace/ftrace-direct-too.c
++++ b/samples/ftrace/ftrace-direct-too.c
+@@ -31,7 +31,7 @@ asm (
+ "	popq %rsi\n"
+ "	popq %rdi\n"
+ "	leave\n"
+-"	ret\n"
++	ASM_RET
+ "	.size		my_tramp, .-my_tramp\n"
+ "	.popsection\n"
+ );
+--- a/samples/ftrace/ftrace-direct.c
++++ b/samples/ftrace/ftrace-direct.c
+@@ -24,7 +24,7 @@ asm (
+ "	call my_direct_func\n"
+ "	popq %rdi\n"
+ "	leave\n"
+-"	ret\n"
++	ASM_RET
+ "	.size		my_tramp, .-my_tramp\n"
+ "	.popsection\n"
+ );
 
 
