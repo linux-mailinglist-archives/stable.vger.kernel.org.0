@@ -2,57 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8BC52643F
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF132526413
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380778AbiEMO1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46510 "EHLO
+        id S1355794AbiEMO1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376889AbiEMO13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C628F6007A;
-        Fri, 13 May 2022 07:27:11 -0700 (PDT)
+        with ESMTP id S1380905AbiEMO0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BCB75047F;
+        Fri, 13 May 2022 07:25:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 196F062155;
-        Fri, 13 May 2022 14:27:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA612C34100;
-        Fri, 13 May 2022 14:27:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D7B3B83073;
+        Fri, 13 May 2022 14:25:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0629BC3411A;
+        Fri, 13 May 2022 14:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452030;
-        bh=P/A+xCYosytbpEcdyj+xnQzV3nIu1ep0A9MM143+2IQ=;
+        s=korg; t=1652451941;
+        bh=WzIyzFtI25DndcCvGpFXa3XiBHPDlBGo/cqwsDQExEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wgre4yL8ECWuqZ1J7jsiTTJBXcc37D3bji+FZrolmTljJyfqMvhI4j73w/1Si+n8o
-         GmMVa2vcJVT+Sp8j49+gmNiVJBcyQgq+Zl6mhtc7hGI9O6Gy0+saHY2GgrmmxrS9IS
-         SuqLRXfH9mDBIKtdMU+Nk+GBYsyoeVJHUAZaGxS4=
+        b=Ok7X5iTaIxgz3qhjgLk2dgMVuUAyRmshlVDBeTx0XtQ08aPiodMQ7N/74v9XKZLLv
+         GwFitiX0giYc5wIoopRK/Ne1SwWMDS7SH+48UOqL6Ojaz3G6JYFJScNJP3KGfMjipR
+         Ys/nzeENTnAzcvXspsx5XaCPZMHBQgPJlsy6Wn9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Greg Ungerer <gerg@linux-m68k.org>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Matt Turner <mattst88@gmail.com>, Meelis Roos <mroos@linux.ee>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Tony Luck <tony.luck@intel.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Will Deacon <will@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 5.4 08/18] arm: remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
+        syzbot+6e5c88838328e99c7e1c@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 12/15] ALSA: pcm: Fix potential AB/BA lock with buffer_mutex and mmap_lock
 Date:   Fri, 13 May 2022 16:23:34 +0200
-Message-Id: <20220513142229.398158889@linuxfoundation.org>
+Message-Id: <20220513142228.260134097@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
-References: <20220513142229.153291230@linuxfoundation.org>
+In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
+References: <20220513142227.897535454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,270 +54,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 5e545df3292fbd3d5963c68980f1527ead2a2b3f upstream.
+commit bc55cfd5718c7c23e5524582e9fa70b4d10f2433 upstream.
 
-ARM is the only architecture that defines CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
-which in turn enables memmap_valid_within() function that is intended to
-verify existence  of struct page associated with a pfn when there are holes
-in the memory map.
+syzbot caught a potential deadlock between the PCM
+runtime->buffer_mutex and the mm->mmap_lock.  It was brought by the
+recent fix to cover the racy read/write and other ioctls, and in that
+commit, I overlooked a (hopefully only) corner case that may take the
+revert lock, namely, the OSS mmap.  The OSS mmap operation
+exceptionally allows to re-configure the parameters inside the OSS
+mmap syscall, where mm->mmap_mutex is already held.  Meanwhile, the
+copy_from/to_user calls at read/write operations also take the
+mm->mmap_lock internally, hence it may lead to a AB/BA deadlock.
 
-However, the ARCH_HAS_HOLES_MEMORYMODEL also enables HAVE_ARCH_PFN_VALID
-and arch-specific pfn_valid() implementation that also deals with the holes
-in the memory map.
+A similar problem was already seen in the past and we fixed it with a
+refcount (in commit b248371628aa).  The former fix covered only the
+call paths with OSS read/write and OSS ioctls, while we need to cover
+the concurrent access via both ALSA and OSS APIs now.
 
-The only two users of memmap_valid_within() call this function after
-a call to pfn_valid() so the memmap_valid_within() check becomes redundant.
+This patch addresses the problem above by replacing the buffer_mutex
+lock in the read/write operations with a refcount similar as we've
+used for OSS.  The new field, runtime->buffer_accessing, keeps the
+number of concurrent read/write operations.  Unlike the former
+buffer_mutex protection, this protects only around the
+copy_from/to_user() calls; the other codes are basically protected by
+the PCM stream lock.  The refcount can be a negative, meaning blocked
+by the ioctls.  If a negative value is seen, the read/write aborts
+with -EBUSY.  In the ioctl side, OTOH, they check this refcount, too,
+and set to a negative value for blocking unless it's already being
+accessed.
 
-Remove CONFIG_ARCH_HAS_HOLES_MEMORYMODEL and memmap_valid_within() and rely
-entirely on ARM's implementation of pfn_valid() that is now enabled
-unconditionally.
-
-Link: https://lkml.kernel.org/r/20201101170454.9567-9-rppt@kernel.org
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Ungerer <gerg@linux-m68k.org>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Matt Turner <mattst88@gmail.com>
-Cc: Meelis Roos <mroos@linux.ee>
-Cc: Michael Schmitz <schmitzmic@gmail.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 8dd559d53b3b ("arm: ioremap: don't abuse pfn_valid() to check if pfn is in RAM")
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: syzbot+6e5c88838328e99c7e1c@syzkaller.appspotmail.com
+Fixes: dca947d4d26d ("ALSA: pcm: Fix races among concurrent read/write and buffer changes")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000381a0d05db622a81@google.com
+Link: https://lore.kernel.org/r/20220330120903.4738-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[OP: backport to 4.19: adjusted context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/vm/memory-model.rst |    3 +--
- arch/arm/Kconfig                  |    8 ++------
- arch/arm/mach-bcm/Kconfig         |    1 -
- arch/arm/mach-davinci/Kconfig     |    1 -
- arch/arm/mach-exynos/Kconfig      |    1 -
- arch/arm/mach-highbank/Kconfig    |    1 -
- arch/arm/mach-omap2/Kconfig       |    2 +-
- arch/arm/mach-s5pv210/Kconfig     |    1 -
- arch/arm/mach-tango/Kconfig       |    1 -
- fs/proc/kcore.c                   |    2 --
- include/linux/mmzone.h            |   31 -------------------------------
- mm/mmzone.c                       |   14 --------------
- mm/vmstat.c                       |    4 ----
- 13 files changed, 4 insertions(+), 66 deletions(-)
+ include/sound/pcm.h     |    1 +
+ sound/core/pcm.c        |    1 +
+ sound/core/pcm_lib.c    |    9 +++++----
+ sound/core/pcm_native.c |   39 ++++++++++++++++++++++++++++++++-------
+ 4 files changed, 39 insertions(+), 11 deletions(-)
 
---- a/Documentation/vm/memory-model.rst
-+++ b/Documentation/vm/memory-model.rst
-@@ -52,8 +52,7 @@ wrapper :c:func:`free_area_init`. Yet, t
- usable until the call to :c:func:`memblock_free_all` that hands all
- the memory to the page allocator.
+--- a/include/sound/pcm.h
++++ b/include/sound/pcm.h
+@@ -405,6 +405,7 @@ struct snd_pcm_runtime {
+ 	wait_queue_head_t tsleep;	/* transfer sleep */
+ 	struct fasync_struct *fasync;
+ 	struct mutex buffer_mutex;	/* protect for buffer changes */
++	atomic_t buffer_accessing;	/* >0: in r/w operation, <0: blocked */
  
--If an architecture enables `CONFIG_ARCH_HAS_HOLES_MEMORYMODEL` option,
--it may free parts of the `mem_map` array that do not cover the
-+An architecture may free parts of the `mem_map` array that do not cover the
- actual physical pages. In such case, the architecture specific
- :c:func:`pfn_valid` implementation should take the holes in the
- `mem_map` into account.
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -26,7 +26,7 @@ config ARM
- 	select ARCH_HAS_TICK_BROADCAST if GENERIC_CLOCKEVENTS_BROADCAST
- 	select ARCH_HAVE_CUSTOM_GPIO_H
- 	select ARCH_HAS_GCOV_PROFILE_ALL
--	select ARCH_KEEP_MEMBLOCK if HAVE_ARCH_PFN_VALID || KEXEC
-+	select ARCH_KEEP_MEMBLOCK
- 	select ARCH_MIGHT_HAVE_PC_PARPORT
- 	select ARCH_NO_SG_CHAIN if !ARM_HAS_SG_CHAIN
- 	select ARCH_OPTIONAL_KERNEL_RWX if ARCH_HAS_STRICT_KERNEL_RWX
-@@ -521,7 +521,6 @@ config ARCH_S3C24XX
- config ARCH_OMAP1
- 	bool "TI OMAP1"
- 	depends on MMU
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ARCH_OMAP
- 	select CLKDEV_LOOKUP
- 	select CLKSRC_MMIO
-@@ -1518,9 +1517,6 @@ config OABI_COMPAT
- 	  UNPREDICTABLE (in fact it can be predicted that it won't work
- 	  at all). If in doubt say N.
+ 	/* -- private section -- */
+ 	void *private_data;
+--- a/sound/core/pcm.c
++++ b/sound/core/pcm.c
+@@ -1032,6 +1032,7 @@ int snd_pcm_attach_substream(struct snd_
  
--config ARCH_HAS_HOLES_MEMORYMODEL
--	bool
--
- config ARCH_SPARSEMEM_ENABLE
- 	bool
+ 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
+ 	mutex_init(&runtime->buffer_mutex);
++	atomic_set(&runtime->buffer_accessing, 0);
  
-@@ -1528,7 +1524,7 @@ config ARCH_SPARSEMEM_DEFAULT
- 	def_bool ARCH_SPARSEMEM_ENABLE
+ 	substream->runtime = runtime;
+ 	substream->private_data = pcm->private_data;
+--- a/sound/core/pcm_lib.c
++++ b/sound/core/pcm_lib.c
+@@ -1876,11 +1876,9 @@ static int wait_for_avail(struct snd_pcm
+ 		if (avail >= runtime->twake)
+ 			break;
+ 		snd_pcm_stream_unlock_irq(substream);
+-		mutex_unlock(&runtime->buffer_mutex);
  
- config HAVE_ARCH_PFN_VALID
--	def_bool ARCH_HAS_HOLES_MEMORYMODEL || !SPARSEMEM
-+	def_bool y
+ 		tout = schedule_timeout(wait_time);
  
- config HIGHMEM
- 	bool "High Memory Support"
---- a/arch/arm/mach-bcm/Kconfig
-+++ b/arch/arm/mach-bcm/Kconfig
-@@ -214,7 +214,6 @@ config ARCH_BRCMSTB
- 	select HAVE_ARM_ARCH_TIMER
- 	select BRCMSTB_L2_IRQ
- 	select BCM7120_L2_IRQ
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ZONE_DMA if ARM_LPAE
- 	select SOC_BRCMSTB
- 	select SOC_BUS
---- a/arch/arm/mach-davinci/Kconfig
-+++ b/arch/arm/mach-davinci/Kconfig
-@@ -5,7 +5,6 @@ menuconfig ARCH_DAVINCI
- 	depends on ARCH_MULTI_V5
- 	select DAVINCI_TIMER
- 	select ZONE_DMA
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select PM_GENERIC_DOMAINS if PM
- 	select PM_GENERIC_DOMAINS_OF if PM && OF
- 	select REGMAP_MMIO
---- a/arch/arm/mach-exynos/Kconfig
-+++ b/arch/arm/mach-exynos/Kconfig
-@@ -8,7 +8,6 @@
- menuconfig ARCH_EXYNOS
- 	bool "Samsung EXYNOS"
- 	depends on ARCH_MULTI_V7
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ARCH_SUPPORTS_BIG_ENDIAN
- 	select ARM_AMBA
- 	select ARM_GIC
---- a/arch/arm/mach-highbank/Kconfig
-+++ b/arch/arm/mach-highbank/Kconfig
-@@ -2,7 +2,6 @@
- config ARCH_HIGHBANK
- 	bool "Calxeda ECX-1000/2000 (Highbank/Midway)"
- 	depends on ARCH_MULTI_V7
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ARCH_SUPPORTS_BIG_ENDIAN
- 	select ARM_AMBA
- 	select ARM_ERRATA_764369 if SMP
---- a/arch/arm/mach-omap2/Kconfig
-+++ b/arch/arm/mach-omap2/Kconfig
-@@ -94,7 +94,7 @@ config SOC_DRA7XX
- config ARCH_OMAP2PLUS
- 	bool
- 	select ARCH_HAS_BANDGAP
--	select ARCH_HAS_HOLES_MEMORYMODEL
-+	select ARCH_HAS_RESET_CONTROLLER
- 	select ARCH_OMAP
- 	select CLKSRC_MMIO
- 	select GENERIC_IRQ_CHIP
---- a/arch/arm/mach-s5pv210/Kconfig
-+++ b/arch/arm/mach-s5pv210/Kconfig
-@@ -8,7 +8,6 @@
- config ARCH_S5PV210
- 	bool "Samsung S5PV210/S5PC110"
- 	depends on ARCH_MULTI_V7
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ARM_VIC
- 	select CLKSRC_SAMSUNG_PWM
- 	select COMMON_CLK_SAMSUNG
---- a/arch/arm/mach-tango/Kconfig
-+++ b/arch/arm/mach-tango/Kconfig
-@@ -3,7 +3,6 @@ config ARCH_TANGO
- 	bool "Sigma Designs Tango4 (SMP87xx)"
- 	depends on ARCH_MULTI_V7
- 	# Cortex-A9 MPCore r3p0, PL310 r3p2
--	select ARCH_HAS_HOLES_MEMORYMODEL
- 	select ARM_ERRATA_754322
- 	select ARM_ERRATA_764369 if SMP
- 	select ARM_ERRATA_775420
---- a/fs/proc/kcore.c
-+++ b/fs/proc/kcore.c
-@@ -193,8 +193,6 @@ kclist_add_private(unsigned long pfn, un
- 		return 1;
+-		mutex_lock(&runtime->buffer_mutex);
+ 		snd_pcm_stream_lock_irq(substream);
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 		switch (runtime->status->state) {
+@@ -2174,7 +2172,6 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
  
- 	p = pfn_to_page(pfn);
--	if (!memmap_valid_within(pfn, p, page_zone(p)))
--		return 1;
+ 	nonblock = !!(substream->f_flags & O_NONBLOCK);
  
- 	ent = kmalloc(sizeof(*ent), GFP_KERNEL);
- 	if (!ent)
---- a/include/linux/mmzone.h
-+++ b/include/linux/mmzone.h
-@@ -1438,37 +1438,6 @@ void memory_present(int nid, unsigned lo
- #define pfn_valid_within(pfn) (1)
- #endif
- 
--#ifdef CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
--/*
-- * pfn_valid() is meant to be able to tell if a given PFN has valid memmap
-- * associated with it or not. This means that a struct page exists for this
-- * pfn. The caller cannot assume the page is fully initialized in general.
-- * Hotplugable pages might not have been onlined yet. pfn_to_online_page()
-- * will ensure the struct page is fully online and initialized. Special pages
-- * (e.g. ZONE_DEVICE) are never onlined and should be treated accordingly.
-- *
-- * In FLATMEM, it is expected that holes always have valid memmap as long as
-- * there is valid PFNs either side of the hole. In SPARSEMEM, it is assumed
-- * that a valid section has a memmap for the entire section.
-- *
-- * However, an ARM, and maybe other embedded architectures in the future
-- * free memmap backing holes to save memory on the assumption the memmap is
-- * never used. The page_zone linkages are then broken even though pfn_valid()
-- * returns true. A walker of the full memmap must then do this additional
-- * check to ensure the memmap they are looking at is sane by making sure
-- * the zone and PFN linkages are still valid. This is expensive, but walkers
-- * of the full memmap are extremely rare.
-- */
--bool memmap_valid_within(unsigned long pfn,
--					struct page *page, struct zone *zone);
--#else
--static inline bool memmap_valid_within(unsigned long pfn,
--					struct page *page, struct zone *zone)
--{
--	return true;
--}
--#endif /* CONFIG_ARCH_HAS_HOLES_MEMORYMODEL */
--
- #endif /* !__GENERATING_BOUNDS.H */
- #endif /* !__ASSEMBLY__ */
- #endif /* _LINUX_MMZONE_H */
---- a/mm/mmzone.c
-+++ b/mm/mmzone.c
-@@ -72,20 +72,6 @@ struct zoneref *__next_zones_zonelist(st
- 	return z;
+-	mutex_lock(&runtime->buffer_mutex);
+ 	snd_pcm_stream_lock_irq(substream);
+ 	err = pcm_accessible_state(runtime);
+ 	if (err < 0)
+@@ -2224,10 +2221,15 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
+ 			snd_pcm_stream_unlock_irq(substream);
+ 			return -EINVAL;
+ 		}
++		if (!atomic_inc_unless_negative(&runtime->buffer_accessing)) {
++			err = -EBUSY;
++			goto _end_unlock;
++		}
+ 		snd_pcm_stream_unlock_irq(substream);
+ 		err = writer(substream, appl_ofs, data, offset, frames,
+ 			     transfer);
+ 		snd_pcm_stream_lock_irq(substream);
++		atomic_dec(&runtime->buffer_accessing);
+ 		if (err < 0)
+ 			goto _end_unlock;
+ 		err = pcm_accessible_state(runtime);
+@@ -2257,7 +2259,6 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(str
+ 	if (xfer > 0 && err >= 0)
+ 		snd_pcm_update_state(substream, runtime);
+ 	snd_pcm_stream_unlock_irq(substream);
+-	mutex_unlock(&runtime->buffer_mutex);
+ 	return xfer > 0 ? (snd_pcm_sframes_t)xfer : err;
+ }
+ EXPORT_SYMBOL(__snd_pcm_lib_xfer);
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -666,6 +666,24 @@ static int snd_pcm_hw_params_choose(stru
+ 	return 0;
  }
  
--#ifdef CONFIG_ARCH_HAS_HOLES_MEMORYMODEL
--bool memmap_valid_within(unsigned long pfn,
--					struct page *page, struct zone *zone)
--{
--	if (page_to_pfn(page) != pfn)
--		return false;
--
--	if (page_zone(page) != zone)
--		return false;
--
--	return true;
--}
--#endif /* CONFIG_ARCH_HAS_HOLES_MEMORYMODEL */
--
- void lruvec_init(struct lruvec *lruvec)
++/* acquire buffer_mutex; if it's in r/w operation, return -EBUSY, otherwise
++ * block the further r/w operations
++ */
++static int snd_pcm_buffer_access_lock(struct snd_pcm_runtime *runtime)
++{
++	if (!atomic_dec_unless_positive(&runtime->buffer_accessing))
++		return -EBUSY;
++	mutex_lock(&runtime->buffer_mutex);
++	return 0; /* keep buffer_mutex, unlocked by below */
++}
++
++/* release buffer_mutex and clear r/w access flag */
++static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
++{
++	mutex_unlock(&runtime->buffer_mutex);
++	atomic_inc(&runtime->buffer_accessing);
++}
++
+ #if IS_ENABLED(CONFIG_SND_PCM_OSS)
+ #define is_oss_stream(substream)	((substream)->oss.oss)
+ #else
+@@ -676,14 +694,16 @@ static int snd_pcm_hw_params(struct snd_
+ 			     struct snd_pcm_hw_params *params)
  {
- 	enum lru_list lru;
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -1444,10 +1444,6 @@ static void pagetypeinfo_showblockcount_
- 		if (!page)
- 			continue;
+ 	struct snd_pcm_runtime *runtime;
+-	int err = 0, usecs;
++	int err, usecs;
+ 	unsigned int bits;
+ 	snd_pcm_uframes_t frames;
  
--		/* Watch for unexpected holes punched in the memmap */
--		if (!memmap_valid_within(pfn, page, zone))
--			continue;
--
- 		if (page_zone(page) != zone)
- 			continue;
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 	runtime = substream->runtime;
+-	mutex_lock(&runtime->buffer_mutex);
++	err = snd_pcm_buffer_access_lock(runtime);
++	if (err < 0)
++		return err;
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_OPEN:
+@@ -788,7 +808,7 @@ static int snd_pcm_hw_params(struct snd_
+ 			substream->ops->hw_free(substream);
+ 	}
+  unlock:
+-	mutex_unlock(&runtime->buffer_mutex);
++	snd_pcm_buffer_access_unlock(runtime);
+ 	return err;
+ }
  
+@@ -821,7 +841,9 @@ static int snd_pcm_hw_free(struct snd_pc
+ 	if (PCM_RUNTIME_CHECK(substream))
+ 		return -ENXIO;
+ 	runtime = substream->runtime;
+-	mutex_lock(&runtime->buffer_mutex);
++	result = snd_pcm_buffer_access_lock(runtime);
++	if (result < 0)
++		return result;
+ 	snd_pcm_stream_lock_irq(substream);
+ 	switch (runtime->status->state) {
+ 	case SNDRV_PCM_STATE_SETUP:
+@@ -841,7 +863,7 @@ static int snd_pcm_hw_free(struct snd_pc
+ 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
+ 	pm_qos_remove_request(&substream->latency_pm_qos_req);
+  unlock:
+-	mutex_unlock(&runtime->buffer_mutex);
++	snd_pcm_buffer_access_unlock(runtime);
+ 	return result;
+ }
+ 
+@@ -1208,12 +1230,15 @@ static int snd_pcm_action_nonatomic(cons
+ 	int res;
+ 
+ 	down_read(&snd_pcm_link_rwsem);
+-	mutex_lock(&substream->runtime->buffer_mutex);
++	res = snd_pcm_buffer_access_lock(substream->runtime);
++	if (res < 0)
++		goto unlock;
+ 	if (snd_pcm_stream_linked(substream))
+ 		res = snd_pcm_action_group(ops, substream, state, 0);
+ 	else
+ 		res = snd_pcm_action_single(ops, substream, state);
+-	mutex_unlock(&substream->runtime->buffer_mutex);
++	snd_pcm_buffer_access_unlock(substream->runtime);
++ unlock:
+ 	up_read(&snd_pcm_link_rwsem);
+ 	return res;
+ }
 
 
