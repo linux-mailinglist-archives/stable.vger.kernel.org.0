@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CA95264A1
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19FEF52646E
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350311AbiEMObd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46466 "EHLO
+        id S1380664AbiEMObf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:31:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381072AbiEMOak (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:40 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8885E980B3;
-        Fri, 13 May 2022 07:28:16 -0700 (PDT)
+        with ESMTP id S1380735AbiEMOal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:30:41 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B319980BB;
+        Fri, 13 May 2022 07:28:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 316BBB83069;
-        Fri, 13 May 2022 14:28:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9872DC34100;
-        Fri, 13 May 2022 14:28:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAA4962100;
+        Fri, 13 May 2022 14:28:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6525EC34100;
+        Fri, 13 May 2022 14:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452094;
-        bh=sDqknvl/Pn++QqE43sj1doJEwJZRrTv0llb3fsN2P1s=;
+        s=korg; t=1652452097;
+        bh=pA9zUnpv9pFnJPofwKXiPpo5cvbXiPYOF0d/G0S2aQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l69ngyJ0uswT4cum1AyvC8lxGvVezuqypxDI+ooOkvl2OFRbKS17mu0yne+M11Nan
-         XXFYkb225MN6p9IHszpzSshJSLbMlPT2HbyYfi290lA2FTc3IH1mH2hD07cCSEHUoX
-         ox8PsNsnFNrPQj+OGV3dakABxvqSSR0jh1NtdtOo=
+        b=UHBrN6dsvr/z/z6BCjuN1cQ8qIBpDxwu7oG1NzWAOZjDWSnuZV+vCD042bFJn5yB8
+         64zbp3JdBEwLaYohZauJe4zK6iVE0OfVIRTClHd8fYXwh68OLzW6cDoW1KeIOJwjd/
+         16sgIPlYBCrun11pnOXMw9LczT1qr43o0msOgau4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Jan Kara <jack@suse.cz>
-Subject: [PATCH 5.15 14/21] udf: Avoid using stale lengthOfImpUse
-Date:   Fri, 13 May 2022 16:23:56 +0200
-Message-Id: <20220513142230.289833050@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Zi Yan <ziy@nvidia.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 15/21] mm: fix missing cache flush for all tail pages of compound page
+Date:   Fri, 13 May 2022 16:23:57 +0200
+Message-Id: <20220513142230.317902241@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
 References: <20220513142229.874949670@linuxfoundation.org>
@@ -53,54 +63,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit c1ad35dd0548ce947d97aaf92f7f2f9a202951cf upstream.
+commit 2771739a7162782c0aa6424b2e3dd874e884a15d upstream.
 
-udf_write_fi() uses lengthOfImpUse of the entry it is writing to.
-However this field has not yet been initialized so it either contains
-completely bogus value or value from last directory entry at that place.
-In either case this is wrong and can lead to filesystem corruption or
-kernel crashes.
+The D-cache maintenance inside move_to_new_page() only consider one
+page, there is still D-cache maintenance issue for tail pages of
+compound page (e.g. THP or HugeTLB).
 
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-CC: stable@vger.kernel.org
-Fixes: 979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
-Signed-off-by: Jan Kara <jack@suse.cz>
+THP migration is only enabled on x86_64, ARM64 and powerpc, while
+powerpc and arm64 need to maintain the consistency between I-Cache and
+D-Cache, which depends on flush_dcache_page() to maintain the
+consistency between I-Cache and D-Cache.
+
+But there is no issues on arm64 and powerpc since they already considers
+the compound page cache flushing in their icache flush function.
+HugeTLB migration is enabled on arm, arm64, mips, parisc, powerpc,
+riscv, s390 and sh, while arm has handled the compound page cache flush
+in flush_dcache_page(), but most others do not.
+
+In theory, the issue exists on many architectures.  Fix this by not
+using flush_dcache_folio() since it is not backportable.
+
+Link: https://lkml.kernel.org/r/20220210123058.79206-3-songmuchun@bytedance.com
+Fixes: 290408d4a250 ("hugetlb: hugepage migration core")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Lars Persson <lars.persson@axis.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/udf/namei.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/migrate.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -75,11 +75,11 @@ int udf_write_fi(struct inode *inode, st
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -948,9 +948,12 @@ static int move_to_new_page(struct page
+ 		if (!PageMappingFlags(page))
+ 			page->mapping = NULL;
  
- 	if (fileident) {
- 		if (adinicb || (offset + lfi < 0)) {
--			memcpy(udf_get_fi_ident(sfi), fileident, lfi);
-+			memcpy(sfi->impUse + liu, fileident, lfi);
- 		} else if (offset >= 0) {
- 			memcpy(fibh->ebh->b_data + offset, fileident, lfi);
- 		} else {
--			memcpy(udf_get_fi_ident(sfi), fileident, -offset);
-+			memcpy(sfi->impUse + liu, fileident, -offset);
- 			memcpy(fibh->ebh->b_data, fileident - offset,
- 				lfi + offset);
- 		}
-@@ -88,11 +88,11 @@ int udf_write_fi(struct inode *inode, st
- 	offset += lfi;
+-		if (likely(!is_zone_device_page(newpage)))
+-			flush_dcache_page(newpage);
++		if (likely(!is_zone_device_page(newpage))) {
++			int i, nr = compound_nr(newpage);
  
- 	if (adinicb || (offset + padlen < 0)) {
--		memset(udf_get_fi_ident(sfi) + lfi, 0x00, padlen);
-+		memset(sfi->impUse + liu + lfi, 0x00, padlen);
- 	} else if (offset >= 0) {
- 		memset(fibh->ebh->b_data + offset, 0x00, padlen);
- 	} else {
--		memset(udf_get_fi_ident(sfi) + lfi, 0x00, -offset);
-+		memset(sfi->impUse + liu + lfi, 0x00, -offset);
- 		memset(fibh->ebh->b_data, 0x00, padlen + offset);
++			for (i = 0; i < nr; i++)
++				flush_dcache_page(newpage + i);
++		}
  	}
- 
+ out:
+ 	return rc;
 
 
