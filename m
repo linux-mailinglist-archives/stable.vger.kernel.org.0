@@ -2,54 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 195265263FE
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 252315263D6
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379728AbiEMO1F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40308 "EHLO
+        id S1356215AbiEMOY1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:24:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380843AbiEMO0L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:11 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53FD8B0B8;
-        Fri, 13 May 2022 07:25:32 -0700 (PDT)
+        with ESMTP id S1355654AbiEMOYZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:24:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D200050B1C;
+        Fri, 13 May 2022 07:24:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 63103B83065;
-        Fri, 13 May 2022 14:25:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E15C34100;
-        Fri, 13 May 2022 14:25:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6110761F99;
+        Fri, 13 May 2022 14:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05119C34100;
+        Fri, 13 May 2022 14:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451930;
-        bh=Hly+lARfDC8uLVSZIqd+anVrMasE0OzPrfMTH751wCs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mW7hFO3zqDdF06Y2XOOIw3rMvaIoba7w7RpVQoP4IpSmHo6fkz/biNmWomSXcXxr6
-         kI4Akks/UBbEKvBQCC6602fNPORM92OvYZqi+EXZsNbqyGQFI6GvIzZzl6ybimb0jY
-         opA7TL/XM+HNKuhTZc4Ohe0VuD6L86CQdXOt3/IU=
+        s=korg; t=1652451863;
+        bh=pgmlDEK3VnwrJoM5kMd8UWT5gPluDNUCz7SRYnTdRcU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Qd2Kh6VOAWqO+zYcvoXVvN9kZWS83xjYFNAAdLRfNZkbco799CEukeTukycr87qSU
+         uXwU2y4ziqS9c0hc9wuJslU5LTGE8XjAJlfySGNptFSvPc5CQhJ0sHANnn7ZYEK3RO
+         RL/RWGGANOqVgJUFuGKOL23PosakMsPrZ/g/5ivY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 00/14] 4.14.279-rc1 review
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 1/7] MIPS: Use address-of operator on section symbols
 Date:   Fri, 13 May 2022 16:23:16 +0200
-Message-Id: <20220513142227.381154244@linuxfoundation.org>
+Message-Id: <20220513142225.953417330@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
+References: <20220513142225.909697091@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.279-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.279-rc1
-X-KernelTest-Deadline: 2022-05-15T14:22+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,95 +58,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.279 release.
-There are 14 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
-Anything received after that time might be too late.
+commit d422c6c0644bccbb1ebeefffa51f35cec3019517 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.279-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+When building xway_defconfig with clang:
 
-thanks,
+arch/mips/lantiq/prom.c:82:23: error: array comparison always evaluates
+to true [-Werror,-Wtautological-compare]
+        else if (__dtb_start != __dtb_end)
+                             ^
+1 error generated.
 
-greg k-h
+These are not true arrays, they are linker defined symbols, which are
+just addresses. Using the address of operator silences the warning
+and does not change the resulting assembly with either clang/ld.lld
+or gcc/ld (tested with diff + objdump -Dr). Do the same thing across
+the entire MIPS subsystem to ensure there are no more warnings around
+this type of comparison.
 
--------------
-Pseudo-Shortlog of commits:
+Link: https://github.com/ClangBuiltLinux/linux/issues/1232
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/mips/bmips/setup.c          |    2 +-
+ arch/mips/lantiq/prom.c          |    2 +-
+ arch/mips/pic32/pic32mzda/init.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.279-rc1
-
-ChenXiaoSong <chenxiaosong2@huawei.com>
-    VFS: Fix memory leak caused by concurrently mounting fs with subtype
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: Fix potential AB/BA lock with buffer_mutex and mmap_lock
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: Fix races among concurrent prealloc proc writes
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: Fix races among concurrent read/write and buffer changes
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
-
-Muchun Song <songmuchun@bytedance.com>
-    mm: hugetlb: fix missing cache flush in copy_huge_page_from_user()
-
-Ricky WU <ricky_wu@realtek.com>
-    mmc: rtsx: add 74 Clocks in power on flow
-
-Itay Iellin <ieitayie@gmail.com>
-    Bluetooth: Fix the creation of hdev->name
-
-Andreas Larsson <andreas@gaisler.com>
-    can: grcan: only use the NAPI poll budget for RX
-
-Andreas Larsson <andreas@gaisler.com>
-    can: grcan: grcan_probe(): fix broken system id check for errata workaround needs
-
-Lee Jones <lee.jones@linaro.org>
-    block: drbd: drbd_nl: Make conversion to 'enum drbd_ret_code' explicit
-
-Nathan Chancellor <natechancellor@gmail.com>
-    MIPS: Use address-of operator on section symbols
-
-
--------------
-
-Diffstat:
-
- Makefile                          |   4 +-
- arch/mips/bmips/setup.c           |   2 +-
- arch/mips/lantiq/prom.c           |   2 +-
- arch/mips/pic32/pic32mzda/init.c  |   2 +-
- arch/mips/ralink/of.c             |   2 +-
- drivers/block/drbd/drbd_nl.c      |  13 +++--
- drivers/mmc/host/rtsx_pci_sdmmc.c |  30 +++++++----
- drivers/net/can/grcan.c           |  38 +++++++------
- fs/namespace.c                    |   9 ++--
- include/net/bluetooth/hci_core.h  |   3 ++
- include/sound/pcm.h               |   2 +
- mm/memory.c                       |   2 +
- mm/userfaultfd.c                  |   3 ++
- net/bluetooth/hci_core.c          |   6 +--
- sound/core/pcm.c                  |   3 ++
- sound/core/pcm_lib.c              |   5 ++
- sound/core/pcm_memory.c           |  11 ++--
- sound/core/pcm_native.c           | 110 +++++++++++++++++++++++++++-----------
- 18 files changed, 164 insertions(+), 83 deletions(-)
+--- a/arch/mips/bmips/setup.c
++++ b/arch/mips/bmips/setup.c
+@@ -174,7 +174,7 @@ void __init plat_mem_setup(void)
+ 		dtb = phys_to_virt(fw_arg2);
+ 	else if (fw_passed_dtb) /* UHI interface */
+ 		dtb = (void *)fw_passed_dtb;
+-	else if (__dtb_start != __dtb_end)
++	else if (&__dtb_start != &__dtb_end)
+ 		dtb = (void *)__dtb_start;
+ 	else
+ 		panic("no dtb found");
+--- a/arch/mips/lantiq/prom.c
++++ b/arch/mips/lantiq/prom.c
+@@ -76,7 +76,7 @@ void __init plat_mem_setup(void)
+ 
+ 	if (fw_passed_dtb) /* UHI interface */
+ 		dtb = (void *)fw_passed_dtb;
+-	else if (__dtb_start != __dtb_end)
++	else if (&__dtb_start != &__dtb_end)
+ 		dtb = (void *)__dtb_start;
+ 	else
+ 		panic("no dtb found");
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -36,7 +36,7 @@ static ulong get_fdtaddr(void)
+ 	if (fw_passed_dtb && !fw_arg2 && !fw_arg3)
+ 		return (ulong)fw_passed_dtb;
+ 
+-	if (__dtb_start < __dtb_end)
++	if (&__dtb_start < &__dtb_end)
+ 		ftaddr = (ulong)__dtb_start;
+ 
+ 	return ftaddr;
 
 
