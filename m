@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8C35263E0
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F7852640A
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376967AbiEMOYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:24:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38314 "EHLO
+        id S1359168AbiEMO0z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:26:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377289AbiEMOYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:24:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61B75EBD1;
-        Fri, 13 May 2022 07:24:39 -0700 (PDT)
+        with ESMTP id S1380701AbiEMOZ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:25:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 241F66B659;
+        Fri, 13 May 2022 07:25:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C2D66215A;
-        Fri, 13 May 2022 14:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55273C34100;
-        Fri, 13 May 2022 14:24:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8D5BB83068;
+        Fri, 13 May 2022 14:25:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E688C34100;
+        Fri, 13 May 2022 14:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451878;
-        bh=WrtSnC9ElmgIEbQerXZBPCxouw+fQ4cO0pntLGU/bfU=;
+        s=korg; t=1652451918;
+        bh=CiGNaB9PdFEDjJaiY6qic2eYiJtF5CwjFMm9j/i3FFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QqMy8jOZqY+ho8LNRsXTVylrTIcysg62G28vnu5g1Ycx8B14V+uJJqxAQmAkD0jHO
-         MXyw9JPABkW77q/P2v7zNJE2JMmZqZWuMERKcsw7JO+xTN30k2bzZ5j7HQtVqsfX89
-         78u7dcDUe5VPRRQczO7DqMuDEko0YGmV6LM+Fiqs=
+        b=gjXd8tyISen/rl/lMkBxTLUre+54S3BhBDpytA+lhI2s9X4u+T75Sa7xf8U/W2/jd
+         YL84r0GV8RmGAJJ5+jnptjCHiJ9l3tjOZFVbzs5YwVAcNzbbE2R2K/Zx8DZvmP64Wl
+         2uiZMEh0SFUcJHOsT5CZR4/isRNxgR4ALQ102U7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ricky Wu <ricky_wu@realtek.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Christian Loehle <cloehle@hyperstone.com>
-Subject: [PATCH 4.9 6/7] mmc: rtsx: add 74 Clocks in power on flow
-Date:   Fri, 13 May 2022 16:23:21 +0200
-Message-Id: <20220513142226.100940342@linuxfoundation.org>
+Subject: [PATCH 4.14 06/14] mmc: rtsx: add 74 Clocks in power on flow
+Date:   Fri, 13 May 2022 16:23:22 +0200
+Message-Id: <20220513142227.571293193@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
-References: <20220513142225.909697091@linuxfoundation.org>
+In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
+References: <20220513142227.381154244@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -91,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	int			sg_count;
  	s32			cookie;
  	int			cookie_sg_count;
-@@ -914,14 +911,21 @@ static int sd_set_bus_width(struct realt
+@@ -913,14 +910,21 @@ static int sd_set_bus_width(struct realt
  	return err;
  }
  
@@ -115,7 +115,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	rtsx_pci_init_cmd(pcr);
  	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, CARD_SELECT, 0x07, SD_MOD_SEL);
  	rtsx_pci_add_cmd(pcr, WRITE_REG_CMD, CARD_SHARE_MODE,
-@@ -940,11 +944,17 @@ static int sd_power_on(struct realtek_pc
+@@ -939,11 +943,17 @@ static int sd_power_on(struct realtek_pc
  	if (err < 0)
  		return err;
  
@@ -134,7 +134,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	return 0;
  }
  
-@@ -953,7 +963,7 @@ static int sd_power_off(struct realtek_p
+@@ -952,7 +962,7 @@ static int sd_power_off(struct realtek_p
  	struct rtsx_pcr *pcr = host->pcr;
  	int err;
  
@@ -143,7 +143,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	rtsx_pci_init_cmd(pcr);
  
-@@ -979,7 +989,7 @@ static int sd_set_power_mode(struct real
+@@ -978,7 +988,7 @@ static int sd_set_power_mode(struct real
  	if (power_mode == MMC_POWER_OFF)
  		err = sd_power_off(host);
  	else
@@ -152,7 +152,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	return err;
  }
-@@ -1417,7 +1427,7 @@ static int rtsx_pci_sdmmc_drv_probe(stru
+@@ -1416,7 +1426,7 @@ static int rtsx_pci_sdmmc_drv_probe(stru
  	host->mmc = mmc;
  	host->pdev = pdev;
  	host->cookie = -1;
