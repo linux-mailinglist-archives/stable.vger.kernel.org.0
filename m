@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCC86526485
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D0552644D
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:30:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381007AbiEMObt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:31:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46770 "EHLO
+        id S1380781AbiEMO3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:29:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381198AbiEMObK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:31:10 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A54A0985B0;
-        Fri, 13 May 2022 07:28:41 -0700 (PDT)
+        with ESMTP id S1380714AbiEMO1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:27:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116FC50E18;
+        Fri, 13 May 2022 07:27:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 192EECE3237;
-        Fri, 13 May 2022 14:28:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 274EEC36AF2;
-        Fri, 13 May 2022 14:28:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9458462155;
+        Fri, 13 May 2022 14:27:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66961C34100;
+        Fri, 13 May 2022 14:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452118;
-        bh=VkPUj72UpbJFCY22ks6F56UqOwRU9wtq4zC3+pJvIkk=;
+        s=korg; t=1652452052;
+        bh=1AoLTDAALQr7QOhpcU99xOeIqr+N6b46LV8dUcsNKbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tx5aNeJVZeHXIUwxHEksjaepFAIWmBSsQ0/qtuhqyxm2A+A4XQetsgdY/q899uylz
-         AcokfPIrS2Jb1z3uZfXA3b9WWJYKrWK0CQ8XYF0N13eEyoZDh7/YVailUAuvOqtsbD
-         HQ5YpYnR9FXCSwyOfvfbH9zZmOqTA5bYCUG0rdl8=
+        b=wpBWzMIn5uHHY2no+27zb+/KGRH4NGUzEO7+SrtOhW7gguOeKfAkihd8UaRgGCwXa
+         ZYfCesZYi1+SE/3U4tHq2HT3SflakMlnaBxbtaFoLcqQioY2Z/Enc+zTFryqq9QHh5
+         2KKetrW7RJABo9l7Fz1YpqFGE3grK5Z6G3V/SXpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 05/21] x86/alternative: Relax text_poke_bp() constraint
-Date:   Fri, 13 May 2022 16:23:47 +0200
-Message-Id: <20220513142230.035244880@linuxfoundation.org>
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Lee Jones <lee.jones@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.10 04/10] drm/amd/display/dc/gpio/gpio_service: Pass around correct dce_{version, environment} types
+Date:   Fri, 13 May 2022 16:23:48 +0200
+Message-Id: <20220513142228.435635841@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.874949670@linuxfoundation.org>
-References: <20220513142229.874949670@linuxfoundation.org>
+In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
+References: <20220513142228.303546319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,170 +59,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Lee Jones <lee.jones@linaro.org>
 
-[ Upstream commit 26c44b776dba4ac692a0bf5a3836feb8a63fea6b ]
+commit 353f7f3a9dd5fd2833b6462bac89ec1654c9c3aa upstream.
 
-Currently, text_poke_bp() is very strict to only allow patching a
-single instruction; however with straight-line-speculation it will be
-required to patch: ret; int3, which is two instructions.
+Fixes the following W=1 kernel build warning(s):
 
-As such, relax the constraints a little to allow int3 padding for all
-instructions that do not imply the execution of the next instruction,
-ie: RET, JMP.d8 and JMP.d32.
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c: In function ‘dal_gpio_service_create’:
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:71:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:77:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
 
-While there, rename the text_poke_loc::rel32 field to ::disp.
-
-Note: this fills up the text_poke_loc structure which is now a round
-  16 bytes big.
-
-  [ bp: Put comments ontop instead of on the side. ]
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211204134908.082342723@infradead.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/alternative.c |   49 +++++++++++++++++++++++++++++-------------
- 1 file changed, 34 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c           |   12 +++++------
+ drivers/gpu/drm/amd/display/include/gpio_service_interface.h |    4 +--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -930,10 +930,13 @@ void text_poke_sync(void)
- }
+--- a/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
+@@ -53,8 +53,8 @@
+  */
  
- struct text_poke_loc {
--	s32 rel_addr; /* addr := _stext + rel_addr */
--	s32 rel32;
-+	/* addr := _stext + rel_addr */
-+	s32 rel_addr;
-+	s32 disp;
-+	u8 len;
- 	u8 opcode;
- 	const u8 text[POKE_MAX_OPCODE_SIZE];
-+	/* see text_poke_bp_batch() */
- 	u8 old;
- };
- 
-@@ -948,7 +951,8 @@ static struct bp_patching_desc *bp_desc;
- static __always_inline
- struct bp_patching_desc *try_get_desc(struct bp_patching_desc **descp)
+ struct gpio_service *dal_gpio_service_create(
+-	enum dce_version dce_version_major,
+-	enum dce_version dce_version_minor,
++	enum dce_version dce_version,
++	enum dce_environment dce_environment,
+ 	struct dc_context *ctx)
  {
--	struct bp_patching_desc *desc = __READ_ONCE(*descp); /* rcu_dereference */
-+	/* rcu_dereference */
-+	struct bp_patching_desc *desc = __READ_ONCE(*descp);
- 
- 	if (!desc || !arch_atomic_inc_not_zero(&desc->refs))
+ 	struct gpio_service *service;
+@@ -67,14 +67,14 @@ struct gpio_service *dal_gpio_service_cr
  		return NULL;
-@@ -982,7 +986,7 @@ noinstr int poke_int3_handler(struct pt_
- {
- 	struct bp_patching_desc *desc;
- 	struct text_poke_loc *tp;
--	int len, ret = 0;
-+	int ret = 0;
- 	void *ip;
- 
- 	if (user_mode(regs))
-@@ -1022,8 +1026,7 @@ noinstr int poke_int3_handler(struct pt_
- 			goto out_put;
  	}
  
--	len = text_opcode_size(tp->opcode);
--	ip += len;
-+	ip += tp->len;
+-	if (!dal_hw_translate_init(&service->translate, dce_version_major,
+-			dce_version_minor)) {
++	if (!dal_hw_translate_init(&service->translate, dce_version,
++			dce_environment)) {
+ 		BREAK_TO_DEBUGGER();
+ 		goto failure_1;
+ 	}
  
- 	switch (tp->opcode) {
- 	case INT3_INSN_OPCODE:
-@@ -1038,12 +1041,12 @@ noinstr int poke_int3_handler(struct pt_
- 		break;
+-	if (!dal_hw_factory_init(&service->factory, dce_version_major,
+-			dce_version_minor)) {
++	if (!dal_hw_factory_init(&service->factory, dce_version,
++			dce_environment)) {
+ 		BREAK_TO_DEBUGGER();
+ 		goto failure_1;
+ 	}
+--- a/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
++++ b/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
+@@ -42,8 +42,8 @@ void dal_gpio_destroy(
+ 	struct gpio **ptr);
  
- 	case CALL_INSN_OPCODE:
--		int3_emulate_call(regs, (long)ip + tp->rel32);
-+		int3_emulate_call(regs, (long)ip + tp->disp);
- 		break;
+ struct gpio_service *dal_gpio_service_create(
+-	enum dce_version dce_version_major,
+-	enum dce_version dce_version_minor,
++	enum dce_version dce_version,
++	enum dce_environment dce_environment,
+ 	struct dc_context *ctx);
  
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		int3_emulate_jmp(regs, (long)ip + tp->rel32);
-+		int3_emulate_jmp(regs, (long)ip + tp->disp);
- 		break;
- 
- 	default:
-@@ -1118,7 +1121,7 @@ static void text_poke_bp_batch(struct te
- 	 */
- 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
- 		u8 old[POKE_MAX_OPCODE_SIZE] = { tp[i].old, };
--		int len = text_opcode_size(tp[i].opcode);
-+		int len = tp[i].len;
- 
- 		if (len - INT3_INSN_SIZE > 0) {
- 			memcpy(old + INT3_INSN_SIZE,
-@@ -1195,21 +1198,37 @@ static void text_poke_loc_init(struct te
- 			       const void *opcode, size_t len, const void *emulate)
- {
- 	struct insn insn;
--	int ret;
-+	int ret, i;
- 
- 	memcpy((void *)tp->text, opcode, len);
- 	if (!emulate)
- 		emulate = opcode;
- 
- 	ret = insn_decode_kernel(&insn, emulate);
--
- 	BUG_ON(ret < 0);
--	BUG_ON(len != insn.length);
- 
- 	tp->rel_addr = addr - (void *)_stext;
-+	tp->len = len;
- 	tp->opcode = insn.opcode.bytes[0];
- 
- 	switch (tp->opcode) {
-+	case RET_INSN_OPCODE:
-+	case JMP32_INSN_OPCODE:
-+	case JMP8_INSN_OPCODE:
-+		/*
-+		 * Control flow instructions without implied execution of the
-+		 * next instruction can be padded with INT3.
-+		 */
-+		for (i = insn.length; i < len; i++)
-+			BUG_ON(tp->text[i] != INT3_INSN_OPCODE);
-+		break;
-+
-+	default:
-+		BUG_ON(len != insn.length);
-+	};
-+
-+
-+	switch (tp->opcode) {
- 	case INT3_INSN_OPCODE:
- 	case RET_INSN_OPCODE:
- 		break;
-@@ -1217,7 +1236,7 @@ static void text_poke_loc_init(struct te
- 	case CALL_INSN_OPCODE:
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		tp->rel32 = insn.immediate.value;
-+		tp->disp = insn.immediate.value;
- 		break;
- 
- 	default: /* assume NOP */
-@@ -1225,13 +1244,13 @@ static void text_poke_loc_init(struct te
- 		case 2: /* NOP2 -- emulate as JMP8+0 */
- 			BUG_ON(memcmp(emulate, x86_nops[len], len));
- 			tp->opcode = JMP8_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->disp = 0;
- 			break;
- 
- 		case 5: /* NOP5 -- emulate as JMP32+0 */
- 			BUG_ON(memcmp(emulate, x86_nops[len], len));
- 			tp->opcode = JMP32_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->disp = 0;
- 			break;
- 
- 		default: /* unknown instruction */
+ struct gpio *dal_gpio_service_create_irq(
 
 
