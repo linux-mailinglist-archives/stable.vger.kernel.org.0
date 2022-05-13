@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D94A252641F
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA6BC526425
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380800AbiEMO13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
+        id S1356414AbiEMO1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381117AbiEMO0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:45 -0400
+        with ESMTP id S1381121AbiEMO0q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:46 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4869250E11;
-        Fri, 13 May 2022 07:26:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 000182D8;
+        Fri, 13 May 2022 07:26:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C11DDB82C9D;
-        Fri, 13 May 2022 14:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F6BBC34100;
-        Fri, 13 May 2022 14:26:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA096B8306E;
+        Fri, 13 May 2022 14:26:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD1AC34100;
+        Fri, 13 May 2022 14:26:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652452000;
-        bh=HWTMEGbsHhXtcvzhDNm8UxDIRyRvfDBRzlYitpsBLYA=;
+        s=korg; t=1652452003;
+        bh=12YI1UGBZzsNCwc7wOpvDIuco1N5jvXCN9y084M/eS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bpdlGr93yMLojJR+ushecK87W9x7WFJea7+IllbE+3b40Yq5Zamo+qsvU2wk/76MY
-         6+4tyNAZMErkhTuVcK6iWSvz7AhZR7kSdZ5Z7RacrmENMZ86vbytsQvkObgbx03434
-         x25SWjnn8Drd37RzWCEAGs8Fi5Fs+U7rm18E352c=
+        b=TF49NBISrw454SlKH7LUFx3eAsJgEkHlhjHS9BsxZlJt7MxCdE3ctQyuyhgM7KSRb
+         ZlD9o85gQ+0wOrCwp6m0R/9cJuFOB028EPZsJBFxFoqMA7bKkcS4Ust09XkMbJ+Xcx
+         u7J3e0CJQXl1Qz9c8ODLfKuI5XRiSJglxpfUt5Dg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Itay Iellin <ieitayie@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.4 15/18] Bluetooth: Fix the creation of hdev->name
-Date:   Fri, 13 May 2022 16:23:41 +0200
-Message-Id: <20220513142229.598090397@linuxfoundation.org>
+        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
+        Zi Yan <ziy@nvidia.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        David Rientjes <rientjes@google.com>,
+        Fam Zheng <fam.zheng@bytedance.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Lars Persson <lars.persson@axis.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        Xiongchun Duan <duanxiongchun@bytedance.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 16/18] mm: fix missing cache flush for all tail pages of compound page
+Date:   Fri, 13 May 2022 16:23:42 +0200
+Message-Id: <20220513142229.625666491@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
 References: <20220513142229.153291230@linuxfoundation.org>
@@ -53,65 +63,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Itay Iellin <ieitayie@gmail.com>
+From: Muchun Song <songmuchun@bytedance.com>
 
-commit 103a2f3255a95991252f8f13375c3a96a75011cd upstream.
+commit 2771739a7162782c0aa6424b2e3dd874e884a15d upstream.
 
-Set a size limit of 8 bytes of the written buffer to "hdev->name"
-including the terminating null byte, as the size of "hdev->name" is 8
-bytes. If an id value which is greater than 9999 is allocated,
-then the "snprintf(hdev->name, sizeof(hdev->name), "hci%d", id)"
-function call would lead to a truncation of the id value in decimal
-notation.
+The D-cache maintenance inside move_to_new_page() only consider one
+page, there is still D-cache maintenance issue for tail pages of
+compound page (e.g. THP or HugeTLB).
 
-Set an explicit maximum id parameter in the id allocation function call.
-The id allocation function defines the maximum allocated id value as the
-maximum id parameter value minus one. Therefore, HCI_MAX_ID is defined
-as 10000.
+THP migration is only enabled on x86_64, ARM64 and powerpc, while
+powerpc and arm64 need to maintain the consistency between I-Cache and
+D-Cache, which depends on flush_dcache_page() to maintain the
+consistency between I-Cache and D-Cache.
 
-Signed-off-by: Itay Iellin <ieitayie@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+But there is no issues on arm64 and powerpc since they already considers
+the compound page cache flushing in their icache flush function.
+HugeTLB migration is enabled on arm, arm64, mips, parisc, powerpc,
+riscv, s390 and sh, while arm has handled the compound page cache flush
+in flush_dcache_page(), but most others do not.
+
+In theory, the issue exists on many architectures.  Fix this by not
+using flush_dcache_folio() since it is not backportable.
+
+Link: https://lkml.kernel.org/r/20220210123058.79206-3-songmuchun@bytedance.com
+Fixes: 290408d4a250 ("hugetlb: hugepage migration core")
+Signed-off-by: Muchun Song <songmuchun@bytedance.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Fam Zheng <fam.zheng@bytedance.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Lars Persson <lars.persson@axis.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/bluetooth/hci_core.h |    3 +++
- net/bluetooth/hci_core.c         |    6 +++---
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ mm/migrate.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -34,6 +34,9 @@
- /* HCI priority */
- #define HCI_PRIO_MAX	7
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -994,9 +994,12 @@ static int move_to_new_page(struct page
+ 		if (!PageMappingFlags(page))
+ 			page->mapping = NULL;
  
-+/* HCI maximum id value */
-+#define HCI_MAX_ID 10000
-+
- /* HCI Core structures */
- struct inquiry_data {
- 	bdaddr_t	bdaddr;
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3304,10 +3304,10 @@ int hci_register_dev(struct hci_dev *hde
- 	 */
- 	switch (hdev->dev_type) {
- 	case HCI_PRIMARY:
--		id = ida_simple_get(&hci_index_ida, 0, 0, GFP_KERNEL);
-+		id = ida_simple_get(&hci_index_ida, 0, HCI_MAX_ID, GFP_KERNEL);
- 		break;
- 	case HCI_AMP:
--		id = ida_simple_get(&hci_index_ida, 1, 0, GFP_KERNEL);
-+		id = ida_simple_get(&hci_index_ida, 1, HCI_MAX_ID, GFP_KERNEL);
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -3316,7 +3316,7 @@ int hci_register_dev(struct hci_dev *hde
- 	if (id < 0)
- 		return id;
+-		if (likely(!is_zone_device_page(newpage)))
+-			flush_dcache_page(newpage);
++		if (likely(!is_zone_device_page(newpage))) {
++			int i, nr = compound_nr(newpage);
  
--	sprintf(hdev->name, "hci%d", id);
-+	snprintf(hdev->name, sizeof(hdev->name), "hci%d", id);
- 	hdev->id = id;
- 
- 	BT_DBG("%p name %s bus %d", hdev, hdev->name, hdev->bus);
++			for (i = 0; i < nr; i++)
++				flush_dcache_page(newpage + i);
++		}
+ 	}
+ out:
+ 	return rc;
 
 
