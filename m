@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 15ADD5263D8
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5140B5263EC
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:25:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356000AbiEMOYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:24:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38296 "EHLO
+        id S1380746AbiEMOZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:25:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356163AbiEMOY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:24:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 128D050E09;
-        Fri, 13 May 2022 07:24:28 -0700 (PDT)
+        with ESMTP id S1379132AbiEMOY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:24:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E46805E758;
+        Fri, 13 May 2022 07:24:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C80662159;
-        Fri, 13 May 2022 14:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94300C34100;
-        Fri, 13 May 2022 14:24:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BA16B83069;
+        Fri, 13 May 2022 14:24:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6235C34117;
+        Fri, 13 May 2022 14:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451867;
-        bh=ETI53b86DAHqatpudtFy7YPhyal4lKlxeI/cCzB39YI=;
+        s=korg; t=1652451888;
+        bh=n7TtXaBFz/LmgXn7fOo/p0dEerr3wEwVJiOgyCRxc5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooIJZw6xKVCCwyqQvgkNI2RKZBLCLG7Mm8GLQKUh+yyaJKPEvarplgoPXrwptYNXp
-         Ux892aw+DHXDoqiKXePfKGfXnOzEDRJ2RKZncqa2jUtoW5jjRNknM9b7Pg1xB7Q134
-         xs5Dm8s2VWUQC9svHvHydaBMVXaEbYmc6mBrC/Og=
+        b=hDDNLegcBSPzLpJKrn2UFw4ckktuIotCyrUaPsyhGHrn/+OfrRun2xNM7wtvfY9bu
+         Jc3KhGvB4xCC8hlhgRVt7AK1VCKEAxMLC3waq+ZF25w4s+jVJNrJd8lfI/Z6AMeJcH
+         yy8bwLcBrjE8dZ0jgPL+ewHKkzthfPuzvJ0nM6ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Philipp Reisner <philipp.reisner@linbit.com>,
-        Lars Ellenberg <lars.ellenberg@linbit.com>,
-        Jens Axboe <axboe@kernel.dk>, drbd-dev@lists.linbit.com,
-        linux-block@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.9 2/7] block: drbd: drbd_nl: Make conversion to enum drbd_ret_code explicit
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.14 01/14] MIPS: Use address-of operator on section symbols
 Date:   Fri, 13 May 2022 16:23:17 +0200
-Message-Id: <20220513142225.984359309@linuxfoundation.org>
+Message-Id: <20220513142227.425984175@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
-References: <20220513142225.909697091@linuxfoundation.org>
+In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
+References: <20220513142227.381154244@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,80 +58,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lee Jones <lee.jones@linaro.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-commit 1f1e87b4dc4598eac57a69868534b92d65e47e82 upstream.
+commit d422c6c0644bccbb1ebeefffa51f35cec3019517 upstream.
 
-Fixes the following W=1 kernel build warning(s):
+When building xway_defconfig with clang:
 
- from drivers/block/drbd/drbd_nl.c:24:
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_set_role’:
- drivers/block/drbd/drbd_nl.c:793:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c:795:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_attach’:
- drivers/block/drbd/drbd_nl.c:1965:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_connect’:
- drivers/block/drbd/drbd_nl.c:2690:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
- drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_disconnect’:
- drivers/block/drbd/drbd_nl.c:2803:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+arch/mips/lantiq/prom.c:82:23: error: array comparison always evaluates
+to true [-Werror,-Wtautological-compare]
+        else if (__dtb_start != __dtb_end)
+                             ^
+1 error generated.
 
-Cc: Philipp Reisner <philipp.reisner@linbit.com>
-Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: drbd-dev@lists.linbit.com
-Cc: linux-block@vger.kernel.org
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20210312105530.2219008-8-lee.jones@linaro.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Nathan Chancellor <nathan@kernel.org>
+These are not true arrays, they are linker defined symbols, which are
+just addresses. Using the address of operator silences the warning
+and does not change the resulting assembly with either clang/ld.lld
+or gcc/ld (tested with diff + objdump -Dr). Do the same thing across
+the entire MIPS subsystem to ensure there are no more warnings around
+this type of comparison.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1232
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/drbd/drbd_nl.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ arch/mips/bmips/setup.c          |    2 +-
+ arch/mips/lantiq/prom.c          |    2 +-
+ arch/mips/pic32/pic32mzda/init.c |    2 +-
+ arch/mips/ralink/of.c            |    2 +-
+ 4 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -774,9 +774,11 @@ int drbd_adm_set_role(struct sk_buff *sk
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
- 
- 	if (info->genlhdr->cmd == DRBD_ADM_PRIMARY)
--		retcode = drbd_set_role(adm_ctx.device, R_PRIMARY, parms.assume_uptodate);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_PRIMARY, parms.assume_uptodate);
+--- a/arch/mips/bmips/setup.c
++++ b/arch/mips/bmips/setup.c
+@@ -174,7 +174,7 @@ void __init plat_mem_setup(void)
+ 		dtb = phys_to_virt(fw_arg2);
+ 	else if (fw_passed_dtb) /* UHI interface */
+ 		dtb = (void *)fw_passed_dtb;
+-	else if (__dtb_start != __dtb_end)
++	else if (&__dtb_start != &__dtb_end)
+ 		dtb = (void *)__dtb_start;
  	else
--		retcode = drbd_set_role(adm_ctx.device, R_SECONDARY, 0);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_SECONDARY, 0);
+ 		panic("no dtb found");
+--- a/arch/mips/lantiq/prom.c
++++ b/arch/mips/lantiq/prom.c
+@@ -82,7 +82,7 @@ void __init plat_mem_setup(void)
  
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
- 	genl_lock();
-@@ -1933,7 +1935,7 @@ int drbd_adm_attach(struct sk_buff *skb,
- 	drbd_flush_workqueue(&connection->sender_work);
- 
- 	rv = _drbd_request_state(device, NS(disk, D_ATTACHING), CS_VERBOSE);
--	retcode = rv;  /* FIXME: Type mismatch. */
-+	retcode = (enum drbd_ret_code)rv;
- 	drbd_resume_io(device);
- 	if (rv < SS_SUCCESS)
- 		goto fail;
-@@ -2684,7 +2686,8 @@ int drbd_adm_connect(struct sk_buff *skb
- 	}
- 	rcu_read_unlock();
- 
--	retcode = conn_request_state(connection, NS(conn, C_UNCONNECTED), CS_VERBOSE);
-+	retcode = (enum drbd_ret_code)conn_request_state(connection,
-+					NS(conn, C_UNCONNECTED), CS_VERBOSE);
- 
- 	conn_reconfig_done(connection);
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
-@@ -2790,7 +2793,7 @@ int drbd_adm_disconnect(struct sk_buff *
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
- 	rv = conn_try_disconnect(connection, parms.force_disconnect);
- 	if (rv < SS_SUCCESS)
--		retcode = rv;  /* FIXME: Type mismatch. */
-+		retcode = (enum drbd_ret_code)rv;
+ 	if (fw_passed_dtb) /* UHI interface */
+ 		dtb = (void *)fw_passed_dtb;
+-	else if (__dtb_start != __dtb_end)
++	else if (&__dtb_start != &__dtb_end)
+ 		dtb = (void *)__dtb_start;
  	else
- 		retcode = NO_ERROR;
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+ 		panic("no dtb found");
+--- a/arch/mips/pic32/pic32mzda/init.c
++++ b/arch/mips/pic32/pic32mzda/init.c
+@@ -36,7 +36,7 @@ static ulong get_fdtaddr(void)
+ 	if (fw_passed_dtb && !fw_arg2 && !fw_arg3)
+ 		return (ulong)fw_passed_dtb;
+ 
+-	if (__dtb_start < __dtb_end)
++	if (&__dtb_start < &__dtb_end)
+ 		ftaddr = (ulong)__dtb_start;
+ 
+ 	return ftaddr;
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -79,7 +79,7 @@ void __init plat_mem_setup(void)
+ 	 */
+ 	if (fw_passed_dtb)
+ 		dtb = (void *)fw_passed_dtb;
+-	else if (__dtb_start != __dtb_end)
++	else if (&__dtb_start != &__dtb_end)
+ 		dtb = (void *)__dtb_start;
+ 
+ 	__dt_setup_arch(dtb);
 
 
