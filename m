@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 895CB52643E
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:29:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ABA95263FB
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380718AbiEMO16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39844 "EHLO
+        id S1379132AbiEMO1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380898AbiEMO0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E05DD8B0A5;
-        Fri, 13 May 2022 07:25:28 -0700 (PDT)
+        with ESMTP id S1380992AbiEMO0Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3FDC606D7;
+        Fri, 13 May 2022 07:25:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC9DD62154;
-        Fri, 13 May 2022 14:25:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFFFEC34100;
-        Fri, 13 May 2022 14:25:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EFDEB83069;
+        Fri, 13 May 2022 14:25:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94600C34100;
+        Fri, 13 May 2022 14:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451927;
-        bh=ErWX4RJqUIUprDkK5KKNv9V6lo90Z8oK1HFTJCY2wiA=;
+        s=korg; t=1652451957;
+        bh=5TQdR9CfD/pFNVGjxcqLRAGHcY/q8Rinz6NZhij5HSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sZQB7UZD+r+kcYDfIAuoRcLbIk4Q4KEiqjTk37MZvf+Nf8HbVzdX1skCfycQHEveB
-         stDS3ZT7IsotVYMS6Z9+o3QNZxhCrP868lehSScdztWIgGVDlPpr/CvQx5jHhtTtNX
-         EYUZ9W0SjhsBy2DepYFO3wfFlXUaMMx1vGm/dApQ=
+        b=ga8+prMOVvKBLYpaOONtxdP9eDAlopCwtHRziEGZ9vyEkKNc/VaMygOGzEyXxyeY8
+         tJyj8g9GGGdTPxKWcvkw/EvMyFh4oF5iMw4Qg7pLdC0MhsiI78cN1lbe60X58iWgrf
+         uCD9xkRuvQitZFq0XBMkpenGdVnJL/f/4owBDRxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Hu Jiahui <kirin.say@gmail.com>,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.14 09/14] ALSA: pcm: Fix races among concurrent hw_params and hw_free calls
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Lee Jones <lee.jones@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 03/15] drm/amd/display/dc/gpio/gpio_service: Pass around correct dce_{version, environment} types
 Date:   Fri, 13 May 2022 16:23:25 +0200
-Message-Id: <20220513142227.657909717@linuxfoundation.org>
+Message-Id: <20220513142227.998453147@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
-References: <20220513142227.381154244@linuxfoundation.org>
+In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
+References: <20220513142227.897535454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,172 +59,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit 92ee3c60ec9fe64404dc035e7c41277d74aa26cb upstream.
+commit 353f7f3a9dd5fd2833b6462bac89ec1654c9c3aa upstream.
 
-Currently we have neither proper check nor protection against the
-concurrent calls of PCM hw_params and hw_free ioctls, which may result
-in a UAF.  Since the existing PCM stream lock can't be used for
-protecting the whole ioctl operations, we need a new mutex to protect
-those racy calls.
+Fixes the following W=1 kernel build warning(s):
 
-This patch introduced a new mutex, runtime->buffer_mutex, and applies
-it to both hw_params and hw_free ioctl code paths.  Along with it, the
-both functions are slightly modified (the mmap_count check is moved
-into the state-check block) for code simplicity.
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c: In function ‘dal_gpio_service_create’:
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:71:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
+ drivers/gpu/drm/amd/amdgpu/../display/dc/gpio/gpio_service.c:77:4: warning: implicit conversion from ‘enum dce_version’ to ‘enum dce_environment’ [-Wenum-conversion]
 
-Reported-by: Hu Jiahui <kirin.say@gmail.com>
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Jaroslav Kysela <perex@perex.cz>
-Link: https://lore.kernel.org/r/20220322170720.3529-2-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-[OP: backport to 4.14: adjusted context]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Leo Li <sunpeng.li@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: amd-gfx@lists.freedesktop.org
+Cc: dri-devel@lists.freedesktop.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/sound/pcm.h     |    1 
- sound/core/pcm.c        |    2 +
- sound/core/pcm_native.c |   55 +++++++++++++++++++++++++++++++-----------------
- 3 files changed, 39 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c           |   12 +++++------
+ drivers/gpu/drm/amd/display/include/gpio_service_interface.h |    4 +--
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -396,6 +396,7 @@ struct snd_pcm_runtime {
- 	wait_queue_head_t sleep;	/* poll sleep */
- 	wait_queue_head_t tsleep;	/* transfer sleep */
- 	struct fasync_struct *fasync;
-+	struct mutex buffer_mutex;	/* protect for buffer changes */
+--- a/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
++++ b/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
+@@ -51,8 +51,8 @@
+  */
  
- 	/* -- private section -- */
- 	void *private_data;
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -1032,6 +1032,7 @@ int snd_pcm_attach_substream(struct snd_
- 	init_waitqueue_head(&runtime->tsleep);
- 
- 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
-+	mutex_init(&runtime->buffer_mutex);
- 
- 	substream->runtime = runtime;
- 	substream->private_data = pcm->private_data;
-@@ -1063,6 +1064,7 @@ void snd_pcm_detach_substream(struct snd
- 	substream->runtime = NULL;
- 	if (substream->timer)
- 		spin_unlock_irq(&substream->timer->lock);
-+	mutex_destroy(&runtime->buffer_mutex);
- 	kfree(runtime);
- 	put_pid(substream->pid);
- 	substream->pid = NULL;
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -634,33 +634,40 @@ static int snd_pcm_hw_params_choose(stru
- 	return 0;
- }
- 
-+#if IS_ENABLED(CONFIG_SND_PCM_OSS)
-+#define is_oss_stream(substream)	((substream)->oss.oss)
-+#else
-+#define is_oss_stream(substream)	false
-+#endif
-+
- static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 			     struct snd_pcm_hw_params *params)
+ struct gpio_service *dal_gpio_service_create(
+-	enum dce_version dce_version_major,
+-	enum dce_version dce_version_minor,
++	enum dce_version dce_version,
++	enum dce_environment dce_environment,
+ 	struct dc_context *ctx)
  {
- 	struct snd_pcm_runtime *runtime;
--	int err, usecs;
-+	int err = 0, usecs;
- 	unsigned int bits;
- 	snd_pcm_uframes_t frames;
- 
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_OPEN:
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (!is_oss_stream(substream) &&
-+		    atomic_read(&substream->mmap_count))
-+			err = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		err = -EBADFD;
-+		break;
+ 	struct gpio_service *service;
+@@ -66,14 +66,14 @@ struct gpio_service *dal_gpio_service_cr
+ 		return NULL;
  	}
- 	snd_pcm_stream_unlock_irq(substream);
--#if IS_ENABLED(CONFIG_SND_PCM_OSS)
--	if (!substream->oss.oss)
--#endif
--		if (atomic_read(&substream->mmap_count))
--			return -EBADFD;
-+	if (err)
-+		goto unlock;
  
- 	params->rmask = ~0U;
- 	err = snd_pcm_hw_refine(substream, params);
-@@ -737,14 +744,19 @@ static int snd_pcm_hw_params(struct snd_
- 	if ((usecs = period_to_usecs(runtime)) >= 0)
- 		pm_qos_add_request(&substream->latency_pm_qos_req,
- 				   PM_QOS_CPU_DMA_LATENCY, usecs);
--	return 0;
-+	err = 0;
-  _error:
--	/* hardware might be unusable from this time,
--	   so we force application to retry to set
--	   the correct hardware parameter settings */
--	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
--	if (substream->ops->hw_free != NULL)
--		substream->ops->hw_free(substream);
-+	if (err) {
-+		/* hardware might be unusable from this time,
-+		 * so we force application to retry to set
-+		 * the correct hardware parameter settings
-+		 */
-+		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
-+		if (substream->ops->hw_free != NULL)
-+			substream->ops->hw_free(substream);
-+	}
-+ unlock:
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return err;
- }
- 
-@@ -777,22 +789,27 @@ static int snd_pcm_hw_free(struct snd_pc
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	mutex_lock(&runtime->buffer_mutex);
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (atomic_read(&substream->mmap_count))
-+			result = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		result = -EBADFD;
-+		break;
+-	if (!dal_hw_translate_init(&service->translate, dce_version_major,
+-			dce_version_minor)) {
++	if (!dal_hw_translate_init(&service->translate, dce_version,
++			dce_environment)) {
+ 		BREAK_TO_DEBUGGER();
+ 		goto failure_1;
  	}
- 	snd_pcm_stream_unlock_irq(substream);
--	if (atomic_read(&substream->mmap_count))
--		return -EBADFD;
-+	if (result)
-+		goto unlock;
- 	if (substream->ops->hw_free)
- 		result = substream->ops->hw_free(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
- 	pm_qos_remove_request(&substream->latency_pm_qos_req);
-+ unlock:
-+	mutex_unlock(&runtime->buffer_mutex);
- 	return result;
- }
  
+-	if (!dal_hw_factory_init(&service->factory, dce_version_major,
+-			dce_version_minor)) {
++	if (!dal_hw_factory_init(&service->factory, dce_version,
++			dce_environment)) {
+ 		BREAK_TO_DEBUGGER();
+ 		goto failure_1;
+ 	}
+--- a/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
++++ b/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
+@@ -42,8 +42,8 @@ void dal_gpio_destroy(
+ 	struct gpio **ptr);
+ 
+ struct gpio_service *dal_gpio_service_create(
+-	enum dce_version dce_version_major,
+-	enum dce_version dce_version_minor,
++	enum dce_version dce_version,
++	enum dce_environment dce_environment,
+ 	struct dc_context *ctx);
+ 
+ struct gpio *dal_gpio_service_create_irq(
 
 
