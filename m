@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07BDE526401
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E06B5263EE
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380753AbiEMO1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40284 "EHLO
+        id S1380775AbiEMOZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:25:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381094AbiEMO0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 046FA5E742;
-        Fri, 13 May 2022 07:26:25 -0700 (PDT)
+        with ESMTP id S1357671AbiEMOZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:25:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E3865F25F;
+        Fri, 13 May 2022 07:24:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AECC3B83068;
-        Fri, 13 May 2022 14:26:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028C7C34100;
-        Fri, 13 May 2022 14:26:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC920B83069;
+        Fri, 13 May 2022 14:24:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37832C34100;
+        Fri, 13 May 2022 14:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451982;
-        bh=DZThhwGH7bPrN9WSWnDNPcHaOWX86Na7gdrSEz4sffU=;
+        s=korg; t=1652451894;
+        bh=EA01oe04kv1Z6xi6cYSG2V8+qEH9/h6Pd1RFkA0jMpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIHZzJh9BDTXAu8fAhgipYx/tgymHOQ+Ev39dCG5UqkF56U8KbjlPuNO4QazxUhs+
-         rUO705G2DD0Jtfnk98EdNQxi5pUtJYzSJE3b6sjJUq1AqV2F3rZaG09kn4CdLeZgMF
-         gfl0FVR+dNKaIqC13K+4s/PrRd5GouNINrg+ObOg=
+        b=HmE05c9/cbCJBBLjnEkGqtMGQMOAu5bgpQRuxNTmR0KgiFQKUVfLuTS4EA0L0QelJ
+         PkdzcEGLhGAA5W65BuOY8Zm6cWFhbMUWUAoymajtMxI9OwWEhzvbYsXzMpMyC/+GkP
+         isurt9jKNtWOJfrud+79uFcIYlKvasmqHma/tmEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 01/18] MIPS: Use address-of operator on section symbols
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.14 11/14] ALSA: pcm: Fix races among concurrent prepare and hw_params/hw_free calls
 Date:   Fri, 13 May 2022 16:23:27 +0200
-Message-Id: <20220513142229.196868410@linuxfoundation.org>
+Message-Id: <20220513142227.717010807@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
-References: <20220513142229.153291230@linuxfoundation.org>
+In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
+References: <20220513142227.381154244@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,81 +53,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d422c6c0644bccbb1ebeefffa51f35cec3019517 upstream.
+commit 3c3201f8c7bb77eb53b08a3ca8d9a4ddc500b4c0 upstream.
 
-When building xway_defconfig with clang:
+Like the previous fixes to hw_params and hw_free ioctl races, we need
+to paper over the concurrent prepare ioctl calls against hw_params and
+hw_free, too.
 
-arch/mips/lantiq/prom.c:82:23: error: array comparison always evaluates
-to true [-Werror,-Wtautological-compare]
-        else if (__dtb_start != __dtb_end)
-                             ^
-1 error generated.
+This patch implements the locking with the existing
+runtime->buffer_mutex for prepare ioctls.  Unlike the previous case
+for snd_pcm_hw_hw_params() and snd_pcm_hw_free(), snd_pcm_prepare() is
+performed to the linked streams, hence the lock can't be applied
+simply on the top.  For tracking the lock in each linked substream, we
+modify snd_pcm_action_group() slightly and apply the buffer_mutex for
+the case stream_lock=false (formerly there was no lock applied)
+there.
 
-These are not true arrays, they are linker defined symbols, which are
-just addresses. Using the address of operator silences the warning
-and does not change the resulting assembly with either clang/ld.lld
-or gcc/ld (tested with diff + objdump -Dr). Do the same thing across
-the entire MIPS subsystem to ensure there are no more warnings around
-this type of comparison.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1232
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Link: https://lore.kernel.org/r/20220322170720.3529-4-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+[OP: backport to 4.14: adjusted context]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/bmips/setup.c          |    2 +-
- arch/mips/lantiq/prom.c          |    2 +-
- arch/mips/pic32/pic32mzda/init.c |    2 +-
- arch/mips/ralink/of.c            |    2 +-
- 4 files changed, 4 insertions(+), 4 deletions(-)
+ sound/core/pcm_native.c |   32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
---- a/arch/mips/bmips/setup.c
-+++ b/arch/mips/bmips/setup.c
-@@ -167,7 +167,7 @@ void __init plat_mem_setup(void)
- 		dtb = phys_to_virt(fw_arg2);
- 	else if (fw_passed_dtb) /* UHI interface or appended dtb */
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
+--- a/sound/core/pcm_native.c
++++ b/sound/core/pcm_native.c
+@@ -1046,15 +1046,17 @@ struct action_ops {
+  */
+ static int snd_pcm_action_group(const struct action_ops *ops,
+ 				struct snd_pcm_substream *substream,
+-				int state, int do_lock)
++				int state, int stream_lock)
+ {
+ 	struct snd_pcm_substream *s = NULL;
+ 	struct snd_pcm_substream *s1;
+ 	int res = 0, depth = 1;
+ 
+ 	snd_pcm_group_for_each_entry(s, substream) {
+-		if (do_lock && s != substream) {
+-			if (s->pcm->nonatomic)
++		if (s != substream) {
++			if (!stream_lock)
++				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
++			else if (s->pcm->nonatomic)
+ 				mutex_lock_nested(&s->self_group.mutex, depth);
+ 			else
+ 				spin_lock_nested(&s->self_group.lock, depth);
+@@ -1082,18 +1084,18 @@ static int snd_pcm_action_group(const st
+ 		ops->post_action(s, state);
+ 	}
+  _unlock:
+-	if (do_lock) {
+-		/* unlock streams */
+-		snd_pcm_group_for_each_entry(s1, substream) {
+-			if (s1 != substream) {
+-				if (s1->pcm->nonatomic)
+-					mutex_unlock(&s1->self_group.mutex);
+-				else
+-					spin_unlock(&s1->self_group.lock);
+-			}
+-			if (s1 == s)	/* end */
+-				break;
++	/* unlock streams */
++	snd_pcm_group_for_each_entry(s1, substream) {
++		if (s1 != substream) {
++			if (!stream_lock)
++				mutex_unlock(&s1->runtime->buffer_mutex);
++			else if (s1->pcm->nonatomic)
++				mutex_unlock(&s1->self_group.mutex);
++			else
++				spin_unlock(&s1->self_group.lock);
+ 		}
++		if (s1 == s)	/* end */
++			break;
+ 	}
+ 	return res;
+ }
+@@ -1174,10 +1176,12 @@ static int snd_pcm_action_nonatomic(cons
+ 	int res;
+ 
+ 	down_read(&snd_pcm_link_rwsem);
++	mutex_lock(&substream->runtime->buffer_mutex);
+ 	if (snd_pcm_stream_linked(substream))
+ 		res = snd_pcm_action_group(ops, substream, state, 0);
  	else
- 		panic("no dtb found");
---- a/arch/mips/lantiq/prom.c
-+++ b/arch/mips/lantiq/prom.c
-@@ -79,7 +79,7 @@ void __init plat_mem_setup(void)
- 
- 	if (fw_passed_dtb) /* UHI interface */
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
- 	else
- 		panic("no dtb found");
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -28,7 +28,7 @@ static ulong get_fdtaddr(void)
- 	if (fw_passed_dtb && !fw_arg2 && !fw_arg3)
- 		return (ulong)fw_passed_dtb;
- 
--	if (__dtb_start < __dtb_end)
-+	if (&__dtb_start < &__dtb_end)
- 		ftaddr = (ulong)__dtb_start;
- 
- 	return ftaddr;
---- a/arch/mips/ralink/of.c
-+++ b/arch/mips/ralink/of.c
-@@ -77,7 +77,7 @@ void __init plat_mem_setup(void)
- 	 */
- 	if (fw_passed_dtb)
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
- 
- 	__dt_setup_arch(dtb);
+ 		res = snd_pcm_action_single(ops, substream, state);
++	mutex_unlock(&substream->runtime->buffer_mutex);
+ 	up_read(&snd_pcm_link_rwsem);
+ 	return res;
+ }
 
 
