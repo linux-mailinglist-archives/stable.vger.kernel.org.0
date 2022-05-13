@@ -2,326 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73696526508
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF750526600
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 17:25:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381339AbiEMOoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49242 "EHLO
+        id S1381953AbiEMPZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 11:25:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382839AbiEMOnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:43:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695D513D05;
-        Fri, 13 May 2022 07:41:45 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA6E36227D;
-        Fri, 13 May 2022 14:41:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C55C34100;
-        Fri, 13 May 2022 14:41:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652452904;
-        bh=35n03oMDiGuZXYeT9U2fcPTKKLqo1pbg0WdIXgmtDV4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=X3u0SjlG0YiI+D0q6rsr1qf1mOa4liBMOuEGgjjupbbamygFh2iPf1OWRr2Qk5WWM
-         RNZx/8FAUPj8DNXbZe9CXXkQCugu8ms9JaPnYuZBtCUjAVZVqAJK1Raw/5nYaJeOVL
-         WXTY9yogEoNR+M/UBFhebcBXsV6XNpNUvcIYilvwLzS8UdygcjM8gn5ReexCuv1goA
-         PV5JgmdjrPnd/7zTzJ3nr7k9hEMh2Cm0H91P70QMZX6tmyN+0SNFVR7iWtpAAjgKZv
-         oaoNzj9Q6VbMOYAmItueO4bwfDoidlao7o4mHB4wpD62mnTfaODVm8o0SEV0jzTDDo
-         tRYZ7woddrRDA==
-Date:   Fri, 13 May 2022 17:40:14 +0300
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     dave.hansen@linux.intel.com, tglx@linutronix.de, bp@alien8.de,
-        luto@kernel.org, mingo@redhat.com, linux-sgx@vger.kernel.org,
-        x86@kernel.org, haitao.huang@intel.com, hpa@zytor.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH V3 4/5] x86/sgx: Fix race between reclaimer and page
- fault handler
-Message-ID: <Yn5tznK08SeWxd4S@iki.fi>
-References: <cover.1652389823.git.reinette.chatre@intel.com>
- <ed20a5db516aa813873268e125680041ae11dfcf.1652389823.git.reinette.chatre@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ed20a5db516aa813873268e125680041ae11dfcf.1652389823.git.reinette.chatre@intel.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S233504AbiEMPZT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 11:25:19 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7C46E0CD;
+        Fri, 13 May 2022 08:25:18 -0700 (PDT)
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24DFBouj023613;
+        Fri, 13 May 2022 15:24:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=Rs/HrYaFsVOG7pHzpWHMzkvZ8QnbJVdvVi9OpbPAeQ8=;
+ b=XquKzgjsrizj4CfhcryNFVGqew5wyyd7HPiDR9cLxA/QDQCBSyzQ3d4A+o5zkXiaJAUX
+ uYdgcRXvAXKhfn14LipL3IDS6QPy1nl0ZpHRDmTYSdxaIsp+oDlqKWhgnTlhW0H0VegT
+ 6f0XP/GtHdx6033jI2pf54HAI+TZSN4C3+345s1KBUw6ygzjiQtQ9G12DROr/KIURWcp
+ D8q/7hu9aO6VxzekJS98QeVeeVOaIr4tucAriBBjecxgt93rSWsQKCL+HGFo3ASZMOGY
+ TW1XRuw2FsM1iiOi/3UQZqTFaiytFNegAdnmqbnOuPgqG7yextuGnwf6US7V4/aJuhsp DA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1srpr8pk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 15:24:54 +0000
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24DFFQbg008263;
+        Fri, 13 May 2022 15:24:53 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g1srpr8nk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 15:24:53 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24DFOp4I014120;
+        Fri, 13 May 2022 15:24:51 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+        by ppma06ams.nl.ibm.com with ESMTP id 3fyrkk4r9r-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 13 May 2022 15:24:50 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
+        by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24DFOOJ914549438
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 13 May 2022 15:24:24 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 96179A4053;
+        Fri, 13 May 2022 15:24:48 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2D701A404D;
+        Fri, 13 May 2022 15:24:46 +0000 (GMT)
+Received: from sig-9-65-91-25.ibm.com (unknown [9.65.91.25])
+        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 13 May 2022 15:24:46 +0000 (GMT)
+Message-ID: <06062b288d675dc060f33041e9b2009c151698e6.camel@linux.ibm.com>
+Subject: Re: [PATCH v7] efi: Do not import certificates from UEFI Secure
+ Boot for T2 Macs
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Aditya Garg <gargaditya08@live.com>,
+        "jarkko@kernel.org" <jarkko@kernel.org>,
+        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        "ast@kernel.org" <ast@kernel.org>,
+        "daniel@iogearbox.net" <daniel@iogearbox.net>,
+        "andrii@kernel.org" <andrii@kernel.org>,
+        "kafai@fb.com" <kafai@fb.com>,
+        "songliubraving@fb.com" <songliubraving@fb.com>,
+        "yhs@fb.com" <yhs@fb.com>,
+        "john.fastabend@gmail.com" <john.fastabend@gmail.com>,
+        "kpsingh@kernel.org" <kpsingh@kernel.org>
+Cc:     "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        Orlando Chamberlain <redecorating@protonmail.com>,
+        "admin@kodeit.net" <admin@kodeit.net>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Fri, 13 May 2022 11:24:45 -0400
+In-Reply-To: <958B8D22-F11E-4B5D-9F44-6F0626DBCB63@live.com>
+References: <652C3E9E-CB97-4C70-A961-74AF8AEF9E39@live.com>
+         <94DD0D83-8FDE-4A61-AAF0-09A0175A0D0D@live.com>
+         <590ED76A-EE91-4ED1-B524-BC23419C051E@live.com>
+         <E9C28706-2546-40BF-B32C-66A047BE9EFB@live.com>
+         <02125722-91FC-43D3-B63C-1B789C2DA8C3@live.com>
+         <958B8D22-F11E-4B5D-9F44-6F0626DBCB63@live.com>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: nSTyBu9TLw378bJvOtb7YdyATbWM_IHn
+X-Proofpoint-ORIG-GUID: cEKFVC3VVbEMtznL2Syom3um3gN35hor
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-13_04,2022-05-13_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
+ suspectscore=0 bulkscore=0 adultscore=0 spamscore=0 clxscore=1011
+ phishscore=0 mlxlogscore=793 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205130067
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 12, 2022 at 02:51:00PM -0700, Reinette Chatre wrote:
-> Haitao reported encountering a WARN triggered by the ENCLS[ELDU]
-> instruction faulting with a #GP.
-> 
-> The WARN is encountered when the reclaimer evicts a range of
-> pages from the enclave when the same pages are faulted back right away.
-> 
-> Consider two enclave pages (ENCLAVE_A and ENCLAVE_B)
-> sharing a PCMD page (PCMD_AB). ENCLAVE_A is in the
-> enclave memory and ENCLAVE_B is in the backing store. PCMD_AB contains
-> just one entry, that of ENCLAVE_B.
-> 
-> Scenario proceeds where ENCLAVE_A is being evicted from the enclave
-> while ENCLAVE_B is faulted in.
-> 
-> sgx_reclaim_pages() {
-> 
->   ...
-> 
->   /*
->    * Reclaim ENCLAVE_A
->    */
->   mutex_lock(&encl->lock);
->   /*
->    * Get a reference to ENCLAVE_A's
->    * shmem page where enclave page
->    * encrypted data will be stored
->    * as well as a reference to the
->    * enclave page's PCMD data page,
->    * PCMD_AB.
->    * Release mutex before writing
->    * any data to the shmem pages.
->    */
->   sgx_encl_get_backing(...);
->   encl_page->desc |= SGX_ENCL_PAGE_BEING_RECLAIMED;
->   mutex_unlock(&encl->lock);
-> 
->                                     /*
->                                      * Fault ENCLAVE_B
->                                      */
-> 
->                                     sgx_vma_fault() {
-> 
->                                       mutex_lock(&encl->lock);
->                                       /*
->                                        * Get reference to
->                                        * ENCLAVE_B's shmem page
->                                        * as well as PCMD_AB.
->                                        */
->                                       sgx_encl_get_backing(...)
->                                      /*
->                                       * Load page back into
->                                       * enclave via ELDU.
->                                       */
->                                      /*
->                                       * Release reference to
->                                       * ENCLAVE_B' shmem page and
->                                       * PCMD_AB.
->                                       */
->                                      sgx_encl_put_backing(...);
->                                      /*
->                                       * PCMD_AB is found empty so
->                                       * it and ENCLAVE_B's shmem page
->                                       * are truncated.
->                                       */
->                                      /* Truncate ENCLAVE_B backing page */
->                                      sgx_encl_truncate_backing_page();
->                                      /* Truncate PCMD_AB */
->                                      sgx_encl_truncate_backing_page();
-> 
->                                      mutex_unlock(&encl->lock);
-> 
->                                      ...
->                                      }
->   mutex_lock(&encl->lock);
->   encl_page->desc &=
->        ~SGX_ENCL_PAGE_BEING_RECLAIMED;
->   /*
->   * Write encrypted contents of
->   * ENCLAVE_A to ENCLAVE_A shmem
->   * page and its PCMD data to
->   * PCMD_AB.
->   */
->   sgx_encl_put_backing(...)
-> 
->   /*
->    * Reference to PCMD_AB is
->    * dropped and it is truncated.
->    * ENCLAVE_A's PCMD data is lost.
->    */
->   mutex_unlock(&encl->lock);
-> }
-> 
-> What happens next depends on whether it is ENCLAVE_A being faulted
-> in or ENCLAVE_B being evicted - but both end up with ENCLS[ELDU] faulting
-> with a #GP.
-> 
-> If ENCLAVE_A is faulted then at the time sgx_encl_get_backing() is called
-> a new PCMD page is allocated and providing the empty PCMD data for
-> ENCLAVE_A would cause ENCLS[ELDU] to #GP
-> 
-> If ENCLAVE_B is evicted first then a new PCMD_AB would be allocated by the
-> reclaimer but later when ENCLAVE_A is faulted the ENCLS[ELDU] instruction
-> would #GP during its checks of the PCMD value and the WARN would be
-> encountered.
-> 
-> Noting that the reclaimer sets SGX_ENCL_PAGE_BEING_RECLAIMED at the time
-> it obtains a reference to the backing store pages of an enclave page it
-> is in the process of reclaiming, fix the race by only truncating the PCMD
-> page after ensuring that no page sharing the PCMD page is in the process
-> of being reclaimed.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 08999b2489b4 ("x86/sgx: Free backing memory after faulting the enclave page")
-> Reported-by: Haitao Huang <haitao.huang@intel.com>
-> Tested-by: Haitao Huang <haitao.huang@intel.com>
-> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-> ---
-> Changes since V2:
-> - Declare "addr" and "entry" within loop. (Dave)
-> - Fix incorrect error return when enclave page not found to belong
->   to enclave. Continue search instead of returning failure. (Dave)
-> - Add Haitao's "Tested-by" tag.
-> - Rename pcmd_page_in_use() to reclaimer_writing_to_pcmd() to be less
->   generic. (Dave)
-> - Improve function comments to be clear about it testing for PCMD
->   page soon becoming non-empty, also add context info to kernel-doc
->   to indicate that enclave mutex must be held. (Dave)
-> 
-> Changes since RFC v1:
-> - New patch.
-> 
->  arch/x86/kernel/cpu/sgx/encl.c | 94 +++++++++++++++++++++++++++++++++-
->  1 file changed, 93 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-> index 5104a428b72c..243f3bd78145 100644
-> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> @@ -12,6 +12,92 @@
->  #include "encls.h"
->  #include "sgx.h"
->  
-> +#define PCMDS_PER_PAGE (PAGE_SIZE / sizeof(struct sgx_pcmd))
-> +/*
-> + * 32 PCMD entries share a PCMD page. PCMD_FIRST_MASK is used to
-> + * determine the page index associated with the first PCMD entry
-> + * within a PCMD page.
-> + */
-> +#define PCMD_FIRST_MASK GENMASK(4, 0)
-> +
-> +/**
-> + * reclaimer_writing_to_pcmd() - Query if any enclave page associated with
-> + *                               a PCMD page is in process of being reclaimed.
-> + * @encl:        Enclave to which PCMD page belongs
-> + * @start_addr:  Address of enclave page using first entry within the PCMD page
-> + *
-> + * When an enclave page is reclaimed some Paging Crypto MetaData (PCMD) is
-> + * stored. The PCMD data of a reclaimed enclave page contains enough
-> + * information for the processor to verify the page at the time
-> + * it is loaded back into the Enclave Page Cache (EPC).
-> + *
-> + * The backing storage to which enclave pages are reclaimed is laid out as
-> + * follows:
-> + * Encrypted enclave pages:SECS page:PCMD pages
-> + *
-> + * Each PCMD page contains the PCMD metadata of
-> + * PAGE_SIZE/sizeof(struct sgx_pcmd) enclave pages.
-> + *
-> + * A PCMD page can only be truncated if it is (a) empty, and (b) not in the
-> + * process of getting data (and thus soon being non-empty). (b) is tested with
-> + * a check if an enclave page sharing the PCMD page is in the process of being
-> + * reclaimed.
-> + *
-> + * The reclaimer sets the SGX_ENCL_PAGE_BEING_RECLAIMED flag when it
-> + * intends to reclaim that enclave page - it means that the PCMD page
-> + * associated with that enclave page is about to get some data and thus
-> + * even if the PCMD page is empty, it should not be truncated.
-> + *
-> + * Context: Enclave mutex (&sgx_encl->lock) must be held.
-> + * Return: 1 if the reclaimer is about to write to the PCMD page
-> + *         0 if the reclaimer has no intention to write to the PCMD page
-> + */
-> +static int reclaimer_writing_to_pcmd(struct sgx_encl *encl,
-> +				     unsigned long start_addr)
-> +{
-> +	int reclaimed = 0;
-> +	int i;
-> +
-> +	/*
-> +	 * PCMD_FIRST_MASK is based on number of PCMD entries within
-> +	 * PCMD page being 32.
-> +	 */
-> +	BUILD_BUG_ON(PCMDS_PER_PAGE != 32);
-> +
-> +	for (i = 0; i < PCMDS_PER_PAGE; i++) {
-> +		struct sgx_encl_page *entry;
-> +		unsigned long addr;
-> +
-> +		addr = start_addr + i * PAGE_SIZE;
-> +
-> +		/*
-> +		 * Stop when reaching the SECS page - it does not
-> +		 * have a page_array entry and its reclaim is
-> +		 * started and completed with enclave mutex held so
-> +		 * it does not use the SGX_ENCL_PAGE_BEING_RECLAIMED
-> +		 * flag.
-> +		 */
-> +		if (addr == encl->base + encl->size)
-> +			break;
-> +
-> +		entry = xa_load(&encl->page_array, PFN_DOWN(addr));
-> +		if (!entry)
-> +			continue;
-> +
-> +		/*
-> +		 * VA page slot ID uses same bit as the flag so it is important
-> +		 * to ensure that the page is not already in backing store.
-> +		 */
-> +		if (entry->epc_page &&
-> +		    (entry->desc & SGX_ENCL_PAGE_BEING_RECLAIMED)) {
-> +			reclaimed = 1;
-> +			break;
-> +		}
-> +	}
-> +
-> +	return reclaimed;
-> +}
-> +
->  /*
->   * Calculate byte offset of a PCMD struct associated with an enclave page. PCMD's
->   * follow right after the EPC data in the backing storage. In addition to the
-> @@ -47,6 +133,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  	unsigned long va_offset = encl_page->desc & SGX_ENCL_PAGE_VA_OFFSET_MASK;
->  	struct sgx_encl *encl = encl_page->encl;
->  	pgoff_t page_index, page_pcmd_off;
-> +	unsigned long pcmd_first_page;
->  	struct sgx_pageinfo pginfo;
->  	struct sgx_backing b;
->  	bool pcmd_page_empty;
-> @@ -58,6 +145,11 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  	else
->  		page_index = PFN_DOWN(encl->size);
->  
-> +	/*
-> +	 * Address of enclave page using the first entry within the PCMD page.
-> +	 */
-> +	pcmd_first_page = PFN_PHYS(page_index & ~PCMD_FIRST_MASK) + encl->base;
-> +
->  	page_pcmd_off = sgx_encl_get_backing_page_pcmd_offset(encl, page_index);
->  
->  	ret = sgx_encl_get_backing(encl, page_index, &b);
-> @@ -99,7 +191,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  
->  	sgx_encl_truncate_backing_page(encl, page_index);
->  
-> -	if (pcmd_page_empty)
-> +	if (pcmd_page_empty && !reclaimer_writing_to_pcmd(encl, pcmd_first_page))
->  		sgx_encl_truncate_backing_page(encl, PFN_DOWN(page_pcmd_off));
->  
->  	return ret;
-> -- 
-> 2.25.1
-> 
+Hi Aditya,
 
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+On Fri, 2022-04-15 at 17:02 +0000, Aditya Garg wrote:
+> From: Aditya Garg <gargaditya08@live.com>
+> 
+> On Apple T2 Macs, when Linux attempts to read the db and dbx efi variables
+> at early boot to load UEFI Secure Boot certificates, a page fault occurs
+> in Apple firmware code and EFI runtime services are disabled with the
+> following logs:
 
-BR, Jarkko
+Are there directions for installing Linux on a Mac with Apple firmware
+code?  Are you dual booting Linux and Mac, or just Linux?  While in
+secure boot mode, without being able to read the keys to verify the
+kernel image signature, the signature verification should fail.
+
+Has anyone else tested this patch?
+
+thanks,
+
+Mimi
+
+
