@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C625152641C
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DCD852641E
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357833AbiEMO1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:27:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
+        id S244373AbiEMO11 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380942AbiEMO0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49B385F8E2;
-        Fri, 13 May 2022 07:25:54 -0700 (PDT)
+        with ESMTP id S1381097AbiEMO0c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:32 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF858506EC;
+        Fri, 13 May 2022 07:26:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C9B77B8306F;
-        Fri, 13 May 2022 14:25:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E01DC34100;
-        Fri, 13 May 2022 14:25:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C3F16219D;
+        Fri, 13 May 2022 14:26:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8DAC36AEC;
+        Fri, 13 May 2022 14:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451951;
-        bh=3ZAQoHJRAorjhE63N9J2GNWT/DBzxa637Mj9/BzDMmU=;
+        s=korg; t=1652451988;
+        bh=85U1WWVkHeMQrJWMsxOyN59skP9tpj5MeWFM5A12uXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OYEq3/QdjkmG/2dCQbjMUeid3PUAGUqPfPzllHHeRGsG34HaQLb95evAKkMBYbRA
-         l0aJm3leAmUAD5rSUaw/9cxSudi50uCsFM2KFwPe7pujExcFJMQE0XJ6EtC5P1HNsG
-         /5ETxIG67ZNgjTrChv7dXY0vkiKjzcNRLUesKveQ=
+        b=Z69z3oDXPD21rNW9i5pU2xdBQSPQGAePhxjHL1MhlizvNubIkg2KtoA/5NPLc35nb
+         WRkITwqgnicSG/5sBtZg7Vm2LyEr3KCNf86g+8MC7GZbp5HhpQMlVmZixtDqTet+1D
+         sspSucBEntU5Btet39kQCTflWgfYlUUZ4zmPy+Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        ChenXiaoSong <chenxiaosong2@huawei.com>
-Subject: [PATCH 4.19 15/15] VFS: Fix memory leak caused by concurrently mounting fs with subtype
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Juergen Gross <jgross@suse.com>, x86@kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Andrew Cooper <andrew.cooper3@citrix.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Borislav Petkov <bp@alien8.de>, xen-devel@lists.xenproject.org,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Maximilian Heyne <mheyne@amazon.de>
+Subject: [PATCH 5.4 11/18] x86: xen: kvm: Gather the definition of emulate prefixes
 Date:   Fri, 13 May 2022 16:23:37 +0200
-Message-Id: <20220513142228.347780404@linuxfoundation.org>
+Message-Id: <20220513142229.483992618@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
-References: <20220513142227.897535454@linuxfoundation.org>
+In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
+References: <20220513142229.153291230@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +62,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChenXiaoSong <chenxiaosong2@huawei.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-If two processes mount same superblock, memory leak occurs:
+commit b3dc0695fa40c3b280230fb6fb7fb7a94ce28bf4 upstream.
 
-CPU0               |  CPU1
-do_new_mount       |  do_new_mount
-  fs_set_subtype   |    fs_set_subtype
-    kstrdup        |
-                   |      kstrdup
-    memrory leak   |
+Gather the emulate prefixes, which forcibly make the following
+instruction emulated on virtualization, in one place.
 
-The following reproducer triggers the problem:
-
-1. shell command: mount -t ntfs /dev/sda1 /mnt &
-2. c program: mount("/dev/sda1", "/mnt", "fuseblk", 0, "...")
-
-with kmemleak report being along the lines of
-
-unreferenced object 0xffff888235f1a5c0 (size 8):
-  comm "mount.ntfs", pid 2860, jiffies 4295757824 (age 43.423s)
-  hex dump (first 8 bytes):
-    00 a5 f1 35 82 88 ff ff                          ...5....
-  backtrace:
-    [<00000000656e30cc>] __kmalloc_track_caller+0x16e/0x430
-    [<000000008e591727>] kstrdup+0x3e/0x90
-    [<000000008430d12b>] do_mount.cold+0x7b/0xd9
-    [<0000000078d639cd>] ksys_mount+0xb2/0x150
-    [<000000006015988d>] __x64_sys_mount+0x29/0x40
-    [<00000000e0a7c118>] do_syscall_64+0xc1/0x1d0
-    [<00000000bcea7df5>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<00000000803a4067>] 0xffffffffffffffff
-
-Linus's tree already have refactoring patchset [1], one of them can fix this bug:
-        c30da2e981a7 ("fuse: convert to use the new mount API")
-After refactoring, init super_block->s_subtype in fuse_fill_super.
-
-Since we did not merge the refactoring patchset in this branch, I create this patch.
-This patch fix this by adding a write lock while calling fs_set_subtype.
-
-[1] https://patchwork.kernel.org/project/linux-fsdevel/patch/20190903113640.7984-3-mszeredi@redhat.com/
-
-Fixes: 79c0b2df79eb ("add filesystem subtype support")
-Cc: David Howells <dhowells@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: ChenXiaoSong <chenxiaosong2@huawei.com>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: x86@kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: xen-devel@lists.xenproject.org
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Link: https://lkml.kernel.org/r/156777563917.25081.7286628561790289995.stgit@devnote2
+Signed-off-by: Maximilian Heyne <mheyne@amazon.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-v1: Can not mount sshfs ([PATCH linux-4.19.y] VFS: Fix fuseblk memory leak caused by mount concurrency)
-v2: Use write lock while writing superblock ([PATCH 4.19,v2] VFS: Fix fuseblk memory leak caused by mount concurrency)
-v3: Update commit message
+ arch/x86/include/asm/emulate_prefix.h |   14 ++++++++++++++
+ arch/x86/include/asm/xen/interface.h  |   11 ++++-------
+ arch/x86/kvm/x86.c                    |    4 +++-
+ 3 files changed, 21 insertions(+), 8 deletions(-)
+ create mode 100644 arch/x86/include/asm/emulate_prefix.h
 
- fs/namespace.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2490,9 +2490,12 @@ static int do_new_mount(struct path *pat
- 		return -ENODEV;
+--- /dev/null
++++ b/arch/x86/include/asm/emulate_prefix.h
+@@ -0,0 +1,14 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_EMULATE_PREFIX_H
++#define _ASM_X86_EMULATE_PREFIX_H
++
++/*
++ * Virt escape sequences to trigger instruction emulation;
++ * ideally these would decode to 'whole' instruction and not destroy
++ * the instruction stream; sadly this is not true for the 'kvm' one :/
++ */
++
++#define __XEN_EMULATE_PREFIX  0x0f,0x0b,0x78,0x65,0x6e  /* ud2 ; .ascii "xen" */
++#define __KVM_EMULATE_PREFIX  0x0f,0x0b,0x6b,0x76,0x6d	/* ud2 ; .ascii "kvm" */
++
++#endif
+--- a/arch/x86/include/asm/xen/interface.h
++++ b/arch/x86/include/asm/xen/interface.h
+@@ -379,12 +379,9 @@ struct xen_pmu_arch {
+  * Prefix forces emulation of some non-trapping instructions.
+  * Currently only CPUID.
+  */
+-#ifdef __ASSEMBLY__
+-#define XEN_EMULATE_PREFIX .byte 0x0f,0x0b,0x78,0x65,0x6e ;
+-#define XEN_CPUID          XEN_EMULATE_PREFIX cpuid
+-#else
+-#define XEN_EMULATE_PREFIX ".byte 0x0f,0x0b,0x78,0x65,0x6e ; "
+-#define XEN_CPUID          XEN_EMULATE_PREFIX "cpuid"
+-#endif
++#include <asm/emulate_prefix.h>
++
++#define XEN_EMULATE_PREFIX __ASM_FORM(.byte __XEN_EMULATE_PREFIX ;)
++#define XEN_CPUID          XEN_EMULATE_PREFIX __ASM_FORM(cpuid)
  
- 	mnt = vfs_kern_mount(type, sb_flags, name, data);
--	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
--	    !mnt->mnt_sb->s_subtype)
--		mnt = fs_set_subtype(mnt, fstype);
-+	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE)) {
-+		down_write(&mnt->mnt_sb->s_umount);
-+		if (!mnt->mnt_sb->s_subtype)
-+			mnt = fs_set_subtype(mnt, fstype);
-+		up_write(&mnt->mnt_sb->s_umount);
-+	}
+ #endif /* _ASM_X86_XEN_INTERFACE_H */
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -68,6 +68,7 @@
+ #include <asm/mshyperv.h>
+ #include <asm/hypervisor.h>
+ #include <asm/intel_pt.h>
++#include <asm/emulate_prefix.h>
+ #include <clocksource/hyperv_timer.h>
  
- 	put_filesystem(type);
- 	if (IS_ERR(mnt))
+ #define CREATE_TRACE_POINTS
+@@ -5583,6 +5584,7 @@ EXPORT_SYMBOL_GPL(kvm_write_guest_virt_s
+ 
+ int handle_ud(struct kvm_vcpu *vcpu)
+ {
++	static const char kvm_emulate_prefix[] = { __KVM_EMULATE_PREFIX };
+ 	int emul_type = EMULTYPE_TRAP_UD;
+ 	char sig[5]; /* ud2; .ascii "kvm" */
+ 	struct x86_exception e;
+@@ -5590,7 +5592,7 @@ int handle_ud(struct kvm_vcpu *vcpu)
+ 	if (force_emulation_prefix &&
+ 	    kvm_read_guest_virt(vcpu, kvm_get_linear_rip(vcpu),
+ 				sig, sizeof(sig), &e) == 0 &&
+-	    memcmp(sig, "\xf\xbkvm", sizeof(sig)) == 0) {
++	    memcmp(sig, kvm_emulate_prefix, sizeof(sig)) == 0) {
+ 		kvm_rip_write(vcpu, kvm_rip_read(vcpu) + sizeof(sig));
+ 		emul_type = EMULTYPE_TRAP_UD_FORCED;
+ 	}
 
 
