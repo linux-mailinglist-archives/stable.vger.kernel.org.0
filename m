@@ -2,53 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC1D526418
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED83452640F
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 16:27:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376717AbiEMO0z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 10:26:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41808 "EHLO
+        id S1379899AbiEMO1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 10:27:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380804AbiEMO0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190C7703C9;
-        Fri, 13 May 2022 07:25:26 -0700 (PDT)
+        with ESMTP id S1380962AbiEMO0S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 10:26:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4FA527D1;
+        Fri, 13 May 2022 07:25:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B4C4B83067;
-        Fri, 13 May 2022 14:25:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E0AC34100;
-        Fri, 13 May 2022 14:25:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FD0AB8306F;
+        Fri, 13 May 2022 14:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD4A8C36AEB;
+        Fri, 13 May 2022 14:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652451924;
-        bh=BnUqdEQGEPbknIZnHajauNa2KvRNMzyeBw1rjKiAtH0=;
+        s=korg; t=1652451954;
+        bh=1rAX63CmmlAyCcvSdcrn1qcybbMifvjTCNBFWxMoBnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMEotatgWKMp6SH6FqwD0Bdc0urJX4Ghj9sNvw7fI7+Z+zSy46m6f3W5umdM8rnMG
-         IKz4I/KsM8ezMnBhZ1Pxb5FWnJJUjYd9J7gfh/vG4IRs3yF5BAba5q8ZqTP82KwU2h
-         ElI4HEbLNa5HPXT9gOGkruGRGJgWPTO4hrjJsKj8=
+        b=hNdcslPLPKaKCeMF8yJjz4ItHNWUwxdbqvZnv5P2SUlvq3RKvwUY2zbCWmXXgReOD
+         CFHYSHNOX9fmnbdjqkAUwfR0gNjO/p30/sGNy0WTlaUuXg7TTuqo4vxUEaMBtn68KF
+         usRH3SgrPYPlbVumvGd2RswcCvG9kMBrewRron5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Muchun Song <songmuchun@bytedance.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Fam Zheng <fam.zheng@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Lars Persson <lars.persson@axis.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Xiongchun Duan <duanxiongchun@bytedance.com>,
-        Zi Yan <ziy@nvidia.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 08/14] mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
+        stable@vger.kernel.org,
+        Philipp Reisner <philipp.reisner@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
+        Jens Axboe <axboe@kernel.dk>, drbd-dev@lists.linbit.com,
+        linux-block@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 02/15] block: drbd: drbd_nl: Make conversion to enum drbd_ret_code explicit
 Date:   Fri, 13 May 2022 16:23:24 +0200
-Message-Id: <20220513142227.628984243@linuxfoundation.org>
+Message-Id: <20220513142227.970166768@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
-References: <20220513142227.381154244@linuxfoundation.org>
+In-Reply-To: <20220513142227.897535454@linuxfoundation.org>
+References: <20220513142227.897535454@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,55 +57,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Muchun Song <songmuchun@bytedance.com>
+From: Lee Jones <lee.jones@linaro.org>
 
-commit 7c25a0b89a487878b0691e6524fb5a8827322194 upstream.
+commit 1f1e87b4dc4598eac57a69868534b92d65e47e82 upstream.
 
-userfaultfd calls mcopy_atomic_pte() and __mcopy_atomic() which do not
-do any cache flushing for the target page.  Then the target page will be
-mapped to the user space with a different address (user address), which
-might have an alias issue with the kernel address used to copy the data
-from the user to.  Fix this by insert flush_dcache_page() after
-copy_from_user() succeeds.
+Fixes the following W=1 kernel build warning(s):
 
-Link: https://lkml.kernel.org/r/20220210123058.79206-7-songmuchun@bytedance.com
-Fixes: b6ebaedb4cb1 ("userfaultfd: avoid mmap_sem read recursion in mcopy_atomic")
-Fixes: c1a4de99fada ("userfaultfd: mcopy_atomic|mfill_zeropage: UFFDIO_COPY|UFFDIO_ZEROPAGE preparation")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Fam Zheng <fam.zheng@bytedance.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Lars Persson <lars.persson@axis.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Xiongchun Duan <duanxiongchun@bytedance.com>
-Cc: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ from drivers/block/drbd/drbd_nl.c:24:
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_set_role’:
+ drivers/block/drbd/drbd_nl.c:793:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c:795:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_attach’:
+ drivers/block/drbd/drbd_nl.c:1965:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_connect’:
+ drivers/block/drbd/drbd_nl.c:2690:10: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+ drivers/block/drbd/drbd_nl.c: In function ‘drbd_adm_disconnect’:
+ drivers/block/drbd/drbd_nl.c:2803:11: warning: implicit conversion from ‘enum drbd_state_rv’ to ‘enum drbd_ret_code’ [-Wenum-conversion]
+
+Cc: Philipp Reisner <philipp.reisner@linbit.com>
+Cc: Lars Ellenberg <lars.ellenberg@linbit.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: drbd-dev@lists.linbit.com
+Cc: linux-block@vger.kernel.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20210312105530.2219008-8-lee.jones@linaro.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/userfaultfd.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/block/drbd/drbd_nl.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -56,6 +56,8 @@ static int mcopy_atomic_pte(struct mm_st
- 			/* don't free the page */
- 			goto out;
- 		}
-+
-+		flush_dcache_page(page);
- 	} else {
- 		page = *pagep;
- 		*pagep = NULL;
-@@ -565,6 +567,7 @@ retry:
- 				err = -EFAULT;
- 				goto out;
- 			}
-+			flush_dcache_page(page);
- 			goto retry;
- 		} else
- 			BUG_ON(page);
+--- a/drivers/block/drbd/drbd_nl.c
++++ b/drivers/block/drbd/drbd_nl.c
+@@ -774,9 +774,11 @@ int drbd_adm_set_role(struct sk_buff *sk
+ 	mutex_lock(&adm_ctx.resource->adm_mutex);
+ 
+ 	if (info->genlhdr->cmd == DRBD_ADM_PRIMARY)
+-		retcode = drbd_set_role(adm_ctx.device, R_PRIMARY, parms.assume_uptodate);
++		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
++						R_PRIMARY, parms.assume_uptodate);
+ 	else
+-		retcode = drbd_set_role(adm_ctx.device, R_SECONDARY, 0);
++		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
++						R_SECONDARY, 0);
+ 
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+ 	genl_lock();
+@@ -1941,7 +1943,7 @@ int drbd_adm_attach(struct sk_buff *skb,
+ 	drbd_flush_workqueue(&connection->sender_work);
+ 
+ 	rv = _drbd_request_state(device, NS(disk, D_ATTACHING), CS_VERBOSE);
+-	retcode = rv;  /* FIXME: Type mismatch. */
++	retcode = (enum drbd_ret_code)rv;
+ 	drbd_resume_io(device);
+ 	if (rv < SS_SUCCESS)
+ 		goto fail;
+@@ -2671,7 +2673,8 @@ int drbd_adm_connect(struct sk_buff *skb
+ 	}
+ 	rcu_read_unlock();
+ 
+-	retcode = conn_request_state(connection, NS(conn, C_UNCONNECTED), CS_VERBOSE);
++	retcode = (enum drbd_ret_code)conn_request_state(connection,
++					NS(conn, C_UNCONNECTED), CS_VERBOSE);
+ 
+ 	conn_reconfig_done(connection);
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
+@@ -2777,7 +2780,7 @@ int drbd_adm_disconnect(struct sk_buff *
+ 	mutex_lock(&adm_ctx.resource->adm_mutex);
+ 	rv = conn_try_disconnect(connection, parms.force_disconnect);
+ 	if (rv < SS_SUCCESS)
+-		retcode = rv;  /* FIXME: Type mismatch. */
++		retcode = (enum drbd_ret_code)rv;
+ 	else
+ 		retcode = NO_ERROR;
+ 	mutex_unlock(&adm_ctx.resource->adm_mutex);
 
 
