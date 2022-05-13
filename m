@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B11526906
-	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B0AC526915
+	for <lists+stable@lfdr.de>; Fri, 13 May 2022 20:15:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383244AbiEMSLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 14:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42928 "EHLO
+        id S1382923AbiEMSPE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 14:15:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383266AbiEMSLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:11:01 -0400
-Received: from mail-il1-x134.google.com (mail-il1-x134.google.com [IPv6:2607:f8b0:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BD6855201
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:11:00 -0700 (PDT)
-Received: by mail-il1-x134.google.com with SMTP id b11so2324542ilr.4
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:11:00 -0700 (PDT)
+        with ESMTP id S1378108AbiEMSPE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 14:15:04 -0400
+Received: from mail-io1-xd2f.google.com (mail-io1-xd2f.google.com [IPv6:2607:f8b0:4864:20::d2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E4501D3D5F
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:15:03 -0700 (PDT)
+Received: by mail-io1-xd2f.google.com with SMTP id a10so9518606ioe.9
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 11:15:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=7SDwbJugi9Qfbn4daJj+diikXnvNofEBDHPc9CZadFk=;
-        b=jypKQrZRkiIiFOhNux6npwp6EN7GbEprJ2qK28XnpeqWBreY12uRwhmRJMGY3XkWib
-         L+tRjC2PzClSJ3FAqIsE1HlsbpkfG58PiClf7dyv60iw8drw1TeErjSeOSQBKZvSg6/r
-         vlQmU904xiCboTuH+a6pHVHRFxI6MTMKmxI8v50+OjTi+GMa7cYud9q1XPL1Xrzv95FP
-         QHhOS5xQp/VphP3UfQ6LcZxYJ4qjPRME3GVgsMepyBt6ru/CiUvVt3P3eNZLXN54FJpq
-         BnmjDgUJpYy4aDEUXauO9qjyedZXIKKXdlCS8AoAyyz+hU2cFvtWf46ewiTjJE9DjgM/
-         ONkw==
+        bh=5GD0SLw1AH27oEs9JwNKbrHm3qIoU7ZUK/a/xM1pva0=;
+        b=h/elexL4H0vB0MqR4Oer7J6jtxqc8truN9ftrRiVsyZLKYcto2+0gEeWaEOUrAHbxN
+         Em4+B7JAa8TsVxUUg6XaY3tJXHu2GicKFh/2Re7GLYVHuXby8n3FH8kAQ00XleRsJS2L
+         nqRKcZeAPOMn+IC/dhAfT2yNvh9B3knymD5v0KtK6PdPAk12h1I0ySfFd6eeLN3r5fBL
+         MamMRcTzU0OraFE1ONnDlniALlNP46/PN5MB5F+0YnLmFpIN7uzc2ysJTQSSLGzpfoVe
+         F+hh134Eg8etNDMxVdFIqqf1/fd1hBBQk+Rs9kkvV3MB5SexheWMwHlxK05ypxx3J4Mj
+         byLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=7SDwbJugi9Qfbn4daJj+diikXnvNofEBDHPc9CZadFk=;
-        b=lAzXCwgsaI834UWgtrjA3pK4cT/Z4KFvYG8xfI3chyatZNJHt9WzOGzpQnRXBLX1a6
-         odcIwjH3dEw3c9QoVhxO440w/m+u6uI2GN6mubITeoG46PLwt6LWQjtdbH/qPoWJttOR
-         1+yovpDEtcevPUwFoT6yuyKPBpjdQqYoiMa1iPAJK811FpcD0gMhBUJ3c01nH7qpuEYG
-         xUU1rIAnZKnd2cWTgSm9ei1kCneLHyDCceXgohU+kS4KV8AuF95cS4tdop3g8J0jdHe1
-         DX3VncEfqbvk/CPVDh72WloCwjvT2OihIgLfKpWLQpoGmzVTUyLZyU3FojPv7l0b2en3
-         zU5w==
-X-Gm-Message-State: AOAM530jeOeHDteST4WfcgSvPOCHAuHNW+C3DZT7/7xoCBD3O1o9KxP9
-        v6PddrwCq5SCiguJRiTPv7TvPJU/iz+9CNBdwiTN6FVFSpovcQ==
-X-Google-Smtp-Source: ABdhPJw8WCPE31UhB0lOQ1CIYC4UhriWltJ7VbIhJneGzKpi4PerrIEYEkRD5Hg6b5Y0T9ALAWIXOvm+vNELG9PuRjc=
-X-Received: by 2002:a05:6e02:188a:b0:2d0:f58e:fe1a with SMTP id
- o10-20020a056e02188a00b002d0f58efe1amr2662810ilu.303.1652465459632; Fri, 13
- May 2022 11:10:59 -0700 (PDT)
+        bh=5GD0SLw1AH27oEs9JwNKbrHm3qIoU7ZUK/a/xM1pva0=;
+        b=OIxop2XjpFIyc9bwmXMYbFPwxPa0hczveducRciIP35/b4aDgwKNkvGAzbeBIgWuyy
+         IdOBP7QWOXQUs+r1gVmpeT0ROUF20V9hpMiblhQq/se5PmQE9vCXWlm154HXC/3pR4qo
+         bseZmYUbWnZYMqQlP4o3K/Ej2rFUxEid6qgVCC68oUKHzIY+36djYvDszIgyylQGMmuX
+         pmDpvzFfvT5sF1sYN+lZBdkcO44luJFlc6s6f0Kwk/qN01CPkR/eZEQxW6s5BOfyyH7E
+         nWd6PSn2sVRIm/fL8SlKqve2Q1pMAQ4qjpwDmx0bhN1rSqexWsYyIy4XHP9XCtaC7s7t
+         E2IA==
+X-Gm-Message-State: AOAM530o/08qHXEm6rOOrPS0lyK7hHimyajFDSaDIkv39ovUM9GnVpM0
+        AN487ZN5/WoACMfzcSneFuy8zCHm6dDhGIzXbIrcTL4gXXpqZg==
+X-Google-Smtp-Source: ABdhPJyPhLnPEcFD+zPIX8+PP7UEw7CY6HE1Qejb7cOFVwiMAQnqHdylAA36IzpaOJC4ZKhUoXy9FE70pkf2B2mFduE=
+X-Received: by 2002:a05:6638:3723:b0:32b:6683:ac20 with SMTP id
+ k35-20020a056638372300b0032b6683ac20mr3256698jav.299.1652465702406; Fri, 13
+ May 2022 11:15:02 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
  <Yn00jd+uX8PVZv/9@kroah.com> <CAMdnWFBCyiU-p1ww5NQnvMxVUnVyCkzoS6D+6Hg=7aJR4Bwn5Q@mail.gmail.com>
  <Yn4V4HdJFyHARf1b@kroah.com>
 In-Reply-To: <Yn4V4HdJFyHARf1b@kroah.com>
 From:   Meena Shanmugam <meenashanmugam@google.com>
-Date:   Fri, 13 May 2022 11:10:48 -0700
-Message-ID: <CAMdnWFAeViOvwOkkzZ2vdz3TpdE_1JbkanmHhsg1WxP2M79uDQ@mail.gmail.com>
+Date:   Fri, 13 May 2022 11:14:51 -0700
+Message-ID: <CAMdnWFDwYr-NYTqK3nJvFX7hox0wD0XrUauChGxD+5ZJUVTBew@mail.gmail.com>
 Subject: Re: Request to cherry-pick f00432063db1 to 5.10
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
@@ -67,22 +67,6 @@ X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
-
-I tested my original patch(which was corrupted by email client).
-When the patch is manually backported to fix white space, the patch
-was fixed wrongly :(
-I sent my original patch again for 5.10.y without any corruption.
-Sorry for the inconvenience caused.
-
-For 5.15.y, this is the cherry-pick order:
-
-3be232f11a3cc9b0ef0795e39fa11bdb8e422a06(SUNRPC: Prevent immediate
-close+reconnect)
-f00432063db1a0db484e85193eccc6845435b80e(SUNRPC: Ensure we flush any
-closed sockets before xs_xprt_free())
-
-Thanks,
-Meena
 
 On Fri, May 13, 2022 at 1:25 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 >
@@ -182,3 +166,19 @@ ed as
 > thanks,
 >
 > greg k-h
+
+I tested my original patch(which was corrupted by email client).
+When the patch is manually backported to fix white space, the patch
+was fixed wrongly :(
+I sent my original patch again for 5.10.y without any corruption.
+Sorry for the inconvenience caused.
+
+For 5.15.y, this is the cherry-pick order:
+
+3be232f11a3cc9b0ef0795e39fa11bdb8e422a06(SUNRPC: Prevent immediate
+close+reconnect)
+f00432063db1a0db484e85193eccc6845435b80e(SUNRPC: Ensure we flush any
+closed sockets before xs_xprt_free())
+
+Thanks,
+Meena
