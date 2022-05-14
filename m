@@ -2,85 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A278B52721B
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 16:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CCA52723B
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 16:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233419AbiENOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 10:41:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34260 "EHLO
+        id S232492AbiENOwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 10:52:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230337AbiENOlm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 10:41:42 -0400
-Received: from smtp5-g21.free.fr (smtp5-g21.free.fr [IPv6:2a01:e0c:1:1599::14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63E4A2CDED
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 07:41:40 -0700 (PDT)
-Received: from geek500.localdomain (unknown [82.65.8.64])
-        (Authenticated sender: casteyde.christian@free.fr)
-        by smtp5-g21.free.fr (Postfix) with ESMTPSA id EB1D25FFA9;
-        Sat, 14 May 2022 16:41:33 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-        s=smtp-20201208; t=1652539298;
-        bh=RVUXgeNXqlyrexHEFCz9+8klDgtdwYVM274LVBDdlG8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Udnzf2F8L35lxGLDoyygbcKRDHt0A2TLy70dsZNdTUGrqVtQJvWW0ozWcBeo2vvoE
-         T1MsmH+BJn9pNzHd1Zie6jtcnJ5TdvFjJRtAB6IxLxEXiYg0xzNjHuNpKFhW/ZnoFZ
-         vrDkgQJkT9mjSmulkRZadUTJCU4KxlhVKSXB28geKZ6bfgjtuQkL39ws5fjaEu2C44
-         0h5gUkljqOhOOGGH4g6xdlKF4z3pVpF2WL9Ev3WR6gWDyj9gaiM7GGbklXQV4CNsiq
-         UZiyXNIDeqUlMdqmOdG3g+3Hsb06HzuykGLlCyGPMTPO0W8BSzNYUw/b26IoUUu+O+
-         i7ZXXLuo6ePYA==
-From:   Christian Casteyde <casteyde.christian@free.fr>
-To:     stable@vger.kernel.org
-Cc:     regressions@lists.linux.dev, kai.heng.feng@canonical.com,
-        alexander.deucher@amd.com, gregkh@linuxfoundation.org
-Subject: [REGRESSION] Laptop with Ryzen 4600H fails to resume video since 5.17.4 (works 5.17.3)
-Date:   Sat, 14 May 2022 16:41:19 +0200
-Message-ID: <2584945.lGaqSPkdTl@geek500.localdomain>
+        with ESMTP id S231407AbiENOws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 10:52:48 -0400
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6447D26E1;
+        Sat, 14 May 2022 07:52:47 -0700 (PDT)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-d6e29fb3d7so14059596fac.7;
+        Sat, 14 May 2022 07:52:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=3mE5pBypK34WXI2cOdwptYLHYYFJejv53r/03hvG0VE=;
+        b=Z80H5xsMJpXgm7sITn6ydA1AYRkA2Mc8s5JHlVAzvlSw7VtOPwegHXzwy09WUPLMm3
+         x1UXRgsF+0V4LI/WODk0kS6yCGa0M7DrdMGg73QGGGqyhopDivD40o+SBXCB4BlAGMFa
+         fUbwFBqXdtr12w3PMmgvvuflyKEHNpClFxYA2VwPhZXDjmsGJvIE5ZmAM45q3cAwGu03
+         kVWMnfbAYSDNp4efe7tD4HPfsUfoT9bL4GgQtDW3GIwkCxToH1CK+3t0jhjz2sgSMcbb
+         Z+qXthycrZ6kX8rTRKPurbWtOXLt/BmWpgB1tDmeQ8ojpgIWAH9zneGWHly/QraKPkQv
+         CXEA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=3mE5pBypK34WXI2cOdwptYLHYYFJejv53r/03hvG0VE=;
+        b=OEeaqEX2VFzDq09p5oGRtovpuZaMG3CHXysTrUpZxcyNk0i9IbhsHoe2QQYMUIRd8A
+         4xBo+uu27DrrEwCO6F7cEWd3mM6tAVp3M4N58TLPVRLSiSG2ONzd+pNENKPu2rRbpoGU
+         A60+m5ah0h+VuH05ch0yRAz6hT0iUvf++GnDYAM5TppAU7vXAS0S5sodSKCtNwRJMvI2
+         d/7ARJxlIa29YfhvzmZNWPOVFSbFx/QOBxAo+r32iBMijCZdeNOHCNntPKyx2FYQfXCr
+         laUsj+7sTrwnkq1wSvRoLevmFTwOcNhlrG8Velk+KbmgudGgRnZrOCulCtDWJWumuYIa
+         0+tQ==
+X-Gm-Message-State: AOAM530cAI0AET7ge7e80UWYueOv4jFJqXLPTgxpXaThgffa9PL4vOjl
+        GFD/Sfejom1/zD+tOzoxmEM=
+X-Google-Smtp-Source: ABdhPJzs1/BQx/1LqBgN1KFISMGPXZxKtekFmP8Nj+qpLH8MHeaun65T0uMEFKCpvcQr5BmFzdQ/3Q==
+X-Received: by 2002:a05:6870:c1c1:b0:ee:5c83:7be7 with SMTP id i1-20020a056870c1c100b000ee5c837be7mr5035663oad.53.1652539966769;
+        Sat, 14 May 2022 07:52:46 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id x28-20020a056830245c00b0060603221253sm2121483otr.35.2022.05.14.07.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 May 2022 07:52:46 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Sat, 14 May 2022 07:52:44 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 0/7] 4.9.314-rc1 review
+Message-ID: <20220514145244.GA1322724@roeck-us.net>
+References: <20220513142225.909697091@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220513142225.909697091@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-#regzbot introduced v5.17.3..v5.17.4
-#regzbot introduced: 001828fb3084379f3c3e228b905223c50bc237f9
+On Fri, May 13, 2022 at 04:23:15PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.314 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
+> Anything received after that time might be too late.
+> 
 
-Hello
-Since 5.17.4 my laptop doesn't resume from suspend anymore. At resume, 
-symptoms are variable:
-- either the laptop freezes;
-- either the screen keeps blank;
-- either the screen is OK but mouse is frozen;
-- either display lags with several logs in dmesg:
-[  228.275492] [drm] Fence fallback timer expired on ring gfx
-[  228.395466] [drm:amdgpu_dm_atomic_commit_tail] *ERROR* Waiting for fences 
-timed out!
-[  228.779490] [drm] Fence fallback timer expired on ring gfx
-[  229.283484] [drm] Fence fallback timer expired on ring sdma0
-[  229.283485] [drm] Fence fallback timer expired on ring gfx
-[  229.787487] [drm] Fence fallback timer expired on ring gfx
-...
+Build results:
+	total: 163 pass: 163 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-I've bisected the problem.
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
-Please note this laptop has a strange behaviour on suspend:
-The first suspend request always fails (this point has never been fixed and 
-plagues us when trying to diagnose another regression on touchpad not resuming 
-in the past). The screen goes blank and I can get it OK when pressing the 
-power button, this seems to reset it. After that all suspend/resume works OK.
-
-Since 5.17.4, it is not possible anymore to get the laptop working again after 
-the first suspend failure.
-
-HW : HP Pavilion / Ryzen 4600H with AMD graphics integrated + NVidia 1650Ti 
-(turned off with ACPI call in order to get more battery, I'm not using NVidia 
-driver).
-
-
-
+Guenter
