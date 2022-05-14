@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BABFA526F52
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 09:15:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B104D526EA6
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 09:14:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbiENFfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 01:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50588 "EHLO
+        id S231565AbiENFfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 01:35:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231565AbiENFfM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 01:35:12 -0400
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98B510C0
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 22:35:10 -0700 (PDT)
-Received: by mail-pg1-x54a.google.com with SMTP id x190-20020a6386c7000000b003d82199c4fdso5154779pgd.16
-        for <stable@vger.kernel.org>; Fri, 13 May 2022 22:35:10 -0700 (PDT)
+        with ESMTP id S231846AbiENFfP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 01:35:15 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1135E10C0
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 22:35:14 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2d11b6259adso88844977b3.19
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 22:35:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=pQ3/2wWEXIEp31+Th9Fv52M8A6U+DB7IXsH9VispyAE=;
-        b=h2zwPrO7yfmI1kLWQ5G5Rag/gvBZcgWFfRt1yjeRbZb+u5Y73AWdHkSIEp8e7EnMcL
-         djfq63gEE6tWA2qKh7VYuYLgZFy+Dy4MIkxBl3g4IYgJDUK9slcuaceUeSpf6Eb1hwGz
-         Rdvo9JtcXbEjltanGIfIWdnjgiwYrlIsosoHgDKBM1GL2iHiUwuyYNEydNmcRdzsYAFb
-         7qa9XcVhFqjr34W0H9wU2BAik2/Rf9tfIOpVXY6nnzdfR/cxb1eJDXERpo3S8pt2nKfJ
-         CwJAvzNsCBfP9kJHc3rQj6I/ACdbxZewiJu2gwOERg2g72p5hXdLrrgmdsI76fWP7oqk
-         vTJQ==
+        bh=sY49jKBF5FM4c+1hN6yD4uq5YLeIbMZrfN/k7lkxmlg=;
+        b=hrYqYzFLV0JPwU996yxacxXAYwwMFxaPYG4ZYVnf5fjnQqaMCJW5MXQUS1S6mbtp3B
+         DUKDSfPfK++ypMT615KGJ/Fz7p9vxAqLZhGJXijN0Pl8cRAWov7ySC1+jxX7jQgnWNKo
+         yH8cnft0ArQmy3H3vl5KXa8NgnTEXHVmcb3jlPivIAeFkbNTo7NwhV7SyQSRyrJTL5Dn
+         BZvfHt6LUiwZQLWSJXAWdGmNhlfLfX7X8vONu6SofMoB2FrITGrPZX7AvnLWpqIUjgP4
+         MvhIuN+5Gg3p0HLFPmoh7rnxMFWULOfu0KKV8zCFO3mcJWzsFle97cIfl54eLq6jlXyW
+         HueA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=pQ3/2wWEXIEp31+Th9Fv52M8A6U+DB7IXsH9VispyAE=;
-        b=JZiG4e5rYCmPB8ZtDBWTadWqOimj0uGoiTUkNqcTatsI9tjpCv3SZNHZtJdcDPJlSA
-         4reROiUrGnqwppbtEig+kFJsyt+0aB+SIpqJw4qWpQNe9SAIa5rCG2iabN5Xr/zkH3Zg
-         KQSKZp/A66TrYcbwTCOHFFwncjZfFThAq6oRlumzlvW6EyrXkw4snc1yxt2LQ7Rj+SVt
-         mhUg//AIdLn9Ol8c1yjxjO15f/fLdg34WU0fKVlGQBqgjAOTTv5wSLbAMJSaWvwwvctF
-         LFapa7vcumBElaTCgw6R5fhVwHDRd/rOo1bra7Hjrl0wjuIpm05hP+TI3n1upwR/vG9j
-         QfBA==
-X-Gm-Message-State: AOAM533EbEN8Q/uiRk2SawmzI9wP3ZMscUhEQZ5Y3u4MSoQFwzz2u3mN
-        EpFyr0EJbhZyk1KuxjDf2h/IXITEzcEsxXfuati47Q==
-X-Google-Smtp-Source: ABdhPJyVXMDFbSACO7sLYmDqCGSLYkzNYvDmhZfuP332EuIl8LYPHLxwM5EGIXrEXhQu7SriApCZsCLGkEY5+e5t7XrT5g==
+        bh=sY49jKBF5FM4c+1hN6yD4uq5YLeIbMZrfN/k7lkxmlg=;
+        b=0TMz3myBEIEu5l89CAFGATjoIhITbZ8KF/9gV7G1WDKicGGV0CmH13orWke7oF2/o5
+         MKgiGpEKXoBz3oKG2Qazgvs/15nyiAqkcHUYgeblIKYWoZM2nv1W+qTwnHTZNjpIT9Bq
+         hRlhG4/CVlwdFnt8eGhT7Mm6uufR0jwRRIib/k/17k84KWWOZK8srT52MkfwEbHae+EP
+         ljBhkrpSk7gU/XLvoI0e2dPBMIlTcHrOrZjORYJMU9pIWtOMdP25OSYtedSO+qVwMuKy
+         X7Cai2XMUAFURe37a657JNUdlh/Tr/rsaCB8FHJti0xsKxHNgRdmgUpB3hGrO663v5Mv
+         c4Zw==
+X-Gm-Message-State: AOAM530Cvh/q/D+Bxc8h2E1hdI1yXgeO9i5B65EBD/dcfiYMpyzW6M1O
+        Xbl1s6/VLxevZqzV4sGn2RI89eYTZry130dafxl14A==
+X-Google-Smtp-Source: ABdhPJw95Jgp6QuXznuZbY36iVG2TkrvwtYyVD0eJvNGwyjX/Rd9rHUHyfFx5fvG2GDcbgLjMI3ZTsC2v8PGAUuFGQl7gw==
 X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a17:90a:e7d2:b0:1dc:e6c6:604b with
- SMTP id kb18-20020a17090ae7d200b001dce6c6604bmr19616414pjb.183.1652506510368;
- Fri, 13 May 2022 22:35:10 -0700 (PDT)
-Date:   Sat, 14 May 2022 05:34:51 +0000
+ (user=meenashanmugam job=sendgmr) by 2002:a81:d16:0:b0:2f4:dd5d:9846 with
+ SMTP id 22-20020a810d16000000b002f4dd5d9846mr9037146ywn.372.1652506513293;
+ Fri, 13 May 2022 22:35:13 -0700 (PDT)
+Date:   Sat, 14 May 2022 05:34:52 +0000
 In-Reply-To: <20220514053453.3277330-1-meenashanmugam@google.com>
-Message-Id: <20220514053453.3277330-3-meenashanmugam@google.com>
+Message-Id: <20220514053453.3277330-4-meenashanmugam@google.com>
 Mime-Version: 1.0
 References: <Yn82ZO/Ysxq0v/0/@kroah.com> <20220514053453.3277330-1-meenashanmugam@google.com>
 X-Mailer: git-send-email 2.36.0.550.gb090851708-goog
-Subject: [PATCH 2/4] SUNRPC: Prevent immediate close+reconnect
+Subject: [PATCH 3/4] SUNRPC: Don't call connect() more than once on a TCP socket
 From:   Meena Shanmugam <meenashanmugam@google.com>
 To:     gregkh@linuxfoundation.org
 Cc:     enrico.scholz@sigma-chemnitz.de, meenashanmugam@google.com,
@@ -69,45 +69,81 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
+commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
 
-If we have already set up the socket and are waiting for it to connect,
-then don't immediately close and retry.
+Avoid socket state races due to repeated calls to ->connect() using the
+same socket. If connect() returns 0 due to the connection having
+completed, but we are in fact in a closing state, then we may leave the
+XPRT_CONNECTING flag set on the transport.
 
+Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[meenashanmugam: Backported to 5.10: Fixed merge conflict in xs_tcp_setup_socket]
 Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
 ---
- net/sunrpc/xprt.c     | 3 ++-
- net/sunrpc/xprtsock.c | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ include/linux/sunrpc/xprtsock.h |  1 +
+ net/sunrpc/xprtsock.c           | 21 +++++++++++----------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index a6bb957084f7..af0159459c75 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -737,7 +737,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
-  */
- static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
- {
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
-+		return;
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
- 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
+diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
+index 8c2a712cb242..689062afdd61 100644
+--- a/include/linux/sunrpc/xprtsock.h
++++ b/include/linux/sunrpc/xprtsock.h
+@@ -89,5 +89,6 @@ struct sock_xprt {
+ #define XPRT_SOCK_WAKE_WRITE	(5)
+ #define XPRT_SOCK_WAKE_PENDING	(6)
+ #define XPRT_SOCK_WAKE_DISCONNECT	(7)
++#define XPRT_SOCK_CONNECT_SENT	(8)
+ 
+ #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
 diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index bd123f1d0923..60c58eb9a456 100644
+index 60c58eb9a456..33a81f9703b1 100644
 --- a/net/sunrpc/xprtsock.c
 +++ b/net/sunrpc/xprtsock.c
-@@ -2345,7 +2345,7 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
+@@ -2260,10 +2260,14 @@ static void xs_tcp_setup_socket(struct work_struct *work)
+ 	struct rpc_xprt *xprt = &transport->xprt;
+ 	int status = -EIO;
+ 
+-	if (!sock) {
+-		sock = xs_create_sock(xprt, transport,
+-				xs_addr(xprt)->sa_family, SOCK_STREAM,
+-				IPPROTO_TCP, true);
++	if (xprt_connected(xprt))
++		goto out;
++	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
++			       &transport->sock_state) ||
++	    !sock) {
++		xs_reset_transport(transport);
++		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
++				      SOCK_STREAM, IPPROTO_TCP, true);
+ 		if (IS_ERR(sock)) {
+ 			status = PTR_ERR(sock);
+ 			goto out;
+@@ -2294,6 +2298,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
+ 		break;
+ 	case 0:
+ 	case -EINPROGRESS:
++		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
+ 	case -EALREADY:
+ 		xprt_unlock_connect(xprt, transport);
+ 		return;
+@@ -2345,13 +2350,9 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
  
  	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
  
--	if (transport->sock != NULL) {
-+	if (transport->sock != NULL && !xprt_connecting(xprt)) {
+-	if (transport->sock != NULL && !xprt_connecting(xprt)) {
++	if (transport->sock != NULL) {
  		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
- 				"seconds\n",
- 				xprt, xprt->reestablish_timeout / HZ);
+-				"seconds\n",
+-				xprt, xprt->reestablish_timeout / HZ);
+-
+-		/* Start by resetting any existing state */
+-		xs_reset_transport(transport);
++			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
+ 
+ 		delay = xprt_reconnect_delay(xprt);
+ 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
 -- 
 2.36.0.550.gb090851708-goog
 
