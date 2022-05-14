@@ -2,155 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8ACF527364
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 20:00:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D88DF527373
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 20:22:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231271AbiENSAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 14:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46026 "EHLO
+        id S232951AbiENSWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 14:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229538AbiENSAK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 14:00:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67D713CA58;
-        Sat, 14 May 2022 11:00:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97B74610AA;
-        Sat, 14 May 2022 18:00:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5808C34113;
-        Sat, 14 May 2022 18:00:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652551207;
-        bh=zMdAqlOlcoMBi8vXNWHO9v1vLmu+3e67HT++NXP4bQg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=S3BcptZ6vCGDAfEb9eDP2fDZk5pSeofFMRm48liqAKL3XjmIiQNenMfo7dtodJWop
-         uf63GA9AYDLy+D7YbiPGshutyOA9HmFN4ycbLPSsp3hALCP0H8eElquPrrR2aZ5uMl
-         R1KHIBhcPIG5Eepbz91W0cEjgmcuvLEO4HzwV1KVuB/pvTx+53pH+0WOnPAWhghg73
-         Kkb7C77UkfJs1fPCje19epnLj92BVm4Eeut6LkgqCMX2g91LR+B7lROYifStApgEgn
-         J6wdLwLkZZzVejQfn9FwjSl5CMDsQ+exsNYAlX9cSFPSDDIWednmogUfJL6X/uOaOg
-         6z945m18zHMKw==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-f2fs-devel@lists.sourceforge.net
-Cc:     linux-fscrypt@vger.kernel.org,
-        Gabriel Krisman Bertazi <krisman@collabora.com>,
-        Daniel Rosenberg <drosen@google.com>, stable@vger.kernel.org
-Subject: [PATCH] f2fs: don't use casefolded comparison for "." and ".."
-Date:   Sat, 14 May 2022 10:59:29 -0700
-Message-Id: <20220514175929.44439-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S229539AbiENSWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 14:22:51 -0400
+Received: from mail.pekanbaru.go.id (mail.pekanbaru.go.id [103.131.245.194])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C4B20BEE
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 11:22:45 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.pekanbaru.go.id (Postfix) with ESMTP id 3C3DB9A39C3;
+        Sun, 15 May 2022 00:06:33 +0700 (WIB)
+Received: from mail.pekanbaru.go.id ([127.0.0.1])
+        by localhost (mail.pekanbaru.go.id [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id EsjL8jFUtQd7; Sun, 15 May 2022 00:06:32 +0700 (WIB)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by mail.pekanbaru.go.id (Postfix) with ESMTP id 3B6F89A399A;
+        Sun, 15 May 2022 00:06:29 +0700 (WIB)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.pekanbaru.go.id 3B6F89A399A
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=pekanbaru.go.id;
+        s=EA5C5C9E-4206-11EC-835B-1ADACEA726A0; t=1652547989;
+        bh=pXowClvSMadVxtAvZAzaFtXDeoyeipc9hDqwekVPVSM=;
+        h=MIME-Version:To:From:Date:Message-Id;
+        b=X45Nik3FzsEBvFM0KZO73PgkVO1iujrFIIBfb8dMCxwgqcB6NaUECSt6+NYFG0Bm/
+         rBB1iF16BHyzEIQAhlTU/PUJTZvqUFw5hvZrAwtwkUNYM/Ep5JV+g5Yr5ysk86PG3P
+         a1IJ5oNIjCxOpuiY4pDLyZZFgGGWiDmNfTPcJmxCZUmpq53USstMpeF5tJLKNq/23I
+         u3fOeefcbd0Ot9e1oUlSqEhDiLhfdNyBUCIyoMB6m7DFSQwDCowCS2Hm9HDOo07vGE
+         66kwqJ0QLD3eK1ILRM0xrXbHUxhe1PvR4STPF7D6yxUzGOlhOsJJ186X+zUSF7y9W/
+         ZdQ6dBx833F4A==
+X-Virus-Scanned: amavisd-new at mail.pekanbaru.go.id
+Received: from mail.pekanbaru.go.id ([127.0.0.1])
+        by localhost (mail.pekanbaru.go.id [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id 6FB9C3fqpZtJ; Sun, 15 May 2022 00:06:29 +0700 (WIB)
+Received: from [192.168.15.103] (unknown [197.234.221.21])
+        by mail.pekanbaru.go.id (Postfix) with ESMTPSA id A562C9A3959;
+        Sun, 15 May 2022 00:06:17 +0700 (WIB)
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+Content-Description: Mail message body
+Subject: Are you there
+To:     Recipients <waterproject@pekanbaru.go.id>
+From:   waterproject@pekanbaru.go.id
+Date:   Sat, 14 May 2022 18:06:04 +0100
+Reply-To: test@hostnextdoor.com
+Message-Id: <20220514170617.A562C9A3959@mail.pekanbaru.go.id>
+X-Spam-Status: Yes, score=7.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_BL_SPAMCOP_NET,
+        RCVD_IN_PSBL,RCVD_IN_SBL,RCVD_IN_SORBS_WEB,RCVD_IN_VALIDITY_RPBL,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
         autolearn_force=no version=3.4.6
+X-Spam-Report: *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?103.131.245.194>]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.1 RCVD_IN_SBL RBL: Received via a relay in Spamhaus SBL
+        *      [197.234.221.21 listed in zen.spamhaus.org]
+        *  2.7 RCVD_IN_PSBL RBL: Received via a relay in PSBL
+        *      [103.131.245.194 listed in psbl.surriel.com]
+        *  1.3 RCVD_IN_VALIDITY_RPBL RBL: Relay in Validity RPBL,
+        *      https://senderscore.org/blocklistlookup/
+        *      [103.131.245.194 listed in bl.score.senderscore.com]
+        *  1.5 RCVD_IN_SORBS_WEB RBL: SORBS: sender is an abusable web server
+        *      [197.234.221.21 listed in dnsbl.sorbs.net]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+Hi =
 
-Tryng to rename a directory that has all following properties fails with
-EINVAL and triggers the 'WARN_ON_ONCE(!fscrypt_has_encryption_key(dir))'
-in f2fs_match_ci_name():
 
-    - The directory is casefolded
-    - The directory is encrypted
-    - The directory's encryption key is not yet set up
-    - The parent directory is *not* encrypted
+Did you get my previous email? I have attempted to open up communication wi=
+th you. Please acknowledge if you receive this email. =
 
-The problem is incorrect handling of the lookup of ".." to get the
-parent reference to update.  fscrypt_setup_filename() treats ".." (and
-".") specially, as it's never encrypted.  It's passed through as-is, and
-setting up the directory's key is not attempted.  As the name isn't a
-no-key name, f2fs treats it as a "normal" name and attempts a casefolded
-comparison.  That breaks the assumption of the WARN_ON_ONCE() in
-f2fs_match_ci_name() which assumes that for encrypted directories,
-casefolded comparisons only happen when the directory's key is set up.
 
-We could just remove this WARN_ON_ONCE().  However, since casefolding is
-always a no-op on "." and ".." anyway, let's instead just not casefold
-these names.  This results in the standard bytewise comparison.
-
-Fixes: 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
-Cc: <stable@vger.kernel.org> # v5.11+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/f2fs/dir.c  |  3 ++-
- fs/f2fs/f2fs.h | 10 +++++-----
- fs/f2fs/hash.c | 11 ++++++-----
- 3 files changed, 13 insertions(+), 11 deletions(-)
-
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index a0e51937d92eb..d5bd7932fb642 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -82,7 +82,8 @@ int f2fs_init_casefolded_name(const struct inode *dir,
- #if IS_ENABLED(CONFIG_UNICODE)
- 	struct super_block *sb = dir->i_sb;
- 
--	if (IS_CASEFOLDED(dir)) {
-+	if (IS_CASEFOLDED(dir) &&
-+	    !is_dot_dotdot(fname->usr_fname->name, fname->usr_fname->len)) {
- 		fname->cf_name.name = f2fs_kmem_cache_alloc(f2fs_cf_name_slab,
- 					GFP_NOFS, false, F2FS_SB(sb));
- 		if (!fname->cf_name.name)
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 492af5b96de19..e9e32bc814dfe 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -508,11 +508,11 @@ struct f2fs_filename {
- #if IS_ENABLED(CONFIG_UNICODE)
- 	/*
- 	 * For casefolded directories: the casefolded name, but it's left NULL
--	 * if the original name is not valid Unicode, if the directory is both
--	 * casefolded and encrypted and its encryption key is unavailable, or if
--	 * the filesystem is doing an internal operation where usr_fname is also
--	 * NULL.  In all these cases we fall back to treating the name as an
--	 * opaque byte sequence.
-+	 * if the original name is not valid Unicode, if the original name is
-+	 * "." or "..", if the directory is both casefolded and encrypted and
-+	 * its encryption key is unavailable, or if the filesystem is doing an
-+	 * internal operation where usr_fname is also NULL.  In all these cases
-+	 * we fall back to treating the name as an opaque byte sequence.
- 	 */
- 	struct fscrypt_str cf_name;
- #endif
-diff --git a/fs/f2fs/hash.c b/fs/f2fs/hash.c
-index 3cb1e7a24740f..049ce50cec9b0 100644
---- a/fs/f2fs/hash.c
-+++ b/fs/f2fs/hash.c
-@@ -91,7 +91,7 @@ static u32 TEA_hash_name(const u8 *p, size_t len)
- /*
-  * Compute @fname->hash.  For all directories, @fname->disk_name must be set.
-  * For casefolded directories, @fname->usr_fname must be set, and also
-- * @fname->cf_name if the filename is valid Unicode.
-+ * @fname->cf_name if the filename is valid Unicode and is not "." or "..".
-  */
- void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
- {
-@@ -110,10 +110,11 @@ void f2fs_hash_filename(const struct inode *dir, struct f2fs_filename *fname)
- 		/*
- 		 * If the casefolded name is provided, hash it instead of the
- 		 * on-disk name.  If the casefolded name is *not* provided, that
--		 * should only be because the name wasn't valid Unicode, so fall
--		 * back to treating the name as an opaque byte sequence.  Note
--		 * that to handle encrypted directories, the fallback must use
--		 * usr_fname (plaintext) rather than disk_name (ciphertext).
-+		 * should only be because the name wasn't valid Unicode or was
-+		 * "." or "..", so fall back to treating the name as an opaque
-+		 * byte sequence.  Note that to handle encrypted directories,
-+		 * the fallback must use usr_fname (plaintext) rather than
-+		 * disk_name (ciphertext).
- 		 */
- 		WARN_ON_ONCE(!fname->usr_fname->name);
- 		if (fname->cf_name.name) {
-
-base-commit: c0d31ec6397d963d85a190996b4b74654ef32e1d
--- 
-2.36.1
-
+Regards
+Morten Friis
