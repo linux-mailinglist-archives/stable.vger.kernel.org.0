@@ -2,60 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A30A5272A8
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 17:34:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 228AB5272BA
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 17:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229606AbiENPed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 11:34:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46016 "EHLO
+        id S233115AbiENPre (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 11:47:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233983AbiENPec (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 11:34:32 -0400
-Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A612D1A81E
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:34:29 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id r188-20020a1c44c5000000b003946c466c17so5805924wma.4
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:34:29 -0700 (PDT)
+        with ESMTP id S231569AbiENPrd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 11:47:33 -0400
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17A52674
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:47:32 -0700 (PDT)
+Received: by mail-wr1-x42b.google.com with SMTP id m1so14967059wrb.8
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:47:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=taaUmm6/MPp1Wi5Mc3fnfGlDEbaPD3hQMKRhGbwYs9g=;
-        b=H1ZT1/mPg/YRAGPCGcQHkd+IlgMJpNUTWSD2EdYGxDoty1pWZwvakoz5QX+GnkXF41
-         Ztf4d+DTxW89VFuPyBglrDuCApxaNRzEVrHKq0J9hr2LOVv94PypGL8GGuIAATQyrl2U
-         xL5icCDq0sAm/dQELh3EpFOQAB8GyE3lTopkBZsf53R5kKaWF4qFWMU/0z9p0kQbyI4I
-         qh5QR6Dckwn388s0LuGyfCRVsT61PkaWgRGYj/WABnuCgULnoEis4bZBVJkvmAQ/1Zjw
-         zfF8OZWjzx5VvUiQO+S+PwjlYS4hMUyX8IjXJO0DTmsWh0OJXMHDWy0CKXHafxL6RvXk
-         9BEA==
+        bh=XF9WOeoNCxcDaLsr8Qe25CLiDFZtWpRFkEZCVH1jcxc=;
+        b=NZvyI9pRkq6sZdk1XkdNJl16uc6LUDsOvbAEksKXWwyQkpav5r40d5rme8TA9PGLCI
+         e20bYa/gX1Yly4YjfeFm9sHuW0HrC0a+NMWPbXuxMzvzgMdSYB4ywJqgFS4P2id4bfhe
+         tYhAiQFCB5V6jbZC2YXfVNZjlqLuPhkLtaO9hjk1CQiqfK9zKh7Disr53zyZPmCy1bkH
+         RHn05zJcqDkbI6nx6uOG002HbZIVhyWxmQsXpkPnWvI7ppQ1fsbyc2aKQ9nJLbXkueI2
+         vBHwm5FHvSIBWinrRfub/2iIXWfyHAle9EM2S40rJHuwx7NH/g3SrG06gZfBqdaBpmbr
+         jghA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=taaUmm6/MPp1Wi5Mc3fnfGlDEbaPD3hQMKRhGbwYs9g=;
-        b=3ekuS2Sx+wFeKVROp+hITfIrATEbduwK1zWzIbmwy+FPlCJ/Kh3nWyMEe5vLbIQmoJ
-         ZeOB0665cvQWXKDZIK5/F0xDZufhc497Dj/uaaCfcNimXAH+AWyriPhEqHjqti1qLh1T
-         Zi1GVhZCyte+cHkS9M9qEgISj1aN21s2xWilBaXx1HAPzhcuCW+mkqns6duowEDUYeZm
-         5mam6fpCsax+mpuOvVlTTjQylzJJK4wUQj6pmvJweAUMZCRT6t77wXjuJceWOnEhfWCK
-         OhnWcdrLIZIcpcE3s8R+8K51oR+DH01/7nb3/hQO8tnR0F0vPqXj515Z1zcY5WxlGDVy
-         w0fg==
-X-Gm-Message-State: AOAM531l7ZPt3kW/rUKZEEQvaxiAxxdOuG58tKA8+4i2PbkbhIi32Iso
-        ATCoDJTTrYDA7Kx1W+BYnKs=
-X-Google-Smtp-Source: ABdhPJwMx215YMK1JcczCAUwdynx6qPH4R3t6wQYhilO4RvkitfZitPchDGCbAMUk4mFwU4gqurrEQ==
-X-Received: by 2002:a05:600c:2248:b0:394:31c6:b6ae with SMTP id a8-20020a05600c224800b0039431c6b6aemr19638233wmm.99.1652542467577;
-        Sat, 14 May 2022 08:34:27 -0700 (PDT)
+        bh=XF9WOeoNCxcDaLsr8Qe25CLiDFZtWpRFkEZCVH1jcxc=;
+        b=y4hbkhVMAWm8aZALdzOniK/PUh/Xuj4oYQjAku07WggTwH/qkrc4vKLrLhxAhWNpHM
+         41oZpVaFC1uvirHG4OB+LAChpE6QhVXSqjy12zagrYlI9rPiPZgMjsnIO/91v6UkKbwc
+         yJVGzeMCZYnJmhhnIuoAIWpcFXohJdAE1+lRrnijk9OaxS84hFmCgyB4sgZTW8rUvaWc
+         ER3XSS1zRUNRcQE6WtDCmwvhO+QynfykTMb+Sn8DlOqDXYdl0mvp3EFoCpBppQE5qYGG
+         QPflQtDNQRz930wx3g4wfKkgT1Z2fCgWSN2eE0IQi1d0hnESZia68eW/ObXrEk0F0Iru
+         dRtQ==
+X-Gm-Message-State: AOAM532bz7QxY8ab/X+B3OKnzSv4sXGAJ4Vip0HkUF2YH2gJKUKQE7oc
+        nREAU0KV4Vh+frRi0yfOoe5MwbPxO60=
+X-Google-Smtp-Source: ABdhPJwBgN225KwwIQfXF3L0Iyss08nyrG7B3Zd47D/06A2ebOtKVu3yXog4fN5bIyLmyBeQMlHCfA==
+X-Received: by 2002:a05:6000:1110:b0:20a:e113:8221 with SMTP id z16-20020a056000111000b0020ae1138221mr7834070wrw.271.1652543251268;
+        Sat, 14 May 2022 08:47:31 -0700 (PDT)
 Received: from localhost.localdomain (host-2-98-37-191.as13285.net. [2.98.37.191])
-        by smtp.gmail.com with ESMTPSA id n5-20020adfc605000000b0020c6a524fe0sm4914082wrg.98.2022.05.14.08.34.27
+        by smtp.gmail.com with ESMTPSA id t1-20020adfa2c1000000b0020c5253d8d2sm5033093wra.30.2022.05.14.08.47.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 May 2022 08:34:27 -0700 (PDT)
+        Sat, 14 May 2022 08:47:31 -0700 (PDT)
 From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-X-Google-Original-From: Sudip Mukherjee <sudip.mukherjee@sifive.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.19] MIPS: fix allmodconfig build with latest mkimage
-Date:   Sat, 14 May 2022 16:34:14 +0100
-Message-Id: <20220514153414.6190-1-sudip.mukherjee@sifive.com>
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4] MIPS: fix build with gcc-12
+Date:   Sat, 14 May 2022 16:47:30 +0100
+Message-Id: <20220514154730.6924-1-sudipm.mukherjee@gmail.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -69,54 +67,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Some mips builds with gcc-12 fails with the error:
+arch/mips/jz4740/setup.c:64:25: error: comparison between two arrays
+	[-Werror=array-compare]
+   	64 |         if (__dtb_start != __dtb_end)
 
-With the latest mkimage from U-Boot 2021.04+ the allmodconfig build
-fails. 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit
-addresses") was applied for similar build failure, but it was not
-applied to 'arch/mips/generic/board-ocelot_pcb123.its.S' as that was
-removed from upstream when the patch was applied.
+'d24f48767d5e ("MIPS: Use address-of operator on section symbols")' has
+been applied which fixes most of the error, but it missed one file which
+was not available upstream when the change was done.
 
-Fixes: 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit addresses")
-Cc: Nathan Chancellor <nathan@kernel.org>
+Fixes: d24f48767d5e ("MIPS: Use address-of operator on section symbols")
 Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
- arch/mips/generic/board-ocelot_pcb123.its.S | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/jz4740/setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/generic/board-ocelot_pcb123.its.S b/arch/mips/generic/board-ocelot_pcb123.its.S
-index 5a7d5e1c878af..6dd54b7c2f076 100644
---- a/arch/mips/generic/board-ocelot_pcb123.its.S
-+++ b/arch/mips/generic/board-ocelot_pcb123.its.S
-@@ -1,23 +1,23 @@
- /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
- / {
- 	images {
--		fdt@ocelot_pcb123 {
-+		fdt-ocelot_pcb123 {
- 			description = "MSCC Ocelot PCB123 Device Tree";
- 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
- 			type = "flat_dt";
- 			arch = "mips";
- 			compression = "none";
--			hash@0 {
-+			hash {
- 				algo = "sha1";
- 			};
- 		};
- 	};
+diff --git a/arch/mips/jz4740/setup.c b/arch/mips/jz4740/setup.c
+index dc8ee21e0948e..45e327960a465 100644
+--- a/arch/mips/jz4740/setup.c
++++ b/arch/mips/jz4740/setup.c
+@@ -61,7 +61,7 @@ void __init plat_mem_setup(void)
  
- 	configurations {
--		conf@ocelot_pcb123 {
-+		conf-ocelot_pcb123 {
- 			description = "Ocelot Linux kernel";
--			kernel = "kernel@0";
--			fdt = "fdt@ocelot_pcb123";
-+			kernel = "kernel";
-+			fdt = "fdt-ocelot_pcb123";
- 		};
- 	};
- };
+ 	jz4740_reset_init();
+ 
+-	if (__dtb_start != __dtb_end)
++	if (&__dtb_start != &__dtb_end)
+ 		dtb = __dtb_start;
+ 	else
+ 		dtb = (void *)fw_passed_dtb;
 -- 
 2.30.2
 
