@@ -2,97 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C40526FA0
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 09:51:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8598526FA5
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 10:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229535AbiENHvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 03:51:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42848 "EHLO
+        id S229554AbiENIBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 04:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229493AbiENHvf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 03:51:35 -0400
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A041F7;
-        Sat, 14 May 2022 00:51:34 -0700 (PDT)
-Received: by mail-pf1-x432.google.com with SMTP id k16so2849954pff.5;
-        Sat, 14 May 2022 00:51:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=n8zKUiqbVDYxbvMgeTQJw/z7kwDYoKEYRpJkVqLfCl0=;
-        b=qkIapbKjGm1MYr7T6YHW6xdb4kT+Pt3WxJ7tTF/Z4laMBY4hYoWdrelAadZhek4KZl
-         Mk+IylB6oV7BBIEhotOBmzTEq7Z/p42GPgqZWwEoJVAWH//L2R7sfuSr12zHToHQjADg
-         7xkX6N+NMHABcVRqC/9jK04DeR/yF8mzT+Pyy38Ur8SQ/oQ6xBzgN2tPdWNDIl1CzFoO
-         yPyzqXMqPoXlN25zTPK5WfC7N0jTSBBJVVFe/nxZmCXJDUmUPAfOmTsCgRWm1RkcW8iV
-         6B9z6tcPoMQ1E3NrQX9lPEXXdyQYpZff88IpcH8SjWssIFQsJstCeTUYBOx0FdvgfKBP
-         wpVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=n8zKUiqbVDYxbvMgeTQJw/z7kwDYoKEYRpJkVqLfCl0=;
-        b=SKIhnCadYHvoY1hrRe05WN/YKv/UNQOwiW7LpyjuF5q60wGllSbBNqUOZfj3QK3wQT
-         mpNsOI30EuBeyPRNsh3q1OeLQya/N/vBZmLTt7TcjU1Kj8f+qdmtVzQOJYw1uNtT3IeD
-         Yqm0YhpHlK7cJaDYBx90K3DR/TLMDGbIvAZEKBbN1UYd1rJeaSZfBawwqfUHw5lfEU8X
-         VrHianPd6b6kuR565CWJ/Grvkocv0D1NYD2stmcUZQmQP4o13YlxIWvNBHAxQiA7RRgC
-         v47bdoj49oLk4GNdxrcyR9W2dqO3Z9UQTGbbCjEU+Qyyzk8W8ocX7UjIypp2F19TVFMf
-         G4Aw==
-X-Gm-Message-State: AOAM531spvMcm/eQc2Bde1lcHsTjlKX1r4My9qXqGJsPof7o5uCjUK/U
-        WzaV3jVoNKzYBBo61p4I8fJI6MiKWX2JwdhktbY=
-X-Google-Smtp-Source: ABdhPJzJn4Fnur0ovSI2YYP4FxsU1V9nGoiDy06lN/Bp2fKAbKCRVIhy2dSPYRXmx5Bg65ziVVKu/A==
-X-Received: by 2002:a05:6a00:806:b0:50d:dd03:a03a with SMTP id m6-20020a056a00080600b0050ddd03a03amr8248601pfk.57.1652514693584;
-        Sat, 14 May 2022 00:51:33 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
-        by smtp.gmail.com with ESMTPSA id k3-20020a17090ad08300b001d9781de67fsm2727179pju.31.2022.05.14.00.51.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 May 2022 00:51:33 -0700 (PDT)
-Message-ID: <627f5f85.1c69fb81.4b80c.7398@mx.google.com>
-Date:   Sat, 14 May 2022 00:51:33 -0700 (PDT)
-X-Google-Original-Date: Sat, 14 May 2022 07:51:26 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220513142228.651822943@linuxfoundation.org>
-Subject: RE: [PATCH 5.17 00/12] 5.17.8-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229493AbiENIBQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 04:01:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADDA24947;
+        Sat, 14 May 2022 01:01:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 74F3E60B52;
+        Sat, 14 May 2022 08:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964F8C340EE;
+        Sat, 14 May 2022 08:01:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652515271;
+        bh=YhvEOsX3XXWBxDsdjMMPb9LQ+FGAbn6utxGTDet/7z8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=g4gfvHHzrI/XEI/TVVaDfwKxbP4jxPVifnLbo9ieqQThuEaTZDPhPL02TiRCGR9NI
+         51ulFZP3GA0fOAfWLGB64DaiOaJocrSReLT9rkM43X9s+pBq6aomqnX5N2FFtMx+2j
+         91coYV9xIrRHU0SOj24ddsw4xsmsoGvctyAIB/eLxwg2xsoTUXuHzv17Ev0GohmVWG
+         jbHnOf/pI+l/fQJwRj3XFlTh2bdlV8T9PXubDg8dq/0BrdIoBPW7zVxOG0N6+inViN
+         0KcMer1j04QVIYI7sGsH7W+0mkMV+BRT6EUmoa/R1g6tk4iip8MGBRc9ecd3fsBtBH
+         YVlxLQqvxHHxw==
+From:   Chao Yu <chao@kernel.org>
+To:     jaegeuk@kernel.org
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
+        Chao Yu <chao.yu@oppo.com>
+Subject: [PATCH v2] f2fs: fix to do sanity check for inline inode
+Date:   Sat, 14 May 2022 16:01:02 +0800
+Message-Id: <20220514080102.2246-1-chao@kernel.org>
+X-Mailer: git-send-email 2.32.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 13 May 2022 16:24:00 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.17.8 release.
-> There are 12 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+As Yanming reported in bugzilla:
 
-5.17.8-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+https://bugzilla.kernel.org/show_bug.cgi?id=215895
+
+I have encountered a bug in F2FS file system in kernel v5.17.
+
+The kernel message is shown below:
+
+kernel BUG at fs/inode.c:611!
+Call Trace:
+ evict+0x282/0x4e0
+ __dentry_kill+0x2b2/0x4d0
+ dput+0x2dd/0x720
+ do_renameat2+0x596/0x970
+ __x64_sys_rename+0x78/0x90
+ do_syscall_64+0x3b/0x90
+
+The root cause is: fuzzed inode has both inline_data flag and encrypted
+flag, so after it was deleted by rename(), during f2fs_evict_inode(),
+it will cause inline data conversion due to flags confilction, then
+page cache will be polluted and trigger panic in clear_inode().
+
+This patch tries to fix the issue by do more sanity checks for inline
+data inode in sanity_check_inode().
+
+Cc: stable@vger.kernel.org
+Reported-by: Ming Yan <yanming@tju.edu.cn>
+Signed-off-by: Chao Yu <chao.yu@oppo.com>
+---
+v2:
+- fix to check inode type in f2fs_post_read_required()
+ fs/f2fs/f2fs.h  | 8 ++++++++
+ fs/f2fs/inode.c | 3 +--
+ 2 files changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 492af5b96de1..0dc2461ef02c 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -4126,6 +4126,14 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
+  */
+ static inline bool f2fs_post_read_required(struct inode *inode)
+ {
++	/*
++	 * used by sanity_check_inode(), when disk layout fields has not
++	 * been synchronized to inmem fields.
++	 */
++	if (S_ISREG(inode->i_mode) && (file_is_encrypt(inode) ||
++		F2FS_I(inode)->i_flags & F2FS_COMPR_FL ||
++		file_is_verity(inode)))
++		return true;
+ 	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
+ 		f2fs_compressed_file(inode);
+ }
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 2fce8fa0dac8..5e494c98e3c2 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
+ 		}
+ 	}
+ 
+-	if (f2fs_has_inline_data(inode) &&
+-			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
++	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
+ 			  __func__, inode->i_ino, inode->i_mode);
+-- 
+2.32.0
 
