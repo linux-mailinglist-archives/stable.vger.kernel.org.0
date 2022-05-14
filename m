@@ -2,102 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 547F7526E65
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 09:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A241526F49
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 09:15:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbiENDC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 13 May 2022 23:02:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
+        id S231426AbiENDgI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 13 May 2022 23:36:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231338AbiENDCv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 23:02:51 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A951821266;
-        Fri, 13 May 2022 20:02:16 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id cx11-20020a17090afd8b00b001d9fe5965b3so12397761pjb.3;
-        Fri, 13 May 2022 20:02:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:from:subject:to:cc
-         :references:content-language:in-reply-to:content-transfer-encoding;
-        bh=r995hMsKjxPDOPWj7IefzfQ4dcnkbqPB7PakkBYcRE8=;
-        b=dkj4eutwlFRAm9F9U/EV2d09kF/rGK6RlnhcFpDsqJoj8P/F9iLuj5AlK02V880VTn
-         VpenBLTyavq9vflC0QVJ3lHED/wvC0GEeiRFenFx9ZJAX7KX0obE2w0pYsGALK0NP3Z3
-         CWtmiuzcXXI4YqJXNqsPImfWydZKDL+oB2JepAoMjQERy13OZteMxEuqSbyEAdZKYLRO
-         idJ4DE9KJkk5/6vBEGRS+fv0+h6yFbO++FOgU2scHZChLhWO0lVuBr5TG7paFwprkIaZ
-         +/9gB0b1DGaWM8nYMXx5UhHu7CaINXTiwGHNR8sQZzqSluxgbElznUMGDyqe83r09FJe
-         E2fQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:from
-         :subject:to:cc:references:content-language:in-reply-to
-         :content-transfer-encoding;
-        bh=r995hMsKjxPDOPWj7IefzfQ4dcnkbqPB7PakkBYcRE8=;
-        b=5bkzF2C0B+xaguacmiByixMUhBimftb6k1gMQBQ+RgAsLqPnNlaDGsto3c4Zqmrky6
-         wBOiVh9XU1oajMRkllwwOyKOgbhrsmt6iOFhgSxZ+ooS/aHrdxAIdxU4RSExIjZBTFNJ
-         Fl6iI3YAwkOWgo7VkqIaDv37l1R0JZ473i240QcMbzUsqgwR2WBPcjbkT0ZfLR9h7NTN
-         wYnrIgTRG0pN/bBKjNXn9zT9Rr3bK26Hsbrl6BV0uccXfa/44aGmYjHU57VVf4abosgf
-         bwMtcgvorLIP4YIYa7BWusskiDBB9JDkN9tiUgtEA2oO9Hh2krQMSABcixlZ7178Uobs
-         7F5Q==
-X-Gm-Message-State: AOAM531Z63+KMYppoQwDu6rIVLSyU3akcCtIxmjL1uA1QN/kWJvv88nP
-        FvaQ5RwIr9AOgyiyXuOhsOk=
-X-Google-Smtp-Source: ABdhPJyDziaw1rn2TFpbrCp1jGg5kmpdnZQIe2oIJRnAepUxSTRLIZr0MwEo9Z6yVBisvunq3ZteGA==
-X-Received: by 2002:a17:903:2481:b0:15f:249c:2006 with SMTP id p1-20020a170903248100b0015f249c2006mr7650578plw.31.1652497336141;
-        Fri, 13 May 2022 20:02:16 -0700 (PDT)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id f125-20020a62db83000000b0050dc762812csm2498303pfg.6.2022.05.13.20.02.14
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 May 2022 20:02:15 -0700 (PDT)
-Message-ID: <a7d29ef5-4f4e-d8d7-34bb-652b0b33978f@gmail.com>
-Date:   Fri, 13 May 2022 20:02:13 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Subject: Re: [PATCH 5.10 00/10] 5.10.116-rc1 review
+        with ESMTP id S231400AbiENDgH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 13 May 2022 23:36:07 -0400
+X-Greylist: delayed 1306 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 13 May 2022 20:36:06 PDT
+Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02CA7D8081
+        for <stable@vger.kernel.org>; Fri, 13 May 2022 20:36:04 -0700 (PDT)
+Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 8178E8035FFB
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 03:14:18 +0000 (UTC)
+Received: from cmgw14.mail.unifiedlayer.com (unknown [10.0.90.129])
+        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 6E180100418F1
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 03:14:17 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id piETnZIVohWk0piETnF2Bz; Sat, 14 May 2022 03:14:17 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=IrfbzJzg c=1 sm=1 tr=0 ts=627f1e89
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oZkIemNP1mAA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=EULY3veXiEl90Efzf2o4YpOjDlsmuqpcgC1+YFnsQBI=; b=m9M+n7aVex49Xy5cXs+gbikaCf
+        OfHu4St07SeMzCBDgFdgwwtuvmTRmk//NLSxvc88r9WM3FeF5h3qMRwom+J2c8qr5uLJhpblPKI/K
+        AlOT3CurelvRN61yaE4l5n4rDyb4L5RxTPKQYWgxkcbVoj54LbtIwMWyGGi5x3E2tAJC3naZ9BoJa
+        BWnrxB6FgU00fpiFN6Epi/CSp8vvmOjBD5FHeq7Jx2VKC2dR+vLiCbzycF4OKAYEvJzzkjuaEjXgn
+        O1YfTNK+e6Uo2z2nxRs+6sMql/HpJQTO1Rx0OhHOHJGCekbMHzkqL1X6JXynFM5GwH09qRsUnAKUp
+        Ceii+c6Q==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:50868 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1npiES-002ADB-6J; Fri, 13 May 2022 21:14:16 -0600
+Subject: Re: [PATCH 5.17 00/12] 5.17.8-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-References: <20220513142228.303546319@linuxfoundation.org>
-Content-Language: en-US
-In-Reply-To: <20220513142228.303546319@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220513142228.651822943@linuxfoundation.org>
+In-Reply-To: <20220513142228.651822943@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <75b14b6e-788e-2698-d2be-3340327b6e89@w6rz.net>
+Date:   Fri, 13 May 2022 20:14:14 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1npiES-002ADB-6J
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:50868
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 X-Spam-Status: No, score=-5.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/13/22 07:23, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.116 release.
-> There are 10 patches in this series, all will be posted as a response
+On 5/13/22 7:24 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.8 release.
+> There are 12 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.116-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.8-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
 > and the diffstat can be found below.
-> 
+>
 > thanks,
-> 
+>
 > greg k-h
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+Tested-by: Ron Economos <re@w6rz.net>
+
