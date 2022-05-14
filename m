@@ -2,247 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3CF35270DE
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 13:47:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A05C45270FB
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 14:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230203AbiENLrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 07:47:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51100 "EHLO
+        id S231146AbiENMJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 08:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229892AbiENLrL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 07:47:11 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75F28C41
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 04:47:09 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id v59so19466870ybi.12
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 04:47:09 -0700 (PDT)
+        with ESMTP id S230393AbiENMJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 08:09:11 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7A7F29;
+        Sat, 14 May 2022 05:09:10 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id 202so9830630pgc.9;
+        Sat, 14 May 2022 05:09:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=aqBsIG9q44CGOPIrCGsZLGhcoB7OspJK+sVDyGPOJNk=;
-        b=RB3Qw/cEE2s0GU1mWtZrXvv54I+/htkv8NPEGpiHBQjPBlavrjQndC1duJHWQbWi5D
-         bzTr4oqC8YHbNo08zBvELEfe4FjhOikX5qQXs9j5b1GLuKGFe4Lwns3QNBoqEgZTXmaA
-         Oh+2HQcMIj1fnRYrHchnr3MPWK+r8YMvzRUSBieqZXGkh5XQtDdoS9OR28WB9pizfxUh
-         TbGJXX9twuJpgrbmHaB9K4a02NK2kYBToXW4coGpDhqHE32vGe+pTusSBWVheHabejZK
-         PUQKlAdQX4d2guBc78NHWD3CUSgwi34Qefuor4l6FudcqNmQtPEmb1MtJEJ8tnNC6aze
-         CJgQ==
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=9Go1aD/L4/NwaeqwABKS0DOpnE/e7XYIGVtitFbk6RI=;
+        b=cr9B1ubSgoeNa8HWa7DlBZUE2aIGzxa/fMzmsqxGuFWTN4UmNNvz857LoKZijhKS73
+         W94vlm1Qry889tH1VHyyOFrX9JT8eFwG7MhxKo7FjHVUfcF+BBtheAs1gHMHk6j0gu9E
+         WfdXuX0nSe3jFm/zdabCkUyZfJ8LT0VlVWPqNfZ0F3EJSARY0f7g4rLV6NTdVGhVYN2/
+         QMSMwR1GRa57XLDVSV8QRD5YEgvTzLvvY4JcwFLoVZSgzs4Bk3tepYCIUupebUYD42LT
+         Xot6pF1h0QXPDL2eB6OEQMDAf7NNzC7Pt6sogOdxstMVGSigs/T26LlTQ1MwZFllXfQ5
+         8ZEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=aqBsIG9q44CGOPIrCGsZLGhcoB7OspJK+sVDyGPOJNk=;
-        b=k0dgvrsAePcTBc5QY3nUabO4NjlELRzxALZWHeF03RNeVYztDe2m+hVrgzj/poqTLn
-         bcc+E8NHKdSmHd2vPFKDTxZOV7Fxc8DO35LUOEI5VQONG6qoOyEPPKv2F2QJPDuIpVes
-         OD20nVN1TOcuYJdmVC7gFl2z8myNGumXEAseggdfLvePYIFBJOwCoG0UrN6snnDztzCR
-         3nsx2JIktBY1MCgiGK0EyvDoVVEhNPtKFl/PlkptNw8oVX8/oHS4aKoyrJLgh2ON1NER
-         y/GFjtKWGj7EGxi5XYXtl+ooh9zpozikA/7uZpKarrWjkFbkdtZhtKC/+P2T146DPrUB
-         KDew==
-X-Gm-Message-State: AOAM532zg5itUfdjleG3ydReJQN2cF/2aMR82vZHMLHFj+xxFdgA/8kM
-        lTx58KjzDJPzl6Jh1YakllSBwBRyB3UqiV1XtlPrJA==
-X-Google-Smtp-Source: ABdhPJzHyLzwwT8YN4G/FLgEQoNguY8vET8sMFeqn0210EiktSCHejAdUglAxaMwQoXv9DMn7xMfsDIPNW5sJeTnILE=
-X-Received: by 2002:a25:da12:0:b0:64b:aca4:f5b3 with SMTP id
- n18-20020a25da12000000b0064baca4f5b3mr5493173ybf.494.1652528828525; Sat, 14
- May 2022 04:47:08 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=9Go1aD/L4/NwaeqwABKS0DOpnE/e7XYIGVtitFbk6RI=;
+        b=ekBX7ujU6jMSv6uFX2zzXLSKPRACK2oLtvlfz3GRNqsjWYGW+3CI59h29dKlmgxWXl
+         xf45MWPrKtMj8UUWweI/w+XauBjOT/DCXHi7xIpp69O/mtXHnVwZ2vUjHINjIDJ7n6BP
+         h4Lr/CVbP51FozzTM4WiDtLzeMjbX7B78Yoq08+c0r86WrO1v0eGYcaF9/tUSuuwGDk3
+         BMTFEPOs7QOR6iZbdSNeTq6AMvKR8Emgv0LstrQzQdae0+E4X4fTx7OszLoYksZguyXM
+         f2PAEWbE4Ki3yx+HMYaQJ2CkQYxZ9NMhR8RXJNvn+kh8oMXhYd1Yej9oWm7KNFjfR+TM
+         321Q==
+X-Gm-Message-State: AOAM530+l39JfWrW5DEV5DgyvRgv3G0h7f8a3H8JyBDqma3zv2xt61vJ
+        JEr2J9UFxjzpWZSrtcy4YXU6gL0lphw=
+X-Google-Smtp-Source: ABdhPJxIFGUTGYOAyPcmNz7UCTfE17jXAclddbJBz9rYIifOloe2Yp+ZX4La1h+1ilezeoi/436n6A==
+X-Received: by 2002:a63:8841:0:b0:3db:2e5f:1271 with SMTP id l62-20020a638841000000b003db2e5f1271mr7824710pgd.233.1652530150033;
+        Sat, 14 May 2022 05:09:10 -0700 (PDT)
+Received: from localhost ([2406:7400:63:532d:c4bb:97f7:b03d:2c53])
+        by smtp.gmail.com with ESMTPSA id z4-20020a62d104000000b0050dc7628184sm3528728pfg.94.2022.05.14.05.09.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 May 2022 05:09:09 -0700 (PDT)
+Date:   Sat, 14 May 2022 17:39:04 +0530
+From:   Ritesh Harjani <ritesh.list@gmail.com>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-fscrypt@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net,
+        Lukas Czerner <lczerner@redhat.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Theodore Ts'o <tytso@mit.edu>, stable@vger.kernel.org,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: Re: [f2fs-dev] [PATCH v3 1/5] ext4: fix memory leak in
+ parse_apply_sb_mount_options()
+Message-ID: <20220514120904.xbbfyne32lp47t2p@riteshh-domain>
+References: <20220513231605.175121-1-ebiggers@kernel.org>
+ <20220513231605.175121-2-ebiggers@kernel.org>
 MIME-Version: 1.0
-References: <20220513142229.153291230@linuxfoundation.org>
-In-Reply-To: <20220513142229.153291230@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 14 May 2022 17:16:57 +0530
-Message-ID: <CA+G9fYuxbsZbW2ZU_tHY1YsxKTitGGt4KtBn5owGnoNdSBicOg@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/18] 5.4.194-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220513231605.175121-2-ebiggers@kernel.org>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 13 May 2022 at 19:57, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On 22/05/13 04:16PM, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 >
-> This is the start of the stable review cycle for the 5.4.194 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> If processing the on-disk mount options fails after any memory was
+> allocated in the ext4_fs_context, e.g. s_qf_names, then this memory is
+> leaked.  Fix this by calling ext4_fc_free() instead of kfree() directly.
+
+Thanks for splitting the patch. It becomes an easy backport.
+
 >
-> Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
-> Anything received after that time might be too late.
+> Reproducer:
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.194-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
+>     mkfs.ext4 -F /dev/vdc
+>     tune2fs /dev/vdc -E mount_opts=usrjquota=file
+>     echo clear > /sys/kernel/debug/kmemleak
+>     mount /dev/vdc /vdc
+>     echo scan > /sys/kernel/debug/kmemleak
+>     sleep 5
+>     echo scan > /sys/kernel/debug/kmemleak
+>     cat /sys/kernel/debug/kmemleak
+
+Tested this and as you mentioned this patch fixes the memory leak with
+s_qf_names in note_qf_name().
+
+tune2fs 1.46.5 (30-Dec-2021)
+Setting extended default mount options to 'usrjquota=file'
+unreferenced object 0xffff8881126b9a50 (size 8):
+  comm "mount", pid 1475, jiffies 4294829180 (age 48.670s)
+  hex dump (first 8 bytes):
+    66 69 6c 65 00 6b 6b a5                          file.kk.
+  backtrace:
+    [<ffffffff8153b09d>] __kmalloc_track_caller+0x17d/0x2f0
+    [<ffffffff8149b7e8>] kmemdup_nul+0x28/0x70
+    [<ffffffff81753a75>] note_qf_name.isra.0+0x95/0x180
+    [<ffffffff817548a8>] ext4_parse_param+0xd48/0x11c0
+    [<ffffffff8175a131>] ext4_fill_super+0x1cc1/0x6260
+    [<ffffffff8155edce>] get_tree_bdev+0x24e/0x3a0
+    [<ffffffff81740355>] ext4_get_tree+0x15/0x20
+    [<ffffffff8155d3a2>] vfs_get_tree+0x52/0x140
+    [<ffffffff815a2048>] path_mount+0x3f8/0xf30
+    [<ffffffff815a2c52>] do_mount+0xd2/0xf0
+    [<ffffffff815a2e4a>] __x64_sys_mount+0xca/0x110
+    [<ffffffff82e6674b>] do_syscall_64+0x3b/0x90
+    [<ffffffff8300007c>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+
+Feel free to add by -
+
+Tested-by: Ritesh Harjani <ritesh.list@gmail.com>
+
+-ritesh
+
 >
-> thanks,
+> Fixes: 7edfd85b1ffd ("ext4: Completely separate options parsing and sb setup")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  fs/ext4/super.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
 >
-> greg k-h
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 5.4.194-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: 15301ad6000946aa71e6c14b3f701b34e5e694eb
-* git describe: v5.4.193-19-g15301ad60009
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-93-19-g15301ad60009
-
-## Test Regressions (compared to v5.4.192-53-g52d5d4c85d2d)
-No test regressions found.
-
-## Metric Regressions (compared to v5.4.192-53-g52d5d4c85d2d)
-No metric regressions found.
-
-## Test Fixes (compared to v5.4.192-53-g52d5d4c85d2d)
-No test fixes found.
-
-## Metric Fixes (compared to v5.4.192-53-g52d5d4c85d2d)
-No metric fixes found.
-
-## Test result summary
-total: 92313, pass: 76255, fail: 1154, skip: 13641, xfail: 1263
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 290 total, 290 passed, 0 failed
-* arm64: 40 total, 34 passed, 6 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 54 passed, 6 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 40 total, 40 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+> diff --git a/fs/ext4/super.c b/fs/ext4/super.c
+> index 1466fbdbc8e34..60fa2f2623e07 100644
+> --- a/fs/ext4/super.c
+> +++ b/fs/ext4/super.c
+> @@ -2625,8 +2625,10 @@ static int parse_apply_sb_mount_options(struct super_block *sb,
+>  	ret = ext4_apply_options(fc, sb);
+>
+>  out_free:
+> -	kfree(s_ctx);
+> -	kfree(fc);
+> +	if (fc) {
+> +		ext4_fc_free(fc);
+> +		kfree(fc);
+> +	}
+>  	kfree(s_mount_opts);
+>  	return ret;
+>  }
+> --
+> 2.36.1
+>
+>
+>
+> _______________________________________________
+> Linux-f2fs-devel mailing list
+> Linux-f2fs-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-f2fs-devel
