@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8598526FA5
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 10:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E15952700F
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 10:47:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbiENIBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 04:01:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33478 "EHLO
+        id S229645AbiENIro (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 04:47:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229493AbiENIBQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 04:01:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADDA24947;
-        Sat, 14 May 2022 01:01:12 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 74F3E60B52;
-        Sat, 14 May 2022 08:01:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964F8C340EE;
-        Sat, 14 May 2022 08:01:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652515271;
-        bh=YhvEOsX3XXWBxDsdjMMPb9LQ+FGAbn6utxGTDet/7z8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=g4gfvHHzrI/XEI/TVVaDfwKxbP4jxPVifnLbo9ieqQThuEaTZDPhPL02TiRCGR9NI
-         51ulFZP3GA0fOAfWLGB64DaiOaJocrSReLT9rkM43X9s+pBq6aomqnX5N2FFtMx+2j
-         91coYV9xIrRHU0SOj24ddsw4xsmsoGvctyAIB/eLxwg2xsoTUXuHzv17Ev0GohmVWG
-         jbHnOf/pI+l/fQJwRj3XFlTh2bdlV8T9PXubDg8dq/0BrdIoBPW7zVxOG0N6+inViN
-         0KcMer1j04QVIYI7sGsH7W+0mkMV+BRT6EUmoa/R1g6tk4iip8MGBRc9ecd3fsBtBH
-         YVlxLQqvxHHxw==
-From:   Chao Yu <chao@kernel.org>
-To:     jaegeuk@kernel.org
-Cc:     linux-f2fs-devel@lists.sourceforge.net,
-        linux-kernel@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        stable@vger.kernel.org, Ming Yan <yanming@tju.edu.cn>,
-        Chao Yu <chao.yu@oppo.com>
-Subject: [PATCH v2] f2fs: fix to do sanity check for inline inode
-Date:   Sat, 14 May 2022 16:01:02 +0800
-Message-Id: <20220514080102.2246-1-chao@kernel.org>
-X-Mailer: git-send-email 2.32.0
+        with ESMTP id S229897AbiENIrn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 04:47:43 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C360CE15
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 01:47:43 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id qe3-20020a17090b4f8300b001dc24e4da73so9351048pjb.1
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 01:47:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=lnnl5vrd67EIxJ6btJmIAuu36YL8gDYDg4uycveQU6c=;
+        b=ELT7Ma1WrMXLYzQQRREBDXF2dFRxBxtKQNTqLTVdeUdRV54gXw1I+i7nEnpc1jL/E1
+         y96SD6a48iJZR+ezBN3negTBrLkGEGkv93lXtaSfGlwtPcJnQ5AybnaYS0M+McLzre6T
+         5dvdE4rQzw3d6CoBfHwohaIlloPC54/zrRYLXPDUabxP3p4CDw0cjiNzO6kozK7HOHqS
+         jpIgoMc8Uirtm1R656cZi8TnZ/CQcrA0VWhi4t6VnK9HHYeRJbwaNhhJ9KkyAWHnHOzO
+         2uBUbUoFOFrbzPxGpsDMi4SShkPH3pVVSblmX3kKGdudiyEbiznJSApYwCtnln9EJCIH
+         RXlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=lnnl5vrd67EIxJ6btJmIAuu36YL8gDYDg4uycveQU6c=;
+        b=hee5LkfHaXTdK5Qc9ZdR4RNNr337ZouzbrHbkdCX+eoN5J9iJMxPLHVNZKf9GK0nbn
+         pym3Rqy9Qy+DEdY8G5QeHjPfYUz2u6LbBDmaeeKKLbPtQipKvFWvQV8JIvi6G1AeQBX1
+         oQIaBfz35ZgdrSUeEx+mvnGuuP76CwyVEoiWaNl72KjfDju2sdQNtfiWUtkK9obObLVa
+         l5uGHjtDRjdG/ly6x1VdVMoRKlY/d76oGHCFpdK73gsmTZwD3yjbc0PGuDISI/757Mua
+         Oggk/yrFESmmFDIMg+CPyavoEJg2fVIF0okc+IMB83/JJXU4P36biY1fgVeBxSzHFT7M
+         69Pg==
+X-Gm-Message-State: AOAM530QdmYx0FybTfNOqhD8ZnTGEL3sygN6wPO7ZX0EX8DMdjoigHca
+        YI3Kbol7mQdZuo01L4gEMOXNKcABGQg=
+X-Google-Smtp-Source: ABdhPJx3LAWADtOvYoS30VdTQDXAfc5AjOMqwtw9rx2jmP98Dtablv9pZCsPketz6tWxDQX3HEzQmQ==
+X-Received: by 2002:a17:903:32d0:b0:15e:8cbc:fd39 with SMTP id i16-20020a17090332d000b0015e8cbcfd39mr8769209plr.95.1652518062584;
+        Sat, 14 May 2022 01:47:42 -0700 (PDT)
+Received: from localhost (subs28-116-206-12-35.three.co.id. [116.206.12.35])
+        by smtp.gmail.com with ESMTPSA id w11-20020a170902ca0b00b0015e8d4eb2e8sm3097583pld.306.2022.05.14.01.47.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 14 May 2022 01:47:41 -0700 (PDT)
+Date:   Sat, 14 May 2022 15:47:38 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Meena Shanmugam <meenashanmugam@google.com>
+Cc:     gregkh@linuxfoundation.org, enrico.scholz@sigma-chemnitz.de,
+        stable@vger.kernel.org, trond.myklebust@hammerspace.com,
+        Dexter Rivera <riverade@google.com>
+Subject: Re: [PATCH 0/4] Request to cherry-pick f00432063db1 to 5.10
+Message-ID: <Yn9sqjJsnsLznmoq@debian.me>
+References: <Yn82ZO/Ysxq0v/0/@kroah.com>
+ <20220514053453.3277330-1-meenashanmugam@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220514053453.3277330-1-meenashanmugam@google.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As Yanming reported in bugzilla:
+On Sat, May 14, 2022 at 05:34:49AM +0000, Meena Shanmugam wrote:
+> The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRPC:
+> Ensure we flush any closed sockets before xs_xprt_free()) fixes
+> CVE-2022-28893, hence good candidate for stable trees.
+> The above commit depends on 3be232f(SUNRPC: Prevent immediate
+> close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more than
+> once on a TCP socket). Commit 3be232f depends on commit
+> e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
+> 
+> Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
+> kernel. commit 89f4249 didn't apply cleanly. This patch series includes
+> all the commits required for back porting f00432063db1.
+> 
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215895
+Hi Meena,
 
-I have encountered a bug in F2FS file system in kernel v5.17.
+I can't speaking about the code (as I'm not subject-expert here), but I
+would like to give you suggestions:
 
-The kernel message is shown below:
+  - When sending backported patch series, always prefix the subject with
+    "[PATCH x.y]", where x.y is the stable version the backport is made
+    against.
+  - Abbreviated commit hash should be at least 12 (or my favorite, 14) characters long.
+  - Commit identifier should be in format "%h (\"%s\")".
+  - As always, DON'T DO top-posting, DO interleaved reply and reply
+    below the quoted original message.
 
-kernel BUG at fs/inode.c:611!
-Call Trace:
- evict+0x282/0x4e0
- __dentry_kill+0x2b2/0x4d0
- dput+0x2dd/0x720
- do_renameat2+0x596/0x970
- __x64_sys_rename+0x78/0x90
- do_syscall_64+0x3b/0x90
+Trond and Dexter, any comments or ACKs?
 
-The root cause is: fuzzed inode has both inline_data flag and encrypted
-flag, so after it was deleted by rename(), during f2fs_evict_inode(),
-it will cause inline data conversion due to flags confilction, then
-page cache will be polluted and trigger panic in clear_inode().
+Thanks.
 
-This patch tries to fix the issue by do more sanity checks for inline
-data inode in sanity_check_inode().
-
-Cc: stable@vger.kernel.org
-Reported-by: Ming Yan <yanming@tju.edu.cn>
-Signed-off-by: Chao Yu <chao.yu@oppo.com>
----
-v2:
-- fix to check inode type in f2fs_post_read_required()
- fs/f2fs/f2fs.h  | 8 ++++++++
- fs/f2fs/inode.c | 3 +--
- 2 files changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 492af5b96de1..0dc2461ef02c 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -4126,6 +4126,14 @@ static inline void f2fs_set_encrypted_inode(struct inode *inode)
-  */
- static inline bool f2fs_post_read_required(struct inode *inode)
- {
-+	/*
-+	 * used by sanity_check_inode(), when disk layout fields has not
-+	 * been synchronized to inmem fields.
-+	 */
-+	if (S_ISREG(inode->i_mode) && (file_is_encrypt(inode) ||
-+		F2FS_I(inode)->i_flags & F2FS_COMPR_FL ||
-+		file_is_verity(inode)))
-+		return true;
- 	return f2fs_encrypted_file(inode) || fsverity_active(inode) ||
- 		f2fs_compressed_file(inode);
- }
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index 2fce8fa0dac8..5e494c98e3c2 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -276,8 +276,7 @@ static bool sanity_check_inode(struct inode *inode, struct page *node_page)
- 		}
- 	}
- 
--	if (f2fs_has_inline_data(inode) &&
--			(!S_ISREG(inode->i_mode) && !S_ISLNK(inode->i_mode))) {
-+	if (f2fs_has_inline_data(inode) && !f2fs_may_inline_data(inode)) {
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		f2fs_warn(sbi, "%s: inode (ino=%lx, mode=%u) should not have inline_data, run fsck to fix",
- 			  __func__, inode->i_ino, inode->i_mode);
 -- 
-2.32.0
-
+An old man doll... just what I always wanted! - Clara
