@@ -2,99 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 228AB5272BA
-	for <lists+stable@lfdr.de>; Sat, 14 May 2022 17:47:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 475565272CB
+	for <lists+stable@lfdr.de>; Sat, 14 May 2022 18:07:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233115AbiENPre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 14 May 2022 11:47:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
+        id S232938AbiENQHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 14 May 2022 12:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231569AbiENPrd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 11:47:33 -0400
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D17A52674
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:47:32 -0700 (PDT)
-Received: by mail-wr1-x42b.google.com with SMTP id m1so14967059wrb.8
-        for <stable@vger.kernel.org>; Sat, 14 May 2022 08:47:32 -0700 (PDT)
+        with ESMTP id S230246AbiENQHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 14 May 2022 12:07:49 -0400
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 634501EECB
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 09:07:48 -0700 (PDT)
+Received: by mail-yb1-xb34.google.com with SMTP id e12so20164254ybc.11
+        for <stable@vger.kernel.org>; Sat, 14 May 2022 09:07:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XF9WOeoNCxcDaLsr8Qe25CLiDFZtWpRFkEZCVH1jcxc=;
-        b=NZvyI9pRkq6sZdk1XkdNJl16uc6LUDsOvbAEksKXWwyQkpav5r40d5rme8TA9PGLCI
-         e20bYa/gX1Yly4YjfeFm9sHuW0HrC0a+NMWPbXuxMzvzgMdSYB4ywJqgFS4P2id4bfhe
-         tYhAiQFCB5V6jbZC2YXfVNZjlqLuPhkLtaO9hjk1CQiqfK9zKh7Disr53zyZPmCy1bkH
-         RHn05zJcqDkbI6nx6uOG002HbZIVhyWxmQsXpkPnWvI7ppQ1fsbyc2aKQ9nJLbXkueI2
-         vBHwm5FHvSIBWinrRfub/2iIXWfyHAle9EM2S40rJHuwx7NH/g3SrG06gZfBqdaBpmbr
-         jghA==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=G0eVXpYcKIK/j+1zkeKD2oL9HRdqUSTcmLP8+WyBRnI=;
+        b=mitoN4cP0mKoaRMcv0pC3eEe5T4q/qafs9KxPyHMtuA6LYPQO94M+G/3Fa/F7ZHm+U
+         fb0418Hoe0L1b+P1B+L4Pak37aj0RkRppIBZREZMj3ydsRP9+QRjcY9Qkk8qGJ3KNFx3
+         bmFxHltw2ztm5gRVU+l3rn+GtmJXxTx+Jxp3fKGtkNxSMtZziMS1l4rtP8kOB4XniRJc
+         FgxktOyyjhHlbWqDt9torTmvDc1Y9W84drvWyaBf78pQ+8bfooFGvSz0bh5ihzwJ7KW3
+         acMG9hRK4HuQDWG5RAXho4+OVJscYD/yZ10mrnfcIQNx4ePwSzEhQO2pa7H0dCkMPF6B
+         oT7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XF9WOeoNCxcDaLsr8Qe25CLiDFZtWpRFkEZCVH1jcxc=;
-        b=y4hbkhVMAWm8aZALdzOniK/PUh/Xuj4oYQjAku07WggTwH/qkrc4vKLrLhxAhWNpHM
-         41oZpVaFC1uvirHG4OB+LAChpE6QhVXSqjy12zagrYlI9rPiPZgMjsnIO/91v6UkKbwc
-         yJVGzeMCZYnJmhhnIuoAIWpcFXohJdAE1+lRrnijk9OaxS84hFmCgyB4sgZTW8rUvaWc
-         ER3XSS1zRUNRcQE6WtDCmwvhO+QynfykTMb+Sn8DlOqDXYdl0mvp3EFoCpBppQE5qYGG
-         QPflQtDNQRz930wx3g4wfKkgT1Z2fCgWSN2eE0IQi1d0hnESZia68eW/ObXrEk0F0Iru
-         dRtQ==
-X-Gm-Message-State: AOAM532bz7QxY8ab/X+B3OKnzSv4sXGAJ4Vip0HkUF2YH2gJKUKQE7oc
-        nREAU0KV4Vh+frRi0yfOoe5MwbPxO60=
-X-Google-Smtp-Source: ABdhPJwBgN225KwwIQfXF3L0Iyss08nyrG7B3Zd47D/06A2ebOtKVu3yXog4fN5bIyLmyBeQMlHCfA==
-X-Received: by 2002:a05:6000:1110:b0:20a:e113:8221 with SMTP id z16-20020a056000111000b0020ae1138221mr7834070wrw.271.1652543251268;
-        Sat, 14 May 2022 08:47:31 -0700 (PDT)
-Received: from localhost.localdomain (host-2-98-37-191.as13285.net. [2.98.37.191])
-        by smtp.gmail.com with ESMTPSA id t1-20020adfa2c1000000b0020c5253d8d2sm5033093wra.30.2022.05.14.08.47.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 May 2022 08:47:31 -0700 (PDT)
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4] MIPS: fix build with gcc-12
-Date:   Sat, 14 May 2022 16:47:30 +0100
-Message-Id: <20220514154730.6924-1-sudipm.mukherjee@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=G0eVXpYcKIK/j+1zkeKD2oL9HRdqUSTcmLP8+WyBRnI=;
+        b=R3lmhR6TPR/b/E+vuoolOw+kdiYAo77RxKOfPdOaFm4TVkKwQK9OPSh5jNIkhDlmtW
+         yHvLDd28hhkz9VKLxfeMYYRgh3vml5ZWByLcgX4WNxE21jnokhKGUiO4LVjR3rOza4Tx
+         ftsXAERSe5eq00mfyfYjjgp9FEcV9Oj/kQi97duw0RgQYfJ26Z03H91Bk8/ULZwb19UC
+         YTCELt4MKRf53rCODFiZ7fPlqpN2X5ns39O/QRYZp0hIYoAxC6sA/8r8sJzlNSkUMA+t
+         Pt913M+ap4Bh9wyb9EKaYQVIyP91O1gmxf0yCAnqWDzijWdTQB9elrxv9MNcWwpsoo4G
+         22jg==
+X-Gm-Message-State: AOAM530wAusMQrXftGc8b4t3E+7KHADOHI4nRXB63fIW8hcdDi3Mh8Je
+        SvGlotMLkzd1Me94bbR4+eOBq7KB3L25yuFdvYzD+w==
+X-Google-Smtp-Source: ABdhPJyUtjvnYjzV22I3GFuVWb7pyCbaVQJl7iU8WoUjoa3cZ0nnQZyV/pbJmSDtNWnCL5ncOGZllksGRzmzFAXnLqY=
+X-Received: by 2002:a25:ab72:0:b0:64b:9be4:d8b9 with SMTP id
+ u105-20020a25ab72000000b0064b9be4d8b9mr7286471ybi.128.1652544467479; Sat, 14
+ May 2022 09:07:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220513142227.381154244@linuxfoundation.org>
+In-Reply-To: <20220513142227.381154244@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 14 May 2022 21:37:36 +0530
+Message-ID: <CA+G9fYsmH6P2TQuXH6WOH0mwY66QejAc15kS9v52m3cSTZvRaw@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/14] 4.14.279-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Some mips builds with gcc-12 fails with the error:
-arch/mips/jz4740/setup.c:64:25: error: comparison between two arrays
-	[-Werror=array-compare]
-   	64 |         if (__dtb_start != __dtb_end)
+On Fri, 13 May 2022 at 19:55, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.279 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 15 May 2022 14:22:19 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.279-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-'d24f48767d5e ("MIPS: Use address-of operator on section symbols")' has
-been applied which fixes most of the error, but it missed one file which
-was not available upstream when the change was done.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Fixes: d24f48767d5e ("MIPS: Use address-of operator on section symbols")
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
----
- arch/mips/jz4740/setup.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/arch/mips/jz4740/setup.c b/arch/mips/jz4740/setup.c
-index dc8ee21e0948e..45e327960a465 100644
---- a/arch/mips/jz4740/setup.c
-+++ b/arch/mips/jz4740/setup.c
-@@ -61,7 +61,7 @@ void __init plat_mem_setup(void)
- 
- 	jz4740_reset_init();
- 
--	if (__dtb_start != __dtb_end)
-+	if (&__dtb_start != &__dtb_end)
- 		dtb = __dtb_start;
- 	else
- 		dtb = (void *)fw_passed_dtb;
--- 
-2.30.2
+## Build
+* kernel: 4.14.279-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.14.y
+* git commit: 4477341b2b1996b745937de9d99ff53095c7a679
+* git describe: v4.14.278-15-g4477341b2b19
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.278-15-g4477341b2b19
 
+## Test Regressions (compared to v4.14.278)
+No test regressions found.
+
+## Metric Regressions (compared to v4.14.278)
+No metric regressions found.
+
+## Test Fixes (compared to v4.14.278)
+No test fixes found.
+
+## Metric Fixes (compared to v4.14.278)
+No metric fixes found.
+
+## Test result summary
+total: 67829, pass: 54211, fail: 882, skip: 11056, xfail: 1680
+
+## Build Summary
+* arm: 270 total, 270 passed, 0 failed
+* arm64: 35 total, 35 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* powerpc: 16 total, 16 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 34 total, 34 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
