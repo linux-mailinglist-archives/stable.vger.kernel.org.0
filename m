@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7F3527948
-	for <lists+stable@lfdr.de>; Sun, 15 May 2022 20:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06175527955
+	for <lists+stable@lfdr.de>; Sun, 15 May 2022 20:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238540AbiEOSsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 May 2022 14:48:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
+        id S238584AbiEOSsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 May 2022 14:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238545AbiEOSr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 May 2022 14:47:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E5E413D1C;
-        Sun, 15 May 2022 11:47:38 -0700 (PDT)
+        with ESMTP id S238586AbiEOSsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 May 2022 14:48:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B3513D5C;
+        Sun, 15 May 2022 11:47:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0042EB80E0D;
-        Sun, 15 May 2022 18:47:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 322A4C385B8;
-        Sun, 15 May 2022 18:47:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11C1BB80DE0;
+        Sun, 15 May 2022 18:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F2B7C385B8;
+        Sun, 15 May 2022 18:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652640455;
-        bh=3uCX3azyzmgkU54q6jdBMoMALmFDB3T7KnYLQPFYm1U=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=As7szuGUG574aLSrfx3BeEnYOFabP2ypyHKDxwG3/oOBVL4oIZhkT81GUEUtBlUUq
-         DliUZAqEAMLRcI81aYSrcY4BQJiTnZZkZkOg9YKIhjZcYNzncQLdCUDOPHy5t8MBO1
-         f/ceq4B0mm1LQG6byfZqBlqa/Golcpy4XxGMcnfg=
+        s=korg; t=1652640462;
+        bh=2fH/pOZPH86gdJDhGoDN98IuMvK/upNUUriu34moWOA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ncd/5ue/Q1hkPYmQMm/UAa4nvDf4/x8aarR8ME5SQM8Vi5f83A0nENV1zR0YZcH5X
+         mwGsIIyuRaSjj1FyjhwYqZw9ZwqTLc0bA4p9dBtSVHdl+ZkAjohRyYjYytHTOKUDa9
+         5smijngFxvohLMQIT8bCqJA/y3VnFaze3eKDFsNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.19.243
-Date:   Sun, 15 May 2022 20:47:21 +0200
-Message-Id: <165264044122155@kroah.com>
+Subject: Linux 5.15.40
+Date:   Sun, 15 May 2022 20:47:27 +0200
+Message-Id: <1652640447116155@kroah.com>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <16526404411830@kroah.com>
-References: <16526404411830@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -51,676 +49,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index c61c1a508ec7..6899a8fc4c46 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 4
- PATCHLEVEL = 19
--SUBLEVEL = 242
-+SUBLEVEL = 243
- EXTRAVERSION =
- NAME = "People's Front"
- 
-diff --git a/arch/mips/bmips/setup.c b/arch/mips/bmips/setup.c
-index 231fc5ce375e..9edc26e52040 100644
---- a/arch/mips/bmips/setup.c
-+++ b/arch/mips/bmips/setup.c
-@@ -174,7 +174,7 @@ void __init plat_mem_setup(void)
- 		dtb = phys_to_virt(fw_arg2);
- 	else if (fw_passed_dtb) /* UHI interface */
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
- 	else
- 		panic("no dtb found");
-diff --git a/arch/mips/lantiq/prom.c b/arch/mips/lantiq/prom.c
-index d984bd5c2ec5..dceab67e481a 100644
---- a/arch/mips/lantiq/prom.c
-+++ b/arch/mips/lantiq/prom.c
-@@ -81,7 +81,7 @@ void __init plat_mem_setup(void)
- 
- 	if (fw_passed_dtb) /* UHI interface */
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
- 	else
- 		panic("no dtb found");
-diff --git a/arch/mips/pic32/pic32mzda/init.c b/arch/mips/pic32/pic32mzda/init.c
-index 51599710472b..406c6c5cec29 100644
---- a/arch/mips/pic32/pic32mzda/init.c
-+++ b/arch/mips/pic32/pic32mzda/init.c
-@@ -36,7 +36,7 @@ static ulong get_fdtaddr(void)
- 	if (fw_passed_dtb && !fw_arg2 && !fw_arg3)
- 		return (ulong)fw_passed_dtb;
- 
--	if (__dtb_start < __dtb_end)
-+	if (&__dtb_start < &__dtb_end)
- 		ftaddr = (ulong)__dtb_start;
- 
- 	return ftaddr;
-diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
-index 92b3d4849996..1f7c686f7218 100644
---- a/arch/mips/ralink/of.c
-+++ b/arch/mips/ralink/of.c
-@@ -79,7 +79,7 @@ void __init plat_mem_setup(void)
- 	 */
- 	if (fw_passed_dtb)
- 		dtb = (void *)fw_passed_dtb;
--	else if (__dtb_start != __dtb_end)
-+	else if (&__dtb_start != &__dtb_end)
- 		dtb = (void *)__dtb_start;
- 
- 	__dt_setup_arch(dtb);
-diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-index 5a80453be553..3f403aab55e1 100644
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -774,9 +774,11 @@ int drbd_adm_set_role(struct sk_buff *skb, struct genl_info *info)
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
- 
- 	if (info->genlhdr->cmd == DRBD_ADM_PRIMARY)
--		retcode = drbd_set_role(adm_ctx.device, R_PRIMARY, parms.assume_uptodate);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_PRIMARY, parms.assume_uptodate);
- 	else
--		retcode = drbd_set_role(adm_ctx.device, R_SECONDARY, 0);
-+		retcode = (enum drbd_ret_code)drbd_set_role(adm_ctx.device,
-+						R_SECONDARY, 0);
- 
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
- 	genl_lock();
-@@ -1941,7 +1943,7 @@ int drbd_adm_attach(struct sk_buff *skb, struct genl_info *info)
- 	drbd_flush_workqueue(&connection->sender_work);
- 
- 	rv = _drbd_request_state(device, NS(disk, D_ATTACHING), CS_VERBOSE);
--	retcode = rv;  /* FIXME: Type mismatch. */
-+	retcode = (enum drbd_ret_code)rv;
- 	drbd_resume_io(device);
- 	if (rv < SS_SUCCESS)
- 		goto fail;
-@@ -2671,7 +2673,8 @@ int drbd_adm_connect(struct sk_buff *skb, struct genl_info *info)
- 	}
- 	rcu_read_unlock();
- 
--	retcode = conn_request_state(connection, NS(conn, C_UNCONNECTED), CS_VERBOSE);
-+	retcode = (enum drbd_ret_code)conn_request_state(connection,
-+					NS(conn, C_UNCONNECTED), CS_VERBOSE);
- 
- 	conn_reconfig_done(connection);
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
-@@ -2777,7 +2780,7 @@ int drbd_adm_disconnect(struct sk_buff *skb, struct genl_info *info)
- 	mutex_lock(&adm_ctx.resource->adm_mutex);
- 	rv = conn_try_disconnect(connection, parms.force_disconnect);
- 	if (rv < SS_SUCCESS)
--		retcode = rv;  /* FIXME: Type mismatch. */
-+		retcode = (enum drbd_ret_code)rv;
- 	else
- 		retcode = NO_ERROR;
- 	mutex_unlock(&adm_ctx.resource->adm_mutex);
-diff --git a/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c b/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
-index f20161c5706d..b375eafad781 100644
---- a/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
-+++ b/drivers/gpu/drm/amd/display/dc/gpio/gpio_service.c
-@@ -51,8 +51,8 @@
-  */
- 
- struct gpio_service *dal_gpio_service_create(
--	enum dce_version dce_version_major,
--	enum dce_version dce_version_minor,
-+	enum dce_version dce_version,
-+	enum dce_environment dce_environment,
- 	struct dc_context *ctx)
- {
- 	struct gpio_service *service;
-@@ -66,14 +66,14 @@ struct gpio_service *dal_gpio_service_create(
- 		return NULL;
- 	}
- 
--	if (!dal_hw_translate_init(&service->translate, dce_version_major,
--			dce_version_minor)) {
-+	if (!dal_hw_translate_init(&service->translate, dce_version,
-+			dce_environment)) {
- 		BREAK_TO_DEBUGGER();
- 		goto failure_1;
- 	}
- 
--	if (!dal_hw_factory_init(&service->factory, dce_version_major,
--			dce_version_minor)) {
-+	if (!dal_hw_factory_init(&service->factory, dce_version,
-+			dce_environment)) {
- 		BREAK_TO_DEBUGGER();
- 		goto failure_1;
- 	}
-diff --git a/drivers/gpu/drm/amd/display/include/gpio_service_interface.h b/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
-index f40259bade40..73b2ff84d50e 100644
---- a/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
-+++ b/drivers/gpu/drm/amd/display/include/gpio_service_interface.h
-@@ -42,8 +42,8 @@ void dal_gpio_destroy(
- 	struct gpio **ptr);
- 
- struct gpio_service *dal_gpio_service_create(
--	enum dce_version dce_version_major,
--	enum dce_version dce_version_minor,
-+	enum dce_version dce_version,
-+	enum dce_environment dce_environment,
- 	struct dc_context *ctx);
- 
- struct gpio *dal_gpio_service_create_irq(
-diff --git a/drivers/net/can/grcan.c b/drivers/net/can/grcan.c
-index 5784c34ba46e..f07a6ff66d1c 100644
---- a/drivers/net/can/grcan.c
-+++ b/drivers/net/can/grcan.c
-@@ -245,7 +245,7 @@ struct grcan_device_config {
- 		.rxsize		= GRCAN_DEFAULT_BUFFER_SIZE,	\
- 		}
- 
--#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	0x4100
-+#define GRCAN_TXBUG_SAFE_GRLIB_VERSION	4100
- #define GRLIB_VERSION_MASK		0xffff
- 
- /* GRCAN private data structure */
-@@ -1141,7 +1141,7 @@ static int grcan_close(struct net_device *dev)
- 	return 0;
- }
- 
--static int grcan_transmit_catch_up(struct net_device *dev, int budget)
-+static void grcan_transmit_catch_up(struct net_device *dev)
- {
- 	struct grcan_priv *priv = netdev_priv(dev);
- 	unsigned long flags;
-@@ -1149,7 +1149,7 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
- 
- 	spin_lock_irqsave(&priv->lock, flags);
- 
--	work_done = catch_up_echo_skb(dev, budget, true);
-+	work_done = catch_up_echo_skb(dev, -1, true);
- 	if (work_done) {
- 		if (!priv->resetting && !priv->closing &&
- 		    !(priv->can.ctrlmode & CAN_CTRLMODE_LISTENONLY))
-@@ -1163,8 +1163,6 @@ static int grcan_transmit_catch_up(struct net_device *dev, int budget)
- 	}
- 
- 	spin_unlock_irqrestore(&priv->lock, flags);
--
--	return work_done;
- }
- 
- static int grcan_receive(struct net_device *dev, int budget)
-@@ -1246,19 +1244,13 @@ static int grcan_poll(struct napi_struct *napi, int budget)
- 	struct net_device *dev = priv->dev;
- 	struct grcan_registers __iomem *regs = priv->regs;
- 	unsigned long flags;
--	int tx_work_done, rx_work_done;
--	int rx_budget = budget / 2;
--	int tx_budget = budget - rx_budget;
-+	int work_done;
- 
--	/* Half of the budget for receiveing messages */
--	rx_work_done = grcan_receive(dev, rx_budget);
-+	work_done = grcan_receive(dev, budget);
- 
--	/* Half of the budget for transmitting messages as that can trigger echo
--	 * frames being received
--	 */
--	tx_work_done = grcan_transmit_catch_up(dev, tx_budget);
-+	grcan_transmit_catch_up(dev);
- 
--	if (rx_work_done < rx_budget && tx_work_done < tx_budget) {
-+	if (work_done < budget) {
- 		napi_complete(napi);
- 
- 		/* Guarantee no interference with a running reset that otherwise
-@@ -1275,7 +1267,7 @@ static int grcan_poll(struct napi_struct *napi, int budget)
- 		spin_unlock_irqrestore(&priv->lock, flags);
- 	}
- 
--	return rx_work_done + tx_work_done;
-+	return work_done;
- }
- 
- /* Work tx bug by waiting while for the risky situation to clear. If that fails,
-@@ -1660,6 +1652,7 @@ static int grcan_setup_netdev(struct platform_device *ofdev,
- static int grcan_probe(struct platform_device *ofdev)
- {
- 	struct device_node *np = ofdev->dev.of_node;
-+	struct device_node *sysid_parent;
- 	struct resource *res;
- 	u32 sysid, ambafreq;
- 	int irq, err;
-@@ -1669,10 +1662,15 @@ static int grcan_probe(struct platform_device *ofdev)
- 	/* Compare GRLIB version number with the first that does not
- 	 * have the tx bug (see start_xmit)
- 	 */
--	err = of_property_read_u32(np, "systemid", &sysid);
--	if (!err && ((sysid & GRLIB_VERSION_MASK)
--		     >= GRCAN_TXBUG_SAFE_GRLIB_VERSION))
--		txbug = false;
-+	sysid_parent = of_find_node_by_path("/ambapp0");
-+	if (sysid_parent) {
-+		of_node_get(sysid_parent);
-+		err = of_property_read_u32(sysid_parent, "systemid", &sysid);
-+		if (!err && ((sysid & GRLIB_VERSION_MASK) >=
-+			     GRCAN_TXBUG_SAFE_GRLIB_VERSION))
-+			txbug = false;
-+		of_node_put(sysid_parent);
-+	}
- 
- 	err = of_property_read_u32(np, "freq", &ambafreq);
- 	if (err) {
-diff --git a/drivers/net/ethernet/netronome/nfp/nfp_asm.c b/drivers/net/ethernet/netronome/nfp/nfp_asm.c
-index cc6ace2be8a9..ea9f47a35703 100644
---- a/drivers/net/ethernet/netronome/nfp/nfp_asm.c
-+++ b/drivers/net/ethernet/netronome/nfp/nfp_asm.c
-@@ -226,7 +226,7 @@ int swreg_to_unrestricted(swreg dst, swreg lreg, swreg rreg,
- 	}
- 
- 	reg->dst_lmextn = swreg_lmextn(dst);
--	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
-+	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
- 
- 	return 0;
- }
-@@ -307,7 +307,7 @@ int swreg_to_restricted(swreg dst, swreg lreg, swreg rreg,
- 	}
- 
- 	reg->dst_lmextn = swreg_lmextn(dst);
--	reg->src_lmextn = swreg_lmextn(lreg) | swreg_lmextn(rreg);
-+	reg->src_lmextn = swreg_lmextn(lreg) || swreg_lmextn(rreg);
- 
- 	return 0;
- }
-diff --git a/fs/namespace.c b/fs/namespace.c
-index 2f3c6a0350a8..396ff1bcfdad 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -2490,9 +2490,12 @@ static int do_new_mount(struct path *path, const char *fstype, int sb_flags,
- 		return -ENODEV;
- 
- 	mnt = vfs_kern_mount(type, sb_flags, name, data);
--	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE) &&
--	    !mnt->mnt_sb->s_subtype)
--		mnt = fs_set_subtype(mnt, fstype);
-+	if (!IS_ERR(mnt) && (type->fs_flags & FS_HAS_SUBTYPE)) {
-+		down_write(&mnt->mnt_sb->s_umount);
-+		if (!mnt->mnt_sb->s_subtype)
-+			mnt = fs_set_subtype(mnt, fstype);
-+		up_write(&mnt->mnt_sb->s_umount);
-+	}
- 
- 	put_filesystem(type);
- 	if (IS_ERR(mnt))
-diff --git a/include/net/bluetooth/hci_core.h b/include/net/bluetooth/hci_core.h
-index 75d892dc7796..464a78200a31 100644
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -34,6 +34,9 @@
- /* HCI priority */
- #define HCI_PRIO_MAX	7
- 
-+/* HCI maximum id value */
-+#define HCI_MAX_ID 10000
-+
- /* HCI Core structures */
- struct inquiry_data {
- 	bdaddr_t	bdaddr;
-diff --git a/include/sound/pcm.h b/include/sound/pcm.h
-index d6bd3caf6878..cd7874535a4b 100644
---- a/include/sound/pcm.h
-+++ b/include/sound/pcm.h
-@@ -404,6 +404,8 @@ struct snd_pcm_runtime {
- 	wait_queue_head_t sleep;	/* poll sleep */
- 	wait_queue_head_t tsleep;	/* transfer sleep */
- 	struct fasync_struct *fasync;
-+	struct mutex buffer_mutex;	/* protect for buffer changes */
-+	atomic_t buffer_accessing;	/* >0: in r/w operation, <0: blocked */
- 
- 	/* -- private section -- */
- 	void *private_data;
-diff --git a/mm/memory.c b/mm/memory.c
-index 8cd80ba56474..800834cff4e6 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -4978,6 +4978,8 @@ long copy_huge_page_from_user(struct page *dst_page,
- 		if (rc)
- 			break;
- 
-+		flush_dcache_page(subpage);
-+
- 		cond_resched();
- 	}
- 	return ret_val;
-diff --git a/mm/userfaultfd.c b/mm/userfaultfd.c
-index 93a12cc107c9..aae19c29bcfa 100644
---- a/mm/userfaultfd.c
-+++ b/mm/userfaultfd.c
-@@ -55,6 +55,8 @@ static int mcopy_atomic_pte(struct mm_struct *dst_mm,
- 			/* don't free the page */
- 			goto out;
- 		}
-+
-+		flush_dcache_page(page);
- 	} else {
- 		page = *pagep;
- 		*pagep = NULL;
-@@ -574,6 +576,7 @@ static __always_inline ssize_t __mcopy_atomic(struct mm_struct *dst_mm,
- 				err = -EFAULT;
- 				goto out;
- 			}
-+			flush_dcache_page(page);
- 			goto retry;
- 		} else
- 			BUG_ON(page);
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index a5755e064543..3d780220e2d1 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3180,10 +3180,10 @@ int hci_register_dev(struct hci_dev *hdev)
- 	 */
- 	switch (hdev->dev_type) {
- 	case HCI_PRIMARY:
--		id = ida_simple_get(&hci_index_ida, 0, 0, GFP_KERNEL);
-+		id = ida_simple_get(&hci_index_ida, 0, HCI_MAX_ID, GFP_KERNEL);
- 		break;
- 	case HCI_AMP:
--		id = ida_simple_get(&hci_index_ida, 1, 0, GFP_KERNEL);
-+		id = ida_simple_get(&hci_index_ida, 1, HCI_MAX_ID, GFP_KERNEL);
- 		break;
- 	default:
- 		return -EINVAL;
-@@ -3192,7 +3192,7 @@ int hci_register_dev(struct hci_dev *hdev)
- 	if (id < 0)
- 		return id;
- 
--	sprintf(hdev->name, "hci%d", id);
-+	snprintf(hdev->name, sizeof(hdev->name), "hci%d", id);
- 	hdev->id = id;
- 
- 	BT_DBG("%p name %s bus %d", hdev, hdev->name, hdev->bus);
-diff --git a/sound/core/pcm.c b/sound/core/pcm.c
-index b6ed38dec435..8eed6244b832 100644
---- a/sound/core/pcm.c
-+++ b/sound/core/pcm.c
-@@ -1031,6 +1031,8 @@ int snd_pcm_attach_substream(struct snd_pcm *pcm, int stream,
- 	init_waitqueue_head(&runtime->tsleep);
- 
- 	runtime->status->state = SNDRV_PCM_STATE_OPEN;
-+	mutex_init(&runtime->buffer_mutex);
-+	atomic_set(&runtime->buffer_accessing, 0);
- 
- 	substream->runtime = runtime;
- 	substream->private_data = pcm->private_data;
-@@ -1062,6 +1064,7 @@ void snd_pcm_detach_substream(struct snd_pcm_substream *substream)
- 	substream->runtime = NULL;
- 	if (substream->timer)
- 		spin_unlock_irq(&substream->timer->lock);
-+	mutex_destroy(&runtime->buffer_mutex);
- 	kfree(runtime);
- 	put_pid(substream->pid);
- 	substream->pid = NULL;
-diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
-index da454eeee5c9..c376471cf760 100644
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -2221,10 +2221,15 @@ snd_pcm_sframes_t __snd_pcm_lib_xfer(struct snd_pcm_substream *substream,
- 			snd_pcm_stream_unlock_irq(substream);
- 			return -EINVAL;
- 		}
-+		if (!atomic_inc_unless_negative(&runtime->buffer_accessing)) {
-+			err = -EBUSY;
-+			goto _end_unlock;
-+		}
- 		snd_pcm_stream_unlock_irq(substream);
- 		err = writer(substream, appl_ofs, data, offset, frames,
- 			     transfer);
- 		snd_pcm_stream_lock_irq(substream);
-+		atomic_dec(&runtime->buffer_accessing);
- 		if (err < 0)
- 			goto _end_unlock;
- 		err = pcm_accessible_state(runtime);
-diff --git a/sound/core/pcm_memory.c b/sound/core/pcm_memory.c
-index 4b5356a10315..48e5f0091ce4 100644
---- a/sound/core/pcm_memory.c
-+++ b/sound/core/pcm_memory.c
-@@ -160,19 +160,20 @@ static void snd_pcm_lib_preallocate_proc_write(struct snd_info_entry *entry,
- 	size_t size;
- 	struct snd_dma_buffer new_dmab;
- 
-+	mutex_lock(&substream->pcm->open_mutex);
- 	if (substream->runtime) {
- 		buffer->error = -EBUSY;
--		return;
-+		goto unlock;
- 	}
- 	if (!snd_info_get_line(buffer, line, sizeof(line))) {
- 		snd_info_get_str(str, line, sizeof(str));
- 		size = simple_strtoul(str, NULL, 10) * 1024;
- 		if ((size != 0 && size < 8192) || size > substream->dma_max) {
- 			buffer->error = -EINVAL;
--			return;
-+			goto unlock;
- 		}
- 		if (substream->dma_buffer.bytes == size)
--			return;
-+			goto unlock;
- 		memset(&new_dmab, 0, sizeof(new_dmab));
- 		new_dmab.dev = substream->dma_buffer.dev;
- 		if (size > 0) {
-@@ -180,7 +181,7 @@ static void snd_pcm_lib_preallocate_proc_write(struct snd_info_entry *entry,
- 						substream->dma_buffer.dev.dev,
- 						size, &new_dmab) < 0) {
- 				buffer->error = -ENOMEM;
--				return;
-+				goto unlock;
- 			}
- 			substream->buffer_bytes_max = size;
- 		} else {
-@@ -192,6 +193,8 @@ static void snd_pcm_lib_preallocate_proc_write(struct snd_info_entry *entry,
- 	} else {
- 		buffer->error = -EINVAL;
- 	}
-+ unlock:
-+	mutex_unlock(&substream->pcm->open_mutex);
- }
- 
- static inline void preallocate_info_init(struct snd_pcm_substream *substream)
-diff --git a/sound/core/pcm_native.c b/sound/core/pcm_native.c
-index c92eca627840..9862b60bfa06 100644
---- a/sound/core/pcm_native.c
-+++ b/sound/core/pcm_native.c
-@@ -666,6 +666,30 @@ static int snd_pcm_hw_params_choose(struct snd_pcm_substream *pcm,
- 	return 0;
- }
- 
-+/* acquire buffer_mutex; if it's in r/w operation, return -EBUSY, otherwise
-+ * block the further r/w operations
-+ */
-+static int snd_pcm_buffer_access_lock(struct snd_pcm_runtime *runtime)
-+{
-+	if (!atomic_dec_unless_positive(&runtime->buffer_accessing))
-+		return -EBUSY;
-+	mutex_lock(&runtime->buffer_mutex);
-+	return 0; /* keep buffer_mutex, unlocked by below */
-+}
-+
-+/* release buffer_mutex and clear r/w access flag */
-+static void snd_pcm_buffer_access_unlock(struct snd_pcm_runtime *runtime)
-+{
-+	mutex_unlock(&runtime->buffer_mutex);
-+	atomic_inc(&runtime->buffer_accessing);
-+}
-+
-+#if IS_ENABLED(CONFIG_SND_PCM_OSS)
-+#define is_oss_stream(substream)	((substream)->oss.oss)
-+#else
-+#define is_oss_stream(substream)	false
-+#endif
-+
- static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 			     struct snd_pcm_hw_params *params)
- {
-@@ -677,22 +701,25 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	err = snd_pcm_buffer_access_lock(runtime);
-+	if (err < 0)
-+		return err;
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_OPEN:
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (!is_oss_stream(substream) &&
-+		    atomic_read(&substream->mmap_count))
-+			err = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		err = -EBADFD;
-+		break;
- 	}
- 	snd_pcm_stream_unlock_irq(substream);
--#if IS_ENABLED(CONFIG_SND_PCM_OSS)
--	if (!substream->oss.oss)
--#endif
--		if (atomic_read(&substream->mmap_count))
--			return -EBADFD;
-+	if (err)
-+		goto unlock;
- 
- 	params->rmask = ~0U;
- 	err = snd_pcm_hw_refine(substream, params);
-@@ -769,14 +796,19 @@ static int snd_pcm_hw_params(struct snd_pcm_substream *substream,
- 	if ((usecs = period_to_usecs(runtime)) >= 0)
- 		pm_qos_add_request(&substream->latency_pm_qos_req,
- 				   PM_QOS_CPU_DMA_LATENCY, usecs);
--	return 0;
-+	err = 0;
-  _error:
--	/* hardware might be unusable from this time,
--	   so we force application to retry to set
--	   the correct hardware parameter settings */
--	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
--	if (substream->ops->hw_free != NULL)
--		substream->ops->hw_free(substream);
-+	if (err) {
-+		/* hardware might be unusable from this time,
-+		 * so we force application to retry to set
-+		 * the correct hardware parameter settings
-+		 */
-+		snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
-+		if (substream->ops->hw_free != NULL)
-+			substream->ops->hw_free(substream);
-+	}
-+ unlock:
-+	snd_pcm_buffer_access_unlock(runtime);
- 	return err;
- }
- 
-@@ -809,22 +841,29 @@ static int snd_pcm_hw_free(struct snd_pcm_substream *substream)
- 	if (PCM_RUNTIME_CHECK(substream))
- 		return -ENXIO;
- 	runtime = substream->runtime;
-+	result = snd_pcm_buffer_access_lock(runtime);
-+	if (result < 0)
-+		return result;
- 	snd_pcm_stream_lock_irq(substream);
- 	switch (runtime->status->state) {
- 	case SNDRV_PCM_STATE_SETUP:
- 	case SNDRV_PCM_STATE_PREPARED:
-+		if (atomic_read(&substream->mmap_count))
-+			result = -EBADFD;
- 		break;
- 	default:
--		snd_pcm_stream_unlock_irq(substream);
--		return -EBADFD;
-+		result = -EBADFD;
-+		break;
- 	}
- 	snd_pcm_stream_unlock_irq(substream);
--	if (atomic_read(&substream->mmap_count))
--		return -EBADFD;
-+	if (result)
-+		goto unlock;
- 	if (substream->ops->hw_free)
- 		result = substream->ops->hw_free(substream);
- 	snd_pcm_set_state(substream, SNDRV_PCM_STATE_OPEN);
- 	pm_qos_remove_request(&substream->latency_pm_qos_req);
-+ unlock:
-+	snd_pcm_buffer_access_unlock(runtime);
- 	return result;
- }
- 
-@@ -1061,15 +1100,17 @@ struct action_ops {
-  */
- static int snd_pcm_action_group(const struct action_ops *ops,
- 				struct snd_pcm_substream *substream,
--				int state, int do_lock)
-+				int state, int stream_lock)
- {
- 	struct snd_pcm_substream *s = NULL;
- 	struct snd_pcm_substream *s1;
- 	int res = 0, depth = 1;
- 
- 	snd_pcm_group_for_each_entry(s, substream) {
--		if (do_lock && s != substream) {
--			if (s->pcm->nonatomic)
-+		if (s != substream) {
-+			if (!stream_lock)
-+				mutex_lock_nested(&s->runtime->buffer_mutex, depth);
-+			else if (s->pcm->nonatomic)
- 				mutex_lock_nested(&s->self_group.mutex, depth);
- 			else
- 				spin_lock_nested(&s->self_group.lock, depth);
-@@ -1097,18 +1138,18 @@ static int snd_pcm_action_group(const struct action_ops *ops,
- 		ops->post_action(s, state);
- 	}
-  _unlock:
--	if (do_lock) {
--		/* unlock streams */
--		snd_pcm_group_for_each_entry(s1, substream) {
--			if (s1 != substream) {
--				if (s1->pcm->nonatomic)
--					mutex_unlock(&s1->self_group.mutex);
--				else
--					spin_unlock(&s1->self_group.lock);
--			}
--			if (s1 == s)	/* end */
--				break;
-+	/* unlock streams */
-+	snd_pcm_group_for_each_entry(s1, substream) {
-+		if (s1 != substream) {
-+			if (!stream_lock)
-+				mutex_unlock(&s1->runtime->buffer_mutex);
-+			else if (s1->pcm->nonatomic)
-+				mutex_unlock(&s1->self_group.mutex);
-+			else
-+				spin_unlock(&s1->self_group.lock);
- 		}
-+		if (s1 == s)	/* end */
-+			break;
- 	}
- 	return res;
- }
-@@ -1189,10 +1230,15 @@ static int snd_pcm_action_nonatomic(const struct action_ops *ops,
- 	int res;
- 
- 	down_read(&snd_pcm_link_rwsem);
-+	res = snd_pcm_buffer_access_lock(substream->runtime);
-+	if (res < 0)
-+		goto unlock;
- 	if (snd_pcm_stream_linked(substream))
- 		res = snd_pcm_action_group(ops, substream, state, 0);
- 	else
- 		res = snd_pcm_action_single(ops, substream, state);
-+	snd_pcm_buffer_access_unlock(substream->runtime);
-+ unlock:
- 	up_read(&snd_pcm_link_rwsem);
- 	return res;
- }
+I'm announcing the release of the 5.15.40 kernel.
+
+All users of the 5.15 kernel series must upgrade.
+
+The updated 5.15.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.15.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                      |    2 
+ arch/x86/Kconfig                              |   12 +++
+ arch/x86/Makefile                             |    4 +
+ arch/x86/boot/compressed/efi_thunk_64.S       |    2 
+ arch/x86/boot/compressed/head_64.S            |    8 +-
+ arch/x86/boot/compressed/mem_encrypt.S        |    6 -
+ arch/x86/crypto/aegis128-aesni-asm.S          |   48 +++++++-------
+ arch/x86/crypto/aes_ctrby8_avx-x86_64.S       |    2 
+ arch/x86/crypto/aesni-intel_asm.S             |   56 ++++++++--------
+ arch/x86/crypto/aesni-intel_avx-x86_64.S      |   40 ++++++------
+ arch/x86/crypto/blake2s-core.S                |    4 -
+ arch/x86/crypto/blowfish-x86_64-asm_64.S      |   12 +--
+ arch/x86/crypto/camellia-aesni-avx-asm_64.S   |   14 ++--
+ arch/x86/crypto/camellia-aesni-avx2-asm_64.S  |   14 ++--
+ arch/x86/crypto/camellia-x86_64-asm_64.S      |   12 +--
+ arch/x86/crypto/cast5-avx-x86_64-asm_64.S     |   12 +--
+ arch/x86/crypto/cast6-avx-x86_64-asm_64.S     |   10 +--
+ arch/x86/crypto/chacha-avx2-x86_64.S          |    6 -
+ arch/x86/crypto/chacha-avx512vl-x86_64.S      |    6 -
+ arch/x86/crypto/chacha-ssse3-x86_64.S         |    8 +-
+ arch/x86/crypto/crc32-pclmul_asm.S            |    2 
+ arch/x86/crypto/crc32c-pcl-intel-asm_64.S     |    2 
+ arch/x86/crypto/crct10dif-pcl-asm_64.S        |    2 
+ arch/x86/crypto/des3_ede-asm_64.S             |    4 -
+ arch/x86/crypto/ghash-clmulni-intel_asm.S     |    6 -
+ arch/x86/crypto/nh-avx2-x86_64.S              |    2 
+ arch/x86/crypto/nh-sse2-x86_64.S              |    2 
+ arch/x86/crypto/poly1305-x86_64-cryptogams.pl |   38 +++++------
+ arch/x86/crypto/serpent-avx-x86_64-asm_64.S   |   10 +--
+ arch/x86/crypto/serpent-avx2-asm_64.S         |   10 +--
+ arch/x86/crypto/serpent-sse2-i586-asm_32.S    |    6 -
+ arch/x86/crypto/serpent-sse2-x86_64-asm_64.S  |    6 -
+ arch/x86/crypto/sha1_avx2_x86_64_asm.S        |    2 
+ arch/x86/crypto/sha1_ni_asm.S                 |    2 
+ arch/x86/crypto/sha1_ssse3_asm.S              |    2 
+ arch/x86/crypto/sha256-avx-asm.S              |    2 
+ arch/x86/crypto/sha256-avx2-asm.S             |    2 
+ arch/x86/crypto/sha256-ssse3-asm.S            |    2 
+ arch/x86/crypto/sha256_ni_asm.S               |    2 
+ arch/x86/crypto/sha512-avx-asm.S              |    2 
+ arch/x86/crypto/sha512-avx2-asm.S             |    2 
+ arch/x86/crypto/sha512-ssse3-asm.S            |    2 
+ arch/x86/crypto/sm4-aesni-avx-asm_64.S        |   12 +--
+ arch/x86/crypto/sm4-aesni-avx2-asm_64.S       |    8 +-
+ arch/x86/crypto/twofish-avx-x86_64-asm_64.S   |   10 +--
+ arch/x86/crypto/twofish-i586-asm_32.S         |    4 -
+ arch/x86/crypto/twofish-x86_64-asm_64-3way.S  |    6 -
+ arch/x86/crypto/twofish-x86_64-asm_64.S       |    4 -
+ arch/x86/entry/entry_32.S                     |    2 
+ arch/x86/entry/entry_64.S                     |   10 +--
+ arch/x86/entry/thunk_32.S                     |    2 
+ arch/x86/entry/thunk_64.S                     |    2 
+ arch/x86/entry/vdso/vdso32/system_call.S      |    2 
+ arch/x86/entry/vdso/vsgx.S                    |    2 
+ arch/x86/entry/vsyscall/vsyscall_emu_64.S     |    6 -
+ arch/x86/include/asm/linkage.h                |   14 ++++
+ arch/x86/include/asm/paravirt.h               |    2 
+ arch/x86/include/asm/qspinlock_paravirt.h     |    4 -
+ arch/x86/include/asm/static_call.h            |    2 
+ arch/x86/kernel/acpi/wakeup_32.S              |    6 -
+ arch/x86/kernel/alternative.c                 |   51 ++++++++++-----
+ arch/x86/kernel/ftrace.c                      |    2 
+ arch/x86/kernel/ftrace_32.S                   |    6 -
+ arch/x86/kernel/ftrace_64.S                   |   10 +--
+ arch/x86/kernel/head_32.S                     |    2 
+ arch/x86/kernel/irqflags.S                    |    2 
+ arch/x86/kernel/kprobes/core.c                |    2 
+ arch/x86/kernel/paravirt.c                    |    2 
+ arch/x86/kernel/relocate_kernel_32.S          |   10 +--
+ arch/x86/kernel/relocate_kernel_64.S          |   10 +--
+ arch/x86/kernel/sev_verify_cbit.S             |    2 
+ arch/x86/kernel/static_call.c                 |    5 -
+ arch/x86/kernel/verify_cpu.S                  |    4 -
+ arch/x86/kvm/emulate.c                        |   23 +++++-
+ arch/x86/kvm/svm/vmenter.S                    |    4 -
+ arch/x86/kvm/vmx/vmenter.S                    |   14 ++--
+ arch/x86/lib/atomic64_386_32.S                |   86 ++++++++++++++------------
+ arch/x86/lib/atomic64_cx8_32.S                |   16 ++--
+ arch/x86/lib/checksum_32.S                    |    8 +-
+ arch/x86/lib/clear_page_64.S                  |    6 -
+ arch/x86/lib/cmpxchg16b_emu.S                 |    4 -
+ arch/x86/lib/cmpxchg8b_emu.S                  |    4 -
+ arch/x86/lib/copy_mc_64.S                     |    6 -
+ arch/x86/lib/copy_page_64.S                   |    4 -
+ arch/x86/lib/copy_user_64.S                   |   12 +--
+ arch/x86/lib/csum-copy_64.S                   |    2 
+ arch/x86/lib/error-inject.c                   |    3 
+ arch/x86/lib/getuser.S                        |   22 +++---
+ arch/x86/lib/hweight.S                        |    6 -
+ arch/x86/lib/iomap_copy_64.S                  |    2 
+ arch/x86/lib/memcpy_64.S                      |   12 +--
+ arch/x86/lib/memmove_64.S                     |    4 -
+ arch/x86/lib/memset_64.S                      |    6 -
+ arch/x86/lib/msr-reg.S                        |    4 -
+ arch/x86/lib/putuser.S                        |    6 -
+ arch/x86/lib/retpoline.S                      |    4 -
+ arch/x86/math-emu/div_Xsig.S                  |    2 
+ arch/x86/math-emu/div_small.S                 |    2 
+ arch/x86/math-emu/mul_Xsig.S                  |    6 -
+ arch/x86/math-emu/polynom_Xsig.S              |    2 
+ arch/x86/math-emu/reg_norm.S                  |    6 -
+ arch/x86/math-emu/reg_round.S                 |    2 
+ arch/x86/math-emu/reg_u_add.S                 |    2 
+ arch/x86/math-emu/reg_u_div.S                 |    2 
+ arch/x86/math-emu/reg_u_mul.S                 |    2 
+ arch/x86/math-emu/reg_u_sub.S                 |    2 
+ arch/x86/math-emu/round_Xsig.S                |    4 -
+ arch/x86/math-emu/shr_Xsig.S                  |    8 +-
+ arch/x86/math-emu/wm_shrx.S                   |   16 ++--
+ arch/x86/mm/mem_encrypt_boot.S                |    4 -
+ arch/x86/platform/efi/efi_stub_32.S           |    2 
+ arch/x86/platform/efi/efi_stub_64.S           |    2 
+ arch/x86/platform/efi/efi_thunk_64.S          |    2 
+ arch/x86/platform/olpc/xo1-wakeup.S           |    6 -
+ arch/x86/power/hibernate_asm_32.S             |    4 -
+ arch/x86/power/hibernate_asm_64.S             |    4 -
+ arch/x86/um/checksum_32.S                     |    4 -
+ arch/x86/um/setjmp_32.S                       |    2 
+ arch/x86/um/setjmp_64.S                       |    2 
+ arch/x86/xen/xen-asm.S                        |   12 +--
+ arch/x86/xen/xen-head.S                       |    2 
+ fs/udf/namei.c                                |    8 +-
+ include/net/bluetooth/hci_core.h              |    3 
+ include/uapi/linux/rfkill.h                   |    2 
+ mm/gup.c                                      |    2 
+ mm/memory-failure.c                           |    4 -
+ mm/memory.c                                   |    2 
+ mm/migrate.c                                  |    7 +-
+ mm/mlock.c                                    |    1 
+ mm/shmem.c                                    |    4 -
+ mm/userfaultfd.c                              |    3 
+ net/bluetooth/hci_core.c                      |    6 -
+ samples/ftrace/ftrace-direct-modify.c         |    4 -
+ samples/ftrace/ftrace-direct-too.c            |    2 
+ samples/ftrace/ftrace-direct.c                |    2 
+ scripts/Makefile.build                        |   11 +++
+ scripts/Makefile.lib                          |   11 ---
+ scripts/link-vmlinux.sh                       |    3 
+ tools/arch/x86/lib/memcpy_64.S                |   12 +--
+ tools/arch/x86/lib/memset_64.S                |    6 -
+ tools/objtool/arch/x86/decode.c               |   13 ++-
+ tools/objtool/builtin-check.c                 |    3 
+ tools/objtool/check.c                         |   24 +++++++
+ tools/objtool/include/objtool/arch.h          |    1 
+ tools/objtool/include/objtool/builtin.h       |    2 
+ 145 files changed, 607 insertions(+), 483 deletions(-)
+
+Arnaldo Carvalho de Melo (1):
+      tools arch: Update arch/x86/lib/mem{cpy,set}_64.S copies used in 'perf bench mem memcpy'
+
+Borislav Petkov (1):
+      kvm/emulate: Fix SETcc emulation function offsets with SLS
+
+Gleb Fotengauer-Malinovskiy (1):
+      rfkill: uapi: fix RFKILL_IOCTL_MAX_SIZE ioctl request definition
+
+Greg Kroah-Hartman (1):
+      Linux 5.15.40
+
+Itay Iellin (1):
+      Bluetooth: Fix the creation of hdev->name
+
+Jan Kara (1):
+      udf: Avoid using stale lengthOfImpUse
+
+Masahiro Yamada (1):
+      kbuild: move objtool_args back to scripts/Makefile.build
+
+Miaohe Lin (1):
+      mm/mlock: fix potential imbalanced rlimit ucounts adjustment
+
+Muchun Song (4):
+      mm: fix missing cache flush for all tail pages of compound page
+      mm: hugetlb: fix missing cache flush in copy_huge_page_from_user()
+      mm: shmem: fix missing cache flush in shmem_mfill_atomic_pte()
+      mm: userfaultfd: fix missing cache flush in mcopy_atomic_pte() and __mcopy_atomic()
+
+Naoya Horiguchi (1):
+      mm/hwpoison: fix error page recovered but reported "not recovered"
+
+Peter Xu (1):
+      mm: fix invalid page pointer returned with FOLL_PIN gups
+
+Peter Zijlstra (8):
+      x86/lib/atomic64_386_32: Rename things
+      x86: Prepare asm files for straight-line-speculation
+      x86: Prepare inline-asm for straight-line-speculation
+      objtool: Add straight-line-speculation validation
+      x86/alternative: Relax text_poke_bp() constraint
+      x86: Add straight-line-speculation mitigation
+      crypto: x86/poly1305 - Fixup SLS
+      objtool: Fix SLS validation for kcov tail-call replacement
+
