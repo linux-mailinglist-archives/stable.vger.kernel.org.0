@@ -2,189 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 016C952778C
-	for <lists+stable@lfdr.de>; Sun, 15 May 2022 14:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1263B52781F
+	for <lists+stable@lfdr.de>; Sun, 15 May 2022 16:38:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236888AbiEOMnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 15 May 2022 08:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59602 "EHLO
+        id S234945AbiEOOiV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 15 May 2022 10:38:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236773AbiEOMml (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 15 May 2022 08:42:41 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B497D17A9C;
-        Sun, 15 May 2022 05:42:39 -0700 (PDT)
-Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24F64tN2018967;
-        Sun, 15 May 2022 12:42:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=1l2WtRMp20/zQ/ARHctl2Xng4JO8XSuqPYRhaDk3aLw=;
- b=dZMuiPoMk+WxPCjwNoZsekgcEowc7lrwMfmxvnU2IjKVfAJV/io+ABy04qhfwzLhZYrw
- 8BchtP3QhnvBBLAxnFLdXUnEA8VRxsZfTcpJiUZaIau+pxO20J2i2iE9IYY/t/0ZX8A7
- lA2H8tbK+DXtzsgMigKOCclwALVh7xStuQAAi3o2nV8Z07jk9QrO2/XvE+St/4/kuhxt
- 2uyrWr+RVrdpS+/nSeu4cohuFXCGAMc3kllhzQEppeteR/85wkiZezmO9pLlxGp71LSL
- ixnjBh5E9w2z6QzeYn8p90mDEgwi/X6iNRLxiNp1Glb+xYjBKb7Do8zMadwAHTjLm4Kk VQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g2e07x6nb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 15 May 2022 12:42:08 +0000
-Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24FCg7u7016544;
-        Sun, 15 May 2022 12:42:07 GMT
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3g2e07x6ms-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 15 May 2022 12:42:07 +0000
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24FCdeI1022804;
-        Sun, 15 May 2022 12:42:05 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3g2428s208-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Sun, 15 May 2022 12:42:05 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24FCg3bI22020378
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Sun, 15 May 2022 12:42:03 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E94B811C058;
-        Sun, 15 May 2022 12:42:02 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 53EFB11C04A;
-        Sun, 15 May 2022 12:42:00 +0000 (GMT)
-Received: from sig-9-65-80-60.ibm.com (unknown [9.65.80.60])
-        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Sun, 15 May 2022 12:42:00 +0000 (GMT)
-Message-ID: <5d5e459069bef1c9c7eddec973987a08c4b16d30.camel@linux.ibm.com>
-Subject: Re: [PATCH v7] efi: Do not import certificates from UEFI Secure
- Boot for T2 Macs
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Aditya Garg <gargaditya08@live.com>
-Cc:     "jarkko@kernel.org" <jarkko@kernel.org>,
-        "dmitry.kasatkin@gmail.com" <dmitry.kasatkin@gmail.com>,
-        "jmorris@namei.org" <jmorris@namei.org>,
-        "serge@hallyn.com" <serge@hallyn.com>,
-        "ast@kernel.org" <ast@kernel.org>,
-        "daniel@iogearbox.net" <daniel@iogearbox.net>,
-        "andrii@kernel.org" <andrii@kernel.org>,
-        "kafai@fb.com" <kafai@fb.com>,
-        "songliubraving@fb.com" <songliubraving@fb.com>,
-        "yhs@fb.com" <yhs@fb.com>,
-        "john.fastabend@gmail.com" <john.fastabend@gmail.com>,
-        "kpsingh@kernel.org" <kpsingh@kernel.org>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "keyrings@vger.kernel.org" <keyrings@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        "admin@kodeit.net" <admin@kodeit.net>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Sun, 15 May 2022 08:41:59 -0400
-In-Reply-To: <D6CDA21E-CC8F-4DA1-A5A4-8B706CA79182@live.com>
-References: <652C3E9E-CB97-4C70-A961-74AF8AEF9E39@live.com>
-         <94DD0D83-8FDE-4A61-AAF0-09A0175A0D0D@live.com>
-         <590ED76A-EE91-4ED1-B524-BC23419C051E@live.com>
-         <E9C28706-2546-40BF-B32C-66A047BE9EFB@live.com>
-         <02125722-91FC-43D3-B63C-1B789C2DA8C3@live.com>
-         <958B8D22-F11E-4B5D-9F44-6F0626DBCB63@live.com>
-         <06062b288d675dc060f33041e9b2009c151698e6.camel@linux.ibm.com>
-         <D6CDA21E-CC8F-4DA1-A5A4-8B706CA79182@live.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: saHdDgJSxeCMDniNSm7mqvPsBH743un7
-X-Proofpoint-GUID: 2Fr8-VO3Z_jmN7W97rGgdr-O6jwKDpMn
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S234262AbiEOOiU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 15 May 2022 10:38:20 -0400
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 471321401B
+        for <stable@vger.kernel.org>; Sun, 15 May 2022 07:38:18 -0700 (PDT)
+Received: from epcas1p4.samsung.com (unknown [182.195.41.48])
+        by mailout1.samsung.com (KnoxPortal) with ESMTP id 20220515143814epoutp0150649c23b7eb7da052e78ed982ac881e~vTiGph-Fb1407914079epoutp01z
+        for <stable@vger.kernel.org>; Sun, 15 May 2022 14:38:14 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20220515143814epoutp0150649c23b7eb7da052e78ed982ac881e~vTiGph-Fb1407914079epoutp01z
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+        s=mail20170921; t=1652625494;
+        bh=7RsPuR6maoTSQ3xD/FzglrkwUTukPTBdJ2U8wdye52o=;
+        h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+        b=P2oFmD1eBKLlV+VbfKs0HoR7h7Wp4ZDxyifkp/fmlrQVUqPI09iA0YLT5FRi8LwFA
+         vuQULIYZDPxxJqS/iQlI3lKzqDdkJJzBRobQ72ZDf5UVEGwF0CVbNXuuUwM2q4GBBt
+         yEORxywXLrKJ81NZ9EFbKwz1/Dm6wwzwQp039RE0=
+Received: from epsnrtp1.localdomain (unknown [182.195.42.162]) by
+        epcas1p4.samsung.com (KnoxPortal) with ESMTP id
+        20220515143813epcas1p4f322632a98f6906e8cb2a7602215245b~vTiFRL2G_1901619016epcas1p45;
+        Sun, 15 May 2022 14:38:13 +0000 (GMT)
+Received: from epsmges1p3.samsung.com (unknown [182.195.36.226]) by
+        epsnrtp1.localdomain (Postfix) with ESMTP id 4L1Q3S6zRsz4x9Pr; Sun, 15 May
+        2022 14:38:12 +0000 (GMT)
+Received: from epcas1p1.samsung.com ( [182.195.41.45]) by
+        epsmges1p3.samsung.com (Symantec Messaging Gateway) with SMTP id
+        D3.D7.10038.45011826; Sun, 15 May 2022 23:38:12 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+        epcas1p1.samsung.com (KnoxPortal) with ESMTPA id
+        20220515143811epcas1p1c801016b8952f9102d723dc32b9f2669~vTiDvIeKY2746327463epcas1p1o;
+        Sun, 15 May 2022 14:38:11 +0000 (GMT)
+Received: from epsmgms1p2.samsung.com (unknown [182.195.42.42]) by
+        epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+        20220515143811epsmtrp2dbb99eb395622cc60d4aa9f68e41b5ed~vTiDrXXto1416314163epsmtrp2g;
+        Sun, 15 May 2022 14:38:11 +0000 (GMT)
+X-AuditID: b6c32a37-127ff70000002736-3b-628110540658
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+        epsmgms1p2.samsung.com (Symantec Messaging Gateway) with SMTP id
+        56.D4.08924.35011826; Sun, 15 May 2022 23:38:11 +0900 (KST)
+Received: from W10PB11329 (unknown [10.253.152.129]) by epsmtip1.samsung.com
+        (KnoxPortal) with ESMTPA id
+        20220515143811epsmtip1167796d618e2558a06dd2bb69342c084~vTiDgKOaf0777507775epsmtip1i;
+        Sun, 15 May 2022 14:38:11 +0000 (GMT)
+From:   "Sungjong Seo" <sj1557.seo@samsung.com>
+To:     "'Tadeusz Struk'" <tadeusz.struk@linaro.org>,
+        <linkinjeon@kernel.org>
+Cc:     <linux-fsdevel@vger.kernel.org>, <stable@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <sj1557.seo@samsung.com>
+In-Reply-To: <20220511185909.175110-1-tadeusz.struk@linaro.org>
+Subject: RE: [PATCH v2 1/2] exfat: move is_valid_cluster to a common header
+Date:   Sun, 15 May 2022 23:38:11 +0900
+Message-ID: <000001d86869$66d66110$34832330$@samsung.com>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.858,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-15_06,2022-05-13_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- bulkscore=0 impostorscore=0 spamscore=0 malwarescore=0 mlxscore=0
- adultscore=0 phishscore=0 priorityscore=1501 mlxlogscore=999
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205150065
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Outlook 15.0
+Thread-Index: AQHMB4wnXVnWWJdAVeLcAg1Vsxu+wwF3Brc3rS0K6LA=
+Content-Language: ko
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrAJsWRmVeSWpSXmKPExsWy7bCmrm6IQGOSwdIfBhYTpy1lttiz9ySL
+        xeVdc9gstvw7wmqxYOMjRosHD/+zOrB5bFrVyeZx59oeNo++LasYPT5vkgtgiWpgtEksSs7I
+        LEtVSM1Lzk/JzEu3VQoNcdO1UFLIyC8usVWKNjQ00jM0MNczMjLSM7aMtTIyVVLIS8xNtVWq
+        0IXqVVIoSi4Aqs2tLAYakJOqBxXXK07NS3HIyi8FuVivODG3uDQvXS85P1dJoSwxpxRohJJ+
+        wjfGjL/zb7IXPOCt+LZoMUsD43zuLkZODgkBE4mVjd3MXYxcHEICOxglNs6bxgbhfGKUmLti
+        HQuE85lR4visD0wwLa0PtrFDJHYxSvxc9oAFJCEk8JJRYvmnVBCbTUBX4smNn8wgtoiAp0TD
+        h/mMIDazQKVEx9cGdhCbU8Be4vblU2C2sIC3RO+7pWALWARUJe40/gDr5RWwlGjds5ANwhaU
+        ODnzCQvEHHmJ7W/nMEMcpCCx+9NR1i5GDqBdVhJzbwhAlIhIzO5sA3tNQqCTQ2LS5RssEPUu
+        EptaV0HZwhKvjm9hh7ClJD6/28sGYTczSjQ3GkHYHYwSTzfKgsyXALr5/SULEJNZQFNi/S59
+        iApFiZ2/5zJC2IISp691M0OcwCfx7msPK0Qnr0RHmxBEiYrE9w87WSYwKs9C8tcsJH/NQvLA
+        LIRlCxhZVjGKpRYU56anFhsWGCPH9iZGcGLVMt/BOO3tB71DjEwcjIcYJTiYlUR4DSoakoR4
+        UxIrq1KL8uOLSnNSiw8xJgNDeiKzlGhyPjC155XEG5oYGxgYAROhuaW5MRHClgYmZkYmFsaW
+        xmZK4ryrpp1OFBJITyxJzU5NLUgtgtnCxMEp1cAUYM1QfW+i9uXgE3Y5HpHr5MqfxvNP0Ll9
+        S8X/+d5EGZELG5OjWTg0JqzXFswzWdrklnpH0+jsl4xpWfkFRzY0yP6+Ob0voXSuLruTYYti
+        xpFohq7b3Xea1KUPuVU/cnRc+zHXdfWU6Z0fD3MsvHBNX1XoxK0NLf0zUplmpzif9ks+o6Ih
+        LPAnpGsDR7OmdNXan62dDUFlRTYdZ083h2YvmneM+5ZP/e5biY63vqyR2s6bZ+jz55XtugdT
+        mz4HH/CYWvrWgo/faL+3/tqYhJrMsjnKKjMmm4rPalcMyGvNXOPvVtGU/2NTsUnM8YXO0+4z
+        5a+/u/xK88+W01zlzsZPdePfHPq+7lXk5wWTZiqxFGckGmoxFxUnAgCBqp/2YwQAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFvrKLMWRmVeSWpSXmKPExsWy7bCSnG6wQGOSwds2WYuJ05YyW+zZe5LF
+        4vKuOWwWW/4dYbVYsPERo8WDh/9ZHdg8Nq3qZPO4c20Pm0ffllWMHp83yQWwRHHZpKTmZJal
+        FunbJXBl/J1/k73gAW/Ft0WLWRoY53N3MXJySAiYSLQ+2MbexcjFISSwg1Fi5dmDjF2MHEAJ
+        KYmD+zQhTGGJw4eLIUqeM0osP3uDHaSXTUBX4smNn8wgtoiAt8TLg52sIDazQK1E375brBAN
+        ExglFj2cBdbAKWAvcfvyKTBbGKih991SJhCbRUBV4k7jD7BBvAKWEq17FrJB2IISJ2c+YQE5
+        gllAT6JtIyPEfHmJ7W/nMEPcryCx+9NRVpASEQEribk3BCBKRCRmd7YxT2AUnoVk0CyEQbOQ
+        DJqFpGMBI8sqRsnUguLc9NxiwwKjvNRyveLE3OLSvHS95PzcTYzgmNHS2sG4Z9UHvUOMTByM
+        hxglOJiVRHgNKhqShHhTEiurUovy44tKc1KLDzFKc7AoifNe6DoZLySQnliSmp2aWpBaBJNl
+        4uCUamDavsf6apGTsrG8r227kFVsW8iL3xuWptYrvU5Mv861wyhh2lzrxG8M2fOW3fVkCKzY
+        sGP2rHl3ZaRbDS6unrMp/XSTZE5bg9WXGK3fPU+SRLf/Ws3FwRVcJ1V5seY1e3NxKX+Tzd/9
+        nMnzvi/vnXCbcet6puLynUmWZt+V7L5Ls0W0HTn1zfcWx7uf/zZn7slS2+QjbLqfM3pC+PRm
+        g2/5tUtvxM+cVxQTWXJu5tMLNxxmd5249Sn17gf/SX1hTyouMd7KnvYx6s6fr07dc/Lyvl6c
+        e8xeZs0T9qn8ftvOTPRM/q5o7l6Qc0n7f+m27Ye3P7d6HbKl+cGWLLPMvYUW/acfaYZf73ll
+        GuKhfktMiaU4I9FQi7moOBEAqEhp3wgDAAA=
+X-CMS-MailID: 20220515143811epcas1p1c801016b8952f9102d723dc32b9f2669
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-Sendblock-Type: SVC_REQ_APPROVE
+X-ArchiveUser: EV
+CMS-TYPE: 101P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20220511185940epcas1p3c5eb0603b969fe2753b4f16f6f8842a7
+References: <CGME20220511185940epcas1p3c5eb0603b969fe2753b4f16f6f8842a7@epcas1p3.samsung.com>
+        <20220511185909.175110-1-tadeusz.struk@linaro.org>
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2022-05-13 at 18:31 +0000, Aditya Garg wrote:
-> > Are there directions for installing Linux on a Mac with Apple firmware
-> > code?  
+> Move the is_valid_cluster() helper from fatent.c to a common header to
+> make it reusable in other *.c files.
 > 
-> Well, directions of installing Linux on an Intel based Mac, which
-> includes the T2 Macs is the same as on a normal PC.
+> Cc: Namjae Jeon <linkinjeon@kernel.org>
+> Cc: Sungjong Seo <sj1557.seo@samsung.com>
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
 > 
-> Though, in case of T2 Macs, we for now need to use customised ISOs,
-> since some drivers and patches to support T2 Macs are yet to be
-> upstreamed.
-> 
-> An example of installing Ubuntu can be read here on 
-> https://wiki.t2linux.org/distributions/ubuntu/installation/
-> 
-> Talking about the official ISOs, for many distros, since
-> CONFIG_LOAD_UEFI_KEYS is not enabled in their kernel config, we can
-> install Linux using them, but they still lack many drivers required,
-> since they are yet to be upstreamed. So the installation doesn’t work
-> efficiently and we have to manually install custom kernels having
-> those patches.
-> 
-> In some distros like Ubuntu, they have CONFIG_LOAD_UEFI_KEYS enabled
-> in their kernel config. In this case the crash as mentioned in the
-> patch description occurs and EFI Runtime Services get disabled. Since
-> installing GRUB requires access to NVRAM, the installation fails with
-> official ISOs in this case. Thus, a custom ISO, with this patch
-> incorporated in being used for now for users interested in Ubuntu on
-> T2 Macs.
-> 
-> > Are you dual booting Linux and Mac, or just Linux?
-> 
-> I don’t think it actually matters, though in most of the cases, we
-> dual boot macOS and Linux, but I do have seen cases who wipe out
-> their macOS completely. But this doesn't affect the Secure Boot
-> policy of these machines.
-> 
-> >  While in
-> > secure boot mode, without being able to read the keys to verify the
-> > kernel image signature, the signature verification should fail.
-> 
-> If I enable secure boot in the BIOS settings (macOS Recovery),
-> Apple’s firmware won't allow even the boot loader like GRUB, rEFInd
-> to boot. It shall only allow Windows and macOS to Boot. You could see
-> https://support.apple.com/en-in/HT208198 for more details.
-> 
-> > 
-> > Has anyone else tested this patch?
-> 
-> I work as a maintainer for Ubuntu for T2 Linux community and I have
-> this patch incorporated in the kernels used for Ubuntu ISOs
-> customised for T2 Macs, and thus have many users who have used the
-> ISO and have a successful installation. Thus, there are many users
-> who have tested this patch and are actually using it right now.
-> We also need the have the NVRAM writes enabled so as to unlock the
-> iGPU in Macs with both Intel and AMD GPU, and with this patch, we
-> have been successfully able to unlock it,
-> 
-> I hope I could answer your questions
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
 
-Yes, thank you.   Based on the link above and 
-https://wiki.t2linux.org/guides/kernel/, I was able boot a kernel
-with/without this patch.
+Looks good, thanks for your patch!
 
-The patch is now queued in the next-integrity-testing branch.
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
 
-thanks,
+> ---
+>  fs/exfat/exfat_fs.h | 6 ++++++
+>  fs/exfat/fatent.c   | 6 ------
+>  2 files changed, 6 insertions(+), 6 deletions(-)
+> 
+> diff --git a/fs/exfat/exfat_fs.h b/fs/exfat/exfat_fs.h index
+> c6800b880920..42d06c68d5c5 100644
+> --- a/fs/exfat/exfat_fs.h
+> +++ b/fs/exfat/exfat_fs.h
+> @@ -381,6 +381,12 @@ static inline int exfat_sector_to_cluster(struct
+> exfat_sb_info *sbi,
+>  		EXFAT_RESERVED_CLUSTERS;
+>  }
+> 
+> +static inline bool is_valid_cluster(struct exfat_sb_info *sbi,
+> +		unsigned int clus)
+> +{
+> +	return clus >= EXFAT_FIRST_CLUSTER && clus < sbi->num_clusters; }
+> +
+>  /* super.c */
+>  int exfat_set_volume_dirty(struct super_block *sb);  int
+> exfat_clear_volume_dirty(struct super_block *sb); diff --git
+> a/fs/exfat/fatent.c b/fs/exfat/fatent.c index a3464e56a7e1..421c27353104
+> 100644
+> --- a/fs/exfat/fatent.c
+> +++ b/fs/exfat/fatent.c
+> @@ -81,12 +81,6 @@ int exfat_ent_set(struct super_block *sb, unsigned int
+> loc,
+>  	return 0;
+>  }
+> 
+> -static inline bool is_valid_cluster(struct exfat_sb_info *sbi,
+> -		unsigned int clus)
+> -{
+> -	return clus >= EXFAT_FIRST_CLUSTER && clus < sbi->num_clusters;
+> -}
+> -
+>  int exfat_ent_get(struct super_block *sb, unsigned int loc,
+>  		unsigned int *content)
+>  {
+> --
+> 2.36.1
 
-Mimi
 
