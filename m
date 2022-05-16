@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52A8D52913B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D93695291C9
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234111AbiEPUJq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:09:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58638 "EHLO
+        id S1351350AbiEPUDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350906AbiEPUBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 438DD473B7;
-        Mon, 16 May 2022 12:56:04 -0700 (PDT)
+        with ESMTP id S1347659AbiEPT6E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2838D433AB;
+        Mon, 16 May 2022 12:49:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A2E6B81613;
-        Mon, 16 May 2022 19:56:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50E0C34100;
-        Mon, 16 May 2022 19:56:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68B24B81617;
+        Mon, 16 May 2022 19:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C9EC385AA;
+        Mon, 16 May 2022 19:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730962;
-        bh=H2Ja99ut3fsWoCVNcTdrFjfaHjMclEcoEKBUDi+Cqko=;
+        s=korg; t=1652730582;
+        bh=Ml8YyaLYGD1raSPv7NG7H3fcpkf/4ek+KU+fmvmyHYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPlYoqAGk5e+xTvV0QZSK3prjORYMJiJHDIhe6m2oO2LTsw/SxJ/4Pv9nUQmw8yHt
-         5nWbSB447N1ZQ77ppugRRRr86TypDqVmw7AyAmCBNRAXf5DG9i43h0OptbkmwfOeFU
-         FddYl/WhALtcAdo3Vwp5CPNor4HJAPsH+UKLwuJU=
+        b=jPRNIcSrPmmQ3hp2LLWLbOxheWCOr+PCPHA2oFhPunkWx/A43I48JvOqn9ASQx8WG
+         2sIt33LWCZPA3TxX4rPhY2HVYHRW4TvfHeWBGwoRDpHN7fQ59uD3iRwR5OvvCOtX3P
+         4uj9WfVg+aLiNWz7rOGIio/7UARnzncSR9X4r8O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 043/114] net: dsa: bcm_sf2: Fix Wake-on-LAN with mac_link_down()
+Subject: [PATCH 5.15 043/102] drm/vmwgfx: Fix fencing on SVGAv3
 Date:   Mon, 16 May 2022 21:36:17 +0200
-Message-Id: <20220516193626.730276261@linuxfoundation.org>
+Message-Id: <20220516193625.237070686@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,251 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Zack Rusin <zackr@vmware.com>
 
-[ Upstream commit b7be130c5d52e5224ac7d89568737b37b4c4b785 ]
+[ Upstream commit 1d6595b4cd47acfd824550f48f10b54a6f0e93ee ]
 
-After commit 2d1f90f9ba83 ("net: dsa/bcm_sf2: fix incorrect usage of
-state->link") the interface suspend path would call our mac_link_down()
-call back which would forcibly set the link down, thus preventing
-Wake-on-LAN packets from reaching our management port.
+Port of the vmwgfx to SVGAv3 lacked support for fencing. SVGAv3 removed
+FIFO's and replaced them with command buffers and extra registers.
+The initial version of SVGAv3 lacked support for most advanced features
+(e.g. 3D) which made fences unnecessary. That is no longer the case,
+especially as 3D support is being turned on.
 
-Fix this by looking at whether the port is enabled for Wake-on-LAN and
-not clearing the link status in that case to let packets go through.
+Switch from FIFO commands and capabilities to command buffers and extra
+registers to enable fences on SVGAv3.
 
-Fixes: 2d1f90f9ba83 ("net: dsa/bcm_sf2: fix incorrect usage of state->link")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20220512021731.2494261-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220302152426.885214-5-zack@kde.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c   |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h   |  8 ++++++++
+ drivers/gpu/drm/vmwgfx/vmwgfx_fence.c | 28 ++++++++++++++++++++-------
+ drivers/gpu/drm/vmwgfx/vmwgfx_irq.c   | 26 +++++++++++++++++--------
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c   |  8 +++++---
+ 5 files changed, 53 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index 6afb5db8244c..6d15a743219f 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -833,6 +833,9 @@ static void bcm_sf2_sw_mac_link_down(struct dsa_switch *ds, int port,
- 	struct bcm_sf2_priv *priv = bcm_sf2_to_priv(ds);
- 	u32 reg, offset;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+index a3bfbb6c3e14..bf1b394753da 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+@@ -528,7 +528,7 @@ int vmw_cmd_send_fence(struct vmw_private *dev_priv, uint32_t *seqno)
+ 		*seqno = atomic_add_return(1, &dev_priv->marker_seq);
+ 	} while (*seqno == 0);
  
-+	if (priv->wol_ports_mask & BIT(port))
-+		return;
+-	if (!(vmw_fifo_caps(dev_priv) & SVGA_FIFO_CAP_FENCE)) {
++	if (!vmw_has_fences(dev_priv)) {
+ 
+ 		/*
+ 		 * Don't request hardware to send a fence. The
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+index f9f28516ffb4..288e883177be 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
+@@ -1677,4 +1677,12 @@ static inline void vmw_irq_status_write(struct vmw_private *vmw,
+ 		outl(status, vmw->io_start + SVGA_IRQSTATUS_PORT);
+ }
+ 
++static inline bool vmw_has_fences(struct vmw_private *vmw)
++{
++	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
++				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
++		return true;
++	return (vmw_fifo_caps(vmw) & SVGA_FIFO_CAP_FENCE) != 0;
++}
 +
- 	if (port != core_readl(priv, CORE_IMP0_PRT_ID)) {
- 		if (priv->type == BCM4908_DEVICE_ID ||
- 		    priv->type == BCM7445_DEVICE_ID)
+ #endif
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_fence.c b/drivers/gpu/drm/vmwgfx/vmwgfx_fence.c
+index b4d9d7258a54..b32ddbb992de 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_fence.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fence.c
+@@ -85,6 +85,22 @@ fman_from_fence(struct vmw_fence_obj *fence)
+ 	return container_of(fence->base.lock, struct vmw_fence_manager, lock);
+ }
+ 
++static u32 vmw_fence_goal_read(struct vmw_private *vmw)
++{
++	if ((vmw->capabilities2 & SVGA_CAP2_EXTRA_REGS) != 0)
++		return vmw_read(vmw, SVGA_REG_FENCE_GOAL);
++	else
++		return vmw_fifo_mem_read(vmw, SVGA_FIFO_FENCE_GOAL);
++}
++
++static void vmw_fence_goal_write(struct vmw_private *vmw, u32 value)
++{
++	if ((vmw->capabilities2 & SVGA_CAP2_EXTRA_REGS) != 0)
++		vmw_write(vmw, SVGA_REG_FENCE_GOAL, value);
++	else
++		vmw_fifo_mem_write(vmw, SVGA_FIFO_FENCE_GOAL, value);
++}
++
+ /*
+  * Note on fencing subsystem usage of irqs:
+  * Typically the vmw_fences_update function is called
+@@ -400,7 +416,7 @@ static bool vmw_fence_goal_new_locked(struct vmw_fence_manager *fman,
+ 	if (likely(!fman->seqno_valid))
+ 		return false;
+ 
+-	goal_seqno = vmw_fifo_mem_read(fman->dev_priv, SVGA_FIFO_FENCE_GOAL);
++	goal_seqno = vmw_fence_goal_read(fman->dev_priv);
+ 	if (likely(passed_seqno - goal_seqno >= VMW_FENCE_WRAP))
+ 		return false;
+ 
+@@ -408,9 +424,8 @@ static bool vmw_fence_goal_new_locked(struct vmw_fence_manager *fman,
+ 	list_for_each_entry(fence, &fman->fence_list, head) {
+ 		if (!list_empty(&fence->seq_passed_actions)) {
+ 			fman->seqno_valid = true;
+-			vmw_fifo_mem_write(fman->dev_priv,
+-					   SVGA_FIFO_FENCE_GOAL,
+-					   fence->base.seqno);
++			vmw_fence_goal_write(fman->dev_priv,
++					     fence->base.seqno);
+ 			break;
+ 		}
+ 	}
+@@ -442,13 +457,12 @@ static bool vmw_fence_goal_check_locked(struct vmw_fence_obj *fence)
+ 	if (dma_fence_is_signaled_locked(&fence->base))
+ 		return false;
+ 
+-	goal_seqno = vmw_fifo_mem_read(fman->dev_priv, SVGA_FIFO_FENCE_GOAL);
++	goal_seqno = vmw_fence_goal_read(fman->dev_priv);
+ 	if (likely(fman->seqno_valid &&
+ 		   goal_seqno - fence->base.seqno < VMW_FENCE_WRAP))
+ 		return false;
+ 
+-	vmw_fifo_mem_write(fman->dev_priv, SVGA_FIFO_FENCE_GOAL,
+-			   fence->base.seqno);
++	vmw_fence_goal_write(fman->dev_priv, fence->base.seqno);
+ 	fman->seqno_valid = true;
+ 
+ 	return true;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_irq.c b/drivers/gpu/drm/vmwgfx/vmwgfx_irq.c
+index c5191de365ca..fe4732bf2c9d 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_irq.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_irq.c
+@@ -32,6 +32,14 @@
+ 
+ #define VMW_FENCE_WRAP (1 << 24)
+ 
++static u32 vmw_irqflag_fence_goal(struct vmw_private *vmw)
++{
++	if ((vmw->capabilities2 & SVGA_CAP2_EXTRA_REGS) != 0)
++		return SVGA_IRQFLAG_REG_FENCE_GOAL;
++	else
++		return SVGA_IRQFLAG_FENCE_GOAL;
++}
++
+ /**
+  * vmw_thread_fn - Deferred (process context) irq handler
+  *
+@@ -96,7 +104,7 @@ static irqreturn_t vmw_irq_handler(int irq, void *arg)
+ 		wake_up_all(&dev_priv->fifo_queue);
+ 
+ 	if ((masked_status & (SVGA_IRQFLAG_ANY_FENCE |
+-			      SVGA_IRQFLAG_FENCE_GOAL)) &&
++			      vmw_irqflag_fence_goal(dev_priv))) &&
+ 	    !test_and_set_bit(VMW_IRQTHREAD_FENCE, dev_priv->irqthread_pending))
+ 		ret = IRQ_WAKE_THREAD;
+ 
+@@ -137,8 +145,7 @@ bool vmw_seqno_passed(struct vmw_private *dev_priv,
+ 	if (likely(dev_priv->last_read_seqno - seqno < VMW_FENCE_WRAP))
+ 		return true;
+ 
+-	if (!(vmw_fifo_caps(dev_priv) & SVGA_FIFO_CAP_FENCE) &&
+-	    vmw_fifo_idle(dev_priv, seqno))
++	if (!vmw_has_fences(dev_priv) && vmw_fifo_idle(dev_priv, seqno))
+ 		return true;
+ 
+ 	/**
+@@ -160,6 +167,7 @@ int vmw_fallback_wait(struct vmw_private *dev_priv,
+ 		      unsigned long timeout)
+ {
+ 	struct vmw_fifo_state *fifo_state = dev_priv->fifo;
++	bool fifo_down = false;
+ 
+ 	uint32_t count = 0;
+ 	uint32_t signal_seq;
+@@ -176,12 +184,14 @@ int vmw_fallback_wait(struct vmw_private *dev_priv,
+ 	 */
+ 
+ 	if (fifo_idle) {
+-		down_read(&fifo_state->rwsem);
+ 		if (dev_priv->cman) {
+ 			ret = vmw_cmdbuf_idle(dev_priv->cman, interruptible,
+ 					      10*HZ);
+ 			if (ret)
+ 				goto out_err;
++		} else if (fifo_state) {
++			down_read(&fifo_state->rwsem);
++			fifo_down = true;
+ 		}
+ 	}
+ 
+@@ -218,12 +228,12 @@ int vmw_fallback_wait(struct vmw_private *dev_priv,
+ 		}
+ 	}
+ 	finish_wait(&dev_priv->fence_queue, &__wait);
+-	if (ret == 0 && fifo_idle)
++	if (ret == 0 && fifo_idle && fifo_state)
+ 		vmw_fence_write(dev_priv, signal_seq);
+ 
+ 	wake_up_all(&dev_priv->fence_queue);
+ out_err:
+-	if (fifo_idle)
++	if (fifo_down)
+ 		up_read(&fifo_state->rwsem);
+ 
+ 	return ret;
+@@ -266,13 +276,13 @@ void vmw_seqno_waiter_remove(struct vmw_private *dev_priv)
+ 
+ void vmw_goal_waiter_add(struct vmw_private *dev_priv)
+ {
+-	vmw_generic_waiter_add(dev_priv, SVGA_IRQFLAG_FENCE_GOAL,
++	vmw_generic_waiter_add(dev_priv, vmw_irqflag_fence_goal(dev_priv),
+ 			       &dev_priv->goal_queue_waiters);
+ }
+ 
+ void vmw_goal_waiter_remove(struct vmw_private *dev_priv)
+ {
+-	vmw_generic_waiter_remove(dev_priv, SVGA_IRQFLAG_FENCE_GOAL,
++	vmw_generic_waiter_remove(dev_priv, vmw_irqflag_fence_goal(dev_priv),
+ 				  &dev_priv->goal_queue_waiters);
+ }
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+index 14e8f665b13b..50c64e7813be 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -1336,7 +1336,6 @@ vmw_kms_new_framebuffer(struct vmw_private *dev_priv,
+ 		ret = vmw_kms_new_framebuffer_surface(dev_priv, surface, &vfb,
+ 						      mode_cmd,
+ 						      is_bo_proxy);
+-
+ 		/*
+ 		 * vmw_create_bo_proxy() adds a reference that is no longer
+ 		 * needed
+@@ -1398,13 +1397,16 @@ static struct drm_framebuffer *vmw_kms_fb_create(struct drm_device *dev,
+ 	ret = vmw_user_lookup_handle(dev_priv, tfile,
+ 				     mode_cmd->handles[0],
+ 				     &surface, &bo);
+-	if (ret)
++	if (ret) {
++		DRM_ERROR("Invalid buffer object handle %u (0x%x).\n",
++			  mode_cmd->handles[0], mode_cmd->handles[0]);
+ 		goto err_out;
++	}
+ 
+ 
+ 	if (!bo &&
+ 	    !vmw_kms_srf_ok(dev_priv, mode_cmd->width, mode_cmd->height)) {
+-		DRM_ERROR("Surface size cannot exceed %dx%d",
++		DRM_ERROR("Surface size cannot exceed %dx%d\n",
+ 			dev_priv->texture_max_width,
+ 			dev_priv->texture_max_height);
+ 		goto err_out;
 -- 
 2.35.1
 
