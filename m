@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6D4529109
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD295290C2
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244207AbiEPULD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56562 "EHLO
+        id S1346467AbiEPUL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:11:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351104AbiEPUCC (ORCPT
+        with ESMTP id S1351109AbiEPUCC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:02:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF06110CA;
-        Mon, 16 May 2022 12:58:56 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBE12BB13;
+        Mon, 16 May 2022 12:59:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59DF260BAC;
-        Mon, 16 May 2022 19:58:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E697AC385AA;
-        Mon, 16 May 2022 19:58:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D900260A50;
+        Mon, 16 May 2022 19:58:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 176F4C34100;
+        Mon, 16 May 2022 19:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731135;
-        bh=CqH4xe6KG8LRjCPJexU/WdwJvqdGzxQINgu8FGtrpgI=;
+        s=korg; t=1652731139;
+        bh=5bHYyMg0u2G126dGM145icqPb4Svx7lJgmg+c/EJrJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TzCL1iATw44b1O4ISt3gZtPn7rnAA8urfUYN/K0kULl5YHkl2N6AqS58QPL5kNce
-         XwgXlBXx67omHlLB1n8qJCx0TvAspW6qe0DpDTvwT3fOCUm/GALtHJa+3IQnwMkScB
-         ZoyGKPpNs3DXmw7UQWoVQDlZ/ytfULKdk5i+bWiU=
+        b=eD+pRxoN0LT+tM70azR5ukYrxS0RgLOyda+TSS1xmGeYhNfweA1RrnZpCo5ATMXk2
+         iknpiRtGKas/+tTvwvqvsS688vvdpAKX9gUhcyeHa7Tq8ZsVQHTS/P5hTNUF+4D9yE
+         nTSlRxaNfWKE2gM2eAx7LvLLl9ydQh1fG4Y8Zhww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Reddy <quic_charante@quicinc.com>,
-        "T.J. Mercier" <tjmercier@google.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.17 111/114] dma-buf: call dma_buf_stats_setup after dmabuf is in valid list
-Date:   Mon, 16 May 2022 21:37:25 +0200
-Message-Id: <20220516193628.660304886@linuxfoundation.org>
+        stable@vger.kernel.org, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        William Kucharski <william.kucharski@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.17 112/114] mm/hwpoison: use pr_err() instead of dump_page() in get_any_page()
+Date:   Mon, 16 May 2022 21:37:26 +0200
+Message-Id: <20220516193628.688800703@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
 References: <20220516193625.489108457@linuxfoundation.org>
@@ -55,61 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Reddy <quic_charante@quicinc.com>
+From: Naoya Horiguchi <naoya.horiguchi@nec.com>
 
-commit ef3a6b70507a2add2cd2e01f5eb9b54d561bacb9 upstream.
+commit 1825b93b626e99eb9a0f9f50342c7b2fa201b387 upstream.
 
-When dma_buf_stats_setup() fails, it closes the dmabuf file which
-results into the calling of dma_buf_file_release() where it does
-list_del(&dmabuf->list_node) with out first adding it to the proper
-list. This is resulting into panic in the below path:
-__list_del_entry_valid+0x38/0xac
-dma_buf_file_release+0x74/0x158
-__fput+0xf4/0x428
-____fput+0x14/0x24
-task_work_run+0x178/0x24c
-do_notify_resume+0x194/0x264
-work_pending+0xc/0x5f0
+The following VM_BUG_ON_FOLIO() is triggered when memory error event
+happens on the (thp/folio) pages which are about to be freed:
 
-Fix it by moving the dma_buf_stats_setup() after dmabuf is added to the
-list.
+  [ 1160.232771] page:00000000b36a8a0f refcount:1 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x16a000
+  [ 1160.236916] page:00000000b36a8a0f refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 pfn:0x16a000
+  [ 1160.240684] flags: 0x57ffffc0800000(hwpoison|node=1|zone=2|lastcpupid=0x1fffff)
+  [ 1160.243458] raw: 0057ffffc0800000 dead000000000100 dead000000000122 0000000000000000
+  [ 1160.246268] raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  [ 1160.249197] page dumped because: VM_BUG_ON_FOLIO(!folio_test_large(folio))
+  [ 1160.251815] ------------[ cut here ]------------
+  [ 1160.253438] kernel BUG at include/linux/mm.h:788!
+  [ 1160.256162] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+  [ 1160.258172] CPU: 2 PID: 115368 Comm: mceinj.sh Tainted: G            E     5.18.0-rc1-v5.18-rc1-220404-2353-005-g83111+ #3
+  [ 1160.262049] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
+  [ 1160.265103] RIP: 0010:dump_page.cold+0x27e/0x2bd
+  [ 1160.266757] Code: fe ff ff 48 c7 c6 81 f1 5a 98 e9 4c fe ff ff 48 c7 c6 a1 95 59 98 e9 40 fe ff ff 48 c7 c6 50 bf 5a 98 48 89 ef e8 9d 04 6d ff <0f> 0b 41 f7 c4 ff 0f 00 00 0f 85 9f fd ff ff 49 8b 04 24 a9 00 00
+  [ 1160.273180] RSP: 0018:ffffaa2c4d59fd18 EFLAGS: 00010292
+  [ 1160.274969] RAX: 000000000000003e RBX: 0000000000000001 RCX: 0000000000000000
+  [ 1160.277263] RDX: 0000000000000001 RSI: ffffffff985995a1 RDI: 00000000ffffffff
+  [ 1160.279571] RBP: ffffdc9c45a80000 R08: 0000000000000000 R09: 00000000ffffdfff
+  [ 1160.281794] R10: ffffaa2c4d59fb08 R11: ffffffff98940d08 R12: ffffdc9c45a80000
+  [ 1160.283920] R13: ffffffff985b6f94 R14: 0000000000000000 R15: ffffdc9c45a80000
+  [ 1160.286641] FS:  00007eff54ce1740(0000) GS:ffff99c67bd00000(0000) knlGS:0000000000000000
+  [ 1160.289498] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [ 1160.291106] CR2: 00005628381a5f68 CR3: 0000000104712003 CR4: 0000000000170ee0
+  [ 1160.293031] Call Trace:
+  [ 1160.293724]  <TASK>
+  [ 1160.294334]  get_hwpoison_page+0x47d/0x570
+  [ 1160.295474]  memory_failure+0x106/0xaa0
+  [ 1160.296474]  ? security_capable+0x36/0x50
+  [ 1160.297524]  hard_offline_page_store+0x43/0x80
+  [ 1160.298684]  kernfs_fop_write_iter+0x11c/0x1b0
+  [ 1160.299829]  new_sync_write+0xf9/0x160
+  [ 1160.300810]  vfs_write+0x209/0x290
+  [ 1160.301835]  ksys_write+0x4f/0xc0
+  [ 1160.302718]  do_syscall_64+0x3b/0x90
+  [ 1160.303664]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [ 1160.304981] RIP: 0033:0x7eff54b018b7
 
-Fixes: bdb8d06dfefd ("dmabuf: Add the capability to expose DMA-BUF stats in sysfs")
-Signed-off-by: Charan Teja Reddy <quic_charante@quicinc.com>
-Tested-by: T.J. Mercier <tjmercier@google.com>
-Acked-by: T.J. Mercier <tjmercier@google.com>
-Cc: <stable@vger.kernel.org> # 5.15.x+
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1652125797-2043-1-git-send-email-quic_charante@quicinc.com
+As shown in the RIP address, this VM_BUG_ON in folio_entire_mapcount() is
+called from dump_page("hwpoison: unhandlable page") in get_any_page().
+The below explains the mechanism of the race:
+
+  CPU 0                                       CPU 1
+
+    memory_failure
+      get_hwpoison_page
+        get_any_page
+          dump_page
+            compound = PageCompound
+                                                free_pages_prepare
+                                                  page->flags &= ~PAGE_FLAGS_CHECK_AT_PREP
+            folio_entire_mapcount
+              VM_BUG_ON_FOLIO(!folio_test_large(folio))
+
+So replace dump_page() with safer one, pr_err().
+
+Link: https://lkml.kernel.org/r/20220427053220.719866-1-naoya.horiguchi@linux.dev
+Fixes: 74e8ee4708a8 ("mm: Turn head_compound_mapcount() into folio_entire_mapcount()")
+Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: John Hubbard <jhubbard@nvidia.com>
+Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: William Kucharski <william.kucharski@oracle.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/dma-buf.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ mm/memory-failure.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -543,10 +543,6 @@ struct dma_buf *dma_buf_export(const str
- 	file->f_mode |= FMODE_LSEEK;
- 	dmabuf->file = file;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -1275,7 +1275,7 @@ try_again:
+ 	}
+ out:
+ 	if (ret == -EIO)
+-		dump_page(p, "hwpoison: unhandlable page");
++		pr_err("Memory failure: %#lx: unhandlable page.\n", page_to_pfn(p));
  
--	ret = dma_buf_stats_setup(dmabuf);
--	if (ret)
--		goto err_sysfs;
--
- 	mutex_init(&dmabuf->lock);
- 	INIT_LIST_HEAD(&dmabuf->attachments);
- 
-@@ -554,6 +550,10 @@ struct dma_buf *dma_buf_export(const str
- 	list_add(&dmabuf->list_node, &db_list.head);
- 	mutex_unlock(&db_list.lock);
- 
-+	ret = dma_buf_stats_setup(dmabuf);
-+	if (ret)
-+		goto err_sysfs;
-+
- 	return dmabuf;
- 
- err_sysfs:
+ 	return ret;
+ }
 
 
