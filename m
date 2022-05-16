@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BDB5291A5
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 990E6528FF5
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240349AbiEPUEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
+        id S240406AbiEPUKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:10:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348827AbiEPT66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:58 -0400
+        with ESMTP id S236369AbiEPUB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC283F882;
-        Mon, 16 May 2022 12:51:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A284C47564;
+        Mon, 16 May 2022 12:56:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED4B060A14;
-        Mon, 16 May 2022 19:51:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE36BC385AA;
-        Mon, 16 May 2022 19:51:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E20D60A50;
+        Mon, 16 May 2022 19:56:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F78FC34100;
+        Mon, 16 May 2022 19:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730674;
-        bh=knJ3yMlGUTuXhvAdX0tjShihmMNx/PRKpMM6L/mJ3F0=;
+        s=korg; t=1652731006;
+        bh=AfvNImvSajbT2lRm2lCrt5R+aKpmDHKgaIumFgk1JSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1T61tbXoS7WAR5RuZqx9L4YfEB92QnIdH8iNSac2bi7p5wWUssVhy4mBtOcyUXZPS
-         FLKNt/RmNz5jYWZeaNPz4hgoRsovAUWyMu8/lC8zXRdGDt3U6BvZEYKNxR7eaUc4yS
-         F8oWyFVBS4y/iNXB+rTYG5/Q++jtSBMAbCJeI0fc=
+        b=stgbeMvYNaGxLAmkaPWNKaoLUH41aAaDVCQE1LnRT9kWbfbofbAQKAAXfwUqOCLAm
+         cwuzDrABGqbAN1a6etVTwVuZJ17WeWISjrA2wo3UgkbcavaVcMd/TDcdy0c7ahF/Rx
+         HLOLL9clkVxsMtSE+iTguKBQCc+BLAwmJ7CQ0LIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.15 073/102] USB: serial: pl2303: add device id for HP LM930 Display
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.17 073/114] usb: xhci-mtk: fix fs isocs transfer error
 Date:   Mon, 16 May 2022 21:36:47 +0200
-Message-Id: <20220516193626.092772627@linuxfoundation.org>
+Message-Id: <20220516193627.587019284@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +52,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Chen <scott@labau.com.tw>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 26a08f8bad3e1f98d3153f939fb8cd330da4cb26 upstream.
+commit c237566b78ad8c72bc0431c5d6171db8d12e6f94 upstream.
 
-Add the device id for the HPLM930Display which is a PL2303GC based
-device.
+Due to the scheduler allocates the optimal bandwidth for FS ISOC endpoints,
+this may be not enough actually and causes data transfer error, so come up
+with an estimate that is no less than the worst case bandwidth used for
+any one mframe, but may be an over-estimate.
 
-Signed-off-by: Scott Chen <scott@labau.com.tw>
+Fixes: 451d3912586a ("usb: xhci-mtk: update fs bus bandwidth by bw_budget_table")
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20220512064931.31670-1-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/host/xhci-mtk-sch.c |   16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -106,6 +106,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM960_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM920_PRODUCT_ID) },
-+	{ USB_DEVICE(HP_VENDOR_ID, HP_LM930_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM940_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_TD620_PRODUCT_ID) },
- 	{ USB_DEVICE(CRESSI_VENDOR_ID, CRESSI_EDY_PRODUCT_ID) },
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -135,6 +135,7 @@
- #define HP_TD620_PRODUCT_ID	0x0956
- #define HP_LD960_PRODUCT_ID	0x0b39
- #define HP_LD381_PRODUCT_ID	0x0f7f
-+#define HP_LM930_PRODUCT_ID	0x0f9b
- #define HP_LCM220_PRODUCT_ID	0x3139
- #define HP_LCM960_PRODUCT_ID	0x3239
- #define HP_LD220_PRODUCT_ID	0x3524
+--- a/drivers/usb/host/xhci-mtk-sch.c
++++ b/drivers/usb/host/xhci-mtk-sch.c
+@@ -465,7 +465,7 @@ static int check_fs_bus_bw(struct mu3h_s
+ 		 */
+ 		for (j = 0; j < sch_ep->num_budget_microframes; j++) {
+ 			k = XHCI_MTK_BW_INDEX(base + j);
+-			tmp = tt->fs_bus_bw[k] + sch_ep->bw_budget_table[j];
++			tmp = tt->fs_bus_bw[k] + sch_ep->bw_cost_per_microframe;
+ 			if (tmp > FS_PAYLOAD_MAX)
+ 				return -ESCH_BW_OVERFLOW;
+ 		}
+@@ -539,19 +539,17 @@ static int check_sch_tt(struct mu3h_sch_
+ static void update_sch_tt(struct mu3h_sch_ep_info *sch_ep, bool used)
+ {
+ 	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
++	int bw_updated;
+ 	u32 base;
+-	int i, j, k;
++	int i, j;
++
++	bw_updated = sch_ep->bw_cost_per_microframe * (used ? 1 : -1);
+ 
+ 	for (i = 0; i < sch_ep->num_esit; i++) {
+ 		base = sch_ep->offset + i * sch_ep->esit;
+ 
+-		for (j = 0; j < sch_ep->num_budget_microframes; j++) {
+-			k = XHCI_MTK_BW_INDEX(base + j);
+-			if (used)
+-				tt->fs_bus_bw[k] += sch_ep->bw_budget_table[j];
+-			else
+-				tt->fs_bus_bw[k] -= sch_ep->bw_budget_table[j];
+-		}
++		for (j = 0; j < sch_ep->num_budget_microframes; j++)
++			tt->fs_bus_bw[XHCI_MTK_BW_INDEX(base + j)] += bw_updated;
+ 	}
+ 
+ 	if (used)
 
 
