@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A37528F9E
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E7E3528F9B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348088AbiEPUGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:06:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42068 "EHLO
+        id S236208AbiEPUEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348876AbiEPT7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97BABDF10;
-        Mon, 16 May 2022 12:51:46 -0700 (PDT)
+        with ESMTP id S1351047AbiEPUB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8347F473AF;
+        Mon, 16 May 2022 12:57:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3362360ABE;
-        Mon, 16 May 2022 19:51:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2332CC385AA;
-        Mon, 16 May 2022 19:51:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 386F1B81611;
+        Mon, 16 May 2022 19:57:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68D9BC385AA;
+        Mon, 16 May 2022 19:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730705;
-        bh=xeK6HRxi1mPhpbtlWLLpg+A8vnqO0N4E6B3fLZdB0xw=;
+        s=korg; t=1652731039;
+        bh=nHCPrEtDuSjJ96w8i2Zd8GckMSt702jjQBW4XUFJnXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ffp/RtRGNdeLSduB+03h4TXnRwqbWqzlXPmARafLLnAEt9sj0UYBq0jkNe0dMOrvg
-         urlqwmAGBb7aMh0UycQn7GwEevtNs9AliWEusXIF9Qpl3AuVX8FgdmVwdtSN5oH0cO
-         KKyMxDaGDWxTOx06C912jXwcPfkQ1vd2MXrVdQ68=
+        b=wyA9+4/BjTzCswFdnWJM32W9ncjD7V0tOX9gZM9XAsK5cSBBVNRj/ymciflIHpI+f
+         O3Mps53ymQHjBKRjJ40rTqeSnEcqKxBDIfqzwyUga72kEeL3EOiyDwmxNMBfche99l
+         kKz//I47+/uyGtx/gQ0hWS8wnDbfg1VjM2qi30ns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xu Yu <xuyu@linux.alibaba.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 082/102] Revert "mm/memory-failure.c: skip huge_zero_page in memory_failure()"
+        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH 5.17 082/114] usb: typec: tcpci_mt6360: Update for BMC PHY setting
 Date:   Mon, 16 May 2022 21:36:56 +0200
-Message-Id: <20220516193626.346807892@linuxfoundation.org>
+Message-Id: <20220516193627.838870506@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,83 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xu Yu <xuyu@linux.alibaba.com>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-commit b4e61fc031b11dd807dffc46cebbf0e25966d3d1 upstream.
+commit 4031cd95cba70c72e4cadc2d46624bcd31e5a6c0 upstream.
 
-Patch series "mm/memory-failure: rework fix on huge_zero_page splitting".
+Update MT6360 BMC PHY Tx/Rx setting for the compatibility.
 
+Macpaul reported this CtoDP cable attention message cannot be received from
+MT6360 TCPC. But actually, attention message really sent from UFP_D
+device.
 
-This patch (of 2):
+After RD's comment, there may be BMC PHY Tx/Rx setting causes this issue.
 
-This reverts commit d173d5417fb67411e623d394aab986d847e47dad.
+Below's the detailed TCPM log and DP attention message didn't received from 6360
+TCPCI.
+[ 1206.367775] Identity: 0000:0000.0000
+[ 1206.416570] Alternate mode 0: SVID 0xff01, VDO 1: 0x00000405
+[ 1206.447378] AMS DFP_TO_UFP_ENTER_MODE start
+[ 1206.447383] PD TX, header: 0x1d6f
+[ 1206.449393] PD TX complete, status: 0
+[ 1206.454110] PD RX, header: 0x184f [1]
+[ 1206.456867] Rx VDM cmd 0xff018144 type 1 cmd 4 len 1
+[ 1206.456872] AMS DFP_TO_UFP_ENTER_MODE finished
+[ 1206.456873] cc:=4
+[ 1206.473100] AMS STRUCTURED_VDMS start
+[ 1206.473103] PD TX, header: 0x2f6f
+[ 1206.475397] PD TX complete, status: 0
+[ 1206.480442] PD RX, header: 0x2a4f [1]
+[ 1206.483145] Rx VDM cmd 0xff018150 type 1 cmd 16 len 2
+[ 1206.483150] AMS STRUCTURED_VDMS finished
+[ 1206.483151] cc:=4
+[ 1206.505643] AMS STRUCTURED_VDMS start
+[ 1206.505646] PD TX, header: 0x216f
+[ 1206.507933] PD TX complete, status: 0
+[ 1206.512664] PD RX, header: 0x1c4f [1]
+[ 1206.515456] Rx VDM cmd 0xff018151 type 1 cmd 17 len 1
+[ 1206.515460] AMS STRUCTURED_VDMS finished
+[ 1206.515461] cc:=4
 
-The commit d173d5417fb6 ("mm/memory-failure.c: skip huge_zero_page in
-memory_failure()") explicitly skips huge_zero_page in memory_failure(), in
-order to avoid triggering VM_BUG_ON_PAGE on huge_zero_page in
-split_huge_page_to_list().
-
-This works, but Yang Shi thinks that,
-
-    Raising BUG is overkilling for splitting huge_zero_page. The
-    huge_zero_page can't be met from normal paths other than memory
-    failure, but memory failure is a valid caller. So I tend to replace
-    the BUG to WARN + returning -EBUSY. If we don't care about the
-    reason code in memory failure, we don't have to touch memory
-    failure.
-
-And for the issue that huge_zero_page will be set PG_has_hwpoisoned,
-Yang Shi comments that,
-
-    The anonymous page fault doesn't check if the page is poisoned or
-    not since it typically gets a fresh allocated page and assumes the
-    poisoned page (isolated successfully) can't be reallocated again.
-    But huge zero page and base zero page are reused every time. So no
-    matter what fix we pick, the issue is always there.
-
-Finally, Yang, David, Anshuman and Naoya all agree to fix the bug, i.e.,
-to split huge_zero_page, in split_huge_page_to_list().
-
-This reverts the commit d173d5417fb6 ("mm/memory-failure.c: skip
-huge_zero_page in memory_failure()"), and the original bug will be fixed
-by the next patch.
-
-Link: https://lkml.kernel.org/r/872cefb182ba1dd686b0e7db1e6b2ebe5a4fff87.1651039624.git.xuyu@linux.alibaba.com
-Fixes: d173d5417fb6 ("mm/memory-failure.c: skip huge_zero_page in memory_failure()")
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Signed-off-by: Xu Yu <xuyu@linux.alibaba.com>
-Suggested-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Yang Shi <shy828301@gmail.com>
-Reviewed-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: e1aefcdd394fd ("usb typec: mt6360: Add support for mt6360 Type-C driver")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Link: https://lore.kernel.org/r/1652159580-30959-1-git-send-email-u0084500@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c |   13 -------------
- 1 file changed, 13 deletions(-)
+ drivers/usb/typec/tcpm/tcpci_mt6360.c |   26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1692,19 +1692,6 @@ try_again:
+--- a/drivers/usb/typec/tcpm/tcpci_mt6360.c
++++ b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+@@ -15,6 +15,9 @@
  
- 	if (PageTransHuge(hpage)) {
- 		/*
--		 * Bail out before SetPageHasHWPoisoned() if hpage is
--		 * huge_zero_page, although PG_has_hwpoisoned is not
--		 * checked in set_huge_zero_page().
--		 *
--		 * TODO: Handle memory failure of huge_zero_page thoroughly.
--		 */
--		if (is_huge_zero_page(hpage)) {
--			action_result(pfn, MF_MSG_UNSPLIT_THP, MF_IGNORED);
--			res = -EBUSY;
--			goto unlock_mutex;
--		}
--
--		/*
- 		 * The flag must be set after the refcount is bumped
- 		 * otherwise it may race with THP split.
- 		 * And the flag can't be set in get_hwpoison_page() since
+ #include "tcpci.h"
+ 
++#define MT6360_REG_PHYCTRL1	0x80
++#define MT6360_REG_PHYCTRL3	0x82
++#define MT6360_REG_PHYCTRL7	0x86
+ #define MT6360_REG_VCONNCTRL1	0x8C
+ #define MT6360_REG_MODECTRL2	0x8F
+ #define MT6360_REG_SWRESET	0xA0
+@@ -22,6 +25,8 @@
+ #define MT6360_REG_DRPCTRL1	0xA2
+ #define MT6360_REG_DRPCTRL2	0xA3
+ #define MT6360_REG_I2CTORST	0xBF
++#define MT6360_REG_PHYCTRL11	0xCA
++#define MT6360_REG_RXCTRL1	0xCE
+ #define MT6360_REG_RXCTRL2	0xCF
+ #define MT6360_REG_CTDCTRL2	0xEC
+ 
+@@ -106,6 +111,27 @@ static int mt6360_tcpc_init(struct tcpci
+ 	if (ret)
+ 		return ret;
+ 
++	/* BMC PHY */
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL1, 0x3A70);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL3,  0x82);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL7, 0x36);
++	if (ret)
++		return ret;
++
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL11, 0x3C60);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_RXCTRL1, 0xE8);
++	if (ret)
++		return ret;
++
+ 	/* Set shipping mode off, AUTOIDLE on */
+ 	return regmap_write(regmap, MT6360_REG_MODECTRL2, 0x7A);
+ }
 
 
