@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F1F352908F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08BB25291CC
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230526AbiEPUHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
+        id S1345009AbiEPTzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:55:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349854AbiEPUAd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C945144A20;
-        Mon, 16 May 2022 12:54:36 -0700 (PDT)
+        with ESMTP id S240366AbiEPTxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:53:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D8F4705E;
+        Mon, 16 May 2022 12:48:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3111B81616;
-        Mon, 16 May 2022 19:54:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 229C1C34100;
-        Mon, 16 May 2022 19:54:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CE1160A51;
+        Mon, 16 May 2022 19:48:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 199F9C385AA;
+        Mon, 16 May 2022 19:48:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730871;
-        bh=cuKichH73sDTAWETAXC1JTIM2p/rWmO8HVY3pasalVI=;
+        s=korg; t=1652730537;
+        bh=iNEA1otyYCS9SAn71pT/qSEdfQsOHHUEf/bp2C3W/q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gaNtxX+J1dXgFwEqhKlvrr8FbbGa1j9DEEtGoEX+b/mp0Fi63kWXQV0uWmyqpwP92
-         DtT8/pNh6XiGSLVWlgQTJxUSduy8HXgbWbOyfyoKJIKR/Wm4eel5QwGEFKhpBG7aAq
-         rZouUw/VGmq+Jjpe6CbI38ihfUM5lcO+vugviFcY=
+        b=PRb/ftSJ0jWzJZ5M/vOxJi1FHyekzRBWkoRkHhCZM2MPhKGPymuEpBliQZRxPwCLH
+         vTGwah4s3YpOHjyhBxyoaQcN9g6xI1Bgh78DfeHLNFUKqAY/26CiBRB/yc5jDOZrHA
+         9ZVTPxhozPap8/e/Nf6z7gLyEuvmTZGk5OTIBprU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Hridya Valsaraju <hridya@google.com>,
-        Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 030/114] procfs: prevent unprivileged processes accessing fdinfo dir
+        stable@vger.kernel.org, Joey Gouly <joey.gouly@arm.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 030/102] arm64: vdso: fix makefile dependency on vdso.so
 Date:   Mon, 16 May 2022 21:36:04 +0200
-Message-Id: <20220516193626.355918780@linuxfoundation.org>
+Message-Id: <20220516193624.866185878@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,89 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalesh Singh <kaleshsingh@google.com>
+From: Joey Gouly <joey.gouly@arm.com>
 
-[ Upstream commit 1927e498aee1757b3df755a194cbfc5cc0f2b663 ]
+[ Upstream commit 205f3991a273cac6008ef4db3d1c0dc54d14fb56 ]
 
-The file permissions on the fdinfo dir from were changed from
-S_IRUSR|S_IXUSR to S_IRUGO|S_IXUGO, and a PTRACE_MODE_READ check was added
-for opening the fdinfo files [1].  However, the ptrace permission check
-was not added to the directory, allowing anyone to get the open FD numbers
-by reading the fdinfo directory.
+There is currently no dependency for vdso*-wrap.S on vdso*.so, which means that
+you can get a build that uses a stale vdso*-wrap.o.
 
-Add the missing ptrace permission check for opening the fdinfo directory.
+In commit a5b8ca97fbf8, the file that includes the vdso.so was moved and renamed
+from arch/arm64/kernel/vdso/vdso.S to arch/arm64/kernel/vdso-wrap.S, when this
+happened the Makefile was not updated to force the dependcy on vdso.so.
 
-[1] https://lkml.kernel.org/r/20210308170651.919148-1-kaleshsingh@google.com
-
-Link: https://lkml.kernel.org/r/20210713162008.1056986-1-kaleshsingh@google.com
-Fixes: 7bc3fa0172a4 ("procfs: allow reading fdinfo with PTRACE_MODE_READ")
-Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Hridya Valsaraju <hridya@google.com>
-Cc: Jann Horn <jannh@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: a5b8ca97fbf8 ("arm64: do not descend to vdso directories twice")
+Signed-off-by: Joey Gouly <joey.gouly@arm.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20220510102721.50811-1-joey.gouly@arm.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/fd.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/Makefile        | 4 ++++
+ arch/arm64/kernel/vdso/Makefile   | 3 ---
+ arch/arm64/kernel/vdso32/Makefile | 3 ---
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index 172c86270b31..913bef0d2a36 100644
---- a/fs/proc/fd.c
-+++ b/fs/proc/fd.c
-@@ -72,7 +72,7 @@ static int seq_show(struct seq_file *m, void *v)
- 	return 0;
- }
+diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
+index 3f1490bfb938..749e31475e41 100644
+--- a/arch/arm64/kernel/Makefile
++++ b/arch/arm64/kernel/Makefile
+@@ -74,6 +74,10 @@ obj-$(CONFIG_ARM64_MTE)			+= mte.o
+ obj-y					+= vdso-wrap.o
+ obj-$(CONFIG_COMPAT_VDSO)		+= vdso32-wrap.o
  
--static int seq_fdinfo_open(struct inode *inode, struct file *file)
-+static int proc_fdinfo_access_allowed(struct inode *inode)
- {
- 	bool allowed = false;
- 	struct task_struct *task = get_proc_task(inode);
-@@ -86,6 +86,16 @@ static int seq_fdinfo_open(struct inode *inode, struct file *file)
- 	if (!allowed)
- 		return -EACCES;
++# Force dependency (vdso*-wrap.S includes vdso.so through incbin)
++$(obj)/vdso-wrap.o: $(obj)/vdso/vdso.so
++$(obj)/vdso32-wrap.o: $(obj)/vdso32/vdso.so
++
+ obj-y					+= probes/
+ head-y					:= head.o
+ extra-y					+= $(head-y) vmlinux.lds
+diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
+index 945e6bb326e3..b5d8f72e8b32 100644
+--- a/arch/arm64/kernel/vdso/Makefile
++++ b/arch/arm64/kernel/vdso/Makefile
+@@ -48,9 +48,6 @@ GCOV_PROFILE := n
+ targets += vdso.lds
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
  
-+	return 0;
-+}
-+
-+static int seq_fdinfo_open(struct inode *inode, struct file *file)
-+{
-+	int ret = proc_fdinfo_access_allowed(inode);
-+
-+	if (ret)
-+		return ret;
-+
- 	return single_open(file, seq_show, inode);
- }
+-# Force dependency (incbin is bad)
+-$(obj)/vdso.o : $(obj)/vdso.so
+-
+ # Link rule for the .so file, .lds has to be first
+ $(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso) FORCE
+ 	$(call if_changed,vdsold_and_vdso_check)
+diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
+index 3514269ac75f..83e9399e3836 100644
+--- a/arch/arm64/kernel/vdso32/Makefile
++++ b/arch/arm64/kernel/vdso32/Makefile
+@@ -144,9 +144,6 @@ obj-vdso := $(c-obj-vdso) $(c-obj-vdso-gettimeofday) $(asm-obj-vdso)
+ targets += vdso.lds
+ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
  
-@@ -348,12 +358,23 @@ static int proc_readfdinfo(struct file *file, struct dir_context *ctx)
- 				  proc_fdinfo_instantiate);
- }
+-# Force dependency (vdso.s includes vdso.so through incbin)
+-$(obj)/vdso.o: $(obj)/vdso.so
+-
+ include/generated/vdso32-offsets.h: $(obj)/vdso.so.dbg FORCE
+ 	$(call if_changed,vdsosym)
  
-+static int proc_open_fdinfo(struct inode *inode, struct file *file)
-+{
-+	int ret = proc_fdinfo_access_allowed(inode);
-+
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
- const struct inode_operations proc_fdinfo_inode_operations = {
- 	.lookup		= proc_lookupfdinfo,
- 	.setattr	= proc_setattr,
- };
- 
- const struct file_operations proc_fdinfo_operations = {
-+	.open		= proc_open_fdinfo,
- 	.read		= generic_read_dir,
- 	.iterate_shared	= proc_readfdinfo,
- 	.llseek		= generic_file_llseek,
 -- 
 2.35.1
 
