@@ -2,54 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D7ED528E5D
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E176B528EA4
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345875AbiEPTnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44062 "EHLO
+        id S1346228AbiEPTs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:48:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345715AbiEPTlw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AE3403D0;
-        Mon, 16 May 2022 12:40:28 -0700 (PDT)
+        with ESMTP id S1346279AbiEPTse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:48:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4951142EEE;
+        Mon, 16 May 2022 12:44:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D11E9614E2;
-        Mon, 16 May 2022 19:40:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C91DC34116;
-        Mon, 16 May 2022 19:40:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 680E7B815F8;
+        Mon, 16 May 2022 19:44:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B75D3C385AA;
+        Mon, 16 May 2022 19:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730027;
-        bh=bqWgDwcr3MlLqCqxGG3/tgJrQLc9Y5B/BF8VlzQX044=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FGiVj0SjJVe6EgxP0gNKtDIpKz3NV9AeGBUA0RnTBZMI+BZRH4u2bQDs4JGYvHrmA
-         2WKa09ReZ6L7JzayGlLwb0ed8S8W2r2uavWeqsQC16+yjkd1AsQTQZWsGVxMxv+e67
-         a4RqekxopP0iHnJ2j4MiNT4ZHh2LdmQuSwyZWIrc=
+        s=korg; t=1652730279;
+        bh=Wcu1z+WWNLN8NQf0WZn9ffieLR0Eavk4DZjBvD64DJY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=EOe8LpRLJeS7pK5YUF89bCVQ+I2iwd1YfgMyy0SNW1rCiWnczs8ZP8gjtQaQOzbHb
+         2emISNx89y1aZIMq6UPXXEbhSfdUKSNI8XblBcYzZm64sCaVcLgi6MHg0BeUDIu9p4
+         HgdwJrZXvK8L+rLs6BezXM5GMdjZp0QmWslXzGGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 4.14 00/25] 4.14.280-rc1 review
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/66] net: sfc: fix memory leak due to ptp channel
 Date:   Mon, 16 May 2022 21:36:14 +0200
-Message-Id: <20220516193614.678319286@linuxfoundation.org>
+Message-Id: <20220516193619.830351926@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.280-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.280-rc1
-X-KernelTest-Deadline: 2022-05-18T19:36+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -61,135 +54,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.280 release.
-There are 25 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Taehee Yoo <ap420073@gmail.com>
 
-Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
-Anything received after that time might be too late.
+[ Upstream commit 49e6123c65dac6393b04f39ceabf79c44f66b8be ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.280-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+It fixes memory leak in ring buffer change logic.
 
-thanks,
+When ring buffer size is changed(ethtool -G eth0 rx 4096), sfc driver
+works like below.
+1. stop all channels and remove ring buffers.
+2. allocates new buffer array.
+3. allocates rx buffers.
+4. start channels.
 
-greg k-h
+While the above steps are working, it skips some steps if the channel
+doesn't have a ->copy callback function.
+Due to ptp channel doesn't have ->copy callback, these above steps are
+skipped for ptp channel.
+It eventually makes some problems.
+a. ptp channel's ring buffer size is not changed, it works only
+   1024(default).
+b. memory leak.
 
--------------
-Pseudo-Shortlog of commits:
+The reason for memory leak is to use the wrong ring buffer values.
+There are some values, which is related to ring buffer size.
+a. efx->rxq_entries
+ - This is global value of rx queue size.
+b. rx_queue->ptr_mask
+ - used for access ring buffer as circular ring.
+ - roundup_pow_of_two(efx->rxq_entries) - 1
+c. rx_queue->max_fill
+ - efx->rxq_entries - EFX_RXD_HEAD_ROOM
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.280-rc1
+These all values should be based on ring buffer size consistently.
+But ptp channel's values are not.
+a. efx->rxq_entries
+ - This is global(for sfc) value, always new ring buffer size.
+b. rx_queue->ptr_mask
+ - This is always 1023(default).
+c. rx_queue->max_fill
+ - This is new ring buffer size - EFX_RXD_HEAD_ROOM.
 
-Yang Yingliang <yangyingliang@huawei.com>
-    tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
+Let's assume we set 4096 for rx ring buffer,
 
-Nicolas Dichtel <nicolas.dichtel@6wind.com>
-    ping: fix address binding wrt vrf
+                      normal channel     ptp channel
+efx->rxq_entries      4096               4096
+rx_queue->ptr_mask    4095               1023
+rx_queue->max_fill    4086               4086
 
-Zack Rusin <zackr@vmware.com>
-    drm/vmwgfx: Initialize drm_mode_fb_cmd2
+sfc driver allocates rx ring buffers based on these values.
+When it allocates ptp channel's ring buffer, 4086 ring buffers are
+allocated then, these buffers are attached to the allocated array.
+But ptp channel's ring buffer array size is still 1024(default)
+and ptr_mask is still 1023 too.
+So, 3062 ring buffers will be overwritten to the array.
+This is the reason for memory leak.
 
-Waiman Long <longman@redhat.com>
-    cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
+Test commands:
+   ethtool -G <interface name> rx 4096
+   while :
+   do
+       ip link set <interface name> up
+       ip link set <interface name> down
+   done
 
-Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-    USB: serial: option: add Fibocom MA510 modem
+In order to avoid this problem, it adds ->copy callback to ptp channel
+type.
+So that rx_queue->ptr_mask value will be updated correctly.
 
-Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-    USB: serial: option: add Fibocom L610 modem
+Fixes: 7c236c43b838 ("sfc: Add support for IEEE-1588 PTP")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/ethernet/sfc/efx_channels.c |  7 ++++++-
+ drivers/net/ethernet/sfc/ptp.c          | 14 +++++++++++++-
+ drivers/net/ethernet/sfc/ptp.h          |  1 +
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-Ethan Yang <etyang@sierrawireless.com>
-    USB: serial: qcserial: add support for Sierra Wireless EM7590
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index fe1ad682e3d5..2ab8571ef1cc 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -744,7 +744,9 @@ void efx_remove_channels(struct efx_nic *efx)
+ 
+ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ {
+-	struct efx_channel *other_channel[EFX_MAX_CHANNELS], *channel;
++	struct efx_channel *other_channel[EFX_MAX_CHANNELS], *channel,
++			   *ptp_channel = efx_ptp_channel(efx);
++	struct efx_ptp_data *ptp_data = efx->ptp_data;
+ 	unsigned int i, next_buffer_table = 0;
+ 	u32 old_rxq_entries, old_txq_entries;
+ 	int rc, rc2;
+@@ -814,6 +816,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	}
+ 
+ out:
++	efx->ptp_data = NULL;
+ 	/* Destroy unused channel structures */
+ 	for (i = 0; i < efx->n_channels; i++) {
+ 		channel = other_channel[i];
+@@ -824,6 +827,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 		}
+ 	}
+ 
++	efx->ptp_data = ptp_data;
+ 	rc2 = efx_soft_enable_interrupts(efx);
+ 	if (rc2) {
+ 		rc = rc ? rc : rc2;
+@@ -842,6 +846,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	efx->txq_entries = old_txq_entries;
+ 	for (i = 0; i < efx->n_channels; i++)
+ 		swap(efx->channel[i], other_channel[i]);
++	efx_ptp_update_channel(efx, ptp_channel);
+ 	goto out;
+ }
+ 
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index 797e51802ccb..725b0f38813a 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -45,6 +45,7 @@
+ #include "farch_regs.h"
+ #include "tx.h"
+ #include "nic.h" /* indirectly includes ptp.h */
++#include "efx_channels.h"
+ 
+ /* Maximum number of events expected to make up a PTP event */
+ #define	MAX_EVENT_FRAGS			3
+@@ -541,6 +542,12 @@ struct efx_channel *efx_ptp_channel(struct efx_nic *efx)
+ 	return efx->ptp_data ? efx->ptp_data->channel : NULL;
+ }
+ 
++void efx_ptp_update_channel(struct efx_nic *efx, struct efx_channel *channel)
++{
++	if (efx->ptp_data)
++		efx->ptp_data->channel = channel;
++}
++
+ static u32 last_sync_timestamp_major(struct efx_nic *efx)
+ {
+ 	struct efx_channel *channel = efx_ptp_channel(efx);
+@@ -1443,6 +1450,11 @@ int efx_ptp_probe(struct efx_nic *efx, struct efx_channel *channel)
+ 	int rc = 0;
+ 	unsigned int pos;
+ 
++	if (efx->ptp_data) {
++		efx->ptp_data->channel = channel;
++		return 0;
++	}
++
+ 	ptp = kzalloc(sizeof(struct efx_ptp_data), GFP_KERNEL);
+ 	efx->ptp_data = ptp;
+ 	if (!efx->ptp_data)
+@@ -2179,7 +2191,7 @@ static const struct efx_channel_type efx_ptp_channel_type = {
+ 	.pre_probe		= efx_ptp_probe_channel,
+ 	.post_remove		= efx_ptp_remove_channel,
+ 	.get_name		= efx_ptp_get_channel_name,
+-	/* no copy operation; there is no need to reallocate this channel */
++	.copy                   = efx_copy_channel,
+ 	.receive_skb		= efx_ptp_rx,
+ 	.want_txqs		= efx_ptp_want_txqs,
+ 	.keep_eventq		= false,
+diff --git a/drivers/net/ethernet/sfc/ptp.h b/drivers/net/ethernet/sfc/ptp.h
+index 9855e8c9e544..7b1ef7002b3f 100644
+--- a/drivers/net/ethernet/sfc/ptp.h
++++ b/drivers/net/ethernet/sfc/ptp.h
+@@ -16,6 +16,7 @@ struct ethtool_ts_info;
+ int efx_ptp_probe(struct efx_nic *efx, struct efx_channel *channel);
+ void efx_ptp_defer_probe_with_channel(struct efx_nic *efx);
+ struct efx_channel *efx_ptp_channel(struct efx_nic *efx);
++void efx_ptp_update_channel(struct efx_nic *efx, struct efx_channel *channel);
+ void efx_ptp_remove(struct efx_nic *efx);
+ int efx_ptp_set_ts_config(struct efx_nic *efx, struct ifreq *ifr);
+ int efx_ptp_get_ts_config(struct efx_nic *efx, struct ifreq *ifr);
+-- 
+2.35.1
 
-Scott Chen <scott@labau.com.tw>
-    USB: serial: pl2303: add device id for HP LM930 Display
-
-Sergey Ryazanov <ryazanov.s.a@gmail.com>
-    usb: cdc-wdm: fix reading stuck on device close
-
-Eric Dumazet <edumazet@google.com>
-    tcp: resalt the secret every 10 seconds
-
-Mark Brown <broonie@kernel.org>
-    ASoC: ops: Validate input values in snd_soc_put_volsw_range()
-
-Mark Brown <broonie@kernel.org>
-    ASoC: max98090: Generate notifications on changes for custom control
-
-Mark Brown <broonie@kernel.org>
-    ASoC: max98090: Reject invalid values in custom control put()
-
-Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-    hwmon: (f71882fg) Fix negative temperature
-
-Taehee Yoo <ap420073@gmail.com>
-    net: sfc: ef10: fix memory leak in efx_ef10_mtd_probe()
-
-Guangguan Wang <guangguan.wang@linux.alibaba.com>
-    net/smc: non blocking recvmsg() return -EAGAIN when no data and signal_pending
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/lcs: fix variable dereferenced before check
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/ctcm: fix potential memory leak
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/ctcm: fix variable dereferenced before check
-
-Randy Dunlap <rdunlap@infradead.org>
-    hwmon: (ltq-cputemp) restrict it to SOC_XWAY
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
-
-Eric Dumazet <edumazet@google.com>
-    netlink: do not reset transport header in netlink_recvmsg()
-
-Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
-    ipv4: drop dst in multicast routing path
-
-Tariq Toukan <tariqt@nvidia.com>
-    net: Fix features skip in for_each_netdev_feature()
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Don't skb_split skbuffs with frag_list
-
-
--------------
-
-Diffstat:
-
- Makefile                              |  4 ++--
- drivers/gpu/drm/vmwgfx/vmwgfx_fb.c    |  2 +-
- drivers/hwmon/Kconfig                 |  2 +-
- drivers/hwmon/f71882fg.c              |  5 +++--
- drivers/net/ethernet/sfc/ef10.c       |  5 +++++
- drivers/net/wireless/mac80211_hwsim.c |  3 +++
- drivers/s390/net/ctcm_mpc.c           |  6 +-----
- drivers/s390/net/ctcm_sysfs.c         |  5 +++--
- drivers/s390/net/lcs.c                |  7 ++++---
- drivers/tty/serial/digicolor-usart.c  |  2 +-
- drivers/usb/class/cdc-wdm.c           |  1 +
- drivers/usb/serial/option.c           |  4 ++++
- drivers/usb/serial/pl2303.c           |  1 +
- drivers/usb/serial/pl2303.h           |  1 +
- drivers/usb/serial/qcserial.c         |  2 ++
- include/linux/netdev_features.h       |  4 ++--
- kernel/cgroup/cpuset.c                |  7 +++++--
- net/batman-adv/fragmentation.c        | 11 +++++++++++
- net/core/secure_seq.c                 | 12 +++++++++---
- net/ipv4/ping.c                       | 12 +++++++++++-
- net/ipv4/route.c                      |  1 +
- net/netlink/af_netlink.c              |  1 -
- net/smc/smc_rx.c                      |  4 ++--
- sound/soc/codecs/max98090.c           |  5 ++++-
- sound/soc/soc-ops.c                   | 18 +++++++++++++++++-
- 25 files changed, 95 insertions(+), 30 deletions(-)
 
 
