@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDA8528FF7
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0308529163
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:47:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347010AbiEPUFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
+        id S1346522AbiEPUEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348920AbiEPT7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1CE36B53;
-        Mon, 16 May 2022 12:52:53 -0700 (PDT)
+        with ESMTP id S1351065AbiEPUB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6765047545;
+        Mon, 16 May 2022 12:58:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEEDF60A50;
-        Mon, 16 May 2022 19:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B92C385AA;
-        Mon, 16 May 2022 19:52:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25C9AB81611;
+        Mon, 16 May 2022 19:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A0AC385AA;
+        Mon, 16 May 2022 19:57:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730772;
-        bh=4GxQ34/+ri7Qh6zlKXsr+5UTPU54ZBwlSGvG+PEYU6g=;
+        s=korg; t=1652731078;
+        bh=YzW8u20XqcllyETUghHYrsk3AT8VdfEGOpmwGCOwdKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmjGDpLWvbkypYEP6NojjKXF7hVuypjFUOyaBbdZ6PMqINNoiploo9NMbKZfMsohL
-         FBXj2Uc9aZVYikpiiVsLPitCd+FmiFC7dMdympbe7TZO7N68m9M+lyTcLpCOsIM58I
-         4v+cHBXJgHxy9IgJ64+1oZsRQpCTys5hqbc4tAtA=
+        b=So1n9EsPsa8SVDjaRfPwaiGFmgfA0RivJcja1JIQkIgTRwnFavPDxesklhg5GXOU/
+         y6krUhlo4tqdfyZhGnQtuEXxed6F4EODwlvCpC1kPiRZaAQN6+DAiFId0Bt81C+WBr
+         +QwODRLiXIGGdw+AY9/ExAT4YnVoik9WtR8OaERs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 096/102] Revert "drm/amd/pm: keep the BACO feature enabled for suspend"
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 5.17 096/114] drm/vmwgfx: Disable command buffers on svga3 without gbobjects
 Date:   Mon, 16 May 2022 21:37:10 +0200
-Message-Id: <20220516193626.757688026@linuxfoundation.org>
+Message-Id: <20220516193628.230842118@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,46 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit a56f445f807b0276fc0660c330bf93a9ea78e8ea upstream.
+commit 21d1d192890ced87f2f04f8f4dea92406e0b162a upstream.
 
-This reverts commit eaa090538e8d21801c6d5f94590c3799e6a528b5.
+With very limited vram on svga3 it's difficult to handle all the surface
+migrations. Without gbobjects, i.e. the ability to store surfaces in
+guest mobs, there's no reason to support intermediate svga2 features,
+especially because we can fall back to fb traces and svga3 will never
+support those in-between features.
 
-Commit ebc002e3ee78 ("drm/amdgpu: don't use BACO for reset in S3")
-stops using BACO for reset during suspend, so it's no longer
-necessary to leave BACO enabled during suspend.  This fixes
-resume from suspend on the navy flounder dGPU in the ASUS ROG
-Strix G513QY.
+On svga3 we wither want to use fb traces or screen targets
+(i.e. gbobjects), nothing in between. This fixes presentation on a lot
+of fusion/esxi tech previews where the exposed svga3 caps haven't been
+finalized yet.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2008
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1982
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
+Cc: <stable@vger.kernel.org> # v5.14+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-5-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
-@@ -1386,14 +1386,8 @@ static int smu_disable_dpms(struct smu_c
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+@@ -675,11 +675,14 @@ int vmw_cmd_emit_dummy_query(struct vmw_
+  */
+ bool vmw_cmd_supported(struct vmw_private *vmw)
  {
- 	struct amdgpu_device *adev = smu->adev;
- 	int ret = 0;
--	/*
--	 * TODO: (adev->in_suspend && !adev->in_s0ix) is added to pair
--	 * the workaround which always reset the asic in suspend.
--	 * It's likely that workaround will be dropped in the future.
--	 * Then the change here should be dropped together.
--	 */
- 	bool use_baco = !smu->is_apu &&
--		(((amdgpu_in_reset(adev) || (adev->in_suspend && !adev->in_s0ix)) &&
-+		((amdgpu_in_reset(adev) &&
- 		  (amdgpu_asic_reset_method(adev) == AMD_RESET_METHOD_BACO)) ||
- 		 ((adev->in_runpm || adev->in_s4) && amdgpu_asic_supports_baco(adev)));
- 
+-	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
+-				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
+-		return true;
++	bool has_cmdbufs =
++		(vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
++				      SVGA_CAP_CMD_BUFFERS_2)) != 0;
++	if (vmw_is_svga_v3(vmw))
++		return (has_cmdbufs &&
++			(vmw->capabilities & SVGA_CAP_GBOBJECTS) != 0);
+ 	/*
+ 	 * We have FIFO cmd's
+ 	 */
+-	return vmw->fifo_mem != NULL;
++	return has_cmdbufs || vmw->fifo_mem != NULL;
+ }
 
 
