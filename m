@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C399529129
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CA1C529183
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348386AbiEPUGd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:06:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
+        id S245604AbiEPUEH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348576AbiEPT6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2B63DA4D;
-        Mon, 16 May 2022 12:50:48 -0700 (PDT)
+        with ESMTP id S1348641AbiEPT6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:45 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C95E43AD9;
+        Mon, 16 May 2022 12:50:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E7E960ABE;
-        Mon, 16 May 2022 19:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72EADC34100;
-        Mon, 16 May 2022 19:50:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E610EB81615;
+        Mon, 16 May 2022 19:50:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E503C34100;
+        Mon, 16 May 2022 19:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730647;
-        bh=jpiRU41G7rib5KT8rX+ATDSBSQFLApOjYbiJIWyGoGA=;
+        s=korg; t=1652730650;
+        bh=4bf/UsuSgVW7vJNOHxwczts9LNMMkWBw0O6Z5qy8XRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FzBojgvKSlq6PdEqdqObIml/cSWWgbmMBhV47oM8/Jt+3Am2HBvVw+WWRcrSP214W
-         2dcdNlD5qXF5rfnjUlcL/k/lsEA7jQoKKIJICck1BtH8LeBm2CxNLepEnB875fC7NE
-         cpcBqSEV81gXxr9dryOHhy/7COj+bjsXA0jlm0zc=
+        b=rgdYBfa6pDoNV8sTyJ2dHy4k5r2QQj53qqOaUQdiRJnnVeibjlJEYyVLSq/mWbQJh
+         U47HiG7kftI0QI5VAo7lpqBaBlwGoBFh/MlC8uC96Ibyy0c3QqXM1auu0NYTPaHKv8
+         vMLfMa3+6oCaNWDnsEc+Rf8PWLWv7Sbj0ZUe7Icc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian-Ken Rueegsegger <ken@codelabs.ch>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oscar Salvador <osalvador@suse.de>,
-        David Hildenbrand <david@redhat.com>
-Subject: [PATCH 5.15 066/102] x86/mm: Fix marking of unused sub-pmd ranges
-Date:   Mon, 16 May 2022 21:36:40 +0200
-Message-Id: <20220516193625.892146402@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Baruch Siach <baruch@tkos.co.il>
+Subject: [PATCH 5.15 067/102] tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
+Date:   Mon, 16 May 2022 21:36:41 +0200
+Message-Id: <20220516193625.920760727@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
 References: <20220516193623.989270214@linuxfoundation.org>
@@ -55,48 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 280abe14b6e0a38de9cc86fe6a019523aadd8f70 upstream.
+commit 447ee1516f19f534a228dda237eddb202f23e163 upstream.
 
-The unused part precedes the new range spanned by the start, end parameters
-of vmemmap_use_new_sub_pmd(). This means it actually goes from
-ALIGN_DOWN(start, PMD_SIZE) up to start.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Use the correct address when applying the mark using memset.
-
-Fixes: 8d400913c231 ("x86/vmemmap: handle unpopulated sub-pmd ranges")
-Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220509090637.24152-2-ken@codelabs.ch
+Fixes: 5930cb3511df ("serial: driver for Conexant Digicolor USART")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Baruch Siach <baruch@tkos.co.il>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220505124621.1592697-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/mm/init_64.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/digicolor-usart.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/arch/x86/mm/init_64.c
-+++ b/arch/x86/mm/init_64.c
-@@ -902,6 +902,8 @@ static void __meminit vmemmap_use_sub_pm
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -471,11 +471,10 @@ static int digicolor_uart_probe(struct p
+ 	if (IS_ERR(uart_clk))
+ 		return PTR_ERR(uart_clk);
  
- static void __meminit vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
- {
-+	const unsigned long page = ALIGN_DOWN(start, PMD_SIZE);
-+
- 	vmemmap_flush_unused_pmd();
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dp->port.mapbase = res->start;
+-	dp->port.membase = devm_ioremap_resource(&pdev->dev, res);
++	dp->port.membase = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(dp->port.membase))
+ 		return PTR_ERR(dp->port.membase);
++	dp->port.mapbase = res->start;
  
- 	/*
-@@ -914,8 +916,7 @@ static void __meminit vmemmap_use_new_su
- 	 * Mark with PAGE_UNUSED the unused parts of the new memmap range
- 	 */
- 	if (!IS_ALIGNED(start, PMD_SIZE))
--		memset((void *)start, PAGE_UNUSED,
--			start - ALIGN_DOWN(start, PMD_SIZE));
-+		memset((void *)page, PAGE_UNUSED, start - page);
- 
- 	/*
- 	 * We want to avoid memset(PAGE_UNUSED) when populating the vmemmap of
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
 
 
