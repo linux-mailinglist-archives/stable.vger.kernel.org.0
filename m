@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B90528ED5
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3178F528E45
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239584AbiEPTtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:49:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38034 "EHLO
+        id S1345622AbiEPTkG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:40:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346286AbiEPTsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:48:35 -0400
+        with ESMTP id S1345752AbiEPTjb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:39:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AFD33FDB6;
-        Mon, 16 May 2022 12:44:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468E83FBEE;
+        Mon, 16 May 2022 12:39:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA106B81604;
-        Mon, 16 May 2022 19:44:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB8C5C385AA;
-        Mon, 16 May 2022 19:44:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61A2AB81610;
+        Mon, 16 May 2022 19:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16A9C385AA;
+        Mon, 16 May 2022 19:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730282;
-        bh=ChImXpjtgjpTtnXmQs8NpQ/onN5MXvDvL7xnp3VQaEU=;
+        s=korg; t=1652729941;
+        bh=onsbugrd8bb1fICUsu8CnS0ItXDgQ7J5sQXIVpNEADo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMrmwKnw8F1A64QjRJnShtd7h2rKvp2cOLyRZiXRsQD9TDtYEjYk3w8mczzn1gW9s
-         9871icy2hsUj+t7m0JfOh+9xS5/r2nicCg/Bvwf4M8qXCIrGebswuuEkrSODEg+8Ip
-         tt8wc7XMt0Qs9FCAYv+XOuJ2X/gRcKL14vsU3cys=
+        b=VeM/aL4kFEcnyPhnL+nQx3xc5WNkOik24yYV0wsWBJ4lt22dAZrOnhjIV8qxyLjUn
+         iMYZA0nclFOQ9QZoxyY17VhaWbw7HOwT26i3kI6x9mL7ny7bxmrop1ubbvU3iGfMS0
+         TWsS2+J+6VRidSApjbrl5KXE1ocQ2hO0PrtAwm3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Felix Kaechele <felix@kaechele.ca>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/66] mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+Subject: [PATCH 4.14 01/25] batman-adv: Dont skb_split skbuffs with frag_list
 Date:   Mon, 16 May 2022 21:36:15 +0200
-Message-Id: <20220516193619.858719313@linuxfoundation.org>
+Message-Id: <20220516193614.726321509@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,50 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-[ Upstream commit 9e2db50f1ef2238fc2f71c5de1c0418b7a5b0ea2 ]
+[ Upstream commit a063f2fba3fa633a599253b62561051ac185fa99 ]
 
-This is needed since it might use (and pass out) pointers to
-e.g. keys protected by RCU. Can't really happen here as the
-frames aren't encrypted, but we need to still adhere to the
-rules.
+The receiving interface might have used GRO to receive more fragments than
+MAX_SKB_FRAGS fragments. In this case, these will not be stored in
+skb_shinfo(skb)->frags but merged into the frag list.
 
-Fixes: cacfddf82baf ("mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220505230421.5f139f9de173.I77ae111a28f7c0e9fd1ebcee7f39dbec5c606770@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+batman-adv relies on the function skb_split to split packets up into
+multiple smaller packets which are not larger than the MTU on the outgoing
+interface. But this function cannot handle frag_list entries and is only
+operating on skb_shinfo(skb)->frags. If it is still trying to split such an
+skb and xmit'ing it on an interface without support for NETIF_F_FRAGLIST,
+then validate_xmit_skb() will try to linearize it. But this fails due to
+inconsistent information. And __pskb_pull_tail will trigger a BUG_ON after
+skb_copy_bits() returns an error.
+
+In case of entries in frag_list, just linearize the skb before operating on
+it with skb_split().
+
+Reported-by: Felix Kaechele <felix@kaechele.ca>
+Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Tested-by: Felix Kaechele <felix@kaechele.ca>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/batman-adv/fragmentation.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index cc550ba0c9df..afd2d5add04b 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2264,11 +2264,13 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
- 
-+			rcu_read_lock();
- 			if (!ieee80211_tx_prepare_skb(hwsim->hw,
- 						      hwsim->hw_scan_vif,
- 						      probe,
- 						      hwsim->tmp_chan->band,
- 						      NULL)) {
-+				rcu_read_unlock();
- 				kfree_skb(probe);
- 				continue;
- 			}
-@@ -2276,6 +2278,7 @@ static void hw_scan_work(struct work_struct *work)
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
-+			rcu_read_unlock();
- 			local_bh_enable();
- 		}
+diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
+index 4842436c55f3..a50c87329bc5 100644
+--- a/net/batman-adv/fragmentation.c
++++ b/net/batman-adv/fragmentation.c
+@@ -489,6 +489,17 @@ int batadv_frag_send_packet(struct sk_buff *skb,
+ 		goto free_skb;
  	}
+ 
++	/* GRO might have added fragments to the fragment list instead of
++	 * frags[]. But this is not handled by skb_split and must be
++	 * linearized to avoid incorrect length information after all
++	 * batman-adv fragments were created and submitted to the
++	 * hard-interface
++	 */
++	if (skb_has_frag_list(skb) && __skb_linearize(skb)) {
++		ret = -ENOMEM;
++		goto free_skb;
++	}
++
+ 	/* Create one header to be copied to all fragments */
+ 	frag_header.packet_type = BATADV_UNICAST_FRAG;
+ 	frag_header.version = BATADV_COMPAT_VERSION;
 -- 
 2.35.1
 
