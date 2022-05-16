@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1179528E54
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A6E6528E76
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345832AbiEPTm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:42:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43090 "EHLO
+        id S1345744AbiEPTnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345965AbiEPTlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8D0B3FBFE;
-        Mon, 16 May 2022 12:39:57 -0700 (PDT)
+        with ESMTP id S1346122AbiEPTmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745CB3F33E;
+        Mon, 16 May 2022 12:41:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79600B81609;
-        Mon, 16 May 2022 19:39:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5EF2C385AA;
-        Mon, 16 May 2022 19:39:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31EF0B81609;
+        Mon, 16 May 2022 19:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9749CC385AA;
+        Mon, 16 May 2022 19:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729995;
-        bh=VR2NdeGIoN7GonqQz+a24puCz48aAXmEH6UzNVfIOGg=;
+        s=korg; t=1652730104;
+        bh=Gs7zTigMbejbkif/WpqyWfLM3DCXUN+nnVx5kMg95fE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6Lnyc+i7OYVKz705C7BAXqulXXQwvtVDnRAbPTUx5bsIaONEo3meY75PZBnvS6dD
-         cBdTlcV4UhaJIW67GNlwy95mI9ZuxjAAufakdCsf6lHyK/G7Rz6wGnoiAjRsS4deK2
-         GWv8a6oZgrrP/2Vek4s3uj07VHciuWKN0ISdy01w=
+        b=OBP39nMTHeYkFw2ZnEc/KXnLrg4d2UoG+1zM1aY+cBKuMKRi/vrMo5i7rWsBuMsPI
+         pKQHUK/wu/OHB0OcNwlI4hFG/02JwxAI2+OoryVrxSbG1T0U6PeXjyy4cxCSQsJ2jO
+         yzneQim1OmCe+oMYv2fLHg/iLS+/qKNIXWnoI7OQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Martin Krastev <krastevm@vmware.com>,
-        Maaz Mombasawala <mombasawalam@vmware.com>
-Subject: [PATCH 4.14 23/25] drm/vmwgfx: Initialize drm_mode_fb_cmd2
+        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 23/32] USB: serial: pl2303: add device id for HP LM930 Display
 Date:   Mon, 16 May 2022 21:36:37 +0200
-Message-Id: <20220516193615.384517538@linuxfoundation.org>
+Message-Id: <20220516193615.461996309@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
-References: <20220516193614.678319286@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Scott Chen <scott@labau.com.tw>
 
-commit 3059d9b9f6aa433a55b9d0d21b566396d5497c33 upstream.
+commit 26a08f8bad3e1f98d3153f939fb8cd330da4cb26 upstream.
 
-Transition to drm_mode_fb_cmd2 from drm_mode_fb_cmd left the structure
-unitialized. drm_mode_fb_cmd2 adds a few additional members, e.g. flags
-and modifiers which were never initialized. Garbage in those members
-can cause random failures during the bringup of the fbcon.
+Add the device id for the HPLM930Display which is a PL2303GC based
+device.
 
-Initializing the structure fixes random blank screens after bootup due
-to flags/modifiers mismatches during the fbcon bring up.
-
-Fixes: dabdcdc9822a ("drm/vmwgfx: Switch to mode_cmd2")
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Cc: Daniel Vetter <daniel.vetter@intel.com>
-Cc: <stable@vger.kernel.org> # v4.10+
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220302152426.885214-7-zack@kde.org
+Signed-off-by: Scott Chen <scott@labau.com.tw>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_fb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
-@@ -522,7 +522,7 @@ static int vmw_fb_kms_detach(struct vmw_
- 
- static int vmw_fb_kms_framebuffer(struct fb_info *info)
- {
--	struct drm_mode_fb_cmd2 mode_cmd;
-+	struct drm_mode_fb_cmd2 mode_cmd = {0};
- 	struct vmw_fb_par *par = info->par;
- 	struct fb_var_screeninfo *var = &info->var;
- 	struct drm_framebuffer *cur_fb;
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -100,6 +100,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM960_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM920_PRODUCT_ID) },
++	{ USB_DEVICE(HP_VENDOR_ID, HP_LM930_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM940_PRODUCT_ID) },
+ 	{ USB_DEVICE(HP_VENDOR_ID, HP_TD620_PRODUCT_ID) },
+ 	{ USB_DEVICE(CRESSI_VENDOR_ID, CRESSI_EDY_PRODUCT_ID) },
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -129,6 +129,7 @@
+ #define HP_TD620_PRODUCT_ID	0x0956
+ #define HP_LD960_PRODUCT_ID	0x0b39
+ #define HP_LD381_PRODUCT_ID	0x0f7f
++#define HP_LM930_PRODUCT_ID	0x0f9b
+ #define HP_LCM220_PRODUCT_ID	0x3139
+ #define HP_LCM960_PRODUCT_ID	0x3239
+ #define HP_LD220_PRODUCT_ID	0x3524
 
 
