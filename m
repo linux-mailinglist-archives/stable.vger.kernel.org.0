@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 426D952917E
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8309A529052
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238104AbiEPUJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:09:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55938 "EHLO
+        id S1347593AbiEPUGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350830AbiEPUBm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8184B1F2;
-        Mon, 16 May 2022 12:55:54 -0700 (PDT)
+        with ESMTP id S243872AbiEPT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BC0317ABF;
+        Mon, 16 May 2022 12:52:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCAD960A1C;
-        Mon, 16 May 2022 19:55:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D44F3C385AA;
-        Mon, 16 May 2022 19:55:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB3D360AB8;
+        Mon, 16 May 2022 19:52:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAFB4C385AA;
+        Mon, 16 May 2022 19:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730952;
-        bh=yH5M1c0ldN5R+FkK/zu3biDlTtfEvvdoiBULCRmiLhA=;
+        s=korg; t=1652730756;
+        bh=LRaJJ6rm2rTcuj00VtV0cAzxzyTuSvN9jZkm2Xc9noo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cs//EgUGpWkkZEFkKJ4D2LZGqfsQTRAqSmv+HD1/TNjZfHK06RxagdL2r52CLgXiD
-         F94N3FqMXGbYhfP5hBryILFfEYhShqwiTSIO55b0izEzYAgdrI8M9xa3LzOp1Gqctg
-         diLF9TOQN5MXR1T0sAFFPTgwsoQO1JdAQUvyGg8c=
+        b=plPSUCBMjRjo5E7DA4rIZgH2N4ObuSsgWMNoLgAq3Z0B/StZUh6R0csq04IXhbgdN
+         Ar76nYCOogh836zGFfLhdxQ6L6PVnodNhK2nR+lbSh3ciA8nB/vWWneGmJV7njau+b
+         fgeB0xw4oCsnFey1dXwOJusyDuhjkiLEd9TXSTKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 058/114] io_uring: assign non-fixed early for async work
+Subject: [PATCH 5.15 058/102] tcp: add small random increments to the source port
 Date:   Mon, 16 May 2022 21:36:32 +0200
-Message-Id: <20220516193627.160256625@linuxfoundation.org>
+Message-Id: <20220516193625.662549345@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit a196c78b5443fc61af2c0490213b9d125482cbd1 ]
+[ Upstream commit ca7af0402550f9a0b3316d5f1c30904e42ed257d ]
 
-We defer file assignment to ensure that fixed files work with links
-between a direct accept/open and the links that follow it. But this has
-the side effect that normal file assignment is then not complete by the
-time that request submission has been done.
+Here we're randomly adding between 0 and 7 random increments to the
+selected source port in order to add some noise in the source port
+selection that will make the next port less predictable.
 
-For deferred execution, if the file is a regular file, assign it when
-we do the async prep anyway.
+With the default port range of 32768-60999 this means a worst case
+reuse scenario of 14116/8=1764 connections between two consecutive
+uses of the same port, with an average of 14116/4.5=3137. This code
+was stressed at more than 800000 connections per second to a fixed
+target with all connections closed by the client using RSTs (worst
+condition) and only 2 connections failed among 13 billion, despite
+the hash being reseeded every 10 seconds, indicating a perfectly
+safe situation.
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 87df37912055..a0680046ff3c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6572,7 +6572,12 @@ static int io_req_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 81a33af8393d..573a7e66ebc8 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -833,11 +833,12 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	return -EADDRNOTAVAIL;
  
- static int io_req_prep_async(struct io_kiocb *req)
- {
--	if (!io_op_defs[req->opcode].needs_async_setup)
-+	const struct io_op_def *def = &io_op_defs[req->opcode];
-+
-+	/* assign early for deferred execution for non-fixed file */
-+	if (def->needs_file && !(req->flags & REQ_F_FIXED_FILE))
-+		req->file = io_file_get_normal(req, req->fd);
-+	if (!def->needs_async_setup)
- 		return 0;
- 	if (WARN_ON_ONCE(req_has_async_data(req)))
- 		return -EFAULT;
+ ok:
+-	/* If our first attempt found a candidate, skip next candidate
+-	 * in 1/16 of cases to add some noise.
++	/* Here we want to add a little bit of randomness to the next source
++	 * port that will be chosen. We use a max() with a random here so that
++	 * on low contention the randomness is maximal and on high contention
++	 * it may be inexistent.
+ 	 */
+-	if (!i && !(prandom_u32() % 16))
+-		i = 2;
++	i = max_t(int, i, (prandom_u32() & 7) * 2);
+ 	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+ 
+ 	/* Head lock still held and bh's disabled */
 -- 
 2.35.1
 
