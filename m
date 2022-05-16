@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B62528F44
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E340528F0E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239455AbiEPTxc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
+        id S1345943AbiEPTnk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346952AbiEPTvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94A54093E;
-        Mon, 16 May 2022 12:46:08 -0700 (PDT)
+        with ESMTP id S231874AbiEPTmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CB353FBC2;
+        Mon, 16 May 2022 12:42:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 781C161557;
-        Mon, 16 May 2022 19:46:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A77C385AA;
-        Mon, 16 May 2022 19:46:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF84F61510;
+        Mon, 16 May 2022 19:42:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDBA9C36AF6;
+        Mon, 16 May 2022 19:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730367;
-        bh=nHCPrEtDuSjJ96w8i2Zd8GckMSt702jjQBW4XUFJnXU=;
+        s=korg; t=1652730125;
+        bh=KhyYJBe1zq4w8/BrBLLGT3YQik0FWXZFDkLKsh4CQ9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLrgSttN59L/KEhQ1z20gwo1CkI3Sx+9PUMNeIKH9B0njzMHCg+O5sXvksFwvLlhp
-         XfEguy/RDiHYVZTvI3uR0Df7Qic8Z+CWnDOU3Zyr+k9s/fwvkMBTwjGycd/TiMx8a0
-         c+dCg5TUmfUlWWQRd4PQyKQNW7xQ7jhgp21SB6oU=
+        b=CQGXfjVM6y0FP5HQT3daGP+BEGaTnYQgePGKboFDrTJlGFhixMkn2K7/Nv63IArRi
+         wQWFzkY8veaGKtm+CzbzSb2H1PcQLrwWaiQ4W6ClQVCpGU5BTZ5BoQPfwIzQztp8ue
+         +F9b0p1/f0u7/Ow8RKQqv9pff/yyGhh37tkvxF9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        ChiYuan Huang <cy_huang@richtek.com>,
-        Fabien Parent <fparent@baylibre.com>
-Subject: [PATCH 5.10 44/66] usb: typec: tcpci_mt6360: Update for BMC PHY setting
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 30/32] MIPS: fix allmodconfig build with latest mkimage
 Date:   Mon, 16 May 2022 21:36:44 +0200
-Message-Id: <20220516193620.687545703@linuxfoundation.org>
+Message-Id: <20220516193615.666983839@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,106 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-commit 4031cd95cba70c72e4cadc2d46624bcd31e5a6c0 upstream.
+With the latest mkimage from U-Boot 2021.04+ the allmodconfig build
+fails. 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit
+addresses") was applied for similar build failure, but it was not
+applied to 'arch/mips/generic/board-ocelot_pcb123.its.S' as that was
+removed from upstream when the patch was applied.
 
-Update MT6360 BMC PHY Tx/Rx setting for the compatibility.
-
-Macpaul reported this CtoDP cable attention message cannot be received from
-MT6360 TCPC. But actually, attention message really sent from UFP_D
-device.
-
-After RD's comment, there may be BMC PHY Tx/Rx setting causes this issue.
-
-Below's the detailed TCPM log and DP attention message didn't received from 6360
-TCPCI.
-[ 1206.367775] Identity: 0000:0000.0000
-[ 1206.416570] Alternate mode 0: SVID 0xff01, VDO 1: 0x00000405
-[ 1206.447378] AMS DFP_TO_UFP_ENTER_MODE start
-[ 1206.447383] PD TX, header: 0x1d6f
-[ 1206.449393] PD TX complete, status: 0
-[ 1206.454110] PD RX, header: 0x184f [1]
-[ 1206.456867] Rx VDM cmd 0xff018144 type 1 cmd 4 len 1
-[ 1206.456872] AMS DFP_TO_UFP_ENTER_MODE finished
-[ 1206.456873] cc:=4
-[ 1206.473100] AMS STRUCTURED_VDMS start
-[ 1206.473103] PD TX, header: 0x2f6f
-[ 1206.475397] PD TX complete, status: 0
-[ 1206.480442] PD RX, header: 0x2a4f [1]
-[ 1206.483145] Rx VDM cmd 0xff018150 type 1 cmd 16 len 2
-[ 1206.483150] AMS STRUCTURED_VDMS finished
-[ 1206.483151] cc:=4
-[ 1206.505643] AMS STRUCTURED_VDMS start
-[ 1206.505646] PD TX, header: 0x216f
-[ 1206.507933] PD TX complete, status: 0
-[ 1206.512664] PD RX, header: 0x1c4f [1]
-[ 1206.515456] Rx VDM cmd 0xff018151 type 1 cmd 17 len 1
-[ 1206.515460] AMS STRUCTURED_VDMS finished
-[ 1206.515461] cc:=4
-
-Fixes: e1aefcdd394fd ("usb typec: mt6360: Add support for mt6360 Type-C driver")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Link: https://lore.kernel.org/r/1652159580-30959-1-git-send-email-u0084500@gmail.com
+Fixes: 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit addresses")
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci_mt6360.c |   26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ arch/mips/generic/board-ocelot_pcb123.its.S |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpci_mt6360.c
-+++ b/drivers/usb/typec/tcpm/tcpci_mt6360.c
-@@ -15,6 +15,9 @@
+--- a/arch/mips/generic/board-ocelot_pcb123.its.S
++++ b/arch/mips/generic/board-ocelot_pcb123.its.S
+@@ -1,23 +1,23 @@
+ /* SPDX-License-Identifier: (GPL-2.0 OR MIT) */
+ / {
+ 	images {
+-		fdt@ocelot_pcb123 {
++		fdt-ocelot_pcb123 {
+ 			description = "MSCC Ocelot PCB123 Device Tree";
+ 			data = /incbin/("boot/dts/mscc/ocelot_pcb123.dtb");
+ 			type = "flat_dt";
+ 			arch = "mips";
+ 			compression = "none";
+-			hash@0 {
++			hash {
+ 				algo = "sha1";
+ 			};
+ 		};
+ 	};
  
- #include "tcpci.h"
- 
-+#define MT6360_REG_PHYCTRL1	0x80
-+#define MT6360_REG_PHYCTRL3	0x82
-+#define MT6360_REG_PHYCTRL7	0x86
- #define MT6360_REG_VCONNCTRL1	0x8C
- #define MT6360_REG_MODECTRL2	0x8F
- #define MT6360_REG_SWRESET	0xA0
-@@ -22,6 +25,8 @@
- #define MT6360_REG_DRPCTRL1	0xA2
- #define MT6360_REG_DRPCTRL2	0xA3
- #define MT6360_REG_I2CTORST	0xBF
-+#define MT6360_REG_PHYCTRL11	0xCA
-+#define MT6360_REG_RXCTRL1	0xCE
- #define MT6360_REG_RXCTRL2	0xCF
- #define MT6360_REG_CTDCTRL2	0xEC
- 
-@@ -106,6 +111,27 @@ static int mt6360_tcpc_init(struct tcpci
- 	if (ret)
- 		return ret;
- 
-+	/* BMC PHY */
-+	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL1, 0x3A70);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(regmap, MT6360_REG_PHYCTRL3,  0x82);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(regmap, MT6360_REG_PHYCTRL7, 0x36);
-+	if (ret)
-+		return ret;
-+
-+	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL11, 0x3C60);
-+	if (ret)
-+		return ret;
-+
-+	ret = regmap_write(regmap, MT6360_REG_RXCTRL1, 0xE8);
-+	if (ret)
-+		return ret;
-+
- 	/* Set shipping mode off, AUTOIDLE on */
- 	return regmap_write(regmap, MT6360_REG_MODECTRL2, 0x7A);
- }
+ 	configurations {
+-		conf@ocelot_pcb123 {
++		conf-ocelot_pcb123 {
+ 			description = "Ocelot Linux kernel";
+-			kernel = "kernel@0";
+-			fdt = "fdt@ocelot_pcb123";
++			kernel = "kernel";
++			fdt = "fdt-ocelot_pcb123";
+ 		};
+ 	};
+ };
 
 
