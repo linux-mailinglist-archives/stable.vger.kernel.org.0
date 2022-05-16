@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D732528E37
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4F85528E56
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241232AbiEPTjq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:39:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44138 "EHLO
+        id S1345944AbiEPTnA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345686AbiEPTjS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:39:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B13043F318;
-        Mon, 16 May 2022 12:38:49 -0700 (PDT)
+        with ESMTP id S1346201AbiEPTlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D45883FDBB;
+        Mon, 16 May 2022 12:40:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AE00B81612;
-        Mon, 16 May 2022 19:38:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 457D5C385AA;
-        Mon, 16 May 2022 19:38:46 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 360EACE176C;
+        Mon, 16 May 2022 19:40:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A79C34100;
+        Mon, 16 May 2022 19:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729927;
-        bh=j7ZooHmaClS9S4qOtKsehZJ8Qvk3HAQOrkyyAM1/SXs=;
+        s=korg; t=1652730017;
+        bh=PzICwLjlQo99NgdyMEC1XtS6+gYXW+gJUuLaUJcbn10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kftfilW+kFtkEhVSQSlrETk9o+l28U8SkgKfRfFTx/FgDowSwahs7OHGfqPfZfvJg
-         VqXFQbmX0cpeHLb696/ytjT7bsDPQ2lqtMOxHgCgBNKK2lzL8ZmE35o0wl6GSWaWEb
-         s+y40dONCynsD3BYMuLbe3JGbYke/Su4tCejE0Lo=
+        b=1G0ExOcwz7ofd0Z6TGYaLh+CP+GV2u/Iq2YxJJ66UBBPECXBxAHPFOXgBw0ajjRRD
+         auzFil85ly6+GY7u2fKNmEFqoVizB+xj4NtsfExvRdIIO0Q3CV6ut228onta20qjld
+         +KTIi9qA57TluUDwVREx+069MWCZs+MFevYHpXPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
-        Taehee Yoo <ap420073@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
+        Alexandra Winter <wintera@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 08/19] net: sfc: ef10: fix memory leak in efx_ef10_mtd_probe()
+Subject: [PATCH 4.14 07/25] s390/ctcm: fix variable dereferenced before check
 Date:   Mon, 16 May 2022 21:36:21 +0200
-Message-Id: <20220516193613.747790647@linuxfoundation.org>
+Message-Id: <20220516193614.906869440@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
-References: <20220516193613.497233635@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 1fa89ffbc04545b7582518e57f4b63e2a062870f ]
+[ Upstream commit 2c50c6867c85afee6f2b3bcbc50fc9d0083d1343 ]
 
-In the NIC ->probe() callback, ->mtd_probe() callback is called.
-If NIC has 2 ports, ->probe() is called twice and ->mtd_probe() too.
-In the ->mtd_probe(), which is efx_ef10_mtd_probe() it allocates and
-initializes mtd partiion.
-But mtd partition for sfc is shared data.
-So that allocated mtd partition data from last called
-efx_ef10_mtd_probe() will not be used.
-Therefore it must be freed.
-But it doesn't free a not used mtd partition data in efx_ef10_mtd_probe().
+Found by cppcheck and smatch.
+smatch complains about
+drivers/s390/net/ctcm_sysfs.c:43 ctcm_buffer_write() warn: variable dereferenced before check 'priv' (see line 42)
 
-kmemleak reports:
-unreferenced object 0xffff88811ddb0000 (size 63168):
-  comm "systemd-udevd", pid 265, jiffies 4294681048 (age 348.586s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffffa3767749>] kmalloc_order_trace+0x19/0x120
-    [<ffffffffa3873f0e>] __kmalloc+0x20e/0x250
-    [<ffffffffc041389f>] efx_ef10_mtd_probe+0x11f/0x270 [sfc]
-    [<ffffffffc0484c8a>] efx_pci_probe.cold.17+0x3df/0x53d [sfc]
-    [<ffffffffa414192c>] local_pci_probe+0xdc/0x170
-    [<ffffffffa4145df5>] pci_device_probe+0x235/0x680
-    [<ffffffffa443dd52>] really_probe+0x1c2/0x8f0
-    [<ffffffffa443e72b>] __driver_probe_device+0x2ab/0x460
-    [<ffffffffa443e92a>] driver_probe_device+0x4a/0x120
-    [<ffffffffa443f2ae>] __driver_attach+0x16e/0x320
-    [<ffffffffa4437a90>] bus_for_each_dev+0x110/0x190
-    [<ffffffffa443b75e>] bus_add_driver+0x39e/0x560
-    [<ffffffffa4440b1e>] driver_register+0x18e/0x310
-    [<ffffffffc02e2055>] 0xffffffffc02e2055
-    [<ffffffffa3001af3>] do_one_initcall+0xc3/0x450
-    [<ffffffffa33ca574>] do_init_module+0x1b4/0x700
-
-Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
-Fixes: 8127d661e77f ("sfc: Add support for Solarflare SFC9100 family")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Link: https://lore.kernel.org/r/20220512054709.12513-1-ap420073@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 3c09e2647b5e ("ctcm: rename READ/WRITE defines to avoid redefinitions")
+Reported-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sfc/ef10.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/s390/net/ctcm_sysfs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
-index 22bc3dc44298..aa2cef8675f4 100644
---- a/drivers/net/ethernet/sfc/ef10.c
-+++ b/drivers/net/ethernet/sfc/ef10.c
-@@ -5197,6 +5197,11 @@ static int efx_ef10_mtd_probe(struct efx_nic *efx)
- 		n_parts++;
- 	}
+diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
+index ded1930a00b2..e3813a7aa5e6 100644
+--- a/drivers/s390/net/ctcm_sysfs.c
++++ b/drivers/s390/net/ctcm_sysfs.c
+@@ -39,11 +39,12 @@ static ssize_t ctcm_buffer_write(struct device *dev,
+ 	struct ctcm_priv *priv = dev_get_drvdata(dev);
+ 	int rc;
  
-+	if (!n_parts) {
-+		kfree(parts);
-+		return 0;
-+	}
-+
- 	rc = efx_mtd_add(efx, &parts[0].common, n_parts, sizeof(*parts));
- fail:
+-	ndev = priv->channel[CTCM_READ]->netdev;
+-	if (!(priv && priv->channel[CTCM_READ] && ndev)) {
++	if (!(priv && priv->channel[CTCM_READ] &&
++	      priv->channel[CTCM_READ]->netdev)) {
+ 		CTCM_DBF_TEXT(SETUP, CTC_DBF_ERROR, "bfnondev");
+ 		return -ENODEV;
+ 	}
++	ndev = priv->channel[CTCM_READ]->netdev;
+ 
+ 	rc = kstrtouint(buf, 0, &bs1);
  	if (rc)
 -- 
 2.35.1
