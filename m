@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07698527F36
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:07:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBEC527F37
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:07:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239164AbiEPIHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:07:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35978 "EHLO
+        id S238331AbiEPIH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241375AbiEPIHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:07:21 -0400
+        with ESMTP id S241501AbiEPIH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:07:27 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE0C326DA
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:07:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFAC326DC
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:07:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B60C611B4
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:07:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43053C385B8;
-        Mon, 16 May 2022 08:07:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCEE6611B4
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3DCAC34113;
+        Mon, 16 May 2022 08:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652688439;
-        bh=Tj+tdJsYgMkloGncBfnISbIZV8A6dM6d7bfEjRkoE/Y=;
+        s=korg; t=1652688445;
+        bh=mlhf3Qy+yMoRaYuxS46uN9R62dRia2rS9Mhedui+XAQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=EhRSVTUaA7NoKDsfaIBHwrMHf7XZH/u9XvlXF+iFWJ8/MokLDoKoBqGMJdPfDfMsh
-         sod1y84Za8LV3+njru7M77V7K61n5NFqfhT4nxjKrqdolB5cVwO44UXPCjV3z5TiTy
-         huk666BTvKXjxy79iR7N0D9GhHLA1n3pYOmLLLF4=
-Subject: FAILED: patch "[PATCH] fsl_lpuart: Don't enable interrupts too early" failed to apply to 5.4-stable tree
+        b=QhAICBw4F16yUcj2qBptDegCbklfkrdTR3hRWikRLlt1dnmzdAWxVI+qMR+BOyDR8
+         5sfgRttB/gGZrnpkNGSUQyVnV7Bw2tn4Q8YF62A7lWv3grXgFkaNnR0sv2BBn7EAr9
+         YHvH6rhogkzRfvL5NZb4SqKFWhGNQoXqlS5SSZPs=
+Subject: FAILED: patch "[PATCH] fsl_lpuart: Don't enable interrupts too early" failed to apply to 4.19-stable tree
 To:     Indan.Zupancic@mep-info.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 16 May 2022 10:07:09 +0200
-Message-ID: <16526884292960@kroah.com>
+Message-ID: <16526884294558@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
