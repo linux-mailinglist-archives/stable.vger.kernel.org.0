@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD775528EF9
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56B0528E75
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245440AbiEPTrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38094 "EHLO
+        id S239562AbiEPTng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346679AbiEPTqk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 046F43FD9D;
-        Mon, 16 May 2022 12:44:01 -0700 (PDT)
+        with ESMTP id S1346136AbiEPTmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD643F89E;
+        Mon, 16 May 2022 12:41:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9099261510;
-        Mon, 16 May 2022 19:44:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CBAAC36AEA;
-        Mon, 16 May 2022 19:43:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46D7FB8160F;
+        Mon, 16 May 2022 19:41:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A8FC385AA;
+        Mon, 16 May 2022 19:41:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730240;
-        bh=WTHpzwtAqaG4p8ZDiFKFtwWmjszYiarCrdkZOWf9M6Q=;
+        s=korg; t=1652730107;
+        bh=gAF9QkJ8n4r0KvHDf7oKdqFvbg1AdydfWIN71I3LAy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gXdGPQp6iJqY61TRtNwx0PMpIpJOsNvZ0aUOUQOS0zDyznQ18xI+q2P8+USdFqGBP
-         hebxIGHuP23iNP3Pt5gIOqloasfrxFoD2zsFKDFQm5sZqcfmHRNZpeJy8YAiYgr+8L
-         K4qxrYh8x4s4JPRuKQhvW0o1nlF2mUkU6N4hGnlw=
+        b=AjEm5k7y2nfwwNpffsL4ww7bhA8ja52a/GkoyeSMzssdpLql2iXUxWbmhEA+mX2tt
+         6zhueFxQe8mAJSOoYspmk8ZqUnBZocPDxFxJZdkEqHCjHZY2+QI8JL1dPND+PZl7k6
+         UhA3YiS121I1Cj79fCVP61tR2OG8kce5yjaa4ENk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.4 27/43] usb: typec: tcpci: Dont skip cleanup in .remove() on error
+        stable@vger.kernel.org, Ethan Yang <etyang@sierrawireless.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 24/32] USB: serial: qcserial: add support for Sierra Wireless EM7590
 Date:   Mon, 16 May 2022 21:36:38 +0200
-Message-Id: <20220516193615.521087046@linuxfoundation.org>
+Message-Id: <20220516193615.491311549@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Ethan Yang <etyang@sierrawireless.com>
 
-commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
+commit 870b1eee2d844727b06e238c121d260bc5645580 upstream.
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+Add support for Sierra Wireless EM7590 0xc080/0xc081 compositions.
 
-In this case the remove callback even returns early without stopping the
-tcpm worker thread and various timers. A work scheduled on the work
-queue, or a firing timer after tcpci_remove() returned probably results
-in a use-after-free situation because the regmap and driver data were
-freed. So better make sure that tcpci_unregister_port() is called even
-if disabling the irq failed.
-
-Also emit a more specific error message instead of the i2c core's
-"remove failed (EIO), will be ignored" and return 0 to suppress the
-core's warning.
-
-This patch is (also) a preparation for making i2c remove callbacks
-return void.
-
-Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Ethan Yang <etyang@sierrawireless.com>
+Link: https://lore.kernel.org/r/20220425055840.5693-1-etyang@sierrawireless.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/qcserial.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -611,7 +611,7 @@ static int tcpci_remove(struct i2c_clien
- 	/* Disable chip interrupts before unregistering port */
- 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
- 
- 	tcpci_unregister_port(chip->tcpci);
- 
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -166,6 +166,8 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
+ 	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
++	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 QDL */
++	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 
 
