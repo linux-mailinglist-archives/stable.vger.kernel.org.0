@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03660528E84
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6FA528E4E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233051AbiEPTri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35606 "EHLO
+        id S1346194AbiEPTmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:42:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346712AbiEPTqn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:43 -0400
+        with ESMTP id S1346029AbiEPTlH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C03B41F81;
-        Mon, 16 May 2022 12:44:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 278CE4090D;
+        Mon, 16 May 2022 12:40:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BD026154E;
-        Mon, 16 May 2022 19:44:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92EFDC385AA;
-        Mon, 16 May 2022 19:44:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C26461518;
+        Mon, 16 May 2022 19:40:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2E4C385AA;
+        Mon, 16 May 2022 19:40:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730243;
-        bh=Gs7zTigMbejbkif/WpqyWfLM3DCXUN+nnVx5kMg95fE=;
+        s=korg; t=1652730001;
+        bh=GBJycO0GzsXOGdGm5vf9yrqqz6WbzwA5lCfxBqcbT64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5nf9zz2fLdJLGbMaDlt0Fo6SWW8zLqDTWrih18IHSZY8Btvhc2SzZ4pMuEX5wJvs
-         uEhSyn89OmcuGVwF7n4Vt6e7R0Ws+/F5P/JyTubD1ijDkbdj9ZIv1KysebLAfsc7GR
-         J13N88rGrKH/lPQ10bdued1ZKc0cM8W2PDnz3BOc=
+        b=GxiB6EkWS2os6ewKhbgubdAjFfM1XOswOHH/R4RS+foOeM+VxhUUzGeVr1+i3xlR7
+         5ZsGV9AzAeR7VVoMzQ2gX9XjwnRFylUOLaZ6AJAguP+OBWBtBzwPr76D+J+tb+njb/
+         txBc2UZterJfgp8EbdkCExYiIcJLv+d56F9vgd74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 28/43] USB: serial: pl2303: add device id for HP LM930 Display
+        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        Baruch Siach <baruch@tkos.co.il>
+Subject: [PATCH 4.14 25/25] tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
 Date:   Mon, 16 May 2022 21:36:39 +0200
-Message-Id: <20220516193615.549562512@linuxfoundation.org>
+Message-Id: <20220516193615.444060880@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Chen <scott@labau.com.tw>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 26a08f8bad3e1f98d3153f939fb8cd330da4cb26 upstream.
+commit 447ee1516f19f534a228dda237eddb202f23e163 upstream.
 
-Add the device id for the HPLM930Display which is a PL2303GC based
-device.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Signed-off-by: Scott Chen <scott@labau.com.tw>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 5930cb3511df ("serial: driver for Conexant Digicolor USART")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Baruch Siach <baruch@tkos.co.il>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220505124621.1592697-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/tty/serial/digicolor-usart.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -100,6 +100,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM960_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM920_PRODUCT_ID) },
-+	{ USB_DEVICE(HP_VENDOR_ID, HP_LM930_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM940_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_TD620_PRODUCT_ID) },
- 	{ USB_DEVICE(CRESSI_VENDOR_ID, CRESSI_EDY_PRODUCT_ID) },
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -129,6 +129,7 @@
- #define HP_TD620_PRODUCT_ID	0x0956
- #define HP_LD960_PRODUCT_ID	0x0b39
- #define HP_LD381_PRODUCT_ID	0x0f7f
-+#define HP_LM930_PRODUCT_ID	0x0f9b
- #define HP_LCM220_PRODUCT_ID	0x3139
- #define HP_LCM960_PRODUCT_ID	0x3239
- #define HP_LD220_PRODUCT_ID	0x3524
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -476,10 +476,10 @@ static int digicolor_uart_probe(struct p
+ 		return PTR_ERR(uart_clk);
+ 
+ 	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dp->port.mapbase = res->start;
+ 	dp->port.membase = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(dp->port.membase))
+ 		return PTR_ERR(dp->port.membase);
++	dp->port.mapbase = res->start;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
 
 
