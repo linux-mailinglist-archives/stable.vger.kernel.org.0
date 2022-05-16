@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 113F852845E
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 14:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2F8528463
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 14:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230428AbiEPMmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 08:42:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
+        id S231736AbiEPMnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 08:43:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231545AbiEPMmu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 08:42:50 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2E938BD7
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 05:42:48 -0700 (PDT)
+        with ESMTP id S231545AbiEPMn3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 08:43:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D4FD38BD7
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 05:43:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 27108CE1305
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 12:42:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E120C385AA;
-        Mon, 16 May 2022 12:42:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1BA65B81109
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 12:43:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67BA0C385AA;
+        Mon, 16 May 2022 12:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652704965;
-        bh=MVcTHHty/CKfKHfvL8lZlsfSgvRRIXcBewaIYOMibZc=;
+        s=korg; t=1652705005;
+        bh=PY4+jtlBhAu/UJK0+CHdTA0+ffrLuQMNiJfCAMMIMao=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cAunEOKy7whC6vRLc63ryD4AFkL/eL4Wp8sl7YFaOlKY7RWChio4Gidnik2UFg5V+
-         PMLsWRt0k79OyIDrva0iYz/OOHj+5j1fJTBr3RYQP/x30frR8vfGdbXLrQhlnML+Ij
-         ANv5mmvx1f1LI1vxLtnP4n4A1KRBZULdGNfbu9lU=
-Date:   Mon, 16 May 2022 14:42:42 +0200
+        b=qLSri2fslZfc+MnXMsS0ZzP2AzO9dnhIyfZkJeCS5DJkQj9k5sJoDFZeLOEpuUGsJ
+         5jy95CEK6zw9zCx/jf0ZcSNJBtduLJlUh+g/9gTMoXQRJlYEEtAGG1X+gzb4Zguf7V
+         FxMakaQ0WWoVprexQmRp1MlnHpYqeuJGpiKgU6p0=
+Date:   Mon, 16 May 2022 14:43:22 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Meena Shanmugam <meenashanmugam@google.com>
-Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
-Subject: Re: Request to cherry-pick f00432063db1 to 5.10
-Message-ID: <YoJGwrdKggx9rgLa@kroah.com>
-References: <CAMdnWFC4+-mEubOVkzaoqC5jnJCwY5hpcQtDnkmgqJ-mY5_GYg@mail.gmail.com>
- <Yn00jd+uX8PVZv/9@kroah.com>
- <CAMdnWFBCyiU-p1ww5NQnvMxVUnVyCkzoS6D+6Hg=7aJR4Bwn5Q@mail.gmail.com>
- <Yn4V4HdJFyHARf1b@kroah.com>
- <CAMdnWFDwYr-NYTqK3nJvFX7hox0wD0XrUauChGxD+5ZJUVTBew@mail.gmail.com>
+To:     Bagas Sanjaya <bagasdotme@gmail.com>
+Cc:     Meena Shanmugam <meenashanmugam@google.com>,
+        enrico.scholz@sigma-chemnitz.de, stable@vger.kernel.org,
+        trond.myklebust@hammerspace.com,
+        Dexter Rivera <riverade@google.com>
+Subject: Re: [PATCH 0/4] Request to cherry-pick f00432063db1 to 5.10
+Message-ID: <YoJG6nZrfKFb3Exr@kroah.com>
+References: <Yn82ZO/Ysxq0v/0/@kroah.com>
+ <20220514053453.3277330-1-meenashanmugam@google.com>
+ <Yn9sqjJsnsLznmoq@debian.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMdnWFDwYr-NYTqK3nJvFX7hox0wD0XrUauChGxD+5ZJUVTBew@mail.gmail.com>
+In-Reply-To: <Yn9sqjJsnsLznmoq@debian.me>
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -54,107 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 13, 2022 at 11:14:51AM -0700, Meena Shanmugam wrote:
-> On Fri, May 13, 2022 at 1:25 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, May 12, 2022 at 10:38:04AM -0700, Meena Shanmugam wrote:
-> > > On Thu, May 12, 2022 at 9:23 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Tue, May 10, 2022 at 07:33:23PM -0700, Meena Shanmugam wrote:
-> > > > > Hi all,
-> > > > >
-> > > > > The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRPC:
-> > > > > Ensure we flush any closed sockets before xs_xprt_free()) fixes
-> > > > > CVE-2022-28893, hence good candidate for stable trees.
-> > > > > The above commit depends on 3be232f(SUNRPC: Prevent immediate
-> > > > > close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more than
-> > > > > once on a TCP socket). Commit 3be232f depends on commit
-> > > > > e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
-> > > > >
-> > > > > Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
-> > > > > kernel. commit 89f4249 didn't apply cleanly. I have patch for 89f4249
-> > > > > below.
-> > > >
-> > > > We also need this for 5.15.y first, before we can apply it to 5.10.y.
-> > > > Can you provide a working backport for that tree as well?
-> > > >
-> > > > And as others pointed out, your patch is totally corrupted and can not
-> > > > be used, please fix your email client.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > > For 5.15.y commit f00432063db1a0db484e85193eccc6845435b80e((SUNRPC:
-> > > Ensure we flush any closed sockets before xs_xprt_free())) applies
-> > > cleanly. The depend patch
-> > > 3be232f(SUNRPC: Prevent immediate close+reconnect) also applies
-> > > cleanly. Patch  89f4249
-> > > (SUNRPC: Don't call connect() more than once on a TCP socket) is
-> > > already present in 5.15.34 onwards.
-> > >
-> > > Sorry about the patch corruption, I will fix it.
-> >
-> > Sorry, but this did not work out at all, I get build errors when
-> > attempting it for 5.10.y:
-> >
-> >   CC [M]  net/sunrpc/xprtsock.o
-> > net/sunrpc/xprtsock.c: In function ‘xs_tcp_setup_socket’:
-> > net/sunrpc/xprtsock.c:2276:13: error: too few arguments to function ‘test_and_clear_bit’
-> >  2276 |         if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT),
-> >       |             ^~~~~~~~~~~~~~~~~~
-> > In file included from ./arch/x86/include/asm/bitops.h:391,
-> >                  from ./include/linux/bitops.h:29,
-> >                  from ./include/linux/kernel.h:12,
-> >                  from ./include/asm-generic/bug.h:20,
-> >                  from ./arch/x86/include/asm/bug.h:93,
-> >                  from ./include/linux/bug.h:5,
-> >                  from ./include/linux/mmdebug.h:5,
-> >                  from ./include/linux/gfp.h:5,
-> >                  from ./include/linux/slab.h:15,
-> >                  from net/sunrpc/xprtsock.c:24:
-> > ./include/asm-generic/bitops/instrumented-atomic.h:81:20: note: declared here
-> >    81 | static inline bool test_and_clear_bit(long nr, volatile unsigned long *addr)
-> >       |                    ^~~~~~~~~~~~~~~~~~
-> > net/sunrpc/xprtsock.c:2276:55: warning: left-hand operand of comma expression has no effect [-Wunused-value]
-> >  2276 |         if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT),
-> >       |                                                       ^
-> > net/sunrpc/xprtsock.c:2312:17: warning: this statement may fall through [-Wimplicit-fallthrough=]
-> >  2312 |                 set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
-> >       |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> > net/sunrpc/xprtsock.c:2313:9: note: here
-> >  2313 |         case -EALREADY:
-> >       |         ^~~~
-> > make[2]: *** [scripts/Makefile.build:280: net/sunrpc/xprtsock.o] Error 1
-> > make[1]: *** [scripts/Makefile.build:497: net/sunrpc] Error 2
-> >
-> >
-> > And I am not quite sure what order you want me to apply things for 5.15.y.
-> >
-> > So please, send me a properly backported series of patches for this for 5.15.y
-> > and 5.10.y and I will be glad to pick them up.  Right now I'm just confused as
-> > this was obviously not tested at all :(
-> >
-> > thanks,
-> >
-> > greg k-h
+On Sat, May 14, 2022 at 03:47:38PM +0700, Bagas Sanjaya wrote:
+> On Sat, May 14, 2022 at 05:34:49AM +0000, Meena Shanmugam wrote:
+> > The commit f00432063db1a0db484e85193eccc6845435b80e upstream (SUNRPC:
+> > Ensure we flush any closed sockets before xs_xprt_free()) fixes
+> > CVE-2022-28893, hence good candidate for stable trees.
+> > The above commit depends on 3be232f(SUNRPC: Prevent immediate
+> > close+reconnect)  and  89f4249(SUNRPC: Don't call connect() more than
+> > once on a TCP socket). Commit 3be232f depends on commit
+> > e26d9972720e(SUNRPC: Clean up scheduling of autoclose).
+> > 
+> > Commits e26d9972720e, 3be232f, f00432063db1 apply cleanly on 5.10
+> > kernel. commit 89f4249 didn't apply cleanly. This patch series includes
+> > all the commits required for back porting f00432063db1.
+> > 
 > 
-> I tested my original patch(which was corrupted by email client).
-> When the patch is manually backported to fix white space, the patch
-> was fixed wrongly :(
-> I sent my original patch again for 5.10.y without any corruption.
-> Sorry for the inconvenience caused.
+> Hi Meena,
 > 
-> For 5.15.y, this is the cherry-pick order:
+> I can't speaking about the code (as I'm not subject-expert here), but I
+> would like to give you suggestions:
 > 
-> 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06(SUNRPC: Prevent immediate
-> close+reconnect)
+>   - When sending backported patch series, always prefix the subject with
+>     "[PATCH x.y]", where x.y is the stable version the backport is made
+>     against.
+>   - Abbreviated commit hash should be at least 12 (or my favorite, 14) characters long.
+>   - Commit identifier should be in format "%h (\"%s\")".
+>   - As always, DON'T DO top-posting, DO interleaved reply and reply
+>     below the quoted original message.
 
-Already in 5.15.34.
+Yes, that would have been better, but I figured it out from this series,
+it wasn't that hard.
 
-> f00432063db1a0db484e85193eccc6845435b80e(SUNRPC: Ensure we flush any
-> closed sockets before xs_xprt_free())
-
-Now queued up, thanks.
+Now all queued up, thanks!
 
 greg k-h
