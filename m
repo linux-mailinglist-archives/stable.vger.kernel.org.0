@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8454528F54
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79797528E5A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244932AbiEPTyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56666 "EHLO
+        id S1345859AbiEPTnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347759AbiEPTwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20C0427E6;
-        Mon, 16 May 2022 12:47:56 -0700 (PDT)
+        with ESMTP id S1345744AbiEPTkW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:40:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79C13EF2B;
+        Mon, 16 May 2022 12:39:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8687BB81614;
-        Mon, 16 May 2022 19:47:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC3EC385AA;
-        Mon, 16 May 2022 19:47:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 73CD1614FD;
+        Mon, 16 May 2022 19:39:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C12FC34100;
+        Mon, 16 May 2022 19:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730464;
-        bh=dK7FvkxY95j5rtkl9TPq6ygVFfXCqeIs4v8TNpuGobQ=;
+        s=korg; t=1652729967;
+        bh=KuVmxcN1RR5gLpFNGJGar/lGk7b6M9imhOEuY6GRs6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kj3D1F+D7tjESIzq2TF+HgYdtNZrKZFXhRxCuEF7PVoKEA+lqa15T949Cv3zKYNL3
-         M5UEJrukBSRHbfHeF0r0cV8roQEjcoCoDcEAIHK1gMaGUzM4fgXnSsFw2MJ9S+F4+0
-         RAgr2vOS9KUrJzC5WRgAWLpkWS4bplsyVja4Awsw=
+        b=HLMgldmpPfB+GSNvLzDRShKOPEGkmmSdKB6IaD2epFo/AnH8T1S5q9Xw4fagoP+/E
+         NJ1SKW9VLgSh3+OAoKDKNnsRYoMYoIhLYtDuAvrSWk3XVdrMY0J31Qz4DA+BxyNNkX
+         EY9XW7py6wWVSA24+wsLqoLETnvBF4qfE4cKlack=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>, Willy Tarreau <w@1wt.eu>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/66] gfs2: Fix filesystem block deallocation for short writes
+Subject: [PATCH 4.14 16/25] tcp: resalt the secret every 10 seconds
 Date:   Mon, 16 May 2022 21:36:30 +0200
-Message-Id: <20220516193620.286938380@linuxfoundation.org>
+Message-Id: <20220516193615.175963347@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d031a8866e709c9d1ee5537a321b6192b4d2dc5b ]
+[ Upstream commit 4dfa9b438ee34caca4e6a4e5e961641807367f6f ]
 
-When a write cannot be carried out in full, gfs2_iomap_end() releases
-blocks that have been allocated for this write but haven't been used.
+In order to limit the ability for an observer to recognize the source
+ports sequence used to contact a set of destinations, we should
+periodically shuffle the secret. 10 seconds looks effective enough
+without causing particular issues.
 
-To compute the end of the allocation, gfs2_iomap_end() incorrectly
-rounded the end of the attempted write down to the next block boundary
-to arrive at the end of the allocation.  It would have to round up, but
-the end of the allocation is also available as iomap->offset +
-iomap->length, so just use that instead.
-
-In addition, use round_up() for computing the start of the unused range.
-
-Fixes: 64bc06bb32ee ("gfs2: iomap buffered write support")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Tested-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/bmap.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/core/secure_seq.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index 6c047570d6a9..b4fde3a8eeb4 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -1235,13 +1235,12 @@ static int gfs2_iomap_end(struct inode *inode, loff_t pos, loff_t length,
+diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
+index 7232274de334..17683aea8a35 100644
+--- a/net/core/secure_seq.c
++++ b/net/core/secure_seq.c
+@@ -22,6 +22,8 @@
+ static siphash_key_t net_secret __read_mostly;
+ static siphash_key_t ts_secret __read_mostly;
  
- 	if (length != written && (iomap->flags & IOMAP_F_NEW)) {
- 		/* Deallocate blocks that were just allocated. */
--		loff_t blockmask = i_blocksize(inode) - 1;
--		loff_t end = (pos + length) & ~blockmask;
-+		loff_t hstart = round_up(pos + written, i_blocksize(inode));
-+		loff_t hend = iomap->offset + iomap->length;
- 
--		pos = (pos + written + blockmask) & ~blockmask;
--		if (pos < end) {
--			truncate_pagecache_range(inode, pos, end - 1);
--			punch_hole(ip, pos, end - pos);
-+		if (hstart < hend) {
-+			truncate_pagecache_range(inode, hstart, hend - 1);
-+			punch_hole(ip, hstart, hend - hstart);
- 		}
- 	}
- 
++#define EPHEMERAL_PORT_SHUFFLE_PERIOD (10 * HZ)
++
+ static __always_inline void net_secret_init(void)
+ {
+ 	net_get_random_once(&net_secret, sizeof(net_secret));
+@@ -100,11 +102,13 @@ u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 	const struct {
+ 		struct in6_addr saddr;
+ 		struct in6_addr daddr;
++		unsigned int timeseed;
+ 		__be16 dport;
+ 	} __aligned(SIPHASH_ALIGNMENT) combined = {
+ 		.saddr = *(struct in6_addr *)saddr,
+ 		.daddr = *(struct in6_addr *)daddr,
+-		.dport = dport
++		.timeseed = jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
++		.dport = dport,
+ 	};
+ 	net_secret_init();
+ 	return siphash(&combined, offsetofend(typeof(combined), dport),
+@@ -144,8 +148,10 @@ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
+ u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
+ {
+ 	net_secret_init();
+-	return siphash_3u32((__force u32)saddr, (__force u32)daddr,
+-			    (__force u16)dport, &net_secret);
++	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
++			    (__force u16)dport,
++			    jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
++			    &net_secret);
+ }
+ EXPORT_SYMBOL_GPL(secure_ipv4_port_ephemeral);
+ #endif
 -- 
 2.35.1
 
