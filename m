@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0995290B8
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75541528FCC
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230408AbiEPUHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
+        id S1346439AbiEPTyG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349688AbiEPUAU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:20 -0400
+        with ESMTP id S1348648AbiEPTw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575C043EE4;
-        Mon, 16 May 2022 12:54:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6403746B0A;
+        Mon, 16 May 2022 12:48:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6C13B81618;
-        Mon, 16 May 2022 19:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07A02C34100;
-        Mon, 16 May 2022 19:54:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E52BDB8160E;
+        Mon, 16 May 2022 19:48:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F958C385AA;
+        Mon, 16 May 2022 19:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730858;
-        bh=p6ago/YST1g5eL3V30HoLhU7ZufykKWvRgnn7qiaM9g=;
+        s=korg; t=1652730525;
+        bh=4PtoM0jH0dr6HRuo2pxKWiy7vyVcTkZ9j6fBBFFi8o4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IuOvTgYk1qBf4/MMEUKI/N4SlHOuxbp607INi+URHpy/MqtQGSg6u8DYyA5prTZNR
-         AUq0KGFbCAgK9jlCINJUuHDJtSjkPojhmrQ+hHiMhLivfLSit8rFW6+62kdXAC8y93
-         fSb4EuEBFkx/sUQ749PXle1hO3anpi4JwYrqPd8Q=
+        b=Sike3JFFRIrya1ta/FlZbbtAYCX29o6OKTByvIlcN0Vsu8iuiyftHo6zs1lye0YSH
+         46nLkLk5C8OfK0jFMyXHS8V1NjlaKtVsRqCz8zUfZddDE+4TtcF+4sPgEeKK+CkZaw
+         DM+B6dd4kjXq/erd6LXv+FIyvABSNQwRRbXKC+B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Florian Eckert <fe@dev.tdt.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 027/114] ionic: fix missing pci_release_regions() on error in ionic_probe()
+Subject: [PATCH 5.15 027/102] hwmon: (ltq-cputemp) restrict it to SOC_XWAY
 Date:   Mon, 16 May 2022 21:36:01 +0200
-Message-Id: <20220516193626.271583393@linuxfoundation.org>
+Message-Id: <20220516193624.779668928@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit e4b1045bf9cfec6f70ac6d3783be06c3a88dcb25 ]
+[ Upstream commit 151d6dcbed836270c6c240932da66f147950cbdb ]
 
-If ionic_map_bars() fails, pci_release_regions() need be called.
+Building with SENSORS_LTQ_CPUTEMP=y with SOC_FALCON=y causes build
+errors since FALCON does not support the same features as XWAY.
 
-Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220506034040.2614129-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Change this symbol to depend on SOC_XWAY since that provides the
+necessary interfaces.
+
+Repairs these build errors:
+
+../drivers/hwmon/ltq-cputemp.c: In function 'ltq_cputemp_enable':
+../drivers/hwmon/ltq-cputemp.c:23:9: error: implicit declaration of function 'ltq_cgu_w32'; did you mean 'ltq_ebu_w32'? [-Werror=implicit-function-declaration]
+   23 |         ltq_cgu_w32(ltq_cgu_r32(CGU_GPHY1_CR) | CGU_TEMP_PD, CGU_GPHY1_CR);
+../drivers/hwmon/ltq-cputemp.c:23:21: error: implicit declaration of function 'ltq_cgu_r32'; did you mean 'ltq_ebu_r32'? [-Werror=implicit-function-declaration]
+   23 |         ltq_cgu_w32(ltq_cgu_r32(CGU_GPHY1_CR) | CGU_TEMP_PD, CGU_GPHY1_CR);
+../drivers/hwmon/ltq-cputemp.c: In function 'ltq_cputemp_probe':
+../drivers/hwmon/ltq-cputemp.c:92:31: error: 'SOC_TYPE_VR9_2' undeclared (first use in this function)
+   92 |         if (ltq_soc_type() != SOC_TYPE_VR9_2)
+
+Fixes: 7074d0a92758 ("hwmon: (ltq-cputemp) add cpu temp sensor driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Florian Eckert <fe@dev.tdt.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: linux-hwmon@vger.kernel.org
+Link: https://lore.kernel.org/r/20220509234740.26841-1-rdunlap@infradead.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwmon/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-index 40fa5bce2ac2..d324c292318b 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-@@ -255,7 +255,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index ccdaeafed0bb..51f1caa10d11 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -944,7 +944,7 @@ config SENSORS_LTC4261
  
- 	err = ionic_map_bars(ionic);
- 	if (err)
--		goto err_out_pci_disable_device;
-+		goto err_out_pci_release_regions;
- 
- 	/* Configure the device */
- 	err = ionic_setup(ionic);
-@@ -359,6 +359,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- err_out_unmap_bars:
- 	ionic_unmap_bars(ionic);
-+err_out_pci_release_regions:
- 	pci_release_regions(pdev);
- err_out_pci_disable_device:
- 	pci_disable_device(pdev);
+ config SENSORS_LTQ_CPUTEMP
+ 	bool "Lantiq cpu temperature sensor driver"
+-	depends on LANTIQ
++	depends on SOC_XWAY
+ 	help
+ 	  If you say yes here you get support for the temperature
+ 	  sensor inside your CPU.
 -- 
 2.35.1
 
