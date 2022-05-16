@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A6E6528E76
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD775528EF9
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345744AbiEPTnh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44894 "EHLO
+        id S245440AbiEPTrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:47:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346122AbiEPTmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745CB3F33E;
-        Mon, 16 May 2022 12:41:46 -0700 (PDT)
+        with ESMTP id S1346679AbiEPTqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 046F43FD9D;
+        Mon, 16 May 2022 12:44:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31EF0B81609;
-        Mon, 16 May 2022 19:41:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9749CC385AA;
-        Mon, 16 May 2022 19:41:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9099261510;
+        Mon, 16 May 2022 19:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CBAAC36AEA;
+        Mon, 16 May 2022 19:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730104;
-        bh=Gs7zTigMbejbkif/WpqyWfLM3DCXUN+nnVx5kMg95fE=;
+        s=korg; t=1652730240;
+        bh=WTHpzwtAqaG4p8ZDiFKFtwWmjszYiarCrdkZOWf9M6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBP39nMTHeYkFw2ZnEc/KXnLrg4d2UoG+1zM1aY+cBKuMKRi/vrMo5i7rWsBuMsPI
-         pKQHUK/wu/OHB0OcNwlI4hFG/02JwxAI2+OoryVrxSbG1T0U6PeXjyy4cxCSQsJ2jO
-         yzneQim1OmCe+oMYv2fLHg/iLS+/qKNIXWnoI7OQ=
+        b=gXdGPQp6iJqY61TRtNwx0PMpIpJOsNvZ0aUOUQOS0zDyznQ18xI+q2P8+USdFqGBP
+         hebxIGHuP23iNP3Pt5gIOqloasfrxFoD2zsFKDFQm5sZqcfmHRNZpeJy8YAiYgr+8L
+         K4qxrYh8x4s4JPRuKQhvW0o1nlF2mUkU6N4hGnlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Scott Chen <scott@labau.com.tw>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 23/32] USB: serial: pl2303: add device id for HP LM930 Display
-Date:   Mon, 16 May 2022 21:36:37 +0200
-Message-Id: <20220516193615.461996309@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.4 27/43] usb: typec: tcpci: Dont skip cleanup in .remove() on error
+Date:   Mon, 16 May 2022 21:36:38 +0200
+Message-Id: <20220516193615.521087046@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-References: <20220516193614.773450018@linuxfoundation.org>
+In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
+References: <20220516193614.714657361@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Scott Chen <scott@labau.com.tw>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 26a08f8bad3e1f98d3153f939fb8cd330da4cb26 upstream.
+commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
 
-Add the device id for the HPLM930Display which is a PL2303GC based
-device.
+Returning an error value in an i2c remove callback results in an error
+message being emitted by the i2c core, but otherwise it doesn't make a
+difference. The device goes away anyhow and the devm cleanups are
+called.
 
-Signed-off-by: Scott Chen <scott@labau.com.tw>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+In this case the remove callback even returns early without stopping the
+tcpm worker thread and various timers. A work scheduled on the work
+queue, or a firing timer after tcpci_remove() returned probably results
+in a use-after-free situation because the regmap and driver data were
+freed. So better make sure that tcpci_unregister_port() is called even
+if disabling the irq failed.
+
+Also emit a more specific error message instead of the i2c core's
+"remove failed (EIO), will be ignored" and return 0 to suppress the
+core's warning.
+
+This patch is (also) a preparation for making i2c remove callbacks
+return void.
+
+Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/typec/tcpm/tcpci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -100,6 +100,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM220_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LCM960_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM920_PRODUCT_ID) },
-+	{ USB_DEVICE(HP_VENDOR_ID, HP_LM930_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_LM940_PRODUCT_ID) },
- 	{ USB_DEVICE(HP_VENDOR_ID, HP_TD620_PRODUCT_ID) },
- 	{ USB_DEVICE(CRESSI_VENDOR_ID, CRESSI_EDY_PRODUCT_ID) },
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -129,6 +129,7 @@
- #define HP_TD620_PRODUCT_ID	0x0956
- #define HP_LD960_PRODUCT_ID	0x0b39
- #define HP_LD381_PRODUCT_ID	0x0f7f
-+#define HP_LM930_PRODUCT_ID	0x0f9b
- #define HP_LCM220_PRODUCT_ID	0x3139
- #define HP_LCM960_PRODUCT_ID	0x3239
- #define HP_LD220_PRODUCT_ID	0x3524
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -611,7 +611,7 @@ static int tcpci_remove(struct i2c_clien
+ 	/* Disable chip interrupts before unregistering port */
+ 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
+ 	if (err < 0)
+-		return err;
++		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+ 
+ 	tcpci_unregister_port(chip->tcpci);
+ 
 
 
