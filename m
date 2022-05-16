@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35182528F9D
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E0D8528FA3
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346343AbiEPUHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48934 "EHLO
+        id S244161AbiEPTyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349428AbiEPT7r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE142492;
-        Mon, 16 May 2022 12:53:57 -0700 (PDT)
+        with ESMTP id S1348363AbiEPTws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:48 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325C045AFC;
+        Mon, 16 May 2022 12:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EDF160EC6;
-        Mon, 16 May 2022 19:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15357C385AA;
-        Mon, 16 May 2022 19:53:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DD4AB81614;
+        Mon, 16 May 2022 19:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AF4C34100;
+        Mon, 16 May 2022 19:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730835;
-        bh=PW/zQ6LFubacbzYbdTq6DvQ+rhLWO1a9rT5v7x1P1jM=;
+        s=korg; t=1652730507;
+        bh=znV21qZFVkqKMsTnlgXtFCej6unW8FIKPNFdWDbXKZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+AlX/gXgmiXLKXQByxTpxftrrUcBGDIuIP/wJBgm2A/R32/eHrHQUTQxsN5pPPwL
-         Fmf0sv69w8G94ZbZQIXX1s7iUW8oSy6IByJtvOE3Fumk+umaBYonE2CnanetTw32dE
-         nqnqFeAU+hZ5VOrKKzysF2/X6CZ3v0p80qBWVc9I=
+        b=EqvPp8E5xgcZS/TWdo+3KwIcf/DvqUE/XNNOUNxf5EXz9wCRes3hnC7yDKgoFJQKv
+         OSXTFphj8imUDawrRA2buohwOk8ZHGfsX+pWVSDVpudY0ekQNpTCo5M+JW41XYvuIb
+         S/3+yUL7BsceaWctAHgVFJYWxALVsetEH9JB1lcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 020/114] netlink: do not reset transport header in netlink_recvmsg()
-Date:   Mon, 16 May 2022 21:35:54 +0200
-Message-Id: <20220516193626.075833700@linuxfoundation.org>
+Subject: [PATCH 5.15 021/102] sfc: Use swap() instead of open coding it
+Date:   Mon, 16 May 2022 21:35:55 +0200
+Message-Id: <20220516193624.609133677@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit d5076fe4049cadef1f040eda4aaa001bb5424225 ]
+[ Upstream commit 0cf765fb00ce083c017f2571ac449cf7912cdb06 ]
 
-netlink_recvmsg() does not need to change transport header.
+Clean the following coccicheck warning:
 
-If transport header was needed, it should have been reset
-by the producer (netlink_dump()), not the consumer(s).
+./drivers/net/ethernet/sfc/efx_channels.c:870:36-37: WARNING opportunity
+for swap().
 
-The following trace probably happened when multiple threads
-were using MSG_PEEK.
+./drivers/net/ethernet/sfc/efx_channels.c:824:36-37: WARNING opportunity
+for swap().
 
-BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
-
-write to 0xffff88811e9f15b2 of 2 bytes by task 32012 on cpu 1:
- skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
- netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- __sys_recvfrom+0x204/0x2c0 net/socket.c:2097
- __do_sys_recvfrom net/socket.c:2115 [inline]
- __se_sys_recvfrom net/socket.c:2111 [inline]
- __x64_sys_recvfrom+0x74/0x90 net/socket.c:2111
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-write to 0xffff88811e9f15b2 of 2 bytes by task 32005 on cpu 0:
- skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
- netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
- ____sys_recvmsg+0x162/0x2f0
- ___sys_recvmsg net/socket.c:2674 [inline]
- __sys_recvmsg+0x209/0x3f0 net/socket.c:2704
- __do_sys_recvmsg net/socket.c:2714 [inline]
- __se_sys_recvmsg net/socket.c:2711 [inline]
- __x64_sys_recvmsg+0x42/0x50 net/socket.c:2711
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0xffff -> 0x0000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 32005 Comm: syz-executor.4 Not tainted 5.18.0-rc1-syzkaller-00328-ge1f700ebd6be-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220505161946.2867638-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/sfc/efx_channels.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 05a3795eac8e..73e9c0a9c187 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1975,7 +1975,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 		copied = len;
- 	}
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 1f8cfd806008..2623df1fa741 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -897,11 +897,8 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	old_txq_entries = efx->txq_entries;
+ 	efx->rxq_entries = rxq_entries;
+ 	efx->txq_entries = txq_entries;
+-	for (i = 0; i < efx->n_channels; i++) {
+-		channel = efx->channel[i];
+-		efx->channel[i] = other_channel[i];
+-		other_channel[i] = channel;
+-	}
++	for (i = 0; i < efx->n_channels; i++)
++		swap(efx->channel[i], other_channel[i]);
  
--	skb_reset_transport_header(data_skb);
- 	err = skb_copy_datagram_msg(data_skb, 0, msg, copied);
+ 	/* Restart buffer table allocation */
+ 	efx->next_buffer_table = next_buffer_table;
+@@ -944,11 +941,8 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	/* Swap back */
+ 	efx->rxq_entries = old_rxq_entries;
+ 	efx->txq_entries = old_txq_entries;
+-	for (i = 0; i < efx->n_channels; i++) {
+-		channel = efx->channel[i];
+-		efx->channel[i] = other_channel[i];
+-		other_channel[i] = channel;
+-	}
++	for (i = 0; i < efx->n_channels; i++)
++		swap(efx->channel[i], other_channel[i]);
+ 	goto out;
+ }
  
- 	if (msg->msg_name) {
 -- 
 2.35.1
 
