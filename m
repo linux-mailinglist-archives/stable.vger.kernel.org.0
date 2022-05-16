@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A23528EA3
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D6E528EDA
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346219AbiEPTsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38064 "EHLO
+        id S1346211AbiEPTr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:47:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346386AbiEPTqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8C1B40E75;
-        Mon, 16 May 2022 12:43:33 -0700 (PDT)
+        with ESMTP id S1346425AbiEPTqO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:14 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2DB441330;
+        Mon, 16 May 2022 12:43:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3422161510;
-        Mon, 16 May 2022 19:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DA0CC34100;
-        Mon, 16 May 2022 19:43:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 360A7CE1795;
+        Mon, 16 May 2022 19:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBC9C34115;
+        Mon, 16 May 2022 19:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730212;
-        bh=VVL+RTQ8PBrtyz67ZksrAOqMrnI9BPzeZnMZnjHEudA=;
+        s=korg; t=1652730215;
+        bh=eNeYEQzZlS21APqbNXgI7gda0OfLzSZQEYKhOTtXuio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zC2D1OuEVU6vX7zHysMQ5z3XUgjATurG5l7Hsf3985/id6paGtGrL3tCaffhMmyzH
-         5bfX/Ldn7KAKtmKZ8AXsW+OjAWDTWxyKgxW9OV0Zz+8tNdelolWf6cWhuSjzOLa9g1
-         8VAu/TzhvwnSOdehosQsFLcQxUpBZ38Osy3wEuEY=
+        b=DI8kQbxT5bPtYaHNkbe79DkAdMDVgrkP2gZwZ6NIA7mrHbowXXsiEnz/TTWO5f5Pi
+         0tx0QOMHbHp4sVyDmoPkkyL6So3BlO7l2bTBmpU0inOcsNCq4rSe7q5sI1nrX3TMdj
+         12GHFT6nh/L8Huau5g4XnK4CEV/lE900lKWl1Osg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.4 36/43] i40e: i40e_main: fix a missing check on list iterator
-Date:   Mon, 16 May 2022 21:36:47 +0200
-Message-Id: <20220516193615.785272690@linuxfoundation.org>
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        Feng Tang <feng.tang@intel.com>,
+        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.4 37/43] cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
+Date:   Mon, 16 May 2022 21:36:48 +0200
+Message-Id: <20220516193615.814914177@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
 References: <20220516193614.714657361@linuxfoundation.org>
@@ -45,102 +45,80 @@ User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-6.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Waiman Long <longman@redhat.com>
 
-commit 3f95a7472d14abef284d8968734fe2ae7ff4845f upstream.
+commit 2685027fca387b602ae565bff17895188b803988 upstream.
 
-The bug is here:
-	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
+There are 3 places where the cpu and node masks of the top cpuset can
+be initialized in the order they are executed:
+ 1) start_kernel -> cpuset_init()
+ 2) start_kernel -> cgroup_init() -> cpuset_bind()
+ 3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
 
-The list iterator 'ch' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will
-lead to a invalid memory access.
+The first cpuset_init() call just sets all the bits in the masks.
+The second cpuset_bind() call sets cpus_allowed and mems_allowed to the
+default v2 values. The third cpuset_init_smp() call sets them back to
+v1 values.
 
-To fix this bug, use a new variable 'iter' as the list iterator,
-while use the origin variable 'ch' as a dedicated pointer to
-point to the found element.
+For systems with cgroup v2 setup, cpuset_bind() is called once.  As a
+result, cpu and memory node hot add may fail to update the cpu and node
+masks of the top cpuset to include the newly added cpu or node in a
+cgroup v2 environment.
 
-Cc: stable@vger.kernel.org
-Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220510204846.2166999-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For systems with cgroup v1 setup, cpuset_bind() is called again by
+rebind_subsystem() when the v1 cpuset filesystem is mounted as shown
+in the dmesg log below with an instrumented kernel.
+
+  [    2.609781] cpuset_bind() called - v2 = 1
+  [    3.079473] cpuset_init_smp() called
+  [    7.103710] cpuset_bind() called - v2 = 0
+
+smp_init() is called after the first two init functions.  So we don't
+have a complete list of active cpus and memory nodes until later in
+cpuset_init_smp() which is the right time to set up effective_cpus
+and effective_mems.
+
+To fix this cgroup v2 mask setup problem, the potentially incorrect
+cpus_allowed & mems_allowed setting in cpuset_init_smp() are removed.
+For cgroup v2 systems, the initial cpuset_bind() call will set the masks
+correctly.  For cgroup v1 systems, the second call to cpuset_bind()
+will do the right setup.
+
+cc: stable@vger.kernel.org
+Signed-off-by: Waiman Long <longman@redhat.com>
+Tested-by: Feng Tang <feng.tang@intel.com>
+Reviewed-by: Michal Koutný <mkoutny@suse.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ kernel/cgroup/cpuset.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7120,42 +7120,43 @@ static void i40e_free_macvlan_channels(s
- static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
- 			    struct i40e_fwd_adapter *fwd)
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -3289,8 +3289,11 @@ static struct notifier_block cpuset_trac
+  */
+ void __init cpuset_init_smp(void)
  {
-+	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
- 	int ret = 0, num_tc = 1,  i, aq_err;
--	struct i40e_channel *ch, *ch_tmp;
- 	struct i40e_pf *pf = vsi->back;
- 	struct i40e_hw *hw = &pf->hw;
+-	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
+-	top_cpuset.mems_allowed = node_states[N_MEMORY];
++	/*
++	 * cpus_allowd/mems_allowed set to v2 values in the initial
++	 * cpuset_bind() call will be reset to v1 values in another
++	 * cpuset_bind() call when v1 cpuset is mounted.
++	 */
+ 	top_cpuset.old_mems_allowed = top_cpuset.mems_allowed;
  
--	if (list_empty(&vsi->macvlan_list))
--		return -EINVAL;
--
- 	/* Go through the list and find an available channel */
--	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
--		if (!i40e_is_channel_macvlan(ch)) {
--			ch->fwd = fwd;
-+	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
-+		if (!i40e_is_channel_macvlan(iter)) {
-+			iter->fwd = fwd;
- 			/* record configuration for macvlan interface in vdev */
- 			for (i = 0; i < num_tc; i++)
- 				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
- 							     i,
--							     ch->num_queue_pairs,
--							     ch->base_queue);
--			for (i = 0; i < ch->num_queue_pairs; i++) {
-+							     iter->num_queue_pairs,
-+							     iter->base_queue);
-+			for (i = 0; i < iter->num_queue_pairs; i++) {
- 				struct i40e_ring *tx_ring, *rx_ring;
- 				u16 pf_q;
- 
--				pf_q = ch->base_queue + i;
-+				pf_q = iter->base_queue + i;
- 
- 				/* Get to TX ring ptr */
- 				tx_ring = vsi->tx_rings[pf_q];
--				tx_ring->ch = ch;
-+				tx_ring->ch = iter;
- 
- 				/* Get the RX ring ptr */
- 				rx_ring = vsi->rx_rings[pf_q];
--				rx_ring->ch = ch;
-+				rx_ring->ch = iter;
- 			}
-+			ch = iter;
- 			break;
- 		}
- 	}
- 
-+	if (!ch)
-+		return -EINVAL;
-+
- 	/* Guarantee all rings are updated before we update the
- 	 * MAC address filter.
- 	 */
+ 	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
 
 
