@@ -2,118 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51822528C38
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 19:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8DB528C6C
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 19:57:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344348AbiEPRmo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 13:42:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
+        id S238493AbiEPR5J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 13:57:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239695AbiEPRmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 13:42:44 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93C1737038
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 10:42:43 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id a23-20020a17090acb9700b001df4e9f4870so520pju.1
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 10:42:43 -0700 (PDT)
+        with ESMTP id S230453AbiEPR5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 13:57:08 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2F06248C1
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 10:57:03 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id l7-20020a17090aaa8700b001dd1a5b9965so34427pjq.2
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 10:57:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Lm/q1Gqm1HsV9H33yf52RdsHQedEeeYZq3uFVzTvb3c=;
-        b=PqptGi3rkOn4qRvNvz2Epa83/qpOSjYuiDkHBVrzJE/v7wizQGDWZ/Jz0YULI1CGEY
-         KzaSFBzsFgiR/lK9obqCcZ+zQrO76nSYTAeKdayGv2RHdsRU8xUTaxxfPH4Xcn6oGZTA
-         K4Q3PvV8YmDuKjuHj9B463LkBYRXoXqh4zgqP1P3NtPwBAe87YoAbkchTLo/zVcWqV1S
-         2VVWjZqSlWW4noXVM6GW8iWF8BYerJUAPhMnKwiK3EcOXjGkDG6FyafzrLDQ6dWCUypg
-         X4WxrQPR5dxGONUEnUaNSrvcF/MucQeJzxzeuxixKvU2ZzQ+gPUEwtFH8fwgqHHmMY4F
-         7HAQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=s8Szgr5hkgsjlLeFEAHh2fpZvkAn26KOC98Petpc+bQ=;
+        b=uotSM31fJ91cIxo5LaPjBFF6JN2e0vBAY9tjTDRNW90b8tfWMcH5Jp3td0w3LnKZi5
+         V+eu4IGHq6DQqOGwHdFoy95oS8S959M6QOcg2ZSEMk2xkdKQyVfCAMGE//KtFn6E3oZc
+         UkLpoF22VT24bMrC9q338LuVDSRbMsPUcc1+iWuJg4+64CMRf71TQ37VRyT01x5SNWMt
+         zmY7sXTlHAmmE0DJvVeShMDXt6T/RvU95cg7e/beUprWV2ircF0FRIBZ3qbyk5lfQ7Vc
+         v+a0J2NKtaAG5fJgiGwli5fISkPGzd79E7mQN5dP9vTh0mVUnO3eg4DmjBklI4weI6ah
+         6IIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Lm/q1Gqm1HsV9H33yf52RdsHQedEeeYZq3uFVzTvb3c=;
-        b=Poi66oP2Qja4JyJ0pZTkrgmbLVwYG7V5VsudhH1duRCR5tqSjCX95KSMrw5E69Jxud
-         ffud29Yjy0Rl0Vw1PBjkkBnd1QTi3a1QVmmbOHJRZExCGWOEPGol67qc+3iprOLrYwOM
-         tVY15en3WkpjwxZcIl0AYptbcSTLBk7lAB+2tYwn3wZueveqBko9ZWOiUFpr+FqcKxsx
-         QBbCbvSEjO0NBG16WVb0vON65hWfRS8v4hNPze9+jmCCWIp+uJIj4uj5DC5OyCa0hk5z
-         i6RhImp6H1Qn9cnlXhw8WXp+h1iwmAnCh8R+A8N0BInLvyLozjGpi4IwLpheKeZBRSpt
-         z55g==
-X-Gm-Message-State: AOAM5306wc2kNxxYpRtU8nWbhfjy7jNimqVS/0JGpwnOVsm+0jgejGD5
-        PwMJ8KnmMOimUwlBgHIYy33Hgg==
-X-Google-Smtp-Source: ABdhPJzqeggs3aXlZCt4SG3SjF6+VTnMWbCINpwcjkxLtbDibvbRCp+kmP+PANbGW91HQu006bNM2w==
-X-Received: by 2002:a17:902:eb87:b0:15e:be95:a3f3 with SMTP id q7-20020a170902eb8700b0015ebe95a3f3mr18357590plg.38.1652722962868;
-        Mon, 16 May 2022 10:42:42 -0700 (PDT)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id s10-20020a17090a5d0a00b001df2538c61dsm4102030pji.23.2022.05.16.10.42.42
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=s8Szgr5hkgsjlLeFEAHh2fpZvkAn26KOC98Petpc+bQ=;
+        b=sSMoz/FjjncpjXT/+50kbljzNCJmJmM+WMZtqYRgkGLBmBoLBtDQJvSFwGDPphRZyT
+         tmtXmsTA+aMhIxhRXGtG8rSBn6pwE7uC9I6kUMV4DUBO19Sf9D1JRCaPovxe8yXrSBbb
+         fcm7QVS6mVPiu9Vd4Kx5HBSzTaoigJ4kLSEKlvYiKvYEBi1xf7iHA89NRO8GEzmzJ7r9
+         8iiuhebf20e8XB42loRKjHSDwswzeZWSfCzDEqoW24gGvCQOm+ZKE4xHXJ6aOOd8de9B
+         HSHrWlux3oRi4xJ6zf48+FOInfegC2bz7H7d1i6Axf7C5oUHyshsKGhgRiUKR/9cupJ+
+         3tZA==
+X-Gm-Message-State: AOAM530IomqkSsfjeIt5J4EO6lJguqu/sZZ6xtdkSLhnfnX0OBQ0TKYg
+        oBJDfYZVC1ZiXQSN8fV5hypHNc6ltpyR2omIDIs=
+X-Google-Smtp-Source: ABdhPJwVjZoiLdceACt8+GNjVKMQJAML3u/qZGUpL0rsbCrbHLH8KUGow/x4DIwordtd2wDlqzhRig==
+X-Received: by 2002:a17:902:768a:b0:159:71e:971e with SMTP id m10-20020a170902768a00b00159071e971emr18686516pll.163.1652723823191;
+        Mon, 16 May 2022 10:57:03 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q34-20020a635c22000000b003c14af50603sm7016015pgb.27.2022.05.16.10.57.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 May 2022 10:42:42 -0700 (PDT)
-Date:   Mon, 16 May 2022 17:42:38 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     "Kalra, Ashish" <Ashish.Kalra@amd.com>
-Cc:     Peter Gonda <pgonda@google.com>,
-        "Allen, John" <John.Allen@amd.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
-        "Lendacky, Thomas" <Thomas.Lendacky@amd.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Andy Nguyen <theflow@google.com>,
-        David Rientjes <rientjes@google.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] crypto: ccp - Use kzalloc for sev ioctl interfaces to
- prevent kernel memory leak
-Message-ID: <YoKNDoiXKGbBhuIk@google.com>
-References: <20220516154512.259759-1-john.allen@amd.com>
- <CAMkAt6oUxUFtNS4W0bzu13oWMdfnzfNrphH3OqwAkmxJcXhOqw@mail.gmail.com>
- <SN6PR12MB27678261F176C5D9B5BF64EF8ECF9@SN6PR12MB2767.namprd12.prod.outlook.com>
- <CAMkAt6q7kTGS5QgZRq9xc0HaEYyntmj3GRWehr-3Sb4y2eQ=HQ@mail.gmail.com>
- <SN6PR12MB2767B4A3919E38C7F429CC2D8ECF9@SN6PR12MB2767.namprd12.prod.outlook.com>
+        Mon, 16 May 2022 10:57:02 -0700 (PDT)
+Message-ID: <6282906e.1c69fb81.5ac81.1190@mx.google.com>
+Date:   Mon, 16 May 2022 10:57:02 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <SN6PR12MB2767B4A3919E38C7F429CC2D8ECF9@SN6PR12MB2767.namprd12.prod.outlook.com>
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Kernel: v5.15.40
+Subject: stable-rc/linux-5.15.y baseline: 152 runs, 1 regressions (v5.15.40)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 16, 2022, Kalra, Ashish wrote:
-> > >Would it be safer to memset @data here to all zeros too?
-> >
-> > It will be, but this command/function is safe as firmware will fill in the
-> > whole buffer here with the PLATFORM STATUS data retuned to the user.
-> 
-> > That does seem safe for now but I thought we decided it would be prudent to
-> > not trust the PSPs implementation here and clear all the buffers that
-> > eventually get sent to userspace?
-> 
-> Yes, but the issue is when the user programs a buffer size larger the one
-> filled in by the firmware. In this case firmware is always going to fill up
-> the whole buffer with PLATFORM_STATUS data, so it will be always be safe. The
-> issue is mainly with the kernel side doing a copy_to_user() based on user
-> programmed length instead of the firmware returned buffer length.
+stable-rc/linux-5.15.y baseline: 152 runs, 1 regressions (v5.15.40)
 
-Peter's point is that it costs the kernel very little to be paranoid and not make
-assumptions about whether or not the PSP will fill an entire struct as expected.
+Regressions Summary
+-------------------
 
-I agree it feels a bit silly since all fields are output, but on the other hand the
-PSP spec just says:
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-  The following data structure is written to memory at STATUS_PADDR
 
-and the data structure has several reserved fields.  I don't love assuming that the
-PSP will always write zeros for the reserved fields and not do something like:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.40/plan/baseline/
 
-	if (rmp_initialized)
-		data[3] |= IS_RMP_INIT;
-	else
-		data[3] &= ~IS_RMP_INIT;
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.40
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ae766496dbd448eea2af4b3be8e2b2172ce38a79 =
 
-Given that zeroing @data in the kernel is easy and this is not a hot patch, I
-prefer the paranoid approach unless the PSP spec is much more explicit in saying
-that it writes all bits and bytes on success.
+
+
+Test Regressions
+---------------- =
+
+
+
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/62825fe7ea2a66ed188f5744
+
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
+-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru=
+-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62825fe7ea2a66ed188f5766
+        failing since 69 days (last pass: v5.15.26, first fail: v5.15.26-25=
+8-g7b9aacd770fa)
+
+    2022-05-16T14:29:20.589300  /lava-6390654/1/../bin/lava-test-case
+    2022-05-16T14:29:20.600129  <8>[   33.826417] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
+
+ =20
