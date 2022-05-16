@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A0BCB527F69
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9233A527F7E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241551AbiEPIRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:17:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53536 "EHLO
+        id S236132AbiEPIVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:21:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241560AbiEPIRO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:17:14 -0400
+        with ESMTP id S241650AbiEPIUQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:20:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A285736E1E
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:17:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED5137038
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:20:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40821611CA
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:17:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56E2BC385AA;
-        Mon, 16 May 2022 08:17:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1898611D6
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:20:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F1D8C385AA;
+        Mon, 16 May 2022 08:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652689032;
-        bh=IWEjrWwezYjFz5VfnoZbaCdDIVqlEcPBjlaqo3/sg9s=;
+        s=korg; t=1652689213;
+        bh=pNHYhr+rFGMeSK0RghyghDsw348ZGbSxL9bY9Jo9TNE=;
         h=Subject:To:Cc:From:Date:From;
-        b=PajFnxgXbdOgdSt2SGgiJ3EeIdDey5+I9+rx6c/bNQUtBQwrIlxW4i7P6KP28IYdN
-         KkhQdJcaFBo0Po6auGZW39hkuzk5nOHYPOS2+A1xbc79l/odwt3AvicytYAl+uBbsO
-         OUHrllbZoUy2zpVF9w2lDmIZQovjd8Q4rjyLcGKs=
-Subject: FAILED: patch "[PATCH] arm[64]/memremap: don't abuse pfn_valid() to ensure presence" failed to apply to 4.9-stable tree
-To:     rppt@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
-        bot@kernelci.org, broonie@kernel.org, catalin.marinas@arm.com,
-        gregkh@linuxfoundation.org, linux@armlinux.org.uk,
-        mark-pk.tsai@mediatek.com, rppt@linux.ibm.com,
-        stable@vger.kernel.org, tony@atomide.com, will@kernel.org
+        b=R2UZLC1PftfzI5SKYcAOcPWUs7Jkl2N/YoaA3AMJqiJz7zLDDBuKDT8/CJsvpN/ln
+         u8MIuj1YN3ATh9JfmLpK0hEz1J+EmgRQdDIy/XUuCdLjFpzKDPtav5R1Vp98596UXy
+         riPYOIhTAcITBbAVSVfe4wdJAAqxoQcCKoYDuQzo=
+Subject: FAILED: patch "[PATCH] SUNRPC: Ensure that the gssproxy client can start in a" failed to apply to 4.19-stable tree
+To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:17:02 +0200
-Message-ID: <165268902225046@kroah.com>
+Date:   Mon, 16 May 2022 10:20:10 +0200
+Message-ID: <16526892107165@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -63,119 +59,107 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 260364d112bc822005224667c0c9b1b17a53eafd Mon Sep 17 00:00:00 2001
-From: Mike Rapoport <rppt@kernel.org>
-Date: Mon, 9 May 2022 17:34:28 -0700
-Subject: [PATCH] arm[64]/memremap: don't abuse pfn_valid() to ensure presence
- of linear map
+From fd13359f54ee854f00134abc6be32da94ec53dbf Mon Sep 17 00:00:00 2001
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
+Date: Sat, 7 May 2022 13:53:59 -0400
+Subject: [PATCH] SUNRPC: Ensure that the gssproxy client can start in a
+ connected state
 
-The semantics of pfn_valid() is to check presence of the memory map for a
-PFN and not whether a PFN is covered by the linear map.  The memory map
-may be present for NOMAP memory regions, but they won't be mapped in the
-linear mapping.  Accessing such regions via __va() when they are
-memremap()'ed will cause a crash.
+Ensure that the gssproxy client connects to the server from the gssproxy
+daemon process context so that the AF_LOCAL socket connection is done
+using the correct path and namespaces.
 
-On v5.4.y the crash happens on qemu-arm with UEFI [1]:
+Fixes: 1d658336b05f ("SUNRPC: Add RPC based upcall mechanism for RPCGSS auth")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-<1>[    0.084476] 8<--- cut here ---
-<1>[    0.084595] Unable to handle kernel paging request at virtual address dfb76000
-<1>[    0.084938] pgd = (ptrval)
-<1>[    0.085038] [dfb76000] *pgd=5f7fe801, *pte=00000000, *ppte=00000000
-
-...
-
-<4>[    0.093923] [<c0ed6ce8>] (memcpy) from [<c16a06f8>] (dmi_setup+0x60/0x418)
-<4>[    0.094204] [<c16a06f8>] (dmi_setup) from [<c16a38d4>] (arm_dmi_init+0x8/0x10)
-<4>[    0.094408] [<c16a38d4>] (arm_dmi_init) from [<c0302e9c>] (do_one_initcall+0x50/0x228)
-<4>[    0.094619] [<c0302e9c>] (do_one_initcall) from [<c16011e4>] (kernel_init_freeable+0x15c/0x1f8)
-<4>[    0.094841] [<c16011e4>] (kernel_init_freeable) from [<c0f028cc>] (kernel_init+0x8/0x10c)
-<4>[    0.095057] [<c0f028cc>] (kernel_init) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
-
-On kernels v5.10.y and newer the same crash won't reproduce on ARM because
-commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
-for_each_mem_range()") changed the way memory regions are registered in
-the resource tree, but that merely covers up the problem.
-
-On ARM64 memory resources registered in yet another way and there the
-issue of wrong usage of pfn_valid() to ensure availability of the linear
-map is also covered.
-
-Implement arch_memremap_can_ram_remap() on ARM and ARM64 to prevent access
-to NOMAP regions via the linear mapping in memremap().
-
-Link: https://lore.kernel.org/all/Yl65zxGgFzF1Okac@sirena.org.uk
-Link: https://lkml.kernel.org/r/20220426060107.7618-1-rppt@kernel.org
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Tested-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-
-diff --git a/arch/arm/include/asm/io.h b/arch/arm/include/asm/io.h
-index 0c70eb688a00..2a0739a2350b 100644
---- a/arch/arm/include/asm/io.h
-+++ b/arch/arm/include/asm/io.h
-@@ -440,6 +440,9 @@ extern void pci_iounmap(struct pci_dev *dev, void __iomem *addr);
- #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
- extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
- extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
-+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+					unsigned long flags);
-+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
- #endif
+diff --git a/include/linux/sunrpc/clnt.h b/include/linux/sunrpc/clnt.h
+index 267b7aeaf1a6..90501404fa49 100644
+--- a/include/linux/sunrpc/clnt.h
++++ b/include/linux/sunrpc/clnt.h
+@@ -160,6 +160,7 @@ struct rpc_add_xprt_test {
+ #define RPC_CLNT_CREATE_NO_RETRANS_TIMEOUT	(1UL << 9)
+ #define RPC_CLNT_CREATE_SOFTERR		(1UL << 10)
+ #define RPC_CLNT_CREATE_REUSEPORT	(1UL << 11)
++#define RPC_CLNT_CREATE_CONNECTED	(1UL << 12)
  
- /*
-diff --git a/arch/arm/mm/ioremap.c b/arch/arm/mm/ioremap.c
-index aa08bcb72db9..290702328a33 100644
---- a/arch/arm/mm/ioremap.c
-+++ b/arch/arm/mm/ioremap.c
-@@ -493,3 +493,11 @@ void __init early_ioremap_init(void)
- {
- 	early_ioremap_setup();
- }
-+
-+bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+				 unsigned long flags)
-+{
-+	unsigned long pfn = PHYS_PFN(offset);
-+
-+	return memblock_is_map_memory(pfn);
-+}
-diff --git a/arch/arm64/include/asm/io.h b/arch/arm64/include/asm/io.h
-index 7fd836bea7eb..3995652daf81 100644
---- a/arch/arm64/include/asm/io.h
-+++ b/arch/arm64/include/asm/io.h
-@@ -192,4 +192,8 @@ extern void __iomem *ioremap_cache(phys_addr_t phys_addr, size_t size);
- extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
- extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
+ struct rpc_clnt *rpc_create(struct rpc_create_args *args);
+ struct rpc_clnt	*rpc_bind_new_program(struct rpc_clnt *,
+diff --git a/net/sunrpc/auth_gss/gss_rpc_upcall.c b/net/sunrpc/auth_gss/gss_rpc_upcall.c
+index 61c276bddaf2..f549e4c05def 100644
+--- a/net/sunrpc/auth_gss/gss_rpc_upcall.c
++++ b/net/sunrpc/auth_gss/gss_rpc_upcall.c
+@@ -98,6 +98,7 @@ static int gssp_rpc_create(struct net *net, struct rpc_clnt **_clnt)
+ 		 * done without the correct namespace:
+ 		 */
+ 		.flags		= RPC_CLNT_CREATE_NOPING |
++				  RPC_CLNT_CREATE_CONNECTED |
+ 				  RPC_CLNT_CREATE_NO_IDLE_TIMEOUT
+ 	};
+ 	struct rpc_clnt *clnt;
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index 98133aa54f19..e2c6eca0271b 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -76,6 +76,7 @@ static int	rpc_encode_header(struct rpc_task *task,
+ static int	rpc_decode_header(struct rpc_task *task,
+ 				  struct xdr_stream *xdr);
+ static int	rpc_ping(struct rpc_clnt *clnt);
++static int	rpc_ping_noreply(struct rpc_clnt *clnt);
+ static void	rpc_check_timeout(struct rpc_task *task);
  
-+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+					unsigned long flags);
-+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
+ static void rpc_register_client(struct rpc_clnt *clnt)
+@@ -483,6 +484,12 @@ static struct rpc_clnt *rpc_create_xprt(struct rpc_create_args *args,
+ 			rpc_shutdown_client(clnt);
+ 			return ERR_PTR(err);
+ 		}
++	} else if (args->flags & RPC_CLNT_CREATE_CONNECTED) {
++		int err = rpc_ping_noreply(clnt);
++		if (err != 0) {
++			rpc_shutdown_client(clnt);
++			return ERR_PTR(err);
++		}
+ 	}
+ 
+ 	clnt->cl_softrtry = 1;
+@@ -2709,6 +2716,10 @@ static const struct rpc_procinfo rpcproc_null = {
+ 	.p_decode = rpcproc_decode_null,
+ };
+ 
++static const struct rpc_procinfo rpcproc_null_noreply = {
++	.p_encode = rpcproc_encode_null,
++};
 +
- #endif	/* __ASM_IO_H */
-diff --git a/arch/arm64/mm/ioremap.c b/arch/arm64/mm/ioremap.c
-index b7c81dacabf0..b21f91cd830d 100644
---- a/arch/arm64/mm/ioremap.c
-+++ b/arch/arm64/mm/ioremap.c
-@@ -99,3 +99,11 @@ void __init early_ioremap_init(void)
+ static void
+ rpc_null_call_prepare(struct rpc_task *task, void *data)
  {
- 	early_ioremap_setup();
+@@ -2762,6 +2773,28 @@ static int rpc_ping(struct rpc_clnt *clnt)
+ 	return status;
  }
-+
-+bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+				 unsigned long flags)
+ 
++static int rpc_ping_noreply(struct rpc_clnt *clnt)
 +{
-+	unsigned long pfn = PHYS_PFN(offset);
++	struct rpc_message msg = {
++		.rpc_proc = &rpcproc_null_noreply,
++	};
++	struct rpc_task_setup task_setup_data = {
++		.rpc_client = clnt,
++		.rpc_message = &msg,
++		.callback_ops = &rpc_null_ops,
++		.flags = RPC_TASK_SOFT | RPC_TASK_SOFTCONN | RPC_TASK_NULLCREDS,
++	};
++	struct rpc_task	*task;
++	int status;
 +
-+	return pfn_is_map_memory(pfn);
++	task = rpc_run_task(&task_setup_data);
++	if (IS_ERR(task))
++		return PTR_ERR(task);
++	status = task->tk_status;
++	rpc_put_task(task);
++	return status;
 +}
++
+ struct rpc_cb_add_xprt_calldata {
+ 	struct rpc_xprt_switch *xps;
+ 	struct rpc_xprt *xprt;
 
