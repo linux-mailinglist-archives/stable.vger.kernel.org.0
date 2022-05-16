@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4149B5291D1
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90B0D5290B6
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239390AbiEPTzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:55:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52866 "EHLO
+        id S1348057AbiEPUGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347051AbiEPTvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FABC396;
-        Mon, 16 May 2022 12:46:56 -0700 (PDT)
+        with ESMTP id S1348879AbiEPT7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63ABAB3;
+        Mon, 16 May 2022 12:51:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B1B16090A;
-        Mon, 16 May 2022 19:46:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B823EC34100;
-        Mon, 16 May 2022 19:46:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DA7AB81611;
+        Mon, 16 May 2022 19:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33425C385AA;
+        Mon, 16 May 2022 19:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730415;
-        bh=LzEXUYiiWBvZ1HSbHjZP/HaeYKzIK/cqGI29QFgkIcY=;
+        s=korg; t=1652730712;
+        bh=YzW8u20XqcllyETUghHYrsk3AT8VdfEGOpmwGCOwdKU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KwWts5kM8Uj8CgWJxy29iR8oZYlM2WhiNLrZ0a5JwkY6yOTy0W9Kd/yLNLxJjsKmi
-         XR9IyziSATHhTCivrG/ReGz5czqqBSV22APg4to1bsldPZ2KbJUV981xYhmXjKB6Lk
-         81FpG/zUthFw9Xet4/pzbl7BxLRf6pwChB1a3lho=
+        b=dqAMblpB0aQZjL284RLaDNX97/mLfgJXE3oxUVosbvZDX+TSdC2L1jf4kxdkaKCOk
+         XPimweoj+UWq5zDz+lqK65x1tKB597alnRcwl7yENDUZz42hwSE1xKJTiLvPQEPT8i
+         7kEaa0gyjmFvuAFvd7AuGi4G4HrhZfTVsxiTKR6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 5.10 58/66] SUNRPC: Clean up scheduling of autoclose
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 5.15 084/102] drm/vmwgfx: Disable command buffers on svga3 without gbobjects
 Date:   Mon, 16 May 2022 21:36:58 +0200
-Message-Id: <20220516193621.089029920@linuxfoundation.org>
+Message-Id: <20220516193626.404883946@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit e26d9972720e2484f44cdd94ca4e31cc372ed2ed upstream.
+commit 21d1d192890ced87f2f04f8f4dea92406e0b162a upstream.
 
-Consolidate duplicated code in xprt_force_disconnect() and
-xprt_conditional_disconnect().
+With very limited vram on svga3 it's difficult to handle all the surface
+migrations. Without gbobjects, i.e. the ability to store surfaces in
+guest mobs, there's no reason to support intermediate svga2 features,
+especially because we can fall back to fb traces and svga3 will never
+support those in-between features.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+On svga3 we wither want to use fb traces or screen targets
+(i.e. gbobjects), nothing in between. This fixes presentation on a lot
+of fusion/esxi tech previews where the exposed svga3 caps haven't been
+finalized yet.
+
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
+Cc: <stable@vger.kernel.org> # v5.14+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-5-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprt.c |   28 ++++++++++++++++------------
- 1 file changed, 16 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -732,6 +732,20 @@ void xprt_disconnect_done(struct rpc_xpr
- EXPORT_SYMBOL_GPL(xprt_disconnect_done);
- 
- /**
-+ * xprt_schedule_autoclose_locked - Try to schedule an autoclose RPC call
-+ * @xprt: transport to disconnect
-+ */
-+static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
-+{
-+	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
-+		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
-+	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
-+		rpc_wake_up_queued_task_set_status(&xprt->pending,
-+						   xprt->snd_task, -ENOTCONN);
-+}
-+
-+/**
-  * xprt_force_disconnect - force a transport to disconnect
-  * @xprt: transport to disconnect
-  *
-@@ -742,13 +756,7 @@ void xprt_force_disconnect(struct rpc_xp
- 
- 	/* Don't race with the test_bit() in xprt_clear_locked() */
- 	spin_lock(&xprt->transport_lock);
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
--	/* Try to schedule an autoclose RPC call */
--	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
--		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
--	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
--		rpc_wake_up_queued_task_set_status(&xprt->pending,
--						   xprt->snd_task, -ENOTCONN);
-+	xprt_schedule_autoclose_locked(xprt);
- 	spin_unlock(&xprt->transport_lock);
- }
- EXPORT_SYMBOL_GPL(xprt_force_disconnect);
-@@ -788,11 +796,7 @@ void xprt_conditional_disconnect(struct
- 		goto out;
- 	if (test_bit(XPRT_CLOSING, &xprt->state))
- 		goto out;
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
--	/* Try to schedule an autoclose RPC call */
--	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
--		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
--	xprt_wake_pending_tasks(xprt, -EAGAIN);
-+	xprt_schedule_autoclose_locked(xprt);
- out:
- 	spin_unlock(&xprt->transport_lock);
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
+@@ -675,11 +675,14 @@ int vmw_cmd_emit_dummy_query(struct vmw_
+  */
+ bool vmw_cmd_supported(struct vmw_private *vmw)
+ {
+-	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
+-				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
+-		return true;
++	bool has_cmdbufs =
++		(vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
++				      SVGA_CAP_CMD_BUFFERS_2)) != 0;
++	if (vmw_is_svga_v3(vmw))
++		return (has_cmdbufs &&
++			(vmw->capabilities & SVGA_CAP_GBOBJECTS) != 0);
+ 	/*
+ 	 * We have FIFO cmd's
+ 	 */
+-	return vmw->fifo_mem != NULL;
++	return has_cmdbufs || vmw->fifo_mem != NULL;
  }
 
 
