@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72680529161
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F835291D3
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348515AbiEPUGg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:06:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
+        id S241307AbiEPUHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:07:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349331AbiEPT7j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2488419B1;
-        Mon, 16 May 2022 12:53:46 -0700 (PDT)
+        with ESMTP id S1348198AbiEPT62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B8349277;
+        Mon, 16 May 2022 12:50:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD233B8161C;
-        Mon, 16 May 2022 19:53:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23CEEC385AA;
-        Mon, 16 May 2022 19:53:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26053B81612;
+        Mon, 16 May 2022 19:50:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73249C385AA;
+        Mon, 16 May 2022 19:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730816;
-        bh=M5yywGuNvNe3nXkUm63hHttNw6vRK4CXJHxqMTHxuFg=;
+        s=korg; t=1652730615;
+        bh=D0V9cvmne9QhS6Ya73lFpN8FSdSoxKiZMZLj42fZCRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eFcX+uCUWpbPmF8aiPQtTTsX0G4av/4rlsHCCvJjw3kmIYDObcZxi1ztDSnltCAGg
-         XXhEO+ou22TVF07j6eYVONarDnfkyNC7OapK0MA13ac4BP+ItkGhum/1qtTNkV6sPT
-         ryOke8cYjZqVkIHuMgbAaFeU/gE8+7SEGZMvDePI=
+        b=Hex/4WaIeRNcSuFX7EMkm7jY0g5iUFxip+hh7m8KCg4nNNwD2OwFzhDU7L+yCQ+lf
+         mYVd+Gq766qdHts+R5WB/NB5etDeULN29t/KdCE7rFVDSMGj9lB0iWBfG3h6V8Ra1/
+         mbDYuJ7FKejyq1PuhJ3+cPsOxXKARvD2Lmq+Z2EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Ivan Vecera <ivecera@redhat.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
+        stable@vger.kernel.org,
+        Michal Michalik <michal.michalik@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 015/114] ice: Fix race during aux device (un)plugging
+Subject: [PATCH 5.15 015/102] ice: fix PTP stale Tx timestamps cleanup
 Date:   Mon, 16 May 2022 21:35:49 +0200
-Message-Id: <20220516193625.934213792@linuxfoundation.org>
+Message-Id: <20220516193624.435938166@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,232 +58,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ivan Vecera <ivecera@redhat.com>
+From: Michal Michalik <michal.michalik@intel.com>
 
-[ Upstream commit 486b9eee57ddca5c9a2d59fc41153f36002e0a00 ]
+[ Upstream commit a11b6c1a383ff092f432e040c20e032503785d47 ]
 
-Function ice_plug_aux_dev() assigns pf->adev field too early prior
-aux device initialization and on other side ice_unplug_aux_dev()
-starts aux device deinit and at the end assigns NULL to pf->adev.
-This is wrong because pf->adev should always be non-NULL only when
-aux device is fully initialized and ready. This wrong order causes
-a crash when ice_send_event_to_aux() call occurs because that function
-depends on non-NULL value of pf->adev and does not assume that
-aux device is half-initialized or half-destroyed.
-After order correction the race window is tiny but it is still there,
-as Leon mentioned and manipulation with pf->adev needs to be protected
-by mutex.
+Read stale PTP Tx timestamps from PHY on cleanup.
 
-Fix (un-)plugging functions so pf->adev field is set after aux device
-init and prior aux device destroy and protect pf->adev assignment by
-new mutex. This mutex is also held during ice_send_event_to_aux()
-call to ensure that aux device is valid during that call.
-Note that device lock used ice_send_event_to_aux() needs to be kept
-to avoid race with aux drv unload.
+After running out of Tx timestamps request handlers, hardware (HW) stops
+reporting finished requests. Function ice_ptp_tx_tstamp_cleanup() used
+to only clean up stale handlers in driver and was leaving the hardware
+registers not read. Not reading stale PTP Tx timestamps prevents next
+interrupts from arriving and makes timestamping unusable.
 
-Reproducer:
-cycle=1
-while :;do
-        echo "#### Cycle: $cycle"
-
-        ip link set ens7f0 mtu 9000
-        ip link add bond0 type bond mode 1 miimon 100
-        ip link set bond0 up
-        ifenslave bond0 ens7f0
-        ip link set bond0 mtu 9000
-        ethtool -L ens7f0 combined 1
-        ip link del bond0
-        ip link set ens7f0 mtu 1500
-        sleep 1
-
-        let cycle++
-done
-
-In short when the device is added/removed to/from bond the aux device
-is unplugged/plugged. When MTU of the device is changed an event is
-sent to aux device asynchronously. This can race with (un)plugging
-operation and because pf->adev is set too early (plug) or too late
-(unplug) the function ice_send_event_to_aux() can touch uninitialized
-or destroyed fields. In the case of crash below pf->adev->dev.mutex.
-
-Crash:
-[   53.372066] bond0: (slave ens7f0): making interface the new active one
-[   53.378622] bond0: (slave ens7f0): Enslaving as an active interface with an u
-p link
-[   53.386294] IPv6: ADDRCONF(NETDEV_CHANGE): bond0: link becomes ready
-[   53.549104] bond0: (slave ens7f1): Enslaving as a backup interface with an up
- link
-[   54.118906] ice 0000:ca:00.0 ens7f0: Number of in use tx queues changed inval
-idating tc mappings. Priority traffic classification disabled!
-[   54.233374] ice 0000:ca:00.1 ens7f1: Number of in use tx queues changed inval
-idating tc mappings. Priority traffic classification disabled!
-[   54.248204] bond0: (slave ens7f0): Releasing backup interface
-[   54.253955] bond0: (slave ens7f1): making interface the new active one
-[   54.274875] bond0: (slave ens7f1): Releasing backup interface
-[   54.289153] bond0 (unregistering): Released all slaves
-[   55.383179] MII link monitoring set to 100 ms
-[   55.398696] bond0: (slave ens7f0): making interface the new active one
-[   55.405241] BUG: kernel NULL pointer dereference, address: 0000000000000080
-[   55.405289] bond0: (slave ens7f0): Enslaving as an active interface with an u
-p link
-[   55.412198] #PF: supervisor write access in kernel mode
-[   55.412200] #PF: error_code(0x0002) - not-present page
-[   55.412201] PGD 25d2ad067 P4D 0
-[   55.412204] Oops: 0002 [#1] PREEMPT SMP NOPTI
-[   55.412207] CPU: 0 PID: 403 Comm: kworker/0:2 Kdump: loaded Tainted: G S
-           5.17.0-13579-g57f2d6540f03 #1
-[   55.429094] bond0: (slave ens7f1): Enslaving as a backup interface with an up
- link
-[   55.430224] Hardware name: Dell Inc. PowerEdge R750/06V45N, BIOS 1.4.4 10/07/
-2021
-[   55.430226] Workqueue: ice ice_service_task [ice]
-[   55.468169] RIP: 0010:mutex_unlock+0x10/0x20
-[   55.472439] Code: 0f b1 13 74 96 eb e0 4c 89 ee eb d8 e8 79 54 ff ff 66 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 65 48 8b 04 25 40 ef 01 00 31 d2 <f0> 48 0f b1 17 75 01 c3 e9 e3 fe ff ff 0f 1f 00 0f 1f 44 00 00 48
-[   55.491186] RSP: 0018:ff4454230d7d7e28 EFLAGS: 00010246
-[   55.496413] RAX: ff1a79b208b08000 RBX: ff1a79b2182e8880 RCX: 0000000000000001
-[   55.503545] RDX: 0000000000000000 RSI: ff4454230d7d7db0 RDI: 0000000000000080
-[   55.510678] RBP: ff1a79d1c7e48b68 R08: ff4454230d7d7db0 R09: 0000000000000041
-[   55.517812] R10: 00000000000000a5 R11: 00000000000006e6 R12: ff1a79d1c7e48bc0
-[   55.524945] R13: 0000000000000000 R14: ff1a79d0ffc305c0 R15: 0000000000000000
-[   55.532076] FS:  0000000000000000(0000) GS:ff1a79d0ffc00000(0000) knlGS:0000000000000000
-[   55.540163] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   55.545908] CR2: 0000000000000080 CR3: 00000003487ae003 CR4: 0000000000771ef0
-[   55.553041] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   55.560173] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   55.567305] PKRU: 55555554
-[   55.570018] Call Trace:
-[   55.572474]  <TASK>
-[   55.574579]  ice_service_task+0xaab/0xef0 [ice]
-[   55.579130]  process_one_work+0x1c5/0x390
-[   55.583141]  ? process_one_work+0x390/0x390
-[   55.587326]  worker_thread+0x30/0x360
-[   55.590994]  ? process_one_work+0x390/0x390
-[   55.595180]  kthread+0xe6/0x110
-[   55.598325]  ? kthread_complete_and_exit+0x20/0x20
-[   55.603116]  ret_from_fork+0x1f/0x30
-[   55.606698]  </TASK>
-
-Fixes: f9f5301e7e2d ("ice: Register auxiliary device to provide RDMA")
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Ivan Vecera <ivecera@redhat.com>
-Reviewed-by: Dave Ertman <david.m.ertman@intel.com>
+Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
+Signed-off-by: Michal Michalik <michal.michalik@intel.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
 Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |  1 +
- drivers/net/ethernet/intel/ice/ice_idc.c  | 25 +++++++++++++++--------
- drivers/net/ethernet/intel/ice/ice_main.c |  2 ++
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_ptp.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index 9c04a71a9fca..e2ffdf2726fd 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -546,6 +546,7 @@ struct ice_pf {
- 	struct mutex avail_q_mutex;	/* protects access to avail_[rx|tx]qs */
- 	struct mutex sw_mutex;		/* lock for protecting VSI alloc flow */
- 	struct mutex tc_mutex;		/* lock to protect TC changes */
-+	struct mutex adev_mutex;	/* lock to protect aux device access */
- 	u32 msg_enable;
- 	struct ice_ptp ptp;
- 	u16 num_rdma_msix;		/* Total MSIX vectors for RDMA driver */
-diff --git a/drivers/net/ethernet/intel/ice/ice_idc.c b/drivers/net/ethernet/intel/ice/ice_idc.c
-index 5559230eff8b..0deed090645f 100644
---- a/drivers/net/ethernet/intel/ice/ice_idc.c
-+++ b/drivers/net/ethernet/intel/ice/ice_idc.c
-@@ -37,14 +37,17 @@ void ice_send_event_to_aux(struct ice_pf *pf, struct iidc_event *event)
- 	if (WARN_ON_ONCE(!in_task()))
- 		return;
- 
-+	mutex_lock(&pf->adev_mutex);
- 	if (!pf->adev)
--		return;
-+		goto finish;
- 
- 	device_lock(&pf->adev->dev);
- 	iadrv = ice_get_auxiliary_drv(pf);
- 	if (iadrv && iadrv->event_handler)
- 		iadrv->event_handler(pf, event);
- 	device_unlock(&pf->adev->dev);
-+finish:
-+	mutex_unlock(&pf->adev_mutex);
- }
+diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
+index eb9193682579..ef26ff351b57 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ptp.c
++++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
+@@ -1375,6 +1375,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
  
  /**
-@@ -285,7 +288,6 @@ int ice_plug_aux_dev(struct ice_pf *pf)
- 		return -ENOMEM;
- 
- 	adev = &iadev->adev;
--	pf->adev = adev;
- 	iadev->pf = pf;
- 
- 	adev->id = pf->aux_idx;
-@@ -295,18 +297,20 @@ int ice_plug_aux_dev(struct ice_pf *pf)
- 
- 	ret = auxiliary_device_init(adev);
- 	if (ret) {
--		pf->adev = NULL;
- 		kfree(iadev);
- 		return ret;
- 	}
- 
- 	ret = auxiliary_device_add(adev);
- 	if (ret) {
--		pf->adev = NULL;
- 		auxiliary_device_uninit(adev);
- 		return ret;
- 	}
- 
-+	mutex_lock(&pf->adev_mutex);
-+	pf->adev = adev;
-+	mutex_unlock(&pf->adev_mutex);
-+
- 	return 0;
- }
- 
-@@ -315,12 +319,17 @@ int ice_plug_aux_dev(struct ice_pf *pf)
+  * ice_ptp_tx_tstamp_cleanup - Cleanup old timestamp requests that got dropped
++ * @hw: pointer to the hw struct
+  * @tx: PTP Tx tracker to clean up
+  *
+  * Loop through the Tx timestamp requests and see if any of them have been
+@@ -1383,7 +1384,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
+  * timestamp will never be captured. This might happen if the packet gets
+  * discarded before it reaches the PHY timestamping block.
   */
- void ice_unplug_aux_dev(struct ice_pf *pf)
+-static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
++static void ice_ptp_tx_tstamp_cleanup(struct ice_hw *hw, struct ice_ptp_tx *tx)
  {
--	if (!pf->adev)
--		return;
-+	struct auxiliary_device *adev;
+ 	u8 idx;
  
--	auxiliary_device_delete(pf->adev);
--	auxiliary_device_uninit(pf->adev);
-+	mutex_lock(&pf->adev_mutex);
-+	adev = pf->adev;
- 	pf->adev = NULL;
-+	mutex_unlock(&pf->adev_mutex);
+@@ -1392,11 +1393,16 @@ static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
+ 
+ 	for_each_set_bit(idx, tx->in_use, tx->len) {
+ 		struct sk_buff *skb;
++		u64 raw_tstamp;
+ 
+ 		/* Check if this SKB has been waiting for too long */
+ 		if (time_is_after_jiffies(tx->tstamps[idx].start + 2 * HZ))
+ 			continue;
+ 
++		/* Read tstamp to be able to use this register again */
++		ice_read_phy_tstamp(hw, tx->quad, idx + tx->quad_offset,
++				    &raw_tstamp);
 +
-+	if (adev) {
-+		auxiliary_device_delete(adev);
-+		auxiliary_device_uninit(adev);
-+	}
- }
+ 		spin_lock(&tx->lock);
+ 		skb = tx->tstamps[idx].skb;
+ 		tx->tstamps[idx].skb = NULL;
+@@ -1418,7 +1424,7 @@ static void ice_ptp_periodic_work(struct kthread_work *work)
  
- /**
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index e347030ee2e3..7f6715eb862f 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -3682,6 +3682,7 @@ u16 ice_get_avail_rxq_count(struct ice_pf *pf)
- static void ice_deinit_pf(struct ice_pf *pf)
- {
- 	ice_service_task_stop(pf);
-+	mutex_destroy(&pf->adev_mutex);
- 	mutex_destroy(&pf->sw_mutex);
- 	mutex_destroy(&pf->tc_mutex);
- 	mutex_destroy(&pf->avail_q_mutex);
-@@ -3762,6 +3763,7 @@ static int ice_init_pf(struct ice_pf *pf)
+ 	ice_ptp_update_cached_phctime(pf);
  
- 	mutex_init(&pf->sw_mutex);
- 	mutex_init(&pf->tc_mutex);
-+	mutex_init(&pf->adev_mutex);
+-	ice_ptp_tx_tstamp_cleanup(&pf->ptp.port.tx);
++	ice_ptp_tx_tstamp_cleanup(&pf->hw, &pf->ptp.port.tx);
  
- 	INIT_HLIST_HEAD(&pf->aq_wait_list);
- 	spin_lock_init(&pf->aq_wait_lock);
+ 	/* Run twice a second */
+ 	kthread_queue_delayed_work(ptp->kworker, &ptp->work,
 -- 
 2.35.1
 
