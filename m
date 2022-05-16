@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B64F3529132
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C399529129
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346747AbiEPUL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51624 "EHLO
+        id S1348386AbiEPUGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350993AbiEPUBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:54 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4655147561;
-        Mon, 16 May 2022 12:56:24 -0700 (PDT)
+        with ESMTP id S1348576AbiEPT6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2B63DA4D;
+        Mon, 16 May 2022 12:50:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 070C2B81607;
-        Mon, 16 May 2022 19:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70504C385AA;
-        Mon, 16 May 2022 19:56:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E7E960ABE;
+        Mon, 16 May 2022 19:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72EADC34100;
+        Mon, 16 May 2022 19:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730981;
-        bh=I5cs4rPMg6JZJCSn7sJ6TZVwO84ivOWm5OxLrZprd7k=;
+        s=korg; t=1652730647;
+        bh=jpiRU41G7rib5KT8rX+ATDSBSQFLApOjYbiJIWyGoGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ahwNEdnO3eRpO7hnldwjHKoPjQdMa/nrf6nCzbv8hZuP4wsIeGReAbEiV0kC92QeE
-         qwWpt+UJgGKwHMPBRTiWsCGYWfBvtGq9clpvyC9yKveTbHncGwEgwik95bBLtgOvId
-         4ov3rM76E6OiKxb7xhRJmQ8p4QLux3UfvC1TLVPc=
+        b=FzBojgvKSlq6PdEqdqObIml/cSWWgbmMBhV47oM8/Jt+3Am2HBvVw+WWRcrSP214W
+         2dcdNlD5qXF5rfnjUlcL/k/lsEA7jQoKKIJICck1BtH8LeBm2CxNLepEnB875fC7NE
+         cpcBqSEV81gXxr9dryOHhy/7COj+bjsXA0jlm0zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 066/114] tcp: increase source port perturb table to 2^16
+        stable@vger.kernel.org, Adrian-Ken Rueegsegger <ken@codelabs.ch>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>
+Subject: [PATCH 5.15 066/102] x86/mm: Fix marking of unused sub-pmd ranges
 Date:   Mon, 16 May 2022 21:36:40 +0200
-Message-Id: <20220516193627.387650809@linuxfoundation.org>
+Message-Id: <20220516193625.892146402@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,64 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Adrian-Ken Rueegsegger <ken@codelabs.ch>
 
-[ Upstream commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 ]
+commit 280abe14b6e0a38de9cc86fe6a019523aadd8f70 upstream.
 
-Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
-identify a client by forcing it to emit only 40 times more connections
-than there are entries in the table_perturb[] table. The previous two
-improvements consisting in resalting the secret every 10s and adding
-randomness to each port selection only slightly improved the situation,
-and the current value of 2^8 was too small as it's not very difficult
-to make a client emit 10k connections in less than 10 seconds.
+The unused part precedes the new range spanned by the start, end parameters
+of vmemmap_use_new_sub_pmd(). This means it actually goes from
+ALIGN_DOWN(start, PMD_SIZE) up to start.
 
-Thus we're increasing the perturb table from 2^8 to 2^16 so that the
-same precision now requires 2.6M connections, which is more difficult in
-this time frame and harder to hide as a background activity. The impact
-is that the table now uses 256 kB instead of 1 kB, which could mostly
-affect devices making frequent outgoing connections. However such
-components usually target a small set of destinations (load balancers,
-database clients, perf assessment tools), and in practice only a few
-entries will be visited, like before.
+Use the correct address when applying the mark using memset.
 
-A live test at 1 million connections per second showed no performance
-difference from the previous value.
-
-Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8d400913c231 ("x86/vmemmap: handle unpopulated sub-pmd ranges")
+Signed-off-by: Adrian-Ken Rueegsegger <ken@codelabs.ch>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220509090637.24152-2-ken@codelabs.ch
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/x86/mm/init_64.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 48ca07853068..cc5f66328b47 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -726,11 +726,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * Note that we use 32bit integers (vs RFC 'short integers')
-  * because 2^16 is not a multiple of num_ephemeral and this
-  * property might be used by clever attacker.
-- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
-- * we use 256 instead to really give more isolation and
-- * privacy, this only consumes 1 KB of kernel memory.
-+ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
-+ * attacks were since demonstrated, thus we use 65536 instead to really
-+ * give more isolation and privacy, at the expense of 256kB of kernel
-+ * memory.
-  */
--#define INET_TABLE_PERTURB_SHIFT 8
-+#define INET_TABLE_PERTURB_SHIFT 16
- #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
- static u32 *table_perturb;
+--- a/arch/x86/mm/init_64.c
++++ b/arch/x86/mm/init_64.c
+@@ -902,6 +902,8 @@ static void __meminit vmemmap_use_sub_pm
  
--- 
-2.35.1
-
+ static void __meminit vmemmap_use_new_sub_pmd(unsigned long start, unsigned long end)
+ {
++	const unsigned long page = ALIGN_DOWN(start, PMD_SIZE);
++
+ 	vmemmap_flush_unused_pmd();
+ 
+ 	/*
+@@ -914,8 +916,7 @@ static void __meminit vmemmap_use_new_su
+ 	 * Mark with PAGE_UNUSED the unused parts of the new memmap range
+ 	 */
+ 	if (!IS_ALIGNED(start, PMD_SIZE))
+-		memset((void *)start, PAGE_UNUSED,
+-			start - ALIGN_DOWN(start, PMD_SIZE));
++		memset((void *)page, PAGE_UNUSED, start - page);
+ 
+ 	/*
+ 	 * We want to avoid memset(PAGE_UNUSED) when populating the vmemmap of
 
 
