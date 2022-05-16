@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A2C52900D
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AAF52903F
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238440AbiEPUHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
+        id S1346486AbiEPTyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349815AbiEPUAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4406044A08;
-        Mon, 16 May 2022 12:54:35 -0700 (PDT)
+        with ESMTP id S1348364AbiEPTws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA0745AD7;
+        Mon, 16 May 2022 12:48:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7091760EC4;
-        Mon, 16 May 2022 19:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B439C385AA;
-        Mon, 16 May 2022 19:53:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B1D60ABE;
+        Mon, 16 May 2022 19:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E10FC385AA;
+        Mon, 16 May 2022 19:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730828;
-        bh=WWp5/fwmERuhj14JqsIQ06X/O1ig7VgEOoMipSi2itU=;
+        s=korg; t=1652730504;
+        bh=8TNGV8+lcfjcP2CucebFTBrC3MWqsBcqoaEeKvVh1+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggAZORhuCw4rgiIfa7het5bPZFIYbxnFyXK0pR/dSSndHplRAl1V9z6ZBcaX6RqnF
-         HjcDMGK44e167KJ9cykRPiGHp3LMALaUWF+hdYxhJsAxHmOo9DeGHaSN+4AqlF5YMa
-         jc0FRoCzHtF4wmUNUe62hLtuyvh5D5oy52ByO4h8=
+        b=j7l++uub0o+dvbubSFoWemRDAd8yYmYLpZV+8fs4Ayhx4UbSQsc9BPMglEYyfEuSK
+         1FY6af/AD5Y0ierG1RLfOjIlvd8kNXdCSdaZN90iRigPBWqf5VJ2/RKbRU8/qmfW5m
+         aPqTJDyUxETJhNuj5ev9Wm9R9wtW/AdCdqx1pCBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 019/114] drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
-Date:   Mon, 16 May 2022 21:35:53 +0200
-Message-Id: <20220516193626.047502062@linuxfoundation.org>
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Thomas Zimmermann <tzimemrmann@suse.de>,
+        Lucas De Marchi <lucas.demarchi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 020/102] fbdev: efifb: Fix a use-after-free due early fb_info cleanup
+Date:   Mon, 16 May 2022 21:35:54 +0200
+Message-Id: <20220516193624.580066845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +60,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit ab244be47a8f111bc82496a8a20c907236e37f95 ]
+[ Upstream commit 1b5853dfab7fdde450f00f145327342238135c8a ]
 
-If successful ida_simple_get() calls are not undone when needed, some
-additional memory may be allocated and wasted.
+Commit d258d00fb9c7 ("fbdev: efifb: Cleanup fb_info in .fb_destroy rather
+than .remove") attempted to fix a use-after-free error due driver freeing
+the fb_info in the .remove handler instead of doing it in .fb_destroy.
 
-Here, an ID between 0 and MAX_INT is required. If this ID is >=100, it is
-not taken into account and is wasted. It should be released.
+But ironically that change introduced yet another use-after-free since the
+fb_info was still used after the free.
 
-Instead of calling ida_simple_remove(), take advantage of the 'max'
-parameter to require the ID not to be too big. Should it be too big, it
-is not allocated and don't need to be freed.
+This should fix for good by freeing the fb_info at the end of the handler.
 
-While at it, use ida_alloc_xxx()/ida_free() instead to
-ida_simple_get()/ida_simple_remove().
-The latter is deprecated and more verbose.
-
-Fixes: db1a0ae21461 ("drm/nouveau/bl: Assign different names to interfaces")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-[Fixed formatting warning from checkpatch]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/9ba85bca59df6813dc029e743a836451d5173221.1644386541.git.christophe.jaillet@wanadoo.fr
+Fixes: d258d00fb9c7 ("fbdev: efifb: Cleanup fb_info in .fb_destroy rather than .remove")
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reported-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
+Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
+Reviewed-by: Thomas Zimmermann <tzimemrmann@suse.de>
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220506132225.588379-1-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nouveau_backlight.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/efifb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nouveau_backlight.c b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-index daf9f87477ba..a2141d3d9b1d 100644
---- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
-+++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
-@@ -46,8 +46,9 @@ static bool
- nouveau_get_backlight_name(char backlight_name[BL_NAME_SIZE],
- 			   struct nouveau_backlight *bl)
- {
--	const int nb = ida_simple_get(&bl_ida, 0, 0, GFP_KERNEL);
--	if (nb < 0 || nb >= 100)
-+	const int nb = ida_alloc_max(&bl_ida, 99, GFP_KERNEL);
-+
-+	if (nb < 0)
- 		return false;
- 	if (nb > 0)
- 		snprintf(backlight_name, BL_NAME_SIZE, "nv_backlight%d", nb);
-@@ -414,7 +415,7 @@ nouveau_backlight_init(struct drm_connector *connector)
- 					    nv_encoder, ops, &props);
- 	if (IS_ERR(bl->dev)) {
- 		if (bl->id >= 0)
--			ida_simple_remove(&bl_ida, bl->id);
-+			ida_free(&bl_ida, bl->id);
- 		ret = PTR_ERR(bl->dev);
- 		goto fail_alloc;
+diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
+index cfa3dc0b4eee..b3d5f884c544 100644
+--- a/drivers/video/fbdev/efifb.c
++++ b/drivers/video/fbdev/efifb.c
+@@ -259,12 +259,12 @@ static void efifb_destroy(struct fb_info *info)
+ 			memunmap(info->screen_base);
  	}
-@@ -442,7 +443,7 @@ nouveau_backlight_fini(struct drm_connector *connector)
- 		return;
  
- 	if (bl->id >= 0)
--		ida_simple_remove(&bl_ida, bl->id);
-+		ida_free(&bl_ida, bl->id);
+-	framebuffer_release(info);
+-
+ 	if (request_mem_succeeded)
+ 		release_mem_region(info->apertures->ranges[0].base,
+ 				   info->apertures->ranges[0].size);
+ 	fb_dealloc_cmap(&info->cmap);
++
++	framebuffer_release(info);
+ }
  
- 	backlight_device_unregister(bl->dev);
- 	nv_conn->backlight = NULL;
+ static const struct fb_ops efifb_ops = {
 -- 
 2.35.1
 
