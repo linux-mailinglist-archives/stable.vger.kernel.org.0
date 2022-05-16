@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CBAD0529073
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42DD0528FA5
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239201AbiEPUEp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
+        id S237785AbiEPUCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:02:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348810AbiEPT66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F70B43AFC;
-        Mon, 16 May 2022 12:51:07 -0700 (PDT)
+        with ESMTP id S1346467AbiEPTu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:50:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 437F843EEE;
+        Mon, 16 May 2022 12:45:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1151FB81612;
-        Mon, 16 May 2022 19:51:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61024C34100;
-        Mon, 16 May 2022 19:51:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0A566158C;
+        Mon, 16 May 2022 19:45:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1CBEC385AA;
+        Mon, 16 May 2022 19:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730664;
-        bh=RztfQ90jXpDs3wSaZIRAhybCdZaqmicuc1/LNiTgqz4=;
+        s=korg; t=1652730321;
+        bh=cN7pN2qiTBiyCtUVNPVjMGtJqOIHHM6vwU7NfzSBM+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbFyY0D6LP0PGJVIiL5w8Z7Q8SS4ujhy8/mVfYuKxubKt14q9MPK3Dht7uvQ6phCp
-         cHnocMaBsPGwc/bU/aNcEyTCC8lwRzJUkCaau47w0o5+5H0KnC/8B+s7yIqw699jGm
-         XuIyh0O17TYj87zs9ZKiqQdSpW0O9ekDHDzhTVH4=
+        b=0WZUpLdtHWmxzjMrozaAUuLkABMVj5dexK3RJ/jGs+QCo+G2UAB7ZSPSgeSJJygvq
+         ghbCVXxZx5owwiHEukkwgv1hjiFYsBsNnbYxZ98jx6xSwul0FFFrXN+I+VQtoZjZwf
+         wY2XUc3/ioXY1KZ4xjei/xAA46uFDafCyMOCv1H4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Shravya Kumbham <shravya.kumbham@xilinx.com>,
-        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        Guangguan Wang <guangguan.wang@linux.alibaba.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 053/102] net: emaclite: Dont advertise 1000BASE-T and do auto negotiation
+Subject: [PATCH 5.10 27/66] net/smc: non blocking recvmsg() return -EAGAIN when no data and signal_pending
 Date:   Mon, 16 May 2022 21:36:27 +0200
-Message-Id: <20220516193625.519005771@linuxfoundation.org>
+Message-Id: <20220516193620.201933568@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shravya Kumbham <shravya.kumbham@xilinx.com>
+From: Guangguan Wang <guangguan.wang@linux.alibaba.com>
 
-[ Upstream commit b800528b97d0adc3a5ba42d78a8b0d3f07a31f44 ]
+[ Upstream commit f3c46e41b32b6266cf60b0985c61748f53bf1c61 ]
 
-In xemaclite_open() function we are setting the max speed of
-emaclite to 100Mb using phy_set_max_speed() function so,
-there is no need to write the advertising registers to stop
-giga-bit speed and the phy_start() function starts the
-auto-negotiation so, there is no need to handle it separately
-using advertising registers. Remove the phy_read and phy_write
-of advertising registers in xemaclite_open() function.
+Non blocking sendmsg will return -EAGAIN when any signal pending
+and no send space left, while non blocking recvmsg return -EINTR
+when signal pending and no data received. This may makes confused.
+As TCP returns -EAGAIN in the conditions described above. Align the
+behavior of smc with TCP.
 
-Signed-off-by: Shravya Kumbham <shravya.kumbham@xilinx.com>
-Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 846e344eb722 ("net/smc: add receive timeout check")
+Signed-off-by: Guangguan Wang <guangguan.wang@linux.alibaba.com>
+Reviewed-by: Tony Lu <tonylu@linux.alibaba.com>
+Acked-by: Karsten Graul <kgraul@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220512030820.73848-1-guangguan.wang@linux.alibaba.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_emaclite.c | 15 ---------------
- 1 file changed, 15 deletions(-)
+ net/smc/smc_rx.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index 642472de5a08..97c1d1ecba34 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -934,8 +934,6 @@ static int xemaclite_open(struct net_device *dev)
- 	xemaclite_disable_interrupts(lp);
+diff --git a/net/smc/smc_rx.c b/net/smc/smc_rx.c
+index fcfac59f8b72..7f7e983e42b1 100644
+--- a/net/smc/smc_rx.c
++++ b/net/smc/smc_rx.c
+@@ -346,12 +346,12 @@ int smc_rx_recvmsg(struct smc_sock *smc, struct msghdr *msg,
+ 				}
+ 				break;
+ 			}
++			if (!timeo)
++				return -EAGAIN;
+ 			if (signal_pending(current)) {
+ 				read_done = sock_intr_errno(timeo);
+ 				break;
+ 			}
+-			if (!timeo)
+-				return -EAGAIN;
+ 		}
  
- 	if (lp->phy_node) {
--		u32 bmcr;
--
- 		lp->phy_dev = of_phy_connect(lp->ndev, lp->phy_node,
- 					     xemaclite_adjust_link, 0,
- 					     PHY_INTERFACE_MODE_MII);
-@@ -946,19 +944,6 @@ static int xemaclite_open(struct net_device *dev)
- 
- 		/* EmacLite doesn't support giga-bit speeds */
- 		phy_set_max_speed(lp->phy_dev, SPEED_100);
--
--		/* Don't advertise 1000BASE-T Full/Half duplex speeds */
--		phy_write(lp->phy_dev, MII_CTRL1000, 0);
--
--		/* Advertise only 10 and 100mbps full/half duplex speeds */
--		phy_write(lp->phy_dev, MII_ADVERTISE, ADVERTISE_ALL |
--			  ADVERTISE_CSMA);
--
--		/* Restart auto negotiation */
--		bmcr = phy_read(lp->phy_dev, MII_BMCR);
--		bmcr |= (BMCR_ANENABLE | BMCR_ANRESTART);
--		phy_write(lp->phy_dev, MII_BMCR, bmcr);
--
- 		phy_start(lp->phy_dev);
- 	}
- 
+ 		if (!smc_rx_data_available(conn)) {
 -- 
 2.35.1
 
