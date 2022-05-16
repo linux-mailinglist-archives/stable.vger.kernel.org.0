@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D5C528F42
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6B62528F44
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344575AbiEPTx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
+        id S239455AbiEPTxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:53:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346953AbiEPTvb (ORCPT
+        with ESMTP id S1346952AbiEPTvb (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2902140936;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E94A54093E;
         Mon, 16 May 2022 12:46:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8F166CE177C;
-        Mon, 16 May 2022 19:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C004C34100;
-        Mon, 16 May 2022 19:46:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 781C161557;
+        Mon, 16 May 2022 19:46:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81A77C385AA;
+        Mon, 16 May 2022 19:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730365;
-        bh=v7X2MWl0oE+xbp5LKfvTt4E6oRIiQmuCXUyhJysrXrs=;
+        s=korg; t=1652730367;
+        bh=nHCPrEtDuSjJ96w8i2Zd8GckMSt702jjQBW4XUFJnXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBXd+pyO4u+pdI554WSWsnDyOcfGbFFLBAylDVpGrqdHAqYR1mYrlctzpotybmnkA
-         Iabf1F0OE/XObbvghwYt2KK91p05bqiU+FGw/mR3+Yb75mGW6BnZhPkzXRHY5549Ke
-         7LsI958f/ZDxlJnJNr5Ptm64dJ97kwEt5nkPYLSM=
+        b=GLrgSttN59L/KEhQ1z20gwo1CkI3Sx+9PUMNeIKH9B0njzMHCg+O5sXvksFwvLlhp
+         XfEguy/RDiHYVZTvI3uR0Df7Qic8Z+CWnDOU3Zyr+k9s/fwvkMBTwjGycd/TiMx8a0
+         c+dCg5TUmfUlWWQRd4PQyKQNW7xQ7jhgp21SB6oU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
+        stable@vger.kernel.org, Macpaul Lin <macpaul.lin@mediatek.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 43/66] usb: typec: tcpci: Dont skip cleanup in .remove() on error
-Date:   Mon, 16 May 2022 21:36:43 +0200
-Message-Id: <20220516193620.658444663@linuxfoundation.org>
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Fabien Parent <fparent@baylibre.com>
+Subject: [PATCH 5.10 44/66] usb: typec: tcpci_mt6360: Update for BMC PHY setting
+Date:   Mon, 16 May 2022 21:36:44 +0200
+Message-Id: <20220516193620.687545703@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
 References: <20220516193619.400083785@linuxfoundation.org>
@@ -56,50 +56,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: ChiYuan Huang <cy_huang@richtek.com>
 
-commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
+commit 4031cd95cba70c72e4cadc2d46624bcd31e5a6c0 upstream.
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+Update MT6360 BMC PHY Tx/Rx setting for the compatibility.
 
-In this case the remove callback even returns early without stopping the
-tcpm worker thread and various timers. A work scheduled on the work
-queue, or a firing timer after tcpci_remove() returned probably results
-in a use-after-free situation because the regmap and driver data were
-freed. So better make sure that tcpci_unregister_port() is called even
-if disabling the irq failed.
+Macpaul reported this CtoDP cable attention message cannot be received from
+MT6360 TCPC. But actually, attention message really sent from UFP_D
+device.
 
-Also emit a more specific error message instead of the i2c core's
-"remove failed (EIO), will be ignored" and return 0 to suppress the
-core's warning.
+After RD's comment, there may be BMC PHY Tx/Rx setting causes this issue.
 
-This patch is (also) a preparation for making i2c remove callbacks
-return void.
+Below's the detailed TCPM log and DP attention message didn't received from 6360
+TCPCI.
+[ 1206.367775] Identity: 0000:0000.0000
+[ 1206.416570] Alternate mode 0: SVID 0xff01, VDO 1: 0x00000405
+[ 1206.447378] AMS DFP_TO_UFP_ENTER_MODE start
+[ 1206.447383] PD TX, header: 0x1d6f
+[ 1206.449393] PD TX complete, status: 0
+[ 1206.454110] PD RX, header: 0x184f [1]
+[ 1206.456867] Rx VDM cmd 0xff018144 type 1 cmd 4 len 1
+[ 1206.456872] AMS DFP_TO_UFP_ENTER_MODE finished
+[ 1206.456873] cc:=4
+[ 1206.473100] AMS STRUCTURED_VDMS start
+[ 1206.473103] PD TX, header: 0x2f6f
+[ 1206.475397] PD TX complete, status: 0
+[ 1206.480442] PD RX, header: 0x2a4f [1]
+[ 1206.483145] Rx VDM cmd 0xff018150 type 1 cmd 16 len 2
+[ 1206.483150] AMS STRUCTURED_VDMS finished
+[ 1206.483151] cc:=4
+[ 1206.505643] AMS STRUCTURED_VDMS start
+[ 1206.505646] PD TX, header: 0x216f
+[ 1206.507933] PD TX complete, status: 0
+[ 1206.512664] PD RX, header: 0x1c4f [1]
+[ 1206.515456] Rx VDM cmd 0xff018151 type 1 cmd 17 len 1
+[ 1206.515460] AMS STRUCTURED_VDMS finished
+[ 1206.515461] cc:=4
 
-Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Fixes: e1aefcdd394fd ("usb typec: mt6360: Add support for mt6360 Type-C driver")
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reported-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Tested-by: Macpaul Lin <macpaul.lin@mediatek.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Link: https://lore.kernel.org/r/1652159580-30959-1-git-send-email-u0084500@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/tcpci_mt6360.c |   26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -709,7 +709,7 @@ static int tcpci_remove(struct i2c_clien
- 	/* Disable chip interrupts before unregistering port */
- 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+--- a/drivers/usb/typec/tcpm/tcpci_mt6360.c
++++ b/drivers/usb/typec/tcpm/tcpci_mt6360.c
+@@ -15,6 +15,9 @@
  
- 	tcpci_unregister_port(chip->tcpci);
+ #include "tcpci.h"
  
++#define MT6360_REG_PHYCTRL1	0x80
++#define MT6360_REG_PHYCTRL3	0x82
++#define MT6360_REG_PHYCTRL7	0x86
+ #define MT6360_REG_VCONNCTRL1	0x8C
+ #define MT6360_REG_MODECTRL2	0x8F
+ #define MT6360_REG_SWRESET	0xA0
+@@ -22,6 +25,8 @@
+ #define MT6360_REG_DRPCTRL1	0xA2
+ #define MT6360_REG_DRPCTRL2	0xA3
+ #define MT6360_REG_I2CTORST	0xBF
++#define MT6360_REG_PHYCTRL11	0xCA
++#define MT6360_REG_RXCTRL1	0xCE
+ #define MT6360_REG_RXCTRL2	0xCF
+ #define MT6360_REG_CTDCTRL2	0xEC
+ 
+@@ -106,6 +111,27 @@ static int mt6360_tcpc_init(struct tcpci
+ 	if (ret)
+ 		return ret;
+ 
++	/* BMC PHY */
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL1, 0x3A70);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL3,  0x82);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_PHYCTRL7, 0x36);
++	if (ret)
++		return ret;
++
++	ret = mt6360_tcpc_write16(regmap, MT6360_REG_PHYCTRL11, 0x3C60);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(regmap, MT6360_REG_RXCTRL1, 0xE8);
++	if (ret)
++		return ret;
++
+ 	/* Set shipping mode off, AUTOIDLE on */
+ 	return regmap_write(regmap, MT6360_REG_MODECTRL2, 0x7A);
+ }
 
 
