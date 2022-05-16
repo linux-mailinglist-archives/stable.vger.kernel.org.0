@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A434528F49
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88D09528F00
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244469AbiEPTxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33094 "EHLO
+        id S244499AbiEPTrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:47:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347013AbiEPTve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41D43FBC2;
-        Mon, 16 May 2022 12:46:31 -0700 (PDT)
+        with ESMTP id S1346568AbiEPTqd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A19441313;
+        Mon, 16 May 2022 12:43:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F426027A;
-        Mon, 16 May 2022 19:46:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FBB5C385AA;
-        Mon, 16 May 2022 19:46:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E05D2B8160D;
+        Mon, 16 May 2022 19:43:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33B19C385AA;
+        Mon, 16 May 2022 19:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730390;
-        bh=k3/81g5qlPZbnqT8EYIg1TFY+nbeoYo8soZiwtxXbI4=;
+        s=korg; t=1652730224;
+        bh=KcNUFEbOkcYHTYrIXIVbmBwvCeUave/8b9Afl22B5fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRrDieg9NrMONQx66+NKW+JhmnT/z72NqQ0rHOjiZPnPovyIODATMecv822fQDtNg
-         dwc9/zwS8l3XZ0DNrwG6f2eYhlsXkBbiRdJM42VJcKA8b3qYt9bkTpMfT7xiauO87H
-         f8cmiBMpxqQZAMIIxpWddnI7oJSC5U7ABCkKEHrk=
+        b=qeRyDFkPCgC9oq5nIsT6zhb2GVO0lC3LqwnaSk5IBeNpVwnZd5OFB5DZN0tq0Dc4t
+         ILI4jPHxNYwGrvyk8fE/suZ/e7rCB6wEmT+1SK7wIoDwX8AgB7TRhTLehAxyY+kNwR
+         X1vH1ie1Qw/oBiqJBRj0j8JZqwKKWbhTr3AmNol8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH 5.10 50/66] serial: 8250_mtk: Fix UART_EFR register address
-Date:   Mon, 16 May 2022 21:36:50 +0200
-Message-Id: <20220516193620.856357558@linuxfoundation.org>
+        Francesco Dolcini <francesco.dolcini@toradex.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 40/43] net: phy: Fix race condition on link status change
+Date:   Mon, 16 May 2022 21:36:51 +0200
+Message-Id: <20220516193615.903600331@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
+References: <20220516193614.714657361@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +54,157 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
 
-commit bb0b197aadd928f52ce6f01f0ee977f0a08cf1be upstream.
+commit 91a7cda1f4b8bdf770000a3b60640576dafe0cec upstream.
 
-On MediaTek SoCs, the UART IP is 16550A compatible, but there are some
-specific quirks: we are declaring a register shift of 2, but this is
-only valid for the majority of the registers, as there are some that
-are out of the standard layout.
+This fixes the following error caused by a race condition between
+phydev->adjust_link() and a MDIO transaction in the phy interrupt
+handler. The issue was reproduced with the ethernet FEC driver and a
+micrel KSZ9031 phy.
 
-Specifically, this driver is using definitions from serial_reg.h, where
-we have a UART_EFR register defined as 2: this results in a 0x8 offset,
-but there we have the FCR register instead.
+[  146.195696] fec 2188000.ethernet eth0: MDIO read timeout
+[  146.201779] ------------[ cut here ]------------
+[  146.206671] WARNING: CPU: 0 PID: 571 at drivers/net/phy/phy.c:942 phy_error+0x24/0x6c
+[  146.214744] Modules linked in: bnep imx_vdoa imx_sdma evbug
+[  146.220640] CPU: 0 PID: 571 Comm: irq/128-2188000 Not tainted 5.18.0-rc3-00080-gd569e86915b7 #9
+[  146.229563] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[  146.236257]  unwind_backtrace from show_stack+0x10/0x14
+[  146.241640]  show_stack from dump_stack_lvl+0x58/0x70
+[  146.246841]  dump_stack_lvl from __warn+0xb4/0x24c
+[  146.251772]  __warn from warn_slowpath_fmt+0x5c/0xd4
+[  146.256873]  warn_slowpath_fmt from phy_error+0x24/0x6c
+[  146.262249]  phy_error from kszphy_handle_interrupt+0x40/0x48
+[  146.268159]  kszphy_handle_interrupt from irq_thread_fn+0x1c/0x78
+[  146.274417]  irq_thread_fn from irq_thread+0xf0/0x1dc
+[  146.279605]  irq_thread from kthread+0xe4/0x104
+[  146.284267]  kthread from ret_from_fork+0x14/0x28
+[  146.289164] Exception stack(0xe6fa1fb0 to 0xe6fa1ff8)
+[  146.294448] 1fa0:                                     00000000 00000000 00000000 00000000
+[  146.302842] 1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[  146.311281] 1fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[  146.318262] irq event stamp: 12325
+[  146.321780] hardirqs last  enabled at (12333): [<c01984c4>] __up_console_sem+0x50/0x60
+[  146.330013] hardirqs last disabled at (12342): [<c01984b0>] __up_console_sem+0x3c/0x60
+[  146.338259] softirqs last  enabled at (12324): [<c01017f0>] __do_softirq+0x2c0/0x624
+[  146.346311] softirqs last disabled at (12319): [<c01300ac>] __irq_exit_rcu+0x138/0x178
+[  146.354447] ---[ end trace 0000000000000000 ]---
 
-The right offset for the EFR register on MediaTek UART is at 0x98,
-so, following the decimal definition convention in serial_reg.h and
-accounting for the register left shift of two, add and use the correct
-register address for this IP, defined as decimal 38, so that the final
-calculation results in (0x26 << 2) = 0x98.
+With the FEC driver phydev->adjust_link() calls fec_enet_adjust_link()
+calls fec_stop()/fec_restart() and both these function reset and
+temporary disable the FEC disrupting any MII transaction that
+could be happening at the same time.
 
-Fixes: bdbd0a7f8f03 ("serial: 8250-mtk: modify baudrate setting")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220427132328.228297-2-angelogioacchino.delregno@collabora.com
+fec_enet_adjust_link() and phy_read() can be running at the same time
+when we have one additional interrupt before the phy_state_machine() is
+able to terminate.
+
+Thread 1 (phylib WQ)       | Thread 2 (phy interrupt)
+                           |
+                           | phy_interrupt()            <-- PHY IRQ
+                           |  handle_interrupt()
+                           |   phy_read()
+                           |   phy_trigger_machine()
+                           |    --> schedule phylib WQ
+                           |
+                           |
+phy_state_machine()        |
+ phy_check_link_status()   |
+  phy_link_change()        |
+   phydev->adjust_link()   |
+    fec_enet_adjust_link() |
+     --> FEC reset         | phy_interrupt()            <-- PHY IRQ
+                           |  phy_read()
+                           |
+
+Fix this by acquiring the phydev lock in phy_interrupt().
+
+Link: https://lore.kernel.org/all/20220422152612.GA510015@francesco-nb.int.toradex.com/
+Fixes: c974bdbc3e77 ("net: phy: Use threaded IRQ, to allow IRQ from sleeping devices")
+cc: <stable@vger.kernel.org>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220506060815.327382-1-francesco.dolcini@toradex.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[fd: backport: adapt locking before did_interrupt()/ack_interrupt()
+ callbacks removal ]
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ drivers/net/phy/phy.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 40 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -37,6 +37,7 @@
- #define MTK_UART_IER_RTSI	0x40	/* Enable RTS Modem status interrupt */
- #define MTK_UART_IER_CTSI	0x80	/* Enable CTS Modem status interrupt */
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -116,10 +116,15 @@ EXPORT_SYMBOL(phy_print_status);
+  */
+ static int phy_clear_interrupt(struct phy_device *phydev)
+ {
+-	if (phydev->drv->ack_interrupt)
+-		return phydev->drv->ack_interrupt(phydev);
++	int ret = 0;
  
-+#define MTK_UART_EFR		38	/* I/O: Extended Features Register */
- #define MTK_UART_EFR_EN		0x10	/* Enable enhancement feature */
- #define MTK_UART_EFR_RTS	0x40	/* Enable hardware rx flow control */
- #define MTK_UART_EFR_CTS	0x80	/* Enable hardware tx flow control */
-@@ -169,7 +170,7 @@ static void mtk8250_dma_enable(struct ua
- 		   MTK_UART_DMA_EN_RX | MTK_UART_DMA_EN_TX);
+-	return 0;
++	if (phydev->drv->ack_interrupt) {
++		mutex_lock(&phydev->lock);
++		ret = phydev->drv->ack_interrupt(phydev);
++		mutex_unlock(&phydev->lock);
++	}
++
++	return ret;
+ }
  
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--	serial_out(up, UART_EFR, UART_EFR_ECB);
-+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
- 	serial_out(up, UART_LCR, lcr);
+ /**
+@@ -761,6 +766,36 @@ static int phy_disable_interrupts(struct
+ }
  
- 	if (dmaengine_slave_config(dma->rxchan, &dma->rxconf) != 0)
-@@ -232,7 +233,7 @@ static void mtk8250_set_flow_ctrl(struct
- 	int lcr = serial_in(up, UART_LCR);
+ /**
++ * phy_did_interrupt - Checks if the PHY generated an interrupt
++ * @phydev: target phy_device struct
++ */
++static int phy_did_interrupt(struct phy_device *phydev)
++{
++	int ret;
++
++	mutex_lock(&phydev->lock);
++	ret = phydev->drv->did_interrupt(phydev);
++	mutex_unlock(&phydev->lock);
++
++	return ret;
++}
++
++/**
++ * phy_handle_interrupt - PHY specific interrupt handler
++ * @phydev: target phy_device struct
++ */
++static int phy_handle_interrupt(struct phy_device *phydev)
++{
++	int ret;
++
++	mutex_lock(&phydev->lock);
++	ret = phydev->drv->handle_interrupt(phydev);
++	mutex_unlock(&phydev->lock);
++
++	return ret;
++}
++
++/**
+  * phy_interrupt - PHY interrupt handler
+  * @irq: interrupt line
+  * @phy_dat: phy_device pointer
+@@ -771,11 +806,11 @@ static irqreturn_t phy_interrupt(int irq
+ {
+ 	struct phy_device *phydev = phy_dat;
  
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--	serial_out(up, UART_EFR, UART_EFR_ECB);
-+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
- 	serial_out(up, UART_LCR, lcr);
- 	lcr = serial_in(up, UART_LCR);
+-	if (phydev->drv->did_interrupt && !phydev->drv->did_interrupt(phydev))
++	if (phydev->drv->did_interrupt && !phy_did_interrupt(phydev))
+ 		return IRQ_NONE;
  
-@@ -241,7 +242,7 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
- 		serial_out(up, MTK_UART_ESCAPE_EN, 0x00);
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--		serial_out(up, UART_EFR, serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK)));
- 		serial_out(up, UART_LCR, lcr);
- 		mtk8250_disable_intrs(up, MTK_UART_IER_XOFFI |
-@@ -255,8 +256,8 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
- 
- 		/*enable hw flow control*/
--		serial_out(up, UART_EFR, MTK_UART_EFR_HW_FC |
--			(serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_HW_FC |
-+			(serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
- 
- 		serial_out(up, UART_LCR, lcr);
-@@ -270,8 +271,8 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
- 
- 		/*enable sw flow control */
--		serial_out(up, UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
--			(serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
-+			(serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
- 
- 		serial_out(up, UART_XON1, START_CHAR(port->state->port.tty));
+ 	if (phydev->drv->handle_interrupt) {
+-		if (phydev->drv->handle_interrupt(phydev))
++		if (phy_handle_interrupt(phydev))
+ 			goto phy_err;
+ 	} else {
+ 		/* reschedule state queue work to run as soon as possible */
 
 
