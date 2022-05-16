@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5148F529012
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72680529161
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243356AbiEPUHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48932 "EHLO
+        id S1348515AbiEPUGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348160AbiEPT61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4FD4925C;
-        Mon, 16 May 2022 12:50:14 -0700 (PDT)
+        with ESMTP id S1349331AbiEPT7j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2488419B1;
+        Mon, 16 May 2022 12:53:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B48260C6F;
-        Mon, 16 May 2022 19:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75470C3411A;
-        Mon, 16 May 2022 19:50:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD233B8161C;
+        Mon, 16 May 2022 19:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23CEEC385AA;
+        Mon, 16 May 2022 19:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730612;
-        bh=PAo/SEfYeAqSklaCGh+RZXTzKjQoYvK/JmI18L9RO8k=;
+        s=korg; t=1652730816;
+        bh=M5yywGuNvNe3nXkUm63hHttNw6vRK4CXJHxqMTHxuFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CyrnrQYtPiWY2BuagtdfY5CEVsAuADAtIAeslFtxyVTUTNt2OXbuG+f/uOIHj75vP
-         7Ep9EmbF7eW5eEEbaK3d8BVVvNb+8Or3kaLMr6zuqUquWWwsy3CE4D6zPw4SPDG2nD
-         4sl9FhdpDMwaHSsD5rk0uARtH0gAQWZt4sEq9ko0=
+        b=eFcX+uCUWpbPmF8aiPQtTTsX0G4av/4rlsHCCvJjw3kmIYDObcZxi1ztDSnltCAGg
+         XXhEO+ou22TVF07j6eYVONarDnfkyNC7OapK0MA13ac4BP+ItkGhum/1qtTNkV6sPT
+         ryOke8cYjZqVkIHuMgbAaFeU/gE8+7SEGZMvDePI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>,
         Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 014/102] ice: Fix race during aux device (un)plugging
-Date:   Mon, 16 May 2022 21:35:48 +0200
-Message-Id: <20220516193624.406011501@linuxfoundation.org>
+Subject: [PATCH 5.17 015/114] ice: Fix race during aux device (un)plugging
+Date:   Mon, 16 May 2022 21:35:49 +0200
+Message-Id: <20220516193625.934213792@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -176,10 +176,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  3 files changed, 20 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index df65bb494695..89bca2ed895a 100644
+index 9c04a71a9fca..e2ffdf2726fd 100644
 --- a/drivers/net/ethernet/intel/ice/ice.h
 +++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -452,6 +452,7 @@ struct ice_pf {
+@@ -546,6 +546,7 @@ struct ice_pf {
  	struct mutex avail_q_mutex;	/* protects access to avail_[rx|tx]qs */
  	struct mutex sw_mutex;		/* lock for protecting VSI alloc flow */
  	struct mutex tc_mutex;		/* lock to protect TC changes */
@@ -188,7 +188,7 @@ index df65bb494695..89bca2ed895a 100644
  	struct ice_ptp ptp;
  	u16 num_rdma_msix;		/* Total MSIX vectors for RDMA driver */
 diff --git a/drivers/net/ethernet/intel/ice/ice_idc.c b/drivers/net/ethernet/intel/ice/ice_idc.c
-index a2714988dd96..1dd3622991c6 100644
+index 5559230eff8b..0deed090645f 100644
 --- a/drivers/net/ethernet/intel/ice/ice_idc.c
 +++ b/drivers/net/ethernet/intel/ice/ice_idc.c
 @@ -37,14 +37,17 @@ void ice_send_event_to_aux(struct ice_pf *pf, struct iidc_event *event)
@@ -264,10 +264,10 @@ index a2714988dd96..1dd3622991c6 100644
  
  /**
 diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index f330bd0acf9f..27b5c75ce386 100644
+index e347030ee2e3..7f6715eb862f 100644
 --- a/drivers/net/ethernet/intel/ice/ice_main.c
 +++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -3447,6 +3447,7 @@ u16 ice_get_avail_rxq_count(struct ice_pf *pf)
+@@ -3682,6 +3682,7 @@ u16 ice_get_avail_rxq_count(struct ice_pf *pf)
  static void ice_deinit_pf(struct ice_pf *pf)
  {
  	ice_service_task_stop(pf);
@@ -275,7 +275,7 @@ index f330bd0acf9f..27b5c75ce386 100644
  	mutex_destroy(&pf->sw_mutex);
  	mutex_destroy(&pf->tc_mutex);
  	mutex_destroy(&pf->avail_q_mutex);
-@@ -3527,6 +3528,7 @@ static int ice_init_pf(struct ice_pf *pf)
+@@ -3762,6 +3763,7 @@ static int ice_init_pf(struct ice_pf *pf)
  
  	mutex_init(&pf->sw_mutex);
  	mutex_init(&pf->tc_mutex);
