@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E75C4528FB6
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5FE7529096
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346844AbiEPUFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:05:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46630 "EHLO
+        id S1346294AbiEPTzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:55:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348851AbiEPT7A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:00 -0400
+        with ESMTP id S1347022AbiEPTvf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:35 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 761F813C;
-        Mon, 16 May 2022 12:51:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D753EF1B;
+        Mon, 16 May 2022 12:46:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 159D760AB8;
-        Mon, 16 May 2022 19:51:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215F7C34100;
-        Mon, 16 May 2022 19:51:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81E636090A;
+        Mon, 16 May 2022 19:46:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE90C385AA;
+        Mon, 16 May 2022 19:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730689;
-        bh=ccProHhun/zlF6hS7JP7T+bHG1ax79j7/ZabQXNbMgA=;
+        s=korg; t=1652730398;
+        bh=K0e//h/6PydWP4sS4t8OnODJz9/3dzWamQ2oJbLLZmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwTQst87WWxUkrpl/F8ys50f+/gl7a+9WHN+e5J6Arq5qxxQEF+dTuvt7EGZt7K/P
-         Q+bisXKE4zw7Hc6LOMHI5S575LfIhxGj4AyhEbPICicQ3G61QPcchxdtEmAUVe3PDm
-         Wrjo7RcZOMImm7H5wWVLzbBXhg6POR/nAW3k9eHQ=
+        b=ECt13bLL6wSHDmJK8T2xGvvf5o38RbablhcgoTOvilhLcbkUjqoVULt87gKyVthXT
+         9uW8BPGQVOi2KghJJsfBhl2KmHcFWFckGwee12HzeNc0NwOwX2kctdBKPY81YdjmPk
+         jGPXHzyugeVgg4l++IYI6H7EdGUPsTkneQVdn8YQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Indan Zupancic <Indan.Zupancic@mep-info.com>
-Subject: [PATCH 5.15 078/102] fsl_lpuart: Dont enable interrupts too early
+        stable@vger.kernel.org, John Fortin <fortinj66@gmail.com>,
+        Sri Ramanujam <sri@ramanujam.io>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.10 52/66] ceph: fix setting of xattrs on async created inodes
 Date:   Mon, 16 May 2022 21:36:52 +0200
-Message-Id: <20220516193626.233730510@linuxfoundation.org>
+Message-Id: <20220516193620.911783173@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,72 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Indan Zupancic <Indan.Zupancic@mep-info.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit 401fb66a355eb0f22096cf26864324f8e63c7d78 upstream.
+commit 620239d9a32e9fe27c9204ec11e40058671aeeb6 upstream.
 
-If an irq is pending when devm_request_irq() is called, the irq
-handler will cause a NULL pointer access because initialisation
-is not done yet.
+Currently when we create a file, we spin up an xattr buffer to send
+along with the create request. If we end up doing an async create
+however, then we currently pass down a zero-length xattr buffer.
 
-Fixes: 9d7ee0e28da59 ("tty: serial: lpuart: avoid report NULL interrupt")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Indan Zupancic <Indan.Zupancic@mep-info.com>
-Link: https://lore.kernel.org/r/20220505114750.45423-1-Indan.Zupancic@mep-info.com
+Fix the code to send down the xattr buffer in req->r_pagelist. If the
+xattrs span more than a page, however give up and don't try to do an
+async create.
+
+Cc: stable@vger.kernel.org
+URL: https://bugzilla.redhat.com/show_bug.cgi?id=2063929
+Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
+Reported-by: John Fortin <fortinj66@gmail.com>
+Reported-by: Sri Ramanujam <sri@ramanujam.io>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/ceph/file.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -2650,6 +2650,7 @@ static int lpuart_probe(struct platform_
- 	struct device_node *np = pdev->dev.of_node;
- 	struct lpuart_port *sport;
- 	struct resource *res;
-+	irq_handler_t handler;
- 	int ret;
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -592,9 +592,15 @@ static int ceph_finish_async_create(stru
+ 	iinfo.change_attr = 1;
+ 	ceph_encode_timespec64(&iinfo.btime, &now);
  
- 	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
-@@ -2727,17 +2728,11 @@ static int lpuart_probe(struct platform_
+-	iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
+-	iinfo.xattr_data = xattr_buf;
+-	memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	if (req->r_pagelist) {
++		iinfo.xattr_len = req->r_pagelist->length;
++		iinfo.xattr_data = req->r_pagelist->mapped_tail;
++	} else {
++		/* fake it */
++		iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
++		iinfo.xattr_data = xattr_buf;
++		memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	}
  
- 	if (lpuart_is_32(sport)) {
- 		lpuart_reg.cons = LPUART32_CONSOLE;
--		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart32_int, 0,
--					DRIVER_NAME, sport);
-+		handler = lpuart32_int;
- 	} else {
- 		lpuart_reg.cons = LPUART_CONSOLE;
--		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart_int, 0,
--					DRIVER_NAME, sport);
-+		handler = lpuart_int;
- 	}
--
--	if (ret)
--		goto failed_irq_request;
--
- 	ret = uart_add_one_port(&lpuart_reg, &sport->port);
- 	if (ret)
- 		goto failed_attach_port;
-@@ -2759,13 +2754,18 @@ static int lpuart_probe(struct platform_
- 
- 	sport->port.rs485_config(&sport->port, &sport->port.rs485);
- 
-+	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
-+				DRIVER_NAME, sport);
-+	if (ret)
-+		goto failed_irq_request;
-+
- 	return 0;
- 
-+failed_irq_request:
- failed_get_rs485:
- failed_reset:
- 	uart_remove_one_port(&lpuart_reg, &sport->port);
- failed_attach_port:
--failed_irq_request:
- 	lpuart_disable_clks(sport);
- failed_clock_enable:
- failed_out_of_range:
+ 	in.ino = cpu_to_le64(vino.ino);
+ 	in.snapid = cpu_to_le64(CEPH_NOSNAP);
+@@ -706,6 +712,10 @@ int ceph_atomic_open(struct inode *dir,
+ 		err = ceph_security_init_secctx(dentry, mode, &as_ctx);
+ 		if (err < 0)
+ 			goto out_ctx;
++		/* Async create can't handle more than a page of xattrs */
++		if (as_ctx.pagelist &&
++		    !list_is_singular(&as_ctx.pagelist->head))
++			try_async = false;
+ 	} else if (!d_in_lookup(dentry)) {
+ 		/* If it's not being looked up, it's negative */
+ 		return -ENOENT;
 
 
