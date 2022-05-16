@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F257528E66
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01DCA528E20
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345984AbiEPTnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42590 "EHLO
+        id S1345605AbiEPTi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:38:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346031AbiEPTms (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:48 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 982BC3F31E;
-        Mon, 16 May 2022 12:41:06 -0700 (PDT)
+        with ESMTP id S1345594AbiEPTih (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:38:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443C33EF12;
+        Mon, 16 May 2022 12:38:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B255B81610;
-        Mon, 16 May 2022 19:41:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B628CC385AA;
-        Mon, 16 May 2022 19:41:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D582E614B6;
+        Mon, 16 May 2022 19:38:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB528C34100;
+        Mon, 16 May 2022 19:38:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730064;
-        bh=U5mcT1gse7ACTGxQURCRr4VYICr+qU7mQmmumsc1EgA=;
+        s=korg; t=1652729910;
+        bh=9qxzXmWzDaSC6JFM5nKZ6C0UEuZ0OTnCGnCsKyfPyGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hdxcwQz+qU98TfGrP9prj5VruCJQEw8IEYoMOYgGmt07U3ZJ+Zmb350eE89AaTybj
-         NGfz24sE6ExHpwgXdVzmSCAKzDoHIfLbmzzjm4dv+USrNPIUEXe5/dipUI3lQ0Rsdm
-         TfI/4kLvo5QiobROpc9Ko0w7DqK38BXt3BaLy2Vk=
+        b=wpkM1sWpTT1k6qkNtpPFpHf5z5krw7/qoBKebs17lkX59YHbWm3rAx6FjhmyIIB0t
+         mNfe3GU/6t+GkyOWhP2x+oDWN7c60nrDTy671gj2AcZ+t/0s96FLyWtoNL2osu3Y1x
+         g0dCuYAgPiP2UQl1TSCe/I+Mzkg6Gflmgj9GnBXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Camel Guo <camel.guo@axis.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/32] hwmon: (tmp401) Add OF device ID table
+Subject: [PATCH 4.9 03/19] netlink: do not reset transport header in netlink_recvmsg()
 Date:   Mon, 16 May 2022 21:36:16 +0200
-Message-Id: <20220516193614.848946826@linuxfoundation.org>
+Message-Id: <20220516193613.601433126@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-References: <20220516193614.773450018@linuxfoundation.org>
+In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
+References: <20220516193613.497233635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,68 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Camel Guo <camel.guo@axis.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3481551f035725fdc46885425eac3ef9b58ae7b7 ]
+[ Upstream commit d5076fe4049cadef1f040eda4aaa001bb5424225 ]
 
-This driver doesn't have of_match_table. This makes the kernel module
-tmp401.ko lack alias patterns (e.g: of:N*T*Cti,tmp411) to match DT node
-of the supported devices hence this kernel module will not be
-automatically loaded.
+netlink_recvmsg() does not need to change transport header.
 
-After adding of_match_table to this driver, the folllowing alias will be
-added into tmp401.ko.
-$ modinfo drivers/hwmon/tmp401.ko
-filename: drivers/hwmon/tmp401.ko
-......
-author:         Hans de Goede <hdegoede@redhat.com>
-alias:          of:N*T*Cti,tmp435C*
-alias:          of:N*T*Cti,tmp435
-alias:          of:N*T*Cti,tmp432C*
-alias:          of:N*T*Cti,tmp432
-alias:          of:N*T*Cti,tmp431C*
-alias:          of:N*T*Cti,tmp431
-alias:          of:N*T*Cti,tmp411C*
-alias:          of:N*T*Cti,tmp411
-alias:          of:N*T*Cti,tmp401C*
-alias:          of:N*T*Cti,tmp401
-......
+If transport header was needed, it should have been reset
+by the producer (netlink_dump()), not the consumer(s).
 
-Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
-Signed-off-by: Camel Guo <camel.guo@axis.com>
-Link: https://lore.kernel.org/r/20220503114333.456476-1-camel.guo@axis.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+The following trace probably happened when multiple threads
+were using MSG_PEEK.
+
+BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32012 on cpu 1:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ __sys_recvfrom+0x204/0x2c0 net/socket.c:2097
+ __do_sys_recvfrom net/socket.c:2115 [inline]
+ __se_sys_recvfrom net/socket.c:2111 [inline]
+ __x64_sys_recvfrom+0x74/0x90 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32005 on cpu 0:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ ____sys_recvmsg+0x162/0x2f0
+ ___sys_recvmsg net/socket.c:2674 [inline]
+ __sys_recvmsg+0x209/0x3f0 net/socket.c:2704
+ __do_sys_recvmsg net/socket.c:2714 [inline]
+ __se_sys_recvmsg net/socket.c:2711 [inline]
+ __x64_sys_recvmsg+0x42/0x50 net/socket.c:2711
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffff -> 0x0000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 32005 Comm: syz-executor.4 Not tainted 5.18.0-rc1-syzkaller-00328-ge1f700ebd6be-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220505161946.2867638-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/tmp401.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/netlink/af_netlink.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/hwmon/tmp401.c b/drivers/hwmon/tmp401.c
-index 1f2d13dc9439..99b0d7e0a27a 100644
---- a/drivers/hwmon/tmp401.c
-+++ b/drivers/hwmon/tmp401.c
-@@ -756,10 +756,21 @@ static int tmp401_probe(struct i2c_client *client,
- 	return 0;
- }
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index a8674e9ff37b..47b1631bf14c 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1929,7 +1929,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		copied = len;
+ 	}
  
-+static const struct of_device_id __maybe_unused tmp4xx_of_match[] = {
-+	{ .compatible = "ti,tmp401", },
-+	{ .compatible = "ti,tmp411", },
-+	{ .compatible = "ti,tmp431", },
-+	{ .compatible = "ti,tmp432", },
-+	{ .compatible = "ti,tmp435", },
-+	{ },
-+};
-+MODULE_DEVICE_TABLE(of, tmp4xx_of_match);
-+
- static struct i2c_driver tmp401_driver = {
- 	.class		= I2C_CLASS_HWMON,
- 	.driver = {
- 		.name	= "tmp401",
-+		.of_match_table = of_match_ptr(tmp4xx_of_match),
- 	},
- 	.probe		= tmp401_probe,
- 	.id_table	= tmp401_id,
+-	skb_reset_transport_header(data_skb);
+ 	err = skb_copy_datagram_msg(data_skb, 0, msg, copied);
+ 
+ 	if (msg->msg_name) {
 -- 
 2.35.1
 
