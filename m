@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11541527F66
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:17:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C3F527F67
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241555AbiEPIRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:17:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53318 "EHLO
+        id S241558AbiEPIRI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:17:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241551AbiEPIRE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:17:04 -0400
+        with ESMTP id S241551AbiEPIRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:17:07 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 687A6326E1
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:17:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86AB633EA0
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:17:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07E58611C8
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:17:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15847C34116;
-        Mon, 16 May 2022 08:16:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25F51611C6
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38D3BC385AA;
+        Mon, 16 May 2022 08:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652689020;
-        bh=+XZjzxPbCakXJ7fbzK05RIm+g/VJjLI+t3DEPubMlAc=;
+        s=korg; t=1652689023;
+        bh=tm3buoHiDRNxYCTuKNLZSzN7qs/L6xEOgyLvjFG8RQY=;
         h=Subject:To:Cc:From:Date:From;
-        b=fXpzBs4ghgZu+E8oIikl9cdq82Rk7ioygdm+Ay3hlbvihVlHaSq9/sTrsDYn0rCar
-         bSlQJmMpGd1E7MJ7XZz1y/TN6jtG/KT0hMZ2lzFeNKY/YiBygW1c6jRf0DnTbQMaFu
-         RswlN2/17DOdcWPbIZ2GO5M+ZF2HCCRuvj7bx05g=
-Subject: FAILED: patch "[PATCH] arm[64]/memremap: don't abuse pfn_valid() to ensure presence" failed to apply to 5.10-stable tree
+        b=uG+b78nvgVeGvo5LQ/sx/j0c8lhd81zq9cvD7wIWqGJFklT04m7Zxpa/wgE+n5adL
+         MBjd/1MgXcc77yf3qJwpvNrQDOOddlHZmr112HuCMS18nlmuP+81a7gB/CYcG6XRAB
+         wbJwLozQ+gGHekpmCPc6B1qgzAAdRy3R/QTRv37M=
+Subject: FAILED: patch "[PATCH] arm[64]/memremap: don't abuse pfn_valid() to ensure presence" failed to apply to 5.4-stable tree
 To:     rppt@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
         bot@kernelci.org, broonie@kernel.org, catalin.marinas@arm.com,
         gregkh@linuxfoundation.org, linux@armlinux.org.uk,
@@ -36,8 +36,8 @@ To:     rppt@kernel.org, akpm@linux-foundation.org, ardb@kernel.org,
         stable@vger.kernel.org, tony@atomide.com, will@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:16:58 +0200
-Message-ID: <165268901815650@kroah.com>
+Date:   Mon, 16 May 2022 10:16:59 +0200
+Message-ID: <165268901917037@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -52,7 +52,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
