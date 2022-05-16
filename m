@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EE755290B1
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D02A52901B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351334AbiEPUDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:03:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
+        id S240677AbiEPUIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347259AbiEPT5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:57:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB74248322;
-        Mon, 16 May 2022 12:49:29 -0700 (PDT)
+        with ESMTP id S1350358AbiEPUBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895F849FA1;
+        Mon, 16 May 2022 12:55:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA6DBB8160E;
-        Mon, 16 May 2022 19:49:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F5FCC385AA;
-        Mon, 16 May 2022 19:49:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D36660EC4;
+        Mon, 16 May 2022 19:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 791B6C385AA;
+        Mon, 16 May 2022 19:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730566;
-        bh=oKUq3ahdpov0ZIOK2pIDkvBQ76LZxb00R113HUGe/Sc=;
+        s=korg; t=1652730898;
+        bh=BmEpJ/ld1VzVukNx4iIl4AsXqK1rY8EOvE6U4VYro2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Das1GHH4SslbI7btY/+jWv+FTJZG3zFUZm7Kszh30rCFk2p3dB0kxAgpKzle5SbYa
-         rwcTIK6AjjRWJUsalQ+IazX4+34rTdFgwB2lRAogmUWshhtYPjEvsFW7zR+JST8SBh
-         TjeBzSW2vLpRBKxGmkQaRM3DVGJ1A0IRxxri405U=
+        b=YyAIm4DQtmWzHAGjvoFlne2cWU2MPNhm9XqDC5/+pmXej7Am2qF3P2maSgxgznKgR
+         /o6H+CFPlouk7uHEei/z/M+bQGMJIMimW32SO0C8jXDG+Ec36J0MhzKf8gT0wRQCOV
+         3VnTbRQkMAxdkSG/Otx2HwzUAQP2GAwtYGwboy48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Tang <tanghui20@huawei.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Geliang Tang <geliang.tang@suse.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/102] drm/vc4: hdmi: Fix build error for implicit function declaration
+Subject: [PATCH 5.17 038/114] net/sched: act_pedit: really ensure the skb is writable
 Date:   Mon, 16 May 2022 21:36:12 +0200
-Message-Id: <20220516193625.094526815@linuxfoundation.org>
+Message-Id: <20220516193626.583897601@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +58,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Tang <tanghui20@huawei.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 6fed53de560768bde6d701a7c79c253b45b259e3 ]
+[ Upstream commit 8b796475fd7882663a870456466a4fb315cc1bd6 ]
 
-drivers/gpu/drm/vc4/vc4_hdmi.c: In function ‘vc4_hdmi_connector_detect’:
-drivers/gpu/drm/vc4/vc4_hdmi.c:228:7: error: implicit declaration of function ‘gpiod_get_value_cansleep’; did you mean ‘gpio_get_value_cansleep’? [-Werror=implicit-function-declaration]
-   if (gpiod_get_value_cansleep(vc4_hdmi->hpd_gpio))
-       ^~~~~~~~~~~~~~~~~~~~~~~~
-       gpio_get_value_cansleep
-  CC [M]  drivers/gpu/drm/vc4/vc4_validate.o
-  CC [M]  drivers/gpu/drm/vc4/vc4_v3d.o
-  CC [M]  drivers/gpu/drm/vc4/vc4_validate_shaders.o
-  CC [M]  drivers/gpu/drm/vc4/vc4_debugfs.o
-drivers/gpu/drm/vc4/vc4_hdmi.c: In function ‘vc4_hdmi_bind’:
-drivers/gpu/drm/vc4/vc4_hdmi.c:2883:23: error: implicit declaration of function ‘devm_gpiod_get_optional’; did you mean ‘devm_clk_get_optional’? [-Werror=implicit-function-declaration]
-  vc4_hdmi->hpd_gpio = devm_gpiod_get_optional(dev, "hpd", GPIOD_IN);
-                       ^~~~~~~~~~~~~~~~~~~~~~~
-                       devm_clk_get_optional
-drivers/gpu/drm/vc4/vc4_hdmi.c:2883:59: error: ‘GPIOD_IN’ undeclared (first use in this function); did you mean ‘GPIOF_IN’?
-  vc4_hdmi->hpd_gpio = devm_gpiod_get_optional(dev, "hpd", GPIOD_IN);
-                                                           ^~~~~~~~
-                                                           GPIOF_IN
-drivers/gpu/drm/vc4/vc4_hdmi.c:2883:59: note: each undeclared identifier is reported only once for each function it appears in
-cc1: all warnings being treated as errors
+Currently pedit tries to ensure that the accessed skb offset
+is writable via skb_unclone(). The action potentially allows
+touching any skb bytes, so it may end-up modifying shared data.
 
-Fixes: 6800234ceee0 ("drm/vc4: hdmi: Convert to gpiod")
-Signed-off-by: Hui Tang <tanghui20@huawei.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220510135148.247719-1-tanghui20@huawei.com
+The above causes some sporadic MPTCP self-test failures, due to
+this code:
+
+	tc -n $ns2 filter add dev ns2eth$i egress \
+		protocol ip prio 1000 \
+		handle 42 fw \
+		action pedit munge offset 148 u8 invert \
+		pipe csum tcp \
+		index 100
+
+The above modifies a data byte outside the skb head and the skb is
+a cloned one, carrying a TCP output packet.
+
+This change addresses the issue by keeping track of a rough
+over-estimate highest skb offset accessed by the action and ensuring
+such offset is really writable.
+
+Note that this may cause performance regressions in some scenarios,
+but hopefully pedit is not in the critical path.
+
+Fixes: db2c24175d14 ("act_pedit: access skb->data safely")
+Acked-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Tested-by: Geliang Tang <geliang.tang@suse.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Link: https://lore.kernel.org/r/1fcf78e6679d0a287dd61bb0f04730ce33b3255d.1652194627.git.pabeni@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/net/tc_act/tc_pedit.h |  1 +
+ net/sched/act_pedit.c         | 26 ++++++++++++++++++++++----
+ 2 files changed, 23 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 07887cbfd9cb..ef7bea7c43a0 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -38,6 +38,7 @@
- #include <drm/drm_scdc_helper.h>
- #include <linux/clk.h>
- #include <linux/component.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/i2c.h>
- #include <linux/of_address.h>
- #include <linux/of_gpio.h>
+diff --git a/include/net/tc_act/tc_pedit.h b/include/net/tc_act/tc_pedit.h
+index 748cf87a4d7e..3e02709a1df6 100644
+--- a/include/net/tc_act/tc_pedit.h
++++ b/include/net/tc_act/tc_pedit.h
+@@ -14,6 +14,7 @@ struct tcf_pedit {
+ 	struct tc_action	common;
+ 	unsigned char		tcfp_nkeys;
+ 	unsigned char		tcfp_flags;
++	u32			tcfp_off_max_hint;
+ 	struct tc_pedit_key	*tcfp_keys;
+ 	struct tcf_pedit_key_ex	*tcfp_keys_ex;
+ };
+diff --git a/net/sched/act_pedit.c b/net/sched/act_pedit.c
+index 31fcd279c177..0eaaf1f45de1 100644
+--- a/net/sched/act_pedit.c
++++ b/net/sched/act_pedit.c
+@@ -149,7 +149,7 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
+ 	struct nlattr *pattr;
+ 	struct tcf_pedit *p;
+ 	int ret = 0, err;
+-	int ksize;
++	int i, ksize;
+ 	u32 index;
+ 
+ 	if (!nla) {
+@@ -228,6 +228,18 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
+ 		p->tcfp_nkeys = parm->nkeys;
+ 	}
+ 	memcpy(p->tcfp_keys, parm->keys, ksize);
++	p->tcfp_off_max_hint = 0;
++	for (i = 0; i < p->tcfp_nkeys; ++i) {
++		u32 cur = p->tcfp_keys[i].off;
++
++		/* The AT option can read a single byte, we can bound the actual
++		 * value with uchar max.
++		 */
++		cur += (0xff & p->tcfp_keys[i].offmask) >> p->tcfp_keys[i].shift;
++
++		/* Each key touches 4 bytes starting from the computed offset */
++		p->tcfp_off_max_hint = max(p->tcfp_off_max_hint, cur + 4);
++	}
+ 
+ 	p->tcfp_flags = parm->flags;
+ 	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
+@@ -308,13 +320,18 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
+ 			 struct tcf_result *res)
+ {
+ 	struct tcf_pedit *p = to_pedit(a);
++	u32 max_offset;
+ 	int i;
+ 
+-	if (skb_unclone(skb, GFP_ATOMIC))
+-		return p->tcf_action;
+-
+ 	spin_lock(&p->tcf_lock);
+ 
++	max_offset = (skb_transport_header_was_set(skb) ?
++		      skb_transport_offset(skb) :
++		      skb_network_offset(skb)) +
++		     p->tcfp_off_max_hint;
++	if (skb_ensure_writable(skb, min(skb->len, max_offset)))
++		goto unlock;
++
+ 	tcf_lastuse_update(&p->tcf_tm);
+ 
+ 	if (p->tcfp_nkeys > 0) {
+@@ -403,6 +420,7 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
+ 	p->tcf_qstats.overlimits++;
+ done:
+ 	bstats_update(&p->tcf_bstats, skb);
++unlock:
+ 	spin_unlock(&p->tcf_lock);
+ 	return p->tcf_action;
+ }
 -- 
 2.35.1
 
