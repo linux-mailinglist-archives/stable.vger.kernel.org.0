@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8A6529046
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F62852906E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241488AbiEPUEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
+        id S244816AbiEPUKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348813AbiEPT66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D088A43AD5;
-        Mon, 16 May 2022 12:51:08 -0700 (PDT)
+        with ESMTP id S1351023AbiEPUB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EFB473BF;
+        Mon, 16 May 2022 12:56:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ACCC60A1C;
-        Mon, 16 May 2022 19:51:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DBBC385AA;
-        Mon, 16 May 2022 19:51:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32A7260A50;
+        Mon, 16 May 2022 19:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FDD4C385AA;
+        Mon, 16 May 2022 19:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730667;
-        bh=18TsozEqMlpQhPgYryuK9UP4KaIWqrgwWG2uxJOE024=;
+        s=korg; t=1652731000;
+        bh=jTf7Eh2bb4hOd52Orvy2/2LK5efSVJFs0rT6fhpo+Wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDp33ArcBPWeKw3LMeAjaI/u+b19PWZHSKpVM0Ws+Ohwjpykh3gL35aoMuM25PJBG
-         4mdOrogbUmvduqAxI2MY8MvRBbd0sIbU7k07Jb2gNI0mMWVJc8EjoOQ00t8AwOdEKI
-         g0oH3twDtBIIJFTDOxwDXm8i9ScFu4g7a2TqMoTg=
+        b=vc2f2UBQak/vAY6A2PijVGb1h9NulVx9nM+FzINEKdk7sWPIvbavqdgjfdHy1psJW
+         gaTjbBWp97CUvKWTZe6h79QbQL+biQOdGlTZEXGXxYvqeNbiW7LD6RpuYlxH7Em3cs
+         YFc8yvRY62TMSNbjwQO3R1Aj+leTOv1qGvGapvmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.15 071/102] usb: typec: tcpci: Dont skip cleanup in .remove() on error
+        =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 5.17 071/114] firmware_loader: use kernel credentials when reading firmware
 Date:   Mon, 16 May 2022 21:36:45 +0200
-Message-Id: <20220516193626.035772505@linuxfoundation.org>
+Message-Id: <20220516193627.529238328@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Thiébaud Weksteen <tweek@google.com>
 
-commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
+commit 581dd69830341d299b0c097fc366097ab497d679 upstream.
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+Device drivers may decide to not load firmware when probed to avoid
+slowing down the boot process should the firmware filesystem not be
+available yet. In this case, the firmware loading request may be done
+when a device file associated with the driver is first accessed. The
+credentials of the userspace process accessing the device file may be
+used to validate access to the firmware files requested by the driver.
+Ensure that the kernel assumes the responsibility of reading the
+firmware.
 
-In this case the remove callback even returns early without stopping the
-tcpm worker thread and various timers. A work scheduled on the work
-queue, or a firing timer after tcpci_remove() returned probably results
-in a use-after-free situation because the regmap and driver data were
-freed. So better make sure that tcpci_unregister_port() is called even
-if disabling the irq failed.
+This was observed on Android for a graphic driver loading their firmware
+when the device file (e.g. /dev/mali0) was first opened by userspace
+(i.e. surfaceflinger). The security context of surfaceflinger was used
+to validate the access to the firmware file (e.g.
+/vendor/firmware/mali.bin).
 
-Also emit a more specific error message instead of the i2c core's
-"remove failed (EIO), will be ignored" and return 0 to suppress the
-core's warning.
+Previously, Android configurations were not setting up the
+firmware_class.path command line argument and were relying on the
+userspace fallback mechanism. In this case, the security context of the
+userspace daemon (i.e. ueventd) was consistently used to read firmware
+files. More Android devices are now found to set firmware_class.path
+which gives the kernel the opportunity to read the firmware directly
+(via kernel_read_file_from_path_initns). In this scenario, the current
+process credentials were used, even if unrelated to the loading of the
+firmware file.
 
-This patch is (also) a preparation for making i2c remove callbacks
-return void.
-
-Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
+Signed-off-by: Thiébaud Weksteen <tweek@google.com>
+Cc: <stable@vger.kernel.org> # 5.10
+Reviewed-by: Paul Moore <paul@paul-moore.com>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Link: https://lore.kernel.org/r/20220502004952.3970800-1-tweek@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/base/firmware_loader/main.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -877,7 +877,7 @@ static int tcpci_remove(struct i2c_clien
- 	/* Disable chip interrupts before unregistering port */
- 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -735,6 +735,8 @@ _request_firmware(const struct firmware
+ 		  size_t offset, u32 opt_flags)
+ {
+ 	struct firmware *fw = NULL;
++	struct cred *kern_cred = NULL;
++	const struct cred *old_cred;
+ 	bool nondirect = false;
+ 	int ret;
  
- 	tcpci_unregister_port(chip->tcpci);
+@@ -751,6 +753,18 @@ _request_firmware(const struct firmware
+ 	if (ret <= 0) /* error or already assigned */
+ 		goto out;
  
++	/*
++	 * We are about to try to access the firmware file. Because we may have been
++	 * called by a driver when serving an unrelated request from userland, we use
++	 * the kernel credentials to read the file.
++	 */
++	kern_cred = prepare_kernel_cred(NULL);
++	if (!kern_cred) {
++		ret = -ENOMEM;
++		goto out;
++	}
++	old_cred = override_creds(kern_cred);
++
+ 	ret = fw_get_filesystem_firmware(device, fw->priv, "", NULL);
+ 
+ 	/* Only full reads can support decompression, platform, and sysfs. */
+@@ -776,6 +790,9 @@ _request_firmware(const struct firmware
+ 	} else
+ 		ret = assign_fw(fw, device);
+ 
++	revert_creds(old_cred);
++	put_cred(kern_cred);
++
+  out:
+ 	if (ret < 0) {
+ 		fw_abort_batch_reqs(fw);
 
 
