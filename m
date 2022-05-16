@@ -2,42 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B49529006
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71672529031
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235879AbiEPUE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S229835AbiEPUKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:10:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348749AbiEPT6u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E8349CB8;
-        Mon, 16 May 2022 12:50:58 -0700 (PDT)
+        with ESMTP id S1351024AbiEPUB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2713647384;
+        Mon, 16 May 2022 12:56:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24ACE60BBB;
-        Mon, 16 May 2022 19:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CD9EC34100;
-        Mon, 16 May 2022 19:50:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C63E8B81611;
+        Mon, 16 May 2022 19:56:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD8FC385AA;
+        Mon, 16 May 2022 19:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730657;
-        bh=tp+iY+5N+WnKZV1bBz/lKDeRyBo9XckND8D3YCkF+Ps=;
+        s=korg; t=1652730991;
+        bh=ow4X7BELWr3tuZ00ceGXC+8opjw2E6B2OH2F918kbsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZqnKFbwsqgH0q/cEiXH44HqauNs3KfVOW5kb6ufwm7aF3w7ZEbPuFKIZONlu2fSZs
-         B6tNWn/yFJyilXfKbzsZBOuVvAlY19muzumuA2KPjU4aAdwSvkzVTJqoHARFVtgrY2
-         Ko94z8WgELS46s+XyyEFi7DLIJqxO9xdGQaJ3i54=
+        b=RCjP5h/buMrrb+/+VBVYcJ2P9BrzwnczQ6Zt7NAWJuI8gNEqLGNJN+iiahN7pwLFa
+         1UJH0LCXRbRWmvqJYw6UI0OisnM66Hi9/yYUb2jwGTrYmxJ++vMZ+qxZopOhkHPmuK
+         7mqxAFj3vns1bd/q0gSuNz+oJ9MBlCMqmrxUpB/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.15 069/102] tty: n_gsm: fix mux activation issues in gsm_config()
+        stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Doug Anderson <dianders@chromium.org>,
+        Alex Elder <elder@linaro.org>,
+        Taniya Das <quic_tdas@quicinc.com>,
+        Mike Tipton <quic_mdtipton@quicinc.com>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Georgi Djakov <djakov@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 069/114] interconnect: Restore sync state by ignoring ipa-virt in provider count
 Date:   Mon, 16 May 2022 21:36:43 +0200
-Message-Id: <20220516193625.977305084@linuxfoundation.org>
+Message-Id: <20220516193627.471581830@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +60,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit edd5f60c340086891fab094ad61270d6c80f9ca4 upstream.
+[ Upstream commit 20ce30fb4750f2ffc130cdcb26232b1dd87cd0a5 ]
 
-The current implementation activates the mux if it was restarted and opens
-the control channel if the mux was previously closed and we are now acting
-as initiator instead of responder, which is the default setting.
-This has two issues.
-1) No mux is activated if we keep all default values and only switch to
-initiator. The control channel is not allocated but will be opened next
-which results in a NULL pointer dereference.
-2) Switching the configuration after it was once configured while keeping
-the initiator value the same will not reopen the control channel if it was
-closed due to parameter incompatibilities. The mux remains dead.
+Ignore compatible strings for the IPA virt drivers that were removed in
+commits 2fb251c26560 ("interconnect: qcom: sdx55: Drop IP0
+interconnects") and 2f3724930eb4 ("interconnect: qcom: sc7180: Drop IP0
+interconnects") so that the sync state logic can kick in again.
+Otherwise all the interconnects in the system will stay pegged at max
+speeds because 'providers_count' is always going to be one larger than
+the number of drivers that will ever probe on sc7180 or sdx55. This
+fixes suspend on sc7180 and sdx55 devices when you don't have a
+devicetree patch to remove the ipa-virt compatible node.
 
-Fix 1) by always activating the mux if it is dead after configuration.
-Fix 2) by always opening the control channel after mux activation.
-
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220504081733.3494-2-daniel.starke@siemens.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Cc: Alex Elder <elder@linaro.org>
+Cc: Taniya Das <quic_tdas@quicinc.com>
+Cc: Mike Tipton <quic_mdtipton@quicinc.com>
+Fixes: 2fb251c26560 ("interconnect: qcom: sdx55: Drop IP0 interconnects")
+Fixes: 2f3724930eb4 ("interconnect: qcom: sc7180: Drop IP0 interconnects")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Link: https://lore.kernel.org/r/20220427013226.341209-1-swboyd@chromium.org
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/n_gsm.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/interconnect/core.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2276,6 +2276,7 @@ static void gsm_copy_config_values(struc
- 
- static int gsm_config(struct gsm_mux *gsm, struct gsm_config *c)
+diff --git a/drivers/interconnect/core.c b/drivers/interconnect/core.c
+index 9050ca1f4285..808f6e7a8048 100644
+--- a/drivers/interconnect/core.c
++++ b/drivers/interconnect/core.c
+@@ -1087,9 +1087,15 @@ static int of_count_icc_providers(struct device_node *np)
  {
-+	int ret = 0;
- 	int need_close = 0;
- 	int need_restart = 0;
+ 	struct device_node *child;
+ 	int count = 0;
++	const struct of_device_id __maybe_unused ignore_list[] = {
++		{ .compatible = "qcom,sc7180-ipa-virt" },
++		{ .compatible = "qcom,sdx55-ipa-virt" },
++		{}
++	};
  
-@@ -2343,10 +2344,13 @@ static int gsm_config(struct gsm_mux *gs
- 	 * FIXME: We need to separate activation/deactivation from adding
- 	 * and removing from the mux array
- 	 */
--	if (need_restart)
--		gsm_activate_mux(gsm);
--	if (gsm->initiator && need_close)
--		gsm_dlci_begin_open(gsm->dlci[0]);
-+	if (gsm->dead) {
-+		ret = gsm_activate_mux(gsm);
-+		if (ret)
-+			return ret;
-+		if (gsm->initiator)
-+			gsm_dlci_begin_open(gsm->dlci[0]);
-+	}
- 	return 0;
- }
- 
+ 	for_each_available_child_of_node(np, child) {
+-		if (of_property_read_bool(child, "#interconnect-cells"))
++		if (of_property_read_bool(child, "#interconnect-cells") &&
++		    likely(!of_match_node(ignore_list, child)))
+ 			count++;
+ 		count += of_count_icc_providers(child);
+ 	}
+-- 
+2.35.1
+
 
 
