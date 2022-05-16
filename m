@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4100B5290F9
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DDA8528FF7
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240892AbiEPUKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:10:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
+        id S1347010AbiEPUFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351063AbiEPUB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D5F473B4;
-        Mon, 16 May 2022 12:57:58 -0700 (PDT)
+        with ESMTP id S1348920AbiEPT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1CE36B53;
+        Mon, 16 May 2022 12:52:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3D4DB81615;
-        Mon, 16 May 2022 19:57:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25369C34100;
-        Mon, 16 May 2022 19:57:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CEEDF60A50;
+        Mon, 16 May 2022 19:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8B92C385AA;
+        Mon, 16 May 2022 19:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731075;
-        bh=FM2KypQaSM0lg4NGsv+JVQ8dLweljGPy3xbFEFrdZyU=;
+        s=korg; t=1652730772;
+        bh=4GxQ34/+ri7Qh6zlKXsr+5UTPU54ZBwlSGvG+PEYU6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRwdl+Dii0GTLCNdShtR9NjKSbcU2bgAZksxJKOC6dgK8PG5WnFM1hDxM6d04aW3u
-         XS9svh2MhpDy9lpBREMr6ZehVy19O9xtYw/HvMswVfjpsva+wWmS/ciuix35tu/JyT
-         tGbUITJ3P2X4a3qBLjNnVFFsggLz2yi72VwxZdzk=
+        b=BmjGDpLWvbkypYEP6NojjKXF7hVuypjFUOyaBbdZ6PMqINNoiploo9NMbKZfMsohL
+         FBXj2Uc9aZVYikpiiVsLPitCd+FmiFC7dMdympbe7TZO7N68m9M+lyTcLpCOsIM58I
+         4v+cHBXJgHxy9IgJ64+1oZsRQpCTys5hqbc4tAtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niels Dossche <dossche.niels@gmail.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.17 095/114] mm: mremap: fix sign for EFAULT error return value
-Date:   Mon, 16 May 2022 21:37:09 +0200
-Message-Id: <20220516193628.201513069@linuxfoundation.org>
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 096/102] Revert "drm/amd/pm: keep the BACO feature enabled for suspend"
+Date:   Mon, 16 May 2022 21:37:10 +0200
+Message-Id: <20220516193626.757688026@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,39 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niels Dossche <dossche.niels@gmail.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 7d1e6496616275f3830e2f2f91fa69a66953e95b upstream.
+commit a56f445f807b0276fc0660c330bf93a9ea78e8ea upstream.
 
-The mremap syscall is supposed to return a pointer to the new virtual
-memory area on success, and a negative value of the error code in case of
-failure.  Currently, EFAULT is returned when the VMA is not found, instead
-of -EFAULT.  The users of this syscall will therefore believe the syscall
-succeeded in case the VMA didn't exist, as it returns a pointer to address
-0xe (0xe being the value of EFAULT).  Fix the sign of the error value.
+This reverts commit eaa090538e8d21801c6d5f94590c3799e6a528b5.
 
-Link: https://lkml.kernel.org/r/20220427224439.23828-2-dossche.niels@gmail.com
-Fixes: 550a7d60bd5e ("mm, hugepages: add mremap() support for hugepage backed vma")
-Signed-off-by: Niels Dossche <dossche.niels@gmail.com>
-Cc: Mina Almasry <almasrymina@google.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Commit ebc002e3ee78 ("drm/amdgpu: don't use BACO for reset in S3")
+stops using BACO for reset during suspend, so it's no longer
+necessary to leave BACO enabled during suspend.  This fixes
+resume from suspend on the navy flounder dGPU in the ASUS ROG
+Strix G513QY.
+
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2008
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1982
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/mremap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -947,7 +947,7 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
- 		return -EINTR;
- 	vma = find_vma(mm, addr);
- 	if (!vma || vma->vm_start > addr) {
--		ret = EFAULT;
-+		ret = -EFAULT;
- 		goto out;
- 	}
+--- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+@@ -1386,14 +1386,8 @@ static int smu_disable_dpms(struct smu_c
+ {
+ 	struct amdgpu_device *adev = smu->adev;
+ 	int ret = 0;
+-	/*
+-	 * TODO: (adev->in_suspend && !adev->in_s0ix) is added to pair
+-	 * the workaround which always reset the asic in suspend.
+-	 * It's likely that workaround will be dropped in the future.
+-	 * Then the change here should be dropped together.
+-	 */
+ 	bool use_baco = !smu->is_apu &&
+-		(((amdgpu_in_reset(adev) || (adev->in_suspend && !adev->in_s0ix)) &&
++		((amdgpu_in_reset(adev) &&
+ 		  (amdgpu_asic_reset_method(adev) == AMD_RESET_METHOD_BACO)) ||
+ 		 ((adev->in_runpm || adev->in_s4) && amdgpu_asic_supports_baco(adev)));
  
 
 
