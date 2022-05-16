@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7393F529026
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E78265290F8
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346690AbiEPULr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57676 "EHLO
+        id S233594AbiEPUFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:05:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351055AbiEPUB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:57 -0400
+        with ESMTP id S1348916AbiEPT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3D9D4757A;
-        Mon, 16 May 2022 12:57:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695A9369EF;
+        Mon, 16 May 2022 12:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E3E560FA6;
-        Mon, 16 May 2022 19:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0727DC385AA;
-        Mon, 16 May 2022 19:57:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0296F60A50;
+        Mon, 16 May 2022 19:52:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2095C385AA;
+        Mon, 16 May 2022 19:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731063;
-        bh=nQmJl6KIuWA8NxoAIZbd1YvwbN2X3XD3DhhVKkDufWw=;
+        s=korg; t=1652730766;
+        bh=D10GPRbEwKJfKsKN2QwvZzhLZ1ISe1aCW6XloW6wvuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ge9RjQ8NHp+aEay9bZdqSLA1d+NL8O8nAiZTi0KVb2vf6iet0b9o0XChVNEmPoAxs
-         0CYscC9bNW/CoKEx5jT+ilYv0TK0GmVbXz2vfYzhfA/yrlrZOuDfdnZbYrxZO4fmTK
-         Pm/zcuGqYXAqaRMnRk2q7t6ALA5rNlmg8RkUEVW0=
+        b=hTWMz2ZHIxf2afU+Z06ljK55BRWZDO+40n3KKByvChBKMWUgTovCnamljDx33T2PH
+         Xbzhp90+KqKgshHh/Io5iKLnN7WYdgf0+gUUg1ihHYWb1m0ItbDOzmwlk488879Bo1
+         fy+HCaF1+5+e9AOQcbek7/4fOfEagr/m5zJW6TX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ji-Ze Hong (Peter Hong)" <hpeter+linux_kernel@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 050/114] hwmon: (f71882fg) Fix negative temperature
-Date:   Mon, 16 May 2022 21:36:24 +0200
-Message-Id: <20220516193626.930806406@linuxfoundation.org>
+Subject: [PATCH 5.15 051/102] s390: disable -Warray-bounds
+Date:   Mon, 16 May 2022 21:36:25 +0200
+Message-Id: <20220516193625.462471436@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 4aaaaf0f279836f06d3b9d0ffeec7a1e1a04ceef ]
+[ Upstream commit 8b202ee218395319aec1ef44f72043e1fbaccdd6 ]
 
-All temperature of Fintek superio hwmonitor that using 1-byte reg will use
-2's complement.
+gcc-12 shows a lot of array bound warnings on s390. This is caused
+by the S390_lowcore macro which uses a hardcoded address of 0.
 
-In show_temp()
-	temp = data->temp[nr] * 1000;
+Wrapping that with absolute_pointer() works, but gcc no longer knows
+that a 12 bit displacement is sufficient to access lowcore. So it
+emits instructions like 'lghi %r1,0; l %rx,xxx(%r1)' instead of a
+single load/store instruction. As s390 stores variables often
+read/written in lowcore, this is considered problematic. Therefore
+disable -Warray-bounds on s390 for gcc-12 for the time being, until
+there is a better solution.
 
-When data->temp[nr] read as 255, it indicate -1C, but this code will report
-255C to userspace. It'll be ok when change to:
-	temp = ((s8)data->temp[nr]) * 1000;
-
-Signed-off-by: Ji-Ze Hong (Peter Hong) <hpeter+linux_kernel@gmail.com>
-Link: https://lore.kernel.org/r/20220418090706.6339-1-hpeter+linux_kernel@gmail.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Link: https://lore.kernel.org/r/yt9dzgkelelc.fsf@linux.ibm.com
+Link: https://lore.kernel.org/r/20220422134308.1613610-1-svens@linux.ibm.com
+Link: https://lore.kernel.org/r/20220425121742.3222133-1-svens@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/f71882fg.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/Makefile | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/hwmon/f71882fg.c b/drivers/hwmon/f71882fg.c
-index 938a8b9ec70d..6830e029995d 100644
---- a/drivers/hwmon/f71882fg.c
-+++ b/drivers/hwmon/f71882fg.c
-@@ -1578,8 +1578,9 @@ static ssize_t show_temp(struct device *dev, struct device_attribute *devattr,
- 		temp *= 125;
- 		if (sign)
- 			temp -= 128000;
--	} else
--		temp = data->temp[nr] * 1000;
-+	} else {
-+		temp = ((s8)data->temp[nr]) * 1000;
-+	}
- 
- 	return sprintf(buf, "%d\n", temp);
- }
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index d4fd1426a822..c7b7a60f6405 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -32,6 +32,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += -fno-stack-protector
+ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
++
++ifdef CONFIG_CC_IS_GCC
++	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
++		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
++			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
++			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
++		endif
++	endif
++endif
++
+ UTS_MACHINE	:= s390x
+ STACK_SIZE	:= $(if $(CONFIG_KASAN),65536,16384)
+ CHECKFLAGS	+= -D__s390__ -D__s390x__
 -- 
 2.35.1
 
