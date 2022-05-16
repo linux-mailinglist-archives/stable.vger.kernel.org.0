@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3BD52901F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8A5529086
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231887AbiEPUHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
+        id S1346680AbiEPUEU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349708AbiEPUAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4532243EEC;
-        Mon, 16 May 2022 12:54:22 -0700 (PDT)
+        with ESMTP id S1348275AbiEPT6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 676CC496A0;
+        Mon, 16 May 2022 12:50:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F3FD60ECF;
-        Mon, 16 May 2022 19:53:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AE65C385AA;
-        Mon, 16 May 2022 19:53:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A35D8B81615;
+        Mon, 16 May 2022 19:50:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FB2C34115;
+        Mon, 16 May 2022 19:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730822;
-        bh=/5fSGM6N6EV85s8ReI6IjjWCeqnsuk4NSeXR+ofA39o=;
+        s=korg; t=1652730622;
+        bh=QtSTpg4s7bW+z7cb5PjOt/RnDgPxZ0RF5p2u0Qr7maU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUP2ucCJaNPJVEOQmlXDr26IUMYbCL0XgJjJi1wXUk29/P3ygYxgiomrpu2VF1Okl
-         ZOJ4DbtjyYeMI3fkeqPtUro0hjfckg3NBNww8NGm9cDke3ZHPiO8QMe6DiGJ9SQbp2
-         E+R/7i5bOnYDXBeE9kXGYELu0geIWOmyy7fWdM34=
+        b=kl8RjbC956fYRtKzIBjeApzPxgj++7vOxAlSLlz5Z6LkvUzIS62IHey680LY81e/0
+         biVBxOFUjTJB+LNgIoYvNvUg0AjYi9wFWrbjap6M1PXYMpf9Tlmst3QXk+SIhfKYgE
+         L+6RXk4RTGmSl0zfxRPGyMspAJ0X/f21vsu2moA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michal Michalik <michal.michalik@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 017/114] ice: fix PTP stale Tx timestamps cleanup
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 017/102] drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
 Date:   Mon, 16 May 2022 21:35:51 +0200
-Message-Id: <20220516193625.990885627@linuxfoundation.org>
+Message-Id: <20220516193624.493092068@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,76 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Michalik <michal.michalik@intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit a11b6c1a383ff092f432e040c20e032503785d47 ]
+[ Upstream commit ab244be47a8f111bc82496a8a20c907236e37f95 ]
 
-Read stale PTP Tx timestamps from PHY on cleanup.
+If successful ida_simple_get() calls are not undone when needed, some
+additional memory may be allocated and wasted.
 
-After running out of Tx timestamps request handlers, hardware (HW) stops
-reporting finished requests. Function ice_ptp_tx_tstamp_cleanup() used
-to only clean up stale handlers in driver and was leaving the hardware
-registers not read. Not reading stale PTP Tx timestamps prevents next
-interrupts from arriving and makes timestamping unusable.
+Here, an ID between 0 and MAX_INT is required. If this ID is >=100, it is
+not taken into account and is wasted. It should be released.
 
-Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
-Signed-off-by: Michal Michalik <michal.michalik@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Instead of calling ida_simple_remove(), take advantage of the 'max'
+parameter to require the ID not to be too big. Should it be too big, it
+is not allocated and don't need to be freed.
+
+While at it, use ida_alloc_xxx()/ida_free() instead to
+ida_simple_get()/ida_simple_remove().
+The latter is deprecated and more verbose.
+
+Fixes: db1a0ae21461 ("drm/nouveau/bl: Assign different names to interfaces")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+[Fixed formatting warning from checkpatch]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/9ba85bca59df6813dc029e743a836451d5173221.1644386541.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_backlight.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index 000c39d163a2..45ae97b8b97d 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -2279,6 +2279,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
- 
- /**
-  * ice_ptp_tx_tstamp_cleanup - Cleanup old timestamp requests that got dropped
-+ * @hw: pointer to the hw struct
-  * @tx: PTP Tx tracker to clean up
-  *
-  * Loop through the Tx timestamp requests and see if any of them have been
-@@ -2287,7 +2288,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
-  * timestamp will never be captured. This might happen if the packet gets
-  * discarded before it reaches the PHY timestamping block.
-  */
--static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
-+static void ice_ptp_tx_tstamp_cleanup(struct ice_hw *hw, struct ice_ptp_tx *tx)
+diff --git a/drivers/gpu/drm/nouveau/nouveau_backlight.c b/drivers/gpu/drm/nouveau/nouveau_backlight.c
+index 12965a832f94..aa8ed08fe9a7 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
++++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
+@@ -46,8 +46,9 @@ static bool
+ nouveau_get_backlight_name(char backlight_name[BL_NAME_SIZE],
+ 			   struct nouveau_backlight *bl)
  {
- 	u8 idx;
- 
-@@ -2296,11 +2297,16 @@ static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
- 
- 	for_each_set_bit(idx, tx->in_use, tx->len) {
- 		struct sk_buff *skb;
-+		u64 raw_tstamp;
- 
- 		/* Check if this SKB has been waiting for too long */
- 		if (time_is_after_jiffies(tx->tstamps[idx].start + 2 * HZ))
- 			continue;
- 
-+		/* Read tstamp to be able to use this register again */
-+		ice_read_phy_tstamp(hw, tx->quad, idx + tx->quad_offset,
-+				    &raw_tstamp);
+-	const int nb = ida_simple_get(&bl_ida, 0, 0, GFP_KERNEL);
+-	if (nb < 0 || nb >= 100)
++	const int nb = ida_alloc_max(&bl_ida, 99, GFP_KERNEL);
 +
- 		spin_lock(&tx->lock);
- 		skb = tx->tstamps[idx].skb;
- 		tx->tstamps[idx].skb = NULL;
-@@ -2322,7 +2328,7 @@ static void ice_ptp_periodic_work(struct kthread_work *work)
++	if (nb < 0)
+ 		return false;
+ 	if (nb > 0)
+ 		snprintf(backlight_name, BL_NAME_SIZE, "nv_backlight%d", nb);
+@@ -411,7 +412,7 @@ nouveau_backlight_init(struct drm_connector *connector)
+ 					    nv_encoder, ops, &props);
+ 	if (IS_ERR(bl->dev)) {
+ 		if (bl->id >= 0)
+-			ida_simple_remove(&bl_ida, bl->id);
++			ida_free(&bl_ida, bl->id);
+ 		ret = PTR_ERR(bl->dev);
+ 		goto fail_alloc;
+ 	}
+@@ -439,7 +440,7 @@ nouveau_backlight_fini(struct drm_connector *connector)
+ 		return;
  
- 	ice_ptp_update_cached_phctime(pf);
+ 	if (bl->id >= 0)
+-		ida_simple_remove(&bl_ida, bl->id);
++		ida_free(&bl_ida, bl->id);
  
--	ice_ptp_tx_tstamp_cleanup(&pf->ptp.port.tx);
-+	ice_ptp_tx_tstamp_cleanup(&pf->hw, &pf->ptp.port.tx);
- 
- 	/* Run twice a second */
- 	kthread_queue_delayed_work(ptp->kworker, &ptp->work,
+ 	backlight_device_unregister(bl->dev);
+ 	nv_conn->backlight = NULL;
 -- 
 2.35.1
 
