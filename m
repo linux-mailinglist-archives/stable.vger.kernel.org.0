@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 295265290A5
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBA0528FB2
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346606AbiEPTyt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56704 "EHLO
+        id S232718AbiEPUIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:08:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347760AbiEPTwS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2549427DE;
-        Mon, 16 May 2022 12:47:56 -0700 (PDT)
+        with ESMTP id S1350163AbiEPUAw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC7946644;
+        Mon, 16 May 2022 12:55:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E21B6B81607;
-        Mon, 16 May 2022 19:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365CAC34100;
-        Mon, 16 May 2022 19:47:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A5A760A14;
+        Mon, 16 May 2022 19:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 113D9C36AE2;
+        Mon, 16 May 2022 19:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730473;
-        bh=7wLZiyfpEIoV0FKQ5xzP1VHbHh9ZccAXu7pBOG+fq/k=;
+        s=korg; t=1652730868;
+        bh=lEaxH+Zrm3LXE0KrWgkFL430Y9ob1JUFCC0MSBkH42Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qIlqFgIiIhrL8qtlE3jks1d+gqltQTYOQ36Aq8a9NTrPzFf8a1Dur4GMeOzpw/W5u
-         6QH9aCmUqS+fiYROb8AkDSvmghf+4QDwQQeKCp8DhqoUgn0nDDHRjDj1Umg2WC+Jys
-         /uvDoZ0JHcnIWymSIiD7BG0wau5ShhmMi/AkP2aA=
+        b=oMfEEQkwaho0vbklZkbLzK5lG6IzYAFktuFh4wp2IvhVgOdUw+bRlzziHmXsgN/QQ
+         lbEU8CWpI23aZD30ibZFb24Gn8N/ieZVFuUcWZ6sj8Al+VFMw92g3KgbFARUzTGryk
+         XK+MJdTrfAdL3iMaF/lgGShGu6lpRrpxrAWN/H34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Camel Guo <camel.guo@axis.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 003/102] hwmon: (tmp401) Add OF device ID table
+Subject: [PATCH 5.17 003/114] hwmon: (tmp401) Add OF device ID table
 Date:   Mon, 16 May 2022 21:35:37 +0200
-Message-Id: <20220516193624.091849509@linuxfoundation.org>
+Message-Id: <20220516193625.592158778@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -91,10 +91,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 11 insertions(+)
 
 diff --git a/drivers/hwmon/tmp401.c b/drivers/hwmon/tmp401.c
-index 9dc210b55e69..48466b0a4bb0 100644
+index b86d9df7105d..52c9e7d3f2ae 100644
 --- a/drivers/hwmon/tmp401.c
 +++ b/drivers/hwmon/tmp401.c
-@@ -730,10 +730,21 @@ static int tmp401_probe(struct i2c_client *client)
+@@ -708,10 +708,21 @@ static int tmp401_probe(struct i2c_client *client)
  	return 0;
  }
  
