@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65686528E8E
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73EFC528F0D
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346153AbiEPTr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36562 "EHLO
+        id S236528AbiEPTn4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347020AbiEPTq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E02D427F5;
-        Mon, 16 May 2022 12:44:25 -0700 (PDT)
+        with ESMTP id S1346104AbiEPTmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2F03F89B;
+        Mon, 16 May 2022 12:41:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D46376154E;
-        Mon, 16 May 2022 19:44:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4630C385AA;
-        Mon, 16 May 2022 19:44:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A15761553;
+        Mon, 16 May 2022 19:41:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0E2BC385AA;
+        Mon, 16 May 2022 19:41:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730258;
-        bh=9o4RUFqur9mew6cE5fqLdZI9D4SDZqn1UsWDbvfWv3U=;
+        s=korg; t=1652730097;
+        bh=Cgu1pC7pjm415+HyJWuxH9IQ7t7/RTyAFjZ6q0jjW1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lf8I6p9TZpsFGehl0Pvv2KgHj0FTOisFEx+dhU+9ehu8wkSArAFnwk11Rglms4VTn
-         LyjMyOMBazMBHkE4liny0EmKa/mh//lBW2Kw5Q/cIq/FAj4weogN2r7tsWss3kJz/l
-         tnbLWJ/2rWIuMlUhZ7wxLn/uo3/IiQQzqvOj4gSo=
+        b=HvKrC5weMuekW6ylCh1et0Kv8gVN7XXqL0uOKc1uQhBcRlyi2+RWIO3KwfWty8PYK
+         o/nlDkyjQjacg7PQf9dZUVN+XXSsxoKM4BV0FHVXakU/1KIITol8UezGqXwLMYyGhc
+         9rDCnH24S1S/NLrpfA25SssSjEEZF1NHkZ2kfJjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-Subject: [PATCH 5.4 33/43] serial: 8250_mtk: Fix UART_EFR register address
-Date:   Mon, 16 May 2022 21:36:44 +0200
-Message-Id: <20220516193615.695595614@linuxfoundation.org>
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 31/32] ping: fix address binding wrt vrf
+Date:   Mon, 16 May 2022 21:36:45 +0200
+Message-Id: <20220516193615.696730865@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,92 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit bb0b197aadd928f52ce6f01f0ee977f0a08cf1be upstream.
+commit e1a7ac6f3ba6e157adcd0ca94d92a401f1943f56 upstream.
 
-On MediaTek SoCs, the UART IP is 16550A compatible, but there are some
-specific quirks: we are declaring a register shift of 2, but this is
-only valid for the majority of the registers, as there are some that
-are out of the standard layout.
+When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
+instead of an IP raw socket. In this case, 'ping' is unable to bind its
+socket to a local address owned by a vrflite.
 
-Specifically, this driver is using definitions from serial_reg.h, where
-we have a UART_EFR register defined as 2: this results in a 0x8 offset,
-but there we have the FCR register instead.
+Before the patch:
+$ sysctl -w net.ipv4.ping_group_range='0  2147483647'
+$ ip link add blue type vrf table 10
+$ ip link add foo type dummy
+$ ip link set foo master blue
+$ ip link set foo up
+$ ip addr add 192.168.1.1/24 dev foo
+$ ip addr add 2001::1/64 dev foo
+$ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
+ping: bind: Cannot assign requested address
+$ ip vrf exec blue ping6 -c1 -I 2001::1 2001::2
+ping6: bind icmp socket: Cannot assign requested address
 
-The right offset for the EFR register on MediaTek UART is at 0x98,
-so, following the decimal definition convention in serial_reg.h and
-accounting for the register left shift of two, add and use the correct
-register address for this IP, defined as decimal 38, so that the final
-calculation results in (0x26 << 2) = 0x98.
-
-Fixes: bdbd0a7f8f03 ("serial: 8250-mtk: modify baudrate setting")
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220427132328.228297-2-angelogioacchino.delregno@collabora.com
+CC: stable@vger.kernel.org
+Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ net/ipv4/ping.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -36,6 +36,7 @@
- #define MTK_UART_IER_RTSI	0x40	/* Enable RTS Modem status interrupt */
- #define MTK_UART_IER_CTSI	0x80	/* Enable CTS Modem status interrupt */
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -309,6 +309,7 @@ static int ping_check_bind_addr(struct s
+ 	struct net *net = sock_net(sk);
+ 	if (sk->sk_family == AF_INET) {
+ 		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++		u32 tb_id = RT_TABLE_LOCAL;
+ 		int chk_addr_ret;
  
-+#define MTK_UART_EFR		38	/* I/O: Extended Features Register */
- #define MTK_UART_EFR_EN		0x10	/* Enable enhancement feature */
- #define MTK_UART_EFR_RTS	0x40	/* Enable hardware rx flow control */
- #define MTK_UART_EFR_CTS	0x80	/* Enable hardware tx flow control */
-@@ -168,7 +169,7 @@ static void mtk8250_dma_enable(struct ua
- 		   MTK_UART_DMA_EN_RX | MTK_UART_DMA_EN_TX);
+ 		if (addr_len < sizeof(*addr))
+@@ -322,7 +323,8 @@ static int ping_check_bind_addr(struct s
+ 		pr_debug("ping_check_bind_addr(sk=%p,addr=%pI4,port=%d)\n",
+ 			 sk, &addr->sin_addr.s_addr, ntohs(addr->sin_port));
  
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--	serial_out(up, UART_EFR, UART_EFR_ECB);
-+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
- 	serial_out(up, UART_LCR, lcr);
+-		chk_addr_ret = inet_addr_type(net, addr->sin_addr.s_addr);
++		tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
++		chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
  
- 	if (dmaengine_slave_config(dma->rxchan, &dma->rxconf) != 0)
-@@ -231,7 +232,7 @@ static void mtk8250_set_flow_ctrl(struct
- 	int lcr = serial_in(up, UART_LCR);
- 
- 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--	serial_out(up, UART_EFR, UART_EFR_ECB);
-+	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
- 	serial_out(up, UART_LCR, lcr);
- 	lcr = serial_in(up, UART_LCR);
- 
-@@ -240,7 +241,7 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
- 		serial_out(up, MTK_UART_ESCAPE_EN, 0x00);
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
--		serial_out(up, UART_EFR, serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK)));
- 		serial_out(up, UART_LCR, lcr);
- 		mtk8250_disable_intrs(up, MTK_UART_IER_XOFFI |
-@@ -254,8 +255,8 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
- 
- 		/*enable hw flow control*/
--		serial_out(up, UART_EFR, MTK_UART_EFR_HW_FC |
--			(serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_HW_FC |
-+			(serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
- 
- 		serial_out(up, UART_LCR, lcr);
-@@ -269,8 +270,8 @@ static void mtk8250_set_flow_ctrl(struct
- 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
- 
- 		/*enable sw flow control */
--		serial_out(up, UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
--			(serial_in(up, UART_EFR) &
-+		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
-+			(serial_in(up, MTK_UART_EFR) &
- 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
- 
- 		serial_out(up, UART_XON1, START_CHAR(port->state->port.tty));
+ 		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
+ 			chk_addr_ret = RTN_LOCAL;
+@@ -361,6 +363,14 @@ static int ping_check_bind_addr(struct s
+ 			if (!dev) {
+ 				rcu_read_unlock();
+ 				return -ENODEV;
++			}
++		}
++
++		if (!dev && sk->sk_bound_dev_if) {
++			dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
++			if (!dev) {
++				rcu_read_unlock();
++				return -ENODEV;
+ 			}
+ 		}
+ 		has_addr = pingv6_ops.ipv6_chk_addr(net, &addr->sin6_addr, dev,
 
 
