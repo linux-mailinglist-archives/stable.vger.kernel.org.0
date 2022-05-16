@@ -2,52 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90DF4529001
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2239552901D
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236957AbiEPUKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:10:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
+        id S231430AbiEPUE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351021AbiEPUB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
+        with ESMTP id S1348776AbiEPT64 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB413473AC;
-        Mon, 16 May 2022 12:56:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27BBE49F04;
+        Mon, 16 May 2022 12:51:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47FA760FE4;
-        Mon, 16 May 2022 19:56:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA90C385AA;
-        Mon, 16 May 2022 19:56:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B882B60A14;
+        Mon, 16 May 2022 19:51:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19CBC34100;
+        Mon, 16 May 2022 19:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730994;
-        bh=k+MToLoaUMchIx7iY04ATQlWvuE0nwEcPwpeCEw1FW8=;
+        s=korg; t=1652730661;
+        bh=GPeUlZ7dqcAiB0O1XvoRl8OE1TanIDmrxDmGkvO4ECk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0xroSUupMv5NOU86NXEA8jgaqZTm74/Chz81VisBpOWGFIxYkyPSF81OgmrAP4Aqf
-         VtmN5Faf1zJXEapvHgD0lhRxrUvlx9QhYNTu3edbLEj1/OzHQQ7Ev6PaemXLUDLqmS
-         +dArWoOXjCT5/vMjm7W/hvljTbwT1hwFRYoS0EtY=
+        b=D3H4oeGmxchcgfJXeL3InNVo5eL6VATjXDBpejuUNTIcOdSpmhbuX+KWRKEItRSt8
+         mjE2jES2mXLm9iW3crUCupbRjU/BEHQvcjjKjFjrtXQm/1sgizJStzPULGjqeof0gV
+         cofkMfP+c2ahfAwgnK2JifU4HqB9hN0qCZUSfwDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 070/114] perf tests: Fix coresight `perf test` failure.
+        stable@vger.kernel.org, Sergey Ryazanov <ryazanov.s.a@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.15 070/102] usb: cdc-wdm: fix reading stuck on device close
 Date:   Mon, 16 May 2022 21:36:44 +0200
-Message-Id: <20220516193627.501172278@linuxfoundation.org>
+Message-Id: <20220516193626.005661571@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,60 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Sergey Ryazanov <ryazanov.s.a@gmail.com>
 
-[ Upstream commit 45fa7c38696bae632310c2876ba81fdfa25cc9c2 ]
+commit 01e01f5c89773c600a9f0b32c888de0146066c3a upstream.
 
-Currently the `perf test` always fails the coresight test like:
+cdc-wdm tracks whether a response reading request is in-progress and
+blocks the next request from being sent until the previous request is
+completed. As soon as last user closes the cdc-wdm device file, the
+driver cancels any ongoing requests, resets the pending response
+counter, but leaves the response reading in-progress flag
+(WDM_RESPONDING) untouched.
 
-  89: Check Arm CoreSight trace data recording and synthesized samples: FAILED!
+So if the user closes the device file during the response receive
+request is being performed, no more data will be obtained from the
+modem. The request will be cancelled, effectively preventing the
+WDM_RESPONDING flag from being reseted. Keeping the flag set will
+prevent a new response receive request from being sent, permanently
+blocking the read path. The read path will staying blocked until the
+module will be reloaded or till the modem will be re-attached.
 
-That is because the test_arm_coresight.sh is attempting to SIGINT the
-parent but is using $$ rather than $PPID and it sigint's itself when
-run under the perf test framework.
+This stuck has been observed with a Huawei E3372 modem attached to an
+OpenWrt router and using the comgt utility to set up a network
+connection.
 
-Since this is done in a trap clause it ends up returning a non zero
-return.
+Fix this issue by clearing the WDM_RESPONDING flag on the device file
+close.
 
-Since $PPID is a bash ism and not all distros are linking /bin/sh to
-bash, the alternative parent pid lookups are uglier than just dropping
-the kill, and its not strictly needed, lets pick the simple solution and
-drop the sigint.
+Without this fix, the device reading stuck can be easily reproduced in a
+few connection establishing attempts. With this fix, a load test for
+modem connection re-establishing worked for several hours without any
+issues.
 
-Fixes: 133fe2e617e48ca0 ("perf tests: Improve temp file cleanup in test_arm_coresight.sh")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: James Clark <james.clark@arm.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Jeremy Linton <jeremy.linton@arm.com>
-Link: https://lore.kernel.org/r/20220428151947.290146-1-jeremy.linton@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 922a5eadd5a3 ("usb: cdc-wdm: Fix race between autosuspend and reading from the device")
+Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20220501175828.8185-1-ryazanov.s.a@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/tests/shell/test_arm_coresight.sh | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/class/cdc-wdm.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/tests/shell/test_arm_coresight.sh b/tools/perf/tests/shell/test_arm_coresight.sh
-index 6de53b7ef5ff..e4cb4f1806ff 100755
---- a/tools/perf/tests/shell/test_arm_coresight.sh
-+++ b/tools/perf/tests/shell/test_arm_coresight.sh
-@@ -29,7 +29,6 @@ cleanup_files()
- 	rm -f ${file}
- 	rm -f "${perfdata}.old"
- 	trap - exit term int
--	kill -2 $$
- 	exit $glb_err
- }
- 
--- 
-2.35.1
-
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -774,6 +774,7 @@ static int wdm_release(struct inode *ino
+ 			poison_urbs(desc);
+ 			spin_lock_irq(&desc->iuspin);
+ 			desc->resp_count = 0;
++			clear_bit(WDM_RESPONDING, &desc->flags);
+ 			spin_unlock_irq(&desc->iuspin);
+ 			desc->manage_power(desc->intf, 0);
+ 			unpoison_urbs(desc);
 
 
