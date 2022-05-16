@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F835291D3
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9ABFE5290F7
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241307AbiEPUHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46676 "EHLO
+        id S244605AbiEPUHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:07:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348198AbiEPT62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78B8349277;
-        Mon, 16 May 2022 12:50:18 -0700 (PDT)
+        with ESMTP id S1349648AbiEPUAS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2050E42EDD;
+        Mon, 16 May 2022 12:54:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26053B81612;
-        Mon, 16 May 2022 19:50:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73249C385AA;
-        Mon, 16 May 2022 19:50:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 61B4F60ED0;
+        Mon, 16 May 2022 19:53:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71F52C385AA;
+        Mon, 16 May 2022 19:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730615;
-        bh=D0V9cvmne9QhS6Ya73lFpN8FSdSoxKiZMZLj42fZCRw=;
+        s=korg; t=1652730819;
+        bh=F1CCOG2LTf3l8bdmYcTfYACHq8uRKBCAoBGQK7amE2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hex/4WaIeRNcSuFX7EMkm7jY0g5iUFxip+hh7m8KCg4nNNwD2OwFzhDU7L+yCQ+lf
-         mYVd+Gq766qdHts+R5WB/NB5etDeULN29t/KdCE7rFVDSMGj9lB0iWBfG3h6V8Ra1/
-         mbDYuJ7FKejyq1PuhJ3+cPsOxXKARvD2Lmq+Z2EY=
+        b=O31vF2uO3y3D3yjg3texrKXm2h16yRYz7gTKs6QmUv5DbpdhLNhnDDRno43ofLEsp
+         ofvEiIOcTiKJvEhkMYpGg0f8McAd7HU3/RCRANq5KlGzq2pl5jquXta42NvL81Jzgq
+         zuM4cO6SM7aDOQcKl3vsdr7iFAngNOi5ZjNFsTsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michal Michalik <michal.michalik@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.15 015/102] ice: fix PTP stale Tx timestamps cleanup
-Date:   Mon, 16 May 2022 21:35:49 +0200
-Message-Id: <20220516193624.435938166@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 016/114] ice: clear stale Tx queue settings before configuring
+Date:   Mon, 16 May 2022 21:35:50 +0200
+Message-Id: <20220516193625.962990265@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,76 +56,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Michalik <michal.michalik@intel.com>
+From: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
 
-[ Upstream commit a11b6c1a383ff092f432e040c20e032503785d47 ]
+[ Upstream commit 6096dae926a22e2892ef9169f582589c16d39639 ]
 
-Read stale PTP Tx timestamps from PHY on cleanup.
+The iAVF driver uses 3 virtchnl op codes to communicate with the PF
+regarding the VF Tx queues:
 
-After running out of Tx timestamps request handlers, hardware (HW) stops
-reporting finished requests. Function ice_ptp_tx_tstamp_cleanup() used
-to only clean up stale handlers in driver and was leaving the hardware
-registers not read. Not reading stale PTP Tx timestamps prevents next
-interrupts from arriving and makes timestamping unusable.
+* VIRTCHNL_OP_CONFIG_VSI_QUEUES configures the hardware and firmware
+logic for the Tx queues
 
-Fixes: ea9b847cda64 ("ice: enable transmit timestamps for E810 devices")
-Signed-off-by: Michal Michalik <michal.michalik@intel.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Reviewed-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+* VIRTCHNL_OP_ENABLE_QUEUES configures the queue interrupts
+
+* VIRTCHNL_OP_DISABLE_QUEUES disables the queue interrupts and Tx rings.
+
+There is a bug in the iAVF driver due to the race condition between VF
+reset request and shutdown being executed in parallel. This leads to a
+break in logic and VIRTCHNL_OP_DISABLE_QUEUES is not being sent.
+
+If this occurs, the PF driver never cleans up the Tx queues. This results
+in leaving behind stale Tx queue settings in the hardware and firmware.
+
+The most obvious outcome is that upon the next
+VIRTCHNL_OP_CONFIG_VSI_QUEUES, the PF will fail to program the Tx
+scheduler node due to a lack of space.
+
+We need to protect ICE driver against such situation.
+
+To fix this, make sure we clear existing stale settings out when
+handling VIRTCHNL_OP_CONFIG_VSI_QUEUES. This ensures we remove the
+previous settings.
+
+Calling ice_vf_vsi_dis_single_txq should be safe as it will do nothing if
+the queue is not configured. The function already handles the case when the
+Tx queue is not currently configured and exits with a 0 return in that
+case.
+
+Fixes: 7ad15440acf8 ("ice: Refactor VIRTCHNL_OP_CONFIG_VSI_QUEUES handling")
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Signed-off-by: Anatolii Gerasymenko <anatolii.gerasymenko@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ .../net/ethernet/intel/ice/ice_virtchnl_pf.c  | 68 ++++++++++++++-----
+ 1 file changed, 50 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index eb9193682579..ef26ff351b57 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -1375,6 +1375,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
+diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+index 2bee8f10ad89..0cc8b7e06b72 100644
+--- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
+@@ -3300,13 +3300,52 @@ static int ice_vc_ena_qs_msg(struct ice_vf *vf, u8 *msg)
+ 				     NULL, 0);
+ }
  
- /**
-  * ice_ptp_tx_tstamp_cleanup - Cleanup old timestamp requests that got dropped
-+ * @hw: pointer to the hw struct
-  * @tx: PTP Tx tracker to clean up
-  *
-  * Loop through the Tx timestamp requests and see if any of them have been
-@@ -1383,7 +1384,7 @@ ice_ptp_init_tx_e810(struct ice_pf *pf, struct ice_ptp_tx *tx)
-  * timestamp will never be captured. This might happen if the packet gets
-  * discarded before it reaches the PHY timestamping block.
-  */
--static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
-+static void ice_ptp_tx_tstamp_cleanup(struct ice_hw *hw, struct ice_ptp_tx *tx)
- {
- 	u8 idx;
- 
-@@ -1392,11 +1393,16 @@ static void ice_ptp_tx_tstamp_cleanup(struct ice_ptp_tx *tx)
- 
- 	for_each_set_bit(idx, tx->in_use, tx->len) {
- 		struct sk_buff *skb;
-+		u64 raw_tstamp;
- 
- 		/* Check if this SKB has been waiting for too long */
- 		if (time_is_after_jiffies(tx->tstamps[idx].start + 2 * HZ))
- 			continue;
- 
-+		/* Read tstamp to be able to use this register again */
-+		ice_read_phy_tstamp(hw, tx->quad, idx + tx->quad_offset,
-+				    &raw_tstamp);
++/**
++ * ice_vf_vsi_dis_single_txq - disable a single Tx queue
++ * @vf: VF to disable queue for
++ * @vsi: VSI for the VF
++ * @q_id: VF relative (0-based) queue ID
++ *
++ * Attempt to disable the Tx queue passed in. If the Tx queue was successfully
++ * disabled then clear q_id bit in the enabled queues bitmap and return
++ * success. Otherwise return error.
++ */
++static int
++ice_vf_vsi_dis_single_txq(struct ice_vf *vf, struct ice_vsi *vsi, u16 q_id)
++{
++	struct ice_txq_meta txq_meta = { 0 };
++	struct ice_tx_ring *ring;
++	int err;
 +
- 		spin_lock(&tx->lock);
- 		skb = tx->tstamps[idx].skb;
- 		tx->tstamps[idx].skb = NULL;
-@@ -1418,7 +1424,7 @@ static void ice_ptp_periodic_work(struct kthread_work *work)
++	if (!test_bit(q_id, vf->txq_ena))
++		dev_dbg(ice_pf_to_dev(vsi->back), "Queue %u on VSI %u is not enabled, but stopping it anyway\n",
++			q_id, vsi->vsi_num);
++
++	ring = vsi->tx_rings[q_id];
++	if (!ring)
++		return -EINVAL;
++
++	ice_fill_txq_meta(vsi, ring, &txq_meta);
++
++	err = ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, vf->vf_id, ring, &txq_meta);
++	if (err) {
++		dev_err(ice_pf_to_dev(vsi->back), "Failed to stop Tx ring %d on VSI %d\n",
++			q_id, vsi->vsi_num);
++		return err;
++	}
++
++	/* Clear enabled queues flag */
++	clear_bit(q_id, vf->txq_ena);
++
++	return 0;
++}
++
+ /**
+  * ice_vc_dis_qs_msg
+  * @vf: pointer to the VF info
+  * @msg: pointer to the msg buffer
+  *
+- * called from the VF to disable all or specific
+- * queue(s)
++ * called from the VF to disable all or specific queue(s)
+  */
+ static int ice_vc_dis_qs_msg(struct ice_vf *vf, u8 *msg)
+ {
+@@ -3343,30 +3382,15 @@ static int ice_vc_dis_qs_msg(struct ice_vf *vf, u8 *msg)
+ 		q_map = vqs->tx_queues;
  
- 	ice_ptp_update_cached_phctime(pf);
+ 		for_each_set_bit(vf_q_id, &q_map, ICE_MAX_RSS_QS_PER_VF) {
+-			struct ice_tx_ring *ring = vsi->tx_rings[vf_q_id];
+-			struct ice_txq_meta txq_meta = { 0 };
+-
+ 			if (!ice_vc_isvalid_q_id(vf, vqs->vsi_id, vf_q_id)) {
+ 				v_ret = VIRTCHNL_STATUS_ERR_PARAM;
+ 				goto error_param;
+ 			}
  
--	ice_ptp_tx_tstamp_cleanup(&pf->ptp.port.tx);
-+	ice_ptp_tx_tstamp_cleanup(&pf->hw, &pf->ptp.port.tx);
+-			if (!test_bit(vf_q_id, vf->txq_ena))
+-				dev_dbg(ice_pf_to_dev(vsi->back), "Queue %u on VSI %u is not enabled, but stopping it anyway\n",
+-					vf_q_id, vsi->vsi_num);
+-
+-			ice_fill_txq_meta(vsi, ring, &txq_meta);
+-
+-			if (ice_vsi_stop_tx_ring(vsi, ICE_NO_RESET, vf->vf_id,
+-						 ring, &txq_meta)) {
+-				dev_err(ice_pf_to_dev(vsi->back), "Failed to stop Tx ring %d on VSI %d\n",
+-					vf_q_id, vsi->vsi_num);
++			if (ice_vf_vsi_dis_single_txq(vf, vsi, vf_q_id)) {
+ 				v_ret = VIRTCHNL_STATUS_ERR_PARAM;
+ 				goto error_param;
+ 			}
+-
+-			/* Clear enabled queues flag */
+-			clear_bit(vf_q_id, vf->txq_ena);
+ 		}
+ 	}
  
- 	/* Run twice a second */
- 	kthread_queue_delayed_work(ptp->kworker, &ptp->work,
+@@ -3615,6 +3639,14 @@ static int ice_vc_cfg_qs_msg(struct ice_vf *vf, u8 *msg)
+ 		if (qpi->txq.ring_len > 0) {
+ 			vsi->tx_rings[i]->dma = qpi->txq.dma_ring_addr;
+ 			vsi->tx_rings[i]->count = qpi->txq.ring_len;
++
++			/* Disable any existing queue first */
++			if (ice_vf_vsi_dis_single_txq(vf, vsi, q_idx)) {
++				v_ret = VIRTCHNL_STATUS_ERR_PARAM;
++				goto error_param;
++			}
++
++			/* Configure a queue with the requested settings */
+ 			if (ice_vsi_cfg_single_txq(vsi, vsi->tx_rings, q_idx)) {
+ 				v_ret = VIRTCHNL_STATUS_ERR_PARAM;
+ 				goto error_param;
 -- 
 2.35.1
 
