@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82AAF52903F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35182528F9D
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346486AbiEPTyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
+        id S1346343AbiEPUHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348364AbiEPTws (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:48 -0400
+        with ESMTP id S1349428AbiEPT7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA0745AD7;
-        Mon, 16 May 2022 12:48:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE142492;
+        Mon, 16 May 2022 12:53:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B1D60ABE;
-        Mon, 16 May 2022 19:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E10FC385AA;
-        Mon, 16 May 2022 19:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EDF160EC6;
+        Mon, 16 May 2022 19:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15357C385AA;
+        Mon, 16 May 2022 19:53:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730504;
-        bh=8TNGV8+lcfjcP2CucebFTBrC3MWqsBcqoaEeKvVh1+s=;
+        s=korg; t=1652730835;
+        bh=PW/zQ6LFubacbzYbdTq6DvQ+rhLWO1a9rT5v7x1P1jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j7l++uub0o+dvbubSFoWemRDAd8yYmYLpZV+8fs4Ayhx4UbSQsc9BPMglEYyfEuSK
-         1FY6af/AD5Y0ierG1RLfOjIlvd8kNXdCSdaZN90iRigPBWqf5VJ2/RKbRU8/qmfW5m
-         aPqTJDyUxETJhNuj5ev9Wm9R9wtW/AdCdqx1pCBg=
+        b=O+AlX/gXgmiXLKXQByxTpxftrrUcBGDIuIP/wJBgm2A/R32/eHrHQUTQxsN5pPPwL
+         Fmf0sv69w8G94ZbZQIXX1s7iUW8oSy6IByJtvOE3Fumk+umaBYonE2CnanetTw32dE
+         nqnqFeAU+hZ5VOrKKzysF2/X6CZ3v0p80qBWVc9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Andi Shyti <andi.shyti@linux.intel.com>,
-        Thomas Zimmermann <tzimemrmann@suse.de>,
-        Lucas De Marchi <lucas.demarchi@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 020/102] fbdev: efifb: Fix a use-after-free due early fb_info cleanup
+Subject: [PATCH 5.17 020/114] netlink: do not reset transport header in netlink_recvmsg()
 Date:   Mon, 16 May 2022 21:35:54 +0200
-Message-Id: <20220516193624.580066845@linuxfoundation.org>
+Message-Id: <20220516193626.075833700@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,52 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1b5853dfab7fdde450f00f145327342238135c8a ]
+[ Upstream commit d5076fe4049cadef1f040eda4aaa001bb5424225 ]
 
-Commit d258d00fb9c7 ("fbdev: efifb: Cleanup fb_info in .fb_destroy rather
-than .remove") attempted to fix a use-after-free error due driver freeing
-the fb_info in the .remove handler instead of doing it in .fb_destroy.
+netlink_recvmsg() does not need to change transport header.
 
-But ironically that change introduced yet another use-after-free since the
-fb_info was still used after the free.
+If transport header was needed, it should have been reset
+by the producer (netlink_dump()), not the consumer(s).
 
-This should fix for good by freeing the fb_info at the end of the handler.
+The following trace probably happened when multiple threads
+were using MSG_PEEK.
 
-Fixes: d258d00fb9c7 ("fbdev: efifb: Cleanup fb_info in .fb_destroy rather than .remove")
-Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reported-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Andi Shyti <andi.shyti@linux.intel.com>
-Reviewed-by: Andrzej Hajda <andrzej.hajda@intel.com>
-Reviewed-by: Thomas Zimmermann <tzimemrmann@suse.de>
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220506132225.588379-1-javierm@redhat.com
+BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32012 on cpu 1:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ __sys_recvfrom+0x204/0x2c0 net/socket.c:2097
+ __do_sys_recvfrom net/socket.c:2115 [inline]
+ __se_sys_recvfrom net/socket.c:2111 [inline]
+ __x64_sys_recvfrom+0x74/0x90 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32005 on cpu 0:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ ____sys_recvmsg+0x162/0x2f0
+ ___sys_recvmsg net/socket.c:2674 [inline]
+ __sys_recvmsg+0x209/0x3f0 net/socket.c:2704
+ __do_sys_recvmsg net/socket.c:2714 [inline]
+ __se_sys_recvmsg net/socket.c:2711 [inline]
+ __x64_sys_recvmsg+0x42/0x50 net/socket.c:2711
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffff -> 0x0000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 32005 Comm: syz-executor.4 Not tainted 5.18.0-rc1-syzkaller-00328-ge1f700ebd6be-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220505161946.2867638-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/efifb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netlink/af_netlink.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
-index cfa3dc0b4eee..b3d5f884c544 100644
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -259,12 +259,12 @@ static void efifb_destroy(struct fb_info *info)
- 			memunmap(info->screen_base);
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 05a3795eac8e..73e9c0a9c187 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1975,7 +1975,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		copied = len;
  	}
  
--	framebuffer_release(info);
--
- 	if (request_mem_succeeded)
- 		release_mem_region(info->apertures->ranges[0].base,
- 				   info->apertures->ranges[0].size);
- 	fb_dealloc_cmap(&info->cmap);
-+
-+	framebuffer_release(info);
- }
+-	skb_reset_transport_header(data_skb);
+ 	err = skb_copy_datagram_msg(data_skb, 0, msg, copied);
  
- static const struct fb_ops efifb_ops = {
+ 	if (msg->msg_name) {
 -- 
 2.35.1
 
