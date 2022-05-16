@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AEB528EE2
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D9A3528E6C
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345904AbiEPTry (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35730 "EHLO
+        id S1346106AbiEPTn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346107AbiEPTpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:45:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 977013F884;
-        Mon, 16 May 2022 12:43:17 -0700 (PDT)
+        with ESMTP id S1346053AbiEPTmt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D623F880;
+        Mon, 16 May 2022 12:41:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C21CB81616;
-        Mon, 16 May 2022 19:43:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D409C385AA;
-        Mon, 16 May 2022 19:43:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2877761551;
+        Mon, 16 May 2022 19:41:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 183D4C385AA;
+        Mon, 16 May 2022 19:41:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730194;
-        bh=C3qRh3O7j80V8NskUV4RSWEG9R9RkIc5taM0ld4ydt4=;
+        s=korg; t=1652730076;
+        bh=Dq4jw3rOfRZiDJlt/p0HFwwO1NVtikxEFBXkzYc2rgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KjH06WOA2Zx9MNCeY7gsMEtIC1FY7wLqc/Ngw6CjiShFXS+X7ICaxtDHERVZJgCXv
-         uGxWJ+6ROL2EUb67n3QkyPBBzowexaSeE1QO7yFN7h7+RdblZIZ+IeS4/xg/Dp6NTw
-         xb/+uYmyAZywe3o4iwS0K09r1kM6BLrcxrKjwbjE=
+        b=Ttl4ofi3VfI9PYe5Lv9i9Il18UjXaSp1yb+YyyQxwOx2cuCiFUtyBlZxHkiPoc/J4
+         BEAWXlMB9W7obQGCnC4paBB5bQloDPxysUcgTrylCt4hd9k5o956ehIfLkQ/zWFJ7Y
+         dTVnmhJkJ2ekAfNDwVbXBQszqcewDf22HNKHR1n4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/43] mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+Subject: [PATCH 4.19 05/32] netlink: do not reset transport header in netlink_recvmsg()
 Date:   Mon, 16 May 2022 21:36:19 +0200
-Message-Id: <20220516193614.963992242@linuxfoundation.org>
+Message-Id: <20220516193614.936557267@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,50 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 9e2db50f1ef2238fc2f71c5de1c0418b7a5b0ea2 ]
+[ Upstream commit d5076fe4049cadef1f040eda4aaa001bb5424225 ]
 
-This is needed since it might use (and pass out) pointers to
-e.g. keys protected by RCU. Can't really happen here as the
-frames aren't encrypted, but we need to still adhere to the
-rules.
+netlink_recvmsg() does not need to change transport header.
 
-Fixes: cacfddf82baf ("mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220505230421.5f139f9de173.I77ae111a28f7c0e9fd1ebcee7f39dbec5c606770@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+If transport header was needed, it should have been reset
+by the producer (netlink_dump()), not the consumer(s).
+
+The following trace probably happened when multiple threads
+were using MSG_PEEK.
+
+BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32012 on cpu 1:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ sock_recvmsg_nosec net/socket.c:948 [inline]
+ sock_recvmsg net/socket.c:966 [inline]
+ __sys_recvfrom+0x204/0x2c0 net/socket.c:2097
+ __do_sys_recvfrom net/socket.c:2115 [inline]
+ __se_sys_recvfrom net/socket.c:2111 [inline]
+ __x64_sys_recvfrom+0x74/0x90 net/socket.c:2111
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+write to 0xffff88811e9f15b2 of 2 bytes by task 32005 on cpu 0:
+ skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
+ netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
+ ____sys_recvmsg+0x162/0x2f0
+ ___sys_recvmsg net/socket.c:2674 [inline]
+ __sys_recvmsg+0x209/0x3f0 net/socket.c:2704
+ __do_sys_recvmsg net/socket.c:2714 [inline]
+ __se_sys_recvmsg net/socket.c:2711 [inline]
+ __x64_sys_recvmsg+0x42/0x50 net/socket.c:2711
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+value changed: 0xffff -> 0x0000
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 32005 Comm: syz-executor.4 Not tainted 5.18.0-rc1-syzkaller-00328-ge1f700ebd6be-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Link: https://lore.kernel.org/r/20220505161946.2867638-1-eric.dumazet@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/netlink/af_netlink.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index 6e1721d53384..ffe27104f654 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2062,11 +2062,13 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
- 
-+			rcu_read_lock();
- 			if (!ieee80211_tx_prepare_skb(hwsim->hw,
- 						      hwsim->hw_scan_vif,
- 						      probe,
- 						      hwsim->tmp_chan->band,
- 						      NULL)) {
-+				rcu_read_unlock();
- 				kfree_skb(probe);
- 				continue;
- 			}
-@@ -2074,6 +2076,7 @@ static void hw_scan_work(struct work_struct *work)
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
-+			rcu_read_unlock();
- 			local_bh_enable();
- 		}
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index e2120221b957..6ffa83319d08 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1978,7 +1978,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+ 		copied = len;
  	}
+ 
+-	skb_reset_transport_header(data_skb);
+ 	err = skb_copy_datagram_msg(data_skb, 0, msg, copied);
+ 
+ 	if (msg->msg_name) {
 -- 
 2.35.1
 
