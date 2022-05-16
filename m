@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 109CB5290FB
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B43252911A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346653AbiEPUHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55482 "EHLO
+        id S1346437AbiEPTyF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349539AbiEPUAF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF186427F5;
-        Mon, 16 May 2022 12:54:04 -0700 (PDT)
+        with ESMTP id S1348434AbiEPTwv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7857846167;
+        Mon, 16 May 2022 12:48:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58E0AB81612;
-        Mon, 16 May 2022 19:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA37C385AA;
-        Mon, 16 May 2022 19:53:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2C1660AC3;
+        Mon, 16 May 2022 19:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10B7C385AA;
+        Mon, 16 May 2022 19:48:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730839;
-        bh=tvt3VPT3sUjfD+Yw/+5I3ea0kxUmHKnrj4n+CmedKmo=;
+        s=korg; t=1652730510;
+        bh=STrV8Y5GP26PAtMlvwqpYOOTpdYoaVhs/fEPuwfAfqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=skw6uXvLDQEh8si1S+1+Ad4hPIMRA0SMdMn0FOO6cq8x4ICYSlacen8P0cJNdhgFH
-         UL6fL0L0vuDGIgB1bdw072D4mYCtQ+s/klk8GxHmjQpHW14RQ7VrFXiLPDVBORf0HC
-         z28tNF+3sPNGLeSY03sVPWtHebQRbE2zM4HfYTQE=
+        b=gbnZ0bUDOGm5XW9ahTYXCxUh3UpVVswQ788V65dy4eLxSe8yBz3ri8LROxG47izsD
+         i6BZCLG0Hi01trWTwd4cQoX2ALNETjY3RiBASiFrkWTaKzJ6dvk86VdicZhdsySr9y
+         IU8jq5rl1Bx7vs2RH56bpHTnvzmpXFEzOFvtjW9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Raju Rangoju <rajur@chelsio.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 021/114] net: chelsio: cxgb4: Avoid potential negative array offset
-Date:   Mon, 16 May 2022 21:35:55 +0200
-Message-Id: <20220516193626.103551273@linuxfoundation.org>
+Subject: [PATCH 5.15 022/102] net: sfc: fix memory leak due to ptp channel
+Date:   Mon, 16 May 2022 21:35:56 +0200
+Message-Id: <20220516193624.637587003@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,94 +54,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 1c7ab9cd98b78bef1657a5db7204d8d437e24c94 ]
+[ Upstream commit 49e6123c65dac6393b04f39ceabf79c44f66b8be ]
 
-Using min_t(int, ...) as a potential array index implies to the compiler
-that negative offsets should be allowed. This is not the case, though.
-Replace "int" with "unsigned int". Fixes the following warning exposed
-under future CONFIG_FORTIFY_SOURCE improvements:
+It fixes memory leak in ring buffer change logic.
 
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/rcupdate.h:29,
-                 from include/linux/rculist.h:11,
-                 from include/linux/pid.h:5,
-                 from include/linux/sched.h:14,
-                 from include/linux/delay.h:23,
-                 from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
- 2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-      |         ^~~~~~
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
- 2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-      |         ^~~~~~
+When ring buffer size is changed(ethtool -G eth0 rx 4096), sfc driver
+works like below.
+1. stop all channels and remove ring buffers.
+2. allocates new buffer array.
+3. allocates rx buffers.
+4. start channels.
 
-Additionally remove needless cast from u8[] to char * in last strim()
-call.
+While the above steps are working, it skips some steps if the channel
+doesn't have a ->copy callback function.
+Due to ptp channel doesn't have ->copy callback, these above steps are
+skipped for ptp channel.
+It eventually makes some problems.
+a. ptp channel's ring buffer size is not changed, it works only
+   1024(default).
+b. memory leak.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
-Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
-Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
-Cc: Raju Rangoju <rajur@chelsio.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220505233101.1224230-1-keescook@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The reason for memory leak is to use the wrong ring buffer values.
+There are some values, which is related to ring buffer size.
+a. efx->rxq_entries
+ - This is global value of rx queue size.
+b. rx_queue->ptr_mask
+ - used for access ring buffer as circular ring.
+ - roundup_pow_of_two(efx->rxq_entries) - 1
+c. rx_queue->max_fill
+ - efx->rxq_entries - EFX_RXD_HEAD_ROOM
+
+These all values should be based on ring buffer size consistently.
+But ptp channel's values are not.
+a. efx->rxq_entries
+ - This is global(for sfc) value, always new ring buffer size.
+b. rx_queue->ptr_mask
+ - This is always 1023(default).
+c. rx_queue->max_fill
+ - This is new ring buffer size - EFX_RXD_HEAD_ROOM.
+
+Let's assume we set 4096 for rx ring buffer,
+
+                      normal channel     ptp channel
+efx->rxq_entries      4096               4096
+rx_queue->ptr_mask    4095               1023
+rx_queue->max_fill    4086               4086
+
+sfc driver allocates rx ring buffers based on these values.
+When it allocates ptp channel's ring buffer, 4086 ring buffers are
+allocated then, these buffers are attached to the allocated array.
+But ptp channel's ring buffer array size is still 1024(default)
+and ptr_mask is still 1023 too.
+So, 3062 ring buffers will be overwritten to the array.
+This is the reason for memory leak.
+
+Test commands:
+   ethtool -G <interface name> rx 4096
+   while :
+   do
+       ip link set <interface name> up
+       ip link set <interface name> down
+   done
+
+In order to avoid this problem, it adds ->copy callback to ptp channel
+type.
+So that rx_queue->ptr_mask value will be updated correctly.
+
+Fixes: 7c236c43b838 ("sfc: Add support for IEEE-1588 PTP")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/sfc/efx_channels.c |  7 ++++++-
+ drivers/net/ethernet/sfc/ptp.c          | 14 +++++++++++++-
+ drivers/net/ethernet/sfc/ptp.h          |  1 +
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index e7b4e3ed056c..8d719f82854a 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -2793,14 +2793,14 @@ int t4_get_raw_vpd_params(struct adapter *adapter, struct vpd_params *p)
- 		goto out;
- 	na = ret;
+diff --git a/drivers/net/ethernet/sfc/efx_channels.c b/drivers/net/ethernet/sfc/efx_channels.c
+index 2623df1fa741..d5f2ccd3bca4 100644
+--- a/drivers/net/ethernet/sfc/efx_channels.c
++++ b/drivers/net/ethernet/sfc/efx_channels.c
+@@ -844,7 +844,9 @@ static void efx_set_xdp_channels(struct efx_nic *efx)
  
--	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-+	memcpy(p->id, vpd + id, min_t(unsigned int, id_len, ID_LEN));
- 	strim(p->id);
--	memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-+	memcpy(p->sn, vpd + sn, min_t(unsigned int, sn_len, SERNUM_LEN));
- 	strim(p->sn);
--	memcpy(p->pn, vpd + pn, min_t(int, pn_len, PN_LEN));
-+	memcpy(p->pn, vpd + pn, min_t(unsigned int, pn_len, PN_LEN));
- 	strim(p->pn);
--	memcpy(p->na, vpd + na, min_t(int, na_len, MACADDR_LEN));
--	strim((char *)p->na);
-+	memcpy(p->na, vpd + na, min_t(unsigned int, na_len, MACADDR_LEN));
-+	strim(p->na);
+ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ {
+-	struct efx_channel *other_channel[EFX_MAX_CHANNELS], *channel;
++	struct efx_channel *other_channel[EFX_MAX_CHANNELS], *channel,
++			   *ptp_channel = efx_ptp_channel(efx);
++	struct efx_ptp_data *ptp_data = efx->ptp_data;
+ 	unsigned int i, next_buffer_table = 0;
+ 	u32 old_rxq_entries, old_txq_entries;
+ 	int rc, rc2;
+@@ -915,6 +917,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
  
+ 	efx_set_xdp_channels(efx);
  out:
- 	vfree(vpd);
++	efx->ptp_data = NULL;
+ 	/* Destroy unused channel structures */
+ 	for (i = 0; i < efx->n_channels; i++) {
+ 		channel = other_channel[i];
+@@ -925,6 +928,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 		}
+ 	}
+ 
++	efx->ptp_data = ptp_data;
+ 	rc2 = efx_soft_enable_interrupts(efx);
+ 	if (rc2) {
+ 		rc = rc ? rc : rc2;
+@@ -943,6 +947,7 @@ int efx_realloc_channels(struct efx_nic *efx, u32 rxq_entries, u32 txq_entries)
+ 	efx->txq_entries = old_txq_entries;
+ 	for (i = 0; i < efx->n_channels; i++)
+ 		swap(efx->channel[i], other_channel[i]);
++	efx_ptp_update_channel(efx, ptp_channel);
+ 	goto out;
+ }
+ 
+diff --git a/drivers/net/ethernet/sfc/ptp.c b/drivers/net/ethernet/sfc/ptp.c
+index 797e51802ccb..725b0f38813a 100644
+--- a/drivers/net/ethernet/sfc/ptp.c
++++ b/drivers/net/ethernet/sfc/ptp.c
+@@ -45,6 +45,7 @@
+ #include "farch_regs.h"
+ #include "tx.h"
+ #include "nic.h" /* indirectly includes ptp.h */
++#include "efx_channels.h"
+ 
+ /* Maximum number of events expected to make up a PTP event */
+ #define	MAX_EVENT_FRAGS			3
+@@ -541,6 +542,12 @@ struct efx_channel *efx_ptp_channel(struct efx_nic *efx)
+ 	return efx->ptp_data ? efx->ptp_data->channel : NULL;
+ }
+ 
++void efx_ptp_update_channel(struct efx_nic *efx, struct efx_channel *channel)
++{
++	if (efx->ptp_data)
++		efx->ptp_data->channel = channel;
++}
++
+ static u32 last_sync_timestamp_major(struct efx_nic *efx)
+ {
+ 	struct efx_channel *channel = efx_ptp_channel(efx);
+@@ -1443,6 +1450,11 @@ int efx_ptp_probe(struct efx_nic *efx, struct efx_channel *channel)
+ 	int rc = 0;
+ 	unsigned int pos;
+ 
++	if (efx->ptp_data) {
++		efx->ptp_data->channel = channel;
++		return 0;
++	}
++
+ 	ptp = kzalloc(sizeof(struct efx_ptp_data), GFP_KERNEL);
+ 	efx->ptp_data = ptp;
+ 	if (!efx->ptp_data)
+@@ -2179,7 +2191,7 @@ static const struct efx_channel_type efx_ptp_channel_type = {
+ 	.pre_probe		= efx_ptp_probe_channel,
+ 	.post_remove		= efx_ptp_remove_channel,
+ 	.get_name		= efx_ptp_get_channel_name,
+-	/* no copy operation; there is no need to reallocate this channel */
++	.copy                   = efx_copy_channel,
+ 	.receive_skb		= efx_ptp_rx,
+ 	.want_txqs		= efx_ptp_want_txqs,
+ 	.keep_eventq		= false,
+diff --git a/drivers/net/ethernet/sfc/ptp.h b/drivers/net/ethernet/sfc/ptp.h
+index 9855e8c9e544..7b1ef7002b3f 100644
+--- a/drivers/net/ethernet/sfc/ptp.h
++++ b/drivers/net/ethernet/sfc/ptp.h
+@@ -16,6 +16,7 @@ struct ethtool_ts_info;
+ int efx_ptp_probe(struct efx_nic *efx, struct efx_channel *channel);
+ void efx_ptp_defer_probe_with_channel(struct efx_nic *efx);
+ struct efx_channel *efx_ptp_channel(struct efx_nic *efx);
++void efx_ptp_update_channel(struct efx_nic *efx, struct efx_channel *channel);
+ void efx_ptp_remove(struct efx_nic *efx);
+ int efx_ptp_set_ts_config(struct efx_nic *efx, struct ifreq *ifr);
+ int efx_ptp_get_ts_config(struct efx_nic *efx, struct ifreq *ifr);
 -- 
 2.35.1
 
