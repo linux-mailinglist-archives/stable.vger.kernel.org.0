@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24499529074
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAD6C5290AA
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347073AbiEPUFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:05:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43256 "EHLO
+        id S241808AbiEPUK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348898AbiEPT7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C035C1707D;
-        Mon, 16 May 2022 12:52:22 -0700 (PDT)
+        with ESMTP id S1351136AbiEPUCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:02:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FE9B3D;
+        Mon, 16 May 2022 12:59:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59F6460AB8;
-        Mon, 16 May 2022 19:52:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6061FC34100;
-        Mon, 16 May 2022 19:52:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B7460BAC;
+        Mon, 16 May 2022 19:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B9C3C385AA;
+        Mon, 16 May 2022 19:59:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730741;
-        bh=toU+LSytb3raG+3uTnxifuzxSNtqE2Qud5xMlmbay4Y=;
+        s=korg; t=1652731164;
+        bh=kmphfhQU/g2Vah4OmHGp155rYUCsLBN72nFjKWY/2lI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SQkjT62ACUf6V86KXDF7J14Glutm4XK35rHWlaZYEKf+gUeVnD+G5SCV1PJ4irZ6u
-         RfR1nwKiQapY1TjpshXFs2F+Ll61OQ+ZzcSQQk6PZEDbEJGS+aRnk6CPE4YEWwypl3
-         0rohF1gvvHCwHAeWHkWgZJM84WrJ1aT17dDcsDn0=
+        b=M96Jlncjd0HFg76qd4GQ8mFoeRKsKVmz9rru9GF53aTH8ZoSzQpaa57Z6/c1DNCux
+         lYjFov5XM5AOsmzp0DMtVIz80R10nb+9qpebfSe8pSSiS5ZI4El49Xl7kHahSxzhLv
+         fh/Yhd866IjWcR8V1QOKMErK6GLLK31lQTDAOpwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 092/102] net: phy: micrel: Do not use kszphy_suspend/resume for KSZ8061
+        stable@vger.kernel.org, John Fortin <fortinj66@gmail.com>,
+        Sri Ramanujam <sri@ramanujam.io>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.17 092/114] ceph: fix setting of xattrs on async created inodes
 Date:   Mon, 16 May 2022 21:37:06 +0200
-Message-Id: <20220516193626.639614033@linuxfoundation.org>
+Message-Id: <20220516193628.117586608@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,62 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit e333eed63a091a09bd0db191b7710c594c6e995b upstream.
+commit 620239d9a32e9fe27c9204ec11e40058671aeeb6 upstream.
 
-Since commit f1131b9c23fb ("net: phy: micrel: use
-kszphy_suspend()/kszphy_resume for irq aware devices") the following
-NULL pointer dereference is observed on a board with KSZ8061:
+Currently when we create a file, we spin up an xattr buffer to send
+along with the create request. If we end up doing an async create
+however, then we currently pass down a zero-length xattr buffer.
 
- # udhcpc -i eth0
-udhcpc: started, v1.35.0
-8<--- cut here ---
-Unable to handle kernel NULL pointer dereference at virtual address 00000008
-pgd = f73cef4e
-[00000008] *pgd=00000000
-Internal error: Oops: 5 [#1] SMP ARM
-Modules linked in:
-CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
-Hardware name: Freescale i.MX6 SoloX (Device Tree)
-PC is at kszphy_config_reset+0x10/0x114
-LR is at kszphy_resume+0x24/0x64
-...
-
-The KSZ8061 phy_driver structure does not have the .probe/..driver_data
-fields, which means that priv is not allocated.
-
-This causes the NULL pointer dereference inside kszphy_config_reset().
-
-Fix the problem by using the generic suspend/resume functions as before.
-
-Another alternative would be to provide the .probe and .driver_data
-information into the structure, but to be on the safe side, let's
-just restore Ethernet functionality by using the generic suspend/resume.
+Fix the code to send down the xattr buffer in req->r_pagelist. If the
+xattrs span more than a page, however give up and don't try to do an
+async create.
 
 Cc: stable@vger.kernel.org
-Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220504143104.1286960-1-festevam@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+URL: https://bugzilla.redhat.com/show_bug.cgi?id=2063929
+Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
+Reported-by: John Fortin <fortinj66@gmail.com>
+Reported-by: Sri Ramanujam <sri@ramanujam.io>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/micrel.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ceph/file.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1669,8 +1669,8 @@ static struct phy_driver ksphy_driver[]
- 	.config_init	= ksz8061_config_init,
- 	.config_intr	= kszphy_config_intr,
- 	.handle_interrupt = kszphy_handle_interrupt,
--	.suspend	= kszphy_suspend,
--	.resume		= kszphy_resume,
-+	.suspend	= genphy_suspend,
-+	.resume		= genphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ9021,
- 	.phy_id_mask	= 0x000ffffe,
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -598,9 +598,15 @@ static int ceph_finish_async_create(stru
+ 	iinfo.change_attr = 1;
+ 	ceph_encode_timespec64(&iinfo.btime, &now);
+ 
+-	iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
+-	iinfo.xattr_data = xattr_buf;
+-	memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	if (req->r_pagelist) {
++		iinfo.xattr_len = req->r_pagelist->length;
++		iinfo.xattr_data = req->r_pagelist->mapped_tail;
++	} else {
++		/* fake it */
++		iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
++		iinfo.xattr_data = xattr_buf;
++		memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	}
+ 
+ 	in.ino = cpu_to_le64(vino.ino);
+ 	in.snapid = cpu_to_le64(CEPH_NOSNAP);
+@@ -712,6 +718,10 @@ int ceph_atomic_open(struct inode *dir,
+ 		err = ceph_security_init_secctx(dentry, mode, &as_ctx);
+ 		if (err < 0)
+ 			goto out_ctx;
++		/* Async create can't handle more than a page of xattrs */
++		if (as_ctx.pagelist &&
++		    !list_is_singular(&as_ctx.pagelist->head))
++			try_async = false;
+ 	} else if (!d_in_lookup(dentry)) {
+ 		/* If it's not being looked up, it's negative */
+ 		return -ENOENT;
 
 
