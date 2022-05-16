@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5894C528E55
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55017528E64
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245708AbiEPTm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:42:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44072 "EHLO
+        id S1345975AbiEPTnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345793AbiEPTkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:40:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396503F306;
-        Mon, 16 May 2022 12:39:39 -0700 (PDT)
+        with ESMTP id S1346013AbiEPTmr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E5193F316;
+        Mon, 16 May 2022 12:41:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEFDF614B6;
-        Mon, 16 May 2022 19:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A62C34100;
-        Mon, 16 May 2022 19:39:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A41DB81610;
+        Mon, 16 May 2022 19:41:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C97BEC385AA;
+        Mon, 16 May 2022 19:41:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729978;
-        bh=Xr3Sm7ztXFyfUFVN7yvyGGdyW1XTRAYX2HVnhG0Z9gg=;
+        s=korg; t=1652730061;
+        bh=xE9gKHyJRXSBGiBmo7TlloNcwGX7Ykc6NA1rvaKNwng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDjcYPZevTKGDsZD8313si8r1vWY+AUoBVo81VrEICRJWlHoePMFLmvhq/Z8Z1usO
-         9v1kGT98vL4a0/UArhhwGQRbVRDpZgdJO/zUbKAEgQLhefFJNkiiQCDUYx6y7ZjkBJ
-         G+KUamIXhxGnD43RVFcWTHqpgr5J4ix/XLb6ZC+w=
+        b=J0yWbKTT9NhvM8iqyqdmUfJOAiTjxPXinLOahCvo5MP1btDP9Cq383cJLXl88Y4wE
+         OxPX8cmNkZjJ+4ccYWG9OC45qwkH3IegM9XfozrOg3Jnt5N5Tx3BSYK27muCgT8LyI
+         NKBnIFiLwHUq+j6NmFKhUHza9+THJH2bka5tomq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ethan Yang <etyang@sierrawireless.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 19/25] USB: serial: qcserial: add support for Sierra Wireless EM7590
+        stable@vger.kernel.org, Sven Schnelle <svens@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 19/32] s390: disable -Warray-bounds
 Date:   Mon, 16 May 2022 21:36:33 +0200
-Message-Id: <20220516193615.265423114@linuxfoundation.org>
+Message-Id: <20220516193615.344397004@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
-References: <20220516193614.678319286@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ethan Yang <etyang@sierrawireless.com>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-commit 870b1eee2d844727b06e238c121d260bc5645580 upstream.
+[ Upstream commit 8b202ee218395319aec1ef44f72043e1fbaccdd6 ]
 
-Add support for Sierra Wireless EM7590 0xc080/0xc081 compositions.
+gcc-12 shows a lot of array bound warnings on s390. This is caused
+by the S390_lowcore macro which uses a hardcoded address of 0.
 
-Signed-off-by: Ethan Yang <etyang@sierrawireless.com>
-Link: https://lore.kernel.org/r/20220425055840.5693-1-etyang@sierrawireless.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Wrapping that with absolute_pointer() works, but gcc no longer knows
+that a 12 bit displacement is sufficient to access lowcore. So it
+emits instructions like 'lghi %r1,0; l %rx,xxx(%r1)' instead of a
+single load/store instruction. As s390 stores variables often
+read/written in lowcore, this is considered problematic. Therefore
+disable -Warray-bounds on s390 for gcc-12 for the time being, until
+there is a better solution.
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Link: https://lore.kernel.org/r/yt9dzgkelelc.fsf@linux.ibm.com
+Link: https://lore.kernel.org/r/20220422134308.1613610-1-svens@linux.ibm.com
+Link: https://lore.kernel.org/r/20220425121742.3222133-1-svens@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/qcserial.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/s390/Makefile | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -170,6 +170,8 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
- 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
- 	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
-+	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 QDL */
-+	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
- 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+diff --git a/arch/s390/Makefile b/arch/s390/Makefile
+index 9a3a698c8fca..4d0082f3de47 100644
+--- a/arch/s390/Makefile
++++ b/arch/s390/Makefile
+@@ -27,6 +27,16 @@ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-option,-ffreestanding)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, address-of-packed-member)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO),-g)
+ KBUILD_CFLAGS_DECOMPRESSOR += $(if $(CONFIG_DEBUG_INFO_DWARF4), $(call cc-option, -gdwarf-4,))
++
++ifdef CONFIG_CC_IS_GCC
++	ifeq ($(call cc-ifversion, -ge, 1200, y), y)
++		ifeq ($(call cc-ifversion, -lt, 1300, y), y)
++			KBUILD_CFLAGS += $(call cc-disable-warning, array-bounds)
++			KBUILD_CFLAGS_DECOMPRESSOR += $(call cc-disable-warning, array-bounds)
++		endif
++	endif
++endif
++
+ UTS_MACHINE	:= s390x
+ STACK_SIZE	:= 16384
+ CHECKFLAGS	+= -D__s390__ -D__s390x__
+-- 
+2.35.1
+
 
 
