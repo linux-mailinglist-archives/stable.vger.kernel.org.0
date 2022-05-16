@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD5C528E8A
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F257528E66
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235583AbiEPTtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:49:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
+        id S1345984AbiEPTnR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346182AbiEPTsh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:48:37 -0400
+        with ESMTP id S1346031AbiEPTms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:48 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99CC342EF8;
-        Mon, 16 May 2022 12:44:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 982BC3F31E;
+        Mon, 16 May 2022 12:41:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06389B81618;
-        Mon, 16 May 2022 19:44:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 597F4C385AA;
-        Mon, 16 May 2022 19:44:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5B255B81610;
+        Mon, 16 May 2022 19:41:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B628CC385AA;
+        Mon, 16 May 2022 19:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730285;
-        bh=Br3lB6GtFz/MXTAndSiBppGFrOKcpvhd6MgDFSkSPQM=;
+        s=korg; t=1652730064;
+        bh=U5mcT1gse7ACTGxQURCRr4VYICr+qU7mQmmumsc1EgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IGXqZvTUDU0ixYf1mtFy6We7g7RN0Njk/jSuqotCUTOVhsbRGzKnIuXcJaaIVgrJ4
-         F7Dw4Vv7xpRuCxe01EMtykiqKymYSlx0Rh++6sXOU+Dr156MsFPRvSYW8uAfP+EkPJ
-         ZumQg4tYG++4Lp5oW86QcpbicNYyiCJu7McZt16Q=
+        b=hdxcwQz+qU98TfGrP9prj5VruCJQEw8IEYoMOYgGmt07U3ZJ+Zmb350eE89AaTybj
+         NGfz24sE6ExHpwgXdVzmSCAKzDoHIfLbmzzjm4dv+USrNPIUEXe5/dipUI3lQ0Rsdm
+         TfI/4kLvo5QiobROpc9Ko0w7DqK38BXt3BaLy2Vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Aloni <dan.aloni@vastdata.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Camel Guo <camel.guo@axis.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/66] nfs: fix broken handling of the softreval mount option
+Subject: [PATCH 4.19 02/32] hwmon: (tmp401) Add OF device ID table
 Date:   Mon, 16 May 2022 21:36:16 +0200
-Message-Id: <20220516193619.887269240@linuxfoundation.org>
+Message-Id: <20220516193614.848946826@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Aloni <dan.aloni@vastdata.com>
+From: Camel Guo <camel.guo@axis.com>
 
-[ Upstream commit 085d16d5f949b64713d5e960d6c9bbf51bc1d511 ]
+[ Upstream commit 3481551f035725fdc46885425eac3ef9b58ae7b7 ]
 
-Turns out that ever since this mount option was added, passing
-`softreval` in NFS mount options cancelled all other flags while not
-affecting the underlying flag `NFS_MOUNT_SOFTREVAL`.
+This driver doesn't have of_match_table. This makes the kernel module
+tmp401.ko lack alias patterns (e.g: of:N*T*Cti,tmp411) to match DT node
+of the supported devices hence this kernel module will not be
+automatically loaded.
 
-Fixes: c74dfe97c104 ("NFS: Add mount option 'softreval'")
-Signed-off-by: Dan Aloni <dan.aloni@vastdata.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+After adding of_match_table to this driver, the folllowing alias will be
+added into tmp401.ko.
+$ modinfo drivers/hwmon/tmp401.ko
+filename: drivers/hwmon/tmp401.ko
+......
+author:         Hans de Goede <hdegoede@redhat.com>
+alias:          of:N*T*Cti,tmp435C*
+alias:          of:N*T*Cti,tmp435
+alias:          of:N*T*Cti,tmp432C*
+alias:          of:N*T*Cti,tmp432
+alias:          of:N*T*Cti,tmp431C*
+alias:          of:N*T*Cti,tmp431
+alias:          of:N*T*Cti,tmp411C*
+alias:          of:N*T*Cti,tmp411
+alias:          of:N*T*Cti,tmp401C*
+alias:          of:N*T*Cti,tmp401
+......
+
+Fixes: af503716ac14 ("i2c: core: report OF style module alias for devices registered via OF")
+Signed-off-by: Camel Guo <camel.guo@axis.com>
+Link: https://lore.kernel.org/r/20220503114333.456476-1-camel.guo@axis.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/fs_context.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/tmp401.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/fs/nfs/fs_context.c b/fs/nfs/fs_context.c
-index 05b39e8f97b9..d60c086c6e9c 100644
---- a/fs/nfs/fs_context.c
-+++ b/fs/nfs/fs_context.c
-@@ -476,7 +476,7 @@ static int nfs_fs_context_parse_param(struct fs_context *fc,
- 		if (result.negated)
- 			ctx->flags &= ~NFS_MOUNT_SOFTREVAL;
- 		else
--			ctx->flags &= NFS_MOUNT_SOFTREVAL;
-+			ctx->flags |= NFS_MOUNT_SOFTREVAL;
- 		break;
- 	case Opt_posix:
- 		if (result.negated)
+diff --git a/drivers/hwmon/tmp401.c b/drivers/hwmon/tmp401.c
+index 1f2d13dc9439..99b0d7e0a27a 100644
+--- a/drivers/hwmon/tmp401.c
++++ b/drivers/hwmon/tmp401.c
+@@ -756,10 +756,21 @@ static int tmp401_probe(struct i2c_client *client,
+ 	return 0;
+ }
+ 
++static const struct of_device_id __maybe_unused tmp4xx_of_match[] = {
++	{ .compatible = "ti,tmp401", },
++	{ .compatible = "ti,tmp411", },
++	{ .compatible = "ti,tmp431", },
++	{ .compatible = "ti,tmp432", },
++	{ .compatible = "ti,tmp435", },
++	{ },
++};
++MODULE_DEVICE_TABLE(of, tmp4xx_of_match);
++
+ static struct i2c_driver tmp401_driver = {
+ 	.class		= I2C_CLASS_HWMON,
+ 	.driver = {
+ 		.name	= "tmp401",
++		.of_match_table = of_match_ptr(tmp4xx_of_match),
+ 	},
+ 	.probe		= tmp401_probe,
+ 	.id_table	= tmp401_id,
 -- 
 2.35.1
 
