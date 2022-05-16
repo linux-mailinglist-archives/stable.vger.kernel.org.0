@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3905528FE3
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B6552912C
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238027AbiEPUK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57554 "EHLO
+        id S239814AbiEPUCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351027AbiEPUB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
+        with ESMTP id S1346986AbiEPTvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A633F4755A;
-        Mon, 16 May 2022 12:56:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB8EE3EF32;
+        Mon, 16 May 2022 12:46:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 407B960A50;
-        Mon, 16 May 2022 19:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BA9C385AA;
-        Mon, 16 May 2022 19:56:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED976155B;
+        Mon, 16 May 2022 19:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 510A2C385AA;
+        Mon, 16 May 2022 19:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731003;
-        bh=piennx7MVGXwLZLl+LxhpdRLDGUtTDyOZL9IGWdufG4=;
+        s=korg; t=1652730373;
+        bh=gAF9QkJ8n4r0KvHDf7oKdqFvbg1AdydfWIN71I3LAy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cBMY1TC9eUWm6iopozjzioAzXaRMd1miNFdmS5FClZ1X4xWWgWr6s/PhK1taLNS15
-         OnCEyDn5P+sd5rrW195aL5PG8AjU9SA7Y60wNIyDUWokEJQFu2xgdm6ScTSFPfbydI
-         e/y8xLUi5xlJ6zY4BFzzJTGmzFmT3gSkuJaK6hS4=
+        b=vJnciBySxDF3UT7aBk4X3/5+MHdpZ6pfl6BmCRCpZ5TbSAK4bxSOPimhiNp61/JfO
+         O3FPP/s1UxRzuaoLLqIKpoRA8jKwj6MXr+FBP7XdW7BQS6RB/ncofzD9QiMkH4qtZ7
+         BDD5tNiMweSsNNJcDUfppC6qy53b9LIWxisRi2Ow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Evans <matt@ozlabs.org>,
-        Alexander Graf <graf@amazon.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.17 072/114] KVM: PPC: Book3S PR: Enable MSR_DR for switch_mmu_context()
+        stable@vger.kernel.org, Ethan Yang <etyang@sierrawireless.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 46/66] USB: serial: qcserial: add support for Sierra Wireless EM7590
 Date:   Mon, 16 May 2022 21:36:46 +0200
-Message-Id: <20220516193627.558495278@linuxfoundation.org>
+Message-Id: <20220516193620.743622874@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Graf <graf@amazon.com>
+From: Ethan Yang <etyang@sierrawireless.com>
 
-commit ee8348496c77e3737d0a6cda307a521f2cff954f upstream.
+commit 870b1eee2d844727b06e238c121d260bc5645580 upstream.
 
-Commit 863771a28e27 ("powerpc/32s: Convert switch_mmu_context() to C")
-moved the switch_mmu_context() to C. While in principle a good idea, it
-meant that the function now uses the stack. The stack is not accessible
-from real mode though.
+Add support for Sierra Wireless EM7590 0xc080/0xc081 compositions.
 
-So to keep calling the function, let's turn on MSR_DR while we call it.
-That way, all pointer references to the stack are handled virtually.
-
-In addition, make sure to save/restore r12 on the stack, as it may get
-clobbered by the C function.
-
-Fixes: 863771a28e27 ("powerpc/32s: Convert switch_mmu_context() to C")
-Cc: stable@vger.kernel.org # v5.14+
-Reported-by: Matt Evans <matt@ozlabs.org>
-Signed-off-by: Alexander Graf <graf@amazon.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20220510123717.24508-1-graf@amazon.com
+Signed-off-by: Ethan Yang <etyang@sierrawireless.com>
+Link: https://lore.kernel.org/r/20220425055840.5693-1-etyang@sierrawireless.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_32_sr.S |   26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/usb/serial/qcserial.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/kvm/book3s_32_sr.S
-+++ b/arch/powerpc/kvm/book3s_32_sr.S
-@@ -122,11 +122,27 @@
- 
- 	/* 0x0 - 0xb */
- 
--	/* 'current->mm' needs to be in r4 */
--	tophys(r4, r2)
--	lwz	r4, MM(r4)
--	tophys(r4, r4)
--	/* This only clobbers r0, r3, r4 and r5 */
-+	/* switch_mmu_context() needs paging, let's enable it */
-+	mfmsr   r9
-+	ori     r11, r9, MSR_DR
-+	mtmsr   r11
-+	sync
-+
-+	/* switch_mmu_context() clobbers r12, rescue it */
-+	SAVE_GPR(12, r1)
-+
-+	/* Calling switch_mmu_context(<inv>, current->mm, <inv>); */
-+	lwz	r4, MM(r2)
- 	bl	switch_mmu_context
- 
-+	/* restore r12 */
-+	REST_GPR(12, r1)
-+
-+	/* Disable paging again */
-+	mfmsr   r9
-+	li      r6, MSR_DR
-+	andc    r9, r9, r6
-+	mtmsr	r9
-+	sync
-+
- .endm
+--- a/drivers/usb/serial/qcserial.c
++++ b/drivers/usb/serial/qcserial.c
+@@ -166,6 +166,8 @@ static const struct usb_device_id id_tab
+ 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
+ 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
+ 	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
++	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 QDL */
++	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
+ 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
+ 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
 
 
