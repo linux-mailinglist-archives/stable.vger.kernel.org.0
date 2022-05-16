@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E32EE527F0A
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5714527F19
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236589AbiEPIAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50794 "EHLO
+        id S241420AbiEPIBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:01:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241408AbiEPIAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:00:01 -0400
+        with ESMTP id S241407AbiEPIBx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:01:53 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A6BB2C649
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 00:59:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 645102C65C
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:01:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1CCD3B80EB1
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 07:59:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C130C385B8;
-        Mon, 16 May 2022 07:59:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14AC0B80E8B
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:01:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E456C385AA;
+        Mon, 16 May 2022 08:01:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652687996;
-        bh=Ex2w+66Y28zz4BD/YKIVYH01iTUI2g7QxVpTIS2rpbg=;
+        s=korg; t=1652688109;
+        bh=gy9wKAKvXZsHmabSRjd/7QKOcfRUFMMdvz0edaD/T5Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=CrmbvClRRD30m7VAu7vOXPZKn2Nb+a7I9ePzr+2UHeEpwJ+yp4VFFYUFb28IEbgC2
-         /vULSM5+LCbfVlTD1duAoBy9n6qI5sPuotBBOLcT5rSVFKZ7pg0RA7d2YCMj+E5a1W
-         TFSfodCvGx37vOgi7TsODFsTFGDx6EILh6BQjhAo=
-Subject: FAILED: patch "[PATCH] usb: gadget: uvc: allow for application to cleanly shutdown" failed to apply to 4.14-stable tree
-To:     w36195@motorola.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=kD7T9XSp9mpnV/8eAVtrRjXMKv3DSVLfnCXDYBVsmltBYUX4RFpVlKFtYxJdiPnA7
+         w58mlamxuNsUhsRSti81pvonyL1AI5MbXMZP/tcjOAcBYwsE8iz4j94OlSST17jOyl
+         W9dA+zdzjGTeck5Dh3MqEwpzHyaR6V41/ruxFmX8=
+Subject: FAILED: patch "[PATCH] tty/serial: digicolor: fix possible null-ptr-deref in" failed to apply to 4.9-stable tree
+To:     yangyingliang@huawei.com, baruch@tkos.co.il,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 09:59:54 +0200
-Message-ID: <1652687994179194@kroah.com>
+Date:   Mon, 16 May 2022 10:01:46 +0200
+Message-ID: <165268810654210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,144 +60,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b81ac4395bbeaf36e078dea1a48c02dd97b76235 Mon Sep 17 00:00:00 2001
-From: Dan Vacura <w36195@motorola.com>
-Date: Tue, 3 May 2022 15:10:38 -0500
-Subject: [PATCH] usb: gadget: uvc: allow for application to cleanly shutdown
+From 447ee1516f19f534a228dda237eddb202f23e163 Mon Sep 17 00:00:00 2001
+From: Yang Yingliang <yangyingliang@huawei.com>
+Date: Thu, 5 May 2022 20:46:21 +0800
+Subject: [PATCH] tty/serial: digicolor: fix possible null-ptr-deref in
+ digicolor_uart_probe()
 
-Several types of kernel panics can occur due to timing during the uvc
-gadget removal. This appears to be a problem with gadget resources being
-managed by both the client application's v4l2 open/close and the UDC
-gadget bind/unbind. Since the concept of USB_GADGET_DELAYED_STATUS
-doesn't exist for unbind, add a wait to allow for the application to
-close out.
+It will cause null-ptr-deref when using 'res', if platform_get_resource()
+returns NULL, so move using 'res' after devm_ioremap_resource() that
+will check it to avoid null-ptr-deref.
+And use devm_platform_get_and_ioremap_resource() to simplify code.
 
-Some examples of the panics that can occur are:
-
-<1>[ 1147.652313] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000028
-<4>[ 1147.652510] Call trace:
-<4>[ 1147.652514]  usb_gadget_disconnect+0x74/0x1f0
-<4>[ 1147.652516]  usb_gadget_deactivate+0x38/0x168
-<4>[ 1147.652520]  usb_function_deactivate+0x54/0x90
-<4>[ 1147.652524]  uvc_function_disconnect+0x14/0x38
-<4>[ 1147.652527]  uvc_v4l2_release+0x34/0xa0
-<4>[ 1147.652537]  __fput+0xdc/0x2c0
-<4>[ 1147.652540]  ____fput+0x10/0x1c
-<4>[ 1147.652545]  task_work_run+0xe4/0x12c
-<4>[ 1147.652549]  do_notify_resume+0x108/0x168
-
-<1>[  282.950561][ T1472] Unable to handle kernel NULL pointer
-dereference at virtual address 00000000000005b8
-<6>[  282.953111][ T1472] Call trace:
-<6>[  282.953121][ T1472]  usb_function_deactivate+0x54/0xd4
-<6>[  282.953134][ T1472]  uvc_v4l2_release+0xac/0x1e4
-<6>[  282.953145][ T1472]  v4l2_release+0x134/0x1f0
-<6>[  282.953167][ T1472]  __fput+0xf4/0x428
-<6>[  282.953178][ T1472]  ____fput+0x14/0x24
-<6>[  282.953193][ T1472]  task_work_run+0xac/0x130
-
-<3>[  213.410077][   T29] configfs-gadget gadget: uvc: Failed to queue
-request (-108).
-<1>[  213.410116][   T29] Unable to handle kernel NULL pointer
-dereference at virtual address 0000000000000003
-<6>[  213.413460][   T29] Call trace:
-<6>[  213.413474][   T29]  uvcg_video_pump+0x1f0/0x384
-<6>[  213.413489][   T29]  process_one_work+0x2a4/0x544
-<6>[  213.413502][   T29]  worker_thread+0x350/0x784
-<6>[  213.413515][   T29]  kthread+0x2ac/0x320
-<6>[  213.413528][   T29]  ret_from_fork+0x10/0x30
-
-Signed-off-by: Dan Vacura <w36195@motorola.com>
+Fixes: 5930cb3511df ("serial: driver for Conexant Digicolor USART")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Reviewed-by: Baruch Siach <baruch@tkos.co.il>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220503201039.71720-1-w36195@motorola.com
+Link: https://lore.kernel.org/r/20220505124621.1592697-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/gadget/function/f_uvc.c b/drivers/usb/gadget/function/f_uvc.c
-index 71bb5e477dba..d37965867b23 100644
---- a/drivers/usb/gadget/function/f_uvc.c
-+++ b/drivers/usb/gadget/function/f_uvc.c
-@@ -890,13 +890,37 @@ static void uvc_function_unbind(struct usb_configuration *c,
- {
- 	struct usb_composite_dev *cdev = c->cdev;
- 	struct uvc_device *uvc = to_uvc(f);
-+	long wait_ret = 1;
+diff --git a/drivers/tty/serial/digicolor-usart.c b/drivers/tty/serial/digicolor-usart.c
+index 6d70fea76bb3..e37a917b9dbb 100644
+--- a/drivers/tty/serial/digicolor-usart.c
++++ b/drivers/tty/serial/digicolor-usart.c
+@@ -471,11 +471,10 @@ static int digicolor_uart_probe(struct platform_device *pdev)
+ 	if (IS_ERR(uart_clk))
+ 		return PTR_ERR(uart_clk);
  
- 	uvcg_info(f, "%s()\n", __func__);
+-	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	dp->port.mapbase = res->start;
+-	dp->port.membase = devm_ioremap_resource(&pdev->dev, res);
++	dp->port.membase = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+ 	if (IS_ERR(dp->port.membase))
+ 		return PTR_ERR(dp->port.membase);
++	dp->port.mapbase = res->start;
  
-+	/* If we know we're connected via v4l2, then there should be a cleanup
-+	 * of the device from userspace either via UVC_EVENT_DISCONNECT or
-+	 * though the video device removal uevent. Allow some time for the
-+	 * application to close out before things get deleted.
-+	 */
-+	if (uvc->func_connected) {
-+		uvcg_dbg(f, "waiting for clean disconnect\n");
-+		wait_ret = wait_event_interruptible_timeout(uvc->func_connected_queue,
-+				uvc->func_connected == false, msecs_to_jiffies(500));
-+		uvcg_dbg(f, "done waiting with ret: %ld\n", wait_ret);
-+	}
-+
- 	device_remove_file(&uvc->vdev.dev, &dev_attr_function_name);
- 	video_unregister_device(&uvc->vdev);
- 	v4l2_device_unregister(&uvc->v4l2_dev);
- 
-+	if (uvc->func_connected) {
-+		/* Wait for the release to occur to ensure there are no longer any
-+		 * pending operations that may cause panics when resources are cleaned
-+		 * up.
-+		 */
-+		uvcg_warn(f, "%s no clean disconnect, wait for release\n", __func__);
-+		wait_ret = wait_event_interruptible_timeout(uvc->func_connected_queue,
-+				uvc->func_connected == false, msecs_to_jiffies(1000));
-+		uvcg_dbg(f, "done waiting for release with ret: %ld\n", wait_ret);
-+	}
-+
- 	usb_ep_free_request(cdev->gadget->ep0, uvc->control_req);
- 	kfree(uvc->control_buf);
- 
-@@ -915,6 +939,7 @@ static struct usb_function *uvc_alloc(struct usb_function_instance *fi)
- 
- 	mutex_init(&uvc->video.mutex);
- 	uvc->state = UVC_STATE_DISCONNECTED;
-+	init_waitqueue_head(&uvc->func_connected_queue);
- 	opts = fi_to_f_uvc_opts(fi);
- 
- 	mutex_lock(&opts->lock);
-diff --git a/drivers/usb/gadget/function/uvc.h b/drivers/usb/gadget/function/uvc.h
-index c3607a32b986..886103a1fe9b 100644
---- a/drivers/usb/gadget/function/uvc.h
-+++ b/drivers/usb/gadget/function/uvc.h
-@@ -14,6 +14,7 @@
- #include <linux/spinlock.h>
- #include <linux/usb/composite.h>
- #include <linux/videodev2.h>
-+#include <linux/wait.h>
- 
- #include <media/v4l2-device.h>
- #include <media/v4l2-dev.h>
-@@ -129,6 +130,7 @@ struct uvc_device {
- 	struct usb_function func;
- 	struct uvc_video video;
- 	bool func_connected;
-+	wait_queue_head_t func_connected_queue;
- 
- 	/* Descriptors */
- 	struct {
-diff --git a/drivers/usb/gadget/function/uvc_v4l2.c b/drivers/usb/gadget/function/uvc_v4l2.c
-index a2c78690c5c2..fd8f73bb726d 100644
---- a/drivers/usb/gadget/function/uvc_v4l2.c
-+++ b/drivers/usb/gadget/function/uvc_v4l2.c
-@@ -253,10 +253,11 @@ uvc_v4l2_subscribe_event(struct v4l2_fh *fh,
- 
- static void uvc_v4l2_disable(struct uvc_device *uvc)
- {
--	uvc->func_connected = false;
- 	uvc_function_disconnect(uvc);
- 	uvcg_video_enable(&uvc->video, 0);
- 	uvcg_free_buffers(&uvc->video.queue);
-+	uvc->func_connected = false;
-+	wake_up_interruptible(&uvc->func_connected_queue);
- }
- 
- static int
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0)
 
