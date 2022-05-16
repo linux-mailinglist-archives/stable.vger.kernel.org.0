@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1296528ECC
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 163BE528EB2
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346052AbiEPTrS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33836 "EHLO
+        id S231851AbiEPTns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346928AbiEPTqz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1E2427C8;
-        Mon, 16 May 2022 12:44:16 -0700 (PDT)
+        with ESMTP id S1346161AbiEPTmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F68D3ED3A;
+        Mon, 16 May 2022 12:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98FCEB81604;
-        Mon, 16 May 2022 19:44:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B788C385AA;
-        Mon, 16 May 2022 19:44:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F00D361510;
+        Mon, 16 May 2022 19:42:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 069D0C385AA;
+        Mon, 16 May 2022 19:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730252;
-        bh=kI7g2k/ZpEEHH+P5vwdUbqqd34NZXiGOnhhUMJbGMrY=;
+        s=korg; t=1652730122;
+        bh=ZY7r6g2FfkeLnQCs4ZNZ/uMW7ITBX/uqL8DkAAxNV/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oP92zUPuUMW0HbnDEcZDc8ARGq7s/rlUsphDDbWnuV0KNeiiHt2C4vum8MpoeJYi2
-         imgBEC2rMlzT7fk9JPiDlq+RGuEigik1sD8v5WTfQ/utNVHh9RbWHJmbYNrybfimMi
-         uuaFSbOY4iOUBmY2bCRv7e9qt1SFIp8YbEYHlP/8=
+        b=nZNiwkEVi2elO4Qv3xA++RClnm/DycLFU6fwIjeYol+9/jU2NEqI11YA/r2szSHlb
+         io0HyCkFSO92J8cqQ4bdYYlgjdQxDzdFAl/7XGZcNy9KLLpNclMIN2G6T0TeQt8k7d
+         ppPOjNnVn3nVRUa8cAo/B5TBwLRB3XjgBZmwKq1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sven Schwermer <sven.schwermer@disruptive-technologies.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 31/43] USB: serial: option: add Fibocom MA510 modem
-Date:   Mon, 16 May 2022 21:36:42 +0200
-Message-Id: <20220516193615.638267975@linuxfoundation.org>
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>
+Subject: [PATCH 4.19 29/32] drm/vmwgfx: Initialize drm_mode_fb_cmd2
+Date:   Mon, 16 May 2022 21:36:43 +0200
+Message-Id: <20220516193615.637439172@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,117 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 07989eb981d862f7f2be68d233d753f2e7ccc119 upstream.
+commit 3059d9b9f6aa433a55b9d0d21b566396d5497c33 upstream.
 
-The MA510 modem has 3 USB configurations that are configurable via the AT
-command AT+GTUSBMODE={30,31,32} which make the modem enumerate with the
-following interfaces, respectively:
+Transition to drm_mode_fb_cmd2 from drm_mode_fb_cmd left the structure
+unitialized. drm_mode_fb_cmd2 adds a few additional members, e.g. flags
+and modifiers which were never initialized. Garbage in those members
+can cause random failures during the bringup of the fbcon.
 
-30: Diag + QDSS + Modem + RMNET
-31: Diag + Modem + AT + ECM
-32: Modem + AT + ECM
+Initializing the structure fixes random blank screens after bootup due
+to flags/modifiers mismatches during the fbcon bring up.
 
-The first configuration (30) reuses u-blox R410M's VID/PID with
-identical interface configuration.
-
-A detailed description of the USB configuration for each mode follows:
-
-+GTUSBMODE: 30
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 19 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=05c6 ProdID=90b2 Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-+GTUSBMODE: 31
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 99 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=0106 Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
-A:  FirstIf#= 3 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
-E:  Ad=84(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E:  Ad=86(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-I:  If#= 4 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-+GTUSBMODE: 32
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=100 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=010a Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
-A:  FirstIf#= 2 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-I:  If#= 3 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 3 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: dabdcdc9822a ("drm/vmwgfx: Switch to mode_cmd2")
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: <stable@vger.kernel.org> # v4.10+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220302152426.885214-7-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2129,6 +2129,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0106, 0xff) },			/* Fibocom MA510 (ECM mode w/ diag intf.) */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
+@@ -498,7 +498,7 @@ static int vmw_fb_kms_detach(struct vmw_
+ 
+ static int vmw_fb_kms_framebuffer(struct fb_info *info)
+ {
+-	struct drm_mode_fb_cmd2 mode_cmd;
++	struct drm_mode_fb_cmd2 mode_cmd = {0};
+ 	struct vmw_fb_par *par = info->par;
+ 	struct fb_var_screeninfo *var = &info->var;
+ 	struct drm_framebuffer *cur_fb;
 
 
