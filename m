@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DCA528E20
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D16B2528E60
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345605AbiEPTi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44016 "EHLO
+        id S1345969AbiEPTnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345594AbiEPTih (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:38:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 443C33EF12;
-        Mon, 16 May 2022 12:38:31 -0700 (PDT)
+        with ESMTP id S245097AbiEPTk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:40:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1633F31D;
+        Mon, 16 May 2022 12:39:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D582E614B6;
-        Mon, 16 May 2022 19:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB528C34100;
-        Mon, 16 May 2022 19:38:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4521DB81609;
+        Mon, 16 May 2022 19:39:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8ED9C34115;
+        Mon, 16 May 2022 19:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729910;
-        bh=9qxzXmWzDaSC6JFM5nKZ6C0UEuZ0OTnCGnCsKyfPyGc=;
+        s=korg; t=1652729981;
+        bh=xF16YJGVi16zTBgv/Q9xC7aci1LoctRep2Rbtib1gJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpkM1sWpTT1k6qkNtpPFpHf5z5krw7/qoBKebs17lkX59YHbWm3rAx6FjhmyIIB0t
-         mNfe3GU/6t+GkyOWhP2x+oDWN7c60nrDTy671gj2AcZ+t/0s96FLyWtoNL2osu3Y1x
-         g0dCuYAgPiP2UQl1TSCe/I+Mzkg6Gflmgj9GnBXQ=
+        b=k/HXcVgV5zoaMMI3pBO0i4LVFfgFz3xlq765BMUg23VyHdLQ4Tkb0u7NRvNYipmKz
+         w28TlHf/TFdI7CHzIh5RWaCwZYzDrl2hgtBV6obMt9tNmaXWwJmYnOOL0zlZSUHx6h
+         dCBxXAkNV2DMPy4NLiPPBvum8h5Lj7CPccXDFlIg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 03/19] netlink: do not reset transport header in netlink_recvmsg()
+Subject: [PATCH 4.14 02/25] net: Fix features skip in for_each_netdev_feature()
 Date:   Mon, 16 May 2022 21:36:16 +0200
-Message-Id: <20220516193613.601433126@linuxfoundation.org>
+Message-Id: <20220516193614.757864411@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
-References: <20220516193613.497233635@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,74 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit d5076fe4049cadef1f040eda4aaa001bb5424225 ]
+[ Upstream commit 85db6352fc8a158a893151baa1716463d34a20d0 ]
 
-netlink_recvmsg() does not need to change transport header.
+The find_next_netdev_feature() macro gets the "remaining length",
+not bit index.
+Passing "bit - 1" for the following iteration is wrong as it skips
+the adjacent bit. Pass "bit" instead.
 
-If transport header was needed, it should have been reset
-by the producer (netlink_dump()), not the consumer(s).
-
-The following trace probably happened when multiple threads
-were using MSG_PEEK.
-
-BUG: KCSAN: data-race in netlink_recvmsg / netlink_recvmsg
-
-write to 0xffff88811e9f15b2 of 2 bytes by task 32012 on cpu 1:
- skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
- netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
- sock_recvmsg_nosec net/socket.c:948 [inline]
- sock_recvmsg net/socket.c:966 [inline]
- __sys_recvfrom+0x204/0x2c0 net/socket.c:2097
- __do_sys_recvfrom net/socket.c:2115 [inline]
- __se_sys_recvfrom net/socket.c:2111 [inline]
- __x64_sys_recvfrom+0x74/0x90 net/socket.c:2111
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-write to 0xffff88811e9f15b2 of 2 bytes by task 32005 on cpu 0:
- skb_reset_transport_header include/linux/skbuff.h:2760 [inline]
- netlink_recvmsg+0x1de/0x790 net/netlink/af_netlink.c:1978
- ____sys_recvmsg+0x162/0x2f0
- ___sys_recvmsg net/socket.c:2674 [inline]
- __sys_recvmsg+0x209/0x3f0 net/socket.c:2704
- __do_sys_recvmsg net/socket.c:2714 [inline]
- __se_sys_recvmsg net/socket.c:2711 [inline]
- __x64_sys_recvmsg+0x42/0x50 net/socket.c:2711
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-value changed: 0xffff -> 0x0000
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 32005 Comm: syz-executor.4 Not tainted 5.18.0-rc1-syzkaller-00328-ge1f700ebd6be-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Link: https://lore.kernel.org/r/20220505161946.2867638-1-eric.dumazet@gmail.com
+Fixes: 3b89ea9c5902 ("net: Fix for_each_netdev_feature on Big endian")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Link: https://lore.kernel.org/r/20220504080914.1918-1-tariqt@nvidia.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/netdev_features.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index a8674e9ff37b..47b1631bf14c 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1929,7 +1929,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
- 		copied = len;
- 	}
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index de123f436f1a..3a308bf98fc3 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -145,7 +145,7 @@ enum {
+ #define NETIF_F_HW_ESP_TX_CSUM	__NETIF_F(HW_ESP_TX_CSUM)
+ #define	NETIF_F_RX_UDP_TUNNEL_PORT  __NETIF_F(RX_UDP_TUNNEL_PORT)
  
--	skb_reset_transport_header(data_skb);
- 	err = skb_copy_datagram_msg(data_skb, 0, msg, copied);
+-/* Finds the next feature with the highest number of the range of start till 0.
++/* Finds the next feature with the highest number of the range of start-1 till 0.
+  */
+ static inline int find_next_netdev_feature(u64 feature, unsigned long start)
+ {
+@@ -164,7 +164,7 @@ static inline int find_next_netdev_feature(u64 feature, unsigned long start)
+ 	for ((bit) = find_next_netdev_feature((mask_addr),		\
+ 					      NETDEV_FEATURE_COUNT);	\
+ 	     (bit) >= 0;						\
+-	     (bit) = find_next_netdev_feature((mask_addr), (bit) - 1))
++	     (bit) = find_next_netdev_feature((mask_addr), (bit)))
  
- 	if (msg->msg_name) {
+ /* Features valid for ethtool to change */
+ /* = all defined minus driver/device-class-related */
 -- 
 2.35.1
 
