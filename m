@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EE2652900F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A70AF528FE2
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346962AbiEPUFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:05:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
+        id S1346388AbiEPULX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:11:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348885AbiEPT7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1BEF28A;
-        Mon, 16 May 2022 12:52:02 -0700 (PDT)
+        with ESMTP id S1351116AbiEPUCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:02:02 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535C72BE;
+        Mon, 16 May 2022 12:59:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 675FE60ABE;
-        Mon, 16 May 2022 19:52:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 774ABC385AA;
-        Mon, 16 May 2022 19:52:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0088BB81613;
+        Mon, 16 May 2022 19:59:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6310DC385AA;
+        Mon, 16 May 2022 19:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730721;
-        bh=YMYJCd01UUyE8kNd9wRP9+bD6BDn8c+cckoyvOVsVpI=;
+        s=korg; t=1652731151;
+        bh=f2hGEdwI5KESCq279unJLIm61lGflU5bE9/b18+OZzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAuRSHzZqi+QZy8klubCdQdAgMnnOdtfe9YuDYY2GJWEtYNrdLhPO7vx7tliTlj3Y
-         RmqKGGJjFha8qigNeX4enNtlSDhqaKAmR/cn61zweMvesqcxm/LZLDR1OkpJdXE5iw
-         spTZXT6oZqxo8IF9zOnP4umbJuGvzu+21mnQYpZo=
+        b=S/89c5PhfSpOQrFsyL6GqaeYi3EH5BOEobIP6SQTZvclPlXbC7qS1ZCDpKrUOwpmI
+         l4n4u1/GcDFi4iB6NtjqTObBVVKEiQK1Jfki8IhNFXqzoyPqiARuOo1V6RjWThbaHi
+         0MRn868D6XqjAmOEpl9JIxtZ7BbJnZjR+jz2b6BQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jordan Leppert <jordanleppert@protonmail.com>,
-        Holger Hoffstaette <holger@applied-asynchrony.com>,
-        Manuel Ullmann <labre@posteo.de>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.15 087/102] net: atlantic: always deep reset on pm op, fixing up my null deref regression
-Date:   Mon, 16 May 2022 21:37:01 +0200
-Message-Id: <20220516193626.493442041@linuxfoundation.org>
+        Indan Zupancic <Indan.Zupancic@mep-info.com>
+Subject: [PATCH 5.17 088/114] fsl_lpuart: Dont enable interrupts too early
+Date:   Mon, 16 May 2022 21:37:02 +0200
+Message-Id: <20220516193628.005676316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,62 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manuel Ullmann <labre@posteo.de>
+From: Indan Zupancic <Indan.Zupancic@mep-info.com>
 
-commit 1809c30b6e5a83a1de1435fe01aaa4de4d626a7c upstream.
+commit 401fb66a355eb0f22096cf26864324f8e63c7d78 upstream.
 
-The impact of this regression is the same for resume that I saw on
-thaw: the kernel hangs and nothing except SysRq rebooting can be done.
+If an irq is pending when devm_request_irq() is called, the irq
+handler will cause a NULL pointer access because initialisation
+is not done yet.
 
-Fixes regression in commit cbe6c3a8f8f4 ("net: atlantic: invert deep
-par in pm functions, preventing null derefs"), where I disabled deep
-pm resets in suspend and resume, trying to make sense of the
-atl_resume_common() deep parameter in the first place.
-
-It turns out, that atlantic always has to deep reset on pm
-operations. Even though I expected that and tested resume, I screwed
-up by kexec-rebooting into an unpatched kernel, thus missing the
-breakage.
-
-This fixup obsoletes the deep parameter of atl_resume_common, but I
-leave the cleanup for the maintainers to post to mainline.
-
-Suspend and hibernation were successfully tested by the reporters.
-
-Fixes: cbe6c3a8f8f4 ("net: atlantic: invert deep par in pm functions, preventing null derefs")
-Link: https://lore.kernel.org/regressions/9-Ehc_xXSwdXcvZqKD5aSqsqeNj5Izco4MYEwnx5cySXVEc9-x_WC4C3kAoCqNTi-H38frroUK17iobNVnkLtW36V6VWGSQEOHXhmVMm5iQ=@protonmail.com/
-Reported-by: Jordan Leppert <jordanleppert@protonmail.com>
-Reported-by: Holger Hoffstaette <holger@applied-asynchrony.com>
-Tested-by: Jordan Leppert <jordanleppert@protonmail.com>
-Tested-by: Holger Hoffstaette <holger@applied-asynchrony.com>
-CC: <stable@vger.kernel.org> # 5.10+
-Signed-off-by: Manuel Ullmann <labre@posteo.de>
-Link: https://lore.kernel.org/r/87bkw8dfmp.fsf@posteo.de
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 9d7ee0e28da59 ("tty: serial: lpuart: avoid report NULL interrupt")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Indan Zupancic <Indan.Zupancic@mep-info.com>
+Link: https://lore.kernel.org/r/20220505114750.45423-1-Indan.Zupancic@mep-info.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c
-@@ -449,7 +449,7 @@ static int aq_pm_freeze(struct device *d
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2658,6 +2658,7 @@ static int lpuart_probe(struct platform_
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct lpuart_port *sport;
+ 	struct resource *res;
++	irq_handler_t handler;
+ 	int ret;
  
- static int aq_pm_suspend_poweroff(struct device *dev)
- {
--	return aq_suspend_common(dev, false);
-+	return aq_suspend_common(dev, true);
- }
+ 	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
+@@ -2735,17 +2736,11 @@ static int lpuart_probe(struct platform_
  
- static int aq_pm_thaw(struct device *dev)
-@@ -459,7 +459,7 @@ static int aq_pm_thaw(struct device *dev
+ 	if (lpuart_is_32(sport)) {
+ 		lpuart_reg.cons = LPUART32_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart32_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart32_int;
+ 	} else {
+ 		lpuart_reg.cons = LPUART_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart_int;
+ 	}
+-
+-	if (ret)
+-		goto failed_irq_request;
+-
+ 	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+ 	if (ret)
+ 		goto failed_attach_port;
+@@ -2767,13 +2762,18 @@ static int lpuart_probe(struct platform_
  
- static int aq_pm_resume_restore(struct device *dev)
- {
--	return atl_resume_common(dev, false);
-+	return atl_resume_common(dev, true);
- }
+ 	sport->port.rs485_config(&sport->port, &sport->port.rs485);
  
- static const struct dev_pm_ops aq_pm_ops = {
++	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
++				DRIVER_NAME, sport);
++	if (ret)
++		goto failed_irq_request;
++
+ 	return 0;
+ 
++failed_irq_request:
+ failed_get_rs485:
+ failed_reset:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
+-failed_irq_request:
+ 	lpuart_disable_clks(sport);
+ failed_clock_enable:
+ failed_out_of_range:
 
 
