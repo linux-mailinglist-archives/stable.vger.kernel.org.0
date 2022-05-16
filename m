@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B17CE527F1B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:02:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDFFB527F1A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236444AbiEPICC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:02:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54252 "EHLO
+        id S241407AbiEPIBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:01:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241426AbiEPICA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:02:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2027F2C65B
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:01:59 -0700 (PDT)
+        with ESMTP id S241421AbiEPIBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:01:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFFE22C65C
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:01:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C49D9B80AFB
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:01:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F7D2C385B8;
-        Mon, 16 May 2022 08:01:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E8DB6117F
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:01:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71552C385AA;
+        Mon, 16 May 2022 08:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652688116;
-        bh=sok6whF1XUY3qztRJPN7tNBMWzbDAn0528lN2v9bqvw=;
+        s=korg; t=1652688112;
+        bh=NDYY+TGdwjqR+RyXDRVB59MdV4Ez/BTHMSSiuJXqrx8=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZMUSWPqY5XR/Yus57nb+HHursoNgH4YqCXPOimCfl2m2XxhaGITLu+QEtW53UxncH
-         MMKtPaNyGEYfZ1dhPSQ1U+yH/5PSpGGIF+2i5Qf6WNXnJqGSzlBofnQo0yNXywne/1
-         4JBMs7j54e1g+NzJ7VW+vnZSNJMBO/DzKJluTr8U=
-Subject: FAILED: patch "[PATCH] tty/serial: digicolor: fix possible null-ptr-deref in" failed to apply to 4.19-stable tree
+        b=IxDrmkSOCumhHLFI7Onuwl7Rj6TfG5oTWPmDS5cB0iSej0O+375fZnhS4zM07HgyL
+         kIG5c61MAr1/Q2DoL9iJ0iwlnkhA0/xeZVrqxPnqJGpmpe1E4vAUedhY4wvGBYZace
+         4p1qX+uaz3R/ch45xp1BUWVVUiWeK6BZ7DsKWiow=
+Subject: FAILED: patch "[PATCH] tty/serial: digicolor: fix possible null-ptr-deref in" failed to apply to 4.14-stable tree
 To:     yangyingliang@huawei.com, baruch@tkos.co.il,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 16 May 2022 10:01:47 +0200
-Message-ID: <165268810757212@kroah.com>
+Message-ID: <1652688107138169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
