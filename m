@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BB69529188
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 761245290A6
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242639AbiEPUIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:08:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57560 "EHLO
+        id S1346422AbiEPTyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350458AbiEPUBN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:13 -0400
+        with ESMTP id S1348163AbiEPTwm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:42 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78C0E4A3E3;
-        Mon, 16 May 2022 12:55:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091534552C;
+        Mon, 16 May 2022 12:48:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57DB9B81614;
-        Mon, 16 May 2022 19:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E30C34100;
-        Mon, 16 May 2022 19:55:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A8F3B81607;
+        Mon, 16 May 2022 19:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70487C385AA;
+        Mon, 16 May 2022 19:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730922;
-        bh=JA2/oYAgXRg4g+FaAARNmweTRaIIvfxrciRC50sgets=;
+        s=korg; t=1652730492;
+        bh=/Oks+nr+JGxMqRqVqWtXxyA40Fk18XVRbWUKGWN7zWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POmqdK7ta3ftYq7xX6k+152Q8Zo8fvmD1ZzC8ypeCKBu5zK7VlMGJ6qIjU3/snd6U
-         rQgvA1WpzXS7dIh/KWhn3q5LznbKcrgnAeqw1/lAUCbIIvUsoyocmkID+oeK/rJlLT
-         AsaiivwSz6fkrL4iT6aHZAgHV8kveqBygzV3dL60=
+        b=mzbCgZ1uEg6tJNziPELf3qNQPZrmbK0pMzbWlkTMUSNdJ3t0pn/3P/9vZDK8Axmzr
+         msDxk2jFp0k5/xt1SXO2HKOgnthJQTr50IWFp7jzuSJ4Fp/89bnjsQEOWJMNJYJ8I/
+         tcR/ADi+TFvmAz7ZkUpDEMckjX0MM3nqyOpwQbwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 009/114] net: mscc: ocelot: restrict tc-trap actions to VCAP IS2 lookup 0
+Subject: [PATCH 5.15 009/102] net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
 Date:   Mon, 16 May 2022 21:35:43 +0200
-Message-Id: <20220516193625.765249279@linuxfoundation.org>
+Message-Id: <20220516193624.262148362@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,48 +56,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 477d2b91623e682e9a8126ea92acb8f684969cc7 ]
+[ Upstream commit 93a8417088ea570b5721d2b526337a2d3aed9fa3 ]
 
-Once the CPU port was added to the destination port mask of a packet, it
-can never be cleared, so even packets marked as dropped by the MASK_MODE
-of a VCAP IS2 filter will still reach it. This is why we need the
-OCELOT_POLICER_DISCARD to "kill dropped packets dead" and make software
-stop seeing them.
+Given the following order of operations:
 
-We disallow policer rules from being put on any other chain than the one
-for the first lookup, but we don't do this for "drop" rules, although we
-should. This change is merely ascertaining that the rules dont't
-(completely) work and letting the user know.
+(1) we add filter A using tc-flower
+(2) we send a packet that matches it
+(3) we read the filter's statistics to find a hit count of 1
+(4) we add a second filter B with a higher preference than A, and A
+    moves one position to the right to make room in the TCAM for it
+(5) we send another packet, and this matches the second filter B
+(6) we read the filter statistics again.
 
-The blamed commit is the one that introduced the multi-chain architecture
-in ocelot. Prior to that, we should have always offloaded the filters to
-VCAP IS2 lookup 0, where they did work.
+When this happens, the hit count of filter A is 2 and of filter B is 1,
+despite a single packet having matched each filter.
 
-Fixes: 1397a2eb52e2 ("net: mscc: ocelot: create TCAM skeleton from tc filter chains")
+Furthermore, in an alternate history, reading the filter stats a second
+time between steps (3) and (4) makes the hit count of filter A remain at
+1 after step (6), as expected.
+
+The reason why this happens has to do with the filter->stats.pkts field,
+which is written to hardware through the call path below:
+
+               vcap_entry_set
+               /      |      \
+              /       |       \
+             /        |        \
+            /         |         \
+es0_entry_set   is1_entry_set   is2_entry_set
+            \         |         /
+             \        |        /
+              \       |       /
+        vcap_data_set(data.counter, ...)
+
+The primary role of filter->stats.pkts is to transport the filter hit
+counters from the last readout all the way from vcap_entry_get() ->
+ocelot_vcap_filter_stats_update() -> ocelot_cls_flower_stats().
+The reason why vcap_entry_set() writes it to hardware is so that the
+counters (saturating and having a limited bit width) are cleared
+after each user space readout.
+
+The writing of filter->stats.pkts to hardware during the TCAM entry
+movement procedure is an unintentional consequence of the code design,
+because the hit count isn't up to date at this point.
+
+So at step (4), when filter A is moved by ocelot_vcap_filter_add() to
+make room for filter B, the hardware hit count is 0 (no packet matched
+on it in the meantime), but filter->stats.pkts is 1, because the last
+readout saw the earlier packet. The movement procedure programs the old
+hit count back to hardware, so this creates the impression to user space
+that more packets have been matched than they really were.
+
+The bug can be seen when running the gact_drop_and_ok_test() from the
+tc_actions.sh selftest.
+
+Fix the issue by reading back the hit count to tmp->stats.pkts before
+migrating the VCAP filter. Sure, this is a best-effort technique, since
+the packets that hit the rule between vcap_entry_get() and
+vcap_entry_set() won't be counted, but at least it allows the counters
+to be reliably used for selftests where the traffic is under control.
+
+The vcap_entry_get() name is a bit unintuitive, but it only reads back
+the counter portion of the TCAM entry, not the entire entry.
+
+The index from which we retrieve the counter is also a bit unintuitive
+(i - 1 during add, i + 1 during del), but this is the way in which TCAM
+entry movement works. The "entry index" isn't a stored integer for a
+TCAM filter, instead it is dynamically computed by
+ocelot_vcap_block_get_filter_index() based on the entry's position in
+the &block->rules list. That position (as well as block->count) is
+automatically updated by ocelot_vcap_filter_add_to_block() on add, and
+by ocelot_vcap_block_remove_filter() on del. So "i" is the new filter
+index, and "i - 1" or "i + 1" respectively are the old addresses of that
+TCAM entry (we only support installing/deleting one filter at a time).
+
+Fixes: b596229448dd ("net: mscc: ocelot: Add support for tcam")
 Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_flower.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mscc/ocelot_vcap.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index fdb4d7e7296c..cb602a226149 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -278,9 +278,10 @@ static int ocelot_flower_parse_action(struct ocelot *ocelot, int port,
- 			filter->type = OCELOT_VCAP_FILTER_OFFLOAD;
- 			break;
- 		case FLOW_ACTION_TRAP:
--			if (filter->block_id != VCAP_IS2) {
-+			if (filter->block_id != VCAP_IS2 ||
-+			    filter->lookup != 0) {
- 				NL_SET_ERR_MSG_MOD(extack,
--						   "Trap action can only be offloaded to VCAP IS2");
-+						   "Trap action can only be offloaded to VCAP IS2 lookup 0");
- 				return -EOPNOTSUPP;
- 			}
- 			if (filter->goto_target != -1) {
+diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
+index c01cbc4f7a1a..732a4ef22518 100644
+--- a/drivers/net/ethernet/mscc/ocelot_vcap.c
++++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
+@@ -1152,6 +1152,8 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
+ 		struct ocelot_vcap_filter *tmp;
+ 
+ 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
++		/* Read back the filter's counters before moving it */
++		vcap_entry_get(ocelot, i - 1, tmp);
+ 		vcap_entry_set(ocelot, i, tmp);
+ 	}
+ 
+@@ -1210,6 +1212,8 @@ int ocelot_vcap_filter_del(struct ocelot *ocelot,
+ 		struct ocelot_vcap_filter *tmp;
+ 
+ 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
++		/* Read back the filter's counters before moving it */
++		vcap_entry_get(ocelot, i + 1, tmp);
+ 		vcap_entry_set(ocelot, i, tmp);
+ 	}
+ 
 -- 
 2.35.1
 
