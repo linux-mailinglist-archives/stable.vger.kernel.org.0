@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2B1F5290A7
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7A652905A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346660AbiEPTzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:55:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56202 "EHLO
+        id S1346822AbiEPUEY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347539AbiEPTwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B1B41F9E;
-        Mon, 16 May 2022 12:47:40 -0700 (PDT)
+        with ESMTP id S1348452AbiEPT6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4A7A49904;
+        Mon, 16 May 2022 12:50:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4962B8160E;
-        Mon, 16 May 2022 19:47:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F51C385AA;
-        Mon, 16 May 2022 19:47:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F66560ABE;
+        Mon, 16 May 2022 19:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE70C385AA;
+        Mon, 16 May 2022 19:50:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730457;
-        bh=4p5kVIZLBv8XOZ1mnv+J8Q8+y6IfIRAVuifVPgcvTRY=;
+        s=korg; t=1652730640;
+        bh=WqEgjAv/oS4TRk1I5pfGDXx8BL7jPuyx/k9WWIWW6uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PA0Illf1LYXe7jTgRLHPibkxIaYegs2wBNLSnjsi5OJtO+0vHbCD87wP6CRAM3Z6j
-         tHcsB0WAdXj7o848cWexB+8R03UGo3qeB01e0pZaboT2lCcUdnLOzYMwW3xEjUIoQo
-         2bs0k+X9M4Hd11HxeGatnZYJlpbFU0PxrYUgDvx8=
+        b=KcPEvyRiH4EioRmjqdu51V6ifapiqMIXgwLn6q2VrUr/UEHmtARlRkBrkcTxJOmYR
+         BW8JZPz9H9AGvtnrQQCYL9JctsSMtSldw7hGTwohMkTq2KyLjtKaSnav8OpTSVmo75
+         BCyGderAZvf9QV3MQ+rXrSXBfSFWqR8QVnkt8FHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>, Willy Tarreau <w@1wt.eu>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 38/66] tcp: resalt the secret every 10 seconds
+        stable@vger.kernel.org, Matt Evans <matt@ozlabs.org>,
+        Alexander Graf <graf@amazon.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.15 064/102] KVM: PPC: Book3S PR: Enable MSR_DR for switch_mmu_context()
 Date:   Mon, 16 May 2022 21:36:38 +0200
-Message-Id: <20220516193620.517336931@linuxfoundation.org>
+Message-Id: <20220516193625.833644141@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,70 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Alexander Graf <graf@amazon.com>
 
-[ Upstream commit 4dfa9b438ee34caca4e6a4e5e961641807367f6f ]
+commit ee8348496c77e3737d0a6cda307a521f2cff954f upstream.
 
-In order to limit the ability for an observer to recognize the source
-ports sequence used to contact a set of destinations, we should
-periodically shuffle the secret. 10 seconds looks effective enough
-without causing particular issues.
+Commit 863771a28e27 ("powerpc/32s: Convert switch_mmu_context() to C")
+moved the switch_mmu_context() to C. While in principle a good idea, it
+meant that the function now uses the stack. The stack is not accessible
+from real mode though.
 
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Tested-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So to keep calling the function, let's turn on MSR_DR while we call it.
+That way, all pointer references to the stack are handled virtually.
+
+In addition, make sure to save/restore r12 on the stack, as it may get
+clobbered by the C function.
+
+Fixes: 863771a28e27 ("powerpc/32s: Convert switch_mmu_context() to C")
+Cc: stable@vger.kernel.org # v5.14+
+Reported-by: Matt Evans <matt@ozlabs.org>
+Signed-off-by: Alexander Graf <graf@amazon.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20220510123717.24508-1-graf@amazon.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/secure_seq.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/powerpc/kvm/book3s_32_sr.S | 26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
-index b5bc680d4755..b8a33c841846 100644
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -22,6 +22,8 @@
- static siphash_key_t net_secret __read_mostly;
- static siphash_key_t ts_secret __read_mostly;
+diff --git a/arch/powerpc/kvm/book3s_32_sr.S b/arch/powerpc/kvm/book3s_32_sr.S
+index e3ab9df6cf19..6cfcd20d4668 100644
+--- a/arch/powerpc/kvm/book3s_32_sr.S
++++ b/arch/powerpc/kvm/book3s_32_sr.S
+@@ -122,11 +122,27 @@
  
-+#define EPHEMERAL_PORT_SHUFFLE_PERIOD (10 * HZ)
+ 	/* 0x0 - 0xb */
+ 
+-	/* 'current->mm' needs to be in r4 */
+-	tophys(r4, r2)
+-	lwz	r4, MM(r4)
+-	tophys(r4, r4)
+-	/* This only clobbers r0, r3, r4 and r5 */
++	/* switch_mmu_context() needs paging, let's enable it */
++	mfmsr   r9
++	ori     r11, r9, MSR_DR
++	mtmsr   r11
++	sync
 +
- static __always_inline void net_secret_init(void)
- {
- 	net_get_random_once(&net_secret, sizeof(net_secret));
-@@ -100,11 +102,13 @@ u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 	const struct {
- 		struct in6_addr saddr;
- 		struct in6_addr daddr;
-+		unsigned int timeseed;
- 		__be16 dport;
- 	} __aligned(SIPHASH_ALIGNMENT) combined = {
- 		.saddr = *(struct in6_addr *)saddr,
- 		.daddr = *(struct in6_addr *)daddr,
--		.dport = dport
-+		.timeseed = jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
-+		.dport = dport,
- 	};
- 	net_secret_init();
- 	return siphash(&combined, offsetofend(typeof(combined), dport),
-@@ -145,8 +149,10 @@ EXPORT_SYMBOL_GPL(secure_tcp_seq);
- u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	net_secret_init();
--	return siphash_3u32((__force u32)saddr, (__force u32)daddr,
--			    (__force u16)dport, &net_secret);
-+	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
-+			    (__force u16)dport,
-+			    jiffies / EPHEMERAL_PORT_SHUFFLE_PERIOD,
-+			    &net_secret);
- }
- EXPORT_SYMBOL_GPL(secure_ipv4_port_ephemeral);
- #endif
++	/* switch_mmu_context() clobbers r12, rescue it */
++	SAVE_GPR(12, r1)
++
++	/* Calling switch_mmu_context(<inv>, current->mm, <inv>); */
++	lwz	r4, MM(r2)
+ 	bl	switch_mmu_context
+ 
++	/* restore r12 */
++	REST_GPR(12, r1)
++
++	/* Disable paging again */
++	mfmsr   r9
++	li      r6, MSR_DR
++	andc    r9, r9, r6
++	mtmsr	r9
++	sync
++
+ .endm
 -- 
-2.35.1
+2.36.1
 
 
 
