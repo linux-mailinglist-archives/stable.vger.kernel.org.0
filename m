@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26EED529094
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DEE25291BF
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346610AbiEPULj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
+        id S244320AbiEPULF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:11:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351088AbiEPUB7 (ORCPT
+        with ESMTP id S1351089AbiEPUB7 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE97403FF;
-        Mon, 16 May 2022 12:58:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7103840912;
+        Mon, 16 May 2022 12:58:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2AADDB81616;
-        Mon, 16 May 2022 19:58:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585DCC385AA;
-        Mon, 16 May 2022 19:58:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C671B81616;
+        Mon, 16 May 2022 19:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6CAFC385AA;
+        Mon, 16 May 2022 19:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731115;
-        bh=f9Wbh+hvcaWpVjkimkh0jirMW7eLTqyJ+NPaSQlTdIs=;
+        s=korg; t=1652731119;
+        bh=P260iAUL3ZqmnZgfQd8Cg8lNIyUPcm3RRa3bK0X6tVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BjpRIMfyjFf35ralhFiEmGHdon8i1QQt7DwOkcHcDoft2VD9CZ/1JQyUT4hzANFZl
-         jSow6+YsmfsYWJ48hF8hz3cfzi7h1/fuVRitydnvWAzvQ5SycoDzbPcYTZO72CgXZj
-         PsPWCZHlltNRt4ugh5PEnf+dhS0gcIOFXiwTMtH8=
+        b=2rOToLGPvuMPwJxIaTzg2y/J/Q0Y/n2NOfCKq8uPPMjFIcNSOJUaI9NDZBydGrLxu
+         f0VB/yAdDRpU4zWDfW/3Ni7xMUORT/0N2O0giaPUOWUqVHsgbg92aEB5bBkA8OayWB
+         OYQoVb9pYHn4NVE6Kp29tuiL3kGuo+YDiUZeGwVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@linux.ibm.com>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Mark Brown <broonie@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Mark-PK Tsai <mark-pk.tsai@mediatek.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Tony Lindgren <tony@atomide.com>,
-        Will Deacon <will@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.17 105/114] arm[64]/memremap: dont abuse pfn_valid() to ensure presence of linear map
-Date:   Mon, 16 May 2022 21:37:19 +0200
-Message-Id: <20220516193628.489167960@linuxfoundation.org>
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.17 106/114] net: phy: micrel: Do not use kszphy_suspend/resume for KSZ8061
+Date:   Mon, 16 May 2022 21:37:20 +0200
+Message-Id: <20220516193628.517664127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
 References: <20220516193625.489108457@linuxfoundation.org>
@@ -61,117 +53,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Fabio Estevam <festevam@denx.de>
 
-commit 260364d112bc822005224667c0c9b1b17a53eafd upstream.
+commit e333eed63a091a09bd0db191b7710c594c6e995b upstream.
 
-The semantics of pfn_valid() is to check presence of the memory map for a
-PFN and not whether a PFN is covered by the linear map.  The memory map
-may be present for NOMAP memory regions, but they won't be mapped in the
-linear mapping.  Accessing such regions via __va() when they are
-memremap()'ed will cause a crash.
+Since commit f1131b9c23fb ("net: phy: micrel: use
+kszphy_suspend()/kszphy_resume for irq aware devices") the following
+NULL pointer dereference is observed on a board with KSZ8061:
 
-On v5.4.y the crash happens on qemu-arm with UEFI [1]:
-
-<1>[    0.084476] 8<--- cut here ---
-<1>[    0.084595] Unable to handle kernel paging request at virtual address dfb76000
-<1>[    0.084938] pgd = (ptrval)
-<1>[    0.085038] [dfb76000] *pgd=5f7fe801, *pte=00000000, *ppte=00000000
-
+ # udhcpc -i eth0
+udhcpc: started, v1.35.0
+8<--- cut here ---
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+pgd = f73cef4e
+[00000008] *pgd=00000000
+Internal error: Oops: 5 [#1] SMP ARM
+Modules linked in:
+CPU: 0 PID: 196 Comm: ifconfig Not tainted 5.15.37-dirty #94
+Hardware name: Freescale i.MX6 SoloX (Device Tree)
+PC is at kszphy_config_reset+0x10/0x114
+LR is at kszphy_resume+0x24/0x64
 ...
 
-<4>[    0.093923] [<c0ed6ce8>] (memcpy) from [<c16a06f8>] (dmi_setup+0x60/0x418)
-<4>[    0.094204] [<c16a06f8>] (dmi_setup) from [<c16a38d4>] (arm_dmi_init+0x8/0x10)
-<4>[    0.094408] [<c16a38d4>] (arm_dmi_init) from [<c0302e9c>] (do_one_initcall+0x50/0x228)
-<4>[    0.094619] [<c0302e9c>] (do_one_initcall) from [<c16011e4>] (kernel_init_freeable+0x15c/0x1f8)
-<4>[    0.094841] [<c16011e4>] (kernel_init_freeable) from [<c0f028cc>] (kernel_init+0x8/0x10c)
-<4>[    0.095057] [<c0f028cc>] (kernel_init) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
+The KSZ8061 phy_driver structure does not have the .probe/..driver_data
+fields, which means that priv is not allocated.
 
-On kernels v5.10.y and newer the same crash won't reproduce on ARM because
-commit b10d6bca8720 ("arch, drivers: replace for_each_membock() with
-for_each_mem_range()") changed the way memory regions are registered in
-the resource tree, but that merely covers up the problem.
+This causes the NULL pointer dereference inside kszphy_config_reset().
 
-On ARM64 memory resources registered in yet another way and there the
-issue of wrong usage of pfn_valid() to ensure availability of the linear
-map is also covered.
+Fix the problem by using the generic suspend/resume functions as before.
 
-Implement arch_memremap_can_ram_remap() on ARM and ARM64 to prevent access
-to NOMAP regions via the linear mapping in memremap().
+Another alternative would be to provide the .probe and .driver_data
+information into the structure, but to be on the safe side, let's
+just restore Ethernet functionality by using the generic suspend/resume.
 
-Link: https://lore.kernel.org/all/Yl65zxGgFzF1Okac@sirena.org.uk
-Link: https://lkml.kernel.org/r/20220426060107.7618-1-rppt@kernel.org
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Tested-by: Mark Brown <broonie@kernel.org>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: <stable@vger.kernel.org>	[5.4+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: f1131b9c23fb ("net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220504143104.1286960-1-festevam@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/io.h   |    3 +++
- arch/arm/mm/ioremap.c       |    8 ++++++++
- arch/arm64/include/asm/io.h |    4 ++++
- arch/arm64/mm/ioremap.c     |    8 ++++++++
- 4 files changed, 23 insertions(+)
+ drivers/net/phy/micrel.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/include/asm/io.h
-+++ b/arch/arm/include/asm/io.h
-@@ -440,6 +440,9 @@ extern void pci_iounmap(struct pci_dev *
- #define ARCH_HAS_VALID_PHYS_ADDR_RANGE
- extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
- extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
-+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+					unsigned long flags);
-+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
- #endif
- 
- /*
---- a/arch/arm/mm/ioremap.c
-+++ b/arch/arm/mm/ioremap.c
-@@ -489,3 +489,11 @@ void __init early_ioremap_init(void)
- {
- 	early_ioremap_setup();
- }
-+
-+bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+				 unsigned long flags)
-+{
-+	unsigned long pfn = PHYS_PFN(offset);
-+
-+	return memblock_is_map_memory(pfn);
-+}
---- a/arch/arm64/include/asm/io.h
-+++ b/arch/arm64/include/asm/io.h
-@@ -192,4 +192,8 @@ extern void __iomem *ioremap_cache(phys_
- extern int valid_phys_addr_range(phys_addr_t addr, size_t size);
- extern int valid_mmap_phys_addr_range(unsigned long pfn, size_t size);
- 
-+extern bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+					unsigned long flags);
-+#define arch_memremap_can_ram_remap arch_memremap_can_ram_remap
-+
- #endif	/* __ASM_IO_H */
---- a/arch/arm64/mm/ioremap.c
-+++ b/arch/arm64/mm/ioremap.c
-@@ -99,3 +99,11 @@ void __init early_ioremap_init(void)
- {
- 	early_ioremap_setup();
- }
-+
-+bool arch_memremap_can_ram_remap(resource_size_t offset, size_t size,
-+				 unsigned long flags)
-+{
-+	unsigned long pfn = PHYS_PFN(offset);
-+
-+	return pfn_is_map_memory(pfn);
-+}
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1850,8 +1850,8 @@ static struct phy_driver ksphy_driver[]
+ 	.config_init	= ksz8061_config_init,
+ 	.config_intr	= kszphy_config_intr,
+ 	.handle_interrupt = kszphy_handle_interrupt,
+-	.suspend	= kszphy_suspend,
+-	.resume		= kszphy_resume,
++	.suspend	= genphy_suspend,
++	.resume		= genphy_resume,
+ }, {
+ 	.phy_id		= PHY_ID_KSZ9021,
+ 	.phy_id_mask	= 0x000ffffe,
 
 
