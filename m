@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FF30527EFA
+	by mail.lfdr.de (Postfix) with ESMTP id BA6DA527EFB
 	for <lists+stable@lfdr.de>; Mon, 16 May 2022 09:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241376AbiEPH6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 03:58:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46756 "EHLO
+        id S241370AbiEPH6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 03:58:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241379AbiEPH6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 03:58:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B93B1C4
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 00:58:15 -0700 (PDT)
+        with ESMTP id S232688AbiEPH6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 03:58:21 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D588129C81
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 00:58:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C474E60FEE
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 07:58:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65F1C385AA;
-        Mon, 16 May 2022 07:58:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 143D3CE1115
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 07:58:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2572FC34116;
+        Mon, 16 May 2022 07:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652687894;
-        bh=c8iY30luyg1yp/mXHupsxwof0R/lz8nWqTuDXTlUT9w=;
+        s=korg; t=1652687897;
+        bh=pUa+SZXxZnfTXlmsevwhL6ClpZkbHNW/vwEZXZzLgJw=;
         h=Subject:To:Cc:From:Date:From;
-        b=e3abWks/nSFSaPZ/Zu6H+RGw87UVJNugjWGaZORQrXCaVG0iKcF/e2rTKae3j/KRF
-         pa724wEm+Oe8A2k7IttHUvMT+uZYIqDjIkaP9q7sfSxmwdgMziLQEiHrZR5OKkQoWq
-         KaMxgyQMscaztECh4/uXRSO9DUYYub8K8l5Zi05M=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix mux activation issues in gsm_config()" failed to apply to 4.14-stable tree
+        b=Q0yPEBiE+6ZLNdMW3DyviqO1EH0UGRsq5rkkvX+/9xflk0asm/LZCvDYTzbq2/hvH
+         /hnsUPApi7j6QP6EBLn1qzkHvJdwTXAYhd0G25pkItqv/ya2CIJfZA73c+lJGd4v8o
+         QorAMEp9Y9gkwEmibKBTaxidPKQgKhVCYjlVEyPo=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix mux activation issues in gsm_config()" failed to apply to 4.9-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 09:58:11 +0200
-Message-ID: <1652687891528@kroah.com>
+Date:   Mon, 16 May 2022 09:58:14 +0200
+Message-ID: <165268789415050@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
