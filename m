@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5C9528ED7
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C7C528E8F
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345972AbiEPTno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44018 "EHLO
+        id S233900AbiEPToN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:44:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345793AbiEPTnN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:43:13 -0400
+        with ESMTP id S1346227AbiEPTlu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:50 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DB53FBFD;
-        Mon, 16 May 2022 12:42:20 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84BE33FDBE;
+        Mon, 16 May 2022 12:40:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1B61B81604;
-        Mon, 16 May 2022 19:42:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BC95C385AA;
-        Mon, 16 May 2022 19:42:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1112CB81609;
+        Mon, 16 May 2022 19:40:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505E2C385AA;
+        Mon, 16 May 2022 19:40:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730137;
-        bh=PzICwLjlQo99NgdyMEC1XtS6+gYXW+gJUuLaUJcbn10=;
+        s=korg; t=1652730020;
+        bh=EUKmFJo7bK41wq6UsNj86tOlUmXEXrc/8iptNfF0V6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAf0m4eyvcYOKXt53SOF4rPt1MsZaMLgGOy4Q6tsxG2GWBtOuEmwHVCc7AKJyVY7z
-         tXvmDV7TmduoMuMfj+h7tVeRSB+ukaq+wjOKPBLBtEj7lfbgjEryDWT7dxgU5f3H78
-         +1uR2o3gV9D1lYXuT1VhpnPPsJ6L9Ffr6r41GsZ0=
+        b=C6OsQHcFst2BFShohwfjnKXRet5zbI8/Nbcmmj2tkZJUVwUJx4a+8ysRvD1nvVT57
+         XwY6o1ITkphnYkJJWyMAHmFW77CZz+OC96dGuJ9U3xlwoc+CY26LJASV9rLFPGNTNS
+         KblOnVJgTpmmJpLO1VCpFcjTMkXUVqlq6y/yIHps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.i.king@gmail.com>,
-        Alexandra Winter <wintera@linux.ibm.com>,
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/43] s390/ctcm: fix variable dereferenced before check
+Subject: [PATCH 4.14 08/25] s390/ctcm: fix potential memory leak
 Date:   Mon, 16 May 2022 21:36:22 +0200
-Message-Id: <20220516193615.051945691@linuxfoundation.org>
+Message-Id: <20220516193614.936922155@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,40 +56,63 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 2c50c6867c85afee6f2b3bcbc50fc9d0083d1343 ]
+[ Upstream commit 0c0b20587b9f25a2ad14db7f80ebe49bdf29920a ]
 
-Found by cppcheck and smatch.
 smatch complains about
-drivers/s390/net/ctcm_sysfs.c:43 ctcm_buffer_write() warn: variable dereferenced before check 'priv' (see line 42)
+drivers/s390/net/ctcm_mpc.c:1210 ctcmpc_unpack_skb() warn: possible memory leak of 'mpcginfo'
 
-Fixes: 3c09e2647b5e ("ctcm: rename READ/WRITE defines to avoid redefinitions")
-Reported-by: Colin Ian King <colin.i.king@gmail.com>
+mpc_action_discontact() did not free mpcginfo. Consolidate the freeing in
+ctcmpc_unpack_skb().
+
+Fixes: 293d984f0e36 ("ctcm: infrastructure for replaced ctc driver")
 Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/ctcm_sysfs.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/s390/net/ctcm_mpc.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/s390/net/ctcm_sysfs.c b/drivers/s390/net/ctcm_sysfs.c
-index ded1930a00b2..e3813a7aa5e6 100644
---- a/drivers/s390/net/ctcm_sysfs.c
-+++ b/drivers/s390/net/ctcm_sysfs.c
-@@ -39,11 +39,12 @@ static ssize_t ctcm_buffer_write(struct device *dev,
- 	struct ctcm_priv *priv = dev_get_drvdata(dev);
- 	int rc;
- 
--	ndev = priv->channel[CTCM_READ]->netdev;
--	if (!(priv && priv->channel[CTCM_READ] && ndev)) {
-+	if (!(priv && priv->channel[CTCM_READ] &&
-+	      priv->channel[CTCM_READ]->netdev)) {
- 		CTCM_DBF_TEXT(SETUP, CTC_DBF_ERROR, "bfnondev");
- 		return -ENODEV;
+diff --git a/drivers/s390/net/ctcm_mpc.c b/drivers/s390/net/ctcm_mpc.c
+index e02f295d38a9..07d9668137df 100644
+--- a/drivers/s390/net/ctcm_mpc.c
++++ b/drivers/s390/net/ctcm_mpc.c
+@@ -625,8 +625,6 @@ static void mpc_rcvd_sweep_resp(struct mpcg_info *mpcginfo)
+ 		ctcm_clear_busy_do(dev);
  	}
-+	ndev = priv->channel[CTCM_READ]->netdev;
  
- 	rc = kstrtouint(buf, 0, &bs1);
- 	if (rc)
+-	kfree(mpcginfo);
+-
+ 	return;
+ 
+ }
+@@ -1205,10 +1203,10 @@ static void ctcmpc_unpack_skb(struct channel *ch, struct sk_buff *pskb)
+ 						CTCM_FUNTAIL, dev->name);
+ 			priv->stats.rx_dropped++;
+ 			/* mpcginfo only used for non-data transfers */
+-			kfree(mpcginfo);
+ 			if (do_debug_data)
+ 				ctcmpc_dump_skb(pskb, -8);
+ 		}
++		kfree(mpcginfo);
+ 	}
+ done:
+ 
+@@ -1991,7 +1989,6 @@ static void mpc_action_rcvd_xid0(fsm_instance *fsm, int event, void *arg)
+ 		}
+ 		break;
+ 	}
+-	kfree(mpcginfo);
+ 
+ 	CTCM_PR_DEBUG("ctcmpc:%s() %s xid2:%i xid7:%i xidt_p2:%i \n",
+ 		__func__, ch->id, grp->outstanding_xid2,
+@@ -2052,7 +2049,6 @@ static void mpc_action_rcvd_xid7(fsm_instance *fsm, int event, void *arg)
+ 		mpc_validate_xid(mpcginfo);
+ 		break;
+ 	}
+-	kfree(mpcginfo);
+ 	return;
+ }
+ 
 -- 
 2.35.1
 
