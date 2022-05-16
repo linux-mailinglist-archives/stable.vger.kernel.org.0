@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C65DD528F51
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F687528EC1
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343521AbiEPTyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56674 "EHLO
+        id S245732AbiEPTnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347749AbiEPTwR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EAF427D5;
-        Mon, 16 May 2022 12:47:54 -0700 (PDT)
+        with ESMTP id S1346123AbiEPTmv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2955E3F89F;
+        Mon, 16 May 2022 12:41:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FA89B81613;
-        Mon, 16 May 2022 19:47:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A42BC385AA;
-        Mon, 16 May 2022 19:47:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8ABA61510;
+        Mon, 16 May 2022 19:41:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3E5CC385AA;
+        Mon, 16 May 2022 19:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730460;
-        bh=Uj3lyYJac3hTdmS1S+asSpqVLL6qsv9Cd4vdF79qDb0=;
+        s=korg; t=1652730110;
+        bh=bdCazeY4uVIvyz0sN8mWq9A6pyMrOblkEcIMofn3tcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GtKgbxAO+AUDHiYyoakvllKHXdC1wkFhdQ20YujpP4QEKtAICxs6I8IvRkGB72w7L
-         XP6GX4A5u5se8ahhq57z1Hl8HbAKftnMoHwk09OcBDBGCE57a2PyOjG/EKf+RYBuUU
-         mFbfZBJJaVD77pzmKSg7LnOZuykvKdaT7ByywecE=
+        b=HfS+zlF0NhAuBqOJc8Kfz+dLQkQpF3ejBNBcmWjrjg/nJKkuuG7K0w9pixOJLawsQ
+         0kwwUgMC+7M4PrJz1UiuLrPYUgFsUIzS+Bnhax3eAs149T4RRqb0UK2r6cMLN14z74
+         MR7qbDzylN4aRhAgd7mT+Gnb4Gx86FCuh9K6V5Kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Thi=C3=A9baud=20Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 5.10 39/66] firmware_loader: use kernel credentials when reading firmware
+        Sven Schwermer <sven.schwermer@disruptive-technologies.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 25/32] USB: serial: option: add Fibocom L610 modem
 Date:   Mon, 16 May 2022 21:36:39 +0200
-Message-Id: <20220516193620.544847305@linuxfoundation.org>
+Message-Id: <20220516193615.520304552@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,84 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thiébaud Weksteen <tweek@google.com>
+From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
 
-commit 581dd69830341d299b0c097fc366097ab497d679 upstream.
+commit 714adff9a6271b5f1664b04c944b598141ebfe73 upstream.
 
-Device drivers may decide to not load firmware when probed to avoid
-slowing down the boot process should the firmware filesystem not be
-available yet. In this case, the firmware loading request may be done
-when a device file associated with the driver is first accessed. The
-credentials of the userspace process accessing the device file may be
-used to validate access to the firmware files requested by the driver.
-Ensure that the kernel assumes the responsibility of reading the
-firmware.
+The L610 modem has 3 USB configurations that are configurable via the AT
+command AT+GTUSBMODE={31,32,33} which make the modem enumerate with the
+following interfaces, respectively:
 
-This was observed on Android for a graphic driver loading their firmware
-when the device file (e.g. /dev/mali0) was first opened by userspace
-(i.e. surfaceflinger). The security context of surfaceflinger was used
-to validate the access to the firmware file (e.g.
-/vendor/firmware/mali.bin).
+31: Modem + NV + MOS + Diag + LOG + AT + AT
+32: ECM + Modem + NV + MOS + Diag + LOG + AT + AT
+33: RNDIS + Modem + NV + MOS + Diag + LOG + AT + AT
 
-Previously, Android configurations were not setting up the
-firmware_class.path command line argument and were relying on the
-userspace fallback mechanism. In this case, the security context of the
-userspace daemon (i.e. ueventd) was consistently used to read firmware
-files. More Android devices are now found to set firmware_class.path
-which gives the kernel the opportunity to read the firmware directly
-(via kernel_read_file_from_path_initns). In this scenario, the current
-process credentials were used, even if unrelated to the loading of the
-firmware file.
+A detailed description of the USB configuration for each mode follows:
 
-Signed-off-by: Thiébaud Weksteen <tweek@google.com>
-Cc: <stable@vger.kernel.org> # 5.10
-Reviewed-by: Paul Moore <paul@paul-moore.com>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Link: https://lore.kernel.org/r/20220502004952.3970800-1-tweek@google.com
++GTUSBMODE: 31
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=124 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d10 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 7 Cfg#= 1 Atr=e0 MxPwr=400mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 32
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=122 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d11 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 33
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=126 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d11 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A:  FirstIf#= 0 IfCount= 2 Cls=e0(wlcon) Sub=01 Prot=03
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=4096ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/firmware_loader/main.c |   17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -793,6 +793,8 @@ _request_firmware(const struct firmware
- 		  size_t offset, u32 opt_flags)
- {
- 	struct firmware *fw = NULL;
-+	struct cred *kern_cred = NULL;
-+	const struct cred *old_cred;
- 	bool nondirect = false;
- 	int ret;
- 
-@@ -809,6 +811,18 @@ _request_firmware(const struct firmware
- 	if (ret <= 0) /* error or already assigned */
- 		goto out;
- 
-+	/*
-+	 * We are about to try to access the firmware file. Because we may have been
-+	 * called by a driver when serving an unrelated request from userland, we use
-+	 * the kernel credentials to read the file.
-+	 */
-+	kern_cred = prepare_kernel_cred(NULL);
-+	if (!kern_cred) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+	old_cred = override_creds(kern_cred);
-+
- 	ret = fw_get_filesystem_firmware(device, fw->priv, "", NULL);
- 
- 	/* Only full reads can support decompression, platform, and sysfs. */
-@@ -834,6 +848,9 @@ _request_firmware(const struct firmware
- 	} else
- 		ret = assign_fw(fw, device);
- 
-+	revert_creds(old_cred);
-+	put_cred(kern_cred);
-+
-  out:
- 	if (ret < 0) {
- 		fw_abort_batch_reqs(fw);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2123,6 +2123,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3) },
+ 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
+ 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
++	{ USB_DEVICE(0x1782, 0x4d10) },						/* Fibocom L610 (AT mode) */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1782, 0x4d11, 0xff) },			/* Fibocom L610 (ECM/RNDIS mode) */
+ 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
 
 
