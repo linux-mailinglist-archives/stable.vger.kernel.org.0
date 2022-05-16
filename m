@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 990E6528FF5
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7734052913E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240406AbiEPUKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:10:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57564 "EHLO
+        id S236091AbiEPUCj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:02:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236369AbiEPUB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A284C47564;
-        Mon, 16 May 2022 12:56:47 -0700 (PDT)
+        with ESMTP id S1346987AbiEPTvd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48EC83F336;
+        Mon, 16 May 2022 12:46:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E20D60A50;
-        Mon, 16 May 2022 19:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F78FC34100;
-        Mon, 16 May 2022 19:56:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00126B81609;
+        Mon, 16 May 2022 19:46:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5207CC34100;
+        Mon, 16 May 2022 19:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731006;
-        bh=AfvNImvSajbT2lRm2lCrt5R+aKpmDHKgaIumFgk1JSE=;
+        s=korg; t=1652730376;
+        bh=bdCazeY4uVIvyz0sN8mWq9A6pyMrOblkEcIMofn3tcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=stgbeMvYNaGxLAmkaPWNKaoLUH41aAaDVCQE1LnRT9kWbfbofbAQKAAXfwUqOCLAm
-         cwuzDrABGqbAN1a6etVTwVuZJ17WeWISjrA2wo3UgkbcavaVcMd/TDcdy0c7ahF/Rx
-         HLOLL9clkVxsMtSE+iTguKBQCc+BLAwmJ7CQ0LIc=
+        b=wTTeDuoipsWTsQexx41adr11J1iC3uGAiPZ7G99Go9OMwEbXinu+/GiSzC0sVzvDY
+         uRqOQCS9K1EVf6bidbTMPKC4cRXIBea6x7uRf+idyWM8KUx7QdeXrUcf9E0jdPNYwi
+         2nTeUKI6ONJv69d1/bV8A3t3n8TST7n/Jg4lttQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.17 073/114] usb: xhci-mtk: fix fs isocs transfer error
+        stable@vger.kernel.org,
+        Sven Schwermer <sven.schwermer@disruptive-technologies.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 47/66] USB: serial: option: add Fibocom L610 modem
 Date:   Mon, 16 May 2022 21:36:47 +0200
-Message-Id: <20220516193627.587019284@linuxfoundation.org>
+Message-Id: <20220516193620.772043991@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
 
-commit c237566b78ad8c72bc0431c5d6171db8d12e6f94 upstream.
+commit 714adff9a6271b5f1664b04c944b598141ebfe73 upstream.
 
-Due to the scheduler allocates the optimal bandwidth for FS ISOC endpoints,
-this may be not enough actually and causes data transfer error, so come up
-with an estimate that is no less than the worst case bandwidth used for
-any one mframe, but may be an over-estimate.
+The L610 modem has 3 USB configurations that are configurable via the AT
+command AT+GTUSBMODE={31,32,33} which make the modem enumerate with the
+following interfaces, respectively:
 
-Fixes: 451d3912586a ("usb: xhci-mtk: update fs bus bandwidth by bw_budget_table")
+31: Modem + NV + MOS + Diag + LOG + AT + AT
+32: ECM + Modem + NV + MOS + Diag + LOG + AT + AT
+33: RNDIS + Modem + NV + MOS + Diag + LOG + AT + AT
+
+A detailed description of the USB configuration for each mode follows:
+
++GTUSBMODE: 31
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=124 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d10 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 7 Cfg#= 1 Atr=e0 MxPwr=400mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 32
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=122 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d11 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 33
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=126 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1782 ProdID=4d11 Rev= 0.00
+S:  Manufacturer=FIBOCOM
+S:  Product=L610
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A:  FirstIf#= 0 IfCount= 2 Cls=e0(wlcon) Sub=01 Prot=03
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=e0(wlcon) Sub=01 Prot=03 Driver=rndis_host
+E:  Ad=82(I) Atr=03(Int.) MxPS=   8 Ivl=4096ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=89(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20220512064931.31670-1-chunfeng.yun@mediatek.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-mtk-sch.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/host/xhci-mtk-sch.c
-+++ b/drivers/usb/host/xhci-mtk-sch.c
-@@ -465,7 +465,7 @@ static int check_fs_bus_bw(struct mu3h_s
- 		 */
- 		for (j = 0; j < sch_ep->num_budget_microframes; j++) {
- 			k = XHCI_MTK_BW_INDEX(base + j);
--			tmp = tt->fs_bus_bw[k] + sch_ep->bw_budget_table[j];
-+			tmp = tt->fs_bus_bw[k] + sch_ep->bw_cost_per_microframe;
- 			if (tmp > FS_PAYLOAD_MAX)
- 				return -ESCH_BW_OVERFLOW;
- 		}
-@@ -539,19 +539,17 @@ static int check_sch_tt(struct mu3h_sch_
- static void update_sch_tt(struct mu3h_sch_ep_info *sch_ep, bool used)
- {
- 	struct mu3h_sch_tt *tt = sch_ep->sch_tt;
-+	int bw_updated;
- 	u32 base;
--	int i, j, k;
-+	int i, j;
-+
-+	bw_updated = sch_ep->bw_cost_per_microframe * (used ? 1 : -1);
- 
- 	for (i = 0; i < sch_ep->num_esit; i++) {
- 		base = sch_ep->offset + i * sch_ep->esit;
- 
--		for (j = 0; j < sch_ep->num_budget_microframes; j++) {
--			k = XHCI_MTK_BW_INDEX(base + j);
--			if (used)
--				tt->fs_bus_bw[k] += sch_ep->bw_budget_table[j];
--			else
--				tt->fs_bus_bw[k] -= sch_ep->bw_budget_table[j];
--		}
-+		for (j = 0; j < sch_ep->num_budget_microframes; j++)
-+			tt->fs_bus_bw[XHCI_MTK_BW_INDEX(base + j)] += bw_updated;
- 	}
- 
- 	if (used)
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2123,6 +2123,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(3) },
+ 	{ USB_DEVICE(0x1508, 0x1001),						/* Fibocom NL668 (IOT version) */
+ 	  .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
++	{ USB_DEVICE(0x1782, 0x4d10) },						/* Fibocom L610 (AT mode) */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1782, 0x4d11, 0xff) },			/* Fibocom L610 (ECM/RNDIS mode) */
+ 	{ USB_DEVICE(0x2cb7, 0x0104),						/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
 
 
