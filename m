@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B65C5290A8
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B3852912F
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346685AbiEPTz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:55:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55710 "EHLO
+        id S1346978AbiEPUFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:05:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347164AbiEPTvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:49 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29AA440A32;
-        Mon, 16 May 2022 12:47:13 -0700 (PDT)
+        with ESMTP id S1348882AbiEPT7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6DFCB3D;
+        Mon, 16 May 2022 12:52:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9ABB1B81611;
-        Mon, 16 May 2022 19:47:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA9B4C36AE7;
-        Mon, 16 May 2022 19:47:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 843ED60ABE;
+        Mon, 16 May 2022 19:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93105C385AA;
+        Mon, 16 May 2022 19:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730430;
-        bh=vUL0Aa1xEyJ5w91JIkpV0ws4cYYwzEznOgcrqrQatNE=;
+        s=korg; t=1652730725;
+        bh=6rNJoLS/Ojh91LhmB/MjVAf98QJkadN8ugt+pWo3vKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMdZ2f405eWeWVIbmJsxkqygoqXCEbdJg/9r5juZRad66V0dPrjm4H9yoT88oiILT
-         Ma2uq5yKboL3Ji2HoUrfg3izsCgZsx9VsR4ak1y44I+FktXGY3WU3IN+A6FQTdQG2q
-         ghSONojciNLn0iFZZiiLjoWvbQSDBWovwIW6Bumo=
+        b=SG1FGgVAS1meurC8IpbR4Rvyk3qn4XZIKLMiBNWvVQLc0jh7GtnYkF/M9Ohjg3DMS
+         DLP6zlgxiK3EHyUZZITYQYgX+vnp5aKUffu2wnm3F6EX5QhDnAsB6cBoKBjnQxbkaQ
+         fXwvGLrquh5etkm5QrRwmvW8cLLqW72bAGWfLqEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Francesco Dolcini <francesco.dolcini@toradex.com>,
         Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 62/66] net: phy: Fix race condition on link status change
+Subject: [PATCH 5.15 088/102] net: phy: Fix race condition on link status change
 Date:   Mon, 16 May 2022 21:37:02 +0200
-Message-Id: <20220516193621.204866621@linuxfoundation.org>
+Message-Id: <20220516193626.522008606@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -126,83 +126,27 @@ Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Link: https://lore.kernel.org/r/20220506060815.327382-1-francesco.dolcini@toradex.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[fd: backport: adapt locking before did_interrupt()/ack_interrupt()
- callbacks removal ]
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/phy.c |   45 ++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 40 insertions(+), 5 deletions(-)
+ drivers/net/phy/phy.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/phy/phy.c
 +++ b/drivers/net/phy/phy.c
-@@ -124,10 +124,15 @@ EXPORT_SYMBOL(phy_print_status);
-  */
- static int phy_clear_interrupt(struct phy_device *phydev)
+@@ -970,8 +970,13 @@ static irqreturn_t phy_interrupt(int irq
  {
--	if (phydev->drv->ack_interrupt)
--		return phydev->drv->ack_interrupt(phydev);
-+	int ret = 0;
- 
--	return 0;
-+	if (phydev->drv->ack_interrupt) {
-+		mutex_lock(&phydev->lock);
-+		ret = phydev->drv->ack_interrupt(phydev);
-+		mutex_unlock(&phydev->lock);
-+	}
-+
-+	return ret;
- }
- 
- /**
-@@ -982,6 +987,36 @@ int phy_disable_interrupts(struct phy_de
- }
- 
- /**
-+ * phy_did_interrupt - Checks if the PHY generated an interrupt
-+ * @phydev: target phy_device struct
-+ */
-+static int phy_did_interrupt(struct phy_device *phydev)
-+{
-+	int ret;
-+
-+	mutex_lock(&phydev->lock);
-+	ret = phydev->drv->did_interrupt(phydev);
-+	mutex_unlock(&phydev->lock);
-+
-+	return ret;
-+}
-+
-+/**
-+ * phy_handle_interrupt - Handle PHY interrupt
-+ * @phydev: target phy_device struct
-+ */
-+static irqreturn_t phy_handle_interrupt(struct phy_device *phydev)
-+{
-+	irqreturn_t ret;
-+
-+	mutex_lock(&phydev->lock);
-+	ret = phydev->drv->handle_interrupt(phydev);
-+	mutex_unlock(&phydev->lock);
-+
-+	return ret;
-+}
-+
-+/**
-  * phy_interrupt - PHY interrupt handler
-  * @irq: interrupt line
-  * @phy_dat: phy_device pointer
-@@ -994,9 +1029,9 @@ static irqreturn_t phy_interrupt(int irq
+ 	struct phy_device *phydev = phy_dat;
  	struct phy_driver *drv = phydev->drv;
++	irqreturn_t ret;
  
- 	if (drv->handle_interrupt)
--		return drv->handle_interrupt(phydev);
-+		return phy_handle_interrupt(phydev);
+-	return drv->handle_interrupt(phydev);
++	mutex_lock(&phydev->lock);
++	ret = drv->handle_interrupt(phydev);
++	mutex_unlock(&phydev->lock);
++
++	return ret;
+ }
  
--	if (drv->did_interrupt && !drv->did_interrupt(phydev))
-+	if (drv->did_interrupt && !phy_did_interrupt(phydev))
- 		return IRQ_NONE;
- 
- 	/* reschedule state queue work to run as soon as possible */
+ /**
 
 
