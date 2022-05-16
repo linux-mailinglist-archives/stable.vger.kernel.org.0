@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 67DFA528FD4
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67654529058
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346670AbiEPULq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54812 "EHLO
+        id S1347539AbiEPUGJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351071AbiEPUB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370354756C;
-        Mon, 16 May 2022 12:58:04 -0700 (PDT)
+        with ESMTP id S1348921AbiEPT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71E773EB82;
+        Mon, 16 May 2022 12:52:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3651B81615;
-        Mon, 16 May 2022 19:58:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58A89C385AA;
-        Mon, 16 May 2022 19:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C46260AB8;
+        Mon, 16 May 2022 19:52:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF8A8C34115;
+        Mon, 16 May 2022 19:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731081;
-        bh=icSuAv8bKxjkgQCS0+EKtkHmPx2uqUq5zHY0/SpG3nk=;
+        s=korg; t=1652730775;
+        bh=LZKZnEYoLnDZneRSDTYPINYW/YQOWGqnwVmuCRn10DY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8r+6b23J+ks/buIbvFEYKhI5lnGJ+jWGRVkfbUGaFwDN33nHO0WOe1FViCdWWu6m
-         xsXJ4oswfxgZ1AeiUVzBDZt38uNQWOGpi6misdfqsvXFNgv8TS9lbdzdU+L4AfJ5AK
-         PI8MqDL7VzgTMJ1zu1bvWq8cLk6z5uu/6UOhCMpk=
+        b=qqj/L/xUma3z1B9qGucHmL25uz5yAxkiQotQ3XZQzmEElhPVC+l0TwkY0TYUiaTvS
+         EkbFUl5a5/vzuOtijakScrotAp2ZbwFe7MQoljdlc4xd236UPsSGiTG7kXJITApAiD
+         o2WN+CW2YrnHCGFDV+p99kCoXuQ14ljIUjD5JJcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.17 097/114] drm/nouveau/tegra: Stop using iommu_present()
+        stable@vger.kernel.org,
+        Charan Teja Reddy <quic_charante@quicinc.com>,
+        "T.J. Mercier" <tjmercier@google.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.15 097/102] dma-buf: call dma_buf_stats_setup after dmabuf is in valid list
 Date:   Mon, 16 May 2022 21:37:11 +0200
-Message-Id: <20220516193628.259867940@linuxfoundation.org>
+Message-Id: <20220516193626.785652716@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,35 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Charan Teja Reddy <quic_charante@quicinc.com>
 
-commit 87fd2b091fb33871a7f812658a0971e8e26f903f upstream.
+commit ef3a6b70507a2add2cd2e01f5eb9b54d561bacb9 upstream.
 
-Even if some IOMMU has registered itself on the platform "bus", that
-doesn't necessarily mean it provides translation for the device we
-care about. Replace iommu_present() with a more appropriate check.
+When dma_buf_stats_setup() fails, it closes the dmabuf file which
+results into the calling of dma_buf_file_release() where it does
+list_del(&dmabuf->list_node) with out first adding it to the proper
+list. This is resulting into panic in the below path:
+__list_del_entry_valid+0x38/0xac
+dma_buf_file_release+0x74/0x158
+__fput+0xf4/0x428
+____fput+0x14/0x24
+task_work_run+0x178/0x24c
+do_notify_resume+0x194/0x264
+work_pending+0xc/0x5f0
 
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-[added cc for stable]
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org # v5.0+
-Link: https://patchwork.freedesktop.org/patch/msgid/70d40ea441da3663c2824d54102b471e9a621f8a.1649168494.git.robin.murphy@arm.com
+Fix it by moving the dma_buf_stats_setup() after dmabuf is added to the
+list.
+
+Fixes: bdb8d06dfefd ("dmabuf: Add the capability to expose DMA-BUF stats in sysfs")
+Signed-off-by: Charan Teja Reddy <quic_charante@quicinc.com>
+Tested-by: T.J. Mercier <tjmercier@google.com>
+Acked-by: T.J. Mercier <tjmercier@google.com>
+Cc: <stable@vger.kernel.org> # 5.15.x+
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1652125797-2043-1-git-send-email-quic_charante@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
-@@ -123,7 +123,7 @@ nvkm_device_tegra_probe_iommu(struct nvk
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -572,10 +572,6 @@ struct dma_buf *dma_buf_export(const str
+ 	file->f_mode |= FMODE_LSEEK;
+ 	dmabuf->file = file;
  
- 	mutex_init(&tdev->iommu.mutex);
+-	ret = dma_buf_stats_setup(dmabuf);
+-	if (ret)
+-		goto err_sysfs;
+-
+ 	mutex_init(&dmabuf->lock);
+ 	INIT_LIST_HEAD(&dmabuf->attachments);
  
--	if (iommu_present(&platform_bus_type)) {
-+	if (device_iommu_mapped(dev)) {
- 		tdev->iommu.domain = iommu_domain_alloc(&platform_bus_type);
- 		if (!tdev->iommu.domain)
- 			goto error;
+@@ -583,6 +579,10 @@ struct dma_buf *dma_buf_export(const str
+ 	list_add(&dmabuf->list_node, &db_list.head);
+ 	mutex_unlock(&db_list.lock);
+ 
++	ret = dma_buf_stats_setup(dmabuf);
++	if (ret)
++		goto err_sysfs;
++
+ 	return dmabuf;
+ 
+ err_sysfs:
 
 
