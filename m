@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF16F527F49
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:09:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0133527F54
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:14:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241499AbiEPIJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:09:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39818 "EHLO
+        id S232312AbiEPIOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:14:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240684AbiEPIJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:09:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C764D33E3F
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:09:26 -0700 (PDT)
+        with ESMTP id S241485AbiEPIOL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:14:11 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AE2C36E1B
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:14:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C266117F
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CB6C385AA;
-        Mon, 16 May 2022 08:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB02D611C3
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:14:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4CBC385AA;
+        Mon, 16 May 2022 08:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652688565;
-        bh=ToUv7Wyv1fcJyi5vFR6Y+5lecsAxhuoBdhiKef9vshk=;
+        s=korg; t=1652688849;
+        bh=7zIWqaL3gjn7wKSNQFLIdyOK2uko29JSGryumTM4OKY=;
         h=Subject:To:Cc:From:Date:From;
-        b=aCAG2xCoskioCNi1nEqlQCmUglpslXLgflFziDcDz5JPqfrI0Cx0qYuyK6LteG3m6
-         ALYADcFK1QlzSbY/qAif/KHwGO7DuqS8atyiWjua1owwYEeuY8Eo1CtbsL/80vfABF
-         3W3nW9JuEJVUMpl8vIrEBIETMYkTKRyHFo3UaE6U=
-Subject: FAILED: patch "[PATCH] ceph: check folio PG_private bit instead of folio->private" failed to apply to 5.17-stable tree
-To:     xiubli@redhat.com, idryomov@gmail.com, jlayton@kernel.org,
-        lhenriques@suse.de
+        b=IZ9ybyV0DuhoG7x609LhuOw1gUwWRf9vOmbe+p4N/pwj7HeJGMlEAZzAYDZ9ZVdu4
+         A698C2s+fHguMf0H+mYnqg7pzFj7bgTcUwe2B/zPrt8ABpKwxjLUYVrGV+Te9br6C2
+         aP8QdZ3RsmyUAq2mRfGo2KzaflS9aJBwOWCEdnI0=
+Subject: FAILED: patch "[PATCH] net: phy: Fix race condition on link status change" failed to apply to 5.10-stable tree
+To:     francesco.dolcini@toradex.com, andrew@lunn.ch, kuba@kernel.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:09:23 +0200
-Message-ID: <165268856364203@kroah.com>
+Date:   Mon, 16 May 2022 10:14:06 +0200
+Message-ID: <16526888465229@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,67 +60,97 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 642d51fb0775a41dd6bb3d99b5a40c24df131c20 Mon Sep 17 00:00:00 2001
-From: Xiubo Li <xiubli@redhat.com>
-Date: Thu, 5 May 2022 18:53:09 +0800
-Subject: [PATCH] ceph: check folio PG_private bit instead of folio->private
+From 91a7cda1f4b8bdf770000a3b60640576dafe0cec Mon Sep 17 00:00:00 2001
+From: Francesco Dolcini <francesco.dolcini@toradex.com>
+Date: Fri, 6 May 2022 08:08:15 +0200
+Subject: [PATCH] net: phy: Fix race condition on link status change
 
-The pages in the file mapping maybe reclaimed and reused by other
-subsystems and the page->private maybe used as flags field or
-something else, if later that pages are used by page caches again
-the page->private maybe not cleared as expected.
+This fixes the following error caused by a race condition between
+phydev->adjust_link() and a MDIO transaction in the phy interrupt
+handler. The issue was reproduced with the ethernet FEC driver and a
+micrel KSZ9031 phy.
 
-Here will check the PG_private bit instead of the folio->private.
+[  146.195696] fec 2188000.ethernet eth0: MDIO read timeout
+[  146.201779] ------------[ cut here ]------------
+[  146.206671] WARNING: CPU: 0 PID: 571 at drivers/net/phy/phy.c:942 phy_error+0x24/0x6c
+[  146.214744] Modules linked in: bnep imx_vdoa imx_sdma evbug
+[  146.220640] CPU: 0 PID: 571 Comm: irq/128-2188000 Not tainted 5.18.0-rc3-00080-gd569e86915b7 #9
+[  146.229563] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[  146.236257]  unwind_backtrace from show_stack+0x10/0x14
+[  146.241640]  show_stack from dump_stack_lvl+0x58/0x70
+[  146.246841]  dump_stack_lvl from __warn+0xb4/0x24c
+[  146.251772]  __warn from warn_slowpath_fmt+0x5c/0xd4
+[  146.256873]  warn_slowpath_fmt from phy_error+0x24/0x6c
+[  146.262249]  phy_error from kszphy_handle_interrupt+0x40/0x48
+[  146.268159]  kszphy_handle_interrupt from irq_thread_fn+0x1c/0x78
+[  146.274417]  irq_thread_fn from irq_thread+0xf0/0x1dc
+[  146.279605]  irq_thread from kthread+0xe4/0x104
+[  146.284267]  kthread from ret_from_fork+0x14/0x28
+[  146.289164] Exception stack(0xe6fa1fb0 to 0xe6fa1ff8)
+[  146.294448] 1fa0:                                     00000000 00000000 00000000 00000000
+[  146.302842] 1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[  146.311281] 1fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[  146.318262] irq event stamp: 12325
+[  146.321780] hardirqs last  enabled at (12333): [<c01984c4>] __up_console_sem+0x50/0x60
+[  146.330013] hardirqs last disabled at (12342): [<c01984b0>] __up_console_sem+0x3c/0x60
+[  146.338259] softirqs last  enabled at (12324): [<c01017f0>] __do_softirq+0x2c0/0x624
+[  146.346311] softirqs last disabled at (12319): [<c01300ac>] __irq_exit_rcu+0x138/0x178
+[  146.354447] ---[ end trace 0000000000000000 ]---
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/55421
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Luis Henriques <lhenriques@suse.de>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+With the FEC driver phydev->adjust_link() calls fec_enet_adjust_link()
+calls fec_stop()/fec_restart() and both these function reset and
+temporary disable the FEC disrupting any MII transaction that
+could be happening at the same time.
 
-diff --git a/fs/ceph/addr.c b/fs/ceph/addr.c
-index aa25bffd4823..b6edcf89a429 100644
---- a/fs/ceph/addr.c
-+++ b/fs/ceph/addr.c
-@@ -85,7 +85,7 @@ static bool ceph_dirty_folio(struct address_space *mapping, struct folio *folio)
- 	if (folio_test_dirty(folio)) {
- 		dout("%p dirty_folio %p idx %lu -- already dirty\n",
- 		     mapping->host, folio, folio->index);
--		BUG_ON(!folio_get_private(folio));
-+		VM_BUG_ON_FOLIO(!folio_test_private(folio), folio);
- 		return false;
- 	}
+fec_enet_adjust_link() and phy_read() can be running at the same time
+when we have one additional interrupt before the phy_state_machine() is
+able to terminate.
+
+Thread 1 (phylib WQ)       | Thread 2 (phy interrupt)
+                           |
+                           | phy_interrupt()            <-- PHY IRQ
+                           |  handle_interrupt()
+                           |   phy_read()
+                           |   phy_trigger_machine()
+                           |    --> schedule phylib WQ
+                           |
+                           |
+phy_state_machine()        |
+ phy_check_link_status()   |
+  phy_link_change()        |
+   phydev->adjust_link()   |
+    fec_enet_adjust_link() |
+     --> FEC reset         | phy_interrupt()            <-- PHY IRQ
+                           |  phy_read()
+                           |
+
+Fix this by acquiring the phydev lock in phy_interrupt().
+
+Link: https://lore.kernel.org/all/20220422152612.GA510015@francesco-nb.int.toradex.com/
+Fixes: c974bdbc3e77 ("net: phy: Use threaded IRQ, to allow IRQ from sleeping devices")
+cc: <stable@vger.kernel.org>
+Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/20220506060815.327382-1-francesco.dolcini@toradex.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
+index beb2b66da132..f122026c4682 100644
+--- a/drivers/net/phy/phy.c
++++ b/drivers/net/phy/phy.c
+@@ -970,8 +970,13 @@ static irqreturn_t phy_interrupt(int irq, void *phy_dat)
+ {
+ 	struct phy_device *phydev = phy_dat;
+ 	struct phy_driver *drv = phydev->drv;
++	irqreturn_t ret;
  
-@@ -122,7 +122,7 @@ static bool ceph_dirty_folio(struct address_space *mapping, struct folio *folio)
- 	 * Reference snap context in folio->private.  Also set
- 	 * PagePrivate so that we get invalidate_folio callback.
- 	 */
--	BUG_ON(folio_get_private(folio));
-+	VM_BUG_ON_FOLIO(folio_test_private(folio), folio);
- 	folio_attach_private(folio, snapc);
+-	return drv->handle_interrupt(phydev);
++	mutex_lock(&phydev->lock);
++	ret = drv->handle_interrupt(phydev);
++	mutex_unlock(&phydev->lock);
++
++	return ret;
+ }
  
- 	return ceph_fscache_dirty_folio(mapping, folio);
-@@ -150,7 +150,7 @@ static void ceph_invalidate_folio(struct folio *folio, size_t offset,
- 	}
- 
- 	WARN_ON(!folio_test_locked(folio));
--	if (folio_get_private(folio)) {
-+	if (folio_test_private(folio)) {
- 		dout("%p invalidate_folio idx %lu full dirty page\n",
- 		     inode, folio->index);
- 
-@@ -729,8 +729,11 @@ static void writepages_finish(struct ceph_osd_request *req)
- 
- 	/* clean all pages */
- 	for (i = 0; i < req->r_num_ops; i++) {
--		if (req->r_ops[i].op != CEPH_OSD_OP_WRITE)
-+		if (req->r_ops[i].op != CEPH_OSD_OP_WRITE) {
-+			pr_warn("%s incorrect op %d req %p index %d tid %llu\n",
-+				__func__, req->r_ops[i].op, req, i, req->r_tid);
- 			break;
-+		}
- 
- 		osd_data = osd_req_op_extent_osd_data(req, i);
- 		BUG_ON(osd_data->type != CEPH_OSD_DATA_TYPE_PAGES);
+ /**
 
