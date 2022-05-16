@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 530AD528F39
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF1EF528EDF
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236771AbiEPTxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54130 "EHLO
+        id S1345999AbiEPTsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:48:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346755AbiEPTvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4958E4477E;
-        Mon, 16 May 2022 12:45:49 -0700 (PDT)
+        with ESMTP id S1346104AbiEPTr0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:47:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63CBB2DD72;
+        Mon, 16 May 2022 12:44:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 567936156F;
-        Mon, 16 May 2022 19:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B10C385AA;
-        Mon, 16 May 2022 19:45:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA546155B;
+        Mon, 16 May 2022 19:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BCCC385AA;
+        Mon, 16 May 2022 19:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730347;
-        bh=HQ69QmLGVCRuwMvGfkn6ojTEcGyEb8m3+L4NpGnQ+Qg=;
+        s=korg; t=1652730267;
+        bh=H9gUrGoNniifNCLtgHBaeOvSZApWkJs6YJlT3InkpjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HuhfJPOUAItAb3bEgUI0ShsJOwe0apRI2icbm4UwZjurHZRsWXpcJ6srPcy+y9ufx
-         NblvFQWUO/FpJpEuiEW9awJZLvfwIpjLVQDdvD8AAGAsCSYH2yyyqeLyJ67H3+Z203
-         9LPSkMUHVWqJjaiMWs/7yfPjhp0aMmpqLXZ42pp0=
+        b=hja0TbSwhp7oUDNccAQICLDXx6a4Wmpy3WpCwLRO3v/sEpQLep04xKc+rP/5BVayO
+         jop+Xdvis2yjElYNFR7ImZRHm/23RI5/1m4fw+5ptFVOrdD2gfoqDoO3M68Yszb4Gz
+         Wt/0yk9uJe0fVP5/cTQD6lGqUo33Shb9cgOj/lIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 09/66] net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
-Date:   Mon, 16 May 2022 21:36:09 +0200
-Message-Id: <20220516193619.687072312@linuxfoundation.org>
+Subject: [PATCH 5.10 10/66] ipv4: drop dst in multicast routing path
+Date:   Mon, 16 May 2022 21:36:10 +0200
+Message-Id: <20220516193619.715148481@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
 References: <20220516193619.400083785@linuxfoundation.org>
@@ -54,112 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
 
-[ Upstream commit 93a8417088ea570b5721d2b526337a2d3aed9fa3 ]
+[ Upstream commit 9e6c6d17d1d6a3f1515ce399f9a011629ec79aa0 ]
 
-Given the following order of operations:
+kmemleak reports the following when routing multicast traffic over an
+ipsec tunnel.
 
-(1) we add filter A using tc-flower
-(2) we send a packet that matches it
-(3) we read the filter's statistics to find a hit count of 1
-(4) we add a second filter B with a higher preference than A, and A
-    moves one position to the right to make room in the TCAM for it
-(5) we send another packet, and this matches the second filter B
-(6) we read the filter statistics again.
+Kmemleak output:
+unreferenced object 0x8000000044bebb00 (size 256):
+  comm "softirq", pid 0, jiffies 4294985356 (age 126.810s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 00 00 00 05 13 74 80  ..............t.
+    80 00 00 00 04 9b bf f9 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f83947e0>] __kmalloc+0x1e8/0x300
+    [<00000000b7ed8dca>] metadata_dst_alloc+0x24/0x58
+    [<0000000081d32c20>] __ipgre_rcv+0x100/0x2b8
+    [<00000000824f6cf1>] gre_rcv+0x178/0x540
+    [<00000000ccd4e162>] gre_rcv+0x7c/0xd8
+    [<00000000c024b148>] ip_protocol_deliver_rcu+0x124/0x350
+    [<000000006a483377>] ip_local_deliver_finish+0x54/0x68
+    [<00000000d9271b3a>] ip_local_deliver+0x128/0x168
+    [<00000000bd4968ae>] xfrm_trans_reinject+0xb8/0xf8
+    [<0000000071672a19>] tasklet_action_common.isra.16+0xc4/0x1b0
+    [<0000000062e9c336>] __do_softirq+0x1fc/0x3e0
+    [<00000000013d7914>] irq_exit+0xc4/0xe0
+    [<00000000a4d73e90>] plat_irq_dispatch+0x7c/0x108
+    [<000000000751eb8e>] handle_int+0x16c/0x178
+    [<000000001668023b>] _raw_spin_unlock_irqrestore+0x1c/0x28
 
-When this happens, the hit count of filter A is 2 and of filter B is 1,
-despite a single packet having matched each filter.
+The metadata dst is leaked when ip_route_input_mc() updates the dst for
+the skb. Commit f38a9eb1f77b ("dst: Metadata destinations") correctly
+handled dropping the dst in ip_route_input_slow() but missed the
+multicast case which is handled by ip_route_input_mc(). Drop the dst in
+ip_route_input_mc() avoiding the leak.
 
-Furthermore, in an alternate history, reading the filter stats a second
-time between steps (3) and (4) makes the hit count of filter A remain at
-1 after step (6), as expected.
-
-The reason why this happens has to do with the filter->stats.pkts field,
-which is written to hardware through the call path below:
-
-               vcap_entry_set
-               /      |      \
-              /       |       \
-             /        |        \
-            /         |         \
-es0_entry_set   is1_entry_set   is2_entry_set
-            \         |         /
-             \        |        /
-              \       |       /
-        vcap_data_set(data.counter, ...)
-
-The primary role of filter->stats.pkts is to transport the filter hit
-counters from the last readout all the way from vcap_entry_get() ->
-ocelot_vcap_filter_stats_update() -> ocelot_cls_flower_stats().
-The reason why vcap_entry_set() writes it to hardware is so that the
-counters (saturating and having a limited bit width) are cleared
-after each user space readout.
-
-The writing of filter->stats.pkts to hardware during the TCAM entry
-movement procedure is an unintentional consequence of the code design,
-because the hit count isn't up to date at this point.
-
-So at step (4), when filter A is moved by ocelot_vcap_filter_add() to
-make room for filter B, the hardware hit count is 0 (no packet matched
-on it in the meantime), but filter->stats.pkts is 1, because the last
-readout saw the earlier packet. The movement procedure programs the old
-hit count back to hardware, so this creates the impression to user space
-that more packets have been matched than they really were.
-
-The bug can be seen when running the gact_drop_and_ok_test() from the
-tc_actions.sh selftest.
-
-Fix the issue by reading back the hit count to tmp->stats.pkts before
-migrating the VCAP filter. Sure, this is a best-effort technique, since
-the packets that hit the rule between vcap_entry_get() and
-vcap_entry_set() won't be counted, but at least it allows the counters
-to be reliably used for selftests where the traffic is under control.
-
-The vcap_entry_get() name is a bit unintuitive, but it only reads back
-the counter portion of the TCAM entry, not the entire entry.
-
-The index from which we retrieve the counter is also a bit unintuitive
-(i - 1 during add, i + 1 during del), but this is the way in which TCAM
-entry movement works. The "entry index" isn't a stored integer for a
-TCAM filter, instead it is dynamically computed by
-ocelot_vcap_block_get_filter_index() based on the entry's position in
-the &block->rules list. That position (as well as block->count) is
-automatically updated by ocelot_vcap_filter_add_to_block() on add, and
-by ocelot_vcap_block_remove_filter() on del. So "i" is the new filter
-index, and "i - 1" or "i + 1" respectively are the old addresses of that
-TCAM entry (we only support installing/deleting one filter at a time).
-
-Fixes: b596229448dd ("net: mscc: ocelot: Add support for tcam")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220505020017.3111846-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_vcap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/ipv4/route.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
-index 709b304fde67..118572590607 100644
---- a/drivers/net/ethernet/mscc/ocelot_vcap.c
-+++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
-@@ -1142,6 +1142,8 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
- 		struct ocelot_vcap_filter *tmp;
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index c72d0de8bf71..4080e3c6c50d 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1792,6 +1792,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ #endif
+ 	RT_CACHE_STAT_INC(in_slow_mc);
  
- 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-+		/* Read back the filter's counters before moving it */
-+		vcap_entry_get(ocelot, i - 1, tmp);
- 		vcap_entry_set(ocelot, i, tmp);
- 	}
- 
-@@ -1199,6 +1201,8 @@ int ocelot_vcap_filter_del(struct ocelot *ocelot,
- 		struct ocelot_vcap_filter *tmp;
- 
- 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-+		/* Read back the filter's counters before moving it */
-+		vcap_entry_get(ocelot, i + 1, tmp);
- 		vcap_entry_set(ocelot, i, tmp);
- 	}
- 
++	skb_dst_drop(skb);
+ 	skb_dst_set(skb, &rth->dst);
+ 	return 0;
+ }
 -- 
 2.35.1
 
