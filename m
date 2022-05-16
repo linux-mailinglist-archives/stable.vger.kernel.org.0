@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B4AB528FD3
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A491E5290EB
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347674AbiEPUGN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51556 "EHLO
+        id S231354AbiEPTze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:55:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348910AbiEPT7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC789369D2;
-        Mon, 16 May 2022 12:52:40 -0700 (PDT)
+        with ESMTP id S1347052AbiEPTvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CEE83FBDB;
+        Mon, 16 May 2022 12:47:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AF1260AB8;
-        Mon, 16 May 2022 19:52:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65424C385AA;
-        Mon, 16 May 2022 19:52:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CD5D2B81609;
+        Mon, 16 May 2022 19:47:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10B61C385AA;
+        Mon, 16 May 2022 19:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730759;
-        bh=GXv6tY1AebcHyT6RQTdWPQMx6r8FXPGYTvF7mOdzci8=;
+        s=korg; t=1652730421;
+        bh=eBC7r2zEJsCISV5SGvi7yf/yurad+4tTdXFlbCsj+X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dSF7S1ICAvZ2Hk3FubSwlZgbYcPAehho38Zjwpf/SQyIBzcf8oukQbOP6JrD/2FA+
-         uX2JCy3rHpMRVIb4LQOr0XEVOBIMR3l/FOIFMkZYZBBr+hEQgj3YbBXR5v/sV4UPOS
-         NSvGPtJHeCxHt+jSnzNFzIDFtJojaxEHUzwXIIec=
+        b=pzeckpypn3Gnx+INIqDTffEMXWwUq/dttW8kQeMpi1DQJ8a2cMFTv7r2fIHGsox96
+         w69xBNxM8ING9TrHxfYYGAtSx8ia4zoDCu37ZPURueqJFnZ7rCY/izwbAYTqq3KC4C
+         s1meh+ywKGur+yRhw5m5ZqpymZ4beLfhs6YJqKuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
-        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
-        Amit Klein <aksecurity@gmail.com>,
-        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 059/102] tcp: dynamically allocate the perturb table used by source ports
+Subject: [PATCH 5.10 33/66] ASoC: max98090: Generate notifications on changes for custom control
 Date:   Mon, 16 May 2022 21:36:33 +0200
-Message-Id: <20220516193625.690924902@linuxfoundation.org>
+Message-Id: <20220516193620.373895707@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,63 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit e9261476184be1abd486c9434164b2acbe0ed6c2 ]
+[ Upstream commit 13fcf676d9e102594effc686d98521ff5c90b925 ]
 
-We'll need to further increase the size of this table and it's likely
-that at some point its size will not be suitable anymore for a static
-table. Let's allocate it on boot from inet_hashinfo2_init(), which is
-called from tcp_init().
+The max98090 driver has some custom controls which share a put() function
+which returns 0 unconditionally, meaning that events are not generated
+when the value changes. Fix that.
 
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220420193454.2647908-2-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ sound/soc/codecs/max98090.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 573a7e66ebc8..763395e30c77 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -731,7 +731,8 @@ EXPORT_SYMBOL_GPL(inet_unhash);
-  * privacy, this only consumes 1 KB of kernel memory.
-  */
- #define INET_TABLE_PERTURB_SHIFT 8
--static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
-+#define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
-+static u32 *table_perturb;
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index 779845e3a9e3..5b6405392f08 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -430,7 +430,7 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+ 		mask << mc->shift,
+ 		sel << mc->shift);
  
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		struct sock *sk, u64 port_offset,
-@@ -774,7 +775,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	net_get_random_once(table_perturb, sizeof(table_perturb));
-+	net_get_random_once(table_perturb,
-+			    INET_TABLE_PERTURB_SIZE * sizeof(*table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
- 	offset = READ_ONCE(table_perturb[index]) + (port_offset >> 32);
-@@ -912,6 +914,12 @@ void __init inet_hashinfo2_init(struct inet_hashinfo *h, const char *name,
- 					    low_limit,
- 					    high_limit);
- 	init_hashinfo_lhash2(h);
-+
-+	/* this one is used for source ports of outgoing connections */
-+	table_perturb = kmalloc_array(INET_TABLE_PERTURB_SIZE,
-+				      sizeof(*table_perturb), GFP_KERNEL);
-+	if (!table_perturb)
-+		panic("TCP: failed to alloc table_perturb");
+-	return 0;
++	return *select != val;
  }
  
- int inet_hashinfo2_init_mod(struct inet_hashinfo *h)
+ static const char *max98090_perf_pwr_text[] =
 -- 
 2.35.1
 
