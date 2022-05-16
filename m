@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E745291B6
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B11675291AA
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346619AbiEPULl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:11:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51556 "EHLO
+        id S1347218AbiEPUGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351079AbiEPUB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C686403C3;
-        Mon, 16 May 2022 12:58:18 -0700 (PDT)
+        with ESMTP id S1348972AbiEPT7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72FB3F884;
+        Mon, 16 May 2022 12:53:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC430B81613;
-        Mon, 16 May 2022 19:58:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52AF0C385AA;
-        Mon, 16 May 2022 19:58:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3877C60A50;
+        Mon, 16 May 2022 19:53:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2EFC385AA;
+        Mon, 16 May 2022 19:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731095;
-        bh=53WI7OpkL2i7EK66z0m46kGr/WBAR9Uvgphfip65p9E=;
+        s=korg; t=1652730788;
+        bh=XClndHM4mSOpn/rg2RQmerQfwqK3Wvfp5PXXIXjpmio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f2+YG/WSmPQN7NPITbJ/lqoHG9aYRbJUyflwocxnEpnQZcLpzAcxAdC0p5kg6H8Gi
-         FGTPmfVzKj3k50VD9LE5hzQvH2GyUsWRDP8O6YOFL9yPBzd/v3X9xKjzso9pa1CzWJ
-         zcqmwfNJjYQyR9sjaIKIwtQJPXU2Quh3K0khywI8=
+        b=gGpx2SlTRm5ZsNBAqyGi9f80gAvL7WUbpJJR9G/dpdqFbBMoKI9vvxsYxmdwdnzzw
+         aahKT/3/JhxYDHsDiq20KTdYZqa2IKUuXIPIKFouQMkeU15r/pht+muwiv2Y00yvI6
+         jzktW6eFU0TnB5PscIAn1+cIf3UoidYtNvLud+Nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>,
-        Christoph Hellwig <hch@lst.de>, Jing Xia <jing.xia@unisoc.com>
-Subject: [PATCH 5.17 101/114] writeback: Avoid skipping inode writeback
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Michael Tretter <m.tretter@pengutronix.de>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>
+Subject: [PATCH 5.15 101/102] usb: gadget: uvc: rename function to be more consistent
 Date:   Mon, 16 May 2022 21:37:15 +0200
-Message-Id: <20220516193628.376212768@linuxfoundation.org>
+Message-Id: <20220516193626.901310288@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jing Xia <jing.xia@unisoc.com>
+From: Michael Tretter <m.tretter@pengutronix.de>
 
-commit 846a3351ddfe4a86eede4bb26a205c3f38ef84d3 upstream.
+commit e6bab2b66329b40462fb1bed6f98bc3fcf543a1c upstream.
 
-We have run into an issue that a task gets stuck in
-balance_dirty_pages_ratelimited() when perform I/O stress testing.
-The reason we observed is that an I_DIRTY_PAGES inode with lots
-of dirty pages is in b_dirty_time list and standard background
-writeback cannot writeback the inode.
-After studing the relevant code, the following scenario may lead
-to the issue:
+When enabling info debugging for the uvc gadget, the bind and unbind
+infos use different formats. Change the unbind to visually match the
+bind.
 
-task1                                   task2
------                                   -----
-fuse_flush
- write_inode_now //in b_dirty_time
-  writeback_single_inode
-   __writeback_single_inode
-                                 fuse_write_end
-                                  filemap_dirty_folio
-                                   __xa_set_mark:PAGECACHE_TAG_DIRTY
-    lock inode->i_lock
-    if mapping tagged PAGECACHE_TAG_DIRTY
-    inode->i_state |= I_DIRTY_PAGES
-    unlock inode->i_lock
-                                   __mark_inode_dirty:I_DIRTY_PAGES
-                                      lock inode->i_lock
-                                      -was dirty,inode stays in
-                                      -b_dirty_time
-                                      unlock inode->i_lock
-
-   if(!(inode->i_state & I_DIRTY_All))
-      -not true,so nothing done
-
-This patch moves the dirty inode to b_dirty list when the inode
-currently is not queued in b_io or b_more_io list at the end of
-writeback_single_inode.
-
-Reviewed-by: Jan Kara <jack@suse.cz>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-CC: stable@vger.kernel.org
-Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
-Signed-off-by: Jing Xia <jing.xia@unisoc.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20220510023514.27399-1-jing.xia@unisoc.com
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20211017215017.18392-3-m.grzeschik@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fs-writeback.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/function/f_uvc.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -1749,6 +1749,10 @@ static int writeback_single_inode(struct
- 	 */
- 	if (!(inode->i_state & I_DIRTY_ALL))
- 		inode_cgwb_move_to_attached(inode, wb);
-+	else if (!(inode->i_state & I_SYNC_QUEUED) &&
-+		 (inode->i_state & I_DIRTY))
-+		redirty_tail_locked(inode, wb);
-+
- 	spin_unlock(&wb->list_lock);
- 	inode_sync_complete(inode);
- out:
+--- a/drivers/usb/gadget/function/f_uvc.c
++++ b/drivers/usb/gadget/function/f_uvc.c
+@@ -884,12 +884,13 @@ static void uvc_free(struct usb_function
+ 	kfree(uvc);
+ }
+ 
+-static void uvc_unbind(struct usb_configuration *c, struct usb_function *f)
++static void uvc_function_unbind(struct usb_configuration *c,
++				struct usb_function *f)
+ {
+ 	struct usb_composite_dev *cdev = c->cdev;
+ 	struct uvc_device *uvc = to_uvc(f);
+ 
+-	uvcg_info(f, "%s\n", __func__);
++	uvcg_info(f, "%s()\n", __func__);
+ 
+ 	device_remove_file(&uvc->vdev.dev, &dev_attr_function_name);
+ 	video_unregister_device(&uvc->vdev);
+@@ -943,7 +944,7 @@ static struct usb_function *uvc_alloc(st
+ 	/* Register the function. */
+ 	uvc->func.name = "uvc";
+ 	uvc->func.bind = uvc_function_bind;
+-	uvc->func.unbind = uvc_unbind;
++	uvc->func.unbind = uvc_function_unbind;
+ 	uvc->func.get_alt = uvc_function_get_alt;
+ 	uvc->func.set_alt = uvc_function_set_alt;
+ 	uvc->func.disable = uvc_function_disable;
 
 
