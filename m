@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1A152902F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E16495291E0
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346695AbiEPTz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:55:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56022 "EHLO
+        id S1347998AbiEPUGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347054AbiEPTvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1093EB3D;
-        Mon, 16 May 2022 12:47:01 -0700 (PDT)
+        with ESMTP id S1348889AbiEPT7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:02 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AD442BE;
+        Mon, 16 May 2022 12:51:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C803AB8160E;
-        Mon, 16 May 2022 19:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45A51C385AA;
-        Mon, 16 May 2022 19:46:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B8C360A14;
+        Mon, 16 May 2022 19:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DA9C385AA;
+        Mon, 16 May 2022 19:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730418;
-        bh=wUY38zK8eHO+LyrR9G1cak2ID3jchxMVe18CdxSIph8=;
+        s=korg; t=1652730715;
+        bh=icSuAv8bKxjkgQCS0+EKtkHmPx2uqUq5zHY0/SpG3nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTCbjOB6IyLNO73S1kc+dXZZKW4EteNV6XgLk6EZb8v/ZfdPTXLKRGsFJ9+L2pxQA
-         27UQFcnSw2FEjvdcfFIJkMCVMwL63JuBXTZIrMrsssTsHluIz+FlmRxY8f4IjJ2JOm
-         OWnq4uhSviSKNUy8QHKxl6sxG0/RYHk72blJY7+k=
+        b=GETKMs2BitX4VKmCQ+NtIjxQo0CIrQJsrmwjUvUfzapn6yPjd91PUescJ07xM28bp
+         jxyxEoS4ubQtk+hW0ORtP8+aRA1axJHAlo72nIGvulvSUSfppRHWWRvKbwQ0gpEw//
+         DySGE6WBWQ4GsiBkAVx7xww3jXFDX+8FRcUakQp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 5.10 59/66] SUNRPC: Prevent immediate close+reconnect
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.15 085/102] drm/nouveau/tegra: Stop using iommu_present()
 Date:   Mon, 16 May 2022 21:36:59 +0200
-Message-Id: <20220516193621.118602478@linuxfoundation.org>
+Message-Id: <20220516193626.435644944@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
+commit 87fd2b091fb33871a7f812658a0971e8e26f903f upstream.
 
-If we have already set up the socket and are waiting for it to connect,
-then don't immediately close and retry.
+Even if some IOMMU has registered itself on the platform "bus", that
+doesn't necessarily mean it provides translation for the device we
+care about. Replace iommu_present() with a more appropriate check.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+[added cc for stable]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org # v5.0+
+Link: https://patchwork.freedesktop.org/patch/msgid/70d40ea441da3663c2824d54102b471e9a621f8a.1649168494.git.robin.murphy@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sunrpc/xprt.c     |    3 ++-
- net/sunrpc/xprtsock.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -737,7 +737,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
-  */
- static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
- {
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
-+		return;
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
- 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2345,7 +2345,7 @@ static void xs_connect(struct rpc_xprt *
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
+@@ -123,7 +123,7 @@ nvkm_device_tegra_probe_iommu(struct nvk
  
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
+ 	mutex_init(&tdev->iommu.mutex);
  
--	if (transport->sock != NULL) {
-+	if (transport->sock != NULL && !xprt_connecting(xprt)) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
- 				"seconds\n",
- 				xprt, xprt->reestablish_timeout / HZ);
+-	if (iommu_present(&platform_bus_type)) {
++	if (device_iommu_mapped(dev)) {
+ 		tdev->iommu.domain = iommu_domain_alloc(&platform_bus_type);
+ 		if (!tdev->iommu.domain)
+ 			goto error;
 
 
