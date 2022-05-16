@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2144528FCD
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2065B5291C1
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346263AbiEPTya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33120 "EHLO
+        id S1346865AbiEPUMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:12:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346278AbiEPTxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:53:04 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E1B47042;
-        Mon, 16 May 2022 12:48:54 -0700 (PDT)
+        with ESMTP id S1349745AbiEPUAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EA07443D5;
+        Mon, 16 May 2022 12:54:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB528B81611;
-        Mon, 16 May 2022 19:48:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C6DC385AA;
-        Mon, 16 May 2022 19:48:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB3CB60EC6;
+        Mon, 16 May 2022 19:54:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4200C385AA;
+        Mon, 16 May 2022 19:54:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730531;
-        bh=cuKichH73sDTAWETAXC1JTIM2p/rWmO8HVY3pasalVI=;
+        s=korg; t=1652730865;
+        bh=wU1lVdy0VIuwXYRsGZyFII0N4wYMAb6JpSWlgEdW40g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYDRZiz5wvI1cq2IAIJLZ69ZqqdUOhcxa0tmhInI0+clkwSuqnRWbj9+zaVUfp09C
-         n6gQPXF+53WE7Sl5rRa/mEb+siccTk8HxRWy9+bbdLe3mVpQtt1HIpBDMjzQNtzNk2
-         IS3CBR1WhXpax9ZHbYOC9F0l2Vf9CsC0KcaMuBg0=
+        b=HBoKfyvp03IOUJkMrKlh6dryYvOBGchLlDTQ8weeWcgz20O4xv4R+aZuj1ABR/x8g
+         O0ALM+5fcaV8ecpQI/TDeyw2KejIYppZhaFcj6cNqM0lE8frS7wp8SI8hTg4lz/90E
+         sCTzh3D9GJe3v3bdqdnshzD6UT5G2Xfb6p6j/W6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalesh Singh <kaleshsingh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Hridya Valsaraju <hridya@google.com>,
-        Jann Horn <jannh@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Florian Eckert <fe@dev.tdt.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Jean Delvare <jdelvare@suse.com>, linux-hwmon@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 028/102] procfs: prevent unprivileged processes accessing fdinfo dir
-Date:   Mon, 16 May 2022 21:36:02 +0200
-Message-Id: <20220516193624.808523501@linuxfoundation.org>
+Subject: [PATCH 5.17 029/114] hwmon: (ltq-cputemp) restrict it to SOC_XWAY
+Date:   Mon, 16 May 2022 21:36:03 +0200
+Message-Id: <20220516193626.327774631@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,89 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kalesh Singh <kaleshsingh@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 1927e498aee1757b3df755a194cbfc5cc0f2b663 ]
+[ Upstream commit 151d6dcbed836270c6c240932da66f147950cbdb ]
 
-The file permissions on the fdinfo dir from were changed from
-S_IRUSR|S_IXUSR to S_IRUGO|S_IXUGO, and a PTRACE_MODE_READ check was added
-for opening the fdinfo files [1].  However, the ptrace permission check
-was not added to the directory, allowing anyone to get the open FD numbers
-by reading the fdinfo directory.
+Building with SENSORS_LTQ_CPUTEMP=y with SOC_FALCON=y causes build
+errors since FALCON does not support the same features as XWAY.
 
-Add the missing ptrace permission check for opening the fdinfo directory.
+Change this symbol to depend on SOC_XWAY since that provides the
+necessary interfaces.
 
-[1] https://lkml.kernel.org/r/20210308170651.919148-1-kaleshsingh@google.com
+Repairs these build errors:
 
-Link: https://lkml.kernel.org/r/20210713162008.1056986-1-kaleshsingh@google.com
-Fixes: 7bc3fa0172a4 ("procfs: allow reading fdinfo with PTRACE_MODE_READ")
-Signed-off-by: Kalesh Singh <kaleshsingh@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: Hridya Valsaraju <hridya@google.com>
-Cc: Jann Horn <jannh@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+../drivers/hwmon/ltq-cputemp.c: In function 'ltq_cputemp_enable':
+../drivers/hwmon/ltq-cputemp.c:23:9: error: implicit declaration of function 'ltq_cgu_w32'; did you mean 'ltq_ebu_w32'? [-Werror=implicit-function-declaration]
+   23 |         ltq_cgu_w32(ltq_cgu_r32(CGU_GPHY1_CR) | CGU_TEMP_PD, CGU_GPHY1_CR);
+../drivers/hwmon/ltq-cputemp.c:23:21: error: implicit declaration of function 'ltq_cgu_r32'; did you mean 'ltq_ebu_r32'? [-Werror=implicit-function-declaration]
+   23 |         ltq_cgu_w32(ltq_cgu_r32(CGU_GPHY1_CR) | CGU_TEMP_PD, CGU_GPHY1_CR);
+../drivers/hwmon/ltq-cputemp.c: In function 'ltq_cputemp_probe':
+../drivers/hwmon/ltq-cputemp.c:92:31: error: 'SOC_TYPE_VR9_2' undeclared (first use in this function)
+   92 |         if (ltq_soc_type() != SOC_TYPE_VR9_2)
+
+Fixes: 7074d0a92758 ("hwmon: (ltq-cputemp) add cpu temp sensor driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Florian Eckert <fe@dev.tdt.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Jean Delvare <jdelvare@suse.com>
+Cc: linux-hwmon@vger.kernel.org
+Link: https://lore.kernel.org/r/20220509234740.26841-1-rdunlap@infradead.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/fd.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/hwmon/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/proc/fd.c b/fs/proc/fd.c
-index 172c86270b31..913bef0d2a36 100644
---- a/fs/proc/fd.c
-+++ b/fs/proc/fd.c
-@@ -72,7 +72,7 @@ static int seq_show(struct seq_file *m, void *v)
- 	return 0;
- }
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index 8df25f1079ba..d958d87b7edc 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -944,7 +944,7 @@ config SENSORS_LTC4261
  
--static int seq_fdinfo_open(struct inode *inode, struct file *file)
-+static int proc_fdinfo_access_allowed(struct inode *inode)
- {
- 	bool allowed = false;
- 	struct task_struct *task = get_proc_task(inode);
-@@ -86,6 +86,16 @@ static int seq_fdinfo_open(struct inode *inode, struct file *file)
- 	if (!allowed)
- 		return -EACCES;
- 
-+	return 0;
-+}
-+
-+static int seq_fdinfo_open(struct inode *inode, struct file *file)
-+{
-+	int ret = proc_fdinfo_access_allowed(inode);
-+
-+	if (ret)
-+		return ret;
-+
- 	return single_open(file, seq_show, inode);
- }
- 
-@@ -348,12 +358,23 @@ static int proc_readfdinfo(struct file *file, struct dir_context *ctx)
- 				  proc_fdinfo_instantiate);
- }
- 
-+static int proc_open_fdinfo(struct inode *inode, struct file *file)
-+{
-+	int ret = proc_fdinfo_access_allowed(inode);
-+
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
- const struct inode_operations proc_fdinfo_inode_operations = {
- 	.lookup		= proc_lookupfdinfo,
- 	.setattr	= proc_setattr,
- };
- 
- const struct file_operations proc_fdinfo_operations = {
-+	.open		= proc_open_fdinfo,
- 	.read		= generic_read_dir,
- 	.iterate_shared	= proc_readfdinfo,
- 	.llseek		= generic_file_llseek,
+ config SENSORS_LTQ_CPUTEMP
+ 	bool "Lantiq cpu temperature sensor driver"
+-	depends on LANTIQ
++	depends on SOC_XWAY
+ 	help
+ 	  If you say yes here you get support for the temperature
+ 	  sensor inside your CPU.
 -- 
 2.35.1
 
