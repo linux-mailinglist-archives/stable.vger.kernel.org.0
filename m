@@ -2,47 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 692395292ED
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 23:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCA915292FC
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 23:38:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346780AbiEPVen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 17:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35032 "EHLO
+        id S235197AbiEPVi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 17:38:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231365AbiEPVel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 17:34:41 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEE67403CA
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 14:34:39 -0700 (PDT)
+        with ESMTP id S1347346AbiEPVi0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 17:38:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AB8419B4;
+        Mon, 16 May 2022 14:38:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3C39B8124E
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 21:34:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D70C385AA;
-        Mon, 16 May 2022 21:34:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42DBC6155F;
+        Mon, 16 May 2022 21:38:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171C9C385AA;
+        Mon, 16 May 2022 21:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652736877;
-        bh=qapqPzikisdJ6Ct7Ji6yBuyidrXdJwxRuO0ntM1ocrM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=A46u+T0HRUz0girhT6CL9+rv6HHzw7LyjnVtJMRpxkB7B7iv1b6o+MimiFeypCVLM
-         NexLQtao3qyK/sQqOTjD+Srs7oYcNvAnYbJr1n4mU9z8Rtk9l2thXdCV9QELXpxNN3
-         x4iLF7wD4ItNjZ6a2e+NdTH/wWITcOMAErtkI5Nw=
-Date:   Mon, 16 May 2022 23:34:34 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Meena Shanmugam <meenashanmugam@google.com>
-Cc:     enrico.scholz@sigma-chemnitz.de, stable@vger.kernel.org,
-        trond.myklebust@hammerspace.com
-Subject: Re: [PATCH 3/4] SUNRPC: Don't call connect() more than once on a TCP
- socket
-Message-ID: <YoLDak9O1c1gu54I@kroah.com>
-References: <Yn82ZO/Ysxq0v/0/@kroah.com>
- <20220514053453.3277330-1-meenashanmugam@google.com>
- <20220514053453.3277330-4-meenashanmugam@google.com>
+        s=korg; t=1652737103;
+        bh=dm3KpxIPAfgzOgbWpj7usuwwLjCfBkVD3it/oOfLzm8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G5c5HFUCWT0OcBfe9x7IowraWUmmHfhBmtz67mO9b52TujBzc+gc6JtlohHQ1iKMN
+         1UcWUUfszYi+eSaH7TwdGSotfUcgkFJkd9fTInsLCSk/EJ/RrGMRH4WzesW6ivlIpE
+         nxPJnWjLS8Imma2l7I9QWtxfAh3Z8hDP6exXIU+Y=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.10 00/68] 5.10.117-rc2 review
+Date:   Mon, 16 May 2022 23:38:20 +0200
+Message-Id: <20220516213639.123296914@linuxfoundation.org>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220514053453.3277330-4-meenashanmugam@google.com>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.117-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.117-rc2
+X-KernelTest-Deadline: 2022-05-18T21:36+00:00
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -53,93 +62,311 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 14, 2022 at 05:34:52AM +0000, Meena Shanmugam wrote:
-> From: Trond Myklebust <trond.myklebust@hammerspace.com>
-> 
-> commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
-> 
-> Avoid socket state races due to repeated calls to ->connect() using the
-> same socket. If connect() returns 0 due to the connection having
-> completed, but we are in fact in a closing state, then we may leave the
-> XPRT_CONNECTING flag set on the transport.
-> 
-> Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-> Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
-> Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-> [meenashanmugam: Backported to 5.10: Fixed merge conflict in xs_tcp_setup_socket]
-> Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
-> ---
->  include/linux/sunrpc/xprtsock.h |  1 +
->  net/sunrpc/xprtsock.c           | 21 +++++++++++----------
->  2 files changed, 12 insertions(+), 10 deletions(-)
-> 
-> diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-> index 8c2a712cb242..689062afdd61 100644
-> --- a/include/linux/sunrpc/xprtsock.h
-> +++ b/include/linux/sunrpc/xprtsock.h
-> @@ -89,5 +89,6 @@ struct sock_xprt {
->  #define XPRT_SOCK_WAKE_WRITE	(5)
->  #define XPRT_SOCK_WAKE_PENDING	(6)
->  #define XPRT_SOCK_WAKE_DISCONNECT	(7)
-> +#define XPRT_SOCK_CONNECT_SENT	(8)
->  
->  #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
-> diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-> index 60c58eb9a456..33a81f9703b1 100644
-> --- a/net/sunrpc/xprtsock.c
-> +++ b/net/sunrpc/xprtsock.c
-> @@ -2260,10 +2260,14 @@ static void xs_tcp_setup_socket(struct work_struct *work)
->  	struct rpc_xprt *xprt = &transport->xprt;
->  	int status = -EIO;
->  
-> -	if (!sock) {
-> -		sock = xs_create_sock(xprt, transport,
-> -				xs_addr(xprt)->sa_family, SOCK_STREAM,
-> -				IPPROTO_TCP, true);
-> +	if (xprt_connected(xprt))
-> +		goto out;
-> +	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
-> +			       &transport->sock_state) ||
-> +	    !sock) {
-> +		xs_reset_transport(transport);
-> +		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
-> +				      SOCK_STREAM, IPPROTO_TCP, true);
->  		if (IS_ERR(sock)) {
->  			status = PTR_ERR(sock);
->  			goto out;
-> @@ -2294,6 +2298,7 @@ static void xs_tcp_setup_socket(struct work_struct *work)
->  		break;
->  	case 0:
->  	case -EINPROGRESS:
-> +		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
->  	case -EALREADY:
->  		xprt_unlock_connect(xprt, transport);
->  		return;
-> @@ -2345,13 +2350,9 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
->  
->  	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
->  
-> -	if (transport->sock != NULL && !xprt_connecting(xprt)) {
-> +	if (transport->sock != NULL) {
->  		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
-> -				"seconds\n",
-> -				xprt, xprt->reestablish_timeout / HZ);
-> -
-> -		/* Start by resetting any existing state */
-> -		xs_reset_transport(transport);
-> +			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
->  
->  		delay = xprt_reconnect_delay(xprt);
->  		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
-> -- 
-> 2.36.0.550.gb090851708-goog
-> 
+This is the start of the stable review cycle for the 5.10.117 release.
+There are 68 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-This commit added a build warning.  Always properly test your changes,
-they can not add warnings.
+Responses should be made by Wed, 18 May 2022 21:35:34 +0000.
+Anything received after that time might be too late.
 
-I've fixed it up by hand now.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.117-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
 thanks,
 
 greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.117-rc2
+
+Gustavo A. R. Silva <gustavoars@kernel.org>
+    SUNRPC: Fix fall-through warnings for Clang
+
+Jens Axboe <axboe@kernel.dk>
+    io_uring: always use original task when preparing req identity
+
+Dan Vacura <w36195@motorola.com>
+    usb: gadget: uvc: allow for application to cleanly shutdown
+
+Michael Tretter <m.tretter@pengutronix.de>
+    usb: gadget: uvc: rename function to be more consistent
+
+Nicolas Dichtel <nicolas.dichtel@6wind.com>
+    ping: fix address binding wrt vrf
+
+Mike Rapoport <rppt@kernel.org>
+    arm[64]/memremap: don't abuse pfn_valid() to ensure presence of linear map
+
+Francesco Dolcini <francesco.dolcini@toradex.com>
+    net: phy: Fix race condition on link status change
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Don't call connect() more than once on a TCP socket
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Prevent immediate close+reconnect
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    SUNRPC: Clean up scheduling of autoclose
+
+Zack Rusin <zackr@vmware.com>
+    drm/vmwgfx: Initialize drm_mode_fb_cmd2
+
+Waiman Long <longman@redhat.com>
+    cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
+
+Manuel Ullmann <labre@posteo.de>
+    net: atlantic: always deep reset on pm op, fixing up my null deref regression
+
+Xiaomeng Tong <xiam0nd.tong@gmail.com>
+    i40e: i40e_main: fix a missing check on list iterator
+
+Robin Murphy <robin.murphy@arm.com>
+    drm/nouveau/tegra: Stop using iommu_present()
+
+Jeff Layton <jlayton@kernel.org>
+    ceph: fix setting of xattrs on async created inodes
+
+AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+    serial: 8250_mtk: Fix register address for XON/XOFF character
+
+AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+    serial: 8250_mtk: Fix UART_EFR register address
+
+Miaoqian Lin <linmq006@gmail.com>
+    slimbus: qcom: Fix IRQ check in qcom_slim_probe
+
+Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+    USB: serial: option: add Fibocom MA510 modem
+
+Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+    USB: serial: option: add Fibocom L610 modem
+
+Ethan Yang <etyang@sierrawireless.com>
+    USB: serial: qcserial: add support for Sierra Wireless EM7590
+
+Scott Chen <scott@labau.com.tw>
+    USB: serial: pl2303: add device id for HP LM930 Display
+
+ChiYuan Huang <cy_huang@richtek.com>
+    usb: typec: tcpci_mt6360: Update for BMC PHY setting
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    usb: typec: tcpci: Don't skip cleanup in .remove() on error
+
+Sergey Ryazanov <ryazanov.s.a@gmail.com>
+    usb: cdc-wdm: fix reading stuck on device close
+
+Daniel Starke <daniel.starke@siemens.com>
+    tty: n_gsm: fix mux activation issues in gsm_config()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
+
+Thiébaud Weksteen <tweek@google.com>
+    firmware_loader: use kernel credentials when reading firmware
+
+Eric Dumazet <edumazet@google.com>
+    tcp: resalt the secret every 10 seconds
+
+Matthew Hagan <mnhagan88@gmail.com>
+    net: sfp: Add tx-fault workaround for Huawei MA5671A SFP ONT
+
+Shravya Kumbham <shravya.kumbham@xilinx.com>
+    net: emaclite: Don't advertise 1000BASE-T and do auto negotiation
+
+Sven Schnelle <svens@linux.ibm.com>
+    s390: disable -Warray-bounds
+
+Mark Brown <broonie@kernel.org>
+    ASoC: ops: Validate input values in snd_soc_put_volsw_range()
+
+Mark Brown <broonie@kernel.org>
+    ASoC: max98090: Generate notifications on changes for custom control
+
+Mark Brown <broonie@kernel.org>
+    ASoC: max98090: Reject invalid values in custom control put()
+
+Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
+    hwmon: (f71882fg) Fix negative temperature
+
+Andreas Gruenbacher <agruenba@redhat.com>
+    gfs2: Fix filesystem block deallocation for short writes
+
+Maxim Mikityanskiy <maximmi@nvidia.com>
+    tls: Fix context leak on tls_device_down
+
+Taehee Yoo <ap420073@gmail.com>
+    net: sfc: ef10: fix memory leak in efx_ef10_mtd_probe()
+
+Guangguan Wang <guangguan.wang@linux.alibaba.com>
+    net/smc: non blocking recvmsg() return -EAGAIN when no data and signal_pending
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: dsa: bcm_sf2: Fix Wake-on-LAN with mac_link_down()
+
+Florian Fainelli <f.fainelli@gmail.com>
+    net: bcmgenet: Check for Wake-on-LAN interrupt probe deferral
+
+Paolo Abeni <pabeni@redhat.com>
+    net/sched: act_pedit: really ensure the skb is writable
+
+Alexandra Winter <wintera@linux.ibm.com>
+    s390/lcs: fix variable dereferenced before check
+
+Alexandra Winter <wintera@linux.ibm.com>
+    s390/ctcm: fix potential memory leak
+
+Alexandra Winter <wintera@linux.ibm.com>
+    s390/ctcm: fix variable dereferenced before check
+
+Joel Savitz <jsavitz@redhat.com>
+    selftests: vm: Makefile: rename TARGETS to VMTARGETS
+
+Randy Dunlap <rdunlap@infradead.org>
+    hwmon: (ltq-cputemp) restrict it to SOC_XWAY
+
+Jesse Brandeburg <jesse.brandeburg@intel.com>
+    dim: initialize all struct fields
+
+Yang Yingliang <yangyingliang@huawei.com>
+    ionic: fix missing pci_release_regions() on error in ionic_probe()
+
+Dan Aloni <dan.aloni@vastdata.com>
+    nfs: fix broken handling of the softreval mount option
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+
+Taehee Yoo <ap420073@gmail.com>
+    net: sfc: fix memory leak due to ptp channel
+
+Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+    sfc: Use swap() instead of open coding it
+
+Eric Dumazet <edumazet@google.com>
+    netlink: do not reset transport header in netlink_recvmsg()
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
+
+Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
+    ipv4: drop dst in multicast routing path
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mscc: ocelot: restrict tc-trap actions to VCAP IS2 lookup 0
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mscc: ocelot: fix VCAP IS2 filters matching on both lookups
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    net: mscc: ocelot: fix last VCAP IS1/IS2 filter persisting in hardware when deleted
+
+Tariq Toukan <tariqt@nvidia.com>
+    net: Fix features skip in for_each_netdev_feature()
+
+Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
+    mac80211: Reset MBSSID parameters upon connection
+
+Camel Guo <camel.guo@axis.com>
+    hwmon: (tmp401) Add OF device ID table
+
+Guenter Roeck <linux@roeck-us.net>
+    iwlwifi: iwl-dbg: Use del_timer_sync() before freeing
+
+Sven Eckelmann <sven@narfation.org>
+    batman-adv: Don't skb_split skbuffs with frag_list
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/arm/include/asm/io.h                          |  3 ++
+ arch/arm/mm/ioremap.c                              |  8 ++++
+ arch/arm64/include/asm/io.h                        |  4 ++
+ arch/arm64/mm/ioremap.c                            |  9 +++++
+ arch/s390/Makefile                                 | 10 +++++
+ drivers/base/firmware_loader/main.c                | 17 ++++++++
+ drivers/gpu/drm/nouveau/nouveau_backlight.c        |  9 +++--
+ drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c                 |  2 +-
+ drivers/hwmon/Kconfig                              |  2 +-
+ drivers/hwmon/f71882fg.c                           |  5 ++-
+ drivers/hwmon/tmp401.c                             | 11 ++++++
+ drivers/net/dsa/bcm_sf2.c                          |  3 ++
+ .../net/ethernet/aquantia/atlantic/aq_pci_func.c   |  4 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  4 ++
+ drivers/net/ethernet/intel/i40e/i40e_main.c        | 27 ++++++-------
+ drivers/net/ethernet/mscc/ocelot_flower.c          |  5 ++-
+ drivers/net/ethernet/mscc/ocelot_vcap.c            |  9 ++++-
+ .../net/ethernet/pensando/ionic/ionic_bus_pci.c    |  3 +-
+ drivers/net/ethernet/sfc/ef10.c                    |  5 +++
+ drivers/net/ethernet/sfc/efx_channels.c            | 21 +++++-----
+ drivers/net/ethernet/sfc/ptp.c                     | 14 ++++++-
+ drivers/net/ethernet/sfc/ptp.h                     |  1 +
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c      | 15 --------
+ drivers/net/phy/phy.c                              | 45 +++++++++++++++++++---
+ drivers/net/phy/sfp.c                              | 12 +++++-
+ drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c   |  2 +-
+ drivers/net/wireless/mac80211_hwsim.c              |  3 ++
+ drivers/s390/net/ctcm_mpc.c                        |  6 +--
+ drivers/s390/net/ctcm_sysfs.c                      |  5 ++-
+ drivers/s390/net/lcs.c                             |  7 ++--
+ drivers/slimbus/qcom-ctrl.c                        |  4 +-
+ drivers/tty/n_gsm.c                                | 12 ++++--
+ drivers/tty/serial/8250/8250_mtk.c                 | 22 ++++++-----
+ drivers/tty/serial/digicolor-usart.c               |  5 +--
+ drivers/usb/class/cdc-wdm.c                        |  1 +
+ drivers/usb/gadget/function/f_uvc.c                | 32 +++++++++++++--
+ drivers/usb/gadget/function/uvc.h                  |  2 +
+ drivers/usb/gadget/function/uvc_v4l2.c             |  3 +-
+ drivers/usb/serial/option.c                        |  4 ++
+ drivers/usb/serial/pl2303.c                        |  1 +
+ drivers/usb/serial/pl2303.h                        |  1 +
+ drivers/usb/serial/qcserial.c                      |  2 +
+ drivers/usb/typec/tcpm/tcpci.c                     |  2 +-
+ drivers/usb/typec/tcpm/tcpci_mt6360.c              | 26 +++++++++++++
+ fs/ceph/file.c                                     | 16 ++++++--
+ fs/file_table.c                                    |  1 +
+ fs/gfs2/bmap.c                                     | 11 +++---
+ fs/io_uring.c                                      |  2 +-
+ fs/nfs/fs_context.c                                |  2 +-
+ include/linux/netdev_features.h                    |  4 +-
+ include/linux/sunrpc/xprtsock.h                    |  1 +
+ include/net/tc_act/tc_pedit.h                      |  1 +
+ include/trace/events/sunrpc.h                      |  1 -
+ kernel/cgroup/cpuset.c                             |  7 +++-
+ lib/dim/net_dim.c                                  | 44 ++++++++++-----------
+ net/batman-adv/fragmentation.c                     | 11 ++++++
+ net/core/secure_seq.c                              | 12 ++++--
+ net/ipv4/ping.c                                    | 15 +++++++-
+ net/ipv4/route.c                                   |  1 +
+ net/mac80211/mlme.c                                |  6 +++
+ net/netlink/af_netlink.c                           |  1 -
+ net/sched/act_pedit.c                              | 26 +++++++++++--
+ net/smc/smc_rx.c                                   |  4 +-
+ net/sunrpc/rpc_pipe.c                              |  1 +
+ net/sunrpc/xprt.c                                  | 36 ++++++++---------
+ net/sunrpc/xprtsock.c                              | 37 ++++++++++++------
+ net/tls/tls_device.c                               |  3 ++
+ sound/soc/codecs/max98090.c                        |  5 ++-
+ sound/soc/soc-ops.c                                | 18 ++++++++-
+ tools/testing/selftests/vm/Makefile                | 10 ++---
+ 72 files changed, 486 insertions(+), 184 deletions(-)
+
+
