@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B403C528EB6
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB18528E3B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbiEPToG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:44:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33184 "EHLO
+        id S1345644AbiEPTk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:40:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346014AbiEPTnU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:43:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBAF03FD8D;
-        Mon, 16 May 2022 12:42:36 -0700 (PDT)
+        with ESMTP id S1345833AbiEPTjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:39:54 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A054403DD;
+        Mon, 16 May 2022 12:39:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87DB261553;
-        Mon, 16 May 2022 19:42:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82F99C385AA;
-        Mon, 16 May 2022 19:42:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE62BB8160F;
+        Mon, 16 May 2022 19:39:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0896C385AA;
+        Mon, 16 May 2022 19:39:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730155;
-        bh=BO0DyT3J8Z8jJIztXuh6s6+Ts0kppFb2DcBZxBghirE=;
+        s=korg; t=1652729960;
+        bh=AvMJv2jCQvxUqPnjz3GXZ5jMdU/1LfpW54CJT3n+Cy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqgRdcMm63O5XhRNGCMDITAYW27c2PvkRwesoBJGwIpFM/nSvfS2tTJyofWWSoiAY
-         3R3Yaz1iPjTuj8palvfrxquCvQfKxaPN2f/7YMKGJrTPMIcE7TSCvZf5sNvAmWEaD1
-         7tm/EOvtZAnz8JU4RPpHxenCv7Br6xPrGHcNrcdc=
+        b=V0vmIb4bNIvOofDUKdO3IpQPvYgKe9DIXYVsENru1zQBNl5lyR+sJi+Cl9OokLbQR
+         oWj0MSCWa3irFmWoHuat0v9HoFoVV+B1BFECmnyRBtv5M0O6wn3duAKbXUVuKMUIBt
+         986xn215Cwc49LuAlaGlildcTAMMflKUJaDnjJwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/43] gfs2: Fix filesystem block deallocation for short writes
+Subject: [PATCH 4.14 14/25] ASoC: max98090: Generate notifications on changes for custom control
 Date:   Mon, 16 May 2022 21:36:28 +0200
-Message-Id: <20220516193615.226395080@linuxfoundation.org>
+Message-Id: <20220516193615.114944346@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,51 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit d031a8866e709c9d1ee5537a321b6192b4d2dc5b ]
+[ Upstream commit 13fcf676d9e102594effc686d98521ff5c90b925 ]
 
-When a write cannot be carried out in full, gfs2_iomap_end() releases
-blocks that have been allocated for this write but haven't been used.
+The max98090 driver has some custom controls which share a put() function
+which returns 0 unconditionally, meaning that events are not generated
+when the value changes. Fix that.
 
-To compute the end of the allocation, gfs2_iomap_end() incorrectly
-rounded the end of the attempted write down to the next block boundary
-to arrive at the end of the allocation.  It would have to round up, but
-the end of the allocation is also available as iomap->offset +
-iomap->length, so just use that instead.
-
-In addition, use round_up() for computing the start of the unused range.
-
-Fixes: 64bc06bb32ee ("gfs2: iomap buffered write support")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220420193454.2647908-2-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/bmap.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ sound/soc/codecs/max98090.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
-index dec5285a02e9..77a497a4b236 100644
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -1233,13 +1233,12 @@ static int gfs2_iomap_end(struct inode *inode, loff_t pos, loff_t length,
+diff --git a/sound/soc/codecs/max98090.c b/sound/soc/codecs/max98090.c
+index a25183f6fba6..362d1fb2aae9 100644
+--- a/sound/soc/codecs/max98090.c
++++ b/sound/soc/codecs/max98090.c
+@@ -436,7 +436,7 @@ static int max98090_put_enab_tlv(struct snd_kcontrol *kcontrol,
+ 		mask << mc->shift,
+ 		sel << mc->shift);
  
- 	if (length != written && (iomap->flags & IOMAP_F_NEW)) {
- 		/* Deallocate blocks that were just allocated. */
--		loff_t blockmask = i_blocksize(inode) - 1;
--		loff_t end = (pos + length) & ~blockmask;
-+		loff_t hstart = round_up(pos + written, i_blocksize(inode));
-+		loff_t hend = iomap->offset + iomap->length;
+-	return 0;
++	return *select != val;
+ }
  
--		pos = (pos + written + blockmask) & ~blockmask;
--		if (pos < end) {
--			truncate_pagecache_range(inode, pos, end - 1);
--			punch_hole(ip, pos, end - pos);
-+		if (hstart < hend) {
-+			truncate_pagecache_range(inode, hstart, hend - 1);
-+			punch_hole(ip, hstart, hend - hstart);
- 		}
- 	}
- 
+ static const char *max98090_perf_pwr_text[] =
 -- 
 2.35.1
 
