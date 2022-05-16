@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BC23528FBC
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231755290C1
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346750AbiEPTzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:55:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54130 "EHLO
+        id S1346697AbiEPULs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:11:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347057AbiEPTvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:36 -0400
+        with ESMTP id S240287AbiEPUB6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 972CA3FBEB;
-        Mon, 16 May 2022 12:47:05 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CE92403E0;
+        Mon, 16 May 2022 12:58:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31A5260AB7;
-        Mon, 16 May 2022 19:47:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2636DC34115;
-        Mon, 16 May 2022 19:47:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3806760A50;
+        Mon, 16 May 2022 19:58:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4791AC385AA;
+        Mon, 16 May 2022 19:58:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730424;
-        bh=h7O+ZQ7Dk7UQgGNRz+YHWm/UTPmQCkR1sawCP73nZKI=;
+        s=korg; t=1652731108;
+        bh=kI7g2k/ZpEEHH+P5vwdUbqqd34NZXiGOnhhUMJbGMrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yTXbuBQj4Z8xXhDEtffEx74rLvyeWzZD2/P4OXhlxO7agyWIWWME+cwWbnVsEDEvz
-         VmwY5xNqH78lq7nRg2PaIbATzfjkX5739oQiGgb80go77jBMzR9aBlGffx0hCj9F4m
-         YZtOJiu+1T94Md9mhfXv6UyklzOWm/LAn+gNNeSU=
+        b=plSgCUqgpl8w943vUswlHyRXTK2eyczYdav5rSCCFGEMWPVKRaz0EeCeLCsBumFgt
+         cdHbHRBt+NSuB8LP7JvCxWcFRh7ZaIkGcfXHsc9575igGJEeYhBC6mXUOq6Wt7amO4
+         33cIy4mwikcuow86hsd7FqFQy6+gHCBkJVIwOW6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Enrico Scholz <enrico.scholz@sigma-chemnitz.de>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 5.10 60/66] SUNRPC: Dont call connect() more than once on a TCP socket
+        Sven Schwermer <sven.schwermer@disruptive-technologies.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.17 086/114] USB: serial: option: add Fibocom MA510 modem
 Date:   Mon, 16 May 2022 21:37:00 +0200
-Message-Id: <20220516193621.147348223@linuxfoundation.org>
+Message-Id: <20220516193627.950015013@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
 
-commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
+commit 07989eb981d862f7f2be68d233d753f2e7ccc119 upstream.
 
-Avoid socket state races due to repeated calls to ->connect() using the
-same socket. If connect() returns 0 due to the connection having
-completed, but we are in fact in a closing state, then we may leave the
-XPRT_CONNECTING flag set on the transport.
+The MA510 modem has 3 USB configurations that are configurable via the AT
+command AT+GTUSBMODE={30,31,32} which make the modem enumerate with the
+following interfaces, respectively:
 
-Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
-Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[meenashanmugam: Backported to 5.10: Fixed merge conflict in xs_tcp_setup_socket]
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+30: Diag + QDSS + Modem + RMNET
+31: Diag + Modem + AT + ECM
+32: Modem + AT + ECM
+
+The first configuration (30) reuses u-blox R410M's VID/PID with
+identical interface configuration.
+
+A detailed description of the USB configuration for each mode follows:
+
++GTUSBMODE: 30
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 19 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=05c6 ProdID=90b2 Rev= 0.00
+S:  Manufacturer=Fibocom MA510 Modem
+S:  Product=Fibocom MA510 Modem
+S:  SerialNumber=55e2695b
+C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 31
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 99 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=0106 Rev= 0.00
+S:  Manufacturer=Fibocom MA510 Modem
+S:  Product=Fibocom MA510 Modem
+S:  SerialNumber=55e2695b
+C:* #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
+A:  FirstIf#= 3 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
+E:  Ad=84(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 3 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=86(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+I:  If#= 4 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
++GTUSBMODE: 32
+--------------
+T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=100 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2cb7 ProdID=010a Rev= 0.00
+S:  Manufacturer=Fibocom MA510 Modem
+S:  Product=Fibocom MA510 Modem
+S:  SerialNumber=55e2695b
+C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
+A:  FirstIf#= 2 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
+I:  If#= 3 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 3 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/sunrpc/xprtsock.h |    1 +
- net/sunrpc/xprtsock.c           |   21 +++++++++++----------
- 2 files changed, 12 insertions(+), 10 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -89,5 +89,6 @@ struct sock_xprt {
- #define XPRT_SOCK_WAKE_WRITE	(5)
- #define XPRT_SOCK_WAKE_PENDING	(6)
- #define XPRT_SOCK_WAKE_DISCONNECT	(7)
-+#define XPRT_SOCK_CONNECT_SENT	(8)
- 
- #endif /* _LINUX_SUNRPC_XPRTSOCK_H */
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2260,10 +2260,14 @@ static void xs_tcp_setup_socket(struct w
- 	struct rpc_xprt *xprt = &transport->xprt;
- 	int status = -EIO;
- 
--	if (!sock) {
--		sock = xs_create_sock(xprt, transport,
--				xs_addr(xprt)->sa_family, SOCK_STREAM,
--				IPPROTO_TCP, true);
-+	if (xprt_connected(xprt))
-+		goto out;
-+	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
-+			       &transport->sock_state) ||
-+	    !sock) {
-+		xs_reset_transport(transport);
-+		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
-+				      SOCK_STREAM, IPPROTO_TCP, true);
- 		if (IS_ERR(sock)) {
- 			status = PTR_ERR(sock);
- 			goto out;
-@@ -2294,6 +2298,7 @@ static void xs_tcp_setup_socket(struct w
- 		break;
- 	case 0:
- 	case -EINPROGRESS:
-+		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
- 	case -EALREADY:
- 		xprt_unlock_connect(xprt, transport);
- 		return;
-@@ -2345,13 +2350,9 @@ static void xs_connect(struct rpc_xprt *
- 
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
- 
--	if (transport->sock != NULL && !xprt_connecting(xprt)) {
-+	if (transport->sock != NULL) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
--				"seconds\n",
--				xprt, xprt->reestablish_timeout / HZ);
--
--		/* Start by resetting any existing state */
--		xs_reset_transport(transport);
-+			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
- 
- 		delay = xprt_reconnect_delay(xprt);
- 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2129,6 +2129,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(4) | RSVD(5) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
+ 	  .driver_info = RSVD(6) },
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0106, 0xff) },			/* Fibocom MA510 (ECM mode w/ diag intf.) */
++	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
 
 
