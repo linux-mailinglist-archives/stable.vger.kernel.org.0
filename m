@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44ADE528E8B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9229528E5E
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345884AbiEPTtm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53088 "EHLO
+        id S1345963AbiEPTnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346336AbiEPTsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:48:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B894338F;
-        Mon, 16 May 2022 12:44:51 -0700 (PDT)
+        with ESMTP id S1346087AbiEPTld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E34140919;
+        Mon, 16 May 2022 12:40:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19FB3B8160D;
-        Mon, 16 May 2022 19:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD87C385AA;
-        Mon, 16 May 2022 19:44:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 74427CE1799;
+        Mon, 16 May 2022 19:40:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 833C3C34100;
+        Mon, 16 May 2022 19:40:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730288;
-        bh=g8ECtb8mX5kvHNcnRq6EhYmCLsHNLI4ewBkgO6oyvR0=;
+        s=korg; t=1652730004;
+        bh=hzboKld9sQdFcFiWMi6bIJfWfIDWpBPdbUIopwxzx7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zs9x1rvAGPEifx9BdXYfPTpZ/ARjnO9sDUy1X8XI6RFe+9pLQpzVMvmHemS1zwe8w
-         dbNmomAnN6Cyexw6qg4fujmM7QkpIUJ1lKdkLDXjOlTSGnJzI4moI8OWHnIArfflvA
-         YaVYi4KuiPa9kaLr62S9rUxJcTjXXni4XBmlGu5I=
+        b=qIkk1krBSfCU+b7BS8P5eA6fymJv+SRyYnAfEt1eGc/i93U2hNZfMYfb+Ad6HKlrE
+         /+zZXLSE5YSazLhXEAsI5U2Yuk2TAD7wI85xLy8J+yPD51HdUA6/Z9UV8uxFVdD3O+
+         gSnUGeiLMYJXarzH3tjtXKHxMbKVDPX0oeXFnHrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Yingliang <yangyingliang@huawei.com>,
+        stable@vger.kernel.org,
+        Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/66] ionic: fix missing pci_release_regions() on error in ionic_probe()
+Subject: [PATCH 4.14 03/25] ipv4: drop dst in multicast routing path
 Date:   Mon, 16 May 2022 21:36:17 +0200
-Message-Id: <20220516193619.915321519@linuxfoundation.org>
+Message-Id: <20220516193614.787442919@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
 
-[ Upstream commit e4b1045bf9cfec6f70ac6d3783be06c3a88dcb25 ]
+[ Upstream commit 9e6c6d17d1d6a3f1515ce399f9a011629ec79aa0 ]
 
-If ionic_map_bars() fails, pci_release_regions() need be called.
+kmemleak reports the following when routing multicast traffic over an
+ipsec tunnel.
 
-Fixes: fbfb8031533c ("ionic: Add hardware init and device commands")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220506034040.2614129-1-yangyingliang@huawei.com
+Kmemleak output:
+unreferenced object 0x8000000044bebb00 (size 256):
+  comm "softirq", pid 0, jiffies 4294985356 (age 126.810s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 00 00 00 05 13 74 80  ..............t.
+    80 00 00 00 04 9b bf f9 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f83947e0>] __kmalloc+0x1e8/0x300
+    [<00000000b7ed8dca>] metadata_dst_alloc+0x24/0x58
+    [<0000000081d32c20>] __ipgre_rcv+0x100/0x2b8
+    [<00000000824f6cf1>] gre_rcv+0x178/0x540
+    [<00000000ccd4e162>] gre_rcv+0x7c/0xd8
+    [<00000000c024b148>] ip_protocol_deliver_rcu+0x124/0x350
+    [<000000006a483377>] ip_local_deliver_finish+0x54/0x68
+    [<00000000d9271b3a>] ip_local_deliver+0x128/0x168
+    [<00000000bd4968ae>] xfrm_trans_reinject+0xb8/0xf8
+    [<0000000071672a19>] tasklet_action_common.isra.16+0xc4/0x1b0
+    [<0000000062e9c336>] __do_softirq+0x1fc/0x3e0
+    [<00000000013d7914>] irq_exit+0xc4/0xe0
+    [<00000000a4d73e90>] plat_irq_dispatch+0x7c/0x108
+    [<000000000751eb8e>] handle_int+0x16c/0x178
+    [<000000001668023b>] _raw_spin_unlock_irqrestore+0x1c/0x28
+
+The metadata dst is leaked when ip_route_input_mc() updates the dst for
+the skb. Commit f38a9eb1f77b ("dst: Metadata destinations") correctly
+handled dropping the dst in ip_route_input_slow() but missed the
+multicast case which is handled by ip_route_input_mc(). Drop the dst in
+ip_route_input_mc() avoiding the leak.
+
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220505020017.3111846-1-chris.packham@alliedtelesis.co.nz
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/route.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-index b0d8499d373b..31fbe8904222 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c
-@@ -251,7 +251,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 34cf572cc5dc..52c4098e1deb 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1697,6 +1697,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ #endif
+ 	RT_CACHE_STAT_INC(in_slow_mc);
  
- 	err = ionic_map_bars(ionic);
- 	if (err)
--		goto err_out_pci_disable_device;
-+		goto err_out_pci_release_regions;
- 
- 	/* Configure the device */
- 	err = ionic_setup(ionic);
-@@ -353,6 +353,7 @@ static int ionic_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- err_out_unmap_bars:
- 	ionic_unmap_bars(ionic);
-+err_out_pci_release_regions:
- 	pci_release_regions(pdev);
- err_out_pci_disable_device:
- 	pci_disable_device(pdev);
++	skb_dst_drop(skb);
+ 	skb_dst_set(skb, &rth->dst);
+ 	return 0;
+ }
 -- 
 2.35.1
 
