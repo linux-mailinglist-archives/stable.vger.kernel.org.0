@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E620A527FA8
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DA37527FA9
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230368AbiEPI1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231331AbiEPI1y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 16 May 2022 04:27:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43632 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241823AbiEPI0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:26:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B6EC03
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:26:42 -0700 (PDT)
+        with ESMTP id S241851AbiEPI0r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:26:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C693EE013
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:26:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07C3B61195
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B91BC385B8;
-        Mon, 16 May 2022 08:26:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7AB92B80EB2
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB65CC385AA;
+        Mon, 16 May 2022 08:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652689601;
-        bh=H44Dvi4yM8vL1K6op5WLNxWcrGV1ACS/NZsMkxyfCfc=;
+        s=korg; t=1652689604;
+        bh=WSlgssqFpB+8TxaQs0VpdnP15cM8JTpm2lBAN7lX3F8=;
         h=Subject:To:Cc:From:Date:From;
-        b=aPucYsGct2bDyEazDUqnaC/f5P1AkTmQ0BGUSP7d5dSUHdYZ2pHWXhhqAKWU0I2at
-         ysRu0wmIc0ftPOdPUiY8WHwYZKLgXtUhWFLVdaQjur6tuB43Yq9/rUBVP0V0dJT9sf
-         xeh9K3LGqkiiE3Br9eBQ8cqMFDYvcVc5Zxfknm20=
-Subject: FAILED: patch "[PATCH] SUNRPC: Ensure that the gssproxy client can start in a" failed to apply to 5.4-stable tree
+        b=2mbPCDK317b6XW1kQTFHp3qfqnvzZkRowfKE4vrGMKvmjoyF5PC3YQEN44FWvp0MT
+         zidDmHpJ14i1rXKt2AANRJK3GZ8R5qwuO3jBReCoQ/hQ+FHFQETmqqA2HVSutHFZm+
+         vZZCzC7pA1iRagqM57J179Q3O2/sB3ut6w61iRMY=
+Subject: FAILED: patch "[PATCH] SUNRPC: Ensure that the gssproxy client can start in a" failed to apply to 5.10-stable tree
 To:     trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:24:25 +0200
-Message-ID: <1652689465159165@kroah.com>
+Date:   Mon, 16 May 2022 10:25:22 +0200
+Message-ID: <1652689522193156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
