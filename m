@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE32528FAB
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F7AE528FFE
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234746AbiEPUEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
+        id S1348134AbiEPUGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351045AbiEPUB5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:57 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D006A473AE;
-        Mon, 16 May 2022 12:57:17 -0700 (PDT)
+        with ESMTP id S1348871AbiEPT7B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 854D27659;
+        Mon, 16 May 2022 12:51:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 777ABB81613;
-        Mon, 16 May 2022 19:57:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0243C385AA;
-        Mon, 16 May 2022 19:57:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2261260A50;
+        Mon, 16 May 2022 19:51:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 124CEC385AA;
+        Mon, 16 May 2022 19:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731035;
-        bh=18TsozEqMlpQhPgYryuK9UP4KaIWqrgwWG2uxJOE024=;
+        s=korg; t=1652730702;
+        bh=K0e//h/6PydWP4sS4t8OnODJz9/3dzWamQ2oJbLLZmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cXbRQaNQZqSw8/0tJF5crQ+Lt00WCPxLtPwTmROZ1VozFA/z/GxElg1vhlzY+K+/H
-         6ag+i68y/Hd4Kjp1R3w7Z74EdM0oIuccLtVh8NcevH4oLqLjHUOmNsCE3xcAvym9Wn
-         QY5EniPgkHqWGlPxYfgv7rNxY6j1dWf85taonFkU=
+        b=HYAYjQPV4E0c70EE31WguZE9SEYOrA9grzQJ8eoTiL8s0NHFf0MgqDJ4n/Znpetjp
+         6UtaWGC/ee49ZeciYWCXumohWE+8rQ0OdzfJiPZFtgycNgkxWzab1t7MG76NhBd6Nt
+         DawYpiCRPN3GTvFK6t3QU6GRFSil7F3ktcecphH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.17 081/114] usb: typec: tcpci: Dont skip cleanup in .remove() on error
+        stable@vger.kernel.org, John Fortin <fortinj66@gmail.com>,
+        Sri Ramanujam <sri@ramanujam.io>,
+        Jeff Layton <jlayton@kernel.org>, Xiubo Li <xiubli@redhat.com>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.15 081/102] ceph: fix setting of xattrs on async created inodes
 Date:   Mon, 16 May 2022 21:36:55 +0200
-Message-Id: <20220516193627.811077315@linuxfoundation.org>
+Message-Id: <20220516193626.318984890@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,50 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+From: Jeff Layton <jlayton@kernel.org>
 
-commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
+commit 620239d9a32e9fe27c9204ec11e40058671aeeb6 upstream.
 
-Returning an error value in an i2c remove callback results in an error
-message being emitted by the i2c core, but otherwise it doesn't make a
-difference. The device goes away anyhow and the devm cleanups are
-called.
+Currently when we create a file, we spin up an xattr buffer to send
+along with the create request. If we end up doing an async create
+however, then we currently pass down a zero-length xattr buffer.
 
-In this case the remove callback even returns early without stopping the
-tcpm worker thread and various timers. A work scheduled on the work
-queue, or a firing timer after tcpci_remove() returned probably results
-in a use-after-free situation because the regmap and driver data were
-freed. So better make sure that tcpci_unregister_port() is called even
-if disabling the irq failed.
+Fix the code to send down the xattr buffer in req->r_pagelist. If the
+xattrs span more than a page, however give up and don't try to do an
+async create.
 
-Also emit a more specific error message instead of the i2c core's
-"remove failed (EIO), will be ignored" and return 0 to suppress the
-core's warning.
-
-This patch is (also) a preparation for making i2c remove callbacks
-return void.
-
-Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
+Cc: stable@vger.kernel.org
+URL: https://bugzilla.redhat.com/show_bug.cgi?id=2063929
+Fixes: 9a8d03ca2e2c ("ceph: attempt to do async create when possible")
+Reported-by: John Fortin <fortinj66@gmail.com>
+Reported-by: Sri Ramanujam <sri@ramanujam.io>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Reviewed-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpci.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ceph/file.c |   16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -877,7 +877,7 @@ static int tcpci_remove(struct i2c_clien
- 	/* Disable chip interrupts before unregistering port */
- 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -592,9 +592,15 @@ static int ceph_finish_async_create(stru
+ 	iinfo.change_attr = 1;
+ 	ceph_encode_timespec64(&iinfo.btime, &now);
  
- 	tcpci_unregister_port(chip->tcpci);
+-	iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
+-	iinfo.xattr_data = xattr_buf;
+-	memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	if (req->r_pagelist) {
++		iinfo.xattr_len = req->r_pagelist->length;
++		iinfo.xattr_data = req->r_pagelist->mapped_tail;
++	} else {
++		/* fake it */
++		iinfo.xattr_len = ARRAY_SIZE(xattr_buf);
++		iinfo.xattr_data = xattr_buf;
++		memset(iinfo.xattr_data, 0, iinfo.xattr_len);
++	}
  
+ 	in.ino = cpu_to_le64(vino.ino);
+ 	in.snapid = cpu_to_le64(CEPH_NOSNAP);
+@@ -706,6 +712,10 @@ int ceph_atomic_open(struct inode *dir,
+ 		err = ceph_security_init_secctx(dentry, mode, &as_ctx);
+ 		if (err < 0)
+ 			goto out_ctx;
++		/* Async create can't handle more than a page of xattrs */
++		if (as_ctx.pagelist &&
++		    !list_is_singular(&as_ctx.pagelist->head))
++			try_async = false;
+ 	} else if (!d_in_lookup(dentry)) {
+ 		/* If it's not being looked up, it's negative */
+ 		return -ENOENT;
 
 
