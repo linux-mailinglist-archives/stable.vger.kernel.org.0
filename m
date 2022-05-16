@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E053528EBE
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6A6528F05
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346215AbiEPTsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:48:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35674 "EHLO
+        id S1346163AbiEPTr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:47:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346440AbiEPTqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7E6B41334;
-        Mon, 16 May 2022 12:43:39 -0700 (PDT)
+        with ESMTP id S1346528AbiEPTq3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708FE3FD86;
+        Mon, 16 May 2022 12:43:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BD0E61551;
-        Mon, 16 May 2022 19:43:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A44C385AA;
-        Mon, 16 May 2022 19:43:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00DD9B815F6;
+        Mon, 16 May 2022 19:43:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6277BC385AA;
+        Mon, 16 May 2022 19:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730218;
-        bh=ZY7r6g2FfkeLnQCs4ZNZ/uMW7ITBX/uqL8DkAAxNV/c=;
+        s=korg; t=1652730221;
+        bh=Rg44HkJDgpVLxYjTCgMXa57aUQsSoFIyEN5tEb4DCzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=adhaVVSowr8Jebbll8TuQ9QzfeTtGKF4rrBtmBORBiUZiywnhrBCNRay/SUyANdVe
-         dKxbFCvRCPEpcOazxeFfakZCi6Rc0oueIkpEfHjdeK38T6md+E00nhzdrYBXH9mz4m
-         OV6c0mxIjLT5bKMXKxfqKfCVOWWEqQmmRGIKlEl0=
+        b=fHYMF7DmOKIoRVuY3CjLZaSqEgVpzrU9FIF0hAFEZGu9wb3CmFj4ldiGrfJc+13uA
+         GJMKzwXrJTx7QFqnSLL+T8BkjvffC6/9Vrs6KiimFK9dTfvLkZYhmz4Uh3ttMJpaAX
+         7PhjEnLxlX6JXU72TCOzdsfjPNpbe7uEcSTTbhPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Martin Krastev <krastevm@vmware.com>,
-        Maaz Mombasawala <mombasawalam@vmware.com>
-Subject: [PATCH 5.4 38/43] drm/vmwgfx: Initialize drm_mode_fb_cmd2
-Date:   Mon, 16 May 2022 21:36:49 +0200
-Message-Id: <20220516193615.843741341@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "stable@vger.kernel.org, Sudip Mukherjee" 
+        <sudipm.mukherjee@gmail.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 5.4 39/43] MIPS: fix build with gcc-12
+Date:   Mon, 16 May 2022 21:36:50 +0200
+Message-Id: <20220516193615.874013453@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
 References: <20220516193614.714657361@linuxfoundation.org>
@@ -55,40 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 
-commit 3059d9b9f6aa433a55b9d0d21b566396d5497c33 upstream.
+Some mips builds with gcc-12 fails with the error:
+arch/mips/jz4740/setup.c:64:25: error: comparison between two arrays
+	[-Werror=array-compare]
+   	64 |         if (__dtb_start != __dtb_end)
 
-Transition to drm_mode_fb_cmd2 from drm_mode_fb_cmd left the structure
-unitialized. drm_mode_fb_cmd2 adds a few additional members, e.g. flags
-and modifiers which were never initialized. Garbage in those members
-can cause random failures during the bringup of the fbcon.
+'d24f48767d5e ("MIPS: Use address-of operator on section symbols")' has
+been applied which fixes most of the error, but it missed one file which
+was not available upstream when the change was done.
 
-Initializing the structure fixes random blank screens after bootup due
-to flags/modifiers mismatches during the fbcon bring up.
-
-Fixes: dabdcdc9822a ("drm/vmwgfx: Switch to mode_cmd2")
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Cc: Daniel Vetter <daniel.vetter@intel.com>
-Cc: <stable@vger.kernel.org> # v4.10+
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220302152426.885214-7-zack@kde.org
+Fixes: d24f48767d5e ("MIPS: Use address-of operator on section symbols")
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_fb.c |    2 +-
+ arch/mips/jz4740/setup.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
-@@ -498,7 +498,7 @@ static int vmw_fb_kms_detach(struct vmw_
+--- a/arch/mips/jz4740/setup.c
++++ b/arch/mips/jz4740/setup.c
+@@ -61,7 +61,7 @@ void __init plat_mem_setup(void)
  
- static int vmw_fb_kms_framebuffer(struct fb_info *info)
- {
--	struct drm_mode_fb_cmd2 mode_cmd;
-+	struct drm_mode_fb_cmd2 mode_cmd = {0};
- 	struct vmw_fb_par *par = info->par;
- 	struct fb_var_screeninfo *var = &info->var;
- 	struct drm_framebuffer *cur_fb;
+ 	jz4740_reset_init();
+ 
+-	if (__dtb_start != __dtb_end)
++	if (&__dtb_start != &__dtb_end)
+ 		dtb = __dtb_start;
+ 	else
+ 		dtb = (void *)fw_passed_dtb;
 
 
