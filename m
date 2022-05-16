@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83236527F5F
+	by mail.lfdr.de (Postfix) with ESMTP id EE5D6527F60
 	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241552AbiEPIQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:16:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52066 "EHLO
+        id S241556AbiEPIQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:16:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241594AbiEPIQV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:16:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E772F326DF
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:16:20 -0700 (PDT)
+        with ESMTP id S241542AbiEPIQZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:16:25 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA4D8326E1
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:16:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 819D8611C6
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:16:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A8BC34119;
-        Mon, 16 May 2022 08:16:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77B4C611C8
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:16:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 820ACC385B8;
+        Mon, 16 May 2022 08:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652688979;
-        bh=tsUA2/9YHsPqKtfl3PoEW5dd4FApzvgE4CkNpt8dAVc=;
+        s=korg; t=1652688983;
+        bh=5ots2sXgzNLESVozhnzSBxuLx2Etbrv4yZny1kGszFM=;
         h=Subject:To:Cc:From:Date:From;
-        b=T5Zli3rEUbuXaI2FXKL8UrAgTSbq2zCVTfYRv8Aef3oDj7+nCm4uKGyK3++HxMN+d
-         qNnj+Da3Py5iFKfpuhVA9i1/4NEU/sF4CFOrRiHpquJIT007wyaSTP3SLmaA+9Q6yW
-         y6pLxjQB2+LMUD8D1PPaqjEug6tjqZuj8IxQ/C+w=
-Subject: FAILED: patch "[PATCH] ping: fix address binding wrt vrf" failed to apply to 5.15-stable tree
+        b=zpNtc3LnWeVmIUL2nk8cBGPjM93V1dC1sVAlBGC8e1A9tvDHyoeTFCB72uKoDY/PI
+         Qxv5euRbctsDgyBKjZgmqTCKs//uiAq00QqktxZKXvkmnBkGz8VSCgPB0BLMcMl208
+         K2JKYMOSgMNuKIv16W7AgWVdmGsqaP4G4/JGTxtA=
+Subject: FAILED: patch "[PATCH] ping: fix address binding wrt vrf" failed to apply to 5.4-stable tree
 To:     nicolas.dichtel@6wind.com, dsahern@kernel.org, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:16:17 +0200
-Message-ID: <165268897714662@kroah.com>
+Date:   Mon, 16 May 2022 10:16:18 +0200
+Message-ID: <165268897847204@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
