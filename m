@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9599527EF3
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 09:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18358527EED
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 09:57:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238099AbiEPH4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 03:56:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42274 "EHLO
+        id S241378AbiEPH4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 03:56:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241389AbiEPH4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 03:56:10 -0400
+        with ESMTP id S241400AbiEPH4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 03:56:15 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F079BB33
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 00:56:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1EC8DF52
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 00:56:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A70CB80EAC
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 07:56:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB89C385AA;
-        Mon, 16 May 2022 07:56:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BE04B80EAE
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 07:56:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B15BC385B8;
+        Mon, 16 May 2022 07:56:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652687767;
-        bh=I+eaOch76T8gWd+Ld89TQn75IEHtmbIludnw8nTNxFY=;
+        s=korg; t=1652687770;
+        bh=po6do7fJvmYs/y39qIHoXYnHLDwIeM9+cr7aeepNO0E=;
         h=Subject:To:Cc:From:Date:From;
-        b=1dvPBhAueOHqP2Qw90PfMsmQSy8r/nkFAyrScm0GVHzNBn/4MkYZlXdroclaOGU+z
-         plfTYKUklwenQN7icmcLT5wJXnFx5kE9aNvtmglpj7t3FwhQ0UfIdM9VdJQR6dc8ok
-         uobGGnEdAGCv7N1yLKDDjyzFOfB0xgkoEqUj+RT4=
-Subject: FAILED: patch "[PATCH] tty: n_gsm: fix buffer over-read in gsm_dlci_data()" failed to apply to 5.4-stable tree
+        b=nYySRsNpPC5MyIy2gyeVrNjL3L61krC/I/Nhij0Hza3UWGVi25SjhJTIshqa3Yed6
+         PbDuJWFmaAkXXxXV6uZgX8UTpbEyOrO0Te/rbbM9oYv+SMeaUscbhnN4qppiQcXl8v
+         9F66MnmjN8K+8ZJxL650MW4nqwYeU5HAFXMnIBSg=
+Subject: FAILED: patch "[PATCH] tty: n_gsm: fix buffer over-read in gsm_dlci_data()" failed to apply to 4.19-stable tree
 To:     daniel.starke@siemens.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 09:56:00 +0200
-Message-ID: <1652687760154238@kroah.com>
+Date:   Mon, 16 May 2022 09:56:04 +0200
+Message-ID: <1652687764194116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
