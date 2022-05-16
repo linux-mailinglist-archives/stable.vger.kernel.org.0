@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4370528425
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 14:27:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F882528437
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 14:31:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbiEPM1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 08:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
+        id S233386AbiEPMbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 08:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243386AbiEPM1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 08:27:12 -0400
-Received: from smtpservice.6wind.com (unknown [185.13.181.2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8E34AAE5C
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 05:27:10 -0700 (PDT)
-Received: from bretzel (bretzel.dev.6wind.com [10.17.1.57])
-        by smtpservice.6wind.com (Postfix) with ESMTPS id B28A5600F0;
-        Mon, 16 May 2022 14:27:08 +0200 (CEST)
-Received: from dichtel by bretzel with local (Exim 4.92)
-        (envelope-from <dichtel@6wind.com>)
-        id 1nqZoa-0007yC-KW; Mon, 16 May 2022 14:27:08 +0200
-From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
-To:     gregkh@linuxfoundation.org
-Cc:     Jakub Kicinski <kuba@kernel.org>, David Ahern <dsahern@kernel.org>,
-        stable@vger.kernel.org, Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Subject: [PATCH 5.15-stable] ping: fix address binding wrt vrf
-Date:   Mon, 16 May 2022 14:27:02 +0200
-Message-Id: <20220516122702.30623-1-nicolas.dichtel@6wind.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <165268897714662@kroah.com>
-References: <165268897714662@kroah.com>
+        with ESMTP id S230463AbiEPMbr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 08:31:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CC5231223
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 05:31:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C5ABDCE12FB
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 12:31:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90805C385B8;
+        Mon, 16 May 2022 12:31:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1652704303;
+        bh=fFqTh1KZUhp6fbzR0NvgWlbSjhmsg3kFtEFWHAfhe0A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2wNi1N0lEbz0JKdvu1D5cD4xrxYVDsGdGBTzUQghG1jBtkyly79I4iMtwIgDVd7sz
+         KgaRNRuM73ap6tk7xvBbQU72Wi9JdiI/ZH4v4f1bETcP0PMXSpNT/uvgtu3F7qnThv
+         3QSdhkce/fY+R4yEsbob6mpdBVk6fJLlDydveO7M=
+Date:   Mon, 16 May 2022 14:31:39 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Nathan Chancellor <nathan@kernel.org>
+Cc:     Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.19] MIPS: fix allmodconfig build with latest mkimage
+Message-ID: <YoJEK4PUlfIcIld7@kroah.com>
+References: <20220514153414.6190-1-sudip.mukherjee@sifive.com>
+ <YoAZLPxTYsqEypGP@dev-arch.thelio-3990X>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,RDNS_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YoAZLPxTYsqEypGP@dev-arch.thelio-3990X>
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -41,78 +51,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit e1a7ac6f3ba6e157adcd0ca94d92a401f1943f56 upstream.
+On Sat, May 14, 2022 at 02:03:40PM -0700, Nathan Chancellor wrote:
+> On Sat, May 14, 2022 at 04:34:14PM +0100, Sudip Mukherjee wrote:
+> > From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+> > 
+> > With the latest mkimage from U-Boot 2021.04+ the allmodconfig build
+> > fails. 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit
+> > addresses") was applied for similar build failure, but it was not
+> > applied to 'arch/mips/generic/board-ocelot_pcb123.its.S' as that was
+> > removed from upstream when the patch was applied.
+> > 
+> > Fixes: 822564cd3aa1 ("MIPS: generic: Update node names to avoid unit addresses")
+> 
+> Ah, fair enough. I missed this because the board file was renamed and
+> updated as part of commit 39249d776ca7 ("MIPS: mscc: add PCB120 to the
+> ocelot fitImage"), which was a part of 4.20... :) the upstream change
+> has this properly fixed and this diff matches so:
+> 
+> Reviewed-by: Nathan Chancellor <nathan@kernel.org>
 
-When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
-instead of an IP raw socket. In this case, 'ping' is unable to bind its
-socket to a local address owned by a vrflite.
+Now queued up, thanks.
 
-Before the patch:
-$ sysctl -w net.ipv4.ping_group_range='0  2147483647'
-$ ip link add blue type vrf table 10
-$ ip link add foo type dummy
-$ ip link set foo master blue
-$ ip link set foo up
-$ ip addr add 192.168.1.1/24 dev foo
-$ ip addr add 2001::1/64 dev foo
-$ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
-ping: bind: Cannot assign requested address
-$ ip vrf exec blue ping6 -c1 -I 2001::1 2001::2
-ping6: bind icmp socket: Cannot assign requested address
-
-CC: stable@vger.kernel.org
-Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
----
-
-This backport could also be applied to the 5.10 stable tree.
-
- net/ipv4/ping.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
-
-diff --git a/net/ipv4/ping.c b/net/ipv4/ping.c
-index 36e89b687387..c4a2565da280 100644
---- a/net/ipv4/ping.c
-+++ b/net/ipv4/ping.c
-@@ -305,6 +305,7 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
- 	struct net *net = sock_net(sk);
- 	if (sk->sk_family == AF_INET) {
- 		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
-+		u32 tb_id = RT_TABLE_LOCAL;
- 		int chk_addr_ret;
- 
- 		if (addr_len < sizeof(*addr))
-@@ -320,8 +321,10 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
- 
- 		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
- 			chk_addr_ret = RTN_LOCAL;
--		else
--			chk_addr_ret = inet_addr_type(net, addr->sin_addr.s_addr);
-+		else {
-+			tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
-+			chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
-+		}
- 
- 		if ((!inet_can_nonlocal_bind(net, isk) &&
- 		     chk_addr_ret != RTN_LOCAL) ||
-@@ -359,6 +362,14 @@ static int ping_check_bind_addr(struct sock *sk, struct inet_sock *isk,
- 				return -ENODEV;
- 			}
- 		}
-+
-+		if (!dev && sk->sk_bound_dev_if) {
-+			dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
-+			if (!dev) {
-+				rcu_read_unlock();
-+				return -ENODEV;
-+			}
-+		}
- 		has_addr = pingv6_ops.ipv6_chk_addr(net, &addr->sin6_addr, dev,
- 						    scoped);
- 		rcu_read_unlock();
--- 
-2.33.0
-
+greg k-h
