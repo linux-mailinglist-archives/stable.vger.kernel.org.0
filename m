@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76623529121
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75C4528FB6
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238827AbiEPUKi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:10:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59234 "EHLO
+        id S1346844AbiEPUFM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:05:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351037AbiEPUB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A201F47559;
-        Mon, 16 May 2022 12:57:04 -0700 (PDT)
+        with ESMTP id S1348851AbiEPT7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 761F813C;
+        Mon, 16 May 2022 12:51:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CB58B81613;
-        Mon, 16 May 2022 19:57:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7EB3C34100;
-        Mon, 16 May 2022 19:57:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 159D760AB8;
+        Mon, 16 May 2022 19:51:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215F7C34100;
+        Mon, 16 May 2022 19:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731022;
-        bh=l9vK0Sdh9FgyGUOPCCX0OfhhDLvjeRSbXgox8Ua7K8k=;
+        s=korg; t=1652730689;
+        bh=ccProHhun/zlF6hS7JP7T+bHG1ax79j7/ZabQXNbMgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ODrElaCuyQu9AEV1at5L/hGuAFwKMBsA9+qyGJuWfNYvlT6Lyv4j87Jb37w4mcDPq
-         ggDjeSERFmAlM0x6oY1JXr3NHzz8GvjzSqAph1L5rxiC8sNON/n9BwsRaTs7P846dO
-         qtWtd2FvrVvjGV8wywcUXXdnw0Tq/jYkiduJeC7w=
+        b=ZwTQst87WWxUkrpl/F8ys50f+/gl7a+9WHN+e5J6Arq5qxxQEF+dTuvt7EGZt7K/P
+         Q+bisXKE4zw7Hc6LOMHI5S575LfIhxGj4AyhEbPICicQ3G61QPcchxdtEmAUVe3PDm
+         Wrjo7RcZOMImm7H5wWVLzbBXhg6POR/nAW3k9eHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.17 078/114] tty: n_gsm: fix invalid gsmtty_write_room() result
+        stable@vger.kernel.org,
+        Indan Zupancic <Indan.Zupancic@mep-info.com>
+Subject: [PATCH 5.15 078/102] fsl_lpuart: Dont enable interrupts too early
 Date:   Mon, 16 May 2022 21:36:52 +0200
-Message-Id: <20220516193627.725542986@linuxfoundation.org>
+Message-Id: <20220516193626.233730510@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,64 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Indan Zupancic <Indan.Zupancic@mep-info.com>
 
-commit 9361ebfbb79fd1bc8594a487c01ad52cdaa391ea upstream.
+commit 401fb66a355eb0f22096cf26864324f8e63c7d78 upstream.
 
-gsmtty_write() does not prevent the user to use the full fifo size of 4096
-bytes as allocated in gsm_dlci_alloc(). However, gsmtty_write_room() tries
-to limit the return value by 'TX_SIZE' and returns a negative value if the
-fifo has more than 'TX_SIZE' bytes stored. This is obviously wrong as
-'TX_SIZE' is defined as 512.
-Define 'TX_SIZE' to the fifo size and use it accordingly for allocation to
-keep the current behavior. Return the correct remaining size of the fifo in
-gsmtty_write_room() via kfifo_avail().
+If an irq is pending when devm_request_irq() is called, the irq
+handler will cause a NULL pointer access because initialisation
+is not done yet.
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220504081733.3494-3-daniel.starke@siemens.com
+Fixes: 9d7ee0e28da59 ("tty: serial: lpuart: avoid report NULL interrupt")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Indan Zupancic <Indan.Zupancic@mep-info.com>
+Link: https://lore.kernel.org/r/20220505114750.45423-1-Indan.Zupancic@mep-info.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/tty/serial/fsl_lpuart.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -137,6 +137,7 @@ struct gsm_dlci {
- 	int retries;
- 	/* Uplink tty if active */
- 	struct tty_port port;	/* The tty bound to this DLCI if there is one */
-+#define TX_SIZE		4096    /* Must be power of 2. */
- 	struct kfifo fifo;	/* Queue fifo for the DLCI */
- 	int adaption;		/* Adaption layer in use */
- 	int prev_adaption;
-@@ -1731,7 +1732,7 @@ static struct gsm_dlci *gsm_dlci_alloc(s
- 		return NULL;
- 	spin_lock_init(&dlci->lock);
- 	mutex_init(&dlci->mutex);
--	if (kfifo_alloc(&dlci->fifo, 4096, GFP_KERNEL) < 0) {
-+	if (kfifo_alloc(&dlci->fifo, TX_SIZE, GFP_KERNEL) < 0) {
- 		kfree(dlci);
- 		return NULL;
+--- a/drivers/tty/serial/fsl_lpuart.c
++++ b/drivers/tty/serial/fsl_lpuart.c
+@@ -2650,6 +2650,7 @@ static int lpuart_probe(struct platform_
+ 	struct device_node *np = pdev->dev.of_node;
+ 	struct lpuart_port *sport;
+ 	struct resource *res;
++	irq_handler_t handler;
+ 	int ret;
+ 
+ 	sport = devm_kzalloc(&pdev->dev, sizeof(*sport), GFP_KERNEL);
+@@ -2727,17 +2728,11 @@ static int lpuart_probe(struct platform_
+ 
+ 	if (lpuart_is_32(sport)) {
+ 		lpuart_reg.cons = LPUART32_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart32_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart32_int;
+ 	} else {
+ 		lpuart_reg.cons = LPUART_CONSOLE;
+-		ret = devm_request_irq(&pdev->dev, sport->port.irq, lpuart_int, 0,
+-					DRIVER_NAME, sport);
++		handler = lpuart_int;
  	}
-@@ -2976,8 +2977,6 @@ static struct tty_ldisc_ops tty_ldisc_pa
-  *	Virtual tty side
-  */
- 
--#define TX_SIZE		512
 -
- /**
-  *	gsm_modem_upd_via_data	-	send modem bits via convergence layer
-  *	@dlci: channel
-@@ -3217,7 +3216,7 @@ static unsigned int gsmtty_write_room(st
- 	struct gsm_dlci *dlci = tty->driver_data;
- 	if (dlci->state == DLCI_CLOSED)
- 		return 0;
--	return TX_SIZE - kfifo_len(&dlci->fifo);
-+	return kfifo_avail(&dlci->fifo);
- }
+-	if (ret)
+-		goto failed_irq_request;
+-
+ 	ret = uart_add_one_port(&lpuart_reg, &sport->port);
+ 	if (ret)
+ 		goto failed_attach_port;
+@@ -2759,13 +2754,18 @@ static int lpuart_probe(struct platform_
  
- static unsigned int gsmtty_chars_in_buffer(struct tty_struct *tty)
+ 	sport->port.rs485_config(&sport->port, &sport->port.rs485);
+ 
++	ret = devm_request_irq(&pdev->dev, sport->port.irq, handler, 0,
++				DRIVER_NAME, sport);
++	if (ret)
++		goto failed_irq_request;
++
+ 	return 0;
+ 
++failed_irq_request:
+ failed_get_rs485:
+ failed_reset:
+ 	uart_remove_one_port(&lpuart_reg, &sport->port);
+ failed_attach_port:
+-failed_irq_request:
+ 	lpuart_disable_clks(sport);
+ failed_clock_enable:
+ failed_out_of_range:
 
 
