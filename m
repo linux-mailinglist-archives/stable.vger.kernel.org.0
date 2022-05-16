@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D0308529163
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DFA528FD4
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346522AbiEPUEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
+        id S1346670AbiEPULq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:11:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351065AbiEPUB6 (ORCPT
+        with ESMTP id S1351071AbiEPUB6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6765047545;
-        Mon, 16 May 2022 12:58:01 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 370354756C;
+        Mon, 16 May 2022 12:58:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25C9AB81611;
-        Mon, 16 May 2022 19:58:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A0AC385AA;
-        Mon, 16 May 2022 19:57:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3651B81615;
+        Mon, 16 May 2022 19:58:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58A89C385AA;
+        Mon, 16 May 2022 19:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652731078;
-        bh=YzW8u20XqcllyETUghHYrsk3AT8VdfEGOpmwGCOwdKU=;
+        s=korg; t=1652731081;
+        bh=icSuAv8bKxjkgQCS0+EKtkHmPx2uqUq5zHY0/SpG3nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=So1n9EsPsa8SVDjaRfPwaiGFmgfA0RivJcja1JIQkIgTRwnFavPDxesklhg5GXOU/
-         y6krUhlo4tqdfyZhGnQtuEXxed6F4EODwlvCpC1kPiRZaAQN6+DAiFId0Bt81C+WBr
-         +QwODRLiXIGGdw+AY9/ExAT4YnVoik9WtR8OaERs=
+        b=v8r+6b23J+ks/buIbvFEYKhI5lnGJ+jWGRVkfbUGaFwDN33nHO0WOe1FViCdWWu6m
+         xsXJ4oswfxgZ1AeiUVzBDZt38uNQWOGpi6misdfqsvXFNgv8TS9lbdzdU+L4AfJ5AK
+         PI8MqDL7VzgTMJ1zu1bvWq8cLk6z5uu/6UOhCMpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>
-Subject: [PATCH 5.17 096/114] drm/vmwgfx: Disable command buffers on svga3 without gbobjects
-Date:   Mon, 16 May 2022 21:37:10 +0200
-Message-Id: <20220516193628.230842118@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Lyude Paul <lyude@redhat.com>
+Subject: [PATCH 5.17 097/114] drm/nouveau/tegra: Stop using iommu_present()
+Date:   Mon, 16 May 2022 21:37:11 +0200
+Message-Id: <20220516193628.259867940@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
 References: <20220516193625.489108457@linuxfoundation.org>
@@ -53,51 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-commit 21d1d192890ced87f2f04f8f4dea92406e0b162a upstream.
+commit 87fd2b091fb33871a7f812658a0971e8e26f903f upstream.
 
-With very limited vram on svga3 it's difficult to handle all the surface
-migrations. Without gbobjects, i.e. the ability to store surfaces in
-guest mobs, there's no reason to support intermediate svga2 features,
-especially because we can fall back to fb traces and svga3 will never
-support those in-between features.
+Even if some IOMMU has registered itself on the platform "bus", that
+doesn't necessarily mean it provides translation for the device we
+care about. Replace iommu_present() with a more appropriate check.
 
-On svga3 we wither want to use fb traces or screen targets
-(i.e. gbobjects), nothing in between. This fixes presentation on a lot
-of fusion/esxi tech previews where the exposed svga3 caps haven't been
-finalized yet.
-
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 2cd80dbd3551 ("drm/vmwgfx: Add basic support for SVGA3")
-Cc: <stable@vger.kernel.org> # v5.14+
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220318174332.440068-5-zack@kde.org
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+[added cc for stable]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org # v5.0+
+Link: https://patchwork.freedesktop.org/patch/msgid/70d40ea441da3663c2824d54102b471e9a621f8a.1649168494.git.robin.murphy@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c |   11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c
-@@ -675,11 +675,14 @@ int vmw_cmd_emit_dummy_query(struct vmw_
-  */
- bool vmw_cmd_supported(struct vmw_private *vmw)
- {
--	if ((vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
--				  SVGA_CAP_CMD_BUFFERS_2)) != 0)
--		return true;
-+	bool has_cmdbufs =
-+		(vmw->capabilities & (SVGA_CAP_COMMAND_BUFFERS |
-+				      SVGA_CAP_CMD_BUFFERS_2)) != 0;
-+	if (vmw_is_svga_v3(vmw))
-+		return (has_cmdbufs &&
-+			(vmw->capabilities & SVGA_CAP_GBOBJECTS) != 0);
- 	/*
- 	 * We have FIFO cmd's
- 	 */
--	return vmw->fifo_mem != NULL;
-+	return has_cmdbufs || vmw->fifo_mem != NULL;
- }
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c
+@@ -123,7 +123,7 @@ nvkm_device_tegra_probe_iommu(struct nvk
+ 
+ 	mutex_init(&tdev->iommu.mutex);
+ 
+-	if (iommu_present(&platform_bus_type)) {
++	if (device_iommu_mapped(dev)) {
+ 		tdev->iommu.domain = iommu_domain_alloc(&platform_bus_type);
+ 		if (!tdev->iommu.domain)
+ 			goto error;
 
 
