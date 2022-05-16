@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1DA9529156
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A0B529114
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346551AbiEPUHT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41248 "EHLO
+        id S1346069AbiEPUEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347800AbiEPT6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:10 -0400
+        with ESMTP id S1351051AbiEPUB5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC3E488A9;
-        Mon, 16 May 2022 12:49:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694C1473B8;
+        Mon, 16 May 2022 12:57:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48CF8B8160E;
-        Mon, 16 May 2022 19:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1927C385AA;
-        Mon, 16 May 2022 19:49:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3197EB81613;
+        Mon, 16 May 2022 19:57:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9807CC385AA;
+        Mon, 16 May 2022 19:57:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730591;
-        bh=EwrlZFOvzJnjMTJ2FyUy85Q/vhUk54CTxzJFzMEnSow=;
+        s=korg; t=1652731046;
+        bh=SA/u6TfraJ4HVYA3POmKSQ4ZBz9ogmdGYvSFcf8IZ14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgK2+f//YT/rnWNffZn+zHU+B1IQ0gJ5fW2GrKWYAgp/PrcQstiT3iaFP/oKVbggj
-         1IZlTFYU9m+VtagHrfxgc/uBW+P11ZFbnPLmBLmkRG3ZQclAwge/uhiCrUz4y/eOZp
-         D+INvJwG/PGGuN5HvUFczWFbSKsmjMx7XApGPDxs=
+        b=VFV2aFAdKdGzqaG+doSqvAbln0nN0rAQ9g82fzyuhkxfm1ixnr+AK8hM/2Tu00iLP
+         GvlMF84JEPInffWa88v1vE63/FydSFHOae7l2Fox8KMTbQ9UKtJx5jHb+ZMJ8iYB9z
+         Z8Z6hGyAQiVr0sF/fqWHO5L/Mr+lEK04gsY0uZuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 046/102] RDMA/irdma: Fix deadlock in irdma_cleanup_cm_core()
+Subject: [PATCH 5.17 046/114] tls: Fix context leak on tls_device_down
 Date:   Mon, 16 May 2022 21:36:20 +0200
-Message-Id: <20220516193625.321476853@linuxfoundation.org>
+Message-Id: <20220516193626.815898749@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-[ Upstream commit 679ab61bf5f5f519377d812afb4fb93634782c74 ]
+[ Upstream commit 3740651bf7e200109dd42d5b2fb22226b26f960a ]
 
-There is a deadlock in irdma_cleanup_cm_core(), which is shown below:
+The commit cited below claims to fix a use-after-free condition after
+tls_device_down. Apparently, the description wasn't fully accurate. The
+context stayed alive, but ctx->netdev became NULL, and the offload was
+torn down without a proper fallback, so a bug was present, but a
+different kind of bug.
 
-   (Thread 1)              |      (Thread 2)
-                           | irdma_schedule_cm_timer()
-irdma_cleanup_cm_core()    |  add_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | irdma_cm_timer_tick()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
+Due to misunderstanding of the issue, the original patch dropped the
+refcount_dec_and_test line for the context to avoid the alleged
+premature deallocation. That line has to be restored, because it matches
+the refcount_inc_not_zero from the same function, otherwise the contexts
+that survived tls_device_down are leaked.
 
-We hold cm_core->ht_lock in position (1) of thread 1 and use
-del_timer_sync() to wait timer to stop, but timer handler also need
-cm_core->ht_lock in position (2) of thread 2.  As a result,
-irdma_cleanup_cm_core() will block forever.
+This patch fixes the described issue by restoring refcount_dec_and_test.
+After this change, there is no leak anymore, and the fallback to
+software kTLS still works.
 
-This patch removes the check of timer_pending() in
-irdma_cleanup_cm_core(), because the del_timer_sync() function will just
-return directly if there isn't a pending timer. As a result, the lock is
-redundant, because there is no resource it could protect.
-
-Link: https://lore.kernel.org/r/20220418153322.42524-1-duoming@zju.edu.cn
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: c55dcdd435aa ("net/tls: Fix use-after-free after the TLS device goes down and up")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Link: https://lore.kernel.org/r/20220512091830.678684-1-maximmi@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ net/tls/tls_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
-index 082a3ddb0fa3..632f65e53b63 100644
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -3242,15 +3242,10 @@ enum irdma_status_code irdma_setup_cm_core(struct irdma_device *iwdev,
-  */
- void irdma_cleanup_cm_core(struct irdma_cm_core *cm_core)
- {
--	unsigned long flags;
--
- 	if (!cm_core)
- 		return;
+diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
+index a40553e83f8b..f3e3d009cf1c 100644
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -1347,7 +1347,10 @@ static int tls_device_down(struct net_device *netdev)
  
--	spin_lock_irqsave(&cm_core->ht_lock, flags);
--	if (timer_pending(&cm_core->tcp_timer))
--		del_timer_sync(&cm_core->tcp_timer);
--	spin_unlock_irqrestore(&cm_core->ht_lock, flags);
-+	del_timer_sync(&cm_core->tcp_timer);
+ 		/* Device contexts for RX and TX will be freed in on sk_destruct
+ 		 * by tls_device_free_ctx. rx_conf and tx_conf stay in TLS_HW.
++		 * Now release the ref taken above.
+ 		 */
++		if (refcount_dec_and_test(&ctx->refcount))
++			tls_device_free_ctx(ctx);
+ 	}
  
- 	destroy_workqueue(cm_core->event_wq);
- 	cm_core->dev->ws_reset(&cm_core->iwdev->vsi);
+ 	up_write(&device_offload_lock);
 -- 
 2.35.1
 
