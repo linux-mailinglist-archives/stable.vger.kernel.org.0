@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3535C5290E7
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A8D52913B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346636AbiEPUHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:07:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46632 "EHLO
+        id S234111AbiEPUJq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:09:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347571AbiEPT54 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:57:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DA1248328;
-        Mon, 16 May 2022 12:49:41 -0700 (PDT)
+        with ESMTP id S1350906AbiEPUBq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 438DD473B7;
+        Mon, 16 May 2022 12:56:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F59FB81613;
-        Mon, 16 May 2022 19:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8539FC34100;
-        Mon, 16 May 2022 19:49:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A2E6B81613;
+        Mon, 16 May 2022 19:56:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D50E0C34100;
+        Mon, 16 May 2022 19:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730579;
-        bh=SA/u6TfraJ4HVYA3POmKSQ4ZBz9ogmdGYvSFcf8IZ14=;
+        s=korg; t=1652730962;
+        bh=H2Ja99ut3fsWoCVNcTdrFjfaHjMclEcoEKBUDi+Cqko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFLEKuEPiqf4Nu780VqcEKAq6ujFGom+svEyZkmDfvxFsz89F/QRuxaRuykF7nl5A
-         tP9LFKXYYCWIVi/AR9shO1+iAiFr/zlsOeh1NfhD+PSY6wo3dH7j+RMPFtpiPzMT6U
-         0BxeKMFr8gf5RqRS8h+gJcgQ4Yt/VivRi18jaexg=
+        b=uPlYoqAGk5e+xTvV0QZSK3prjORYMJiJHDIhe6m2oO2LTsw/SxJ/4Pv9nUQmw8yHt
+         5nWbSB447N1ZQ77ppugRRRr86TypDqVmw7AyAmCBNRAXf5DG9i43h0OptbkmwfOeFU
+         FddYl/WhALtcAdo3Vwp5CPNor4HJAPsH+UKLwuJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 042/102] tls: Fix context leak on tls_device_down
-Date:   Mon, 16 May 2022 21:36:16 +0200
-Message-Id: <20220516193625.208088763@linuxfoundation.org>
+Subject: [PATCH 5.17 043/114] net: dsa: bcm_sf2: Fix Wake-on-LAN with mac_link_down()
+Date:   Mon, 16 May 2022 21:36:17 +0200
+Message-Id: <20220516193626.730276261@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 3740651bf7e200109dd42d5b2fb22226b26f960a ]
+[ Upstream commit b7be130c5d52e5224ac7d89568737b37b4c4b785 ]
 
-The commit cited below claims to fix a use-after-free condition after
-tls_device_down. Apparently, the description wasn't fully accurate. The
-context stayed alive, but ctx->netdev became NULL, and the offload was
-torn down without a proper fallback, so a bug was present, but a
-different kind of bug.
+After commit 2d1f90f9ba83 ("net: dsa/bcm_sf2: fix incorrect usage of
+state->link") the interface suspend path would call our mac_link_down()
+call back which would forcibly set the link down, thus preventing
+Wake-on-LAN packets from reaching our management port.
 
-Due to misunderstanding of the issue, the original patch dropped the
-refcount_dec_and_test line for the context to avoid the alleged
-premature deallocation. That line has to be restored, because it matches
-the refcount_inc_not_zero from the same function, otherwise the contexts
-that survived tls_device_down are leaked.
+Fix this by looking at whether the port is enabled for Wake-on-LAN and
+not clearing the link status in that case to let packets go through.
 
-This patch fixes the described issue by restoring refcount_dec_and_test.
-After this change, there is no leak anymore, and the fallback to
-software kTLS still works.
-
-Fixes: c55dcdd435aa ("net/tls: Fix use-after-free after the TLS device goes down and up")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Link: https://lore.kernel.org/r/20220512091830.678684-1-maximmi@nvidia.com
+Fixes: 2d1f90f9ba83 ("net: dsa/bcm_sf2: fix incorrect usage of state->link")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20220512021731.2494261-1-f.fainelli@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_device.c | 3 +++
+ drivers/net/dsa/bcm_sf2.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/net/tls/tls_device.c b/net/tls/tls_device.c
-index a40553e83f8b..f3e3d009cf1c 100644
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -1347,7 +1347,10 @@ static int tls_device_down(struct net_device *netdev)
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index 6afb5db8244c..6d15a743219f 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -833,6 +833,9 @@ static void bcm_sf2_sw_mac_link_down(struct dsa_switch *ds, int port,
+ 	struct bcm_sf2_priv *priv = bcm_sf2_to_priv(ds);
+ 	u32 reg, offset;
  
- 		/* Device contexts for RX and TX will be freed in on sk_destruct
- 		 * by tls_device_free_ctx. rx_conf and tx_conf stay in TLS_HW.
-+		 * Now release the ref taken above.
- 		 */
-+		if (refcount_dec_and_test(&ctx->refcount))
-+			tls_device_free_ctx(ctx);
- 	}
- 
- 	up_write(&device_offload_lock);
++	if (priv->wol_ports_mask & BIT(port))
++		return;
++
+ 	if (port != core_readl(priv, CORE_IMP0_PRT_ID)) {
+ 		if (priv->type == BCM4908_DEVICE_ID ||
+ 		    priv->type == BCM7445_DEVICE_ID)
 -- 
 2.35.1
 
