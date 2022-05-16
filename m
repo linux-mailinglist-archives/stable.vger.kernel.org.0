@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A814852911B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 223DE529187
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347269AbiEPUGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:06:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42068 "EHLO
+        id S1346787AbiEPT4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349105AbiEPT7K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C3840937;
-        Mon, 16 May 2022 12:53:23 -0700 (PDT)
+        with ESMTP id S1346402AbiEPTxn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:53:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C016346B06;
+        Mon, 16 May 2022 12:49:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D723FB81627;
-        Mon, 16 May 2022 19:53:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2A5C36AE7;
-        Mon, 16 May 2022 19:53:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9E22B81616;
+        Mon, 16 May 2022 19:48:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30305C385AA;
+        Mon, 16 May 2022 19:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730800;
-        bh=YHCcsAPo3HXhqClBwVSBvvvHd29gyEvqoT/UiYF/VYU=;
+        s=korg; t=1652730528;
+        bh=UE+UaX07cuhVOKJs+zw6BCy4MVc8XhQSHHVFf1r1FHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQzwGL7w/VWLKM3hGG/HqJbho8iFrgDYXiy4VRUMXm2bWiKosf+AY7nrB0ETGtef+
-         MAhaYRLETGmvX/nDmDHkCbm2baquaCPFtsHr+CM00+a0pKiunJIlIRjd+gETijXacK
-         mT6E6rOvtVVHqrP3AALR2ziOMZqtn7fZ2cCNeQ1k=
+        b=mw2hmIta+/2rLJZGDj75WeMcBZvBG3Qx+CRfKV80t39HHsZGJzI0jHYiTDBz491WM
+         YjG6eVQhOvWxehZ2Vxm9c+lmiC3ctFFQGKXz7ID7SAqCuG8pvOIIAjcKUEodpQJZBo
+         TMvYIGP4ilCQT9nEIB1xWLvj5e+WmPksdo1O5KEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 010/114] net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
+Subject: [PATCH 5.15 010/102] fbdev: simplefb: Cleanup fb_info in .fb_destroy rather than .remove
 Date:   Mon, 16 May 2022 21:35:44 +0200
-Message-Id: <20220516193625.793332837@linuxfoundation.org>
+Message-Id: <20220516193624.290501139@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,112 +55,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit 93a8417088ea570b5721d2b526337a2d3aed9fa3 ]
+[ Upstream commit 666b90b3ce9e4aac1e1deba266c3a230fb3913b0 ]
 
-Given the following order of operations:
+The driver is calling framebuffer_release() in its .remove callback, but
+this will cause the struct fb_info to be freed too early. Since it could
+be that a reference is still hold to it if user-space opened the fbdev.
 
-(1) we add filter A using tc-flower
-(2) we send a packet that matches it
-(3) we read the filter's statistics to find a hit count of 1
-(4) we add a second filter B with a higher preference than A, and A
-    moves one position to the right to make room in the TCAM for it
-(5) we send another packet, and this matches the second filter B
-(6) we read the filter statistics again.
+This would lead to a use-after-free error if the framebuffer device was
+unregistered but later a user-space process tries to close the fbdev fd.
 
-When this happens, the hit count of filter A is 2 and of filter B is 1,
-despite a single packet having matched each filter.
+To prevent this, move the framebuffer_release() call to fb_ops.fb_destroy
+instead of doing it in the driver's .remove callback.
 
-Furthermore, in an alternate history, reading the filter stats a second
-time between steps (3) and (4) makes the hit count of filter A remain at
-1 after step (6), as expected.
+Strictly speaking, the code flow in the driver is still wrong because all
+the hardware cleanupd (i.e: iounmap) should be done in .remove while the
+software cleanup (i.e: releasing the framebuffer) should be done in the
+.fb_destroy handler. But this at least makes to match the behavior before
+commit 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal").
 
-The reason why this happens has to do with the filter->stats.pkts field,
-which is written to hardware through the call path below:
-
-               vcap_entry_set
-               /      |      \
-              /       |       \
-             /        |        \
-            /         |         \
-es0_entry_set   is1_entry_set   is2_entry_set
-            \         |         /
-             \        |        /
-              \       |       /
-        vcap_data_set(data.counter, ...)
-
-The primary role of filter->stats.pkts is to transport the filter hit
-counters from the last readout all the way from vcap_entry_get() ->
-ocelot_vcap_filter_stats_update() -> ocelot_cls_flower_stats().
-The reason why vcap_entry_set() writes it to hardware is so that the
-counters (saturating and having a limited bit width) are cleared
-after each user space readout.
-
-The writing of filter->stats.pkts to hardware during the TCAM entry
-movement procedure is an unintentional consequence of the code design,
-because the hit count isn't up to date at this point.
-
-So at step (4), when filter A is moved by ocelot_vcap_filter_add() to
-make room for filter B, the hardware hit count is 0 (no packet matched
-on it in the meantime), but filter->stats.pkts is 1, because the last
-readout saw the earlier packet. The movement procedure programs the old
-hit count back to hardware, so this creates the impression to user space
-that more packets have been matched than they really were.
-
-The bug can be seen when running the gact_drop_and_ok_test() from the
-tc_actions.sh selftest.
-
-Fix the issue by reading back the hit count to tmp->stats.pkts before
-migrating the VCAP filter. Sure, this is a best-effort technique, since
-the packets that hit the rule between vcap_entry_get() and
-vcap_entry_set() won't be counted, but at least it allows the counters
-to be reliably used for selftests where the traffic is under control.
-
-The vcap_entry_get() name is a bit unintuitive, but it only reads back
-the counter portion of the TCAM entry, not the entire entry.
-
-The index from which we retrieve the counter is also a bit unintuitive
-(i - 1 during add, i + 1 during del), but this is the way in which TCAM
-entry movement works. The "entry index" isn't a stored integer for a
-TCAM filter, instead it is dynamically computed by
-ocelot_vcap_block_get_filter_index() based on the entry's position in
-the &block->rules list. That position (as well as block->count) is
-automatically updated by ocelot_vcap_filter_add_to_block() on add, and
-by ocelot_vcap_block_remove_filter() on del. So "i" is the new filter
-index, and "i - 1" or "i + 1" respectively are the old addresses of that
-TCAM entry (we only support installing/deleting one filter at a time).
-
-Fixes: b596229448dd ("net: mscc: ocelot: Add support for tcam")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 27599aacbaef ("fbdev: Hot-unplug firmware fb devices on forced removal")
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220505220456.366090-1-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_vcap.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/video/fbdev/simplefb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
-index 6c643936c675..f159726788ba 100644
---- a/drivers/net/ethernet/mscc/ocelot_vcap.c
-+++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
-@@ -1181,6 +1181,8 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
- 		struct ocelot_vcap_filter *tmp;
+diff --git a/drivers/video/fbdev/simplefb.c b/drivers/video/fbdev/simplefb.c
+index b63074fd892e..a2e3a4690025 100644
+--- a/drivers/video/fbdev/simplefb.c
++++ b/drivers/video/fbdev/simplefb.c
+@@ -70,12 +70,18 @@ struct simplefb_par;
+ static void simplefb_clocks_destroy(struct simplefb_par *par);
+ static void simplefb_regulators_destroy(struct simplefb_par *par);
  
- 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-+		/* Read back the filter's counters before moving it */
-+		vcap_entry_get(ocelot, i - 1, tmp);
- 		vcap_entry_set(ocelot, i, tmp);
- 	}
++/*
++ * fb_ops.fb_destroy is called by the last put_fb_info() call at the end
++ * of unregister_framebuffer() or fb_release(). Do any cleanup here.
++ */
+ static void simplefb_destroy(struct fb_info *info)
+ {
+ 	simplefb_regulators_destroy(info->par);
+ 	simplefb_clocks_destroy(info->par);
+ 	if (info->screen_base)
+ 		iounmap(info->screen_base);
++
++	framebuffer_release(info);
+ }
  
-@@ -1239,6 +1241,8 @@ int ocelot_vcap_filter_del(struct ocelot *ocelot,
- 		struct ocelot_vcap_filter *tmp;
+ static const struct fb_ops simplefb_ops = {
+@@ -520,8 +526,8 @@ static int simplefb_remove(struct platform_device *pdev)
+ {
+ 	struct fb_info *info = platform_get_drvdata(pdev);
  
- 		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-+		/* Read back the filter's counters before moving it */
-+		vcap_entry_get(ocelot, i + 1, tmp);
- 		vcap_entry_set(ocelot, i, tmp);
- 	}
++	/* simplefb_destroy takes care of info cleanup */
+ 	unregister_framebuffer(info);
+-	framebuffer_release(info);
  
+ 	return 0;
+ }
 -- 
 2.35.1
 
