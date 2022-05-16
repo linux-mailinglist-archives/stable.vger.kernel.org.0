@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8D0528E5C
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BAD6528F06
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345788AbiEPTnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
+        id S1346001AbiEPTrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:47:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346132AbiEPTln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00DBB4093E;
-        Mon, 16 May 2022 12:40:10 -0700 (PDT)
+        with ESMTP id S1346055AbiEPTp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:45:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E54240917;
+        Mon, 16 May 2022 12:43:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93D62B81609;
-        Mon, 16 May 2022 19:40:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C54C385AA;
-        Mon, 16 May 2022 19:40:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57501B8160D;
+        Mon, 16 May 2022 19:43:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3AB4C385AA;
+        Mon, 16 May 2022 19:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730008;
-        bh=RJYYRn4OqCC2hJWR29kF7T3o3PFDPdgwdkrn1z+mLxU=;
+        s=korg; t=1652730192;
+        bh=XlfjnybdjFndXuvR+yMBeEXm24BAMbStzzv7InnYGFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBD5mXRRHutB83iDLhCtz1s0ouQeFpL+zZFOlUMOurK8mQaKplVD7VE88ZHPVukjo
-         nPzAg89kzYeWPLj0zCp7JjdcivB7Y7nXClgOujxYN4r8RrLJ0dp2gG9bGcljBASDT7
-         Ry2h/mPUi1mIL2sVkrG8ZQWwL13sN1vDBKre3Hgg=
+        b=hVZxz96UgiUH3Y+SuDfFWd3+z/r4WR/F8css+xF6Ed7AQueoinOejyiaAFjIXI4t4
+         d0yqd5eduzDxWAKA3hBnjz4OK/M99aFANaEcff5av/d1yb49oal6PPyBAH2RhwaccD
+         575ZX9Dp0xzSDDUpKLmjfDsZWwnYkbOs8GuC6gFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         syzbot <syzkaller@googlegroups.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/25] netlink: do not reset transport header in netlink_recvmsg()
+Subject: [PATCH 5.4 07/43] netlink: do not reset transport header in netlink_recvmsg()
 Date:   Mon, 16 May 2022 21:36:18 +0200
-Message-Id: <20220516193614.817183626@linuxfoundation.org>
+Message-Id: <20220516193614.935420646@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
-References: <20220516193614.678319286@linuxfoundation.org>
+In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
+References: <20220516193614.714657361@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -112,10 +112,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 979cd7dff40a..1b2e99ce54e5 100644
+index 8aefc52542a0..86b70385dce3 100644
 --- a/net/netlink/af_netlink.c
 +++ b/net/netlink/af_netlink.c
-@@ -1947,7 +1947,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+@@ -1987,7 +1987,6 @@ static int netlink_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
  		copied = len;
  	}
  
