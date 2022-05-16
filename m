@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4125C528ED8
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81C7D528E31
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233004AbiEPTn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44810 "EHLO
+        id S1345663AbiEPTjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:39:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346083AbiEPTmu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E34853F32B;
-        Mon, 16 May 2022 12:41:20 -0700 (PDT)
+        with ESMTP id S1345517AbiEPTi5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:38:57 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 319D23F306;
+        Mon, 16 May 2022 12:38:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 197F561512;
-        Mon, 16 May 2022 19:41:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17105C385AA;
-        Mon, 16 May 2022 19:41:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B67D6B81611;
+        Mon, 16 May 2022 19:38:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2B4AC385AA;
+        Mon, 16 May 2022 19:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730079;
-        bh=jXsRJZlhkkVNE5KFJ6uMHiXK5LPb7EkwA2pg9EW8UoA=;
+        s=korg; t=1652729923;
+        bh=KMsSJKuTd6UrANIy+gvmfyCQKuG8/0qFGqtBNnYC7DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeIF6155DwepFbd8POLDNrVPixbVbwQo4llPFQD0tlC3sp5+sOa+xJGgNC8PjXaRx
-         ftF29XpFT3739QteWs+ctzPAbizNeFwVO6/Xc+Fr9hzURQSghZ1HCmxZIq1jyUnFvC
-         jFSGmDcej8qYjzFbJggU6almYzGwDOoiAKzf62LQ=
+        b=tBf6Hamlo4x+wJUEovEa8VNMUS5CNqoZYHehMXU5pyfxPKPcdKpVN4fQIlhBRf+dN
+         7fkZ/HTh0uXbn5H7Urn2t/4XBIexnSQZ+olX+ZsSsMtHrzqibvwkveE1l2lbSy3VBm
+         LrCvGjif6ow7f8no6BuinsiqlhFUA9PJCpEad3Lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Alexandra Winter <wintera@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/32] mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+Subject: [PATCH 4.9 07/19] s390/lcs: fix variable dereferenced before check
 Date:   Mon, 16 May 2022 21:36:20 +0200
-Message-Id: <20220516193614.966264764@linuxfoundation.org>
+Message-Id: <20220516193613.719040783@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-References: <20220516193614.773450018@linuxfoundation.org>
+In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
+References: <20220516193613.497233635@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Alexandra Winter <wintera@linux.ibm.com>
 
-[ Upstream commit 9e2db50f1ef2238fc2f71c5de1c0418b7a5b0ea2 ]
+[ Upstream commit 671bb35c8e746439f0ed70815968f9a4f20a8deb ]
 
-This is needed since it might use (and pass out) pointers to
-e.g. keys protected by RCU. Can't really happen here as the
-frames aren't encrypted, but we need to still adhere to the
-rules.
+smatch complains about
+drivers/s390/net/lcs.c:1741 lcs_get_control() warn: variable dereferenced before check 'card->dev' (see line 1739)
 
-Fixes: cacfddf82baf ("mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220505230421.5f139f9de173.I77ae111a28f7c0e9fd1ebcee7f39dbec5c606770@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 27eb5ac8f015 ("[PATCH] s390: lcs driver bug fixes and improvements [1/2]")
+Signed-off-by: Alexandra Winter <wintera@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/s390/net/lcs.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index c84ee5ba5381..3d8e17bb8a10 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -2082,11 +2082,13 @@ static void hw_scan_work(struct work_struct *work)
- 			if (req->ie_len)
- 				skb_put_data(probe, req->ie, req->ie_len);
- 
-+			rcu_read_lock();
- 			if (!ieee80211_tx_prepare_skb(hwsim->hw,
- 						      hwsim->hw_scan_vif,
- 						      probe,
- 						      hwsim->tmp_chan->band,
- 						      NULL)) {
-+				rcu_read_unlock();
- 				kfree_skb(probe);
- 				continue;
- 			}
-@@ -2094,6 +2096,7 @@ static void hw_scan_work(struct work_struct *work)
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
-+			rcu_read_unlock();
- 			local_bh_enable();
- 		}
- 	}
+diff --git a/drivers/s390/net/lcs.c b/drivers/s390/net/lcs.c
+index 251db0a02e73..4d3caad7e981 100644
+--- a/drivers/s390/net/lcs.c
++++ b/drivers/s390/net/lcs.c
+@@ -1761,10 +1761,11 @@ lcs_get_control(struct lcs_card *card, struct lcs_cmd *cmd)
+ 			lcs_schedule_recovery(card);
+ 			break;
+ 		case LCS_CMD_STOPLAN:
+-			pr_warn("Stoplan for %s initiated by LGW\n",
+-				card->dev->name);
+-			if (card->dev)
++			if (card->dev) {
++				pr_warn("Stoplan for %s initiated by LGW\n",
++					card->dev->name);
+ 				netif_carrier_off(card->dev);
++			}
+ 			break;
+ 		default:
+ 			LCS_DBF_TEXT(5, trace, "noLGWcmd");
 -- 
 2.35.1
 
