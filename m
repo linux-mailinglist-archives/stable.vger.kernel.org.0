@@ -2,371 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCA915292FC
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 23:38:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AD715292FB
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 23:38:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235197AbiEPVi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 17:38:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
+        id S1347356AbiEPVi1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 17:38:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347346AbiEPVi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 17:38:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2AB8419B4;
-        Mon, 16 May 2022 14:38:24 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 42DBC6155F;
-        Mon, 16 May 2022 21:38:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171C9C385AA;
-        Mon, 16 May 2022 21:38:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652737103;
-        bh=dm3KpxIPAfgzOgbWpj7usuwwLjCfBkVD3it/oOfLzm8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=G5c5HFUCWT0OcBfe9x7IowraWUmmHfhBmtz67mO9b52TujBzc+gc6JtlohHQ1iKMN
-         1UcWUUfszYi+eSaH7TwdGSotfUcgkFJkd9fTInsLCSk/EJ/RrGMRH4WzesW6ivlIpE
-         nxPJnWjLS8Imma2l7I9QWtxfAh3Z8hDP6exXIU+Y=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.10 00/68] 5.10.117-rc2 review
-Date:   Mon, 16 May 2022 23:38:20 +0200
-Message-Id: <20220516213639.123296914@linuxfoundation.org>
-X-Mailer: git-send-email 2.36.1
+        with ESMTP id S235197AbiEPViX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 17:38:23 -0400
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F005419B1
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 14:38:23 -0700 (PDT)
+Received: by mail-pf1-x433.google.com with SMTP id d25so15177783pfo.10
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 14:38:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=1+zNp3nZSwe9ZwgAuYbC+ZYnkoxZDWaEl1cNlhVQD78=;
+        b=vmQdBglhBJCgs9KLCXp4xv95KkOBH4mez2IAZcjXAU5Sr2BGJMLI6lOAj5IQyNWDIV
+         rh9aI7BMKS4M6//1yu9ajTERUdkvcVNYQzldhBjCS0JQ+vKouolV4frMq5SCjTVamLcH
+         j7eJKqLw0jknusyVT1IfpSCa7vBVBoIJ6J7fdQCOA6qIOyXdkwFtSbIP9KGJrtuqBe65
+         NFVx+uOZCuEkIhuX1be/KBvSMWxEyta9wVjrgWwV8k+6quG4iZng4NtwE2rvDNDeytte
+         j41fDGHtYNUM0NAVcuw6fjCiJIwAJhdim26xVBh9NLkSed6EGLC1CJhEvf1OXjLjkdRu
+         7/Qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=1+zNp3nZSwe9ZwgAuYbC+ZYnkoxZDWaEl1cNlhVQD78=;
+        b=QugzqqrXn+A/ccbDLnoS9qOP7eyQqQdkVvZF/jY0APiU2jhreGLenkLSeTfBV4/yIV
+         Yv2ewVdeNSSPym5IJuGluEzbSH1/bznyahtMe4kxHtISqlqFYfQQGNi4pFnQiWxoxzrh
+         Fr8VmacolrHZt6PaU71mNg1JUaTDQLB1nMiuXl3NUYeUIwvL9H1j8rYB3JhxXGXI+NKd
+         Dl3qcUPuIHmD8xqG7M9ZZexIYtSqKgefQRhTnE/Qc+r4k3+2RrwuzoOQ39cKmnqXnj5E
+         gFaBe3fo9vb1RNtX2vYcSljYCvgZjSqzso1sRSc1Tnqf7X8FER+meUa/gNxdKFLXja5L
+         LTtw==
+X-Gm-Message-State: AOAM530cfmNt7F3HXMCW8n4kH+2xqerTPAy0wiWHEaDbzrsqAEbTX36W
+        uOTlfswVo7E/KSno8G3QLD331Rbn1HYwIwzzCNc=
+X-Google-Smtp-Source: ABdhPJxFTUxY5OItZfoKEqhINqsIZB/zXyuUi92kBhggODo5/0DwLZ6teVFJi/GPXRZZ+JV8vmhWfg==
+X-Received: by 2002:a63:f205:0:b0:3f2:7e19:28bc with SMTP id v5-20020a63f205000000b003f27e1928bcmr3607222pgh.291.1652737102559;
+        Mon, 16 May 2022 14:38:22 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id e11-20020a17090a9a8b00b001df4c27e5a5sm149942pjp.35.2022.05.16.14.38.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 May 2022 14:38:21 -0700 (PDT)
+Message-ID: <6282c44d.1c69fb81.6a436.0a44@mx.google.com>
+Date:   Mon, 16 May 2022 14:38:21 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.117-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.117-rc2
-X-KernelTest-Deadline: 2022-05-18T21:36+00:00
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Kernel: v5.15.40-101-gcbfc4f42bd5f
+Subject: stable-rc/linux-5.15.y baseline: 119 runs,
+ 2 regressions (v5.15.40-101-gcbfc4f42bd5f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.117 release.
-There are 68 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+stable-rc/linux-5.15.y baseline: 119 runs, 2 regressions (v5.15.40-101-gcbf=
+c4f42bd5f)
 
-Responses should be made by Wed, 18 May 2022 21:35:34 +0000.
-Anything received after that time might be too late.
+Regressions Summary
+-------------------
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.117-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
 
-thanks,
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-greg k-h
 
--------------
-Pseudo-Shortlog of commits:
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.40-101-gcbfc4f42bd5f/plan/baseline/
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.117-rc2
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.40-101-gcbfc4f42bd5f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cbfc4f42bd5fbf033342ee467c5614254167e3a8 =
 
-Gustavo A. R. Silva <gustavoars@kernel.org>
-    SUNRPC: Fix fall-through warnings for Clang
 
-Jens Axboe <axboe@kernel.dk>
-    io_uring: always use original task when preparing req identity
 
-Dan Vacura <w36195@motorola.com>
-    usb: gadget: uvc: allow for application to cleanly shutdown
+Test Regressions
+---------------- =
 
-Michael Tretter <m.tretter@pengutronix.de>
-    usb: gadget: uvc: rename function to be more consistent
 
-Nicolas Dichtel <nicolas.dichtel@6wind.com>
-    ping: fix address binding wrt vrf
 
-Mike Rapoport <rppt@kernel.org>
-    arm[64]/memremap: don't abuse pfn_valid() to ensure presence of linear map
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+beagle-xm        | arm   | lab-baylibre  | gcc-10   | omap2plus_defconfig  =
+      | 1          =
 
-Francesco Dolcini <francesco.dolcini@toradex.com>
-    net: phy: Fix race condition on link status change
 
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
+  Details:     https://kernelci.org/test/plan/id/62829314eef5f0aa1d8f5743
 
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    SUNRPC: Don't call connect() more than once on a TCP socket
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0-101-gcbfc4f42bd5f/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-be=
+agle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0-101-gcbfc4f42bd5f/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-be=
+agle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/armel/rootfs.cpio.gz =
 
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    SUNRPC: Prevent immediate close+reconnect
 
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    SUNRPC: Clean up scheduling of autoclose
 
-Zack Rusin <zackr@vmware.com>
-    drm/vmwgfx: Initialize drm_mode_fb_cmd2
+  * baseline.login: https://kernelci.org/test/case/id/62829314eef5f0aa1d8f5=
+744
+        failing since 4 days (last pass: v5.15.37-259-gab77581473a3, first =
+fail: v5.15.39) =
 
-Waiman Long <longman@redhat.com>
-    cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
+ =
 
-Manuel Ullmann <labre@posteo.de>
-    net: atlantic: always deep reset on pm op, fixing up my null deref regression
 
-Xiaomeng Tong <xiam0nd.tong@gmail.com>
-    i40e: i40e_main: fix a missing check on list iterator
 
-Robin Murphy <robin.murphy@arm.com>
-    drm/nouveau/tegra: Stop using iommu_present()
+platform         | arch  | lab           | compiler | defconfig            =
+      | regressions
+-----------------+-------+---------------+----------+----------------------=
+------+------------
+rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
+ebook | 1          =
 
-Jeff Layton <jlayton@kernel.org>
-    ceph: fix setting of xattrs on async created inodes
 
-AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-    serial: 8250_mtk: Fix register address for XON/XOFF character
+  Details:     https://kernelci.org/test/plan/id/62829ce26069e8f73f8f5718
 
-AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-    serial: 8250_mtk: Fix UART_EFR register address
+  Results:     88 PASS, 4 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0-101-gcbfc4f42bd5f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.4=
+0-101-gcbfc4f42bd5f/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-rk3399-gru-kevin.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
 
-Miaoqian Lin <linmq006@gmail.com>
-    slimbus: qcom: Fix IRQ check in qcom_slim_probe
 
-Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-    USB: serial: option: add Fibocom MA510 modem
 
-Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-    USB: serial: option: add Fibocom L610 modem
+  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
+/62829ce26069e8f73f8f573a
+        failing since 69 days (last pass: v5.15.26, first fail: v5.15.26-25=
+8-g7b9aacd770fa)
 
-Ethan Yang <etyang@sierrawireless.com>
-    USB: serial: qcserial: add support for Sierra Wireless EM7590
+    2022-05-16T18:49:45.178558  /lava-6393658/1/../bin/lava-test-case
+    2022-05-16T18:49:45.189437  <8>[   33.326920] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
 
-Scott Chen <scott@labau.com.tw>
-    USB: serial: pl2303: add device id for HP LM930 Display
-
-ChiYuan Huang <cy_huang@richtek.com>
-    usb: typec: tcpci_mt6360: Update for BMC PHY setting
-
-Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-    usb: typec: tcpci: Don't skip cleanup in .remove() on error
-
-Sergey Ryazanov <ryazanov.s.a@gmail.com>
-    usb: cdc-wdm: fix reading stuck on device close
-
-Daniel Starke <daniel.starke@siemens.com>
-    tty: n_gsm: fix mux activation issues in gsm_config()
-
-Yang Yingliang <yangyingliang@huawei.com>
-    tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
-
-Thiébaud Weksteen <tweek@google.com>
-    firmware_loader: use kernel credentials when reading firmware
-
-Eric Dumazet <edumazet@google.com>
-    tcp: resalt the secret every 10 seconds
-
-Matthew Hagan <mnhagan88@gmail.com>
-    net: sfp: Add tx-fault workaround for Huawei MA5671A SFP ONT
-
-Shravya Kumbham <shravya.kumbham@xilinx.com>
-    net: emaclite: Don't advertise 1000BASE-T and do auto negotiation
-
-Sven Schnelle <svens@linux.ibm.com>
-    s390: disable -Warray-bounds
-
-Mark Brown <broonie@kernel.org>
-    ASoC: ops: Validate input values in snd_soc_put_volsw_range()
-
-Mark Brown <broonie@kernel.org>
-    ASoC: max98090: Generate notifications on changes for custom control
-
-Mark Brown <broonie@kernel.org>
-    ASoC: max98090: Reject invalid values in custom control put()
-
-Ji-Ze Hong (Peter Hong) <hpeter@gmail.com>
-    hwmon: (f71882fg) Fix negative temperature
-
-Andreas Gruenbacher <agruenba@redhat.com>
-    gfs2: Fix filesystem block deallocation for short writes
-
-Maxim Mikityanskiy <maximmi@nvidia.com>
-    tls: Fix context leak on tls_device_down
-
-Taehee Yoo <ap420073@gmail.com>
-    net: sfc: ef10: fix memory leak in efx_ef10_mtd_probe()
-
-Guangguan Wang <guangguan.wang@linux.alibaba.com>
-    net/smc: non blocking recvmsg() return -EAGAIN when no data and signal_pending
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: dsa: bcm_sf2: Fix Wake-on-LAN with mac_link_down()
-
-Florian Fainelli <f.fainelli@gmail.com>
-    net: bcmgenet: Check for Wake-on-LAN interrupt probe deferral
-
-Paolo Abeni <pabeni@redhat.com>
-    net/sched: act_pedit: really ensure the skb is writable
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/lcs: fix variable dereferenced before check
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/ctcm: fix potential memory leak
-
-Alexandra Winter <wintera@linux.ibm.com>
-    s390/ctcm: fix variable dereferenced before check
-
-Joel Savitz <jsavitz@redhat.com>
-    selftests: vm: Makefile: rename TARGETS to VMTARGETS
-
-Randy Dunlap <rdunlap@infradead.org>
-    hwmon: (ltq-cputemp) restrict it to SOC_XWAY
-
-Jesse Brandeburg <jesse.brandeburg@intel.com>
-    dim: initialize all struct fields
-
-Yang Yingliang <yangyingliang@huawei.com>
-    ionic: fix missing pci_release_regions() on error in ionic_probe()
-
-Dan Aloni <dan.aloni@vastdata.com>
-    nfs: fix broken handling of the softreval mount option
-
-Johannes Berg <johannes.berg@intel.com>
-    mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
-
-Taehee Yoo <ap420073@gmail.com>
-    net: sfc: fix memory leak due to ptp channel
-
-Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-    sfc: Use swap() instead of open coding it
-
-Eric Dumazet <edumazet@google.com>
-    netlink: do not reset transport header in netlink_recvmsg()
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
-
-Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
-    ipv4: drop dst in multicast routing path
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: restrict tc-trap actions to VCAP IS2 lookup 0
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: fix VCAP IS2 filters matching on both lookups
-
-Vladimir Oltean <vladimir.oltean@nxp.com>
-    net: mscc: ocelot: fix last VCAP IS1/IS2 filter persisting in hardware when deleted
-
-Tariq Toukan <tariqt@nvidia.com>
-    net: Fix features skip in for_each_netdev_feature()
-
-Manikanta Pubbisetty <quic_mpubbise@quicinc.com>
-    mac80211: Reset MBSSID parameters upon connection
-
-Camel Guo <camel.guo@axis.com>
-    hwmon: (tmp401) Add OF device ID table
-
-Guenter Roeck <linux@roeck-us.net>
-    iwlwifi: iwl-dbg: Use del_timer_sync() before freeing
-
-Sven Eckelmann <sven@narfation.org>
-    batman-adv: Don't skb_split skbuffs with frag_list
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/include/asm/io.h                          |  3 ++
- arch/arm/mm/ioremap.c                              |  8 ++++
- arch/arm64/include/asm/io.h                        |  4 ++
- arch/arm64/mm/ioremap.c                            |  9 +++++
- arch/s390/Makefile                                 | 10 +++++
- drivers/base/firmware_loader/main.c                | 17 ++++++++
- drivers/gpu/drm/nouveau/nouveau_backlight.c        |  9 +++--
- drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c |  2 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_fb.c                 |  2 +-
- drivers/hwmon/Kconfig                              |  2 +-
- drivers/hwmon/f71882fg.c                           |  5 ++-
- drivers/hwmon/tmp401.c                             | 11 ++++++
- drivers/net/dsa/bcm_sf2.c                          |  3 ++
- .../net/ethernet/aquantia/atlantic/aq_pci_func.c   |  4 +-
- drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  4 ++
- drivers/net/ethernet/intel/i40e/i40e_main.c        | 27 ++++++-------
- drivers/net/ethernet/mscc/ocelot_flower.c          |  5 ++-
- drivers/net/ethernet/mscc/ocelot_vcap.c            |  9 ++++-
- .../net/ethernet/pensando/ionic/ionic_bus_pci.c    |  3 +-
- drivers/net/ethernet/sfc/ef10.c                    |  5 +++
- drivers/net/ethernet/sfc/efx_channels.c            | 21 +++++-----
- drivers/net/ethernet/sfc/ptp.c                     | 14 ++++++-
- drivers/net/ethernet/sfc/ptp.h                     |  1 +
- drivers/net/ethernet/xilinx/xilinx_emaclite.c      | 15 --------
- drivers/net/phy/phy.c                              | 45 +++++++++++++++++++---
- drivers/net/phy/sfp.c                              | 12 +++++-
- drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c   |  2 +-
- drivers/net/wireless/mac80211_hwsim.c              |  3 ++
- drivers/s390/net/ctcm_mpc.c                        |  6 +--
- drivers/s390/net/ctcm_sysfs.c                      |  5 ++-
- drivers/s390/net/lcs.c                             |  7 ++--
- drivers/slimbus/qcom-ctrl.c                        |  4 +-
- drivers/tty/n_gsm.c                                | 12 ++++--
- drivers/tty/serial/8250/8250_mtk.c                 | 22 ++++++-----
- drivers/tty/serial/digicolor-usart.c               |  5 +--
- drivers/usb/class/cdc-wdm.c                        |  1 +
- drivers/usb/gadget/function/f_uvc.c                | 32 +++++++++++++--
- drivers/usb/gadget/function/uvc.h                  |  2 +
- drivers/usb/gadget/function/uvc_v4l2.c             |  3 +-
- drivers/usb/serial/option.c                        |  4 ++
- drivers/usb/serial/pl2303.c                        |  1 +
- drivers/usb/serial/pl2303.h                        |  1 +
- drivers/usb/serial/qcserial.c                      |  2 +
- drivers/usb/typec/tcpm/tcpci.c                     |  2 +-
- drivers/usb/typec/tcpm/tcpci_mt6360.c              | 26 +++++++++++++
- fs/ceph/file.c                                     | 16 ++++++--
- fs/file_table.c                                    |  1 +
- fs/gfs2/bmap.c                                     | 11 +++---
- fs/io_uring.c                                      |  2 +-
- fs/nfs/fs_context.c                                |  2 +-
- include/linux/netdev_features.h                    |  4 +-
- include/linux/sunrpc/xprtsock.h                    |  1 +
- include/net/tc_act/tc_pedit.h                      |  1 +
- include/trace/events/sunrpc.h                      |  1 -
- kernel/cgroup/cpuset.c                             |  7 +++-
- lib/dim/net_dim.c                                  | 44 ++++++++++-----------
- net/batman-adv/fragmentation.c                     | 11 ++++++
- net/core/secure_seq.c                              | 12 ++++--
- net/ipv4/ping.c                                    | 15 +++++++-
- net/ipv4/route.c                                   |  1 +
- net/mac80211/mlme.c                                |  6 +++
- net/netlink/af_netlink.c                           |  1 -
- net/sched/act_pedit.c                              | 26 +++++++++++--
- net/smc/smc_rx.c                                   |  4 +-
- net/sunrpc/rpc_pipe.c                              |  1 +
- net/sunrpc/xprt.c                                  | 36 ++++++++---------
- net/sunrpc/xprtsock.c                              | 37 ++++++++++++------
- net/tls/tls_device.c                               |  3 ++
- sound/soc/codecs/max98090.c                        |  5 ++-
- sound/soc/soc-ops.c                                | 18 ++++++++-
- tools/testing/selftests/vm/Makefile                | 10 ++---
- 72 files changed, 486 insertions(+), 184 deletions(-)
-
-
+ =20
