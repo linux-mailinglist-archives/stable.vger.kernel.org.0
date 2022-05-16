@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2239552901D
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8A6529046
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231430AbiEPUE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44054 "EHLO
+        id S241488AbiEPUEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:04:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348776AbiEPT64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:56 -0400
+        with ESMTP id S1348813AbiEPT66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:58 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27BBE49F04;
-        Mon, 16 May 2022 12:51:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D088A43AD5;
+        Mon, 16 May 2022 12:51:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B882B60A14;
-        Mon, 16 May 2022 19:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C19CBC34100;
-        Mon, 16 May 2022 19:51:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ACCC60A1C;
+        Mon, 16 May 2022 19:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57DBBC385AA;
+        Mon, 16 May 2022 19:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730661;
-        bh=GPeUlZ7dqcAiB0O1XvoRl8OE1TanIDmrxDmGkvO4ECk=;
+        s=korg; t=1652730667;
+        bh=18TsozEqMlpQhPgYryuK9UP4KaIWqrgwWG2uxJOE024=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3H4oeGmxchcgfJXeL3InNVo5eL6VATjXDBpejuUNTIcOdSpmhbuX+KWRKEItRSt8
-         mjE2jES2mXLm9iW3crUCupbRjU/BEHQvcjjKjFjrtXQm/1sgizJStzPULGjqeof0gV
-         cofkMfP+c2ahfAwgnK2JifU4HqB9hN0qCZUSfwDk=
+        b=kDp33ArcBPWeKw3LMeAjaI/u+b19PWZHSKpVM0Ws+Ohwjpykh3gL35aoMuM25PJBG
+         4mdOrogbUmvduqAxI2MY8MvRBbd0sIbU7k07Jb2gNI0mMWVJc8EjoOQ00t8AwOdEKI
+         g0oH3twDtBIIJFTDOxwDXm8i9ScFu4g7a2TqMoTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Ryazanov <ryazanov.s.a@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.15 070/102] usb: cdc-wdm: fix reading stuck on device close
-Date:   Mon, 16 May 2022 21:36:44 +0200
-Message-Id: <20220516193626.005661571@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.15 071/102] usb: typec: tcpci: Dont skip cleanup in .remove() on error
+Date:   Mon, 16 May 2022 21:36:45 +0200
+Message-Id: <20220516193626.035772505@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
 References: <20220516193623.989270214@linuxfoundation.org>
@@ -53,56 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-commit 01e01f5c89773c600a9f0b32c888de0146066c3a upstream.
+commit bbc126ae381cf0a27822c1f822d0aeed74cc40d9 upstream.
 
-cdc-wdm tracks whether a response reading request is in-progress and
-blocks the next request from being sent until the previous request is
-completed. As soon as last user closes the cdc-wdm device file, the
-driver cancels any ongoing requests, resets the pending response
-counter, but leaves the response reading in-progress flag
-(WDM_RESPONDING) untouched.
+Returning an error value in an i2c remove callback results in an error
+message being emitted by the i2c core, but otherwise it doesn't make a
+difference. The device goes away anyhow and the devm cleanups are
+called.
 
-So if the user closes the device file during the response receive
-request is being performed, no more data will be obtained from the
-modem. The request will be cancelled, effectively preventing the
-WDM_RESPONDING flag from being reseted. Keeping the flag set will
-prevent a new response receive request from being sent, permanently
-blocking the read path. The read path will staying blocked until the
-module will be reloaded or till the modem will be re-attached.
+In this case the remove callback even returns early without stopping the
+tcpm worker thread and various timers. A work scheduled on the work
+queue, or a firing timer after tcpci_remove() returned probably results
+in a use-after-free situation because the regmap and driver data were
+freed. So better make sure that tcpci_unregister_port() is called even
+if disabling the irq failed.
 
-This stuck has been observed with a Huawei E3372 modem attached to an
-OpenWrt router and using the comgt utility to set up a network
-connection.
+Also emit a more specific error message instead of the i2c core's
+"remove failed (EIO), will be ignored" and return 0 to suppress the
+core's warning.
 
-Fix this issue by clearing the WDM_RESPONDING flag on the device file
-close.
+This patch is (also) a preparation for making i2c remove callbacks
+return void.
 
-Without this fix, the device reading stuck can be easily reproduced in a
-few connection establishing attempts. With this fix, a load test for
-modem connection re-establishing worked for several hours without any
-issues.
-
-Fixes: 922a5eadd5a3 ("usb: cdc-wdm: Fix race between autosuspend and reading from the device")
-Signed-off-by: Sergey Ryazanov <ryazanov.s.a@gmail.com>
+Fixes: 3ba76256fc4e ("usb: typec: tcpci: mask event interrupts when remove driver")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20220501175828.8185-1-ryazanov.s.a@gmail.com
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220502080456.21568-1-u.kleine-koenig@pengutronix.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-wdm.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/typec/tcpm/tcpci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -774,6 +774,7 @@ static int wdm_release(struct inode *ino
- 			poison_urbs(desc);
- 			spin_lock_irq(&desc->iuspin);
- 			desc->resp_count = 0;
-+			clear_bit(WDM_RESPONDING, &desc->flags);
- 			spin_unlock_irq(&desc->iuspin);
- 			desc->manage_power(desc->intf, 0);
- 			unpoison_urbs(desc);
+--- a/drivers/usb/typec/tcpm/tcpci.c
++++ b/drivers/usb/typec/tcpm/tcpci.c
+@@ -877,7 +877,7 @@ static int tcpci_remove(struct i2c_clien
+ 	/* Disable chip interrupts before unregistering port */
+ 	err = tcpci_write16(chip->tcpci, TCPC_ALERT_MASK, 0);
+ 	if (err < 0)
+-		return err;
++		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
+ 
+ 	tcpci_unregister_port(chip->tcpci);
+ 
 
 
