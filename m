@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D7C529009
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0C4052918B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239593AbiEPUEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44924 "EHLO
+        id S236823AbiEPUH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348133AbiEPT60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:58:26 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EBE949250;
-        Mon, 16 May 2022 12:50:13 -0700 (PDT)
+        with ESMTP id S1349574AbiEPUAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F49742A0D;
+        Mon, 16 May 2022 12:54:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D745B81612;
-        Mon, 16 May 2022 19:50:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90B49C385AA;
-        Mon, 16 May 2022 19:50:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCA5DB81616;
+        Mon, 16 May 2022 19:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CCBC36AE3;
+        Mon, 16 May 2022 19:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730610;
-        bh=E6IEgSzYAeio9Qxj1EaJrujKdyR+K6hkdC/qFq7fLfw=;
+        s=korg; t=1652730813;
+        bh=T5cKcbqNML6arv7QQQM24bE8NTNyNMhal71VRn243Vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tpXxfd5mBgi0D7dwb7R6DKO8VatY/KecuPsBaYcw4zt55w4NgQ+RCQR8s/TFvNvAP
-         B3qC+5P79njWpKe6qJQix1PD7Fnbj9GuGJkegrUpDIzp/7tCsyLoH/lfzjLwrjgaN+
-         u4U63OWwjgacB52l10p6bhp9N03mn94HMZXTj7fA=
+        b=FmQMNl0whcMUor/zwmD8cd+ovkdpQ88WjsJ0VBYACEDj2v1YCLQNdilu7DJi3OYMj
+         NMFwLMo6wIcQF1M9PIfowWBYXoH64A2UwZWKmCNTrJbumAhQMmqqlfEROSECwumY7o
+         a7m4RcbGyRDEHuuH/gXR8TBgpj332pGAlIf3nqTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,12 +36,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Maximilian Luz <luzmaximilian@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/102] platform/surface: aggregator: Fix initialization order when compiling as builtin module
-Date:   Mon, 16 May 2022 21:35:47 +0200
-Message-Id: <20220516193624.377408906@linuxfoundation.org>
+Subject: [PATCH 5.17 014/114] platform/surface: aggregator: Fix initialization order when compiling as builtin module
+Date:   Mon, 16 May 2022 21:35:48 +0200
+Message-Id: <20220516193625.904984101@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -88,10 +88,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/platform/surface/aggregator/core.c b/drivers/platform/surface/aggregator/core.c
-index c61bbeeec2df..54f86df77a37 100644
+index d384d36098c2..a62c5dfe42d6 100644
 --- a/drivers/platform/surface/aggregator/core.c
 +++ b/drivers/platform/surface/aggregator/core.c
-@@ -816,7 +816,7 @@ static int __init ssam_core_init(void)
+@@ -817,7 +817,7 @@ static int __init ssam_core_init(void)
  err_bus:
  	return status;
  }
