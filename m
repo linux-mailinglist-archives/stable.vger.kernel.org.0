@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 761245290A6
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A814852911B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346422AbiEPTyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33112 "EHLO
+        id S1347269AbiEPUGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348163AbiEPTwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:42 -0400
+        with ESMTP id S1349105AbiEPT7K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:10 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091534552C;
-        Mon, 16 May 2022 12:48:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C3840937;
+        Mon, 16 May 2022 12:53:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A8F3B81607;
-        Mon, 16 May 2022 19:48:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70487C385AA;
-        Mon, 16 May 2022 19:48:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D723FB81627;
+        Mon, 16 May 2022 19:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D2A5C36AE7;
+        Mon, 16 May 2022 19:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730492;
-        bh=/Oks+nr+JGxMqRqVqWtXxyA40Fk18XVRbWUKGWN7zWM=;
+        s=korg; t=1652730800;
+        bh=YHCcsAPo3HXhqClBwVSBvvvHd29gyEvqoT/UiYF/VYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzbCgZ1uEg6tJNziPELf3qNQPZrmbK0pMzbWlkTMUSNdJ3t0pn/3P/9vZDK8Axmzr
-         msDxk2jFp0k5/xt1SXO2HKOgnthJQTr50IWFp7jzuSJ4Fp/89bnjsQEOWJMNJYJ8I/
-         tcR/ADi+TFvmAz7ZkUpDEMckjX0MM3nqyOpwQbwY=
+        b=EQzwGL7w/VWLKM3hGG/HqJbho8iFrgDYXiy4VRUMXm2bWiKosf+AY7nrB0ETGtef+
+         MAhaYRLETGmvX/nDmDHkCbm2baquaCPFtsHr+CM00+a0pKiunJIlIRjd+gETijXacK
+         mT6E6rOvtVVHqrP3AALR2ziOMZqtn7fZ2cCNeQ1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/102] net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
-Date:   Mon, 16 May 2022 21:35:43 +0200
-Message-Id: <20220516193624.262148362@linuxfoundation.org>
+Subject: [PATCH 5.17 010/114] net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
+Date:   Mon, 16 May 2022 21:35:44 +0200
+Message-Id: <20220516193625.793332837@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -139,10 +139,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/net/ethernet/mscc/ocelot_vcap.c b/drivers/net/ethernet/mscc/ocelot_vcap.c
-index c01cbc4f7a1a..732a4ef22518 100644
+index 6c643936c675..f159726788ba 100644
 --- a/drivers/net/ethernet/mscc/ocelot_vcap.c
 +++ b/drivers/net/ethernet/mscc/ocelot_vcap.c
-@@ -1152,6 +1152,8 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
+@@ -1181,6 +1181,8 @@ int ocelot_vcap_filter_add(struct ocelot *ocelot,
  		struct ocelot_vcap_filter *tmp;
  
  		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
@@ -151,7 +151,7 @@ index c01cbc4f7a1a..732a4ef22518 100644
  		vcap_entry_set(ocelot, i, tmp);
  	}
  
-@@ -1210,6 +1212,8 @@ int ocelot_vcap_filter_del(struct ocelot *ocelot,
+@@ -1239,6 +1241,8 @@ int ocelot_vcap_filter_del(struct ocelot *ocelot,
  		struct ocelot_vcap_filter *tmp;
  
  		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
