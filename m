@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87785528E12
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8454528F54
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:54:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345497AbiEPTig (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:38:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43946 "EHLO
+        id S244932AbiEPTyC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345555AbiEPTi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:38:28 -0400
+        with ESMTP id S1347759AbiEPTwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:18 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4ED3EF15;
-        Mon, 16 May 2022 12:38:22 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20C0427E6;
+        Mon, 16 May 2022 12:47:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11CC5B81607;
-        Mon, 16 May 2022 19:38:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5868FC34100;
-        Mon, 16 May 2022 19:38:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8687BB81614;
+        Mon, 16 May 2022 19:47:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAC3EC385AA;
+        Mon, 16 May 2022 19:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729899;
-        bh=QhK7PUB7yNqGI/huuaZDmFUQPMryOAaTHE/EDFra7Yc=;
+        s=korg; t=1652730464;
+        bh=dK7FvkxY95j5rtkl9TPq6ygVFfXCqeIs4v8TNpuGobQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToCNSbd71rOjxRJIPo9awaoGGtw5ITPFC88sN4OlK0yPtVrcSeFVTidK4lZ3/Tck8
-         o1KMcrk5HKHRbglZbD1mUYUiPiV+H4Wfj+Y1qD45KD1OHDwIPDHVtvKV10d3KSVfHQ
-         JOGmZCLgqsSQztIUXDjhltqcJJlQ+66quQWrNa+A=
+        b=Kj3D1F+D7tjESIzq2TF+HgYdtNZrKZFXhRxCuEF7PVoKEA+lqa15T949Cv3zKYNL3
+         M5UEJrukBSRHbfHeF0r0cV8roQEjcoCoDcEAIHK1gMaGUzM4fgXnSsFw2MJ9S+F4+0
+         RAgr2vOS9KUrJzC5WRgAWLpkWS4bplsyVja4Awsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sven Schwermer <sven.schwermer@disruptive-technologies.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 17/19] USB: serial: option: add Fibocom MA510 modem
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 30/66] gfs2: Fix filesystem block deallocation for short writes
 Date:   Mon, 16 May 2022 21:36:30 +0200
-Message-Id: <20220516193614.012671355@linuxfoundation.org>
+Message-Id: <20220516193620.286938380@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
-References: <20220516193613.497233635@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,117 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-commit 07989eb981d862f7f2be68d233d753f2e7ccc119 upstream.
+[ Upstream commit d031a8866e709c9d1ee5537a321b6192b4d2dc5b ]
 
-The MA510 modem has 3 USB configurations that are configurable via the AT
-command AT+GTUSBMODE={30,31,32} which make the modem enumerate with the
-following interfaces, respectively:
+When a write cannot be carried out in full, gfs2_iomap_end() releases
+blocks that have been allocated for this write but haven't been used.
 
-30: Diag + QDSS + Modem + RMNET
-31: Diag + Modem + AT + ECM
-32: Modem + AT + ECM
+To compute the end of the allocation, gfs2_iomap_end() incorrectly
+rounded the end of the attempted write down to the next block boundary
+to arrive at the end of the allocation.  It would have to round up, but
+the end of the allocation is also available as iomap->offset +
+iomap->length, so just use that instead.
 
-The first configuration (30) reuses u-blox R410M's VID/PID with
-identical interface configuration.
+In addition, use round_up() for computing the start of the unused range.
 
-A detailed description of the USB configuration for each mode follows:
-
-+GTUSBMODE: 30
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 19 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
-P:  Vendor=05c6 ProdID=90b2 Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-+GTUSBMODE: 31
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#= 99 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=0106 Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 5 Cfg#= 1 Atr=e0 MxPwr=500mA
-A:  FirstIf#= 3 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=82(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=83(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
-E:  Ad=84(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 3 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E:  Ad=86(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-I:  If#= 4 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 4 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E:  Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-+GTUSBMODE: 32
---------------
-T:  Bus=03 Lev=01 Prnt=01 Port=06 Cnt=04 Dev#=100 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2cb7 ProdID=010a Rev= 0.00
-S:  Manufacturer=Fibocom MA510 Modem
-S:  Product=Fibocom MA510 Modem
-S:  SerialNumber=55e2695b
-C:* #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
-A:  FirstIf#= 2 IfCount= 2 Cls=02(comm.) Sub=00 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=fe Prot=ff Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E:  Ad=85(I) Atr=03(Int.) MxPS=  64 Ivl=2ms
-I:  If#= 3 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 3 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Sven Schwermer <sven.schwermer@disruptive-technologies.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 64bc06bb32ee ("gfs2: iomap buffered write support")
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ fs/gfs2/bmap.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -2107,6 +2107,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(4) | RSVD(5) },
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
- 	  .driver_info = RSVD(6) },
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0106, 0xff) },			/* Fibocom MA510 (ECM mode w/ diag intf.) */
-+	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x010a, 0xff) },			/* Fibocom MA510 (ECM mode) */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0xff, 0x30) },	/* Fibocom FG150 Diag */
- 	{ USB_DEVICE_AND_INTERFACE_INFO(0x2cb7, 0x010b, 0xff, 0, 0) },		/* Fibocom FG150 AT */
- 	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x01a0, 0xff) },			/* Fibocom NL668-AM/NL652-EU (laptop MBIM) */
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index 6c047570d6a9..b4fde3a8eeb4 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -1235,13 +1235,12 @@ static int gfs2_iomap_end(struct inode *inode, loff_t pos, loff_t length,
+ 
+ 	if (length != written && (iomap->flags & IOMAP_F_NEW)) {
+ 		/* Deallocate blocks that were just allocated. */
+-		loff_t blockmask = i_blocksize(inode) - 1;
+-		loff_t end = (pos + length) & ~blockmask;
++		loff_t hstart = round_up(pos + written, i_blocksize(inode));
++		loff_t hend = iomap->offset + iomap->length;
+ 
+-		pos = (pos + written + blockmask) & ~blockmask;
+-		if (pos < end) {
+-			truncate_pagecache_range(inode, pos, end - 1);
+-			punch_hole(ip, pos, end - pos);
++		if (hstart < hend) {
++			truncate_pagecache_range(inode, hstart, hend - 1);
++			punch_hole(ip, hstart, hend - hstart);
+ 		}
+ 	}
+ 
+-- 
+2.35.1
+
 
 
