@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F0E4529072
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D5F529004
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346808AbiEPUMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57540 "EHLO
+        id S234923AbiEPUJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350561AbiEPUBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FC0A49FAE;
-        Mon, 16 May 2022 12:55:33 -0700 (PDT)
+        with ESMTP id S1350586AbiEPUBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC9149FAB;
+        Mon, 16 May 2022 12:55:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31D2E60FD9;
-        Mon, 16 May 2022 19:55:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224E5C34115;
-        Mon, 16 May 2022 19:55:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19C4160FE1;
+        Mon, 16 May 2022 19:55:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244CDC34100;
+        Mon, 16 May 2022 19:55:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730931;
-        bh=EwrlZFOvzJnjMTJ2FyUy85Q/vhUk54CTxzJFzMEnSow=;
+        s=korg; t=1652730934;
+        bh=EdXBI+t7Z+CJBmYfgvbfu0giiu3XH2CkqB+Azf5RDVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YRfmpfg2IkhsoTRP76maCmxcghA2OAjC3LhOKJWNVlaXLhvoaOO3PC8w2D0DLAKSD
-         7ppZUIPq1wX6zWJr1WiVefef3xCP2458mDKrFLVCbOlNNCQg7YtHTSNU8hFVWmi9Nd
-         wOrhzLvk8W8uimKOgBuurhTCkOZRKOUI6uIwO74I=
+        b=r/VEIrEqUznK1kLupwjdiq8pOIBsOQJ7v3ERT/Rfd26O3xPaxQig6h8yS8NSJiQB+
+         aKFEsBSfknV/uS4nSwCRHIgrOay1l6hsF6p7orUIYepjQTWkDvaBns8RzMNR+n6ndg
+         7CCSPCHVjLegH2HEyqoOqVu931HEmI7AY0c/qBQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 051/114] RDMA/irdma: Fix deadlock in irdma_cleanup_cm_core()
-Date:   Mon, 16 May 2022 21:36:25 +0200
-Message-Id: <20220516193626.959658720@linuxfoundation.org>
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Krishna Reddy <vdumpa@nvidia.com>,
+        Pritesh Raithatha <praithatha@nvidia.com>,
+        Ashish Mhetre <amhetre@nvidia.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 052/114] iommu: arm-smmu: disable large page mappings for Nvidia arm-smmu
+Date:   Mon, 16 May 2022 21:36:26 +0200
+Message-Id: <20220516193626.988968670@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
 References: <20220516193625.489108457@linuxfoundation.org>
@@ -55,60 +56,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Ashish Mhetre <amhetre@nvidia.com>
 
-[ Upstream commit 679ab61bf5f5f519377d812afb4fb93634782c74 ]
+[ Upstream commit 4a25f2ea0e030b2fc852c4059a50181bfc5b2f57 ]
 
-There is a deadlock in irdma_cleanup_cm_core(), which is shown below:
+Tegra194 and Tegra234 SoCs have the erratum that causes walk cache
+entries to not be invalidated correctly. The problem is that the walk
+cache index generated for IOVA is not same across translation and
+invalidation requests. This is leading to page faults when PMD entry is
+released during unmap and populated with new PTE table during subsequent
+map request. Disabling large page mappings avoids the release of PMD
+entry and avoid translations seeing stale PMD entry in walk cache.
+Fix this by limiting the page mappings to PAGE_SIZE for Tegra194 and
+Tegra234 devices. This is recommended fix from Tegra hardware design
+team.
 
-   (Thread 1)              |      (Thread 2)
-                           | irdma_schedule_cm_timer()
-irdma_cleanup_cm_core()    |  add_timer()
- spin_lock_irqsave() //(1) |  (wait a time)
- ...                       | irdma_cm_timer_tick()
- del_timer_sync()          |  spin_lock_irqsave() //(2)
- (wait timer to stop)      |  ...
-
-We hold cm_core->ht_lock in position (1) of thread 1 and use
-del_timer_sync() to wait timer to stop, but timer handler also need
-cm_core->ht_lock in position (2) of thread 2.  As a result,
-irdma_cleanup_cm_core() will block forever.
-
-This patch removes the check of timer_pending() in
-irdma_cleanup_cm_core(), because the del_timer_sync() function will just
-return directly if there isn't a pending timer. As a result, the lock is
-redundant, because there is no resource it could protect.
-
-Link: https://lore.kernel.org/r/20220418153322.42524-1-duoming@zju.edu.cn
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Acked-by: Robin Murphy <robin.murphy@arm.com>
+Reviewed-by: Krishna Reddy <vdumpa@nvidia.com>
+Co-developed-by: Pritesh Raithatha <praithatha@nvidia.com>
+Signed-off-by: Pritesh Raithatha <praithatha@nvidia.com>
+Signed-off-by: Ashish Mhetre <amhetre@nvidia.com>
+Link: https://lore.kernel.org/r/20220421081504.24678-1-amhetre@nvidia.com
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/irdma/cm.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c | 30 ++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/drivers/infiniband/hw/irdma/cm.c b/drivers/infiniband/hw/irdma/cm.c
-index 082a3ddb0fa3..632f65e53b63 100644
---- a/drivers/infiniband/hw/irdma/cm.c
-+++ b/drivers/infiniband/hw/irdma/cm.c
-@@ -3242,15 +3242,10 @@ enum irdma_status_code irdma_setup_cm_core(struct irdma_device *iwdev,
-  */
- void irdma_cleanup_cm_core(struct irdma_cm_core *cm_core)
- {
--	unsigned long flags;
--
- 	if (!cm_core)
- 		return;
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c b/drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c
+index 01e9b50b10a1..87bf522b9d2e 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c
+@@ -258,6 +258,34 @@ static void nvidia_smmu_probe_finalize(struct arm_smmu_device *smmu, struct devi
+ 			dev_name(dev), err);
+ }
  
--	spin_lock_irqsave(&cm_core->ht_lock, flags);
--	if (timer_pending(&cm_core->tcp_timer))
--		del_timer_sync(&cm_core->tcp_timer);
--	spin_unlock_irqrestore(&cm_core->ht_lock, flags);
-+	del_timer_sync(&cm_core->tcp_timer);
++static int nvidia_smmu_init_context(struct arm_smmu_domain *smmu_domain,
++				    struct io_pgtable_cfg *pgtbl_cfg,
++				    struct device *dev)
++{
++	struct arm_smmu_device *smmu = smmu_domain->smmu;
++	const struct device_node *np = smmu->dev->of_node;
++
++	/*
++	 * Tegra194 and Tegra234 SoCs have the erratum that causes walk cache
++	 * entries to not be invalidated correctly. The problem is that the walk
++	 * cache index generated for IOVA is not same across translation and
++	 * invalidation requests. This is leading to page faults when PMD entry
++	 * is released during unmap and populated with new PTE table during
++	 * subsequent map request. Disabling large page mappings avoids the
++	 * release of PMD entry and avoid translations seeing stale PMD entry in
++	 * walk cache.
++	 * Fix this by limiting the page mappings to PAGE_SIZE on Tegra194 and
++	 * Tegra234.
++	 */
++	if (of_device_is_compatible(np, "nvidia,tegra234-smmu") ||
++	    of_device_is_compatible(np, "nvidia,tegra194-smmu")) {
++		smmu->pgsize_bitmap = PAGE_SIZE;
++		pgtbl_cfg->pgsize_bitmap = smmu->pgsize_bitmap;
++	}
++
++	return 0;
++}
++
+ static const struct arm_smmu_impl nvidia_smmu_impl = {
+ 	.read_reg = nvidia_smmu_read_reg,
+ 	.write_reg = nvidia_smmu_write_reg,
+@@ -268,10 +296,12 @@ static const struct arm_smmu_impl nvidia_smmu_impl = {
+ 	.global_fault = nvidia_smmu_global_fault,
+ 	.context_fault = nvidia_smmu_context_fault,
+ 	.probe_finalize = nvidia_smmu_probe_finalize,
++	.init_context = nvidia_smmu_init_context,
+ };
  
- 	destroy_workqueue(cm_core->event_wq);
- 	cm_core->dev->ws_reset(&cm_core->iwdev->vsi);
+ static const struct arm_smmu_impl nvidia_smmu_single_impl = {
+ 	.probe_finalize = nvidia_smmu_probe_finalize,
++	.init_context = nvidia_smmu_init_context,
+ };
+ 
+ struct arm_smmu_device *nvidia_smmu_impl_init(struct arm_smmu_device *smmu)
 -- 
 2.35.1
 
