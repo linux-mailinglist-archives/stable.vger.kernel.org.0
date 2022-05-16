@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87DAC527F57
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:14:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 002CB527F5A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:15:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241515AbiEPIOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:14:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48546 "EHLO
+        id S241526AbiEPIO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 04:14:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241533AbiEPIOU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:14:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EBF736E19
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:14:19 -0700 (PDT)
+        with ESMTP id S241529AbiEPIO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:14:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F58336E19
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 01:14:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39A11611C6
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:14:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38901C385AA;
-        Mon, 16 May 2022 08:14:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4CC44B80E86
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 08:14:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE7C3C385AA;
+        Mon, 16 May 2022 08:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652688858;
-        bh=Ri06sU2LNa/ccnUNJZu7aoeTIdAKwOA2wum7oTnGDdQ=;
+        s=korg; t=1652688895;
+        bh=EOSGBnhTcr/QoNQCvCrvwPKX4dyNn4ykyIaxlKmSMcw=;
         h=Subject:To:Cc:From:Date:From;
-        b=grQH1x1hPsNFQcOaOLAJrm+miBQnb37GluFjKDTrUpkE8DWXosX4UWeSpoo7rAjsa
-         e5ztjjKK9zUwgQbiEMCDzO1TxGBQMhcWJdbPv5+UATpIezSlZHZbMo+uR2ctc0tN1I
-         eKKwL2rsowQ79XAIvW0dDA7aT4lxpe8RxKYl1y6c=
-Subject: FAILED: patch "[PATCH] net: phy: Fix race condition on link status change" failed to apply to 4.14-stable tree
-To:     francesco.dolcini@toradex.com, andrew@lunn.ch, kuba@kernel.org,
-        stable@vger.kernel.org
+        b=u1PTqVyx783qJYmut7W+eGEMw29hId9OZ3rGiuokiW5nv6zpHemWd8kedsROMEUal
+         bvcYYv6YF8hG1H5lMyr+4spMxEI8ID31uuBplEes8EaYCs5A61uKK8S+FlvSEqtxfB
+         h0T9wc/+3DeaGb+09IRVIwX9V43aY2l/XV+UZ8uY=
+Subject: FAILED: patch "[PATCH] writeback: Avoid skipping inode writeback" failed to apply to 5.10-stable tree
+To:     jing.xia@unisoc.com, hch@lst.de, jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 16 May 2022 10:14:10 +0200
-Message-ID: <16526888508534@kroah.com>
+Date:   Mon, 16 May 2022 10:14:52 +0200
+Message-ID: <165268889253219@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -60,97 +59,66 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 91a7cda1f4b8bdf770000a3b60640576dafe0cec Mon Sep 17 00:00:00 2001
-From: Francesco Dolcini <francesco.dolcini@toradex.com>
-Date: Fri, 6 May 2022 08:08:15 +0200
-Subject: [PATCH] net: phy: Fix race condition on link status change
+From 846a3351ddfe4a86eede4bb26a205c3f38ef84d3 Mon Sep 17 00:00:00 2001
+From: Jing Xia <jing.xia@unisoc.com>
+Date: Tue, 10 May 2022 10:35:14 +0800
+Subject: [PATCH] writeback: Avoid skipping inode writeback
 
-This fixes the following error caused by a race condition between
-phydev->adjust_link() and a MDIO transaction in the phy interrupt
-handler. The issue was reproduced with the ethernet FEC driver and a
-micrel KSZ9031 phy.
+We have run into an issue that a task gets stuck in
+balance_dirty_pages_ratelimited() when perform I/O stress testing.
+The reason we observed is that an I_DIRTY_PAGES inode with lots
+of dirty pages is in b_dirty_time list and standard background
+writeback cannot writeback the inode.
+After studing the relevant code, the following scenario may lead
+to the issue:
 
-[  146.195696] fec 2188000.ethernet eth0: MDIO read timeout
-[  146.201779] ------------[ cut here ]------------
-[  146.206671] WARNING: CPU: 0 PID: 571 at drivers/net/phy/phy.c:942 phy_error+0x24/0x6c
-[  146.214744] Modules linked in: bnep imx_vdoa imx_sdma evbug
-[  146.220640] CPU: 0 PID: 571 Comm: irq/128-2188000 Not tainted 5.18.0-rc3-00080-gd569e86915b7 #9
-[  146.229563] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-[  146.236257]  unwind_backtrace from show_stack+0x10/0x14
-[  146.241640]  show_stack from dump_stack_lvl+0x58/0x70
-[  146.246841]  dump_stack_lvl from __warn+0xb4/0x24c
-[  146.251772]  __warn from warn_slowpath_fmt+0x5c/0xd4
-[  146.256873]  warn_slowpath_fmt from phy_error+0x24/0x6c
-[  146.262249]  phy_error from kszphy_handle_interrupt+0x40/0x48
-[  146.268159]  kszphy_handle_interrupt from irq_thread_fn+0x1c/0x78
-[  146.274417]  irq_thread_fn from irq_thread+0xf0/0x1dc
-[  146.279605]  irq_thread from kthread+0xe4/0x104
-[  146.284267]  kthread from ret_from_fork+0x14/0x28
-[  146.289164] Exception stack(0xe6fa1fb0 to 0xe6fa1ff8)
-[  146.294448] 1fa0:                                     00000000 00000000 00000000 00000000
-[  146.302842] 1fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-[  146.311281] 1fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-[  146.318262] irq event stamp: 12325
-[  146.321780] hardirqs last  enabled at (12333): [<c01984c4>] __up_console_sem+0x50/0x60
-[  146.330013] hardirqs last disabled at (12342): [<c01984b0>] __up_console_sem+0x3c/0x60
-[  146.338259] softirqs last  enabled at (12324): [<c01017f0>] __do_softirq+0x2c0/0x624
-[  146.346311] softirqs last disabled at (12319): [<c01300ac>] __irq_exit_rcu+0x138/0x178
-[  146.354447] ---[ end trace 0000000000000000 ]---
+task1                                   task2
+-----                                   -----
+fuse_flush
+ write_inode_now //in b_dirty_time
+  writeback_single_inode
+   __writeback_single_inode
+                                 fuse_write_end
+                                  filemap_dirty_folio
+                                   __xa_set_mark:PAGECACHE_TAG_DIRTY
+    lock inode->i_lock
+    if mapping tagged PAGECACHE_TAG_DIRTY
+    inode->i_state |= I_DIRTY_PAGES
+    unlock inode->i_lock
+                                   __mark_inode_dirty:I_DIRTY_PAGES
+                                      lock inode->i_lock
+                                      -was dirty,inode stays in
+                                      -b_dirty_time
+                                      unlock inode->i_lock
 
-With the FEC driver phydev->adjust_link() calls fec_enet_adjust_link()
-calls fec_stop()/fec_restart() and both these function reset and
-temporary disable the FEC disrupting any MII transaction that
-could be happening at the same time.
+   if(!(inode->i_state & I_DIRTY_All))
+      -not true,so nothing done
 
-fec_enet_adjust_link() and phy_read() can be running at the same time
-when we have one additional interrupt before the phy_state_machine() is
-able to terminate.
+This patch moves the dirty inode to b_dirty list when the inode
+currently is not queued in b_io or b_more_io list at the end of
+writeback_single_inode.
 
-Thread 1 (phylib WQ)       | Thread 2 (phy interrupt)
-                           |
-                           | phy_interrupt()            <-- PHY IRQ
-                           |  handle_interrupt()
-                           |   phy_read()
-                           |   phy_trigger_machine()
-                           |    --> schedule phylib WQ
-                           |
-                           |
-phy_state_machine()        |
- phy_check_link_status()   |
-  phy_link_change()        |
-   phydev->adjust_link()   |
-    fec_enet_adjust_link() |
-     --> FEC reset         | phy_interrupt()            <-- PHY IRQ
-                           |  phy_read()
-                           |
+Reviewed-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+CC: stable@vger.kernel.org
+Fixes: 0ae45f63d4ef ("vfs: add support for a lazytime mount option")
+Signed-off-by: Jing Xia <jing.xia@unisoc.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20220510023514.27399-1-jing.xia@unisoc.com
 
-Fix this by acquiring the phydev lock in phy_interrupt().
-
-Link: https://lore.kernel.org/all/20220422152612.GA510015@francesco-nb.int.toradex.com/
-Fixes: c974bdbc3e77 ("net: phy: Use threaded IRQ, to allow IRQ from sleeping devices")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220506060815.327382-1-francesco.dolcini@toradex.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/phy/phy.c b/drivers/net/phy/phy.c
-index beb2b66da132..f122026c4682 100644
---- a/drivers/net/phy/phy.c
-+++ b/drivers/net/phy/phy.c
-@@ -970,8 +970,13 @@ static irqreturn_t phy_interrupt(int irq, void *phy_dat)
- {
- 	struct phy_device *phydev = phy_dat;
- 	struct phy_driver *drv = phydev->drv;
-+	irqreturn_t ret;
- 
--	return drv->handle_interrupt(phydev);
-+	mutex_lock(&phydev->lock);
-+	ret = drv->handle_interrupt(phydev);
-+	mutex_unlock(&phydev->lock);
+diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
+index 591fe9cf1659..1fae0196292a 100644
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -1712,6 +1712,10 @@ static int writeback_single_inode(struct inode *inode,
+ 	 */
+ 	if (!(inode->i_state & I_DIRTY_ALL))
+ 		inode_cgwb_move_to_attached(inode, wb);
++	else if (!(inode->i_state & I_SYNC_QUEUED) &&
++		 (inode->i_state & I_DIRTY))
++		redirty_tail_locked(inode, wb);
 +
-+	return ret;
- }
- 
- /**
+ 	spin_unlock(&wb->list_lock);
+ 	inode_sync_complete(inode);
+ out:
 
