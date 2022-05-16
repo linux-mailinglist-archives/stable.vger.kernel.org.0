@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B56B0528E75
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4EB9528E5B
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239562AbiEPTng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:43:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44886 "EHLO
+        id S237580AbiEPTnF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346136AbiEPTmv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:51 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD643F89E;
-        Mon, 16 May 2022 12:41:49 -0700 (PDT)
+        with ESMTP id S1345984AbiEPTlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771003FD88;
+        Mon, 16 May 2022 12:39:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46D7FB8160F;
-        Mon, 16 May 2022 19:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A8FC385AA;
-        Mon, 16 May 2022 19:41:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1418F6153A;
+        Mon, 16 May 2022 19:39:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1761DC385AA;
+        Mon, 16 May 2022 19:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730107;
-        bh=gAF9QkJ8n4r0KvHDf7oKdqFvbg1AdydfWIN71I3LAy8=;
+        s=korg; t=1652729998;
+        bh=ZyL6o4FfuIun6UxesZ496b+h08r3uv+U8NXj3vVd1EI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AjEm5k7y2nfwwNpffsL4ww7bhA8ja52a/GkoyeSMzssdpLql2iXUxWbmhEA+mX2tt
-         6zhueFxQe8mAJSOoYspmk8ZqUnBZocPDxFxJZdkEqHCjHZY2+QI8JL1dPND+PZl7k6
-         UhA3YiS121I1Cj79fCVP61tR2OG8kce5yjaa4ENk=
+        b=ZyK2AYBvsar5P9zR9yjNzKMy9P4v6E1DiMF8XtrMKEDkL4EQjZkTrAIQq2gVbe+l2
+         Fzej0XqnwNzloVg0cspPrzgHFt5I/IOlY8kJ57JxndsnhZPzzo7FoVADP7tybXa+bN
+         /w3i9j3zsOT1BzcJ8d8cqST2DSpmw9A5KUcLqJf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ethan Yang <etyang@sierrawireless.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 24/32] USB: serial: qcserial: add support for Sierra Wireless EM7590
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.14 24/25] ping: fix address binding wrt vrf
 Date:   Mon, 16 May 2022 21:36:38 +0200
-Message-Id: <20220516193615.491311549@linuxfoundation.org>
+Message-Id: <20220516193615.414078006@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-References: <20220516193614.773450018@linuxfoundation.org>
+In-Reply-To: <20220516193614.678319286@linuxfoundation.org>
+References: <20220516193614.678319286@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,31 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ethan Yang <etyang@sierrawireless.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-commit 870b1eee2d844727b06e238c121d260bc5645580 upstream.
+commit e1a7ac6f3ba6e157adcd0ca94d92a401f1943f56 upstream.
 
-Add support for Sierra Wireless EM7590 0xc080/0xc081 compositions.
+When ping_group_range is updated, 'ping' uses the DGRAM ICMP socket,
+instead of an IP raw socket. In this case, 'ping' is unable to bind its
+socket to a local address owned by a vrflite.
 
-Signed-off-by: Ethan Yang <etyang@sierrawireless.com>
-Link: https://lore.kernel.org/r/20220425055840.5693-1-etyang@sierrawireless.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Before the patch:
+$ sysctl -w net.ipv4.ping_group_range='0  2147483647'
+$ ip link add blue type vrf table 10
+$ ip link add foo type dummy
+$ ip link set foo master blue
+$ ip link set foo up
+$ ip addr add 192.168.1.1/24 dev foo
+$ ip addr add 2001::1/64 dev foo
+$ ip vrf exec blue ping -c1 -I 192.168.1.1 192.168.1.2
+ping: bind: Cannot assign requested address
+$ ip vrf exec blue ping6 -c1 -I 2001::1 2001::2
+ping6: bind icmp socket: Cannot assign requested address
+
+CC: stable@vger.kernel.org
+Fixes: 1b69c6d0ae90 ("net: Introduce L3 Master device abstraction")
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/qcserial.c |    2 ++
- 1 file changed, 2 insertions(+)
+ net/ipv4/ping.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/qcserial.c
-+++ b/drivers/usb/serial/qcserial.c
-@@ -166,6 +166,8 @@ static const struct usb_device_id id_tab
- 	{DEVICE_SWI(0x1199, 0x9090)},	/* Sierra Wireless EM7565 QDL */
- 	{DEVICE_SWI(0x1199, 0x9091)},	/* Sierra Wireless EM7565 */
- 	{DEVICE_SWI(0x1199, 0x90d2)},	/* Sierra Wireless EM9191 QDL */
-+	{DEVICE_SWI(0x1199, 0xc080)},	/* Sierra Wireless EM7590 QDL */
-+	{DEVICE_SWI(0x1199, 0xc081)},	/* Sierra Wireless EM7590 */
- 	{DEVICE_SWI(0x413c, 0x81a2)},	/* Dell Wireless 5806 Gobi(TM) 4G LTE Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a3)},	/* Dell Wireless 5570 HSPA+ (42Mbps) Mobile Broadband Card */
- 	{DEVICE_SWI(0x413c, 0x81a4)},	/* Dell Wireless 5570e HSPA+ (42Mbps) Mobile Broadband Card */
+--- a/net/ipv4/ping.c
++++ b/net/ipv4/ping.c
+@@ -309,6 +309,7 @@ static int ping_check_bind_addr(struct s
+ 	struct net *net = sock_net(sk);
+ 	if (sk->sk_family == AF_INET) {
+ 		struct sockaddr_in *addr = (struct sockaddr_in *) uaddr;
++		u32 tb_id = RT_TABLE_LOCAL;
+ 		int chk_addr_ret;
+ 
+ 		if (addr_len < sizeof(*addr))
+@@ -322,7 +323,8 @@ static int ping_check_bind_addr(struct s
+ 		pr_debug("ping_check_bind_addr(sk=%p,addr=%pI4,port=%d)\n",
+ 			 sk, &addr->sin_addr.s_addr, ntohs(addr->sin_port));
+ 
+-		chk_addr_ret = inet_addr_type(net, addr->sin_addr.s_addr);
++		tb_id = l3mdev_fib_table_by_index(net, sk->sk_bound_dev_if) ? : tb_id;
++		chk_addr_ret = inet_addr_type_table(net, addr->sin_addr.s_addr, tb_id);
+ 
+ 		if (addr->sin_addr.s_addr == htonl(INADDR_ANY))
+ 			chk_addr_ret = RTN_LOCAL;
+@@ -362,6 +364,14 @@ static int ping_check_bind_addr(struct s
+ 			if (!dev) {
+ 				rcu_read_unlock();
+ 				return -ENODEV;
++			}
++		}
++
++		if (!dev && sk->sk_bound_dev_if) {
++			dev = dev_get_by_index_rcu(net, sk->sk_bound_dev_if);
++			if (!dev) {
++				rcu_read_unlock();
++				return -ENODEV;
+ 			}
+ 		}
+ 		has_addr = pingv6_ops.ipv6_chk_addr(net, &addr->sin6_addr, dev,
 
 
