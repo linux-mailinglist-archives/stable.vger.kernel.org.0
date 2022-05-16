@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D06E528E3D
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1475E528E69
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345574AbiEPTjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:39:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44110 "EHLO
+        id S1346019AbiEPTnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345575AbiEPTii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:38:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD513F33E;
-        Mon, 16 May 2022 12:38:36 -0700 (PDT)
+        with ESMTP id S1346033AbiEPTms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D163F322;
+        Mon, 16 May 2022 12:41:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B942B81614;
-        Mon, 16 May 2022 19:38:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E53CC34100;
-        Mon, 16 May 2022 19:38:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91FD161548;
+        Mon, 16 May 2022 19:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83CF5C385AA;
+        Mon, 16 May 2022 19:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652729913;
-        bh=WLlyVgr2e+juArSHKjw7dxALncHO2utgAwjIxtsbS+o=;
+        s=korg; t=1652730070;
+        bh=Kt5dt3FlKV7eGa6zGiDS99m4kzuj0Lcok+UidDRxhSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGeDMtJODDc5aIo+4lL0jLjFBQOQMe3Fk0wYQVoK0h4rgMZIQ/kI8x9wggRGH4mXL
-         Y2LheIYHIVQbVKEoJD/UV8SjKTlo+ktzQQ75lKexU02txlqAWMm6iuM8W+vdg83+nM
-         ElUHqf8gsu64v5fSH4KkWxdbtAzSyVNbSezXymCg=
+        b=mYlZp30pplIMgRb7HrACecRuAGPNxdUK0mRJdDlWWgDpWDLDbhFaT4eeZJ5adcbqD
+         G6mz4TmwJRFef8QyCYSRIdYN1k7KWdwOFKotT/NqsXrM02teBY3Wub9z6/UufRSe+8
+         h9IHhqlXQ3NO98LORAaxV0wpwp11V8Fj86x4pIsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Tariq Toukan <tariqt@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/19] mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+Subject: [PATCH 4.19 03/32] net: Fix features skip in for_each_netdev_feature()
 Date:   Mon, 16 May 2022 21:36:17 +0200
-Message-Id: <20220516193613.629673854@linuxfoundation.org>
+Message-Id: <20220516193614.877806329@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
-References: <20220516193613.497233635@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Tariq Toukan <tariqt@nvidia.com>
 
-[ Upstream commit 9e2db50f1ef2238fc2f71c5de1c0418b7a5b0ea2 ]
+[ Upstream commit 85db6352fc8a158a893151baa1716463d34a20d0 ]
 
-This is needed since it might use (and pass out) pointers to
-e.g. keys protected by RCU. Can't really happen here as the
-frames aren't encrypted, but we need to still adhere to the
-rules.
+The find_next_netdev_feature() macro gets the "remaining length",
+not bit index.
+Passing "bit - 1" for the following iteration is wrong as it skips
+the adjacent bit. Pass "bit" instead.
 
-Fixes: cacfddf82baf ("mac80211_hwsim: initialize ieee80211_tx_info at hw_scan_work")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220505230421.5f139f9de173.I77ae111a28f7c0e9fd1ebcee7f39dbec5c606770@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 3b89ea9c5902 ("net: Fix for_each_netdev_feature on Big endian")
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Link: https://lore.kernel.org/r/20220504080914.1918-1-tariqt@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mac80211_hwsim.c | 3 +++
- 1 file changed, 3 insertions(+)
+ include/linux/netdev_features.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mac80211_hwsim.c b/drivers/net/wireless/mac80211_hwsim.c
-index a34647efb5ea..2cd1b3cfcc09 100644
---- a/drivers/net/wireless/mac80211_hwsim.c
-+++ b/drivers/net/wireless/mac80211_hwsim.c
-@@ -1987,11 +1987,13 @@ static void hw_scan_work(struct work_struct *work)
- 				memcpy(skb_put(probe, req->ie_len), req->ie,
- 				       req->ie_len);
+diff --git a/include/linux/netdev_features.h b/include/linux/netdev_features.h
+index 2a8105d204a9..78411dc4a040 100644
+--- a/include/linux/netdev_features.h
++++ b/include/linux/netdev_features.h
+@@ -156,7 +156,7 @@ enum {
+ #define NETIF_F_HW_TLS_TX	__NETIF_F(HW_TLS_TX)
+ #define NETIF_F_HW_TLS_RX	__NETIF_F(HW_TLS_RX)
  
-+			rcu_read_lock();
- 			if (!ieee80211_tx_prepare_skb(hwsim->hw,
- 						      hwsim->hw_scan_vif,
- 						      probe,
- 						      hwsim->tmp_chan->band,
- 						      NULL)) {
-+				rcu_read_unlock();
- 				kfree_skb(probe);
- 				continue;
- 			}
-@@ -1999,6 +2001,7 @@ static void hw_scan_work(struct work_struct *work)
- 			local_bh_disable();
- 			mac80211_hwsim_tx_frame(hwsim->hw, probe,
- 						hwsim->tmp_chan);
-+			rcu_read_unlock();
- 			local_bh_enable();
- 		}
- 	}
+-/* Finds the next feature with the highest number of the range of start till 0.
++/* Finds the next feature with the highest number of the range of start-1 till 0.
+  */
+ static inline int find_next_netdev_feature(u64 feature, unsigned long start)
+ {
+@@ -175,7 +175,7 @@ static inline int find_next_netdev_feature(u64 feature, unsigned long start)
+ 	for ((bit) = find_next_netdev_feature((mask_addr),		\
+ 					      NETDEV_FEATURE_COUNT);	\
+ 	     (bit) >= 0;						\
+-	     (bit) = find_next_netdev_feature((mask_addr), (bit) - 1))
++	     (bit) = find_next_netdev_feature((mask_addr), (bit)))
+ 
+ /* Features valid for ethtool to change */
+ /* = all defined minus driver/device-class-related */
 -- 
 2.35.1
 
