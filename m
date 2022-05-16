@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC30A529150
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE755290B1
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:45:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351317AbiEPUDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:03:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44148 "EHLO
+        id S1351334AbiEPUDF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:03:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346941AbiEPT4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:56:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E22947ACE;
-        Mon, 16 May 2022 12:49:21 -0700 (PDT)
+        with ESMTP id S1347259AbiEPT5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:57:13 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB74248322;
+        Mon, 16 May 2022 12:49:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8993560ABE;
-        Mon, 16 May 2022 19:49:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C44CC385AA;
-        Mon, 16 May 2022 19:49:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA6DBB8160E;
+        Mon, 16 May 2022 19:49:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F5FCC385AA;
+        Mon, 16 May 2022 19:49:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730559;
-        bh=GZmT6UyDgzYGY7TSs0kpvPrztQ8Bwwl5DZCnoBnMDac=;
+        s=korg; t=1652730566;
+        bh=oKUq3ahdpov0ZIOK2pIDkvBQ76LZxb00R113HUGe/Sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwk3n0bOcPT1ibDGtrMYlHyWevz3Pxj4OTFN7NoAnvFwjefN0LByX6AZ3JGWQJNB5
-         8fSUQqzQlpf9Sv/wTR3JFl5CjOeqKD+zGevT+FLMM2jFBgszuzAn9FpL3nOeF0GdTW
-         iFMaSDYBOWYsVHmBymc4qaAXC4uv5R8Pedv9FI3M=
+        b=Das1GHH4SslbI7btY/+jWv+FTJZG3zFUZm7Kszh30rCFk2p3dB0kxAgpKzle5SbYa
+         rwcTIK6AjjRWJUsalQ+IazX4+34rTdFgwB2lRAogmUWshhtYPjEvsFW7zR+JST8SBh
+         TjeBzSW2vLpRBKxGmkQaRM3DVGJ1A0IRxxri405U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Hui Tang <tanghui20@huawei.com>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/102] net: bcmgenet: Check for Wake-on-LAN interrupt probe deferral
-Date:   Mon, 16 May 2022 21:36:11 +0200
-Message-Id: <20220516193625.065740411@linuxfoundation.org>
+Subject: [PATCH 5.15 038/102] drm/vc4: hdmi: Fix build error for implicit function declaration
+Date:   Mon, 16 May 2022 21:36:12 +0200
+Message-Id: <20220516193625.094526815@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
 References: <20220516193623.989270214@linuxfoundation.org>
@@ -55,42 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Hui Tang <tanghui20@huawei.com>
 
-[ Upstream commit 6b77c06655b8a749c1a3d9ebc51e9717003f7e5a ]
+[ Upstream commit 6fed53de560768bde6d701a7c79c253b45b259e3 ]
 
-The interrupt controller supplying the Wake-on-LAN interrupt line maybe
-modular on some platforms (irq-bcm7038-l1.c) and might be probed at a
-later time than the GENET driver. We need to specifically check for
--EPROBE_DEFER and propagate that error to ensure that we eventually
-fetch the interrupt descriptor.
+drivers/gpu/drm/vc4/vc4_hdmi.c: In function ‘vc4_hdmi_connector_detect’:
+drivers/gpu/drm/vc4/vc4_hdmi.c:228:7: error: implicit declaration of function ‘gpiod_get_value_cansleep’; did you mean ‘gpio_get_value_cansleep’? [-Werror=implicit-function-declaration]
+   if (gpiod_get_value_cansleep(vc4_hdmi->hpd_gpio))
+       ^~~~~~~~~~~~~~~~~~~~~~~~
+       gpio_get_value_cansleep
+  CC [M]  drivers/gpu/drm/vc4/vc4_validate.o
+  CC [M]  drivers/gpu/drm/vc4/vc4_v3d.o
+  CC [M]  drivers/gpu/drm/vc4/vc4_validate_shaders.o
+  CC [M]  drivers/gpu/drm/vc4/vc4_debugfs.o
+drivers/gpu/drm/vc4/vc4_hdmi.c: In function ‘vc4_hdmi_bind’:
+drivers/gpu/drm/vc4/vc4_hdmi.c:2883:23: error: implicit declaration of function ‘devm_gpiod_get_optional’; did you mean ‘devm_clk_get_optional’? [-Werror=implicit-function-declaration]
+  vc4_hdmi->hpd_gpio = devm_gpiod_get_optional(dev, "hpd", GPIOD_IN);
+                       ^~~~~~~~~~~~~~~~~~~~~~~
+                       devm_clk_get_optional
+drivers/gpu/drm/vc4/vc4_hdmi.c:2883:59: error: ‘GPIOD_IN’ undeclared (first use in this function); did you mean ‘GPIOF_IN’?
+  vc4_hdmi->hpd_gpio = devm_gpiod_get_optional(dev, "hpd", GPIOD_IN);
+                                                           ^~~~~~~~
+                                                           GPIOF_IN
+drivers/gpu/drm/vc4/vc4_hdmi.c:2883:59: note: each undeclared identifier is reported only once for each function it appears in
+cc1: all warnings being treated as errors
 
-Fixes: 9deb48b53e7f ("bcmgenet: add WOL IRQ check")
-Fixes: 5b1f0e62941b ("net: bcmgenet: Avoid touching non-existent interrupt")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Stefan Wahren <stefan.wahren@i2se.com>
-Link: https://lore.kernel.org/r/20220511031752.2245566-1-f.fainelli@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 6800234ceee0 ("drm/vc4: hdmi: Convert to gpiod")
+Signed-off-by: Hui Tang <tanghui20@huawei.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220510135148.247719-1-tanghui20@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-index 8bcc39b1575c..ea1391753752 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3950,6 +3950,10 @@ static int bcmgenet_probe(struct platform_device *pdev)
- 		goto err;
- 	}
- 	priv->wol_irq = platform_get_irq_optional(pdev, 2);
-+	if (priv->wol_irq == -EPROBE_DEFER) {
-+		err = priv->wol_irq;
-+		goto err;
-+	}
- 
- 	priv->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(priv->base)) {
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 07887cbfd9cb..ef7bea7c43a0 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -38,6 +38,7 @@
+ #include <drm/drm_scdc_helper.h>
+ #include <linux/clk.h>
+ #include <linux/component.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/i2c.h>
+ #include <linux/of_address.h>
+ #include <linux/of_gpio.h>
 -- 
 2.35.1
 
