@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AF93528F4C
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6C9B528F4A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238916AbiEPTxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
+        id S1346407AbiEPTxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:53:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347039AbiEPTvf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76D13FBD6;
-        Mon, 16 May 2022 12:46:44 -0700 (PDT)
+        with ESMTP id S1347049AbiEPTvg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D6EF2F3;
+        Mon, 16 May 2022 12:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C2F6604F5;
-        Mon, 16 May 2022 19:46:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D02FC385AA;
-        Mon, 16 May 2022 19:46:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACF6660A1C;
+        Mon, 16 May 2022 19:46:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B414AC385AA;
+        Mon, 16 May 2022 19:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730403;
-        bh=2dqIFbD/1xq+mInJPqNxPK1QhNRQ0cRRfbZNWQ5TaYg=;
+        s=korg; t=1652730412;
+        bh=ZY7r6g2FfkeLnQCs4ZNZ/uMW7ITBX/uqL8DkAAxNV/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tc6pIGK1Equlu00j8A3VasCvTZPuMoSJl+NNlxt+nwXfNf4iBvaLcFAkDvC3CT5FQ
-         CqDY/m6JGoTOFo7QIVmMEAdiSs3LNat3XkpL4/t9rZKChfJgJSggudGE3JKNceMvTr
-         yeL18T2qm2CGz16zgj7fIogtqe2e8qmupkAPdOH4=
+        b=dV8cbEWylOI8KUphbznskEaEtq2/j/9Mgnx3DupxdytXHBIkgzheATatPB8tadN8N
+         UA7xhQpjdjvDSh8nFG4nIODcihNT5DbryGvREKzsaEDWC/huyjRfMxURgLWh6qgd2K
+         JCGftmJyuJLE9V0fteDNAvqGIVY2+sQ9nAimylY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaomeng Tong <xiam0nd.tong@gmail.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.10 54/66] i40e: i40e_main: fix a missing check on list iterator
-Date:   Mon, 16 May 2022 21:36:54 +0200
-Message-Id: <20220516193620.971383985@linuxfoundation.org>
+        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>
+Subject: [PATCH 5.10 57/66] drm/vmwgfx: Initialize drm_mode_fb_cmd2
+Date:   Mon, 16 May 2022 21:36:57 +0200
+Message-Id: <20220516193621.059771631@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
 References: <20220516193619.400083785@linuxfoundation.org>
@@ -55,92 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaomeng Tong <xiam0nd.tong@gmail.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 3f95a7472d14abef284d8968734fe2ae7ff4845f upstream.
+commit 3059d9b9f6aa433a55b9d0d21b566396d5497c33 upstream.
 
-The bug is here:
-	ret = i40e_add_macvlan_filter(hw, ch->seid, vdev->dev_addr, &aq_err);
+Transition to drm_mode_fb_cmd2 from drm_mode_fb_cmd left the structure
+unitialized. drm_mode_fb_cmd2 adds a few additional members, e.g. flags
+and modifiers which were never initialized. Garbage in those members
+can cause random failures during the bringup of the fbcon.
 
-The list iterator 'ch' will point to a bogus position containing
-HEAD if the list is empty or no element is found. This case must
-be checked before any use of the iterator, otherwise it will
-lead to a invalid memory access.
+Initializing the structure fixes random blank screens after bootup due
+to flags/modifiers mismatches during the fbcon bring up.
 
-To fix this bug, use a new variable 'iter' as the list iterator,
-while use the origin variable 'ch' as a dedicated pointer to
-point to the found element.
-
-Cc: stable@vger.kernel.org
-Fixes: 1d8d80b4e4ff6 ("i40e: Add macvlan support on i40e")
-Signed-off-by: Xiaomeng Tong <xiam0nd.tong@gmail.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20220510204846.2166999-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: dabdcdc9822a ("drm/vmwgfx: Switch to mode_cmd2")
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>
+Cc: <stable@vger.kernel.org> # v4.10+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220302152426.885214-7-zack@kde.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   27 ++++++++++++++-------------
- 1 file changed, 14 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -7175,42 +7175,43 @@ static void i40e_free_macvlan_channels(s
- static int i40e_fwd_ring_up(struct i40e_vsi *vsi, struct net_device *vdev,
- 			    struct i40e_fwd_adapter *fwd)
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
+@@ -498,7 +498,7 @@ static int vmw_fb_kms_detach(struct vmw_
+ 
+ static int vmw_fb_kms_framebuffer(struct fb_info *info)
  {
-+	struct i40e_channel *ch = NULL, *ch_tmp, *iter;
- 	int ret = 0, num_tc = 1,  i, aq_err;
--	struct i40e_channel *ch, *ch_tmp;
- 	struct i40e_pf *pf = vsi->back;
- 	struct i40e_hw *hw = &pf->hw;
- 
--	if (list_empty(&vsi->macvlan_list))
--		return -EINVAL;
--
- 	/* Go through the list and find an available channel */
--	list_for_each_entry_safe(ch, ch_tmp, &vsi->macvlan_list, list) {
--		if (!i40e_is_channel_macvlan(ch)) {
--			ch->fwd = fwd;
-+	list_for_each_entry_safe(iter, ch_tmp, &vsi->macvlan_list, list) {
-+		if (!i40e_is_channel_macvlan(iter)) {
-+			iter->fwd = fwd;
- 			/* record configuration for macvlan interface in vdev */
- 			for (i = 0; i < num_tc; i++)
- 				netdev_bind_sb_channel_queue(vsi->netdev, vdev,
- 							     i,
--							     ch->num_queue_pairs,
--							     ch->base_queue);
--			for (i = 0; i < ch->num_queue_pairs; i++) {
-+							     iter->num_queue_pairs,
-+							     iter->base_queue);
-+			for (i = 0; i < iter->num_queue_pairs; i++) {
- 				struct i40e_ring *tx_ring, *rx_ring;
- 				u16 pf_q;
- 
--				pf_q = ch->base_queue + i;
-+				pf_q = iter->base_queue + i;
- 
- 				/* Get to TX ring ptr */
- 				tx_ring = vsi->tx_rings[pf_q];
--				tx_ring->ch = ch;
-+				tx_ring->ch = iter;
- 
- 				/* Get the RX ring ptr */
- 				rx_ring = vsi->rx_rings[pf_q];
--				rx_ring->ch = ch;
-+				rx_ring->ch = iter;
- 			}
-+			ch = iter;
- 			break;
- 		}
- 	}
- 
-+	if (!ch)
-+		return -EINVAL;
-+
- 	/* Guarantee all rings are updated before we update the
- 	 * MAC address filter.
- 	 */
+-	struct drm_mode_fb_cmd2 mode_cmd;
++	struct drm_mode_fb_cmd2 mode_cmd = {0};
+ 	struct vmw_fb_par *par = info->par;
+ 	struct fb_var_screeninfo *var = &info->var;
+ 	struct drm_framebuffer *cur_fb;
 
 
