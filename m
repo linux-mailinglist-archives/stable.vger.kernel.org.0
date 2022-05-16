@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D23AD528EA7
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E82DB528F07
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345763AbiEPToR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:44:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43940 "EHLO
+        id S1346092AbiEPTpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:45:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346283AbiEPTly (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:41:54 -0400
+        with ESMTP id S1346103AbiEPToi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:44:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB2D40A36;
-        Mon, 16 May 2022 12:40:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786FF3F327;
+        Mon, 16 May 2022 12:43:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38709614B6;
-        Mon, 16 May 2022 19:40:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11E8BC34100;
-        Mon, 16 May 2022 19:40:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5E6861512;
+        Mon, 16 May 2022 19:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2694C34100;
+        Mon, 16 May 2022 19:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730030;
-        bh=z1+2nVnSc/GOawDHb4ngkM+epa/7uzdH0Lo2gUqmGBg=;
+        s=korg; t=1652730186;
+        bh=yJl8Cd9PvqsmdGwl2MJYBhuRJUxLCHlEUkl8TnA/s2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkrTYIjNgoSsOQ5iLIzpNScQJXutuKMJkt+fJMTuQGEAQzOn719wZvcIfszCUqOe6
-         EZVWZcwjE/5GN+6Yn9VBuYhQn3DrihVjuchrW01RC0ET2Szq9Fdcleso3E7Z2F5fPN
-         zNi1R482bjNuSSPzj4qzaVvrmEQuhwrnOUkLEMWI=
+        b=pHmMdn9GSCuAObs4pDEILGTxP69lA4X04BOm3Cbk+5LvsCM4SlapQlJrSSZD/1Nxy
+         vuZWDT2yeN7DTZraQnMNBwT12MmpDDzy4xu8+0z8EBSjL4Bgzoz2I+7R8s+gHdSGo8
+         a0P47RlU+ttqwwF0vjhr88s/w6cMEnv+6EETF/w0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kaechele <felix@kaechele.ca>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org,
+        Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>,
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/32] batman-adv: Dont skb_split skbuffs with frag_list
-Date:   Mon, 16 May 2022 21:36:15 +0200
-Message-Id: <20220516193614.819254679@linuxfoundation.org>
+Subject: [PATCH 5.4 05/43] ipv4: drop dst in multicast routing path
+Date:   Mon, 16 May 2022 21:36:16 +0200
+Message-Id: <20220516193614.877057845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-References: <20220516193614.773450018@linuxfoundation.org>
+In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
+References: <20220516193614.714657361@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,58 +57,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
 
-[ Upstream commit a063f2fba3fa633a599253b62561051ac185fa99 ]
+[ Upstream commit 9e6c6d17d1d6a3f1515ce399f9a011629ec79aa0 ]
 
-The receiving interface might have used GRO to receive more fragments than
-MAX_SKB_FRAGS fragments. In this case, these will not be stored in
-skb_shinfo(skb)->frags but merged into the frag list.
+kmemleak reports the following when routing multicast traffic over an
+ipsec tunnel.
 
-batman-adv relies on the function skb_split to split packets up into
-multiple smaller packets which are not larger than the MTU on the outgoing
-interface. But this function cannot handle frag_list entries and is only
-operating on skb_shinfo(skb)->frags. If it is still trying to split such an
-skb and xmit'ing it on an interface without support for NETIF_F_FRAGLIST,
-then validate_xmit_skb() will try to linearize it. But this fails due to
-inconsistent information. And __pskb_pull_tail will trigger a BUG_ON after
-skb_copy_bits() returns an error.
+Kmemleak output:
+unreferenced object 0x8000000044bebb00 (size 256):
+  comm "softirq", pid 0, jiffies 4294985356 (age 126.810s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 80 00 00 00 05 13 74 80  ..............t.
+    80 00 00 00 04 9b bf f9 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000f83947e0>] __kmalloc+0x1e8/0x300
+    [<00000000b7ed8dca>] metadata_dst_alloc+0x24/0x58
+    [<0000000081d32c20>] __ipgre_rcv+0x100/0x2b8
+    [<00000000824f6cf1>] gre_rcv+0x178/0x540
+    [<00000000ccd4e162>] gre_rcv+0x7c/0xd8
+    [<00000000c024b148>] ip_protocol_deliver_rcu+0x124/0x350
+    [<000000006a483377>] ip_local_deliver_finish+0x54/0x68
+    [<00000000d9271b3a>] ip_local_deliver+0x128/0x168
+    [<00000000bd4968ae>] xfrm_trans_reinject+0xb8/0xf8
+    [<0000000071672a19>] tasklet_action_common.isra.16+0xc4/0x1b0
+    [<0000000062e9c336>] __do_softirq+0x1fc/0x3e0
+    [<00000000013d7914>] irq_exit+0xc4/0xe0
+    [<00000000a4d73e90>] plat_irq_dispatch+0x7c/0x108
+    [<000000000751eb8e>] handle_int+0x16c/0x178
+    [<000000001668023b>] _raw_spin_unlock_irqrestore+0x1c/0x28
 
-In case of entries in frag_list, just linearize the skb before operating on
-it with skb_split().
+The metadata dst is leaked when ip_route_input_mc() updates the dst for
+the skb. Commit f38a9eb1f77b ("dst: Metadata destinations") correctly
+handled dropping the dst in ip_route_input_slow() but missed the
+multicast case which is handled by ip_route_input_mc(). Drop the dst in
+ip_route_input_mc() avoiding the leak.
 
-Reported-by: Felix Kaechele <felix@kaechele.ca>
-Fixes: c6c8fea29769 ("net: Add batman-adv meshing protocol")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Tested-by: Felix Kaechele <felix@kaechele.ca>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Fixes: f38a9eb1f77b ("dst: Metadata destinations")
+Signed-off-by: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Link: https://lore.kernel.org/r/20220505020017.3111846-1-chris.packham@alliedtelesis.co.nz
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/fragmentation.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ net/ipv4/route.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/fragmentation.c b/net/batman-adv/fragmentation.c
-index cc062b69fc8d..a62eedf889eb 100644
---- a/net/batman-adv/fragmentation.c
-+++ b/net/batman-adv/fragmentation.c
-@@ -490,6 +490,17 @@ int batadv_frag_send_packet(struct sk_buff *skb,
- 		goto free_skb;
- 	}
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index d1feec97fa06..9280e5087159 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1775,6 +1775,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ #endif
+ 	RT_CACHE_STAT_INC(in_slow_mc);
  
-+	/* GRO might have added fragments to the fragment list instead of
-+	 * frags[]. But this is not handled by skb_split and must be
-+	 * linearized to avoid incorrect length information after all
-+	 * batman-adv fragments were created and submitted to the
-+	 * hard-interface
-+	 */
-+	if (skb_has_frag_list(skb) && __skb_linearize(skb)) {
-+		ret = -ENOMEM;
-+		goto free_skb;
-+	}
-+
- 	/* Create one header to be copied to all fragments */
- 	frag_header.packet_type = BATADV_UNICAST_FRAG;
- 	frag_header.version = BATADV_COMPAT_VERSION;
++	skb_dst_drop(skb);
+ 	skb_dst_set(skb, &rth->dst);
+ 	return 0;
+ }
 -- 
 2.35.1
 
