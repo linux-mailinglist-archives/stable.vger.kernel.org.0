@@ -2,123 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D6E528EDA
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 443A9528F47
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346211AbiEPTr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
+        id S1346182AbiEPTxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346425AbiEPTqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:14 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2DB441330;
-        Mon, 16 May 2022 12:43:38 -0700 (PDT)
+        with ESMTP id S1346999AbiEPTve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:34 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D9413F89F;
+        Mon, 16 May 2022 12:46:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 360A7CE1795;
-        Mon, 16 May 2022 19:43:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBC9C34115;
-        Mon, 16 May 2022 19:43:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9C5EB815F6;
+        Mon, 16 May 2022 19:46:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FBB7C34100;
+        Mon, 16 May 2022 19:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730215;
-        bh=eNeYEQzZlS21APqbNXgI7gda0OfLzSZQEYKhOTtXuio=;
+        s=korg; t=1652730384;
+        bh=VMbYmNs67UPfayg47OoF8phgYXKB0mbdTrEmCm1IkK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DI8kQbxT5bPtYaHNkbe79DkAdMDVgrkP2gZwZ6NIA7mrHbowXXsiEnz/TTWO5f5Pi
-         0tx0QOMHbHp4sVyDmoPkkyL6So3BlO7l2bTBmpU0inOcsNCq4rSe7q5sI1nrX3TMdj
-         12GHFT6nh/L8Huau5g4XnK4CEV/lE900lKWl1Osg=
+        b=Y4FGJnEiuxE/w0ONNZZ4D7G9HY6avVHsgx9BxM5pLs1XKCh04sumBIV4Eqp4iJFP0
+         48cIJSFauG6wJtoaXECfk0RjJKcf7Bwv7qeylIlu7av2Fw/WXpR0CmW6GZfCkXGy3G
+         cmUNMo8NfVv5QI0ABVja+tF9HX26dWhse8S1B9X4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        Feng Tang <feng.tang@intel.com>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>,
-        Tejun Heo <tj@kernel.org>
-Subject: [PATCH 5.4 37/43] cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
-Date:   Mon, 16 May 2022 21:36:48 +0200
-Message-Id: <20220516193615.814914177@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.10 49/66] slimbus: qcom: Fix IRQ check in qcom_slim_probe
+Date:   Mon, 16 May 2022 21:36:49 +0200
+Message-Id: <20220516193620.828516037@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,TVD_SUBJ_WIPE_DEBT,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit 2685027fca387b602ae565bff17895188b803988 upstream.
+commit fe503887eed6ea528e144ec8dacfa1d47aa701ac upstream.
 
-There are 3 places where the cpu and node masks of the top cpuset can
-be initialized in the order they are executed:
- 1) start_kernel -> cpuset_init()
- 2) start_kernel -> cgroup_init() -> cpuset_bind()
- 3) kernel_init_freeable() -> do_basic_setup() -> cpuset_init_smp()
+platform_get_irq() returns non-zero IRQ number on success,
+negative error number on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-The first cpuset_init() call just sets all the bits in the masks.
-The second cpuset_bind() call sets cpus_allowed and mems_allowed to the
-default v2 values. The third cpuset_init_smp() call sets them back to
-v1 values.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-For systems with cgroup v2 setup, cpuset_bind() is called once.  As a
-result, cpu and memory node hot add may fail to update the cpu and node
-masks of the top cpuset to include the newly added cpu or node in a
-cgroup v2 environment.
+Fix the check of return value to catch errors correctly.
 
-For systems with cgroup v1 setup, cpuset_bind() is called again by
-rebind_subsystem() when the v1 cpuset filesystem is mounted as shown
-in the dmesg log below with an instrumented kernel.
-
-  [    2.609781] cpuset_bind() called - v2 = 1
-  [    3.079473] cpuset_init_smp() called
-  [    7.103710] cpuset_bind() called - v2 = 0
-
-smp_init() is called after the first two init functions.  So we don't
-have a complete list of active cpus and memory nodes until later in
-cpuset_init_smp() which is the right time to set up effective_cpus
-and effective_mems.
-
-To fix this cgroup v2 mask setup problem, the potentially incorrect
-cpus_allowed & mems_allowed setting in cpuset_init_smp() are removed.
-For cgroup v2 systems, the initial cpuset_bind() call will set the masks
-correctly.  For cgroup v1 systems, the second call to cpuset_bind()
-will do the right setup.
-
-cc: stable@vger.kernel.org
-Signed-off-by: Waiman Long <longman@redhat.com>
-Tested-by: Feng Tang <feng.tang@intel.com>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: ad7fcbc308b0 ("slimbus: qcom: Add Qualcomm Slimbus controller driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220429164917.5202-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/cgroup/cpuset.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/slimbus/qcom-ctrl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/cgroup/cpuset.c
-+++ b/kernel/cgroup/cpuset.c
-@@ -3289,8 +3289,11 @@ static struct notifier_block cpuset_trac
-  */
- void __init cpuset_init_smp(void)
- {
--	cpumask_copy(top_cpuset.cpus_allowed, cpu_active_mask);
--	top_cpuset.mems_allowed = node_states[N_MEMORY];
-+	/*
-+	 * cpus_allowd/mems_allowed set to v2 values in the initial
-+	 * cpuset_bind() call will be reset to v1 values in another
-+	 * cpuset_bind() call when v1 cpuset is mounted.
-+	 */
- 	top_cpuset.old_mems_allowed = top_cpuset.mems_allowed;
+--- a/drivers/slimbus/qcom-ctrl.c
++++ b/drivers/slimbus/qcom-ctrl.c
+@@ -510,9 +510,9 @@ static int qcom_slim_probe(struct platfo
+ 	}
  
- 	cpumask_copy(top_cpuset.effective_cpus, cpu_active_mask);
+ 	ctrl->irq = platform_get_irq(pdev, 0);
+-	if (!ctrl->irq) {
++	if (ctrl->irq < 0) {
+ 		dev_err(&pdev->dev, "no slimbus IRQ\n");
+-		return -ENODEV;
++		return ctrl->irq;
+ 	}
+ 
+ 	sctrl = &ctrl->ctrl;
 
 
