@@ -2,50 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A81A52804B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 10:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A48CA52808A
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 11:10:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232946AbiEPI54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 04:57:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47142 "EHLO
+        id S242187AbiEPJK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 05:10:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242601AbiEPI5h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 04:57:37 -0400
-Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F82B17051;
-        Mon, 16 May 2022 01:57:35 -0700 (PDT)
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: kholk11)
-        with ESMTPSA id B13A51F42AE6
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1652691453;
-        bh=l0QO0e3OAmEaC6htl1tHIY5wK0hNU5w7G9YZ9DW0J/s=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=H3FuwrMGB5Ndq+tfShaySPLyKvzhi69sZ7n2D36ZHbkOBonmm0FfD6KKdEEZXqJMK
-         nyTJmEw4UE5kFBihIY/StmX7fHnSS6W9/iXBLBEH/gcJY2vgSD7IpRnJg6KTUt7lHV
-         6oUeSgkzY4+Hi/hfXvLgngWggi/1Cn465/X4VtLLZVPwZ6FstZCxiQPlHSZTDbPxA6
-         dxW6dQk3Ur0tpxUUdRIgWe6czXDK1on8oMfATKtW6j1V7ckEoU4FHJFOBx06NH8Cte
-         SiZgjWZhpPOFLUps9hdr9sqOVlRkHeEYB1UBEEMhQipNim3Wf8UIEVtvI5JgBEhYUk
-         MqDkW/NW3SaYQ==
-Message-ID: <20b50545-0a0b-b59c-83c1-0e76fe9694c3@collabora.com>
-Date:   Mon, 16 May 2022 10:57:30 +0200
+        with ESMTP id S242320AbiEPJKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 05:10:19 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95AC2BE2B;
+        Mon, 16 May 2022 02:10:13 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE9846127D;
+        Mon, 16 May 2022 09:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 3FE70C385B8;
+        Mon, 16 May 2022 09:10:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1652692212;
+        bh=DLxSzkZM0MdAIAq8FKo7oy8buyuB/4oBvp6tuto9RnE=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=ehJ1OtavRjX+syfli6ADwGyAaZ6tetrOxIcCx7yHe5mSI2Ke3Rxh5JW3gbGTLUnZB
+         aVvCZR/ax3qfOt/T2Q9KXbTicuI09fW3ojjNyOSYOKgrKX/yjYbkNeXyBa+SNb9z5z
+         Z1aC7CvT1FDvEocByrW1X+gh/Vb4ivv8vXD3bvlCiPNfWMHLaV1FBHSD3EwTpEAJ3y
+         jj1BVKu5HEadYIyqkhawjD73bsJR619AoOe4DnNs8eTI76rNlHyHhxWe93StVACMNH
+         /lOnuJy/c6sl+DaVoIBskNgleMBGGu07QTLb9ZRiksX90q3ZabUlBHZOkE+qQP4jF2
+         TET8Ltm7IsvfA==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 1D618E8DBDA;
+        Mon, 16 May 2022 09:10:12 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: Patch "serial: 8250_mtk: Make sure to select the right
- FEATURE_SEL" has been added to the 5.17-stable tree
-Content-Language: en-US
-To:     gregkh@linuxfoundation.org
-Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org
-References: <165268940760187@kroah.com>
-From:   AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-In-Reply-To: <165268940760187@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_PASS,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net 1/2] Revert "can: m_can: pci: use custom bit timings for
+ Elkhart Lake"
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <165269221211.27907.1144930451900278439.git-patchwork-notify@kernel.org>
+Date:   Mon, 16 May 2022 09:10:12 +0000
+References: <20220514185742.407230-2-mkl@pengutronix.de>
+In-Reply-To: <20220514185742.407230-2-mkl@pengutronix.de>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-can@vger.kernel.org, kernel@pengutronix.de,
+        jarkko.nikula@linux.intel.com, chee.houx.ong@intel.com,
+        aman.kumar@intel.com, kumari.pallavi@intel.com,
+        stable@vger.kernel.org
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,29 +60,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Il 16/05/22 10:23, gregkh@linuxfoundation.org ha scritto:
-> 
-> This is a note to let you know that I've just added the patch titled
-> 
->      serial: 8250_mtk: Make sure to select the right FEATURE_SEL
-> 
-> to the 5.17-stable tree which can be found at:
->      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->       serial-8250_mtk-make-sure-to-select-the-right-feature_sel.patch
-> and it can be found in the queue-5.17 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
-> 
+Hello:
 
-Hello,
+This series was applied to netdev/net.git (master)
+by Marc Kleine-Budde <mkl@pengutronix.de>:
 
-please do *not* backport this FEATURE_SEL patch, issues have been found with
-that one and a revert has also been sent:
+On Sat, 14 May 2022 20:57:41 +0200 you wrote:
+> From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> 
+> This reverts commit 0e8ffdf3b86dfd44b651f91b12fcae76c25c453b.
+> 
+> Commit 0e8ffdf3b86d ("can: m_can: pci: use custom bit timings for
+> Elkhart Lake") broke the test case using bitrate switching.
+> 
+> [...]
 
-https://patchwork.kernel.org/project/linux-mediatek/patch/20220510122620.150342-1-angelogioacchino.delregno@collabora.com/
+Here is the summary with links:
+  - [net,1/2] Revert "can: m_can: pci: use custom bit timings for Elkhart Lake"
+    https://git.kernel.org/netdev/net/c/14ea4a470494
+  - [net,2/2] can: m_can: remove support for custom bit timing, take #2
+    https://git.kernel.org/netdev/net/c/d6da7881020f
 
-Regards,
-Angelo
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
