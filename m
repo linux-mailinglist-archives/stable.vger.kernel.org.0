@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F6A6528F05
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A434528F49
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346163AbiEPTr4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:47:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36950 "EHLO
+        id S244469AbiEPTxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346528AbiEPTq3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:46:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708FE3FD86;
-        Mon, 16 May 2022 12:43:44 -0700 (PDT)
+        with ESMTP id S1347013AbiEPTve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:34 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41D43FBC2;
+        Mon, 16 May 2022 12:46:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00DD9B815F6;
-        Mon, 16 May 2022 19:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6277BC385AA;
-        Mon, 16 May 2022 19:43:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62F426027A;
+        Mon, 16 May 2022 19:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FBB5C385AA;
+        Mon, 16 May 2022 19:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730221;
-        bh=Rg44HkJDgpVLxYjTCgMXa57aUQsSoFIyEN5tEb4DCzI=;
+        s=korg; t=1652730390;
+        bh=k3/81g5qlPZbnqT8EYIg1TFY+nbeoYo8soZiwtxXbI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHYMF7DmOKIoRVuY3CjLZaSqEgVpzrU9FIF0hAFEZGu9wb3CmFj4ldiGrfJc+13uA
-         GJMKzwXrJTx7QFqnSLL+T8BkjvffC6/9Vrs6KiimFK9dTfvLkZYhmz4Uh3ttMJpaAX
-         7PhjEnLxlX6JXU72TCOzdsfjPNpbe7uEcSTTbhPk=
+        b=lRrDieg9NrMONQx66+NKW+JhmnT/z72NqQ0rHOjiZPnPovyIODATMecv822fQDtNg
+         dwc9/zwS8l3XZ0DNrwG6f2eYhlsXkBbiRdJM42VJcKA8b3qYt9bkTpMfT7xiauO87H
+         f8cmiBMpxqQZAMIIxpWddnI7oJSC5U7ABCkKEHrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "stable@vger.kernel.org, Sudip Mukherjee" 
-        <sudipm.mukherjee@gmail.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 5.4 39/43] MIPS: fix build with gcc-12
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>
+Subject: [PATCH 5.10 50/66] serial: 8250_mtk: Fix UART_EFR register address
 Date:   Mon, 16 May 2022 21:36:50 +0200
-Message-Id: <20220516193615.874013453@linuxfoundation.org>
+Message-Id: <20220516193620.856357558@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
+References: <20220516193619.400083785@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-Some mips builds with gcc-12 fails with the error:
-arch/mips/jz4740/setup.c:64:25: error: comparison between two arrays
-	[-Werror=array-compare]
-   	64 |         if (__dtb_start != __dtb_end)
+commit bb0b197aadd928f52ce6f01f0ee977f0a08cf1be upstream.
 
-'d24f48767d5e ("MIPS: Use address-of operator on section symbols")' has
-been applied which fixes most of the error, but it missed one file which
-was not available upstream when the change was done.
+On MediaTek SoCs, the UART IP is 16550A compatible, but there are some
+specific quirks: we are declaring a register shift of 2, but this is
+only valid for the majority of the registers, as there are some that
+are out of the standard layout.
 
-Fixes: d24f48767d5e ("MIPS: Use address-of operator on section symbols")
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Specifically, this driver is using definitions from serial_reg.h, where
+we have a UART_EFR register defined as 2: this results in a 0x8 offset,
+but there we have the FCR register instead.
+
+The right offset for the EFR register on MediaTek UART is at 0x98,
+so, following the decimal definition convention in serial_reg.h and
+accounting for the register left shift of two, add and use the correct
+register address for this IP, defined as decimal 38, so that the final
+calculation results in (0x26 << 2) = 0x98.
+
+Fixes: bdbd0a7f8f03 ("serial: 8250-mtk: modify baudrate setting")
+Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220427132328.228297-2-angelogioacchino.delregno@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/jz4740/setup.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_mtk.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/arch/mips/jz4740/setup.c
-+++ b/arch/mips/jz4740/setup.c
-@@ -61,7 +61,7 @@ void __init plat_mem_setup(void)
+--- a/drivers/tty/serial/8250/8250_mtk.c
++++ b/drivers/tty/serial/8250/8250_mtk.c
+@@ -37,6 +37,7 @@
+ #define MTK_UART_IER_RTSI	0x40	/* Enable RTS Modem status interrupt */
+ #define MTK_UART_IER_CTSI	0x80	/* Enable CTS Modem status interrupt */
  
- 	jz4740_reset_init();
++#define MTK_UART_EFR		38	/* I/O: Extended Features Register */
+ #define MTK_UART_EFR_EN		0x10	/* Enable enhancement feature */
+ #define MTK_UART_EFR_RTS	0x40	/* Enable hardware rx flow control */
+ #define MTK_UART_EFR_CTS	0x80	/* Enable hardware tx flow control */
+@@ -169,7 +170,7 @@ static void mtk8250_dma_enable(struct ua
+ 		   MTK_UART_DMA_EN_RX | MTK_UART_DMA_EN_TX);
  
--	if (__dtb_start != __dtb_end)
-+	if (&__dtb_start != &__dtb_end)
- 		dtb = __dtb_start;
- 	else
- 		dtb = (void *)fw_passed_dtb;
+ 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+-	serial_out(up, UART_EFR, UART_EFR_ECB);
++	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
+ 	serial_out(up, UART_LCR, lcr);
+ 
+ 	if (dmaengine_slave_config(dma->rxchan, &dma->rxconf) != 0)
+@@ -232,7 +233,7 @@ static void mtk8250_set_flow_ctrl(struct
+ 	int lcr = serial_in(up, UART_LCR);
+ 
+ 	serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+-	serial_out(up, UART_EFR, UART_EFR_ECB);
++	serial_out(up, MTK_UART_EFR, UART_EFR_ECB);
+ 	serial_out(up, UART_LCR, lcr);
+ 	lcr = serial_in(up, UART_LCR);
+ 
+@@ -241,7 +242,7 @@ static void mtk8250_set_flow_ctrl(struct
+ 		serial_out(up, MTK_UART_ESCAPE_DAT, MTK_UART_ESCAPE_CHAR);
+ 		serial_out(up, MTK_UART_ESCAPE_EN, 0x00);
+ 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+-		serial_out(up, UART_EFR, serial_in(up, UART_EFR) &
++		serial_out(up, MTK_UART_EFR, serial_in(up, MTK_UART_EFR) &
+ 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK)));
+ 		serial_out(up, UART_LCR, lcr);
+ 		mtk8250_disable_intrs(up, MTK_UART_IER_XOFFI |
+@@ -255,8 +256,8 @@ static void mtk8250_set_flow_ctrl(struct
+ 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+ 
+ 		/*enable hw flow control*/
+-		serial_out(up, UART_EFR, MTK_UART_EFR_HW_FC |
+-			(serial_in(up, UART_EFR) &
++		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_HW_FC |
++			(serial_in(up, MTK_UART_EFR) &
+ 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
+ 
+ 		serial_out(up, UART_LCR, lcr);
+@@ -270,8 +271,8 @@ static void mtk8250_set_flow_ctrl(struct
+ 		serial_out(up, UART_LCR, UART_LCR_CONF_MODE_B);
+ 
+ 		/*enable sw flow control */
+-		serial_out(up, UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
+-			(serial_in(up, UART_EFR) &
++		serial_out(up, MTK_UART_EFR, MTK_UART_EFR_XON1_XOFF1 |
++			(serial_in(up, MTK_UART_EFR) &
+ 			(~(MTK_UART_EFR_HW_FC | MTK_UART_EFR_SW_FC_MASK))));
+ 
+ 		serial_out(up, UART_XON1, START_CHAR(port->state->port.tty));
 
 
