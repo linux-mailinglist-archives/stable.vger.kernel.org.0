@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C347528E7F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:50:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 21FF2528EE6
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345844AbiEPToc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44844 "EHLO
+        id S241607AbiEPToX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:44:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346004AbiEPTnS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:43:18 -0400
+        with ESMTP id S1346376AbiEPTmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:04 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A8283EF1B;
-        Mon, 16 May 2022 12:42:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39AF818B;
+        Mon, 16 May 2022 12:40:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA43A61512;
-        Mon, 16 May 2022 19:42:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0BE8C385AA;
-        Mon, 16 May 2022 19:42:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7220B61538;
+        Mon, 16 May 2022 19:40:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AF0FC385AA;
+        Mon, 16 May 2022 19:40:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730147;
-        bh=7YYoJ4XlY2PCPxmjMnCHSCKYCIIyjIWmTjXtuXY9mpY=;
+        s=korg; t=1652730037;
+        bh=QCo496fYDmwgMawnPL1ftwATDrYep+6x7Q72Vwn/ptE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Eeu6IRb54ho2rzYyoe5cdjou9n7UIkN6Rs6KHMd8G2Dgj7Riz/kW0vH6yH6NT6LJd
-         k/Yx9bEri5xgIdn4vAfyzG/1sCWVY1SMnEyAGIBAKOlNY0O7ZAG9T7zqdbUvC7+sP5
-         /RBWGmZFkiGOiYxtwqPOSXu0ZhsuyAEW3MEavXBs=
+        b=eGTy5YmRtDhj681AOVg3EyxO1pDOmmbHnBlG0gi6fQ08zLsB6riOBIRBoOukdvBaW
+         sdaCEA0d+lDm2/i01X6FK7ACCH/D1Ds5/Dz2TxzKdeT+UmRX1vlGfNVID14Ekw7yD4
+         qp9DrbuI3w6ndk4LQi6iduA23Kz5IXlvBsYWD5X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,19 +38,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jamal Hadi Salim <jhs@mojatatu.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/43] net/sched: act_pedit: really ensure the skb is writable
+Subject: [PATCH 4.19 11/32] net/sched: act_pedit: really ensure the skb is writable
 Date:   Mon, 16 May 2022 21:36:25 +0200
-Message-Id: <20220516193615.139315885@linuxfoundation.org>
+Message-Id: <20220516193615.111458274@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-References: <20220516193614.714657361@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -100,7 +100,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 23 insertions(+), 4 deletions(-)
 
 diff --git a/include/net/tc_act/tc_pedit.h b/include/net/tc_act/tc_pedit.h
-index 748cf87a4d7e..3e02709a1df6 100644
+index fac3ad4a86de..bd74e94527a2 100644
 --- a/include/net/tc_act/tc_pedit.h
 +++ b/include/net/tc_act/tc_pedit.h
 @@ -14,6 +14,7 @@ struct tcf_pedit {
@@ -112,7 +112,7 @@ index 748cf87a4d7e..3e02709a1df6 100644
  	struct tcf_pedit_key_ex	*tcfp_keys_ex;
  };
 diff --git a/net/sched/act_pedit.c b/net/sched/act_pedit.c
-index ff4f2437b592..305cb190e997 100644
+index ce14fafb36a1..fec0f7fdb015 100644
 --- a/net/sched/act_pedit.c
 +++ b/net/sched/act_pedit.c
 @@ -148,7 +148,7 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
@@ -124,7 +124,7 @@ index ff4f2437b592..305cb190e997 100644
  	u32 index;
  
  	if (!nla) {
-@@ -227,6 +227,18 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
+@@ -221,6 +221,18 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
  		p->tcfp_nkeys = parm->nkeys;
  	}
  	memcpy(p->tcfp_keys, parm->keys, ksize);
@@ -142,8 +142,8 @@ index ff4f2437b592..305cb190e997 100644
 +	}
  
  	p->tcfp_flags = parm->flags;
- 	goto_ch = tcf_action_set_ctrlact(*a, parm->action, goto_ch);
-@@ -307,13 +319,18 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
+ 	p->tcf_action = parm->action;
+@@ -298,13 +310,18 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
  			 struct tcf_result *res)
  {
  	struct tcf_pedit *p = to_pedit(a);
@@ -165,7 +165,7 @@ index ff4f2437b592..305cb190e997 100644
  	tcf_lastuse_update(&p->tcf_tm);
  
  	if (p->tcfp_nkeys > 0) {
-@@ -402,6 +419,7 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
+@@ -393,6 +410,7 @@ static int tcf_pedit_act(struct sk_buff *skb, const struct tc_action *a,
  	p->tcf_qstats.overlimits++;
  done:
  	bstats_update(&p->tcf_bstats, skb);
