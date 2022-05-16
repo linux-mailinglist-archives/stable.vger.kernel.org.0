@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94C225291DF
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44C095291A6
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346592AbiEPUER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42444 "EHLO
+        id S233844AbiEPUIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:08:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346654AbiEPTy5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:54:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A903D4754A;
-        Mon, 16 May 2022 12:49:11 -0700 (PDT)
+        with ESMTP id S1349864AbiEPUAd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 887AE45042;
+        Mon, 16 May 2022 12:54:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC1C760BBB;
-        Mon, 16 May 2022 19:49:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAEBCC34100;
-        Mon, 16 May 2022 19:48:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4457B81611;
+        Mon, 16 May 2022 19:54:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A974C385AA;
+        Mon, 16 May 2022 19:54:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730540;
-        bh=Ev+knGsV3BnS3a2c6ZPe8WPOAA0Zw2vLoqqN59ypFgE=;
+        s=korg; t=1652730874;
+        bh=vQDzAR231MULCvS7YopUOddxQ2LvNDxKv47FVYkL5Xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x952K86Qtc+oumdPptaa2hkzkX1o39DMrs5TKQArGpbCJV2GxuheuHgP3Rg4nO+cI
-         838ma/eU+VOEBjlsyGOvFnouCWLbvIB//xtQFbyw2sv+6t0WwHi7aCbzzoFor156B/
-         kreCu9fpn3aEHNyFu/mpd4FWhDGphYWjzxXitGkA=
+        b=Sk6biLpIxLOijLqURfxZVgeZMj2yZ/rKrxlSuQEfKE9OETVQK55dX4PPdMSzgCPvF
+         vj3oMUFkLXmvfKunZd3Y9FkKv/4LyFm65idhzt8ajg0WZJpn48Y45N8750zx52NayK
+         Oi4TG/o+42FfSIEcrQZocNrlHm1BdS2AF/+VEPao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shunsuke Mie <mie@igel.co.jp>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Joel Savitz <jsavitz@redhat.com>,
+        Nico Pache <npache@redhat.com>, Shuah Khan <shuah@kernel.org>,
+        Sandipan Das <sandipan@linux.ibm.com>,
+        Dave Hansen <dave.hansen@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/102] virtio: fix virtio transitional ids
+Subject: [PATCH 5.17 031/114] selftests: vm: Makefile: rename TARGETS to VMTARGETS
 Date:   Mon, 16 May 2022 21:36:05 +0200
-Message-Id: <20220516193624.894398566@linuxfoundation.org>
+Message-Id: <20220516193626.384278798@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +57,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shunsuke Mie <mie@igel.co.jp>
+From: Joel Savitz <jsavitz@redhat.com>
 
-[ Upstream commit 7ff960a6fe399fdcbca6159063684671ae57eee9 ]
+[ Upstream commit 41c240099fe09377b6b9f8272e45d2267c843d3e ]
 
-This commit fixes the transitional PCI device ID.
+The tools/testing/selftests/vm/Makefile uses the variable TARGETS
+internally to generate a list of platform-specific binary build targets
+suffixed with _{32,64}.  When building the selftests using its own
+Makefile directly, such as via the following command run in a kernel tree:
 
-Fixes: d61914ea6ada ("virtio: update virtio id table, add transitional ids")
-Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
-Link: https://lore.kernel.org/r/20220510102723.87666-1-mie@igel.co.jp
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+One receives an error such as the following:
+
+make: Entering directory '/root/linux/tools/testing/selftests'
+make --no-builtin-rules ARCH=x86 -C ../../.. headers_install
+make[1]: Entering directory '/root/linux'
+  INSTALL ./usr/include
+make[1]: Leaving directory '/root/linux'
+make[1]: Entering directory '/root/linux/tools/testing/selftests/vm'
+make[1]: *** No rule to make target 'vm.c', needed by '/root/linux/tools/testing/selftests/vm/vm_64'.  Stop.
+make[1]: Leaving directory '/root/linux/tools/testing/selftests/vm'
+make: *** [Makefile:175: all] Error 2
+make: Leaving directory '/root/linux/tools/testing/selftests'
+
+The TARGETS variable passed to tools/testing/selftests/Makefile collides
+with the TARGETS used in tools/testing/selftests/vm/Makefile, so rename
+the latter to VMTARGETS, eliminating the collision with no functional
+change.
+
+Link: https://lkml.kernel.org/r/20220504213454.1282532-1-jsavitz@redhat.com
+Fixes: f21fda8f6453 ("selftests: vm: pkeys: fix multilib builds for x86")
+Signed-off-by: Joel Savitz <jsavitz@redhat.com>
+Acked-by: Nico Pache <npache@redhat.com>
+Cc: Joel Savitz <jsavitz@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Sandipan Das <sandipan@linux.ibm.com>
+Cc: Dave Hansen <dave.hansen@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/virtio_ids.h | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/vm/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 80d76b75bccd..7aa2eb766205 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -73,12 +73,12 @@
-  * Virtio Transitional IDs
-  */
+diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
+index 1530c3e0242e..259df83ecd2e 100644
+--- a/tools/testing/selftests/vm/Makefile
++++ b/tools/testing/selftests/vm/Makefile
+@@ -55,9 +55,9 @@ CAN_BUILD_I386 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_32bit_prog
+ CAN_BUILD_X86_64 := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_64bit_program.c)
+ CAN_BUILD_WITH_NOPIE := $(shell ./../x86/check_cc.sh "$(CC)" ../x86/trivial_program.c -no-pie)
  
--#define VIRTIO_TRANS_ID_NET		1000 /* transitional virtio net */
--#define VIRTIO_TRANS_ID_BLOCK		1001 /* transitional virtio block */
--#define VIRTIO_TRANS_ID_BALLOON		1002 /* transitional virtio balloon */
--#define VIRTIO_TRANS_ID_CONSOLE		1003 /* transitional virtio console */
--#define VIRTIO_TRANS_ID_SCSI		1004 /* transitional virtio SCSI */
--#define VIRTIO_TRANS_ID_RNG		1005 /* transitional virtio rng */
--#define VIRTIO_TRANS_ID_9P		1009 /* transitional virtio 9p console */
-+#define VIRTIO_TRANS_ID_NET		0x1000 /* transitional virtio net */
-+#define VIRTIO_TRANS_ID_BLOCK		0x1001 /* transitional virtio block */
-+#define VIRTIO_TRANS_ID_BALLOON		0x1002 /* transitional virtio balloon */
-+#define VIRTIO_TRANS_ID_CONSOLE		0x1003 /* transitional virtio console */
-+#define VIRTIO_TRANS_ID_SCSI		0x1004 /* transitional virtio SCSI */
-+#define VIRTIO_TRANS_ID_RNG		0x1005 /* transitional virtio rng */
-+#define VIRTIO_TRANS_ID_9P		0x1009 /* transitional virtio 9p console */
+-TARGETS := protection_keys
+-BINARIES_32 := $(TARGETS:%=%_32)
+-BINARIES_64 := $(TARGETS:%=%_64)
++VMTARGETS := protection_keys
++BINARIES_32 := $(VMTARGETS:%=%_32)
++BINARIES_64 := $(VMTARGETS:%=%_64)
  
- #endif /* _LINUX_VIRTIO_IDS_H */
+ ifeq ($(CAN_BUILD_WITH_NOPIE),1)
+ CFLAGS += -no-pie
+@@ -110,7 +110,7 @@ $(BINARIES_32): CFLAGS += -m32 -mxsave
+ $(BINARIES_32): LDLIBS += -lrt -ldl -lm
+ $(BINARIES_32): $(OUTPUT)/%_32: %.c
+ 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(notdir $^) $(LDLIBS) -o $@
+-$(foreach t,$(TARGETS),$(eval $(call gen-target-rule-32,$(t))))
++$(foreach t,$(VMTARGETS),$(eval $(call gen-target-rule-32,$(t))))
+ endif
+ 
+ ifeq ($(CAN_BUILD_X86_64),1)
+@@ -118,7 +118,7 @@ $(BINARIES_64): CFLAGS += -m64 -mxsave
+ $(BINARIES_64): LDLIBS += -lrt -ldl
+ $(BINARIES_64): $(OUTPUT)/%_64: %.c
+ 	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(notdir $^) $(LDLIBS) -o $@
+-$(foreach t,$(TARGETS),$(eval $(call gen-target-rule-64,$(t))))
++$(foreach t,$(VMTARGETS),$(eval $(call gen-target-rule-64,$(t))))
+ endif
+ 
+ # x86_64 users should be encouraged to install 32-bit libraries
 -- 
 2.35.1
 
