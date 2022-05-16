@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF043529184
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA5265291B9
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235092AbiEPUIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:08:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55778 "EHLO
+        id S240700AbiEPTyI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:54:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350037AbiEPUAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:45 -0400
+        with ESMTP id S1348645AbiEPTw7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:59 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC1A44A1C;
-        Mon, 16 May 2022 12:54:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916AA46B0B;
+        Mon, 16 May 2022 12:48:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 49A1860A1C;
-        Mon, 16 May 2022 19:53:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D5DCC385AA;
-        Mon, 16 May 2022 19:53:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9868560A51;
+        Mon, 16 May 2022 19:48:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AB8C34100;
+        Mon, 16 May 2022 19:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730825;
-        bh=OY7ZwR9sMWRyWDjAT5nOLctSSRKNzgghfWhmkOvZy+4=;
+        s=korg; t=1652730500;
+        bh=OGmVfHd49qWQoIcN3ycoUD6a2jLg7OUP+fkFDjeRZIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hxJOkrWWxO5SvVJTdyIrALoz9go2v/AhECTE1HDqgPSGRRcEg0yOMlfDRxwoLDGPf
-         RwLIk2tl/NGmUc5o3OrDXMsyFrDvYVrSupsmXdoSYLcmxzv1v++RHXB4xWO1nNXkOt
-         I9pcXDrjU1/b2p8hJsGiiBjV6NT3eSSHf3hUuhCQ=
+        b=et3sYc+eWhLuLn55gLSnYb/W7FPubStZEI7OR3qSZcG6KyB2ZUaWheaRGOtglv0ef
+         iDcj9PrxbVp5r78oR031TiL0Nttv1tFtkXQ4gBKgBmO+cRWcU0cVBuhTeyrezdmXCA
+         jJvssZHfwYBNg17XI3c2FMAMfqL0Hi3d1cBRWAJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        David Ahern <dsahern@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Raju Rangoju <rajur@chelsio.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 018/114] ipv4: drop dst in multicast routing path
-Date:   Mon, 16 May 2022 21:35:52 +0200
-Message-Id: <20220516193626.019507712@linuxfoundation.org>
+Subject: [PATCH 5.15 019/102] net: chelsio: cxgb4: Avoid potential negative array offset
+Date:   Mon, 16 May 2022 21:35:53 +0200
+Message-Id: <20220516193624.550839514@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,65 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 9e6c6d17d1d6a3f1515ce399f9a011629ec79aa0 ]
+[ Upstream commit 1c7ab9cd98b78bef1657a5db7204d8d437e24c94 ]
 
-kmemleak reports the following when routing multicast traffic over an
-ipsec tunnel.
+Using min_t(int, ...) as a potential array index implies to the compiler
+that negative offsets should be allowed. This is not the case, though.
+Replace "int" with "unsigned int". Fixes the following warning exposed
+under future CONFIG_FORTIFY_SOURCE improvements:
 
-Kmemleak output:
-unreferenced object 0x8000000044bebb00 (size 256):
-  comm "softirq", pid 0, jiffies 4294985356 (age 126.810s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 80 00 00 00 05 13 74 80  ..............t.
-    80 00 00 00 04 9b bf f9 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000f83947e0>] __kmalloc+0x1e8/0x300
-    [<00000000b7ed8dca>] metadata_dst_alloc+0x24/0x58
-    [<0000000081d32c20>] __ipgre_rcv+0x100/0x2b8
-    [<00000000824f6cf1>] gre_rcv+0x178/0x540
-    [<00000000ccd4e162>] gre_rcv+0x7c/0xd8
-    [<00000000c024b148>] ip_protocol_deliver_rcu+0x124/0x350
-    [<000000006a483377>] ip_local_deliver_finish+0x54/0x68
-    [<00000000d9271b3a>] ip_local_deliver+0x128/0x168
-    [<00000000bd4968ae>] xfrm_trans_reinject+0xb8/0xf8
-    [<0000000071672a19>] tasklet_action_common.isra.16+0xc4/0x1b0
-    [<0000000062e9c336>] __do_softirq+0x1fc/0x3e0
-    [<00000000013d7914>] irq_exit+0xc4/0xe0
-    [<00000000a4d73e90>] plat_irq_dispatch+0x7c/0x108
-    [<000000000751eb8e>] handle_int+0x16c/0x178
-    [<000000001668023b>] _raw_spin_unlock_irqrestore+0x1c/0x28
+In file included from include/linux/string.h:253,
+                 from include/linux/bitmap.h:11,
+                 from include/linux/cpumask.h:12,
+                 from include/linux/smp.h:13,
+                 from include/linux/lockdep.h:14,
+                 from include/linux/rcupdate.h:29,
+                 from include/linux/rculist.h:11,
+                 from include/linux/pid.h:5,
+                 from include/linux/sched.h:14,
+                 from include/linux/delay.h:23,
+                 from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
+drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
+include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
+   46 | #define __underlying_memcpy     __builtin_memcpy
+      |                                 ^
+include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
+  388 |         __underlying_##op(p, q, __fortify_size);                        \
+      |         ^~~~~~~~~~~~~
+include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
+  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
+      |                          ^~~~~~~~~~~~~~~~~~~~
+drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
+ 2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
+      |         ^~~~~~
+include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
+   46 | #define __underlying_memcpy     __builtin_memcpy
+      |                                 ^
+include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
+  388 |         __underlying_##op(p, q, __fortify_size);                        \
+      |         ^~~~~~~~~~~~~
+include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
+  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
+      |                          ^~~~~~~~~~~~~~~~~~~~
+drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
+ 2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
+      |         ^~~~~~
 
-The metadata dst is leaked when ip_route_input_mc() updates the dst for
-the skb. Commit f38a9eb1f77b ("dst: Metadata destinations") correctly
-handled dropping the dst in ip_route_input_slow() but missed the
-multicast case which is handled by ip_route_input_mc(). Drop the dst in
-ip_route_input_mc() avoiding the leak.
+Additionally remove needless cast from u8[] to char * in last strim()
+call.
 
-Fixes: f38a9eb1f77b ("dst: Metadata destinations")
-Signed-off-by: Lokesh Dhoundiyal <lokesh.dhoundiyal@alliedtelesis.co.nz>
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Link: https://lore.kernel.org/r/20220505020017.3111846-1-chris.packham@alliedtelesis.co.nz
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
+Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
+Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
+Cc: Raju Rangoju <rajur@chelsio.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20220505233101.1224230-1-keescook@chromium.org
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index d5d058de3664..eef07b62b2d8 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1748,6 +1748,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- #endif
- 	RT_CACHE_STAT_INC(in_slow_mc);
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 64144b6171d7..b1c9f65ab10f 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -2793,14 +2793,14 @@ int t4_get_raw_vpd_params(struct adapter *adapter, struct vpd_params *p)
+ 		goto out;
+ 	na = ret;
  
-+	skb_dst_drop(skb);
- 	skb_dst_set(skb, &rth->dst);
- 	return 0;
- }
+-	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
++	memcpy(p->id, vpd + id, min_t(unsigned int, id_len, ID_LEN));
+ 	strim(p->id);
+-	memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
++	memcpy(p->sn, vpd + sn, min_t(unsigned int, sn_len, SERNUM_LEN));
+ 	strim(p->sn);
+-	memcpy(p->pn, vpd + pn, min_t(int, pn_len, PN_LEN));
++	memcpy(p->pn, vpd + pn, min_t(unsigned int, pn_len, PN_LEN));
+ 	strim(p->pn);
+-	memcpy(p->na, vpd + na, min_t(int, na_len, MACADDR_LEN));
+-	strim((char *)p->na);
++	memcpy(p->na, vpd + na, min_t(unsigned int, na_len, MACADDR_LEN));
++	strim(p->na);
+ 
+ out:
+ 	vfree(vpd);
 -- 
 2.35.1
 
