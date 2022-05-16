@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5265291B9
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:49:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9A2C52900D
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240700AbiEPTyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:54:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54730 "EHLO
+        id S238440AbiEPUHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348645AbiEPTw7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:52:59 -0400
+        with ESMTP id S1349815AbiEPUAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:00:30 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 916AA46B0B;
-        Mon, 16 May 2022 12:48:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4406044A08;
+        Mon, 16 May 2022 12:54:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9868560A51;
-        Mon, 16 May 2022 19:48:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7AB8C34100;
-        Mon, 16 May 2022 19:48:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7091760EC4;
+        Mon, 16 May 2022 19:53:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B439C385AA;
+        Mon, 16 May 2022 19:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730500;
-        bh=OGmVfHd49qWQoIcN3ycoUD6a2jLg7OUP+fkFDjeRZIQ=;
+        s=korg; t=1652730828;
+        bh=WWp5/fwmERuhj14JqsIQ06X/O1ig7VgEOoMipSi2itU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=et3sYc+eWhLuLn55gLSnYb/W7FPubStZEI7OR3qSZcG6KyB2ZUaWheaRGOtglv0ef
-         iDcj9PrxbVp5r78oR031TiL0Nttv1tFtkXQ4gBKgBmO+cRWcU0cVBuhTeyrezdmXCA
-         jJvssZHfwYBNg17XI3c2FMAMfqL0Hi3d1cBRWAJA=
+        b=ggAZORhuCw4rgiIfa7het5bPZFIYbxnFyXK0pR/dSSndHplRAl1V9z6ZBcaX6RqnF
+         HjcDMGK44e167KJ9cykRPiGHp3LMALaUWF+hdYxhJsAxHmOo9DeGHaSN+4AqlF5YMa
+         jc0FRoCzHtF4wmUNUe62hLtuyvh5D5oy52ByO4h8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Raju Rangoju <rajur@chelsio.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/102] net: chelsio: cxgb4: Avoid potential negative array offset
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 019/114] drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
 Date:   Mon, 16 May 2022 21:35:53 +0200
-Message-Id: <20220516193624.550839514@linuxfoundation.org>
+Message-Id: <20220516193626.047502062@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
-References: <20220516193623.989270214@linuxfoundation.org>
+In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
+References: <20220516193625.489108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,94 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 1c7ab9cd98b78bef1657a5db7204d8d437e24c94 ]
+[ Upstream commit ab244be47a8f111bc82496a8a20c907236e37f95 ]
 
-Using min_t(int, ...) as a potential array index implies to the compiler
-that negative offsets should be allowed. This is not the case, though.
-Replace "int" with "unsigned int". Fixes the following warning exposed
-under future CONFIG_FORTIFY_SOURCE improvements:
+If successful ida_simple_get() calls are not undone when needed, some
+additional memory may be allocated and wasted.
 
-In file included from include/linux/string.h:253,
-                 from include/linux/bitmap.h:11,
-                 from include/linux/cpumask.h:12,
-                 from include/linux/smp.h:13,
-                 from include/linux/lockdep.h:14,
-                 from include/linux/rcupdate.h:29,
-                 from include/linux/rculist.h:11,
-                 from include/linux/pid.h:5,
-                 from include/linux/sched.h:14,
-                 from include/linux/delay.h:23,
-                 from drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:35:
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c: In function 't4_get_raw_vpd_params':
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 29 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2796:9: note: in expansion of macro 'memcpy'
- 2796 |         memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-      |         ^~~~~~
-include/linux/fortify-string.h:46:33: warning: '__builtin_memcpy' pointer overflow between offset 0 and size [2147483648, 4294967295] [-Warray-bounds]
-   46 | #define __underlying_memcpy     __builtin_memcpy
-      |                                 ^
-include/linux/fortify-string.h:388:9: note: in expansion of macro '__underlying_memcpy'
-  388 |         __underlying_##op(p, q, __fortify_size);                        \
-      |         ^~~~~~~~~~~~~
-include/linux/fortify-string.h:433:26: note: in expansion of macro '__fortify_memcpy_chk'
-  433 | #define memcpy(p, q, s)  __fortify_memcpy_chk(p, q, s,                  \
-      |                          ^~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/t4_hw.c:2798:9: note: in expansion of macro 'memcpy'
- 2798 |         memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-      |         ^~~~~~
+Here, an ID between 0 and MAX_INT is required. If this ID is >=100, it is
+not taken into account and is wasted. It should be released.
 
-Additionally remove needless cast from u8[] to char * in last strim()
-call.
+Instead of calling ida_simple_remove(), take advantage of the 'max'
+parameter to require the ID not to be too big. Should it be too big, it
+is not allocated and don't need to be freed.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/lkml/202205031926.FVP7epJM-lkp@intel.com
-Fixes: fc9279298e3a ("cxgb4: Search VPD with pci_vpd_find_ro_info_keyword()")
-Fixes: 24c521f81c30 ("cxgb4: Use pci_vpd_find_id_string() to find VPD ID string")
-Cc: Raju Rangoju <rajur@chelsio.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20220505233101.1224230-1-keescook@chromium.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+While at it, use ida_alloc_xxx()/ida_free() instead to
+ida_simple_get()/ida_simple_remove().
+The latter is deprecated and more verbose.
+
+Fixes: db1a0ae21461 ("drm/nouveau/bl: Assign different names to interfaces")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+[Fixed formatting warning from checkpatch]
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/9ba85bca59df6813dc029e743a836451d5173221.1644386541.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/nouveau/nouveau_backlight.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index 64144b6171d7..b1c9f65ab10f 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -2793,14 +2793,14 @@ int t4_get_raw_vpd_params(struct adapter *adapter, struct vpd_params *p)
- 		goto out;
- 	na = ret;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_backlight.c b/drivers/gpu/drm/nouveau/nouveau_backlight.c
+index daf9f87477ba..a2141d3d9b1d 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_backlight.c
++++ b/drivers/gpu/drm/nouveau/nouveau_backlight.c
+@@ -46,8 +46,9 @@ static bool
+ nouveau_get_backlight_name(char backlight_name[BL_NAME_SIZE],
+ 			   struct nouveau_backlight *bl)
+ {
+-	const int nb = ida_simple_get(&bl_ida, 0, 0, GFP_KERNEL);
+-	if (nb < 0 || nb >= 100)
++	const int nb = ida_alloc_max(&bl_ida, 99, GFP_KERNEL);
++
++	if (nb < 0)
+ 		return false;
+ 	if (nb > 0)
+ 		snprintf(backlight_name, BL_NAME_SIZE, "nv_backlight%d", nb);
+@@ -414,7 +415,7 @@ nouveau_backlight_init(struct drm_connector *connector)
+ 					    nv_encoder, ops, &props);
+ 	if (IS_ERR(bl->dev)) {
+ 		if (bl->id >= 0)
+-			ida_simple_remove(&bl_ida, bl->id);
++			ida_free(&bl_ida, bl->id);
+ 		ret = PTR_ERR(bl->dev);
+ 		goto fail_alloc;
+ 	}
+@@ -442,7 +443,7 @@ nouveau_backlight_fini(struct drm_connector *connector)
+ 		return;
  
--	memcpy(p->id, vpd + id, min_t(int, id_len, ID_LEN));
-+	memcpy(p->id, vpd + id, min_t(unsigned int, id_len, ID_LEN));
- 	strim(p->id);
--	memcpy(p->sn, vpd + sn, min_t(int, sn_len, SERNUM_LEN));
-+	memcpy(p->sn, vpd + sn, min_t(unsigned int, sn_len, SERNUM_LEN));
- 	strim(p->sn);
--	memcpy(p->pn, vpd + pn, min_t(int, pn_len, PN_LEN));
-+	memcpy(p->pn, vpd + pn, min_t(unsigned int, pn_len, PN_LEN));
- 	strim(p->pn);
--	memcpy(p->na, vpd + na, min_t(int, na_len, MACADDR_LEN));
--	strim((char *)p->na);
-+	memcpy(p->na, vpd + na, min_t(unsigned int, na_len, MACADDR_LEN));
-+	strim(p->na);
+ 	if (bl->id >= 0)
+-		ida_simple_remove(&bl_ida, bl->id);
++		ida_free(&bl_ida, bl->id);
  
- out:
- 	vfree(vpd);
+ 	backlight_device_unregister(bl->dev);
+ 	nv_conn->backlight = NULL;
 -- 
 2.35.1
 
