@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0408052919B
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:48:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AD41529143
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 22:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233252AbiEPUJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 16:09:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
+        id S1347655AbiEPUGL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 16:06:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350866AbiEPUBo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 16:01:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5590E44753;
-        Mon, 16 May 2022 12:55:59 -0700 (PDT)
+        with ESMTP id S1348913AbiEPT7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:59:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE09B2DD72;
+        Mon, 16 May 2022 12:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA36F60FD4;
-        Mon, 16 May 2022 19:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55FE6C385AA;
-        Mon, 16 May 2022 19:55:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ABCB60AB8;
+        Mon, 16 May 2022 19:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F0D6C385AA;
+        Mon, 16 May 2022 19:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730959;
-        bh=zAIK8Scdfpm+47u/CP5vmP3dy1T/MXT6kt+ys0EhElw=;
+        s=korg; t=1652730762;
+        bh=bDtPcSboLQbfZJjHkkp3qfo4UrMu5pxU6qaeAryw3ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjaE8dFzGSUETlCgms0hoooQ5qNulQ7vvqn46zghIICLrfDm26z9wCWUG+9v3a+A2
-         Mm6liXQviq0OYbQyX7KNPic0emOFbZpPBFSxxwbltt75oYLBn9WaAZAvVM07sYeiJf
-         QCG2474KdrLnEald5mtHbHUX5hIdyaFN1KbCb5ms=
+        b=uQLa+BNumlRmDJ74jH5P5KqA2ydv4ZfUwABD88zV7XXAydvdjIbuZvf9hVdPiduOA
+         rUAingbBX7EboH8QAUUnvRDtsitwGu2tTiwaBIyKMXtoa+vWNFtsDj11tk/Sf/XPpj
+         6eNS6fKUDoMdJCQ7zS2v9Ac7bbLwcrDGnNKTaFso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Hagan <mnhagan88@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 060/114] net: sfp: Add tx-fault workaround for Huawei MA5671A SFP ONT
+Subject: [PATCH 5.15 060/102] tcp: increase source port perturb table to 2^16
 Date:   Mon, 16 May 2022 21:36:34 +0200
-Message-Id: <20220516193627.217051769@linuxfoundation.org>
+Message-Id: <20220516193625.719236239@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193625.489108457@linuxfoundation.org>
-References: <20220516193625.489108457@linuxfoundation.org>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+References: <20220516193623.989270214@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,66 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Hagan <mnhagan88@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 2069624dac19d62c558bb6468fe03678553ab01d ]
+[ Upstream commit 4c2c8f03a5ab7cb04ec64724d7d176d00bcc91e5 ]
 
-As noted elsewhere, various GPON SFP modules exhibit non-standard
-TX-fault behaviour. In the tested case, the Huawei MA5671A, when used
-in combination with a Marvell mv88e6085 switch, was found to
-persistently assert TX-fault, resulting in the module being disabled.
+Moshe Kol, Amit Klein, and Yossi Gilad reported being able to accurately
+identify a client by forcing it to emit only 40 times more connections
+than there are entries in the table_perturb[] table. The previous two
+improvements consisting in resalting the secret every 10s and adding
+randomness to each port selection only slightly improved the situation,
+and the current value of 2^8 was too small as it's not very difficult
+to make a client emit 10k connections in less than 10 seconds.
 
-This patch adds a quirk to ignore the SFP_F_TX_FAULT state, allowing the
-module to function.
+Thus we're increasing the perturb table from 2^8 to 2^16 so that the
+same precision now requires 2.6M connections, which is more difficult in
+this time frame and harder to hide as a background activity. The impact
+is that the table now uses 256 kB instead of 1 kB, which could mostly
+affect devices making frequent outgoing connections. However such
+components usually target a small set of destinations (load balancers,
+database clients, perf assessment tools), and in practice only a few
+entries will be visited, like before.
 
-Change from v1: removal of erroneous return statment (Andrew Lunn)
+A live test at 1 million connections per second showed no performance
+difference from the previous value.
 
-Signed-off-by: Matthew Hagan <mnhagan88@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220502223315.1973376-1-mnhagan88@gmail.com
+Reported-by: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Reported-by: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
-index 4720b24ca51b..90dfefc1f5f8 100644
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -250,6 +250,7 @@ struct sfp {
- 	struct sfp_eeprom_id id;
- 	unsigned int module_power_mW;
- 	unsigned int module_t_start_up;
-+	bool tx_fault_ignore;
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 763395e30c77..f76e4ac1ba3a 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -726,11 +726,12 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+  * Note that we use 32bit integers (vs RFC 'short integers')
+  * because 2^16 is not a multiple of num_ephemeral and this
+  * property might be used by clever attacker.
+- * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
+- * we use 256 instead to really give more isolation and
+- * privacy, this only consumes 1 KB of kernel memory.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement, though
++ * attacks were since demonstrated, thus we use 65536 instead to really
++ * give more isolation and privacy, at the expense of 256kB of kernel
++ * memory.
+  */
+-#define INET_TABLE_PERTURB_SHIFT 8
++#define INET_TABLE_PERTURB_SHIFT 16
+ #define INET_TABLE_PERTURB_SIZE (1 << INET_TABLE_PERTURB_SHIFT)
+ static u32 *table_perturb;
  
- #if IS_ENABLED(CONFIG_HWMON)
- 	struct sfp_diag diag;
-@@ -1945,6 +1946,12 @@ static int sfp_sm_mod_probe(struct sfp *sfp, bool report)
- 	else
- 		sfp->module_t_start_up = T_START_UP;
- 
-+	if (!memcmp(id.base.vendor_name, "HUAWEI          ", 16) &&
-+	    !memcmp(id.base.vendor_pn, "MA5671A         ", 16))
-+		sfp->tx_fault_ignore = true;
-+	else
-+		sfp->tx_fault_ignore = false;
-+
- 	return 0;
- }
- 
-@@ -2397,7 +2404,10 @@ static void sfp_check_state(struct sfp *sfp)
- 	mutex_lock(&sfp->st_mutex);
- 	state = sfp_get_state(sfp);
- 	changed = state ^ sfp->state;
--	changed &= SFP_F_PRESENT | SFP_F_LOS | SFP_F_TX_FAULT;
-+	if (sfp->tx_fault_ignore)
-+		changed &= SFP_F_PRESENT | SFP_F_LOS;
-+	else
-+		changed &= SFP_F_PRESENT | SFP_F_LOS | SFP_F_TX_FAULT;
- 
- 	for (i = 0; i < GPIO_MAX; i++)
- 		if (changed & BIT(i))
 -- 
 2.35.1
 
