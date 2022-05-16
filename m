@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DB685528F3F
-	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73184528EA0
+	for <lists+stable@lfdr.de>; Mon, 16 May 2022 21:51:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244858AbiEPTxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 15:53:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55764 "EHLO
+        id S1345901AbiEPTni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 15:43:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346889AbiEPTv3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:51:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F3840917;
-        Mon, 16 May 2022 12:46:00 -0700 (PDT)
+        with ESMTP id S1346151AbiEPTmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 15:42:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A33C3F8B2;
+        Mon, 16 May 2022 12:41:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA7256151D;
-        Mon, 16 May 2022 19:45:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E6EC385AA;
-        Mon, 16 May 2022 19:45:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F16DBCE1795;
+        Mon, 16 May 2022 19:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A642C385AA;
+        Mon, 16 May 2022 19:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652730359;
-        bh=tp+iY+5N+WnKZV1bBz/lKDeRyBo9XckND8D3YCkF+Ps=;
+        s=korg; t=1652730116;
+        bh=Dd5bm4NtHHEFcaFf5w6xNS60nrturXKLQxOMwNfw/2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8IcxtN5sHgIkor5hwOBmAdp4iJNXsh5k3ByqDdIDRo1Faz5OJf1yWw397H+G+9Nt
-         FxwmuJ4yRjYYQSM5MwemvoXdGfkPFlP6C998T9wBotuG3kJPSQkRZgDvZV6blA367u
-         13h8ZtlvYmRuGTaokEKu5Xqd72xgEtzbWZZRxqu8=
+        b=l6hXsEk84R2jlOTtRICZ1YULgdZzunQFe2P8/oTD9ZtTpru0Z42XsSQz+UN6kii1T
+         qvUlnLcfABN83B7USRoK4breyxYck1E+EHfhfBdkVQgwj/501VfjFjNHaAAGrUjGG2
+         xRgCFnNAYHjOBMRibsqB3NaMCBvEy8PMs2phtRpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Starke <daniel.starke@siemens.com>
-Subject: [PATCH 5.10 41/66] tty: n_gsm: fix mux activation issues in gsm_config()
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 4.19 27/32] slimbus: qcom: Fix IRQ check in qcom_slim_probe
 Date:   Mon, 16 May 2022 21:36:41 +0200
-Message-Id: <20220516193620.602120115@linuxfoundation.org>
+Message-Id: <20220516193615.578081188@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220516193619.400083785@linuxfoundation.org>
-References: <20220516193619.400083785@linuxfoundation.org>
+In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
+References: <20220516193614.773450018@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,60 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Starke <daniel.starke@siemens.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit edd5f60c340086891fab094ad61270d6c80f9ca4 upstream.
+commit fe503887eed6ea528e144ec8dacfa1d47aa701ac upstream.
 
-The current implementation activates the mux if it was restarted and opens
-the control channel if the mux was previously closed and we are now acting
-as initiator instead of responder, which is the default setting.
-This has two issues.
-1) No mux is activated if we keep all default values and only switch to
-initiator. The control channel is not allocated but will be opened next
-which results in a NULL pointer dereference.
-2) Switching the configuration after it was once configured while keeping
-the initiator value the same will not reopen the control channel if it was
-closed due to parameter incompatibilities. The mux remains dead.
+platform_get_irq() returns non-zero IRQ number on success,
+negative error number on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Fix 1) by always activating the mux if it is dead after configuration.
-Fix 2) by always opening the control channel after mux activation.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Fixes: e1eaea46bb40 ("tty: n_gsm line discipline")
+Fix the check of return value to catch errors correctly.
+
+Fixes: ad7fcbc308b0 ("slimbus: qcom: Add Qualcomm Slimbus controller driver")
 Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Starke <daniel.starke@siemens.com>
-Link: https://lore.kernel.org/r/20220504081733.3494-2-daniel.starke@siemens.com
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220429164917.5202-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/n_gsm.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ drivers/slimbus/qcom-ctrl.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/n_gsm.c
-+++ b/drivers/tty/n_gsm.c
-@@ -2276,6 +2276,7 @@ static void gsm_copy_config_values(struc
+--- a/drivers/slimbus/qcom-ctrl.c
++++ b/drivers/slimbus/qcom-ctrl.c
+@@ -515,9 +515,9 @@ static int qcom_slim_probe(struct platfo
+ 	}
  
- static int gsm_config(struct gsm_mux *gsm, struct gsm_config *c)
- {
-+	int ret = 0;
- 	int need_close = 0;
- 	int need_restart = 0;
+ 	ctrl->irq = platform_get_irq(pdev, 0);
+-	if (!ctrl->irq) {
++	if (ctrl->irq < 0) {
+ 		dev_err(&pdev->dev, "no slimbus IRQ\n");
+-		return -ENODEV;
++		return ctrl->irq;
+ 	}
  
-@@ -2343,10 +2344,13 @@ static int gsm_config(struct gsm_mux *gs
- 	 * FIXME: We need to separate activation/deactivation from adding
- 	 * and removing from the mux array
- 	 */
--	if (need_restart)
--		gsm_activate_mux(gsm);
--	if (gsm->initiator && need_close)
--		gsm_dlci_begin_open(gsm->dlci[0]);
-+	if (gsm->dead) {
-+		ret = gsm_activate_mux(gsm);
-+		if (ret)
-+			return ret;
-+		if (gsm->initiator)
-+			gsm_dlci_begin_open(gsm->dlci[0]);
-+	}
- 	return 0;
- }
- 
+ 	sctrl = &ctrl->ctrl;
 
 
