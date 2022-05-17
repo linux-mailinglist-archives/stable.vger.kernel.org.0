@@ -2,220 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D59E452A9F7
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 20:07:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68D9452AA26
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 20:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351792AbiEQSGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 14:06:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
+        id S1348560AbiEQSJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 14:09:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352138AbiEQSGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 14:06:14 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A23F506E4
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 11:06:11 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id d22so18034000plr.9
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 11:06:11 -0700 (PDT)
+        with ESMTP id S1351885AbiEQSJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 14:09:16 -0400
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543454EF70;
+        Tue, 17 May 2022 11:09:15 -0700 (PDT)
+Received: by mail-pj1-x1036.google.com with SMTP id qe3-20020a17090b4f8300b001dc24e4da73so2318909pjb.1;
+        Tue, 17 May 2022 11:09:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=uIitL07LK0k850ajz6+8lfu5spWDwMgSk+A3BueQxNA=;
-        b=KHtt2vWHU6kZ9pH1SCH86CyKfw1zEp0NmXtgICisUwjK8zr7Insg5zZB4aeYbN4HAp
-         gcdRPVte0tTh9wp0OpzcFMKYxe9ecm+31v6RkScxkpx5mabf5tu33sSIBNLRVwFJqqfm
-         lzCQ0/ML22EDn8YkDrXIzskqt8JD7NWAJuTjOMCY8IVGllaaSKIQjH/ekiBxRZFkSYoX
-         lg5/FbF+pC9AgaqNNlW+nAUUv63Vj+GASvIK+PLE1qBLZ/HUe6qTs2G2WponrjNZewjI
-         +Q7oh5W0zk77vqryRwr3zbOmZhwPkawTikWYWdzD21/5MOO0dTU03aOGvsnEzfy1759e
-         RiyQ==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Sk+5mSaR9rPPKXkfYc0/VsJM1xTQzkpsddohoa/KxaY=;
+        b=iGPK/GwXeGKXb+JpJA46iSyhnPvw8ykFkQnXHIOb+nnJMZMZNEpCOO5aAaPTON9dL0
+         /arpk5OBwqIkFqJYwu8moP1z3ie3HWE4S9Su3w+237xAGMDlSsrMPNk684b19W459JFh
+         TeukQRXDrrk607aSndZ/R1d9EAiqRw/hzyxU+Bl78iiOCytDyNbfOmVKdwl9G9ZbtL94
+         IT2LRNjS3SgdiT5EcB4zjn0d1SS6f3ngmYD2l7LVkaXOxa8kYtEBKXCdxZUYp3Z5Nw4M
+         5B/QLrscfUylDB+CXuodZ4cgJAjI57t7M+Zb171soqJXr+iVLY4nd84qfn9iB26jTmyv
+         Rc/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=uIitL07LK0k850ajz6+8lfu5spWDwMgSk+A3BueQxNA=;
-        b=vtvgHFmdCGvjwdrWRXyEeYP6gkCRg3/2u9VclsL5ullR3LXL3KCvayO6Sb7XjNrvlx
-         ZU+OfiVEJVQPkmvux/NKoZ09UYkAWyS6nD+Vez7fNDgN7gfGcORgPFUHPdVj2Uzjr+Uc
-         PVioeXuAHBm1brdRHuadIk2GvDvFRyTXM1DM+jRE4iIYRKbEckYgR8/ewVi7873/S62A
-         I+GEn+XyGJYZO/W5jbBO2w2yxA3u2SiIcZlNQkG1rLN6/cZO7RlvwEbzhpLeMeGDYdMd
-         agJN1G3qM7MUjDyvaR+Tm5zTmeDnWxLhJE+pnl8Y5trWNRRRUHPNAxMfc30a6dhNag3H
-         rXkA==
-X-Gm-Message-State: AOAM531md8XRUNburNSqbPurkm6FCVAx2NJKNVE2rQK9bvzhze/jzT5I
-        NbWxbnxrbBgv+TaGzFC5QJL+mA==
-X-Google-Smtp-Source: ABdhPJyxTDE3qUWOdndVfYN9Y9POy917sjTZcXNmsHowuoVHsWMdu/gc3rF8V92A3Xa6ojAGOrEJTQ==
-X-Received: by 2002:a17:902:b413:b0:15e:e6a8:b3e with SMTP id x19-20020a170902b41300b0015ee6a80b3emr23390640plr.24.1652810770573;
-        Tue, 17 May 2022 11:06:10 -0700 (PDT)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id g11-20020a17090a7d0b00b001ded0506655sm1952086pjl.51.2022.05.17.11.06.09
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Sk+5mSaR9rPPKXkfYc0/VsJM1xTQzkpsddohoa/KxaY=;
+        b=trBJ58vCc0eRdjN/MnvENKhAbmz51iysFfGD6wnGvZoajGGbM4wjrdtZV/ibi/lzC9
+         QsSrKtnTykuyROV2rPU49Gw+ny8yRXbe3BFphoGH7CtegBygNd1K9ZsqsyWfBBG0MmdP
+         7b938tlhC90W3BUfMpcnUPbGfxFBQ+A6gLV5xtDkMm8xeyv3qUWM1JsdEAxxwIaQ6PDg
+         m+fIMVblpusTBUd63m8EHX6eBUTobiuDqcUw60hrxCoJp41VU9wiAJpsPHctQkVlOm+H
+         Ep7RMiPFH2rP6K94xgUfd7PlqgFzIHDWnyMV/SFlKKud46uqQHo0jMxDA+vJToKYzNIC
+         Km+w==
+X-Gm-Message-State: AOAM533xzE7adj4MSwESiUwG6Yxhr4P1Qeeuw6GhXthsPJsqdVCa5BQn
+        7L/n2H0cBhYqeExqAXkKjMacBd8Jt4Q=
+X-Google-Smtp-Source: ABdhPJzpEwYEZEmjNkNxL3JHREQJ8h2a9XP7Q653MwGhOMDaN/ejTYzEuPprsM0feUFY+7Epvc+R8g==
+X-Received: by 2002:a17:90a:7e94:b0:1da:3b47:b00e with SMTP id j20-20020a17090a7e9400b001da3b47b00emr38237513pjl.222.1652810954452;
+        Tue, 17 May 2022 11:09:14 -0700 (PDT)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id i5-20020a056a00224500b0050dc7628160sm46854pfu.58.2022.05.17.11.09.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 May 2022 11:06:10 -0700 (PDT)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     andrii.nakryiko@gmail.com
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        "Alexei Starovoitov" <ast@kernel.org>,
-        "Daniel Borkmann" <daniel@iogearbox.net>,
-        "Andrii Nakryiko" <andrii@kernel.org>,
-        "Martin KaFai Lau" <kafai@fb.com>,
-        "Song Liu" <songliubraving@fb.com>, "Yonghong Song" <yhs@fb.com>,
-        "John Fastabend" <john.fastabend@gmail.com>,
-        "KP Singh" <kpsingh@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
-Subject: [PATCH v4] bpf: Fix KASAN use-after-free Read in compute_effective_progs
-Date:   Tue, 17 May 2022 11:04:20 -0700
-Message-Id: <20220517180420.87954-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
-References: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
+        Tue, 17 May 2022 11:09:14 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Nishad Kamdar <nishadkamdar@gmail.com>,
+        =?UTF-8?q?Christian=20L=C3=B6hle?= <CLoehle@hyperstone.com>,
+        linux-mmc@vger.kernel.org (open list:MULTIMEDIA CARD (MMC), SECURE
+        DIGITAL (SD) AND...), linux-kernel@vger.kernel.org (open list),
+        alcooperx@gmail.com, kdasu.kdev@gmail.com
+Subject: [PATCH stable 5.4 0/3] MMC timeout back ports
+Date:   Tue, 17 May 2022 11:09:08 -0700
+Message-Id: <20220517180911.246016-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot found a Use After Free bug in compute_effective_progs().
-The reproducer creates a number of BPF links, and causes a fault
-injected alloc to fail, while calling bpf_link_detach on them.
-Link detach triggers the link to be freed by bpf_link_free(),
-which calls __cgroup_bpf_detach() and update_effective_progs().
-If the memory allocation in this function fails, the function restores
-the pointer to the bpf_cgroup_link on the cgroup list, but the memory
-gets freed just after it returns. After this, every subsequent call to
-update_effective_progs() causes this already deallocated pointer to be
-dereferenced in prog_list_length(), and triggers KASAN UAF error.
+These 3 commits from upstream allow us to have more fine grained control
+over the MMC command timeouts and this solves the following timeouts
+that we have seen on our systems across suspend/resume cycles:
 
-To fix this issue don't preserve the pointer to the prog or link in the
-list, but remove it and replace it with a dummy prog without shrinking
-the table. The subsequent call to __cgroup_bpf_detach() or
-__cgroup_bpf_detach() will correct it.
+[   14.907496] usb usb2: root hub lost power or was reset
+[   15.216232] usb 1-1: reset high-speed USB device number 2 using
+xhci-hcd
+[   15.485812] bcmgenet 8f00000.ethernet eth0: Link is Down
+[   15.525328] mmc1: error -110 doing runtime resume
+[   15.531864] OOM killer enabled.
 
-Cc: "Alexei Starovoitov" <ast@kernel.org>
-Cc: "Daniel Borkmann" <daniel@iogearbox.net>
-Cc: "Andrii Nakryiko" <andrii@kernel.org>
-Cc: "Martin KaFai Lau" <kafai@fb.com>
-Cc: "Song Liu" <songliubraving@fb.com>
-Cc: "Yonghong Song" <yhs@fb.com>
-Cc: "John Fastabend" <john.fastabend@gmail.com>
-Cc: "KP Singh" <kpsingh@kernel.org>
-Cc: <netdev@vger.kernel.org>
-Cc: <bpf@vger.kernel.org>
-Cc: <stable@vger.kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
+Thanks!
 
-Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
-Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
-Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
-v2: Add a fall back path that removes a prog from the effective progs
-    table in case detach fails to allocate memory in compute_effective_progs().
+Ulf Hansson (3):
+  mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+  mmc: block: Use generic_cmd6_time when modifying
+    INAND_CMD38_ARG_EXT_CSD
+  mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
 
-v3: Implement the fallback in a separate function purge_effective_progs
+ drivers/mmc/core/block.c   |  6 +++---
+ drivers/mmc/core/mmc_ops.c | 25 +++++++++++++------------
+ 2 files changed, 16 insertions(+), 15 deletions(-)
 
-v4: Changed purge_effective_progs() to manipulate the array in a similar way
-    how replace_effective_prog() does it.
----
- kernel/bpf/cgroup.c | 68 +++++++++++++++++++++++++++++++++++++++------
- 1 file changed, 60 insertions(+), 8 deletions(-)
-
-diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
-index 128028efda64..6f1a6160c99e 100644
---- a/kernel/bpf/cgroup.c
-+++ b/kernel/bpf/cgroup.c
-@@ -681,6 +681,60 @@ static struct bpf_prog_list *find_detach_entry(struct list_head *progs,
- 	return ERR_PTR(-ENOENT);
- }
- 
-+/**
-+ * purge_effective_progs() - After compute_effective_progs fails to alloc new
-+ *                           cgrp->bpf.inactive table we can recover by
-+ *                           recomputing the array in place.
-+ *
-+ * @cgrp: The cgroup which descendants to travers
-+ * @prog: A program to detach or NULL
-+ * @link: A link to detach or NULL
-+ * @atype: Type of detach operation
-+ */
-+static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
-+				  struct bpf_cgroup_link *link,
-+				  enum cgroup_bpf_attach_type atype)
-+{
-+	struct cgroup_subsys_state *css;
-+	struct bpf_prog_array *progs;
-+	struct bpf_prog_list *pl;
-+	struct list_head *head;
-+	struct cgroup *cg;
-+	int pos;
-+
-+	/* recompute effective prog array in place */
-+	css_for_each_descendant_pre(css, &cgrp->self) {
-+		struct cgroup *desc = container_of(css, struct cgroup, self);
-+
-+		if (percpu_ref_is_zero(&desc->bpf.refcnt))
-+			continue;
-+
-+		/* find position of link or prog in effective progs array */
-+		for (pos = 0, cg = desc; cg; cg = cgroup_parent(cg)) {
-+			if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))
-+				continue;
-+
-+			head = &cg->bpf.progs[atype];
-+			list_for_each_entry(pl, head, node) {
-+				if (!prog_list_prog(pl))
-+					continue;
-+				if (pl->prog == prog && pl->link == link)
-+					goto found;
-+				pos++;
-+			}
-+		}
-+found:
-+		BUG_ON(!cg);
-+		progs = rcu_dereference_protected(
-+				desc->bpf.effective[atype],
-+				lockdep_is_held(&cgroup_mutex));
-+
-+		/* Remove the program from the array */
-+		WARN_ONCE(bpf_prog_array_delete_safe_at(progs, pos),
-+			  "Failed to purge a prog from array at index %d", pos);
-+	}
-+}
-+
- /**
-  * __cgroup_bpf_detach() - Detach the program or link from a cgroup, and
-  *                         propagate the change to descendants
-@@ -723,8 +777,12 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
- 	pl->link = NULL;
- 
- 	err = update_effective_progs(cgrp, atype);
--	if (err)
--		goto cleanup;
-+	if (err) {
-+		/* If update affective array failed replace the prog with a dummy prog*/
-+		pl->prog = old_prog;
-+		pl->link = link;
-+		purge_effective_progs(cgrp, old_prog, link, atype);
-+	}
- 
- 	/* now can actually delete it from this cgroup list */
- 	list_del(&pl->node);
-@@ -736,12 +794,6 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
- 		bpf_prog_put(old_prog);
- 	static_branch_dec(&cgroup_bpf_enabled_key[atype]);
- 	return 0;
--
--cleanup:
--	/* restore back prog or link */
--	pl->prog = old_prog;
--	pl->link = link;
--	return err;
- }
- 
- static int cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
 -- 
-2.36.1
+2.25.1
 
