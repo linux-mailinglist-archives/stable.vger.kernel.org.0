@@ -2,245 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D69DD52A48D
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 16:16:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD0C552A4C4
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 16:26:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348609AbiEQOQm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 10:16:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43566 "EHLO
+        id S242382AbiEQO0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 10:26:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348573AbiEQOQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 10:16:39 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD63BBE3F
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 07:16:38 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id r11so32654612ybg.6
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 07:16:38 -0700 (PDT)
+        with ESMTP id S1348881AbiEQOZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 10:25:56 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5464427D8
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 07:25:54 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id eg11so8823998edb.11
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 07:25:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FbsLkTlBRK9V5w9TVhQDtQ29lIrXV8IwRzrUpg6BETk=;
-        b=Q8YU9uym0taBo6AFiiFbXkUC56kTGpa96zoyy7ewEo9I6agoe1RwlqalbfZTjKrty4
-         usWvX3vuQZ05D85FZk5w7Gddibx+ak8G5gEw6BXGWCd8gpq43nEyRmWmOOl2EptzO936
-         giO5I1UGsod+aiPW1tx2DU6ombstkgqqtUo/zHbi8BKGxKs08B+2Tuayuqf/uFPHAUct
-         YROjzHSnc2PiF/nxvc/QsuTalKjtYpXkPqVfrkQRPVUPBQGVWR2WAMFFFnAhYnITeR+F
-         nhv1yEFl8nektaSHqNFCqaHy7R3emdb06Dpsuvoqok1J80cc8NjUsnuxJpmORlGrhG/K
-         FlgA==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :references:from:in-reply-to:cc:content-transfer-encoding;
+        bh=8V6VIcJkal9li7ymSO5VT9QRNhGf46wYnc+DQ/xNrQ4=;
+        b=hYYzgjZYsXnTltezQHqu8cqCOr+iZl6efeLeI2JZo9OeKs+Bsm5xYaXICnRQ/3lUGv
+         2GSBXSGhUz1HfQ/QvNO8miRufVCvrzHKNwCNHON2TEZPPHwkk76Y34XnQN50K9z9Gchi
+         ejjoGqxTxfVZfRXs53gi23BYshTQVpXMX60L3ptwbr9egBA5VuiPRakD1vUBoGw6EPzp
+         p/UF4FAfRfl5UwxLMv+gpErf0awlm5LgmNrYJNN989XJQunb7LWYY0ef8YadXal8VDLt
+         V0jn/ytSvuMw95GKaPQTvFcP8231GZICJOrDpNhNQr6+RbBMWaUIOTtqavzFPxG87LJ3
+         PQ1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FbsLkTlBRK9V5w9TVhQDtQ29lIrXV8IwRzrUpg6BETk=;
-        b=Xb+RQ9KEo4YYTQZ4obbwgbWMY95xO1DuNsCpNG0gsH5CS1e69d8MSxQ0LUcrzRYTNo
-         zVKzF6LvBplKJH8UHQXN9RHYVJwuTnOvXRHqktFbA3/OGZmZhZOrzW5nNP3bBHBHLnr/
-         FD+9Y6bB+Nm4xMqeg31tzYMF8sWYN7ehUCCC3rioMbzoDBgAVPNlsAmm5UGS9ztUof1F
-         FEbhhEeNpQ1pe+FDec5tHENBHXV1uu6Uft6AFbQFCnOOeTdeDUjSqJ7iEJAqGCk1H0st
-         aZMe6/Yq64Nhh5/1q7ha+CL1JTjyrSPGJylHDbPtLd4pL/R1Qmj1NHH6eLj8z3Chz88K
-         lO4g==
-X-Gm-Message-State: AOAM532kRIM5q+5R/n3gWROohw5mtmTJ1UKXdNN87epw2emuRxk8yncW
-        71wtosqs4d7ty8Zxzx3+LIAxV2hp2XEUEaISDIEVEA==
-X-Google-Smtp-Source: ABdhPJwKz9LopBJlylFdCqxavwxIeFl5+xWOyu2HxR2KcPnTYHCLzeicopwrTp11gQ3GRKyz53yvPnXxwLI6c/NOOnI=
-X-Received: by 2002:a25:804e:0:b0:64d:eafa:450e with SMTP id
- a14-20020a25804e000000b0064deafa450emr5554651ybn.128.1652796997742; Tue, 17
- May 2022 07:16:37 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:references:from:in-reply-to:cc
+         :content-transfer-encoding;
+        bh=8V6VIcJkal9li7ymSO5VT9QRNhGf46wYnc+DQ/xNrQ4=;
+        b=XEQ/3d+BpEQ3uRtmLDZ4hiQKvJ8N80flm47qWa4XYa3OFhW554E5OPqvM88ySZmvU9
+         4FsTwBfno8gQeZ/vggiKyGg0qKTVE16FttlfDvyMlrd/JVOjD4UC9ATmQSqbKYW6IFAi
+         Ak29Ygu3MWvYyNj8Yc0BoJP4ZhlOUiCkJASFHjLtexnwBSgydFtgOGqFG+d0YiqRToAC
+         nQ3+/5CbqokDmSpTSe4NDIq2RCCQ2Xs5nyYXqcAAwhisYSm02YeTTkScQqq68T0bSnGQ
+         V2Nxb/lgrEoaYCNvn1CNSYZ+NS42S9Uxfxf2zriVlvC7/wbb4saagBDSj5EpVcmEBVlx
+         vnZw==
+X-Gm-Message-State: AOAM5316NTROA7urrJwvyMc3LTG6SZIhqvOkBWOEwmq1oARv3n5yWd0O
+        AxEe+8y49yICaMEN3UcP8oUuEgEjzPwhP+LlFDQ=
+X-Google-Smtp-Source: ABdhPJxL3eUfhDCs6Vt0GByDLaP/ejwfMbHQOvPJKHWjVxA5eBbfamKWaoJQJc2KgJG60u9FeJ0zyw==
+X-Received: by 2002:aa7:dbd0:0:b0:427:4e6e:d779 with SMTP id v16-20020aa7dbd0000000b004274e6ed779mr19480761edt.27.1652797553214;
+        Tue, 17 May 2022 07:25:53 -0700 (PDT)
+Received: from [192.168.1.110] ([178.233.88.73])
+        by smtp.gmail.com with ESMTPSA id c28-20020a1709063f1c00b006f3ef214e63sm1088604ejj.201.2022.05.17.07.25.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 May 2022 07:25:52 -0700 (PDT)
+Message-ID: <2f331adf-6f95-06c1-a366-ea81b5bf6ec2@gmail.com>
+Date:   Tue, 17 May 2022 17:25:48 +0300
 MIME-Version: 1.0
-References: <20220516193614.714657361@linuxfoundation.org>
-In-Reply-To: <20220516193614.714657361@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 17 May 2022 19:46:26 +0530
-Message-ID: <CA+G9fYtUa+B+3r5o8H=0WKa4VZe4Nm3b_cEqHuUxPyMXZou9qQ@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/43] 5.4.195-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] ASoC: ops: Fix the bounds checking in
+ snd_soc_put_volsw_sx and snd_soc_put_xr_sx
+Content-Language: en-US
+To:     Mark Brown <broonie@kernel.org>
+References: <c2163c71-2f71-9011-3966-baeab8e8dc8f@gmail.com>
+ <20220517011201.23530-1-tannayir@gmail.com> <YoOdauC5Q8POpHLe@sirena.org.uk>
+From:   =?UTF-8?Q?Tan_Nay=c4=b1r?= <tannayir@gmail.com>
+In-Reply-To: <YoOdauC5Q8POpHLe@sirena.org.uk>
+Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org,
+        Marek Vasut <marex@denx.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 17 May 2022 at 01:13, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.195 release.
-> There are 43 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.195-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+ > No, the minimum value we expose to userspace is always scaled so that
+ > userspace sees a range starting from zero and that's where platform_max
+ > is referenced to - we're applying this limit before we start remapping
+ > to actual register values. The code would be a lot simpler if we didn't
+ > do this rescaling.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+These are the results that I got from debugging my phone
+which has a wcd9340 audio codec and a kernel version of 4.9.314:
+The control is defined like
+-- SOC_SINGLE_S8_TLV("IIR0 INP0 Volume", 
+WCD934X_CDC_SIDETONE_IIR0_IIR_GAIN_B1_CTL, -84, 40, digital_gain) --
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Now the OEM mixer_path.xml file defines the value of the aforementioned 
+control as 54
+which is read by the user-mode Qualcomm HAL, the HAL then uses the 
+library libalsa-intf
+to issue an IOCTL to pass this value directly to the ALSA driver.
+At this point, the snd_soc_put_volsw_sx is called and the $val is 54 as 
+expected.
+$mc->platform_max is 40, $mc->max is also 40 and $mc->min is -84.
 
-## Build
-* kernel: 5.4.195-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.4.y
-* git commit: 25f2e99af01b5b7328f55bbadab563cb26478289
-* git describe: v5.4.194-44-g25f2e99af01b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-94-44-g25f2e99af01b
-
-## Test Regressions (compared to v5.4.193-19-g15301ad60009)
-No test regressions found.
-
-## Metric Regressions (compared to v5.4.193-19-g15301ad60009)
-No metric regressions found.
-
-## Test Fixes (compared to v5.4.193-19-g15301ad60009)
-No test fixes found.
-
-## Metric Fixes (compared to v5.4.193-19-g15301ad60009)
-No metric fixes found.
-
-## Test result summary
-total: 84577, pass: 70335, fail: 911, skip: 12348, xfail: 983
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 290 total, 290 passed, 0 failed
-* arm64: 40 total, 34 passed, 6 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 37 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 60 total, 54 passed, 6 failed
-* riscv: 27 total, 27 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 40 total, 40 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* perf/Zstd-perf.data-compression
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+The problem is that the snd_soc_put_volsw_sx, checks the userspace value 
+that has a range
+starting from 0, directly against the $mc->platform_max value mentioned 
+above
+which is set to 40 at that point so it checks for the incorrect range.
