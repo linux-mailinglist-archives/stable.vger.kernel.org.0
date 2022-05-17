@@ -2,64 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2433529875
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 05:57:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B65D052987E
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 06:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234973AbiEQD5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 23:57:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51458 "EHLO
+        id S233128AbiEQEKd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 00:10:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236923AbiEQD5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 23:57:02 -0400
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF40B33E36
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 20:56:56 -0700 (PDT)
-Received: by mail-io1-xd32.google.com with SMTP id e194so18033277iof.11
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 20:56:56 -0700 (PDT)
+        with ESMTP id S232521AbiEQEKc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 00:10:32 -0400
+Received: from mail-oi1-x22a.google.com (mail-oi1-x22a.google.com [IPv6:2607:f8b0:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA2914553B
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 21:10:30 -0700 (PDT)
+Received: by mail-oi1-x22a.google.com with SMTP id e189so20999540oia.8
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 21:10:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1bXmoyQVi8HemPn4Ek3o70oT1bUxijWb4UFJy39qPh0=;
-        b=L9p9SzUEpEdomLpzYE78DOiG9wS0nhuK8GDu1uWSALItE50krwKfSkLWycyhq8uxiB
-         JbwJMuZtEjq0dsb3NXAXflxzEEcYtCuWabglv+bZWaniL6hkoI5h67vKRPQuEOuVrDLh
-         r1zGfiWO+WgkXSxqfBxnFflHPY5UkdhVTfM15309K/2DB11VVS8HY8txh0csfKBqHY0Q
-         2mow+nMVUieHRfTdP7xDKylFvZg0uR44LyrhZDWS79fd3UbhkED2zlbW9LV7DpHNT+Jj
-         EgSH15PKG6wPCDxVOAho8NZsemlBBY2X/4la6ewme+we7GkbOjhPqUOouVEQDIXZ8oxr
-         u5sg==
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=CtGP0NZWqONfZ61wBOue9SlylX3RFuK/vGePtQoSLts=;
+        b=LbPtgMHtEkNDZopErBd7s15sfHBtP+LaBa3SoZuum0c+5Bg5K/GG18mCEYwaE6RqTl
+         JdzweSO+zx6OlwXz9OKjyuqQad7LKqFeRsHAhGtVPC/BxAmTDI1BBeiSh/KTm1ui5Fqe
+         tyMn0FSkXhRRUaWZa6WZkO39us8P+2GCo4xIQ=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1bXmoyQVi8HemPn4Ek3o70oT1bUxijWb4UFJy39qPh0=;
-        b=VN4+ktLHvIeLLnACgbOBiETAGHp2A7iA0gMF0mVKqUEa4lH5BaoOD6j+pV1AtQs2SE
-         bkqTjGadywxIxg7om81kYr46L1qnzBF5QLg6WlhXIIT5/lFkBZDrj8iGQG9K8aaAcTpm
-         wQvbZjwZ4hnfwAOC5b23Bn2IT7i22GT35L+QCb+T9v4AUw16wzVhrQYfpIGeGBYndptD
-         W4hS3SgI1WsJIdtEMkx8MhyuEM9gR6cU9p94cieCzkwzptLkCJFhmPwiXnW1E1GFo5Tl
-         r+4ATPk0OV6Wcg18EcrzQ+G/n6QfeQqE5DehU6U0CJT6R64rK+P60/AQEILEkuZPzmmA
-         aFyw==
-X-Gm-Message-State: AOAM533gfB7WjwpMCeH9iOC3yzyeb3z48pXbtbuIHNiztO1FjLuhIus+
-        V52HnlcvR8zm9LbvFXEVsbdsyi9mPNStVULd9Ay5nzmJ4rE=
-X-Google-Smtp-Source: ABdhPJy816tj5PjaqKLGO+mW7RLwXsI8smq6mLiVDEi2ceScQSnPkbdBIge9MlfnQaqu57ULnvb20x6+HVN6zUy3BEk=
-X-Received: by 2002:a05:6602:2d8d:b0:649:f82b:c877 with SMTP id
- k13-20020a0566022d8d00b00649f82bc877mr9495775iow.66.1652759816272; Mon, 16
- May 2022 20:56:56 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=CtGP0NZWqONfZ61wBOue9SlylX3RFuK/vGePtQoSLts=;
+        b=XABCXLGibf1nmRs2936kiLE2XqqkpTl8nsi7V3JhOysDo43AoPsnZ033+eg7ATNvci
+         K4jPdgjoB+r82TNS1qS88xjgJpZ0NUeM3a+hyIqAix4WEiPqBcjCcJ+MriVFGEJJgVZ0
+         j8Uu1u6D771qc4E+mOuT/6NmLpvEFcQYAdk1bFIoRumvWrY1ev4vk3iPfxlFSVRw+Uhh
+         Pw7WRDceNoVoq93fT9Bk5AajZ8CEr9JfhGkAHmx0NxZlgw4JHWXqRes/0WbqKCSsQvzh
+         BTqDVoDuSuriIECLFE3sh9DLlCwUSOwTecFmaqPeR1JZ87TA92+73WrSUx0M0/+351Dj
+         Exsg==
+X-Gm-Message-State: AOAM532wGfItC0+ac4EjLzD6xibNG3cV+3D6GaAUXMXyGxl+lVWCRd1F
+        e98tc62XGxTNlJzx6NVg8x4yPw==
+X-Google-Smtp-Source: ABdhPJzOm+4evDtIqVuYNlIzElK0Tp5nKzjHNkOzlNSwc/fpTQKG79yJc556qcvDpWuycOuDjiTGjQ==
+X-Received: by 2002:a05:6808:18a3:b0:326:3851:950a with SMTP id bi35-20020a05680818a300b003263851950amr15732488oib.238.1652760630154;
+        Mon, 16 May 2022 21:10:30 -0700 (PDT)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id x28-20020a056830245c00b0060603221253sm4504656otr.35.2022.05.16.21.10.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 May 2022 21:10:29 -0700 (PDT)
+Subject: Re: [PATCH 4.9 00/19] 4.9.315-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20220516193613.497233635@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <0b416994-0b01-4e95-ff06-30295aee4607@linuxfoundation.org>
+Date:   Mon, 16 May 2022 22:10:28 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-References: <Yn82ZO/Ysxq0v/0/@kroah.com> <20220514053453.3277330-1-meenashanmugam@google.com>
- <20220514053453.3277330-4-meenashanmugam@google.com> <YoLDak9O1c1gu54I@kroah.com>
-In-Reply-To: <YoLDak9O1c1gu54I@kroah.com>
-From:   Meena Shanmugam <meenashanmugam@google.com>
-Date:   Mon, 16 May 2022 20:56:43 -0700
-Message-ID: <CAMdnWFANgmoM_Mg5gZMxeBcNxKgMfSyEhuYCjpbM=DPZtUiaDg@mail.gmail.com>
-Subject: Re: [PATCH 3/4] SUNRPC: Don't call connect() more than once on a TCP socket
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     enrico.scholz@sigma-chemnitz.de, stable@vger.kernel.org,
-        trond.myklebust@hammerspace.com
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL
+In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -67,18 +75,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 16, 2022 at 2:34 PM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> This commit added a build warning.  Always properly test your changes,
-> they can not add warnings.
->
-> I've fixed it up by hand now.
->
+On 5/16/22 1:36 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.315 release.
+> There are 19 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.315-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
 > thanks,
->
+> 
 > greg k-h
+> 
 
-Sorry about that. Thank you for fixing it.
+Compiled and booted on my test system. No dmesg regressions.
 
-Thanks,
-Meena
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
