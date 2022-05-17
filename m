@@ -2,240 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CFB9952A858
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 18:42:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1488C52A94C
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 19:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351095AbiEQQmX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 12:42:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55376 "EHLO
+        id S243665AbiEQRdT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 13:33:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351092AbiEQQmW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 12:42:22 -0400
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B36403FB
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 09:42:20 -0700 (PDT)
-Received: by mail-yb1-xb2d.google.com with SMTP id o130so17824456ybc.8
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 09:42:20 -0700 (PDT)
+        with ESMTP id S229938AbiEQRdS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 13:33:18 -0400
+Received: from mail-qk1-x72f.google.com (mail-qk1-x72f.google.com [IPv6:2607:f8b0:4864:20::72f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A686F38D91;
+        Tue, 17 May 2022 10:33:17 -0700 (PDT)
+Received: by mail-qk1-x72f.google.com with SMTP id w3so15096747qkb.3;
+        Tue, 17 May 2022 10:33:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=HMoOpKOlu+k7LW37DRFl0GsXtUqddEd+oHDo/auxrgg=;
-        b=fu8oxRN+9yYdHMKb8ZvWKHsQDWY7Y5UXQpgbzHN1HxclG7VW5xwjhxk3lxjz4fSoh9
-         e4m33w1jcki7Z6eVL0nQCG1gNGqtwbUfo2nX4gCNE5UZN/rV3Bhev+EBNTvZ1PyJRA/U
-         5pDrF08raIAQUR0/IJbsDRkFExpqf8jLdoiqI+iNmnNK8DRRw7pBUgomD9QCF0fojDhO
-         DybV63SWO4xmYpbC5QYdY72PleePs3F4gSjZzG9Bnx+v+sArkswwyj72Tpd7yp5JMinu
-         wO08p1+oe/Y3lbU+socKu4TdYdrMdNs1ZUmeDZlo+DHQemERs7ucpZBGRawrLQsssihn
-         WIGw==
+         :cc;
+        bh=Vd7DNzYY5RY8Ws70viIR8qIHp/wYw4KLcew0bLswino=;
+        b=Hisn4oaWo4hxXNgE1UWte+a2zKZ+Fw/C2WeWR6edaGPndtlFtOBJ+adHKmHRAWvUEU
+         ChEZrTCByomFGYwHSUsNXwz1ab2FjIhTSaKXgn3FfcmpG/r9ipvjWciJXTD5Dy8YwHU6
+         bOACh+2l5O+isYSak+sK4xGzyMSfmjlYUc1OgIwiAmq4f6b4h2zjqK7tRsmCWxpLBsZR
+         ZSYWKhf/iB7wmVTr90tp6yNJxOBMCbeBeJo+6iiDdWhWyu21ugbFGVD93+EprbmFPo5i
+         McFwBWYxhgWSMeUO+iIzuNvk0B1RQinT7g0F93s6y1KKCJi8D/4dasOcBGtPf8r5OiQQ
+         EeiA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=HMoOpKOlu+k7LW37DRFl0GsXtUqddEd+oHDo/auxrgg=;
-        b=Fkwrwb/wLf6DF5oyrI3X8/+nqcgjCtRnlMX0ul9fp9cT7ctLwuxM0wMlUzBCYO8NRW
-         T5nSfFne4wrZztP6AgZcsWTEgrJGAktizVlObPFuRoEoSU07effzNUMdMGkX7S0i8SL2
-         mk3BOgOyDYwOwG9/9aGZO5sEslE6vekmNGJd4sMQ2+XtwWZUjQLrQpqVhZaZ92ZHyZ/V
-         V0ywraug/sWyOS0wVHYTTxBsqjXCEwbYqY9mKijNWfvIXihNs7/Cy7Oq1rgRUxC4lPop
-         RrYDeYdV8pKGXnNsVh6xDu5sdIUYGNyJW4goi3DsaNxQjWwjmr+/08n43ppl+kANgC5a
-         jf2Q==
-X-Gm-Message-State: AOAM5318zW1yWHwOfcCdivniJx9hJScbry6c1LR/BhGCL+buAWAfIRFi
-        844ejvof+2q3zo4555F2AkI5G4EuzqTlrpd/X2vKLg==
-X-Google-Smtp-Source: ABdhPJxHjRPLoNTgsjT3o/XgWtKKJX8krSIPM4pcOr8f6InoMA/ExhFPEuR8BMoBPUOqfesTrH5yxdTL4PeCtF8Vu0I=
-X-Received: by 2002:a25:aa30:0:b0:64d:ebad:538d with SMTP id
- s45-20020a25aa30000000b0064debad538dmr6335668ybi.603.1652805739369; Tue, 17
- May 2022 09:42:19 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=Vd7DNzYY5RY8Ws70viIR8qIHp/wYw4KLcew0bLswino=;
+        b=jgn1UKWTzkxz6FWeaJWfK13rFFhrKP899u1usVnC6WbeeRe39pn6JgjFgutrgmcdra
+         jcECuReGlbtZXpVTh7/ISuiS6hGAcMRu3Z4sckmp3gkIogYWmf1sIVowmnpEb7svNiSZ
+         ki9J2peYdh9tAPyoXSSIgM16iweeZ26rexW3SrWPcbeAMLG4+ZUGvipXTRzpfpO2lTnS
+         LAYALVIlOSrCvBG/C+IhyVcHY5wkBhZaJcUgeJOneduFjfElQM3qbfYEGnA7GgThAvgT
+         JjovoBqki0lCMOaEg3UNkfOnmeh0TSBQxaqBZs9y0lMM7sEpChpDXuS8tpl8Srg6xr0z
+         QJsA==
+X-Gm-Message-State: AOAM5332AT0ax9bMa134Eot5jxnajVs9TL51GoAKtneCIFthmXtSS5pX
+        02Z0161Y/QUW6FafgRjwuzkOyWdTyzrL7oB+gks=
+X-Google-Smtp-Source: ABdhPJyfxHzdzBcFHoPWaImkuUIrBfAyRXqKbAYVkX9/5hK5XT5pEEEa8tOENehW2+XAf2Tj0KIqOJ3G3CquCYe/pi8=
+X-Received: by 2002:a05:620a:2909:b0:6a0:472b:a30d with SMTP id
+ m9-20020a05620a290900b006a0472ba30dmr17027154qkp.258.1652808796796; Tue, 17
+ May 2022 10:33:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220516193614.773450018@linuxfoundation.org>
-In-Reply-To: <20220516193614.773450018@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 17 May 2022 22:12:07 +0530
-Message-ID: <CA+G9fYsRFZK87_9Xfcbraft9R34cqp7ZjcGsxvY65E3rMv=O3A@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/32] 4.19.244-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
+References: <20220407011257.114287-1-sashal@kernel.org> <20220407011257.114287-21-sashal@kernel.org>
+ <CAOQ4uxi+Z_YDga+fkcuOjwo5EKfRkhsCp4SwxMHK0ARdJ_-+Aw@mail.gmail.com> <CAOQ4uxg2c+MtCaA6+how4WOP3a3EAYfR1Rzz-PB9fxX411t3+Q@mail.gmail.com>
+In-Reply-To: <CAOQ4uxg2c+MtCaA6+how4WOP3a3EAYfR1Rzz-PB9fxX411t3+Q@mail.gmail.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Tue, 17 May 2022 20:33:05 +0300
+Message-ID: <CAOQ4uxjcCnp3ctMZ4QL4Yc2McfLPZhRnfu=8E2YQVXRbTrJv1w@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.15 21/27] fs: fix an infinite loop in iomap_fiemap
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>, Guo Xuenan <guoxuenan@huawei.com>,
+        Hulk Robot <hulkci@huawei.com>, Christoph Hellwig <hch@lst.de>,
+        "Darrick J . Wong" <djwong@kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "Luis R. Rodriguez" <mcgrof@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 17 May 2022 at 01:11, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, Apr 7, 2022 at 2:30 PM Amir Goldstein <amir73il@gmail.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.244 release.
-> There are 32 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Thu, Apr 7, 2022 at 2:28 PM Amir Goldstein <amir73il@gmail.com> wrote:
+> >
+> > On Thu, Apr 7, 2022 at 7:26 AM Sasha Levin <sashal@kernel.org> wrote:
+> > >
+> > > From: Guo Xuenan <guoxuenan@huawei.com>
+> > >
+> > > [ Upstream commit 49df34221804cfd6384135b28b03c9461a31d024 ]
+> > >
+> > > when get fiemap starting from MAX_LFS_FILESIZE, (maxbytes - *len) < start
+> > > will always true , then *len set zero. because of start offset is beyond
+> > > file size, for erofs filesystem it will always return iomap.length with
+> > > zero,iomap iterate will enter infinite loop. it is necessary cover this
+> > > corner case to avoid this situation.
+> > >
+> > > ------------[ cut here ]------------
+> > > WARNING: CPU: 7 PID: 905 at fs/iomap/iter.c:35 iomap_iter+0x97f/0xc70
+> > > Modules linked in: xfs erofs
+> > > CPU: 7 PID: 905 Comm: iomap Tainted: G        W         5.17.0-rc8 #27
+> > > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+> > > RIP: 0010:iomap_iter+0x97f/0xc70
+> > > Code: 85 a1 fc ff ff e8 71 be 9c ff 0f 1f 44 00 00 e9 92 fc ff ff e8 62 be 9c ff 0f 0b b8 fb ff ff ff e9 fc f8 ff ff e8 51 be 9c ff <0f> 0b e9 2b fc ff ff e8 45 be 9c ff 0f 0b e9 e1 fb ff ff e8 39 be
+> > > RSP: 0018:ffff888060a37ab0 EFLAGS: 00010293
+> > > RAX: 0000000000000000 RBX: ffff888060a37bb0 RCX: 0000000000000000
+> > > RDX: ffff88807e19a900 RSI: ffffffff81a7da7f RDI: ffff888060a37be0
+> > > RBP: 7fffffffffffffff R08: 0000000000000000 R09: ffff888060a37c20
+> > > R10: ffff888060a37c67 R11: ffffed100c146f8c R12: 7fffffffffffffff
+> > > R13: 0000000000000000 R14: ffff888060a37bd8 R15: ffff888060a37c20
+> > > FS:  00007fd3cca01540(0000) GS:ffff888108780000(0000) knlGS:0000000000000000
+> > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > > CR2: 0000000020010820 CR3: 0000000054b92000 CR4: 00000000000006e0
+> > > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > > Call Trace:
+> > >  <TASK>
+> > >  iomap_fiemap+0x1c9/0x2f0
+> > >  erofs_fiemap+0x64/0x90 [erofs]
+> > >  do_vfs_ioctl+0x40d/0x12e0
+> > >  __x64_sys_ioctl+0xaa/0x1c0
+> > >  do_syscall_64+0x35/0x80
+> > >  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> > >  </TASK>
+> > > ---[ end trace 0000000000000000 ]---
+> > > watchdog: BUG: soft lockup - CPU#7 stuck for 26s! [iomap:905]
+> > >
+> > > Reported-by: Hulk Robot <hulkci@huawei.com>
+> > > Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+> > > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > > [djwong: fix some typos]
+> > > Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+> > > Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  fs/ioctl.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/fs/ioctl.c b/fs/ioctl.c
+> > > index 504e69578112..e0a3455f9a0f 100644
+> > > --- a/fs/ioctl.c
+> > > +++ b/fs/ioctl.c
+> > > @@ -173,7 +173,7 @@ int fiemap_prep(struct inode *inode, struct fiemap_extent_info *fieinfo,
+> > >
+> > >         if (*len == 0)
+> > >                 return -EINVAL;
+> > > -       if (start > maxbytes)
+> > > +       if (start >= maxbytes)
+> > >                 return -EFBIG;
+> > >
+> > >         /*
+> > > --
+> > > 2.35.1
+> > >
+> >
+> > Sasha,
+> >
+> > Any reason why I didn't see this patch posted for 5.10.y?
+> > I happen to know that it applies cleanly to 5.10.109 and I also included it in
+> > my xfs-5.10.y patch candidates branch [1] which has gone through some
+> > xfstests cycles already.
+> >
 >
-> Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
-> Anything received after that time might be too late.
+> Nevermind, I see it was just posted :)
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.244-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
+Sasha,
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I do not see this patch in either of the stable trees.
+Did it fall through the cracks?
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.19.244-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: bc41838f2dd87b1c999e8eb02de3c503953f0ab7
-* git describe: v4.19.243-33-gbc41838f2dd8
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.243-33-gbc41838f2dd8
-
-## Test Regressions (compared to v4.19.242-16-ga96b764d90b5)
-No test regressions found.
-
-## Metric Regressions (compared to v4.19.242-16-ga96b764d90b5)
-No metric regressions found.
-
-## Test Fixes (compared to v4.19.242-16-ga96b764d90b5)
-No test fixes found.
-
-## Metric Fixes (compared to v4.19.242-16-ga96b764d90b5)
-No metric fixes found.
-
-## Test result summary
-total: 74073, pass: 60228, fail: 866, skip: 11511, xfail: 1468
-
-## Build Summary
-* arm: 275 total, 275 passed, 0 failed
-* arm64: 39 total, 39 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 27 total, 27 passed, 0 failed
-* powerpc: 55 total, 54 passed, 1 failed
-* s390: 12 total, 12 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 38 total, 38 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Thanks,
+Amir.
