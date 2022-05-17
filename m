@@ -2,155 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE9B52A7B8
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 18:17:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5077552A7CB
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 18:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350800AbiEQQRy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 12:17:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50836 "EHLO
+        id S1349466AbiEQQWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 12:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232963AbiEQQRw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 12:17:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3332C3A5D5;
-        Tue, 17 May 2022 09:17:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAD73B81852;
-        Tue, 17 May 2022 16:17:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 720D1C385B8;
-        Tue, 17 May 2022 16:17:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652804267;
-        bh=PGOrd5teCrAeWFXQiRL2inqdYz68ew6fclBCZcn6LfI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hVyGgpz/J1ntQVjgyTm9nMpPl8n1sEwc0AI8BI7sgKQnthTaNePsHnm4RU3fhbVrG
-         8I66u9NK2g2xV0DTYLkeYxrAinjcggo4OpeudvXJg5iMxV3P5Hj7Vr0vRiFLFIndoH
-         NLrKXN+q9JTAIGVPLyQJj3XsOrlAgPCuTTtXd5P/jTH1mhl32NXCvc95Y35Y8byHcA
-         fTgAAY8N5UGruh5F49IKbrHQxeQj5UW6vTCmoDsgFtRGAh97RudBVV5Wb7OsKfXGlg
-         48m2/OsecwiJRyPOwzJEGzvY1C0dMlYgXuv6fwcwcTTbteZ7Pb3PCRtwxhh2slkvjo
-         VwlHGaqeCU88w==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1nqztK-0003T0-Rq; Tue, 17 May 2022 18:17:47 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     Gary van der Merwe <garyvdm@gmail.com>, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] USB: serial: pl2303: fix type detection for odd device
-Date:   Tue, 17 May 2022 18:17:36 +0200
-Message-Id: <20220517161736.13313-1-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S243610AbiEQQWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 12:22:30 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B23903AA52;
+        Tue, 17 May 2022 09:22:29 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id a11so17343915pff.1;
+        Tue, 17 May 2022 09:22:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=ucBjucFRLoCm+fSN1r2d7kOJNJ0DcOpGqQ15rcjUeMA=;
+        b=GMlCRPNOBl0U8kUWJ+h1cRq1eDkVBFSBSimWnPlTdkJs30NCejY/oi7tflcow5oG0u
+         reNC7F+7WXgBWXVWr9W15j4VQ8+KzzzCElWHv+dl+cHNEHQSh9J7RFyJ9qZOQiGR4qso
+         51O+CkqfU65E6X1ATXlDNXO/U9epYzKV3Px0ZscdOnQG8FXRWn+Ic7bGxs5turgNr4MF
+         Ek/MteFCNDE1fHMytnEJMQqaBhoJpMxOmt9v7Q+HpdW5qBixum1vincbwZG8uzJJmDGR
+         wpqr1S1mTXa8NqacHujjnN6f59AJ6BrebaMIWMFDU0eM6tVDWPaacyilVKXuz8rn1816
+         o0MA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ucBjucFRLoCm+fSN1r2d7kOJNJ0DcOpGqQ15rcjUeMA=;
+        b=NLvGzwElbRtu24wECUHR1MDpIkcRfDx49E48bg+DSubEan++mLP3IqgXVbVDYEoH1x
+         AMpd2935Rz9krQepP54wuk8aTw3YoI/oHuB5Kb2Wm9XR679429y3O9xJheKu7dFkmvQP
+         C9Y1m0xKKQzd/A6sjjXybqmg1tt376SnEfr8bjowru2aEBKAdvmKok/XpVysK5rCoRm/
+         FhTxFwv67h66Bsc0+s4EvzyDCSbNdta8ShLNJ+GZP5O1z0J3BDkdXf/fcYOatjdGuPCq
+         oCbNRQzayX67xOVUsBRWV2G8RcTGogYfqXTfWo/4GU5h4wItafegCIqCWilQE6by8bUv
+         Iesw==
+X-Gm-Message-State: AOAM53332jG7k4gacLaSu/4f77ptPJJajvUrtlW4efMnHy2xPFOhbwY6
+        3DdC2QhoPFTyOwc1lmygYOk=
+X-Google-Smtp-Source: ABdhPJw/XLRgnnIeudXfxqzg16Zi1H9cBFvzQnhI/WTy4mArrCc1RgCi1SWskS0L6QO1ZEYfsfGFQw==
+X-Received: by 2002:a63:87c7:0:b0:3d8:552d:20d9 with SMTP id i190-20020a6387c7000000b003d8552d20d9mr20029249pge.440.1652804549114;
+        Tue, 17 May 2022 09:22:29 -0700 (PDT)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id u2-20020a170902bf4200b0015f44241a31sm9280091pls.110.2022.05.17.09.22.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 May 2022 09:22:28 -0700 (PDT)
+Message-ID: <bf29d9d4-4d14-d45c-cd01-509fec795f97@gmail.com>
+Date:   Tue, 17 May 2022 09:22:27 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH 5.15 000/102] 5.15.41-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+References: <20220516193623.989270214@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220516193623.989270214@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-At least one pl2303 device has a bcdUSB of 1.0.1 which most likely was
-was intended as 1.1.
 
-Allow bcdDevice 1.0.1 but interpret it as 1.1.
 
-Fixes: 1e9faef4d26d ("USB: serial: pl2303: fix HX type detection")
-Cc: stable@vger.kernel.org      # 5.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
+On 5/16/2022 12:35 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.41 release.
+> There are 102 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.41-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Bus 001 Device 004: ID 067b:2303 Prolific Technology, Inc. PL2303 Serial Port
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               1.01
-  bDeviceClass            0 
-  bDeviceSubClass         0 
-  bDeviceProtocol         0 
-  bMaxPacketSize0        64
-  idVendor           0x067b Prolific Technology, Inc.
-  idProduct          0x2303 PL2303 Serial Port
-  bcdDevice            3.00
-  iManufacturer           1 Prolific Technology Inc.
-  iProduct                2 USB-Serial Controller
-  iSerial                 0 
-  bNumConfigurations      1
-  Configuration Descriptor:
-    bLength                 9
-    bDescriptorType         2
-    wTotalLength       0x0027
-    bNumInterfaces          1
-    bConfigurationValue     1
-    iConfiguration          0 
-    bmAttributes         0xa0
-      (Bus Powered)
-      Remote Wakeup
-    MaxPower              100mA
-    Interface Descriptor:
-      bLength                 9
-      bDescriptorType         4
-      bInterfaceNumber        0
-      bAlternateSetting       0
-      bNumEndpoints           3
-      bInterfaceClass       255 Vendor Specific Class
-      bInterfaceSubClass      0 
-      bInterfaceProtocol      0 
-      iInterface              0 
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x82  EP 2 IN
-        bmAttributes            3
-          Transfer Type            Interrupt
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0020  1x 32 bytes
-        bInterval               1
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x01  EP 1 OUT
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0020  1x 32 bytes
-        bInterval               0
-      Endpoint Descriptor:
-        bLength                 7
-        bDescriptorType         5
-        bEndpointAddress     0x81  EP 1 IN
-        bmAttributes            2
-          Transfer Type            Bulk
-          Synch Type               None
-          Usage Type               Data
-        wMaxPacketSize     0x0020  1x 32 bytes
-        bInterval               0
-Device Status:     0x0000
-  (Bus Powered)
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
- drivers/usb/serial/pl2303.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index 1d878d05a658..3506c47e1eef 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -421,6 +421,9 @@ static int pl2303_detect_type(struct usb_serial *serial)
- 	bcdUSB = le16_to_cpu(desc->bcdUSB);
- 
- 	switch (bcdUSB) {
-+	case 0x101:
-+		/* USB 1.0.1? Let's assume they meant 1.1... */
-+		fallthrough;
- 	case 0x110:
- 		switch (bcdDevice) {
- 		case 0x300:
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.35.1
-
+Florian
