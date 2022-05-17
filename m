@@ -2,174 +2,220 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BFC852A98F
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 19:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D59E452A9F7
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 20:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347630AbiEQRsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 13:48:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57756 "EHLO
+        id S1351792AbiEQSGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 14:06:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234922AbiEQRsH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 13:48:07 -0400
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E10250062
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 10:48:06 -0700 (PDT)
-Received: by mail-wr1-f45.google.com with SMTP id f2so18730562wrc.0
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 10:48:05 -0700 (PDT)
+        with ESMTP id S1352138AbiEQSGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 14:06:14 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A23F506E4
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 11:06:11 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id d22so18034000plr.9
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 11:06:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=uIitL07LK0k850ajz6+8lfu5spWDwMgSk+A3BueQxNA=;
+        b=KHtt2vWHU6kZ9pH1SCH86CyKfw1zEp0NmXtgICisUwjK8zr7Insg5zZB4aeYbN4HAp
+         gcdRPVte0tTh9wp0OpzcFMKYxe9ecm+31v6RkScxkpx5mabf5tu33sSIBNLRVwFJqqfm
+         lzCQ0/ML22EDn8YkDrXIzskqt8JD7NWAJuTjOMCY8IVGllaaSKIQjH/ekiBxRZFkSYoX
+         lg5/FbF+pC9AgaqNNlW+nAUUv63Vj+GASvIK+PLE1qBLZ/HUe6qTs2G2WponrjNZewjI
+         +Q7oh5W0zk77vqryRwr3zbOmZhwPkawTikWYWdzD21/5MOO0dTU03aOGvsnEzfy1759e
+         RiyQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:cc:in-reply-to
-         :content-transfer-encoding;
-        bh=UPsLs/tl6fw8nGMQMq4qv68QHl+jISwr9iQW8lnZ56I=;
-        b=ObEP5igKwSNp2AtVHqZt9jySxoG8Xp/KRm8kmhijjuDaNi98XRZc5wpEG9fcTEDX3G
-         aUwF1ZtstIBnh6nvcAABALO7zMSp8EpkwUCnCz8j4OAYprjDdgLKbOHfliW23jM2hTAh
-         aKAJA+tsNMlBJ9zJ4MJep0cilJFufeLnUljyFrrSuFvZfb63WYIWm+ORMpQJwN9vsKo/
-         ewm4tkPnWgWh8aLbnYNOMjR3mVC9ORIigCjP+Nj2m9SB2ZBmT/JapgJMH+bDf3cJSod9
-         8qHXfPXSCkqg+UZpUveX0mDMHNyvMlyeLW5va86VtS8V09UIvUlPmPeA0MGw3lM2r4SF
-         Q55Q==
-X-Gm-Message-State: AOAM532FCsukh/JxUTHDeQ1Q+abVGB+HN46nF8qcchsBwaS6h370smYY
-        Jgb0oCBGt7Nbz/YMc8k/UmnYcmQWE3E=
-X-Google-Smtp-Source: ABdhPJwFSr4g26qeDhOc5UJu6gdwaceOwUZw351Zd4vrkhTAXQUAggTiKrJ6whZJ9hYEnWRtKh+HEQ==
-X-Received: by 2002:adf:ed01:0:b0:20c:c137:aaeb with SMTP id a1-20020adfed01000000b0020cc137aaebmr19930392wro.638.1652809684333;
-        Tue, 17 May 2022 10:48:04 -0700 (PDT)
-Received: from [10.5.230.100] ([91.74.65.58])
-        by smtp.gmail.com with ESMTPSA id c13-20020adfa70d000000b0020c5253d8bfsm13101389wrd.11.2022.05.17.10.47.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 17 May 2022 10:48:03 -0700 (PDT)
-Message-ID: <236c0048-49b5-2c37-4549-d8774f243ae3@linux.com>
-Date:   Tue, 17 May 2022 21:47:57 +0400
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=uIitL07LK0k850ajz6+8lfu5spWDwMgSk+A3BueQxNA=;
+        b=vtvgHFmdCGvjwdrWRXyEeYP6gkCRg3/2u9VclsL5ullR3LXL3KCvayO6Sb7XjNrvlx
+         ZU+OfiVEJVQPkmvux/NKoZ09UYkAWyS6nD+Vez7fNDgN7gfGcORgPFUHPdVj2Uzjr+Uc
+         PVioeXuAHBm1brdRHuadIk2GvDvFRyTXM1DM+jRE4iIYRKbEckYgR8/ewVi7873/S62A
+         I+GEn+XyGJYZO/W5jbBO2w2yxA3u2SiIcZlNQkG1rLN6/cZO7RlvwEbzhpLeMeGDYdMd
+         agJN1G3qM7MUjDyvaR+Tm5zTmeDnWxLhJE+pnl8Y5trWNRRRUHPNAxMfc30a6dhNag3H
+         rXkA==
+X-Gm-Message-State: AOAM531md8XRUNburNSqbPurkm6FCVAx2NJKNVE2rQK9bvzhze/jzT5I
+        NbWxbnxrbBgv+TaGzFC5QJL+mA==
+X-Google-Smtp-Source: ABdhPJyxTDE3qUWOdndVfYN9Y9POy917sjTZcXNmsHowuoVHsWMdu/gc3rF8V92A3Xa6ojAGOrEJTQ==
+X-Received: by 2002:a17:902:b413:b0:15e:e6a8:b3e with SMTP id x19-20020a170902b41300b0015ee6a80b3emr23390640plr.24.1652810770573;
+        Tue, 17 May 2022 11:06:10 -0700 (PDT)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id g11-20020a17090a7d0b00b001ded0506655sm1952086pjl.51.2022.05.17.11.06.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 May 2022 11:06:10 -0700 (PDT)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     andrii.nakryiko@gmail.com
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        "Alexei Starovoitov" <ast@kernel.org>,
+        "Daniel Borkmann" <daniel@iogearbox.net>,
+        "Andrii Nakryiko" <andrii@kernel.org>,
+        "Martin KaFai Lau" <kafai@fb.com>,
+        "Song Liu" <songliubraving@fb.com>, "Yonghong Song" <yhs@fb.com>,
+        "John Fastabend" <john.fastabend@gmail.com>,
+        "KP Singh" <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com
+Subject: [PATCH v4] bpf: Fix KASAN use-after-free Read in compute_effective_progs
+Date:   Tue, 17 May 2022 11:04:20 -0700
+Message-Id: <20220517180420.87954-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.36.1
+In-Reply-To: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
+References: <CAEf4BzY-p13huoqo6N7LJRVVj8rcjPeP3Cp=KDX4N2x9BkC9Zw@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH 1/3] floppy: use a statically allocated error counter
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20220508093709.24548-1-w@1wt.eu>
-From:   Denis Efremov <efremov@linux.com>
-Cc:     stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>
-In-Reply-To: <20220508093709.24548-1-w@1wt.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Syzbot found a Use After Free bug in compute_effective_progs().
+The reproducer creates a number of BPF links, and causes a fault
+injected alloc to fail, while calling bpf_link_detach on them.
+Link detach triggers the link to be freed by bpf_link_free(),
+which calls __cgroup_bpf_detach() and update_effective_progs().
+If the memory allocation in this function fails, the function restores
+the pointer to the bpf_cgroup_link on the cgroup list, but the memory
+gets freed just after it returns. After this, every subsequent call to
+update_effective_progs() causes this already deallocated pointer to be
+dereferenced in prog_list_length(), and triggers KASAN UAF error.
 
-On 5/8/22 13:37, Willy Tarreau wrote:
-> Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
-> request just to increment the error count. There's no point keeping
-> that one in the request anyway, and since the interrupt handler uses
-> a static pointer to the error which cannot be kept in sync with the
-> pending request, better make it use a static error counter that's
-> reset for each new request. This reset now happens when entering
-> redo_fd_request() for a new request via set_next_request().
-> 
-> One initial concern about a single error counter was that errors on
-> one floppy drive could be reported on another one, but this problem
-> is not real given that the driver uses a single drive at a time, as
-> that PC-compatible controllers also have this limitation by using
-> shared signals. As such the error count is always for the "current"
-> drive.
-> 
-> Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-> Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-> Tested-by: Denis Efremov <efremov@linux.com>
-> Signed-off-by: Willy Tarreau <w@1wt.eu>
+To fix this issue don't preserve the pointer to the prog or link in the
+list, but remove it and replace it with a dummy prog without shrinking
+the table. The subsequent call to __cgroup_bpf_detach() or
+__cgroup_bpf_detach() will correct it.
 
-Could you please take this patch (only this one) to the stable trees?
+Cc: "Alexei Starovoitov" <ast@kernel.org>
+Cc: "Daniel Borkmann" <daniel@iogearbox.net>
+Cc: "Andrii Nakryiko" <andrii@kernel.org>
+Cc: "Martin KaFai Lau" <kafai@fb.com>
+Cc: "Song Liu" <songliubraving@fb.com>
+Cc: "Yonghong Song" <yhs@fb.com>
+Cc: "John Fastabend" <john.fastabend@gmail.com>
+Cc: "KP Singh" <kpsingh@kernel.org>
+Cc: <netdev@vger.kernel.org>
+Cc: <bpf@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
 
-commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
+Link: https://syzkaller.appspot.com/bug?id=8ebf179a95c2a2670f7cf1ba62429ec044369db4
+Fixes: af6eea57437a ("bpf: Implement bpf_link-based cgroup BPF program attachment")
+Reported-by: <syzbot+f264bffdfbd5614f3bb2@syzkaller.appspotmail.com>
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+v2: Add a fall back path that removes a prog from the effective progs
+    table in case detach fails to allocate memory in compute_effective_progs().
 
-The patch applies cleanly to 5.17, 5.15, 5.10 kernels.
-I'll send a backport for 5.4 and older kernels.
+v3: Implement the fallback in a separate function purge_effective_progs
 
-Thanks,
-Denis
+v4: Changed purge_effective_progs() to manipulate the array in a similar way
+    how replace_effective_prog() does it.
+---
+ kernel/bpf/cgroup.c | 68 +++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 60 insertions(+), 8 deletions(-)
 
-> ---
->  drivers/block/floppy.c | 18 ++++++++----------
->  1 file changed, 8 insertions(+), 10 deletions(-)
-> 
-> diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-> index d5b9ff9bcbb2..015841f50f4e 100644
-> --- a/drivers/block/floppy.c
-> +++ b/drivers/block/floppy.c
-> @@ -509,8 +509,8 @@ static unsigned long fdc_busy;
->  static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
->  static DECLARE_WAIT_QUEUE_HEAD(command_done);
->  
-> -/* Errors during formatting are counted here. */
-> -static int format_errors;
-> +/* errors encountered on the current (or last) request */
-> +static int floppy_errors;
->  
->  /* Format request descriptor. */
->  static struct format_descr format_req;
-> @@ -530,7 +530,6 @@ static struct format_descr format_req;
->  static char *floppy_track_buffer;
->  static int max_buffer_sectors;
->  
-> -static int *errors;
->  typedef void (*done_f)(int);
->  static const struct cont_t {
->  	void (*interrupt)(void);
-> @@ -1455,7 +1454,7 @@ static int interpret_errors(void)
->  			if (drive_params[current_drive].flags & FTD_MSG)
->  				DPRINT("Over/Underrun - retrying\n");
->  			bad = 0;
-> -		} else if (*errors >= drive_params[current_drive].max_errors.reporting) {
-> +		} else if (floppy_errors >= drive_params[current_drive].max_errors.reporting) {
->  			print_errors();
->  		}
->  		if (reply_buffer[ST2] & ST2_WC || reply_buffer[ST2] & ST2_BC)
-> @@ -2095,7 +2094,7 @@ static void bad_flp_intr(void)
->  		if (!next_valid_format(current_drive))
->  			return;
->  	}
-> -	err_count = ++(*errors);
-> +	err_count = ++floppy_errors;
->  	INFBOUND(write_errors[current_drive].badness, err_count);
->  	if (err_count > drive_params[current_drive].max_errors.abort)
->  		cont->done(0);
-> @@ -2241,9 +2240,8 @@ static int do_format(int drive, struct format_descr *tmp_format_req)
->  		return -EINVAL;
->  	}
->  	format_req = *tmp_format_req;
-> -	format_errors = 0;
->  	cont = &format_cont;
-> -	errors = &format_errors;
-> +	floppy_errors = 0;
->  	ret = wait_til_done(redo_format, true);
->  	if (ret == -EINTR)
->  		return -EINTR;
-> @@ -2759,10 +2757,11 @@ static int set_next_request(void)
->  	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
->  					       queuelist);
->  	if (current_req) {
-> -		current_req->error_count = 0;
-> +		floppy_errors = 0;
->  		list_del_init(&current_req->queuelist);
-> +		return 1;
->  	}
-> -	return current_req != NULL;
-> +	return 0;
->  }
->  
->  /* Starts or continues processing request. Will automatically unlock the
-> @@ -2821,7 +2820,6 @@ static void redo_fd_request(void)
->  		_floppy = floppy_type + drive_params[current_drive].autodetect[drive_state[current_drive].probed_format];
->  	} else
->  		probing = 0;
-> -	errors = &(current_req->error_count);
->  	tmp = make_raw_rw_request();
->  	if (tmp < 2) {
->  		request_done(tmp);
+diff --git a/kernel/bpf/cgroup.c b/kernel/bpf/cgroup.c
+index 128028efda64..6f1a6160c99e 100644
+--- a/kernel/bpf/cgroup.c
++++ b/kernel/bpf/cgroup.c
+@@ -681,6 +681,60 @@ static struct bpf_prog_list *find_detach_entry(struct list_head *progs,
+ 	return ERR_PTR(-ENOENT);
+ }
+ 
++/**
++ * purge_effective_progs() - After compute_effective_progs fails to alloc new
++ *                           cgrp->bpf.inactive table we can recover by
++ *                           recomputing the array in place.
++ *
++ * @cgrp: The cgroup which descendants to travers
++ * @prog: A program to detach or NULL
++ * @link: A link to detach or NULL
++ * @atype: Type of detach operation
++ */
++static void purge_effective_progs(struct cgroup *cgrp, struct bpf_prog *prog,
++				  struct bpf_cgroup_link *link,
++				  enum cgroup_bpf_attach_type atype)
++{
++	struct cgroup_subsys_state *css;
++	struct bpf_prog_array *progs;
++	struct bpf_prog_list *pl;
++	struct list_head *head;
++	struct cgroup *cg;
++	int pos;
++
++	/* recompute effective prog array in place */
++	css_for_each_descendant_pre(css, &cgrp->self) {
++		struct cgroup *desc = container_of(css, struct cgroup, self);
++
++		if (percpu_ref_is_zero(&desc->bpf.refcnt))
++			continue;
++
++		/* find position of link or prog in effective progs array */
++		for (pos = 0, cg = desc; cg; cg = cgroup_parent(cg)) {
++			if (pos && !(cg->bpf.flags[atype] & BPF_F_ALLOW_MULTI))
++				continue;
++
++			head = &cg->bpf.progs[atype];
++			list_for_each_entry(pl, head, node) {
++				if (!prog_list_prog(pl))
++					continue;
++				if (pl->prog == prog && pl->link == link)
++					goto found;
++				pos++;
++			}
++		}
++found:
++		BUG_ON(!cg);
++		progs = rcu_dereference_protected(
++				desc->bpf.effective[atype],
++				lockdep_is_held(&cgroup_mutex));
++
++		/* Remove the program from the array */
++		WARN_ONCE(bpf_prog_array_delete_safe_at(progs, pos),
++			  "Failed to purge a prog from array at index %d", pos);
++	}
++}
++
+ /**
+  * __cgroup_bpf_detach() - Detach the program or link from a cgroup, and
+  *                         propagate the change to descendants
+@@ -723,8 +777,12 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 	pl->link = NULL;
+ 
+ 	err = update_effective_progs(cgrp, atype);
+-	if (err)
+-		goto cleanup;
++	if (err) {
++		/* If update affective array failed replace the prog with a dummy prog*/
++		pl->prog = old_prog;
++		pl->link = link;
++		purge_effective_progs(cgrp, old_prog, link, atype);
++	}
+ 
+ 	/* now can actually delete it from this cgroup list */
+ 	list_del(&pl->node);
+@@ -736,12 +794,6 @@ static int __cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+ 		bpf_prog_put(old_prog);
+ 	static_branch_dec(&cgroup_bpf_enabled_key[atype]);
+ 	return 0;
+-
+-cleanup:
+-	/* restore back prog or link */
+-	pl->prog = old_prog;
+-	pl->link = link;
+-	return err;
+ }
+ 
+ static int cgroup_bpf_detach(struct cgroup *cgrp, struct bpf_prog *prog,
+-- 
+2.36.1
+
