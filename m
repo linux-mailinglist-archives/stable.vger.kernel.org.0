@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCC352AC86
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 22:13:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE42E52ACAA
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 22:24:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345821AbiEQUNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 17 May 2022 16:13:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51080 "EHLO
+        id S232441AbiEQUYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 17 May 2022 16:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242648AbiEQUN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 16:13:29 -0400
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A32FE3ED27
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 13:13:28 -0700 (PDT)
-Received: by mail-wm1-f50.google.com with SMTP id o12-20020a1c4d0c000000b00393fbe2973dso2039938wmh.2
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 13:13:28 -0700 (PDT)
+        with ESMTP id S231378AbiEQUYJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 17 May 2022 16:24:09 -0400
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7325D5252F
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 13:24:08 -0700 (PDT)
+Received: by mail-wr1-f50.google.com with SMTP id j24so10947237wrb.1
+        for <stable@vger.kernel.org>; Tue, 17 May 2022 13:24:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=zL58PPAXBZxZ4TJTFbQYT/SZuK9MZpF31VyDwwiyZ48=;
-        b=CIWbGmWXOPqRsvkg+Vq7euC08bBnoo0HDUWfwthDurXZc6ItVsRXNEjfR/8oSwJN+K
-         TIlL5OVDjY3E8w54Z8nxNJfCwjjat5eeKNBj0jmML6GcgY/nKpbFlcbL8DXunxJAvn4B
-         AI//JQ03MpfOY8F07Ui//c7q+i02e7wH1qB2/NmxMZPpK9Lr6VdnEC6FZVZolF88qnh0
-         tTMIK3fX/Y7t2Bnnd90q7XxyD0fDbFiwdNgESnfxDqqB11ctFt59JuSCMNKYRqa0NwT4
-         ZlaQffRmEApyrAGCS+2bodlWDrJ0t301LnJKRKo5aC4xcBmaoNwPQt/wSAkFMstOLWn6
-         VtIA==
-X-Gm-Message-State: AOAM531NYymKGUYftUgDNKkt3oDV7FJryi2LhFPEylt3TGv+sNCnM+iS
-        S16biDJegf9lwE4WCmIj7o8blpict0c=
-X-Google-Smtp-Source: ABdhPJxxjlRPs7ld6MpTWUZAwcCu2Z/nVv8bewMKEn4SJleFTn/rjMVOShJ2BbXsXmqj99ySzGOygw==
-X-Received: by 2002:a05:600c:a45:b0:346:5e67:cd54 with SMTP id c5-20020a05600c0a4500b003465e67cd54mr34241230wmq.127.1652818406966;
-        Tue, 17 May 2022 13:13:26 -0700 (PDT)
+        bh=0gp2QrZ+Xf5e4vypYACGu38rxTWx4SE2OTF0mjVsKlY=;
+        b=h8vshPjuRH8WhF7Uo7iWc+Vb/PmausOPLD9RtPhX+Wz27dF5ArIAvawOxoOGn6H7MQ
+         Vbsep9NyYhEJGDadPvav1iX9+mKX24IryRDxydHex0kQtBKcbd/2vNcFo30OHEFzXVHN
+         /xcFpZPybYnZ9OOKKjtdEKF99rI1SjOP3zTFZBmQmJvQbH0Z5F0Jyu8QWdrrKjyd6XFA
+         staMWPYEV7MYx0u9fbVAl5oQcMA7h6L+2S5a8s+q/f/2t8IQrHtcFY6xmxwk7cf35WrO
+         VBKZeLJ+coJgtLEIkyDAVi9OH1H+Cnjtb/UPIBENE4YRnsNGrr/TDgyCzv2pIEhi0If/
+         oVVA==
+X-Gm-Message-State: AOAM532NWVa6ojSyOrcOCsA57rmVx9+MoI/D5qk43r5M8f0p94Kc1b83
+        7JXKMapWzes8BgfJ6RrJswo=
+X-Google-Smtp-Source: ABdhPJzXKmlLpzTnpIhb0SDZJkqmx+93Yf7s2upxuiEi1YBVDya+K+0SSVXwrW1gUIHI/tCXkNsAiQ==
+X-Received: by 2002:adf:ee11:0:b0:20d:430:6b42 with SMTP id y17-20020adfee11000000b0020d04306b42mr12327679wrn.31.1652819046975;
+        Tue, 17 May 2022 13:24:06 -0700 (PDT)
 Received: from localhost.localdomain ([94.205.35.240])
-        by smtp.googlemail.com with ESMTPSA id o23-20020a05600c511700b0039456c00ba7sm3609232wms.1.2022.05.17.13.13.23
+        by smtp.googlemail.com with ESMTPSA id w10-20020a7bc10a000000b003971176b011sm134034wmi.0.2022.05.17.13.24.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 17 May 2022 13:13:25 -0700 (PDT)
+        Tue, 17 May 2022 13:24:06 -0700 (PDT)
 From:   Denis Efremov <efremov@linux.com>
 To:     gregkh@linuxfoundation.org
 Cc:     Willy Tarreau <w@1wt.eu>, stable@vger.kernel.org,
@@ -43,9 +43,9 @@ Cc:     Willy Tarreau <w@1wt.eu>, stable@vger.kernel.org,
         Linus Torvalds <torvalds@linuxfoundation.org>,
         Denis Efremov <efremov@linux.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10] floppy: use a statically allocated error counter
-Date:   Wed, 18 May 2022 00:12:15 +0400
-Message-Id: <20220517201215.36166-1-efremov@linux.com>
+Subject: [PATCH 5.4] floppy: use a statically allocated error counter
+Date:   Wed, 18 May 2022 00:23:40 +0400
+Message-Id: <20220517202340.51711-1-efremov@linux.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220508093709.24548-1-w@1wt.eu>
 References: <20220508093709.24548-1-w@1wt.eu>
@@ -86,17 +86,14 @@ Signed-off-by: Willy Tarreau <w@1wt.eu>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Denis Efremov <efremov@linux.com>
 ---
-
-Handled *errors in make_raw_rw_request().
-
  drivers/block/floppy.c | 20 +++++++++-----------
  1 file changed, 9 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index c9411fe2f0af..4ef407a33996 100644
+index f24e3791e840..e133ff5fa596 100644
 --- a/drivers/block/floppy.c
 +++ b/drivers/block/floppy.c
-@@ -509,8 +509,8 @@ static unsigned long fdc_busy;
+@@ -521,8 +521,8 @@ static unsigned long fdc_busy;
  static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
  static DECLARE_WAIT_QUEUE_HEAD(command_done);
  
@@ -107,7 +104,7 @@ index c9411fe2f0af..4ef407a33996 100644
  
  /* Format request descriptor. */
  static struct format_descr format_req;
-@@ -530,7 +530,6 @@ static struct format_descr format_req;
+@@ -542,7 +542,6 @@ static struct format_descr format_req;
  static char *floppy_track_buffer;
  static int max_buffer_sectors;
  
@@ -115,25 +112,25 @@ index c9411fe2f0af..4ef407a33996 100644
  typedef void (*done_f)(int);
  static const struct cont_t {
  	void (*interrupt)(void);
-@@ -1455,7 +1454,7 @@ static int interpret_errors(void)
- 			if (drive_params[current_drive].flags & FTD_MSG)
+@@ -1435,7 +1434,7 @@ static int interpret_errors(void)
+ 			if (DP->flags & FTD_MSG)
  				DPRINT("Over/Underrun - retrying\n");
  			bad = 0;
--		} else if (*errors >= drive_params[current_drive].max_errors.reporting) {
-+		} else if (floppy_errors >= drive_params[current_drive].max_errors.reporting) {
+-		} else if (*errors >= DP->max_errors.reporting) {
++		} else if (floppy_errors >= DP->max_errors.reporting) {
  			print_errors();
  		}
- 		if (reply_buffer[ST2] & ST2_WC || reply_buffer[ST2] & ST2_BC)
-@@ -2095,7 +2094,7 @@ static void bad_flp_intr(void)
- 		if (!next_valid_format(current_drive))
+ 		if (ST2 & ST2_WC || ST2 & ST2_BC)
+@@ -2055,7 +2054,7 @@ static void bad_flp_intr(void)
+ 		if (!next_valid_format())
  			return;
  	}
 -	err_count = ++(*errors);
 +	err_count = ++floppy_errors;
- 	INFBOUND(write_errors[current_drive].badness, err_count);
- 	if (err_count > drive_params[current_drive].max_errors.abort)
+ 	INFBOUND(DRWE->badness, err_count);
+ 	if (err_count > DP->max_errors.abort)
  		cont->done(0);
-@@ -2240,9 +2239,8 @@ static int do_format(int drive, struct format_descr *tmp_format_req)
+@@ -2200,9 +2199,8 @@ static int do_format(int drive, struct format_descr *tmp_format_req)
  		return -EINVAL;
  	}
  	format_req = *tmp_format_req;
@@ -144,16 +141,16 @@ index c9411fe2f0af..4ef407a33996 100644
  	ret = wait_til_done(redo_format, true);
  	if (ret == -EINTR)
  		return -EINTR;
-@@ -2721,7 +2719,7 @@ static int make_raw_rw_request(void)
+@@ -2677,7 +2675,7 @@ static int make_raw_rw_request(void)
  		 */
  		if (!direct ||
  		    (indirect * 2 > direct * 3 &&
--		     *errors < drive_params[current_drive].max_errors.read_track &&
-+		     floppy_errors < drive_params[current_drive].max_errors.read_track &&
+-		     *errors < DP->max_errors.read_track &&
++		     floppy_errors < DP->max_errors.read_track &&
  		     ((!probing ||
- 		       (drive_params[current_drive].read_track & (1 << drive_state[current_drive].probed_format)))))) {
+ 		       (DP->read_track & (1 << DRS->probed_format)))))) {
  			max_size = blk_rq_sectors(current_req);
-@@ -2846,10 +2844,11 @@ static int set_next_request(void)
+@@ -2801,10 +2799,11 @@ static int set_next_request(void)
  	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
  					       queuelist);
  	if (current_req) {
@@ -166,9 +163,9 @@ index c9411fe2f0af..4ef407a33996 100644
 +	return 0;
  }
  
- /* Starts or continues processing request. Will automatically unlock the
-@@ -2908,7 +2907,6 @@ static void redo_fd_request(void)
- 		_floppy = floppy_type + drive_params[current_drive].autodetect[drive_state[current_drive].probed_format];
+ static void redo_fd_request(void)
+@@ -2860,7 +2859,6 @@ static void redo_fd_request(void)
+ 		_floppy = floppy_type + DP->autodetect[DRS->probed_format];
  	} else
  		probing = 0;
 -	errors = &(current_req->error_count);
