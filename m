@@ -2,656 +2,726 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B01529712
-	for <lists+stable@lfdr.de>; Tue, 17 May 2022 04:03:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9357A529730
+	for <lists+stable@lfdr.de>; Tue, 17 May 2022 04:13:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229836AbiEQCDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 16 May 2022 22:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45810 "EHLO
+        id S229479AbiEQCNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 16 May 2022 22:13:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238761AbiEQCDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 22:03:50 -0400
-Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612993FD85
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 19:03:47 -0700 (PDT)
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 50E983F32E
-        for <stable@vger.kernel.org>; Tue, 17 May 2022 02:03:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1652753025;
-        bh=umR4u56SoLYfa9HxvSN6FahUGv8RNckVZIb56vIWUtU=;
-        h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-         To:Cc:Content-Type;
-        b=Ky4gwumj/g0X24NMNDfYEKEnvEnxUSBLsVH+VhZ1kZqEczmKMwWrGeF/Ol72ly+6F
-         a1tE4xtgUvsijKSwQ2Y5cJP+Q0TJd932DKuWgQ5a2HN6x4+kqKKTYqb5hT3YfDKZL2
-         N8Tj6r3b764jKm2T0aTUNbc0yp7SWxEudsFKe8VSP+oMqlucPjZI/0iPRp1AnwIAOb
-         sxejjGpaP67/2Ail6ORtU3hr88ntloaQjLX9MDR+27C9hXiYopt+1Sfghzr12z0qc8
-         dw1uqGLHIQn4SgyfugqRa3ueLfHSkBAgZwvMHR1C5XIOr9FH2Pxdy2ioWGb5kTsMcc
-         q03TVG1nu9sGg==
-Received: by mail-oi1-f198.google.com with SMTP id bj21-20020a056808199500b0032693875309so6046779oib.12
-        for <stable@vger.kernel.org>; Mon, 16 May 2022 19:03:45 -0700 (PDT)
+        with ESMTP id S235251AbiEQCNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 16 May 2022 22:13:06 -0400
+Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AC2A4617C
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 19:13:03 -0700 (PDT)
+Received: by mail-pg1-x535.google.com with SMTP id x12so15728023pgj.7
+        for <stable@vger.kernel.org>; Mon, 16 May 2022 19:13:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9iiC/2hP5kHvGMBBUSywv6CVXcOWc1l2KtP0DQ7aQfc=;
+        b=iUuLac3/Q8ToB4rmr6RyF5jlW2kdZFnUWCgF8NrzHtLkBQrerCFqECNMeGg4zWGsnj
+         1GdR/2f7RkgAmYYspg6DL0nsNag9yp1cN7YsI1aH6467aXaQNKCqMK2/Pm023rm/jQVJ
+         xTTr639c2odErzvH6DubXMsoqYhNsMuXu9NlrHmlnBVWQH+ma/tVFDANWnNrCKRS931G
+         qMvQWM1AjtPMOfeyHgPsdWry31VGtn4T5C8oTH02uBd8ZeXCvKDtpbQyTCIbcbMjGGTN
+         3U7OOJdU7j4Hld0o2Yrnig8ZpT6tFNn1bZ/4o2k6/ghMmPygLYJhxp+kIU/Ab9dsyP1b
+         5ALA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=umR4u56SoLYfa9HxvSN6FahUGv8RNckVZIb56vIWUtU=;
-        b=FV9jxfZKJZJWqZWJj9FPM8lCElbm9OTApMWqe82h4xG9m/a5BehAm7nSHvnzwZqucT
-         beFtaVPpG2tgEti4Jppy3R3xu2jIiljl1bqCFxmrF8+HXbBH1Q0APN5I+UWRIN0glaAw
-         gLAsWxmekHH/46vbLZvo6xf7nB8i4m0KBjyYWFrtrlgnMIvWwWOF4qmQuAwlj3APKgde
-         ypg+kRcd4ZtixBbbyr542jUFrqNiN9CHclR0BmmeiW9W4bwxAZu6n7jz4mIFoD03tcmL
-         3J1iy38W2FlHBMdJsxhW/2i+GnZP4+ed05pFm7uqW9LPimKF+xS8Dn1/0qrg/UbajR/5
-         b5sw==
-X-Gm-Message-State: AOAM533n/7s3qfWhVKXsjZwR/4U55kgkdenPt46V6oSt3vKBwLzg5hdM
-        WVclKMQj1sdILXkuaTEG8kv8Sdr7ucKHNL1u/0JMwOEVA1d66oSJZZEE8izl5RGi2K+y/kJV7i0
-        CVAaPooEiQNTbpw6YQUXq0APkja1BtJdl9nsdiyuUJiZaSB/oxw==
-X-Received: by 2002:a05:6808:20aa:b0:326:9a80:1f95 with SMTP id s42-20020a05680820aa00b003269a801f95mr14216834oiw.176.1652753023705;
-        Mon, 16 May 2022 19:03:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJygrtyD1KsF52byakeOXYxTogMle6S0QNsCL5O0a2ykt5I8ZvS6iIGiw1khcJtnNKiafQgcni5IgPa0JiThKQ8=
-X-Received: by 2002:a05:6808:20aa:b0:326:9a80:1f95 with SMTP id
- s42-20020a05680820aa00b003269a801f95mr14216813oiw.176.1652753023234; Mon, 16
- May 2022 19:03:43 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9iiC/2hP5kHvGMBBUSywv6CVXcOWc1l2KtP0DQ7aQfc=;
+        b=AoeKOdHrE68icFrcFr1+tdWTHGTHZyzu67yyQtX8Jdxq5OojpElTUQFRRPyFN5osqy
+         dcz10cDxpOWGCviRZoWjxlxef2Yq44n68R5u+PUBNUDol9MhDmhOEOkdPnzPgQn65w7T
+         FFt5vtNsGMEhPWTJWsK39ZgCcenJKDqnBaig+9waaCWlWtV1W8umK6r55KLcDiKo3oQo
+         2G4ciEbtTg7fWd/0mv8Dl2NxIFvwmaUNrqX1H1978biF1FMwzf8VHPDrS9FXJQR/9TwJ
+         fc7AC/0BLvL4UryC75PU29RRq6trpC0wMc7AqzA4mFpNT4hlyA/k7GR48lS1zVhq7DUD
+         j5Ow==
+X-Gm-Message-State: AOAM53098FaPNJhm0Y835016z4WUFwRnQFb6hBC5to+90bMQ47Dvj1rm
+        Vm4LQPB+NaDFKGGGiRfX72jg1BuKZlpMTmPGU+A=
+X-Google-Smtp-Source: ABdhPJyxmFWavnzBA8tRMUwPFJwoFvil5dzzHCZb1VjQryvc4RKC3B4qnYeiUgbyHDdpHdgnmaOq/g==
+X-Received: by 2002:a63:1403:0:b0:3f2:5f58:2c56 with SMTP id u3-20020a631403000000b003f25f582c56mr8418358pgl.419.1652753582332;
+        Mon, 16 May 2022 19:13:02 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h21-20020a170902f7d500b0015e8d4eb1fbsm7682412plw.69.2022.05.16.19.13.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 May 2022 19:13:01 -0700 (PDT)
+Message-ID: <628304ad.1c69fb81.d10b2.3941@mx.google.com>
+Date:   Mon, 16 May 2022 19:13:01 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <2584945.lGaqSPkdTl@geek500.localdomain> <25425832.1r3eYUQgxm@geek500.localdomain>
- <CAAd53p60PzKT50uAkLeTjDVsH7TKSNHiLBQjJx5uPvzPpURkfQ@mail.gmail.com> <2592420.vuYhMxLoTh@geek500.localdomain>
-In-Reply-To: <2592420.vuYhMxLoTh@geek500.localdomain>
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-Date:   Tue, 17 May 2022 10:03:31 +0800
-Message-ID: <CAAd53p7xpE6S-73Pk04SeUa738teEHu+gCacxXkvTCk7eOiS9w@mail.gmail.com>
-Subject: Re: [REGRESSION] Laptop with Ryzen 4600H fails to resume video since
- 5.17.4 (works 5.17.3)
-To:     Christian Casteyde <casteyde.christian@free.fr>
-Cc:     stable@vger.kernel.org,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        regressions@lists.linux.dev, alexander.deucher@amd.com,
-        gregkh@linuxfoundation.org,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.279-26-g371779ee7c349
+Subject: stable-rc/linux-4.14.y baseline: 105 runs,
+ 17 regressions (v4.14.279-26-g371779ee7c349)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 17, 2022 at 1:23 AM Christian Casteyde
-<casteyde.christian@free.fr> wrote:
->
-> I've tried with 5.18-rc7, it doesn't work either. I guess 5.18 branch hav=
-e all
-> commits.
->
-> full dmesg appended (not for 5.18, I didn't manage to resume up to the po=
-int
-> to get a console for now).
+stable-rc/linux-4.14.y baseline: 105 runs, 17 regressions (v4.14.279-26-g37=
+1779ee7c349)
 
-Interestingly, I found you are using acpi_call:
-[   30.667348] acpi_call: loading out-of-tree module taints kernel.
+Regressions Summary
+-------------------
 
-Does removing the acpi_call solve the issue?
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+meson8b-odroidc1           | arm   | lab-baylibre | gcc-10   | multi_v7_def=
+config         | 1          =
 
-Kai-Heng
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
 
->
-> CC
->
-> Le lundi 16 mai 2022, 04:47:25 CEST Kai-Heng Feng a =C3=A9crit :
-> > [+Cc Mario]
-> >
-> > On Sun, May 15, 2022 at 1:34 AM Christian Casteyde
-> >
-> > <casteyde.christian@free.fr> wrote:
-> > > I've applied the commit a56f445f807b0276 on 5.17.7 and tested.
-> > > This does not fix the problem on my laptop.
-> >
-> > Maybe some commits are still missing?
-> >
-> > > For informatio, here is a part of the log around the suspend process:
-> > Is it possible to attach full dmesg?
-> >
-> > Kai-Heng
-> >
-> > > May 14 19:21:41 geek500 kernel: snd_hda_intel 0000:01:00.1: can't cha=
-nge
-> > > power state from D3cold to D0 (config space inaccessible)
-> > > May 14 19:21:41 geek500 kernel: PM: late suspend of devices failed
-> > > May 14 19:21:41 geek500 kernel: ------------[ cut here ]------------
-> > > May 14 19:21:41 geek500 kernel: i2c_designware AMDI0010:03: Transfer =
-while
-> > > suspended
-> > > May 14 19:21:41 geek500 kernel: pci 0000:00:00.2: can't derive routin=
-g for
-> > > PCI INT A
-> > > May 14 19:21:41 geek500 kernel: pci 0000:00:00.2: PCI INT A: no GSI
-> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: 9 PID: 1972 at drivers/=
-i2c/
-> > > busses/i2c-designware-master.c:570 i2c_dw_xfer+0x3f6/0x440
-> > > May 14 19:21:41 geek500 kernel: Modules linked in: [last unloaded:
-> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 9 PID: 1972 Comm:
-> > > kworker/u32:18 Tainted: G           O      5.17.7+ #7
-> > > May 14 19:21:41 geek500 kernel: Hardware name: HP HP Pavilion Gaming
-> > > Laptop
-> > > 15-ec1xxx/87B2, BIOS F.25 08/18/2021
-> > > May 14 19:21:41 geek500 kernel: Workqueue: events_unbound
-> > > async_run_entry_fn May 14 19:21:41 geek500 kernel: RIP:
-> > > 0010:i2c_dw_xfer+0x3f6/0x440
-> > > May 14 19:21:41 geek500 kernel: Code: c6 05 db 31 45 01 01 4c 8b 67 5=
-0 4d
-> > > 85 e4 75 03 4c 8b 27 e8 fc e1 e9 ff 4c 89 e2 48 c7 c7 00 01 cc
-> > >
-> > >  ab 48 89 c6 e8 b3 4f 45 00 <0f> 0b 41 be 94 ff ff ff e9 cc fc ff ff =
-e9 2d
-> > >  9c>
-> > > 4b 00 83 f8 01 74
-> > > May 14 19:21:41 geek500 kernel: RSP: 0018:ffff8dbfc31e7c68 EFLAGS:
-> > > 00010286
-> > > May 14 19:21:41 geek500 kernel: RAX: 0000000000000000 RBX:
-> > > ffff888540f170e8
-> > > RCX: 0000000000000be5
-> > > May 14 19:21:41 geek500 kernel: RDX: 0000000000000000 RSI:
-> > > 0000000000000086
-> > > RDI: ffffffffac858df8
-> > > May 14 19:21:41 geek500 kernel: RBP: ffff888540f170e8 R08:
-> > > ffffffffabe46d60
-> > > R09: 00000000ac86a0f6
-> > > May 14 19:21:41 geek500 kernel: R10: ffffffffffffffff R11:
-> > > ffffffffffffffff
-> > > R12: ffff888540f5c070
-> > > May 14 19:21:41 geek500 kernel: R13: ffff8dbfc31e7d70 R14:
-> > > 00000000ffffff94
-> > > R15: ffff888540f17028
-> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
-> > > GS:ffff88885f640000(0000) knlGS:0000000000000000
-> > > May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-> > > 0000000080050033
-> > > May 14 19:21:41 geek500 kernel: CR2: 00007f1984067028 CR3:
-> > > 0000000045e0c000
-> > > CR4: 0000000000350ee0
-> > > May 14 19:21:41 geek500 kernel: Call Trace:
-> > > May 14 19:21:41 geek500 kernel:  <TASK>
-> > > May 14 19:21:41 geek500 kernel:  ? dequeue_entity+0xd4/0x250
-> > > May 14 19:21:41 geek500 kernel:  ? newidle_balance.constprop.0+0x1f7/=
-0x3b0
-> > > May 14 19:21:41 geek500 kernel:  __i2c_transfer+0x16d/0x520
-> > > May 14 19:21:41 geek500 kernel:  i2c_transfer+0x7a/0xd0
-> > > May 14 19:21:41 geek500 kernel:  __i2c_hid_command+0x106/0x2d0
-> > > May 14 19:21:41 geek500 kernel:  ? amd_gpio_irq_enable+0x19/0x50
-> > > May 14 19:21:41 geek500 kernel:  i2c_hid_set_power+0x4a/0xd0
-> > > May 14 19:21:41 geek500 kernel:  i2c_hid_core_resume+0x60/0xb0
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_subsys_resume_early+0x50/0x50
-> > > May 14 19:21:41 geek500 kernel:  dpm_run_callback+0x1d/0xd0
-> > > May 14 19:21:41 geek500 kernel:  device_resume+0x122/0x230
-> > > May 14 19:21:41 geek500 kernel:  async_resume+0x14/0x30
-> > > May 14 19:21:41 geek500 kernel:  async_run_entry_fn+0x1b/0xa0
-> > > May 14 19:21:41 geek500 kernel:  process_one_work+0x1d3/0x3a0
-> > > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
-> > > May 14 19:21:41 geek500 kernel:  ? rescuer_thread+0x380/0x380
-> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
-> > > May 14 19:21:41 geek500 kernel:  ? kthread_complete_and_exit+0x20/0x2=
-0
-> > > May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
-> > > May 14 19:21:41 geek500 kernel:  </TASK>
-> > > May 14 19:21:41 geek500 kernel: ---[ end trace 0000000000000000 ]---
-> > > May 14 19:21:41 geek500 kernel: i2c_hid_acpi i2c-ELAN0718:00: failed =
-to
-> > > change power setting.
-> > > May 14 19:21:41 geek500 kernel: PM: dpm_run_callback():
-> > > acpi_subsys_resume+0x0/0x50 returns -108
-> > > May 14 19:21:41 geek500 kernel: i2c_hid_acpi i2c-ELAN0718:00: PM: fai=
-led
-> > > to
-> > > resume async: error -108
-> > > May 14 19:21:41 geek500 kernel: amdgpu 0000:05:00.0:
-> > > [drm:amdgpu_ring_test_helper] *ERROR* ring gfx test failed (-110)
-> > > May 14 19:21:41 geek500 kernel: [drm:amdgpu_device_ip_resume_phase2]
-> > > *ERROR* resume of IP block <gfx_v9_0> failed -110
-> > > May 14 19:21:41 geek500 kernel: amdgpu 0000:05:00.0: amdgpu:
-> > > amdgpu_device_ip_resume failed (-110).
-> > > May 14 19:21:41 geek500 kernel: PM: dpm_run_callback():
-> > > pci_pm_resume+0x0/0x120 returns -110
-> > > May 14 19:21:41 geek500 kernel: amdgpu 0000:05:00.0: PM: failed to re=
-sume
-> > > async: error -110
-> > > May 14 19:21:41 geek500 kernel: ------------[ cut here ]------------
-> > > May 14 19:21:41 geek500 kernel: AMDI0010:03 already disabled
-> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: 6 PID: 1091 at drivers/=
-clk/
-> > > clk.c:971 clk_core_disable+0x80/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Modules linked in: [last unloaded:
-> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 6 PID: 1091 Comm:
-> > > kworker/6:3 Tainted: G W  O      5.17.7+ #7
-> > > May 14 19:21:41 geek500 kernel: Hardware name: HP HP Pavilion Gaming
-> > > Laptop
-> > > 15-ec1xxx/87B2, BIOS F.25 08/18/2021
-> > > May 14 19:21:41 geek500 kernel: Workqueue: pm pm_runtime_work
-> > > May 14 19:21:41 geek500 kernel: RIP: 0010:clk_core_disable+0x80/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Code: 10 e8 e4 4a d1 00 0f 1f 44 00 0=
-0 48
-> > > 8b 5b 30 48 85 db 74 b6 8b 43 7c 85 c0 75 a4 48 8b 33 48 c7 c7 7d 87 =
-c4
-> > > ab e8 79 7a 9a 00 <0f> 0b 5b 5d c3 65 8b 05 5c a1 92 55 89 c0 48 0f a=
-3 05
-> > > 4a 61 9d 01 May 14 19:21:41 geek500 kernel: RSP: 0018:ffff8dbfc1c47d5=
-0
-> > > EFLAGS: 00010082 May 14 19:21:41 geek500 kernel:
-> > > May 14 19:21:41 geek500 kernel: RAX: 0000000000000000 RBX:
-> > > ffff8885401b6300
-> > > RCX: 0000000000000027
-> > > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
-> > > 0000000000000001
-> > > RDI: ffff88885f59f460
-> > > May 14 19:21:41 geek500 kernel: RBP: 0000000000000283 R08:
-> > > ffffffffabf26da8
-> > > R09: 00000000ffffdfff
-> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
-> > > ffffffffabe46dc0
-> > > R12: ffff8885401b6300
-> > > May 14 19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
-> > > 0000000000000008
-> > > R15: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
-> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
-> > > May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-> > > 0000000080050033
-> > > May 14 19:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
-> > > 0000000102956000
-> > > CR4: 0000000000350ee0
-> > > May 14 19:21:41 geek500 kernel: Call Trace:
-> > > May 14 19:21:41 geek500 kernel:  <TASK>
-> > > May 14 19:21:41 geek500 kernel:  clk_disable+0x24/0x30
-> > > May 14 19:21:41 geek500 kernel:  i2c_dw_prepare_clk+0x74/0xd0
-> > > May 14 19:21:41 geek500 kernel:  dw_i2c_plat_suspend+0x2e/0x40
-> > > May 14 19:21:41 geek500 kernel:  acpi_subsys_runtime_suspend+0x9/0x20
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0x150
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_suspend+0x142/0x720
-> > > May 14 19:21:41 geek500 kernel:  pm_runtime_work+0x8f/0xa0
-> > > May 14 19:21:41 geek500 kernel:  process_one_work+0x1d3/0x3a0
-> > > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
-> > > May 14 19:21:41 geek500 kernel:  ? rescuer_thread+0x380/0x380
-> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
-> > > May 14 19:21:41 geek500 kernel:  ? kthread_complete_and_exit+0x20/0x2=
-0
-> > > May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
-> > > May 14 19:21:41 geek500 kernel:  </TASK>
-> > > May 14 19:21:41 geek500 kernel: ---[ end trace 0000000000000000 ]---
-> > > May 14 19:21:41 geek500 kernel: ------------[ cut here ]------------
-> > > May 14 19:21:41 geek500 kernel: AMDI0010:03 already unprepared
-> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: 6 PID: 1091 at drivers/=
-clk/
-> > > clk.c:829 clk_core_unprepare+0xb1/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Modules linked in: [last unloaded:
-> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 6 PID: 1091 Comm:
-> > > kworker/6:3 Tainted: G W  O      5.17.7+ #7
-> > > May 14 19:21:41 geek500 kernel: Hardware name: HP HP Pavilion Gaming
-> > > Laptop
-> > > 15-ec1xxx/87B2, BIOS F.25 08/18/2021
-> > > May 14 19:21:41 geek500 kernel: Workqueue: pm pm_runtime_work
-> > > May 14 19:21:41 geek500 kernel: RIP: 0010:clk_core_unprepare+0xb1/0x1=
-a0
-> > > May 14 19:21:41 geek500 kernel: Code: 40 00 66 90 48 8b 5b 30 48 85 d=
-b 74
-> > > a2 8b 83 80 00 00 00 85 c0 0f 85 79 ff ff ff 48 8b 33 48 c7 c7 35 87 =
-c4
-> > > ab e8 18 7c 9a 00 <0f> 0b 5b c3 65 8b 05 fc a2 92 55 89 c0 48 0f a3 0=
-5 ea
-> > > 62 9d 01 73 May 14 19:21:41 geek500 kernel: RSP: 0018:ffff8dbfc1c47d6=
-0
-> > > EFLAGS: 00010286 May 14 19:21:41 geek500 kernel: RAX: 000000000000000=
-0
-> > > RBX: ffff8885401b6300 RCX: 0000000000000027
-> > > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
-> > > 0000000000000001
-> > > RDI: ffff88885f59f460
-> > > May 14 19:21:41 geek500 kernel: RBP: ffff8885401b6300 R08:
-> > > ffffffffabf26da8
-> > > R09: 00000000ffffdfff
-> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
-> > > ffffffffabe46dc0
-> > > R12: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
-> > > 0000000000000008
-> > > R15: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
-> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
-> > > May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-> > > 0000000080050033
-> > > May 14 19:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
-> > > 0000000102956000
-> > > CR4: 0000000000350ee0
-> > > May 14 19:21:41 geek500 kernel: Call Trace:
-> > > May 14 19:21:41 geek500 kernel:  <TASK>
-> > > May 14 19:21:41 geek500 kernel:  clk_unprepare+0x1f/0x30
-> > > May 14 19:21:41 geek500 kernel:  i2c_dw_prepare_clk+0x7c/0xd0
-> > > May 14 19:21:41 geek500 kernel:  dw_i2c_plat_suspend+0x2e/0x40
-> > > May 14 19:21:41 geek500 kernel:  acpi_subsys_runtime_suspend+0x9/0x20
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0x150
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel: done.
-> > > May 14 19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_suspend+0x142/0x720
-> > > May 14 19:21:41 geek500 kernel:  pm_runtime_work+0x8f/0xa0
-> > > May 14 19:21:41 geek500 kernel:  process_one_work+0x1d3/0x3a0
-> > > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
-> > > May 14 19:21:41 geek500 kernel:  ? rescuer_thread+0x380/0x380
-> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
-> > > May 14 19:21:41 geek500 kernel:  ? kthread_complete_and_exit+0x20/0x2=
-0
-> > > May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
-> > > May 14 19:21:41 geek500 kernel:  </TASK>
-> > > May 14 19:21:41 geek500 kernel: ---[ end trace 0000000000000000 ]---
-> > > May 14 19:21:41 geek500 kernel: ------------[ cut here ]------------
-> > > May 14 19:21:41 geek500 kernel: AMDI0010:03 already disabled
-> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: 6 PID: 1091 at drivers/=
-clk/
-> > > clk.c:971 clk_core_disable+0x80/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Modules linked in: [last unloaded:
-> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 6 PID: 1091 Comm:
-> > > kworker/6:3 Tainted: G W  O      5.17.7+ #7
-> > > May 14 19:21:41 geek500 kernel: Hardware name: HP HP Pavilion Gaming
-> > > Laptop
-> > > 15-ec1xxx/87B2, BIOS F.25 08/18/2021
-> > > May 14 19:21:41 geek500 kernel: Workqueue: pm pm_runtime_work
-> > > May 14 19:21:41 geek500 kernel: RIP: 0010:clk_core_disable+0x80/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Code: 10 e8 e4 4a d1 00 0f 1f 44 00 0=
-0 48
-> > > 8b 5b 30 48 85 db 74 b6 8b 43 7c 85 c0 75 a4 48 8b 33 48 c7 c7 7d 87 =
-c4
-> > > ab e8 79 7a 9a 00 <0f> 0b 5b 5d c3 65 8b 05 5c a1 92 55 89 c0 48 0f a=
-3 05
-> > > 4a 61 9d 01 May 14 19:21:41 geek500 kernel: RSP: 0018:ffff8dbfc1c47d5=
-0
-> > > EFLAGS: 00010082 May 14 19:21:41 geek500 kernel: RAX: 000000000000000=
-0
-> > > RBX: ffff8885401b6300 RCX: 0000000000000027
-> > > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
-> > > 0000000000000001
-> > > RDI: ffff88885f59f460
-> > > May 14 19:21:41 geek500 kernel: RBP: 0000000000000287 R08:
-> > > ffffffffabf26da8
-> > > R09: 00000000ffffdfff
-> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
-> > > ffffffffabe46dc0
-> > > R12: ffff8885401b6300
-> > > May 14 19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
-> > > 0000000000000008
-> > > R15: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
-> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
-> > > May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-> > > 0000000080050033
-> > > May 14 19:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
-> > > 0000000102956000
-> > > CR4: 0000000000350ee0
-> > > May 14 19:21:41 geek500 kernel: Call Trace:
-> > > May 14 19:21:41 geek500 kernel:  <TASK>
-> > > May 14 19:21:41 geek500 kernel:  clk_disable+0x24/0x30
-> > > May 14 19:21:41 geek500 kernel:  i2c_dw_prepare_clk+0x88/0xd0
-> > > May 14 19:21:41 geek500 kernel:  dw_i2c_plat_suspend+0x2e/0x40
-> > > May 14 19:21:41 geek500 kernel:  acpi_subsys_runtime_suspend+0x9/0x20
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0x150
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_suspend+0x142/0x720
-> > > May 14 19:21:41 geek500 kernel:  pm_runtime_work+0x8f/0xa0
-> > > May 14 19:21:41 geek500 kernel:  process_one_work+0x1d3/0x3a0
-> > > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
-> > > May 14 19:21:41 geek500 kernel:  ? rescuer_thread+0x380/0x380
-> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
-> > > May 14 19:21:41 geek500 kernel:  ? kthread_complete_and_exit+0x20/0x2=
-0
-> > > May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
-> > > May 14 19:21:41 geek500 kernel:  </TASK>
-> > > May 14 19:21:41 geek500 kernel: ---[ end trace 0000000000000000 ]---
-> > > May 14 19:21:41 geek500 kernel: ------------[ cut here ]------------
-> > > May 14 19:21:41 geek500 kernel: AMDI0010:03 already unprepared
-> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: 6 PID: 1091 at drivers/=
-clk/
-> > > clk.c:829 clk_core_unprepare+0xb1/0x1a0
-> > > May 14 19:21:41 geek500 kernel: Modules linked in: [last unloaded:
-> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 6 PID: 1091 Comm:
-> > > kworker/6:3 Tainted: G W  O      5.17.7+ #7
-> > > May 14 19:21:41 geek500 kernel: Hardware name: HP HP Pavilion Gaming
-> > > Laptop
-> > > 15-ec1xxx/87B2, BIOS F.25 08/18/2021
-> > > May 14 19:21:41 geek500 kernel: Workqueue: pm pm_runtime_work
-> > > May 14 19:21:41 geek500 kernel: RIP: 0010:clk_core_unprepare+0xb1/0x1=
-a0
-> > > May 14 19:21:41 geek500 kernel: Code: 40 00 66 90 48 8b 5b 30 48 85 d=
-b 74
-> > > a2 8b 83 80 00 00 00 85 c0 0f 85 79 ff ff ff 48 8b 33 48 c7 c7 35 87 =
-c4
-> > > ab e8 18 7c 9a 00 <0f> 0b 5b c3 65 8b 05 fc a2 92 55 89 c0 48 0f a3 0=
-5 ea
-> > > 62 9d 01 73 May 14 19:21:41 geek500 kernel: RSP: 0018:ffff8dbfc1c47d6=
-0
-> > > EFLAGS: 00010286 May 14 19:21:41 geek500 kernel: RAX: 000000000000000=
-0
-> > > RBX: ffff8885401b6300 RCX: 0000000000000027
-> > > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
-> > > 0000000000000001
-> > > RDI: ffff88885f59f460
-> > > May 14 19:21:41 geek500 kernel: RBP: ffff8885401b6300 R08:
-> > > ffffffffabf26da8
-> > > R09: 00000000ffffdfff
-> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
-> > > ffffffffabe46dc0
-> > > R12: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
-> > > 0000000000000008
-> > > R15: 0000000000000000
-> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
-> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
-> > > May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000 CR0:
-> > > 0000000080050033
-> > > May 14 19:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
-> > > 0000000102956000
-> > > CR4: 0000000000350ee0
-> > > May 14 19:21:41 geek500 kernel: Call Trace:
-> > > May 14 19:21:41 geek500 kernel:  <TASK>
-> > > May 14 19:21:41 geek500 kernel:  clk_unprepare+0x1f/0x30
-> > > May 14 19:21:41 geek500 kernel:  i2c_dw_prepare_clk+0x90/0xd0
-> > > May 14 19:21:41 geek500 kernel:  dw_i2c_plat_suspend+0x2e/0x40
-> > > May 14 19:21:41 geek500 kernel:  acpi_subsys_runtime_suspend+0x9/0x20
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0x150
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
-> > > May 14 19:21:41 geek500 kernel:  ? acpi_dev_suspend+0x160/0x160
-> > > May 14 19:21:41 geek500 kernel:  rpm_suspend+0x142/0x720
-> > > May 14 19:21:41 geek500 kernel:  pm_runtime_work+0x8f/0xa0
-> > > May 14 19:21:41 geek500 kernel:  process_one_work+0x1d3/0x3a0
-> > > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
-> > > May 14 19:21:41 geek500 kernel:  ? rescuer_thread+0x380/0x380
-> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
-> > > May 14 19:21:41 geek500 kernel:  ? kthread_complete_and_exit+0x20/0x2=
-0
-> > > May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
-> > > May 14 19:21:41 geek500 kernel:  </TASK>
-> > > May 14 19:21:41 geek500 kernel: ---[ end trace 0000000000000000 ]---
-> > > May 14 19:21:59 geek500 kernel: snd_hda_codec_hdmi hdaudioC1D0: Unabl=
-e to
-> > > sync register 0x4f0800. -5
-> > > May 14 19:21:59 geek500 kernel: (elapsed 0.175 seconds) done.
-> > > May 14 19:21:59 geek500 kernel: amdgpu 0000:05:00.0: amdgpu: Power
-> > > consumption will be higher as BIOS has not been configured for
-> > > suspend-to-idle. To use suspend-to-idle change the sleep mode in BIOS
-> > > setup.
-> > > May 14 19:21:59 geek500 kernel: snd_hda_intel 0000:01:00.1: can't cha=
-nge
-> > > power state from D3cold to D0 (config space inaccessible)
-> > > May 14 19:21:59 geek500 kernel: pci 0000:00:00.2: can't derive routin=
-g for
-> > > PCI INT A
-> > > May 14 19:21:59 geek500 kernel: pci 0000:00:00.2: PCI INT A: no GSI
-> > > May 14 19:21:59 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:21:59 geek500 kernel: Bluetooth: hci0: command 0xfc20 t=
-x
-> > > timeout May 14 19:21:59 geek500 kernel: [drm] Fence fallback timer
-> > > expired on ring sdma0
-> > > May 14 19:21:59 geek500 kernel: Bluetooth: hci0: RTL: download fw com=
-mand
-> > > failed (-110)
-> > > May 14 19:21:59 geek500 kernel: done.
-> > > May 14 19:22:00 geek500 kernel: snd_hda_codec_hdmi hdaudioC1D0: Unabl=
-e to
-> > > sync register 0x4f0800. -5
-> > > May 14 19:22:00 geek500 dnsmasq[2079]: no servers found in /etc/dnsma=
-sq.d/
-> > > dnsmasq-resolv.conf, will retry
-> > > May 14 19:22:01 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > sdma0
-> > > May 14 19:22:01 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:01 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:02 geek500 last message buffered 2 times
-> > > May 14 19:22:03 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:03 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:03 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:03 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:04 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:04 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:04 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:04 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:05 geek500 last message buffered 2 times
-> > > May 14 19:22:05 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:06 geek500 kernel: [drm] Fence fallback timer expire=
-d on
-> > > ring sdma0
-> > > May 14 19:22:06 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > gfx May 14 19:22:06 geek500 last message buffered 1 times
-> > > ...
-> > > May 14 19:22:18 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > sdma0
-> > > May 14 19:22:18 geek500 kernel: [drm:amdgpu_dm_atomic_commit_tail] *E=
-RROR*
-> > > Waiting for fences timed out!
-> > > May 14 19:22:18 geek500 kernel: [drm] Fence fallback timer expired on=
- ring
-> > > sdma0
-> > >
-> > > CC
-> > >
-> > > Le samedi 14 mai 2022, 17:12:33 CEST Thorsten Leemhuis a =C3=A9crit :
-> > > > Hi, this is your Linux kernel regression tracker. Thanks for the re=
-port.
-> > > >
-> > > > On 14.05.22 16:41, Christian Casteyde wrote:
-> > > > > #regzbot introduced v5.17.3..v5.17.4
-> > > > > #regzbot introduced: 001828fb3084379f3c3e228b905223c50bc237f9
-> > > >
-> > > > FWIW, that's commit 887f75cfd0da ("drm/amdgpu: Ensure HDA function =
-is
-> > > > suspended before ASIC reset") upstream.
-> > > >
-> > > > Recently a regression was reported where 887f75cfd0da was suspected=
- as
-> > > > the culprit:
-> > > > https://gitlab.freedesktop.org/drm/amd/-/issues/2008
-> > > >
-> > > > And a one related to it:
-> > > > https://gitlab.freedesktop.org/drm/amd/-/issues/1982
-> > > >
-> > > > You might want to take a look if what was discussed there might be
-> > > > related to your problem (I'm not directly involved in any of this, =
-I
-> > > > don't know the details, it's just that 887f75cfd0da looked familiar=
- to
-> > > > me). If it is, a fix for these two bugs was committed to master ear=
-lier
-> > > > this week:
-> > > >
-> > > > https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/=
-commi
-> > > > t/?i d=3Da56f445f807b0276
-> > > >
-> > > > It will likely be backported to 5.17.y, maybe already in the over-n=
-ext
-> > > > release. HTH.
-> > > >
-> > > > Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker'=
- hat)
-> > > >
-> > > > P.S.: As the Linux kernel's regression tracker I deal with a lot of
-> > > > reports and sometimes miss something important when writing mails l=
-ike
-> > > > this. If that's the case here, don't hesitate to tell me in a publi=
-c
-> > > > reply, it's in everyone's interest to set the public record straigh=
-t.
-> > > >
-> > > > > Hello
-> > > > > Since 5.17.4 my laptop doesn't resume from suspend anymore. At re=
-sume,
-> > > > > symptoms are variable:
-> > > > > - either the laptop freezes;
-> > > > > - either the screen keeps blank;
-> > > > > - either the screen is OK but mouse is frozen;
-> > > > > - either display lags with several logs in dmesg:
-> > > > > [  228.275492] [drm] Fence fallback timer expired on ring gfx
-> > > > > [  228.395466] [drm:amdgpu_dm_atomic_commit_tail] *ERROR* Waiting=
- for
-> > > > > fences timed out!
-> > > > > [  228.779490] [drm] Fence fallback timer expired on ring gfx
-> > > > > [  229.283484] [drm] Fence fallback timer expired on ring sdma0
-> > > > > [  229.283485] [drm] Fence fallback timer expired on ring gfx
-> > > > > [  229.787487] [drm] Fence fallback timer expired on ring gfx
-> > > > > ...
-> > > > >
-> > > > > I've bisected the problem.
-> > > > >
-> > > > > Please note this laptop has a strange behaviour on suspend:
-> > > > > The first suspend request always fails (this point has never been
-> > > > > fixed
-> > > > > and
-> > > > > plagues us when trying to diagnose another regression on touchpad=
- not
-> > > > > resuming in the past). The screen goes blank and I can get it OK =
-when
-> > > > > pressing the power button, this seems to reset it. After that all
-> > > > > suspend/resume works OK.
-> > > > >
-> > > > > Since 5.17.4, it is not possible anymore to get the laptop workin=
-g
-> > > > > again
-> > > > > after the first suspend failure.
-> > > > >
-> > > > > HW : HP Pavilion / Ryzen 4600H with AMD graphics integrated + NVi=
-dia
-> > > > > 1650Ti
-> > > > > (turned off with ACPI call in order to get more battery, I'm not =
-using
-> > > > > NVidia driver).
->
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.279-26-g371779ee7c349/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.279-26-g371779ee7c349
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      371779ee7c349696d0848d670711e87d44903fe1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+meson8b-odroidc1           | arm   | lab-baylibre | gcc-10   | multi_v7_def=
+config         | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d42527504ba83e8f5722
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-me=
+son8b-odroidc1.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-me=
+son8b-odroidc1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d42527504ba83e8f5=
+723
+        failing since 91 days (last pass: v4.14.266, first fail: v4.14.266-=
+45-gce409501ca5f) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d3ec6fb9f16a138f5723
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d3ec6fb9f16a138f5=
+724
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4c679762a076e8f5717
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4c679762a076e8f5=
+718
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4bc0b33ea5bec8f5782
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4bc0b33ea5bec8f5=
+783
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d64cd58d5acdee8f5729
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d64cd58d5acdee8f5=
+72a
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d3eb6fb9f16a138f571c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d3eb6fb9f16a138f5=
+71d
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4c539eaad16568f5756
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4c539eaad16568f5=
+757
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d49239eaad16568f5724
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d49239eaad16568f5=
+725
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d64bd58d5acdee8f5725
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d64bd58d5acdee8f5=
+726
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d3fe6fb9f16a138f573f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d3fe6fb9f16a138f5=
+740
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4c945baac57f38f5729
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4c945baac57f38f5=
+72a
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4cf45baac57f38f572c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4cf45baac57f38f5=
+72d
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d687d163d0275b8f5740
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d687d163d0275b8f5=
+741
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d3fdc1392f48cd8f5773
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-baylibre/b=
+aseline-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d3fdc1392f48cd8f5=
+774
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4c745baac57f38f5726
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm6=
+4-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4c745baac57f38f5=
+727
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig+ar=
+m64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d4bb39eaad16568f5751
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig+arm64-chromebook/gcc-10/lab-broonie/ba=
+seline-qemu_arm64-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d4bb39eaad16568f5=
+752
+        failing since 7 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-71-geacdf1a71409) =
+
+ =
+
+
+
+platform                   | arch  | lab          | compiler | defconfig   =
+               | regressions
+---------------------------+-------+--------------+----------+-------------=
+---------------+------------
+qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6282d673d58d5acdee8f57be
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+79-26-g371779ee7c349/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6282d673d58d5acdee8f5=
+7bf
+        failing since 6 days (last pass: v4.14.277-55-gfb8b8dfe0168, first =
+fail: v4.14.277-79-ga6b67a30bbcc) =
+
+ =20
