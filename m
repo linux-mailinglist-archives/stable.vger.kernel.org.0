@@ -2,96 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C29A52B74D
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 12:13:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B57B52B7EF
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 12:45:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234399AbiERJfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 05:35:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52868 "EHLO
+        id S235131AbiERKcp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 06:32:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234446AbiERJel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 05:34:41 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43894B0D38
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 02:34:32 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id k126so790942wme.2
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 02:34:32 -0700 (PDT)
+        with ESMTP id S235098AbiERKcp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 06:32:45 -0400
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712581FCCE
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 03:32:44 -0700 (PDT)
+Received: by mail-pj1-x102e.google.com with SMTP id n10so1584302pjh.5
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 03:32:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
-        b=FZ95qdZ3wvViKCVVSAIgEilKZv6cVU7hDoEgouhXbFcOa+B2+bVf2kG5Yfp447dDq7
-         UuqzyRpwCH4cqBdX0SPsqDn7OdLVzDPE34HKrzhZmUTw9riwVmlUqgNFibq1UrrrFVij
-         flUDN6uTNTkJXjCr+YhZhiL8VLDfEUSPqAvwP5pc+DAjOkc9ZsOQU9bMgiINC2krQngn
-         U+ZvtzoTI4EOEFGPSbS0j8QzkqGYKyTjUsbwP87LU3NLgeJv0j/sEkShqC88lr1qS/8x
-         1LEcMlUTtHGlhYc1dZF8j3WNa+ec2oTu/SqmSP8mVTaR/4VjrkTYWV3PVh1+DxK/OW9B
-         U0HA==
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
+         :in-reply-to;
+        bh=O3ZONFugKJackGrk1AAH+YtoKGnYNUHWfG4bi/hMzLg=;
+        b=Ym6k6UeUUiWWTMqP8ADBVtJH4v0euA53T1uFnytl2ZJYf6OertBy+RNw2PB/a9RnQ3
+         jzDPKyYu8ikNGuA4uUjOV8ECqN2xMGPoQk7n6X361JKUeUp5s3y8dXfn9F+se94lN4iI
+         Z9Z4FnWGUcQEFSRrEW/cqFvhVlXMeXm9NfREPMPPE2rFYyTXl6iGGj80jw76/bjaSeml
+         hBuMy3b4mB2/njQkAOt/YOSKkdgPKXTwUtxmSX5xTEH1STbM5uGYyUZCCWqq69fNZiQ3
+         sjfS124Avf/wqkA7ZWf9a8/KcTBdWpYPPBuiTcfPbDckbXX9K1GGYU6PXwzLrjZdywr5
+         X1wA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
-        b=KFsUBi99g0MK8J/IIH57NVOUTodglH2Q/MKKl2P5qgAIbzSqvQxdxzfkWmS2xCHWsn
-         CreG1ZfwlBxUtRnouR/k5Fe46zkqRI41QS5Rr296FhyO6UfLbTBpyHjm4+0sgqyaUgBo
-         mnMnmXXGEdqhGrE8zV1UOJW1/Y3/ERyfSdWsy1p2UD/sRNaCWUM8Tvi5K8+luTw5tyaQ
-         QCyLBUnqqrKB2pl5V8pDifAXzdzfbdfwgUa+9QDztbZYrqw4mSRj5tI0ixRM0UfJJCQY
-         km2jVCBpnPeVWyiPsm/Ex96wwL1NGdoER8oCFMyTaM/Dfbj383SUEY+OQtO6vfNjMGaV
-         jsKg==
-X-Gm-Message-State: AOAM531keMSewlAqpXJQ7FowBWqK9qtuB0E0tl/u/vbYsDBK8kmMzlKx
-        0aPTPAoHzCY6/gHpRacD/yenp+QI2I6M9Yx5FH0=
-X-Google-Smtp-Source: ABdhPJxY1Od01jINHCMGTdKhEQslEpx2d1VAyPgPZKm7NMM3iTYoUHxOo+tz9BMJ8pvKnjeacRPs/0uskN8OJ2dKNtI=
-X-Received: by 2002:a7b:c041:0:b0:394:44a9:b017 with SMTP id
- u1-20020a7bc041000000b0039444a9b017mr25359438wmc.169.1652866471080; Wed, 18
- May 2022 02:34:31 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition:in-reply-to;
+        bh=O3ZONFugKJackGrk1AAH+YtoKGnYNUHWfG4bi/hMzLg=;
+        b=x/9o2D0QULAIxz6kIurHpmtsRsdionLwhFDQkSB0NsF3Xc8+/n8U6dZj6j1PHkaJzX
+         4oEdLSK6YRJ8JnmeAlLFJZCfl+RfMaCQj7uActW+xuQAhpa/26uhgAELlnZ1jWJqRziv
+         tgqM5Qp2fRXEJ4lM+HIG/lQjo8yrPRj30vz/c//8mbdMRS2rx7glP8IEJ5eS7erLCLnv
+         cQtHKH2AXDqkZYwdEHmOUPj3zLQ0N5yYS3xazcTdV2aeqzMlc39kvQhnDPQ9RnIkoea4
+         8BRNUEUOiry728HWBhs8KLm8d771PPgtRmnez8KRw0Lsk4KWawwKfYUDqfmOx0PtpLWp
+         aqAg==
+X-Gm-Message-State: AOAM533YugYf/xkBsODYLdB1S9o7w914NklmYYLuIUo1cFVqPgX0oK1d
+        TZsjG1ngskRUMQv7OAdr+iM=
+X-Google-Smtp-Source: ABdhPJzP/GCdAWkBFCAnXrzxMdiMfk26ZYOcOwoRiSKiLEv+F3VOaNYFKgWs40w892D/YwKBJ0MIUw==
+X-Received: by 2002:a17:902:e3d4:b0:161:888e:e707 with SMTP id r20-20020a170902e3d400b00161888ee707mr12819528ple.118.1652869964005;
+        Wed, 18 May 2022 03:32:44 -0700 (PDT)
+Received: from hyeyoo ([114.29.24.243])
+        by smtp.gmail.com with ESMTPSA id d7-20020a63f247000000b003f5912ba179sm1195816pgk.58.2022.05.18.03.32.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 18 May 2022 03:32:43 -0700 (PDT)
+Date:   Wed, 18 May 2022 19:32:37 +0900
+From:   Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     akpm@linux-foundation.org, dvyukov@google.com, elver@google.com,
+        glider@google.com, songmuchun@bytedance.com, stable@vger.kernel.org
+Subject: [PATCH 5.15.y] mm/kfence: reset PG_slab and memcg_data before
+ freeing __kfence_pool
+Message-ID: <YoTLReuLMhkLhyb8@hyeyoo>
 MIME-Version: 1.0
-Received: by 2002:adf:f750:0:0:0:0:0 with HTTP; Wed, 18 May 2022 02:34:30
- -0700 (PDT)
-Reply-To: davidnelson7702626@gmail.com
-From:   brigitte Patayoti <brigittepatayoti0@gmail.com>
-Date:   Wed, 18 May 2022 10:34:30 +0100
-Message-ID: <CADhLwcRV7O0r+n9=hdCtXPxW3-_TVDzyHKiK0hfSwaw1Qsq5hg@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:32c listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4993]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [brigittepatayoti0[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [davidnelson7702626[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [brigittepatayoti0[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.4 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <165270762342182@kroah.com>
+X-Spam-Status: No, score=-0.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,HK_RANDOM_ENVFROM,
+        HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello friend, I want to send money to you to enable me invest in your
-country get back to me if you are interested.
+commit 2839b0999c20c9f6bf353849c69370e121e2fa1a upstream.
+
+When kfence fails to initialize kfence pool, it frees the pool.  But it
+does not reset memcg_data and PG_slab flag.
+
+Below is a BUG because of this. Let's fix it by resetting memcg_data
+and PG_slab flag before free.
+
+[    0.089149] BUG: Bad page state in process swapper/0  pfn:3d8e06
+[    0.089149] page:ffffea46cf638180 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x3d8e06
+[    0.089150] memcg:ffffffff94a475d1
+[    0.089150] flags: 0x17ffffc0000200(slab|node=0|zone=2|lastcpupid=0x1fffff)
+[    0.089151] raw: 0017ffffc0000200 ffffea46cf638188 ffffea46cf638188 0000000000000000
+[    0.089152] raw: 0000000000000000 0000000000000000 00000000ffffffff ffffffff94a475d1
+[    0.089152] page dumped because: page still charged to cgroup
+[    0.089153] Modules linked in:
+[    0.089153] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B   W         5.18.0-rc1+ #965
+[    0.089154] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+[    0.089154] Call Trace:
+[    0.089155]  <TASK>
+[    0.089155]  dump_stack_lvl+0x49/0x5f
+[    0.089157]  dump_stack+0x10/0x12
+[    0.089158]  bad_page.cold+0x63/0x94
+[    0.089159]  check_free_page_bad+0x66/0x70
+[    0.089160]  __free_pages_ok+0x423/0x530
+[    0.089161]  __free_pages_core+0x8e/0xa0
+[    0.089162]  memblock_free_pages+0x10/0x12
+[    0.089164]  memblock_free_late+0x8f/0xb9
+[    0.089165]  kfence_init+0x68/0x92
+[    0.089166]  start_kernel+0x789/0x992
+[    0.089167]  x86_64_start_reservations+0x24/0x26
+[    0.089168]  x86_64_start_kernel+0xa9/0xaf
+[    0.089170]  secondary_startup_64_no_verify+0xd5/0xdb
+[    0.089171]  </TASK>
+
+Link: https://lkml.kernel.org/r/YnPG3pQrqfcgOlVa@hyeyoo
+Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
+Fixes: 8f0b36497303 ("mm: kfence: fix objcgs vector allocation")
+Signed-off-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+[42.hyeyoo@gmail.com: backport - use struct page]
+Signed-off-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+---
+ mm/kfence/core.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index 66076d8742b7..d25202766fbb 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -510,6 +510,7 @@ static bool __init kfence_init_pool(void)
+ 	unsigned long addr = (unsigned long)__kfence_pool;
+ 	struct page *pages;
+ 	int i;
++	char *p;
+ 
+ 	if (!__kfence_pool)
+ 		return false;
+@@ -592,6 +593,16 @@ static bool __init kfence_init_pool(void)
+ 	 * fails for the first page, and therefore expect addr==__kfence_pool in
+ 	 * most failure cases.
+ 	 */
++	for (p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
++		struct page *page = virt_to_page(p);
++
++		if (!PageSlab(page))
++			continue;
++#ifdef CONFIG_MEMCG
++		page->memcg_data = 0;
++#endif
++		__ClearPageSlab(page);
++	}
+ 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
+ 	__kfence_pool = NULL;
+ 	return false;
+-- 
+2.32.0
