@@ -2,66 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1733252B544
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 11:01:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C31252B549
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 11:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233559AbiERIqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 04:46:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        id S233543AbiERIxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 04:53:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233522AbiERIqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 04:46:39 -0400
-Received: from mail-yw1-x1134.google.com (mail-yw1-x1134.google.com [IPv6:2607:f8b0:4864:20::1134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F02356FD28
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 01:46:36 -0700 (PDT)
-Received: by mail-yw1-x1134.google.com with SMTP id 00721157ae682-2f83983782fso16629557b3.6
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 01:46:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=qPcKS1Ha+hKfB2lrvxghAjYU5JFm8iV16VHBnSnQMMs=;
-        b=moffsW5YZQuTFTUwPQu0v29BDmri2WHu0YtRzq2bvstH6QEBFna3ydED/dthnqnIah
-         cAxmAvPik9cNa9fknZOGyzwqCQJVjrGRGdbaBZRgtqYTY+KXjGv2H191T4dCWADm7Vil
-         evKE7U2qrgJUcj9bpDIJLXbH8+kjV64n32K+YALbYKbrduLPP4QeUC4uQOW2g1QyUHbG
-         KhZXjSkJe9RK+NOtc4UE1zMiRdBSGKjgaWGLKxbx7SvyIFH38v7lpqgOxR2eyyvtG1DY
-         H0Tz7jxJqR19kLHuYqt4f7HKj6B+UDsYKjmHhcGefNb+sI4dVfbdBV3gilCRwIMlhHs2
-         vW2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=qPcKS1Ha+hKfB2lrvxghAjYU5JFm8iV16VHBnSnQMMs=;
-        b=UTqDTIDpVkbJLBOGcSFJwO+J/vfpuQK9sEOjZUBq96T1eTamCsCowi7ymMqRUbEqNl
-         buCW1doxWzmDnR65tjpkTg2w4GSfQFZN9vYnWshJ8o+yybQna8KnGauEDzrlxt6kefJX
-         EHrrSECfWdNfw+NR1cdAq/XOZmd4LiQRG6KyV1CiuT4hDrOjpJ8ZBGNn0Ak1w8704Hw4
-         fWMvxctapSL5MYZWdmuqks++za8GaWi1B5ZERuHtumYFRSGaNCx8HS5BpwK2nf2x4fVR
-         AjPRaRqL6365YXuoBDsLlqAMkJB8Vp8tukHruaxJ6R2p8TV5pUl/8VDUWUuhQS2cZBXc
-         tf9Q==
-X-Gm-Message-State: AOAM532TLHZS1RbYhSv1KI0XXy3mjthmZYJBftBgQ9XiiaMbagguvn9J
-        6d75UderMIUTKyWuCICvKOGF8uWVWksOHyvy6fYgyA==
-X-Google-Smtp-Source: ABdhPJzKJHs24G9bBTdAAJdbd7PD2VDpfRxHHH4l80yKXHscXrAk081wTw1rc2EdCUO27l8eEclEZuXt/OFQgSYbYvE=
-X-Received: by 2002:a81:3ac2:0:b0:2f7:f777:a43 with SMTP id
- h185-20020a813ac2000000b002f7f7770a43mr30466814ywa.60.1652863595994; Wed, 18
- May 2022 01:46:35 -0700 (PDT)
+        with ESMTP id S233533AbiERIxU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 04:53:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10B724ECF9;
+        Wed, 18 May 2022 01:53:18 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F5BE616CC;
+        Wed, 18 May 2022 08:53:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8261DC385AA;
+        Wed, 18 May 2022 08:53:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1652863997;
+        bh=H/5ntHjb/CsEBDhGei0Gk5pizBTwb1XxKoA3Imvo2kA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=VzNpL1tcXJQ+IpIzuH55duJbGIJC836lAnKneP2WScykNe0xhXuyhm7pXKSNeTYZ1
+         DbHMy0aZdXtPB+PNr0dlRIKMi4kJ4uIPuBHIG0vgKVUx6WveOSU85cbMlw3cqn+a3/
+         Oh0Ov5R99ItBsrChrxVROPFFnmruvt2Z8cb0bvyM=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.15.41
+Date:   Wed, 18 May 2022 10:53:12 +0200
+Message-Id: <16528639938379@kroah.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220516193613.497233635@linuxfoundation.org>
-In-Reply-To: <20220516193613.497233635@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 18 May 2022 14:16:24 +0530
-Message-ID: <CA+G9fYuX+-cb5V=OtgpAH2w762yUTwccmdBOG-GsOJuYLHuQjg@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/19] 4.9.315-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,162 +50,384 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 17 May 2022 at 01:07, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.315 release.
-> There are 19 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 18 May 2022 19:36:02 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.315-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+I'm announcing the release of the 5.15.41 kernel.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+All users of the 5.15 kernel series must upgrade.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The updated 5.15.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.15.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-## Build
-* kernel: 4.9.315-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.9.y
-* git commit: f71a7b3321693ff2eb8f97a521ad23ca53934428
-* git describe: v4.9.314-20-gf71a7b332169
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.3=
-14-20-gf71a7b332169
+thanks,
 
-## Test Regressions (compared to v4.9.313-8-g0d0d580b3778)
-No test regressions found.
+greg k-h
 
-## Metric Regressions (compared to v4.9.313-8-g0d0d580b3778)
-No metric regressions found.
+------------
 
-## Test Fixes (compared to v4.9.313-8-g0d0d580b3778)
-No test fixes found.
+ Makefile                                             |    2 
+ arch/arm/include/asm/io.h                            |    3 +
+ arch/arm/mm/ioremap.c                                |    8 +++
+ arch/arm64/include/asm/io.h                          |    4 +
+ arch/arm64/kernel/Makefile                           |    4 +
+ arch/arm64/kernel/vdso/Makefile                      |    3 -
+ arch/arm64/kernel/vdso32/Makefile                    |    3 -
+ arch/arm64/mm/ioremap.c                              |    8 +++
+ arch/powerpc/kvm/book3s_32_sr.S                      |   26 +++++++++--
+ arch/s390/Makefile                                   |   10 ++++
+ arch/x86/mm/init_64.c                                |    5 +-
+ drivers/base/firmware_loader/main.c                  |   17 +++++++
+ drivers/dma-buf/dma-buf.c                            |    8 +--
+ drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c            |    8 ---
+ drivers/gpu/drm/nouveau/nouveau_backlight.c          |    9 ++-
+ drivers/gpu/drm/nouveau/nvkm/engine/device/tegra.c   |    2 
+ drivers/gpu/drm/vc4/vc4_hdmi.c                       |    1 
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmd.c                  |   13 +++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.h                  |    8 +++
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c                   |    2 
+ drivers/gpu/drm/vmwgfx/vmwgfx_fence.c                |   28 +++++++++---
+ drivers/gpu/drm/vmwgfx/vmwgfx_irq.c                  |   26 +++++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c                  |    8 ++-
+ drivers/hwmon/Kconfig                                |    2 
+ drivers/hwmon/f71882fg.c                             |    5 +-
+ drivers/hwmon/tmp401.c                               |   11 ++++
+ drivers/infiniband/hw/irdma/cm.c                     |    7 ---
+ drivers/interconnect/core.c                          |    8 +++
+ drivers/iommu/arm/arm-smmu/arm-smmu-nvidia.c         |   30 ++++++++++++
+ drivers/net/dsa/bcm_sf2.c                            |    3 +
+ drivers/net/ethernet/aquantia/atlantic/aq_pci_func.c |    4 -
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c       |    4 +
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c           |   10 ++--
+ drivers/net/ethernet/intel/i40e/i40e_main.c          |   27 ++++++-----
+ drivers/net/ethernet/intel/ice/ice.h                 |    1 
+ drivers/net/ethernet/intel/ice/ice_idc.c             |   25 +++++++---
+ drivers/net/ethernet/intel/ice/ice_main.c            |    2 
+ drivers/net/ethernet/intel/ice/ice_ptp.c             |   10 +++-
+ drivers/net/ethernet/mediatek/mtk_ppe.c              |    2 
+ drivers/net/ethernet/mscc/ocelot_flower.c            |    5 +-
+ drivers/net/ethernet/mscc/ocelot_vcap.c              |    9 +++
+ drivers/net/ethernet/pensando/ionic/ionic_bus_pci.c  |    3 -
+ drivers/net/ethernet/sfc/ef10.c                      |    5 ++
+ drivers/net/ethernet/sfc/efx_channels.c              |   21 ++++-----
+ drivers/net/ethernet/sfc/ptp.c                       |   14 +++++-
+ drivers/net/ethernet/sfc/ptp.h                       |    1 
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c        |   15 ------
+ drivers/net/phy/micrel.c                             |    5 +-
+ drivers/net/phy/phy.c                                |    7 ++-
+ drivers/net/phy/sfp.c                                |   12 ++++-
+ drivers/net/wireless/intel/iwlwifi/iwl-dbg-tlv.c     |    2 
+ drivers/net/wireless/mac80211_hwsim.c                |    3 +
+ drivers/platform/surface/aggregator/core.c           |    2 
+ drivers/s390/net/ctcm_mpc.c                          |    6 --
+ drivers/s390/net/ctcm_sysfs.c                        |    5 +-
+ drivers/s390/net/lcs.c                               |    7 +--
+ drivers/slimbus/qcom-ctrl.c                          |    4 -
+ drivers/tty/n_gsm.c                                  |   13 +++--
+ drivers/tty/serial/8250/8250_mtk.c                   |   22 +++++----
+ drivers/tty/serial/digicolor-usart.c                 |    5 --
+ drivers/tty/serial/fsl_lpuart.c                      |   18 +++----
+ drivers/usb/class/cdc-wdm.c                          |    1 
+ drivers/usb/gadget/function/f_uvc.c                  |   32 ++++++++++++-
+ drivers/usb/gadget/function/uvc.h                    |    2 
+ drivers/usb/gadget/function/uvc_v4l2.c               |    3 -
+ drivers/usb/host/xhci-mtk-sch.c                      |   16 +++---
+ drivers/usb/serial/option.c                          |    4 +
+ drivers/usb/serial/pl2303.c                          |    1 
+ drivers/usb/serial/pl2303.h                          |    1 
+ drivers/usb/serial/qcserial.c                        |    2 
+ drivers/usb/typec/tcpm/tcpci.c                       |    2 
+ drivers/usb/typec/tcpm/tcpci_mt6360.c                |   26 +++++++++++
+ drivers/video/fbdev/efifb.c                          |    9 +++
+ drivers/video/fbdev/simplefb.c                       |    8 +++
+ drivers/video/fbdev/vesafb.c                         |    8 +++
+ fs/ceph/file.c                                       |   16 +++++-
+ fs/file_table.c                                      |    1 
+ fs/fs-writeback.c                                    |    4 +
+ fs/gfs2/bmap.c                                       |   11 ++--
+ fs/nfs/fs_context.c                                  |    2 
+ fs/proc/fd.c                                         |   23 +++++++++
+ include/linux/netdev_features.h                      |    4 -
+ include/linux/sunrpc/clnt.h                          |    1 
+ include/net/inet_hashtables.h                        |    2 
+ include/net/secure_seq.h                             |    4 -
+ include/net/tc_act/tc_pedit.h                        |    1 
+ include/trace/events/sunrpc.h                        |    1 
+ include/uapi/linux/virtio_ids.h                      |   14 +++---
+ kernel/cgroup/cpuset.c                               |    7 ++-
+ lib/dim/net_dim.c                                    |   44 +++++++++----------
+ mm/huge_memory.c                                     |    7 ++-
+ mm/memory-failure.c                                  |   15 ------
+ net/batman-adv/fragmentation.c                       |   11 ++++
+ net/core/secure_seq.c                                |   16 ++++--
+ net/ipv4/inet_hashtables.c                           |   42 +++++++++++-------
+ net/ipv4/ping.c                                      |   15 +++++-
+ net/ipv4/route.c                                     |    1 
+ net/ipv6/inet6_hashtables.c                          |    4 -
+ net/mac80211/mlme.c                                  |    6 ++
+ net/netlink/af_netlink.c                             |    1 
+ net/sched/act_pedit.c                                |   26 +++++++++--
+ net/smc/smc_rx.c                                     |    4 -
+ net/sunrpc/auth_gss/gss_rpc_upcall.c                 |    1 
+ net/sunrpc/clnt.c                                    |   33 ++++++++++++++
+ net/sunrpc/xprt.c                                    |    7 ---
+ net/sunrpc/xprtsock.c                                |   16 +++++-
+ net/tls/tls_device.c                                 |    3 +
+ sound/soc/codecs/max98090.c                          |    5 +-
+ sound/soc/soc-ops.c                                  |   18 +++++++
+ sound/soc/sof/sof-pci-dev.c                          |    5 ++
+ tools/testing/selftests/vm/Makefile                  |   10 ++--
+ 111 files changed, 741 insertions(+), 296 deletions(-)
 
-## Metric Fixes (compared to v4.9.313-8-g0d0d580b3778)
-No metric fixes found.
+Adrian-Ken Rueegsegger (1):
+      x86/mm: Fix marking of unused sub-pmd ranges
 
-## Test result summary
-total: 80137, pass: 63338, fail: 858, skip: 13732, xfail: 2209
+Ajit Kumar Pandey (1):
+      ASoC: SOF: Fix NULL pointer exception in sof_pci_probe callback
 
-## Build Summary
-* arm: 238 total, 238 passed, 0 failed
-* arm64: 32 total, 32 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 31 total, 31 passed, 0 failed
+Alex Deucher (1):
+      Revert "drm/amd/pm: keep the BACO feature enabled for suspend"
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-inte[
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* v4l2-compliance
-* vdso
+Alexander Graf (1):
+      KVM: PPC: Book3S PR: Enable MSR_DR for switch_mmu_context()
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Alexandra Winter (3):
+      s390/ctcm: fix variable dereferenced before check
+      s390/ctcm: fix potential memory leak
+      s390/lcs: fix variable dereferenced before check
+
+Andreas Gruenbacher (1):
+      gfs2: Fix filesystem block deallocation for short writes
+
+AngeloGioacchino Del Regno (2):
+      serial: 8250_mtk: Fix UART_EFR register address
+      serial: 8250_mtk: Fix register address for XON/XOFF character
+
+Ashish Mhetre (1):
+      iommu: arm-smmu: disable large page mappings for Nvidia arm-smmu
+
+Camel Guo (1):
+      hwmon: (tmp401) Add OF device ID table
+
+Charan Teja Reddy (1):
+      dma-buf: call dma_buf_stats_setup after dmabuf is in valid list
+
+ChiYuan Huang (1):
+      usb: typec: tcpci_mt6360: Update for BMC PHY setting
+
+Christophe JAILLET (1):
+      drm/nouveau: Fix a potential theorical leak in nouveau_get_backlight_name()
+
+Chunfeng Yun (1):
+      usb: xhci-mtk: fix fs isoc's transfer error
+
+Dan Aloni (1):
+      nfs: fix broken handling of the softreval mount option
+
+Dan Vacura (1):
+      usb: gadget: uvc: allow for application to cleanly shutdown
+
+Daniel Starke (2):
+      tty: n_gsm: fix buffer over-read in gsm_dlci_data()
+      tty: n_gsm: fix mux activation issues in gsm_config()
+
+Duoming Zhou (1):
+      RDMA/irdma: Fix deadlock in irdma_cleanup_cm_core()
+
+Eric Dumazet (2):
+      netlink: do not reset transport header in netlink_recvmsg()
+      tcp: resalt the secret every 10 seconds
+
+Ethan Yang (1):
+      USB: serial: qcserial: add support for Sierra Wireless EM7590
+
+Fabio Estevam (2):
+      net: phy: micrel: Do not use kszphy_suspend/resume for KSZ8061
+      net: phy: micrel: Pass .probe for KS8737
+
+Florian Fainelli (2):
+      net: bcmgenet: Check for Wake-on-LAN interrupt probe deferral
+      net: dsa: bcm_sf2: Fix Wake-on-LAN with mac_link_down()
+
+Francesco Dolcini (1):
+      net: phy: Fix race condition on link status change
+
+Greg Kroah-Hartman (1):
+      Linux 5.15.41
+
+Guangguan Wang (1):
+      net/smc: non blocking recvmsg() return -EAGAIN when no data and signal_pending
+
+Guenter Roeck (1):
+      iwlwifi: iwl-dbg: Use del_timer_sync() before freeing
+
+Hui Tang (1):
+      drm/vc4: hdmi: Fix build error for implicit function declaration
+
+Indan Zupancic (1):
+      fsl_lpuart: Don't enable interrupts too early
+
+Ivan Vecera (1):
+      ice: Fix race during aux device (un)plugging
+
+Javier Martinez Canillas (4):
+      fbdev: simplefb: Cleanup fb_info in .fb_destroy rather than .remove
+      fbdev: efifb: Cleanup fb_info in .fb_destroy rather than .remove
+      fbdev: vesafb: Cleanup fb_info in .fb_destroy rather than .remove
+      fbdev: efifb: Fix a use-after-free due early fb_info cleanup
+
+Jeff Layton (1):
+      ceph: fix setting of xattrs on async created inodes
+
+Jesse Brandeburg (1):
+      dim: initialize all struct fields
+
+Ji-Ze Hong (Peter Hong) (1):
+      hwmon: (f71882fg) Fix negative temperature
+
+Jiapeng Chong (1):
+      sfc: Use swap() instead of open coding it
+
+Jing Xia (1):
+      writeback: Avoid skipping inode writeback
+
+Joel Savitz (1):
+      selftests: vm: Makefile: rename TARGETS to VMTARGETS
+
+Joey Gouly (1):
+      arm64: vdso: fix makefile dependency on vdso.so
+
+Johannes Berg (1):
+      mac80211_hwsim: call ieee80211_tx_prepare_skb under RCU protection
+
+Kalesh Singh (1):
+      procfs: prevent unprivileged processes accessing fdinfo dir
+
+Kees Cook (1):
+      net: chelsio: cxgb4: Avoid potential negative array offset
+
+Lokesh Dhoundiyal (1):
+      ipv4: drop dst in multicast routing path
+
+Manikanta Pubbisetty (1):
+      mac80211: Reset MBSSID parameters upon connection
+
+Manuel Ullmann (1):
+      net: atlantic: always deep reset on pm op, fixing up my null deref regression
+
+Mark Brown (3):
+      ASoC: max98090: Reject invalid values in custom control put()
+      ASoC: max98090: Generate notifications on changes for custom control
+      ASoC: ops: Validate input values in snd_soc_put_volsw_range()
+
+Matthew Hagan (1):
+      net: sfp: Add tx-fault workaround for Huawei MA5671A SFP ONT
+
+Maxim Mikityanskiy (1):
+      tls: Fix context leak on tls_device_down
+
+Maximilian Luz (1):
+      platform/surface: aggregator: Fix initialization order when compiling as builtin module
+
+Miaoqian Lin (1):
+      slimbus: qcom: Fix IRQ check in qcom_slim_probe
+
+Michael Tretter (1):
+      usb: gadget: uvc: rename function to be more consistent
+
+Michal Michalik (1):
+      ice: fix PTP stale Tx timestamps cleanup
+
+Mike Rapoport (1):
+      arm[64]/memremap: don't abuse pfn_valid() to ensure presence of linear map
+
+Naoya Horiguchi (1):
+      mm/hwpoison: use pr_err() instead of dump_page() in get_any_page()
+
+Nicolas Dichtel (1):
+      ping: fix address binding wrt vrf
+
+Paolo Abeni (1):
+      net/sched: act_pedit: really ensure the skb is writable
+
+Randy Dunlap (1):
+      hwmon: (ltq-cputemp) restrict it to SOC_XWAY
+
+Robin Murphy (1):
+      drm/nouveau/tegra: Stop using iommu_present()
+
+Scott Chen (1):
+      USB: serial: pl2303: add device id for HP LM930 Display
+
+Sergey Ryazanov (1):
+      usb: cdc-wdm: fix reading stuck on device close
+
+Shravya Kumbham (1):
+      net: emaclite: Don't advertise 1000BASE-T and do auto negotiation
+
+Shunsuke Mie (1):
+      virtio: fix virtio transitional ids
+
+Stephen Boyd (1):
+      interconnect: Restore sync state by ignoring ipa-virt in provider count
+
+Sven Eckelmann (1):
+      batman-adv: Don't skb_split skbuffs with frag_list
+
+Sven Schnelle (1):
+      s390: disable -Warray-bounds
+
+Sven Schwermer (2):
+      USB: serial: option: add Fibocom L610 modem
+      USB: serial: option: add Fibocom MA510 modem
+
+Taehee Yoo (2):
+      net: sfc: fix memory leak due to ptp channel
+      net: sfc: ef10: fix memory leak in efx_ef10_mtd_probe()
+
+Tariq Toukan (1):
+      net: Fix features skip in for_each_netdev_feature()
+
+Thiébaud Weksteen (1):
+      firmware_loader: use kernel credentials when reading firmware
+
+Trond Myklebust (2):
+      SUNRPC: Ensure that the gssproxy client can start in a connected state
+      SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
+
+Uwe Kleine-König (1):
+      usb: typec: tcpci: Don't skip cleanup in .remove() on error
+
+Vladimir Oltean (4):
+      net: mscc: ocelot: fix last VCAP IS1/IS2 filter persisting in hardware when deleted
+      net: mscc: ocelot: fix VCAP IS2 filters matching on both lookups
+      net: mscc: ocelot: restrict tc-trap actions to VCAP IS2 lookup 0
+      net: mscc: ocelot: avoid corrupting hardware counters when moving VCAP filters
+
+Waiman Long (1):
+      cgroup/cpuset: Remove cpus_allowed/mems_allowed setup in cpuset_init_smp()
+
+Willy Tarreau (6):
+      secure_seq: use the 64 bits of the siphash for port offset calculation
+      tcp: use different parts of the port_offset for index and offset
+      tcp: add small random increments to the source port
+      tcp: dynamically allocate the perturb table used by source ports
+      tcp: increase source port perturb table to 2^16
+      tcp: drop the hash_32() part from the index calculation
+
+Xiaomeng Tong (1):
+      i40e: i40e_main: fix a missing check on list iterator
+
+Xu Yu (2):
+      Revert "mm/memory-failure.c: skip huge_zero_page in memory_failure()"
+      mm/huge_memory: do not overkill when splitting huge_zero_page
+
+Yang Yingliang (3):
+      ionic: fix missing pci_release_regions() on error in ionic_probe()
+      net: ethernet: mediatek: ppe: fix wrong size passed to memset()
+      tty/serial: digicolor: fix possible null-ptr-deref in digicolor_uart_probe()
+
+Zack Rusin (3):
+      drm/vmwgfx: Fix fencing on SVGAv3
+      drm/vmwgfx: Disable command buffers on svga3 without gbobjects
+      drm/vmwgfx: Initialize drm_mode_fb_cmd2
+
