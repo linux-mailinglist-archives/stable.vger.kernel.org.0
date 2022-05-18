@@ -2,146 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAE9052B306
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 09:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B47952B349
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 09:28:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231781AbiERHBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 03:01:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50038 "EHLO
+        id S231979AbiERHQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 03:16:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231802AbiERHBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 03:01:36 -0400
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C68DE8A;
-        Wed, 18 May 2022 00:01:32 -0700 (PDT)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24I2lUpd008024;
-        Wed, 18 May 2022 07:01:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references :
- content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=fTZIl7ju36S+z0kX/Ppjpx6v4edkkJJ/982bi7Dx6aY=;
- b=oXEXlZrXRoPfYcET9j6E2W9jySPDiRA6qvY09K4wCwOi4sJrcLQTMb1LNrNkovEkUeeT
- jGOamP6FYIR1XY4ObrxMtGUZPTmJ8zpuZz7RCbXZj0LMgh6h0dh79hcvNKl9tUjHUQ+u
- xELHxO0AYdSckNESItxL2XJdJJBb58TuWVMO9MnVu009cHFoHlggWw2FSwe+tihkvKN2
- WFBQLYGE94AbheY6DegTymL8pSaitFjrj+FgnFSV5bkW2gTbZWaomBd9tFi5p3+ftez6
- MDv/6lEcnj9Vc9MkEs02yk8jVk9o605HKwA7/KXi7SMbEpV+tbHJVRCOv7+3WP/3Ady5 8A== 
-Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g22uc854c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 May 2022 07:01:25 +0000
-Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 24I6tYA3029638;
-        Wed, 18 May 2022 07:01:25 GMT
-Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2103.outbound.protection.outlook.com [104.47.55.103])
-        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3g22v3qgwb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 18 May 2022 07:01:24 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TMqbpTDEqmq5xWeVOCJFOIW67bJr4SkUsHQjuEY8KeZuIRDRkPCnapUVBEm66faUhCzl3t9xwhkG61Hus3TumGBD1yrtHuEpxmZ1HA3ICkCUZi9D2rg3Nl0uYwkTdFtLPNAi2T8Jbo3gyLngX9ByHmxcNfekVAucNOR4FoIX6cS7ILZK7r0gbFPYw/2/Yb2qHw+US7zK/EaPVe3yHteZWl6hvoFHmZ6U7gYb3BEMu+6eRebARebkYQGi6Guc+2WXeeWifoISIpfxSkQ+JuBeTk6fSVorrOM6RppP3Aih3nd7BZgrObPeCRhfSVLdBPRFTHacvMMNDe2IIA6bQYjszg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fTZIl7ju36S+z0kX/Ppjpx6v4edkkJJ/982bi7Dx6aY=;
- b=HpasIQ9/a22TkyZ8M1BBdg6Kznvhgk3Ex0n4wQ0NK+xK53BWI2lk/idp9GKM8UGbkBVS4bPDwpVnKerihBjMZcmhcPWI4qmud5SjhtBgjkQJwTBTqH/bAWX+OyHkJ4Qp/M5ggHSyhKRl6IMlwsZr7ZPkCTcl00sZMjJFx5G3FnSsZLlvIEhEyyVyMRIZ++CAANO6EXaZtbxVot6Giro6qb7olXcvh13BQYZQJOH7WRJL7Z28vCQxCTZWBTvYNu/rRyQe0PXcoIQLSq5D+OetfQ69Kl8NrTz0t6dkSEImt+xaKscjtXD71+koVdYAYMZiPOsbr5ijoMJohxrnOrtixQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fTZIl7ju36S+z0kX/Ppjpx6v4edkkJJ/982bi7Dx6aY=;
- b=UmZQe/gNNKTI9/LoIYvgvG63OEE/lsvRwLPrKgbWQ8gHWjUJVyKv6JipiAknweBuR2L6PpiF1dsPotTf+XsskpTRvpFkw6om8yNzSL2gicu/5y1XO0nPxOzr/r+5sCkt15uWmm5R9Z1/GmQJ7xhatDJzwV8qRdc6MFDk+ABKstk=
-Received: from SJ0PR10MB4638.namprd10.prod.outlook.com (2603:10b6:a03:2d8::18)
- by BN8PR10MB3393.namprd10.prod.outlook.com (2603:10b6:408:ca::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.14; Wed, 18 May
- 2022 07:01:22 +0000
-Received: from SJ0PR10MB4638.namprd10.prod.outlook.com
- ([fe80::2162:a766:29eb:1d5c]) by SJ0PR10MB4638.namprd10.prod.outlook.com
- ([fe80::2162:a766:29eb:1d5c%7]) with mapi id 15.20.5273.014; Wed, 18 May 2022
- 07:01:22 +0000
-From:   Denis Efremov <denis.e.efremov@oracle.com>
-To:     Larry.Finger@lwfinger.net
-Cc:     Denis Efremov <denis.e.efremov@oracle.com>, phil@philpotter.co.uk,
-        gregkh@linuxfoundation.org, dan.carpenter@oracle.com,
-        straube.linux@gmail.com, linux-staging@lists.linux.dev,
-        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        stable <stable@vger.kernel.org>
-Subject: [PATCH] staging: r8188eu: prevent ->Ssid overflow in rtw_wx_set_scan()
-Date:   Wed, 18 May 2022 11:00:52 +0400
-Message-Id: <20220518070052.108287-1-denis.e.efremov@oracle.com>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <YEHymwsnHewzoam7@mwanda>
-References: <YEHymwsnHewzoam7@mwanda>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: DXXP273CA0003.AREP273.PROD.OUTLOOK.COM
- (2603:1086:300:2::15) To SJ0PR10MB4638.namprd10.prod.outlook.com
- (2603:10b6:a03:2d8::18)
+        with ESMTP id S231949AbiERHPw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 03:15:52 -0400
+Received: from smtp6-g21.free.fr (smtp6-g21.free.fr [IPv6:2a01:e0c:1:1599::15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA5E6110D
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 00:15:49 -0700 (PDT)
+Received: from [10.182.230.56] (unknown [185.228.229.216])
+        (Authenticated sender: casteyde.christian@free.fr)
+        by smtp6-g21.free.fr (Postfix) with ESMTPSA id 0ED0A7802C2;
+        Wed, 18 May 2022 09:15:39 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+        s=smtp-20201208; t=1652858147;
+        bh=U5m2jyKwBwYytTOFTQ3/aV9t2yK+iNmTaAVwRToPSD0=;
+        h=In-Reply-To:References:Subject:From:Date:To:CC:From;
+        b=CwHyHNsCXD9WcD6L8QMghw2r8O5k8E1pcWOt5FzM7C2oMUDg0q228eiOEvmTa86UT
+         lhExytLwL3HBf+QD+f6TL7iZMt4FQTiGGHmD8lPtGK0NK6lF0O7kHe9xddhLgNErZt
+         TyGEUWj2qFcnU1ubkcuKk0NbtX85hXh604VxR4rAoRWxN3MwAszjAJCokae0cJ9Zfb
+         J0AR8U3PDKQjTjInGG4JYwpikIKiNhL6LqeeENm+gVf4cIm39zUH8UQ2rnL1PZkq3+
+         BWqkA3a2tu+LlFo639VuGXH+m5VCwwA35Y9ISwiZYZIQjeylkVfkcpBsMm/WreAGh0
+         2ZJy3cnWJsVwA==
+In-Reply-To: <CAAd53p69LqeH7pD2S4T-D4i_+PEaejb12kx7rbapPrPCfQ9-iQ@mail.gmail.com>
+References: <CAAd53p7Sw+EAjn2fH++g7dQaAHxzTqdN81f6xNVKy4hqCWgztw@mail.gmail.com> <75938817.547810377.1652809118472.JavaMail.root@zimbra40-e7.priv.proxad.net> <CAAd53p69LqeH7pD2S4T-D4i_+PEaejb12kx7rbapPrPCfQ9-iQ@mail.gmail.com>
+X-Referenced-Uid: 151144
+Thread-Topic: Re: [REGRESSION] Laptop with Ryzen 4600H fails to resume video since 5.17.4 (works 5.17.3)
+X-Blue-Identity: !l=258&o=43&fo=82534&pl=161&po=0&qs=PREFIX&f=HTML&n=Christian%20Casteyde&e=casteyde.christian%40free.fr&m=!%3ANTM3NzFlMTMtOWRlNi00YjEyLTk1ODktNzE2YmFlN2E2MmNl%3ASU5CT1g%3D%3AMTUxMTQ0%3AANSWERED&p=123&q=SHOW
+X-Is-Generated-Message-Id: true
+User-Agent: Android
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: e8b46a19-e64f-4b8a-0050-08da389c36d6
-X-MS-TrafficTypeDiagnostic: BN8PR10MB3393:EE_
-X-Microsoft-Antispam-PRVS: <BN8PR10MB3393253D4DEA13006A6F52FFD3D19@BN8PR10MB3393.namprd10.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: TqBn32FvkGDf1N9Nko2TKe9sf+7EdelKiDfJLDhZdF4HlRS0mcEQwQQ6okTxGthJA/ls0H+62Yi8UkzRpRN3pWRpFlIB85tGZYsQNteCOXrF5xaMxi/140taUYEChk7lFo0rApjGQXP4KmBTSVQxBJddl9DLohpQzutVkmlrZfAR2GYsg2YfaXM0GLO8l+zACTD3QewlMpzlDR7mjH/jJWoIehF6Uu0p2QIkkZXCYnk/RJaOiyKj1JnAfu2ZEuX/di2KE2zlmKV04jr/XtTFysZtj4au+oJVOSjfvVZDvvpVSQN9I52vAlMQ5+pbcWHe6B/nvaUehi0YYkAtxbfFVjqdl9l2Feu5ejrifSMjGz68OZl5pZVhg1V9GAwiHzAHRswWzE58S2MogSqUwXDVymxLS4H5hTaZg0GDABA44rt2sOAR7F2qaFQcMGsnwtq712Y+7G+6P2MZK097b/Rq4p+xT/Qqf1juaXRzLUzWOgCMF5rmoeNAsL9cNx7KDVkPO1X9SIh9WgX/Aoj3RTYC55aWFTU3t5YfN7qfTcA2EMzifvt6S8EMdIMSqSDE0mainwFCfn6M95+5VkhB6BUrVQGmmDw/GGKv0XJeWoQDxhc5y5WFgz1erMt/O4EEWHAEZD9tFTbs6Pui0Dq+etJYyQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR10MB4638.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(26005)(5660300002)(8676002)(6506007)(4326008)(2906002)(6512007)(6916009)(36756003)(6666004)(86362001)(66946007)(186003)(66476007)(54906003)(316002)(38100700002)(66556008)(508600001)(6486002)(1076003)(2616005)(8936002)(103116003)(83380400001);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?ssXNxNNRazykBgYWJtcvXgPAT3DfL6LKJgUx0vRFpH3LXZmJUbyC30h7ArRL?=
- =?us-ascii?Q?cUlQ+UgL1tTsPszc4rDXWBtd/qB9Db8jWfqQ1JW+cvRYeSDcJVxh4yK617sT?=
- =?us-ascii?Q?88oWDdVrqfS/yrId+Ev90RkDUHIgAqVnlvhACeULgW/lbsqT4toRoUtu4G2W?=
- =?us-ascii?Q?TBEx339bJVmYkfgUCFSFDy3oYUmQvhHMCmmXkKGY4LUJJheDpFJlKQXlbu6W?=
- =?us-ascii?Q?HdCPLLK7/eXRc9ZxEeSBk9yANecUvjvthzEjxcnWNZD1a2S0OETGpgU9HGKT?=
- =?us-ascii?Q?+lmS/p3vU/lwmDQf7GpDE7JWU1uxEgcyRclHAffew6C2wEI9GQdNsApM3uwx?=
- =?us-ascii?Q?VLqi9xS5exjGrii7r4G0emuJn9OlbOI9ZHwHEkBWBF0kKIY95RT76QOiZj7R?=
- =?us-ascii?Q?gpxsjXwaCWClSmCHrH2a4oHANOnVi2SsMG231WXaygGDxW/KNgsEcFMPY7Ja?=
- =?us-ascii?Q?ulg8FLp0dxgeii+Wza0cueEJ8Gjf+0/rCt3D2epqGJ9F9HRr+njy8B6+FExA?=
- =?us-ascii?Q?AiYOg4CGLsnFimoEgvL9536ao2AY8NhnBjZ1HaDp8tDKK5vsznk3Wi/DY5eu?=
- =?us-ascii?Q?PMpUBhYBRaiGQPcSEnAv+w2RbiLn16Xv0NXVuYXazrfDfGZnBk1ceoNZCCNb?=
- =?us-ascii?Q?MAgOk8rQeRfYfxmOk83NmzrRnHERGPJJAADEDoXT30V+L9oy46eC7/V0duzy?=
- =?us-ascii?Q?YbUKgqWXArgR5I9x+sQk22U2MTwr0oVl36KcwW6sg1HyNsIM6IglJ3JzJkF4?=
- =?us-ascii?Q?Qb+zsn0w/FWBpJYMQ/mYp4WlrT/kXRoSFiFw6uUKA+wBfrb+BiurGp7OT9cu?=
- =?us-ascii?Q?Gq+erpp7YdIUFYOl/p4BUdbXnzMpO+oVdVuOI6gmZIoIv4Xp1lXRzUZtgEWA?=
- =?us-ascii?Q?wvuRAH+Ri57VpLruwY2D0mzSF8Qh+/E1q67lCOAxW6XMaX/H+Z6WLDDaw//2?=
- =?us-ascii?Q?Rqym3UbfXt0ChJdkyZoeZXH8SaWZUstDnj2+DCM9Uk+8EVq9EhxAOC8gH7X2?=
- =?us-ascii?Q?IjBdSs/yzbzme501mW9xq0id36mu5ilxxekf+aGidat2DNomWhbAyJR233N3?=
- =?us-ascii?Q?wVk4uTNs1kHXGLqu1lJ+UwyTPYn7XV2M0vbeBDGKKs/pmX9Tbvu2IwKTuFVt?=
- =?us-ascii?Q?O025VqbvTHZ6llJAEfzojcaEz7WUVa8ZlPvlumfBPXn7grUDct2n6v6lWxzg?=
- =?us-ascii?Q?n6BwA2Vibe2Dyx8hi0P00lsLtrpMozyAGA0VnmF0dp+gvZnr//Uv6fVYNKl1?=
- =?us-ascii?Q?0Zweqqz2rxiLTogeoi5KKEAM8JPu3rC3lXGrPMLxutA0/DsI9TDLATzilGOS?=
- =?us-ascii?Q?vv+eN2JeAd9KxO9lLfk0i810uOf+NFPxSPFjin80VKf/Ai+hCM0r/IlD7hkd?=
- =?us-ascii?Q?pD1Ykc7bScZSFvc82F5Mmq2ZvXGyt7Pzeo8ZwLA9KjZ0JoQrrYHcaIMWkt+v?=
- =?us-ascii?Q?YARcgq2QMXSErD70CEgQHU907fPV19OU3sBHS5F2cTu9Qjc1KxpmRd9EXOKi?=
- =?us-ascii?Q?qZNOS3nH3yC5k1D4Uvlqo2sJuNGVpyuICUPHCx86S5eUADIOdSMOBthfHqqR?=
- =?us-ascii?Q?DB9pdJHg2no9rwSNywi4v9wP8oRjhGGgURdInqJ0LjnIcQsPfA4QivfIbRbP?=
- =?us-ascii?Q?NnnY7wR+IFSxltJPFvLSPMZuyt1eWdMzhpSQHKOUekFe3JW8Na1pB/X8r5eD?=
- =?us-ascii?Q?dWb//PLKXr3qgNwDvzaCjaN8OC3Mj+Mf7o+15zPlyWQz6AjI33OjKe2FY/om?=
- =?us-ascii?Q?yEVi7Whs0Qu3vMZDkc+i+My0iu9tmRI=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e8b46a19-e64f-4b8a-0050-08da389c36d6
-X-MS-Exchange-CrossTenant-AuthSource: SJ0PR10MB4638.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2022 07:01:22.3332
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8p/2SuECRIhEWBS9aLXIIIuGTuDY8RmYe4WGWUmEl1Ib0wSERklBolr3Z1xiI9eIk+GaHmaS/i8vTPc+QiQmI/Bmf96zFKh/4ArP22uZHuE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR10MB3393
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486,18.0.874
- definitions=2022-05-18_02:2022-05-17,2022-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxscore=0 suspectscore=0
- phishscore=0 bulkscore=0 adultscore=0 mlxlogscore=999 malwarescore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205180036
-X-Proofpoint-GUID: DGkfysnRvqk2Q0mgVagQI8-ud--WNIgj
-X-Proofpoint-ORIG-GUID: DGkfysnRvqk2Q0mgVagQI8-ud--WNIgj
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain;
+ charset=UTF-8
+Subject: Re: [REGRESSION] Laptop with Ryzen 4600H fails to resume video since 5.17.4 (works 5.17.3)
+From:   Christian Casteyde <casteyde.christian@free.fr>
+Date:   Wed, 18 May 2022 09:15:38 +0200
+To:     Kai-Heng Feng <kai.heng.feng@canonical.com>
+CC:     stable@vger.kernel.org,
+        Thorsten Leemhuis <regressions@leemhuis.info>,
+        regressions@lists.linux.dev,
+        alexander deucher <alexander.deucher@amd.com>,
+        gregkh@linuxfoundation.org,
+        Mario Limonciello <mario.limonciello@amd.com>
+Message-ID: <d2a11b8c-43fe-4f37-9ac6-5fee9be24682@free.fr>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -149,38 +60,1242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->Ssid[] array.
+This laptop has never managed to suspend correctly at first try=2E However =
+on second try without the commit, it does work=2E 
+What I do is:
+- try firs=
+t, the suspend fails but the screen remains blank=2E
+- press the power butt=
+on, that does something that resumes the screen
+- try second, and this time=
+s it works=2E
+I will append a dmesg output with the second pass also when i=
+t works=2E
+FYI we also tried to find the first pass failure while chasing a=
+nother previous regression but we didn't managed=2E
+With the regression, I =
+cannot resume from the first try at all (either the laptop remains stuck, o=
+r=C2=A0 it resumes the screen but it lags with all the timeouts in dmesg)=
+=2E So it 'doesnt work worse'=2E
 
-Fixes: 2b42bd58b321 ("staging: r8188eu: introduce new os_dep dir for RTL8188eu driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Denis Efremov <denis.e.efremov@oracle.com>
+CC
+
+=E2=81=A3T=C3=A9l=C3=A9charger BlueMa=
+il pour Android =E2=80=8B
+
+Le 18 mai 2022 =C3=A0 04:08, =C3=A0 04:08, Kai-H=
+eng Feng <kai=2Eheng=2Efeng@canonical=2Ecom> a =C3=A9crit:
+>On Wed, May 18,=
+ 2022 at 1:38 AM <casteyde=2Echristian@free=2Efr> wrote:
+>>
+>> dmesg logs
+>=
+
+>Actually, the "good" is still no good:
+>[   43=2E375323] PM: suspend entr=
+y (deep)
+>=2E=2E=2E
+>[   43=2E695342] PM: late suspend of devices failed
+>=
+=2E=2E=2E
+>[   44=2E554108] PM: suspend exit
+>[   44=2E554168] PM: suspend =
+entry (s2idle)
+>
+>So we need to find out why the suspend failed at first pl=
+ace=2E
+>
+>Kai-Heng
+>
+>>
+>> ----- Mail original -----
+>> De: "Kai-Heng Feng"=
+ <kai=2Eheng=2Efeng@canonical=2Ecom>
+>> =C3=80: "Christian Casteyde" <caste=
+yde=2Echristian@free=2Efr>
+>> Cc: stable@vger=2Ekernel=2Eorg, "Thorsten Lee=
+mhuis"
+><regressions@leemhuis=2Einfo>, regressions@lists=2Elinux=2Edev, "al=
+exander
+>deucher" <alexander=2Edeucher@amd=2Ecom>, gregkh@linuxfoundation=
+=2Eorg,
+>"Mario Limonciello" <mario=2Elimonciello@amd=2Ecom>
+>> Envoy=C3=A9=
+: Mardi 17 Mai 2022 08:58:30
+>> Objet: Re: [REGRESSION] Laptop with Ryzen 4=
+600H fails to resume video
+>since 5=2E17=2E4 (works 5=2E17=2E3)
+>>
+>> On Tu=
+e, May 17, 2022 at 2:36 PM Christian Casteyde
+>> <casteyde=2Echristian@free=
+=2Efr> wrote:
+>> >
+>> > No, the problem is there even without acpicall=2E F=
+yi I use it to
+>shutdown the NVidia card that eats the battery otherwise=2E=
+
+>> >
+>> > I managed to get a dmesg output with 2=2E18rc7 I will post it th=
+is
+>evening (basically exact same behavior as 2=2E17=2E4)=2E
+>>
+>> Can you =
+please also attach dmesg without the offending commit (i=2Ee=2E
+>> when it'=
+s working)?
+>>
+>> Kai-Heng
+>>
+>> >
+>> > CC
+>> >
+>> > =E2=81=A3T=C3=A9l=C3=
+=A9charger BlueMail pour Android
+>> >
+>> > Le 17 mai 2022 =C3=A0 04:03, =C3=
+=A0 04:03, Kai-Heng Feng
+><kai=2Eheng=2Efeng@canonical=2Ecom> a =C3=A9crit:=
+
+>> > >On Tue, May 17, 2022 at 1:23 AM Christian Casteyde
+>> > ><casteyde=
+=2Echristian@free=2Efr> wrote:
+>> > >>
+>> > >> I've tried with 5=2E18-rc7, =
+it doesn't work either=2E I guess 5=2E18
+>branch
+>> > >have all
+>> > >> com=
+mits=2E
+>> > >>
+>> > >> full dmesg appended (not for 5=2E18, I didn't manag=
+e to resume up
+>to
+>> > >the point
+>> > >> to get a console for now)=2E
+>> =
+> >
+>> > >Interestingly, I found you are using acpi_call:
+>> > >[   30=2E66=
+7348] acpi_call: loading out-of-tree module taints
+>kernel=2E
+>> > >
+>> > >=
+Does removing the acpi_call solve the issue?
+>> > >
+>> > >Kai-Heng
+>> > >
+>=
+> > >>
+>> > >> CC
+>> > >>
+>> > >> Le lundi 16 mai 2022, 04:47:25 CEST Kai-H=
+eng Feng a =C3=A9crit :
+>> > >> > [+Cc Mario]
+>> > >> >
+>> > >> > On Sun, M=
+ay 15, 2022 at 1:34 AM Christian Casteyde
+>> > >> >
+>> > >> > <casteyde=2Ec=
+hristian@free=2Efr> wrote:
+>> > >> > > I've applied the commit a56f445f807b=
+0276 on 5=2E17=2E7 and
+>tested=2E
+>> > >> > > This does not fix the problem=
+ on my laptop=2E
+>> > >> >
+>> > >> > Maybe some commits are still missing?
+=
+>> > >> >
+>> > >> > > For informatio, here is a part of the log around the =
+suspend
+>> > >process:
+>> > >> > Is it possible to attach full dmesg?
+>> > =
+>> >
+>> > >> > Kai-Heng
+>> > >> >
+>> > >> > > May 14 19:21:41 geek500 kerne=
+l: snd_hda_intel 0000:01:00=2E1:
+>can't
+>> > >change
+>> > >> > > power stat=
+e from D3cold to D0 (config space inaccessible)
+>> > >> > > May 14 19:21:41=
+ geek500 kernel: PM: late suspend of devices
+>> > >failed
+>> > >> > > May 1=
+4 19:21:41 geek500 kernel: ------------[ cut here
+>> > >]------------
+>> > =
+>> > > May 14 19:21:41 geek500 kernel: i2c_designware AMDI0010:03:
+>> > >Tr=
+ansfer while
+>> > >> > > suspended
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: pci 0000:00:00=2E2: can't
+>derive
+>> > >routing for
+>> > >> > > PCI INT=
+ A
+>> > >> > > May 14 19:21:41 geek500 kernel: pci 0000:00:00=2E2: PCI INT =
+A:
+>no
+>> > >GSI
+>> > >> > > May 14 19:21:41 geek500 kernel: WARNING: CPU: =
+9 PID: 1972 at
+>> > >drivers/i2c/
+>> > >> > > busses/i2c-designware-master=
+=2Ec:570 i2c_dw_xfer+0x3f6/0x440
+>> > >> > > May 14 19:21:41 geek500 kernel=
+: Modules linked in: [last
+>> > >unloaded:
+>> > >> > > acpi_call] May 14 19=
+:21:41 geek500 kernel: CPU: 9 PID: 1972
+>Comm:
+>> > >> > > kworker/u32:18 T=
+ainted: G           O      5=2E17=2E7+ #7
+>> > >> > > May 14 19:21:41 geek5=
+00 kernel: Hardware name: HP HP
+>Pavilion
+>> > >Gaming
+>> > >> > > Laptop
+>=
+> > >> > > 15-ec1xxx/87B2, BIOS F=2E25 08/18/2021
+>> > >> > > May 14 19:21:=
+41 geek500 kernel: Workqueue: events_unbound
+>> > >> > > async_run_entry_fn=
+ May 14 19:21:41 geek500 kernel: RIP:
+>> > >> > > 0010:i2c_dw_xfer+0x3f6/0x=
+440
+>> > >> > > May 14 19:21:41 geek500 kernel: Code: c6 05 db 31 45 01 01
+=
+>4c 8b
+>> > >67 50 4d
+>> > >> > > 85 e4 75 03 4c 8b 27 e8 fc e1 e9 ff 4c 89=
+ e2 48 c7 c7 00 01
+>cc
+>> > >> > >
+>> > >> > >  ab 48 89 c6 e8 b3 4f 45 00 =
+<0f> 0b 41 be 94 ff ff ff e9 cc
+>fc ff
+>> > >ff e9 2d
+>> > >> > >  9c>
+>> >=
+ >> > > 4b 00 83 f8 01 74
+>> > >> > > May 14 19:21:41 geek500 kernel: RSP: =
+0018:ffff8dbfc31e7c68
+>> > >EFLAGS:
+>> > >> > > 00010286
+>> > >> > > May 14=
+ 19:21:41 geek500 kernel: RAX: 0000000000000000 RBX:
+>> > >> > > ffff888540=
+f170e8
+>> > >> > > RCX: 0000000000000be5
+>> > >> > > May 14 19:21:41 geek50=
+0 kernel: RDX: 0000000000000000 RSI:
+>> > >> > > 0000000000000086
+>> > >> >=
+ > RDI: ffffffffac858df8
+>> > >> > > May 14 19:21:41 geek500 kernel: RBP: f=
+fff888540f170e8 R08:
+>> > >> > > ffffffffabe46d60
+>> > >> > > R09: 00000000=
+ac86a0f6
+>> > >> > > May 14 19:21:41 geek500 kernel: R10: ffffffffffffffff =
+R11:
+>> > >> > > ffffffffffffffff
+>> > >> > > R12: ffff888540f5c070
+>> > >>=
+ > > May 14 19:21:41 geek500 kernel: R13: ffff8dbfc31e7d70 R14:
+>> > >> > >=
+ 00000000ffffff94
+>> > >> > > R15: ffff888540f17028
+>> > >> > > May 14 19:2=
+1:41 geek500 kernel: FS:  0000000000000000(0000)
+>> > >> > > GS:ffff88885f6=
+40000(0000) knlGS:0000000000000000
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: CS:  0010 DS: 0000 ES: 0000
+>CR0:
+>> > >> > > 0000000080050033
+>> > >> =
+> > May 14 19:21:41 geek500 kernel: CR2: 00007f1984067028 CR3:
+>> > >> > > =
+0000000045e0c000
+>> > >> > > CR4: 0000000000350ee0
+>> > >> > > May 14 19:21=
+:41 geek500 kernel: Call Trace:
+>> > >> > > May 14 19:21:41 geek500 kernel:=
+  <TASK>
+>> > >> > > May 14 19:21:41 geek500 kernel:  ? dequeue_entity+0xd4=
+/0x250
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> > >newidle_balance=
+=2Econstprop=2E0+0x1f7/0x3b0
+>> > >> > > May 14 19:21:41 geek500 kernel:  _=
+_i2c_transfer+0x16d/0x520
+>> > >> > > May 14 19:21:41 geek500 kernel:  i2c_=
+transfer+0x7a/0xd0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>__i2c_hid_=
+command+0x106/0x2d0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>amd_gpi=
+o_irq_enable+0x19/0x50
+>> > >> > > May 14 19:21:41 geek500 kernel:  i2c_hid=
+_set_power+0x4a/0xd0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>i2c_hid_=
+core_resume+0x60/0xb0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> > >=
+acpi_subsys_resume_early+0x50/0x50
+>> > >> > > May 14 19:21:41 geek500 kern=
+el:  dpm_run_callback+0x1d/0xd0
+>> > >> > > May 14 19:21:41 geek500 kernel:=
+  device_resume+0x122/0x230
+>> > >> > > May 14 19:21:41 geek500 kernel:  as=
+ync_resume+0x14/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>async_ru=
+n_entry_fn+0x1b/0xa0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>process_=
+one_work+0x1d3/0x3a0
+>> > >> > > May 14 19:21:41 geek500 kernel:  worker_th=
+read+0x48/0x3c0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>rescuer_thr=
+ead+0x380/0x380
+>> > >> > > May 14 19:21:41 geek500 kernel:  kthread+0xd3/0=
+x100
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> > >kthread_complete_=
+and_exit+0x20/0x20
+>> > >> > > May 14 19:21:41 geek500 kernel:  ret_from_fo=
+rk+0x22/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel:  </TASK>
+>> > >> >=
+ > May 14 19:21:41 geek500 kernel: ---[ end trace
+>0000000000000000
+>> > >]=
 ---
+>> > >> > > May 14 19:21:41 geek500 kernel: i2c_hid_acpi
+>i2c-ELAN0718:=
+00:
+>> > >failed to
+>> > >> > > change power setting=2E
+>> > >> > > May 14 =
+19:21:41 geek500 kernel: PM: dpm_run_callback():
+>> > >> > > acpi_subsys_re=
+sume+0x0/0x50 returns -108
+>> > >> > > May 14 19:21:41 geek500 kernel: i2c_=
+hid_acpi
+>i2c-ELAN0718:00: PM:
+>> > >failed
+>> > >> > > to
+>> > >> > > resu=
+me async: error -108
+>> > >> > > May 14 19:21:41 geek500 kernel: amdgpu 000=
+0:05:00=2E0:
+>> > >> > > [drm:amdgpu_ring_test_helper] *ERROR* ring gfx tes=
+t failed
+>(-110)
+>> > >> > > May 14 19:21:41 geek500 kernel:
+>> > >[drm:amd=
+gpu_device_ip_resume_phase2]
+>> > >> > > *ERROR* resume of IP block <gfx_v9=
+_0> failed -110
+>> > >> > > May 14 19:21:41 geek500 kernel: amdgpu 0000:05:=
+00=2E0: amdgpu:
+>> > >> > > amdgpu_device_ip_resume failed (-110)=2E
+>> > >=
+> > > May 14 19:21:41 geek500 kernel: PM: dpm_run_callback():
+>> > >> > > p=
+ci_pm_resume+0x0/0x120 returns -110
+>> > >> > > May 14 19:21:41 geek500 ker=
+nel: amdgpu 0000:05:00=2E0: PM:
+>failed
+>> > >to resume
+>> > >> > > async: =
+error -110
+>> > >> > > May 14 19:21:41 geek500 kernel: ------------[ cut he=
+re
+>> > >]------------
+>> > >> > > May 14 19:21:41 geek500 kernel: AMDI0010=
+:03 already disabled
+>> > >> > > May 14 19:21:41 geek500 kernel: WARNING: C=
+PU: 6 PID: 1091 at
+>> > >drivers/clk/
+>> > >> > > clk=2Ec:971 clk_core_disa=
+ble+0x80/0x1a0
+>> > >> > > May 14 19:21:41 geek500 kernel: Modules linked i=
+n: [last
+>> > >unloaded:
+>> > >> > > acpi_call] May 14 19:21:41 geek500 ker=
+nel: CPU: 6 PID: 1091
+>Comm:
+>> > >> > > kworker/6:3 Tainted: G W  O      5=
+=2E17=2E7+ #7
+>> > >> > > May 14 19:21:41 geek500 kernel: Hardware name: HP=
+ HP
+>Pavilion
+>> > >Gaming
+>> > >> > > Laptop
+>> > >> > > 15-ec1xxx/87B2, B=
+IOS F=2E25 08/18/2021
+>> > >> > > May 14 19:21:41 geek500 kernel: Workqueue=
+: pm
+>pm_runtime_work
+>> > >> > > May 14 19:21:41 geek500 kernel: RIP:
+>> >=
+ >0010:clk_core_disable+0x80/0x1a0
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: Code: 10 e8 e4 4a d1 00 0f
+>1f 44
+>> > >00 00 48
+>> > >> > > 8b 5b 30 4=
+8 85 db 74 b6 8b 43 7c 85 c0 75 a4 48 8b 33 48 c7
+>c7 7d
+>> > >87 c4
+>> > >=
+> > > ab e8 79 7a 9a 00 <0f> 0b 5b 5d c3 65 8b 05 5c a1 92 55 89
+>c0 48
+>> =
+> >0f a3 05
+>> > >> > > 4a 61 9d 01 May 14 19:21:41 geek500 kernel: RSP:
+>>=
+ > >0018:ffff8dbfc1c47d50
+>> > >> > > EFLAGS: 00010082 May 14 19:21:41 geek=
+500 kernel:
+>> > >> > > May 14 19:21:41 geek500 kernel: RAX: 00000000000000=
+00 RBX:
+>> > >> > > ffff8885401b6300
+>> > >> > > RCX: 0000000000000027
+>> >=
+ >> > > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
+>> > >> =
+> > 0000000000000001
+>> > >> > > RDI: ffff88885f59f460
+>> > >> > > May 14 1=
+9:21:41 geek500 kernel: RBP: 0000000000000283 R08:
+>> > >> > > ffffffffabf2=
+6da8
+>> > >> > > R09: 00000000ffffdfff
+>> > >> > > May 14 19:21:41 geek500 =
+kernel: R10: ffffffffabe46dc0 R11:
+>> > >> > > ffffffffabe46dc0
+>> > >> > >=
+ R12: ffff8885401b6300
+>> > >> > > May 14 19:21:41 geek500 kernel: R13: fff=
+f888540fc30f4 R14:
+>> > >> > > 0000000000000008
+>> > >> > > R15: 0000000000=
+000000
+>> > >> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(00=
+00)
+>> > >> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
+>> > >> > =
+> May 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000
+>CR0:
+>> > >>=
+ > > 0000000080050033
+>> > >> > > May 14 19:21:41 geek500 kernel: CR2: 0000=
+0000010fa990 CR3:
+>> > >> > > 0000000102956000
+>> > >> > > CR4: 00000000003=
+50ee0
+>> > >> > > May 14 19:21:41 geek500 kernel: Call Trace:
+>> > >> > > M=
+ay 14 19:21:41 geek500 kernel:  <TASK>
+>> > >> > > May 14 19:21:41 geek500 =
+kernel:  clk_disable+0x24/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel: =
 
-This patch is a copy of Dan's 74b6b20df8cf (CVE-2021-28660).
-Drivers r8188eu and rtl8188eu share the same code.
+>i2c_dw_prepare_clk+0x74/0xd0
+>> > >> > > May 14 19:21:41 geek500 kernel: =
 
- drivers/staging/r8188eu/os_dep/ioctl_linux.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+>dw_i2c_plat_suspend+0x2e/0x40
+>> > >> > > May 14 19:21:41 geek500 kernel:=
 
-diff --git a/drivers/staging/r8188eu/os_dep/ioctl_linux.c b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-index eb9375b0c660..a2692ce02bc2 100644
---- a/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-+++ b/drivers/staging/r8188eu/os_dep/ioctl_linux.c
-@@ -1131,9 +1131,11 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
- 						break;
- 					}
- 					sec_len = *(pos++); len -= 1;
--					if (sec_len > 0 && sec_len <= len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						ssid_index++;
- 					}
- 					pos += sec_len;
--- 
-2.35.3
+>> > >acpi_subsys_runtime_suspend+0x9/0x20
+>> > >> > > May 14 19:21:41 gee=
+k500 kernel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 g=
+eek500 kernel:  __rpm_callback+0x3f/0x150
+>> > >> > > May 14 19:21:41 geek5=
+00 kernel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 gee=
+k500 kernel:  rpm_callback+0x54/0x60
+>> > >> > > May 14 19:21:41 geek500 ke=
+rnel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 geek500 =
+kernel:  rpm_suspend+0x142/0x720
+>> > >> > > May 14 19:21:41 geek500 kernel=
+:  pm_runtime_work+0x8f/0xa0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>=
+process_one_work+0x1d3/0x3a0
+>> > >> > > May 14 19:21:41 geek500 kernel:  w=
+orker_thread+0x48/0x3c0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>res=
+cuer_thread+0x380/0x380
+>> > >> > > May 14 19:21:41 geek500 kernel:  kthrea=
+d+0xd3/0x100
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> > >kthread_c=
+omplete_and_exit+0x20/0x20
+>> > >> > > May 14 19:21:41 geek500 kernel:  ret=
+_from_fork+0x22/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel:  </TASK>
+>=
+> > >> > > May 14 19:21:41 geek500 kernel: ---[ end trace
+>0000000000000000=
+
+>> > >]---
+>> > >> > > May 14 19:21:41 geek500 kernel: ------------[ cut h=
+ere
+>> > >]------------
+>> > >> > > May 14 19:21:41 geek500 kernel: AMDI001=
+0:03 already
+>unprepared
+>> > >> > > May 14 19:21:41 geek500 kernel: WARNIN=
+G: CPU: 6 PID: 1091 at
+>> > >drivers/clk/
+>> > >> > > clk=2Ec:829 clk_core_=
+unprepare+0xb1/0x1a0
+>> > >> > > May 14 19:21:41 geek500 kernel: Modules li=
+nked in: [last
+>> > >unloaded:
+>> > >> > > acpi_call] May 14 19:21:41 geek5=
+00 kernel: CPU: 6 PID: 1091
+>Comm:
+>> > >> > > kworker/6:3 Tainted: G W  O =
+     5=2E17=2E7+ #7
+>> > >> > > May 14 19:21:41 geek500 kernel: Hardware na=
+me: HP HP
+>Pavilion
+>> > >Gaming
+>> > >> > > Laptop
+>> > >> > > 15-ec1xxx/8=
+7B2, BIOS F=2E25 08/18/2021
+>> > >> > > May 14 19:21:41 geek500 kernel: Wor=
+kqueue: pm
+>pm_runtime_work
+>> > >> > > May 14 19:21:41 geek500 kernel: RIP=
+:
+>> > >0010:clk_core_unprepare+0xb1/0x1a0
+>> > >> > > May 14 19:21:41 geek=
+500 kernel: Code: 40 00 66 90 48 8b 5b
+>30 48
+>> > >85 db 74
+>> > >> > > a2=
+ 8b 83 80 00 00 00 85 c0 0f 85 79 ff ff ff 48 8b 33 48 c7
+>c7 35
+>> > >87 c=
+4
+>> > >> > > ab e8 18 7c 9a 00 <0f> 0b 5b c3 65 8b 05 fc a2 92 55 89 c0
+>4=
+8 0f
+>> > >a3 05 ea
+>> > >> > > 62 9d 01 73 May 14 19:21:41 geek500 kernel:=
+ RSP:
+>> > >0018:ffff8dbfc1c47d60
+>> > >> > > EFLAGS: 00010286 May 14 19:21=
+:41 geek500 kernel: RAX:
+>> > >0000000000000000
+>> > >> > > RBX: ffff888540=
+1b6300 RCX: 0000000000000027
+>> > >> > > May 14 19:21:41 geek500 kernel: RD=
+X: ffff88885f59f468 RSI:
+>> > >> > > 0000000000000001
+>> > >> > > RDI: ffff=
+88885f59f460
+>> > >> > > May 14 19:21:41 geek500 kernel: RBP: ffff8885401b6=
+300 R08:
+>> > >> > > ffffffffabf26da8
+>> > >> > > R09: 00000000ffffdfff
+>> =
+> >> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
+>> > >>=
+ > > ffffffffabe46dc0
+>> > >> > > R12: 0000000000000000
+>> > >> > > May 14 =
+19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
+>> > >> > > 00000000000=
+00008
+>> > >> > > R15: 0000000000000000
+>> > >> > > May 14 19:21:41 geek500=
+ kernel: FS:  0000000000000000(0000)
+>> > >> > > GS:ffff88885f580000(0000) =
+knlGS:0000000000000000
+>> > >> > > May 14 19:21:41 geek500 kernel: CS:  001=
+0 DS: 0000 ES: 0000
+>CR0:
+>> > >> > > 0000000080050033
+>> > >> > > May 14 1=
+9:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
+>> > >> > > 000000010295=
+6000
+>> > >> > > CR4: 0000000000350ee0
+>> > >> > > May 14 19:21:41 geek500 =
+kernel: Call Trace:
+>> > >> > > May 14 19:21:41 geek500 kernel:  <TASK>
+>> =
+> >> > > May 14 19:21:41 geek500 kernel:  clk_unprepare+0x1f/0x30
+>> > >> >=
+ > May 14 19:21:41 geek500 kernel: 
+>i2c_dw_prepare_clk+0x7c/0xd0
+>> > >> >=
+ > May 14 19:21:41 geek500 kernel: 
+>dw_i2c_plat_suspend+0x2e/0x40
+>> > >> =
+> > May 14 19:21:41 geek500 kernel:
+>> > >acpi_subsys_runtime_suspend+0x9/0=
+x20
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>acpi_dev_suspend+0x160/=
+0x160
+>> > >> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0x15=
+0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>acpi_dev_suspend+0x160/0x=
+160
+>> > >> > > May 14 19:21:41 geek500 kernel: done=2E
+>> > >> > > May 14 =
+19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
+>> > >> > > May 14 19:21:4=
+1 geek500 kernel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21=
+:41 geek500 kernel:  rpm_suspend+0x142/0x720
+>> > >> > > May 14 19:21:41 ge=
+ek500 kernel:  pm_runtime_work+0x8f/0xa0
+>> > >> > > May 14 19:21:41 geek50=
+0 kernel: 
+>process_one_work+0x1d3/0x3a0
+>> > >> > > May 14 19:21:41 geek50=
+0 kernel:  worker_thread+0x48/0x3c0
+>> > >> > > May 14 19:21:41 geek500 ker=
+nel:  ?
+>rescuer_thread+0x380/0x380
+>> > >> > > May 14 19:21:41 geek500 ker=
+nel:  kthread+0xd3/0x100
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> =
+> >kthread_complete_and_exit+0x20/0x20
+>> > >> > > May 14 19:21:41 geek500 =
+kernel:  ret_from_fork+0x22/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel=
+:  </TASK>
+>> > >> > > May 14 19:21:41 geek500 kernel: ---[ end trace
+>0000=
+000000000000
+>> > >]---
+>> > >> > > May 14 19:21:41 geek500 kernel: -------=
+-----[ cut here
+>> > >]------------
+>> > >> > > May 14 19:21:41 geek500 ker=
+nel: AMDI0010:03 already disabled
+>> > >> > > May 14 19:21:41 geek500 kerne=
+l: WARNING: CPU: 6 PID: 1091 at
+>> > >drivers/clk/
+>> > >> > > clk=2Ec:971 =
+clk_core_disable+0x80/0x1a0
+>> > >> > > May 14 19:21:41 geek500 kernel: Mod=
+ules linked in: [last
+>> > >unloaded:
+>> > >> > > acpi_call] May 14 19:21:4=
+1 geek500 kernel: CPU: 6 PID: 1091
+>Comm:
+>> > >> > > kworker/6:3 Tainted: =
+G W  O      5=2E17=2E7+ #7
+>> > >> > > May 14 19:21:41 geek500 kernel: Hard=
+ware name: HP HP
+>Pavilion
+>> > >Gaming
+>> > >> > > Laptop
+>> > >> > > 15-e=
+c1xxx/87B2, BIOS F=2E25 08/18/2021
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: Workqueue: pm
+>pm_runtime_work
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: RIP:
+>> > >0010:clk_core_disable+0x80/0x1a0
+>> > >> > > May 14 19:21:41=
+ geek500 kernel: Code: 10 e8 e4 4a d1 00 0f
+>1f 44
+>> > >00 00 48
+>> > >> >=
+ > 8b 5b 30 48 85 db 74 b6 8b 43 7c 85 c0 75 a4 48 8b 33 48 c7
+>c7 7d
+>> > =
+>87 c4
+>> > >> > > ab e8 79 7a 9a 00 <0f> 0b 5b 5d c3 65 8b 05 5c a1 92 55 =
+89
+>c0 48
+>> > >0f a3 05
+>> > >> > > 4a 61 9d 01 May 14 19:21:41 geek500 ke=
+rnel: RSP:
+>> > >0018:ffff8dbfc1c47d50
+>> > >> > > EFLAGS: 00010082 May 14 =
+19:21:41 geek500 kernel: RAX:
+>> > >0000000000000000
+>> > >> > > RBX: ffff8=
+885401b6300 RCX: 0000000000000027
+>> > >> > > May 14 19:21:41 geek500 kerne=
+l: RDX: ffff88885f59f468 RSI:
+>> > >> > > 0000000000000001
+>> > >> > > RDI:=
+ ffff88885f59f460
+>> > >> > > May 14 19:21:41 geek500 kernel: RBP: 00000000=
+00000287 R08:
+>> > >> > > ffffffffabf26da8
+>> > >> > > R09: 00000000ffffdff=
+f
+>> > >> > > May 14 19:21:41 geek500 kernel: R10: ffffffffabe46dc0 R11:
+>>=
+ > >> > > ffffffffabe46dc0
+>> > >> > > R12: ffff8885401b6300
+>> > >> > > Ma=
+y 14 19:21:41 geek500 kernel: R13: ffff888540fc30f4 R14:
+>> > >> > > 000000=
+0000000008
+>> > >> > > R15: 0000000000000000
+>> > >> > > May 14 19:21:41 ge=
+ek500 kernel: FS:  0000000000000000(0000)
+>> > >> > > GS:ffff88885f580000(0=
+000) knlGS:0000000000000000
+>> > >> > > May 14 19:21:41 geek500 kernel: CS:=
+  0010 DS: 0000 ES: 0000
+>CR0:
+>> > >> > > 0000000080050033
+>> > >> > > May=
+ 14 19:21:41 geek500 kernel: CR2: 00000000010fa990 CR3:
+>> > >> > > 0000000=
+102956000
+>> > >> > > CR4: 0000000000350ee0
+>> > >> > > May 14 19:21:41 gee=
+k500 kernel: Call Trace:
+>> > >> > > May 14 19:21:41 geek500 kernel:  <TASK=
+>
+>> > >> > > May 14 19:21:41 geek500 kernel:  clk_disable+0x24/0x30
+>> > >=
+> > > May 14 19:21:41 geek500 kernel: 
+>i2c_dw_prepare_clk+0x88/0xd0
+>> > >=
+> > > May 14 19:21:41 geek500 kernel: 
+>dw_i2c_plat_suspend+0x2e/0x40
+>> > =
+>> > > May 14 19:21:41 geek500 kernel:
+>> > >acpi_subsys_runtime_suspend+0x=
+9/0x20
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>acpi_dev_suspend+0x1=
+60/0x160
+>> > >> > > May 14 19:21:41 geek500 kernel:  __rpm_callback+0x3f/0=
+x150
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>acpi_dev_suspend+0x160=
+/0x160
+>> > >> > > May 14 19:21:41 geek500 kernel:  rpm_callback+0x54/0x60
+=
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>acpi_dev_suspend+0x160/0x16=
+0
+>> > >> > > May 14 19:21:41 geek500 kernel:  rpm_suspend+0x142/0x720
+>> >=
+ >> > > May 14 19:21:41 geek500 kernel:  pm_runtime_work+0x8f/0xa0
+>> > >> =
+> > May 14 19:21:41 geek500 kernel: 
+>process_one_work+0x1d3/0x3a0
+>> > >> =
+> > May 14 19:21:41 geek500 kernel:  worker_thread+0x48/0x3c0
+>> > >> > > M=
+ay 14 19:21:41 geek500 kernel:  ?
+>rescuer_thread+0x380/0x380
+>> > >> > > M=
+ay 14 19:21:41 geek500 kernel:  kthread+0xd3/0x100
+>> > >> > > May 14 19:21=
+:41 geek500 kernel:  ?
+>> > >kthread_complete_and_exit+0x20/0x20
+>> > >> > =
+> May 14 19:21:41 geek500 kernel:  ret_from_fork+0x22/0x30
+>> > >> > > May =
+14 19:21:41 geek500 kernel:  </TASK>
+>> > >> > > May 14 19:21:41 geek500 ke=
+rnel: ---[ end trace
+>0000000000000000
+>> > >]---
+>> > >> > > May 14 19:21:=
+41 geek500 kernel: ------------[ cut here
+>> > >]------------
+>> > >> > > M=
+ay 14 19:21:41 geek500 kernel: AMDI0010:03 already
+>unprepared
+>> > >> > > =
+May 14 19:21:41 geek500 kernel: WARNING: CPU: 6 PID: 1091 at
+>> > >drivers/=
+clk/
+>> > >> > > clk=2Ec:829 clk_core_unprepare+0xb1/0x1a0
+>> > >> > > May =
+14 19:21:41 geek500 kernel: Modules linked in: [last
+>> > >unloaded:
+>> > >=
+> > > acpi_call] May 14 19:21:41 geek500 kernel: CPU: 6 PID: 1091
+>Comm:
+>>=
+ > >> > > kworker/6:3 Tainted: G W  O      5=2E17=2E7+ #7
+>> > >> > > May 1=
+4 19:21:41 geek500 kernel: Hardware name: HP HP
+>Pavilion
+>> > >Gaming
+>> >=
+ >> > > Laptop
+>> > >> > > 15-ec1xxx/87B2, BIOS F=2E25 08/18/2021
+>> > >> >=
+ > May 14 19:21:41 geek500 kernel: Workqueue: pm
+>pm_runtime_work
+>> > >> >=
+ > May 14 19:21:41 geek500 kernel: RIP:
+>> > >0010:clk_core_unprepare+0xb1/=
+0x1a0
+>> > >> > > May 14 19:21:41 geek500 kernel: Code: 40 00 66 90 48 8b 5=
+b
+>30 48
+>> > >85 db 74
+>> > >> > > a2 8b 83 80 00 00 00 85 c0 0f 85 79 ff =
+ff ff 48 8b 33 48 c7
+>c7 35
+>> > >87 c4
+>> > >> > > ab e8 18 7c 9a 00 <0f> =
+0b 5b c3 65 8b 05 fc a2 92 55 89 c0
+>48 0f
+>> > >a3 05 ea
+>> > >> > > 62 9d=
+ 01 73 May 14 19:21:41 geek500 kernel: RSP:
+>> > >0018:ffff8dbfc1c47d60
+>> =
+> >> > > EFLAGS: 00010286 May 14 19:21:41 geek500 kernel: RAX:
+>> > >000000=
+0000000000
+>> > >> > > RBX: ffff8885401b6300 RCX: 0000000000000027
+>> > >> =
+> > May 14 19:21:41 geek500 kernel: RDX: ffff88885f59f468 RSI:
+>> > >> > > =
+0000000000000001
+>> > >> > > RDI: ffff88885f59f460
+>> > >> > > May 14 19:21=
+:41 geek500 kernel: RBP: ffff8885401b6300 R08:
+>> > >> > > ffffffffabf26da8=
+
+>> > >> > > R09: 00000000ffffdfff
+>> > >> > > May 14 19:21:41 geek500 kern=
+el: R10: ffffffffabe46dc0 R11:
+>> > >> > > ffffffffabe46dc0
+>> > >> > > R12=
+: 0000000000000000
+>> > >> > > May 14 19:21:41 geek500 kernel: R13: ffff888=
+540fc30f4 R14:
+>> > >> > > 0000000000000008
+>> > >> > > R15: 00000000000000=
+00
+>> > >> > > May 14 19:21:41 geek500 kernel: FS:  0000000000000000(0000)
+=
+>> > >> > > GS:ffff88885f580000(0000) knlGS:0000000000000000
+>> > >> > > Ma=
+y 14 19:21:41 geek500 kernel: CS:  0010 DS: 0000 ES: 0000
+>CR0:
+>> > >> > >=
+ 0000000080050033
+>> > >> > > May 14 19:21:41 geek500 kernel: CR2: 00000000=
+010fa990 CR3:
+>> > >> > > 0000000102956000
+>> > >> > > CR4: 0000000000350ee=
+0
+>> > >> > > May 14 19:21:41 geek500 kernel: Call Trace:
+>> > >> > > May 1=
+4 19:21:41 geek500 kernel:  <TASK>
+>> > >> > > May 14 19:21:41 geek500 kern=
+el:  clk_unprepare+0x1f/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>=
+i2c_dw_prepare_clk+0x90/0xd0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>=
+dw_i2c_plat_suspend+0x2e/0x40
+>> > >> > > May 14 19:21:41 geek500 kernel:
+>=
+> > >acpi_subsys_runtime_suspend+0x9/0x20
+>> > >> > > May 14 19:21:41 geek5=
+00 kernel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 gee=
+k500 kernel:  __rpm_callback+0x3f/0x150
+>> > >> > > May 14 19:21:41 geek500=
+ kernel:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 geek5=
+00 kernel:  rpm_callback+0x54/0x60
+>> > >> > > May 14 19:21:41 geek500 kern=
+el:  ?
+>acpi_dev_suspend+0x160/0x160
+>> > >> > > May 14 19:21:41 geek500 ke=
+rnel:  rpm_suspend+0x142/0x720
+>> > >> > > May 14 19:21:41 geek500 kernel: =
+ pm_runtime_work+0x8f/0xa0
+>> > >> > > May 14 19:21:41 geek500 kernel: 
+>pr=
+ocess_one_work+0x1d3/0x3a0
+>> > >> > > May 14 19:21:41 geek500 kernel:  wor=
+ker_thread+0x48/0x3c0
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>rescu=
+er_thread+0x380/0x380
+>> > >> > > May 14 19:21:41 geek500 kernel:  kthread+=
+0xd3/0x100
+>> > >> > > May 14 19:21:41 geek500 kernel:  ?
+>> > >kthread_com=
+plete_and_exit+0x20/0x20
+>> > >> > > May 14 19:21:41 geek500 kernel:  ret_f=
+rom_fork+0x22/0x30
+>> > >> > > May 14 19:21:41 geek500 kernel:  </TASK>
+>> =
+> >> > > May 14 19:21:41 geek500 kernel: ---[ end trace
+>0000000000000000
+>=
+> > >]---
+>> > >> > > May 14 19:21:59 geek500 kernel: snd_hda_codec_hdmi
+>h=
+daudioC1D0:
+>> > >Unable to
+>> > >> > > sync register 0x4f0800=2E -5
+>> > >=
+> > > May 14 19:21:59 geek500 kernel: (elapsed 0=2E175 seconds)
+>done=2E
+>>=
+ > >> > > May 14 19:21:59 geek500 kernel: amdgpu 0000:05:00=2E0: amdgpu:
+>>=
+ > >Power
+>> > >> > > consumption will be higher as BIOS has not been confi=
+gured
+>for
+>> > >> > > suspend-to-idle=2E To use suspend-to-idle change the=
+ sleep
+>mode in
+>> > >BIOS
+>> > >> > > setup=2E
+>> > >> > > May 14 19:21:59=
+ geek500 kernel: snd_hda_intel 0000:01:00=2E1:
+>can't
+>> > >change
+>> > >> =
+> > power state from D3cold to D0 (config space inaccessible)
+>> > >> > > M=
+ay 14 19:21:59 geek500 kernel: pci 0000:00:00=2E2: can't
+>derive
+>> > >rout=
+ing for
+>> > >> > > PCI INT A
+>> > >> > > May 14 19:21:59 geek500 kernel: p=
+ci 0000:00:00=2E2: PCI INT A:
+>no
+>> > >GSI
+>> > >> > > May 14 19:21:59 gee=
+k500 kernel: [drm] Fence fallback timer
+>> > >expired on ring
+>> > >> > > g=
+fx May 14 19:21:59 geek500 kernel: Bluetooth: hci0: command
+>> > >0xfc20 tx=
+
+>> > >> > > timeout May 14 19:21:59 geek500 kernel: [drm] Fence fallback
+>=
+> > >timer
+>> > >> > > expired on ring sdma0
+>> > >> > > May 14 19:21:59 ge=
+ek500 kernel: Bluetooth: hci0: RTL:
+>download fw
+>> > >command
+>> > >> > > =
+failed (-110)
+>> > >> > > May 14 19:21:59 geek500 kernel: done=2E
+>> > >> >=
+ > May 14 19:22:00 geek500 kernel: snd_hda_codec_hdmi
+>hdaudioC1D0:
+>> > >U=
+nable to
+>> > >> > > sync register 0x4f0800=2E -5
+>> > >> > > May 14 19:22:=
+00 geek500 dnsmasq[2079]: no servers found in
+>> > >/etc/dnsmasq=2Ed/
+>> > =
+>> > > dnsmasq-resolv=2Econf, will retry
+>> > >> > > May 14 19:22:01 geek50=
+0 kernel: [drm] Fence fallback timer
+>> > >expired on ring
+>> > >> > > sdma=
+0
+>> > >> > > May 14 19:22:01 geek500 kernel: [drm] Fence fallback timer
+>>=
+ > >expired on ring
+>> > >> > > gfx May 14 19:22:01 geek500 kernel: [drm] F=
+ence fallback
+>timer
+>> > >expired on
+>> > >> > > ring sdma0
+>> > >> > > Ma=
+y 14 19:22:02 geek500 last message buffered 2 times
+>> > >> > > May 14 19:2=
+2:03 geek500 kernel: [drm] Fence fallback timer
+>> > >expired on ring
+>> > =
+>> > > gfx May 14 19:22:03 geek500 kernel: [drm] Fence fallback
+>timer
+>> >=
+ >expired on
+>> > >> > > ring sdma0
+>> > >> > > May 14 19:22:03 geek500 ker=
+nel: [drm] Fence fallback timer
+>> > >expired on ring
+>> > >> > > gfx May 1=
+4 19:22:03 geek500 kernel: [drm] Fence fallback
+>timer
+>> > >expired on
+>> =
+> >> > > ring sdma0
+>> > >> > > May 14 19:22:04 geek500 kernel: [drm] Fence=
+ fallback timer
+>> > >expired on ring
+>> > >> > > gfx May 14 19:22:04 geek5=
+00 kernel: [drm] Fence fallback
+>timer
+>> > >expired on
+>> > >> > > ring sd=
+ma0
+>> > >> > > May 14 19:22:04 geek500 kernel: [drm] Fence fallback timer
+=
+>> > >expired on ring
+>> > >> > > gfx May 14 19:22:04 geek500 kernel: [drm]=
+ Fence fallback
+>timer
+>> > >expired on
+>> > >> > > ring sdma0
+>> > >> > > =
+May 14 19:22:05 geek500 last message buffered 2 times
+>> > >> > > May 14 19=
+:22:05 geek500 kernel: [drm] Fence fallback timer
+>> > >expired on ring
+>> =
+> >> > > gfx May 14 19:22:06 geek500 kernel: [drm] Fence fallback
+>timer
+>>=
+ > >expired on
+>> > >> > > ring sdma0
+>> > >> > > May 14 19:22:06 geek500 k=
+ernel: [drm] Fence fallback timer
+>> > >expired on ring
+>> > >> > > gfx May=
+ 14 19:22:06 geek500 last message buffered 1 times
+>> > >> > > =2E=2E=2E
+>>=
+ > >> > > May 14 19:22:18 geek500 kernel: [drm] Fence fallback timer
+>> > >=
+expired on ring
+>> > >> > > sdma0
+>> > >> > > May 14 19:22:18 geek500 kerne=
+l:
+>> > >[drm:amdgpu_dm_atomic_commit_tail] *ERROR*
+>> > >> > > Waiting for=
+ fences timed out!
+>> > >> > > May 14 19:22:18 geek500 kernel: [drm] Fence =
+fallback timer
+>> > >expired on ring
+>> > >> > > sdma0
+>> > >> > >
+>> > >> =
+> > CC
+>> > >> > >
+>> > >> > > Le samedi 14 mai 2022, 17:12:33 CEST Thorste=
+n Leemhuis a
+>=C3=A9crit :
+>> > >> > > > Hi, this is your Linux kernel regr=
+ession tracker=2E Thanks
+>for
+>> > >the report=2E
+>> > >> > > >
+>> > >> > >=
+ > On 14=2E05=2E22 16:41, Christian Casteyde wrote:
+>> > >> > > > > #regzbo=
+t introduced v5=2E17=2E3=2E=2Ev5=2E17=2E4
+>> > >> > > > > #regzbot introduc=
+ed:
+>001828fb3084379f3c3e228b905223c50bc237f9
+>> > >> > > >
+>> > >> > > > F=
+WIW, that's commit 887f75cfd0da ("drm/amdgpu: Ensure HDA
+>> > >function is
+=
+>> > >> > > > suspended before ASIC reset") upstream=2E
+>> > >> > > >
+>> > =
+>> > > > Recently a regression was reported where 887f75cfd0da was
+>> > >su=
+spected as
+>> > >> > > > the culprit:
+>> > >> > > > https://gitlab=2Efreede=
+sktop=2Eorg/drm/amd/-/issues/2008
+>> > >> > > >
+>> > >> > > > And a one rel=
+ated to it:
+>> > >> > > > https://gitlab=2Efreedesktop=2Eorg/drm/amd/-/issu=
+es/1982
+>> > >> > > >
+>> > >> > > > You might want to take a look if what w=
+as discussed there
+>might
+>> > >be
+>> > >> > > > related to your problem (I=
+'m not directly involved in any
+>of
+>> > >this, I
+>> > >> > > > don't know =
+the details, it's just that 887f75cfd0da looked
+>> > >familiar to
+>> > >> >=
+ > > me)=2E If it is, a fix for these two bugs was committed to
+>master
+>> =
+> >earlier
+>> > >> > > > this week:
+>> > >> > > >
+>> > >> > > >
+>> >
+>>http=
+s://git=2Ekernel=2Eorg/pub/scm/linux/kernel/git/torvalds/linux=2Egit/commi
+=
+>> > >> > > > t/?i d=3Da56f445f807b0276
+>> > >> > > >
+>> > >> > > > It will=
+ likely be backported to 5=2E17=2Ey, maybe already in
+>the
+>> > >over-next
+=
+>> > >> > > > release=2E HTH=2E
+>> > >> > > >
+>> > >> > > > Ciao, Thorsten =
+(wearing his 'the Linux kernel's regression
+>> > >tracker' hat)
+>> > >> > >=
+ >
+>> > >> > > > P=2ES=2E: As the Linux kernel's regression tracker I deal =
+with
+>a
+>> > >lot of
+>> > >> > > > reports and sometimes miss something imp=
+ortant when
+>writing
+>> > >mails like
+>> > >> > > > this=2E If that's the c=
+ase here, don't hesitate to tell me
+>in a
+>> > >public
+>> > >> > > > reply,=
+ it's in everyone's interest to set the public
+>record
+>> > >straight=2E
+>>=
+ > >> > > >
+>> > >> > > > > Hello
+>> > >> > > > > Since 5=2E17=2E4 my lapto=
+p doesn't resume from suspend
+>anymore=2E
+>> > >At resume,
+>> > >> > > > > =
+symptoms are variable:
+>> > >> > > > > - either the laptop freezes;
+>> > >>=
+ > > > > - either the screen keeps blank;
+>> > >> > > > > - either the scre=
+en is OK but mouse is frozen;
+>> > >> > > > > - either display lags with se=
+veral logs in dmesg:
+>> > >> > > > > [  228=2E275492] [drm] Fence fallback =
+timer expired on
+>ring gfx
+>> > >> > > > > [  228=2E395466] [drm:amdgpu_dm_=
+atomic_commit_tail]
+>*ERROR*
+>> > >Waiting for
+>> > >> > > > > fences timed=
+ out!
+>> > >> > > > > [  228=2E779490] [drm] Fence fallback timer expired o=
+n
+>ring gfx
+>> > >> > > > > [  229=2E283484] [drm] Fence fallback timer exp=
+ired on
+>ring
+>> > >sdma0
+>> > >> > > > > [  229=2E283485] [drm] Fence fall=
+back timer expired on
+>ring gfx
+>> > >> > > > > [  229=2E787487] [drm] Fenc=
+e fallback timer expired on
+>ring gfx
+>> > >> > > > > =2E=2E=2E
+>> > >> > >=
+ > >
+>> > >> > > > > I've bisected the problem=2E
+>> > >> > > > >
+>> > >> >=
+ > > > Please note this laptop has a strange behaviour on
+>suspend:
+>> > >>=
+ > > > > The first suspend request always fails (this point has
+>never
+>> >=
+ >been
+>> > >> > > > > fixed
+>> > >> > > > > and
+>> > >> > > > > plagues us=
+ when trying to diagnose another regression on
+>> > >touchpad not
+>> > >> >=
+ > > > resuming in the past)=2E The screen goes blank and I can
+>get it
+>> =
+> >OK when
+>> > >> > > > > pressing the power button, this seems to reset i=
+t=2E After
+>that
+>> > >all
+>> > >> > > > > suspend/resume works OK=2E
+>> > =
+>> > > > >
+>> > >> > > > > Since 5=2E17=2E4, it is not possible anymore to =
+get the
+>laptop
+>> > >working
+>> > >> > > > > again
+>> > >> > > > > after t=
+he first suspend failure=2E
+>> > >> > > > >
+>> > >> > > > > HW : HP Pavilio=
+n / Ryzen 4600H with AMD graphics
+>integrated +
+>> > >NVidia
+>> > >> > > > =
+> 1650Ti
+>> > >> > > > > (turned off with ACPI call in order to get more ba=
+ttery,
+>I'm
+>> > >not using
+>> > >> > > > > NVidia driver)=2E
+>> > >>
+>> >
 
