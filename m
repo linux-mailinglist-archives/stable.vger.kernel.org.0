@@ -2,141 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C513E52B751
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 12:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C29A52B74D
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 12:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234267AbiERJdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 05:33:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50618 "EHLO
+        id S234399AbiERJfA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 05:35:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234258AbiERJds (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 05:33:48 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CFE18148A;
-        Wed, 18 May 2022 02:33:47 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 0CA6921BC1;
-        Wed, 18 May 2022 09:33:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1652866426; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/L0znopHwfmojijoGxp80PUysPc0KZjVhPWv9K9iKKc=;
-        b=ya0p4a1TQpZSZLU8H5BSW72d9sRWQTAUmQf7yYhL6Wk3eRvWeusGCPB9imafd6FbXQbrID
-        7RJZE03XSPxWrHs31gq0voSEiwTBRJmM09Nu4/RYQpfZxq/FPriNqpa1iU1uJ7sNKHM0IG
-        aD36xCfbZ1UbWV8wbNxy3zNqLhjMlnk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1652866426;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/L0znopHwfmojijoGxp80PUysPc0KZjVhPWv9K9iKKc=;
-        b=oXOhrp2nCkFS1GK89k8wKdHNEh2OEPNXnQZgHln3Fhdh8XLU25wVFaB1e/LgeHQ7dJn7D9
-        cS3lv9n9AAwPDxBQ==
-Received: from quack3.suse.cz (unknown [10.163.43.118])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 004BA2C3F9;
-        Wed, 18 May 2022 09:33:45 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id BA32CA0631; Wed, 18 May 2022 11:33:45 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH 2/2] ext4: Avoid cycles in directory h-tree
-Date:   Wed, 18 May 2022 11:33:29 +0200
-Message-Id: <20220518093332.13986-2-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220518093143.20955-1-jack@suse.cz>
-References: <20220518093143.20955-1-jack@suse.cz>
+        with ESMTP id S234446AbiERJel (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 05:34:41 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43894B0D38
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 02:34:32 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id k126so790942wme.2
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 02:34:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
+        b=FZ95qdZ3wvViKCVVSAIgEilKZv6cVU7hDoEgouhXbFcOa+B2+bVf2kG5Yfp447dDq7
+         UuqzyRpwCH4cqBdX0SPsqDn7OdLVzDPE34HKrzhZmUTw9riwVmlUqgNFibq1UrrrFVij
+         flUDN6uTNTkJXjCr+YhZhiL8VLDfEUSPqAvwP5pc+DAjOkc9ZsOQU9bMgiINC2krQngn
+         U+ZvtzoTI4EOEFGPSbS0j8QzkqGYKyTjUsbwP87LU3NLgeJv0j/sEkShqC88lr1qS/8x
+         1LEcMlUTtHGlhYc1dZF8j3WNa+ec2oTu/SqmSP8mVTaR/4VjrkTYWV3PVh1+DxK/OW9B
+         U0HA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=pSKuz9BJS/Qwel4yBJUKsJP++c1z8gtIosTtEbMtN5I=;
+        b=KFsUBi99g0MK8J/IIH57NVOUTodglH2Q/MKKl2P5qgAIbzSqvQxdxzfkWmS2xCHWsn
+         CreG1ZfwlBxUtRnouR/k5Fe46zkqRI41QS5Rr296FhyO6UfLbTBpyHjm4+0sgqyaUgBo
+         mnMnmXXGEdqhGrE8zV1UOJW1/Y3/ERyfSdWsy1p2UD/sRNaCWUM8Tvi5K8+luTw5tyaQ
+         QCyLBUnqqrKB2pl5V8pDifAXzdzfbdfwgUa+9QDztbZYrqw4mSRj5tI0ixRM0UfJJCQY
+         km2jVCBpnPeVWyiPsm/Ex96wwL1NGdoER8oCFMyTaM/Dfbj383SUEY+OQtO6vfNjMGaV
+         jsKg==
+X-Gm-Message-State: AOAM531keMSewlAqpXJQ7FowBWqK9qtuB0E0tl/u/vbYsDBK8kmMzlKx
+        0aPTPAoHzCY6/gHpRacD/yenp+QI2I6M9Yx5FH0=
+X-Google-Smtp-Source: ABdhPJxY1Od01jINHCMGTdKhEQslEpx2d1VAyPgPZKm7NMM3iTYoUHxOo+tz9BMJ8pvKnjeacRPs/0uskN8OJ2dKNtI=
+X-Received: by 2002:a7b:c041:0:b0:394:44a9:b017 with SMTP id
+ u1-20020a7bc041000000b0039444a9b017mr25359438wmc.169.1652866471080; Wed, 18
+ May 2022 02:34:31 -0700 (PDT)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2401; h=from:subject; bh=dBH5chpRq4a7X82rh9vecUP2NZshXLFCLU0Z5g/1vY4=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBihL1oUkOiJou12zmhv4kTHJLDBVtz7H5e/gRK73iP NS1OjAOJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYoS9aAAKCRCcnaoHP2RA2YrnB/ 46AichLvfC87qDWYvusaQoVoK24F6eVZV4zU8AnmswDLjAR+y69nyVkvbnEhDrkeEvrMdaeSM5ebGR iPHrRxLXFXuCwD+VuRQi6TsUBSAmBVYGAPPEY5pFuLYBuXu9YmDdfObBQ/qWaSEu9hrSQy+pvzE/l6 C5F3v4VvoLmEMTQJN5SvwGWvmX9pMK8f2LSMkVaE/5IBylYF/UdE0lMEVyAlM7+LPZ2eVIm2X9YLHK Ve4Fmawd7QFJJoTjuwY0FR5VMo3+m50bbZJn11uU2k4bbcrdh72zqYEkgsNMz+M1NOt+XI5tMPDKz5 6cdEn8dDuxhBr4KjrfB63GA6REP8XE
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Received: by 2002:adf:f750:0:0:0:0:0 with HTTP; Wed, 18 May 2022 02:34:30
+ -0700 (PDT)
+Reply-To: davidnelson7702626@gmail.com
+From:   brigitte Patayoti <brigittepatayoti0@gmail.com>
+Date:   Wed, 18 May 2022 10:34:30 +0100
+Message-ID: <CADhLwcRV7O0r+n9=hdCtXPxW3-_TVDzyHKiK0hfSwaw1Qsq5hg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: Yes, score=5.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
+        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:32c listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4993]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [brigittepatayoti0[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [davidnelson7702626[at]gmail.com]
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [brigittepatayoti0[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  3.4 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A maliciously corrupted filesystem can contain cycles in the h-tree
-stored inside a directory. That can easily lead to the kernel corrupting
-tree nodes that were already verified under its hands while doing a node
-split and consequently accessing unallocated memory. Fix the problem by
-verifying traversed block numbers are unique.
-
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/namei.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
-
-diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
-index 2a55f23e4524..2ca99f1569c0 100644
---- a/fs/ext4/namei.c
-+++ b/fs/ext4/namei.c
-@@ -777,12 +777,14 @@ static struct dx_frame *
- dx_probe(struct ext4_filename *fname, struct inode *dir,
- 	 struct dx_hash_info *hinfo, struct dx_frame *frame_in)
- {
--	unsigned count, indirect;
-+	unsigned count, indirect, level, i;
- 	struct dx_entry *at, *entries, *p, *q, *m;
- 	struct dx_root *root;
- 	struct dx_frame *frame = frame_in;
- 	struct dx_frame *ret_err = ERR_PTR(ERR_BAD_DX_DIR);
- 	u32 hash;
-+	ext4_lblk_t block;
-+	ext4_lblk_t blocks[EXT4_HTREE_LEVEL];
- 
- 	memset(frame_in, 0, EXT4_HTREE_LEVEL * sizeof(frame_in[0]));
- 	frame->bh = ext4_read_dirblock(dir, 0, INDEX);
-@@ -854,6 +856,8 @@ dx_probe(struct ext4_filename *fname, struct inode *dir,
- 	}
- 
- 	dxtrace(printk("Look up %x", hash));
-+	level = 0;
-+	blocks[0] = 0;
- 	while (1) {
- 		count = dx_get_count(entries);
- 		if (!count || count > dx_get_limit(entries)) {
-@@ -882,15 +886,27 @@ dx_probe(struct ext4_filename *fname, struct inode *dir,
- 			       dx_get_block(at)));
- 		frame->entries = entries;
- 		frame->at = at;
--		if (!indirect--)
-+
-+		block = dx_get_block(at);
-+		for (i = 0; i <= level; i++) {
-+			if (blocks[i] == block) {
-+				ext4_warning_inode(dir,
-+					"dx entry: tree cycle block %u points back to block %u",
-+					blocks[level], block);
-+				goto fail;
-+			}
-+		}
-+		if (++level > indirect)
- 			return frame;
-+		blocks[level] = block;
- 		frame++;
--		frame->bh = ext4_read_dirblock(dir, dx_get_block(at), INDEX);
-+		frame->bh = ext4_read_dirblock(dir, block, INDEX);
- 		if (IS_ERR(frame->bh)) {
- 			ret_err = (struct dx_frame *) frame->bh;
- 			frame->bh = NULL;
- 			goto fail;
- 		}
-+
- 		entries = ((struct dx_node *) frame->bh->b_data)->entries;
- 
- 		if (dx_get_limit(entries) != dx_node_limit(dir)) {
--- 
-2.35.3
-
+Hello friend, I want to send money to you to enable me invest in your
+country get back to me if you are interested.
