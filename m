@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9199C52BAE6
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 222E852BA1A
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:38:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236496AbiERM1d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:27:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47882 "EHLO
+        id S236594AbiERM1g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:27:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236486AbiERM1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:27:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1F2ABF55;
-        Wed, 18 May 2022 05:27:13 -0700 (PDT)
+        with ESMTP id S236537AbiERM1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:27:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CBB7D9E95;
+        Wed, 18 May 2022 05:27:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4176BB81F40;
-        Wed, 18 May 2022 12:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A8E9C34115;
-        Wed, 18 May 2022 12:27:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86FC2B81F40;
+        Wed, 18 May 2022 12:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A982C385AA;
+        Wed, 18 May 2022 12:27:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876830;
-        bh=CVclP0CVYd+Kst09m8hEBA7IByOo7/Fm5SO7C+br1ow=;
+        s=k20201202; t=1652876839;
+        bh=E0vUSpxPLIELQGfG4YeyedZtqjlmxegQcKpK3CCbthE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIexz4c6oJyzsH+PgPSNWPk0T2uPdJ5cTP9OXeWJa3SHbFZimE05TNzF1C0MvULr2
-         w+VKZlkpUB/NliEtFwYR/4X4C1bzxscmSBGZcA4c+aQkTQ/uIMBFfcSSBXbbQ7+tPb
-         m4fFgp5/XzKWLOqKk8vII4dblbgkRAiMc6nlmpkhxKVIpZ7B49IbRMXTGesEu9Jm+y
-         /BOxLKTTbUK2iNBpIIgNSTp8tPMBRxbb3eeKkWjKwWjM8tVeciySvhSztFLF1WYDA6
-         QhmHJk8cGIf367LWALSMosnb2FnKIg7V0pB4T2rjNCrLY+6aTs87oCtCAa43Jc+gPa
-         Sk2ReFgNxwrUw==
+        b=sfHUldWT8Xb55/imk/v5BODMMKCN37xvePjU41MIbiDHoezb+xFXONij+GgN19QZi
+         OQywl3CjOGckobljrFa6h7nJM2pzW0wiOlnVY1Up+qMguoGwVevXZkOL+fyup/y7sW
+         WlIqVJX6uuYQNFs2roi1I8nIijM3gJHjhxxi/wRn3goesns21C+aN8NulUtnv3kF9I
+         EPMqw1qL/Vs38q4ZS/gleijfWIKGFuGPpSg5tLbGFBgVKU/uKa5v6I0FLHjzJVl32d
+         U0e69RVqk8b2wayLtKVHqBw9/AqLQzlHIubnQRBfSnZzUrK8wnnFLWoYsFshIQHBM4
+         5fCXq4E9zGzkQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 12/23] platform/surface: gpe: Add support for Surface Pro 8
-Date:   Wed, 18 May 2022 08:26:25 -0400
-Message-Id: <20220518122641.342120-12-sashal@kernel.org>
+Cc:     Eric Yang <Eric.Yang2@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
+        daniel@ffwll.ch, nicholas.kazlauskas@amd.com, haonan.wang2@amd.com,
+        mikita.lipski@amd.com, wyatt.wood@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.17 13/23] drm/amd/display: undo clearing of z10 related function pointers
+Date:   Wed, 18 May 2022 08:26:26 -0400
+Message-Id: <20220518122641.342120-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220518122641.342120-1-sashal@kernel.org>
 References: <20220518122641.342120-1-sashal@kernel.org>
@@ -57,41 +63,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Eric Yang <Eric.Yang2@amd.com>
 
-[ Upstream commit ed13d4ac57474d959c40fd05d8860e2b1607becb ]
+[ Upstream commit 9b9bd3f640640f94272a461b2dfe558f91b322c5 ]
 
-The new Surface Pro 8 uses GPEs for lid events as well. Add an entry for
-that so that the lid can be used to wake the device. Note that this is a
-device with a keyboard type-cover, where this acts as the "lid".
+[Why]
+Z10 and S0i3 have some shared path. Previous code clean up ,
+incorrectly removed these pointers, which breaks s0i3 restore
 
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Link: https://lore.kernel.org/r/20220429180049.1282447-1-luzmaximilian@gmail.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+[How]
+Do not clear the function pointers based on Z10 disable.
+
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Eric Yang <Eric.Yang2@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/surface/surface_gpe.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/platform/surface/surface_gpe.c b/drivers/platform/surface/surface_gpe.c
-index c1775db29efb..ec66fde28e75 100644
---- a/drivers/platform/surface/surface_gpe.c
-+++ b/drivers/platform/surface/surface_gpe.c
-@@ -99,6 +99,14 @@ static const struct dmi_system_id dmi_lid_device_table[] = {
- 		},
- 		.driver_data = (void *)lid_device_props_l4D,
- 	},
-+	{
-+		.ident = "Surface Pro 8",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Surface Pro 8"),
-+		},
-+		.driver_data = (void *)lid_device_props_l4B,
-+	},
- 	{
- 		.ident = "Surface Book 1",
- 		.matches = {
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+index d7559e5a99ce..e708f07fe75a 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
+@@ -153,9 +153,4 @@ void dcn31_hw_sequencer_construct(struct dc *dc)
+ 		dc->hwss.init_hw = dcn20_fpga_init_hw;
+ 		dc->hwseq->funcs.init_pipes = NULL;
+ 	}
+-	if (dc->debug.disable_z10) {
+-		/*hw not support z10 or sw disable it*/
+-		dc->hwss.z10_restore = NULL;
+-		dc->hwss.z10_save_init = NULL;
+-	}
+ }
 -- 
 2.35.1
 
