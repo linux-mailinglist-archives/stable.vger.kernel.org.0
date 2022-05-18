@@ -2,62 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AB4452C27E
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 20:45:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9113752C285
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 20:45:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241280AbiERSkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 14:40:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33346 "EHLO
+        id S241492AbiERSka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 14:40:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241442AbiERSkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 14:40:21 -0400
-Received: from mail-pl1-x649.google.com (mail-pl1-x649.google.com [IPv6:2607:f8b0:4864:20::649])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8D1219C3C
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:20 -0700 (PDT)
-Received: by mail-pl1-x649.google.com with SMTP id e18-20020a170902ef5200b0016153d857a6so1298884plx.5
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:20 -0700 (PDT)
+        with ESMTP id S241440AbiERSk0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 14:40:26 -0400
+Received: from mail-pl1-x64a.google.com (mail-pl1-x64a.google.com [IPv6:2607:f8b0:4864:20::64a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A60031DF664
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:23 -0700 (PDT)
+Received: by mail-pl1-x64a.google.com with SMTP id h13-20020a170902f70d00b0015f4cc5d19aso1292146plo.18
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=WbnHWDFwkzF1nH+9rKz8c4upemDF2LmXMXvz56kytCo=;
-        b=hAWCnztYcLE9PDvmDD9D8sF/T5UllxTr1a5457xRjSGpTWotOgOSpLUgR64Rft6w4q
-         ClxdZU1tdLl2uFvHM9tp1ADgp6il4fMjUv739vOQcvvAFwyVbPPEuXKysiKHYhOf9Q8s
-         K28xZA+N7CRwNpNBrUpKZ2dhLXAilJE1N4lT4sZt50ArN3pOP8eA7p29szzJB5AIzHPp
-         h0AKodo1iw24eNMbUZ0B2AGbeES8irQIWWOiXbp/chvANbKovJJlcrzI00jl1nYtt5lB
-         GEN+bm1vVz6vLB30gQFBKxC3+cZGU3SziXwMyy+hjOMEQHhnS9NA7Px8dg7WUYgGWH71
-         e0wA==
+        bh=gP4Q8X67UbKka3WeqW3mNbIGLQ/1tYInvWHQhzo+oN0=;
+        b=VmcZpy3iViSoauB7FCVHO5bzRkkPms0FhMNjGDJk3kApdk6OVA8/8tz4Kf7W1vlpVZ
+         15SJ9FS2Z1DQdIUbM8ZWc472gfkkpTxQ9A6wQrbPWzl4AZPDihuapf7zu2xWmXsuGBdI
+         A5yPyyEwV9m9aA8gVJOTiLtXdNltj8k8WAZP6lTEZY+LlsrY0UVYeLB2E/0Pyv6uj6Tp
+         tQMHYfLMsLZyINraydVswPvVti0W+0F/HT0gXhMbYku3Ebt4+irbgWEGTIJ1JGX7CMJt
+         gR8RkC1z0G2gCT1GMl+DT3pyWw+H+jO/EMDhD7P2ib7tCaIDmsIx+Wg58pyn6Mux51DA
+         IBOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=WbnHWDFwkzF1nH+9rKz8c4upemDF2LmXMXvz56kytCo=;
-        b=XPPDOq9U70o72f8Pq8TCOxS2WcJpec60gDew/rMgqW3iSy5x3w07xrZSskDVAKBFaf
-         xOvLqYfwDqKkEtDz6MaDVMvf36akjEh2hLMJmlARuRhA96F+8l3fVTrW28KsPHXY7Xic
-         xEy7HOA+VAtKNKCEblcFrZ4rHmsO16L4TKgCTp8VrfBJh1cNJDJ0KPnatDl7t2q9WUBy
-         /vSkBm442kbG073rJwwrSmXvmkUwyMrW/kew6KgDGE+eb0aRg+4n+nuUUW8pKZx7pQhP
-         0ojgqR3mU0VkKR/BCNPcjdOk6bgr06R9/VtHHHQGeC8yR/enU/GC/bQZ50Qnxj6l92wY
-         mcRg==
-X-Gm-Message-State: AOAM531IQ6zNyXgAUFMH3JQCbTWD4KuUNM8sDFsyNZznxbt5q93EhJpK
-        LQYwo1t1Lce/7/zkA6CXKMv34bGWYnWyCp8iHKYg64bEaypqpoXLGz+R2hb8gKR5DiRsQE5tbH0
-        dDnS1KU34NnxWdzvQ/h5WldXFmD40oWBfPfynaDmE7YD2qm1rtV5ypnC1tYMXNscSIbWAfTvRaX
-        HL/MsVp/8=
-X-Google-Smtp-Source: ABdhPJwe7AS6PmkuZ3DQLdlQVgLx0TU6c+rObfKvZSPWgEOALnpr922DzCW2UY4Pws3Xycn4tsL8XnLJBxMKQmDOZzv/2A==
+        bh=gP4Q8X67UbKka3WeqW3mNbIGLQ/1tYInvWHQhzo+oN0=;
+        b=t8yAZ5k30sUBAuM8+B7HR9JrgUk5AF4t+Hf9EkhlmTNxlmFhKYRFUqA+EJsqHlgF3R
+         LNYy5nEigFt2Lyn0QcH6eDBKp1OpZ85pPCEo4ZtfZ0W8v3JnUR+RZq4PGQRzWglvp2X5
+         lMSue9/faEwZbHkpYtLYPzQpjmfqYljPdSHbLiutHtA+Lj+pSVJodUCLC6Op4obj6ocK
+         kItlkfzD1zgq6VYEwXLa6DYIMLm3/qsvKdXK7/emlEH8tXhPJqPXm07cRLjbT1YCVBiT
+         rzVLKwJWN4DnInreSdu78O+nQ0dI6W4xJTOdXqw1M71UVltYgW4nM6fc8mx5OJf4/SM6
+         ZMDQ==
+X-Gm-Message-State: AOAM530xvLrVYGHL/5bkGa8Z9FxHC9jsZObLyK37We9qIYLxFHmmIco9
+        miar5QQhRCH38fY/F9i+27XrbNw8Qx3ksJfipD1I/G/5pc6+t5WFMafpZ92ELpSJo5tR+vdAiot
+        LjiRQpA9LcIMaOZ/yQPTzhF5SbDHLPYHhrzydr7leyRPBpBtrzaYzq68GfnkH+O0UNlbDUAwb+0
+        isTQH/FK0=
+X-Google-Smtp-Source: ABdhPJw7Iz+b5Pf8BiKBf+QCffjvZuTNqK7PLqOI2249/ro8DhcKT+IKQpS1gRy6JsqAqqDpuZHufKNlcH7xFZNqzTAqsw==
 X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a17:902:9a92:b0:161:4e50:3b80 with
- SMTP id w18-20020a1709029a9200b001614e503b80mr868972plp.149.1652899220044;
- Wed, 18 May 2022 11:40:20 -0700 (PDT)
-Date:   Wed, 18 May 2022 18:40:08 +0000
+ (user=meenashanmugam job=sendgmr) by 2002:a17:90b:1c87:b0:1ca:f4e:4fbe with
+ SMTP id oo7-20020a17090b1c8700b001ca0f4e4fbemr1369876pjb.159.1652899222940;
+ Wed, 18 May 2022 11:40:22 -0700 (PDT)
+Date:   Wed, 18 May 2022 18:40:09 +0000
 In-Reply-To: <20220518184011.789699-1-meenashanmugam@google.com>
-Message-Id: <20220518184011.789699-2-meenashanmugam@google.com>
+Message-Id: <20220518184011.789699-3-meenashanmugam@google.com>
 Mime-Version: 1.0
 References: <20220518184011.789699-1-meenashanmugam@google.com>
 X-Mailer: git-send-email 2.36.1.124.g0e6072fb45-goog
-Subject: [PATCH 5.4 1/4] SUNRPC: Clean up scheduling of autoclose
+Subject: [PATCH 5.4 2/4] SUNRPC: Prevent immediate close+reconnect
 From:   Meena Shanmugam <meenashanmugam@google.com>
 To:     stable@vger.kernel.org
 Cc:     gregkh@linuxfoundation.org, trond.myklebust@hammerspace.com,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Meena Shanmugam <meenashanmugam@google.com>
 Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
@@ -72,71 +71,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit e26d9972720e2484f44cdd94ca4e31cc372ed2ed upstream.
+commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
 
-Consolidate duplicated code in xprt_force_disconnect() and
-xprt_conditional_disconnect().
+If we have already set up the socket and are waiting for it to connect,
+then don't immediately close and retry.
 
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
 ---
- net/sunrpc/xprt.c | 26 +++++++++++++++-----------
- 1 file changed, 15 insertions(+), 11 deletions(-)
+ net/sunrpc/xprt.c     | 3 ++-
+ net/sunrpc/xprtsock.c | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 8ac579778e48..a7dedc12c982 100644
+index a7dedc12c982..68d08dcba018 100644
 --- a/net/sunrpc/xprt.c
 +++ b/net/sunrpc/xprt.c
-@@ -717,21 +717,29 @@ void xprt_disconnect_done(struct rpc_xprt *xprt)
- EXPORT_SYMBOL_GPL(xprt_disconnect_done);
- 
- /**
-- * xprt_force_disconnect - force a transport to disconnect
-+ * xprt_schedule_autoclose_locked - Try to schedule an autoclose RPC call
-  * @xprt: transport to disconnect
-- *
+@@ -722,7 +722,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
   */
--void xprt_force_disconnect(struct rpc_xprt *xprt)
-+static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
+ static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
  {
--	/* Don't race with the test_bit() in xprt_clear_locked() */
--	spin_lock(&xprt->transport_lock);
- 	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
--	/* Try to schedule an autoclose RPC call */
+-	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
++	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
++		return;
  	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
  		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
  	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
- 		rpc_wake_up_queued_task_set_status(&xprt->pending,
- 						   xprt->snd_task, -ENOTCONN);
-+}
-+
-+/**
-+ * xprt_force_disconnect - force a transport to disconnect
-+ * @xprt: transport to disconnect
-+ *
-+ */
-+void xprt_force_disconnect(struct rpc_xprt *xprt)
-+{
-+	/* Don't race with the test_bit() in xprt_clear_locked() */
-+	spin_lock(&xprt->transport_lock);
-+	xprt_schedule_autoclose_locked(xprt);
- 	spin_unlock(&xprt->transport_lock);
- }
- EXPORT_SYMBOL_GPL(xprt_force_disconnect);
-@@ -771,11 +779,7 @@ void xprt_conditional_disconnect(struct rpc_xprt *xprt, unsigned int cookie)
- 		goto out;
- 	if (test_bit(XPRT_CLOSING, &xprt->state))
- 		goto out;
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
--	/* Try to schedule an autoclose RPC call */
--	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
--		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
--	xprt_wake_pending_tasks(xprt, -EAGAIN);
-+	xprt_schedule_autoclose_locked(xprt);
- out:
- 	spin_unlock(&xprt->transport_lock);
- }
+diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
+index 43bc02dea80c..49ba817f4fb6 100644
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -2469,7 +2469,7 @@ static void xs_connect(struct rpc_xprt *xprt, struct rpc_task *task)
+ 
+ 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
+ 
+-	if (transport->sock != NULL) {
++	if (transport->sock != NULL && !xprt_connecting(xprt)) {
+ 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
+ 				"seconds\n",
+ 				xprt, xprt->reestablish_timeout / HZ);
 -- 
 2.36.1.124.g0e6072fb45-goog
 
