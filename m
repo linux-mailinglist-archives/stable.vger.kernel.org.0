@@ -2,88 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71B0C52C0BD
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 19:10:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D26E52C015
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 19:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240290AbiERQfB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 12:35:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57530 "EHLO
+        id S240496AbiERQs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 12:48:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240350AbiERQfA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 12:35:00 -0400
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116C81FB576;
-        Wed, 18 May 2022 09:34:55 -0700 (PDT)
-Received: from tr.lan (ip-86-49-12-201.net.upcbroadband.cz [86.49.12.201])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 8BA0584293;
-        Wed, 18 May 2022 18:34:53 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1652891693;
-        bh=I/UAMHKRHLAz0ec0igZgJ+KfCIC77AzCAKBjSNJB0oQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nUZTshLt4oNrfnbn4ORq0ZfQmmJ9VkF2+uQw7344//wsH4iLieaNXpsq2E2ZF3Coe
-         lkZ6A0wMhmGYb7p3T73OO9BEOkRq27ZPE8Ah/rJ/xOzAo5FR47DT2Am/EPB2dyEW07
-         +CuZT9Km8Hh6ZPbDcYpJa+wSl599aqo2q9WrfODdF+AU3s1sUMLaMszKcZwBP8PQQ+
-         S5NHC5Oyab6/bsBjAOTHdZ1mwO7UvUSpj7K9H1UcMM/X4R5BDPORyP5G74g1I/PE5v
-         EU6x/vkOx+Al1UT/eZ34ENOZK9T3Qvzh1UpMTPEzJHHkBRmxSq7PZtAsXn/f03eudK
-         h6JBglMpmIUsA==
-From:   Marek Vasut <marex@denx.de>
-To:     linux-input@vger.kernel.org
-Cc:     stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH] Input: ili210x - Fix reset timing
-Date:   Wed, 18 May 2022 18:34:30 +0200
-Message-Id: <20220518163430.41192-1-marex@denx.de>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S240490AbiERQsZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 12:48:25 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B70F684A2E
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 09:48:23 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id c2so2334922plh.2
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 09:48:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=a/nioQD6LDBjjZNelJ71Lr4Cech0R4yZAq15sbuZJCc=;
+        b=jeUGHyeLcHxjHkIIKYZBSEirqL6+qcT+SwaKdSDH0eEuWJX91z8H+/NwOyFm6Q/3sg
+         L9XrfogqRU3oI6TnKgiJeHgrGw/oGUbpLfVj3kV+oLdnjWkaqqa+CybKP/FbOvy6F6IL
+         rluB6UJhiQou1qwfVR+KdqqKcIz4w0sEumbGOiWOpSUME/YbUFIDrk//wtIR8X9N1Jm4
+         NoDF8h/+RCgyROH58JFUlONkcnXtlIgRGqgWS0Jr9Wt4GrykPJjgvLd1ygMncVXda1mG
+         rfViXBsfd8QYhpJJ3lk8Is4meGwXFAnxnTZ0OKw7eHzYV0K2t1q7aYsfC3i03hntXNgU
+         GTGg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=a/nioQD6LDBjjZNelJ71Lr4Cech0R4yZAq15sbuZJCc=;
+        b=nH5lEVwr9nlmD8HkYH7oaEk73jZw3ucQ9l0WLBCyr4LQFXrxw2fgKaafC2hBts0b8X
+         CU/hyYvfUQdRd5pTAzTiuW5LK1nC8WcBvTzRCX43JhPkliE8eMmjECqVFxIT1xxEVWmJ
+         W40kiOaf+rt85tkNCoULoyNcAMoygk8rFCiJD8sldmFk/n8oArucgP4ajTbDijh6XTkI
+         jVeQM0mKz0ah2BTnwnVW98Qi10Y0zfTANsLuTx9eJCQRhmZhl7k8jcKClQSoCqQ/xPY/
+         BF4y8Em6DphwwyJOn19BwlqtCqJteco8bz7SJuNmGJSQv2VrUxjAZW+gW7t93j0uhqEz
+         t/2g==
+X-Gm-Message-State: AOAM532ufGbGKWpYXESIPUsWVbSbsGjbLvJ7JBZxqi2BCWuwH9R3DUzB
+        Zw86zuqt+DW6ejfKy2ViBVdJCw==
+X-Google-Smtp-Source: ABdhPJzGXQOlhE+1fEGAQ/pp1W/iTllR26Rke7t+R8GImSuPPuWzP7SqD51y8AElUN1y20JLBSwO9A==
+X-Received: by 2002:a17:902:d502:b0:161:bc5f:7b2d with SMTP id b2-20020a170902d50200b00161bc5f7b2dmr285451plg.140.1652892503221;
+        Wed, 18 May 2022 09:48:23 -0700 (PDT)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id r15-20020aa7988f000000b0050dc76281c4sm2226246pfl.158.2022.05.18.09.48.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 May 2022 09:48:22 -0700 (PDT)
+Message-ID: <317701e1-20a7-206f-92cd-cd36d436eee2@linaro.org>
+Date:   Wed, 18 May 2022 09:48:21 -0700
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] cgroup: don't queue css_release_work if one already
+ pending
+Content-Language: en-US
+To:     =?UTF-8?Q?Michal_Koutn=c3=bd?= <mkoutny@suse.com>,
+        Tejun Heo <tj@kernel.org>
+Cc:     cgroups@vger.kernel.org, Zefan Li <lizefan.x@bytedance.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+e42ae441c3b10acf9e9d@syzkaller.appspotmail.com
+References: <20220412192459.227740-1-tadeusz.struk@linaro.org>
+ <20220414164409.GA5404@blackbody.suse.cz> <YmHwOAdGY2Lwl+M3@slm.duckdns.org>
+ <20220422100400.GA29552@blackbody.suse.cz>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <20220422100400.GA29552@blackbody.suse.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.5 at phobos.denx.de
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to Ilitek "231x & ILI251x Programming Guide" Version: 2.30
-"2.1. Power Sequence", "T4 Chip Reset and discharge time" is minimum
-10ms and "T2 Chip initial time" is maximum 150ms. Adjust the reset
-timings such that T4 is 15ms and T2 is 160ms to fit those figures.
+On 4/22/22 04:05, Michal Koutný wrote:
+> On Thu, Apr 21, 2022 at 02:00:56PM -1000, Tejun Heo <tj@kernel.org> wrote:
+>> If this is the case, we need to hold an extra reference to be put by the
+>> css_killed_work_fn(), right?
+> 
+> I looked into it a bit more lately and found that there already is such
+> a fuse in kill_css() [1].
+> 
+> At the same type syzbots stack trace demonstrates the fuse is
+> ineffective
+> 
+>> css_release+0xae/0xc0 kernel/cgroup/cgroup.c:5146                    (**)
+>> percpu_ref_put_many include/linux/percpu-refcount.h:322 [inline]
+>> percpu_ref_put include/linux/percpu-refcount.h:338 [inline]
+>> percpu_ref_call_confirm_rcu lib/percpu-refcount.c:162 [inline]        (*)
+>> percpu_ref_switch_to_atomic_rcu+0x5a2/0x5b0 lib/percpu-refcount.c:199
+>> rcu_do_batch+0x4f8/0xbc0 kernel/rcu/tree.c:2485
+>> rcu_core+0x59b/0xe30 kernel/rcu/tree.c:2722
+>> rcu_core_si+0x9/0x10 kernel/rcu/tree.c:2735
+>> __do_softirq+0x27e/0x596 kernel/softirq.c:305
+> 
+> (*) this calls css_killed_ref_fn confirm_switch
+> (**) zero references after confirmed kill?
+> 
+> So, I was also looking at the possible race with css_free_rwork_fn()
+> (from failed css_create()) but that would likely emit a warning from
+> __percpu_ref_exit().
+> 
+> So, I still think there's something fishy (so far possible only via
+> artificial ENOMEM injection) that needs an explanation...
 
-This prevents sporadic touch controller start up failures when some
-systems with at least ILI251x controller boot, without this patch
-the systems sometimes fail to communicate with the touch controller.
+I can't reliably reproduce this issue on neither mainline nor v5.10, where
+syzbot originally found it. It still triggers for syzbot though.
 
-Fixes: 201f3c803544c ("Input: ili210x - add reset GPIO support")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/input/touchscreen/ili210x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index 2bd407d86bae5..131cb648a82ae 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -951,9 +951,9 @@ static int ili210x_i2c_probe(struct i2c_client *client,
- 		if (error)
- 			return error;
- 
--		usleep_range(50, 100);
-+		msleep(15);
- 		gpiod_set_value_cansleep(reset_gpio, 0);
--		msleep(100);
-+		msleep(160);
- 	}
- 
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 -- 
-2.35.1
-
+Thanks,
+Tadeusz
