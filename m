@@ -2,67 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE8E952C290
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 20:45:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D7852C2B8
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 20:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241486AbiERSkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 14:40:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33594 "EHLO
+        id S241623AbiERSuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 14:50:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241489AbiERSka (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 14:40:30 -0400
-Received: from mail-pg1-x54a.google.com (mail-pg1-x54a.google.com [IPv6:2607:f8b0:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7847321AABA
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:29 -0700 (PDT)
-Received: by mail-pg1-x54a.google.com with SMTP id e185-20020a6369c2000000b003d822d1900eso1532596pgc.19
-        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:40:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=1fcfP3AJnjUUEeu4wBF5/uFPBZ/a2i5N444XtDySbME=;
-        b=HnIS/56f1/Z7MwSnuB7phw4nUFU7sGOIlHQjr4x+8LiTJvPvzPHRNXlJKbuiLWiJlX
-         CZPfCVwxH2J98n1CCihQ/hUSvGMQRTf9yRivHN29p/kMxthmBIPze+JLydOsonDsrXwD
-         gjSBr0zkM4/33D8yRxGo6ghZBero1kJA35JZjqoH5WowhXDal23OowOdjnfIGlwzHnD4
-         Z4h1F69b7sHXkx/+gaVv/tHupCXO0RDYmmTQrXkWroEGr9dDZ7anj+06T4V1TzK8VK2+
-         WCS2qK2FbfUqpDM3N1y59ZGxMuIIytibBYk+CICFW1Q9mCUO/3zvkVYFdyiSF9pGeLMt
-         CQ+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=1fcfP3AJnjUUEeu4wBF5/uFPBZ/a2i5N444XtDySbME=;
-        b=sPdkDqA8MlHwFZpD5uGR/z+2VoPoiXtc30qCkoAJbZ0JPwPhs551Xfc+ocbwh7V+bU
-         tUcaCVHOTEKWbrSOF2CyeefL8K/uFFPtnI8jRCwnaUPMdBOtqIObKVoEXM+oBueh/Zcl
-         KMwXSwNRpKMZph8YG4//kZt4WwZWguVvyXQh2rS64Rjij5YBpTIWjx6Oc1TacJhn0lJH
-         bxW6yplK03VIfvTTEjOkS2WLOLaAph/BYBcxLIw/dhT9GHfWzmkgHmL7JQ9G2vH76wbF
-         6vE0FowTp5m+WKcBQH8gIl7LiBjctVwokNi6xt3nvMh8pNLb/ItXe5CGAwQpP4uigzei
-         Jmkg==
-X-Gm-Message-State: AOAM530awwX3PVG1I6x/Jt7AuSVDzCD5QGsBJwGKZLIBIttbskB7xsuA
-        7bXAFfjQUQ20/5hDixwSkWLGRL3kwaiXy/65FnZIuaADHYhtadYRqcf5SuC64yKPiFZ66k/taeW
-        0LwKCEAu4ASjpWB8DsfniLxcgE5Lqz6Y/MaBWvJ/AZRUtkD74SsEFXPdkkjoXD/wEGFLcGWFqOb
-        tAvFaWOQM=
-X-Google-Smtp-Source: ABdhPJzDFudEIXP/xzPKhdgkVq/4FaC4dTe+DIzyIsV5Oda+ftQAku4DUkhOGdx+ZFh3crFXOfibD7Mj2sU8EN0KypiOZQ==
-X-Received: from meenashanmugamspl.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:2707])
- (user=meenashanmugam job=sendgmr) by 2002:a17:90b:1897:b0:1df:a48e:86cc with
- SMTP id mn23-20020a17090b189700b001dfa48e86ccmr782468pjb.53.1652899228806;
- Wed, 18 May 2022 11:40:28 -0700 (PDT)
-Date:   Wed, 18 May 2022 18:40:11 +0000
-In-Reply-To: <20220518184011.789699-1-meenashanmugam@google.com>
-Message-Id: <20220518184011.789699-5-meenashanmugam@google.com>
-Mime-Version: 1.0
-References: <20220518184011.789699-1-meenashanmugam@google.com>
-X-Mailer: git-send-email 2.36.1.124.g0e6072fb45-goog
-Subject: [PATCH 5.4 4/4] SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
-From:   Meena Shanmugam <meenashanmugam@google.com>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, trond.myklebust@hammerspace.com,
-        Felix Fu <foyjog@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,USER_IN_DEF_DKIM_WL
+        with ESMTP id S241599AbiERSuD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 14:50:03 -0400
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam08on2063.outbound.protection.outlook.com [40.107.100.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4B882CE13
+        for <stable@vger.kernel.org>; Wed, 18 May 2022 11:50:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Xou1y54r596QQLUiWbmsR3GjSEr10bYwltYfaO8wfNZ0JvAWLZ7GEG6ksebcQV6KH6pb+8azO9YYRQJpCfb/MaVoIbNZvE3mQKrCxLakqvoNQnGJZi1ZZGvLa1hxAxDgPVJybbe7x+o3W70mJsG7vHqNFnXtO4roHy2SkoD4o/nMoqZZ7bGJNfNr/+kUFPcd18BkNMv1P3IU2ur5VoQObtKebZcUZY+wDWc9owy6Bybft+LTiBDal9TLioOf3mTvprdhNtw7jjsBlPk5CoDTsGywtzz5ZiShdnCUpmQBDulVogRCP6t4bCiatoqu1emIctAdhJZb+nlkFIfA6pSa2Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Xw/J3TGV3TLTzPROJWPFms7RHdAY+WhMrtcgKhJEUfU=;
+ b=f2wf5U6r+/VdoAoCqGhgvvtgvok1ZK852IlgmFuFA0pFCRcAQtmhFgFWZw1nohm+xOHo433nOz3JBy2ExUqEwILfp87mgNhyTIX/G7UUnNEdKjoPYnnAq0MBXf7awy/dVSs1N5dpiW4OdUlQrJny7ETJQZl/PxCG5va0VbnkGxlwci/dFC/xyHvuKh+sKC9X/FPcYte+sh9B1SD0ho7zWwzCdMVdY1Q6NXPnXvGnUAUR52Q7slSpbnrSzI/sY2wRb4djhLRgpYMGSoWdQ4dDdt0grgktF94+RPw8N4/2oCe6ldL+iLipLLPvEyEsMCeX/N2S8ML/3SNacWKbBkPNuA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Xw/J3TGV3TLTzPROJWPFms7RHdAY+WhMrtcgKhJEUfU=;
+ b=uTDwnda8pJLrNiaAvfEZWnX9NVzoDHzLHKFyi2mvu7KhBPq54InP+QfqEE7wqPAXP+HmYYqw3FrmTLL8Qrr6EN7AGq6LNUCInDFO6nO3pQwcb88Ay5dZ5eXdTWOc7xhQ0mQykg33PpG1q58SNCK3PqxbDBOZZtot0WiwjZnnt6A=
+Received: from MN0PR12MB6101.namprd12.prod.outlook.com (2603:10b6:208:3cb::10)
+ by CH2PR12MB3701.namprd12.prod.outlook.com (2603:10b6:610:23::27) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.18; Wed, 18 May
+ 2022 18:49:59 +0000
+Received: from MN0PR12MB6101.namprd12.prod.outlook.com
+ ([fe80::d42b:7413:ba19:e8db]) by MN0PR12MB6101.namprd12.prod.outlook.com
+ ([fe80::d42b:7413:ba19:e8db%6]) with mapi id 15.20.5250.018; Wed, 18 May 2022
+ 18:49:59 +0000
+From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: MMIO support for I2C-PIIX4 and SP5100-TCO
+Thread-Topic: MMIO support for I2C-PIIX4 and SP5100-TCO
+Thread-Index: Adhq4reH43WetIzZR5SToc8Xvr1SIw==
+Date:   Wed, 18 May 2022 18:49:59 +0000
+Message-ID: <MN0PR12MB610150AC5F1E15D6A67AC352E2D19@MN0PR12MB6101.namprd12.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Enabled=true;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SetDate=2022-05-18T18:15:51Z;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Method=Privileged;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Name=Public-AIP 2.0;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ActionId=88492cdf-dd84-409a-9ae2-79abc770ef15;
+ MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ContentBits=1
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_enabled: true
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_setdate: 2022-05-18T18:49:58Z
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_method: Privileged
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_name: Public-AIP 2.0
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_actionid: 31c4448f-5d14-4a4b-8e4f-4341dff39688
+msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_contentbits: 0
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 81577ccf-e91d-412a-2cc2-08da38ff35ed
+x-ms-traffictypediagnostic: CH2PR12MB3701:EE_
+x-microsoft-antispam-prvs: <CH2PR12MB37013B289EBFD678FA227CB6E2D19@CH2PR12MB3701.namprd12.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: vEIiTfVPR1gR1PvKm8LbiTLmvFdi1isube0QOxlyNa/eOdipGEEgLOfeHi2Rn37mtBsVhdvXf0RVdNVRnIL7MsqYQHL6lkl/UWjO1aSxm2zr1b5pkQadyakDMMWT/f1eLg9ZoyETMMz7ZFpuGglY+uV/CYbms728rrOvgQGn25NfZr1GWpiE/NmSM3Yfg3us4c8jrx4IxNnclc2bKuZVrxPKojzyGg+nvA1NHmN3f23nrTXk3REhyb2wfUkkWamtVsGm1hmkoCi5tlxUF1fiiyDnHbBsxbMOQV7K7/ptF0Vuq4sZycLnwLJUZUnfG2uBmT3X1NdLGMVmofPmqIqFbrOBMAfurEIQiZJgw2zzQJem8PJIEqAgba0UGZDO+NQCfXJzym1wmoWx15srwxsRD1UzyV5Cdh0zpec4TFPa5khn25QDm4ZRq6BQE0mkds5eSffWeHCBmuJgY0FusLbJ/85JZXSHpi5XTdrnHwIzeTCAfuY99sdV/pv0j1/rcwp0jat0DQtSy8WCrlQi7+WhGB3HdLNkOxEA2CSj2EEU/cwkxDToAMMJiURS2tM1aa0rYc9IkEhDVtVb5SdzUnvN0Btq4GXrL8/xZjMWMW9rPNYxAy5+IaZ4/dN2elDdrfhIh8O4bCHviIuZlWR6VQuOTLhSjYOueKPG1/NOo4brfXmTKImVvoW4BTUDMGPV6Ag8KImJymZMhWaVboZfIBILUk0E0rxTJ7d4vwKzmANrODGEu4WmDsd36F9Fzk2ViM3LnEQCY2almo/FVA1AiNzKjxUCk8JdrTVbYCKd9lxWlxI=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN0PR12MB6101.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(8936002)(52536014)(122000001)(55016003)(71200400001)(86362001)(316002)(9686003)(7696005)(966005)(38070700005)(33656002)(5660300002)(508600001)(38100700002)(66556008)(66446008)(6506007)(66946007)(66476007)(64756008)(8676002)(76116006)(6916009)(2906002)(83380400001)(186003);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 2
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?pyjVVG0oIzS5K+C3BuDjrFNeGCd22f7mIxb4E/4KReaqXHOtNElC2IZ0Q3WI?=
+ =?us-ascii?Q?GsqeDvNQvbHYo5Ybj262dA5onMzecLwAf1FXK5JVa2GpesrcvzuslD3y1vVj?=
+ =?us-ascii?Q?hMny35mOMirbYArcaQPRAMAQncKdZOOSuwXoNqerNj+c05KuzV3OwkHgQkGE?=
+ =?us-ascii?Q?uyfoF62Kw4JMPLmm35p7jUTL2BAot3TXa9eq5NrFvhonRMKp+6W5MbCGUIXc?=
+ =?us-ascii?Q?WL4as8LeNiO7sA1mQppZYHz5c+WsknaP8pgkZoOflQ9hueXCprhJA0PLSA/S?=
+ =?us-ascii?Q?qj7GugqcWdhsUai3d8M0fh/D1aadn2zLE7LXrxAvzhMyjPWwlqR9HpMeDLsI?=
+ =?us-ascii?Q?2vlxDe7m4SDQWPRR42TZKCViL199PbRLA+9j0cR8VfmxZqG6LvNuP6foGotJ?=
+ =?us-ascii?Q?qQ6cvcwcYk0RDzfv3PMasL1yG1VQ7ujchcA9iH8QyIbq1gxtQeMO/nQsFgX3?=
+ =?us-ascii?Q?zct3iKOy3fEpRGPBjRIKN7XYcY6OgB5k6uui06MJRhhXJ11bw00yMaeuaarC?=
+ =?us-ascii?Q?IAL6p47IMbCM5B3kUB+nuwZpvpW2huIg6lVA27wnadMNfxhk4xs3xK9gW/r9?=
+ =?us-ascii?Q?bXpdE6vTwGkeHp0l/zreKP/78ps8987zIc8fdqDJchftp+7zboJYzd5V7R+P?=
+ =?us-ascii?Q?Awm4v9y6ybaIyPSQIXrNwZyTEd13VAcwx4z1XXtRrHmlUPo5XjtedSqcm2rB?=
+ =?us-ascii?Q?4VnCqxF8C724OluICeVE5187RwJO299j7n0Tk36PWWlQsi5Jp4H4dGnEDxfq?=
+ =?us-ascii?Q?q6yrRKYcpbaDHEiAF7vRcszoVXiFXDl3Hv+qMTjWMgGE3pVebyapq5+BdNAZ?=
+ =?us-ascii?Q?1xIlk02ujFSI+OBTQSAg+Z4+TZXmpwY62yDVdLYqK4nPWp2GUlF9/3qSJh2l?=
+ =?us-ascii?Q?gtnbcb7iA2VYOHmlOQAUDRn7j1xlMTe3JpRxafUwf896FjwmUXlWwYK1BdqZ?=
+ =?us-ascii?Q?QexjE+rb5tqTGuSzR20DH2O1o5g5Vx6wjFjLugoQZTL9oECWyKVMHjlFURfU?=
+ =?us-ascii?Q?mAR9HIbqGwW492c1cCMQKBzVMNSHbQ40Io1GK8Lvt92fMs0BoH1jiqlpYTRN?=
+ =?us-ascii?Q?9NyEf+2mkro+Hf4EJ4C2gvDY2rXP5Rwyq7iJ7h9M9Qz5NdOby3zdbiRhsMxA?=
+ =?us-ascii?Q?p8D9LDzuFUKWyXwQcUYXhfrfT2ANLCiv7kZf0iGOEspykOceH/6lZz5RrXu1?=
+ =?us-ascii?Q?2G+M8kUEDRiNRzIerJ4elnT1Xo32VJoYyvUT1TSqDXcj2jil/+M240nbEKoz?=
+ =?us-ascii?Q?6k1zF0F+c5y8eMKjEvs+kIweilgSGcTb7zThH5Efm3TV05zg88FrlcVYBLAj?=
+ =?us-ascii?Q?WMoW3ZeNthGaPJHj4q5ZK7AG48+tNuzqwwDzcXaBvlNHVuUrgtU2/jGWg5Dq?=
+ =?us-ascii?Q?pUsEOqnrIEmd8mN9QcaiIKFUAwSyk5M9xbPqYptlfx6vBnjTgCfYrApnSXr9?=
+ =?us-ascii?Q?TJrhJjHqnVMStovKJJcBwWJJEoaBTM7oSitD53kZEeZb+6THEFv+mn/d1OkD?=
+ =?us-ascii?Q?kGMbpgI1OHc35OCRlhAYhEHctgh2axsmXIcK3vUElduTscQcsLD8+7Pp8TOH?=
+ =?us-ascii?Q?TH5xkD6VXhcMjcndiwiMOqxWxGx14MxgNPCBF7sKfQgi3ecDSoqyyLxpkVbL?=
+ =?us-ascii?Q?nJg2IbEwGTCzXFyKTOMIwR5by9Hn4kfXP6xvLy5CVrhg8bkRQBLo3fVCdDxT?=
+ =?us-ascii?Q?YZkrDJ2u9QDo/OYChKv3xGbeYrZIaLIEGrnbHH+V+VurLks8hDPM/oVGa3Bo?=
+ =?us-ascii?Q?R+dhLXQePGzR48xtMnutNiCNdKiNH7HV1VcLxbrB663JxGVrSZM3eJlI0tlh?=
+x-ms-exchange-antispam-messagedata-1: 4ROY3JPcpyZXvA==
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MN0PR12MB6101.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 81577ccf-e91d-412a-2cc2-08da38ff35ed
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 May 2022 18:49:59.8531
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: v7YbTAy470RSbj21NU4ikj/szrNF80RM3wvtbQ+DGdSKK57z3qY8X8909hZbgwqa2qpTOQwNgNvcWP5BJ8Zxkg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB3701
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,109 +129,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+[Public]
 
-commit f00432063db1a0db484e85193eccc6845435b80e upstream.
+Hi,
 
-We must ensure that all sockets are closed before we call xprt_free()
-and release the reference to the net namespace. The problem is that
-calling fput() will defer closing the socket until delayed_fput() gets
-called.
-Let's fix the situation by allowing rpciod and the transport teardown
-code (which runs on the system wq) to call __fput_sync(), and directly
-close the socket.
+Some users have complained that i2c the controller doesn't work on newer de=
+signs.  This is because the system can be configured by an OEM to not allow=
+ access to the I2C controller registers via legacy methods and instead requ=
+ires MMIO.
 
-Reported-by: Felix Fu <foyjog@gmail.com>
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: a73881c96d73 ("SUNRPC: Fix an Oops in udp_poll()")
-Cc: stable@vger.kernel.org # 5.1.x: 3be232f11a3c: SUNRPC: Prevent immediate close+reconnect
-Cc: stable@vger.kernel.org # 5.1.x: 89f42494f92f: SUNRPC: Don't call connect() more than once on a TCP socket
-Cc: stable@vger.kernel.org # 5.1.x
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[meenashanmugam: Fix merge conflict in xprt_connect]
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
----
- fs/file_table.c       |  1 +
- net/sunrpc/xprt.c     |  5 +----
- net/sunrpc/xprtsock.c | 16 +++++++++++++---
- 3 files changed, 15 insertions(+), 7 deletions(-)
+Some bug reports collecting this problem (which have had duplicates brought=
+ in)
+https://gitlab.com/CalcProgrammer1/OpenRGB/-/issues/1984
+https://bugs.launchpad.net/amd/+bug/1950062
 
-diff --git a/fs/file_table.c b/fs/file_table.c
-index 30d55c9a1744..70e8fb68a171 100644
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -375,6 +375,7 @@ void __fput_sync(struct file *file)
- }
- 
- EXPORT_SYMBOL(fput);
-+EXPORT_SYMBOL(__fput_sync);
- 
- void __init files_init(void)
- {
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 68d08dcba018..94ae95c57f78 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -868,10 +868,7 @@ void xprt_connect(struct rpc_task *task)
- 	if (!xprt_lock_write(xprt, task))
- 		return;
- 
--	if (test_and_clear_bit(XPRT_CLOSE_WAIT, &xprt->state))
--		xprt->ops->close(xprt);
--
--	if (!xprt_connected(xprt)) {
-+	if (!xprt_connected(xprt) && !test_bit(XPRT_CLOSE_WAIT, &xprt->state)) {
- 		task->tk_rqstp->rq_connect_cookie = xprt->connect_cookie;
- 		rpc_sleep_on_timeout(&xprt->pending, task, NULL,
- 				xprt_request_timeout(task->tk_rqstp));
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index 29e9c54a89d3..81f0e03b71b6 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -989,7 +989,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
- 
- 	/* Close the stream if the previous transmission was incomplete */
- 	if (xs_send_request_was_aborted(transport, req)) {
--		xs_close(xprt);
-+		xprt_force_disconnect(xprt);
- 		return -ENOTCONN;
- 	}
- 
-@@ -1027,7 +1027,7 @@ static int xs_local_send_request(struct rpc_rqst *req)
- 			-status);
- 		/* fall through */
- 	case -EPIPE:
--		xs_close(xprt);
-+		xprt_force_disconnect(xprt);
- 		status = -ENOTCONN;
- 	}
- 
-@@ -1303,6 +1303,16 @@ static void xs_reset_transport(struct sock_xprt *transport)
- 
- 	if (sk == NULL)
- 		return;
-+	/*
-+	 * Make sure we're calling this in a context from which it is safe
-+	 * to call __fput_sync(). In practice that means rpciod and the
-+	 * system workqueue.
-+	 */
-+	if (!(current->flags & PF_WQ_WORKER)) {
-+		WARN_ON_ONCE(1);
-+		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+		return;
-+	}
- 
- 	if (atomic_read(&transport->xprt.swapper))
- 		sk_clear_memalloc(sk);
-@@ -1326,7 +1336,7 @@ static void xs_reset_transport(struct sock_xprt *transport)
- 	mutex_unlock(&transport->recv_mutex);
- 
- 	trace_rpc_socket_close(xprt, sock);
--	fput(filp);
-+	__fput_sync(filp);
- 
- 	xprt_disconnect_done(xprt);
- }
--- 
-2.36.1.124.g0e6072fb45-goog
+These commits that have landed into 5.18 fix this issue both for i2c-piix4 =
+and for sp5100-tco (which suffers the same fate).
 
+Would you take them back to stable 5.15.y and 5.17.y?  The series comes bac=
+k cleanly to both.
+
+27c196c7b73c kernel/resource: Introduce request_mem_region_muxed()
+93102cb44978 i2c: piix4: Replace hardcoded memory map size with a #define
+a3325d225b00 i2c: piix4: Move port I/O region request/release code into fun=
+ctions
+0a59a24e14e9 i2c: piix4: Move SMBus controller base address detect into fun=
+ction
+fbafbd51bff5 i2c: piix4: Move SMBus port selection into function
+7c148722d074 i2c: piix4: Add EFCH MMIO support to region request and releas=
+e
+46967bc1ee93 i2c: piix4: Add EFCH MMIO support to SMBus base address detect
+381a3083c674 i2c: piix4: Add EFCH MMIO support for SMBus port select
+6cf72f41808a i2c: piix4: Enable EFCH MMIO for Family 17h+
+abd71a948f7a Watchdog: sp5100_tco: Move timer initialization into function
+1f182aca2300 Watchdog: sp5100_tco: Refactor MMIO base address initializatio=
+n
+0578fff4aae5 Watchdog: sp5100_tco: Add initialization using EFCH MMIO
+826270373f17 Watchdog: sp5100_tco: Enable Family 17h+ CPUs
+
+Thanks,=
