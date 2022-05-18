@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F20C52BAA8
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:39:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CE952BB12
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236480AbiERM1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:27:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46994 "EHLO
+        id S236503AbiERM1T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:27:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236438AbiERM1D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:27:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56056FD38;
-        Wed, 18 May 2022 05:27:02 -0700 (PDT)
+        with ESMTP id S236483AbiERM1O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:27:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77BE18DDCE;
+        Wed, 18 May 2022 05:27:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E83AB81F40;
-        Wed, 18 May 2022 12:27:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BC80C385AA;
-        Wed, 18 May 2022 12:26:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C923DB81FB6;
+        Wed, 18 May 2022 12:27:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407DDC385AA;
+        Wed, 18 May 2022 12:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876820;
-        bh=Y3HnaIdwRzgm8ZRIpbxNDktGkEgObnYgq8LHzhYZ0eI=;
+        s=k20201202; t=1652876824;
+        bh=doQRzfdvKQcqj96z7UMVJeMF3Ya4m94Bf6rITo95dKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEtTQDy1ls12EXMY2VUAn9vTOABUghXAcdTppGrVNbRG5+Rm4O66odduxQLaBRZSs
-         +esDo8m2vLki+p17KcHqhMRgL7nJFbtZx124q324AU4XBZSck+K4EiPZZZbLJnCq3E
-         JICw+/G9IXDHw+vE7JwBlgiQScbbhFS3uOcegWFmOlI0M1JELornrmpywxATyUIipI
-         AlxaKkPR4yE1UG0V/A2aTKTDprNQvSew6kwhRq2s35x05duin4RT0EZoISSHYAXb9A
-         DXG2R9tVcgG4c89rZGo6Bb6X+21bzBK19sSQwMb8qyXSH+waGX/w3x97OEeJGe2xeJ
-         mrUjZgW2hzEww==
+        b=uTE9CK8kHOpcgsW4skP3AYCrsPD5jlqZA0wckV3P8PejKR4zOlKKGzHWZS1FbzR6d
+         i6rw8Q0s5fvovFzBH+P+ogzFuK76axYa9CM9w7UZkMnK3374bF2Twj0cjhmwVW4fBR
+         sYvIzl03GN+qGkesa7AAcVs+0LdN9I3QdswiICZeR4/FxsZizn5JglmrGyxqiPi1tS
+         ad7MePLICIj31QyMzo/fikfftOfRD5FZ9alhCGkCnW/twrbk7hmKyRFEMwtXw5zk9B
+         b08PWiqCW6erupdG1sT7kz5ttZLDR+YAD1zbmgXJsgovqJ7ktepS6J4rAks8RSBXmy
+         WSt5Vvlet+E6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javier Martinez Canillas <javierm@redhat.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Daniel Vetter <daniel.vetter@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
         Sasha Levin <sashal@kernel.org>, daniel@ffwll.ch,
-        deller@gmx.de, sam@ravnborg.org, tzimmermann@suse.de,
-        thunder.leizhen@huawei.com, xiyuyang19@fudan.edu.cn,
-        willy@infradead.org, alexander.deucher@amd.com,
-        penguin-kernel@i-love.sakura.ne.jp, deng.changcheng@zte.com.cn,
+        deller@gmx.de, sam@ravnborg.org, wangqing@vivo.com,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 07/23] Revert "fbdev: Make fb_release() return -ENODEV if fbdev was unregistered"
-Date:   Wed, 18 May 2022 08:26:20 -0400
-Message-Id: <20220518122641.342120-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.17 08/23] fbdev: Prevent possible use-after-free in fb_release()
+Date:   Wed, 18 May 2022 08:26:21 -0400
+Message-Id: <20220518122641.342120-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220518122641.342120-1-sashal@kernel.org>
 References: <20220518122641.342120-1-sashal@kernel.org>
@@ -61,54 +60,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier Martinez Canillas <javierm@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-[ Upstream commit 135332f34ba2662bc1e32b5c612e06a8cc41a053 ]
-
-This reverts commit aafa025c76dcc7d1a8c8f0bdefcbe4eb480b2f6a. That commit
-attempted to fix a NULL pointer dereference, caused by the struct fb_info
-associated with a framebuffer device to not longer be valid when the file
-descriptor was closed.
-
-The issue was exposed by commit 27599aacbaef ("fbdev: Hot-unplug firmware
-fb devices on forced removal"), which added a new path that goes through
-the struct device removal instead of directly unregistering the fb.
+[ Upstream commit 89bfd4017e58faaf70411555e7f508495114e90b ]
 
 Most fbdev drivers have issues with the fb_info lifetime, because call to
 framebuffer_release() from their driver's .remove callback, rather than
-doing from fbops.fb_destroy callback. This meant that due to this switch,
-the fb_info was now destroyed too early, while references still existed,
-while before it was simply leaked.
+doing from fbops.fb_destroy callback.
 
-The patch we're reverting here reinstated that leak, hence "fixed" the
-regression. But the proper solution is to fix the drivers to not release
-the fb_info too soon.
+Doing that will destroy the fb_info too early, while references to it may
+still exist, leading to a use-after-free error.
 
-Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+To prevent this, check the fb_info reference counter when attempting to
+kfree the data structure in framebuffer_release(). That will leak it but
+at least will prevent the mentioned error.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220504115917.758787-1-javierm@redhat.com
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220505220413.365977-1-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmem.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/video/fbdev/core/fbsysfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
-index 10a9369c9dea..00f0f282e7a1 100644
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -1438,10 +1438,7 @@ fb_release(struct inode *inode, struct file *file)
- __acquires(&info->lock)
- __releases(&info->lock)
+diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
+index 26892940c213..82e31a2d845e 100644
+--- a/drivers/video/fbdev/core/fbsysfs.c
++++ b/drivers/video/fbdev/core/fbsysfs.c
+@@ -80,6 +80,10 @@ void framebuffer_release(struct fb_info *info)
  {
--	struct fb_info * const info = file_fb_info(file);
--
--	if (!info)
--		return -ENODEV;
-+	struct fb_info * const info = file->private_data;
- 
- 	lock_fb_info(info);
- 	if (info->fbops->fb_release)
+ 	if (!info)
+ 		return;
++
++	if (WARN_ON(refcount_read(&info->count)))
++		return;
++
+ 	kfree(info->apertures);
+ 	kfree(info);
+ }
 -- 
 2.35.1
 
