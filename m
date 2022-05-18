@@ -2,50 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1D452BAC3
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:39:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9070252BB23
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:40:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236947AbiERMdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54270 "EHLO
+        id S236811AbiERMdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236949AbiERMcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:32:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DE514D787;
-        Wed, 18 May 2022 05:29:20 -0700 (PDT)
+        with ESMTP id S236992AbiERMbV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:31:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 985D919C3B3;
+        Wed, 18 May 2022 05:28:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2627B6147D;
-        Wed, 18 May 2022 12:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5974AC385A5;
-        Wed, 18 May 2022 12:28:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BD886169B;
+        Wed, 18 May 2022 12:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56BF2C385A5;
+        Wed, 18 May 2022 12:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876923;
-        bh=0/NFO8cYx8eV49vuYrkyZNzByuqpxYe0Qj+VfRawypc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqhK8r7lcjyA0MePeJhLpFkUuJ8oPXlegUQg/QxZQCyW+RnBFaXsuBybAPYzphF6+
-         3rcDlO6ZMttfQAi3wWohkn2Hvtobixnu1Iao4ilrXnDDN4fwlNPNIaFR0sqJ/BxyWN
-         wuJb3H7PJp8z7aaUF07TQY5RjSPehF/BZqPaqVTAVQkBICKEiFlLDF+XUKKBeleLih
-         uN7FNbvdieTKFgH+oQZMedfwnhAxi1e5Xba6/afHMfamIUBb9P2XpNu/d/Do2n6azf
-         Pv1Qrd3UNdTlmYQdeiuQUF9qUW3NbcxiPzv8YQbitnP+FztHiDsLHYxzKrFaFuqNCL
-         YX+pmcJl9lQRw==
+        s=k20201202; t=1652876932;
+        bh=cnUCblIf/+uzfEgn7KNbzcGTzIFOtAA66Jp534DqMLA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=UrLM160u9Eg8OoaHrzrDFtza9Rw7BDncYdzedr66kgChF1QYxVsirQOSzcQ98BBE7
+         em7Nmw893enfjmho2aD/vlfQNd7upvGzelm9BLBBd/2wma485KaGJ8q4KrEXB7pdjJ
+         FDupK4k1w9ypqRccJGj3wDgIUwsW/Cfi3z7bpkL9tUy+UI30NJj+UhSO7pPGZsFxCE
+         2Ub6DWe0q8Dz9LWUkOErn/HwmDZULXLl4yioJYtgcvbFxbRD5+tuwd5zzyNpvddK1M
+         1P73oKMcHuW2uoDE6XRkCzPtWzxT/z9RJmXbT56MLIsoQoFtxCdNmfm/PZp1/pF2f8
+         slk+QhsL8XhVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Schspa Shi <schspa@gmail.com>,
-        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        jannh@google.com, Julia.Lawall@inria.fr, jj251510319013@gmail.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 17/17] usb: gadget: fix race when gadget driver register via ioctl
-Date:   Wed, 18 May 2022 08:27:51 -0400
-Message-Id: <20220518122753.342758-17-sashal@kernel.org>
+Cc:     Gleb Chesnokov <Chesnokov.G@raidix.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, njavali@marvell.com,
+        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 01/13] scsi: qla2xxx: Fix missed DMA unmap for aborted commands
+Date:   Wed, 18 May 2022 08:28:32 -0400
+Message-Id: <20220518122844.343220-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220518122753.342758-1-sashal@kernel.org>
-References: <20220518122753.342758-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,96 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Gleb Chesnokov <Chesnokov.G@raidix.com>
 
-[ Upstream commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 ]
+[ Upstream commit 26f9ce53817a8fd84b69a73473a7de852a24c897 ]
 
-The usb_gadget_register_driver can be called multi time by to
-threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
-to multiple registrations.
+Aborting commands that have already been sent to the firmware can
+cause BUG in qlt_free_cmd(): BUG_ON(cmd->sg_mapped)
 
-Call trace:
-  driver_register+0x220/0x3a0 drivers/base/driver.c:171
-  usb_gadget_register_driver_owner+0xfb/0x1e0
-    drivers/usb/gadget/udc/core.c:1546
-  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
-  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
-  ioctl USB_RAW_IOCTL_RUN
+For instance:
 
-This routine allows two processes to register the same driver instance
-via ioctl syscall. which lead to a race condition.
+ - Command passes rdx_to_xfer state, maps sgl, sends to the firmware
 
-Please refer to the following scenarios.
+ - Reset occurs, qla2xxx performs ISP error recovery, aborts the command
 
-           T1                                  T2
-------------------------------------------------------------------
-usb_gadget_register_driver_owner
-  driver_register                    driver_register
-    driver_find                       driver_find
-    bus_add_driver                    bus_add_driver
-      priv alloced                     <context switch>
-      drv->p = priv;
-      <schedule out>
-      kobject_init_and_add // refcount = 1;
-   //couldn't find an available UDC or it's busy
-   <context switch>
-                                       priv alloced
-                                       drv->priv = priv;
-                                       kobject_init_and_add
-                                         ---> refcount = 1 <------
-                                       // register success
-                                       <context switch>
-===================== another ioctl/process ======================
-                                      driver_register
-                                       driver_find
-                                        k = kset_find_obj()
-                                         ---> refcount = 2 <------
-                                        <context out>
-   driver_unregister
-   // drv->p become T2's priv
-   ---> refcount = 1 <------
-   <context switch>
-                                        kobject_put(k)
-                                         ---> refcount = 0 <------
-                                        return priv->driver;
-                                        --------UAF here----------
+ - Target stack calls qlt_abort_cmd() and then qlt_free_cmd()
 
-There will be UAF in this scenario.
+ - BUG_ON(cmd->sg_mapped) in qlt_free_cmd() occurs because sgl was not
+   unmapped
 
-We can fix it by adding a new STATE_DEV_REGISTERING device state to
-avoid double register.
+Thus, unmap sgl in qlt_abort_cmd() for commands with the aborted flag set.
 
-Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/AS8PR10MB4952D545F84B6B1DFD39EC1E9DEE9@AS8PR10MB4952.EURPRD10.PROD.OUTLOOK.COM
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Gleb Chesnokov <Chesnokov.G@raidix.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/qla2xxx/qla_target.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/gadget/legacy/raw_gadget.c b/drivers/usb/gadget/legacy/raw_gadget.c
-index d86c3a36441e..3427ce37a5c5 100644
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -145,6 +145,7 @@ enum dev_state {
- 	STATE_DEV_INVALID = 0,
- 	STATE_DEV_OPENED,
- 	STATE_DEV_INITIALIZED,
-+	STATE_DEV_REGISTERING,
- 	STATE_DEV_RUNNING,
- 	STATE_DEV_CLOSED,
- 	STATE_DEV_FAILED
-@@ -508,6 +509,7 @@ static int raw_ioctl_run(struct raw_dev *dev, unsigned long value)
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-+	dev->state = STATE_DEV_REGISTERING;
- 	spin_unlock_irqrestore(&dev->lock, flags);
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index cf9ae0ab489a..ba823e8eb902 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -3773,6 +3773,9 @@ int qlt_abort_cmd(struct qla_tgt_cmd *cmd)
  
- 	ret = usb_gadget_probe_driver(&dev->driver);
+ 	spin_lock_irqsave(&cmd->cmd_lock, flags);
+ 	if (cmd->aborted) {
++		if (cmd->sg_mapped)
++			qlt_unmap_sg(vha, cmd);
++
+ 		spin_unlock_irqrestore(&cmd->cmd_lock, flags);
+ 		/*
+ 		 * It's normal to see 2 calls in this path:
 -- 
 2.35.1
 
