@@ -2,58 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F32552B5F9
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 11:29:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00FB952B6D8
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 12:12:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234186AbiERJ2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 05:28:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56734 "EHLO
+        id S234258AbiERJdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 05:33:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234192AbiERJ2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 05:28:20 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC87F79389;
-        Wed, 18 May 2022 02:27:56 -0700 (PDT)
+        with ESMTP id S234304AbiERJds (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 05:33:48 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4018680233;
+        Wed, 18 May 2022 02:33:47 -0700 (PDT)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 56D141F983;
-        Wed, 18 May 2022 09:27:29 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id 025E121BB7;
+        Wed, 18 May 2022 09:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1652866049; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+        t=1652866426; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8VUBQW747RrhLmzGdxwxIaamcxCr/XdRlK1NT+DftbA=;
-        b=LiuZseOBqu44/HyjpSy4ODFE/x2zISlCiDGy1FGL0GaCL5oXBaxq1TpGOwgTu0qgGkhQey
-        e0AksgmLnYe28y1+SMKJLs2WE5FmQp5hHj3rIUyTmDYB6Tj4O6QY3B7KX5heMcgDbhEVCh
-        Yskej+tLc5G3oXMQWZCoclN78AcHqwM=
+        bh=3V/Fw0XIDP2Rv6CbzJuJNleSyzeKVKTInpxmMcFySbw=;
+        b=I+/YokzR7/f08oQFi+SZDbr0YJIolpRkVnvgu+3c8tGDRRFcxWVGm0t6Y25jDaG2eqgMxt
+        gpBFa1qY5aKPH9XBhqhppT26azIPh0ElosPs95D2zbxFPNCrwf5Z/T7324XTm7GuQTct3k
+        8nerwanti+lxv5705VXWO7v7B2S0sjE=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1652866049;
+        s=susede2_ed25519; t=1652866426;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=8VUBQW747RrhLmzGdxwxIaamcxCr/XdRlK1NT+DftbA=;
-        b=ONs0EzAi+zNoPNNLBxw8ORYLz2PdruHTCEZ+XCWGxxy7AnC6NXhM747VDLgbqu5Yyxwa86
-        /h5A7CY/kOEZNMCw==
+        bh=3V/Fw0XIDP2Rv6CbzJuJNleSyzeKVKTInpxmMcFySbw=;
+        b=gs/BDlWBAUeDbCYFTkcVOk9/doaU3VXytM2i/VjJ8nEpRSZ9EvLwh46wbPkPQ9j4ICrO5g
+        obbhEDT8Epl1sZCA==
 Received: from quack3.suse.cz (unknown [10.163.43.118])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 476A72C141;
-        Wed, 18 May 2022 09:27:29 +0000 (UTC)
+        by relay2.suse.de (Postfix) with ESMTPS id E94D82C3F8;
+        Wed, 18 May 2022 09:33:45 +0000 (UTC)
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id E485AA062F; Wed, 18 May 2022 11:27:28 +0200 (CEST)
-Date:   Wed, 18 May 2022 11:27:28 +0200
+        id B3608A062F; Wed, 18 May 2022 11:33:45 +0200 (CEST)
 From:   Jan Kara <jack@suse.cz>
-To:     Theodore Ts'o <tytso@mit.edu>
-Cc:     Jan Kara <jack@suse.cz>, linux-ext4@vger.kernel.org,
+To:     Ted Tso <tytso@mit.edu>
+Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
         stable@vger.kernel.org
-Subject: Re: [PATCH 2/2] ext4: Avoid cycles in directory h-tree
-Message-ID: <20220518092728.pad2255opmjljqqh@quack3.lan>
-References: <20220428180355.15209-1-jack@suse.cz>
- <20220428183143.5439-2-jack@suse.cz>
- <YoQ2AyDwS6GP3t2M@mit.edu>
+Subject: [PATCH 1/2] ext4: Verify dir block before splitting it
+Date:   Wed, 18 May 2022 11:33:28 +0200
+Message-Id: <20220518093332.13986-1-jack@suse.cz>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20220518093143.20955-1-jack@suse.cz>
+References: <20220518093143.20955-1-jack@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YoQ2AyDwS6GP3t2M@mit.edu>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3146; h=from:subject; bh=3ndvlAC5Jc7/SNT5XRRUEXEdsoXQ35rlHPNtW9BTj9Q=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBihL1nAwjOpiXqd0daEn9juHSHrlMSvdNr0VWXrzFA 60qdcJKJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYoS9ZwAKCRCcnaoHP2RA2eg4CA CWvYCNLY3hz8r8EG+CksEcn1AYoFJjuywG5xBTlaJIZWTZjjcKfFoyBs3kAcXAxABAnKF+oR9BRGkb hvrfA0nNm6aCSPuzDMJ3exqD0uROIAtDC53Advfd4vT/tAPOlnZvq52MrE2FQ61o54ucVksqjwniCs 7UzBNFAusp1bSBA90ayD3LNXunf4AkeH+oPjISXR+ovJXYMsbX4wz2eslqzkcPWRbJDHVmZcwqeVM2 +cJPHsykU0ETN3VlKMWtuOS1ZcM+/rQ3agHnCuwBP7LCRlPPovULCG83ArB6aabLG6TkRn1+rlVQ7B P5xx4HiLGNetZz9yqy5y34I4Jr17T4
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -64,90 +66,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue 17-05-22 19:55:47, Theodore Ts'o wrote:
-> On Thu, Apr 28, 2022 at 08:31:38PM +0200, Jan Kara wrote:
-> > A maliciously corrupted filesystem can contain cycles in the h-tree
-> > stored inside a directory. That can easily lead to the kernel corrupting
-> > tree nodes that were already verified under its hands while doing a node
-> > split and consequently accessing unallocated memory. Fix the problem by
-> > verifying traversed block numbers are unique.
-> > 
-> > CC: stable@vger.kernel.org
-> > Signed-off-by: Jan Kara <jack@suse.cz>
-> 
-> When I tried applying this patch, I got this crash:
-> 
-> ext4/052 23s ... 	[19:28:41][    2.683407] run fstests ext4/052 at 2022-05-17 19:28:41
-> [    5.433672] Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: dx_probe+0x629/0x630
-> [    5.434449] CPU: 0 PID: 2468 Comm: dirstress Not tainted 5.18.0-rc5-xfstests-00019-g204e6b4d4cc1 #610
-> [    5.435012] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
-> [    5.435501] Call Trace:
-> [    5.435659]  <TASK>
-> [    5.435791]  dump_stack_lvl+0x34/0x44
-> [    5.436027]  panic+0x107/0x28f
-> [    5.436221]  ? dx_probe+0x629/0x630
-> [    5.436430]  __stack_chk_fail+0x10/0x10
-> [    5.436663]  dx_probe+0x629/0x630
-> [    5.436869]  ext4_dx_add_entry+0x54/0x700
-> [    5.437176]  ext4_add_entry+0x38d/0x4e0
-> [    5.437421]  ext4_add_nondir+0x2b/0xc0
-> [    5.437647]  ext4_symlink+0x1c5/0x390
-> [    5.437869]  vfs_symlink+0x184/0x220
-> [    5.438095]  do_symlinkat+0x7a/0x110
-> [    5.438313]  __x64_sys_symlink+0x38/0x40
-> [    5.438548]  do_syscall_64+0x38/0x90
-> [    5.438762]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> [    5.439070] RIP: 0033:0x7f8137109a97
-> [    5.439285] Code: f0 ff ff 73 01 c3 48 8b 0d f6 d3 0c 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 b8 58 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d c9 d3 0c 00 f7 d8 64 89 01 48
-> [    5.440374] RSP: 002b:00007ffc514a2428 EFLAGS: 00000246 ORIG_RAX: 0000000000000058
-> [    5.440820] RAX: ffffffffffffffda RBX: 0000000000035d4a RCX: 00007f8137109a97
-> [    5.441278] RDX: 0000000000000000 RSI: 00007ffc514a2450 RDI: 00007ffc514a2450
-> [    5.441734] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000013
-> [    5.442153] R10: 00007ffc514a21c2 R11: 0000000000000246 R12: 0000000000061a80
-> [    5.442571] R13: 0000000000000000 R14: 00007ffc514a2450 R15: 00007ffc514a2c50
-> [    5.442989]  </TASK>
-> [    5.443289] Kernel Offset: disabled
-> [    5.443517] Rebooting in 5 seconds..
-> 
-> Applying just the first patch series (plus the patch hunk from this
-> commit needed so that the first patch compiles) does not result in a
-> crash, so the problem is clearly with this change.
+Before splitting a directory block verify its directory entries are sane
+so that the splitting code does not access memory it should not.
 
-I was wondering why my testing didn't catch this and the reason was that my
-test VM had a version of xfstests which had ext4/052 test but somehow the
-'tests/ext4/group' file didn't contain that test (and a few other newer
-ones) so it didn't get executed. Not sure how that broken group file got
-there but anyway it's fixed now and indeed ext4/052 test crashes for me as
-well.
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/ext4/namei.c | 32 +++++++++++++++++++++-----------
+ 1 file changed, 21 insertions(+), 11 deletions(-)
 
-> Looking more closely at ext4/052 which tests the large_dir feature,
-> and then looking at the patch, I suspect the fix which is needed
-> is:
-> 
-> > +	ext4_lblk_t blocks[EXT4_HTREE_LEVEL];
-> 
-> needs to be
-> 
-> 	ext4_lblk_t blocks[EXT4_HTREE_LEVEL + 1];
-> 
-> Otherwise on large htree which is 3 levels deep, this
-> 
-> > +		blocks[++level] = block;
-> 
-> is going to end up smashing the stack.
-> 
-> Jan, do you agree?
-
-Yes, thanks for debugging this! But I'd prefer a fix like:
-
-		if (++level > indirect)
-			return frame;
-		blocks[level] = block;
-
-because the store of the leaf block into 'blocks' array is just bogus. I'll
-send V2 with both the issues fixed.
-
-								Honza
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index 767b4bfe39c3..2a55f23e4524 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -277,9 +277,9 @@ static struct dx_frame *dx_probe(struct ext4_filename *fname,
+ 				 struct dx_hash_info *hinfo,
+ 				 struct dx_frame *frame);
+ static void dx_release(struct dx_frame *frames);
+-static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
+-		       unsigned blocksize, struct dx_hash_info *hinfo,
+-		       struct dx_map_entry map[]);
++static int dx_make_map(struct inode *dir, struct buffer_head *bh,
++		       struct dx_hash_info *hinfo,
++		       struct dx_map_entry *map_tail);
+ static void dx_sort_map(struct dx_map_entry *map, unsigned count);
+ static struct ext4_dir_entry_2 *dx_move_dirents(struct inode *dir, char *from,
+ 					char *to, struct dx_map_entry *offsets,
+@@ -1249,15 +1249,23 @@ static inline int search_dirblock(struct buffer_head *bh,
+  * Create map of hash values, offsets, and sizes, stored at end of block.
+  * Returns number of entries mapped.
+  */
+-static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
+-		       unsigned blocksize, struct dx_hash_info *hinfo,
++static int dx_make_map(struct inode *dir, struct buffer_head *bh,
++		       struct dx_hash_info *hinfo,
+ 		       struct dx_map_entry *map_tail)
+ {
+ 	int count = 0;
+-	char *base = (char *) de;
++	struct ext4_dir_entry_2 *de = (struct ext4_dir_entry_2 *)bh->b_data;
++	unsigned int buflen = bh->b_size;
++	char *base = bh->b_data;
+ 	struct dx_hash_info h = *hinfo;
+ 
+-	while ((char *) de < base + blocksize) {
++	if (ext4_has_metadata_csum(dir->i_sb))
++		buflen -= sizeof(struct ext4_dir_entry_tail);
++
++	while ((char *) de < base + buflen) {
++		if (ext4_check_dir_entry(dir, NULL, de, bh, base, buflen,
++					 ((char *)de) - base))
++			return -EFSCORRUPTED;
+ 		if (de->name_len && de->inode) {
+ 			if (ext4_hash_in_dirent(dir))
+ 				h.hash = EXT4_DIRENT_HASH(de);
+@@ -1270,8 +1278,7 @@ static int dx_make_map(struct inode *dir, struct ext4_dir_entry_2 *de,
+ 			count++;
+ 			cond_resched();
+ 		}
+-		/* XXX: do we need to check rec_len == 0 case? -Chris */
+-		de = ext4_next_entry(de, blocksize);
++		de = ext4_next_entry(de, dir->i_sb->s_blocksize);
+ 	}
+ 	return count;
+ }
+@@ -1943,8 +1950,11 @@ static struct ext4_dir_entry_2 *do_split(handle_t *handle, struct inode *dir,
+ 
+ 	/* create map in the end of data2 block */
+ 	map = (struct dx_map_entry *) (data2 + blocksize);
+-	count = dx_make_map(dir, (struct ext4_dir_entry_2 *) data1,
+-			     blocksize, hinfo, map);
++	count = dx_make_map(dir, *bh, hinfo, map);
++	if (count < 0) {
++		err = count;
++		goto journal_error;
++	}
+ 	map -= count;
+ 	dx_sort_map(map, count);
+ 	/* Ensure that neither split block is over half full */
 -- 
-Jan Kara <jack@suse.com>
-SUSE Labs, CR
+2.35.3
+
