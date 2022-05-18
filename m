@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27CE952BB12
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 397C052BA86
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236503AbiERM1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:27:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47660 "EHLO
+        id S236491AbiERM1R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:27:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236483AbiERM1O (ORCPT
+        with ESMTP id S236489AbiERM1O (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:27:14 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77BE18DDCE;
-        Wed, 18 May 2022 05:27:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB73A76CA;
+        Wed, 18 May 2022 05:27:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C923DB81FB6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 901F2B81FB9;
+        Wed, 18 May 2022 12:27:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D3FC34117;
         Wed, 18 May 2022 12:27:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 407DDC385AA;
-        Wed, 18 May 2022 12:27:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876824;
-        bh=doQRzfdvKQcqj96z7UMVJeMF3Ya4m94Bf6rITo95dKE=;
+        s=k20201202; t=1652876826;
+        bh=y1xog3J27YTwN0A9xZLgHTReF4/FxWbtCjlVdhy8QJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uTE9CK8kHOpcgsW4skP3AYCrsPD5jlqZA0wckV3P8PejKR4zOlKKGzHWZS1FbzR6d
-         i6rw8Q0s5fvovFzBH+P+ogzFuK76axYa9CM9w7UZkMnK3374bF2Twj0cjhmwVW4fBR
-         sYvIzl03GN+qGkesa7AAcVs+0LdN9I3QdswiICZeR4/FxsZizn5JglmrGyxqiPi1tS
-         ad7MePLICIj31QyMzo/fikfftOfRD5FZ9alhCGkCnW/twrbk7hmKyRFEMwtXw5zk9B
-         b08PWiqCW6erupdG1sT7kz5ttZLDR+YAD1zbmgXJsgovqJ7ktepS6J4rAks8RSBXmy
-         WSt5Vvlet+E6w==
+        b=KFj2DXIRo1N/U3qEMl2Iy2DE+pSVPenlaK9KFY4mkHbOj6WHGecZdpgwDUSBoueHF
+         0wwUw+x8j+X/UYNQRj4VhrZBN5I9G/8XAoYYqPnDdvEmZJa1IAt7sWZjKp+L1XfpQm
+         5pR+GKEgKvMPi/9PuPkVtEHDBnxkvUIeGYJz60k1OAaIPO60J/s7KkIlkNhcekD2GK
+         Dh1c57fI3FxFPrPL3uZTcKTEBJ3x5Kf/EcSkly4ucx73O0hPSwUqJXh3e+SKZzG0fH
+         wx7M/PdOwD5sZAF8plxYGh2S8Lr6ICUklhrAl4gzPQ5/pSP1IZPbjVtWZR/bEHepAg
+         j7Wt3bB8fNkfQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sasha Levin <sashal@kernel.org>, daniel@ffwll.ch,
-        deller@gmx.de, sam@ravnborg.org, wangqing@vivo.com,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 08/23] fbdev: Prevent possible use-after-free in fb_release()
-Date:   Wed, 18 May 2022 08:26:21 -0400
-Message-Id: <20220518122641.342120-8-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Mark Pearson <markpearson@lenvo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, hmh@hmh.eng.br,
+        markgross@kernel.org, ibm-acpi-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 09/23] platform/x86: thinkpad_acpi: Convert btusb DMI list to quirks
+Date:   Wed, 18 May 2022 08:26:22 -0400
+Message-Id: <20220518122641.342120-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220518122641.342120-1-sashal@kernel.org>
 References: <20220518122641.342120-1-sashal@kernel.org>
@@ -60,45 +59,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 89bfd4017e58faaf70411555e7f508495114e90b ]
+[ Upstream commit c25d7f32e3e209462cd82e6e93e66b72dbb2308f ]
 
-Most fbdev drivers have issues with the fb_info lifetime, because call to
-framebuffer_release() from their driver's .remove callback, rather than
-doing from fbops.fb_destroy callback.
+DMI matching in thinkpad_acpi happens local to a function meaning
+quirks can only match that function.
 
-Doing that will destroy the fb_info too early, while references to it may
-still exist, leading to a use-after-free error.
+Future changes to thinkpad_acpi may need to quirk other code, so
+change this to use a quirk infrastructure.
 
-To prevent this, check the fb_info reference counter when attempting to
-kfree the data structure in framebuffer_release(). That will leak it but
-at least will prevent the mentioned error.
-
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220505220413.365977-1-javierm@redhat.com
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Tested-by: Mark Pearson <markpearson@lenvo.com>
+Link: https://lore.kernel.org/r/20220429030501.1909-2-mario.limonciello@amd.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbsysfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/platform/x86/thinkpad_acpi.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
-index 26892940c213..82e31a2d845e 100644
---- a/drivers/video/fbdev/core/fbsysfs.c
-+++ b/drivers/video/fbdev/core/fbsysfs.c
-@@ -80,6 +80,10 @@ void framebuffer_release(struct fb_info *info)
- {
- 	if (!info)
- 		return;
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index 3fb8cda31eb9..c43586f1cb4b 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -309,6 +309,15 @@ struct ibm_init_struct {
+ 	struct ibm_struct *data;
+ };
+ 
++/* DMI Quirks */
++struct quirk_entry {
++	bool btusb_bug;
++};
 +
-+	if (WARN_ON(refcount_read(&info->count)))
-+		return;
++static struct quirk_entry quirk_btusb_bug = {
++	.btusb_bug = true,
++};
 +
- 	kfree(info->apertures);
- 	kfree(info);
+ static struct {
+ 	u32 bluetooth:1;
+ 	u32 hotkey:1;
+@@ -338,6 +347,7 @@ static struct {
+ 	u32 hotkey_poll_active:1;
+ 	u32 has_adaptive_kbd:1;
+ 	u32 kbd_lang:1;
++	struct quirk_entry *quirks;
+ } tp_features;
+ 
+ static struct {
+@@ -4361,9 +4371,10 @@ static void bluetooth_exit(void)
+ 	bluetooth_shutdown();
  }
+ 
+-static const struct dmi_system_id bt_fwbug_list[] __initconst = {
++static const struct dmi_system_id fwbug_list[] __initconst = {
+ 	{
+ 		.ident = "ThinkPad E485",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20KU"),
+@@ -4371,6 +4382,7 @@ static const struct dmi_system_id bt_fwbug_list[] __initconst = {
+ 	},
+ 	{
+ 		.ident = "ThinkPad E585",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20KV"),
+@@ -4378,6 +4390,7 @@ static const struct dmi_system_id bt_fwbug_list[] __initconst = {
+ 	},
+ 	{
+ 		.ident = "ThinkPad A285 - 20MW",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20MW"),
+@@ -4385,6 +4398,7 @@ static const struct dmi_system_id bt_fwbug_list[] __initconst = {
+ 	},
+ 	{
+ 		.ident = "ThinkPad A285 - 20MX",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20MX"),
+@@ -4392,6 +4406,7 @@ static const struct dmi_system_id bt_fwbug_list[] __initconst = {
+ 	},
+ 	{
+ 		.ident = "ThinkPad A485 - 20MU",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20MU"),
+@@ -4399,6 +4414,7 @@ static const struct dmi_system_id bt_fwbug_list[] __initconst = {
+ 	},
+ 	{
+ 		.ident = "ThinkPad A485 - 20MV",
++		.driver_data = &quirk_btusb_bug,
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+ 			DMI_MATCH(DMI_BOARD_NAME, "20MV"),
+@@ -4421,7 +4437,8 @@ static int __init have_bt_fwbug(void)
+ 	 * Some AMD based ThinkPads have a firmware bug that calling
+ 	 * "GBDC" will cause bluetooth on Intel wireless cards blocked
+ 	 */
+-	if (dmi_check_system(bt_fwbug_list) && pci_dev_present(fwbug_cards_ids)) {
++	if (tp_features.quirks && tp_features.quirks->btusb_bug &&
++	    pci_dev_present(fwbug_cards_ids)) {
+ 		vdbg_printk(TPACPI_DBG_INIT | TPACPI_DBG_RFKILL,
+ 			FW_BUG "disable bluetooth subdriver for Intel cards\n");
+ 		return 1;
+@@ -11438,6 +11455,7 @@ static void thinkpad_acpi_module_exit(void)
+ 
+ static int __init thinkpad_acpi_module_init(void)
+ {
++	const struct dmi_system_id *dmi_id;
+ 	int ret, i;
+ 
+ 	tpacpi_lifecycle = TPACPI_LIFE_INIT;
+@@ -11477,6 +11495,10 @@ static int __init thinkpad_acpi_module_init(void)
+ 		return -ENODEV;
+ 	}
+ 
++	dmi_id = dmi_first_match(fwbug_list);
++	if (dmi_id)
++		tp_features.quirks = dmi_id->driver_data;
++
+ 	/* Device initialization */
+ 	tpacpi_pdev = platform_device_register_simple(TPACPI_DRVR_NAME, -1,
+ 							NULL, 0);
 -- 
 2.35.1
 
