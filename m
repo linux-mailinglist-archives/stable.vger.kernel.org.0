@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73DA52BA07
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:38:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E74652BA99
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:39:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236911AbiERMao (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:30:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48496 "EHLO
+        id S236892AbiERMal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236553AbiERM3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:29:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D34C170657;
-        Wed, 18 May 2022 05:27:57 -0700 (PDT)
+        with ESMTP id S236709AbiERM3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:29:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB43C170675;
+        Wed, 18 May 2022 05:27:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFB9CB81F40;
-        Wed, 18 May 2022 12:27:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 396B4C36AE2;
-        Wed, 18 May 2022 12:27:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EF9E61610;
+        Wed, 18 May 2022 12:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8ADC34100;
+        Wed, 18 May 2022 12:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876870;
-        bh=0/NFO8cYx8eV49vuYrkyZNzByuqpxYe0Qj+VfRawypc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCjqESaz4VEECBYwOXmzdci2iUXr3v3KcGBDcWFrdP15Hob4UnyxpOWzKKF4qkAA5
-         k7mB93r0A1lOxEN4C1zZCOmOD15mwztAABzRyej9Y+pxdJ/JtsxxfP1tZ3muHMS4ze
-         9LA1BcYnqR/4hPndVfCMidfamFMLIuEG+Iu6/DSNtV22CNg1Dj8KYyS6VZc6fIwpOu
-         EEqPJ+s6qExQWHVoTtJVEMoN6r+SOmaKNcbCW7EP2bwgQkb+0yMjwJQrt/Z0AcgaNs
-         A1Xr0AIFOXE8lM6lxqANFUMp6YKepdUTTFMyxcPWcTojplM0Q3KveumfTC9iJKruq3
-         KG58VGmDeVv3Q==
+        s=k20201202; t=1652876876;
+        bh=Q6WGn+T2IYOJX+pYvJtK4Xq4x5ALfQD1/9ZqxdvFrkU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=HuTI6Uz//aFPyA8Z6jvOUA/F2E1YVjroJA8yMngxLg69X1DztYVoiH5ycJ1rOLyJI
+         X5ucyTU2Sw0RTiBzfNcEKmcJqF/FPXg9olOCXUrE6r+rFFmvo5y16wNpC8sWQMML0H
+         5cKDjOi5nHfxttgWgKuUw3Z6eody4i0XuXZSsO3M370k7Q6iEOV6v4ACAkrbnYRF79
+         c689G7prdPnESW7p9t1x76ugYHpCyTWc7S6BvYrGNYO3xC41cU9l1/F9asZRlnF+d0
+         uCGwkWUoGm06sBBvI3WyCHvZV/xdBI5ihbmFQgEScWEw7bCifWI1/t1RXK4Ko26bNH
+         50ASbj+/yEdbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Schspa Shi <schspa@gmail.com>,
-        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
-        jannh@google.com, Julia.Lawall@inria.fr, jj251510319013@gmail.com,
-        linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 23/23] usb: gadget: fix race when gadget driver register via ioctl
-Date:   Wed, 18 May 2022 08:26:36 -0400
-Message-Id: <20220518122641.342120-23-sashal@kernel.org>
+Cc:     Brian Bunker <brian@purestorage.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Krishna Kant <krishna.kant@purestorage.com>,
+        Seamus Connor <sconnor@purestorage.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        mwilck@suse.com, dan.carpenter@oracle.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/17] scsi: scsi_dh_alua: Properly handle the ALUA transitioning state
+Date:   Wed, 18 May 2022 08:27:35 -0400
+Message-Id: <20220518122753.342758-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220518122641.342120-1-sashal@kernel.org>
-References: <20220518122641.342120-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,96 +59,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Brian Bunker <brian@purestorage.com>
 
-[ Upstream commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 ]
+[ Upstream commit 6056a92ceb2a7705d61df7ec5370548e96aee258 ]
 
-The usb_gadget_register_driver can be called multi time by to
-threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
-to multiple registrations.
+The handling of the ALUA transitioning state is currently broken. When a
+target goes into this state, it is expected that the target is allowed to
+stay in this state for the implicit transition timeout without a path
+failure. The handler has this logic, but it gets skipped currently.
 
-Call trace:
-  driver_register+0x220/0x3a0 drivers/base/driver.c:171
-  usb_gadget_register_driver_owner+0xfb/0x1e0
-    drivers/usb/gadget/udc/core.c:1546
-  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
-  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
-  ioctl USB_RAW_IOCTL_RUN
+When the target transitions, there is in-flight I/O from the initiator. The
+first of these responses from the target will be a unit attention letting
+the initiator know that the ALUA state has changed.  The remaining
+in-flight I/Os, before the initiator finds out that the portal state has
+changed, will return not ready, ALUA state is transitioning. The portal
+state will change to SCSI_ACCESS_STATE_TRANSITIONING. This will lead to all
+new I/O immediately failing the path unexpectedly. The path failure happens
+in less than a second instead of the expected successes until the
+transition timer is exceeded.
 
-This routine allows two processes to register the same driver instance
-via ioctl syscall. which lead to a race condition.
+Allow I/Os to continue while the path is in the ALUA transitioning
+state. The handler already takes care of a target that stays in the
+transitioning state for too long by changing the state to ALUA state
+standby once the transition timeout is exceeded at which point the path
+will fail.
 
-Please refer to the following scenarios.
-
-           T1                                  T2
-------------------------------------------------------------------
-usb_gadget_register_driver_owner
-  driver_register                    driver_register
-    driver_find                       driver_find
-    bus_add_driver                    bus_add_driver
-      priv alloced                     <context switch>
-      drv->p = priv;
-      <schedule out>
-      kobject_init_and_add // refcount = 1;
-   //couldn't find an available UDC or it's busy
-   <context switch>
-                                       priv alloced
-                                       drv->priv = priv;
-                                       kobject_init_and_add
-                                         ---> refcount = 1 <------
-                                       // register success
-                                       <context switch>
-===================== another ioctl/process ======================
-                                      driver_register
-                                       driver_find
-                                        k = kset_find_obj()
-                                         ---> refcount = 2 <------
-                                        <context out>
-   driver_unregister
-   // drv->p become T2's priv
-   ---> refcount = 1 <------
-   <context switch>
-                                        kobject_put(k)
-                                         ---> refcount = 0 <------
-                                        return priv->driver;
-                                        --------UAF here----------
-
-There will be UAF in this scenario.
-
-We can fix it by adding a new STATE_DEV_REGISTERING device state to
-avoid double register.
-
-Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/CAHZQxy+4sTPz9+pY3=7VJH+CLUJsDct81KtnR2be8ycN5mhqTg@mail.gmail.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Acked-by: Krishna Kant <krishna.kant@purestorage.com>
+Acked-by: Seamus Connor <sconnor@purestorage.com>
+Signed-off-by: Brian Bunker <brian@purestorage.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/legacy/raw_gadget.c b/drivers/usb/gadget/legacy/raw_gadget.c
-index d86c3a36441e..3427ce37a5c5 100644
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -145,6 +145,7 @@ enum dev_state {
- 	STATE_DEV_INVALID = 0,
- 	STATE_DEV_OPENED,
- 	STATE_DEV_INITIALIZED,
-+	STATE_DEV_REGISTERING,
- 	STATE_DEV_RUNNING,
- 	STATE_DEV_CLOSED,
- 	STATE_DEV_FAILED
-@@ -508,6 +509,7 @@ static int raw_ioctl_run(struct raw_dev *dev, unsigned long value)
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-+	dev->state = STATE_DEV_REGISTERING;
- 	spin_unlock_irqrestore(&dev->lock, flags);
- 
- 	ret = usb_gadget_probe_driver(&dev->driver);
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index 37d06f993b76..1d9be771f3ee 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -1172,9 +1172,8 @@ static blk_status_t alua_prep_fn(struct scsi_device *sdev, struct request *req)
+ 	case SCSI_ACCESS_STATE_OPTIMAL:
+ 	case SCSI_ACCESS_STATE_ACTIVE:
+ 	case SCSI_ACCESS_STATE_LBA:
+-		return BLK_STS_OK;
+ 	case SCSI_ACCESS_STATE_TRANSITIONING:
+-		return BLK_STS_AGAIN;
++		return BLK_STS_OK;
+ 	default:
+ 		req->rq_flags |= RQF_QUIET;
+ 		return BLK_STS_IOERR;
 -- 
 2.35.1
 
