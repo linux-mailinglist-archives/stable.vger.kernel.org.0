@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0DBB52BB14
-	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6ED52BA24
+	for <lists+stable@lfdr.de>; Wed, 18 May 2022 14:38:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237222AbiERMeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 18 May 2022 08:34:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54654 "EHLO
+        id S237140AbiERMfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 18 May 2022 08:35:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237018AbiERMdo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:33:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0146C1737C2;
-        Wed, 18 May 2022 05:29:51 -0700 (PDT)
+        with ESMTP id S237066AbiERMeP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 18 May 2022 08:34:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 931C31059FE;
+        Wed, 18 May 2022 05:30:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F3DDB81FB9;
-        Wed, 18 May 2022 12:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B56DFC385A5;
-        Wed, 18 May 2022 12:29:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A237AB81FBB;
+        Wed, 18 May 2022 12:29:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35330C385AA;
+        Wed, 18 May 2022 12:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1652876988;
-        bh=AEH/dvMVbcFeYDvFezpfR84pX6HTZhUBNCCoNrj0aKI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BIRmo9hTbP8frive6zI5edydk1EUOuDv5qAOheL/7kwkdFSBMdBiCS+DZDCT+b9EV
-         WorYbpOeq3EykQ+ijhBuzd5RHO9u8UTFonWi5U06n85OG/0roHn0d+9l1p/uB9K/iy
-         yf+9+tqOgsXCi6KwJX1IqipSBU7IeXYaPqEplmn+/HOfPo31G+RqvAcIXHwW3MULIP
-         vOtN9QFr31OqaNop03KzrQuB/AocfML9RQPJSIjQbvNxbwklU1/v3njNqBXK6xfpoC
-         UG7RwZXngeHSA+WDLekI6R0cnviwlQ6dAJnwLidfpRGAWhMQNp6jsZsFizOv+RSPKb
-         ulMEO7pHlDRVg==
+        s=k20201202; t=1652876990;
+        bh=KxUHMxCtT1XT8i2oOCZgReXE0uqJrutH4S+iLI9/Svw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mLCrHqC9eVi/RtNIN8uxwLotVzhpn0ZBPJCmD1ZeuyWvdQuCAI/hoeBTJ80rk+ohW
+         lzHOEn6upppnwkqwU7DqOnnNuJASjB/EgwgicQFsD4xPXixYXxx3xLzJUYUTmjrE6M
+         vnzp8oUteyDfWkns2Y7LjfMMCPlbWZIA3hS6IJuAS1PzpruiHbPhPUARr221e56zfq
+         0vMblsE+ExinZblZlWphFRJtl/EN8e1fZba423VgLUbc27lbvkVFPEjSXd0hcnHmIh
+         7+C1JuDa7p0kmg3YLr88F9FgVVHtabRFKz/g7G1NwN3J567R4xftNaaJdxh63a6Sdp
+         yGHd007OjdvNg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gleb Chesnokov <Chesnokov.G@raidix.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, njavali@marvell.com,
-        GR-QLogic-Storage-Upstream@marvell.com, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/5] scsi: qla2xxx: Fix missed DMA unmap for aborted commands
-Date:   Wed, 18 May 2022 08:29:41 -0400
-Message-Id: <20220518122946.343712-1-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 2/5] mac80211: fix rx reordering with non explicit / psmp ack policy
+Date:   Wed, 18 May 2022 08:29:42 -0400
+Message-Id: <20220518122946.343712-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220518122946.343712-1-sashal@kernel.org>
+References: <20220518122946.343712-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,49 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gleb Chesnokov <Chesnokov.G@raidix.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 26f9ce53817a8fd84b69a73473a7de852a24c897 ]
+[ Upstream commit 5e469ed9764d4722c59562da13120bd2dc6834c5 ]
 
-Aborting commands that have already been sent to the firmware can
-cause BUG in qlt_free_cmd(): BUG_ON(cmd->sg_mapped)
+When the QoS ack policy was set to non explicit / psmp ack, frames are treated
+as not being part of a BA session, which causes extra latency on reordering.
+Fix this by only bypassing reordering for packets with no-ack policy
 
-For instance:
-
- - Command passes rdx_to_xfer state, maps sgl, sends to the firmware
-
- - Reset occurs, qla2xxx performs ISP error recovery, aborts the command
-
- - Target stack calls qlt_abort_cmd() and then qlt_free_cmd()
-
- - BUG_ON(cmd->sg_mapped) in qlt_free_cmd() occurs because sgl was not
-   unmapped
-
-Thus, unmap sgl in qlt_abort_cmd() for commands with the aborted flag set.
-
-Link: https://lore.kernel.org/r/AS8PR10MB4952D545F84B6B1DFD39EC1E9DEE9@AS8PR10MB4952.EURPRD10.PROD.OUTLOOK.COM
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Gleb Chesnokov <Chesnokov.G@raidix.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Link: https://lore.kernel.org/r/20220420105038.36443-1-nbd@nbd.name
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/mac80211/rx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 09c52ef66887..27d3293eadf5 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -3753,6 +3753,9 @@ int qlt_abort_cmd(struct qla_tgt_cmd *cmd)
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index f30b732af61d..3598ebe52d08 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1322,8 +1322,7 @@ static void ieee80211_rx_reorder_ampdu(struct ieee80211_rx_data *rx,
+ 		goto dont_reorder;
  
- 	spin_lock_irqsave(&cmd->cmd_lock, flags);
- 	if (cmd->aborted) {
-+		if (cmd->sg_mapped)
-+			qlt_unmap_sg(vha, cmd);
-+
- 		spin_unlock_irqrestore(&cmd->cmd_lock, flags);
- 		/*
- 		 * It's normal to see 2 calls in this path:
+ 	/* not part of a BA session */
+-	if (ack_policy != IEEE80211_QOS_CTL_ACK_POLICY_BLOCKACK &&
+-	    ack_policy != IEEE80211_QOS_CTL_ACK_POLICY_NORMAL)
++	if (ack_policy == IEEE80211_QOS_CTL_ACK_POLICY_NOACK)
+ 		goto dont_reorder;
+ 
+ 	/* new, potentially un-ordered, ampdu frame - process it */
 -- 
 2.35.1
 
