@@ -2,86 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7476552D2A1
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 14:37:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41E7652D2AE
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 14:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234274AbiESMhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 08:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59240 "EHLO
+        id S231462AbiESMkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 08:40:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234115AbiESMhY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 08:37:24 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B53D366A4
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 05:37:23 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id ds11so5225585pjb.0
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 05:37:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=/y6BVIWJFnRlCLbZyh+AFPzEBsmDxR4nuEPPRMcWq0E=;
-        b=VFzCNrQRFSSwJWNARC3i6ZOH6adrc8XDY1OMceC2FIcGIA3DBDMxc1RL6AUaxREcfQ
-         NN12xlMtOtu69JGtdMCmDru/QWw2iDuXj9YZYO3WrBgItrc12A+Q364XSwTuf8mtSMYS
-         IVlZzPM4jOc6we4in25k2Vbz618yw4/BEDLeAdpfC68Am+9xgNlNA+IuXxlTl1wOW0wd
-         roD1i6TxQimY9nlC7VXz+9bsr/2EMVhr1efhyNMOTvwCn3UhYz2QFqNUcHNUeE5v0eww
-         PrkMmKwnXpJtjk6i0yPVMeN2DIXoJm5MTId9cy66XhXOZIZn3QYtY0iuxGJ96S7qPw03
-         5HVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=/y6BVIWJFnRlCLbZyh+AFPzEBsmDxR4nuEPPRMcWq0E=;
-        b=FWvG+G2jkp91bQY2oKmMdUfu/5rjDnXixVreW2Oz3HDexRlv7LhFqz8dk9urfTtLZw
-         90jkcvYu6YGoE+wHZkAc+YmUDEg+oMf+ciI36waTuWIh9RJ1kiK4OuxIDgDmpyVKeyEv
-         TQ++2AMnPSFeATL20ys8LTvk1YrqU+pTnisp0+Xoa3io/OGszNmUFHWIB2fwDLqXBwTh
-         gC+Al7Q4k4aBWuO81k7zA+iF3x6E5LneH+MKxf+TOMYVLJEJNfaH4sc2C+UTOUcc9SZY
-         8HVeIh8kwAtZOetksQUtsVYlHqxRKoYBYmEhEaWIgNSC94/7nguex8k/n1OU0KW4mAKC
-         I0HA==
-X-Gm-Message-State: AOAM530TbJAw+nREo7C+tgSr5mqnvRjVEDoaLIq4LFB1lzDnFTYtFtZk
-        27lxMCBs3LXkT2rUHQdWTeQtoA==
-X-Google-Smtp-Source: ABdhPJyICpszGDJrostM9GG9EEm7DRvpAAR39N8hKUpjaJpi3yJjBYEwmrOf/quqpRhzsw/dQxS9qw==
-X-Received: by 2002:a17:902:a614:b0:161:7a0d:c73e with SMTP id u20-20020a170902a61400b001617a0dc73emr4360630plq.110.1652963842902;
-        Thu, 19 May 2022 05:37:22 -0700 (PDT)
-Received: from [192.168.1.100] ([198.8.77.157])
-        by smtp.gmail.com with ESMTPSA id k11-20020aa788cb000000b0050dc76281c7sm4066320pff.161.2022.05.19.05.37.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 19 May 2022 05:37:22 -0700 (PDT)
-Message-ID: <d9750f3b-f220-c1ca-d40a-2a3dc664d05c@kernel.dk>
-Date:   Thu, 19 May 2022 06:37:21 -0600
+        with ESMTP id S236881AbiESMkw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 08:40:52 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDB41705B
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 05:40:49 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2E0F3CE23D2
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 12:40:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2507C385AA;
+        Thu, 19 May 2022 12:40:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1652964046;
+        bh=hMOdlctesNkJJ+kkF3QI7NKlIKtbahG4KlEpL8oSx9Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=UKNdW30tZ8+I3yEl8VeXH89MEEUgCC/UViTaHmPP8YaVZ9G7S9bNxTzyc+4fvaRGY
+         f+LFl+gM/XFWz5MvpoavQ2MNHFJg5FvxtLL3DUocW59LX2lxNwdLRLIBWKF6/zt7NQ
+         dp1uVxxPZzF+IvpRzN136gD7eBsGQeqbROO31mUQ=
+Date:   Thu, 19 May 2022 14:40:43 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Denis Efremov <efremov@linux.com>
+Cc:     stable@vger.kernel.org, Willy Tarreau <w@1wt.eu>
+Subject: Re: [PATCH 1/3] floppy: use a statically allocated error counter
+Message-ID: <YoY6y+DYP4fjYh9o@kroah.com>
+References: <20220508093709.24548-1-w@1wt.eu>
+ <236c0048-49b5-2c37-4549-d8774f243ae3@linux.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: Patch for 5.10-stable
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
-References: <543c3909-a7b6-23ac-2c2e-ce10dd2433e8@kernel.dk>
- <YoY5tZ//ENRFzEiU@kroah.com>
-From:   Jens Axboe <axboe@kernel.dk>
-In-Reply-To: <YoY5tZ//ENRFzEiU@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <236c0048-49b5-2c37-4549-d8774f243ae3@linux.com>
+X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/19/22 6:36 AM, Greg Kroah-Hartman wrote:
-> On Thu, May 19, 2022 at 06:09:39AM -0600, Jens Axboe wrote:
->> Hi,
->>
->> Can we get this queued up for 5.10-stable? Thanks!
+On Tue, May 17, 2022 at 09:47:57PM +0400, Denis Efremov wrote:
+> Hi,
 > 
-> Now queued up, thanks.
+> On 5/8/22 13:37, Willy Tarreau wrote:
+> > Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
+> > request just to increment the error count. There's no point keeping
+> > that one in the request anyway, and since the interrupt handler uses
+> > a static pointer to the error which cannot be kept in sync with the
+> > pending request, better make it use a static error counter that's
+> > reset for each new request. This reset now happens when entering
+> > redo_fd_request() for a new request via set_next_request().
+> > 
+> > One initial concern about a single error counter was that errors on
+> > one floppy drive could be reported on another one, but this problem
+> > is not real given that the driver uses a single drive at a time, as
+> > that PC-compatible controllers also have this limitation by using
+> > shared signals. As such the error count is always for the "current"
+> > drive.
+> > 
+> > Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+> > Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+> > Tested-by: Denis Efremov <efremov@linux.com>
+> > Signed-off-by: Willy Tarreau <w@1wt.eu>
+> 
+> Could you please take this patch (only this one) to the stable trees?
+> 
+> commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
+> 
+> The patch applies cleanly to 5.17, 5.15, 5.10 kernels.
+> I'll send a backport for 5.4 and older kernels.
 
-Thanks Greg!
+All now queued up, thanks.
 
--- 
-Jens Axboe
-
+greg k-h
