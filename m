@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A4752DD06
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 20:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A5752DD04
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 20:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244061AbiESSpx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 14:45:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54194 "EHLO
+        id S243407AbiESSpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 14:45:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243300AbiESSpu (ORCPT
+        with ESMTP id S243296AbiESSpu (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 14:45:50 -0400
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 200E2109E;
-        Thu, 19 May 2022 11:45:47 -0700 (PDT)
-Received: by mail-pg1-x530.google.com with SMTP id 137so5831613pgb.5;
-        Thu, 19 May 2022 11:45:47 -0700 (PDT)
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6358A2192;
+        Thu, 19 May 2022 11:45:48 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id z7-20020a17090abd8700b001df78c7c209so9539374pjr.1;
+        Thu, 19 May 2022 11:45:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=5SU+w9hgi+POXdxltfAITobv8QuuLB+odkG94GhTEgs=;
-        b=HCPGXLIowEc4TfgLek+X1SwnRfZRLrsaNkVMgzWo3/y686rkolUMxTgvCnVXNzWJqz
-         pXCIpNKvu51NII8Py9T5e+JZPGhlHoZ2QM5xGzFgsML2ELFnPvQrhrMPHzpN5OKYkzhH
-         jFnQmoIgbCo9hwUpTXeyU+PLfVR6VPKujV3sD9V25PVW5Lr1AlSdGJwhDgFGpdjUFJfR
-         O/UEKSPjNkyjnK3mwuDHBlWQgYT+Aw/s2eu56nS3JoibZvQobz7VCOHQaxfNd0o5CWua
-         2xzEx9Kym2ErT7tZcWyZdnHkNz6lFf07t8YTshfoRYJD8SY+6bOkJvMamPhiBwo52Szn
-         Am4g==
+        bh=iVjd1/EvWaUwXfqtYGQYzVVFnQ1gXdjk50qNj+0oQ6A=;
+        b=pqBrRfWnGfmlO7DN6JqKh6vWUqA1p8Xg14czQ4dwzHHNyGUrXQBcWIZCjzP6N2dgA5
+         RsJoYKTa7oaXBxLIwRpOaIGx7ypL8rN7YKKsbfjtgcxUptUgoXFziGBRiejkn6F/ggPr
+         C+w6UjHt7rizNRBYj6Mv1jcxtn3tOALNk1rBkXoC6DKIUROhIU2ieszoK60zgjjSDqlr
+         45dQFSGSItVHODh+GdukwFeq6g7KoxVqaj8w1lqcPCTyDu0AoMZVL0PAc4EIcLE2tG+D
+         Gsr/Kqg9UeERMn/lZJ2mn6JsdlF2Ok8UHvMnYT24+feCdcpJQQjnPOzbFPAMDqHNfMe/
+         qDjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=5SU+w9hgi+POXdxltfAITobv8QuuLB+odkG94GhTEgs=;
-        b=QZ3TiqXac96hGkPkX7mAL/Sg/tEmA13rUvgO4w5BHtOgv6tlBZ140uvdGRn3UXhl8p
-         nI2RUm4Q+txagLQvuIb9mBrwF8GQvGobBKcFAUEE/6/dzdUwUfREGzKPs4CcgHhDCVkG
-         QntpZAt5WexRUSse2l2DK/5GMFGPcLufp/9ZIuGtTIXylEKgdk9za11SAnikdlW7s2Iv
-         ajFIMZf/iejdPeGUiFwhIY3hvZNKMSkPqW4OnehXcuPD0xp+QYmJExZwaknk4zBzQKko
-         mbuaUJYgjZECfyymYm02gyrdr2uGfpzKkWvNs37xebTHBEmcre+E+vIGXrA3jChe5gBC
-         P1/A==
-X-Gm-Message-State: AOAM5302pDBqKuc6k0Y3mOQRGwqWBaHK9D/BtqWa6sFsgcfYaqS95Eyo
-        UaXYK22gz0LwadHxaKOa7O3XYgxJVuk=
-X-Google-Smtp-Source: ABdhPJzTj/U5wGU2C/aGMOITBrjbWQSEEa8cjr65o044OgIUCMFwmEH2e/Gxe0Q9tsZLtevJro52xA==
-X-Received: by 2002:a05:6a00:1c76:b0:510:8b76:93b5 with SMTP id s54-20020a056a001c7600b005108b7693b5mr6171900pfw.44.1652985946249;
-        Thu, 19 May 2022 11:45:46 -0700 (PDT)
+        bh=iVjd1/EvWaUwXfqtYGQYzVVFnQ1gXdjk50qNj+0oQ6A=;
+        b=t97Jurx4UDzbuWZhHYreevfbXYEz9BUuLAfXXBnv7VjbYaXNLDY/uW7VlpT02Uu/lf
+         hnp9jJbejgCb8o5jT5Hxa6WRer4lS6KupOxtd17VMvRdEjvLByyFchQJJLzX0n7fPpL3
+         N5VYLh2t2XZ0fIFWvNQrROF1k1/LV8CJx5cKcVj8/qlcKK1sgAKHafrs7Xs9DY4oT49U
+         skwDfAuVgxd+M4I0UwiUqTO37F4outsP2XxGuGVf9C2tjkTEdh2y0zFj2j9YOkdpmFCJ
+         0yt2l+XCoqfrXsbP6DQMxjWgVTgLKVKxI0Z8lJdnWdVwujSWBwvRiMi9LGyjgmiMb7bv
+         rYuw==
+X-Gm-Message-State: AOAM5300ucLWrKh5/65TOH1FhEDkyWTUweYIi1d0fOIoGOZ7Z6Dtu2Nf
+        X60hOeMTunDwZVi8YkL4HDftHusMHk8=
+X-Google-Smtp-Source: ABdhPJwzk08FWAy+yUBTXj2QGpGnjLjx6Tc5fUvqRWFQZQUJnv2ncHp88mtToOd0+hdEuDm1PLAk4w==
+X-Received: by 2002:a17:90a:9b0d:b0:1dc:e81d:6c18 with SMTP id f13-20020a17090a9b0d00b001dce81d6c18mr6629643pjp.72.1652985947575;
+        Thu, 19 May 2022 11:45:47 -0700 (PDT)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id 5-20020aa79245000000b0050dc76281c2sm2965pfp.156.2022.05.19.11.45.45
+        by smtp.gmail.com with ESMTPSA id 5-20020aa79245000000b0050dc76281c2sm2965pfp.156.2022.05.19.11.45.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 May 2022 11:45:45 -0700 (PDT)
+        Thu, 19 May 2022 11:45:47 -0700 (PDT)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
@@ -60,9 +60,9 @@ Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
         linux-mmc@vger.kernel.org (open list:MULTIMEDIA CARD (MMC), SECURE
         DIGITAL (SD) AND...), linux-kernel@vger.kernel.org (open list),
         alcooperx@gmail.com, kdasu.kdev@gmail.com
-Subject: [PATCH stable 4.19 v2 2/4] mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
-Date:   Thu, 19 May 2022 11:45:34 -0700
-Message-Id: <20220519184536.370540-3-f.fainelli@gmail.com>
+Subject: [PATCH stable 4.19 v2 3/4] mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+Date:   Thu, 19 May 2022 11:45:35 -0700
+Message-Id: <20220519184536.370540-4-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220519184536.370540-1-f.fainelli@gmail.com>
 References: <20220519184536.370540-1-f.fainelli@gmail.com>
@@ -80,55 +80,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 24ed3bd01d6a844fd5e8a75f48d0a3d10ed71bf9 upstream
+commit ad91619aa9d78ab1c6d4a969c3db68bc331ae76c upstream
 
-The timeout values used while waiting for a CMD6 for BKOPS or a CACHE_FLUSH
-to complete, are not defined by the eMMC spec. However, a timeout of 10
-minutes as is currently being used, is just silly for both of these cases.
-Instead, let's specify more reasonable timeouts, 120s for BKOPS and 30s for
-CACHE_FLUSH.
+The INAND_CMD38_ARG_EXT_CSD is a vendor specific EXT_CSD register, which is
+used to prepare an erase/trim operation. However, it doesn't make sense to
+use a timeout of 10 minutes while updating the register, which becomes the
+case when the timeout_ms argument for mmc_switch() is set to zero.
+
+Instead, let's use the generic_cmd6_time, as that seems like a reasonable
+timeout to use for these cases.
 
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-2-ulf.hansson@linaro.org
+Link: https://lore.kernel.org/r/20200122142747.5690-3-ulf.hansson@linaro.org
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/mmc/core/mmc_ops.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mmc/core/block.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/core/mmc_ops.c b/drivers/mmc/core/mmc_ops.c
-index 6d759fc6165d..2b0bfead730a 100644
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -23,7 +23,9 @@
- #include "host.h"
- #include "mmc_ops.h"
- 
--#define MMC_OPS_TIMEOUT_MS	(10 * 60 * 1000) /* 10 minute timeout */
-+#define MMC_OPS_TIMEOUT_MS		(10 * 60 * 1000) /* 10min*/
-+#define MMC_BKOPS_TIMEOUT_MS		(120 * 1000) /* 120s */
-+#define MMC_CACHE_FLUSH_TIMEOUT_MS	(30 * 1000) /* 30s */
- 
- static const u8 tuning_blk_pattern_4bit[] = {
- 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
-@@ -947,7 +949,7 @@ void mmc_run_bkops(struct mmc_card *card)
- 	 * urgent levels by using an asynchronous background task, when idle.
- 	 */
- 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
--			EXT_CSD_BKOPS_START, 1, MMC_OPS_TIMEOUT_MS);
-+			 EXT_CSD_BKOPS_START, 1, MMC_BKOPS_TIMEOUT_MS);
- 	if (err)
- 		pr_warn("%s: Error %d starting bkops\n",
- 			mmc_hostname(card->host), err);
-@@ -965,7 +967,8 @@ int mmc_flush_cache(struct mmc_card *card)
- 
- 	if (mmc_cache_enabled(card->host)) {
- 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
--				EXT_CSD_FLUSH_CACHE, 1, 0);
-+				 EXT_CSD_FLUSH_CACHE, 1,
-+				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+diff --git a/drivers/mmc/core/block.c b/drivers/mmc/core/block.c
+index d8bcf1e0b337..c6e83f6021c1 100644
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1133,7 +1133,7 @@ static void mmc_blk_issue_discard_rq(struct mmc_queue *mq, struct request *req)
+ 					 arg == MMC_TRIM_ARG ?
+ 					 INAND_CMD38_ARG_TRIM :
+ 					 INAND_CMD38_ARG_ERASE,
+-					 0);
++					 card->ext_csd.generic_cmd6_time);
+ 		}
+ 		if (!err)
+ 			err = mmc_erase(card, from, nr, arg);
+@@ -1175,7 +1175,7 @@ static void mmc_blk_issue_secdiscard_rq(struct mmc_queue *mq,
+ 				 arg == MMC_SECURE_TRIM1_ARG ?
+ 				 INAND_CMD38_ARG_SECTRIM1 :
+ 				 INAND_CMD38_ARG_SECERASE,
+-				 0);
++				 card->ext_csd.generic_cmd6_time);
  		if (err)
- 			pr_err("%s: cache flush error %d\n",
- 					mmc_hostname(card->host), err);
+ 			goto out_retry;
+ 	}
+@@ -1193,7 +1193,7 @@ static void mmc_blk_issue_secdiscard_rq(struct mmc_queue *mq,
+ 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+ 					 INAND_CMD38_ARG_EXT_CSD,
+ 					 INAND_CMD38_ARG_SECTRIM2,
+-					 0);
++					 card->ext_csd.generic_cmd6_time);
+ 			if (err)
+ 				goto out_retry;
+ 		}
 -- 
 2.25.1
 
