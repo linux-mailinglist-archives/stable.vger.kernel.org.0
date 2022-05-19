@@ -2,43 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB73B52D60E
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:29:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 959FC52D649
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233035AbiESO3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 10:29:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32840 "EHLO
+        id S229667AbiESOmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 10:42:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238862AbiESO3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:29:48 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD3070904
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:29:47 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 564586195B
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 14:29:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67A29C385AA;
-        Thu, 19 May 2022 14:29:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652970586;
-        bh=V56VTVTb6ktGP8yC1T06f2qxVKbWq0AMcRkwvwhU1Oo=;
-        h=Subject:To:Cc:From:Date:From;
-        b=HREKtZ5tmJaNSeWwO7axdvLKB0yX6mS/3khkzxW0azYu022kMP+d/vssvwLl3sfcR
-         IR43n10CQPI5W+9ahOaAPyfd5ggqZ8DtJXK2i8Jsy2J2nKGeRhR3LchwXA5IClSyOE
-         FwzOZ+fe/jBpRoCQa7KzqsKO1UsXBEadoJyl37eQ=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for" failed to apply to 5.4-stable tree
-To:     andy.chi@canonical.com, stable@vger.kernel.org, tiwai@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 19 May 2022 16:29:31 +0200
-Message-ID: <1652970571161147@kroah.com>
+        with ESMTP id S231368AbiESOmE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:42:04 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723CBD0295
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:42:02 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id n6-20020a05600c3b8600b0039492b44ce7so2821474wms.5
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:42:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=r+uBqYoKaFLMlJFkouWl/5PTcXxMB19lbTmZGFqcCCM=;
+        b=D6mMBSrvo09EHXEQq3XQU8GzgnRvUOea4O2bzStvjq8BKr3bG5lAS6V1OkxFEm/S+u
+         GBWRQX83f9tsbhBeVP6dVdLLsCta2LtTDvwNUAuHyrkDhk/yl6N452uLH6B8/KHEQGOv
+         aE7Z5WmIUorJ4pFZRN5UVBybbTVlrKZ+a8eeEBvPmgP6VXnSW2Nva80h2YwGlIkDM1p4
+         rXOA9cJMbhODALhEBvahW1jgJZqqEs0uvWpmSt1JjNjmrzqIS8JE+NFvYjpVCpU1trWZ
+         P/YV8MfiU2CXniG2BC+9Tzazpd9zkJsuAj6/49r4K5paQ5bQLY3ksTYRZlU6LVzGhOM9
+         v4wA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=r+uBqYoKaFLMlJFkouWl/5PTcXxMB19lbTmZGFqcCCM=;
+        b=6j1q/nLbRRHMQ4R5QZ4zWUrNSzDX9PKzY1EfaDixrZizVDLVs7IY9ePrAfDfYtD7Lv
+         8CtWjXVuB+osRvco3wjffPYgHyYHBvnPdc89YSpS5lp9wrohSnAOzctu5F5g0Cg9+Wc3
+         Vg38kj5EFGm9aMaZruupUK3doSeKALO4ljK2eOgbWzun+ZfUq/C0iuakEsh6IfOtvOqv
+         FUVGQe2j+qhdzb7o73F3+H8To5+Gk+pW2Ux1etncHQ/6TNKVjcco2OJUclsG3szKxFk8
+         nPsDBIIlZCfZ73e59yrh0W0Krff4wnBEvVFmd4dRh7ZwH2NEcen7Rzy/jtTOVoLjyRJD
+         8c/w==
+X-Gm-Message-State: AOAM531n//HYOVhcWz90Q6buD5ZuqK/upVfj1pysdmFC91ejG+nmW0Mk
+        HnddlCyHgLsab++qg02TyNjEw1kVu7yJDg==
+X-Google-Smtp-Source: ABdhPJxFATn885MCD3k8abKmuIx4lR7ujS9VmVqucacttmXp7wIaHdjK5ET3s1084IMpmwub1IjR0A==
+X-Received: by 2002:a7b:cb47:0:b0:393:dd9f:e64a with SMTP id v7-20020a7bcb47000000b00393dd9fe64amr4609360wmj.170.1652971320873;
+        Thu, 19 May 2022 07:42:00 -0700 (PDT)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id l9-20020a5d6d89000000b0020c5253d8f3sm6170338wrs.63.2022.05.19.07.42.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 May 2022 07:42:00 -0700 (PDT)
+Date:   Thu, 19 May 2022 15:41:58 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: Patch for 5.10-stable
+Message-ID: <YoZXNjl8LmcWCQa9@google.com>
+References: <543c3909-a7b6-23ac-2c2e-ce10dd2433e8@kernel.dk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+In-Reply-To: <543c3909-a7b6-23ac-2c2e-ce10dd2433e8@kernel.dk>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -47,42 +71,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 19 May 2022, Jens Axboe wrote:
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> Hi,
+> 
+> Can we get this queued up for 5.10-stable? Thanks!
+> 
 
-thanks,
+> From b1da21187de121e2ed2dc2e0c70d5aabce469691 Mon Sep 17 00:00:00 2001
+> From: Jens Axboe <axboe@kernel.dk>
+> Date: Thu, 19 May 2022 06:05:27 -0600
+> Subject: [PATCH] io_uring: always grab file table for deferred statx
+> 
+> Lee reports that there's a use-after-free of the process file table.
+> There's an assumption that we don't need the file table for some
+> variants of statx invocation, but that turns out to be false and we
+> end up with not grabbing a reference for the request even if the
+> deferred execution uses it.
+> 
+> Get rid of the REQ_F_NO_FILE_TABLE optimization for statx, and always
+> grab that reference.
+> 
+> This issues doesn't exist upstream since the native workers got
+> introduced with 5.12.
+> 
+> Link: https://lore.kernel.org/io-uring/YoOJ%2FT4QRKC+fAZE@google.com/
+> Reported-by: Lee Jones <lee.jones@linaro.org>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-greg k-h
+Tested-by: Lee Jones <lee.jones@linaro.org>
 
------------------- original commit in Linus's tree ------------------
+> ---
+>  fs/io_uring.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/fs/io_uring.c b/fs/io_uring.c
+> index 4330603eae35..3ecf71151fb1 100644
+> --- a/fs/io_uring.c
+> +++ b/fs/io_uring.c
+> @@ -4252,12 +4252,8 @@ static int io_statx(struct io_kiocb *req, bool force_nonblock)
+>  	struct io_statx *ctx = &req->statx;
+>  	int ret;
+>  
+> -	if (force_nonblock) {
+> -		/* only need file table for an actual valid fd */
+> -		if (ctx->dfd == -1 || ctx->dfd == AT_FDCWD)
+> -			req->flags |= REQ_F_NO_FILE_TABLE;
+> +	if (force_nonblock)
+>  		return -EAGAIN;
+> -	}
+>  
+>  	ret = do_statx(ctx->dfd, ctx->filename, ctx->flags, ctx->mask,
+>  		       ctx->buffer);
 
-From 024a7ad9eb4df626ca8c77fef4f67fd0ebd559d2 Mon Sep 17 00:00:00 2001
-From: Andy Chi <andy.chi@canonical.com>
-Date: Fri, 13 May 2022 20:16:45 +0800
-Subject: [PATCH] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for
- HP machine
 
-The HP EliteBook 630 is using ALC236 codec which used 0x02 to control mute LED
-and 0x01 to control micmute LED. Therefore, add a quirk to make it works.
-
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220513121648.28584-1-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index ce2cb1986677..ad292df7d805 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9091,6 +9091,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8995, "HP EliteBook 855 G9", ALC287_FIXUP_CS35L41_I2C_2),
- 	SND_PCI_QUIRK(0x103c, 0x89a4, "HP ProBook 440 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89a6, "HP ProBook 450 G9", ALC236_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x89aa, "HP EliteBook 630 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89ac, "HP EliteBook 640 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89ae, "HP EliteBook 650 G9", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89c3, "Zbook Studio G9", ALC245_FIXUP_CS35L41_SPI_4_HP_GPIO_LED),
-
+-- 
+Lee Jones [李琼斯]
+Principal Technical Lead - Developer Services
+Linaro.org │ Open source software for Arm SoCs
+Follow Linaro: Facebook | Twitter | Blog
