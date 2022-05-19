@@ -2,52 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C0F52D5F1
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A16D752D5FE
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:27:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239653AbiESOZv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 10:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54086 "EHLO
+        id S239704AbiESO1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 10:27:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238743AbiESOZt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:25:49 -0400
+        with ESMTP id S239688AbiESO1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:27:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C4233A;
-        Thu, 19 May 2022 07:25:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F26F66ACF
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 288DCB8235B;
-        Thu, 19 May 2022 14:25:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EEE5C385AA;
-        Thu, 19 May 2022 14:25:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F194DB82463
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 14:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4210FC385B8;
+        Thu, 19 May 2022 14:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652970343;
-        bh=+T85u1w+QhCqYi0g3KVADzqqPPq+a5WCICuQFpYVIOw=;
+        s=korg; t=1652970428;
+        bh=R/a6DlD7YzeUlXVTQdYLFr4xpDkJJNoytbS4OgAIet4=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fOtb/kFu8S3WqRS+DlCAXhDrUYoKPYoozNHwLIhpK2ecdgqCPffmwqEMtOkscpasA
-         3VJ/nUyCFQtssPDZ2bIxbWRYEdA/eVgzsdysPaDzmfWo+Ss9iuMAHhRLVNbgyVxKvp
-         1ro3XWT7uSWs3tjM8OgN8LeXS7XijQ/oGNvyoAgU=
-Date:   Thu, 19 May 2022 16:25:31 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Nishad Kamdar <nishadkamdar@gmail.com>,
-        Christian =?iso-8859-1?Q?L=F6hle?= <CLoehle@hyperstone.com>,
-        "open list:MULTIMEDIA CARD (MMC), SECURE DIGITAL (SD) AND..." 
-        <linux-mmc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>, alcooperx@gmail.com,
-        kdasu.kdev@gmail.com
-Subject: Re: [PATCH stable 5.4 0/3] MMC timeout back ports
-Message-ID: <YoZTW06LhILvkkwc@kroah.com>
-References: <20220517180911.246016-1-f.fainelli@gmail.com>
+        b=RRWCp/fpUZBIylwXOsz9wk1AQeAeylyddS68Ag0DntMqclhY0nGaVmffJsocVBmU5
+         lNsAkDb4zYD5kpSNjtfVEmEWzTdKpA4/+shk4cyLemV2LDeYeAPbliqNHv1xz0IKu7
+         JHHLJNtxro7YOPmzAHj4JpCooDuw0YWB4jeXVi/8=
+Date:   Thu, 19 May 2022 16:27:06 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Meena Shanmugam <meenashanmugam@google.com>
+Cc:     stable@vger.kernel.org, trond.myklebust@hammerspace.com
+Subject: Re: [PATCH 5.4 0/4] Request to cherry-pick f00432063db1 to 5.4.y
+Message-ID: <YoZTutamdxFnMW7o@kroah.com>
+References: <20220518184011.789699-1-meenashanmugam@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220517180911.246016-1-f.fainelli@gmail.com>
+In-Reply-To: <20220518184011.789699-1-meenashanmugam@google.com>
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -58,34 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 17, 2022 at 11:09:08AM -0700, Florian Fainelli wrote:
-> These 3 commits from upstream allow us to have more fine grained control
-> over the MMC command timeouts and this solves the following timeouts
-> that we have seen on our systems across suspend/resume cycles:
+On Wed, May 18, 2022 at 06:40:07PM +0000, Meena Shanmugam wrote:
+> The commit f00432063db1a0db484e85193eccc6845435b80e (SUNRPC:
+> Ensure we flush any closed sockets before xs_xprt_free()) upstream fixes
+> CVE-2022-28893, hence good candidate for stable trees.
+> The above commit depends on 3be232f11a3c (SUNRPC: Prevent immediate
+> close+reconnect)  and  89f42494f92f (SUNRPC: Don't call connect() more than
+> once on a TCP socket). Commit 3be232f11a3c depends on commit
+> e26d9972720e (SUNRPC: Clean up scheduling of autoclose).
 > 
-> [   14.907496] usb usb2: root hub lost power or was reset
-> [   15.216232] usb 1-1: reset high-speed USB device number 2 using
-> xhci-hcd
-> [   15.485812] bcmgenet 8f00000.ethernet eth0: Link is Down
-> [   15.525328] mmc1: error -110 doing runtime resume
-> [   15.531864] OOM killer enabled.
+> Commits e26d9972720e, 3be232f11a3c apply cleanly on 5.4
+> kernel. commit 89f42494f92f and f00432063db1 didn't apply cleanly.
+> This patch series includes all the commits required for back porting
+> f00432063db1.
 > 
-> Thanks!
 > 
-> Ulf Hansson (3):
->   mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
->   mmc: block: Use generic_cmd6_time when modifying
->     INAND_CMD38_ARG_EXT_CSD
->   mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+> Trond Myklebust (4):
+>   SUNRPC: Clean up scheduling of autoclose
+>   SUNRPC: Prevent immediate close+reconnect
+>   SUNRPC: Don't call connect() more than once on a TCP socket
+>   SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
 > 
->  drivers/mmc/core/block.c   |  6 +++---
->  drivers/mmc/core/mmc_ops.c | 25 +++++++++++++------------
->  2 files changed, 16 insertions(+), 15 deletions(-)
+>  fs/file_table.c                 |  1 +
+>  include/linux/sunrpc/xprtsock.h |  1 +
+>  net/sunrpc/xprt.c               | 34 ++++++++++++++++---------------
+>  net/sunrpc/xprtsock.c           | 36 ++++++++++++++++++++++-----------
+>  4 files changed, 44 insertions(+), 28 deletions(-)
 > 
 > -- 
-> 2.25.1
+> 2.36.1.124.g0e6072fb45-goog
 > 
 
-All now queued up, thanks!
+All now queued up, thanks.
 
 greg k-h
