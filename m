@@ -2,227 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 623CB52CEA7
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 10:50:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9C852D1DF
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 13:57:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230039AbiESIuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 04:50:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
+        id S237592AbiESL4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 07:56:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229604AbiESIug (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 04:50:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3D1FA9C2EA
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 01:50:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1652950234;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=p92fXrJQ4gGF6gXdL4rpxaBMAzMtQCdZw00jmCIxVH0=;
-        b=J39bcAzJztYFSwE9BX6Tudg2rkA7laSXEa5GEFjdykUTKvjgJgau9tTj0kStiBbCcZ8Pst
-        veH0FIR1l8rv6LioJjRgs+vDpZ/rcZEUOnmKGdaiIg4CcVHO3GJPoxDKTRLII6ORIK0/Wt
-        UZ95f3GMtJjZ1+BkCzPv0XcIfV61/04=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-638-AYYgi-E3OmePuQW2dI8JAw-1; Thu, 19 May 2022 04:50:33 -0400
-X-MC-Unique: AYYgi-E3OmePuQW2dI8JAw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.rdu2.redhat.com [10.11.54.2])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BD516802803;
-        Thu, 19 May 2022 08:50:32 +0000 (UTC)
-Received: from warthog.procyon.org.uk (unknown [10.33.36.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 95948400E114;
-        Thu, 19 May 2022 08:50:31 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-Subject: [PATCH] assoc_array: Fix BUG_ON during garbage collect
-From:   David Howells <dhowells@redhat.com>
-To:     torvalds@linux-foundation.org
-Cc:     stable@vger.kernel.org,
-        Stephen Brennan <stephen.s.brennan@oracle.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        keyrings@vger.kernel.org, dhowells@redhat.com,
-        linux-kernel@vger.kernel.org
-Date:   Thu, 19 May 2022 09:50:30 +0100
-Message-ID: <165295023086.3361286.8662079860706628540.stgit@warthog.procyon.org.uk>
-User-Agent: StGit/1.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S237593AbiESL4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 07:56:51 -0400
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF2266AF5;
+        Thu, 19 May 2022 04:56:50 -0700 (PDT)
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24J9njiB014680;
+        Thu, 19 May 2022 11:56:35 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=7ukxmzai3Of0C2DKPzah5+6xoHT5hdoRomBqRrlp/Yg=;
+ b=PhQ7vRDp1w9gdhXqZp8KaLNKu8CUDQ4sgwM+7+27tw1fJ/N35+ENPvK/RoCw0s3SQ//i
+ W8T84CWAlVoiEJPHngpb2wsCMzJGOzRUaa59j+MipsTNHEqQmxtPsjGgC2SvlUioP4H/
+ 94P8F/u+S0s09OG9M7c26PY2PJpGYOfRUeMjyd/ODkoRxakc4gPGIZCuoXeMpw2coiPt
+ ZeqfEzLEebdIbR5fX0bvcHcZO2YUbtUbJQ28PePEMAzgzH8dVznT/CZ002iO2mQ4Td4+
+ UvHdTfJVT6VQAlzB6cp/XulprAJNCe10ilIv16GSquIvqLvvRevdfEDT/HQz0KuxG8Kv +g== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5kkw2st2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 11:56:35 +0000
+Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24JBlm1O018178;
+        Thu, 19 May 2022 11:56:34 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5kkw2ssb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 11:56:34 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24JBqir1021062;
+        Thu, 19 May 2022 11:56:31 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04fra.de.ibm.com with ESMTP id 3g2428wv05-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 19 May 2022 11:56:31 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24JBgYo238273382
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 19 May 2022 11:42:34 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6C5914203F;
+        Thu, 19 May 2022 11:56:28 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D6D3B42041;
+        Thu, 19 May 2022 11:56:25 +0000 (GMT)
+Received: from sig-9-65-82-167.ibm.com (unknown [9.65.82.167])
+        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu, 19 May 2022 11:56:25 +0000 (GMT)
+Message-ID: <c47299b899da4ad4b6d3ad637022ad82c8ed6ed2.camel@linux.ibm.com>
+Subject: Re: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and
+ secondary keyring for signature verification
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Baoquan He <bhe@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
+        akpm@linux-foundation.org
+Cc:     Coiby Xu <coxu@redhat.com>, kexec@lists.infradead.org,
+        keyrings@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        Michal Suchanek <msuchanek@suse.de>,
+        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
+        Philipp Rudo <prudo@linux.ibm.com>,
+        linux-security-module@vger.kernel.org,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        "open list:S390" <linux-s390@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux-integrity <linux-integrity@vger.kernel.org>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Date:   Thu, 19 May 2022 07:56:25 -0400
+In-Reply-To: <20220519003902.GE156677@MiWiFi-R3L-srv>
+References: <20220512070123.29486-1-coxu@redhat.com>
+         <20220512070123.29486-5-coxu@redhat.com> <YoTYm6Fo1vBUuJGu@osiris>
+         <20220519003902.GE156677@MiWiFi-R3L-srv>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.11.54.2
-X-Spam-Status: No, score=-3.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: pODijiS05G_BlMkECJ3lUiCw2rg3g4l4
+X-Proofpoint-GUID: oUjdCxRT26f3yTIYGuFU7UbYqUR4xUcJ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-19_03,2022-05-19_02,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ priorityscore=1501 lowpriorityscore=0 mlxscore=0 bulkscore=0 adultscore=0
+ mlxlogscore=999 clxscore=1011 malwarescore=0 impostorscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205190065
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Brennan <stephen.s.brennan@oracle.com>
+[Cc'ing Jarkko, linux-integrity]
 
-A rare BUG_ON triggered in assoc_array_gc:
+On Thu, 2022-05-19 at 08:39 +0800, Baoquan He wrote:
+> On 05/18/22 at 01:29pm, Heiko Carstens wrote:
+> > On Thu, May 12, 2022 at 03:01:23PM +0800, Coiby Xu wrote:
+> > > From: Michal Suchanek <msuchanek@suse.de>
+> > > 
+> > > commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+> > > adds support for KEXEC_SIG verification with keys from platform keyring
+> > > but the built-in keys and secondary keyring are not used.
+> > > 
+> > > Add support for the built-in keys and secondary keyring as x86 does.
+> > > 
+> > > Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
+> > > Cc: stable@vger.kernel.org
+> > > Cc: Philipp Rudo <prudo@linux.ibm.com>
+> > > Cc: kexec@lists.infradead.org
+> > > Cc: keyrings@vger.kernel.org
+> > > Cc: linux-security-module@vger.kernel.org
+> > > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+> > > Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
+> > > Acked-by: Baoquan He <bhe@redhat.com>
+> > > Signed-off-by: Coiby Xu <coxu@redhat.com>
+> > > ---
+> > >  arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
+> > >  1 file changed, 13 insertions(+), 5 deletions(-)
+> > 
+> > As far as I can tell this doesn't have any dependency to the other
+> > patches in this series, so should I pick this up for the s390 tree, or
+> > how will this go upstream?
+> 
+> Thanks, Heiko.
+> 
+> I want to ask Mimi if this can be taken into KEYS-ENCRYPTED tree.
+> Otherwise I will ask Andrew to help pick this whole series.
+> 
+> Surely, this patch 4 can be taken into s390 seperately since it's
+> independent, both looks good.
 
-    [3430308.818153] kernel BUG at lib/assoc_array.c:1609!
+KEYS-ENCRYTPED is a type of key, unrelated to using the .platform,
+.builtin, .machine, or .secondary keyrings.  One of the main reasons
+for this patch set is to use the new ".machine" keyring, which, if
+enabled, is linked to the "secondary" keyring.  However, the only
+reference to the ".machine" keyring is in the cover letter, not any of
+the patch descriptions.  Since this is the basis for the system's
+integrity, this seems like a pretty big omission.
 
-Which corresponded to the statement currently at line 1593 upstream:
+From patch 2/4:
+"The code in bzImage64_verify_sig makes use of system keyrings
+including
+.buitin_trusted_keys, .secondary_trusted_keys and .platform keyring to
+verify signed kernel image as PE file..."
 
-    BUG_ON(assoc_array_ptr_is_meta(p));
+From patch 3/4:
+"This patch allows to verify arm64 kernel image signature using not
+only
+.builtin_trusted_keys but also .platform and .secondary_trusted_keys
+keyring."
 
-Using the data from the core dump, I was able to generate a userspace
-reproducer[1] and determine the cause of the bug.
+From patch 4/4:
+"... with keys from platform keyring but the built-in keys and
+secondary keyring are not used."
 
-[1]: https://github.com/brenns10/kernel_stuff/tree/master/assoc_array_gc
+This patch set could probably go through KEYS/KEYRINGS_INTEGRITY, but
+it's kind of late to be asking.  Has it been in linux-next?  Should I
+assume this patch set has been fully tested or can we get some "tags"?
 
-After running the iterator on the entire branch, an internal tree node
-looked like the following:
+thanks,
 
-    NODE (nr_leaves_on_branch: 3)
-      SLOT [0] NODE (2 leaves)
-      SLOT [1] NODE (1 leaf)
-      SLOT [2..f] NODE (empty)
-
-In the userspace reproducer, the pr_devel output when compressing this
-node was:
-
-    -- compress node 0x5607cc089380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    after: 3
-
-At slot 0, an internal node with 2 leaves could not be folded into the
-node, because there was only one available slot (slot 0). Thus, the
-internal node was retained. At slot 1, the node had one leaf, and was
-able to be folded in successfully. The remaining nodes had no leaves,
-and so were removed. By the end of the compression stage, there were 14
-free slots, and only 3 leaf nodes. The tree was ascended and then its
-parent node was compressed. When this node was seen, it could not be
-folded, due to the internal node it contained.
-
-The invariant for compression in this function is: whenever
-nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT, the node should contain all
-leaf nodes. The compression step currently cannot guarantee this, given
-the corner case shown above.
-
-To fix this issue, retry compression whenever we have retained a node,
-and yet nr_leaves_on_branch < ASSOC_ARRAY_FAN_OUT. This second
-compression will then allow the node in slot 1 to be folded in,
-satisfying the invariant. Below is the output of the reproducer once the
-fix is applied:
-
-    -- compress node 0x560e9c562380 --
-    free=0, leaves=0
-    [0] retain node 2/1 [nx 0]
-    [1] fold node 1/1 [nx 0]
-    [2] fold node 0/1 [nx 2]
-    [3] fold node 0/2 [nx 2]
-    [4] fold node 0/3 [nx 2]
-    [5] fold node 0/4 [nx 2]
-    [6] fold node 0/5 [nx 2]
-    [7] fold node 0/6 [nx 2]
-    [8] fold node 0/7 [nx 2]
-    [9] fold node 0/8 [nx 2]
-    [10] fold node 0/9 [nx 2]
-    [11] fold node 0/10 [nx 2]
-    [12] fold node 0/11 [nx 2]
-    [13] fold node 0/12 [nx 2]
-    [14] fold node 0/13 [nx 2]
-    [15] fold node 0/14 [nx 2]
-    internal nodes remain despite enough space, retrying
-    -- compress node 0x560e9c562380 --
-    free=14, leaves=1
-    [0] fold node 2/15 [nx 0]
-    after: 3
-
-Changes
-=======
-DH:
- - Use false instead of 0.
- - Reorder the inserted lines in a couple of places to put retained before
-   next_slot.
-
-ver #2)
- - Fix typo in pr_devel, correct comparison to "<="
-
-
-Fixes: 3cb989501c26 ("Add a generic associative array implementation.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-cc: Jarkko Sakkinen <jarkko@kernel.org>
-cc: Andrew Morton <akpm@linux-foundation.org>
-cc: keyrings@vger.kernel.org
-Link: https://lore.kernel.org/r/20220511225517.407935-1-stephen.s.brennan@oracle.com/ # v1
-Link: https://lore.kernel.org/r/20220512215045.489140-1-stephen.s.brennan@oracle.com/ # v2
----
-
- lib/assoc_array.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/lib/assoc_array.c b/lib/assoc_array.c
-index 079c72e26493..ca0b4f360c1a 100644
---- a/lib/assoc_array.c
-+++ b/lib/assoc_array.c
-@@ -1461,6 +1461,7 @@ int assoc_array_gc(struct assoc_array *array,
- 	struct assoc_array_ptr *cursor, *ptr;
- 	struct assoc_array_ptr *new_root, *new_parent, **new_ptr_pp;
- 	unsigned long nr_leaves_on_tree;
-+	bool retained;
- 	int keylen, slot, nr_free, next_slot, i;
- 
- 	pr_devel("-->%s()\n", __func__);
-@@ -1536,6 +1537,7 @@ int assoc_array_gc(struct assoc_array *array,
- 		goto descend;
- 	}
- 
-+retry_compress:
- 	pr_devel("-- compress node %p --\n", new_n);
- 
- 	/* Count up the number of empty slots in this node and work out the
-@@ -1553,6 +1555,7 @@ int assoc_array_gc(struct assoc_array *array,
- 	pr_devel("free=%d, leaves=%lu\n", nr_free, new_n->nr_leaves_on_branch);
- 
- 	/* See what we can fold in */
-+	retained = false;
- 	next_slot = 0;
- 	for (slot = 0; slot < ASSOC_ARRAY_FAN_OUT; slot++) {
- 		struct assoc_array_shortcut *s;
-@@ -1602,9 +1605,14 @@ int assoc_array_gc(struct assoc_array *array,
- 			pr_devel("[%d] retain node %lu/%d [nx %d]\n",
- 				 slot, child->nr_leaves_on_branch, nr_free + 1,
- 				 next_slot);
-+			retained = true;
- 		}
- 	}
- 
-+	if (retained && new_n->nr_leaves_on_branch <= ASSOC_ARRAY_FAN_OUT) {
-+		pr_devel("internal nodes remain despite enough space, retrying\n");
-+		goto retry_compress;
-+	}
- 	pr_devel("after: %lu\n", new_n->nr_leaves_on_branch);
- 
- 	nr_leaves_on_tree = new_n->nr_leaves_on_branch;
-
+Mimi
 
