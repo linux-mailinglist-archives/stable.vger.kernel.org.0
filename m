@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5804352D60B
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:29:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 322EB52D60D
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 16:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239736AbiESO3l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 10:29:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60892 "EHLO
+        id S239594AbiESO3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 10:29:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239733AbiESO3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:29:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFB270904
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:29:34 -0700 (PDT)
+        with ESMTP id S233035AbiESO3r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 10:29:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C596ACC17A
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 07:29:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DE506195B
-        for <stable@vger.kernel.org>; Thu, 19 May 2022 14:29:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88EE4C385AA;
-        Thu, 19 May 2022 14:29:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 342D2B8250B
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 14:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 991BFC385AA;
+        Thu, 19 May 2022 14:29:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1652970573;
-        bh=etWhvsQWcKN93gR6QKf52Q8p7GNP/dwYqxjUciRffsI=;
+        s=korg; t=1652970584;
+        bh=37ExqVOPu7JSYJZJbV5/GAIHs9ty8sGF6NNhdecaj98=;
         h=Subject:To:Cc:From:Date:From;
-        b=z/C98HjlKdyHRzlY0PJzQlvVN0qhRmJ3TDN7q0dU7vM2S5LfkPdeBB+RirE3RBLfA
-         enGQjceOdkTC3I+GVRn7jsCNi+i/+jhPVGR9mhwkaR4mRjmyn0qZuQJFantQfhdGRG
-         LI9CpCOmj6EiRFoKTAGlN04YgMH6+lEZYRmVpcfU=
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for" failed to apply to 5.17-stable tree
+        b=vnJhzMh2bvrZ2cLB4YvUuo0S7x56b1xvdyOxW2zLk7ryMwfnZAPkdadasaV/55P0d
+         ZVc61L6KtBNMjpZhfNKvS3oF7B121FITQw3I1hV1caBEysXIOF1zM48kuqfAM1Akqz
+         VxLe5TE23qJkG4fg+jZU5XwNtQw3U/2JN00qk0/Q=
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek: fix right sounds and mute/micmute LEDs for" failed to apply to 5.10-stable tree
 To:     andy.chi@canonical.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 19 May 2022 16:29:30 +0200
-Message-ID: <1652970570106@kroah.com>
+Message-ID: <1652970570224114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.17-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
