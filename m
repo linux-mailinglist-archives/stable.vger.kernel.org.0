@@ -2,106 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD9C852D1DF
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 13:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26FB852D217
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 14:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237592AbiESL4z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 07:56:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
+        id S237697AbiESMJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 08:09:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237593AbiESL4v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 07:56:51 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EF2266AF5;
-        Thu, 19 May 2022 04:56:50 -0700 (PDT)
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24J9njiB014680;
-        Thu, 19 May 2022 11:56:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=7ukxmzai3Of0C2DKPzah5+6xoHT5hdoRomBqRrlp/Yg=;
- b=PhQ7vRDp1w9gdhXqZp8KaLNKu8CUDQ4sgwM+7+27tw1fJ/N35+ENPvK/RoCw0s3SQ//i
- W8T84CWAlVoiEJPHngpb2wsCMzJGOzRUaa59j+MipsTNHEqQmxtPsjGgC2SvlUioP4H/
- 94P8F/u+S0s09OG9M7c26PY2PJpGYOfRUeMjyd/ODkoRxakc4gPGIZCuoXeMpw2coiPt
- ZeqfEzLEebdIbR5fX0bvcHcZO2YUbtUbJQ28PePEMAzgzH8dVznT/CZ002iO2mQ4Td4+
- UvHdTfJVT6VQAlzB6cp/XulprAJNCe10ilIv16GSquIvqLvvRevdfEDT/HQz0KuxG8Kv +g== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5kkw2st2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 11:56:35 +0000
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 24JBlm1O018178;
-        Thu, 19 May 2022 11:56:34 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3g5kkw2ssb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 11:56:34 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 24JBqir1021062;
-        Thu, 19 May 2022 11:56:31 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma04fra.de.ibm.com with ESMTP id 3g2428wv05-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 19 May 2022 11:56:31 +0000
-Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 24JBgYo238273382
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 19 May 2022 11:42:34 GMT
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6C5914203F;
-        Thu, 19 May 2022 11:56:28 +0000 (GMT)
-Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id D6D3B42041;
-        Thu, 19 May 2022 11:56:25 +0000 (GMT)
-Received: from sig-9-65-82-167.ibm.com (unknown [9.65.82.167])
-        by d06av24.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Thu, 19 May 2022 11:56:25 +0000 (GMT)
-Message-ID: <c47299b899da4ad4b6d3ad637022ad82c8ed6ed2.camel@linux.ibm.com>
-Subject: Re: [PATCH v8 4/4] kexec, KEYS, s390: Make use of built-in and
- secondary keyring for signature verification
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Baoquan He <bhe@redhat.com>, Heiko Carstens <hca@linux.ibm.com>,
-        akpm@linux-foundation.org
-Cc:     Coiby Xu <coxu@redhat.com>, kexec@lists.infradead.org,
-        keyrings@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Michal Suchanek <msuchanek@suse.de>,
-        Dave Young <dyoung@redhat.com>, Will Deacon <will@kernel.org>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Chun-Yi Lee <jlee@suse.com>, stable@vger.kernel.org,
-        Philipp Rudo <prudo@linux.ibm.com>,
-        linux-security-module@vger.kernel.org,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        "open list:S390" <linux-s390@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Date:   Thu, 19 May 2022 07:56:25 -0400
-In-Reply-To: <20220519003902.GE156677@MiWiFi-R3L-srv>
-References: <20220512070123.29486-1-coxu@redhat.com>
-         <20220512070123.29486-5-coxu@redhat.com> <YoTYm6Fo1vBUuJGu@osiris>
-         <20220519003902.GE156677@MiWiFi-R3L-srv>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: pODijiS05G_BlMkECJ3lUiCw2rg3g4l4
-X-Proofpoint-GUID: oUjdCxRT26f3yTIYGuFU7UbYqUR4xUcJ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-19_03,2022-05-19_02,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
- priorityscore=1501 lowpriorityscore=0 mlxscore=0 bulkscore=0 adultscore=0
- mlxlogscore=999 clxscore=1011 malwarescore=0 impostorscore=0 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205190065
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        with ESMTP id S234039AbiESMJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 08:09:43 -0400
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82472B8BF2
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 05:09:42 -0700 (PDT)
+Received: by mail-pj1-x102f.google.com with SMTP id fw21-20020a17090b129500b001df9f62edd6so4339918pjb.0
+        for <stable@vger.kernel.org>; Thu, 19 May 2022 05:09:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc:from
+         :subject;
+        bh=hRf12vDJDNsmhHD/sq0Yz0A0wT4aO82EG3hrjRFZcd8=;
+        b=AXBDd7HxOMjPkyIS6CsGRdAGoMsTZUMZ1RbUbh5DLPXgkiZ4XhKq8DdU/FdpHAAki4
+         m4WuXUzdvBbibFfbMoo4faRwYFjrd7L7QEvuLoLOxE7Go7QHKGYd2GF5Ahi4aDOteQcc
+         kfpbY7sP7gsVi1lGEA7PGBMfUB6B/3E3r+MMtvy1oOuNt3vYo5OWAkEFR6SRXJQHSD6n
+         cjumLZj5T0vBhqzyJ/CLb8Bc3rl2xe+E3k8OY6C8w8KQt1OZphd+XrXIoUk04SrmsBSb
+         IreCUw83Bf/CpxB/P3AB34JLpCPSqIcHFNa1QUHjBIeWuX4qdPTGKwhBmU97olHOBp06
+         u+Uw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:from:subject;
+        bh=hRf12vDJDNsmhHD/sq0Yz0A0wT4aO82EG3hrjRFZcd8=;
+        b=7LvwNmSdzIwn3Fpbkqy1Dh6CzuDDVFIi/zp3EuaWBftxb5mOf8K3LDAalgGVbR61Wx
+         /xpJvRI9S9o0CF3eIl8BlA41KNuNktXajCWYWAa8D6PKpP2tZ+/ekVdAT2ky/ZvIgGjN
+         h8GcC/wxGvQypx2ZJGx0FUKAaCKtCt9CcxXq9FlpLJ+lvHcaHpmmgg0BS9SDuqciE8l7
+         m6TxItnrmA4An2glnQJg2iLGp2LbPTai8FFLMaVSdWfM9uqrckvXZ80FA0rwbbDIjJgc
+         nFs89ZMcKflVAXV0dtLcLvaRpOkpXfawZU8qE407/af5s4qyPriG3V9MbSZwYeV4P3Ur
+         5+LA==
+X-Gm-Message-State: AOAM531Qr9gmGrLuTokubMqotSeJNL10QH7uRGhxCHeRi/m9c4AXh7bC
+        DcITphSn3ijSpqRL+zDPAXHryp/t05ZFhw==
+X-Google-Smtp-Source: ABdhPJzEivDwV+etbhbFj86T0/4rI4Y8ZB7fSzGXjy8GiSL5XANpErbdddtoHZr0rXXtgU+GWvrf+A==
+X-Received: by 2002:a17:90a:4b0c:b0:1df:112:fe49 with SMTP id g12-20020a17090a4b0c00b001df0112fe49mr4883370pjh.155.1652962181532;
+        Thu, 19 May 2022 05:09:41 -0700 (PDT)
+Received: from [192.168.1.100] ([198.8.77.157])
+        by smtp.gmail.com with ESMTPSA id jh1-20020a170903328100b0015e8d4eb269sm3576688plb.179.2022.05.19.05.09.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 19 May 2022 05:09:40 -0700 (PDT)
+Content-Type: multipart/mixed; boundary="------------a03h1eKyH0BFG9Fr1v7AWOLV"
+Message-ID: <543c3909-a7b6-23ac-2c2e-ce10dd2433e8@kernel.dk>
+Date:   Thu, 19 May 2022 06:09:39 -0600
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.1
+Content-Language: en-US
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Lee Jones <lee.jones@linaro.org>
+From:   Jens Axboe <axboe@kernel.dk>
+Subject: Patch for 5.10-stable
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -109,74 +68,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Cc'ing Jarkko, linux-integrity]
+This is a multi-part message in MIME format.
+--------------a03h1eKyH0BFG9Fr1v7AWOLV
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, 2022-05-19 at 08:39 +0800, Baoquan He wrote:
-> On 05/18/22 at 01:29pm, Heiko Carstens wrote:
-> > On Thu, May 12, 2022 at 03:01:23PM +0800, Coiby Xu wrote:
-> > > From: Michal Suchanek <msuchanek@suse.de>
-> > > 
-> > > commit e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-> > > adds support for KEXEC_SIG verification with keys from platform keyring
-> > > but the built-in keys and secondary keyring are not used.
-> > > 
-> > > Add support for the built-in keys and secondary keyring as x86 does.
-> > > 
-> > > Fixes: e23a8020ce4e ("s390/kexec_file: Signature verification prototype")
-> > > Cc: stable@vger.kernel.org
-> > > Cc: Philipp Rudo <prudo@linux.ibm.com>
-> > > Cc: kexec@lists.infradead.org
-> > > Cc: keyrings@vger.kernel.org
-> > > Cc: linux-security-module@vger.kernel.org
-> > > Signed-off-by: Michal Suchanek <msuchanek@suse.de>
-> > > Reviewed-by: "Lee, Chun-Yi" <jlee@suse.com>
-> > > Acked-by: Baoquan He <bhe@redhat.com>
-> > > Signed-off-by: Coiby Xu <coxu@redhat.com>
-> > > ---
-> > >  arch/s390/kernel/machine_kexec_file.c | 18 +++++++++++++-----
-> > >  1 file changed, 13 insertions(+), 5 deletions(-)
-> > 
-> > As far as I can tell this doesn't have any dependency to the other
-> > patches in this series, so should I pick this up for the s390 tree, or
-> > how will this go upstream?
-> 
-> Thanks, Heiko.
-> 
-> I want to ask Mimi if this can be taken into KEYS-ENCRYPTED tree.
-> Otherwise I will ask Andrew to help pick this whole series.
-> 
-> Surely, this patch 4 can be taken into s390 seperately since it's
-> independent, both looks good.
+Hi,
 
-KEYS-ENCRYTPED is a type of key, unrelated to using the .platform,
-.builtin, .machine, or .secondary keyrings.  One of the main reasons
-for this patch set is to use the new ".machine" keyring, which, if
-enabled, is linked to the "secondary" keyring.  However, the only
-reference to the ".machine" keyring is in the cover letter, not any of
-the patch descriptions.  Since this is the basis for the system's
-integrity, this seems like a pretty big omission.
+Can we get this queued up for 5.10-stable? Thanks!
 
-From patch 2/4:
-"The code in bzImage64_verify_sig makes use of system keyrings
-including
-.buitin_trusted_keys, .secondary_trusted_keys and .platform keyring to
-verify signed kernel image as PE file..."
+-- 
+Jens Axboe
 
-From patch 3/4:
-"This patch allows to verify arm64 kernel image signature using not
-only
-.builtin_trusted_keys but also .platform and .secondary_trusted_keys
-keyring."
+--------------a03h1eKyH0BFG9Fr1v7AWOLV
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-io_uring-always-grab-file-table-for-deferred-statx.patch"
+Content-Disposition: attachment;
+ filename*0="0001-io_uring-always-grab-file-table-for-deferred-statx.patc";
+ filename*1="h"
+Content-Transfer-Encoding: base64
 
-From patch 4/4:
-"... with keys from platform keyring but the built-in keys and
-secondary keyring are not used."
+RnJvbSBiMWRhMjExODdkZTEyMWUyZWQyZGMyZTBjNzBkNWFhYmNlNDY5NjkxIE1vbiBTZXAg
+MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBKZW5zIEF4Ym9lIDxheGJvZUBrZXJuZWwuZGs+CkRh
+dGU6IFRodSwgMTkgTWF5IDIwMjIgMDY6MDU6MjcgLTA2MDAKU3ViamVjdDogW1BBVENIXSBp
+b191cmluZzogYWx3YXlzIGdyYWIgZmlsZSB0YWJsZSBmb3IgZGVmZXJyZWQgc3RhdHgKCkxl
+ZSByZXBvcnRzIHRoYXQgdGhlcmUncyBhIHVzZS1hZnRlci1mcmVlIG9mIHRoZSBwcm9jZXNz
+IGZpbGUgdGFibGUuClRoZXJlJ3MgYW4gYXNzdW1wdGlvbiB0aGF0IHdlIGRvbid0IG5lZWQg
+dGhlIGZpbGUgdGFibGUgZm9yIHNvbWUKdmFyaWFudHMgb2Ygc3RhdHggaW52b2NhdGlvbiwg
+YnV0IHRoYXQgdHVybnMgb3V0IHRvIGJlIGZhbHNlIGFuZCB3ZQplbmQgdXAgd2l0aCBub3Qg
+Z3JhYmJpbmcgYSByZWZlcmVuY2UgZm9yIHRoZSByZXF1ZXN0IGV2ZW4gaWYgdGhlCmRlZmVy
+cmVkIGV4ZWN1dGlvbiB1c2VzIGl0LgoKR2V0IHJpZCBvZiB0aGUgUkVRX0ZfTk9fRklMRV9U
+QUJMRSBvcHRpbWl6YXRpb24gZm9yIHN0YXR4LCBhbmQgYWx3YXlzCmdyYWIgdGhhdCByZWZl
+cmVuY2UuCgpUaGlzIGlzc3VlcyBkb2Vzbid0IGV4aXN0IHVwc3RyZWFtIHNpbmNlIHRoZSBu
+YXRpdmUgd29ya2VycyBnb3QKaW50cm9kdWNlZCB3aXRoIDUuMTIuCgpMaW5rOiBodHRwczov
+L2xvcmUua2VybmVsLm9yZy9pby11cmluZy9Zb09KJTJGVDRRUktDK2ZBWkVAZ29vZ2xlLmNv
+bS8KUmVwb3J0ZWQtYnk6IExlZSBKb25lcyA8bGVlLmpvbmVzQGxpbmFyby5vcmc+ClNpZ25l
+ZC1vZmYtYnk6IEplbnMgQXhib2UgPGF4Ym9lQGtlcm5lbC5kaz4KLS0tCiBmcy9pb191cmlu
+Zy5jIHwgNiArLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgNSBkZWxl
+dGlvbnMoLSkKCmRpZmYgLS1naXQgYS9mcy9pb191cmluZy5jIGIvZnMvaW9fdXJpbmcuYwpp
+bmRleCA0MzMwNjAzZWFlMzUuLjNlY2Y3MTE1MWZiMSAxMDA2NDQKLS0tIGEvZnMvaW9fdXJp
+bmcuYworKysgYi9mcy9pb191cmluZy5jCkBAIC00MjUyLDEyICs0MjUyLDggQEAgc3RhdGlj
+IGludCBpb19zdGF0eChzdHJ1Y3QgaW9fa2lvY2IgKnJlcSwgYm9vbCBmb3JjZV9ub25ibG9j
+aykKIAlzdHJ1Y3QgaW9fc3RhdHggKmN0eCA9ICZyZXEtPnN0YXR4OwogCWludCByZXQ7CiAK
+LQlpZiAoZm9yY2Vfbm9uYmxvY2spIHsKLQkJLyogb25seSBuZWVkIGZpbGUgdGFibGUgZm9y
+IGFuIGFjdHVhbCB2YWxpZCBmZCAqLwotCQlpZiAoY3R4LT5kZmQgPT0gLTEgfHwgY3R4LT5k
+ZmQgPT0gQVRfRkRDV0QpCi0JCQlyZXEtPmZsYWdzIHw9IFJFUV9GX05PX0ZJTEVfVEFCTEU7
+CisJaWYgKGZvcmNlX25vbmJsb2NrKQogCQlyZXR1cm4gLUVBR0FJTjsKLQl9CiAKIAlyZXQg
+PSBkb19zdGF0eChjdHgtPmRmZCwgY3R4LT5maWxlbmFtZSwgY3R4LT5mbGFncywgY3R4LT5t
+YXNrLAogCQkgICAgICAgY3R4LT5idWZmZXIpOwotLSAKMi4zNS4xCgo=
 
-This patch set could probably go through KEYS/KEYRINGS_INTEGRITY, but
-it's kind of late to be asking.  Has it been in linux-next?  Should I
-assume this patch set has been fully tested or can we get some "tags"?
-
-thanks,
-
-Mimi
-
+--------------a03h1eKyH0BFG9Fr1v7AWOLV--
