@@ -2,264 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D779252DD3E
-	for <lists+stable@lfdr.de>; Thu, 19 May 2022 20:56:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A62D452DD49
+	for <lists+stable@lfdr.de>; Thu, 19 May 2022 21:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242227AbiESS4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 14:56:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47580 "EHLO
+        id S241336AbiESTAi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 15:00:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236387AbiESS4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 14:56:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF17365D02;
-        Thu, 19 May 2022 11:56:31 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7976E61AA8;
-        Thu, 19 May 2022 18:56:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDB11C385AA;
-        Thu, 19 May 2022 18:56:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1652986590;
-        bh=hK5v1h7KwONCMoe0rtFFs2bYt0owafPwOZBAQdoKRBw=;
-        h=Date:To:From:Subject:From;
-        b=fOEzC7nHmTC2eMb6Iri6LsQAFs+9xlLSLZkcVOBn2OrzSETcYID8mtlBEhM4xGHfa
-         YhtInDbgiBOP9ct9ZQSELa8yhjBXZf7iMAJz9gbozoWOntns1uGMXRvyMjSl2EM4Ht
-         5y7UpeAxnMxsVfg/3JXKv3x74RvfmAwGl0coXk7I=
-Date:   Thu, 19 May 2022 11:56:30 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        piaojun@huawei.com, mark@fasheh.com, junxiao.bi@oracle.com,
-        joseph.qi@linux.alibaba.com, jlbec@evilplan.org,
-        jiangqi903@gmail.com, ghe@suse.com, gechangwei@live.cn,
-        ocfs2-devel@oss.oracle.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + ocfs2-dlmfs-fix-error-handling-of-user_dlm_destroy_lock.patch added to mm-nonmm-unstable branch
-Message-Id: <20220519185630.CDB11C385AA@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S241043AbiESTAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 15:00:37 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C8F7AE257;
+        Thu, 19 May 2022 12:00:36 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id a23-20020a17090acb9700b001df4e9f4870so6054180pju.1;
+        Thu, 19 May 2022 12:00:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=98ewg5Kz+dWz3gt2JKMvme66iQECu+1Q7V9dYYaZ9KE=;
+        b=amCmmMtZcqbbF0h5rrZdf07kdygT/Burx3U5RkyuoiiVxnITLHeuOYxRzMzjRLqvq1
+         8OHzZ4xF5U0HWVv3mBoKTFWv/Xjx4MNnii1sV/lYNCToMY/mAdKOvcAZcvb1sKPhx+Ig
+         TGslsUZV46ocj6dRIjJlRXP1QV3eb/+h1ICzP2phVZ3VctyxUOSkPRSgvQdalW7saXuL
+         bCk9ZtqhJ9WIpLLss0qK6aSQvKP825Iz26PLkf9J6ba9wo7DYcKdIs7NusHx1bFB0EwC
+         6IxvtaoLcKDHytJzc6CNrx6QU/nLEpe0WRPt4ejDt2oyXFVQCqcg+HO5AL8B3UT7qxW7
+         KorQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=98ewg5Kz+dWz3gt2JKMvme66iQECu+1Q7V9dYYaZ9KE=;
+        b=uonU5/iQz1TPfC8wlc9gq4l2utOf01ucdBR5qRQBjQ3POtkPcCqHQ4i0tP/NTc9PwZ
+         HHZNlaoe+poZ8kB5bQt/+ncTUPN8EQTmg8lxWNpjJDIAiFJ6HoU73Nz47uaj0WfX9ztp
+         wC1KTk59tLctmDksphpCHO6cRwEKe/USZtdNl6hH2t9T78gqnO3R8aJNVD+rhtM+uDdI
+         YHGJpNF59PVHtGrtXyrI2R8L84ov4ZtRLCP+VwhtElECHWihNmFsbMXPjp8YuPQ8aX9w
+         mA2MWMOyN0NQNQRJEMN/oF9wYahBJGge7Kj+dU73DJrJslZ2VVieTsyuM11nfA3GJWDM
+         bYRg==
+X-Gm-Message-State: AOAM53294Gmn6okPmPw4cqS7GDReshC9OdxWm+SIaUrugu7R9kKzQotI
+        5p9fNfAcs2Gj03WocDcBtV+uAtq2zTs=
+X-Google-Smtp-Source: ABdhPJxIbKml7cPKlizP7FsCWD/xM3YslMtheO8LrUQylnUd1tqO1yIA7VXL0TnnG2K9uV7O66bkEw==
+X-Received: by 2002:a17:902:ce8b:b0:161:8d76:6689 with SMTP id f11-20020a170902ce8b00b001618d766689mr6150475plg.153.1652986835632;
+        Thu, 19 May 2022 12:00:35 -0700 (PDT)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id c11-20020a170902d48b00b001618b70dcc9sm4199358plg.101.2022.05.19.12.00.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 19 May 2022 12:00:34 -0700 (PDT)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Nishad Kamdar <nishadkamdar@gmail.com>,
+        =?UTF-8?q?Christian=20L=C3=B6hle?= <CLoehle@hyperstone.com>,
+        linux-mmc@vger.kernel.org (open list:MULTIMEDIA CARD (MMC), SECURE
+        DIGITAL (SD) AND...), linux-kernel@vger.kernel.org (open list),
+        alcooperx@gmail.com, kdasu.kdev@gmail.com
+Subject: [PATCH stable 4.14 v2 0/3] MMC timeout back ports
+Date:   Thu, 19 May 2022 12:00:27 -0700
+Message-Id: <20220519190030.377695-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+These 3 commits from upstream allow us to have more fine grained control
+over the MMC command timeouts and this solves the following timeouts
+that we have seen on our systems across suspend/resume cycles:
 
-The patch titled
-     Subject: ocfs2: dlmfs: fix error handling of user_dlm_destroy_lock
-has been added to the -mm mm-nonmm-unstable branch.  Its filename is
-     ocfs2-dlmfs-fix-error-handling-of-user_dlm_destroy_lock.patch
+[   14.907496] usb usb2: root hub lost power or was reset
+[   15.216232] usb 1-1: reset high-speed USB device number 2 using
+xhci-hcd
+[   15.485812] bcmgenet 8f00000.ethernet eth0: Link is Down
+[   15.525328] mmc1: error -110 doing runtime resume
+[   15.531864] OOM killer enabled.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/ocfs2-dlmfs-fix-error-handling-of-user_dlm_destroy_lock.patch
+Thanks!
 
-This patch will later appear in the mm-nonmm-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+Changes in v2:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+- assign timeout to  MMC_BKOPS_TIMEOUT_MS in mmc_start_bkops to avoid
+  making timeout unused and changing the existing logic
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Ulf Hansson (3):
+  mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+  mmc: block: Use generic_cmd6_time when modifying
+    INAND_CMD38_ARG_EXT_CSD
+  mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
+ drivers/mmc/core/block.c   |  6 +++---
+ drivers/mmc/core/mmc_ops.c | 27 ++++++++++++++-------------
+ 2 files changed, 17 insertions(+), 16 deletions(-)
 
-------------------------------------------------------
-From: Junxiao Bi via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
-Subject: ocfs2: dlmfs: fix error handling of user_dlm_destroy_lock
-Date: Wed, 18 May 2022 16:52:24 -0700
-
-When user_dlm_destroy_lock failed, it didn't clean up the flags it set
-before exit.  For USER_LOCK_IN_TEARDOWN, if this function fails because of
-lock is still in used, next time when unlink invokes this function, it
-will return succeed, and then unlink will remove inode and dentry if lock
-is not in used(file closed), but the dlm lock is still linked in dlm lock
-resource, then when bast come in, it will trigger a panic due to
-user-after-free.  See the following panic call trace.  To fix this,
-USER_LOCK_IN_TEARDOWN should be reverted if fail.  And also error should
-be returned if USER_LOCK_IN_TEARDOWN is set to let user know that unlink
-fail.
-
-For the case of ocfs2_dlm_unlock failure, besides USER_LOCK_IN_TEARDOWN,
-USER_LOCK_BUSY is also required to be cleared.  Even though spin lock is
-released in between, but USER_LOCK_IN_TEARDOWN is still set, for
-USER_LOCK_BUSY, if before every place that waits on this flag,
-USER_LOCK_IN_TEARDOWN is checked to bail out, that will make sure no flow
-waits on the busy flag set by user_dlm_destroy_lock(), then we can
-simplely revert USER_LOCK_BUSY when ocfs2_dlm_unlock fails.  Fix
-user_dlm_cluster_lock() which is the only function not following this.
-
-[  941.336392] (python,26174,16):dlmfs_unlink:562 ERROR: unlink
-004fb0000060000b5a90b8c847b72e1, error -16 from destroy
-[  989.757536] ------------[ cut here ]------------
-[  989.757709] kernel BUG at fs/ocfs2/dlmfs/userdlm.c:173!
-[  989.757876] invalid opcode: 0000 [#1] SMP
-[  989.758027] Modules linked in: ksplice_2zhuk2jr_ib_ipoib_new(O)
-ksplice_2zhuk2jr(O) mptctl mptbase xen_netback xen_blkback xen_gntalloc
-xen_gntdev xen_evtchn cdc_ether usbnet mii ocfs2 jbd2 rpcsec_gss_krb5
-auth_rpcgss nfsv4 nfsv3 nfs_acl nfs fscache lockd grace ocfs2_dlmfs
-ocfs2_stack_o2cb ocfs2_dlm ocfs2_nodemanager ocfs2_stackglue configfs bnx2fc
-fcoe libfcoe libfc scsi_transport_fc sunrpc ipmi_devintf bridge stp llc
-rds_rdma rds bonding ib_sdp ib_ipoib rdma_ucm ib_ucm ib_uverbs ib_umad
-rdma_cm ib_cm iw_cm falcon_lsm_serviceable(PE) falcon_nf_netcontain(PE)
-mlx4_vnic falcon_kal(E) falcon_lsm_pinned_13402(E) mlx4_ib ib_sa ib_mad
-ib_core ib_addr xenfs xen_privcmd dm_multipath iTCO_wdt iTCO_vendor_support
-pcspkr sb_edac edac_core i2c_i801 lpc_ich mfd_core ipmi_ssif i2c_core ipmi_si
-ipmi_msghandler
-[  989.760686]  ioatdma sg ext3 jbd mbcache sd_mod ahci libahci ixgbe dca ptp
-pps_core vxlan udp_tunnel ip6_udp_tunnel megaraid_sas mlx4_core crc32c_intel
-be2iscsi bnx2i cnic uio cxgb4i cxgb4 cxgb3i libcxgbi ipv6 cxgb3 mdio
-libiscsi_tcp qla4xxx iscsi_boot_sysfs libiscsi scsi_transport_iscsi wmi
-dm_mirror dm_region_hash dm_log dm_mod [last unloaded:
-ksplice_2zhuk2jr_ib_ipoib_old]
-[  989.761987] CPU: 10 PID: 19102 Comm: dlm_thread Tainted: P           OE
-4.1.12-124.57.1.el6uek.x86_64 #2
-[  989.762290] Hardware name: Oracle Corporation ORACLE SERVER
-X5-2/ASM,MOTHERBOARD,1U, BIOS 30350100 06/17/2021
-[  989.762599] task: ffff880178af6200 ti: ffff88017f7c8000 task.ti:
-ffff88017f7c8000
-[  989.762848] RIP: e030:[<ffffffffc07d4316>]  [<ffffffffc07d4316>]
-__user_dlm_queue_lockres.part.4+0x76/0x80 [ocfs2_dlmfs]
-[  989.763185] RSP: e02b:ffff88017f7cbcb8  EFLAGS: 00010246
-[  989.763353] RAX: 0000000000000000 RBX: ffff880174d48008 RCX:
-0000000000000003
-[  989.763565] RDX: 0000000000120012 RSI: 0000000000000003 RDI:
-ffff880174d48170
-[  989.763778] RBP: ffff88017f7cbcc8 R08: ffff88021f4293b0 R09:
-0000000000000000
-[  989.763991] R10: ffff880179c8c000 R11: 0000000000000003 R12:
-ffff880174d48008
-[  989.764204] R13: 0000000000000003 R14: ffff880179c8c000 R15:
-ffff88021db7a000
-[  989.764422] FS:  0000000000000000(0000) GS:ffff880247480000(0000)
-knlGS:ffff880247480000
-[  989.764685] CS:  e033 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  989.764865] CR2: ffff8000007f6800 CR3: 0000000001ae0000 CR4:
-0000000000042660
-[  989.765081] Stack:
-[  989.765167]  0000000000000003 ffff880174d48040 ffff88017f7cbd18
-ffffffffc07d455f
-[  989.765442]  ffff88017f7cbd88 ffffffff816fb639 ffff88017f7cbd38
-ffff8800361b5600
-[  989.765717]  ffff88021db7a000 ffff88021f429380 0000000000000003
-ffffffffc0453020
-[  989.765991] Call Trace:
-[  989.766093]  [<ffffffffc07d455f>] user_bast+0x5f/0xf0 [ocfs2_dlmfs]
-[  989.766287]  [<ffffffff816fb639>] ? schedule_timeout+0x169/0x2d0
-[  989.766475]  [<ffffffffc0453020>] ? o2dlm_lock_ast_wrapper+0x20/0x20
-[ocfs2_stack_o2cb]
-[  989.766738]  [<ffffffffc045303a>] o2dlm_blocking_ast_wrapper+0x1a/0x20
-[ocfs2_stack_o2cb]
-[  989.767010]  [<ffffffffc0864ec6>] dlm_do_local_bast+0x46/0xe0 [ocfs2_dlm]
-[  989.767217]  [<ffffffffc084f5cc>] ? dlm_lockres_calc_usage+0x4c/0x60
-[ocfs2_dlm]
-[  989.767466]  [<ffffffffc08501f1>] dlm_thread+0xa31/0x1140 [ocfs2_dlm]
-[  989.767662]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.767834]  [<ffffffff816f78ce>] ? __schedule+0x23e/0x810
-[  989.768006]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.768178]  [<ffffffff816f78ce>] ? __schedule+0x23e/0x810
-[  989.768349]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.768521]  [<ffffffff816f78ce>] ? __schedule+0x23e/0x810
-[  989.768693]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.768893]  [<ffffffff816f78ce>] ? __schedule+0x23e/0x810
-[  989.769067]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.769241]  [<ffffffff810ce4d0>] ? wait_woken+0x90/0x90
-[  989.769411]  [<ffffffffc084f7c0>] ? dlm_kick_thread+0x80/0x80 [ocfs2_dlm]
-[  989.769617]  [<ffffffff810a8bbb>] kthread+0xcb/0xf0
-[  989.769774]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.769945]  [<ffffffff816f78da>] ? __schedule+0x24a/0x810
-[  989.770117]  [<ffffffff810a8af0>] ? kthread_create_on_node+0x180/0x180
-[  989.770321]  [<ffffffff816fdaa1>] ret_from_fork+0x61/0x90
-[  989.770492]  [<ffffffff810a8af0>] ? kthread_create_on_node+0x180/0x180
-[  989.770689] Code: d0 00 00 00 f0 45 7d c0 bf 00 20 00 00 48 89 83 c0 00 00
-00 48 89 83 c8 00 00 00 e8 55 c1 8c c0 83 4b 04 10 48 83 c4 08 5b 5d c3 <0f>
-0b 0f 1f 84 00 00 00 00 00 55 48 89 e5 41 55 41 54 53 48 83
-[  989.771892] RIP  [<ffffffffc07d4316>]
-__user_dlm_queue_lockres.part.4+0x76/0x80 [ocfs2_dlmfs]
-[  989.772174]  RSP <ffff88017f7cbcb8>
-[  989.772704] ---[ end trace ebd1e38cebcc93a8 ]---
-[  989.772907] Kernel panic - not syncing: Fatal exception
-[  989.773173] Kernel Offset: disabled
-
-Link: https://lkml.kernel.org/r/20220518235224.87100-2-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Joseph Qi <jiangqi903@gmail.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/ocfs2/dlmfs/userdlm.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
-
---- a/fs/ocfs2/dlmfs/userdlm.c~ocfs2-dlmfs-fix-error-handling-of-user_dlm_destroy_lock
-+++ a/fs/ocfs2/dlmfs/userdlm.c
-@@ -433,6 +433,11 @@ again:
- 	}
- 
- 	spin_lock(&lockres->l_lock);
-+	if (lockres->l_flags & USER_LOCK_IN_TEARDOWN) {
-+		spin_unlock(&lockres->l_lock);
-+		status = -EAGAIN;
-+		goto bail;
-+	}
- 
- 	/* We only compare against the currently granted level
- 	 * here. If the lock is blocked waiting on a downconvert,
-@@ -595,7 +600,7 @@ int user_dlm_destroy_lock(struct user_lo
- 	spin_lock(&lockres->l_lock);
- 	if (lockres->l_flags & USER_LOCK_IN_TEARDOWN) {
- 		spin_unlock(&lockres->l_lock);
--		return 0;
-+		goto bail;
- 	}
- 
- 	lockres->l_flags |= USER_LOCK_IN_TEARDOWN;
-@@ -609,12 +614,17 @@ int user_dlm_destroy_lock(struct user_lo
- 	}
- 
- 	if (lockres->l_ro_holders || lockres->l_ex_holders) {
-+		lockres->l_flags &= ~USER_LOCK_IN_TEARDOWN;
- 		spin_unlock(&lockres->l_lock);
- 		goto bail;
- 	}
- 
- 	status = 0;
- 	if (!(lockres->l_flags & USER_LOCK_ATTACHED)) {
-+		/*
-+		 * lock is never requested, leave USER_LOCK_IN_TEARDOWN set
-+		 * to avoid new lock request coming in.
-+		 */
- 		spin_unlock(&lockres->l_lock);
- 		goto bail;
- 	}
-@@ -624,6 +634,10 @@ int user_dlm_destroy_lock(struct user_lo
- 
- 	status = ocfs2_dlm_unlock(conn, &lockres->l_lksb, DLM_LKF_VALBLK);
- 	if (status) {
-+		spin_lock(&lockres->l_lock);
-+		lockres->l_flags &= ~USER_LOCK_IN_TEARDOWN;
-+		lockres->l_flags &= ~USER_LOCK_BUSY;
-+		spin_unlock(&lockres->l_lock);
- 		user_log_dlm_error("ocfs2_dlm_unlock", status, lockres);
- 		goto bail;
- 	}
-_
-
-Patches currently in -mm which might be from ocfs2-devel@oss.oracle.com are
-
-ocfs2-dlmfs-not-clear-user_lock_attached-when-destroy-lock.patch
-ocfs2-dlmfs-fix-error-handling-of-user_dlm_destroy_lock.patch
+-- 
+2.25.1
 
