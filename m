@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F224552F3CF
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 21:32:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87DAC52F3CB
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 21:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353240AbiETTcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1353226AbiETTcG (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 20 May 2022 15:32:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353247AbiETTcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 15:32:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DC219579E
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 12:32:01 -0700 (PDT)
+        with ESMTP id S1353236AbiETTcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 15:32:05 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD3411912E4
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 12:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A65D561B5A
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 19:32:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845D7C385A9;
-        Fri, 20 May 2022 19:31:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77643B82A55
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 19:32:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE2CCC385A9;
+        Fri, 20 May 2022 19:32:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653075120;
+        s=korg; t=1653075122;
         bh=1dDoJ/qyoZrNAd59cyxsiBRTUOERaBm9PEgUfjxHOjU=;
         h=Subject:To:From:Date:From;
-        b=mR3DTb4swPBuSf76L61+2XU/Bw+7+kqE2E9HTJ4vRsp46KULC+Mu+kKqbVp5LuAFQ
-         MqP7w5g3cpbbf2lM/MI78TJ5zDWTSA25ZF+moTBEUPMUFK12z41Rz1ruVld0Qz7uZd
-         s+td3AhEXmM+b7nvTO1QRXbMaF1XEke8xoRSLKdU=
+        b=Ql2bmwf5p/WG+Kv5VZygI2cPg2bcrO5Hw3OEU/p53jGokVIjwCVtgXoEEI93ah5vl
+         lkPmSHBt68ZJZK7Q81X7e+S03Q5klIUE++UpDNX85LeDoYGFab1H9QfPcVzomiIqrM
+         3PiT7Jlw0zaKzkCixfnCxz0hbMHkwCAv76aVYaXs=
 Subject: patch "USB: new quirk for Dell Gen 2 devices" added to usb-next
 To:     monish.kumar.r@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
@@ -39,7 +39,7 @@ Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
