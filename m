@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A93852F3C7
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 21:32:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F224552F3CF
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 21:32:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239562AbiETTbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 15:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38696 "EHLO
+        id S1353240AbiETTcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 15:32:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353226AbiETTby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 15:31:54 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222C6195792
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 12:31:53 -0700 (PDT)
+        with ESMTP id S1353247AbiETTcD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 15:32:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65DC219579E
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 12:32:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF84861B5A
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 19:31:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D2FC385A9;
-        Fri, 20 May 2022 19:31:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A65D561B5A
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 19:32:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 845D7C385A9;
+        Fri, 20 May 2022 19:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653075112;
-        bh=Rswnx8MAVy06CUGPbWLPckdT7bNAlPj/7MttQQh3S/M=;
+        s=korg; t=1653075120;
+        bh=1dDoJ/qyoZrNAd59cyxsiBRTUOERaBm9PEgUfjxHOjU=;
         h=Subject:To:From:Date:From;
-        b=VAS00o4kBpVy3KeLL1uMDeVNnqIhsecpDCm69Xucu7Sm5sRaWhjMc0QsJ0jcxF6iB
-         CsRHIRwuhqYDHnEIxEmJaPGTaWYdjYteBn3P22fqw0EiEXDhoEdsitWipkB3zOMXpT
-         Xu0rtM56Agu2By+D8b1L1Z1NsUwIWaou8Pq0DPJo=
-Subject: patch "USB: new quirk for Dell Gen 2 devices" added to usb-testing
+        b=mR3DTb4swPBuSf76L61+2XU/Bw+7+kqE2E9HTJ4vRsp46KULC+Mu+kKqbVp5LuAFQ
+         MqP7w5g3cpbbf2lM/MI78TJ5zDWTSA25ZF+moTBEUPMUFK12z41Rz1ruVld0Qz7uZd
+         s+td3AhEXmM+b7nvTO1QRXbMaF1XEke8xoRSLKdU=
+Subject: patch "USB: new quirk for Dell Gen 2 devices" added to usb-next
 To:     monish.kumar.r@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 20 May 2022 21:18:53 +0200
-Message-ID: <165307433327232@kroah.com>
+Date:   Fri, 20 May 2022 21:19:51 +0200
+Message-ID: <165307439198107@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,13 +54,13 @@ This is a note to let you know that I've just added the patch titled
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
+The patch will also be merged in the next major kernel release
+during the merge window.
 
 If you have any questions about this process, please let me know.
 
