@@ -2,222 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6CE52E1EC
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 03:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2504D52E255
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 04:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239599AbiETBYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 19 May 2022 21:24:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33464 "EHLO
+        id S1344659AbiETCAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 19 May 2022 22:00:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344195AbiETBYO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 21:24:14 -0400
-Received: from out2.migadu.com (out2.migadu.com [188.165.223.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45BBD2AC7B;
-        Thu, 19 May 2022 18:24:13 -0700 (PDT)
-Date:   Thu, 19 May 2022 18:24:04 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1653009850;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8dIWBHJuUxrh6Wv36T47A+FcXJPl91XrE218hQx8ro0=;
-        b=Vl7farxJ2q0Ic6HJwHmFW9rd1Zuol6JbtjZA9EGtxRUlqjION7Y1jxbPS4XUPWAWo8mRM6
-        4NXVVVoXrjcR6/n1Mw0F/TvQnMpjoi4gfsY84Gn4R+GI4sop1Fyx4aGQwKFmGVMZIQIkJe
-        +1kasV0MMBMhQXq+l8Y46LT5CKaikPg=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Roman Gushchin <roman.gushchin@linux.dev>
-To:     Kristen Carlson Accardi <kristen@linux.intel.com>
-Cc:     linux-sgx@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, mhocko@suse.com, hannes@cmpxchg.org,
-        shakeelb@google.com
-Subject: Re: [PATCH v2] x86/sgx: Set active memcg prior to shmem allocation
-Message-ID: <YobttN5nRMwYbN4I@carbon>
-References: <20220519210445.5310-1-kristen@linux.intel.com>
+        with ESMTP id S1344660AbiETCAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 19 May 2022 22:00:34 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2906CEBE88;
+        Thu, 19 May 2022 19:00:30 -0700 (PDT)
+X-UUID: 974351cf7a2444f2b9411668773562e1-20220520
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.1.5,REQID:5a3ddfad-4bbe-44a6-b1f8-beacca20aace,OB:0,LO
+        B:0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
+        ION:release,TS:-5
+X-CID-META: VersionHash:2a19b09,CLOUDID:6049dee2-edbf-4bd4-8a34-dfc5f7bb086d,C
+        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:0,File:nil
+        ,QS:0,BEC:nil
+X-UUID: 974351cf7a2444f2b9411668773562e1-20220520
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw01.mediatek.com
+        (envelope-from <xinlei.lee@mediatek.com>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+        with ESMTP id 1183544703; Fri, 20 May 2022 10:00:18 +0800
+Received: from mtkmbs07n1.mediatek.inc (172.21.101.16) by
+ mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.792.15; Fri, 20 May 2022 10:00:18 +0800
+Received: from mtkmbs11n2.mediatek.inc (172.21.101.187) by
+ mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Fri, 20 May 2022 10:00:17 +0800
+Received: from mszsdaap41.gcn.mediatek.inc (10.16.6.141) by
+ mtkmbs11n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.792.3 via Frontend Transport; Fri, 20 May 2022 10:00:17 +0800
+From:   <xinlei.lee@mediatek.com>
+To:     <chunkuang.hu@kernel.org>, <p.zabel@pengutronix.de>,
+        <airlied@linux.ie>, <daniel@ffwll.ch>, <matthias.bgg@gmail.com>
+CC:     <dri-devel@lists.freedesktop.org>,
+        <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>,
+        <Project_Global_Chrome_Upstream_Group@mediatek.com>,
+        <rex-bc.chen@mediatek.com>, <jitao.shi@mediatek.com>,
+        "# 5 . 10 . x : b255d51e3967 : sched : Modify dsi funcs to atomic
+        operations" <stable@vger.kernel.org>,
+        Xinlei Lee <xinlei.lee@mediatek.com>
+Subject: [PATCH v7,3/4] drm/mediatek: keep dsi as LP00 before dcs cmds transfer
+Date:   Fri, 20 May 2022 10:00:06 +0800
+Message-ID: <1653012007-11854-4-git-send-email-xinlei.lee@mediatek.com>
+X-Mailer: git-send-email 2.6.4
+In-Reply-To: <1653012007-11854-1-git-send-email-xinlei.lee@mediatek.com>
+References: <1653012007-11854-1-git-send-email-xinlei.lee@mediatek.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220519210445.5310-1-kristen@linux.intel.com>
-X-Migadu-Flow: FLOW_OUT
-X-Migadu-Auth-User: linux.dev
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-MTK:  N
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNPARSEABLE_RELAY autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 19, 2022 at 02:04:45PM -0700, Kristen Carlson Accardi wrote:
-> When the system runs out of enclave memory, SGX can reclaim EPC pages
-> by swapping to normal RAM. These backing pages are allocated via a
-> per-enclave shared memory area. Since SGX allows unlimited over
-> commit on EPC memory, the reclaimer thread can allocate a large
-> number of backing RAM pages in response to EPC memory pressure.
-> 
-> When the shared memory backing RAM allocation occurs during
-> the reclaimer thread context, the shared memory is charged to
-> the root memory control group, and the shmem usage of the enclave
-> is not properly accounted for, making cgroups ineffective at
-> limiting the amount of RAM an enclave can consume.
-> 
-> For example, when using a cgroup to launch a set of test
-> enclaves, the kernel does not properly account for 50% - 75% of
-> shmem page allocations on average. In the worst case, when
-> nearly all allocations occur during the reclaimer thread, the
-> kernel accounts less than a percent of the amount of shmem used
-> by the enclave's cgroup to the correct cgroup.
-> 
-> SGX stores a list of mm_structs that are associated with
-> an enclave. Pick one of them during reclaim and charge that
-> mm's memcg with the shmem allocation. The one that gets picked
-> is arbitrary, but this list almost always only has one mm. The
-> cases where there is more than one mm with different memcg's
-> are not worth considering.
-> 
-> Create a new function - sgx_encl_alloc_backing(). This function
-> is used whenever a new backing storage page needs to be
-> allocated. Previously the same function was used for page
-> allocation as well as retrieving a previously allocated page.
-> Prior to backing page allocation, if there is a mm_struct associated
-> with the enclave that is requesting the allocation, it is set
-> as the active memory control group.
-> 
-> Signed-off-by: Kristen Carlson Accardi <kristen@linux.intel.com>
-> ---
-> V1 -> V2:
->  Changed sgx_encl_set_active_memcg() to simply return the correct
->  memcg for the enclave and renamed to sgx_encl_get_mem_cgroup().
-> 
->  Created helper function current_is_ksgxd() to improve readability.
-> 
->  Use mmget_not_zero()/mmput_async() when searching mm_list.
-> 
->  Move call to set_active_memcg() to sgx_encl_alloc_backing() and
->  use mem_cgroup_put() to avoid leaking a memcg reference.
-> 
->  Address review feedback regarding comments and commit log.
-> 
->  arch/x86/kernel/cpu/sgx/encl.c | 109 ++++++++++++++++++++++++++++++++-
->  arch/x86/kernel/cpu/sgx/encl.h |  11 +++-
->  arch/x86/kernel/cpu/sgx/main.c |   4 +-
->  3 files changed, 118 insertions(+), 6 deletions(-)
-> 
-> diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-> index 001808e3901c..6d10202612d6 100644
-> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> @@ -32,7 +32,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
->  	else
->  		page_index = PFN_DOWN(encl->size);
->  
-> -	ret = sgx_encl_get_backing(encl, page_index, &b);
-> +	ret = sgx_encl_lookup_backing(encl, page_index, &b);
->  	if (ret)
->  		return ret;
->  
-> @@ -574,7 +574,7 @@ static struct page *sgx_encl_get_backing_page(struct sgx_encl *encl,
->   *   0 on success,
->   *   -errno otherwise.
->   */
-> -int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
-> +static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
->  			 struct sgx_backing *backing)
->  {
->  	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
-> @@ -601,6 +601,111 @@ int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
->  	return 0;
->  }
->  
-> +/*
-> + * When called from ksgxd, returns the mem_cgroup of a struct mm stored
-> + * in the enclave's mm_list. When not called from ksgxd, just returns
-> + * the mem_cgroup of the current task.
-> + */
-> +static struct mem_cgroup *sgx_encl_get_mem_cgroup(struct sgx_encl *encl)
-> +{
-> +	struct mem_cgroup *memcg = NULL;
-> +	struct sgx_encl_mm *encl_mm;
-> +	int idx;
-> +
-> +	/*
-> +	 * If called from normal task context, return the mem_cgroup
-> +	 * of the current task's mm. The remainder of the handling is for
-> +	 * ksgxd.
-> +	 */
-> +	if (!current_is_ksgxd())
-> +		return get_mem_cgroup_from_mm(current->mm);
-> +
-> +	/*
-> +	 * Search the enclave's mm_list to find an mm associated with
-> +	 * this enclave to charge the allocation to.
-> +	 */
-> +	idx = srcu_read_lock(&encl->srcu);
-> +
-> +	list_for_each_entry_rcu(encl_mm, &encl->mm_list, list) {
-> +		if (!mmget_not_zero(encl_mm->mm))
-> +			continue;
-> +
-> +		memcg = get_mem_cgroup_from_mm(encl_mm->mm);
-> +
-> +		mmput_async(encl_mm->mm);
-> +
-> +		break;
-> +	}
-> +
-> +	srcu_read_unlock(&encl->srcu, idx);
-> +
-> +	/*
-> +	 * In the rare case that there isn't an mm associated with
-> +	 * the enclave, set memcg to the current active mem_cgroup.
-> +	 * This will be the root mem_cgroup if there is no active
-> +	 * mem_cgroup.
-> +	 */
-> +	if (!memcg)
-> +		return get_mem_cgroup_from_mm(NULL);
-> +
-> +	return memcg;
-> +}
+From: Jitao Shi <jitao.shi@mediatek.com>
 
+To comply with the panel sequence, hold the mipi signal to LP00 before the dcs cmds transmission,
+and pull the mipi signal high from LP00 to LP11 until the start of the dcs cmds transmission.
+The normal panel timing is :
+(1) pp1800 DC pull up
+(2) avdd & avee AC pull high
+(3) lcm_reset pull high -> pull low -> pull high
+(4) Pull MIPI signal high (LP11) -> initial code -> send video data(HS mode)
+The power-off sequence is reversed.
+If dsi is not in cmd mode, then dsi will pull the mipi signal high in the mtk_output_dsi_enable function.
+The delay in lane_ready func is the reaction time of dsi_rx after pulling up the mipi signal.
 
-You can simplify the function a bit. But it's up to you, not a strong
-opinion.
+Fixes: 2dd8075d2185 ("drm/mediatek: mtk_dsi: Use the drm_panel_bridge API")
 
-static struct mem_cgroup *sgx_encl_get_mem_cgroup(struct sgx_encl *encl)
-{
-	struct mem_cgroup *memcg = NULL;
-	struct sgx_encl_mm *encl_mm;
-	int idx;
+Cc: <stable@vger.kernel.org> # 5.10.x: b255d51e3967: sched: Modify dsi funcs to atomic operations
+Cc: <stable@vger.kernel.org> # 5.10.x: 72c69c977502: sched: Separate poweron/poweroff from enable/disable and define new funcs
+Cc: <stable@vger.kernel.org> # 5.10.x
+Signed-off-by: Jitao Shi <jitao.shi@mediatek.com>
+Signed-off-by: Xinlei Lee <xinlei.lee@mediatek.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+---
+ drivers/gpu/drm/mediatek/mtk_dsi.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-	if (current_is_ksgxd()) {
-		/*
-		 * Search the enclave's mm_list to find an mm associated with
-		 * this enclave to charge the allocation to.
-		 */
-		idx = srcu_read_lock(&encl->srcu);
-		list_for_each_entry_rcu(encl_mm, &encl->mm_list, list) {
-			if (!mmget_not_zero(encl_mm->mm))
-				continue;
+diff --git a/drivers/gpu/drm/mediatek/mtk_dsi.c b/drivers/gpu/drm/mediatek/mtk_dsi.c
+index d9a6b928dba8..25e84d9426bf 100644
+--- a/drivers/gpu/drm/mediatek/mtk_dsi.c
++++ b/drivers/gpu/drm/mediatek/mtk_dsi.c
+@@ -203,6 +203,7 @@ struct mtk_dsi {
+ 	struct mtk_phy_timing phy_timing;
+ 	int refcount;
+ 	bool enabled;
++	bool lanes_ready;
+ 	u32 irq_data;
+ 	wait_queue_head_t irq_wait_queue;
+ 	const struct mtk_dsi_driver_data *driver_data;
+@@ -661,18 +662,11 @@ static int mtk_dsi_poweron(struct mtk_dsi *dsi)
+ 	mtk_dsi_reset_engine(dsi);
+ 	mtk_dsi_phy_timconfig(dsi);
+ 
+-	mtk_dsi_rxtx_control(dsi);
+-	usleep_range(30, 100);
+-	mtk_dsi_reset_dphy(dsi);
+ 	mtk_dsi_ps_control_vact(dsi);
+ 	mtk_dsi_set_vm_cmd(dsi);
+ 	mtk_dsi_config_vdo_timing(dsi);
+ 	mtk_dsi_set_interrupt_enable(dsi);
+ 
+-	mtk_dsi_clk_ulp_mode_leave(dsi);
+-	mtk_dsi_lane0_ulp_mode_leave(dsi);
+-	mtk_dsi_clk_hs_mode(dsi, 0);
+-
+ 	return 0;
+ err_disable_engine_clk:
+ 	clk_disable_unprepare(dsi->engine_clk);
+@@ -701,6 +695,23 @@ static void mtk_dsi_poweroff(struct mtk_dsi *dsi)
+ 	clk_disable_unprepare(dsi->digital_clk);
+ 
+ 	phy_power_off(dsi->phy);
++
++	dsi->lanes_ready = false;
++}
++
++static void mtk_dsi_lane_ready(struct mtk_dsi *dsi)
++{
++	if (!dsi->lanes_ready) {
++		dsi->lanes_ready = true;
++		mtk_dsi_rxtx_control(dsi);
++		usleep_range(30, 100);
++		mtk_dsi_reset_dphy(dsi);
++		mtk_dsi_clk_ulp_mode_leave(dsi);
++		mtk_dsi_lane0_ulp_mode_leave(dsi);
++		mtk_dsi_clk_hs_mode(dsi, 0);
++		msleep(20);
++		/* The reaction time after pulling up the mipi signal for dsi_rx */
++	}
+ }
+ 
+ static void mtk_output_dsi_enable(struct mtk_dsi *dsi)
+@@ -708,6 +719,7 @@ static void mtk_output_dsi_enable(struct mtk_dsi *dsi)
+ 	if (dsi->enabled)
+ 		return;
+ 
++	mtk_dsi_lane_ready(dsi);
+ 	mtk_dsi_set_mode(dsi);
+ 	mtk_dsi_clk_hs_mode(dsi, 1);
+ 
+@@ -1017,6 +1029,8 @@ static ssize_t mtk_dsi_host_transfer(struct mipi_dsi_host *host,
+ 	if (MTK_DSI_HOST_IS_READ(msg->type))
+ 		irq_flag |= LPRX_RD_RDY_INT_FLAG;
+ 
++	mtk_dsi_lane_ready(dsi);
++
+ 	ret = mtk_dsi_host_send_cmd(dsi, msg, irq_flag);
+ 	if (ret)
+ 		goto restore_dsi_mode;
+-- 
+2.18.0
 
-			memcg = get_mem_cgroup_from_mm(encl_mm->mm);
-			mmput_async(encl_mm->mm);
-			break;
-		}
-		srcu_read_unlock(&encl->srcu, idx);
-	}
-
-	return memcg ? memcg : get_mem_cgroup_from_mm(current->mm);
-}
-
---
-
-The rest of the patch looks good to me. Please, feel free to add:
-
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
-
-Thanks!
