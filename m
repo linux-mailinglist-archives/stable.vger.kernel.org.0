@@ -2,111 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BF6C52EA57
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 12:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0982052EA54
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 12:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347555AbiETKxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 06:53:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45990 "EHLO
+        id S243872AbiETKxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 06:53:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237515AbiETKxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 06:53:44 -0400
-X-Greylist: delayed 307 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 20 May 2022 03:53:43 PDT
-Received: from mout.web.de (mout.web.de [212.227.15.14])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FB595A0F
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 03:53:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1653044021;
-        bh=zTsDrlvZm1vrf8ldxec3slzcofwI7Q1rJfgI/nB/X7M=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=mIDp7+DgFNMBCONMFAPF29tPt3Dz3ojL0zU2JNx7wMeafFc02xpuohK2wFIHye7Ke
-         OLl+o9kgoOanbNv5BUUNRxN4lTPRh0LVFLBMs+ItWys5FZvq7RwqZ26ukmVAURisUC
-         ltEJ54Gi/95itzMNZ26cBPTzrbngSJkrdv9walxI=
-X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
-Received: from uruz.dynato.kyma ([91.6.57.238]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MnG2C-1nQbuK2tO8-00jV53; Fri, 20
- May 2022 12:48:28 +0200
-Received: from [127.0.0.1]
-        by uruz.dynato.kyma with esmtp (Exim 4.95)
-        (envelope-from <jvpeetz@web.de>)
-        id 1ns0BI-0008Tn-7q;
-        Fri, 20 May 2022 12:48:28 +0200
-Message-ID: <22b19b34-5cf8-e026-97f8-c66011ee535b@web.de>
-Date:   Fri, 20 May 2022 12:48:28 +0200
+        with ESMTP id S237515AbiETKxi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 06:53:38 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4349A7220E;
+        Fri, 20 May 2022 03:53:36 -0700 (PDT)
+Date:   Fri, 20 May 2022 10:53:33 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1653044014;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OtSIFPB0YVt45I6/uLYDyp1TV30jOPmQoHnLwn/78wk=;
+        b=r3/bKPz8y0DVRXN6jijN+SEFOsWsVvMFlT2Vlh8t7VL9c7AtHmtmeAd9XfIUzrWZOaLTpp
+        plhLvsYLmGrwJKfEMr23tzOqy/3KkaPWym/0Ntps8hQ/Hb5VjemDHRxLH4aUniXFWmp+1m
+        I1ztvsSEPgvWnzunVTvtDv8/U4i7++XsnkWpme5vJpAtkwd9sdAr+yHNH2Dtx6ZOPCRZmz
+        YDsR0oc9ZSksy+ifbfn4YGTN84lbi7Sj5VbpBkgtbYtSsEeCcD4BH3Sp6tbUWmMkJOxVRN
+        nGy39fgrUtuGgdm0F02BqIIFXrcyleLaxkOIh5V0zr/PRbQ4Qh63LKDz3m+nwQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1653044014;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=OtSIFPB0YVt45I6/uLYDyp1TV30jOPmQoHnLwn/78wk=;
+        b=DerLFG95QxMrCdOIFueUetI+LQ7w/LPtSdeUiFKkhSiRp3+F7jbjhtVUgYsnRLrGmn4AFh
+        Mpq3qajp/6dw9EAw==
+From:   "tip-bot2 for Mikulas Patocka" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: objtool/core] objtool: Fix objtool regression on x32 systems
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: =?utf-8?q?=3Calpine=2ELRH=2E2=2E02=2E2205161041260=2E1155?=
+ =?utf-8?q?6=40file01=2Eintranet=2Eprod=2Eint=2Erdu2=2Eredhat=2Ecom=3E?=
+References: =?utf-8?q?=3Calpine=2ELRH=2E2=2E02=2E2205161041260=2E11556?=
+ =?utf-8?q?=40file01=2Eintranet=2Eprod=2Eint=2Erdu2=2Eredhat=2Ecom=3E?=
 MIME-Version: 1.0
-Subject: Re: Linux 5.17.5
-Content-Language: en-US
-To:     Joerg Roedel <joro@8bytes.org>
-Cc:     SuraveeSuthikulpanit <suravee.suthikulpanit@amd.com>,
-        vasant.hegde@amd.com, WillDeacon <will@kernel.org>,
-        stable@vger.kernel.org
-References: <165106510338255@kroah.com>
- <a5c7406e-64b0-7522-fef0-27fec1ac6698@web.de> <Ym+oOjFrkdju5H6X@8bytes.org>
- <4bfd2811-69ec-e4ec-2957-7054a075aa50@web.de> <YnI2QYZ1GqmORC10@8bytes.org>
- <f731aff4-a20a-26b3-473f-723b65e760ce@web.de> <YodtvQJXInHDI3lD@8bytes.org>
-From:   =?UTF-8?Q?J=c3=b6rg-Volker_Peetz?= <jvpeetz@web.de>
-In-Reply-To: <YodtvQJXInHDI3lD@8bytes.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:jOVb+aoLeDp/ywUNpu4Zp7/4J9oiqVg17z1P2TWxL2CddVTXVL9
- tfnhuSHGvuvLb9pR1MMlPk0RsjuwK73KkAWzFUhtXwDdEOZ9C3bTA+FgHkMkwbRQzrDZ8qu
- IbanLse+vwp/YlHN14ojcqouuVm/41tQ1tx1SSgnfU5EuZUemq4wyro8Ll5LumMFg3xhH07
- hTPwaKQ0FMvEaFD8Pjk3g==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:w1uql2bttxM=:cVp3R3Aj4M94xv8YjGHlvr
- +0tbu4QRP6l8w1Yqy4hf1Ey5NrkZzcD8sCTMWQoCrAJUat+zhkGJC1wqoyDVmyyq3C4CVY6HD
- R+H8+J0DRZbQRPQWEPMWfU8T5nRA7cBgfb1q/90wLliRnvpemmIwLGJ8cMP52NPkVr/Iclgca
- tE07KRklgUPqOgKOKA1dw6DcElLJKdr4tFCPS6uGocmAGGYtUgXWWbtZVYqMYZQg7IUDYfw8z
- 3dN4CL9fkwpdox1yDon03rGCFZGk4t16DZLgLNRfhVg7Q6jQSSobjHWJLKliauc8nIXzGU/Qt
- Gu9u+cIl+LUTeHim0V8WJDoyOTtxx09PU+qlBJhDwl6901ryL1+DhnybRfpRbC+SjKouXM3p9
- r65yUp64joDTB9mj+WxnW6p9eqQgcqNzlkP624QCrXMHGZWDaZG3brgmixtInBbCdvie5ppyx
- JpGgDggBCb2rP7XFqGCGOAm3ZEreFo3drlAVzhjgAKX0FRcIkXPN+JQeZrTeEG/90IK9hPzeo
- J07ZlvfZzwoGhny2175v3CKVwXXpdIOq4KaKi8iFauK0nuaEagwFCeoLyp6YIjwQ49lSAm1V/
- tUJppTdcklqnRxiIcf3OISNC8tS02l7JthEcHucs6EVeCP1k1nkh8LI9L6tYBhcd9EEc66xzC
- Y69qZADci/uUDW0DhOqbOV6+ux+rZlOJvcaYjUeyhL3Y0DhIZXzSEqYqCqoH0raHAqVmjgeKX
- TaXZ+wLGjA1mwztgSZHayNFEfx1R+hcg4geptk8xYs6HWLDSOtNw9djElqw8gilR/Sb6+IPYC
- h1zCdeiQtSYpVLM3cwkVRBa2fNpql0196yzlQLaq6c9DWOZzlSWhtr0eW5QvdlxAR0wyJK7JG
- FxpmHfajNsPmPmpPBOt16jboAsVixiPh0fqthdRg8ieY/ih2NM3gR0BK8jgAci/nlqC5ubw2g
- RGafhltHt12KGJVBdSUzMjEQPCT+6Ro8rUQXO8uatw1LbBVzgQC85mql9lQGTEBLh9YyJQQMa
- iBb8BE3KOWUInaGMqxITlblfhXuQmrtP6u8TfAEsE0PdbE2+jdBrJgRPiU7F9IL+M43NxcLtJ
- lJ+DUDtr1z2b1+NMR/NJJqOzn2tisbIZiWM
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Message-ID: <165304401319.4207.18392602354110557584.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Yes, I will test it on top of 5.17.9, o.k.?
-Would you also be interested to get a timing from my computer?
+The following commit has been merged into the objtool/core branch of tip:
 
-Thank you and regards,
-J=C3=B6rg.
+Commit-ID:     22682a07acc308ef78681572e19502ce8893c4d4
+Gitweb:        https://git.kernel.org/tip/22682a07acc308ef78681572e19502ce8893c4d4
+Author:        Mikulas Patocka <mpatocka@redhat.com>
+AuthorDate:    Mon, 16 May 2022 11:06:36 -04:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 20 May 2022 12:45:30 +02:00
 
+objtool: Fix objtool regression on x32 systems
 
-Joerg Roedel wrote on 20/05/2022 12:30:
-> Hi J=C3=B6rg,
->
-> On Wed, May 04, 2022 at 03:21:45PM +0200, J=C3=B6rg-Volker Peetz wrote:
->> now with the really patched kernel 5.17.5 the warning doesn't show up a=
-nymore. I
->> did two cold starts and one reboot.
->>
->> There are only two warnings regarding the CPU:
->>
->> [    2.659141] amdgpu 0000:30:00.0: amdgpu: PSP runtime database doesn'=
-t exist
->> [    3.538925] amdgpu: SRAT table not found
->>
->> Sorry for the confusion and many thanks for your help.
->
-> I just sent out a fix increasing the loop timeout, can you please test
-> it and report whether it also make the message disappear on your
-> machine?
->
-> Thanks,
->
-> 	J=C3=B6rg
+Commit c087c6e7b551 ("objtool: Fix type of reloc::addend") failed to
+appreciate cross building from ILP32 hosts, where 'int' == 'long' and
+the issue persists.
 
+As such, use s64/int64_t/Elf64_Sxword for this field and suffer the
+pain that is ISO C99 printf formats for it.
+
+Fixes: c087c6e7b551 ("objtool: Fix type of reloc::addend")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+[peterz: reword changelog, s/long long/s64/]
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/alpine.LRH.2.02.2205161041260.11556@file01.intranet.prod.int.rdu2.redhat.com
+---
+ tools/objtool/check.c               |  9 +++++----
+ tools/objtool/elf.c                 |  2 +-
+ tools/objtool/include/objtool/elf.h |  4 ++--
+ 3 files changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 2063f9f..190b2f6 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -5,6 +5,7 @@
+ 
+ #include <string.h>
+ #include <stdlib.h>
++#include <inttypes.h>
+ #include <sys/mman.h>
+ 
+ #include <arch/elf.h>
+@@ -561,12 +562,12 @@ static int add_dead_ends(struct objtool_file *file)
+ 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
+ 			insn = find_last_insn(file, reloc->sym->sec);
+ 			if (!insn) {
+-				WARN("can't find unreachable insn at %s+0x%lx",
++				WARN("can't find unreachable insn at %s+0x%" PRIx64,
+ 				     reloc->sym->sec->name, reloc->addend);
+ 				return -1;
+ 			}
+ 		} else {
+-			WARN("can't find unreachable insn at %s+0x%lx",
++			WARN("can't find unreachable insn at %s+0x%" PRIx64,
+ 			     reloc->sym->sec->name, reloc->addend);
+ 			return -1;
+ 		}
+@@ -596,12 +597,12 @@ reachable:
+ 		else if (reloc->addend == reloc->sym->sec->sh.sh_size) {
+ 			insn = find_last_insn(file, reloc->sym->sec);
+ 			if (!insn) {
+-				WARN("can't find reachable insn at %s+0x%lx",
++				WARN("can't find reachable insn at %s+0x%" PRIx64,
+ 				     reloc->sym->sec->name, reloc->addend);
+ 				return -1;
+ 			}
+ 		} else {
+-			WARN("can't find reachable insn at %s+0x%lx",
++			WARN("can't find reachable insn at %s+0x%" PRIx64,
+ 			     reloc->sym->sec->name, reloc->addend);
+ 			return -1;
+ 		}
+diff --git a/tools/objtool/elf.c b/tools/objtool/elf.c
+index 7fb6720..c25e957 100644
+--- a/tools/objtool/elf.c
++++ b/tools/objtool/elf.c
+@@ -550,7 +550,7 @@ static struct section *elf_create_reloc_section(struct elf *elf,
+ 						int reltype);
+ 
+ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+-		  unsigned int type, struct symbol *sym, long addend)
++		  unsigned int type, struct symbol *sym, s64 addend)
+ {
+ 	struct reloc *reloc;
+ 
+diff --git a/tools/objtool/include/objtool/elf.h b/tools/objtool/include/objtool/elf.h
+index de0cb2f..adebfbc 100644
+--- a/tools/objtool/include/objtool/elf.h
++++ b/tools/objtool/include/objtool/elf.h
+@@ -73,7 +73,7 @@ struct reloc {
+ 	struct symbol *sym;
+ 	unsigned long offset;
+ 	unsigned int type;
+-	long addend;
++	s64 addend;
+ 	int idx;
+ 	bool jump_table_start;
+ };
+@@ -145,7 +145,7 @@ struct elf *elf_open_read(const char *name, int flags);
+ struct section *elf_create_section(struct elf *elf, const char *name, unsigned int sh_flags, size_t entsize, int nr);
+ 
+ int elf_add_reloc(struct elf *elf, struct section *sec, unsigned long offset,
+-		  unsigned int type, struct symbol *sym, long addend);
++		  unsigned int type, struct symbol *sym, s64 addend);
+ int elf_add_reloc_to_insn(struct elf *elf, struct section *sec,
+ 			  unsigned long offset, unsigned int type,
+ 			  struct section *insn_sec, unsigned long insn_off);
