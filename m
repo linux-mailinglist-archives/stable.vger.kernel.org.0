@@ -2,305 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6C552F1C9
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 19:43:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA61552F314
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 20:37:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237898AbiETRnC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 13:43:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S236986AbiETShU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 14:37:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237892AbiETRnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 13:43:02 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B68FC5997E;
-        Fri, 20 May 2022 10:43:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1653068580; x=1684604580;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=fyg9TiH1ZV2HFjP5MEGy0as8O4WB//BPXXPI6BsYlFY=;
-  b=ZsOkxq2ArSJiq+/g++8+2ORokXnjNpYVNIfbZAeZTa5Mmc9dlrhNfZaT
-   i3ifibyWVG4tI0qdmkLuchDKVOF57MN5NKw7cWkyFyuHaYOI6obGb/8Wo
-   43nxWPmWlbBup9vDI+UOTBeby6XJ95vukcLgjtM6GeA6RJh+7UOboBkeG
-   65PpsLoi4v2dNNMb9lwvMaazVTjet1nCx6XGZXB/BO/XNElEt6cKHgwyh
-   QAk8YfZS+RtDBVwJYbqKASnahUlFiZEO6ncjhTNLJpENrXc9WBSrR3c3w
-   zGxJ+5j53d8d4PvaySyJitdu0Y99UgqMH9RDvq1cv6jjB74T45VGWlxzc
-   A==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10353"; a="254738887"
-X-IronPort-AV: E=Sophos;i="5.91,240,1647327600"; 
-   d="scan'208";a="254738887"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 May 2022 10:42:59 -0700
-X-IronPort-AV: E=Sophos;i="5.91,240,1647327600"; 
-   d="scan'208";a="715627429"
-Received: from kcaccard-mobl.amr.corp.intel.com (HELO kcaccard-mobl1.jf.intel.com) ([10.209.83.65])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 May 2022 10:42:58 -0700
-From:   Kristen Carlson Accardi <kristen@linux.intel.com>
-To:     linux-sgx@vger.kernel.org, Jarkko Sakkinen <jarkko@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org, mhocko@suse.com,
-        roman.gushchin@linux.dev, hannes@cmpxchg.org, shakeelb@google.com,
-        Kristen Carlson Accardi <kristen@linux.intel.com>,
+        with ESMTP id S1352912AbiETShS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 14:37:18 -0400
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2112.outbound.protection.outlook.com [40.107.244.112])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1096620E;
+        Fri, 20 May 2022 11:37:17 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=k1EbJmz/4JkFzD4awedT8cxr5654CQS5d8E4xGfcqj5EGw86tQyxh4kB0zzPOyYd+q8ViNHUDU41ihTppjpkBgJSTGtQQY/Osesb8KTBejmQ1W1OgwiPuhkOZOOHKmZpFQvGeO9Bd3wQ9cEHpm8hMv8xP63IgsxER7dNAzhUlaCf//vGIUb2R9S1snNDvKmi9oxkzsZEcV1QnYDy1gwNj9hfLk0UmF50rhL437HRRNvMzKsW/zTQp0lMBl6YFwBVfL5BOhk/a5ylDzltx9pLVmdrdtyAzIHrlp//AQK4mn2r7NAdaQgbEM4l+uFoLsV/ae1SRlJSrdNgeTErErCKxw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oba2kjB8KuG6MMG1wDq9qjXc2rlurAIxQNSb1MyYjXI=;
+ b=UJm/spcVupT5sTDGXHzd2deRu5bZo7z+uurUrk++pbl18Bu+5p5gNWGCtpfg+6lXOQ77huaJlcM3fnU7h3juL9Q/tzxAnv7ZZWNI1Pj1wPxopoABtQhPvP9MwTfoccME6pebpIWdWGQb9+WEuPQi8XeP/Dn1gJksc5MlYPf5p3Jni/xgT7lgV5ZKzeqVx3mGTZfg7L5dDfFcl9LWROKLMX7UWo/vyLMUr37O55CIUOeCdcJoQFvYci1vph6595+3QXGTII2Xl09ArpXwzMNUmZbiW1SoRbTm1yxnrd5FEFKFRTYUevHFmLkOyGtVRuMoa4QSaPeFeFLEJgCIyVPaqA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 208.255.156.42) smtp.rcpttodomain=nvidia.com
+ smtp.mailfrom=cornelisnetworks.com; dmarc=bestguesspass action=none
+ header.from=cornelisnetworks.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cornelisnetworks.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oba2kjB8KuG6MMG1wDq9qjXc2rlurAIxQNSb1MyYjXI=;
+ b=LQV+zNKgcWimN/Jfk50uWXq/ozhaCLbyBujrgIZ2QCB0x1Z0z0MN5O1RN5pOWpiKWOCOuj0lB2tDf7+rXPAFh5Ys8560v/xpYiuMkXkOiHETrwYpHRVMkvydaJZixsDrBKwzuOLF/rAF3cIbnQJOt2c+ePpYE7dfl/p/vwFAlmfBzNo93OIZ9ysKXRokBx0eQp0lfz9eoIEjRHNq4ZJozpTxiXqkjyEa23KWOLP9Qbh9KIXvJ9F2DAqo785bnZKw9LJG2p4lLWJYXLtIgJzXGWK8w+kcyK1fH+a6x4kmGX6ol7+fyFB1RP54Z8Amzwi44Go1aAEXIzgskG943CG7rw==
+Received: from MW4PR03CA0111.namprd03.prod.outlook.com (2603:10b6:303:b7::26)
+ by BN6PR01MB3298.prod.exchangelabs.com (2603:10b6:404:da::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5273.13; Fri, 20 May 2022 18:37:14 +0000
+Received: from CO1NAM11FT054.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:b7:cafe::f9) by MW4PR03CA0111.outlook.office365.com
+ (2603:10b6:303:b7::26) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.13 via Frontend
+ Transport; Fri, 20 May 2022 18:37:13 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 208.255.156.42)
+ smtp.mailfrom=cornelisnetworks.com; dkim=none (message not signed)
+ header.d=none;dmarc=bestguesspass action=none
+ header.from=cornelisnetworks.com;
+Received-SPF: Pass (protection.outlook.com: domain of cornelisnetworks.com
+ designates 208.255.156.42 as permitted sender)
+ receiver=protection.outlook.com; client-ip=208.255.156.42;
+ helo=awfm-01.cornelisnetworks.com; pr=C
+Received: from awfm-01.cornelisnetworks.com (208.255.156.42) by
+ CO1NAM11FT054.mail.protection.outlook.com (10.13.174.70) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5273.14 via Frontend Transport; Fri, 20 May 2022 18:37:13 +0000
+Received: from awfm-01.cornelisnetworks.com (localhost [127.0.0.1])
+        by awfm-01.cornelisnetworks.com (8.14.7/8.14.7) with ESMTP id 24KIbCAk055738;
+        Fri, 20 May 2022 14:37:12 -0400
+Subject: [PATCH for-next 3/6] RDMA/hfi1: Fix potential integer
+ multiplication overflow errors
+From:   Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+To:     leonro@nvidia.com, jgg@nvidia.com
+Cc:     linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
         stable@vger.kernel.org
-Subject: [PATCH v3] x86/sgx: Set active memcg prior to shmem allocation
-Date:   Fri, 20 May 2022 10:42:47 -0700
-Message-Id: <20220520174248.4918-1-kristen@linux.intel.com>
-X-Mailer: git-send-email 2.20.1
+Date:   Fri, 20 May 2022 14:37:12 -0400
+Message-ID: <20220520183712.48973.29855.stgit@awfm-01.cornelisnetworks.com>
+In-Reply-To: <20220520183516.48973.565.stgit@awfm-01.cornelisnetworks.com>
+References: <20220520183516.48973.565.stgit@awfm-01.cornelisnetworks.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: bb1237c7-f868-45cf-f3d3-08da3a8fc214
+X-MS-TrafficTypeDiagnostic: BN6PR01MB3298:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR01MB3298FE892D0B016E57ACBD34F4D39@BN6PR01MB3298.prod.exchangelabs.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: IFTJCa8UybvUJDgGUlOdmTUfCKHGqjg9G0zHV2399p5R4gVLRd0/Vhnlf5W9hdw3poYK+ai9ov7WNqs3PiRtyYMMGKGsAOj95tHXZj+KA2YjQzezteSvLawDwC34yp5/3SwbAMQpnDBK0X+rynJ9lhc6psSI1+xl4XuA1EUzpS5BDCDnZhtEv1GP+wEU0NuSyKAefJmgcINRV9ES9KcEml2RAz62f79ZJIFKf8BSbQlMOmcoMzTg/ucJnog/TKTn1hxSZH1+Rb0da4kiwGeQLsKzmFSygD/u+2bEiEHHxiOK1Wple6BopA6a22biujvs1BfV5+S0OQnttGgIZFzP2Uz5K82tfEYD9mOwhPPGkcN/3sSteqQA7UjclQdqc/hxJScth3/lbc4wbqLfY79KRWjUI+49VyJ61ZGIme7mCAp7X4zByrQ6TROqIg4vsi+xIJrO2y60EKEj6cZaKqR4iF9imfq4zBaQqH4p8RmPffWfKF1XS/CIP563MCFhek1WJElPAyiDMvUXFOIGsq+FacMrRECRcS2mx8urY2zRdqKMkPYMHUC3RVUuMeVh6+fiYb7JyQfCqhFOR4B6Tp9qF7pGFxLvsNbEtkk5kguVNFrIkG7aYmr8avU8DBgjo62b5kcan7HKnk/bjYPPtMm+PbcDc5G/8b2AwZqp6tisTuIzLiWeqhztRhFzIFHBn+Ze8v0rmIMyFuC6bdFVQXJkhg==
+X-Forefront-Antispam-Report: CIP:208.255.156.42;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:awfm-01.cornelisnetworks.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(396003)(346002)(39840400004)(136003)(376002)(36840700001)(46966006)(426003)(336012)(316002)(186003)(86362001)(36860700001)(44832011)(5660300002)(83380400001)(103116003)(70586007)(4326008)(70206006)(47076005)(7126003)(81166007)(1076003)(8676002)(8936002)(2906002)(41300700001)(508600001)(55016003)(356005)(7696005)(26005)(40480700001)(82310400005)(36900700001);DIR:OUT;SFP:1102;
+X-OriginatorOrg: cornelisnetworks.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2022 18:37:13.5671
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: bb1237c7-f868-45cf-f3d3-08da3a8fc214
+X-MS-Exchange-CrossTenant-Id: 4dbdb7da-74ee-4b45-8747-ef5ce5ebe68a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=4dbdb7da-74ee-4b45-8747-ef5ce5ebe68a;Ip=[208.255.156.42];Helo=[awfm-01.cornelisnetworks.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT054.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR01MB3298
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the system runs out of enclave memory, SGX can reclaim EPC pages
-by swapping to normal RAM. These backing pages are allocated via a
-per-enclave shared memory area. Since SGX allows unlimited over
-commit on EPC memory, the reclaimer thread can allocate a large
-number of backing RAM pages in response to EPC memory pressure.
+When multiplying of different types, an overflow is possible even
+when storing the result in a larger type. This is because the
+conversion is done after the multiplication. So arithmetic
+overflow and thus in incorrect value is possible.
 
-When the shared memory backing RAM allocation occurs during
-the reclaimer thread context, the shared memory is charged to
-the root memory control group, and the shmem usage of the enclave
-is not properly accounted for, making cgroups ineffective at
-limiting the amount of RAM an enclave can consume.
+Correct an instance of this in the inter packet delay calculation.
+Fix by ensuring one of the operands is u64 which will promote the
+other to u64 as well ensuring no overflow.
 
-For example, when using a cgroup to launch a set of test
-enclaves, the kernel does not properly account for 50% - 75% of
-shmem page allocations on average. In the worst case, when
-nearly all allocations occur during the reclaimer thread, the
-kernel accounts less than a percent of the amount of shmem used
-by the enclave's cgroup to the correct cgroup.
-
-SGX stores a list of mm_structs that are associated with
-an enclave. Pick one of them during reclaim and charge that
-mm's memcg with the shmem allocation. The one that gets picked
-is arbitrary, but this list almost always only has one mm. The
-cases where there is more than one mm with different memcg's
-are not worth considering.
-
-Create a new function - sgx_encl_alloc_backing(). This function
-is used whenever a new backing storage page needs to be
-allocated. Previously the same function was used for page
-allocation as well as retrieving a previously allocated page.
-Prior to backing page allocation, if there is a mm_struct associated
-with the enclave that is requesting the allocation, it is set
-as the active memory control group.
-
-Signed-off-by: Kristen Carlson Accardi <kristen@linux.intel.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Acked-by: Roman Gushchin <roman.gushchin@linux.dev>
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
 Cc: stable@vger.kernel.org
+Reviewed-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
 ---
-V2 -> V3:
- Changed memcg variable names in sgx_encl_alloc_backing()
- and removed some whitespace.
+ drivers/infiniband/hw/hfi1/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-V1 -> V2:
- Changed sgx_encl_set_active_memcg() to simply return the correct
- memcg for the enclave and renamed to sgx_encl_get_mem_cgroup().
-
- Created helper function current_is_ksgxd() to improve readability.
-
- Use mmget_not_zero()/mmput_async() when searching mm_list.
-
- Move call to set_active_memcg() to sgx_encl_alloc_backing() and
- use mem_cgroup_put() to avoid leaking a memcg reference.
-
- Address review feedback regarding comments and commit log.
----
- arch/x86/kernel/cpu/sgx/encl.c | 105 ++++++++++++++++++++++++++++++++-
- arch/x86/kernel/cpu/sgx/encl.h |  11 +++-
- arch/x86/kernel/cpu/sgx/main.c |   4 +-
- 3 files changed, 114 insertions(+), 6 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-index 001808e3901c..6f05e3d919f7 100644
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -32,7 +32,7 @@ static int __sgx_encl_eldu(struct sgx_encl_page *encl_page,
- 	else
- 		page_index = PFN_DOWN(encl->size);
- 
--	ret = sgx_encl_get_backing(encl, page_index, &b);
-+	ret = sgx_encl_lookup_backing(encl, page_index, &b);
- 	if (ret)
- 		return ret;
- 
-@@ -574,7 +574,7 @@ static struct page *sgx_encl_get_backing_page(struct sgx_encl *encl,
-  *   0 on success,
-  *   -errno otherwise.
-  */
--int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
-+static int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
- 			 struct sgx_backing *backing)
- {
- 	pgoff_t pcmd_index = PFN_DOWN(encl->size) + 1 + (page_index >> 5);
-@@ -601,6 +601,107 @@ int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
- 	return 0;
- }
- 
-+/*
-+ * When called from ksgxd, returns the mem_cgroup of a struct mm stored
-+ * in the enclave's mm_list. When not called from ksgxd, just returns
-+ * the mem_cgroup of the current task.
-+ */
-+static struct mem_cgroup *sgx_encl_get_mem_cgroup(struct sgx_encl *encl)
-+{
-+	struct mem_cgroup *memcg = NULL;
-+	struct sgx_encl_mm *encl_mm;
-+	int idx;
-+
-+	/*
-+	 * If called from normal task context, return the mem_cgroup
-+	 * of the current task's mm. The remainder of the handling is for
-+	 * ksgxd.
-+	 */
-+	if (!current_is_ksgxd())
-+		return get_mem_cgroup_from_mm(current->mm);
-+
-+	/*
-+	 * Search the enclave's mm_list to find an mm associated with
-+	 * this enclave to charge the allocation to.
-+	 */
-+	idx = srcu_read_lock(&encl->srcu);
-+
-+	list_for_each_entry_rcu(encl_mm, &encl->mm_list, list) {
-+		if (!mmget_not_zero(encl_mm->mm))
-+			continue;
-+
-+		memcg = get_mem_cgroup_from_mm(encl_mm->mm);
-+
-+		mmput_async(encl_mm->mm);
-+
-+		break;
-+	}
-+
-+	srcu_read_unlock(&encl->srcu, idx);
-+
-+	/*
-+	 * In the rare case that there isn't an mm associated with
-+	 * the enclave, set memcg to the current active mem_cgroup.
-+	 * This will be the root mem_cgroup if there is no active
-+	 * mem_cgroup.
-+	 */
-+	if (!memcg)
-+		return get_mem_cgroup_from_mm(NULL);
-+
-+	return memcg;
-+}
-+
-+/**
-+ * sgx_encl_alloc_backing() - allocate a new backing storage page
-+ * @encl:	an enclave pointer
-+ * @page_index:	enclave page index
-+ * @backing:	data for accessing backing storage for the page
-+ *
-+ * When called from ksgxd, sets the active memcg from one of the
-+ * mms in the enclave's mm_list prior to any backing page allocation,
-+ * in order to ensure that shmem page allocations are charged to the
-+ * enclave.
-+ *
-+ * Return:
-+ *   0 on success,
-+ *   -errno otherwise.
-+ */
-+int sgx_encl_alloc_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing)
-+{
-+	struct mem_cgroup *encl_memcg = sgx_encl_get_mem_cgroup(encl);
-+	struct mem_cgroup *memcg = set_active_memcg(encl_memcg);
-+	int ret;
-+
-+	ret = sgx_encl_get_backing(encl, page_index, backing);
-+
-+	set_active_memcg(memcg);
-+	mem_cgroup_put(encl_memcg);
-+
-+	return ret;
-+}
-+
-+/**
-+ * sgx_encl_lookup_backing() - retrieve an existing backing storage page
-+ * @encl:	an enclave pointer
-+ * @page_index:	enclave page index
-+ * @backing:	data for accessing backing storage for the page
-+ *
-+ * Retrieve a backing page for loading data back into an EPC page with ELDU.
-+ * It is the caller's responsibility to ensure that it is appropriate to use
-+ * sgx_encl_lookup_backing() rather than sgx_encl_alloc_backing(). If lookup is
-+ * not used correctly, this will cause an allocation which is not accounted for.
-+ *
-+ * Return:
-+ *   0 on success,
-+ *   -errno otherwise.
-+ */
-+int sgx_encl_lookup_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing)
-+{
-+	return sgx_encl_get_backing(encl, page_index, backing);
-+}
-+
- /**
-  * sgx_encl_put_backing() - Unpin the backing storage
-  * @backing:	data for accessing backing storage for the page
-diff --git a/arch/x86/kernel/cpu/sgx/encl.h b/arch/x86/kernel/cpu/sgx/encl.h
-index fec43ca65065..2de3b150ab00 100644
---- a/arch/x86/kernel/cpu/sgx/encl.h
-+++ b/arch/x86/kernel/cpu/sgx/encl.h
-@@ -100,13 +100,20 @@ static inline int sgx_encl_find(struct mm_struct *mm, unsigned long addr,
- 	return 0;
- }
- 
-+static inline bool current_is_ksgxd(void)
-+{
-+	return current->mm ? false : true;
-+}
-+
- int sgx_encl_may_map(struct sgx_encl *encl, unsigned long start,
- 		     unsigned long end, unsigned long vm_flags);
- 
- void sgx_encl_release(struct kref *ref);
- int sgx_encl_mm_add(struct sgx_encl *encl, struct mm_struct *mm);
--int sgx_encl_get_backing(struct sgx_encl *encl, unsigned long page_index,
--			 struct sgx_backing *backing);
-+int sgx_encl_lookup_backing(struct sgx_encl *encl, unsigned long page_index,
-+			    struct sgx_backing *backing);
-+int sgx_encl_alloc_backing(struct sgx_encl *encl, unsigned long page_index,
-+			   struct sgx_backing *backing);
- void sgx_encl_put_backing(struct sgx_backing *backing, bool do_write);
- int sgx_encl_test_and_clear_young(struct mm_struct *mm,
- 				  struct sgx_encl_page *page);
-diff --git a/arch/x86/kernel/cpu/sgx/main.c b/arch/x86/kernel/cpu/sgx/main.c
-index 4b41efc9e367..7d41c8538795 100644
---- a/arch/x86/kernel/cpu/sgx/main.c
-+++ b/arch/x86/kernel/cpu/sgx/main.c
-@@ -310,7 +310,7 @@ static void sgx_reclaimer_write(struct sgx_epc_page *epc_page,
- 	encl->secs_child_cnt--;
- 
- 	if (!encl->secs_child_cnt && test_bit(SGX_ENCL_INITIALIZED, &encl->flags)) {
--		ret = sgx_encl_get_backing(encl, PFN_DOWN(encl->size),
-+		ret = sgx_encl_alloc_backing(encl, PFN_DOWN(encl->size),
- 					   &secs_backing);
- 		if (ret)
- 			goto out;
-@@ -381,7 +381,7 @@ static void sgx_reclaim_pages(void)
- 			goto skip;
- 
- 		page_index = PFN_DOWN(encl_page->desc - encl_page->encl->base);
--		ret = sgx_encl_get_backing(encl_page->encl, page_index, &backing[i]);
-+		ret = sgx_encl_alloc_backing(encl_page->encl, page_index, &backing[i]);
- 		if (ret)
- 			goto skip;
- 
--- 
-2.20.1
+diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
+index 4436ed4..436372b 100644
+--- a/drivers/infiniband/hw/hfi1/init.c
++++ b/drivers/infiniband/hw/hfi1/init.c
+@@ -489,7 +489,7 @@ void set_link_ipg(struct hfi1_pportdata *ppd)
+ 	u16 shift, mult;
+ 	u64 src;
+ 	u32 current_egress_rate; /* Mbits /sec */
+-	u32 max_pkt_time;
++	u64 max_pkt_time;
+ 	/*
+ 	 * max_pkt_time is the maximum packet egress time in units
+ 	 * of the fabric clock period 1/(805 MHz).
 
