@@ -2,257 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3059952EE71
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 16:48:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2EE152EF5E
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 17:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350471AbiETOsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 10:48:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49508 "EHLO
+        id S1351015AbiETPj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 11:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350449AbiETOsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 10:48:39 -0400
-Received: from sonic311-23.consmr.mail.gq1.yahoo.com (sonic311-23.consmr.mail.gq1.yahoo.com [98.137.65.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32CEC178563
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 07:48:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=netscape.net; s=a2048; t=1653058092; bh=ecCcTHN/2j4q/asbW1Ibk0Ydf5EAE/ER3GPAGku96ZU=; h=Date:Subject:To:Cc:References:From:In-Reply-To:From:Subject:Reply-To; b=V5Km9I73HM6lcClKrScegsgse2K1Ln3SjsBPv1aMWQ9T87bh3PN50zbhFTUcYWUyJsxNtOcx4Tdy4o2qTC3k8i1nzCC/1SQAjaxm6907o/l2alW3xIrrU99hZLWsYvXLbheRM9tr24udXqbEHwRhxFB5z3b5GvxeR6TNkESmHXhC3yVxITW3jia5zhG4VOqSc0MYcBccO56yuu6gBP7/7Jny3L1AeMhK8pqM8AqtHYHXasG2WyGa9XYHiw+rXTTLHnzwoujL6wl7o1stsjmgUXu5IEZllgxPjNDzCy0DLTHkYYJBMAhJ9yHjEPoIJd0+3JcDChcFubCCah064djHGQ==
-X-SONIC-DKIM-SIGN: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1653058092; bh=1416R1MSilgHvGCcGyrPm+pAtivsYRo3q2jSqmtVs4p=; h=X-Sonic-MF:Date:Subject:To:From:From:Subject; b=a0wy3XomK2RIu10QB1d+2AbN66Dwn3907IbWEmhPwx7R4Eq11VjmR/4uTPPmGX1M+otf3iOHAR5GFP6Lc5P/vFLSsuvjLWYQ+YcBUEOXUxJ9jIcJ2hPLdcTRDid9OILOy+xEe+dfE1IImXuvFtcu0oM5O1d5Tw7cAujsnh3LZnFkgOhXVhhC/G2zW2gfWM3zYP+AR3fVIeOjO67Wnw2epaV2YXTfH1vfu8nb2/2D+Q2548eFNOfsC4gFCKjYiFMqXZa/6Kf5XsRNi/oCT8XOCjz+ENDVOelRfY4VIkOPiVB5Y/dfy7u0/w/rsgxTN92OaGK4pew0bd9xzn/fwvDn2A==
-X-YMail-OSG: CognXTYVM1mBbBhkscyikIDMCD.HbAwkk9KcwGjyFdhGad70Vp9S4rJw8emke6o
- IadPBPyjgB.UYI9T2IpafdwJtql4v.Ten95hLNwkOQ3XJ89iZBX7wc2rokVFq6alSPFuWozDPiEN
- vCaIXvSSAf8SPRn.lHV608fPmsKXxa6aD_iY07ab22dpRHpmQ0yVGRArmy4LCTB4lPu9Y.AByd6O
- CjBQEccInr.pq4o9Fq72vHWRM1KhqP0mKBI6nD8xkHtH3fnlkV4ZZypomHm4wSZEpcnlbocyAHRE
- beXkAkQ4lw3.cy_3bC1FhGok.uj_FvBxjELV4wwlA.uzhNYek5GulSuLCmOUrTmDswvebMqsYWhf
- 4t0qU_1UU9kbSrsT_Q4Nbd9gtEzTq1IZOu6ZWCz2WPNlF2rLTv13HV4t2x5gEMwZl0Z1VlZV5Lur
- qKRi5kGKk_ln5GVZIijB_8B5ZWUpJcagYHl_IPLrhbobXtKpiIu.nZqyNFqL64aCWArE7aD3ZwA.
- J6KKYUSWbyaoYDNOGewS.x452v_48cz5ySnYwehpOkxr1XEGhOTxdFT2hXf3cPnQp.MSQ4mPrKqB
- y1MmhUS1ERehmAnVcVf5p.Mk9dy0Cd9lPi8PDfjMijx3tsYIfo3R.m3a90XBqIy53y20xhUKAaUk
- TIJPAA0hACeWfWCiEtNSv3M0N8iJjCsMlKvD9L9udu2yWQPdZZHoICfQJdzJUiRN8M_Kvi1fNT2i
- HJYJ9cinElHIrQ9uDV06LcBgh84JMX20zaI63qxG4HZ35SFo9ywQFly0kg0GCrdHX6UGZ40sSwLr
- 5lomXwKBXH639KT8mB3TK3E7QQOWe40aQn2N.6HopoeT4oD4GSp4Z7b7JTYCeILAZhnOofcNb6qc
- szI91EsG3HtkgNiAQN0s4_LyBF4kaMtqzKrQtJK5suBIwBxfIKCG1SbvoRbW30HNvWNPXVmrVK8.
- .Au_lT0pRPnU765iJFLQrQZBk4kHz.wJNWZL_YrEXnS3Lj24b99svP1K06kOrSWHGjVy_LFAlZ8O
- plK74HCEWUyGv1soi1FOPho.b_gIr.TztkYrW_UD9nazEM3PKC97zeITCl1LfpxSSm.oXXdfmpNJ
- 5xbv9nj8ya.afEQOAjtHSBM9fwCAqIidUIjmNtObQ4MatwwAkK3WBy.MmqYo93EBGZcfmGNJn33U
- AyFz3aNeMnrJI22H2l3s.Xg890wHiYoE19NFYafwShYhzBFIeXyt5Wn2HdcJU7XFzgvEtDZAmnZp
- OWBx0O1C4oOWZOt7q3_bK7U7Sfzl9_Cq79DbM.y.eQNtOn8dE53DvcImOrDmKhnfHFtDM12PCTGK
- GifZem8uVelcKbxmS0ronycKSCm2dDgRdHmk_fFiLHMVQO8xVP4cBxXon3aCO6R2TjvTNwGHOtgX
- sDyxLhMmlIdyGoH9EftcN47sVQjWaCZM2q3VB7xAAw47jx1HYAUBhSiGxIn.qO8RNyH2nqPgIuCr
- Lsz3lxwqEyyIPg4GghZJpjvhXx76jr.zBbJY9_7AtaPwy5EorSfZri1dzroZfBBUr9MvECPpyJho
- 3qc0ukWBKPETtoeJKQigVHCM2JXvXXSzc8jMYopkroLsIY6XoHOfTcs0ybwhKCR33dYE50fADwam
- urxAV1HDmAVOzkp8qwVUdCmGsJncWAtxcr7irczuoDjHg5748lxbUei1H19CuEQvp8DAend46AkB
- F9SAELzuheoDtw5PNiFbLc4boQ.1pmTdNyAkpEO.JqfJBJM9_7eyo7jyGLv86XRo0LElyCSPRlMA
- pHPu.yAd0POvmZVwASiBFft_HlJ6YifEn1PrKVki.Tlcm2Yyy0JIcgf4y8HgykDSgoaJkvb6cUV0
- _lReh7YYWUmRnfupI5WKFGZIKzdsneWYaf2PYaa0tdsSpFqjbcyqULIZqMQQ2FsLaPcXae8rFMtK
- esbxwSnjHTrUU_TYwgo9LQ3SecCKX898bJI9zSqkfsbPCmulbBe51YrLOo3bVgXQlNdYnZ8ZXuAA
- 7d6StWniR5am85XcuHYHVnsTBy6HATG9lof.vN9_gOYz1Uc3unzH5X2oRNMUn60.1OutX_a.3C3I
- fslrQ5_hoGLrM8q18R30AVAeasZotvwNelCtIBQp1mRFdzu...V5AWqFTumIv0JvwQ9oWRti3D3M
- 9cIv7aSmzUc0XP9HW1RySUWFrz6.CEwvs1THMNMKxwe.SUAcwRUfwdmsSGUnxSIsX0Ak5QCoyOvF
- 37O0c9fpbWNCP
-X-Sonic-MF: <brchuckz@aim.com>
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.gq1.yahoo.com with HTTP; Fri, 20 May 2022 14:48:12 +0000
-Received: by hermes--canary-production-bf1-5d4b57496-n4p64 (Yahoo Inc. Hermes SMTP Server) with ESMTPA ID d77aeccd90ab3900c3b3abd94bd345b8;
-          Fri, 20 May 2022 14:48:08 +0000 (UTC)
-Message-ID: <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
-Date:   Fri, 20 May 2022 10:48:06 -0400
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH 2/2] x86/pat: add functions to query specific cache mode
- availability
+        with ESMTP id S1351018AbiETPjO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 11:39:14 -0400
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB49317996E;
+        Fri, 20 May 2022 08:38:59 -0700 (PDT)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KFUs3P025083;
+        Fri, 20 May 2022 15:36:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=BRDhp6x9h6AES8PKhN2/fPw7w/amRKDLwpsBWHER364=;
+ b=aCkoYYN9kmAv+PV5YYkHchIW7w/a2Js5BjC1isrLuppzrgspmCTJJBdA1JRmAqb5Iq2E
+ waOAMvFZhBSCnBsuPqH9cAidCTjD5WbvUQ5J1BAcSLKmAjAutnjwnpsh400fbGcBqwDg
+ x72Ypr8n8ipKZmOZ7uaSw/zk8jCR5RmEn4abzun30lfD4H/HxCOccJuEPyVIxoHQKtDi
+ z++tY08tJF703CZUu0+RpeiSjlzG0FUhlzYqdTDKueZa/N1h6163RQ3/zmFwmHZgo/Te
+ 6LESLo2wZVgLQ1bwPmQPNVqaqw2v/PJZU3se4mYOQYulyQmCBosay2shot0QYSeJJVvF +w== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g2310yd1v-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 May 2022 15:36:47 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 24KFQ79N002655;
+        Fri, 20 May 2022 15:36:45 GMT
+Received: from nam12-dm6-obe.outbound.protection.outlook.com (mail-dm6nam12lp2174.outbound.protection.outlook.com [104.47.59.174])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3g22vbxhuk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 20 May 2022 15:36:45 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hBeVoR5oSIoQtbrVKFzbaQ/R+8ywlhrTOmRTSm/NiOorlxpIb5mf/XtOTVX5WdTQomuNFQMyX5ARd3zIHp0xKz7NEtSHiAkhdqoonoZxVugHc7bj3C3mmXC1ZvXphqJODaTdzfTWESpiBoQn5YZKiXmR8qOfReBsT5rsEPzP6t2bXIoYheIZMN6EzVJxyn/3wEOlzPSdQJ9rZmKmW18JTyRg7wtGe0bYJLq1kf+3VDXZ8tb7bnOOJBPdlTJW1LSK9pquLUgiWa7BQJz4JulbS8uWkFo4h8nXOt8tDjxokZCTj73zw34n3IMLZqEf7C5CjSFKLHn5gOeBwAgOal7OHg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BRDhp6x9h6AES8PKhN2/fPw7w/amRKDLwpsBWHER364=;
+ b=jBGcDUuWXWDpEMGc3+jjhMTqQe3uCXoMk8AUElqjIVlaFPhx1kIwdM4G2dOYdIOtBAfjfESMB5WbhwuiNkXJaRr5X+RygWiFcSypkAjRoepYhg5msOrDzC7NyJsIeUWP4SRhso16w2TX7064D0pA9NOalnEzeGdafApUDnZciRiNWjrS6IxHF6G06WQ86rpqJB6M86tESzed2p9UovsDDySFw8cssJDHKVUl5fTKe1+7/q+ZCRTGv7ZEiqQXFNsJ3D0IWb2GyRgHTdGnlws6zNhszEBMm0R3rmjH/oaiCEFyDgTcFI6TnSRa5Wjvhi9k5cjjvHSRmwTXkb/+ohCmgg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BRDhp6x9h6AES8PKhN2/fPw7w/amRKDLwpsBWHER364=;
+ b=0PyKltQKMnfBvDZv1rijOX0+w96YN+aXbEXs3XprZw2cpMYWnhpSw+7IfP1LvMrdfIMvEfdW2m1U7CwPK6WwacSs8qSQFvhGkuvL8FLB3EpXkxEUuAUnIYeyycVkCH/mh6jMK+JbT+xmwYF1VRaoLR5nUzqfdz4wwq+RSLvxNfc=
+Received: from BN0PR10MB5128.namprd10.prod.outlook.com (2603:10b6:408:117::24)
+ by DM6PR10MB3387.namprd10.prod.outlook.com (2603:10b6:5:1aa::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5250.18; Fri, 20 May
+ 2022 15:36:43 +0000
+Received: from BN0PR10MB5128.namprd10.prod.outlook.com
+ ([fe80::ed81:8458:5414:f59f]) by BN0PR10MB5128.namprd10.prod.outlook.com
+ ([fe80::ed81:8458:5414:f59f%9]) with mapi id 15.20.5273.017; Fri, 20 May 2022
+ 15:36:43 +0000
+From:   Chuck Lever III <chuck.lever@oracle.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     Wolfgang Walter <linux@stwm.de>,
+        linux-stable <stable@vger.kernel.org>,
+        Trond Myklebust <trondmy@gmail.com>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 5.4.188 and later: massive performance regression with nfsd
+Thread-Topic: 5.4.188 and later: massive performance regression with nfsd
+Thread-Index: AQHYZR5cM0piVXjf4kWw2Fv1L4O8aq0Zna6AgAAbcgCAAAISgIAAA5uAgA41xoA=
+Date:   Fri, 20 May 2022 15:36:43 +0000
+Message-ID: <59118799-0148-41F3-BA03-BB69151B74EE@oracle.com>
+References: <f8d9b9112607df4807fba8948ac6e145@stwm.de>
+ <YnuuLZe6h80KCNhd@kroah.com>
+ <6A15DEE1-CAC9-4C64-8643-AD28EA423046@oracle.com>
+ <YnvG71v4Ay560D+X@kroah.com>
+ <0F5EA15D-08A0-4D3E-B5A9-D62C49BF2B56@oracle.com>
+In-Reply-To: <0F5EA15D-08A0-4D3E-B5A9-D62C49BF2B56@oracle.com>
+Accept-Language: en-US
 Content-Language: en-US
-To:     Jan Beulich <jbeulich@suse.com>, regressions@lists.linux.dev,
-        stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Juergen Gross <jgross@suse.com>
-References: <20220503132207.17234-1-jgross@suse.com>
- <20220503132207.17234-3-jgross@suse.com>
- <1d86d8ff-6878-5488-e8c4-cbe8a5e8f624@suse.com>
- <0dcb05d0-108f-6252-e768-f75b393a7f5c@suse.com>
- <77255e5b-12bf-5390-6910-dafbaff18e96@netscape.net>
- <a2e95587-418b-879f-2468-8699a6df4a6a@suse.com>
- <8b1ebea5-7820-69c4-2e2b-9866d55bc180@netscape.net>
- <c5fa3c3f-e602-ed68-d670-d59b93c012a0@netscape.net>
- <3bff3562-bb1e-04e6-6eca-8d9bc355f2eb@suse.com>
- <3ca084a9-768e-a6f5-ace4-cd347978dec7@netscape.net>
- <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
-From:   Chuck Zmudzinski <brchuckz@netscape.net>
-In-Reply-To: <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Mailer: WebService/1.1.20225 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.aol
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: Apple Mail (2.3654.120.0.1.13)
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 58da857f-0ac8-482b-f390-08da3a768ad8
+x-ms-traffictypediagnostic: DM6PR10MB3387:EE_
+x-microsoft-antispam-prvs: <DM6PR10MB33878A7B2D4CEBE2B1A3308993D39@DM6PR10MB3387.namprd10.prod.outlook.com>
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: tnvh2QpmI88MD9ku+9Tvj9nUtwzvn+NHnXfkYO4F/aEMYZhsRFLIkGTB03BMQE+AY23U9Ncbe4rzZzfgCoGOdBDIkp9JBxp/BGsLojFraHRA3tC/Oqr6AFvTRIf9VgQaD7comLQiyPS4AKDNDO1BNdICK+k0AP0dbKRnbLtaogN+4hUjx7OQS2sKJwvcD66ymc2HCVyhDsSHi/Lh+rkocIk8Nd7Cu6GAByLFQQ1tLw4YdaNqY9H1UDobUt17dZvZcKHZ44PbpbmHWeAeEmwA1oD5pKB3cbyeR39/2tlLXGkvPn4gHxcG1Rwm4zWvWoBie4N8V+UvQzcP4ZCP0Bn/5BJ15lp2txIzbThFpDXPHG10iaSPflCv7kbgNsUMSRPeL4O9jtnFFAhimVgCG6IKWY19O7kxvOKftmHdmxmr09xoCHpV9GXZ7mMuUcZeSOaLzKD69cOYKMgzswoC1hLZ670SV5kbXpWtHGSSJsmPSUubysltHny57hHaqkr6B1qY97702XrGAMARAOUFf+cQw+NRzH72qVHfkp737usyUvvD2jN/G7tHIomkuJW4uno6wb8gccazgn/MwEz1LFdUytuX/sFuTrlwYiMmpVP3LNr/4O9ib1o0EVhwglZf3zMdNmGtvksvDPNWTkMjSmnMWqPPezpqtEmg3pGo1sxRnf9dZ2zGiVohZNO0OKvAKyLXINzoP4HwTDq213tvhMDECDUnHrN+j/jw/gjyGFSbY9bkL/zlJbFk4eXJ0qZlb/fXl++j0Gb7pGsqSD1MZR2YmgdxO0bv705WAveUT4B6bxRzWE9vSEVn2wCrEk0AUfnTaz7tZiMSacc2nJh7kMQZ+d6mVEZ3soBd3vNH8+JJ30Q=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(71200400001)(966005)(6486002)(186003)(6506007)(508600001)(91956017)(53546011)(86362001)(2616005)(54906003)(33656002)(8936002)(38070700005)(38100700002)(26005)(6916009)(83380400001)(122000001)(36756003)(8676002)(5660300002)(66446008)(316002)(6512007)(66476007)(76116006)(66946007)(64756008)(4326008)(66556008)(2906002)(14583001)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?so9/cGSF6qi2RMzWNu4ENBscv1ZUDgExrAp3km/Ow6MM5cJdjSIFZUG5I7fp?=
+ =?us-ascii?Q?y7C6TueuHGeJzvImbH6JhXKKDixFjTTr1qhLLYGPaScgOnm8cbMm1TAJRPyk?=
+ =?us-ascii?Q?nSy+2QHy6nGaoejWVg24Ws63G2iCyokvZG8y5BSD93aeQGcA1JA/LOXrWK2a?=
+ =?us-ascii?Q?/hlETaPNnuaAIGP30UH4DdK33UcipzRANtthH/81NHe6dmWVqdUV9WRBm1Hr?=
+ =?us-ascii?Q?77qSx3Fd5c5MmJf4S2On/3aaebrWKx9AjVkc9rzA9F089ZfE5mqD28xthmdZ?=
+ =?us-ascii?Q?Sbfg2VlTutiYw+BlDOzm2z6L12idnZ2l2vM5nVXnaaHd9/OlcWRFYPZ/QKOa?=
+ =?us-ascii?Q?ROHfx/fdlGISsBeecVA1KzFIeWIANbzr4zN4E8alK1BV1Z3kiz4z0lAyrQ7u?=
+ =?us-ascii?Q?KJJ9MBbYyuuU/k9zKyBqpX81IhVw13DU2jVU0xFZ5K6cmRCtTY6t4NpY6rmp?=
+ =?us-ascii?Q?nZJ+vRDMPWPRXJUPUGoWQSS0g64169OShdYxodPGAAX/BygbBJ23qsi9DkNf?=
+ =?us-ascii?Q?bDflbFZLiUcar/L1ubnXs8VaegONWrZlxRQKsHKh+cJOHqapnBocZTZk/bH8?=
+ =?us-ascii?Q?lwmLV33Armn2F6o69TRpLue/Lksq9j3YiI+WpWaj4f/fTazDAUqyLcGdwNW6?=
+ =?us-ascii?Q?lFylfj5DkmczWR18l2gZpMdBS6fEZLMO2BmsMKvKO1VTcbkSqmC4Z28YfS6+?=
+ =?us-ascii?Q?DeD2ES8yHLJP39Am1Qu9GRri/QItWMi0B7wa4Qa3Hgyv2ICcFa5plXiSrzNU?=
+ =?us-ascii?Q?gU2T9EmB5HHuksfRe7FeclLZhR4S+yKcNPM7rgkLuESAKpRJn+EKlFiVzFkv?=
+ =?us-ascii?Q?eCADwJwLzfWe3JQaxsuW3+qt5k6ePcp4Guhw1JKeV5RiLzcH1NuAGqef/XHm?=
+ =?us-ascii?Q?n3IbxzDsVvL3yaF0akcvXBBICrZyhguDy9WLU7Lg1gMWXMov33jChDlUtI/r?=
+ =?us-ascii?Q?99CaZLiKCGuMdFwQWPH+2tbWZKJ7gi9M0pmCCdrIKoKN4i/kmGSDoxfgNYw8?=
+ =?us-ascii?Q?Xju9J+a+NCkKXeFw/lUIFZPz2ZP8Iz8BSFxkdPQlaU6UTV4+hAvmfnBNCWSx?=
+ =?us-ascii?Q?HueiaB/M1RPfRCro65DLWv5Hu/pcBhxR07UWpka9niw6Oy/FAkroFFhohtGb?=
+ =?us-ascii?Q?aDOYko90tB/JrKVGOd+73v7slIc8z2MihXFyslPjyxF8pjaMTLrzoipT/TOL?=
+ =?us-ascii?Q?dIVOln2n22TYuDWeQH1UtR+mbsTAr/g8LrLdlQzQl7DKc+ImvJTDtQ6AeQ7Y?=
+ =?us-ascii?Q?pUWpRFRy5H4pYhbPsukirUaGaj7vFpxqSPyyAkdBDFQFoamLVU8aGCa/Vm++?=
+ =?us-ascii?Q?bzz5IgcJeToW8q0pLroje0zt29+q7u/aOQhgKcSWXeEx5loAreuN3uTMhMWp?=
+ =?us-ascii?Q?HlOJuaidfwVncLpiN0FeKhc8/aBD0OSpInmjFT7isC4y1CPOBbUIcNXCPkkX?=
+ =?us-ascii?Q?JrolelYKEM0qmHq6gXdmNPZUZZ5o2c57VIvTpU89Mnzi/par2uLa1zmN8fAk?=
+ =?us-ascii?Q?y18DXIOS3L+iFx3ev99rFxNiV4zucUYnrd2aio29U4Au0fYzWGc9gQA5uCbs?=
+ =?us-ascii?Q?pD6tamsSZIt7/+QiecYDEFBvz9Kpsb3MP9uhHuyNs/KIi+0hSsHXFhIJedcy?=
+ =?us-ascii?Q?zm72Mvpd09AGyoSWoJxvVlESG+edaf+qILi3AOSmv4yJIjgaRUR7Jky2z9Ac?=
+ =?us-ascii?Q?q0u3Cbh88PRbXv9BiVc/iQmkQJrfD0cEibp5dKdv7wSc4OuqMRGcgM1Jqkx1?=
+ =?us-ascii?Q?cK4Q8WEiFMwuOHd3bfjvmkQmbqA9V4Q=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <420926F8A5848E498DB6396F797FC96D@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5128.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 58da857f-0ac8-482b-f390-08da3a768ad8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 20 May 2022 15:36:43.6216
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 8DJT69XTfNaGU9BlearIpnECDhddeLNXmNY96nXWomsmEtoRCpPBlhBVLd96WyjRK39cbSGcHQ34ZVuz6yvyqA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB3387
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486,18.0.874
+ definitions=2022-05-20_04:2022-05-20,2022-05-20 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0 mlxscore=0
+ phishscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
+ definitions=main-2205200105
+X-Proofpoint-ORIG-GUID: SzqfDY1WcW81Q_voVGvY-H3Ag1dhKhdY
+X-Proofpoint-GUID: SzqfDY1WcW81Q_voVGvY-H3Ag1dhKhdY
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/20/2022 10:06 AM, Jan Beulich wrote:
-> On 20.05.2022 15:33, Chuck Zmudzinski wrote:
->> On 5/20/2022 5:41 AM, Jan Beulich wrote:
->>> On 20.05.2022 10:30, Chuck Zmudzinski wrote:
->>>> On 5/20/2022 2:59 AM, Chuck Zmudzinski wrote:
->>>>> On 5/20/2022 2:05 AM, Jan Beulich wrote:
->>>>>> On 20.05.2022 06:43, Chuck Zmudzinski wrote:
->>>>>>> On 5/4/22 5:14 AM, Juergen Gross wrote:
->>>>>>>> On 04.05.22 10:31, Jan Beulich wrote:
->>>>>>>>> On 03.05.2022 15:22, Juergen Gross wrote:
->>>>>>>>>
->>>>>>>>> ... these uses there are several more. You say nothing on why
->>>>>>>>> those want
->>>>>>>>> leaving unaltered. When preparing my earlier patch I did inspect them
->>>>>>>>> and came to the conclusion that these all would also better
->>>>>>>>> observe the
->>>>>>>>> adjusted behavior (or else I couldn't have left pat_enabled() as the
->>>>>>>>> only predicate). In fact, as said in the description of my earlier
->>>>>>>>> patch, in
->>>>>>>>> my debugging I did find the use in i915_gem_object_pin_map() to be
->>>>>>>>> the
->>>>>>>>> problematic one, which you leave alone.
->>>>>>>> Oh, I missed that one, sorry.
->>>>>>> That is why your patch would not fix my Haswell unless
->>>>>>> it also touches i915_gem_object_pin_map() in
->>>>>>> drivers/gpu/drm/i915/gem/i915_gem_pages.c
->>>>>>>
->>>>>>>> I wanted to be rather defensive in my changes, but I agree at least
->>>>>>>> the
->>>>>>>> case in arch_phys_wc_add() might want to be changed, too.
->>>>>>> I think your approach needs to be more aggressive so it will fix
->>>>>>> all the known false negatives introduced by bdd8b6c98239
->>>>>>> such as the one in i915_gem_object_pin_map().
->>>>>>>
->>>>>>> I looked at Jan's approach and I think it would fix the issue
->>>>>>> with my Haswell as long as I don't use the nopat option. I
->>>>>>> really don't have a strong opinion on that question, but I
->>>>>>> think the nopat option as a Linux kernel option, as opposed
->>>>>>> to a hypervisor option, should only affect the kernel, and
->>>>>>> if the hypervisor provides the pat feature, then the kernel
->>>>>>> should not override that,
->>>>>> Hmm, why would the kernel not be allowed to override that? Such
->>>>>> an override would affect only the single domain where the
->>>>>> kernel runs; other domains could take their own decisions.
->>>>>>
->>>>>> Also, for the sake of completeness: "nopat" used when running on
->>>>>> bare metal has the same bad effect on system boot, so there
->>>>>> pretty clearly is an error cleanup issue in the i915 driver. But
->>>>>> that's orthogonal, and I expect the maintainers may not even care
->>>>>> (but tell us "don't do that then").
->>>> Actually I just did a test with the last official Debian kernel
->>>> build of Linux 5.16, that is, a kernel before bdd8b6c98239 was
->>>> applied. In fact, the nopat option does *not* break the i915 driver
->>>> in 5.16. That is, with the nopat option, the i915 driver loads
->>>> normally on both the bare metal and on the Xen hypervisor.
->>>> That means your presumption (and the presumption of
->>>> the author of bdd8b6c98239) that the "nopat" option was
->>>> being observed by the i915 driver is incorrect. Setting "nopat"
->>>> had no effect on my system with Linux 5.16. So after doing these
->>>> tests, I am against the aggressive approach of breaking the i915
->>>> driver with the "nopat" option because prior to bdd8b6c98239,
->>>> nopat did not break the i915 driver. Why break it now?
->>> Because that's, in my understanding, is the purpose of "nopat"
->>> (not breaking the driver of course - that's a driver bug -, but
->>> having an effect on the driver).
->> I wouldn't call it a driver bug, but an incorrect configuration of the
->> kernel by the user.  I presume X86_FEATURE_PAT is required by the
->> i915 driver
-> The driver ought to work fine without PAT (and hence without being
-> able to make WC mappings). It would use UC instead and be slow, but
-> it ought to work.
->
->> and therefore the driver should refuse to disable
->> it if the user requests to disable it and instead warn the user that
->> the driver did not disable the feature, contrary to what the user
->> requested with the nopat option.
->>
->> In any case, my test did not verify that when nopat is set in Linux 5.16,
->> the thread takes the same code path as when nopat is not set,
->> so I am not totally sure that the reason nopat does not break the
->> i915 driver in 5.16 is that static_cpu_has(X86_FEATURE_PAT)
->> returns true even when nopat is set. I could test it with a custom
->> log message in 5.16 if that is necessary.
->>
->> Are you saying it was wrong for static_cpu_has(X86_FEATURE_PAT)
->> to return true in 5.16 when the user requests nopat?
-> No, I'm not saying that. It was wrong for this construct to be used
-> in the driver, which was fixed for 5.17 (and which had caused the
-> regression I did observe, leading to the patch as a hopefully least
-> bad option).
->
->> I think that is
->> just permitting a bad configuration to break the driver that a
->> well-written operating system should not allow. The i915 driver
->> was, in my opinion, correctly ignoring the nopat option in 5.16
->> because that option is not compatible with the hardware the
->> i915 driver is trying to initialize and setup at boot time. At least
->> that is my understanding now, but I will need to test it on 5.16
->> to be sure I understand it correctly.
->>
->> Also, AFAICT, your patch would break the driver when the nopat
->> option is set and only fix the regression introduced by bdd8b6c98239
->> when nopat is not set on my box, so your patch would
->> introduce a regression relative to Linux 5.16 and earlier for the
->> case when nopat is set on my box. I think your point would
->> be that it is not a regression if it is an incorrect user configuration.
-> Again no - my view is that there's a separate, pre-existing issue
-> in the driver which was uncovered by the change. This may be a
-> perceived regression, but is imo different from a real one.
->
-> Jan
 
-Since it is a regression, I think for now bdd8b6c98239 should
-be reverted and the fix backported to Linux 5.17 stable until
-the underlying memory subsystem can provide the i915 driver
-with an updated test for the PAT feature that also meets the
-requirements of the author of bdd8b6c98239 without breaking
-the i915 driver. The i915 driver relies on the memory subsytem
-to provide it with an accurate test for the existence of
-X86_FEATURE_PAT. I think your patch provides that more accurate
-test so that bdd8b6c98239 could be re-applied when your patch is
-committed. Juergen's patch would have to touch bdd8b6c98239
-with new functions that probably have unknown and unintended
-consequences, so I think your approach is also better in that regard.
-As regards your patch, there is just a disagreement about how the
-i915 driver should behave if nopat is set. I agree the i915 driver
-could do a better job handling that case, at least with better error
-logs.
 
-Chuck
+> On May 11, 2022, at 10:36 AM, Chuck Lever III <chuck.lever@oracle.com> wr=
+ote:
+>=20
+>=20
+>=20
+>> On May 11, 2022, at 10:23 AM, Greg KH <gregkh@linuxfoundation.org> wrote=
+:
+>>=20
+>> On Wed, May 11, 2022 at 02:16:19PM +0000, Chuck Lever III wrote:
+>>>=20
+>>>=20
+>>>> On May 11, 2022, at 8:38 AM, Greg KH <gregkh@linuxfoundation.org> wrot=
+e:
+>>>>=20
+>>>> On Wed, May 11, 2022 at 12:03:13PM +0200, Wolfgang Walter wrote:
+>>>>> Hi,
+>>>>>=20
+>>>>> starting with 5.4.188 wie see a massive performance regression on our
+>>>>> nfs-server. It basically is serving requests very very slowly with cp=
+u
+>>>>> utilization of 100% (with 5.4.187 and earlier it is 10%) so that it i=
+s
+>>>>> unusable as a fileserver.
+>>>>>=20
+>>>>> The culprit are commits (or one of it):
+>>>>>=20
+>>>>> c32f1041382a88b17da5736886da4a492353a1bb "nfsd: cleanup
+>>>>> nfsd_file_lru_dispose()"
+>>>>> 628adfa21815f74c04724abc85847f24b5dd1645 "nfsd: Containerise filecach=
+e
+>>>>> laundrette"
+>>>>>=20
+>>>>> (upstream 36ebbdb96b694dd9c6b25ad98f2bbd263d022b63 and
+>>>>> 9542e6a643fc69d528dfb3303f145719c61d3050)
+>>>>>=20
+>>>>> If I revert them in v5.4.192 the kernel works as before and performan=
+ce is
+>>>>> ok again.
+>>>>>=20
+>>>>> I did not try to revert them one by one as any disruption of our nfs-=
+server
+>>>>> is a severe problem for us and I'm not sure if they are related.
+>>>>>=20
+>>>>> 5.10 and 5.15 both always performed very badly on our nfs-server in a
+>>>>> similar way so we were stuck with 5.4.
+>>>>>=20
+>>>>> I now think this is because of 36ebbdb96b694dd9c6b25ad98f2bbd263d022b=
+63
+>>>>> and/or 9542e6a643fc69d528dfb3303f145719c61d3050 though I didn't tried=
+ to
+>>>>> revert them in 5.15 yet.
+>>>>=20
+>>>> Odds are 5.18-rc6 is also a problem?
+>>>=20
+>>> We believe that
+>>>=20
+>>> 6b8a94332ee4 ("nfsd: Fix a write performance regression")
+>>>=20
+>>> addresses the performance regression. It was merged into 5.18-rc.
+>>=20
+>> And into 5.17.4 if someone wants to try that release.
+>=20
+> I don't have a lot of time to backport this one myself, so
+> I welcome anyone who wants to apply that commit to their
+> favorite LTS kernel and test it for us.
+>=20
+>=20
+>>>> If so, I'll just wait for the fix to get into Linus's tree as this doe=
+s
+>>>> not seem to be a stable-tree-only issue.
+>>>=20
+>>> Unfortunately I've received a recent report that the fix introduces
+>>> a "sleep while spinlock is held" for NFSv4.0 in rare cases.
+>>=20
+>> Ick, not good, any potential fixes for that?
+>=20
+> Not yet. I was at LSF last week, so I've just started digging
+> into this one. I've confirmed that the report is a real bug,
+> but we still don't know how hard it is to hit it with real
+> workloads.
 
->
->> I respond by saying a well-written driver should refuse to honor
->> the incorrect configuration requested by the user and instead
->> warn the user that it did not honor the incorrect kernel option.
->>
->> I am only presuming what your patch would do on my box based
->> on what I learned about this problem from my debugging. I can
->> also test your patch on my box to verify that my understanding of
->> it is correct.
->>
->> I also have not yet verified Juergen's patch will not fix it, but
->> I am almost certain it will not unless it is expanded so it also
->> touches i915_gem_object_pin_map() with the fix. I plan to test
->> his patch, but expanded so it touches that function also.
->>
->> I also plan to test your patch with and without nopat and report the
->> results in the thread where you posted your patch. Hopefully
->> by tomorrow I will have the results.
->>
->> Chuck
->>
+We believe the following, which should be part of the first
+NFSD pull request for 5.19, will properly address the splat.
+
+https://git.kernel.org/pub/scm/linux/kernel/git/cel/linux.git/commit/?h=3Df=
+or-next&id=3D556082f5e5d7ecfd0ee45c3641e2b364bff9ee44
+
+
+--
+Chuck Lever
+
+
 
