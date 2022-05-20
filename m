@@ -2,124 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0425E52EEC5
-	for <lists+stable@lfdr.de>; Fri, 20 May 2022 17:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE57F52F077
+	for <lists+stable@lfdr.de>; Fri, 20 May 2022 18:21:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345840AbiETPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 11:10:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59228 "EHLO
+        id S233449AbiETQVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 12:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241781AbiETPKY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 11:10:24 -0400
-Received: from mail1.bemta36.messagelabs.com (mail1.bemta36.messagelabs.com [85.158.142.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED58117706D;
-        Fri, 20 May 2022 08:10:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fujitsu.com;
-        s=170520fj; t=1653059420; i=@fujitsu.com;
-        bh=lKY9yswoHVpDbGbLhaeMQH9R5j0Sb+KVNk4RxWU9pOY=;
-        h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-         MIME-Version:Content-Type;
-        b=Re2la0jQBih2kCHYP7KntPHO6JK/c4nOGBslI7Whb21ofNHmcNHpJv9vB9bmhl+wB
-         xosG8cbBOHSfzVZSy5tvvOJameMsUTqmA7yhgwYpgBDuwt28ROQQ7nyTNQvKr7Vb28
-         0dvCekYTXLXIFIbs4+kKhuQkClf93MJbqrI/rVOH2uWvCEQKl4bK3qUS9mEu2FF18J
-         JAJn0G3iR2yrxtmV4UplUV6HlS/xpS9Es39sWaiZXVdONqENwfzn0JEiMZkOw3FTvf
-         B22OwFVg572dNIG2+WS8f3tPz/O/SLsOGgP5Q/wVNYp00waG4rRANiwIRegV9YAXWl
-         Ker5Y0TSpDT2Q==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmpjleJIrShJLcpLzFFi42Kxs+GYpBu9vj3
-  J4He7kMXrw58YLT7cnMRkseXYPUaLy0/4LH4uW8VusWfvSRaLBRsfMVqc/3uc1eL3jzlsDpwe
-  pxZJeGxeoeWxaVUnm8fnTXIem568ZQpgjWLNzEvKr0hgzXj17hZrwWvOivlHX7I2MO7l6GLk4
-  hAS2MIo8ebtBsYuRk4gZwGTxLkVoRCJPYwSWx51sYIk2AQ0JZ51LmAGsUUEHCVetM9gASliFj
-  jLKNExYxE7SEJYwEli05oFYA0sAqoSbz79YAGxeQU8JBbN2QzWLCGgIDHl4Xswm1PAU2LB9W6
-  2LkYOoG0eEksWyECUC0qcnPkErJVZQELi4IsXUK2KEpc6vjFC2BUSrw9fgoqrSVw9t4l5AqPg
-  LCTts5C0L2BkWsVol1SUmZ5RkpuYmaNraGCga2hoqmtuqGtobKyXWKWbqJdaqpucmldSlAiU1
-  kssL9ZLLS7WK67MTc5J0ctLLdnECIyelGL31h2Ml/t+6h1ilORgUhLlLV3RniTEl5SfUpmRWJ
-  wRX1Sak1p8iFGGg0NJgjdnDVBOsCg1PbUiLTMHGMkwaQkOHiURXvm1QGne4oLE3OLMdIjUKUZ
-  FKXFeu3VACQGQREZpHlwbLHlcYpSVEuZlZGBgEOIpSC3KzSxBlX/FKM7BqCTMq7oaaApPZl4J
-  3PRXQIuZgBbfUm4FWVySiJCSamA6/8/UJGpayuH181vN1z9N8zQIitI5+jOaaZ7YS7lJQgbOE
-  ocOvk9Pjjl8Mexptsbt5sokdoYNJ3Me2J5U1zLwtk1a2cbqNffZ50Un3HNZfy6YYK7gdWRDVs
-  rCOVNUN5z9OE/9ybHJK+c/3PBhv5nohNQvi+d2stzf7fempbZjTQEbt2ebgJF4wqFLFkfDJiu
-  s2rfhVtIRw4Li1EfaD/8lye6eONPBWOjhSvuHgZsnPP60hu1Ovu0jg6L9BX7ZMxX23Nxt7HJX
-  oEVw1R2L+MfM/RvX1uXlvK88EhL67wxLzL9u1U/MZlEnluttSV27j2G557G3Zx9wPKvMztrb8
-  Eck8L7Asxsal88klblMrErZpMRSnJFoqMVcVJwIAGaXw+2ZAwAA
-X-Env-Sender: xuyang2018.jy@fujitsu.com
-X-Msg-Ref: server-3.tower-532.messagelabs.com!1653059418!259556!1
-X-Originating-IP: [62.60.8.146]
-X-SYMC-ESS-Client-Auth: outbound-route-from=pass
-X-StarScan-Received: 
-X-StarScan-Version: 9.86.4; banners=-,-,-
-X-VirusChecked: Checked
-Received: (qmail 6613 invoked from network); 20 May 2022 15:10:19 -0000
-Received: from unknown (HELO n03ukasimr02.n03.fujitsu.local) (62.60.8.146)
-  by server-3.tower-532.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 20 May 2022 15:10:19 -0000
-Received: from n03ukasimr02.n03.fujitsu.local (localhost [127.0.0.1])
-        by n03ukasimr02.n03.fujitsu.local (Postfix) with ESMTP id BA175100445;
-        Fri, 20 May 2022 16:10:18 +0100 (BST)
-Received: from R01UKEXCASM126.r01.fujitsu.local (unknown [10.183.43.178])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by n03ukasimr02.n03.fujitsu.local (Postfix) with ESMTPS id AD180100331;
-        Fri, 20 May 2022 16:10:18 +0100 (BST)
-Received: from localhost.localdomain (10.167.220.84) by
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178) with Microsoft SMTP Server
- (TLS) id 15.0.1497.32; Fri, 20 May 2022 16:10:07 +0100
-From:   Yang Xu <xuyang2018.jy@fujitsu.com>
-To:     <linux-fsdevel@vger.kernel.org>, <ceph-devel@vger.kernel.org>
-CC:     <viro@zeniv.linux.org.uk>, <david@fromorbit.com>,
-        <djwong@kernel.org>, <brauner@kernel.org>, <willy@infradead.org>,
-        <jlayton@kernel.org>, Yang Xu <xuyang2018.jy@fujitsu.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v9 2/4] fs: Add missing umask strip in vfs_tmpfile
-Date:   Sat, 21 May 2022 00:10:35 +0800
-Message-ID: <1653063037-2461-2-git-send-email-xuyang2018.jy@fujitsu.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <1653063037-2461-1-git-send-email-xuyang2018.jy@fujitsu.com>
-References: <1653063037-2461-1-git-send-email-xuyang2018.jy@fujitsu.com>
+        with ESMTP id S231239AbiETQVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 12:21:49 -0400
+Received: from mout.web.de (mout.web.de [212.227.15.14])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AE2B57B02
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 09:21:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1653063699;
+        bh=XNZa2MJDg3Ejw9oc/fw9bCPjeN/8oiws33/BgA+Ct+M=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=E1DxWPlAzsP3PaCp/CSS07LapaDliLMANVQq7kDugF85Td+iQ9JtAYGS3iHSNtE3u
+         5uKmgUL1OO74tPDFjV9Oal+oiwnOitKDSLP6gooBF3CdC2WSTrne92HgSNJ8RMWh+g
+         BeyJAsMUpws6P/r1IO241GKuTCfI5Kcf5t5WJgg4=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from uruz.dynato.kyma ([91.6.57.238]) by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1M5j5y-1nyABd230U-007dCS; Fri, 20
+ May 2022 18:21:39 +0200
+Received: from [127.0.0.1]
+        by uruz.dynato.kyma with esmtp (Exim 4.95)
+        (envelope-from <jvpeetz@web.de>)
+        id 1ns5Nj-0001RR-3v;
+        Fri, 20 May 2022 18:21:39 +0200
+Message-ID: <78eaf506-5a23-3071-3d4a-362c4f0851dc@web.de>
+Date:   Fri, 20 May 2022 18:21:39 +0200
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.167.220.84]
-X-ClientProxiedBy: G08CNEXCHPEKD08.g08.fujitsu.local (10.167.33.83) To
- R01UKEXCASM126.r01.fujitsu.local (10.183.43.178)
-X-Virus-Scanned: ClamAV using ClamSMTP
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Subject: Re: Linux 5.17.5
+Content-Language: en-US
+To:     Joerg Roedel <joro@8bytes.org>
+Cc:     SuraveeSuthikulpanit <suravee.suthikulpanit@amd.com>,
+        vasant.hegde@amd.com, WillDeacon <will@kernel.org>,
+        stable@vger.kernel.org
+References: <165106510338255@kroah.com>
+ <a5c7406e-64b0-7522-fef0-27fec1ac6698@web.de> <Ym+oOjFrkdju5H6X@8bytes.org>
+ <4bfd2811-69ec-e4ec-2957-7054a075aa50@web.de> <YnI2QYZ1GqmORC10@8bytes.org>
+ <f731aff4-a20a-26b3-473f-723b65e760ce@web.de> <YodtvQJXInHDI3lD@8bytes.org>
+ <22b19b34-5cf8-e026-97f8-c66011ee535b@web.de> <Yod4E9K8ZFOxso3Z@8bytes.org>
+From:   =?UTF-8?Q?J=c3=b6rg-Volker_Peetz?= <jvpeetz@web.de>
+In-Reply-To: <Yod4E9K8ZFOxso3Z@8bytes.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:YIHZzzV00pAShyv0HSDYNC3MNvfCpnkti/EXR8LZUugzIpx29jA
+ lTbLdUKxKpoMOOHtxZwUl8qm1RY5CIA6kJwhUTUU5CCR82mQo+L8YG1uVx8mqtcL7+bDvla
+ 6vwBilINATVLGhVRtsBut9nsSAFVnSBLFYjVH8xV85tOfc/2/pD9JTGEzgjXSvgbZj5fhn4
+ HjfhPY71EZ6uL8DwnZIDA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:yzBLPY97dX8=:6v73Koo5Vr1EnjG03HRQTY
+ /atIq4Dwpes5wuVDumhdQs94myJrNKGNt9Vy0KleIBVOhagTHuuiMq5UwVDw6w4oIGSElLP94
+ mvgJH9x00AtK48iOZZdgLsWqqFbogdVybuezthe5oVXORrrQezB60VKfc0nUn+z4fFAtH722e
+ ZEjBlyPwLIoE3DE7T/XNJPAc+fbwyD154TMZ28Bk8halTbDfB/4ksQflMjrmxVJi/SzFXDzvX
+ kXrsqV2yweX0BIFLlQ+gnxrPGl0HUD9EKWT6DzmprxZlkedVfqvhykMlgC049lVImUafLxNtw
+ 6jYzXbDcTbODRnPf23hWQrrLIF3Lholq0fnBMy9fZbjPugYp8BVTL13fEGNotfSrQjZttqJls
+ Ee6ybK7dN27ZezH/dalClnb3ah2rnenCtbeHeIKlxcA/+REAtUosM1/Mb/POkuwpwBqD4cy26
+ IrJ/0NKCDfk/awUBP5iJpsAzyLa91y3WcpON7EOvz6IHmYSK2rnrwp6gxv8IzsFmp2KMh9AHU
+ ikfAW0dNvD8uIrMfmqpkwRf/96G8rpAhrFSlkH5LqEILIZwQIqKcUhGo/7MMjx6+pygUANQIh
+ AYCPkpyKXY5yUAhuCYBHeRpquWXbZ20C5xN9w19W29QNWRpnlx9aHYW7/j3ucd1x2Mzj1jTil
+ xmAfKkf0xa5G1YrX7h7ayXEZP8jG6Aklk5xe2Ev+j26cHPnsA/FroEEOHl01zKNtVQ2BtDxHk
+ 560ZK5PXoMSiAtDwdo6l4t+XsIog5p7YRW05Dh2IO5x+CjgVRsRE4cJ6Qpn4HpCF6AG8HTlVg
+ qnW6pYoIGd1YPSineQZnAoWT7sHBCPFJR2gbYBNQA+yBNdLEPLEPgMfv3B5bNdg7kE2SR1SHb
+ dY7N/dmHE/9KmqWeWvscHdG/xx24UPTPU/xcB5fln+dtMX9nzLa3S1O4lOFPkkqX0JhtHozB3
+ D1vySo1Ifqvk8AMYqPoDbYYPGY9hoYcDDFfWDLWRROlis4dqzoMNyGs7YYXjxrASgkw6qh58c
+ Ey5121tCoZK3dOMeVuZ7jiHJUVlocIVx2SSMn1H9adS/0JJXwvk5UtICM27E4DchlfBMc1iS7
+ 6dqzWEREaygiuDkLtWxXQoNxg/W54j4c2CvJ1ZfkPV+L8uDSMlmgxDJNw==
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-All creation paths except for O_TMPFILE handle umask in the vfs directly
-if the filesystem doesn't support or enable POSIX ACLs. If the filesystem
-does then umask handling is deferred until posix_acl_create().
-Because, O_TMPFILE misses umask handling in the vfs it will not honor
-umask settings. Fix this by adding the missing umask handling.
+Joerg Roedel wrote on 20/05/2022 13:14:
+> On Fri, May 20, 2022 at 12:48:28PM +0200, J=C3=B6rg-Volker Peetz wrote:
+>> Yes, I will test it on top of 5.17.9, o.k.?
+>
+> That would be great, thanks!
+>
+>> Would you also be interested to get a timing from my computer?
+>
+> Only if the patch does not fix it for you.
+>
+> Regards,
+>
+> 	Joerg
 
-Fixes: 60545d0d4610 ("[O_TMPFILE] it's still short a few helpers, but infrastructure should be OK now...")
-Cc: <stable@vger.kernel.org> # 4.19+
-Reported-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Acked-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-and-Tested-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Yang Xu <xuyang2018.jy@fujitsu.com>
----
- fs/namei.c | 2 ++
- 1 file changed, 2 insertions(+)
+Applying your patch on top of 5.17.9 seems to fix it for my Ryzen 7 5700G =
+on MSI
+B550M Mortar (MS-7C94), BIOS 1.B0 main board. During five boot ups I haven=
+'t
+seen the warning.
 
-diff --git a/fs/namei.c b/fs/namei.c
-index 509657fdf4f5..73646e28fae0 100644
---- a/fs/namei.c
-+++ b/fs/namei.c
-@@ -3521,6 +3521,8 @@ struct dentry *vfs_tmpfile(struct user_namespace *mnt_userns,
- 	child = d_alloc(dentry, &slash_name);
- 	if (unlikely(!child))
- 		goto out_err;
-+	if (!IS_POSIXACL(dir))
-+		mode &= ~current_umask();
- 	error = dir->i_op->tmpfile(mnt_userns, dir, child, mode);
- 	if (error)
- 		goto out_err;
--- 
-2.27.0
+Many thanks and regards,
+J=C3=B6rg.
+
 
