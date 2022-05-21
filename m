@@ -2,81 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4374252F6D6
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 02:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D2D552FAB9
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 12:47:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347510AbiEUAc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 20:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
+        id S233564AbiEUKrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 May 2022 06:47:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231552AbiEUAc6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 20:32:58 -0400
-Received: from mail-oi1-x261.google.com (mail-oi1-x261.google.com [IPv6:2607:f8b0:4864:20::261])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F118B1966A1
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 17:32:56 -0700 (PDT)
-Received: by mail-oi1-x261.google.com with SMTP id v66so11742959oib.3
-        for <stable@vger.kernel.org>; Fri, 20 May 2022 17:32:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:dkim-signature:date:from:to:cc:subject
-         :message-id:references:content-disposition:in-reply-to;
-        bh=uKGN50vu+4GfXG0sgHNA4qzCjapPU1Kse30oS1F+Mz0=;
-        b=Ar/gEWntGtfJdwAE7jr66Wu8aM22Ym+6WWDpl37hSpIt64KDitm6Su5mkRugRQ26xR
-         PdL5ELasEx/JU7mFNWspH9dwSsZZH7Mj7shkcwk9OHwUZHBy9TENFSBnur99JkxBGNjE
-         n43TN5oTI4QejcVlyvh0VlHsR3XI/LSzFiysObf8MEl+mgp2NnRqp/+OuqC1ULZ5EywP
-         O7AqjQ6YMlD6jVnO4eeNzn7704Wy3s52HnDnl50fNHT6ZQaepQphftJHut3Pik393OPR
-         MJYLwE04vmXdB+UBEpGgQhd8xY/dn6gra81Oaalt7LVzEL/PERK2LC5Cm8bxFJel8+Nk
-         LeTQ==
-X-Gm-Message-State: AOAM5325Mh6WRgvoMg3w7lW6UgVeLvpFeRwr/fgTSBOqmqXn/YTsjTK7
-        o/4rXy4cpIeGF3u1PL0Rlvu9Yj0KfWM58pbQXYI4hWygU9ES
-X-Google-Smtp-Source: ABdhPJx5Tde5W9mWXWJv9R/IlJRR5cVmbZkn08TLXsh8C2TlLikx0u1fk85XfVyZOK7sa3+S/ewkQqnUitbo
-X-Received: by 2002:a05:6808:3021:b0:2f7:4c5b:2783 with SMTP id ay33-20020a056808302100b002f74c5b2783mr6926937oib.53.1653093176066;
-        Fri, 20 May 2022 17:32:56 -0700 (PDT)
-Received: from smtp.aristanetworks.com (smtp.aristanetworks.com. [54.193.82.35])
-        by smtp-relay.gmail.com with ESMTPS id x19-20020a4a4113000000b0035ecc74f8b3sm296899ooa.3.2022.05.20.17.32.55
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 20 May 2022 17:32:56 -0700 (PDT)
-X-Relaying-Domain: arista.com
-Received: from chmeee (unknown [10.95.70.242])
-        by smtp.aristanetworks.com (Postfix) with ESMTPS id 1EC2E3047DE0;
-        Fri, 20 May 2022 17:32:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
-        s=Arista-A; t=1653093175;
-        bh=uKGN50vu+4GfXG0sgHNA4qzCjapPU1Kse30oS1F+Mz0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0DyVyJXJt4FYoH8Kv0cX4olYdnqzSuA4lBBROmFHad3DGAhawAeQkq3DanjUAyYyv
-         ImkqFFtFUHvijhmZuNkN3DNSfJBhmRNbi6GWHwNRoYBUs6VpTIqIs5c4g9spoAAMqL
-         /ex/H6i0JBWv2wnR1xrrfbcf8t2ILB6T7P4H5QN1t4m6QbxhTJtqvXZYZZA9QKgPgd
-         t+f6Z8xIQNFb44GPzld79gtzN67mS+Q5cqwBcH4lg4co5S8Q4KKc/i7jOjzU8KM7bI
-         DUoOc4kk1/+H0lg1e5FgyCZbnREHrklWrgqVlUF8mP1ug0j/mjLgC5KPaFUDir95EQ
-         almPQRMxyu44w==
-Received: from kevmitch by chmeee with local (Exim 4.95)
-        (envelope-from <kevmitch@arista.com>)
-        id 1nsD37-001pZX-EI;
-        Fri, 20 May 2022 17:32:53 -0700
-Date:   Fri, 20 May 2022 17:32:52 -0700
-From:   Kevin Mitchell <kevmitch@arista.com>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        with ESMTP id S229478AbiEUKrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 06:47:31 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765E67E1D3;
+        Sat, 21 May 2022 03:47:29 -0700 (PDT)
+Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1nsMdj-0001BZ-PR; Sat, 21 May 2022 12:47:19 +0200
+Message-ID: <dae4cc45-a1cd-e33f-25ef-c536df9b49e6@leemhuis.info>
+Date:   Sat, 21 May 2022 12:47:18 +0200
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Content-Language: en-US
+To:     Chuck Zmudzinski <brchuckz@netscape.net>,
+        Jan Beulich <jbeulich@suse.com>, regressions@lists.linux.dev,
+        stable@vger.kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
         "H. Peter Anvin" <hpa@zytor.com>,
+        Andy Lutomirski <luto@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        David Rientjes <rientjes@google.com>,
-        Dou Liyang <douly.fnst@cn.fujitsu.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] x86/mpparse: avoid overwriting
- boot_cpu_physical_apicid
-Message-ID: <YogzNIs7uBSaX1gE@chmeee>
-References: <20200609004451.1296880-1-kevmitch@arista.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200609004451.1296880-1-kevmitch@arista.com>
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        xen-devel@lists.xenproject.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org, Juergen Gross <jgross@suse.com>
+References: <20220503132207.17234-1-jgross@suse.com>
+ <20220503132207.17234-3-jgross@suse.com>
+ <1d86d8ff-6878-5488-e8c4-cbe8a5e8f624@suse.com>
+ <0dcb05d0-108f-6252-e768-f75b393a7f5c@suse.com>
+ <77255e5b-12bf-5390-6910-dafbaff18e96@netscape.net>
+ <a2e95587-418b-879f-2468-8699a6df4a6a@suse.com>
+ <8b1ebea5-7820-69c4-2e2b-9866d55bc180@netscape.net>
+ <c5fa3c3f-e602-ed68-d670-d59b93c012a0@netscape.net>
+ <3bff3562-bb1e-04e6-6eca-8d9bc355f2eb@suse.com>
+ <3ca084a9-768e-a6f5-ace4-cd347978dec7@netscape.net>
+ <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
+ <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
+From:   Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: Re: [PATCH 2/2] x86/pat: add functions to query specific cache mode
+ availability
+In-Reply-To: <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1653130049;ddddfdf2;
+X-HE-SMSGID: 1nsMdj-0001BZ-PR
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,108 +70,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 08, 2020 at 05:44:48PM -0700, Kevin Mitchell wrote:
-> When booting with ACPI unavailable or disabled, get_smp_config() ends up
-> calling MP_processor_info() for each CPU found in the MPS
-> table. Previously, this resulted in boot_cpu_physical_apicid getting
-> unconditionally overwritten by the apicid of whatever processor had the
-> CPU_BOOTPROCESSOR flag. This occurred even if boot_cpu_physical_apicid
-> had already been more reliably determined in register_lapic_address() by
-> calling read_apic_id() from the actual boot processor.
-> 
-> Ordinariliy, this is not a problem because the boot processor really is
-> the one with the CPU_BOOTPROCESSOR flag. However, kexec is an exception
-> in which the kernel may be booted from any processor regardless of the
-> MPS table contents. In this case, boot_cpu_physical_apicid may not
-> indicate the actual boot processor.
-> 
-> This was particularly problematic when the second kernel was booted with
-> NR_CPUS fewer than the number of physical processors. It's the job of
-> generic_processor_info() to decide which CPUs to bring up in this case.
-> That obviously must include the real boot processor which it takes care
-> to save a slot for. It relies upon the contents of
-> boot_cpu_physical_apicid to do this, which if incorrect, may result in
-> the boot processor getting left out.
-> 
-> This condition can be discovered by smp_sanity_check() and rectified by
-> adding the boot processor to the phys_cpu_present_map with the warning
-> "weird, boot CPU (#%d) not listed by the BIOS". However, commit
-> 3e730dad3b6da ("x86/apic: Unify interrupt mode setup for SMP-capable
-> system") caused setup_local_APIC() to be called before this could happen
-> resulting in a BUG_ON(!apic->apic_id_registered()):
-> 
-> [    0.655452] ------------[ cut here ]------------
-> [    0.660610] Kernel BUG at setup_local_APIC+0x74/0x280 [verbose debug info unavailable]
-> [    0.669466] invalid opcode: 0000 [#1] SMP
-> [    0.673948] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.109.Ar-16509018.eostrunkkernel419 #1
-> [    0.683670] Hardware name: Quanta Quanta LY6 (1LY6UZZ0FBC), BIOS 1.0.6.0-e7d6a55 11/26/2015
-> [    0.693007] RIP: 0010:setup_local_APIC+0x74/0x280
-> [    0.698264] Code: 80 e4 fe bf f0 00 00 00 89 c6 48 8b 05 0f 1a 8e 00 ff 50 10 e8 12 53 fd ff 48 8b 05 00 1a 8e 00 ff 90 a0 00 00 00 85 c0 75 02 <0f> 0b 48 8b 05 ed 19 8e 00 41 be 00 02 00 00 ff 90 b0 00 00 00 48
-> [    0.719251] RSP: 0000:ffffffff81a03e20 EFLAGS: 00010246
-> [    0.725091] RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
-> [    0.733066] RDX: 0000000000000000 RSI: 000000000000000f RDI: 0000000000000020
-> [    0.741041] RBP: ffffffff81a03e98 R08: 0000000000000002 R09: 0000000000000000
-> [    0.749014] R10: ffffffff81a204e0 R11: ffffffff81b50ea7 R12: 0000000000000000
-> [    0.756989] R13: ffffffff81aef920 R14: ffffffff81af60a0 R15: 0000000000000000
-> [    0.764965] FS:  0000000000000000(0000) GS:ffff888036800000(0000) knlGS:0000000000000000
-> [    0.774007] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> [    0.780427] CR2: ffff888035c01000 CR3: 0000000035a08000 CR4: 00000000000006b0
-> [    0.788401] Call Trace:
-> [    0.791137]  ? amd_iommu_prepare+0x15/0x2a
-> [    0.795717]  apic_bsp_setup+0x55/0x75
-> [    0.799808]  apic_intr_mode_init+0x169/0x16e
-> [    0.804579]  x86_late_time_init+0x10/0x17
-> [    0.809062]  start_kernel+0x37e/0x3fe
-> [    0.813154]  x86_64_start_reservations+0x2a/0x2c
-> [    0.818316]  x86_64_start_kernel+0x72/0x75
-> [    0.822886]  secondary_startup_64+0xa4/0xb0
-> [    0.827564] ---[ end trace 237b64da0fd9b22e ]---
-> 
-> This change avoids these issues by only setting boot_cpu_physical_apicid
-> from the MPS table if it is not already set, which can occur in the
-> construct_default_ISA_mptable() path. Otherwise,
-> boot_cpu_physical_apicid will already have been set in
-> register_lapic_address() and should therefore remain untouched.
-> 
-> Looking through all the places where boot_cpu_physical_apicid is
-> accessed, nearly all of them assume that boot_cpu_physical_apicid should
-> match read_apic_id() on the booting processor. The only place that might
-> intend to use the BSP apicid listed in the MPS table is amd_numa_init(),
-> which explicitly requires boot_cpu_physical_apicid to be the lowest
-> apicid of all processors. Ironically, due to the early exit short
-> circuit in early_get_smp_config(), it instead gets
-> boot_cpu_physical_apicid = read_apic_id() rather than the MPS table
-> BSP. The behaviour of amd_numa_init() is therefore unaffected by this
-> change.
-> 
-> Fixes: 3e730dad3b6da ("x86/apic: Unify interrupt mode setup for SMP-capable system")
-> Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
-> Cc: <stable@vger.kernel.org>
-> ---
->  arch/x86/kernel/mpparse.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/mpparse.c b/arch/x86/kernel/mpparse.c
-> index afac7ccce72f..6f22f09bfe11 100644
-> --- a/arch/x86/kernel/mpparse.c
-> +++ b/arch/x86/kernel/mpparse.c
-> @@ -64,7 +64,8 @@ static void __init MP_processor_info(struct mpc_cpu *m)
->  
->  	if (m->cpuflag & CPU_BOOTPROCESSOR) {
->  		bootup_cpu = " (Bootup-CPU)";
-> -		boot_cpu_physical_apicid = m->apicid;
-> +		if (boot_cpu_physical_apicid == -1U)
-> +			boot_cpu_physical_apicid = m->apicid;
->  	}
->  
->  	pr_info("Processor #%d%s\n", m->apicid, bootup_cpu);
-> -- 
-> 2.26.2
-> 
+On 20.05.22 16:48, Chuck Zmudzinski wrote:
+> On 5/20/2022 10:06 AM, Jan Beulich wrote:
+>> On 20.05.2022 15:33, Chuck Zmudzinski wrote:
+>>> On 5/20/2022 5:41 AM, Jan Beulich wrote:
+>>>> On 20.05.2022 10:30, Chuck Zmudzinski wrote:
+>>>>> On 5/20/2022 2:59 AM, Chuck Zmudzinski wrote:
+>>>>>> On 5/20/2022 2:05 AM, Jan Beulich wrote:
+>>>>>>> On 20.05.2022 06:43, Chuck Zmudzinski wrote:
+>>>>>>>> On 5/4/22 5:14 AM, Juergen Gross wrote:
+>>>>>>>>> On 04.05.22 10:31, Jan Beulich wrote:
+>>>>>>>>>> On 03.05.2022 15:22, Juergen Gross wrote:
+>>>>>>>>>>
+>>>>>>>>>> ... these uses there are several more. You say nothing on why
+>>>>>>>>>> those want
+>>>>>>>>>> leaving unaltered. When preparing my earlier patch I did
+>>>>>>>>>> inspect them
+>>>>>>>>>> and came to the conclusion that these all would also better
+>>>>>>>>>> observe the
+>>>>>>>>>> adjusted behavior (or else I couldn't have left pat_enabled()
+>>>>>>>>>> as the
+>>>>>>>>>> only predicate). In fact, as said in the description of my
+>>>>>>>>>> earlier
+>>>>>>>>>> patch, in
+>>>>>>>>>> my debugging I did find the use in i915_gem_object_pin_map()
+>>>>>>>>>> to be
+>>>>>>>>>> the
+>>>>>>>>>> problematic one, which you leave alone.
+>>>>>>>>> Oh, I missed that one, sorry.
+>>>>>>>> That is why your patch would not fix my Haswell unless
+>>>>>>>> it also touches i915_gem_object_pin_map() in
+>>>>>>>> drivers/gpu/drm/i915/gem/i915_gem_pages.c
+>>>>>>>>
+>>>>>>>>> I wanted to be rather defensive in my changes, but I agree at
+>>>>>>>>> least
+>>>>>>>>> the
+>>>>>>>>> case in arch_phys_wc_add() might want to be changed, too.
+>>>>>>>> I think your approach needs to be more aggressive so it will fix
+>>>>>>>> all the known false negatives introduced by bdd8b6c98239
+>>>>>>>> such as the one in i915_gem_object_pin_map().
+>>>>>>>>
+>>>>>>>> I looked at Jan's approach and I think it would fix the issue
+>>>>>>>> with my Haswell as long as I don't use the nopat option. I
+>>>>>>>> really don't have a strong opinion on that question, but I
+>>>>>>>> think the nopat option as a Linux kernel option, as opposed
+>>>>>>>> to a hypervisor option, should only affect the kernel, and
+>>>>>>>> if the hypervisor provides the pat feature, then the kernel
+>>>>>>>> should not override that,
+>>>>>>> Hmm, why would the kernel not be allowed to override that? Such
+>>>>>>> an override would affect only the single domain where the
+>>>>>>> kernel runs; other domains could take their own decisions.
+>>>>>>>
+>>>>>>> Also, for the sake of completeness: "nopat" used when running on
+>>>>>>> bare metal has the same bad effect on system boot, so there
+>>>>>>> pretty clearly is an error cleanup issue in the i915 driver. But
+>>>>>>> that's orthogonal, and I expect the maintainers may not even care
+>>>>>>> (but tell us "don't do that then").
+>>>>> Actually I just did a test with the last official Debian kernel
+>>>>> build of Linux 5.16, that is, a kernel before bdd8b6c98239 was
+>>>>> applied. In fact, the nopat option does *not* break the i915 driver
+>>>>> in 5.16. That is, with the nopat option, the i915 driver loads
+>>>>> normally on both the bare metal and on the Xen hypervisor.
+>>>>> That means your presumption (and the presumption of
+>>>>> the author of bdd8b6c98239) that the "nopat" option was
+>>>>> being observed by the i915 driver is incorrect. Setting "nopat"
+>>>>> had no effect on my system with Linux 5.16. So after doing these
+>>>>> tests, I am against the aggressive approach of breaking the i915
+>>>>> driver with the "nopat" option because prior to bdd8b6c98239,
+>>>>> nopat did not break the i915 driver. Why break it now?
+>>>> Because that's, in my understanding, is the purpose of "nopat"
+>>>> (not breaking the driver of course - that's a driver bug -, but
+>>>> having an effect on the driver).
+>>> I wouldn't call it a driver bug, but an incorrect configuration of the
+>>> kernel by the user.  I presume X86_FEATURE_PAT is required by the
+>>> i915 driver
+>> The driver ought to work fine without PAT (and hence without being
+>> able to make WC mappings). It would use UC instead and be slow, but
+>> it ought to work.
+>>
+>>> and therefore the driver should refuse to disable
+>>> it if the user requests to disable it and instead warn the user that
+>>> the driver did not disable the feature, contrary to what the user
+>>> requested with the nopat option.
+>>>
+>>> In any case, my test did not verify that when nopat is set in Linux
+>>> 5.16,
+>>> the thread takes the same code path as when nopat is not set,
+>>> so I am not totally sure that the reason nopat does not break the
+>>> i915 driver in 5.16 is that static_cpu_has(X86_FEATURE_PAT)
+>>> returns true even when nopat is set. I could test it with a custom
+>>> log message in 5.16 if that is necessary.
+>>>
+>>> Are you saying it was wrong for static_cpu_has(X86_FEATURE_PAT)
+>>> to return true in 5.16 when the user requests nopat?
+>> No, I'm not saying that. It was wrong for this construct to be used
+>> in the driver, which was fixed for 5.17 (and which had caused the
+>> regression I did observe, leading to the patch as a hopefully least
+>> bad option).
+>>
+>>> I think that is
+>>> just permitting a bad configuration to break the driver that a
+>>> well-written operating system should not allow. The i915 driver
+>>> was, in my opinion, correctly ignoring the nopat option in 5.16
+>>> because that option is not compatible with the hardware the
+>>> i915 driver is trying to initialize and setup at boot time. At least
+>>> that is my understanding now, but I will need to test it on 5.16
+>>> to be sure I understand it correctly.
+>>>
+>>> Also, AFAICT, your patch would break the driver when the nopat
+>>> option is set and only fix the regression introduced by bdd8b6c98239
+>>> when nopat is not set on my box, so your patch would
+>>> introduce a regression relative to Linux 5.16 and earlier for the
+>>> case when nopat is set on my box. I think your point would
+>>> be that it is not a regression if it is an incorrect user configuration.
+>> Again no - my view is that there's a separate, pre-existing issue
+>> in the driver which was uncovered by the change. This may be a
+>> perceived regression, but is imo different from a real one.
 
-We've moved on to our next kernel upgrade to linux-5.10 and are still seeing
-this same issue with the upstream kernel. We will therefore be porting this
-patch forward, but still wondering if there is any interest in getting this into
-the mainline kernel so more people get (more) correct code? Both patches still
-apply to the mainline (linux-5.18-rc7 right now). Are there any
-alternative suggestions for avoiding this BUG_ON on kexec?
+Sorry, for you maybe, but I'm pretty sure for Linus it's not when it
+comes to the "no regressions rule". Just took a quick look at quotes
+from Linus
+https://www.kernel.org/doc/html/latest/process/handling-regressions.html
+and found this statement from Linus to back this up:
+
+```
+One _particularly_ last-minute revert is the top-most commit (ignoring
+the version change itself) done just before the release, and while
+it's very annoying, it's perhaps also instructive.
+
+What's instructive about it is that I reverted a commit that wasn't
+actually buggy. In fact, it was doing exactly what it set out to do,
+and did it very well. In fact it did it _so_ well that the much
+improved IO patterns it caused then ended up revealing a user-visible
+regression due to a real bug in a completely unrelated area.
+```
+
+He said that here:
+https://www.kernel.org/doc/html/latest/process/handling-regressions.html
+
+The situation is of course different here, but similar enough.
+
+> Since it is a regression, I think for now bdd8b6c98239 should
+> be reverted and the fix backported to Linux 5.17 stable until
+> the underlying memory subsystem can provide the i915 driver
+> with an updated test for the PAT feature that also meets the
+> requirements of the author of bdd8b6c98239 without breaking
+> the i915 driver.
+
+I'm not a developer and I'm don't known the details of this thread and
+the backstory of the regression, but it sounds like that's the approach
+that is needed here until someone comes up with a fix for the regression
+exposed by bdd8b6c98239.
+
+But if I'm wrong, please tell me.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+
+P.S.: As the Linux kernel's regression tracker I deal with a lot of
+reports and sometimes miss something important when writing mails like
+this. If that's the case here, don't hesitate to tell me in a public
+reply, it's in everyone's interest to set the public record straight.
+
+> The i915 driver relies on the memory subsytem
+> to provide it with an accurate test for the existence of
+> X86_FEATURE_PAT. I think your patch provides that more accurate
+> test so that bdd8b6c98239 could be re-applied when your patch is
+> committed. Juergen's patch would have to touch bdd8b6c98239
+> with new functions that probably have unknown and unintended
+> consequences, so I think your approach is also better in that regard.
+> As regards your patch, there is just a disagreement about how the
+> i915 driver should behave if nopat is set. I agree the i915 driver
+> could do a better job handling that case, at least with better error
+> logs.
+> 
+> Chuck
+> 
+>>
+>>> I respond by saying a well-written driver should refuse to honor
+>>> the incorrect configuration requested by the user and instead
+>>> warn the user that it did not honor the incorrect kernel option.
+>>>
+>>> I am only presuming what your patch would do on my box based
+>>> on what I learned about this problem from my debugging. I can
+>>> also test your patch on my box to verify that my understanding of
+>>> it is correct.
+>>>
+>>> I also have not yet verified Juergen's patch will not fix it, but
+>>> I am almost certain it will not unless it is expanded so it also
+>>> touches i915_gem_object_pin_map() with the fix. I plan to test
+>>> his patch, but expanded so it touches that function also.
+>>>
+>>> I also plan to test your patch with and without nopat and report the
+>>> results in the thread where you posted your patch. Hopefully
+>>> by tomorrow I will have the results.
+>>>
+>>> Chuck
