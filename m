@@ -2,289 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B0952FEB7
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 20:11:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F7E52FEE1
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 20:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344493AbiEUSLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 May 2022 14:11:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35140 "EHLO
+        id S1345074AbiEUS4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 May 2022 14:56:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243614AbiEUSK4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 14:10:56 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2121.outbound.protection.outlook.com [40.107.92.121])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30F2EDF61;
-        Sat, 21 May 2022 11:10:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BSE4JQDVO/cGoDKpI7SlVSahZ4JlNswrTGGoHHjr4MSswmbY7ih5XD98UsTl9o+ALmEJv4IPmlQOh3z94M8nRCDttavda6f/tbQNDtuij9lZ768f0DJAzAikO+yMMjj8P/GXFRUfkRBx7ezf1D0uQQ2ccMfh8bj4AIqX19a+zBxTXOXDqyHI4dFnp+6K3Rf0CQP5lr8F6S4EN6POYlP7tDjMHo8kciovovf2CdOefkpSqWRxNtdCzqsH6okiSI33LlmWq+roAMZLAmAYsLmZutKlbWjaiIm7136AZyGjMondfWOMbZfWSvpfpPdnt5wuIRa/hbJfsLa3yAO8eu+ACg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=FcYoVEXJ55yb7eTPr6AyxGC5vTtin2B6nurMCOKYGFs=;
- b=KYvXPBHE5uM43+cikpv4qi6B83AXYo9/QiRGb1nrJLT+wGOGekQlw8n74H72Wr4Giiwh2Gm4GyFKYrYFysBG2m1TqRfxBR9QwlhFAw4G4NeYSW8N3Vi0wobEK1LKova8z64B3PUbwsO+LSHJhU/y1+MVK+39VpRtIoHZd1uxxSGYXblOFfzTEs/NgF9rN0+3sSoYCBT1mjPtjfplSbyLRxF5s2FBrAUfdbF3XZIjJEe6TI7SxHX6sfrtjhawjzSYS0P77mJfdzxXC3jTZB7TSJZzoNzuyLK6M2X6y8rZCzyOGnY2/LRxKu0D2M3dWBZWwG2JcNF5wu+Nyq1ALkxm5g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=hammerspace.com; dmarc=pass action=none
- header.from=hammerspace.com; dkim=pass header.d=hammerspace.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hammerspace.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FcYoVEXJ55yb7eTPr6AyxGC5vTtin2B6nurMCOKYGFs=;
- b=W3Cfn48okX0UuV+9N00Pr6Ree6xyd5wwSqRcJ6Nxfa8sgh3HVfbFtg11NWnRlFQ7PD7dZlM0P5vkdwGRSBC2NVhblGYFsBm6P7TlgkJ1LEZgb9E5m5B/Kmq4ARxDKODu+WMp8WBR54/dnwZUOuLZeNpvBW4Ddlxmdtn+L7uRM3A=
-Received: from CH0PR13MB5084.namprd13.prod.outlook.com (2603:10b6:610:111::7)
- by MW3PR13MB4089.namprd13.prod.outlook.com (2603:10b6:303:53::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5293.7; Sat, 21 May
- 2022 18:10:50 +0000
-Received: from CH0PR13MB5084.namprd13.prod.outlook.com
- ([fe80::694a:6bf0:4537:f3e5]) by CH0PR13MB5084.namprd13.prod.outlook.com
- ([fe80::694a:6bf0:4537:f3e5%6]) with mapi id 15.20.5293.011; Sat, 21 May 2022
- 18:10:50 +0000
-From:   Trond Myklebust <trondmy@hammerspace.com>
-To:     "jlayton@kernel.org" <jlayton@kernel.org>,
-        "chuck.lever@oracle.com" <chuck.lever@oracle.com>
-CC:     "linux@stwm.de" <linux@stwm.de>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-nfs@vger.kernel.org" <linux-nfs@vger.kernel.org>
-Subject: Re: 5.4.188 and later: massive performance regression with nfsd
-Thread-Topic: 5.4.188 and later: massive performance regression with nfsd
-Thread-Index: AQHYZR858YHu5BjXv06IiZjQIhNS6q0Zna2AgAAbcoCAAAIRgIAAA5uAgA41xoCAABHLAIAAVxQAgAAJEgCAABXyAIABJ+EAgAANngA=
-Date:   Sat, 21 May 2022 18:10:50 +0000
-Message-ID: <78739abdf5fe7aa0aab9b7f3c9d660010868b0f4.camel@hammerspace.com>
-References: <f8d9b9112607df4807fba8948ac6e145@stwm.de>
-         <YnuuLZe6h80KCNhd@kroah.com>
-         <6A15DEE1-CAC9-4C64-8643-AD28EA423046@oracle.com>
-         <YnvG71v4Ay560D+X@kroah.com>
-         <0F5EA15D-08A0-4D3E-B5A9-D62C49BF2B56@oracle.com>
-         <59118799-0148-41F3-BA03-BB69151B74EE@oracle.com>
-         <1792eb49d2a9820bbcf7b240f53158170041da6d.camel@hammerspace.com>
-         <3FE1F779-A2EC-4E23-BBCC-28C5E8AFCBB1@oracle.com>
-         <1a38a01debc727a1e11243fd6207d915ac90c251.camel@hammerspace.com>
-         <FB8CBEF6-07B4-416C-B9B4-56E03C7E6628@oracle.com>
-         <40D1CC9F-1DA7-4134-9DBD-0C0DFA16A361@oracle.com>
-In-Reply-To: <40D1CC9F-1DA7-4134-9DBD-0C0DFA16A361@oracle.com>
-Accept-Language: en-US, en-GB
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=hammerspace.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 62e6a56b-f203-4de7-a134-08da3b553c99
-x-ms-traffictypediagnostic: MW3PR13MB4089:EE_
-x-microsoft-antispam-prvs: <MW3PR13MB4089BFF3C5D8EBB73C19C7DBB8D29@MW3PR13MB4089.namprd13.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: HRH7t7MqouP/7jtzaf3Q4NqGF3eRH4KtSYLWLaGGefekX09/jm7eg9pnx62FK5vru2oUPDTKzv2cS/Ei7ng3OyOxt6L0g8Yv2JbH0RGyoU4MyohlQ8sEWagCq4AngbJlxjjtFDFOSe+vM5/TIXQOv0VeBLMyCTb7d/6MRc9W1dsdMAzR5OImAquYQJY+ylUV7a+cW/4+oDWjmZY6O+82SMbzSjE9pZhJNaj4UKiKYEN9HAi5esPzD76wi+3cMFL8BzkAornmi83bXuxQAj8TCDen1ZEp4WmzGlM0OdbrsT1g1tHRExkQhqA6HChsTDNQ5Tg7XCYSrXBrT2Fow3BzEWxokXlRgVULlkejdytJjSZtoYBQWD8rOTxH3gWds6TBp+gJCtKkgLjOFxz9baskNSPYngMpngj9txP0rCtIDwEByBYc6W02H5/kYhRlcngpibUPquCJSi+wcdqCyn4ej8IUlntCwV4YvDKDpbl4UhoxCxb3LECCryRtfjj7xqnKz90kaMLQ/hDKIvghvplmAsXe1jt3Bi2Vqqbo7QN/oCfr8ko3w/2JrUnsNpH1S1Gw42hZmODQn+74wmQNA7myIUTxk1zZq/694+7ccJOecKj6HbYrLvHUzI3B94f8fUQQrI1CGT8OOc/g2TOPBY6sh0skgloh/kaWS52sO26rN29NfzJpf8bpc0SmBVCFQZ4ghSfZUg4TVxgk0hrr6XC+qnb+0ZzhwlHgjRbGX/SihcgTmc+EdV9JTTdw92whZrgUvjYtrAsSd5sZASx2u723glxnbci0XkyRS9u9XuaXEu1mL4RPxeWMLE3HHo0WHpWX
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR13MB5084.namprd13.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(38100700002)(66556008)(66946007)(66476007)(66446008)(64756008)(76116006)(508600001)(83380400001)(8676002)(38070700005)(2616005)(4326008)(54906003)(110136005)(86362001)(71200400001)(122000001)(2906002)(316002)(5660300002)(6506007)(36756003)(26005)(186003)(6512007)(6486002)(966005)(8936002)(53546011)(14583001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?dUZLd0FDaWc0SUNJVE5EbW1OeHlYOGlpZFhsSmZiNklHaC94MVp0Wk0vaCs1?=
- =?utf-8?B?c2NKS0FuSVAwRXkzNldQNUpmaVNua3FJSHl0L1hSeThjd21rODgwV2ZaTVpX?=
- =?utf-8?B?S2NYVXlWZ2d5NjZyd0ZqQ1FRMU9pMmFuRE1CU2VXTlZHN1ZLclIrdkhHRUpT?=
- =?utf-8?B?eW9tTVQxd3ZZSnl3V08rVmZIZFJBVjlxQjJ0M29vL3RRVHZkQTY1Qk53c0ZM?=
- =?utf-8?B?eTczb1FPOWtJMWZzQ3F2ZUkwUmdGR2V4WGd0VCtma0Z3ZkZxYmt2TU9PRGJJ?=
- =?utf-8?B?QllvU2krbVVRdDZWZFBmNUV3cmt1OUVYdnhBdnk4R1VvZkVnRUlOT1ZEckVl?=
- =?utf-8?B?clRvTEU1KzgyWDdYVnVRMmVXUGlQVnJuTWRKYkRtOW9lWXdvUG9MWjdWalZn?=
- =?utf-8?B?RzBGN3V1dG94RjdFeGIyejUzK3dVdmQ2aFkvWGphbTdiK1NYeXV4Y0lFK2d2?=
- =?utf-8?B?YUJqRTJkc0VabXZ6aFg5c1lsemovdmtNdEFhWCtoY2FPTzIrMnB3WDRJaVgv?=
- =?utf-8?B?YTRlS2srSWU1MWJSMEZjVytUbkNTbSttSDNyRHpLd0J3bHplTFlzdjdNWE5J?=
- =?utf-8?B?UXZzaWc4VW5jRzRSZmVBUFpzRlNaL0RyMDVvcEFGbEw4Um5MWHJRV3lzYWhW?=
- =?utf-8?B?U2RSRmdIa0NxMGEzM01lTTcyZU5mYTVCK1BBekZOTEhXMmplTFQ0U21JcG9l?=
- =?utf-8?B?TTl3QkRPQVBtdUEwNzJoMnI5NjJVRWZUQVZKa2d2MUpDQ0ZWaU1DTFZFMllM?=
- =?utf-8?B?TU9ObU9ydmRtdUg0M2tKYVNoMVFrYi9CNE9Sd2NDMWIwQ2hoNHl6OFJwTUkz?=
- =?utf-8?B?NUZFOEhsdHJ2LyswOXlFa0JIMTZXSXNSY2pnUHJldUI0N1Ixa2NIc2FiVG9V?=
- =?utf-8?B?RmpleXkwdnZORHozaDMvUnVERy9QWVBxYmN6L2x5U3BQSmJycVR2SUxiaXU2?=
- =?utf-8?B?K1BhZGxXZi9sbDZPTFhmMEJzcVNVTVZmYWsyL1lza28xTHIwTHVNVnJJSTZ1?=
- =?utf-8?B?YUZodHQ3NWRnejA1T2E4RVgyVWExNkkvMS9FZ3R3bDFUMXdkdlI2aHd2bzFG?=
- =?utf-8?B?bjBBMXpyQVZ3Z2l3N0tCOXlOSlBvYXVVd3FDSFBZQndCUThiT2ppRXVDVXB2?=
- =?utf-8?B?eFVUS2pTTGt1UUtQTjZVMUFVWXdVUEUxd0gycDNoVkpSK0svL0xsMTRsZGk0?=
- =?utf-8?B?anB3UFNKRlczdUNOS0tuRVFkY2YxclgrNk15L2kzZjR6dnZuZHlaZFVlOWJV?=
- =?utf-8?B?Zlp1MFhnR0k1WGZTd3B6MHVDL3NsZ0JLaEZLRWJJaGt0Sk9lYTZzeTlHcGIr?=
- =?utf-8?B?UXpPNExkWXpYVTFrdWVEVzcvUDdEa3pudlJpWENwSW5IN3hSclBiTHdLR3FD?=
- =?utf-8?B?VkkrQ0ZzTDYzS3JBaXJqT01QVFc5N25RZ1B6R0lFU3dVb2o0Rk5oUFFvc1Zv?=
- =?utf-8?B?YUUyQldNQVF2aEIzQUhTZHB4RkNJNU45TXh4b0w3TDh6REU1SlFvbW5kOGMy?=
- =?utf-8?B?blJhcG1oamo2Z3FtK1J5ZjF1QVVFdlhnNmJQeEJhWWNZb3kvRTNMZmVMZ0Rz?=
- =?utf-8?B?cDFDbG9LS1RiVmpxQ2VodHM0Mm9kUEcwZWExT1g0MVlCMmhWQUlZMUlWSCtu?=
- =?utf-8?B?MTloYndrdlpTWlZCNzVkQms1Ry9FOEVURjUyZ2NUZVlNTFhyRXR0YXRhTlpo?=
- =?utf-8?B?R3VUcERwd0oxMlZRTlpUM0tJcFNJckVmOGFDTFZXWlpRTmpZUzVSUVF5dENV?=
- =?utf-8?B?aFYvZlJGZGJjN1RBTCs1ZkVyTjArNCtnV0I0cnBqM2VQTWs2ZXhXL0xQblFJ?=
- =?utf-8?B?OUE2aWhXelVSN1pzaUdKRjlVUjhnYkNSREdENHBzL0lxVWRydUhjcEw1eUt3?=
- =?utf-8?B?Z3ArdDlSeTNwaTljak1mYnp3YTY5VU80TUI2UDVMSWhTMHFhb1ZDRy9kQXh0?=
- =?utf-8?B?alplTFArSjlJSDZ6MFUxaXhjQmh1ZUUrVkMrR095WXMwcGtSWjlrcCtmVXdl?=
- =?utf-8?B?bkZxVCtmNFlBclRESnQrNStpTmNNRTVpSC8wam4wRmJ5UWQ0bXFjeDBpeTE4?=
- =?utf-8?B?L3czZHBCVUF6OXlzOGJ2bWsvZy9BYTM2MkUrUGNJZWdTQ0VvQm1BWFNGR1p3?=
- =?utf-8?B?blBlR2h3UnlvRU9IdWNmRkNGRlNLZUpXWEx3UzlDNDVwL1pXZEVXQmRIUHlB?=
- =?utf-8?B?ZHRtZHE2M3diN084eWxMNkFmOFBBWmo2dWkrSU15YXRaUllLRTVhOXBpeVV4?=
- =?utf-8?B?a2R1TVVCUnE4eThDaENoUFRzRVNEN2xFQ3JkbFZRTHcwbnQvZHZWbWIvbFVu?=
- =?utf-8?B?cDk4VU9kVEtQY2tlWGJobk5lb3VRVFpyakxrWDRNTTg2Q3lITzRXV3Q3OExp?=
- =?utf-8?Q?FiEQtnUT7wx9dO4Q=3D?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <C497C7AD36277047B130694044540DF4@namprd13.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        with ESMTP id S1344865AbiEUS4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 14:56:36 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9BB5C37F
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 11:56:34 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id z11so811756pjc.3
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 11:56:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0A8tk/FZyjoCZiFMRTs3XVXcvmG1Yi5VNzrHoMW6Lis=;
+        b=ofXzbJUS7/sHfRdWNCkRIvC8HtfRYkAGQ3M2+94U5S79Ekg06RWlBTEDsaa9zdCFC8
+         A99nRN5bTqur0RWuMYq/oGB2uLfVoAnGIE0lJ4ItqtBdnIv0O555ZlczmasaGiYSyYSm
+         0TBUmaYA+tPYyUASaGtIwmKMW0A8Gh3yburOk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=0A8tk/FZyjoCZiFMRTs3XVXcvmG1Yi5VNzrHoMW6Lis=;
+        b=j7HBSMCeNsYQA7KH5iMymXmLTXjiiNSqGskYcY+rtZ0ukXJCDQJCD5zrmOPdCX9udq
+         xnfFjTcocOUSdU3bN9WUbKCVE71CS3ZXdDyMlTnCgTIQB22itNB2zXgBprdJrFwOuOw0
+         WeUPyWdJfoZzVI18+dyTr80fzVwmtQM3iZgC2U5h4MlybJuuHLa+F0QiDGBOa5Bh6z8f
+         Jks6TZunbMPReN6lGwKzJ731f7RlpDQ8rDlj8N0VA8blXUCTA+FDf0toO9fvKNjkTaIS
+         8jwW2h6+If2L2R9gyhm6Lii6pPs3/5xy3RoGzDzvKeBNYsiHC5t8eZW937z2yQWldoa6
+         XbJA==
+X-Gm-Message-State: AOAM530UMV3Dw36apD+mRJ5ud3yFE6xGB1mO327iiZDUEOH952vpgrGF
+        3VjL9dE0ymf8aBF1YgRgNj2sKA==
+X-Google-Smtp-Source: ABdhPJzXg2f+/9R12RrMT81tzukQF/GwSVmBZHzA//D3QqCaKBPndIJ3AOONrohN/v30ykK4bhgmKw==
+X-Received: by 2002:a17:903:404d:b0:161:558a:4375 with SMTP id n13-20020a170903404d00b00161558a4375mr15928091pla.86.1653159394388;
+        Sat, 21 May 2022 11:56:34 -0700 (PDT)
+Received: from localhost ([2620:15c:202:201:3726:7e92:2051:7436])
+        by smtp.gmail.com with UTF8SMTPSA id ne2-20020a17090b374200b001df4c5cab51sm4045583pjb.15.2022.05.21.11.56.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 21 May 2022 11:56:33 -0700 (PDT)
+From:   Gwendal Grignou <gwendal@chromium.org>
+To:     paolo.valente@linaro.org, axboe@kernel.dk,
+        gregkh@linuxfoundation.org, xieyongji@bytedance.com,
+        ming.lei@redhat.com
+Cc:     linux-block@vger.kernel.org,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        stable@vger.kernel.org, Gwendal Grignou <gwendal@chromium.org>
+Subject: [PATCH] block: return ELEVATOR_DISCARD_MERGE if possible
+Date:   Sat, 21 May 2022 11:56:26 -0700
+Message-Id: <20220521185626.3333530-1-gwendal@chromium.org>
+X-Mailer: git-send-email 2.36.1.124.g0e6072fb45-goog
 MIME-Version: 1.0
-X-OriginatorOrg: hammerspace.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: CH0PR13MB5084.namprd13.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 62e6a56b-f203-4de7-a134-08da3b553c99
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 May 2022 18:10:50.1149
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 0d4fed5c-3a70-46fe-9430-ece41741f59e
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: pGO80RhGU/XZ5sLz9BnRogiDB0N6K+3HEWmDxpqWFvGSrmZvfUZ3VdVg1BmLwAHP+BcDZLU2oEb50CkZSpBGNQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR13MB4089
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gU2F0LCAyMDIyLTA1LTIxIGF0IDE3OjIyICswMDAwLCBDaHVjayBMZXZlciBJSUkgd3JvdGU6
-DQo+IA0KPiANCj4gPiBPbiBNYXkgMjAsIDIwMjIsIGF0IDc6NDMgUE0sIENodWNrIExldmVyIElJ
-SQ0KPiA+IDxjaHVjay5sZXZlckBvcmFjbGUuY29tPiB3cm90ZToNCj4gPiANCj4gPiANCj4gPiAN
-Cj4gPiA+IE9uIE1heSAyMCwgMjAyMiwgYXQgNjoyNCBQTSwgVHJvbmQgTXlrbGVidXN0DQo+ID4g
-PiA8dHJvbmRteUBoYW1tZXJzcGFjZS5jb20+IHdyb3RlOg0KPiA+ID4gDQo+ID4gPiBPbiBGcmks
-IDIwMjItMDUtMjAgYXQgMjE6NTIgKzAwMDAsIENodWNrIExldmVyIElJSSB3cm90ZToNCj4gPiA+
-ID4gDQo+ID4gPiA+IA0KPiA+ID4gPiA+IE9uIE1heSAyMCwgMjAyMiwgYXQgMTI6NDAgUE0sIFRy
-b25kIE15a2xlYnVzdA0KPiA+ID4gPiA+IDx0cm9uZG15QGhhbW1lcnNwYWNlLmNvbT4gd3JvdGU6
-DQo+ID4gPiA+ID4gDQo+ID4gPiA+ID4gT24gRnJpLCAyMDIyLTA1LTIwIGF0IDE1OjM2ICswMDAw
-LCBDaHVjayBMZXZlciBJSUkgd3JvdGU6DQo+ID4gPiA+ID4gPiANCj4gPiA+ID4gPiA+IA0KPiA+
-ID4gPiA+ID4gPiBPbiBNYXkgMTEsIDIwMjIsIGF0IDEwOjM2IEFNLCBDaHVjayBMZXZlciBJSUkN
-Cj4gPiA+ID4gPiA+ID4gPGNodWNrLmxldmVyQG9yYWNsZS5jb20+IHdyb3RlOg0KPiA+ID4gPiA+
-ID4gPiANCj4gPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gPiA+IE9u
-IE1heSAxMSwgMjAyMiwgYXQgMTA6MjMgQU0sIEdyZWcgS0gNCj4gPiA+ID4gPiA+ID4gPiA8Z3Jl
-Z2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+IHdyb3RlOg0KPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4g
-PiA+ID4gPiA+IE9uIFdlZCwgTWF5IDExLCAyMDIyIGF0IDAyOjE2OjE5UE0gKzAwMDAsIENodWNr
-IExldmVyDQo+ID4gPiA+ID4gPiA+ID4gSUlJDQo+ID4gPiA+ID4gPiA+ID4gd3JvdGU6DQo+ID4g
-PiA+ID4gPiA+ID4gPiANCj4gPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gPiA+ID4gPiBP
-biBNYXkgMTEsIDIwMjIsIGF0IDg6MzggQU0sIEdyZWcgS0gNCj4gPiA+ID4gPiA+ID4gPiA+ID4g
-PGdyZWdraEBsaW51eGZvdW5kYXRpb24ub3JnPiB3cm90ZToNCj4gPiA+ID4gPiA+ID4gPiA+ID4g
-DQo+ID4gPiA+ID4gPiA+ID4gPiA+IE9uIFdlZCwgTWF5IDExLCAyMDIyIGF0IDEyOjAzOjEzUE0g
-KzAyMDAsIFdvbGZnYW5nDQo+ID4gPiA+ID4gPiA+ID4gPiA+IFdhbHRlcg0KPiA+ID4gPiA+ID4g
-PiA+ID4gPiB3cm90ZToNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBIaSwNCj4gPiA+ID4gPiA+ID4g
-PiA+ID4gPiANCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBzdGFydGluZyB3aXRoIDUuNC4xODggd2ll
-IHNlZSBhIG1hc3NpdmUNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBwZXJmb3JtYW5jZQ0KPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+IHJlZ3Jlc3Npb24gb24gb3VyDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-bmZzLXNlcnZlci4gSXQgYmFzaWNhbGx5IGlzIHNlcnZpbmcgcmVxdWVzdHMgdmVyeQ0KPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+IHZlcnkNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBzbG93bHkgd2l0aCBj
-cHUNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiB1dGlsaXphdGlvbiBvZiAxMDAlICh3aXRoIDUuNC4x
-ODcgYW5kIGVhcmxpZXIgaXQNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBpcw0KPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IDEwJSkgc28NCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiB0aGF0IGl0IGlzDQo+ID4g
-PiA+ID4gPiA+ID4gPiA+ID4gdW51c2FibGUgYXMgYSBmaWxlc2VydmVyLg0KPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IFRoZSBjdWxwcml0IGFyZSBjb21taXRz
-IChvciBvbmUgb2YgaXQpOg0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gPiA+
-ID4gPiA+IGMzMmYxMDQxMzgyYTg4YjE3ZGE1NzM2ODg2ZGE0YTQ5MjM1M2ExYmIgIm5mc2Q6DQo+
-ID4gPiA+ID4gPiA+ID4gPiA+ID4gY2xlYW51cA0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IG5mc2Rf
-ZmlsZV9scnVfZGlzcG9zZSgpIg0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IDYyOGFkZmEyMTgxNWY3
-NGMwNDcyNGFiYzg1ODQ3ZjI0YjVkZDE2NDUgIm5mc2Q6DQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-Q29udGFpbmVyaXNlIGZpbGVjYWNoZQ0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGxhdW5kcmV0dGUi
-DQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gKHVwc3RyZWFt
-DQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gMzZlYmJkYjk2YjY5NGRkOWM2YjI1YWQ5OGYyYmJkMjYz
-ZDAyMmI2MyBhbmQNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiA5NTQyZTZhNjQzZmM2OWQ1MjhkZmIz
-MzAzZjE0NTcxOWM2MWQzMDUwKQ0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IElmIEkgcmV2ZXJ0IHRoZW0gaW4gdjUuNC4xOTIgdGhlIGtlcm5lbCB3b3JrcyBh
-cw0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGJlZm9yZQ0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGFu
-ZA0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IHBlcmZvcm1hbmNlIGlzDQo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gb2sgYWdhaW4uDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gSSBkaWQgbm90IHRyeSB0byByZXZlcnQgdGhlbSBvbmUgYnkgb25lIGFzIGFueQ0KPiA+
-ID4gPiA+ID4gPiA+ID4gPiA+IGRpc3J1cHRpb24NCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBvZiBv
-dXIgbmZzLXNlcnZlcg0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGlzIGEgc2V2ZXJlIHByb2JsZW0g
-Zm9yIHVzIGFuZCBJJ20gbm90IHN1cmUgaWYNCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiB0aGV5IGFy
-ZQ0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IHJlbGF0ZWQuDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4g
-DQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gNS4xMCBhbmQgNS4xNSBib3RoIGFsd2F5cyBwZXJmb3Jt
-ZWQgdmVyeSBiYWRseSBvbg0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IG91cg0KPiA+ID4gPiA+ID4g
-PiA+ID4gPiA+IG5mcy0NCj4gPiA+ID4gPiA+ID4gPiA+ID4gPiBzZXJ2ZXIgaW4gYQ0KPiA+ID4g
-PiA+ID4gPiA+ID4gPiA+IHNpbWlsYXIgd2F5IHNvIHdlIHdlcmUgc3R1Y2sgd2l0aCA1LjQuDQo+
-ID4gPiA+ID4gPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gSSBub3cgdGhpbmsg
-dGhpcyBpcyBiZWNhdXNlIG9mDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gMzZlYmJkYjk2YjY5NGRk
-OWM2YjI1YWQ5OGYyYmJkMjYzZDAyMmI2Mw0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IGFuZC9vciA5
-NTQyZTZhNjQzZmM2OWQ1MjhkZmIzMzAzZjE0NTcxOWM2MWQzMDUwDQo+ID4gPiA+ID4gPiA+ID4g
-PiA+ID4gdGhvdWdoDQo+ID4gPiA+ID4gPiA+ID4gPiA+ID4gSQ0KPiA+ID4gPiA+ID4gPiA+ID4g
-PiA+IGRpZG4ndCB0cmllZCB0bw0KPiA+ID4gPiA+ID4gPiA+ID4gPiA+IHJldmVydCB0aGVtIGlu
-IDUuMTUgeWV0Lg0KPiA+ID4gPiA+ID4gPiA+ID4gPiANCj4gPiA+ID4gPiA+ID4gPiA+ID4gT2Rk
-cyBhcmUgNS4xOC1yYzYgaXMgYWxzbyBhIHByb2JsZW0/DQo+ID4gPiA+ID4gPiA+ID4gPiANCj4g
-PiA+ID4gPiA+ID4gPiA+IFdlIGJlbGlldmUgdGhhdA0KPiA+ID4gPiA+ID4gPiA+ID4gDQo+ID4g
-PiA+ID4gPiA+ID4gPiA2YjhhOTQzMzJlZTQgKCJuZnNkOiBGaXggYSB3cml0ZSBwZXJmb3JtYW5j
-ZQ0KPiA+ID4gPiA+ID4gPiA+ID4gcmVncmVzc2lvbiIpDQo+ID4gPiA+ID4gPiA+ID4gPiANCj4g
-PiA+ID4gPiA+ID4gPiA+IGFkZHJlc3NlcyB0aGUgcGVyZm9ybWFuY2UgcmVncmVzc2lvbi4gSXQg
-d2FzIG1lcmdlZA0KPiA+ID4gPiA+ID4gPiA+ID4gaW50bw0KPiA+ID4gPiA+ID4gPiA+ID4gNS4x
-OC0NCj4gPiA+ID4gPiA+ID4gPiA+IHJjLg0KPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4g
-PiA+IEFuZCBpbnRvIDUuMTcuNCBpZiBzb21lb25lIHdhbnRzIHRvIHRyeSB0aGF0IHJlbGVhc2Uu
-DQo+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gPiBJIGRvbid0IGhhdmUgYSBsb3Qgb2YgdGlt
-ZSB0byBiYWNrcG9ydCB0aGlzIG9uZSBteXNlbGYsDQo+ID4gPiA+ID4gPiA+IHNvDQo+ID4gPiA+
-ID4gPiA+IEkgd2VsY29tZSBhbnlvbmUgd2hvIHdhbnRzIHRvIGFwcGx5IHRoYXQgY29tbWl0IHRv
-IHRoZWlyDQo+ID4gPiA+ID4gPiA+IGZhdm9yaXRlIExUUyBrZXJuZWwgYW5kIHRlc3QgaXQgZm9y
-IHVzLg0KPiA+ID4gPiA+ID4gPiANCj4gPiA+ID4gPiA+ID4gDQo+ID4gPiA+ID4gPiA+ID4gPiA+
-IElmIHNvLCBJJ2xsIGp1c3Qgd2FpdCBmb3IgdGhlIGZpeCB0byBnZXQgaW50bw0KPiA+ID4gPiA+
-ID4gPiA+ID4gPiBMaW51cydzDQo+ID4gPiA+ID4gPiA+ID4gPiA+IHRyZWUgYXMNCj4gPiA+ID4g
-PiA+ID4gPiA+ID4gdGhpcyBkb2VzDQo+ID4gPiA+ID4gPiA+ID4gPiA+IG5vdCBzZWVtIHRvIGJl
-IGEgc3RhYmxlLXRyZWUtb25seSBpc3N1ZS4NCj4gPiA+ID4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+
-ID4gPiA+ID4gVW5mb3J0dW5hdGVseSBJJ3ZlIHJlY2VpdmVkIGEgcmVjZW50IHJlcG9ydCB0aGF0
-IHRoZQ0KPiA+ID4gPiA+ID4gPiA+ID4gZml4DQo+ID4gPiA+ID4gPiA+ID4gPiBpbnRyb2R1Y2Vz
-DQo+ID4gPiA+ID4gPiA+ID4gPiBhICJzbGVlcCB3aGlsZSBzcGlubG9jayBpcyBoZWxkIiBmb3Ig
-TkZTdjQuMCBpbiByYXJlDQo+ID4gPiA+ID4gPiA+ID4gPiBjYXNlcy4NCj4gPiA+ID4gPiA+ID4g
-PiANCj4gPiA+ID4gPiA+ID4gPiBJY2ssIG5vdCBnb29kLCBhbnkgcG90ZW50aWFsIGZpeGVzIGZv
-ciB0aGF0Pw0KPiA+ID4gPiA+ID4gPiANCj4gPiA+ID4gPiA+ID4gTm90IHlldC4gSSB3YXMgYXQg
-TFNGIGxhc3Qgd2Vlaywgc28gSSd2ZSBqdXN0IHN0YXJ0ZWQNCj4gPiA+ID4gPiA+ID4gZGlnZ2lu
-Zw0KPiA+ID4gPiA+ID4gPiBpbnRvIHRoaXMgb25lLiBJJ3ZlIGNvbmZpcm1lZCB0aGF0IHRoZSBy
-ZXBvcnQgaXMgYSByZWFsDQo+ID4gPiA+ID4gPiA+IGJ1ZywNCj4gPiA+ID4gPiA+ID4gYnV0IHdl
-IHN0aWxsIGRvbid0IGtub3cgaG93IGhhcmQgaXQgaXMgdG8gaGl0IGl0IHdpdGgNCj4gPiA+ID4g
-PiA+ID4gcmVhbA0KPiA+ID4gPiA+ID4gPiB3b3JrbG9hZHMuDQo+ID4gPiA+ID4gPiANCj4gPiA+
-ID4gPiA+IFdlIGJlbGlldmUgdGhlIGZvbGxvd2luZywgd2hpY2ggc2hvdWxkIGJlIHBhcnQgb2Yg
-dGhlIGZpcnN0DQo+ID4gPiA+ID4gPiBORlNEIHB1bGwgcmVxdWVzdCBmb3IgNS4xOSwgd2lsbCBw
-cm9wZXJseSBhZGRyZXNzIHRoZQ0KPiA+ID4gPiA+ID4gc3BsYXQuDQo+ID4gPiA+ID4gPiANCj4g
-PiA+ID4gPiA+IGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0
-L2NlbC9saW51eC5naXQvY29tbWl0Lz9oPWZvci1uZXh0JmlkPTU1NjA4MmY1ZTVkN2VjZmQwZWU0
-NWMzNjQxZTJiMzY0YmZmOWVlNDQNCj4gPiA+ID4gPiA+IA0KPiA+ID4gPiA+ID4gDQo+ID4gPiA+
-ID4gVWguLi4gV2hhdCBoYXBwZW5zIGlmIHlvdSBoYXZlIDIgc2ltdWx0YW5lb3VzIGNhbGxzIHRv
-DQo+ID4gPiA+ID4gbmZzZDRfcmVsZWFzZV9sb2Nrb3duZXIoKSBmb3IgdGhlIHNhbWUgZmlsZT8g
-aS5lLiAyIHNlcGFyYXRlDQo+ID4gPiA+ID4gcHJvY2Vzc2VzDQo+ID4gPiA+ID4gb3duZWQgYnkg
-dGhlIHNhbWUgdXNlciwgYm90aCBsb2NraW5nIHRoZSBzYW1lIGZpbGUuDQo+ID4gPiA+ID4gDQo+
-ID4gPiA+ID4gQ2FuJ3QgdGhhdCBjYXVzZSB0aGUgJ3B1dGxpc3QnIHRvIGdldCBjb3JydXB0ZWQg
-d2hlbiBib3RoDQo+ID4gPiA+ID4gY2FsbGVycw0KPiA+ID4gPiA+IGFkZA0KPiA+ID4gPiA+IHRo
-ZSBzYW1lIG5mLT5uZl9wdXRmaWxlIHRvIHR3byBzZXBhcmF0ZSBsaXN0cz8NCj4gPiA+ID4gDQo+
-ID4gPiA+IElJVUMsIGNsX2xvY2sgc2VyaWFsaXplcyB0aGUgdHdvIFJFTEVBU0VfTE9DS09XTkVS
-IGNhbGxzLg0KPiA+ID4gPiANCj4gPiA+ID4gVGhlIGZpcnN0IGNhbGwgZmluZHMgdGhlIGxvY2tv
-d25lciBpbiBjbF9vd25lcnN0cl9oYXNodGJsIGFuZA0KPiA+ID4gPiB1bmhhc2hlcyBpdCBiZWZv
-cmUgcmVsZWFzaW5nIGNsX2xvY2suDQo+ID4gPiA+IA0KPiA+ID4gPiBUaGVuIHRoZSBzZWNvbmQg
-Y2Fubm90IGZpbmQgdGhhdCBsb2Nrb3duZXIsIHRodXMgaXQgY2FuJ3QNCj4gPiA+ID4gcmVxdWV1
-ZSBpdCBmb3IgYnVsa19wdXQuDQo+ID4gPiA+IA0KPiA+ID4gPiBBbSBJIG1pc3Npbmcgc29tZXRo
-aW5nPw0KPiA+ID4gDQo+ID4gPiBJbiB0aGUgZXhhbXBsZSBJIHF1b3RlZCwgdGhlcmUgYXJlIDIg
-c2VwYXJhdGUgcHJvY2Vzc2VzIHJ1bm5pbmcNCj4gPiA+IG9uIHRoZQ0KPiA+ID4gY2xpZW50LiBU
-aG9zZSBwcm9jZXNzZXMgY291bGQgc2hhcmUgdGhlIHNhbWUgb3BlbiBvd25lciArIG9wZW4NCj4g
-PiA+IHN0YXRlaWQsDQo+ID4gPiBhbmQgaGVuY2UgdGhlIHNhbWUgc3RydWN0IG5mczRfZmlsZSwg
-c2luY2UgdGhhdCBkZXBlbmRzIG9ubHkgb24NCj4gPiA+IHRoZQ0KPiA+ID4gcHJvY2VzcyBjcmVk
-ZW50aWFscyBtYXRjaGluZy4gSG93ZXZlciB0aGV5IHdpbGwgbm90IG5vcm1hbGx5DQo+ID4gPiBz
-aGFyZSBhDQo+ID4gPiBsb2NrIG93bmVyLCBzaW5jZSBQT1NJWCBkb2VzIG5vdCBleHBlY3QgZGlm
-ZmVyZW50IHByb2Nlc3NlcyB0bw0KPiA+ID4gc2hhcmUNCj4gPiA+IGxvY2tzLg0KPiA+ID4gDQo+
-ID4gPiBJT1c6IFRoZSBwb2ludCBpcyB0aGF0IG9uZSBjYW4gcmVsYXRpdmVseSBlYXNpbHkgY3Jl
-YXRlIDINCj4gPiA+IGRpZmZlcmVudA0KPiA+ID4gbG9jayBvd25lcnMgd2l0aCBkaWZmZXJlbnQg
-bG9jayBzdGF0ZWlkcyB0aGF0IHNoYXJlIHRoZSBzYW1lDQo+ID4gPiB1bmRlcmx5aW5nDQo+ID4g
-PiBzdHJ1Y3QgbmZzNF9maWxlLg0KPiA+IA0KPiA+IElzIHRoZXJlIGEgc2ltaWxhciBleHBvc3Vy
-ZSBpZiB0d28gZGlmZmVyZW50IGNsaWVudHMgYXJlIGxvY2tpbmcNCj4gPiB0aGUgc2FtZSBmaWxl
-PyBJZiBzbywgdGhlbiB3ZSBjYW4ndCB1c2UgYSBwZXItbmZzNF9jbGllbnQgc2VtYXBob3JlDQo+
-ID4gdG8gc2VyaWFsaXplIGFjY2VzcyB0byB0aGUgbmZfcHV0ZmlsZSBmaWVsZC4NCj4gDQo+IEkg
-aGFkIGEgdGhvdWdodCBhYm91dCBhbiBhbHRlcm5hdGUgYXBwcm9hY2guDQo+IA0KPiBDcmVhdGUg
-YSBzZWNvbmQgbmZzZF9maWxlX3B1dCBBUEkgdGhhdCBpcyBub3QgYWxsb3dlZCB0byBzbGVlcC4N
-Cj4gTGV0J3MgY2FsbCBpdCAibmZzZF9maWxlX3B1dF9hc3luYygpIi4gVGVhY2ggY2hlY2tfZm9y
-X2xvY2tlZCgpDQo+IHRvIHVzZSB0aGF0IGluc3RlYWQgb2YgbmZzZF9maWxlX3B1dCgpLg0KPiAN
-Cj4gSGVyZSdzIHdoZXJlIEknbSBhIGxpdHRsZSBmdXp6eTogbmZzZF9maWxlX3B1dF9hc3luYygp
-IGNvdWxkIGRvDQo+IHNvbWV0aGluZyBsaWtlOg0KPiANCj4gdm9pZCBuZnNkX2ZpbGVfcHV0X2Fz
-eW5jKHN0cnVjdCBuZnNkX2ZpbGUgKm5mKQ0KPiB7DQo+IMKgwqDCoMKgwqDCoMKgwqBpZiAocmVm
-Y291bnRfZGVjX2FuZF90ZXN0KCZuZi0+bmZfcmVmKSkNCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqBuZnNkX2ZpbGVfY2xvc2VfaW5vZGUobmYtPm5mX2lub2RlKTsNCj4gfQ0KPiAN
-Cj4gDQoNClRoYXQgYXBwcm9hY2ggbW92ZXMgdGhlIHN5bmMgdG8gdGhlIGdhcmJhZ2UgY29sbGVj
-dG9yLCB3aGljaCB3YXMNCmV4YWN0bHkgd2hhdCB3ZSdyZSB0cnlpbmcgdG8gYXZvaWQgaW4gdGhl
-IGZpcnN0IHBsYWNlLg0KDQpXaHkgbm90IGp1c3QgZG8gdGhpcyAiY2hlY2tfZm9yX2xvY2tzKCki
-IHRoaW5nIGRpZmZlcmVudGx5Pw0KDQpJdCByZWFsbHkgc2hvdWxkbid0IGJlIHRvbyBoYXJkIHRv
-IGFkZCBzb21ldGhpbmcgdG8NCm5mc2Q0X2xtX2dldF9vd25lcigpL25mc2Q0X2xtX3B1dF9vd25l
-cigpIHRoYXQgYnVtcHMgYSBjb3VudGVyIGluIHRoZQ0KbG9ja293bmVyIGluIG9yZGVyIHRvIHRl
-bGwgeW91IHdoZXRoZXIgb3Igbm90IGxvY2tzIGFyZSBzdGlsbCBoZWxkDQppbnN0ZWFkIG9mIGRv
-aW5nIHRoaXMgYm9uZSBoZWFkZWQgd2FsayB0aHJvdWdoIHRoZSBsaXN0IG9mIGxvY2tzLg0KDQot
-LSANClRyb25kIE15a2xlYnVzdA0KTGludXggTkZTIGNsaWVudCBtYWludGFpbmVyLCBIYW1tZXJz
-cGFjZQ0KdHJvbmQubXlrbGVidXN0QGhhbW1lcnNwYWNlLmNvbQ0KDQoNCg==
+From: Ming Lei <ming.lei@redhat.com>
+
+When merging one bio to request, if they are discard IO and the queue
+supports multi-range discard, we need to return ELEVATOR_DISCARD_MERGE
+because both block core and related drivers(nvme, virtio-blk) doesn't
+handle mixed discard io merge(traditional IO merge together with
+discard merge) well.
+
+Fix the issue by returning ELEVATOR_DISCARD_MERGE in this situation,
+so both blk-mq and drivers just need to handle multi-range discard.
+
+Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Fixes: 2705dfb20947 ("block: fix discard request merge")
+Link: https://lore.kernel.org/r/20210729034226.1591070-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+commit 866663b7b52d2 upstream.
+
+Similar to commit 87aa69aa10b42 ("block: return ELEVATOR_DISCARD_MERGE if possible")
+in 5.10 kernel.
+
+Conflicts:
+   block/blk-merge.c: function at a different place.
+   block/mq-deadline-main.c: not in 5.4, use mq-deadline.c instead.
+
+Cc: <stable@vger.kernel.org> # 5.4.y
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+---
+ block/bfq-iosched.c    |  3 +++
+ block/blk-merge.c      | 15 ---------------
+ block/elevator.c       |  3 +++
+ block/mq-deadline.c    |  2 ++
+ include/linux/blkdev.h | 16 ++++++++++++++++
+ 5 files changed, 24 insertions(+), 15 deletions(-)
+
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 1d443d17cf7c5..d46806182b051 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2251,6 +2251,9 @@ static int bfq_request_merge(struct request_queue *q, struct request **req,
+ 	__rq = bfq_find_rq_fmerge(bfqd, bio, q);
+ 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
+ 		*req = __rq;
++
++		if (blk_discard_mergable(__rq))
++			return ELEVATOR_DISCARD_MERGE;
+ 		return ELEVATOR_FRONT_MERGE;
+ 	}
+ 
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index a62692d135660..5219064cd72bb 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -721,21 +721,6 @@ static void blk_account_io_merge(struct request *req)
+ 		part_stat_unlock();
+ 	}
+ }
+-/*
+- * Two cases of handling DISCARD merge:
+- * If max_discard_segments > 1, the driver takes every bio
+- * as a range and send them to controller together. The ranges
+- * needn't to be contiguous.
+- * Otherwise, the bios/requests will be handled as same as
+- * others which should be contiguous.
+- */
+-static inline bool blk_discard_mergable(struct request *req)
+-{
+-	if (req_op(req) == REQ_OP_DISCARD &&
+-	    queue_max_discard_segments(req->q) > 1)
+-		return true;
+-	return false;
+-}
+ 
+ static enum elv_merge blk_try_req_merge(struct request *req,
+ 					struct request *next)
+diff --git a/block/elevator.c b/block/elevator.c
+index 78805c74ea8a4..3ba826230c578 100644
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -337,6 +337,9 @@ enum elv_merge elv_merge(struct request_queue *q, struct request **req,
+ 	__rq = elv_rqhash_find(q, bio->bi_iter.bi_sector);
+ 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
+ 		*req = __rq;
++
++		if (blk_discard_mergable(__rq))
++			return ELEVATOR_DISCARD_MERGE;
+ 		return ELEVATOR_BACK_MERGE;
+ 	}
+ 
+diff --git a/block/mq-deadline.c b/block/mq-deadline.c
+index 19c6922e85f1b..6d6dda5cfffa3 100644
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -452,6 +452,8 @@ static int dd_request_merge(struct request_queue *q, struct request **rq,
+ 
+ 		if (elv_bio_merge_ok(__rq, bio)) {
+ 			*rq = __rq;
++			if (blk_discard_mergable(__rq))
++				return ELEVATOR_DISCARD_MERGE;
+ 			return ELEVATOR_FRONT_MERGE;
+ 		}
+ 	}
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 8cc766743270f..308c2d8cdca19 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1409,6 +1409,22 @@ static inline int queue_limit_discard_alignment(struct queue_limits *lim, sector
+ 	return offset << SECTOR_SHIFT;
+ }
+ 
++/*
++ * Two cases of handling DISCARD merge:
++ * If max_discard_segments > 1, the driver takes every bio
++ * as a range and send them to controller together. The ranges
++ * needn't to be contiguous.
++ * Otherwise, the bios/requests will be handled as same as
++ * others which should be contiguous.
++ */
++static inline bool blk_discard_mergable(struct request *req)
++{
++	if (req_op(req) == REQ_OP_DISCARD &&
++	    queue_max_discard_segments(req->q) > 1)
++		return true;
++	return false;
++}
++
+ static inline int bdev_discard_alignment(struct block_device *bdev)
+ {
+ 	struct request_queue *q = bdev_get_queue(bdev);
+-- 
+2.36.1.124.g0e6072fb45-goog
+
