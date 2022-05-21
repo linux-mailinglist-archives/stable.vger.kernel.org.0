@@ -2,318 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3397F52F652
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 01:45:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4374252F6D6
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 02:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238746AbiETXpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 20 May 2022 19:45:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
+        id S1347510AbiEUAc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 20 May 2022 20:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230462AbiETXpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 19:45:18 -0400
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0AE51A35A9;
-        Fri, 20 May 2022 16:45:17 -0700 (PDT)
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24KIb501022587;
-        Fri, 20 May 2022 23:43:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-id : content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=oK4WAMv4iUTag8CdGp1mnvBaR5pQae3o2LJa1E1IVqM=;
- b=UyL6oB4M1C61LafP4oW6wr4i9YRKTQvCitpsBY5f6Oq3Vlwgld+/9XWS0wEvlUi6eO4J
- 75UFROX95Df9c6ETWMOBC5LM6DhygK7zrJ2i5KLQIWsjGZehd+0Tj5URXRLMxfbWUDqo
- o8A+QbUfDidG8J1lVvS2BA4xUMoKqKdJ3qL6uAA4NCOVB24OUNs65P1sUteTT5CAGLbV
- MfxvRGa5tNMjert47as0AYunC93YwPU3RECa/pmzbE7Tua7ajKxZr9I6mtPbXL7RrJwT
- OpYyVkWOLvJI5fWY+cepth31qXmKc+vyFrcfwp7ZZZ5dJm/4zRVlkR52oJTJ/vPaXLyt KQ== 
-Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3g24yu0bsg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 23:43:08 +0000
-Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.16.1.2/8.16.1.2) with SMTP id 24KNe8tH006129;
-        Fri, 20 May 2022 23:43:07 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2172.outbound.protection.outlook.com [104.47.56.172])
-        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com with ESMTP id 3g22vc8rhn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 20 May 2022 23:43:06 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=k87OL2riFJLOrSOWxgDaxxxkuDbuKrKyloyeeJ8a0PXJ06NtiTVu4G8bNpH9GnvdWdZsAmb19FU6fnw4v+KQW2TTeI0oklXBPt3Qa5/wA4KGx8/Jn9LR5SaXXEF0qrwwJjTJEVpb5Y3zqdqL9QfxcbtGxqped89QeTp4Rxy8vsW+egkijxNti1gwaSPvBgPtgqUB/wrd7JBuWyL9EDA5tHyaoYt9PIhQ3smZwVXBgtYWv+YrNQt51hQQnYcz0tnwgy7jr4cO4fP7N/qFG6fvSXSk+/YgDDt0lAZB/5qmN8rEf7RAQhuWOPvkoWI6DUvAK4eyBqfjXo/Kuws0jm46Lg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oK4WAMv4iUTag8CdGp1mnvBaR5pQae3o2LJa1E1IVqM=;
- b=IiKnIoy8VmnPWJ862PLgM+AxXaZRTJpIzpe7h4rJK8lsuHV0J7458ylayULMg17lOZRK8YAQ3a8FIUfiJBKYL3jSSKzHw+NTpc3MD4LNEFVcaox7WJaVWfljwPAAuFcIwKixy3w2BM0iLc7cx9NTljqjc45TKtYc0GxNpPn2Ou4/4v5ipVXC5vMFjmlxX0JotLh9tweC5Sr+ei1P1yQgLGnzMAilYfvAuXO3J+chBaPGZPEVKf05vYYHQpQxKYQc77WNqCIdw2KtFnPjyl2kdSz6s3ztfRiAxpbqN8EYXiiK0tUfIMUdfzW6ZH+JSFu54qYJ1qu1BAK6jV3+zFLOSA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oK4WAMv4iUTag8CdGp1mnvBaR5pQae3o2LJa1E1IVqM=;
- b=x47FeBZL2G7E5Fn4ocC8d4YweziwFehmX6MaQhQoKuNhM66aetye/7zzvCsNA6pZZSCv+i3D6nSe0Zz4q2CZ7nqqutllW+Lz38cnZh9A6uf8O67MebEawY9NDmKTuY5fZRcq1AnhWLdObbLwZrXBui/pDeMf6UHR0vc02Fuyk6U=
-Received: from BN0PR10MB5128.namprd10.prod.outlook.com (2603:10b6:408:117::24)
- by PH0PR10MB5657.namprd10.prod.outlook.com (2603:10b6:510:fc::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5227.22; Fri, 20 May
- 2022 23:43:04 +0000
-Received: from BN0PR10MB5128.namprd10.prod.outlook.com
- ([fe80::ed81:8458:5414:f59f]) by BN0PR10MB5128.namprd10.prod.outlook.com
- ([fe80::ed81:8458:5414:f59f%9]) with mapi id 15.20.5273.017; Fri, 20 May 2022
- 23:43:04 +0000
-From:   Chuck Lever III <chuck.lever@oracle.com>
-To:     Trond Myklebust <trondmy@hammerspace.com>
-CC:     "linux@stwm.de" <linux@stwm.de>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>
-Subject: Re: 5.4.188 and later: massive performance regression with nfsd
-Thread-Topic: 5.4.188 and later: massive performance regression with nfsd
-Thread-Index: AQHYZR5cM0piVXjf4kWw2Fv1L4O8aq0Zna6AgAAbcgCAAAISgIAAA5uAgA41xoCAABHMgIAAVxMAgAAJFACAABXugA==
-Date:   Fri, 20 May 2022 23:43:04 +0000
-Message-ID: <FB8CBEF6-07B4-416C-B9B4-56E03C7E6628@oracle.com>
-References: <f8d9b9112607df4807fba8948ac6e145@stwm.de>
- <YnuuLZe6h80KCNhd@kroah.com>
- <6A15DEE1-CAC9-4C64-8643-AD28EA423046@oracle.com>
- <YnvG71v4Ay560D+X@kroah.com>
- <0F5EA15D-08A0-4D3E-B5A9-D62C49BF2B56@oracle.com>
- <59118799-0148-41F3-BA03-BB69151B74EE@oracle.com>
- <1792eb49d2a9820bbcf7b240f53158170041da6d.camel@hammerspace.com>
- <3FE1F779-A2EC-4E23-BBCC-28C5E8AFCBB1@oracle.com>
- <1a38a01debc727a1e11243fd6207d915ac90c251.camel@hammerspace.com>
-In-Reply-To: <1a38a01debc727a1e11243fd6207d915ac90c251.camel@hammerspace.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3654.120.0.1.13)
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: cb86b1ff-1d20-41a2-1d6f-08da3aba7bfc
-x-ms-traffictypediagnostic: PH0PR10MB5657:EE_
-x-microsoft-antispam-prvs: <PH0PR10MB56576B268A2E43E31FA697EF93D39@PH0PR10MB5657.namprd10.prod.outlook.com>
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: otzTJnsvQNMA30YUKDOptRW0XVVXftwmRPVGo+YnXXPhlZxsgXTAqj+ZxdtiA4DWgPUd2h5a179aD8GGkWxuQn1RM0XvgvwDSZMyXXD3WAUZskBbx7+F3AfWv8nCEP9oPyfXwyoRWLrkBkJIeJL8bGPvjpJ3V6AVPQ0M50pmrOWAcTtzKolxt9nhhsoX8cJEUNRtRiAlqntrUSiSAtVUtlFx7p5FCXJggFUn7Fam+UWQmr9k3HJVGMKby4kZ8p5UjJWjX1OZ+2BH6TxqOXBdDw+PffRLpQczbG+LkeE45dEAhK6d9xa7rVxzrvBUFaztw+ry7K5jlpCAVoI8KJjra4CnX+DFzYq7lyb+3OxB1CuKAgBrO83CZYC9oPP52UYNsgEM2zQr/Q6VtimMFvw9twtOBBHc3FMCtJlT3mBcO/TyuVPAFuCvjNvCjlUw5PGNLK14WBYUocUbUBLpFqSfmqsls6SMAmh0WVZmQ6CNcOfqF7TjRwVNLGfsHrjsejQ/lLlmD2jo3dZDMVG3o49zltV66g9+sQXOwdgobe1cr9SvMz1Au/62ZMq7fI7IsLdTOLrp6uE8TMBhVntTh94lq+q5aLZICRjr8A0hZSv85xRmIBViC7KX/LXE+ixARORRuuig/yrS/eir2GL4lOeMPuMRsnQj9g6oQFpMvR0rG0SgYhf+P7FprjnUoWaS0IlzZNkeHRjVEwny9h2tR+QpYtW8CXP6n9ZCw/VVs2sx2uQEJcTer4Xj0yGX3HXv6weu30N0ZCxoAG89J7vSzJMW1SYzS7vTEAuoW+awPooZdLXn6dVU8RorFXD2fxV1HiaghIhmPJ6D6/kH5QznxrfLCaWjT8kIgnMq7h9JrDaz94c=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(366004)(8676002)(66476007)(66556008)(66946007)(66446008)(76116006)(71200400001)(4326008)(6916009)(122000001)(26005)(86362001)(64756008)(2616005)(53546011)(508600001)(8936002)(6506007)(6486002)(33656002)(83380400001)(5660300002)(966005)(316002)(186003)(36756003)(54906003)(2906002)(6512007)(91956017)(38070700005)(38100700002)(14583001)(45980500001);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?jz2ANya7MoCro6x2CNnKtdE75Fa77bb1sR7QzbsJKRRKMWHOWuBymzAbPIpk?=
- =?us-ascii?Q?rQyZFJaM1vTeohxxAsfayFkXnunEFM+WDbmH3NFAZYzjaWzvhnKRkjr3eY1F?=
- =?us-ascii?Q?PEmYbFMhHztyZI3wPdHs4ght/93Kh3jWbGTVjVDo3c2XfcoGf/CB0J9FGNpe?=
- =?us-ascii?Q?V4fAy3OJRaL4VhpknqlBPz1xAZkAQtQX2Na4rp0dm5OenJJdUdSBFIiDneMG?=
- =?us-ascii?Q?xOOWbxZF3oKOnZU6KYpQ53qRbyxrozE32OanqGNz/iwYCPPzZTOweuZWaDAA?=
- =?us-ascii?Q?piox2qTxGrtWwfIM9QjdMvrUB85jzk+B0cjHhdzmv2Lxdb4IAqNVYrStIFHq?=
- =?us-ascii?Q?/6UAY4ROsN/Y5uxhkStusYjc+kG0CHsaRL/U9fdbNxF+wAjVQOc5jgtdKauQ?=
- =?us-ascii?Q?33ZHxgs9Hsn2v6SuLPQQ19i6u8vWHS5Hs4TGn8aqiqil69c3D5xW+H7uJo7x?=
- =?us-ascii?Q?1s42jubfirDJct1npTjzH3EgA4Mlh6y2JAGYKBFLumVZFcly8Rfuo+wI800L?=
- =?us-ascii?Q?M9BmvrQT9e6CueCrkYHes9a4ylJ68/nQR2j0yqVdB/VetJakLOlbpszJleEW?=
- =?us-ascii?Q?N0BW6nyKYolitqTm7K++CjRwaZPWyXUFfeiNvANQ04FtVV0wJq8MNNIhDKHp?=
- =?us-ascii?Q?Vmsr5SaWR4UVdf1HVaPltLaYJ/O3wNI9dYcVzcq10lZ7QlwJBN8Xa01f+Qw9?=
- =?us-ascii?Q?jdpVLzMi2Uk7r8kgpv72sQTwJwIZLLu2ls7y22CbxOTyoOs6HD9NIr9Q4/0R?=
- =?us-ascii?Q?K+ZwEZdryq41uwjnvC0RazwGSRw64Q437FL2da6mEi/RhE5BJiXjGJL0go1G?=
- =?us-ascii?Q?QneoAginJOK/ffrJhRlzQCnGHB8DFIr4X8fgpuwgoXnOSAxlxg+tYuQ5A3kd?=
- =?us-ascii?Q?aJWgROgUonyaoXZ6e2boUhpN7eGRnQuyNkmdwHtvnVN0T1bw1UQq3kWCHKOg?=
- =?us-ascii?Q?sbFnmvztzWmk/lYUViuGk6Kn63INXDkkEGNArVwtkZ3NcxfbVmi6dO4+vZmt?=
- =?us-ascii?Q?6L5FbjESlYzDMsShf/hyHEjfLMwBbhys54FxPqP3ZIhATuYqO844xI/Xn9YO?=
- =?us-ascii?Q?PZgxAkcAx5jvqKRjSO+6XdBiD+9iLynhOStxWx2l2vfEcnHHOByiYue7cNA/?=
- =?us-ascii?Q?KlewythiLTkffENFB8s9SGJM1mN8utfgehV/SWIi3twMsYFYsRZYUSqt41Hu?=
- =?us-ascii?Q?NqkYsp1Kt9TyNHjHwr0xzV27tUrGAJelwej+ARCYyIzauvkB6vWpjHtXK628?=
- =?us-ascii?Q?MQWtg53haXrcSiQhENZFB4PccZ7fY3thw427T84FgjBddS6eos3hl0LxazNS?=
- =?us-ascii?Q?3DZ2p5lCyRjbtg8l2J4KXmTo+b27tZEx95GxErV5gua/VqjRETivTdgaJUpY?=
- =?us-ascii?Q?Sdj+iUaRc+VVV79DbGwRVdcmeKAfv4VKAyVQ8J6SOrwFsLFU4/jbResF7v6+?=
- =?us-ascii?Q?VbMdwnLcHfaZ5XbhZun3G6rZ+O+AntTdooQF1m4YGl2J7292rhjwOwvoTerk?=
- =?us-ascii?Q?vvrjUPjpBk5lrC6THRDYLi6r+OoqHg0eUZwXh0jhh1Nu2UV1/l2qgSPDYoSi?=
- =?us-ascii?Q?hhOPYu6RcoZUT42/XAbvnQPEUJq0xfY/HoxCx9xtKHMwi3MMuf+aaPbt//Au?=
- =?us-ascii?Q?E7Sx2DIwo1uEGV5Tln1fRxLvnLAqrsG6jfsL/P12kPzUbeEHahfD8W5Djo3y?=
- =?us-ascii?Q?e6oizDIovaGdk1GTMHZ2Pl1fgRTR8pa157g1qYygowOSyoYAo+y3K55fNcqC?=
- =?us-ascii?Q?4A0ev/TZ2DB6XnK+bOcwRjq1oj9Mdcg=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <DF27B2F01785304A82604A5BB50BAD51@namprd10.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5128.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cb86b1ff-1d20-41a2-1d6f-08da3aba7bfc
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 May 2022 23:43:04.4638
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 4egXb4hmCnq5s8SG+7nOybjomtRCEgRqbIbUeQDAG2oaMeJuPpQOpzUblZPwJhh0D1RgLmO6COTrFYQSqF2ouQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB5657
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.486,18.0.874
- definitions=2022-05-20_08:2022-05-20,2022-05-20 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 spamscore=0 mlxscore=0
- phishscore=0 suspectscore=0 mlxlogscore=999 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2202240000
- definitions=main-2205200145
-X-Proofpoint-GUID: QAYied-pkwPHCdQ7IvAk9qqnh-1Mm6-l
-X-Proofpoint-ORIG-GUID: QAYied-pkwPHCdQ7IvAk9qqnh-1Mm6-l
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
-        SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S231552AbiEUAc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 20 May 2022 20:32:58 -0400
+Received: from mail-oi1-x261.google.com (mail-oi1-x261.google.com [IPv6:2607:f8b0:4864:20::261])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F118B1966A1
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 17:32:56 -0700 (PDT)
+Received: by mail-oi1-x261.google.com with SMTP id v66so11742959oib.3
+        for <stable@vger.kernel.org>; Fri, 20 May 2022 17:32:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:dkim-signature:date:from:to:cc:subject
+         :message-id:references:content-disposition:in-reply-to;
+        bh=uKGN50vu+4GfXG0sgHNA4qzCjapPU1Kse30oS1F+Mz0=;
+        b=Ar/gEWntGtfJdwAE7jr66Wu8aM22Ym+6WWDpl37hSpIt64KDitm6Su5mkRugRQ26xR
+         PdL5ELasEx/JU7mFNWspH9dwSsZZH7Mj7shkcwk9OHwUZHBy9TENFSBnur99JkxBGNjE
+         n43TN5oTI4QejcVlyvh0VlHsR3XI/LSzFiysObf8MEl+mgp2NnRqp/+OuqC1ULZ5EywP
+         O7AqjQ6YMlD6jVnO4eeNzn7704Wy3s52HnDnl50fNHT6ZQaepQphftJHut3Pik393OPR
+         MJYLwE04vmXdB+UBEpGgQhd8xY/dn6gra81Oaalt7LVzEL/PERK2LC5Cm8bxFJel8+Nk
+         LeTQ==
+X-Gm-Message-State: AOAM5325Mh6WRgvoMg3w7lW6UgVeLvpFeRwr/fgTSBOqmqXn/YTsjTK7
+        o/4rXy4cpIeGF3u1PL0Rlvu9Yj0KfWM58pbQXYI4hWygU9ES
+X-Google-Smtp-Source: ABdhPJx5Tde5W9mWXWJv9R/IlJRR5cVmbZkn08TLXsh8C2TlLikx0u1fk85XfVyZOK7sa3+S/ewkQqnUitbo
+X-Received: by 2002:a05:6808:3021:b0:2f7:4c5b:2783 with SMTP id ay33-20020a056808302100b002f74c5b2783mr6926937oib.53.1653093176066;
+        Fri, 20 May 2022 17:32:56 -0700 (PDT)
+Received: from smtp.aristanetworks.com (smtp.aristanetworks.com. [54.193.82.35])
+        by smtp-relay.gmail.com with ESMTPS id x19-20020a4a4113000000b0035ecc74f8b3sm296899ooa.3.2022.05.20.17.32.55
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 20 May 2022 17:32:56 -0700 (PDT)
+X-Relaying-Domain: arista.com
+Received: from chmeee (unknown [10.95.70.242])
+        by smtp.aristanetworks.com (Postfix) with ESMTPS id 1EC2E3047DE0;
+        Fri, 20 May 2022 17:32:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
+        s=Arista-A; t=1653093175;
+        bh=uKGN50vu+4GfXG0sgHNA4qzCjapPU1Kse30oS1F+Mz0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0DyVyJXJt4FYoH8Kv0cX4olYdnqzSuA4lBBROmFHad3DGAhawAeQkq3DanjUAyYyv
+         ImkqFFtFUHvijhmZuNkN3DNSfJBhmRNbi6GWHwNRoYBUs6VpTIqIs5c4g9spoAAMqL
+         /ex/H6i0JBWv2wnR1xrrfbcf8t2ILB6T7P4H5QN1t4m6QbxhTJtqvXZYZZA9QKgPgd
+         t+f6Z8xIQNFb44GPzld79gtzN67mS+Q5cqwBcH4lg4co5S8Q4KKc/i7jOjzU8KM7bI
+         DUoOc4kk1/+H0lg1e5FgyCZbnREHrklWrgqVlUF8mP1ug0j/mjLgC5KPaFUDir95EQ
+         almPQRMxyu44w==
+Received: from kevmitch by chmeee with local (Exim 4.95)
+        (envelope-from <kevmitch@arista.com>)
+        id 1nsD37-001pZX-EI;
+        Fri, 20 May 2022 17:32:53 -0700
+Date:   Fri, 20 May 2022 17:32:52 -0700
+From:   Kevin Mitchell <kevmitch@arista.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        David Rientjes <rientjes@google.com>,
+        Dou Liyang <douly.fnst@cn.fujitsu.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] x86/mpparse: avoid overwriting
+ boot_cpu_physical_apicid
+Message-ID: <YogzNIs7uBSaX1gE@chmeee>
+References: <20200609004451.1296880-1-kevmitch@arista.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200609004451.1296880-1-kevmitch@arista.com>
+X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 08, 2020 at 05:44:48PM -0700, Kevin Mitchell wrote:
+> When booting with ACPI unavailable or disabled, get_smp_config() ends up
+> calling MP_processor_info() for each CPU found in the MPS
+> table. Previously, this resulted in boot_cpu_physical_apicid getting
+> unconditionally overwritten by the apicid of whatever processor had the
+> CPU_BOOTPROCESSOR flag. This occurred even if boot_cpu_physical_apicid
+> had already been more reliably determined in register_lapic_address() by
+> calling read_apic_id() from the actual boot processor.
+> 
+> Ordinariliy, this is not a problem because the boot processor really is
+> the one with the CPU_BOOTPROCESSOR flag. However, kexec is an exception
+> in which the kernel may be booted from any processor regardless of the
+> MPS table contents. In this case, boot_cpu_physical_apicid may not
+> indicate the actual boot processor.
+> 
+> This was particularly problematic when the second kernel was booted with
+> NR_CPUS fewer than the number of physical processors. It's the job of
+> generic_processor_info() to decide which CPUs to bring up in this case.
+> That obviously must include the real boot processor which it takes care
+> to save a slot for. It relies upon the contents of
+> boot_cpu_physical_apicid to do this, which if incorrect, may result in
+> the boot processor getting left out.
+> 
+> This condition can be discovered by smp_sanity_check() and rectified by
+> adding the boot processor to the phys_cpu_present_map with the warning
+> "weird, boot CPU (#%d) not listed by the BIOS". However, commit
+> 3e730dad3b6da ("x86/apic: Unify interrupt mode setup for SMP-capable
+> system") caused setup_local_APIC() to be called before this could happen
+> resulting in a BUG_ON(!apic->apic_id_registered()):
+> 
+> [    0.655452] ------------[ cut here ]------------
+> [    0.660610] Kernel BUG at setup_local_APIC+0x74/0x280 [verbose debug info unavailable]
+> [    0.669466] invalid opcode: 0000 [#1] SMP
+> [    0.673948] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.19.109.Ar-16509018.eostrunkkernel419 #1
+> [    0.683670] Hardware name: Quanta Quanta LY6 (1LY6UZZ0FBC), BIOS 1.0.6.0-e7d6a55 11/26/2015
+> [    0.693007] RIP: 0010:setup_local_APIC+0x74/0x280
+> [    0.698264] Code: 80 e4 fe bf f0 00 00 00 89 c6 48 8b 05 0f 1a 8e 00 ff 50 10 e8 12 53 fd ff 48 8b 05 00 1a 8e 00 ff 90 a0 00 00 00 85 c0 75 02 <0f> 0b 48 8b 05 ed 19 8e 00 41 be 00 02 00 00 ff 90 b0 00 00 00 48
+> [    0.719251] RSP: 0000:ffffffff81a03e20 EFLAGS: 00010246
+> [    0.725091] RAX: 0000000000000000 RBX: 0000000000000003 RCX: 0000000000000000
+> [    0.733066] RDX: 0000000000000000 RSI: 000000000000000f RDI: 0000000000000020
+> [    0.741041] RBP: ffffffff81a03e98 R08: 0000000000000002 R09: 0000000000000000
+> [    0.749014] R10: ffffffff81a204e0 R11: ffffffff81b50ea7 R12: 0000000000000000
+> [    0.756989] R13: ffffffff81aef920 R14: ffffffff81af60a0 R15: 0000000000000000
+> [    0.764965] FS:  0000000000000000(0000) GS:ffff888036800000(0000) knlGS:0000000000000000
+> [    0.774007] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    0.780427] CR2: ffff888035c01000 CR3: 0000000035a08000 CR4: 00000000000006b0
+> [    0.788401] Call Trace:
+> [    0.791137]  ? amd_iommu_prepare+0x15/0x2a
+> [    0.795717]  apic_bsp_setup+0x55/0x75
+> [    0.799808]  apic_intr_mode_init+0x169/0x16e
+> [    0.804579]  x86_late_time_init+0x10/0x17
+> [    0.809062]  start_kernel+0x37e/0x3fe
+> [    0.813154]  x86_64_start_reservations+0x2a/0x2c
+> [    0.818316]  x86_64_start_kernel+0x72/0x75
+> [    0.822886]  secondary_startup_64+0xa4/0xb0
+> [    0.827564] ---[ end trace 237b64da0fd9b22e ]---
+> 
+> This change avoids these issues by only setting boot_cpu_physical_apicid
+> from the MPS table if it is not already set, which can occur in the
+> construct_default_ISA_mptable() path. Otherwise,
+> boot_cpu_physical_apicid will already have been set in
+> register_lapic_address() and should therefore remain untouched.
+> 
+> Looking through all the places where boot_cpu_physical_apicid is
+> accessed, nearly all of them assume that boot_cpu_physical_apicid should
+> match read_apic_id() on the booting processor. The only place that might
+> intend to use the BSP apicid listed in the MPS table is amd_numa_init(),
+> which explicitly requires boot_cpu_physical_apicid to be the lowest
+> apicid of all processors. Ironically, due to the early exit short
+> circuit in early_get_smp_config(), it instead gets
+> boot_cpu_physical_apicid = read_apic_id() rather than the MPS table
+> BSP. The behaviour of amd_numa_init() is therefore unaffected by this
+> change.
+> 
+> Fixes: 3e730dad3b6da ("x86/apic: Unify interrupt mode setup for SMP-capable system")
+> Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+> Cc: <stable@vger.kernel.org>
+> ---
+>  arch/x86/kernel/mpparse.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kernel/mpparse.c b/arch/x86/kernel/mpparse.c
+> index afac7ccce72f..6f22f09bfe11 100644
+> --- a/arch/x86/kernel/mpparse.c
+> +++ b/arch/x86/kernel/mpparse.c
+> @@ -64,7 +64,8 @@ static void __init MP_processor_info(struct mpc_cpu *m)
+>  
+>  	if (m->cpuflag & CPU_BOOTPROCESSOR) {
+>  		bootup_cpu = " (Bootup-CPU)";
+> -		boot_cpu_physical_apicid = m->apicid;
+> +		if (boot_cpu_physical_apicid == -1U)
+> +			boot_cpu_physical_apicid = m->apicid;
+>  	}
+>  
+>  	pr_info("Processor #%d%s\n", m->apicid, bootup_cpu);
+> -- 
+> 2.26.2
+> 
 
-
-> On May 20, 2022, at 6:24 PM, Trond Myklebust <trondmy@hammerspace.com> wr=
-ote:
->=20
-> On Fri, 2022-05-20 at 21:52 +0000, Chuck Lever III wrote:
->>=20
->>=20
->>> On May 20, 2022, at 12:40 PM, Trond Myklebust
->>> <trondmy@hammerspace.com> wrote:
->>>=20
->>> On Fri, 2022-05-20 at 15:36 +0000, Chuck Lever III wrote:
->>>>=20
->>>>=20
->>>>> On May 11, 2022, at 10:36 AM, Chuck Lever III
->>>>> <chuck.lever@oracle.com> wrote:
->>>>>=20
->>>>>=20
->>>>>=20
->>>>>> On May 11, 2022, at 10:23 AM, Greg KH
->>>>>> <gregkh@linuxfoundation.org> wrote:
->>>>>>=20
->>>>>> On Wed, May 11, 2022 at 02:16:19PM +0000, Chuck Lever III
->>>>>> wrote:
->>>>>>>=20
->>>>>>>=20
->>>>>>>> On May 11, 2022, at 8:38 AM, Greg KH
->>>>>>>> <gregkh@linuxfoundation.org> wrote:
->>>>>>>>=20
->>>>>>>> On Wed, May 11, 2022 at 12:03:13PM +0200, Wolfgang Walter
->>>>>>>> wrote:
->>>>>>>>> Hi,
->>>>>>>>>=20
->>>>>>>>> starting with 5.4.188 wie see a massive performance
->>>>>>>>> regression on our
->>>>>>>>> nfs-server. It basically is serving requests very very
->>>>>>>>> slowly with cpu
->>>>>>>>> utilization of 100% (with 5.4.187 and earlier it is
->>>>>>>>> 10%) so
->>>>>>>>> that it is
->>>>>>>>> unusable as a fileserver.
->>>>>>>>>=20
->>>>>>>>> The culprit are commits (or one of it):
->>>>>>>>>=20
->>>>>>>>> c32f1041382a88b17da5736886da4a492353a1bb "nfsd: cleanup
->>>>>>>>> nfsd_file_lru_dispose()"
->>>>>>>>> 628adfa21815f74c04724abc85847f24b5dd1645 "nfsd:
->>>>>>>>> Containerise filecache
->>>>>>>>> laundrette"
->>>>>>>>>=20
->>>>>>>>> (upstream 36ebbdb96b694dd9c6b25ad98f2bbd263d022b63 and
->>>>>>>>> 9542e6a643fc69d528dfb3303f145719c61d3050)
->>>>>>>>>=20
->>>>>>>>> If I revert them in v5.4.192 the kernel works as before
->>>>>>>>> and
->>>>>>>>> performance is
->>>>>>>>> ok again.
->>>>>>>>>=20
->>>>>>>>> I did not try to revert them one by one as any
->>>>>>>>> disruption
->>>>>>>>> of our nfs-server
->>>>>>>>> is a severe problem for us and I'm not sure if they are
->>>>>>>>> related.
->>>>>>>>>=20
->>>>>>>>> 5.10 and 5.15 both always performed very badly on our
->>>>>>>>> nfs-
->>>>>>>>> server in a
->>>>>>>>> similar way so we were stuck with 5.4.
->>>>>>>>>=20
->>>>>>>>> I now think this is because of
->>>>>>>>> 36ebbdb96b694dd9c6b25ad98f2bbd263d022b63
->>>>>>>>> and/or 9542e6a643fc69d528dfb3303f145719c61d3050 though
->>>>>>>>> I
->>>>>>>>> didn't tried to
->>>>>>>>> revert them in 5.15 yet.
->>>>>>>>=20
->>>>>>>> Odds are 5.18-rc6 is also a problem?
->>>>>>>=20
->>>>>>> We believe that
->>>>>>>=20
->>>>>>> 6b8a94332ee4 ("nfsd: Fix a write performance regression")
->>>>>>>=20
->>>>>>> addresses the performance regression. It was merged into
->>>>>>> 5.18-
->>>>>>> rc.
->>>>>>=20
->>>>>> And into 5.17.4 if someone wants to try that release.
->>>>>=20
->>>>> I don't have a lot of time to backport this one myself, so
->>>>> I welcome anyone who wants to apply that commit to their
->>>>> favorite LTS kernel and test it for us.
->>>>>=20
->>>>>=20
->>>>>>>> If so, I'll just wait for the fix to get into Linus's
->>>>>>>> tree as
->>>>>>>> this does
->>>>>>>> not seem to be a stable-tree-only issue.
->>>>>>>=20
->>>>>>> Unfortunately I've received a recent report that the fix
->>>>>>> introduces
->>>>>>> a "sleep while spinlock is held" for NFSv4.0 in rare cases.
->>>>>>=20
->>>>>> Ick, not good, any potential fixes for that?
->>>>>=20
->>>>> Not yet. I was at LSF last week, so I've just started digging
->>>>> into this one. I've confirmed that the report is a real bug,
->>>>> but we still don't know how hard it is to hit it with real
->>>>> workloads.
->>>>=20
->>>> We believe the following, which should be part of the first
->>>> NFSD pull request for 5.19, will properly address the splat.
->>>>=20
->>>> https://git.kernel.org/pub/scm/linux/kernel/git/cel/linux.git/commit/?=
-h=3Dfor-next&id=3D556082f5e5d7ecfd0ee45c3641e2b364bff9ee44
->>>>=20
->>>>=20
->>> Uh... What happens if you have 2 simultaneous calls to
->>> nfsd4_release_lockowner() for the same file? i.e. 2 separate
->>> processes
->>> owned by the same user, both locking the same file.
->>>=20
->>> Can't that cause the 'putlist' to get corrupted when both callers
->>> add
->>> the same nf->nf_putfile to two separate lists?
->>=20
->> IIUC, cl_lock serializes the two RELEASE_LOCKOWNER calls.
->>=20
->> The first call finds the lockowner in cl_ownerstr_hashtbl and
->> unhashes it before releasing cl_lock.
->>=20
->> Then the second cannot find that lockowner, thus it can't
->> requeue it for bulk_put.
->>=20
->> Am I missing something?
->=20
-> In the example I quoted, there are 2 separate processes running on the
-> client. Those processes could share the same open owner + open stateid,
-> and hence the same struct nfs4_file, since that depends only on the
-> process credentials matching. However they will not normally share a
-> lock owner, since POSIX does not expect different processes to share
-> locks.
->=20
-> IOW: The point is that one can relatively easily create 2 different
-> lock owners with different lock stateids that share the same underlying
-> struct nfs4_file.
-
-Is there a similar exposure if two different clients are locking
-the same file? If so, then we can't use a per-nfs4_client semaphore
-to serialize access to the nf_putfile field.
-
-
---
-Chuck Lever
-
-
-
+We've moved on to our next kernel upgrade to linux-5.10 and are still seeing
+this same issue with the upstream kernel. We will therefore be porting this
+patch forward, but still wondering if there is any interest in getting this into
+the mainline kernel so more people get (more) correct code? Both patches still
+apply to the mainline (linux-5.18-rc7 right now). Are there any
+alternative suggestions for avoiding this BUG_ON on kexec?
