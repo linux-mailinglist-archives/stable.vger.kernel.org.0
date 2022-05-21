@@ -2,66 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D2D552FAB9
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 12:47:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE78452FD05
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 15:57:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233564AbiEUKrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 May 2022 06:47:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35050 "EHLO
+        id S235721AbiEUN5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 May 2022 09:57:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229478AbiEUKrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 06:47:31 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [IPv6:2a01:488:42:1000:50ed:8234::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765E67E1D3;
-        Sat, 21 May 2022 03:47:29 -0700 (PDT)
-Received: from [2a02:8108:963f:de38:eca4:7d19:f9a2:22c5]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1nsMdj-0001BZ-PR; Sat, 21 May 2022 12:47:19 +0200
-Message-ID: <dae4cc45-a1cd-e33f-25ef-c536df9b49e6@leemhuis.info>
-Date:   Sat, 21 May 2022 12:47:18 +0200
+        with ESMTP id S243991AbiEUN4g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 09:56:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D3633B3F0
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 06:56:34 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32ECC60C1F
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 13:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 207A8C385A5;
+        Sat, 21 May 2022 13:56:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653141393;
+        bh=Urep+azBVGA9dWbO2ItU8Dcxz204QBImuhmzSy+PQOs=;
+        h=Subject:To:Cc:From:Date:From;
+        b=z12V9Yim2oulOLFFIJi4CdsxbZJxuqETG17TZ398nyVkmw0tmPkv1xot7/WTsDpx3
+         YBMOMwCyuJRGVjkomLT3al2bIY/NwMtVYaN4e9u2FWFbvFjmxvEYmR3dkeSnI6Vjd4
+         Dc/2OXHknj6Jg/UBWLKjowamJma6hv6KGc/ZVfl8=
+Subject: FAILED: patch "[PATCH] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold" failed to apply to 4.9-stable tree
+To:     rafael.j.wysocki@intel.com, bhelgaas@google.com, gottwald@igel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 21 May 2022 15:56:30 +0200
+Message-ID: <1653141390105188@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Content-Language: en-US
-To:     Chuck Zmudzinski <brchuckz@netscape.net>,
-        Jan Beulich <jbeulich@suse.com>, regressions@lists.linux.dev,
-        stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, Juergen Gross <jgross@suse.com>
-References: <20220503132207.17234-1-jgross@suse.com>
- <20220503132207.17234-3-jgross@suse.com>
- <1d86d8ff-6878-5488-e8c4-cbe8a5e8f624@suse.com>
- <0dcb05d0-108f-6252-e768-f75b393a7f5c@suse.com>
- <77255e5b-12bf-5390-6910-dafbaff18e96@netscape.net>
- <a2e95587-418b-879f-2468-8699a6df4a6a@suse.com>
- <8b1ebea5-7820-69c4-2e2b-9866d55bc180@netscape.net>
- <c5fa3c3f-e602-ed68-d670-d59b93c012a0@netscape.net>
- <3bff3562-bb1e-04e6-6eca-8d9bc355f2eb@suse.com>
- <3ca084a9-768e-a6f5-ace4-cd347978dec7@netscape.net>
- <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
- <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-Subject: Re: [PATCH 2/2] x86/pat: add functions to query specific cache mode
- availability
-In-Reply-To: <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1653130049;ddddfdf2;
-X-HE-SMSGID: 1nsMdj-0001BZ-PR
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -70,198 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 20.05.22 16:48, Chuck Zmudzinski wrote:
-> On 5/20/2022 10:06 AM, Jan Beulich wrote:
->> On 20.05.2022 15:33, Chuck Zmudzinski wrote:
->>> On 5/20/2022 5:41 AM, Jan Beulich wrote:
->>>> On 20.05.2022 10:30, Chuck Zmudzinski wrote:
->>>>> On 5/20/2022 2:59 AM, Chuck Zmudzinski wrote:
->>>>>> On 5/20/2022 2:05 AM, Jan Beulich wrote:
->>>>>>> On 20.05.2022 06:43, Chuck Zmudzinski wrote:
->>>>>>>> On 5/4/22 5:14 AM, Juergen Gross wrote:
->>>>>>>>> On 04.05.22 10:31, Jan Beulich wrote:
->>>>>>>>>> On 03.05.2022 15:22, Juergen Gross wrote:
->>>>>>>>>>
->>>>>>>>>> ... these uses there are several more. You say nothing on why
->>>>>>>>>> those want
->>>>>>>>>> leaving unaltered. When preparing my earlier patch I did
->>>>>>>>>> inspect them
->>>>>>>>>> and came to the conclusion that these all would also better
->>>>>>>>>> observe the
->>>>>>>>>> adjusted behavior (or else I couldn't have left pat_enabled()
->>>>>>>>>> as the
->>>>>>>>>> only predicate). In fact, as said in the description of my
->>>>>>>>>> earlier
->>>>>>>>>> patch, in
->>>>>>>>>> my debugging I did find the use in i915_gem_object_pin_map()
->>>>>>>>>> to be
->>>>>>>>>> the
->>>>>>>>>> problematic one, which you leave alone.
->>>>>>>>> Oh, I missed that one, sorry.
->>>>>>>> That is why your patch would not fix my Haswell unless
->>>>>>>> it also touches i915_gem_object_pin_map() in
->>>>>>>> drivers/gpu/drm/i915/gem/i915_gem_pages.c
->>>>>>>>
->>>>>>>>> I wanted to be rather defensive in my changes, but I agree at
->>>>>>>>> least
->>>>>>>>> the
->>>>>>>>> case in arch_phys_wc_add() might want to be changed, too.
->>>>>>>> I think your approach needs to be more aggressive so it will fix
->>>>>>>> all the known false negatives introduced by bdd8b6c98239
->>>>>>>> such as the one in i915_gem_object_pin_map().
->>>>>>>>
->>>>>>>> I looked at Jan's approach and I think it would fix the issue
->>>>>>>> with my Haswell as long as I don't use the nopat option. I
->>>>>>>> really don't have a strong opinion on that question, but I
->>>>>>>> think the nopat option as a Linux kernel option, as opposed
->>>>>>>> to a hypervisor option, should only affect the kernel, and
->>>>>>>> if the hypervisor provides the pat feature, then the kernel
->>>>>>>> should not override that,
->>>>>>> Hmm, why would the kernel not be allowed to override that? Such
->>>>>>> an override would affect only the single domain where the
->>>>>>> kernel runs; other domains could take their own decisions.
->>>>>>>
->>>>>>> Also, for the sake of completeness: "nopat" used when running on
->>>>>>> bare metal has the same bad effect on system boot, so there
->>>>>>> pretty clearly is an error cleanup issue in the i915 driver. But
->>>>>>> that's orthogonal, and I expect the maintainers may not even care
->>>>>>> (but tell us "don't do that then").
->>>>> Actually I just did a test with the last official Debian kernel
->>>>> build of Linux 5.16, that is, a kernel before bdd8b6c98239 was
->>>>> applied. In fact, the nopat option does *not* break the i915 driver
->>>>> in 5.16. That is, with the nopat option, the i915 driver loads
->>>>> normally on both the bare metal and on the Xen hypervisor.
->>>>> That means your presumption (and the presumption of
->>>>> the author of bdd8b6c98239) that the "nopat" option was
->>>>> being observed by the i915 driver is incorrect. Setting "nopat"
->>>>> had no effect on my system with Linux 5.16. So after doing these
->>>>> tests, I am against the aggressive approach of breaking the i915
->>>>> driver with the "nopat" option because prior to bdd8b6c98239,
->>>>> nopat did not break the i915 driver. Why break it now?
->>>> Because that's, in my understanding, is the purpose of "nopat"
->>>> (not breaking the driver of course - that's a driver bug -, but
->>>> having an effect on the driver).
->>> I wouldn't call it a driver bug, but an incorrect configuration of the
->>> kernel by the user.  I presume X86_FEATURE_PAT is required by the
->>> i915 driver
->> The driver ought to work fine without PAT (and hence without being
->> able to make WC mappings). It would use UC instead and be slow, but
->> it ought to work.
->>
->>> and therefore the driver should refuse to disable
->>> it if the user requests to disable it and instead warn the user that
->>> the driver did not disable the feature, contrary to what the user
->>> requested with the nopat option.
->>>
->>> In any case, my test did not verify that when nopat is set in Linux
->>> 5.16,
->>> the thread takes the same code path as when nopat is not set,
->>> so I am not totally sure that the reason nopat does not break the
->>> i915 driver in 5.16 is that static_cpu_has(X86_FEATURE_PAT)
->>> returns true even when nopat is set. I could test it with a custom
->>> log message in 5.16 if that is necessary.
->>>
->>> Are you saying it was wrong for static_cpu_has(X86_FEATURE_PAT)
->>> to return true in 5.16 when the user requests nopat?
->> No, I'm not saying that. It was wrong for this construct to be used
->> in the driver, which was fixed for 5.17 (and which had caused the
->> regression I did observe, leading to the patch as a hopefully least
->> bad option).
->>
->>> I think that is
->>> just permitting a bad configuration to break the driver that a
->>> well-written operating system should not allow. The i915 driver
->>> was, in my opinion, correctly ignoring the nopat option in 5.16
->>> because that option is not compatible with the hardware the
->>> i915 driver is trying to initialize and setup at boot time. At least
->>> that is my understanding now, but I will need to test it on 5.16
->>> to be sure I understand it correctly.
->>>
->>> Also, AFAICT, your patch would break the driver when the nopat
->>> option is set and only fix the regression introduced by bdd8b6c98239
->>> when nopat is not set on my box, so your patch would
->>> introduce a regression relative to Linux 5.16 and earlier for the
->>> case when nopat is set on my box. I think your point would
->>> be that it is not a regression if it is an incorrect user configuration.
->> Again no - my view is that there's a separate, pre-existing issue
->> in the driver which was uncovered by the change. This may be a
->> perceived regression, but is imo different from a real one.
 
-Sorry, for you maybe, but I'm pretty sure for Linus it's not when it
-comes to the "no regressions rule". Just took a quick look at quotes
-from Linus
-https://www.kernel.org/doc/html/latest/process/handling-regressions.html
-and found this statement from Linus to back this up:
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-```
-One _particularly_ last-minute revert is the top-most commit (ignoring
-the version change itself) done just before the release, and while
-it's very annoying, it's perhaps also instructive.
+thanks,
 
-What's instructive about it is that I reverted a commit that wasn't
-actually buggy. In fact, it was doing exactly what it set out to do,
-and did it very well. In fact it did it _so_ well that the much
-improved IO patterns it caused then ended up revealing a user-visible
-regression due to a real bug in a completely unrelated area.
-```
+greg k-h
 
-He said that here:
-https://www.kernel.org/doc/html/latest/process/handling-regressions.html
+------------------ original commit in Linus's tree ------------------
 
-The situation is of course different here, but similar enough.
+From 92597f97a40bf661bebceb92e26ff87c76d562d4 Mon Sep 17 00:00:00 2001
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Date: Thu, 31 Mar 2022 19:38:51 +0200
+Subject: [PATCH] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
 
-> Since it is a regression, I think for now bdd8b6c98239 should
-> be reverted and the fix backported to Linux 5.17 stable until
-> the underlying memory subsystem can provide the i915 driver
-> with an updated test for the PAT feature that also meets the
-> requirements of the author of bdd8b6c98239 without breaking
-> the i915 driver.
+If a Root Port on Elo i2 is put into D3cold and then back into D0, the
+downstream device becomes permanently inaccessible, so add a bridge D3 DMI
+quirk for that system.
 
-I'm not a developer and I'm don't known the details of this thread and
-the backstory of the regression, but it sounds like that's the approach
-that is needed here until someone comes up with a fix for the regression
-exposed by bdd8b6c98239.
+This was exposed by 14858dcc3b35 ("PCI: Use pci_update_current_state() in
+pci_enable_device_flags()"), but before that commit the Root Port in
+question had never been put into D3cold for real due to a mismatch between
+its power state retrieved from the PCI_PM_CTRL register (which was
+accessible even though the platform firmware indicated that the port was in
+D3cold) and the state of an ACPI power resource involved in its power
+management.
 
-But if I'm wrong, please tell me.
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215715
+Link: https://lore.kernel.org/r/11980172.O9o76ZdvQC@kreacher
+Reported-by: Stefan Gottwald <gottwald@igel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v5.15+
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index 9ecce435fb3f..d25122fbe98a 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2920,6 +2920,16 @@ static const struct dmi_system_id bridge_d3_blacklist[] = {
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
+ 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
+ 		},
++		/*
++		 * Downstream device is not accessible after putting a root port
++		 * into D3cold and back into D0 on Elo i2.
++		 */
++		.ident = "Elo i2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Elo Touch Solutions"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Elo i2"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "RevB"),
++		},
+ 	},
+ #endif
+ 	{ }
 
-P.S.: As the Linux kernel's regression tracker I deal with a lot of
-reports and sometimes miss something important when writing mails like
-this. If that's the case here, don't hesitate to tell me in a public
-reply, it's in everyone's interest to set the public record straight.
-
-> The i915 driver relies on the memory subsytem
-> to provide it with an accurate test for the existence of
-> X86_FEATURE_PAT. I think your patch provides that more accurate
-> test so that bdd8b6c98239 could be re-applied when your patch is
-> committed. Juergen's patch would have to touch bdd8b6c98239
-> with new functions that probably have unknown and unintended
-> consequences, so I think your approach is also better in that regard.
-> As regards your patch, there is just a disagreement about how the
-> i915 driver should behave if nopat is set. I agree the i915 driver
-> could do a better job handling that case, at least with better error
-> logs.
-> 
-> Chuck
-> 
->>
->>> I respond by saying a well-written driver should refuse to honor
->>> the incorrect configuration requested by the user and instead
->>> warn the user that it did not honor the incorrect kernel option.
->>>
->>> I am only presuming what your patch would do on my box based
->>> on what I learned about this problem from my debugging. I can
->>> also test your patch on my box to verify that my understanding of
->>> it is correct.
->>>
->>> I also have not yet verified Juergen's patch will not fix it, but
->>> I am almost certain it will not unless it is expanded so it also
->>> touches i915_gem_object_pin_map() with the fix. I plan to test
->>> his patch, but expanded so it touches that function also.
->>>
->>> I also plan to test your patch with and without nopat and report the
->>> results in the thread where you posted your patch. Hopefully
->>> by tomorrow I will have the results.
->>>
->>> Chuck
