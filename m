@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 051C852FD02
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 15:56:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB86652FD09
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 15:59:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236127AbiEUN4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 May 2022 09:56:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
+        id S233821AbiEUN7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 May 2022 09:59:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230071AbiEUN4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 09:56:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60DFE3EAB4
-        for <stable@vger.kernel.org>; Sat, 21 May 2022 06:56:45 -0700 (PDT)
+        with ESMTP id S233746AbiEUN7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 09:59:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C51E3EAB4
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 06:58:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2029AB8015A
-        for <stable@vger.kernel.org>; Sat, 21 May 2022 13:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B5CBC385AA;
-        Sat, 21 May 2022 13:56:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36C7860BC9
+        for <stable@vger.kernel.org>; Sat, 21 May 2022 13:58:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4AAC385AA;
+        Sat, 21 May 2022 13:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653141402;
-        bh=IrF6DTQ1QhBiqm/7iSr7TZ4/rKh4qSvwfGaJLoKmJxw=;
+        s=korg; t=1653141538;
+        bh=2E/YnBS585AamZTl6FSCHymb6lL8m34EmO/cr3H+KOk=;
         h=Subject:To:Cc:From:Date:From;
-        b=fSoMTjuTnyJY3VSEm0cILr7QAKLkJvZGgJiF2uFA6ROZaXyyKYgqsdctGi6XsLCIC
-         a/+9rKn4LYB5b/Y0QGAikVglda6Qc1WDZ7Q3UbgIjuOfyPMfZn+zA5kp97aRS7OxGt
-         A9ePJhtS4tC4oOOL89pnhtsTI/M4yKhx0qrtHykY=
-Subject: FAILED: patch "[PATCH] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold" failed to apply to 4.14-stable tree
-To:     rafael.j.wysocki@intel.com, bhelgaas@google.com, gottwald@igel.com
+        b=ssMTSExiRq3G6kL77+iaTB5CoiBnHwFkY+4FFo4BVLq5GNdF2i3GtoXiZuSpKps81
+         9+ChOMZW2davcWIHBtIF/mtiJT2fDqz4wtpyxg9BK0E61ZfVcBjABVNwO/3zJBV5TW
+         W75UPw8g4KjOmJLMbbjTHWBhGOrochw4ijFgIzIQ=
+Subject: FAILED: patch "[PATCH] KVM: x86/mmu: fix NULL pointer dereference on guest INVPCID" failed to apply to 5.17-stable tree
+To:     pbonzini@redhat.com, kangel@zju.edu.cn
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 21 May 2022 15:56:31 +0200
-Message-ID: <16531413912367@kroah.com>
+Date:   Sat, 21 May 2022 15:58:55 +0200
+Message-ID: <165314153515625@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.17-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,49 +59,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 92597f97a40bf661bebceb92e26ff87c76d562d4 Mon Sep 17 00:00:00 2001
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Date: Thu, 31 Mar 2022 19:38:51 +0200
-Subject: [PATCH] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
+From 9f46c187e2e680ecd9de7983e4d081c3391acc76 Mon Sep 17 00:00:00 2001
+From: Paolo Bonzini <pbonzini@redhat.com>
+Date: Fri, 20 May 2022 13:48:11 -0400
+Subject: [PATCH] KVM: x86/mmu: fix NULL pointer dereference on guest INVPCID
 
-If a Root Port on Elo i2 is put into D3cold and then back into D0, the
-downstream device becomes permanently inaccessible, so add a bridge D3 DMI
-quirk for that system.
+With shadow paging enabled, the INVPCID instruction results in a call
+to kvm_mmu_invpcid_gva.  If INVPCID is executed with CR0.PG=0, the
+invlpg callback is not set and the result is a NULL pointer dereference.
+Fix it trivially by checking for mmu->invlpg before every call.
 
-This was exposed by 14858dcc3b35 ("PCI: Use pci_update_current_state() in
-pci_enable_device_flags()"), but before that commit the Root Port in
-question had never been put into D3cold for real due to a mismatch between
-its power state retrieved from the PCI_PM_CTRL register (which was
-accessible even though the platform firmware indicated that the port was in
-D3cold) and the state of an ACPI power resource involved in its power
-management.
+There are other possibilities:
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215715
-Link: https://lore.kernel.org/r/11980172.O9o76ZdvQC@kreacher
-Reported-by: Stefan Gottwald <gottwald@igel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org	# v5.15+
+- check for CR0.PG, because KVM (like all Intel processors after P5)
+  flushes guest TLB on CR0.PG changes so that INVPCID/INVLPG are a
+  nop with paging disabled
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 9ecce435fb3f..d25122fbe98a 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2920,6 +2920,16 @@ static const struct dmi_system_id bridge_d3_blacklist[] = {
- 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
- 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
- 		},
-+		/*
-+		 * Downstream device is not accessible after putting a root port
-+		 * into D3cold and back into D0 on Elo i2.
-+		 */
-+		.ident = "Elo i2",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Elo Touch Solutions"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Elo i2"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "RevB"),
-+		},
- 	},
- #endif
- 	{ }
+- check for EFER.LMA, because KVM syncs and flushes when switching
+  MMU contexts outside of 64-bit mode
+
+All of these are tricky, go for the simple solution.  This is CVE-2022-1789.
+
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 56ebc4fb7f91..45e1573f8f1d 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5470,14 +5470,16 @@ void kvm_mmu_invpcid_gva(struct kvm_vcpu *vcpu, gva_t gva, unsigned long pcid)
+ 	uint i;
+ 
+ 	if (pcid == kvm_get_active_pcid(vcpu)) {
+-		mmu->invlpg(vcpu, gva, mmu->root.hpa);
++		if (mmu->invlpg)
++			mmu->invlpg(vcpu, gva, mmu->root.hpa);
+ 		tlb_flush = true;
+ 	}
+ 
+ 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
+ 		if (VALID_PAGE(mmu->prev_roots[i].hpa) &&
+ 		    pcid == kvm_get_pcid(vcpu, mmu->prev_roots[i].pgd)) {
+-			mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
++			if (mmu->invlpg)
++				mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
+ 			tlb_flush = true;
+ 		}
+ 	}
 
