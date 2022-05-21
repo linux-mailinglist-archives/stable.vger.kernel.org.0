@@ -2,97 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D12452FD5F
-	for <lists+stable@lfdr.de>; Sat, 21 May 2022 16:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D7952FD63
+	for <lists+stable@lfdr.de>; Sat, 21 May 2022 16:40:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235946AbiEUOjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 21 May 2022 10:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40678 "EHLO
+        id S1355280AbiEUOkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 21 May 2022 10:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41620 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231202AbiEUOjg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 10:39:36 -0400
-Received: from mail-yw1-x1141.google.com (mail-yw1-x1141.google.com [IPv6:2607:f8b0:4864:20::1141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFF3166690
-        for <stable@vger.kernel.org>; Sat, 21 May 2022 07:39:32 -0700 (PDT)
-Received: by mail-yw1-x1141.google.com with SMTP id 00721157ae682-2fed823dd32so111182017b3.12
-        for <stable@vger.kernel.org>; Sat, 21 May 2022 07:39:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=C+z24Pl7od6xO10XmMEfecsYemTIfW+XARlPRi62dVY=;
-        b=N7amHYR6/tSm0l3XtXesn0EmwzFegyhYYBBu8OGqoWhRHJF4t5HlVajqcvUSYQHMYr
-         xTBfcTPTVWLW3Rrr4+I+hLYfdxq218EfdMI0EmAPQ0ouU4lImmhDSRl3/epWNPc1Xk3I
-         pD+j2gnEWJbWlTtfLEGEyLe3Y6BzB3B8ww2n+CZnGxiU7Gr1aOTDutyRRdxvTjd5Zr5W
-         p+T01wGhi8u1M7vv2Hmpd4S3gEsWAekzXsklK+Juz+EH0H8cjEibE0v9az5+4CO0tYmD
-         mkKR2bE79hv6hu5tedVw2GmorLCvOXPDBT3w7I5sNJuLpCvyRYNYQk+yZF9VakdIP6K9
-         A6Dw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=C+z24Pl7od6xO10XmMEfecsYemTIfW+XARlPRi62dVY=;
-        b=dYGQ9Unj+BAT4aqDPdy03GB2fxFo9RPEbUQV6wWoiNa/sJ8yLTSIYzW2kCuVGOO1AO
-         cQgfvZ4qewv1EgncQ5t+YsWcH+hxHaxplclizn3ERx0N/66GDtIVlGPIfFJQehssDpgy
-         UxAFXOEEExzsYpivyNUPH2yq/8brfu8woGxknTR90RYYjHkihfCcIwEZPkEjWXqVDXc2
-         WVw4HTPlXqlaI1YJIE+AGlWrq/cRbUnGMdBXdYwp9JrRgBQaFaZpjZBEJpuygwD0fByU
-         XgIiFvk23YFhDDEuGdIG2tO12OxJcq7C1ybnh38FVgDbvfXiYEbQU30fmR46M2Jg+oMu
-         6yyg==
-X-Gm-Message-State: AOAM532TItTLw7lcqbxhvOyQmnDcYNzDVaLtb4IFvAyVwrIsHbX82nEa
-        dDnAS/XMdU/+kUJzMEegUDMFEN6oe61sSeMENp0=
-X-Google-Smtp-Source: ABdhPJxDIMi0YA36DoUqshGMbuFjG+KjYeHXnA+HzzooGu/JcVtWhidEcCWPoDLIli1tYgt1zy41hJVnoI0+PV/rvIM=
-X-Received: by 2002:a81:c305:0:b0:2eb:9875:76fd with SMTP id
- r5-20020a81c305000000b002eb987576fdmr15094445ywk.317.1653143971666; Sat, 21
- May 2022 07:39:31 -0700 (PDT)
+        with ESMTP id S231202AbiEUOkv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 21 May 2022 10:40:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F65BC5D;
+        Sat, 21 May 2022 07:40:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1BF9B80022;
+        Sat, 21 May 2022 14:40:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 133D3C385A5;
+        Sat, 21 May 2022 14:40:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653144047;
+        bh=Z+EJAEeWaRR0EPfhpiHD0bZq+LhpCrhD3EDm2tLhqfU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qV+MaZslsub/l1lnAjC2Gmm56x00oPFkmue0Q4RO1P36ZRxT07FMsq81dk2+hFbeA
+         KvlA4/A4NWwLuoYwmfD2OwB6tM6KUZf8uMbqLgaboXUlz9Wu6us6HXWjsBUhgDDaye
+         zQs0YBoC0zEiLgjGWz6xt2I1CfTJB36bQSXLeYnw=
+Date:   Sat, 21 May 2022 16:40:44 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Nishad Kamdar <nishadkamdar@gmail.com>,
+        Christian =?iso-8859-1?Q?L=F6hle?= <CLoehle@hyperstone.com>,
+        "open list:MULTIMEDIA CARD (MMC), SECURE DIGITAL (SD) AND..." 
+        <linux-mmc@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>, alcooperx@gmail.com,
+        kdasu.kdev@gmail.com
+Subject: Re: [PATCH stable 4.19 0/3] MMC timeout back ports
+Message-ID: <Yoj57NDDiQblR5aT@kroah.com>
+References: <20220517182211.249775-1-f.fainelli@gmail.com>
+ <1392eba8-d869-aa1a-b154-cec870017115@gmail.com>
+ <1892af53-5d83-ac8a-1180-970bf07e8889@gmail.com>
 MIME-Version: 1.0
-Received: by 2002:a05:7110:21cb:b0:178:fde:7513 with HTTP; Sat, 21 May 2022
- 07:39:31 -0700 (PDT)
-Reply-To: paulmichael7707@gmail.com
-From:   paul michael <gabrielbenjamin277@gmail.com>
-Date:   Sat, 21 May 2022 15:39:31 +0100
-Message-ID: <CALo3S2sr3dwaMMZTbU38x_6Lc5dSReY-ZLQnCFyERWES5ruEjA@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:1141 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4976]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [paulmichael7707[at]gmail.com]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [gabrielbenjamin277[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [gabrielbenjamin277[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.4 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1892af53-5d83-ac8a-1180-970bf07e8889@gmail.com>
+X-Spam-Status: No, score=-7.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Every time I retest your email, it tells me to check with my ISP or
-Log onto incoming mail server (POP3): Your e-mail server rejected .
-Kindly verify if your email is still valid for us to talk.
+On Thu, May 19, 2022 at 12:04:59PM -0700, Florian Fainelli wrote:
+> 
+> 
+> On 5/19/2022 10:38 AM, Florian Fainelli wrote:
+> > 
+> > 
+> > On 5/17/2022 11:22 AM, Florian Fainelli wrote:
+> > > These 3 commits from upstream allow us to have more fine grained control
+> > > over the MMC command timeouts and this solves the following timeouts
+> > > that we have seen on our systems across suspend/resume cycles:
+> > > 
+> > > [   14.907496] usb usb2: root hub lost power or was reset
+> > > [   15.216232] usb 1-1: reset high-speed USB device number 2 using
+> > > xhci-hcd
+> > > [   15.485812] bcmgenet 8f00000.ethernet eth0: Link is Down
+> > > [   15.525328] mmc1: error -110 doing runtime resume
+> > > [   15.531864] OOM killer enabled.
+> > > 
+> > > Thanks!
+> > 
+> > Looks like I managed to introduce a build warning due to the unused
+> > timeout variable, let me submit a fresher version for 4.19, 4.14 and
+> > 4.9.
+> 
+> Only v4.19 and v4.14 required a v2, you can find both here:
+> 
+> https://lore.kernel.org/lkml/20220519184536.370540-1-f.fainelli@gmail.com/T/#t
+> 
+> https://lore.kernel.org/lkml/20220519190030.377695-1-f.fainelli@gmail.com/T/#t
+> 
+> Sorry about that, I will build with W=1 in the future to notice those set
+> but unused variable warnings.
+
+I've queued up the updates now, thanks.
+
+greg k-h
