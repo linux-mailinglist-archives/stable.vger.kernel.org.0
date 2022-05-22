@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD4125304DA
-	for <lists+stable@lfdr.de>; Sun, 22 May 2022 19:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35D195304DB
+	for <lists+stable@lfdr.de>; Sun, 22 May 2022 19:07:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349568AbiEVRHw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 May 2022 13:07:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38482 "EHLO
+        id S238205AbiEVRHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 May 2022 13:07:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349551AbiEVRHv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 May 2022 13:07:51 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72BA3A73F;
-        Sun, 22 May 2022 10:07:50 -0700 (PDT)
+        with ESMTP id S1349551AbiEVRHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 May 2022 13:07:54 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A093AA43;
+        Sun, 22 May 2022 10:07:53 -0700 (PDT)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 5C9021F381;
-        Sun, 22 May 2022 17:07:49 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id CABA021A72;
+        Sun, 22 May 2022 17:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1653239269; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1653239271; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=z16zL+M+oJaoh/XJ6M0tFx94DDwj/2XE3+JLveI34QU=;
-        b=ztgYZ9Nghh+fmMFu8sYrQ7J9VtQkSyvyc4F0wGRsV5r1PUVXPIaLlFWd7lXST3foJNZogZ
-        9yf1G+HeQbJA0pajlzIShrjvLVE2M88SypFyxWwWfz9dA0TGVEP4sBSKDTu+RbjLE8ENFs
-        WiviWOM7N29ZeS584QZE18XnxtRN9Vo=
+        bh=9kjfZ17/ruoaTQnJvYhTQS9cRBP4eTRXwhgVvBnbNYg=;
+        b=bnRpRSHNck9275uIKemvpGIWaecQaT9TGCCyViuioWKiwQk8PaX5pPfu+lbD9OC4a2qvsI
+        +/Va7DaqY4KQ4FwHHrlb+fsEyWpHnq59OHNx52v5UYBWE1qrQjlz0UUQWNKhALw1axfTLo
+        4jjISdIKzrGIcKGeq6A/a9b2pfjR94c=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1653239269;
+        s=susede2_ed25519; t=1653239271;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=z16zL+M+oJaoh/XJ6M0tFx94DDwj/2XE3+JLveI34QU=;
-        b=E4zryyx1TNwj+YsBlKjhuoeZ61J3tbHl2dysxDOA5UAbOYNSfutBe83HkMRihNKkLcWLCH
-        ptUo1keR0Ph6UQDw==
+        bh=9kjfZ17/ruoaTQnJvYhTQS9cRBP4eTRXwhgVvBnbNYg=;
+        b=K3VNaWbq4lnmKplyxBXd3inbnX5hi/lkeAypreVndxJm3G0ElzbemKsWWrOMs83fTGc+1y
+        0J/AMZmr6Hlv3uDQ==
 Received: from localhost.localdomain (colyli.tcp.ovpn1.nue.suse.de [10.163.16.22])
-        by relay2.suse.de (Postfix) with ESMTP id 67CD32C141;
-        Sun, 22 May 2022 17:07:47 +0000 (UTC)
+        by relay2.suse.de (Postfix) with ESMTP id D37EE2C141;
+        Sun, 22 May 2022 17:07:49 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
         Coly Li <colyli@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 2/4] bcache: improve multithreaded bch_sectors_dirty_init()
-Date:   Mon, 23 May 2022 01:07:34 +0800
-Message-Id: <20220522170736.6582-3-colyli@suse.de>
+Subject: [PATCH 3/4] bcache: remove incremental dirty sector counting for bch_sectors_dirty_init()
+Date:   Mon, 23 May 2022 01:07:35 +0800
+Message-Id: <20220522170736.6582-4-colyli@suse.de>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220522170736.6582-1-colyli@suse.de>
 References: <20220522170736.6582-1-colyli@suse.de>
@@ -60,130 +60,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be
-multithreaded") makes bch_sectors_dirty_init() to be much faster
-when counting dirty sectors by iterating all dirty keys in the btree.
-But it isn't in ideal shape yet, still can be improved.
+After making bch_sectors_dirty_init() being multithreaded, the existing
+incremental dirty sector counting in bch_root_node_dirty_init() doesn't
+release btree occupation after iterating 500000 (INIT_KEYS_EACH_TIME)
+bkeys. Because a read lock is added on btree root node to prevent the
+btree to be split during the dirty sectors counting, other I/O requester
+has no chance to gain the write lock even restart bcache_btree().
 
-This patch does the following changes to improve current parallel dirty
-keys iteration on the btree,
-- Add read lock to root node when multiple threads iterating the btree,
-  to prevent the root node gets split by I/Os from other registered
-  bcache devices.
-- Remove local variable "char name[32]" and generate kernel thread name
-  string directly when calling kthread_run().
-- Allocate "struct bch_dirty_init_state state" directly on stack and
-  avoid the unnecessary dynamic memory allocation for it.
-- Increase &state->started to count created kernel thread after it
-  succeeds to create.
-- When wait for all dirty key counting threads to finish, use
-  wait_event() to replace wait_event_interruptible().
+That is to say, the incremental dirty sectors counting is incompatible
+to the multhreaded bch_sectors_dirty_init(). We have to choose one and
+drop another one.
 
-With the above changes, the code is more clear, and some potential error
-conditions are avoided.
+In my testing, with 512 bytes random writes, I generate 1.2T dirty data
+and a btree with 400K nodes. With single thread and incremental dirty
+sectors counting, it takes 30+ minites to register the backing device.
+And with multithreaded dirty sectors counting, the backing device
+registration can be accomplished within 2 minutes.
+
+The 30+ minutes V.S. 2- minutes difference makes me decide to keep
+multithreaded bch_sectors_dirty_init() and drop the incremental dirty
+sectors counting. This is what this patch does.
+
+But INIT_KEYS_EACH_TIME is kept, in sectors_dirty_init_fn() the CPU
+will be released by cond_resched() after every INIT_KEYS_EACH_TIME keys
+iterated. This is to avoid the watchdog reports a bogus soft lockup
+warning.
 
 Fixes: b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
 Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
 ---
- drivers/md/bcache/writeback.c | 62 ++++++++++++++---------------------
- 1 file changed, 25 insertions(+), 37 deletions(-)
+ drivers/md/bcache/writeback.c | 41 +++++++++++------------------------
+ 1 file changed, 13 insertions(+), 28 deletions(-)
 
 diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index 9ee0005874cd..d24c09490f8e 100644
+index d24c09490f8e..75b71199800d 100644
 --- a/drivers/md/bcache/writeback.c
 +++ b/drivers/md/bcache/writeback.c
-@@ -948,10 +948,10 @@ void bch_sectors_dirty_init(struct bcache_device *d)
- 	struct btree_iter iter;
- 	struct sectors_dirty_init op;
- 	struct cache_set *c = d->c;
--	struct bch_dirty_init_state *state;
--	char name[32];
-+	struct bch_dirty_init_state state;
+@@ -805,13 +805,11 @@ static int bch_writeback_thread(void *arg)
  
- 	/* Just count root keys if no leaf node */
-+	rw_lock(0, c->root, c->root->level);
- 	if (c->root->level == 0) {
+ /* Init */
+ #define INIT_KEYS_EACH_TIME	500000
+-#define INIT_KEYS_SLEEP_MS	100
+ 
+ struct sectors_dirty_init {
+ 	struct btree_op	op;
+ 	unsigned int	inode;
+ 	size_t		count;
+-	struct bkey	start;
+ };
+ 
+ static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
+@@ -827,11 +825,8 @@ static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
+ 					     KEY_START(k), KEY_SIZE(k));
+ 
+ 	op->count++;
+-	if (atomic_read(&b->c->search_inflight) &&
+-	    !(op->count % INIT_KEYS_EACH_TIME)) {
+-		bkey_copy_key(&op->start, k);
+-		return -EAGAIN;
+-	}
++	if (!(op->count % INIT_KEYS_EACH_TIME))
++		cond_resched();
+ 
+ 	return MAP_CONTINUE;
+ }
+@@ -846,24 +841,16 @@ static int bch_root_node_dirty_init(struct cache_set *c,
+ 	bch_btree_op_init(&op.op, -1);
+ 	op.inode = d->id;
+ 	op.count = 0;
+-	op.start = KEY(op.inode, 0, 0);
+-
+-	do {
+-		ret = bcache_btree(map_keys_recurse,
+-				   k,
+-				   c->root,
+-				   &op.op,
+-				   &op.start,
+-				   sectors_dirty_init_fn,
+-				   0);
+-		if (ret == -EAGAIN)
+-			schedule_timeout_interruptible(
+-				msecs_to_jiffies(INIT_KEYS_SLEEP_MS));
+-		else if (ret < 0) {
+-			pr_warn("sectors dirty init failed, ret=%d!\n", ret);
+-			break;
+-		}
+-	} while (ret == -EAGAIN);
++
++	ret = bcache_btree(map_keys_recurse,
++			   k,
++			   c->root,
++			   &op.op,
++			   &KEY(op.inode, 0, 0),
++			   sectors_dirty_init_fn,
++			   0);
++	if (ret < 0)
++		pr_warn("sectors dirty init failed, ret=%d!\n", ret);
+ 
+ 	return ret;
+ }
+@@ -907,7 +894,6 @@ static int bch_dirty_init_thread(void *arg)
+ 				goto out;
+ 			}
+ 			skip_nr--;
+-			cond_resched();
+ 		}
+ 
+ 		if (p) {
+@@ -917,7 +903,6 @@ static int bch_dirty_init_thread(void *arg)
+ 
+ 		p = NULL;
+ 		prev_idx = cur_idx;
+-		cond_resched();
+ 	}
+ 
+ out:
+@@ -956,11 +941,11 @@ void bch_sectors_dirty_init(struct bcache_device *d)
  		bch_btree_op_init(&op.op, -1);
  		op.inode = d->id;
-@@ -961,54 +961,42 @@ void bch_sectors_dirty_init(struct bcache_device *d)
+ 		op.count = 0;
+-		op.start = KEY(op.inode, 0, 0);
+ 
  		for_each_key_filter(&c->root->keys,
  				    k, &iter, bch_ptr_invalid)
  			sectors_dirty_init_fn(&op.op, c->root, k);
-+		rw_unlock(0, c->root);
++
+ 		rw_unlock(0, c->root);
  		return;
  	}
- 
--	state = kzalloc(sizeof(struct bch_dirty_init_state), GFP_KERNEL);
--	if (!state) {
--		pr_warn("sectors dirty init failed: cannot allocate memory\n");
--		return;
--	}
--
--	state->c = c;
--	state->d = d;
--	state->total_threads = bch_btre_dirty_init_thread_nr();
--	state->key_idx = 0;
--	spin_lock_init(&state->idx_lock);
--	atomic_set(&state->started, 0);
--	atomic_set(&state->enough, 0);
--	init_waitqueue_head(&state->wait);
--
--	for (i = 0; i < state->total_threads; i++) {
--		/* Fetch latest state->enough earlier */
-+	state.c = c;
-+	state.d = d;
-+	state.total_threads = bch_btre_dirty_init_thread_nr();
-+	state.key_idx = 0;
-+	spin_lock_init(&state.idx_lock);
-+	atomic_set(&state.started, 0);
-+	atomic_set(&state.enough, 0);
-+	init_waitqueue_head(&state.wait);
-+
-+	for (i = 0; i < state.total_threads; i++) {
-+		/* Fetch latest state.enough earlier */
- 		smp_mb__before_atomic();
--		if (atomic_read(&state->enough))
-+		if (atomic_read(&state.enough))
- 			break;
- 
--		state->infos[i].state = state;
--		atomic_inc(&state->started);
--		snprintf(name, sizeof(name), "bch_dirty_init[%d]", i);
--
--		state->infos[i].thread =
--			kthread_run(bch_dirty_init_thread,
--				    &state->infos[i],
--				    name);
--		if (IS_ERR(state->infos[i].thread)) {
-+		state.infos[i].state = &state;
-+		state.infos[i].thread =
-+			kthread_run(bch_dirty_init_thread, &state.infos[i],
-+				    "bch_dirtcnt[%d]", i);
-+		if (IS_ERR(state.infos[i].thread)) {
- 			pr_err("fails to run thread bch_dirty_init[%d]\n", i);
- 			for (--i; i >= 0; i--)
--				kthread_stop(state->infos[i].thread);
-+				kthread_stop(state.infos[i].thread);
- 			goto out;
- 		}
-+		atomic_inc(&state.started);
- 	}
- 
--	/*
--	 * Must wait for all threads to stop.
--	 */
--	wait_event_interruptible(state->wait,
--		 atomic_read(&state->started) == 0);
--
- out:
--	kfree(state);
-+	/* Must wait for all threads to stop. */
-+	wait_event(state.wait, atomic_read(&state.started) == 0);
-+	rw_unlock(0, c->root);
- }
- 
- void bch_cached_dev_writeback_init(struct cached_dev *dc)
 -- 
 2.35.3
 
