@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A57DD530FC8
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 15:19:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F61053125A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235915AbiEWNHC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 09:07:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50796 "EHLO
+        id S236015AbiEWNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 09:23:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236005AbiEWNG5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 09:06:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45E2B51E71
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 06:06:47 -0700 (PDT)
+        with ESMTP id S236137AbiEWNXr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 09:23:47 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8560A369F1
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 06:23:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A8961338
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7FCEC385A9
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:06:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35758B810BD
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:23:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9155DC34100
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:23:43 +0000 (UTC)
 Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="a2zyAlPB"
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="cs3d0mOD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1653311203;
+        t=1653312222;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         resent-to:resent-from:resent-message-id;
+         to:to:cc:mime-version:mime-version:content-type:content-type;
         bh=sfnIy+09Ssy7T1PJm481y7E1lIpyQeDn1byhyR4bJSo=;
-        b=a2zyAlPBaVqVG7pZSo3VSceItt0RuSnfRa5uVwSoGh/wLvCbDIrjFmdN0oUw4YavSAHIeF
-        /1WpRmlhTySGgIpsAkGnv3DHTYyGEvz55wiz+uImNAcOFzCEcSoZNnH0YAXj6CLbo1Fq56
-        e9OQh7gAQh9XtR5+5cN0VE6BYYFicr0=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 88704171 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
+        b=cs3d0mODgRapvjp5SEUEtXgCBwcWQ1vaH3mnnf2DRo8qLbrTQumASKdba4GSdWqoRomI3j
+        XTLOPasnoSG/8xhikaJDhJG0x5z91FZtWuMbNYwwuyAchLfYoQqzONckYgrB9do7uQ6vXv
+        bfajYav+HVVx2vdbNpicjh1BN/7sIcg=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id b59c00e3 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
         for <stable@vger.kernel.org>;
-        Mon, 23 May 2022 13:06:43 +0000 (UTC)
+        Mon, 23 May 2022 13:23:41 +0000 (UTC)
 Date:   Mon, 23 May 2022 14:54:45 +0200
 From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
 To:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        linux-stable@vger.kernel.org
+        stable@vger.kernel.org
 Subject: random.c backports for 5.18, 5.17, 5.15, and prior
 Message-ID: <YouECCoUA6eZEwKf@zx2c4.com>
 MIME-Version: 1.0
@@ -47,7 +46,7 @@ Content-Disposition: inline
 X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
         RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
