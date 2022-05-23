@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF7D5318A8
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F04531870
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240258AbiEWRaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
+        id S240848AbiEWRa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242407AbiEWR1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:43 -0400
+        with ESMTP id S242681AbiEWR14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:56 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31FE87CB5C;
-        Mon, 23 May 2022 10:23:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1EF8B0A0;
+        Mon, 23 May 2022 10:24:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF4CF60919;
-        Mon, 23 May 2022 17:23:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C10A7C385AA;
-        Mon, 23 May 2022 17:23:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF9BC60919;
+        Mon, 23 May 2022 17:23:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC546C385AA;
+        Mon, 23 May 2022 17:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326587;
-        bh=bmNDXt0dhhCHvZC50SZNQe0bZ4XDsvewzFJ1e8Dm0K0=;
+        s=korg; t=1653326628;
+        bh=nScWFY4gOamTKpCNg1p1bMQC5EX4Fx5ExJONQ5sZ89k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCpRHU0D2zoJKaB8Q4CY9MqZpiuB1/HSeqqAC9gxS0fnQiosYEdFzw6+ArFkAO7rT
-         5EIywzvamlL7OyNMV2B8LZGfhPc8Pl3bzhzPiCsGdhIdHHqDh9sGONJ7+uoeqPX4ZX
-         VNWoRVITQbkAvomWEQ7ecoFY/ZMTJbI8Czm8mNzE=
+        b=OMhG5g0uPt3YTEdcWoFYPEOh9wyBqBwtZ3VUb8wUur7O9QFnpsT0gzmKwkJ4VwWWd
+         rWQX2o9xBIVbteZjIWgjOepV8msYyl4sngM9GPN6ck4/lxZ52K0TWI30wZqcN92Z8u
+         MKQNQ0lGioOPtqGhorFX2JTLxQR6+ePG2jlkapoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shreyas K K <quic_shrekk@quicinc.com>,
-        Sai Prakash Ranjan <quic_saipraka@quicinc.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 127/132] arm64: Enable repeat tlbi workaround on KRYO4XX gold CPUs
-Date:   Mon, 23 May 2022 19:05:36 +0200
-Message-Id: <20220523165844.724849103@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 128/132] Input: ili210x - fix reset timing
+Date:   Mon, 23 May 2022 19:05:37 +0200
+Message-Id: <20220523165844.932797954@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 References: <20220523165823.492309987@linuxfoundation.org>
@@ -54,57 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shreyas K K <quic_shrekk@quicinc.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 51f559d66527e238f9a5f82027bff499784d4eac ]
+commit e4920d42ce0e9c8aafb7f64b6d9d4ae02161e51e upstream.
 
-Add KRYO4XX gold/big cores to the list of CPUs that need the
-repeat TLBI workaround. Apply this to the affected
-KRYO4XX cores (rcpe to rfpe).
+According to Ilitek "231x & ILI251x Programming Guide" Version: 2.30
+"2.1. Power Sequence", "T4 Chip Reset and discharge time" is minimum
+10ms and "T2 Chip initial time" is maximum 150ms. Adjust the reset
+timings such that T4 is 12ms and T2 is 160ms to fit those figures.
 
-The variant and revision bits are implementation defined and are
-different from the their Cortex CPU counterparts on which they are
-based on, i.e., (r0p0 to r3p0) is equivalent to (rcpe to rfpe).
+This prevents sporadic touch controller start up failures when some
+systems with at least ILI251x controller boot, without this patch
+the systems sometimes fail to communicate with the touch controller.
 
-Signed-off-by: Shreyas K K <quic_shrekk@quicinc.com>
-Reviewed-by: Sai Prakash Ranjan <quic_saipraka@quicinc.com>
-Link: https://lore.kernel.org/r/20220512110134.12179-1-quic_shrekk@quicinc.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 201f3c803544c ("Input: ili210x - add reset GPIO support")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20220518204901.93534-1-marex@denx.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/arm64/silicon-errata.rst | 3 +++
- arch/arm64/kernel/cpu_errata.c         | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/input/touchscreen/ili210x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index d410a47ffa57..7c1750bcc5bd 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -163,6 +163,9 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | Qualcomm Tech. | Kryo4xx Silver  | N/A             | ARM64_ERRATUM_1024718       |
- +----------------+-----------------+-----------------+-----------------------------+
-+| Qualcomm Tech. | Kryo4xx Gold    | N/A             | ARM64_ERRATUM_1286807       |
-++----------------+-----------------+-----------------+-----------------------------+
-+
- +----------------+-----------------+-----------------+-----------------------------+
- | Fujitsu        | A64FX           | E#010001        | FUJITSU_ERRATUM_010001      |
- +----------------+-----------------+-----------------+-----------------------------+
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index a33d7b8f3b93..c67c19d70159 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -208,6 +208,8 @@ static const struct arm64_cpu_capabilities arm64_repeat_tlbi_list[] = {
- #ifdef CONFIG_ARM64_ERRATUM_1286807
- 	{
- 		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 3, 0),
-+		/* Kryo4xx Gold (rcpe to rfpe) => (r0p0 to r3p0) */
-+		ERRATA_MIDR_RANGE(MIDR_QCOM_KRYO_4XX_GOLD, 0xc, 0xe, 0xf, 0xe),
- 	},
- #endif
- 	{},
--- 
-2.35.1
-
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -420,9 +420,9 @@ static int ili210x_i2c_probe(struct i2c_
+ 		if (error)
+ 			return error;
+ 
+-		usleep_range(50, 100);
++		usleep_range(12000, 15000);
+ 		gpiod_set_value_cansleep(reset_gpio, 0);
+-		msleep(100);
++		msleep(160);
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 
 
