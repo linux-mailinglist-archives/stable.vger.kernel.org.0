@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8966E531D1D
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADFC653199A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240419AbiEWRYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:24:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42254 "EHLO
+        id S240617AbiEWRjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241805AbiEWRWh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:37 -0400
+        with ESMTP id S241228AbiEWRej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:34:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4A927CB2A;
-        Mon, 23 May 2022 10:19:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849187CB06;
+        Mon, 23 May 2022 10:28:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 40BD0608C3;
-        Mon, 23 May 2022 17:18:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E984C34115;
-        Mon, 23 May 2022 17:18:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2FEF60AB8;
+        Mon, 23 May 2022 17:28:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2971C385A9;
+        Mon, 23 May 2022 17:28:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326300;
-        bh=ePzOuHkPVWLQO2EdRyPrDPRZvqX6OPlOfhBbEtZh7Z0=;
+        s=korg; t=1653326896;
+        bh=vos7HQtzitOQyk2ED8TgNzrVfaTcR+2ug2+cBt23yW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MfrOnTv2gjrFffUw7Bi16ax8SipY7JMN6oajkJBwWyn2cqDsrry9VGPWPmHXMl34V
-         R9BREo65lgO6JWhf3CgdYbfKQFbh2x7r3Aj8UfdttweRziKltotQzrxw4zACYhXw/7
-         lgsoCOliHDs3dO2MWuruH0j/ooCLiHXbYCx7XkDA=
+        b=V1QNtneMjl3GoC7LPXFX+R3xUjCM8O7a2e8rHy9qPWy2feike4FyQJHAYayjrJMum
+         /Uj1kEBxk52lG6oase4NP7iRyz665l97E8MXWZ483/gE9J+jyYEKhwTUoE1HSDclFQ
+         ztMKU3VSG6cMlce12ofiaQSCpjpNZVGGIdBVaboc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 039/132] drbd: remove usage of list iterator variable after loop
+        stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 091/158] net: lan966x: Fix assignment of the MAC address
 Date:   Mon, 23 May 2022 19:04:08 +0200
-Message-Id: <20220523165829.883026196@linuxfoundation.org>
+Message-Id: <20220523165846.254861069@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +55,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
+[ Upstream commit af8ca6eaa9b24a90484218e356f959a94bff22fa ]
 
-In preparation to limit the scope of a list iterator to the list
-traversal loop, use a dedicated pointer to iterate through the list [1].
+The following two scenarios were failing for lan966x.
+1. If the port had the address X and then trying to assign the same
+   address, then the HW was just removing this address because first it
+   tries to learn new address and then delete the old one. As they are
+   the same the HW remove it.
+2. If the port eth0 was assigned the same address as one of the other
+   ports eth1 then when assigning back the address to eth0 then the HW
+   was deleting the address of eth1.
 
-Since that variable should not be used past the loop iteration, a
-separate variable is used to 'remember the current location within the
-loop'.
+The case 1. is fixed by checking if the port has already the same
+address while case 2. is fixed by checking if the address is used by any
+other port.
 
-To either continue iterating from that position or skip the iteration
-(if the previous iteration was complete) list_prepare_entry() is used.
-
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e18aba8941b40b ("net: lan966x: add mactable support")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Link: https://lore.kernel.org/r/20220513180030.3076793-1-horatiu.vultur@microchip.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ .../ethernet/microchip/lan966x/lan966x_main.c | 28 +++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 548e0dd53528..6db0333b5b7a 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -171,7 +171,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 		unsigned int set_size)
- {
- 	struct drbd_request *r;
--	struct drbd_request *req = NULL;
-+	struct drbd_request *req = NULL, *tmp = NULL;
- 	int expect_epoch = 0;
- 	int expect_size = 0;
+diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
+index 1f60fd125a1d..fee148bbf13e 100644
+--- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
++++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
+@@ -100,6 +100,24 @@ static int lan966x_create_targets(struct platform_device *pdev,
+ 	return 0;
+ }
  
-@@ -225,8 +225,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 	 * to catch requests being barrier-acked "unexpectedly".
- 	 * It usually should find the same req again, or some READ preceding it. */
- 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
--		if (req->epoch == expect_epoch)
-+		if (req->epoch == expect_epoch) {
-+			tmp = req;
- 			break;
-+		}
-+	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
- 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
- 		if (req->epoch != expect_epoch)
- 			break;
++static bool lan966x_port_unique_address(struct net_device *dev)
++{
++	struct lan966x_port *port = netdev_priv(dev);
++	struct lan966x *lan966x = port->lan966x;
++	int p;
++
++	for (p = 0; p < lan966x->num_phys_ports; ++p) {
++		port = lan966x->ports[p];
++		if (!port || port->dev == dev)
++			continue;
++
++		if (ether_addr_equal(dev->dev_addr, port->dev->dev_addr))
++			return false;
++	}
++
++	return true;
++}
++
+ static int lan966x_port_set_mac_address(struct net_device *dev, void *p)
+ {
+ 	struct lan966x_port *port = netdev_priv(dev);
+@@ -107,16 +125,26 @@ static int lan966x_port_set_mac_address(struct net_device *dev, void *p)
+ 	const struct sockaddr *addr = p;
+ 	int ret;
+ 
++	if (ether_addr_equal(addr->sa_data, dev->dev_addr))
++		return 0;
++
+ 	/* Learn the new net device MAC address in the mac table. */
+ 	ret = lan966x_mac_cpu_learn(lan966x, addr->sa_data, HOST_PVID);
+ 	if (ret)
+ 		return ret;
+ 
++	/* If there is another port with the same address as the dev, then don't
++	 * delete it from the MAC table
++	 */
++	if (!lan966x_port_unique_address(dev))
++		goto out;
++
+ 	/* Then forget the previous one. */
+ 	ret = lan966x_mac_cpu_forget(lan966x, dev->dev_addr, HOST_PVID);
+ 	if (ret)
+ 		return ret;
+ 
++out:
+ 	eth_hw_addr_set(dev, addr->sa_data);
+ 	return ret;
+ }
 -- 
 2.35.1
 
