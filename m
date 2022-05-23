@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E1A531746
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B61053162E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241371AbiEWRaH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
+        id S239539AbiEWRKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242642AbiEWR1z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 372E081991;
-        Mon, 23 May 2022 10:23:56 -0700 (PDT)
+        with ESMTP id S239654AbiEWRJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 510156BFF9;
+        Mon, 23 May 2022 10:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748816150D;
-        Mon, 23 May 2022 17:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76852C385A9;
-        Mon, 23 May 2022 17:14:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A820B81204;
+        Mon, 23 May 2022 17:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95A38C385A9;
+        Mon, 23 May 2022 17:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326040;
-        bh=zwcO8lqTqAcSsX0UaXjLztxupOJ62iPjlXdzDDNc34s=;
+        s=korg; t=1653325731;
+        bh=Iz1rFFV2zMZoyT84NHl2an8DW4gPUQsmz3WeEuVpS74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0e6uF1lttUbpwVMpMRWzofsNjXRiOpCoVDcmgNKHqMwLy2nPAK/heeipZm2rJQ+eL
-         Vk8eUcMgS1Rz4WGc7MVjPCQEJFxwGzZaYXF+FhHVH06lIpGDTQ/KnyJQES47NaYflh
-         C0TEIZbG9zR38HVFuoHxQsDzIrQ0iAQgL4rt5Ybs=
+        b=CmE8cE8XqeywmwTM6plmw5U+kWZbNlfeiofS3T5K5YcUAMpPtNQYiPPn+ypocn7J2
+         W0C/Z4omV/7QTT7sulNBFcx0hZc24RDFi8kYAIpa0QMtMrQ7bw1uwJyqfVCUlISgOP
+         5I1x3h/L+JXw+aec0YsFWUwdGAsJyKlrpwIVsLnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 46/68] ARM: 9196/1: spectre-bhb: enable for Cortex-A15
-Date:   Mon, 23 May 2022 19:05:13 +0200
-Message-Id: <20220523165810.180099864@linuxfoundation.org>
+Subject: [PATCH 4.14 25/33] gpio: mvebu/pwm: Refuse requests with inverted polarity
+Date:   Mon, 23 May 2022 19:05:14 +0200
+Message-Id: <20220523165752.546367189@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit 0dc14aa94ccd8ba35eb17a0f9b123d1566efd39e ]
+[ Upstream commit 3ecb10175b1f776f076553c24e2689e42953fef5 ]
 
-The Spectre-BHB mitigations were inadvertently left disabled for
-Cortex-A15, due to the fact that cpu_v7_bugs_init() is not called in
-that case. So fix that.
+The driver doesn't take struct pwm_state::polarity into account when
+configuring the hardware, so refuse requests for inverted polarity.
 
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 757642f9a584 ("gpio: mvebu: Add limited PWM support")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7-bugs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpio/gpio-mvebu.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
-index 097ef85bb7f2..bcb9181601d9 100644
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -301,6 +301,7 @@ void cpu_v7_ca15_ibe(void)
- {
- 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(0)))
- 		cpu_v7_spectre_v2_init();
-+	cpu_v7_spectre_bhb_init();
- }
+diff --git a/drivers/gpio/gpio-mvebu.c b/drivers/gpio/gpio-mvebu.c
+index b14d481ab7db..cbad11029c67 100644
+--- a/drivers/gpio/gpio-mvebu.c
++++ b/drivers/gpio/gpio-mvebu.c
+@@ -694,6 +694,9 @@ static int mvebu_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	unsigned long flags;
+ 	unsigned int on, off;
  
- void cpu_v7_bugs_init(void)
++	if (state->polarity != PWM_POLARITY_NORMAL)
++		return -EINVAL;
++
+ 	val = (unsigned long long) mvpwm->clk_rate * state->duty_cycle;
+ 	do_div(val, NSEC_PER_SEC);
+ 	if (val > UINT_MAX)
 -- 
 2.35.1
 
