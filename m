@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA7E55317C2
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE145318E0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241278AbiEWR36 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43416 "EHLO
+        id S239676AbiEWRKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:10:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241696AbiEWR1F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:05 -0400
+        with ESMTP id S239684AbiEWRJo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:44 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF75373574;
-        Mon, 23 May 2022 10:22:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0067A6C0CB;
+        Mon, 23 May 2022 10:09:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51057B81210;
-        Mon, 23 May 2022 17:21:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F6ECC385A9;
-        Mon, 23 May 2022 17:21:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7E2CEB811FE;
+        Mon, 23 May 2022 17:09:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9FC0C385AA;
+        Mon, 23 May 2022 17:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326488;
-        bh=2QNI6p3DCQnj328K6ybIE7IWGu/SDS5fAgkPESIDXyo=;
+        s=korg; t=1653325766;
+        bh=8HqcDKgm30aIgAcb6f1MOQJAQLF0KAE4hGTUo6ovBM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jr7xFsRGkFizGD41waYYOZlNvMot2hr3YyV3BaRHoCXR/lotoe1YfLO5WEFEKzdbC
-         p4CDLNLEoGuiDjd70hz0tW0It1pBVjPwN5edrqHxzuVF3KufF5heazlWWOg9Lh9eL6
-         zG2OjNoJVeRJ/bjII3uOQIfpMd6+GJ3g0dnXXIhs=
+        b=yODdqz+8xSPyRK3Dcpw1cWU0u9nJT8TCu4bQrpHzcW3Zlwp1nykSA/BCGJc6l6Smb
+         TyXjqhNbv4hHR+At3jO2QBUEbv6jOjTuPr4HG4MrHTGubuMLdHR713BLMSeK87rL6V
+         ZRwBHNAlvGEWXfPgXu0Diia6wwsTq9W0X3N4Wl6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org,
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 096/132] mptcp: reuse __mptcp_make_csum in validate_data_csum
+Subject: [PATCH 4.14 16/33] clk: at91: generated: consider range when calculating best rate
 Date:   Mon, 23 May 2022 19:05:05 +0200
-Message-Id: <20220523165839.281588719@linuxfoundation.org>
+Message-Id: <20220523165750.668051270@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit 8401e87f5a36d370cbf1e9d4ba602a553ce9324a ]
+[ Upstream commit d0031e6fbed955ff8d5f5bbc8fe7382482559cec ]
 
-This patch reused __mptcp_make_csum() in validate_data_csum() instead of
-open-coding.
+clk_generated_best_diff() helps in finding the parent and the divisor to
+compute a rate closest to the required one. However, it doesn't take into
+account the request's range for the new rate. Make sure the new rate
+is within the required range.
 
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8a8f4bf0c480 ("clk: at91: clk-generated: create function to find best_diff")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220413071318.244912-1-codrin.ciubotariu@microchip.com
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/subflow.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/clk/at91/clk-generated.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 6172f380dfb7..04afead7316f 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -845,9 +845,8 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
- 					      bool csum_reqd)
- {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
--	struct csum_pseudo_header header;
- 	u32 offset, seq, delta;
--	__wsum csum;
-+	u16 csum;
- 	int len;
+diff --git a/drivers/clk/at91/clk-generated.c b/drivers/clk/at91/clk-generated.c
+index ea23002be4de..b397556c34d9 100644
+--- a/drivers/clk/at91/clk-generated.c
++++ b/drivers/clk/at91/clk-generated.c
+@@ -119,6 +119,10 @@ static void clk_generated_best_diff(struct clk_rate_request *req,
+ 		tmp_rate = parent_rate;
+ 	else
+ 		tmp_rate = parent_rate / div;
++
++	if (tmp_rate < req->min_rate || tmp_rate > req->max_rate)
++		return;
++
+ 	tmp_diff = abs(req->rate - tmp_rate);
  
- 	if (!csum_reqd)
-@@ -908,13 +907,11 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
- 	 * while the pseudo header requires the original DSS data len,
- 	 * including that
- 	 */
--	header.data_seq = cpu_to_be64(subflow->map_seq);
--	header.subflow_seq = htonl(subflow->map_subflow_seq);
--	header.data_len = htons(subflow->map_data_len + subflow->map_data_fin);
--	header.csum = 0;
--
--	csum = csum_partial(&header, sizeof(header), subflow->map_data_csum);
--	if (unlikely(csum_fold(csum))) {
-+	csum = __mptcp_make_csum(subflow->map_seq,
-+				 subflow->map_subflow_seq,
-+				 subflow->map_data_len + subflow->map_data_fin,
-+				 subflow->map_data_csum);
-+	if (unlikely(csum)) {
- 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_DATACSUMERR);
- 		subflow->send_mp_fail = 1;
- 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
+ 	if (*best_diff < 0 || *best_diff > tmp_diff) {
 -- 
 2.35.1
 
