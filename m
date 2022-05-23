@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A395531883
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3D65316AF
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239753AbiEWRMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:12:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
+        id S239622AbiEWRNk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:13:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240531AbiEWRMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C458762CCB;
-        Mon, 23 May 2022 10:11:42 -0700 (PDT)
+        with ESMTP id S239715AbiEWRKq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BB436D399;
+        Mon, 23 May 2022 10:10:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B47861509;
-        Mon, 23 May 2022 17:10:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E404C34118;
-        Mon, 23 May 2022 17:10:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C59B614CA;
+        Mon, 23 May 2022 17:10:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E1F3C385AA;
+        Mon, 23 May 2022 17:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325809;
-        bh=G9ZRHRw/SjKlN1Cm8RgRF6kGTUhjJSALMeiIry7VasE=;
+        s=korg; t=1653325812;
+        bh=Dwk17qB8Umv7Q1FvMeueRdKSAT9rxi9ymspvcUnMfPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qKOAybkDRj3DRcDBWp6VXdpzjCvAuBs9PSdcs7NPV1f+/DX703bfjCguU337i3Lq
-         +fVttgc9PnTegps2jxDEEUl0PyR5Nn8+8Yvw+YWusL3YqzEc0WcBCg7NHrMO1APeph
-         tZjmeeLR8sAk2aOpqTUlq8t8o7VNLT7OSJcy7flo=
+        b=mixgavmLzXX6hC+nqho9PUjW4IPTvpgAqCH44cJPSFlr0gVBRcKtoKYtD7OyA2MMC
+         k0jtuE/GXn5K6TRcR0OZ+klCdijc3AklHTfRTE0l3NOcy2JFJYOKGzlHwdKN3F4Jmm
+         6KtQA4Sdqd05lHbeEZp88IDmnBrZKhd+w3TYY0j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.19 18/44] mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
-Date:   Mon, 23 May 2022 19:05:02 +0200
-Message-Id: <20220523165756.536633554@linuxfoundation.org>
+Subject: [PATCH 4.19 19/44] mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+Date:   Mon, 23 May 2022 19:05:03 +0200
+Message-Id: <20220523165756.686861232@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
 References: <20220523165752.797318097@linuxfoundation.org>
@@ -55,53 +55,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 24ed3bd01d6a844fd5e8a75f48d0a3d10ed71bf9 upstream
+commit ad91619aa9d78ab1c6d4a969c3db68bc331ae76c upstream
 
-The timeout values used while waiting for a CMD6 for BKOPS or a CACHE_FLUSH
-to complete, are not defined by the eMMC spec. However, a timeout of 10
-minutes as is currently being used, is just silly for both of these cases.
-Instead, let's specify more reasonable timeouts, 120s for BKOPS and 30s for
-CACHE_FLUSH.
+The INAND_CMD38_ARG_EXT_CSD is a vendor specific EXT_CSD register, which is
+used to prepare an erase/trim operation. However, it doesn't make sense to
+use a timeout of 10 minutes while updating the register, which becomes the
+case when the timeout_ms argument for mmc_switch() is set to zero.
+
+Instead, let's use the generic_cmd6_time, as that seems like a reasonable
+timeout to use for these cases.
 
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-2-ulf.hansson@linaro.org
+Link: https://lore.kernel.org/r/20200122142747.5690-3-ulf.hansson@linaro.org
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc_ops.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/mmc/core/block.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -23,7 +23,9 @@
- #include "host.h"
- #include "mmc_ops.h"
- 
--#define MMC_OPS_TIMEOUT_MS	(10 * 60 * 1000) /* 10 minute timeout */
-+#define MMC_OPS_TIMEOUT_MS		(10 * 60 * 1000) /* 10min*/
-+#define MMC_BKOPS_TIMEOUT_MS		(120 * 1000) /* 120s */
-+#define MMC_CACHE_FLUSH_TIMEOUT_MS	(30 * 1000) /* 30s */
- 
- static const u8 tuning_blk_pattern_4bit[] = {
- 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
-@@ -947,7 +949,7 @@ void mmc_run_bkops(struct mmc_card *card
- 	 * urgent levels by using an asynchronous background task, when idle.
- 	 */
- 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
--			EXT_CSD_BKOPS_START, 1, MMC_OPS_TIMEOUT_MS);
-+			 EXT_CSD_BKOPS_START, 1, MMC_BKOPS_TIMEOUT_MS);
- 	if (err)
- 		pr_warn("%s: Error %d starting bkops\n",
- 			mmc_hostname(card->host), err);
-@@ -965,7 +967,8 @@ int mmc_flush_cache(struct mmc_card *car
- 
- 	if (mmc_cache_enabled(card->host)) {
- 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
--				EXT_CSD_FLUSH_CACHE, 1, 0);
-+				 EXT_CSD_FLUSH_CACHE, 1,
-+				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+--- a/drivers/mmc/core/block.c
++++ b/drivers/mmc/core/block.c
+@@ -1133,7 +1133,7 @@ static void mmc_blk_issue_discard_rq(str
+ 					 arg == MMC_TRIM_ARG ?
+ 					 INAND_CMD38_ARG_TRIM :
+ 					 INAND_CMD38_ARG_ERASE,
+-					 0);
++					 card->ext_csd.generic_cmd6_time);
+ 		}
+ 		if (!err)
+ 			err = mmc_erase(card, from, nr, arg);
+@@ -1175,7 +1175,7 @@ retry:
+ 				 arg == MMC_SECURE_TRIM1_ARG ?
+ 				 INAND_CMD38_ARG_SECTRIM1 :
+ 				 INAND_CMD38_ARG_SECERASE,
+-				 0);
++				 card->ext_csd.generic_cmd6_time);
  		if (err)
- 			pr_err("%s: cache flush error %d\n",
- 					mmc_hostname(card->host), err);
+ 			goto out_retry;
+ 	}
+@@ -1193,7 +1193,7 @@ retry:
+ 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+ 					 INAND_CMD38_ARG_EXT_CSD,
+ 					 INAND_CMD38_ARG_SECTRIM2,
+-					 0);
++					 card->ext_csd.generic_cmd6_time);
+ 			if (err)
+ 				goto out_retry;
+ 		}
 
 
