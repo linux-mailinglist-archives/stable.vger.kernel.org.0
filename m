@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0FE531931
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D5EF531C56
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240671AbiEWRsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55738 "EHLO
+        id S239527AbiEWRN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:13:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244344AbiEWRsA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:48:00 -0400
+        with ESMTP id S239649AbiEWRMp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8764A88A0;
-        Mon, 23 May 2022 10:37:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68456C544;
+        Mon, 23 May 2022 10:12:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 623AFB81216;
-        Mon, 23 May 2022 17:29:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98688C385A9;
-        Mon, 23 May 2022 17:29:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 751D3B81212;
+        Mon, 23 May 2022 17:11:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB99BC385A9;
+        Mon, 23 May 2022 17:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326976;
-        bh=qrW7dQvs63KXSNnBwB2u/bMODuvSDa47Uo/6Hd+Twk4=;
+        s=korg; t=1653325905;
+        bh=KuFUgf9ktp4busrSOKUHZR6BbW7z2IoxN0dCsE+i6NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yJFq1CqojgQ3Vc9ykW36uDLrEd3xpIEo6TxKEukMsZovC75Fw7vNuUz0k23fDIKoL
-         1APFgel4DvYvSm0sBt2evx/wDi2YTnYfsEU9l3n3TqW/dr97v01KPGhxzjZjHQeYsj
-         09ZseD37rFkhrWD5jamuz8c6rKfDWfpIi9zFRmko=
+        b=UqGGoRJf0oSbzY4ANHcEPD6uBK0Y2ZfUK5kmOQTuDVQt979AevrY/ZgE1iuFOoY6g
+         Y4+qdoWSy6fImoo0O/uavUMFkcvGdvxmfD1jEdyymzxafnGx5t2/F3oYoxThEuenuA
+         Y8N/Mvzly6XaEE+zDzGlXyo9UhvEACQF9T2Krfkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oz Shlomo <ozsh@nvidia.com>,
-        Sven Auhagen <sven.auhagen@voleatech.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 117/158] netfilter: flowtable: fix TCP flow teardown
+Subject: [PATCH 5.4 07/68] Input: stmfts - fix reference leak in stmfts_input_open
 Date:   Mon, 23 May 2022 19:04:34 +0200
-Message-Id: <20220523165850.278677855@linuxfoundation.org>
+Message-Id: <20220523165803.771385895@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,160 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zheng Yongjun <zhengyongjun3@huawei.com>
 
-[ Upstream commit e5eaac2beb54f0a16ff851125082d9faeb475572 ]
+[ Upstream commit 26623eea0da3476446909af96c980768df07bbd9 ]
 
-This patch addresses three possible problems:
+pm_runtime_get_sync() will increment pm usage counter even it
+failed. Forgetting to call pm_runtime_put_noidle will result
+in reference leak in stmfts_input_open, so we should fix it.
 
-1. ct gc may race to undo the timeout adjustment of the packet path, leaving
-   the conntrack entry in place with the internal offload timeout (one day).
-
-2. ct gc removes the ct because the IPS_OFFLOAD_BIT is not set and the CLOSE
-   timeout is reached before the flow offload del.
-
-3. tcp ct is always set to ESTABLISHED with a very long timeout
-   in flow offload teardown/delete even though the state might be already
-   CLOSED. Also as a remark we cannot assume that the FIN or RST packet
-   is hitting flow table teardown as the packet might get bumped to the
-   slow path in nftables.
-
-This patch resets IPS_OFFLOAD_BIT from flow_offload_teardown(), so
-conntrack handles the tcp rst/fin packet which triggers the CLOSE/FIN
-state transition.
-
-Moreover, teturn the connection's ownership to conntrack upon teardown
-by clearing the offload flag and fixing the established timeout value.
-The flow table GC thread will asynchonrnously free the flow table and
-hardware offload entries.
-
-Before this patch, the IPS_OFFLOAD_BIT remained set for expired flows on
-which is also misleading since the flow is back to classic conntrack
-path.
-
-If nf_ct_delete() removes the entry from the conntrack table, then it
-calls nf_ct_put() which decrements the refcnt. This is not a problem
-because the flowtable holds a reference to the conntrack object from
-flow_offload_alloc() path which is released via flow_offload_free().
-
-This patch also updates nft_flow_offload to skip packets in SYN_RECV
-state. Since we might miss or bump packets to slow path, we do not know
-what will happen there while we are still in SYN_RECV, this patch
-postpones offload up to the next packet which also aligns to the
-existing behaviour in tc-ct.
-
-flow_offload_teardown() does not reset the existing tcp state from
-flow_offload_fixup_tcp() to ESTABLISHED anymore, packets bump to slow
-path might have already update the state to CLOSE/FIN.
-
-Joint work with Oz and Sven.
-
-Fixes: 1e5b2471bcc4 ("netfilter: nf_flow_table: teardown flow timeout race")
-Signed-off-by: Oz Shlomo <ozsh@nvidia.com>
-Signed-off-by: Sven Auhagen <sven.auhagen@voleatech.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
+Link: https://lore.kernel.org/r/20220317131604.53538-1-zhengyongjun3@huawei.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 33 +++++++-----------------------
- net/netfilter/nft_flow_offload.c   |  3 ++-
- 2 files changed, 9 insertions(+), 27 deletions(-)
+ drivers/input/touchscreen/stmfts.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 52e7f94d2450..58f3f77b3eb2 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -173,12 +173,11 @@ EXPORT_SYMBOL_GPL(flow_offload_route_init);
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index cd8805d71d97..be1dd504d5b1 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -339,11 +339,11 @@ static int stmfts_input_open(struct input_dev *dev)
  
- static void flow_offload_fixup_tcp(struct ip_ct_tcp *tcp)
- {
--	tcp->state = TCP_CONNTRACK_ESTABLISHED;
- 	tcp->seen[0].td_maxwin = 0;
- 	tcp->seen[1].td_maxwin = 0;
+ 	err = pm_runtime_get_sync(&sdata->client->dev);
+ 	if (err < 0)
+-		return err;
++		goto out;
+ 
+ 	err = i2c_smbus_write_byte(sdata->client, STMFTS_MS_MT_SENSE_ON);
+ 	if (err)
+-		return err;
++		goto out;
+ 
+ 	mutex_lock(&sdata->mutex);
+ 	sdata->running = true;
+@@ -366,7 +366,9 @@ static int stmfts_input_open(struct input_dev *dev)
+ 				 "failed to enable touchkey\n");
+ 	}
+ 
+-	return 0;
++out:
++	pm_runtime_put_noidle(&sdata->client->dev);
++	return err;
  }
  
--static void flow_offload_fixup_ct_timeout(struct nf_conn *ct)
-+static void flow_offload_fixup_ct(struct nf_conn *ct)
- {
- 	struct net *net = nf_ct_net(ct);
- 	int l4num = nf_ct_protonum(ct);
-@@ -187,7 +186,9 @@ static void flow_offload_fixup_ct_timeout(struct nf_conn *ct)
- 	if (l4num == IPPROTO_TCP) {
- 		struct nf_tcp_net *tn = nf_tcp_pernet(net);
- 
--		timeout = tn->timeouts[TCP_CONNTRACK_ESTABLISHED];
-+		flow_offload_fixup_tcp(&ct->proto.tcp);
-+
-+		timeout = tn->timeouts[ct->proto.tcp.state];
- 		timeout -= tn->offload_timeout;
- 	} else if (l4num == IPPROTO_UDP) {
- 		struct nf_udp_net *tn = nf_udp_pernet(net);
-@@ -205,18 +206,6 @@ static void flow_offload_fixup_ct_timeout(struct nf_conn *ct)
- 		WRITE_ONCE(ct->timeout, nfct_time_stamp + timeout);
- }
- 
--static void flow_offload_fixup_ct_state(struct nf_conn *ct)
--{
--	if (nf_ct_protonum(ct) == IPPROTO_TCP)
--		flow_offload_fixup_tcp(&ct->proto.tcp);
--}
--
--static void flow_offload_fixup_ct(struct nf_conn *ct)
--{
--	flow_offload_fixup_ct_state(ct);
--	flow_offload_fixup_ct_timeout(ct);
--}
--
- static void flow_offload_route_release(struct flow_offload *flow)
- {
- 	nft_flow_dst_release(flow, FLOW_OFFLOAD_DIR_ORIGINAL);
-@@ -355,22 +344,14 @@ static void flow_offload_del(struct nf_flowtable *flow_table,
- 	rhashtable_remove_fast(&flow_table->rhashtable,
- 			       &flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].node,
- 			       nf_flow_offload_rhash_params);
--
--	clear_bit(IPS_OFFLOAD_BIT, &flow->ct->status);
--
--	if (nf_flow_has_expired(flow))
--		flow_offload_fixup_ct(flow->ct);
--	else
--		flow_offload_fixup_ct_timeout(flow->ct);
--
- 	flow_offload_free(flow);
- }
- 
- void flow_offload_teardown(struct flow_offload *flow)
- {
-+	clear_bit(IPS_OFFLOAD_BIT, &flow->ct->status);
- 	set_bit(NF_FLOW_TEARDOWN, &flow->flags);
--
--	flow_offload_fixup_ct_state(flow->ct);
-+	flow_offload_fixup_ct(flow->ct);
- }
- EXPORT_SYMBOL_GPL(flow_offload_teardown);
- 
-@@ -460,7 +441,7 @@ static void nf_flow_offload_gc_step(struct flow_offload *flow, void *data)
- 	if (nf_flow_has_expired(flow) ||
- 	    nf_ct_is_dying(flow->ct) ||
- 	    nf_flow_has_stale_dst(flow))
--		set_bit(NF_FLOW_TEARDOWN, &flow->flags);
-+		flow_offload_teardown(flow);
- 
- 	if (test_bit(NF_FLOW_TEARDOWN, &flow->flags)) {
- 		if (test_bit(NF_FLOW_HW, &flow->flags)) {
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index 12145a80ef03..aac6db8680d4 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -298,7 +298,8 @@ static void nft_flow_offload_eval(const struct nft_expr *expr,
- 	case IPPROTO_TCP:
- 		tcph = skb_header_pointer(pkt->skb, nft_thoff(pkt),
- 					  sizeof(_tcph), &_tcph);
--		if (unlikely(!tcph || tcph->fin || tcph->rst))
-+		if (unlikely(!tcph || tcph->fin || tcph->rst ||
-+			     !nf_conntrack_tcp_established(ct)))
- 			goto out;
- 		break;
- 	case IPPROTO_UDP:
+ static void stmfts_input_close(struct input_dev *dev)
 -- 
 2.35.1
 
