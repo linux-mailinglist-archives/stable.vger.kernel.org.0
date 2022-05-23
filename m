@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C1796531C0D
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1983E531C0F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241073AbiEWR3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38576 "EHLO
+        id S241462AbiEWRal (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242735AbiEWR16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2B278216F;
-        Mon, 23 May 2022 10:24:14 -0700 (PDT)
+        with ESMTP id S242990AbiEWR2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D34778DDFA;
+        Mon, 23 May 2022 10:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C7C860B35;
-        Mon, 23 May 2022 17:24:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C1F5C385A9;
-        Mon, 23 May 2022 17:24:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E847B81201;
+        Mon, 23 May 2022 17:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE0F4C385A9;
+        Mon, 23 May 2022 17:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326654;
-        bh=L//3dBna+EcdB3M94tHttcQc5Adhnn/g/2/48n2Md/w=;
+        s=korg; t=1653326657;
+        bh=cexE1aFde1gdOEfAfUUm4v7S/Vt5OzCWmuXeGZWXGpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gl9LdG7ppciOGyvxbipiEYN0JOq2nTzZ0aVGIdIClK/E0Iqiffefu5MreGhMTkXrc
-         lCXuEpdlR4hdm0CkXWIy7LqffI93ywwU+9q+U/tv1aQ7Bwu7QFrE26hJ3DLNDzGrBO
-         sywgfZT4RuGblQ3yoY5lriNWLbNHwJBUpDjG5PLM=
+        b=gzjHEAeZMmWmYXDUwbURDwpJFPC0VjUW/lsvcNwD2Y2sndAN5MGqtUKAne8XPTQR9
+         zcHDM7miOX8X7RkYdgo89XbEHbKknukq/9atcIMJTUgha1QnOrikpfZn990SyIfsUR
+         tAez/EKEPuwPDbscm5sN1sYvQ2wXankYxBeEkMBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org,
+        Vincent Whitchurch <vincent.whitchurch@axis.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 018/158] gfs2: Switch lock order of inode and iopen glock
-Date:   Mon, 23 May 2022 19:02:55 +0200
-Message-Id: <20220523165833.645164821@linuxfoundation.org>
+Subject: [PATCH 5.17 019/158] rtc: fix use-after-free on device removal
+Date:   Mon, 23 May 2022 19:02:56 +0200
+Message-Id: <20220523165833.811345525@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -54,140 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
-[ Upstream commit 29464ee36bcaaee2691249f49b9592b8d5c97ece ]
+[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
 
-This patch tries to fix the continual ABBA deadlocks we keep having
-between the iopen and inode glocks. This switches the lock order in
-gfs2_inode_lookup and gfs2_create_inode so the iopen glock is always
-locked first.
+If the irqwork is still scheduled or running while the RTC device is
+removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
+timerqueue and ensure the work is stopped to fix this.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+ BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
+ Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
+
+ Workqueue: events rtc_timer_do_work
+ Call trace:
+  mutex_lock+0x94/0x110
+  rtc_timer_do_work+0xec/0x630
+  process_one_work+0x5fc/0x1344
+  ...
+
+ Allocated by task 551:
+  kmem_cache_alloc_trace+0x384/0x6e0
+  devm_rtc_allocate_device+0xf0/0x574
+  devm_rtc_device_register+0x2c/0x12c
+  ...
+
+ Freed by task 572:
+  kfree+0x114/0x4d0
+  rtc_device_release+0x64/0x80
+  device_release+0x8c/0x1f4
+  kobject_put+0x1c4/0x4b0
+  put_device+0x20/0x30
+  devm_rtc_release_device+0x1c/0x30
+  devm_action_release+0x54/0x90
+  release_nodes+0x124/0x310
+  devres_release_group+0x170/0x240
+  i2c_device_remove+0xd8/0x314
+  ...
+
+ Last potentially related work creation:
+  insert_work+0x5c/0x330
+  queue_work_on+0xcc/0x154
+  rtc_set_time+0x188/0x5bc
+  rtc_dev_ioctl+0x2ac/0xbd0
+  ...
+
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/inode.c | 49 +++++++++++++++++++++++++++----------------------
- 1 file changed, 27 insertions(+), 22 deletions(-)
+ drivers/rtc/class.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/fs/gfs2/inode.c b/fs/gfs2/inode.c
-index 66a123306aec..c8ec876f33ea 100644
---- a/fs/gfs2/inode.c
-+++ b/fs/gfs2/inode.c
-@@ -131,7 +131,21 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
- 		struct gfs2_sbd *sdp = GFS2_SB(inode);
- 		struct gfs2_glock *io_gl;
- 
--		error = gfs2_glock_get(sdp, no_addr, &gfs2_inode_glops, CREATE, &ip->i_gl);
-+		error = gfs2_glock_get(sdp, no_addr, &gfs2_inode_glops, CREATE,
-+				       &ip->i_gl);
-+		if (unlikely(error))
-+			goto fail;
+diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
+index 4b460c61f1d8..40d504dac1a9 100644
+--- a/drivers/rtc/class.c
++++ b/drivers/rtc/class.c
+@@ -26,6 +26,15 @@ struct class *rtc_class;
+ static void rtc_device_release(struct device *dev)
+ {
+ 	struct rtc_device *rtc = to_rtc_device(dev);
++	struct timerqueue_head *head = &rtc->timerqueue;
++	struct timerqueue_node *node;
 +
-+		error = gfs2_glock_get(sdp, no_addr, &gfs2_iopen_glops, CREATE,
-+				       &io_gl);
-+		if (unlikely(error))
-+			goto fail;
++	mutex_lock(&rtc->ops_lock);
++	while ((node = timerqueue_getnext(head)))
++		timerqueue_del(head, node);
++	mutex_unlock(&rtc->ops_lock);
 +
-+		if (blktype != GFS2_BLKST_UNLINKED)
-+			gfs2_cancel_delete_work(io_gl);
-+		error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT,
-+					   &ip->i_iopen_gh);
-+		gfs2_glock_put(io_gl);
- 		if (unlikely(error))
- 			goto fail;
++	cancel_work_sync(&rtc->irqwork);
  
-@@ -161,16 +175,6 @@ struct inode *gfs2_inode_lookup(struct super_block *sb, unsigned int type,
- 
- 		set_bit(GLF_INSTANTIATE_NEEDED, &ip->i_gl->gl_flags);
- 
--		error = gfs2_glock_get(sdp, no_addr, &gfs2_iopen_glops, CREATE, &io_gl);
--		if (unlikely(error))
--			goto fail;
--		if (blktype != GFS2_BLKST_UNLINKED)
--			gfs2_cancel_delete_work(io_gl);
--		error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
--		gfs2_glock_put(io_gl);
--		if (unlikely(error))
--			goto fail;
--
- 		/* Lowest possible timestamp; will be overwritten in gfs2_dinode_in. */
- 		inode->i_atime.tv_sec = 1LL << (8 * sizeof(inode->i_atime.tv_sec) - 1);
- 		inode->i_atime.tv_nsec = 0;
-@@ -716,13 +720,17 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	error = insert_inode_locked4(inode, ip->i_no_addr, iget_test, &ip->i_no_addr);
- 	BUG_ON(error);
- 
--	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
-+	error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
- 	if (error)
- 		goto fail_gunlock2;
- 
-+	error = gfs2_glock_nq_init(ip->i_gl, LM_ST_EXCLUSIVE, GL_SKIP, ghs + 1);
-+	if (error)
-+		goto fail_gunlock3;
-+
- 	error = gfs2_trans_begin(sdp, blocks, 0);
- 	if (error)
--		goto fail_gunlock2;
-+		goto fail_gunlock3;
- 
- 	if (blocks > 1) {
- 		ip->i_eattr = ip->i_no_addr + 1;
-@@ -731,10 +739,6 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	init_dinode(dip, ip, symname);
- 	gfs2_trans_end(sdp);
- 
--	error = gfs2_glock_nq_init(io_gl, LM_ST_SHARED, GL_EXACT, &ip->i_iopen_gh);
--	if (error)
--		goto fail_gunlock2;
--
- 	glock_set_object(ip->i_gl, ip);
- 	glock_set_object(io_gl, ip);
- 	gfs2_set_iop(inode);
-@@ -745,14 +749,14 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	if (default_acl) {
- 		error = __gfs2_set_acl(inode, default_acl, ACL_TYPE_DEFAULT);
- 		if (error)
--			goto fail_gunlock3;
-+			goto fail_gunlock4;
- 		posix_acl_release(default_acl);
- 		default_acl = NULL;
- 	}
- 	if (acl) {
- 		error = __gfs2_set_acl(inode, acl, ACL_TYPE_ACCESS);
- 		if (error)
--			goto fail_gunlock3;
-+			goto fail_gunlock4;
- 		posix_acl_release(acl);
- 		acl = NULL;
- 	}
-@@ -760,11 +764,11 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	error = security_inode_init_security(&ip->i_inode, &dip->i_inode, name,
- 					     &gfs2_initxattrs, NULL);
- 	if (error)
--		goto fail_gunlock3;
-+		goto fail_gunlock4;
- 
- 	error = link_dinode(dip, name, ip, &da);
- 	if (error)
--		goto fail_gunlock3;
-+		goto fail_gunlock4;
- 
- 	mark_inode_dirty(inode);
- 	d_instantiate(dentry, inode);
-@@ -782,9 +786,10 @@ static int gfs2_create_inode(struct inode *dir, struct dentry *dentry,
- 	unlock_new_inode(inode);
- 	return error;
- 
--fail_gunlock3:
-+fail_gunlock4:
- 	glock_clear_object(ip->i_gl, ip);
- 	glock_clear_object(io_gl, ip);
-+fail_gunlock3:
- 	gfs2_glock_dq_uninit(&ip->i_iopen_gh);
- fail_gunlock2:
- 	gfs2_glock_put(io_gl);
+ 	ida_simple_remove(&rtc_ida, rtc->id);
+ 	mutex_destroy(&rtc->ops_lock);
 -- 
 2.35.1
 
