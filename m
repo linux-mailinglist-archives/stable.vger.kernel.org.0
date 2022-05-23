@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44F3053190D
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3575D531694
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241401AbiEWRdS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
+        id S239562AbiEWRKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241094AbiEWR0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:17 -0400
+        with ESMTP id S239648AbiEWRJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:43 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFF362122;
-        Mon, 23 May 2022 10:21:23 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E836BFE8;
+        Mon, 23 May 2022 10:09:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE425B81219;
-        Mon, 23 May 2022 17:21:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20811C385A9;
-        Mon, 23 May 2022 17:21:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26C37B81200;
+        Mon, 23 May 2022 17:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 699C6C385A9;
+        Mon, 23 May 2022 17:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326481;
-        bh=mqkDz9dWwDNFalE5Rbuyg+FfWCGLAoMOK3GmkLsN3a8=;
+        s=korg; t=1653325759;
+        bh=trDlW+62lCKeAXjNiRC432sZJoG+X0NQj468+iBtg6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ab7a5lbBOIzz/IxF7Py7xzHienSE3CdEYITPTIlcFavRdyLd5wEJTLaaMxBLYayxB
-         n0XC4PKQgiwCYgt/Q2gMG2i5DUrdvKOMKSlTt6HDmXQLC/KH0VTG+54ZQ+Wc/7A/dF
-         n25CbPSo/zBAG/KafyUbj7vr0RUtYJGsCwMNlXtg=
+        b=oajscJdgJEHgiaJFvTCuYKJK6ucoIqFrwYrHbFZDhN/00ei6ZMw82CgPlp6IPTMSb
+         H8zV/jEQdKsHJ017qqnP7Q6t/X5ibAcBpVjGst2omNCuDSNIDMqGVGRxM2ZCQcfzre
+         gF0zFRlOg14YMgBXevvaGvrSLLB4t0nCuxPGjMgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 094/132] ARM: 9197/1: spectre-bhb: fix loop8 sequence for Thumb2
+Subject: [PATCH 4.14 14/33] net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
 Date:   Mon, 23 May 2022 19:05:03 +0200
-Message-Id: <20220523165838.921730840@linuxfoundation.org>
+Message-Id: <20220523165750.365570327@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 3cfb3019979666bdf33a1010147363cf05e0f17b ]
+[ Upstream commit 9e7fef9521e73ca8afd7da9e58c14654b02dfad8 ]
 
-In Thumb2, 'b . + 4' produces a branch instruction that uses a narrow
-encoding, and so it does not jump to the following instruction as
-expected. So use W(b) instead.
+In vmxnet3_rq_alloc_rx_buf(), when dma_map_single() fails, rbi->skb is
+freed immediately. Similarly, in another branch, when dma_map_page() fails,
+rbi->page is also freed. In the two cases, vmxnet3_rq_alloc_rx_buf()
+returns an error to its callers vmxnet3_rq_init() -> vmxnet3_rq_init_all()
+-> vmxnet3_activate_dev(). Then vmxnet3_activate_dev() calls
+vmxnet3_rq_cleanup_all() in error handling code, and rbi->skb or rbi->page
+are freed again in vmxnet3_rq_cleanup_all(), causing use-after-free bugs.
 
-Fixes: 6c7cb60bff7a ("ARM: fix Thumb2 regression with Spectre BHB")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+To fix these possible bugs, rbi->skb and rbi->page should be cleared after
+they are freed.
+
+The error log in our fault-injection testing is shown as follows:
+
+[   14.319016] BUG: KASAN: use-after-free in consume_skb+0x2f/0x150
+...
+[   14.321586] Call Trace:
+...
+[   14.325357]  consume_skb+0x2f/0x150
+[   14.325671]  vmxnet3_rq_cleanup_all+0x33a/0x4e0 [vmxnet3]
+[   14.326150]  vmxnet3_activate_dev+0xb9d/0x2ca0 [vmxnet3]
+[   14.326616]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.361675] Allocated by task 351:
+...
+[   14.362688]  __netdev_alloc_skb+0x1b3/0x6f0
+[   14.362960]  vmxnet3_rq_alloc_rx_buf+0x1b0/0x8d0 [vmxnet3]
+[   14.363317]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.363661]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.367309]
+[   14.367412] Freed by task 351:
+...
+[   14.368932]  __dev_kfree_skb_any+0xd2/0xe0
+[   14.369193]  vmxnet3_rq_alloc_rx_buf+0x71e/0x8d0 [vmxnet3]
+[   14.369544]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.369883]  vmxnet3_open+0x387/0x470 [vmxnet3]
+[   14.370174]  __dev_open+0x28a/0x420
+[   14.370399]  __dev_change_flags+0x192/0x590
+[   14.370667]  dev_change_flags+0x7a/0x180
+[   14.370919]  do_setlink+0xb28/0x3570
+[   14.371150]  rtnl_newlink+0x1160/0x1740
+[   14.371399]  rtnetlink_rcv_msg+0x5bf/0xa50
+[   14.371661]  netlink_rcv_skb+0x1cd/0x3e0
+[   14.371913]  netlink_unicast+0x5dc/0x840
+[   14.372169]  netlink_sendmsg+0x856/0xc40
+[   14.372420]  ____sys_sendmsg+0x8a7/0x8d0
+[   14.372673]  __sys_sendmsg+0x1c2/0x270
+[   14.372914]  do_syscall_64+0x41/0x90
+[   14.373145]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+...
+
+Fixes: 5738a09d58d5a ("vmxnet3: fix checks for dma mapping errors")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Link: https://lore.kernel.org/r/20220514050656.2636588-1-r33s3n6@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-armv.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 46b697dfa4cf..68261a83b7ad 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1038,7 +1038,7 @@ vector_bhb_loop8_\name:
- 
- 	@ bhb workaround
- 	mov	r0, #8
--3:	b	. + 4
-+3:	W(b)	. + 4
- 	subs	r0, r0, #1
- 	bne	3b
- 	dsb
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index 98fc34ea78ff..8f536bc2aed8 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -595,6 +595,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					dev_kfree_skb_any(rbi->skb);
++					rbi->skb = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
+@@ -619,6 +620,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					put_page(rbi->page);
++					rbi->page = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
 -- 
 2.35.1
 
