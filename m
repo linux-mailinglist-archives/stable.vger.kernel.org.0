@@ -2,56 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E97AC53131E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC4053133B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:23:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237290AbiEWOvr convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Mon, 23 May 2022 10:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51680 "EHLO
+        id S237466AbiEWPBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 11:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237251AbiEWOvp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 10:51:45 -0400
-Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B413211A2F
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 07:51:44 -0700 (PDT)
-Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- uk-mta-32-eDnsE147PLCRz1ef_auwew-1; Mon, 23 May 2022 15:51:41 +0100
-X-MC-Unique: eDnsE147PLCRz1ef_auwew-1
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
- Server (TLS) id 15.0.1497.36; Mon, 23 May 2022 15:51:41 +0100
-Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
- AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
- 15.00.1497.036; Mon, 23 May 2022 15:51:41 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Petr Malat' <oss@malat.biz>,
-        "linux-mtd@lists.infradead.org" <linux-mtd@lists.infradead.org>
-CC:     Joern Engel <joern@lazybastard.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
-Thread-Topic: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
-Thread-Index: AQHYbrHUf5tSa7gm6kqFegI33HIF660si3RA
-Date:   Mon, 23 May 2022 14:51:41 +0000
-Message-ID: <3cab9a7f4ed34ca0b742a62c2bdc3bce@AcuMS.aculab.com>
+        with ESMTP id S237481AbiEWPAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 11:00:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9695BD08;
+        Mon, 23 May 2022 08:00:22 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56C0EB81136;
+        Mon, 23 May 2022 15:00:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0EBBC385AA;
+        Mon, 23 May 2022 15:00:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653318020;
+        bh=IUaEfLj6953s/H4mbcGF6KlLruM+MM9WWWcWdgxpOWs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=K/Za5QKWDzE6PsRsSeWsx+zVtE7/Ad05Qi3B44uTxU+3Lv0rXiXLMgNRM8Bk4gfJu
+         wDLaM/dFjZ/mXFtnKYgU4IWX1DL1RF56VaT3dM4dE36JbrUGsLexrKnURTO0b+B3Op
+         E0VLtnZBgUW0nN/akEG+qhZHdvuROerLG1Z35ek0=
+Date:   Mon, 23 May 2022 17:00:16 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Petr Malat <oss@malat.biz>
+Cc:     linux-mtd@lists.infradead.org, Joern Engel <joern@lazybastard.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
+Message-ID: <YouhgL/sAHtrxbeR@kroah.com>
 References: <20220523142825.3144904-1-oss@malat.biz>
-In-Reply-To: <20220523142825.3144904-1-oss@malat.biz>
-Accept-Language: en-GB, en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: aculab.com
-Content-Language: en-US
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_LOW,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220523142825.3144904-1-oss@malat.biz>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -60,20 +50,10 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Malat
-> Sent: 23 May 2022 15:28
-> 
+On Mon, May 23, 2022 at 04:28:25PM +0200, Petr Malat wrote:
 > One can't use memcpy on memory obtained by ioremap, because IO memory
 > may have different alignment and size access restriction than the system
 > memory. Use memremap as phram driver operates on RAM.
-
-Does that actually help?
-The memcpy() is still likely to issue unaligned accesses
-that the hardware can't handle.
-
-	David
-
-
 > 
 > This fixes an unaligned access on ARM64, which could be triggered with
 > e.g. dd if=/dev/phram/by-name/testdev bs=8190 count=1
@@ -88,8 +68,7 @@ that the hardware can't handle.
 >      ISV = 0, ISS = 0x00000021
 >      CM = 0, WnR = 0
 >    swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000000cd5000
->    [ffffffc01208bfbf] pgd=00000002fffff003, p4d=00000002fffff003, pud=00000002fffff003,
-> pmd=0000000100b43003, pte=0068000022221717
+>    [ffffffc01208bfbf] pgd=00000002fffff003, p4d=00000002fffff003, pud=00000002fffff003, pmd=0000000100b43003, pte=0068000022221717
 >    Internal error: Oops: 96000021 [#1] PREEMPT SMP
 >    CPU: 2 PID: 14768 Comm: dd Tainted: G           O      5.10.116-f13ddced70 #1
 >    Hardware name: AXM56xx Victoria (DT)
@@ -138,7 +117,7 @@ that the hardware can't handle.
 > --- a/drivers/mtd/devices/phram.c
 > +++ b/drivers/mtd/devices/phram.c
 > @@ -83,7 +83,7 @@ static void unregister_devices(void)
-> 
+>  
 >  	list_for_each_entry_safe(this, safe, &phram_list, list) {
 >  		mtd_device_unregister(&this->mtd);
 > -		iounmap(this->mtd.priv);
@@ -148,7 +127,7 @@ that the hardware can't handle.
 >  	}
 > @@ -99,9 +99,9 @@ static int register_device(char *name, phys_addr_t start, size_t len, uint32_t e
 >  		goto out0;
-> 
+>  
 >  	ret = -EIO;
 > -	new->mtd.priv = ioremap(start, len);
 > +	new->mtd.priv = memremap(start, len, MEMREMAP_WB);
@@ -157,20 +136,25 @@ that the hardware can't handle.
 > +		pr_err("memremap failed\n");
 >  		goto out1;
 >  	}
-> 
+>  
 > @@ -129,7 +129,7 @@ static int register_device(char *name, phys_addr_t start, size_t len, uint32_t e
 >  	return 0;
-> 
+>  
 >  out2:
 > -	iounmap(new->mtd.priv);
 > +	memunmap(new->mtd.priv);
 >  out1:
 >  	kfree(new);
 >  out0:
-> --
+> -- 
 > 2.30.2
+> 
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
+<formletter>
 
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
