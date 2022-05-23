@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6BF531958
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A458531B54
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241649AbiEWRfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:35:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42382 "EHLO
+        id S240303AbiEWRXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241646AbiEWRdu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A497CB0C;
-        Mon, 23 May 2022 10:28:00 -0700 (PDT)
+        with ESMTP id S240966AbiEWRVv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:21:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDB9C74DC2;
+        Mon, 23 May 2022 10:18:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A45F608C0;
-        Mon, 23 May 2022 17:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BAD3C385A9;
-        Mon, 23 May 2022 17:27:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 782856090C;
+        Mon, 23 May 2022 17:18:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D361C34115;
+        Mon, 23 May 2022 17:18:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326879;
-        bh=FLGBvZEt3C6XRU8TTupFkhcQcgUGvRduW1/jt4Oz7N0=;
+        s=korg; t=1653326290;
+        bh=STWB5UiG9tuaEqTPAITD9W4owrvJ7wIU/bfNuc4ee9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0nRWpmnPMbLZ6kokjBrweV3r28Xhc5bAsnLVNC4E5yyvw5LNcR9U8sQPLqKfQlEy
-         K375Qofd0v8/Lud3vxa+fb76nqhhuJYkeEGKgRgPN+O8XqYgTR4eTcvfpUrIKDo0AQ
-         a5sRtKoGkHcJqqFf1VaiqH48SXvCxt0eLtV3+X+U=
+        b=SKOdtRuQ0nQWuGUeHVS4bXjNMZN1xX9IVztoyD5D0lyeyzXoqQGtgxn4dPwmoAHGm
+         ffQtay84gSQbaPLRVYM2mU8gyMtamaop4mqwYUa/dVlQiLz95qcVEDbXRuquMDBbgl
+         f/UwZVwaz/ZWFwzCMOEKNHoxbDDSzWicJJc3FlQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jinke Fan <fanjinke@hygon.cn>,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
+        Raul E Rangel <rrangel@chromium.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 087/158] net: fix dev_fill_forward_path with pppoe + bridge
-Date:   Mon, 23 May 2022 19:04:04 +0200
-Message-Id: <20220523165845.565547962@linuxfoundation.org>
+Subject: [PATCH 5.15 036/132] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+Date:   Mon, 23 May 2022 19:04:05 +0200
+Message-Id: <20220523165829.425486130@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +57,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit cf2df74e202d81b09f09d84c2d8903e0e87e9274 ]
+[ Upstream commit 3ae8fd41573af4fb3a490c9ed947fc936ba87190 ]
 
-When calling dev_fill_forward_path on a pppoe device, the provided destination
-address is invalid. In order for the bridge fdb lookup to succeed, the pppoe
-code needs to update ctx->daddr to the correct value.
-Fix this by storing the address inside struct net_device_path_ctx
+Setting the century forward has been failing on AMD platforms.
+There was a previous attempt at fixing this for family 0x17 as part of
+commit 7ad295d5196a ("rtc: Fix the AltCentury value on AMD/Hygon
+platform") but this was later reverted due to some problems reported
+that appeared to stem from an FW bug on a family 0x17 desktop system.
 
-Fixes: f6efc675c9dd ("net: ppp: resolve forwarding path for bridge pppoe devices")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The same comments mentioned in the previous commit continue to apply
+to the newer platforms as well.
+
+```
+MC146818 driver use function mc146818_set_time() to set register
+RTC_FREQ_SELECT(RTC_REG_A)'s bit4-bit6 field which means divider stage
+reset value on Intel platform to 0x7.
+
+While AMD/Hygon RTC_REG_A(0Ah)'s bit4 is defined as DV0 [Reference]:
+DV0 = 0 selects Bank 0, DV0 = 1 selects Bank 1. Bit5-bit6 is defined
+as reserved.
+
+DV0 is set to 1, it will select Bank 1, which will disable AltCentury
+register(0x32) access. As UEFI pass acpi_gbl_FADT.century 0x32
+(AltCentury), the CMOS write will be failed on code:
+CMOS_WRITE(century, acpi_gbl_FADT.century).
+
+Correct RTC_REG_A bank select bit(DV0) to 0 on AMD/Hygon CPUs, it will
+enable AltCentury(0x32) register writing and finally setup century as
+expected.
+```
+
+However in closer examination the change previously submitted was also
+modifying bits 5 & 6 which are declared reserved in the AMD documentation.
+So instead modify just the DV0 bank selection bit.
+
+Being cognizant that there was a failure reported before, split the code
+change out to a static function that can also be used for exclusions if
+any regressions such as Mikhail's pop up again.
+
+Cc: Jinke Fan <fanjinke@hygon.cn>
+Cc: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Link: https://lore.kernel.org/all/CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com/
+Link: https://www.amd.com/system/files/TechDocs/51192_Bolton_FCH_RRG.pdf
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220111225750.1699-1-mario.limonciello@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/pppoe.c   | 1 +
- include/linux/netdevice.h | 2 +-
- net/core/dev.c            | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-mc146818-lib.c | 16 +++++++++++++++-
+ include/linux/mc146818rtc.h    |  2 ++
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ppp/pppoe.c b/drivers/net/ppp/pppoe.c
-index 3619520340b7..e172743948ed 100644
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -988,6 +988,7 @@ static int pppoe_fill_forward_path(struct net_device_path_ctx *ctx,
- 	path->encap.proto = htons(ETH_P_PPP_SES);
- 	path->encap.id = be16_to_cpu(po->num);
- 	memcpy(path->encap.h_dest, po->pppoe_pa.remote, ETH_ALEN);
-+	memcpy(ctx->daddr, po->pppoe_pa.remote, ETH_ALEN);
- 	path->dev = ctx->dev;
- 	ctx->dev = dev;
+diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
+index 8abac672f3cb..f3f5a87fe376 100644
+--- a/drivers/rtc/rtc-mc146818-lib.c
++++ b/drivers/rtc/rtc-mc146818-lib.c
+@@ -146,6 +146,17 @@ int mc146818_get_time(struct rtc_time *time)
+ }
+ EXPORT_SYMBOL_GPL(mc146818_get_time);
  
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index f53ea7038441..dadd4d2f6d8a 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -891,7 +891,7 @@ struct net_device_path_stack {
++/* AMD systems don't allow access to AltCentury with DV1 */
++static bool apply_amd_register_a_behavior(void)
++{
++#ifdef CONFIG_X86
++	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
++	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
++		return true;
++#endif
++	return false;
++}
++
+ /* Set the current date and time in the real time clock. */
+ int mc146818_set_time(struct rtc_time *time)
+ {
+@@ -219,7 +230,10 @@ int mc146818_set_time(struct rtc_time *time)
+ 	save_control = CMOS_READ(RTC_CONTROL);
+ 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
+ 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
+-	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
++	if (apply_amd_register_a_behavior())
++		CMOS_WRITE((save_freq_select & ~RTC_AMD_BANK_SELECT), RTC_FREQ_SELECT);
++	else
++		CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
  
- struct net_device_path_ctx {
- 	const struct net_device *dev;
--	const u8		*daddr;
-+	u8			daddr[ETH_ALEN];
+ #ifdef CONFIG_MACH_DECSTATION
+ 	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
+diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
+index 37c74e25f53d..3038124c6115 100644
+--- a/include/linux/mc146818rtc.h
++++ b/include/linux/mc146818rtc.h
+@@ -86,6 +86,8 @@ struct cmos_rtc_board_info {
+    /* 2 values for divider stage reset, others for "testing purposes only" */
+ #  define RTC_DIV_RESET1	0x60
+ #  define RTC_DIV_RESET2	0x70
++   /* In AMD BKDG bit 5 and 6 are reserved, bit 4 is for select dv0 bank */
++#  define RTC_AMD_BANK_SELECT	0x10
+   /* Periodic intr. / Square wave rate select. 0=none, 1=32.8kHz,... 15=2Hz */
+ # define RTC_RATE_SELECT 	0x0F
  
- 	int			num_vlans;
- 	struct {
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 91cf709c98b3..5f1ac4812277 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -663,11 +663,11 @@ int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
- 	const struct net_device *last_dev;
- 	struct net_device_path_ctx ctx = {
- 		.dev	= dev,
--		.daddr	= daddr,
- 	};
- 	struct net_device_path *path;
- 	int ret = 0;
- 
-+	memcpy(ctx.daddr, daddr, sizeof(ctx.daddr));
- 	stack->num_paths = 0;
- 	while (ctx.dev && ctx.dev->netdev_ops->ndo_fill_forward_path) {
- 		last_dev = ctx.dev;
 -- 
 2.35.1
 
