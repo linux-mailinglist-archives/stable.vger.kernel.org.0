@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6A4653189E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C93531AEB
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241427AbiEWRaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
+        id S240487AbiEWR3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242289AbiEWR1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1F4F7CB06;
-        Mon, 23 May 2022 10:22:53 -0700 (PDT)
+        with ESMTP id S242589AbiEWR1r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D90C482151;
+        Mon, 23 May 2022 10:23:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AECDB811FF;
-        Mon, 23 May 2022 17:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE1DEC385A9;
-        Mon, 23 May 2022 17:22:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54D2861524;
+        Mon, 23 May 2022 17:14:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34F83C385AA;
+        Mon, 23 May 2022 17:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326571;
-        bh=IoJRm/i4IXJI9no6CdAXI1whNbfhbv4o8gGiDQE+UGs=;
+        s=korg; t=1653326085;
+        bh=RHTqA4UjpxePZjnuT4BtMnZfxrgsfURyE/cXMH/P16M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqileH+NIjjQ61Y/7U6SpKKmRtCZ74T5WC84TjyTjWXmygepIGOZ6BQ8JAA8EHgUJ
-         KeS6/S8lW3yWHi+YrnfliIqcrrpQdrzAq0EHVLJ2hOm4MmghxY6lcYeQgwwx3TyeDh
-         rH8pPT5qa+tkQ0nGjWVpZA8EirEsWKa1Y/ERr9Mw=
+        b=yF0ILcXsMeIhWBQSwyQvZ1ZbAEQ+FzyvyMw2lGSdNcveYXqn6hGq0PoD7Tm4nLZLq
+         RvEf8y1+GkFIBZzUVPkhVBz/g5wfntSmZoZ+4AWArvByu3MEhsd9wIZhamBGerATsI
+         KxwG3gZ76w7dkjK/eXIbwFMcNWNUsXNggL1agcBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Jeff LaBundy <jeff@labundy.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 105/132] riscv: dts: sifive: fu540-c000: align dma node name with dtschema
-Date:   Mon, 23 May 2022 19:05:14 +0200
-Message-Id: <20220523165840.886090758@linuxfoundation.org>
+Subject: [PATCH 5.10 11/97] Input: add bounds checking to input_set_capability()
+Date:   Mon, 23 May 2022 19:05:15 +0200
+Message-Id: <20220523165814.161382050@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
+References: <20220523165812.244140613@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,36 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit b17410182b6f98191fbf7f42d3b4a78512769d29 ]
+[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
 
-Fixes dtbs_check warnings like:
+Update input_set_capability() to prevent kernel panic in case the
+event code exceeds the bitmap for the given event type.
 
-  dma@3000000: $nodename:0: 'dma@3000000' does not match '^dma-controller(@.*)?$'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20220407193856.18223-1-krzysztof.kozlowski@linaro.org
-Fixes: c5ab54e9945b ("riscv: dts: add support for PDMA device of HiFive Unleashed Rev A00")
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/fu540-c000.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/input.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-index 7db861053483..64c06c9b41dc 100644
---- a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-+++ b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-@@ -166,7 +166,7 @@ uart0: serial@10010000 {
- 			clocks = <&prci PRCI_CLK_TLCLK>;
- 			status = "disabled";
- 		};
--		dma: dma@3000000 {
-+		dma: dma-controller@3000000 {
- 			compatible = "sifive,fu540-c000-pdma";
- 			reg = <0x0 0x3000000 0x0 0x8000>;
- 			interrupt-parent = <&plic0>;
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3cfd2c18eebd..49504dcd5dc6 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -47,6 +47,17 @@ static DEFINE_MUTEX(input_mutex);
+ 
+ static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
+ 
++static const unsigned int input_max_code[EV_CNT] = {
++	[EV_KEY] = KEY_MAX,
++	[EV_REL] = REL_MAX,
++	[EV_ABS] = ABS_MAX,
++	[EV_MSC] = MSC_MAX,
++	[EV_SW] = SW_MAX,
++	[EV_LED] = LED_MAX,
++	[EV_SND] = SND_MAX,
++	[EV_FF] = FF_MAX,
++};
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+ {
+@@ -1976,6 +1987,14 @@ EXPORT_SYMBOL(input_get_timestamp);
+  */
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
+ {
++	if (type < EV_CNT && input_max_code[type] &&
++	    code > input_max_code[type]) {
++		pr_err("%s: invalid code %u for type %u\n", __func__, code,
++		       type);
++		dump_stack();
++		return;
++	}
++
+ 	switch (type) {
+ 	case EV_KEY:
+ 		__set_bit(code, dev->keybit);
 -- 
 2.35.1
 
