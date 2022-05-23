@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E07F531657
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 243055317BF
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242184AbiEWRkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
+        id S242155AbiEWRnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:43:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243820AbiEWRi2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:28 -0400
+        with ESMTP id S243260AbiEWRh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:59 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C1673567;
-        Mon, 23 May 2022 10:32:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFBC781982;
+        Mon, 23 May 2022 10:32:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DE23B8122D;
-        Mon, 23 May 2022 17:30:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F74C385AA;
-        Mon, 23 May 2022 17:30:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5466B81222;
+        Mon, 23 May 2022 17:30:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07993C385AA;
+        Mon, 23 May 2022 17:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327027;
-        bh=RGM320wqGVhKSeycGOcLU5m9mfigPzUiOf7ABwtT81w=;
+        s=korg; t=1653327030;
+        bh=cAqRWU3u3Ae4nsofTj45RWHjoKKjbBp3mNcaKxMcVh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYh/7k+67MQnfSOx9/x+FqZ+VviL3cv8RURCBGSLTQUJMBZbWHgLp3Yl95aMvGPvE
-         b8sYdtC0Ky7sMYY/aUgGoYAJYWp4flddsP+cPKmViXuKdoK3TuALAgw39gfyhXwSQl
-         FiGEkMjucxHoM97BhQ4KxVWoZaJyrheANgfhKwV0=
+        b=vyb+6pG506OBRbccAGMLNu380RBt9OSbTrci+wTFA5D5jhcnKdehJ9fzF6O+XerYN
+         1b3S4LjcuQK4mA9FMaLr5/UrQA8LsNIcH1rlx125+gNsogrocpHbW/mzfaDaWmN6c6
+         BwoRiwRbGDXINi2vd1zulG3a2sqxHq5DAR2Q0SoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Michal Wilczynski <michal.wilczynski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 098/158] ice: Fix interrupt moderation settings getting cleared
-Date:   Mon, 23 May 2022 19:04:15 +0200
-Message-Id: <20220523165847.710787622@linuxfoundation.org>
+        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 099/158] clk: at91: generated: consider range when calculating best rate
+Date:   Mon, 23 May 2022 19:04:16 +0200
+Message-Id: <20220523165847.846401304@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -56,114 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Wilczynski <michal.wilczynski@intel.com>
+From: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
 
-[ Upstream commit bf13502ed5f941b0777b3fd1e24dac5d93f3886c ]
+[ Upstream commit d0031e6fbed955ff8d5f5bbc8fe7382482559cec ]
 
-Adaptive-rx and Adaptive-tx are interrupt moderation settings
-that can be enabled/disabled using ethtool:
-ethtool -C ethX adaptive-rx on/off adaptive-tx on/off
+clk_generated_best_diff() helps in finding the parent and the divisor to
+compute a rate closest to the required one. However, it doesn't take into
+account the request's range for the new rate. Make sure the new rate
+is within the required range.
 
-Unfortunately those settings are getting cleared after
-changing number of queues, or in ethtool world 'channels':
-ethtool -L ethX rx 1 tx 1
-
-Clearing was happening due to introduction of bit fields
-in ice_ring_container struct. This way only itr_setting
-bits were rebuilt during ice_vsi_rebuild_set_coalesce().
-
-Introduce an anonymous struct of bitfields and create a
-union to refer to them as a single variable.
-This way variable can be easily saved and restored.
-
-Fixes: 61dc79ced7aa ("ice: Restore interrupt throttle settings after VSI rebuild")
-Signed-off-by: Michal Wilczynski <michal.wilczynski@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 8a8f4bf0c480 ("clk: at91: clk-generated: create function to find best_diff")
+Signed-off-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+Link: https://lore.kernel.org/r/20220413071318.244912-1-codrin.ciubotariu@microchip.com
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c  | 16 ++++++++--------
- drivers/net/ethernet/intel/ice/ice_txrx.h | 11 ++++++++---
- 2 files changed, 16 insertions(+), 11 deletions(-)
+ drivers/clk/at91/clk-generated.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index 15bb6f001a04..5f86cc1cfd09 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -3207,8 +3207,8 @@ ice_vsi_rebuild_get_coalesce(struct ice_vsi *vsi,
- 	ice_for_each_q_vector(vsi, i) {
- 		struct ice_q_vector *q_vector = vsi->q_vectors[i];
+diff --git a/drivers/clk/at91/clk-generated.c b/drivers/clk/at91/clk-generated.c
+index 23cc8297ec4c..d429ba52a719 100644
+--- a/drivers/clk/at91/clk-generated.c
++++ b/drivers/clk/at91/clk-generated.c
+@@ -117,6 +117,10 @@ static void clk_generated_best_diff(struct clk_rate_request *req,
+ 		tmp_rate = parent_rate;
+ 	else
+ 		tmp_rate = parent_rate / div;
++
++	if (tmp_rate < req->min_rate || tmp_rate > req->max_rate)
++		return;
++
+ 	tmp_diff = abs(req->rate - tmp_rate);
  
--		coalesce[i].itr_tx = q_vector->tx.itr_setting;
--		coalesce[i].itr_rx = q_vector->rx.itr_setting;
-+		coalesce[i].itr_tx = q_vector->tx.itr_settings;
-+		coalesce[i].itr_rx = q_vector->rx.itr_settings;
- 		coalesce[i].intrl = q_vector->intrl;
- 
- 		if (i < vsi->num_txq)
-@@ -3264,21 +3264,21 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
- 		 */
- 		if (i < vsi->alloc_rxq && coalesce[i].rx_valid) {
- 			rc = &vsi->q_vectors[i]->rx;
--			rc->itr_setting = coalesce[i].itr_rx;
-+			rc->itr_settings = coalesce[i].itr_rx;
- 			ice_write_itr(rc, rc->itr_setting);
- 		} else if (i < vsi->alloc_rxq) {
- 			rc = &vsi->q_vectors[i]->rx;
--			rc->itr_setting = coalesce[0].itr_rx;
-+			rc->itr_settings = coalesce[0].itr_rx;
- 			ice_write_itr(rc, rc->itr_setting);
- 		}
- 
- 		if (i < vsi->alloc_txq && coalesce[i].tx_valid) {
- 			rc = &vsi->q_vectors[i]->tx;
--			rc->itr_setting = coalesce[i].itr_tx;
-+			rc->itr_settings = coalesce[i].itr_tx;
- 			ice_write_itr(rc, rc->itr_setting);
- 		} else if (i < vsi->alloc_txq) {
- 			rc = &vsi->q_vectors[i]->tx;
--			rc->itr_setting = coalesce[0].itr_tx;
-+			rc->itr_settings = coalesce[0].itr_tx;
- 			ice_write_itr(rc, rc->itr_setting);
- 		}
- 
-@@ -3292,12 +3292,12 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
- 	for (; i < vsi->num_q_vectors; i++) {
- 		/* transmit */
- 		rc = &vsi->q_vectors[i]->tx;
--		rc->itr_setting = coalesce[0].itr_tx;
-+		rc->itr_settings = coalesce[0].itr_tx;
- 		ice_write_itr(rc, rc->itr_setting);
- 
- 		/* receive */
- 		rc = &vsi->q_vectors[i]->rx;
--		rc->itr_setting = coalesce[0].itr_rx;
-+		rc->itr_settings = coalesce[0].itr_rx;
- 		ice_write_itr(rc, rc->itr_setting);
- 
- 		vsi->q_vectors[i]->intrl = coalesce[0].intrl;
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
-index b7b3bd4816f0..ec4733272034 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
-@@ -379,9 +379,14 @@ struct ice_ring_container {
- 	/* this matches the maximum number of ITR bits, but in usec
- 	 * values, so it is shifted left one bit (bit zero is ignored)
- 	 */
--	u16 itr_setting:13;
--	u16 itr_reserved:2;
--	u16 itr_mode:1;
-+	union {
-+		struct {
-+			u16 itr_setting:13;
-+			u16 itr_reserved:2;
-+			u16 itr_mode:1;
-+		};
-+		u16 itr_settings;
-+	};
- 	enum ice_container_type type;
- };
- 
+ 	if (*best_diff < 0 || *best_diff >= tmp_diff) {
 -- 
 2.35.1
 
