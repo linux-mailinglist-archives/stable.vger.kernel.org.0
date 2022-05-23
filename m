@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9407D53178A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2908F5318CD
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241418AbiEWRdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S239655AbiEWRRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241119AbiEWR0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9074B62BFE;
-        Mon, 23 May 2022 10:21:26 -0700 (PDT)
+        with ESMTP id S240678AbiEWRQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2EEF15729;
+        Mon, 23 May 2022 10:16:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA4ECB811FE;
-        Mon, 23 May 2022 17:21:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 426FBC385A9;
-        Mon, 23 May 2022 17:21:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E6008614CA;
+        Mon, 23 May 2022 17:13:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3744C385A9;
+        Mon, 23 May 2022 17:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326484;
-        bh=0iVyKruOZKZjO3IhGdC9lrTMP16QOLq3mphVI4fNs+A=;
+        s=korg; t=1653326002;
+        bh=amzS8tdbXvXwVohrv+HoHg7A0i5q82gunCd6tiY4OQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dom9oQCmldkjKRsjZJdtbQSYXdPssJbQFAek8mhP+AdHCgoluzNgcKtun4yvV1WNo
-         gwmGyJKZXJItavWpwU3/5u58ZL5GARh7sQwD4C+MgdLBG5pX+UkjQ+/CKu2YGupiZB
-         r/5YcwTVZMXsjQzu3HryugU/V9dCp1rdiGDxa1Eo=
+        b=TDOb9ioZEWVLHngT7eucPAtfcZlA/MbSuIL5xvH4ef4bWr15rXUnSGe+wtC+ymE2z
+         3yjXPAMEhIEPCVXqjqUXmSNdkpv4KYQyf3r9EHpYWPPOspqk7vBLRU+v6i+gpGBE9e
+         BMdLR3lwscydixLh8V70oFIzEZcafi87QP7AojJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geliang Tang <geliang.tang@suse.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 095/132] mptcp: change the parameter of __mptcp_make_csum
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+8ed8fc4c57e9dcf23ca6@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 37/68] net/sched: act_pedit: sanitize shift argument before usage
 Date:   Mon, 23 May 2022 19:05:04 +0200
-Message-Id: <20220523165839.111088948@linuxfoundation.org>
+Message-Id: <20220523165808.698375192@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit c312ee219100e86143a1d3cc10b367bc43a0e0b8 ]
+[ Upstream commit 4d42d54a7d6aa6d29221d3fd4f2ae9503e94f011 ]
 
-This patch changed the type of the last parameter of __mptcp_make_csum()
-from __sum16 to __wsum. And export this function in protocol.h.
+syzbot was able to trigger an Out-of-Bound on the pedit action:
 
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+UBSAN: shift-out-of-bounds in net/sched/act_pedit.c:238:43
+shift exponent 1400735974 is too large for 32-bit type 'unsigned int'
+CPU: 0 PID: 3606 Comm: syz-executor151 Not tainted 5.18.0-rc5-syzkaller-00165-g810c2f0a3f86 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ ubsan_epilogue+0xb/0x50 lib/ubsan.c:151
+ __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x187 lib/ubsan.c:322
+ tcf_pedit_init.cold+0x1a/0x1f net/sched/act_pedit.c:238
+ tcf_action_init_1+0x414/0x690 net/sched/act_api.c:1367
+ tcf_action_init+0x530/0x8d0 net/sched/act_api.c:1432
+ tcf_action_add+0xf9/0x480 net/sched/act_api.c:1956
+ tc_ctl_action+0x346/0x470 net/sched/act_api.c:2015
+ rtnetlink_rcv_msg+0x413/0xb80 net/core/rtnetlink.c:5993
+ netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x543/0x7f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x904/0xe00 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:705 [inline]
+ sock_sendmsg+0xcf/0x120 net/socket.c:725
+ ____sys_sendmsg+0x6e2/0x800 net/socket.c:2413
+ ___sys_sendmsg+0xf3/0x170 net/socket.c:2467
+ __sys_sendmsg+0xe5/0x1b0 net/socket.c:2496
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7fe36e9e1b59
+Code: 28 c3 e8 2a 14 00 00 66 2e 0f 1f 84 00 00 00 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 c0 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffef796fe88 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
+RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007fe36e9e1b59
+RDX: 0000000000000000 RSI: 0000000020000300 RDI: 0000000000000003
+RBP: 00007fe36e9a5d00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fe36e9a5d90
+R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+The 'shift' field is not validated, and any value above 31 will
+trigger out-of-bounds. The issue predates the git history, but
+syzbot was able to trigger it only after the commit mentioned in
+the fixes tag, and this change only applies on top of such commit.
+
+Address the issue bounding the 'shift' value to the maximum allowed
+by the relevant operator.
+
+Reported-and-tested-by: syzbot+8ed8fc4c57e9dcf23ca6@syzkaller.appspotmail.com
+Fixes: 8b796475fd78 ("net/sched: act_pedit: really ensure the skb is writable")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/options.c  | 8 ++++----
- net/mptcp/protocol.h | 1 +
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ net/sched/act_pedit.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index e515ba9ccb5d..d158f53d3bc3 100644
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -1214,7 +1214,7 @@ static void mptcp_set_rwin(const struct tcp_sock *tp)
- 		WRITE_ONCE(msk->rcv_wnd_sent, ack_seq);
- }
+diff --git a/net/sched/act_pedit.c b/net/sched/act_pedit.c
+index 305cb190e997..f095a0fb75c6 100644
+--- a/net/sched/act_pedit.c
++++ b/net/sched/act_pedit.c
+@@ -231,6 +231,10 @@ static int tcf_pedit_init(struct net *net, struct nlattr *nla,
+ 	for (i = 0; i < p->tcfp_nkeys; ++i) {
+ 		u32 cur = p->tcfp_keys[i].off;
  
--static u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __sum16 sum)
-+u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum)
- {
- 	struct csum_pseudo_header header;
- 	__wsum csum;
-@@ -1229,14 +1229,14 @@ static u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __sum1
- 	header.data_len = htons(data_len);
- 	header.csum = 0;
- 
--	csum = csum_partial(&header, sizeof(header), ~csum_unfold(sum));
-+	csum = csum_partial(&header, sizeof(header), sum);
- 	return (__force u16)csum_fold(csum);
- }
- 
- static u16 mptcp_make_csum(const struct mptcp_ext *mpext)
- {
- 	return __mptcp_make_csum(mpext->data_seq, mpext->subflow_seq, mpext->data_len,
--				 mpext->csum);
-+				 ~csum_unfold(mpext->csum));
- }
- 
- void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
-@@ -1368,7 +1368,7 @@ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
- 					   __mptcp_make_csum(opts->data_seq,
- 							     opts->subflow_seq,
- 							     opts->data_len,
--							     opts->csum), ptr);
-+							     ~csum_unfold(opts->csum)), ptr);
- 		} else {
- 			put_unaligned_be32(opts->data_len << 16 |
- 					   TCPOPT_NOP << 8 | TCPOPT_NOP, ptr);
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index 82c5dc4d6b49..6bcdaf01f483 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -718,6 +718,7 @@ void mptcp_token_destroy(struct mptcp_sock *msk);
- void mptcp_crypto_key_sha(u64 key, u32 *token, u64 *idsn);
- 
- void mptcp_crypto_hmac_sha(u64 key1, u64 key2, u8 *msg, int len, void *hmac);
-+u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum);
- 
- void __init mptcp_pm_init(void);
- void mptcp_pm_data_init(struct mptcp_sock *msk);
++		/* sanitize the shift value for any later use */
++		p->tcfp_keys[i].shift = min_t(size_t, BITS_PER_TYPE(int) - 1,
++					      p->tcfp_keys[i].shift);
++
+ 		/* The AT option can read a single byte, we can bound the actual
+ 		 * value with uchar max.
+ 		 */
 -- 
 2.35.1
 
