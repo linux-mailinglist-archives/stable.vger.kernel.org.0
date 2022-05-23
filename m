@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88DA8531ACD
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B6D531921
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241362AbiEWRnz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:43:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35942 "EHLO
+        id S240065AbiEWR2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242812AbiEWRhr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1762E5D64F;
-        Mon, 23 May 2022 10:31:47 -0700 (PDT)
+        with ESMTP id S241265AbiEWR0j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4FA6EB3C;
+        Mon, 23 May 2022 10:21:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ADF5B811F6;
-        Mon, 23 May 2022 17:29:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1E9C385A9;
-        Mon, 23 May 2022 17:29:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05CFA60919;
+        Mon, 23 May 2022 17:19:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F53C385A9;
+        Mon, 23 May 2022 17:19:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326979;
-        bh=jMIzHqt1QTdiyQEd3y75sOxgA5an0wZmedRi1HIY8/U=;
+        s=korg; t=1653326387;
+        bh=bmaIBOnLPV+9ts2gzWUwpvTbWoeX6xYEorQENEVPD0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tk5d1bpdVlIm63C+Mu9T+hO84mn/u1N/jvlGL0c10vebak2efFxQT+hSRXVKtV4pi
-         AjGFg0G7wdHF4k2lujESn86bZYIlOKb9QE8FgQb+5PwkKia9wfiuKsS5bHXTtdpVS7
-         B3gOQCPS2KJ7HfVNuKf85PyAYK8ACbEdojUKPJME=
+        b=L4IhpH1peFXa1M12K4DYUIR9uylt4UoBImDK8C1FtIZVaCft9MJEJUNQ4yGYIXybw
+         ktrDAcdm94dMV+t0jJp6WeN21UnMPP3VAqGpzW7jiigIu/61eIAOARcCpEw8vmukKQ
+         y2BH0zbaLbX0rw9f4HlGjTteT2QcFeUnyC9sELnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Joel Stanley <joel@jms.id.au>,
+        Ryan Chen <ryan_chen@aspeedtech.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 118/158] netfilter: flowtable: pass flowtable to nf_flow_table_iterate()
+Subject: [PATCH 5.15 066/132] ARM: dts: aspeed: Add secure boot controller node
 Date:   Mon, 23 May 2022 19:04:35 +0200
-Message-Id: <20220523165850.431058428@linuxfoundation.org>
+Message-Id: <20220523165834.167796816@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,88 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 217cff36e885627c41a14e803fc44f9cbc945767 ]
+[ Upstream commit fea289467608ffddb2f8d3a740912047974bb183 ]
 
-The flowtable object is already passed as argument to
-nf_flow_table_iterate(), do use not data pointer to pass flowtable.
+The ast2600 has a secure boot controller.
 
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Ryan Chen <ryan_chen@aspeedtech.com>
+Link: https://lore.kernel.org/r/20211117035106.321454-3-joel@jms.id.au
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm/boot/dts/aspeed-g6.dtsi | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 58f3f77b3eb2..de783c9094d7 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -382,7 +382,8 @@ EXPORT_SYMBOL_GPL(flow_offload_lookup);
+diff --git a/arch/arm/boot/dts/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed-g6.dtsi
+index ee171b3364fa..8f947ed47fc5 100644
+--- a/arch/arm/boot/dts/aspeed-g6.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6.dtsi
+@@ -384,6 +384,11 @@ adc1: adc@1e6e9100 {
+ 				status = "disabled";
+ 			};
  
- static int
- nf_flow_table_iterate(struct nf_flowtable *flow_table,
--		      void (*iter)(struct flow_offload *flow, void *data),
-+		      void (*iter)(struct nf_flowtable *flowtable,
-+				   struct flow_offload *flow, void *data),
- 		      void *data)
- {
- 	struct flow_offload_tuple_rhash *tuplehash;
-@@ -406,7 +407,7 @@ nf_flow_table_iterate(struct nf_flowtable *flow_table,
- 
- 		flow = container_of(tuplehash, struct flow_offload, tuplehash[0]);
- 
--		iter(flow, data);
-+		iter(flow_table, flow, data);
- 	}
- 	rhashtable_walk_stop(&hti);
- 	rhashtable_walk_exit(&hti);
-@@ -434,10 +435,9 @@ static bool nf_flow_has_stale_dst(struct flow_offload *flow)
- 	       flow_offload_stale_dst(&flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].tuple);
- }
- 
--static void nf_flow_offload_gc_step(struct flow_offload *flow, void *data)
-+static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
-+				    struct flow_offload *flow, void *data)
- {
--	struct nf_flowtable *flow_table = data;
--
- 	if (nf_flow_has_expired(flow) ||
- 	    nf_ct_is_dying(flow->ct) ||
- 	    nf_flow_has_stale_dst(flow))
-@@ -462,7 +462,7 @@ static void nf_flow_offload_work_gc(struct work_struct *work)
- 	struct nf_flowtable *flow_table;
- 
- 	flow_table = container_of(work, struct nf_flowtable, gc_work.work);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, flow_table);
-+	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
- 	queue_delayed_work(system_power_efficient_wq, &flow_table->gc_work, HZ);
- }
- 
-@@ -578,7 +578,8 @@ int nf_flow_table_init(struct nf_flowtable *flowtable)
- }
- EXPORT_SYMBOL_GPL(nf_flow_table_init);
- 
--static void nf_flow_table_do_cleanup(struct flow_offload *flow, void *data)
-+static void nf_flow_table_do_cleanup(struct nf_flowtable *flow_table,
-+				     struct flow_offload *flow, void *data)
- {
- 	struct net_device *dev = data;
- 
-@@ -620,11 +621,10 @@ void nf_flow_table_free(struct nf_flowtable *flow_table)
- 
- 	cancel_delayed_work_sync(&flow_table->gc_work);
- 	nf_flow_table_iterate(flow_table, nf_flow_table_do_cleanup, NULL);
--	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, flow_table);
-+	nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
- 	nf_flow_table_offload_flush(flow_table);
- 	if (nf_flowtable_hw_offload(flow_table))
--		nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step,
--				      flow_table);
-+		nf_flow_table_iterate(flow_table, nf_flow_offload_gc_step, NULL);
- 	rhashtable_destroy(&flow_table->rhashtable);
- }
- EXPORT_SYMBOL_GPL(nf_flow_table_free);
++			sbc: secure-boot-controller@1e6f2000 {
++				compatible = "aspeed,ast2600-sbc";
++				reg = <0x1e6f2000 0x1000>;
++			};
++
+ 			gpio0: gpio@1e780000 {
+ 				#gpio-cells = <2>;
+ 				gpio-controller;
 -- 
 2.35.1
 
