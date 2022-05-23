@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B79D531754
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3089531621
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241686AbiEWReB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:34:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35018 "EHLO
+        id S240347AbiEWRXk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241103AbiEWRcl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0AB79825;
-        Mon, 23 May 2022 10:27:28 -0700 (PDT)
+        with ESMTP id S240787AbiEWRVi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:21:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4595B737B4;
+        Mon, 23 May 2022 10:18:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 523B860919;
-        Mon, 23 May 2022 17:27:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50623C385A9;
-        Mon, 23 May 2022 17:27:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B850CB81229;
+        Mon, 23 May 2022 17:18:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2030FC385A9;
+        Mon, 23 May 2022 17:18:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326847;
-        bh=z9KitDqnllZPX+NUcFczaCCn/qxRFGh1THplW/YBoOY=;
+        s=korg; t=1653326284;
+        bh=o4q0gVs0gfviaTGGB5AnUBByDUtGawb79C5sVvmKWRI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XI+BuiScBJwhH+5+JAPCFdfTl+uFr0mLanvAPGdluYzfmHwi7WiSvXBlZqsj2KbE+
-         0YePvuLudonDVrZpJnhC6cXtpeHOipIX48FLKF5AnFYjx6ogfG6qvNrBXTVwrYwy9P
-         /JK9R6AuE5L80pchYV+hokykgh87RaQ5po5QhpWE=
+        b=isKkstYpAfdk/uXf64Qx1BLKNRhA1AX3lCm4UvE47jkoabd6MrRnZwkxT7/XjaFie
+         gJkcOcoT8Cz82POgHJWMID8Op1k6T8BXybImLeukWGlE41Pa8yTCfFloO3YVNrwxNz
+         pLUyhVrRwS/XLyAjwcg1SpkZXgBDx1D2SwSPDHbM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Ming Lei <ming.lei@redhat.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 078/158] block/mq-deadline: Set the fifo_time member also if inserting at head
+        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 026/132] rtc: sun6i: Fix time overflow handling
 Date:   Mon, 23 May 2022 19:03:55 +0200
-Message-Id: <20220523165843.956480333@linuxfoundation.org>
+Message-Id: <20220523165827.845000426@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,39 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Andre Przywara <andre.przywara@arm.com>
 
-[ Upstream commit 725f22a1477c9c15aa67ad3af96fe28ec4fe72d2 ]
+[ Upstream commit 9f6cd82eca7e91a0d0311242a87c6aa3c2737968 ]
 
-Before commit 322cff70d46c the fifo_time member of requests on a dispatch
-list was not used. Commit 322cff70d46c introduces code that reads the
-fifo_time member of requests on dispatch lists. Hence this patch that sets
-the fifo_time member when adding a request to a dispatch list.
+Using "unsigned long" for UNIX timestamps is never a good idea, and
+comparing the value of such a variable against U32_MAX does not do
+anything useful on 32-bit systems.
 
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Fixes: 322cff70d46c ("block/mq-deadline: Prioritize high-priority requests")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Link: https://lore.kernel.org/r/20220513171307.32564-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Use the proper time64_t type when dealing with timestamps, and avoid
+cutting down the time range unnecessarily. This also fixes the flawed
+check for the alarm time being too far into the future.
+
+The check for this condition is actually somewhat theoretical, as the
+RTC counts till 2033 only anyways, and 2^32 seconds from now is not
+before the year 2157 - at which point I hope nobody will be using this
+hardware anymore.
+
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220211122643.1343315-4-andre.przywara@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/mq-deadline.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-sun6i.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/block/mq-deadline.c b/block/mq-deadline.c
-index 3ed5eaf3446a..6ed602b2f80a 100644
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -742,6 +742,7 @@ static void dd_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
+diff --git a/drivers/rtc/rtc-sun6i.c b/drivers/rtc/rtc-sun6i.c
+index adec1b14a8de..c551ebf0ac00 100644
+--- a/drivers/rtc/rtc-sun6i.c
++++ b/drivers/rtc/rtc-sun6i.c
+@@ -138,7 +138,7 @@ struct sun6i_rtc_dev {
+ 	const struct sun6i_rtc_clk_data *data;
+ 	void __iomem *base;
+ 	int irq;
+-	unsigned long alarm;
++	time64_t alarm;
  
- 	if (at_head) {
- 		list_add(&rq->queuelist, &per_prio->dispatch);
-+		rq->fifo_time = jiffies;
- 	} else {
- 		deadline_add_rq_rb(per_prio, rq);
+ 	struct clk_hw hw;
+ 	struct clk_hw *int_osc;
+@@ -510,10 +510,8 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	struct sun6i_rtc_dev *chip = dev_get_drvdata(dev);
+ 	struct rtc_time *alrm_tm = &wkalrm->time;
+ 	struct rtc_time tm_now;
+-	unsigned long time_now = 0;
+-	unsigned long time_set = 0;
+-	unsigned long time_gap = 0;
+-	int ret = 0;
++	time64_t time_now, time_set;
++	int ret;
  
+ 	ret = sun6i_rtc_gettime(dev, &tm_now);
+ 	if (ret < 0) {
+@@ -528,9 +526,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 		return -EINVAL;
+ 	}
+ 
+-	time_gap = time_set - time_now;
+-
+-	if (time_gap > U32_MAX) {
++	if ((time_set - time_now) > U32_MAX) {
+ 		dev_err(dev, "Date too far in the future\n");
+ 		return -EINVAL;
+ 	}
+@@ -539,7 +535,7 @@ static int sun6i_rtc_setalarm(struct device *dev, struct rtc_wkalrm *wkalrm)
+ 	writel(0, chip->base + SUN6I_ALRM_COUNTER);
+ 	usleep_range(100, 300);
+ 
+-	writel(time_gap, chip->base + SUN6I_ALRM_COUNTER);
++	writel(time_set - time_now, chip->base + SUN6I_ALRM_COUNTER);
+ 	chip->alarm = time_set;
+ 
+ 	sun6i_rtc_setaie(wkalrm->enabled, chip);
 -- 
 2.35.1
 
