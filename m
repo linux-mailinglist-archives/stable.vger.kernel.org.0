@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B85531902
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8473C531655
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240253AbiEWRTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:19:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48486 "EHLO
+        id S240635AbiEWRaT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239605AbiEWRSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:18:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4998213F60;
-        Mon, 23 May 2022 10:17:35 -0700 (PDT)
+        with ESMTP id S242120AbiEWR10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:26 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C8397B9E7;
+        Mon, 23 May 2022 10:22:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B1BFDB81201;
-        Mon, 23 May 2022 17:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17783C385A9;
-        Mon, 23 May 2022 17:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 448E8608C0;
+        Mon, 23 May 2022 17:22:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45745C385A9;
+        Mon, 23 May 2022 17:22:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326204;
-        bh=SXxfUZXxy9Sp3/Xhlyd1o0WTRjDyDdREmjlFOXUQG7I=;
+        s=korg; t=1653326558;
+        bh=59034JlVFmmJqNI8BkjyG9GauHmmps4h9zRtuWOswGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xC52FqfgV84vpigUEyt8NTDK0FHP1bWR+PgXlMBGFLiU5zAXmQmh9lmZMsfW5qdgJ
-         sy0euiiVWPq5lmuc5ahRXEUGuYzpPmmM5mIKF4NNnfZOfjQIPqALI0zBtcaajK/Ucx
-         izHB+rsnuU+7+rsgGPHrML+EP5lcPjA9QmfuKgQ8=
+        b=RdGqb1jFhmmmQ3hsUV9Yl2oIfqJaAyg+nkfJOSnvsUmTX1NbIjd/1MGAedwBGTNw5
+         D4C5QPOmiHeLg1YmnNyfK3LLjJ63E4P8WpVC0ccF5hC/ljFMVlts+27gQdMsqGJ9G7
+         JyMS5GjOG4v5QE2Z4Q5UQWWt5cimsyzl2wHgwk7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Ong, Boon Leong" <boon.leong.ong@intel.com>,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        Wong Vee Khee <vee.khee.wong@linux.intel.com>,
-        Tan Tee Min <tee.min.tan@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>, Ong@vger.kernel.org
-Subject: [PATCH 5.4 61/68] net: stmmac: disable Split Header (SPH) for Intel platforms
+        stable@vger.kernel.org, Lina Wang <lina.wang@mediatek.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 119/132] net: fix wrong network header length
 Date:   Mon, 23 May 2022 19:05:28 +0200
-Message-Id: <20220523165812.534588696@linuxfoundation.org>
+Message-Id: <20220523165843.283511092@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,67 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Tee Min <tee.min.tan@linux.intel.com>
+From: Lina Wang <lina.wang@mediatek.com>
 
-commit 47f753c1108e287edb3e27fad8a7511a9d55578e upstream.
+[ Upstream commit cf3ab8d4a797960b4be20565abb3bcd227b18a68 ]
 
-Based on DesignWare Ethernet QoS datasheet, we are seeing the limitation
-of Split Header (SPH) feature is not supported for Ipv4 fragmented packet.
-This SPH limitation will cause ping failure when the packets size exceed
-the MTU size. For example, the issue happens once the basic ping packet
-size is larger than the configured MTU size and the data is lost inside
-the fragmented packet, replaced by zeros/corrupted values, and leads to
-ping fail.
+When clatd starts with ebpf offloaing, and NETIF_F_GRO_FRAGLIST is enable,
+several skbs are gathered in skb_shinfo(skb)->frag_list. The first skb's
+ipv6 header will be changed to ipv4 after bpf_skb_proto_6_to_4,
+network_header\transport_header\mac_header have been updated as ipv4 acts,
+but other skbs in frag_list didnot update anything, just ipv6 packets.
 
-So, disable the Split Header for Intel platforms.
+udp_queue_rcv_skb will call skb_segment_list to traverse other skbs in
+frag_list and make sure right udp payload is delivered to user space.
+Unfortunately, other skbs in frag_list who are still ipv6 packets are
+updated like the first skb and will have wrong transport header length.
 
-v2: Add fixes tag in commit message.
+e.g.before bpf_skb_proto_6_to_4,the first skb and other skbs in frag_list
+has the same network_header(24)& transport_header(64), after
+bpf_skb_proto_6_to_4, ipv6 protocol has been changed to ipv4, the first
+skb's network_header is 44,transport_header is 64, other skbs in frag_list
+didnot change.After skb_segment_list, the other skbs in frag_list has
+different network_header(24) and transport_header(44), so there will be 20
+bytes different from original,that is difference between ipv6 header and
+ipv4 header. Just change transport_header to be the same with original.
 
-Fixes: 67afd6d1cfdf("net: stmmac: Add Split Header support and enable it in XGMAC cores")
-Cc: <stable@vger.kernel.org> # 5.10.x
-Suggested-by: Ong, Boon Leong <boon.leong.ong@intel.com>
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: Wong Vee Khee <vee.khee.wong@linux.intel.com>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
+Actually, there are two solutions to fix it, one is traversing all skbs
+and changing every skb header in bpf_skb_proto_6_to_4, the other is
+modifying frag_list skb's header in skb_segment_list. Considering
+efficiency, adopt the second one--- when the first skb and other skbs in
+frag_list has different network_header length, restore them to make sure
+right udp payload is delivered to user space.
+
+Signed-off-by: Lina Wang <lina.wang@mediatek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Tan Tee Min <tee.min.tan@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    2 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c  |    1 +
- include/linux/stmmac.h                            |    1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ net/core/skbuff.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4531,7 +4531,7 @@ int stmmac_dvr_probe(struct device *devi
- 		dev_info(priv->device, "TSO feature enabled\n");
- 	}
+diff --git a/net/core/skbuff.c b/net/core/skbuff.c
+index e4badc189e37..7ef0f5a8ab03 100644
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3873,7 +3873,7 @@ struct sk_buff *skb_segment_list(struct sk_buff *skb,
+ 	unsigned int delta_len = 0;
+ 	struct sk_buff *tail = NULL;
+ 	struct sk_buff *nskb, *tmp;
+-	int err;
++	int len_diff, err;
  
--	if (priv->dma_cap.sphen) {
-+	if (priv->dma_cap.sphen && !priv->plat->sph_disable) {
- 		ndev->hw_features |= NETIF_F_GRO;
- 		priv->sph = true;
- 		dev_info(priv->device, "SPH feature enabled\n");
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-@@ -119,6 +119,7 @@ static int intel_mgbe_common_data(struct
- 	plat->has_gmac4 = 1;
- 	plat->force_sf_dma_mode = 0;
- 	plat->tso_en = 1;
-+	plat->sph_disable = 1;
+ 	skb_push(skb, -skb_network_offset(skb) + offset);
  
- 	plat->rx_sched_algorithm = MTL_RX_ALGORITHM_SP;
+@@ -3913,9 +3913,11 @@ struct sk_buff *skb_segment_list(struct sk_buff *skb,
+ 		skb_push(nskb, -skb_network_offset(nskb) + offset);
  
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -179,5 +179,6 @@ struct plat_stmmacenet_data {
- 	int mac_port_sel_speed;
- 	bool en_tx_lpi_clockgating;
- 	int has_xgmac;
-+	bool sph_disable;
- };
- #endif
+ 		skb_release_head_state(nskb);
++		len_diff = skb_network_header_len(nskb) - skb_network_header_len(skb);
+ 		__copy_skb_header(nskb, skb);
+ 
+ 		skb_headers_offset_update(nskb, skb_headroom(nskb) - skb_headroom(skb));
++		nskb->transport_header += len_diff;
+ 		skb_copy_from_linear_data_offset(skb, -tnl_hlen,
+ 						 nskb->data - tnl_hlen,
+ 						 offset + tnl_hlen);
+-- 
+2.35.1
+
 
 
