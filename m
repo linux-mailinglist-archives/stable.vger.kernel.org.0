@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83CED5318EF
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C11235316D2
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240467AbiEWRRp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
+        id S239788AbiEWRM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:12:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240166AbiEWRP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:15:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05FF062CE;
-        Mon, 23 May 2022 10:12:43 -0700 (PDT)
+        with ESMTP id S239705AbiEWRKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35826B674;
+        Mon, 23 May 2022 10:10:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B4D12614CA;
-        Mon, 23 May 2022 17:12:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6571C385A9;
-        Mon, 23 May 2022 17:12:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83109B81203;
+        Mon, 23 May 2022 17:09:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99A6C385A9;
+        Mon, 23 May 2022 17:09:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325963;
-        bh=iaOavnu9uVLIPR/Pfk/FPb5GyxAQ7s5vYCI00gmarEU=;
+        s=korg; t=1653325796;
+        bh=k25EnSYBuBHACKjBV50Gd+fEfovRN5hpv6egPbQrWPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Yrg43+CiIjizx0a3kXSKPvqrxKSW2Lvk7PRNtECzXJyDlDM3wH8awXeNqumlvAYB
-         JmdoAhAaGF5L9yNj6BrdsPzTyAL3B3+WG536gFlu97n1R8d0pWGShYn8CbvL5Uhok4
-         CTrc33KHD58cHDVlb6uVzpFBZENEoMeXyegpkivc=
+        b=017YhRiQEkA5vhv+0Sgl/mPZk3cXFa7zPrfuw4Zz67R+JAQ41Ffvx1dE+QBlrcMqK
+         bi2MeqV6h9Xz17gz0y33/ZREflGUWjCAKthZx8NsSKygo/w9WnEQ5FDTfihMR2ANUG
+         1qLBRjhseq5fCmwu4ummT9ujY71c1PwzEaLqP/S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 5.4 23/68] SUNRPC: Prevent immediate close+reconnect
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 06/44] MIPS: lantiq: check the return value of kzalloc()
 Date:   Mon, 23 May 2022 19:04:50 +0200
-Message-Id: <20220523165806.474707162@linuxfoundation.org>
+Message-Id: <20220523165754.589700916@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +54,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meena Shanmugam <meenashanmugam@google.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
 
-commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check the
+return value of it to prevent potential wrong memory access or
+memory leak.
 
-If we have already set up the socket and are waiting for it to connect,
-then don't immediately close and retry.
-
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprt.c     |    3 ++-
- net/sunrpc/xprtsock.c |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/falcon/sysctrl.c |  2 ++
+ arch/mips/lantiq/xway/gptu.c      |  2 ++
+ arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
 
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -722,7 +722,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
-  */
- static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 82bbd0e2e298..714d92659489 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -169,6 +169,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
  {
--	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
 +		return;
- 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
- 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
- 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -2469,7 +2469,7 @@ static void xs_connect(struct rpc_xprt *
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = NULL;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
+index e304aabd6678..7d4081d67d61 100644
+--- a/arch/mips/lantiq/xway/gptu.c
++++ b/arch/mips/lantiq/xway/gptu.c
+@@ -124,6 +124,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
- 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev_name(dev);
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index e0af39b33e28..293ebb833659 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -313,6 +313,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	if (transport->sock != NULL) {
-+	if (transport->sock != NULL && !xprt_connecting(xprt)) {
- 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
- 				"seconds\n",
- 				xprt, xprt->reestablish_timeout / HZ);
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -336,6 +338,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -354,24 +358,28 @@ static void clkdev_add_pci(void)
+ 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
+ 	/* main pci clock */
+-	clk->cl.dev_id = "17000000.pci";
+-	clk->cl.con_id = NULL;
+-	clk->cl.clk = clk;
+-	clk->rate = CLOCK_33M;
+-	clk->rates = valid_pci_rates;
+-	clk->enable = pci_enable;
+-	clk->disable = pmu_disable;
+-	clk->module = 0;
+-	clk->bits = PMU_PCI;
+-	clkdev_add(&clk->cl);
++	if (clk) {
++		clk->cl.dev_id = "17000000.pci";
++		clk->cl.con_id = NULL;
++		clk->cl.clk = clk;
++		clk->rate = CLOCK_33M;
++		clk->rates = valid_pci_rates;
++		clk->enable = pci_enable;
++		clk->disable = pmu_disable;
++		clk->module = 0;
++		clk->bits = PMU_PCI;
++		clkdev_add(&clk->cl);
++	}
+ 
+ 	/* use internal/external bus clock */
+-	clk_ext->cl.dev_id = "17000000.pci";
+-	clk_ext->cl.con_id = "external";
+-	clk_ext->cl.clk = clk_ext;
+-	clk_ext->enable = pci_ext_enable;
+-	clk_ext->disable = pci_ext_disable;
+-	clkdev_add(&clk_ext->cl);
++	if (clk_ext) {
++		clk_ext->cl.dev_id = "17000000.pci";
++		clk_ext->cl.con_id = "external";
++		clk_ext->cl.clk = clk_ext;
++		clk_ext->enable = pci_ext_enable;
++		clk_ext->disable = pci_ext_disable;
++		clkdev_add(&clk_ext->cl);
++	}
+ }
+ 
+ /* xway socs can generate clocks on gpio pins */
+@@ -391,9 +399,15 @@ static void clkdev_add_clkout(void)
+ 		char *name;
+ 
+ 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
++		if (!name)
++			continue;
+ 		sprintf(name, "clkout%d", i);
+ 
+ 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
++		if (!clk) {
++			kfree(name);
++			continue;
++		}
+ 		clk->cl.dev_id = "1f103000.cgu";
+ 		clk->cl.con_id = name;
+ 		clk->cl.clk = clk;
+-- 
+2.35.1
+
 
 
