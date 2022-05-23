@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AD7531BCF
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A17E353180D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbiEWUFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 16:05:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60840 "EHLO
+        id S232180AbiEWUIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 16:08:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232207AbiEWUFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 16:05:47 -0400
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065F48CB2E
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:05:44 -0700 (PDT)
-Received: by mail-pf1-x42e.google.com with SMTP id j6so14593105pfe.13
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:05:43 -0700 (PDT)
+        with ESMTP id S231915AbiEWUIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 16:08:14 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7097195DFB
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:08:12 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id t11-20020a17090a6a0b00b001df6f318a8bso211904pjj.4
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:08:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=mMF7WL/8LWnGXjwtOP6KK4kBZz7rVL2vY1s4s8eHxrQ=;
-        b=LvLNmhvQxOgARTLqpmyNPKTvDizZAr7hx7RiAZ4h0k9E1uAy1EZkpniTo74GP+D4gj
-         4iyX/ktIUXf1UIVZc1KAIZHsDt2M8iAZAB8jfAc+w1eOL/DRL8U+pqlDYdsaV4TBP3bi
-         93f6G3dRTa2D23eqFCrJeFWAr6kR6ZJrQFEc3hlz/+sgaKmckr+OLsx2KpyFWk8WYuHp
-         WGL/plQOiO8Z2npwQDoDMKRCKFq23zPjWh1MMTNJ2eslyD3YSftqQenGTCWq2PIcJTGf
-         3C8m1Vd/gKk8AXfaBQFaZYUm3Tk5Zx7wxcujBOs1D4By4TvY3UjRd01cIQbmtyg/ZyEr
-         KffA==
+        bh=QOHSnz2o6hLN/TGQ/fi0GzHF7hs2kBHHU8k8JsnlUMI=;
+        b=A0BkLdDwyD8/oxF9m57S6OCsRY0H2YhBsU6hx+57PY1K7j1qbz75/FGoo24ehaFJJ4
+         VRlsITDXezUFX9rW7J7dUi2V//OM3EBtF0tB0GqZokQISJVg+Qsi8l1OjUMts2Mm5AQA
+         0R6WIzfYd5CVRXRcbGKohEf9ROGyWxwDAFIysBTMRo/Lv1Fd9O8SMM5YXoN8Yx863y0J
+         AvE9+1zrtx3l+MqSZvrc+5ruRceGrr77h1/sYsOOulKffVfwToTZ2VawejBKv9a+HIkO
+         Xnp0SCJII6zM10PMmEp1x6ZsMkHaoOsncsTeuFMUmBOFCmtqggCxc/Ezpcey1OtcE9I2
+         c0lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=mMF7WL/8LWnGXjwtOP6KK4kBZz7rVL2vY1s4s8eHxrQ=;
-        b=VxF5on+SyxTfvtC/4Ec+GuZIcnsiXUiqjYVUkhVHuMootq69HH0+1oV0Onrxc0lden
-         /u+QaIbYlaPVWeA7RnyVfolKcNRR8PSjYeTKwiCjRFOauvvhyde7kQgG/QcBj1/HUl1h
-         auahLYgXlyUcNJbK4PmXtzNa3aKjjwVaBH7agDjvKoxQXqZJT6ONhmwNd4m0Q+U+jGEf
-         LZrb2WmpEHuZ5KCq2dkyWbt5lxKqSpzOnD3jGuqk/LnaNYv8B8faUcVOc9ioQdl8eqJj
-         l5w4P2oQ7D0q4XJt3GyY4+zPAT/pqyRbbEAolXskfgj09/gtB/uc8Wh6fUeEaej202Ik
-         88qA==
-X-Gm-Message-State: AOAM530zpcTZD+kvlphhqT3vArRESR9EAHG3/LHZ5h402MtS8AJXEoqU
-        3Sjl3/FVdC3dfAuoehVzaDn0tJ/dTM5YVwMli1g=
-X-Google-Smtp-Source: ABdhPJzGQ5DnnZVoxguOYCUgVlTvwK6yhIclaswkwROu6GzTyeU6e5VbMlcfMwZ70n63NGZtUDdx5w==
-X-Received: by 2002:a62:14d2:0:b0:518:1576:65f2 with SMTP id 201-20020a6214d2000000b00518157665f2mr25014503pfu.24.1653336342805;
-        Mon, 23 May 2022 13:05:42 -0700 (PDT)
+        bh=QOHSnz2o6hLN/TGQ/fi0GzHF7hs2kBHHU8k8JsnlUMI=;
+        b=rxetVevggWCvL0QKxwIMxuMhDMxm91RLK4pSBZlUowsb5N1SiLxphpStfM+7VN93NF
+         CAIIaYEbk/bpUECed6ERMq7by+wZ/rGoVlRsPg8jiGzmPF5dFzykqQqD+wtzfXzvYOCV
+         TxCOb/lSvbjBrT1bPwJ1A7EkZOPWR7x5ywFx+VY3WDXtfBCXVFkgXiwLvzWr362Tw6IM
+         ik8w5liQMP4akIDofjhOW82wrBfyMGF0o3nu8+xUuduIkwOG0F7R9igI6oR+ha0AIvQA
+         /kNizzdSCimjswqBocrzCrjF04MxJQfGJWnhdkkRhLTezL+ns8TjDmZUTEUGyKfqQ8Co
+         8xeA==
+X-Gm-Message-State: AOAM533rdER4wj95xfh1Q2BR36xcVjbLFZuMB4IADxO8nZH9WXId9a2Q
+        bq8BbOB5aoWpK9Dwk2GbEKX2pfILO5yWgS6n1Y4=
+X-Google-Smtp-Source: ABdhPJzvrrnAmvAwbhfhoDL8FCIf9iMyJaRnoIwzrd+6Eb6m/w4Jf1FHS60xknht/ciI+A9r2Y/zqw==
+X-Received: by 2002:a17:90a:7441:b0:1df:5f54:502c with SMTP id o1-20020a17090a744100b001df5f54502cmr680914pjk.129.1653336491066;
+        Mon, 23 May 2022 13:08:11 -0700 (PDT)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id jb4-20020a170903258400b0015e8d4eb1fcsm5544836plb.70.2022.05.23.13.05.42
+        by smtp.gmail.com with ESMTPSA id j2-20020a62e902000000b0050dc76281c1sm7494147pfh.155.2022.05.23.13.08.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 May 2022 13:05:42 -0700 (PDT)
-Message-ID: <628be916.1c69fb81.8477.d398@mx.google.com>
-Date:   Mon, 23 May 2022 13:05:42 -0700 (PDT)
+        Mon, 23 May 2022 13:08:10 -0700 (PDT)
+Message-ID: <628be9aa.1c69fb81.c7844.1afa@mx.google.com>
+Date:   Mon, 23 May 2022 13:08:10 -0700 (PDT)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v5.4.195-69-ge9366e2c155a
-X-Kernelci-Branch: linux-5.4.y
+X-Kernelci-Kernel: v5.4.195-68-ga2f0b330f07c1
+X-Kernelci-Branch: queue/5.4
 X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.4.y build: 176 builds: 3 failed, 173 passed,
- 4 errors, 24 warnings (v5.4.195-69-ge9366e2c155a)
+Subject: stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors,
+ 28 warnings (v5.4.195-68-ga2f0b330f07c1)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -70,19 +70,19 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y build: 176 builds: 3 failed, 173 passed, 4 errors, 24=
- warnings (v5.4.195-69-ge9366e2c155a)
+stable-rc/queue/5.4 build: 189 builds: 3 failed, 186 passed, 4 errors, 28 w=
+arnings (v5.4.195-68-ga2f0b330f07c1)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.4.y=
-/kernel/v5.4.195-69-ge9366e2c155a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
+/kernel/v5.4.195-68-ga2f0b330f07c1/
 
 Tree: stable-rc
-Branch: linux-5.4.y
-Git Describe: v5.4.195-69-ge9366e2c155a
-Git Commit: e9366e2c155ad1cd8fb6e1368bec57174ce80027
+Branch: queue/5.4
+Git Describe: v5.4.195-68-ga2f0b330f07c1
+Git Commit: a2f0b330f07c1aa26e2f0493cb611b0240cc7403
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
-Built: 6 unique architectures
+Built: 7 unique architectures
 
 Build Failures Detected:
 
@@ -103,6 +103,7 @@ arm64:
 
 arm:
     assabet_defconfig (gcc-10): 1 warning
+    collie_defconfig (gcc-10): 1 warning
     h3600_defconfig (gcc-10): 1 warning
     neponset_defconfig (gcc-10): 1 warning
     rpc_defconfig (gcc-10): 4 errors
@@ -114,6 +115,9 @@ i386:
     tinyconfig (gcc-10): 2 warnings
 
 mips:
+    mtx1_defconfig (gcc-10): 3 warnings
+
+riscv:
 
 x86_64:
     allnoconfig (gcc-10): 3 warnings
@@ -130,16 +134,20 @@ h=3D=E2=80=99
 Warnings summary:
 
     7    ld: warning: creating DT_TEXTREL in a PIE
+    5    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
+min_dma_period=E2=80=99 defined but not used [-Wunused-function]
     4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    4    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_=
-min_dma_period=E2=80=99 defined but not used [-Wunused-function]
     4    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
  to integer of different size [-Wpointer-to-int-cast]
     3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
     2    arch/x86/entry/entry_64.S:1732: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 Section mismatches summary:
 
@@ -232,6 +240,11 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
 axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -292,6 +305,11 @@ ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -314,6 +332,15 @@ colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 -----
 colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 , 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    drivers/video/fbdev/sa1100fb.c:975:21: warning: =E2=80=98sa1100fb_min_d=
+ma_period=E2=80=99 defined but not used [-Wunused-function]
 
 ---------------------------------------------------------------------------=
 -----
@@ -349,6 +376,11 @@ dd_memory_region()
 -----
 decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
 s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -473,6 +505,11 @@ haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 
 ---------------------------------------------------------------------------=
 -----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
 hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
@@ -528,6 +565,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
 ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -575,6 +617,11 @@ loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
 -----
 loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
  section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -673,6 +720,11 @@ mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
 
 ---------------------------------------------------------------------------=
 -----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
 moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
 
@@ -690,6 +742,19 @@ n mismatches
 -----
 msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
 
 ---------------------------------------------------------------------------=
 -----
@@ -792,6 +857,11 @@ tion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
 tion mismatches
 
@@ -857,8 +927,18 @@ n mismatches
 
 ---------------------------------------------------------------------------=
 -----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
 rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
 ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -951,6 +1031,11 @@ ction mismatches
 -----
 spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
 ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
 
 ---------------------------------------------------------------------------=
 -----
