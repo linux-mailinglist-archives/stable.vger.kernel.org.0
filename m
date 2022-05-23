@@ -2,53 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E993F5319D8
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 675D8531B30
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240908AbiEWR3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
+        id S239892AbiEWRRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242174AbiEWR13 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86DBC7B9F9;
-        Mon, 23 May 2022 10:22:42 -0700 (PDT)
+        with ESMTP id S240799AbiEWRQn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 538AE5E16E;
+        Mon, 23 May 2022 10:16:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2248860B2C;
-        Mon, 23 May 2022 17:22:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD59C385A9;
-        Mon, 23 May 2022 17:22:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8360360B35;
+        Mon, 23 May 2022 17:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A4DDC385A9;
+        Mon, 23 May 2022 17:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326545;
-        bh=NOcKAOcWqu9x5L2iNzWHO089IBLx44Kt1k0BYvn8aJ0=;
+        s=korg; t=1653326171;
+        bh=Bn5iKQ4JY22ozgqp12txf8GMnQ2eSsU/MfN2HFCD7Ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwsENx+98HcOHZOzYr8Ie7t33DjQUnvb5rFHhhhivsys9PfI94mKxfwqcotGHO5lH
-         Ri2W6ifOjMHls7SMbme5aVgKi2Nru2EyjncriOCGfd4zwlFK+BMnYfxpCElVsX0lgo
-         tlsN2fgX+QddzzaBRajgmkhYGjOlhbx3adEdn1og=
+        b=B1Fu40Hfznjn4Dh2QEqjwVmMorDgwheQXCFUgC00+uBvFrjAKAIgiX9hyqZ4eQ5FI
+         a7qi3/jnzsbPDWbHrQbpjwWE75GLGuOWw5go5sCLfvcBiVHbv73qQeJL/o2dIE/h4u
+         K6BcqvW5jADRBKsDeMQGw+HbFpHpqfZjc5P20zmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kieran Frewen <kieran.frewen@morsemicro.com>,
-        Bassem Dawood <bassem@morsemicro.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Aashay Shringarpure <aashay@google.com>,
+        Yi Chou <yich@google.com>,
+        Shervin Oloumi <enlightened@google.com>,
+        Grant Grundler <grundler@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 115/132] nl80211: validate S1G channel width
-Date:   Mon, 23 May 2022 19:05:24 +0200
-Message-Id: <20220523165842.599097735@linuxfoundation.org>
+Subject: [PATCH 5.4 58/68] net: atlantic: verify hw_head_ lies within TX buffer ring
+Date:   Mon, 23 May 2022 19:05:25 +0200
+Message-Id: <20220523165812.049024883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,42 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kieran Frewen <kieran.frewen@morsemicro.com>
+From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit 5d087aa759eb82b8208411913f6c2158bd85abc0 ]
+[ Upstream commit 2120b7f4d128433ad8c5f503a9584deba0684901 ]
 
-Validate the S1G channel width input by user to ensure it matches
-that of the requested channel
+Bounds check hw_head index provided by NIC to verify it lies
+within the TX buffer ring.
 
-Signed-off-by: Kieran Frewen <kieran.frewen@morsemicro.com>
-Signed-off-by: Bassem Dawood <bassem@morsemicro.com>
-Link: https://lore.kernel.org/r/20220420041321.3788789-2-kieran.frewen@morsemicro.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Aashay Shringarpure <aashay@google.com>
+Reported-by: Yi Chou <yich@google.com>
+Reported-by: Shervin Oloumi <enlightened@google.com>
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index fe9cade6b4fb..9fae09e860e1 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -3080,6 +3080,15 @@ int nl80211_parse_chandef(struct cfg80211_registered_device *rdev,
- 	} else if (attrs[NL80211_ATTR_CHANNEL_WIDTH]) {
- 		chandef->width =
- 			nla_get_u32(attrs[NL80211_ATTR_CHANNEL_WIDTH]);
-+		if (chandef->chan->band == NL80211_BAND_S1GHZ) {
-+			/* User input error for channel width doesn't match channel  */
-+			if (chandef->width != ieee80211_s1g_channel_width(chandef->chan)) {
-+				NL_SET_ERR_MSG_ATTR(extack,
-+						    attrs[NL80211_ATTR_CHANNEL_WIDTH],
-+						    "bad channel width");
-+				return -EINVAL;
-+			}
-+		}
- 		if (attrs[NL80211_ATTR_CENTER_FREQ1]) {
- 			chandef->center_freq1 =
- 				nla_get_u32(attrs[NL80211_ATTR_CENTER_FREQ1]);
+diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+index 2ad3fa6316ce..cb5954eeb409 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+@@ -674,6 +674,13 @@ static int hw_atl_b0_hw_ring_tx_head_update(struct aq_hw_s *self,
+ 		err = -ENXIO;
+ 		goto err_exit;
+ 	}
++
++	/* Validate that the new hw_head_ is reasonable. */
++	if (hw_head_ >= ring->size) {
++		err = -ENXIO;
++		goto err_exit;
++	}
++
+ 	ring->hw_head = hw_head_;
+ 	err = aq_hw_err_from_flags(self);
+ 
 -- 
 2.35.1
 
