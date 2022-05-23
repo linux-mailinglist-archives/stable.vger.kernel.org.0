@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96249531A70
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 891655317DA
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241751AbiEWRbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:31:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
+        id S240161AbiEWRP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241748AbiEWR1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:06 -0400
+        with ESMTP id S239958AbiEWRN4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:13:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B180E77F01;
-        Mon, 23 May 2022 10:22:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 408E26D4EF;
+        Mon, 23 May 2022 10:12:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 53A7CB8120F;
-        Mon, 23 May 2022 17:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91FC0C385A9;
-        Mon, 23 May 2022 17:22:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 233E8B811FE;
+        Mon, 23 May 2022 17:12:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834B5C385A9;
+        Mon, 23 May 2022 17:12:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326533;
-        bh=UcNIpFsvc5ijkd+Zi+bo5VGzsZVsoK6RRg8XAGGqpcw=;
+        s=korg; t=1653325936;
+        bh=z+Jn+M7wh7vmsuLFk1mgAF1yMw1bwX154BNorZBOq6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ecjByKdZuMC0+Y5dhQfRfgMBNfr/DFjArv9iopPKxiY0nKrk9C/hg78qJry0MmNh8
-         Dvju9HZmyML2IIGmKCjahyxA6i7hmfNLEeAGQ5H8j2DAgzVqJaxwX5o4YLWbJ7sKx3
-         qtMURlz/SyCAZJ2OLQn3+oNF9w8G3Pp/uLwypSn0=
+        b=KHy6gVZqS5ddpki6H3xleJXypJzmI1DqBwUlp+C+9+6Nrh2K34uoaGteMsbld76Lm
+         js+QkN/voeB3ne26vv71WmagzeF2H6aehmcKUfHw83hatkvOiDHqLrrj+m3bYB+/as
+         4uigITQAlxFNjVIxnd9yEYoy1Hx8rMM/XBw38ahI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
+        He Ying <heying24@huawei.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/132] xfrm: fix "disable_policy" flag use when arriving from different devices
-Date:   Mon, 23 May 2022 19:04:42 +0200
-Message-Id: <20220523165835.231162581@linuxfoundation.org>
+Subject: [PATCH 5.4 16/68] ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+Date:   Mon, 23 May 2022 19:04:43 +0200
+Message-Id: <20220523165805.290228687@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,180 +55,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eyal Birger <eyal.birger@gmail.com>
+From: linyujun <linyujun809@huawei.com>
 
-[ Upstream commit e6175a2ed1f18bf2f649625bf725e07adcfa6a28 ]
+[ Upstream commit 9be4c88bb7924f68f88cfd47d925c2d046f51a73 ]
 
-In IPv4 setting the "disable_policy" flag on a device means no policy
-should be enforced for traffic originating from the device. This was
-implemented by seting the DST_NOPOLICY flag in the dst based on the
-originating device.
+The following KASAN warning is detected by QEMU.
 
-However, dsts are cached in nexthops regardless of the originating
-devices, in which case, the DST_NOPOLICY flag value may be incorrect.
+==================================================================
+BUG: KASAN: stack-out-of-bounds in unwind_frame+0x508/0x870
+Read of size 4 at addr c36bba90 by task cat/163
 
-Consider the following setup:
+CPU: 1 PID: 163 Comm: cat Not tainted 5.10.0-rc1 #40
+Hardware name: ARM-Versatile Express
+[<c0113fac>] (unwind_backtrace) from [<c010e71c>] (show_stack+0x10/0x14)
+[<c010e71c>] (show_stack) from [<c0b805b4>] (dump_stack+0x98/0xb0)
+[<c0b805b4>] (dump_stack) from [<c0b7d658>] (print_address_description.constprop.0+0x58/0x4bc)
+[<c0b7d658>] (print_address_description.constprop.0) from [<c031435c>] (kasan_report+0x154/0x170)
+[<c031435c>] (kasan_report) from [<c0113c44>] (unwind_frame+0x508/0x870)
+[<c0113c44>] (unwind_frame) from [<c010e298>] (__save_stack_trace+0x110/0x134)
+[<c010e298>] (__save_stack_trace) from [<c01ce0d8>] (stack_trace_save+0x8c/0xb4)
+[<c01ce0d8>] (stack_trace_save) from [<c0313520>] (kasan_set_track+0x38/0x60)
+[<c0313520>] (kasan_set_track) from [<c0314cb8>] (kasan_set_free_info+0x20/0x2c)
+[<c0314cb8>] (kasan_set_free_info) from [<c0313474>] (__kasan_slab_free+0xec/0x120)
+[<c0313474>] (__kasan_slab_free) from [<c0311e20>] (kmem_cache_free+0x7c/0x334)
+[<c0311e20>] (kmem_cache_free) from [<c01c35dc>] (rcu_core+0x390/0xccc)
+[<c01c35dc>] (rcu_core) from [<c01013a8>] (__do_softirq+0x180/0x518)
+[<c01013a8>] (__do_softirq) from [<c0135214>] (irq_exit+0x9c/0xe0)
+[<c0135214>] (irq_exit) from [<c01a40e4>] (__handle_domain_irq+0xb0/0x110)
+[<c01a40e4>] (__handle_domain_irq) from [<c0691248>] (gic_handle_irq+0xa0/0xb8)
+[<c0691248>] (gic_handle_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x94)
+Exception stack(0xc36bb928 to 0xc36bb970)
+b920:                   c36bb9c0 00000000 c0126919 c0101228 c36bb9c0 b76d7730
+b940: c36b8000 c36bb9a0 c3335b00 c01ce0d8 00000003 c36bba3c c36bb940 c36bb978
+b960: c010e298 c011373c 60000013 ffffffff
+[<c0100b0c>] (__irq_svc) from [<c011373c>] (unwind_frame+0x0/0x870)
+[<c011373c>] (unwind_frame) from [<00000000>] (0x0)
 
-                     +------------------------------+
-                     | ROUTER                       |
-  +-------------+    | +-----------------+          |
-  | ipsec src   |----|-|ipsec0           |          |
-  +-------------+    | |disable_policy=0 |   +----+ |
-                     | +-----------------+   |eth1|-|-----
-  +-------------+    | +-----------------+   +----+ |
-  | noipsec src |----|-|eth0             |          |
-  +-------------+    | |disable_policy=1 |          |
-                     | +-----------------+          |
-                     +------------------------------+
+The buggy address belongs to the page:
+page:(ptrval) refcount:0 mapcount:0 mapping:00000000 index:0x0 pfn:0x636bb
+flags: 0x0()
+raw: 00000000 00000000 ef867764 00000000 00000000 00000000 ffffffff 00000000
+page dumped because: kasan: bad access detected
 
-Where ROUTER has a default route towards eth1.
+addr c36bba90 is located in stack of task cat/163 at offset 48 in frame:
+ stack_trace_save+0x0/0xb4
 
-dst entries for traffic arriving from eth0 would have DST_NOPOLICY
-and would be cached and therefore can be reused by traffic originating
-from ipsec0, skipping policy check.
+this frame has 1 object:
+ [32, 48) 'trace'
 
-Fix by setting a IPSKB_NOPOLICY flag in IPCB and observing it instead
-of the DST in IN/FWD IPv4 policy checks.
+Memory state around the buggy address:
+ c36bb980: f1 f1 f1 f1 00 04 f2 f2 00 00 f3 f3 00 00 00 00
+ c36bba00: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
+>c36bba80: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
+                 ^
+ c36bbb00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ c36bbb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+==================================================================
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
-Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+There is a same issue on x86 and has been resolved by the commit f7d27c35ddff
+("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
+The solution could be applied to arm architecture too.
+
+Signed-off-by: Lin Yujun <linyujun809@huawei.com>
+Reported-by: He Ying <heying24@huawei.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip.h   |  1 +
- include/net/xfrm.h | 14 +++++++++++++-
- net/ipv4/route.c   | 23 ++++++++++++++++++-----
- 3 files changed, 32 insertions(+), 6 deletions(-)
+ arch/arm/kernel/stacktrace.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/ip.h b/include/net/ip.h
-index 0106c6590ee7..a77a9e1c6c04 100644
---- a/include/net/ip.h
-+++ b/include/net/ip.h
-@@ -55,6 +55,7 @@ struct inet_skb_parm {
- #define IPSKB_DOREDIRECT	BIT(5)
- #define IPSKB_FRAG_PMTU		BIT(6)
- #define IPSKB_L3SLAVE		BIT(7)
-+#define IPSKB_NOPOLICY		BIT(8)
+diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
+index db798eac7431..824774999825 100644
+--- a/arch/arm/kernel/stacktrace.c
++++ b/arch/arm/kernel/stacktrace.c
+@@ -53,17 +53,17 @@ int notrace unwind_frame(struct stackframe *frame)
+ 		return -EINVAL;
  
- 	u16			frag_max_size;
- };
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index e03f0f882226..65242172e41c 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -1092,6 +1092,18 @@ static inline bool __xfrm_check_nopolicy(struct net *net, struct sk_buff *skb,
- 	return false;
- }
+ 	frame->sp = frame->fp;
+-	frame->fp = *(unsigned long *)(fp);
+-	frame->pc = *(unsigned long *)(fp + 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
+ #else
+ 	/* check current frame pointer is within bounds */
+ 	if (fp < low + 12 || fp > high - 4)
+ 		return -EINVAL;
  
-+static inline bool __xfrm_check_dev_nopolicy(struct sk_buff *skb,
-+					     int dir, unsigned short family)
-+{
-+	if (dir != XFRM_POLICY_OUT && family == AF_INET) {
-+		/* same dst may be used for traffic originating from
-+		 * devices with different policy settings.
-+		 */
-+		return IPCB(skb)->flags & IPSKB_NOPOLICY;
-+	}
-+	return skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY);
-+}
-+
- static inline int __xfrm_policy_check2(struct sock *sk, int dir,
- 				       struct sk_buff *skb,
- 				       unsigned int family, int reverse)
-@@ -1103,7 +1115,7 @@ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
- 		return __xfrm_policy_check(sk, ndir, skb, family);
+ 	/* restore the registers from the stack frame */
+-	frame->fp = *(unsigned long *)(fp - 12);
+-	frame->sp = *(unsigned long *)(fp - 8);
+-	frame->pc = *(unsigned long *)(fp - 4);
++	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
++	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
++	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
+ #endif
  
- 	return __xfrm_check_nopolicy(net, skb, dir) ||
--	       (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
-+	       __xfrm_check_dev_nopolicy(skb, dir, family) ||
- 	       __xfrm_policy_check(sk, ndir, skb, family);
- }
- 
-diff --git a/net/ipv4/route.c b/net/ipv4/route.c
-index 6e8020a3bd67..1db2fda22830 100644
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1727,6 +1727,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 	struct in_device *in_dev = __in_dev_get_rcu(dev);
- 	unsigned int flags = RTCF_MULTICAST;
- 	struct rtable *rth;
-+	bool no_policy;
- 	u32 itag = 0;
- 	int err;
- 
-@@ -1737,8 +1738,12 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 	if (our)
- 		flags |= RTCF_LOCAL;
- 
-+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
-+	if (no_policy)
-+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
-+
- 	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
--			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
-+			   no_policy, false);
- 	if (!rth)
- 		return -ENOBUFS;
- 
-@@ -1797,7 +1802,7 @@ static int __mkroute_input(struct sk_buff *skb,
- 	struct rtable *rth;
- 	int err;
- 	struct in_device *out_dev;
--	bool do_cache;
-+	bool do_cache, no_policy;
- 	u32 itag = 0;
- 
- 	/* get a working reference to the output device */
-@@ -1842,6 +1847,10 @@ static int __mkroute_input(struct sk_buff *skb,
- 		}
- 	}
- 
-+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
-+	if (no_policy)
-+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
-+
- 	fnhe = find_exception(nhc, daddr);
- 	if (do_cache) {
- 		if (fnhe)
-@@ -1854,8 +1863,7 @@ static int __mkroute_input(struct sk_buff *skb,
- 		}
- 	}
- 
--	rth = rt_dst_alloc(out_dev->dev, 0, res->type,
--			   IN_DEV_ORCONF(in_dev, NOPOLICY),
-+	rth = rt_dst_alloc(out_dev->dev, 0, res->type, no_policy,
- 			   IN_DEV_ORCONF(out_dev, NOXFRM));
- 	if (!rth) {
- 		err = -ENOBUFS;
-@@ -2230,6 +2238,7 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
- 	struct rtable	*rth;
- 	struct flowi4	fl4;
- 	bool do_cache = true;
-+	bool no_policy;
- 
- 	/* IP on this device is disabled. */
- 
-@@ -2347,6 +2356,10 @@ out:	return err;
- 	RT_CACHE_STAT_INC(in_brd);
- 
- local_input:
-+	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
-+	if (no_policy)
-+		IPCB(skb)->flags |= IPSKB_NOPOLICY;
-+
- 	do_cache &= res->fi && !itag;
- 	if (do_cache) {
- 		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
-@@ -2361,7 +2374,7 @@ out:	return err;
- 
- 	rth = rt_dst_alloc(ip_rt_get_dev(net, res),
- 			   flags | RTCF_LOCAL, res->type,
--			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
-+			   no_policy, false);
- 	if (!rth)
- 		goto e_nobufs;
- 
+ 	return 0;
 -- 
 2.35.1
 
