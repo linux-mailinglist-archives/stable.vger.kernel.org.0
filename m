@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A235316CE
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC19531C97
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240983AbiEWRci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:32:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38318 "EHLO
+        id S240839AbiEWRaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240608AbiEWR3L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:29:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27EAC36681;
-        Mon, 23 May 2022 10:26:25 -0700 (PDT)
+        with ESMTP id S242945AbiEWR2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC13F8BD20;
+        Mon, 23 May 2022 10:24:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C6CB61148;
-        Mon, 23 May 2022 17:24:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3464AC385A9;
-        Mon, 23 May 2022 17:24:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCDA60B2C;
+        Mon, 23 May 2022 17:24:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C1CC385A9;
+        Mon, 23 May 2022 17:24:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326692;
-        bh=xkOMtRcSAF4tvoeHESppoblqzKn/AtmYDZuKUi5GB7I=;
+        s=korg; t=1653326695;
+        bh=l+dweFhCBdHCnU3oBcjOgofbeTDxRhLUVlx7Mb2HFa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iRXv1moWv1oi9qkbq4CPea59edi5xUXj6ngli05MzjMLEhc1dDWtfnOwZ7a/Xzmcf
-         +86tdtSKfUWwUCn8HarsRs02KvnV4epqrC7Hf+B3GCG9WbAspjBR4ekiPBEQ8r58I+
-         JubCPfPlCP6qCkYm5vah0TSlKO3Pj4iliJZa1AnQ=
+        b=oO6fZ+c0rF6LLPNNd2eBRPKDFyVX7MTIIbGKPW0wWe/upvn5qZ8+q2fPOSWuY73+5
+         vAphUa3kPdtsJxpUIu5X0Lzr93Ubnh6JMVFSXK6PHuw+K9azOa/ZLGty0ldYyRaETS
+         X+glKDriqnh76Fpfoa1UH2/FE5mISdYYV/arotAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>,
         Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
         Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 010/158] i2c: piix4: Add EFCH MMIO support for SMBus port select
-Date:   Mon, 23 May 2022 19:02:47 +0200
-Message-Id: <20220523165832.274162265@linuxfoundation.org>
+Subject: [PATCH 5.17 011/158] i2c: piix4: Enable EFCH MMIO for Family 17h+
+Date:   Mon, 23 May 2022 19:02:48 +0200
+Message-Id: <20220523165832.457360822@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -57,13 +57,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Terry Bowman <terry.bowman@amd.com>
 
-commit 381a3083c6747ae5cdbef9b176d57d1b966db49f upstream.
+commit 6cf72f41808ab5db1d7718b999b3ff0166e67e45 upstream.
 
-AMD processors include registers capable of selecting between 2 SMBus
-ports. Port selection is made during each user access by writing to
-FCH::PM::DECODEEN[smbus0sel]. Change the driver to use MMIO during
-SMBus port selection because cd6h/cd7h port I/O is not available on
-later AMD processors.
+Enable EFCH MMIO using check for SMBus PCI revision ID value 0x51 or
+greater. This PCI revision ID check will enable family 17h and future
+AMD processors with the same EFCH SMBus controller HW.
 
 Signed-off-by: Terry Bowman <terry.bowman@amd.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
@@ -72,46 +70,55 @@ Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-piix4.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
 --- a/drivers/i2c/busses/i2c-piix4.c
 +++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -753,10 +753,19 @@ static void piix4_imc_wakeup(void)
- 	release_region(KERNCZ_IMC_IDX, 2);
+@@ -229,6 +229,18 @@ static void piix4_sb800_region_release(s
+ 	release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
  }
  
--static int piix4_sb800_port_sel(u8 port)
-+static int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg)
++static bool piix4_sb800_use_mmio(struct pci_dev *PIIX4_dev)
++{
++	/*
++	 * cd6h/cd7h port I/O accesses can be disabled on AMD processors
++	 * w/ SMBus PCI revision ID 0x51 or greater. MMIO is supported on
++	 * the same processors and is the recommended access method.
++	 */
++	return (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
++		PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
++		PIIX4_dev->revision >= 0x51);
++}
++
+ static int piix4_setup(struct pci_dev *PIIX4_dev,
+ 		       const struct pci_device_id *id)
  {
- 	u8 smba_en_lo, val;
+@@ -339,7 +351,7 @@ static int piix4_setup_sb800_smba(struct
+ 	u8 smba_en_hi;
+ 	int retval;
  
-+	if (mmio_cfg->use_mmio) {
-+		smba_en_lo = ioread8(mmio_cfg->addr + piix4_port_sel_sb800);
-+		val = (smba_en_lo & ~piix4_port_mask_sb800) | port;
-+		if (smba_en_lo != val)
-+			iowrite8(val, mmio_cfg->addr + piix4_port_sel_sb800);
-+
-+		return (smba_en_lo & piix4_port_mask_sb800);
-+	}
-+
- 	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
- 	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
- 
-@@ -843,12 +852,12 @@ static s32 piix4_access_sb800(struct i2c
+-	mmio_cfg.use_mmio = 0;
++	mmio_cfg.use_mmio = piix4_sb800_use_mmio(PIIX4_dev);
+ 	retval = piix4_sb800_region_request(&PIIX4_dev->dev, &mmio_cfg);
+ 	if (retval)
+ 		return retval;
+@@ -461,7 +473,7 @@ static int piix4_setup_sb800(struct pci_
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
  		}
+ 	} else {
+-		mmio_cfg.use_mmio = 0;
++		mmio_cfg.use_mmio = piix4_sb800_use_mmio(PIIX4_dev);
+ 		retval = piix4_sb800_region_request(&PIIX4_dev->dev, &mmio_cfg);
+ 		if (retval) {
+ 			release_region(piix4_smba, SMBIOSIZE);
+@@ -944,6 +956,7 @@ static int piix4_add_adapter(struct pci_
+ 		return -ENOMEM;
  	}
  
--	prev_port = piix4_sb800_port_sel(adapdata->port);
-+	prev_port = piix4_sb800_port_sel(adapdata->port, &adapdata->mmio_cfg);
- 
- 	retval = piix4_access(adap, addr, flags, read_write,
- 			      command, size, data);
- 
--	piix4_sb800_port_sel(prev_port);
-+	piix4_sb800_port_sel(prev_port, &adapdata->mmio_cfg);
- 
- 	/* Release the semaphore */
- 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
++	adapdata->mmio_cfg.use_mmio = piix4_sb800_use_mmio(dev);
+ 	adapdata->smba = smba;
+ 	adapdata->sb800_main = sb800_main;
+ 	adapdata->port = port << piix4_port_shift_sb800;
 
 
