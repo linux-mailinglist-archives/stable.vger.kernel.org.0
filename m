@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BD2F6531676
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50F31531813
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236095AbiEWRXN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49098 "EHLO
+        id S241482AbiEWRd2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241695AbiEWRWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 259F17C15B;
-        Mon, 23 May 2022 10:19:22 -0700 (PDT)
+        with ESMTP id S241594AbiEWRa6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BB453D4AA;
+        Mon, 23 May 2022 10:26:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB663B811FF;
-        Mon, 23 May 2022 17:18:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B39C385AA;
-        Mon, 23 May 2022 17:18:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FEE7611E3;
+        Mon, 23 May 2022 17:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7E3BC385A9;
+        Mon, 23 May 2022 17:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326281;
-        bh=qWn9ZKbQrzQkwnnfeCk8yx1PqGXI3vpJJRoBj0bQd+U=;
+        s=korg; t=1653326777;
+        bh=9Zc0Kphv2aqH1+IbNRUj/srjFNT98FwAZCJBJ81hjug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0mALqeZRgObc+e1x2vbpeMx6r8EsoX/EM6uJ6rb88N9SPAEaGT5wAFoe1APEoS/T
-         JarLZ9I9ck1HDny9Ub6BLkn61WBqmdckQjznghgjPsX/d6XmPPwwe9cMBO4ZEM6J2k
-         LBOPT49lmAvLWdVK4Oz91XfzMOLvW9ccGvRjABE0=
+        b=tr13yZS+C/ZAva/zTTtphrpAv3rXq5HlgLzM8Pgn7lVEhWcufrhxGbCvvLgNq9QtE
+         oI/p+y6L69jx8+B05FcSwzAwDdbyW2u8Lc9udRbGHCRie1vJGWUM3xvery8hcCTEit
+         6hQKYv2JT3pIR38bjoqC6De9/NRGzk6EA0NZH8aY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 003/132] floppy: use a statically allocated error counter
+        stable@vger.kernel.org, Marc Zyngier <maz@kernel.org>,
+        Peter Maydell <peter.maydell@linaro.org>,
+        Oliver Upton <oupton@google.com>
+Subject: [PATCH 5.17 055/158] KVM: arm64: vgic-v3: Consistently populate ID_AA64PFR0_EL1.GIC
 Date:   Mon, 23 May 2022 19:03:32 +0200
-Message-Id: <20220523165824.064053072@linuxfoundation.org>
+Message-Id: <20220523165839.913337649@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Marc Zyngier <maz@kernel.org>
 
-commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
+commit 5163373af195f10e0d99a8de3465c4ed36bdc337 upstream.
 
-Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
-request just to increment the error count.  There's no point keeping
-that one in the request anyway, and since the interrupt handler uses a
-static pointer to the error which cannot be kept in sync with the
-pending request, better make it use a static error counter that's reset
-for each new request.  This reset now happens when entering
-redo_fd_request() for a new request via set_next_request().
+When adding support for the slightly wonky Apple M1, we had to
+populate ID_AA64PFR0_EL1.GIC==1 to present something to the guest,
+as the HW itself doesn't advertise the feature.
 
-One initial concern about a single error counter was that errors on one
-floppy drive could be reported on another one, but this problem is not
-real given that the driver uses a single drive at a time, as that
-PC-compatible controllers also have this limitation by using shared
-signals.  As such the error count is always for the "current" drive.
+However, we gated this on the in-kernel irqchip being created.
+This causes some trouble for QEMU, which snapshots the state of
+the registers before creating a virtual GIC, and then tries to
+restore these registers once the GIC has been created.  Obviously,
+between the two stages, ID_AA64PFR0_EL1.GIC has changed value,
+and the write fails.
 
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Tested-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The fix is to actually emulate the HW, and always populate the
+field if the HW is capable of it.
+
+Fixes: 562e530fd770 ("KVM: arm64: Force ID_AA64PFR0_EL1.GIC=1 when exposing a virtual GICv3")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Reported-by: Peter Maydell <peter.maydell@linaro.org>
+Reviewed-by: Oliver Upton <oupton@google.com>
+Link: https://lore.kernel.org/r/20220503211424.3375263-1-maz@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/floppy.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ arch/arm64/kvm/sys_regs.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -509,8 +509,8 @@ static unsigned long fdc_busy;
- static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
- static DECLARE_WAIT_QUEUE_HEAD(command_done);
- 
--/* Errors during formatting are counted here. */
--static int format_errors;
-+/* errors encountered on the current (or last) request */
-+static int floppy_errors;
- 
- /* Format request descriptor. */
- static struct format_descr format_req;
-@@ -530,7 +530,6 @@ static struct format_descr format_req;
- static char *floppy_track_buffer;
- static int max_buffer_sectors;
- 
--static int *errors;
- typedef void (*done_f)(int);
- static const struct cont_t {
- 	void (*interrupt)(void);
-@@ -1455,7 +1454,7 @@ static int interpret_errors(void)
- 			if (drive_params[current_drive].flags & FTD_MSG)
- 				DPRINT("Over/Underrun - retrying\n");
- 			bad = 0;
--		} else if (*errors >= drive_params[current_drive].max_errors.reporting) {
-+		} else if (floppy_errors >= drive_params[current_drive].max_errors.reporting) {
- 			print_errors();
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -1080,8 +1080,7 @@ static u64 read_id_reg(const struct kvm_
+ 		val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_CSV2), (u64)vcpu->kvm->arch.pfr0_csv2);
+ 		val &= ~ARM64_FEATURE_MASK(ID_AA64PFR0_CSV3);
+ 		val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_CSV3), (u64)vcpu->kvm->arch.pfr0_csv3);
+-		if (irqchip_in_kernel(vcpu->kvm) &&
+-		    vcpu->kvm->arch.vgic.vgic_model == KVM_DEV_TYPE_ARM_VGIC_V3) {
++		if (kvm_vgic_global_state.type == VGIC_V3) {
+ 			val &= ~ARM64_FEATURE_MASK(ID_AA64PFR0_GIC);
+ 			val |= FIELD_PREP(ARM64_FEATURE_MASK(ID_AA64PFR0_GIC), 1);
  		}
- 		if (reply_buffer[ST2] & ST2_WC || reply_buffer[ST2] & ST2_BC)
-@@ -2095,7 +2094,7 @@ static void bad_flp_intr(void)
- 		if (!next_valid_format(current_drive))
- 			return;
- 	}
--	err_count = ++(*errors);
-+	err_count = ++floppy_errors;
- 	INFBOUND(write_errors[current_drive].badness, err_count);
- 	if (err_count > drive_params[current_drive].max_errors.abort)
- 		cont->done(0);
-@@ -2241,9 +2240,8 @@ static int do_format(int drive, struct f
- 		return -EINVAL;
- 	}
- 	format_req = *tmp_format_req;
--	format_errors = 0;
- 	cont = &format_cont;
--	errors = &format_errors;
-+	floppy_errors = 0;
- 	ret = wait_til_done(redo_format, true);
- 	if (ret == -EINTR)
- 		return -EINTR;
-@@ -2761,10 +2759,11 @@ static int set_next_request(void)
- 	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
- 					       queuelist);
- 	if (current_req) {
--		current_req->error_count = 0;
-+		floppy_errors = 0;
- 		list_del_init(&current_req->queuelist);
-+		return 1;
- 	}
--	return current_req != NULL;
-+	return 0;
- }
- 
- /* Starts or continues processing request. Will automatically unlock the
-@@ -2823,7 +2822,6 @@ do_request:
- 		_floppy = floppy_type + drive_params[current_drive].autodetect[drive_state[current_drive].probed_format];
- 	} else
- 		probing = 0;
--	errors = &(current_req->error_count);
- 	tmp = make_raw_rw_request();
- 	if (tmp < 2) {
- 		request_done(tmp);
 
 
