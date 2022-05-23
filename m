@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1432D531CF1
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96249531A70
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242341AbiEWRkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
+        id S241751AbiEWRbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:31:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244013AbiEWRig (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53A5D986DB;
-        Mon, 23 May 2022 10:33:08 -0700 (PDT)
+        with ESMTP id S241748AbiEWR1G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B180E77F01;
+        Mon, 23 May 2022 10:22:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E947EB8121B;
-        Mon, 23 May 2022 17:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47759C385A9;
-        Mon, 23 May 2022 17:30:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53A7CB8120F;
+        Mon, 23 May 2022 17:22:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91FC0C385A9;
+        Mon, 23 May 2022 17:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327004;
-        bh=78eIVbKrFEg+O5i0kkKIJmRGiqznDYuV/M2Fuaxz640=;
+        s=korg; t=1653326533;
+        bh=UcNIpFsvc5ijkd+Zi+bo5VGzsZVsoK6RRg8XAGGqpcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xcf0s5iNNSzDviA51yQfFzCKtbuXZkZtfopen475XPZiDH2qGtusubAXkRoF/HR9R
-         ZmhaYUd5zIphM4hF+lpus8BJtrZUSpAk01oOb6LfHWIErzjd7VtVKSGpJ/84hMLc4W
-         DmlXeg9DOLl9Z+jJqzS0XbIg4Ab57bRXDdL6n2go=
+        b=ecjByKdZuMC0+Y5dhQfRfgMBNfr/DFjArv9iopPKxiY0nKrk9C/hg78qJry0MmNh8
+         Dvju9HZmyML2IIGmKCjahyxA6i7hmfNLEeAGQ5H8j2DAgzVqJaxwX5o4YLWbJ7sKx3
+         qtMURlz/SyCAZJ2OLQn3+oNF9w8G3Pp/uLwypSn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avi Kivity <avi@scylladb.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 125/158] perf build: Fix check for btf__load_from_kernel_by_id() in libbpf
+Subject: [PATCH 5.15 073/132] xfrm: fix "disable_policy" flag use when arriving from different devices
 Date:   Mon, 23 May 2022 19:04:42 +0200
-Message-Id: <20220523165851.378018376@linuxfoundation.org>
+Message-Id: <20220523165835.231162581@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,181 +56,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit 0ae065a5d265bc5ada13e350015458e0c5e5c351 ]
+[ Upstream commit e6175a2ed1f18bf2f649625bf725e07adcfa6a28 ]
 
-Avi Kivity reported a problem where the __weak
-btf__load_from_kernel_by_id() in tools/perf/util/bpf-event.c was being
-used and it called btf__get_from_id() in tools/lib/bpf/btf.c that in
-turn called back to btf__load_from_kernel_by_id(), resulting in an
-endless loop.
+In IPv4 setting the "disable_policy" flag on a device means no policy
+should be enforced for traffic originating from the device. This was
+implemented by seting the DST_NOPOLICY flag in the dst based on the
+originating device.
 
-Fix this by adding a feature test to check if
-btf__load_from_kernel_by_id() is available when building perf with
-LIBBPF_DYNAMIC=1, and if not then provide the fallback to the old
-btf__get_from_id(), that doesn't call back to btf__load_from_kernel_by_id()
-since at that time it didn't exist at all.
+However, dsts are cached in nexthops regardless of the originating
+devices, in which case, the DST_NOPOLICY flag value may be incorrect.
 
-Tested on Fedora 35 where we have libbpf-devel 0.4.0 with LIBBPF_DYNAMIC
-where we don't have btf__load_from_kernel_by_id() and thus its feature
-test fail, not defining HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID:
+Consider the following setup:
 
-  $ cat /tmp/build/perf-urgent/feature/test-libbpf-btf__load_from_kernel_by_id.make.output
-  test-libbpf-btf__load_from_kernel_by_id.c: In function ‘main’:
-  test-libbpf-btf__load_from_kernel_by_id.c:6:16: error: implicit declaration of function ‘btf__load_from_kernel_by_id’ [-Werror=implicit-function-declaration]
-      6 |         return btf__load_from_kernel_by_id(20151128, NULL);
-        |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cc1: all warnings being treated as errors
-  $
+                     +------------------------------+
+                     | ROUTER                       |
+  +-------------+    | +-----------------+          |
+  | ipsec src   |----|-|ipsec0           |          |
+  +-------------+    | |disable_policy=0 |   +----+ |
+                     | +-----------------+   |eth1|-|-----
+  +-------------+    | +-----------------+   +----+ |
+  | noipsec src |----|-|eth0             |          |
+  +-------------+    | |disable_policy=1 |          |
+                     | +-----------------+          |
+                     +------------------------------+
 
-  $ nm /tmp/build/perf-urgent/perf | grep btf__load_from_kernel_by_id
-  00000000005ba180 T btf__load_from_kernel_by_id
-  $
+Where ROUTER has a default route towards eth1.
 
-  $ objdump --disassemble=btf__load_from_kernel_by_id -S /tmp/build/perf-urgent/perf
+dst entries for traffic arriving from eth0 would have DST_NOPOLICY
+and would be cached and therefore can be reused by traffic originating
+from ipsec0, skipping policy check.
 
-  /tmp/build/perf-urgent/perf:     file format elf64-x86-64
-  <SNIP>
-  00000000005ba180 <btf__load_from_kernel_by_id>:
-  #include "record.h"
-  #include "util/synthetic-events.h"
+Fix by setting a IPSKB_NOPOLICY flag in IPCB and observing it instead
+of the DST in IN/FWD IPv4 policy checks.
 
-  #ifndef HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
-  struct btf *btf__load_from_kernel_by_id(__u32 id)
-  {
-    5ba180:	55                   	push   %rbp
-    5ba181:	48 89 e5             	mov    %rsp,%rbp
-    5ba184:	48 83 ec 10          	sub    $0x10,%rsp
-    5ba188:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
-    5ba18f:	00 00
-    5ba191:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
-    5ba195:	31 c0                	xor    %eax,%eax
-         struct btf *btf;
-  #pragma GCC diagnostic push
-  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-         int err = btf__get_from_id(id, &btf);
-    5ba197:	48 8d 75 f0          	lea    -0x10(%rbp),%rsi
-    5ba19b:	e8 a0 57 e5 ff       	call   40f940 <btf__get_from_id@plt>
-    5ba1a0:	89 c2                	mov    %eax,%edx
-  #pragma GCC diagnostic pop
-
-         return err ? ERR_PTR(err) : btf;
-    5ba1a2:	48 98                	cltq
-    5ba1a4:	85 d2                	test   %edx,%edx
-    5ba1a6:	48 0f 44 45 f0       	cmove  -0x10(%rbp),%rax
-  }
-  <SNIP>
-
-Fixes: 218e7b775d368f38 ("perf bpf: Provide a weak btf__load_from_kernel_by_id() for older libbpf versions")
-Reported-by: Avi Kivity <avi@scylladb.com>
-Link: https://lore.kernel.org/linux-perf-users/f0add43b-3de5-20c5-22c4-70aff4af959f@scylladb.com
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Link: https://lore.kernel.org/linux-perf-users/YobjjFOblY4Xvwo7@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/build/Makefile.feature                               | 1 +
- tools/build/feature/Makefile                               | 4 ++++
- .../feature/test-libbpf-btf__load_from_kernel_by_id.c      | 7 +++++++
- tools/perf/Makefile.config                                 | 7 +++++++
- tools/perf/util/bpf-event.c                                | 4 +++-
- 5 files changed, 22 insertions(+), 1 deletion(-)
- create mode 100644 tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
+ include/net/ip.h   |  1 +
+ include/net/xfrm.h | 14 +++++++++++++-
+ net/ipv4/route.c   | 23 ++++++++++++++++++-----
+ 3 files changed, 32 insertions(+), 6 deletions(-)
 
-diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
-index ae61f464043a..c6a48d0ef9ff 100644
---- a/tools/build/Makefile.feature
-+++ b/tools/build/Makefile.feature
-@@ -98,6 +98,7 @@ FEATURE_TESTS_EXTRA :=                  \
-          llvm-version                   \
-          clang                          \
-          libbpf                         \
-+         libbpf-btf__load_from_kernel_by_id \
-          libpfm4                        \
-          libdebuginfod			\
-          clang-bpf-co-re
-diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
-index de66e1cc0734..cb4a2a4fa2e4 100644
---- a/tools/build/feature/Makefile
-+++ b/tools/build/feature/Makefile
-@@ -57,6 +57,7 @@ FILES=                                          \
-          test-lzma.bin                          \
-          test-bpf.bin                           \
-          test-libbpf.bin                        \
-+         test-libbpf-btf__load_from_kernel_by_id.bin	\
-          test-get_cpuid.bin                     \
-          test-sdt.bin                           \
-          test-cxx.bin                           \
-@@ -287,6 +288,9 @@ $(OUTPUT)test-bpf.bin:
- $(OUTPUT)test-libbpf.bin:
- 	$(BUILD) -lbpf
+diff --git a/include/net/ip.h b/include/net/ip.h
+index 0106c6590ee7..a77a9e1c6c04 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -55,6 +55,7 @@ struct inet_skb_parm {
+ #define IPSKB_DOREDIRECT	BIT(5)
+ #define IPSKB_FRAG_PMTU		BIT(6)
+ #define IPSKB_L3SLAVE		BIT(7)
++#define IPSKB_NOPOLICY		BIT(8)
  
-+$(OUTPUT)test-libbpf-btf__load_from_kernel_by_id.bin:
-+	$(BUILD) -lbpf
-+
- $(OUTPUT)test-sdt.bin:
- 	$(BUILD)
- 
-diff --git a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
-new file mode 100644
-index 000000000000..f7c084428735
---- /dev/null
-+++ b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
-@@ -0,0 +1,7 @@
-+// SPDX-License-Identifier: GPL-2.0
-+#include <bpf/libbpf.h>
-+
-+int main(void)
-+{
-+	return btf__load_from_kernel_by_id(20151128, NULL);
-+}
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index f3bf9297bcc0..1bd64e7404b9 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -553,9 +553,16 @@ ifndef NO_LIBELF
-         ifeq ($(feature-libbpf), 1)
-           EXTLIBS += -lbpf
-           $(call detected,CONFIG_LIBBPF_DYNAMIC)
-+
-+          $(call feature_check,libbpf-btf__load_from_kernel_by_id)
-+          ifeq ($(feature-libbpf-btf__load_from_kernel_by_id), 1)
-+            CFLAGS += -DHAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
-+          endif
-         else
-           dummy := $(error Error: No libbpf devel library found, please install libbpf-devel);
-         endif
-+      else
-+	CFLAGS += -DHAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
-       endif
-     endif
- 
-diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
-index a517eaa51eb3..65dfd2c70246 100644
---- a/tools/perf/util/bpf-event.c
-+++ b/tools/perf/util/bpf-event.c
-@@ -22,7 +22,8 @@
- #include "record.h"
- #include "util/synthetic-events.h"
- 
--struct btf * __weak btf__load_from_kernel_by_id(__u32 id)
-+#ifndef HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
-+struct btf *btf__load_from_kernel_by_id(__u32 id)
- {
-        struct btf *btf;
- #pragma GCC diagnostic push
-@@ -32,6 +33,7 @@ struct btf * __weak btf__load_from_kernel_by_id(__u32 id)
- 
-        return err ? ERR_PTR(err) : btf;
+ 	u16			frag_max_size;
+ };
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index e03f0f882226..65242172e41c 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1092,6 +1092,18 @@ static inline bool __xfrm_check_nopolicy(struct net *net, struct sk_buff *skb,
+ 	return false;
  }
-+#endif
  
- struct bpf_program * __weak
- bpf_object__next_program(const struct bpf_object *obj, struct bpf_program *prev)
++static inline bool __xfrm_check_dev_nopolicy(struct sk_buff *skb,
++					     int dir, unsigned short family)
++{
++	if (dir != XFRM_POLICY_OUT && family == AF_INET) {
++		/* same dst may be used for traffic originating from
++		 * devices with different policy settings.
++		 */
++		return IPCB(skb)->flags & IPSKB_NOPOLICY;
++	}
++	return skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY);
++}
++
+ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 				       struct sk_buff *skb,
+ 				       unsigned int family, int reverse)
+@@ -1103,7 +1115,7 @@ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 		return __xfrm_policy_check(sk, ndir, skb, family);
+ 
+ 	return __xfrm_check_nopolicy(net, skb, dir) ||
+-	       (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
++	       __xfrm_check_dev_nopolicy(skb, dir, family) ||
+ 	       __xfrm_policy_check(sk, ndir, skb, family);
+ }
+ 
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index 6e8020a3bd67..1db2fda22830 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1727,6 +1727,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	struct in_device *in_dev = __in_dev_get_rcu(dev);
+ 	unsigned int flags = RTCF_MULTICAST;
+ 	struct rtable *rth;
++	bool no_policy;
+ 	u32 itag = 0;
+ 	int err;
+ 
+@@ -1737,8 +1738,12 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	if (our)
+ 		flags |= RTCF_LOCAL;
+ 
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
++
+ 	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
++			   no_policy, false);
+ 	if (!rth)
+ 		return -ENOBUFS;
+ 
+@@ -1797,7 +1802,7 @@ static int __mkroute_input(struct sk_buff *skb,
+ 	struct rtable *rth;
+ 	int err;
+ 	struct in_device *out_dev;
+-	bool do_cache;
++	bool do_cache, no_policy;
+ 	u32 itag = 0;
+ 
+ 	/* get a working reference to the output device */
+@@ -1842,6 +1847,10 @@ static int __mkroute_input(struct sk_buff *skb,
+ 		}
+ 	}
+ 
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
++
+ 	fnhe = find_exception(nhc, daddr);
+ 	if (do_cache) {
+ 		if (fnhe)
+@@ -1854,8 +1863,7 @@ static int __mkroute_input(struct sk_buff *skb,
+ 		}
+ 	}
+ 
+-	rth = rt_dst_alloc(out_dev->dev, 0, res->type,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY),
++	rth = rt_dst_alloc(out_dev->dev, 0, res->type, no_policy,
+ 			   IN_DEV_ORCONF(out_dev, NOXFRM));
+ 	if (!rth) {
+ 		err = -ENOBUFS;
+@@ -2230,6 +2238,7 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	struct rtable	*rth;
+ 	struct flowi4	fl4;
+ 	bool do_cache = true;
++	bool no_policy;
+ 
+ 	/* IP on this device is disabled. */
+ 
+@@ -2347,6 +2356,10 @@ out:	return err;
+ 	RT_CACHE_STAT_INC(in_brd);
+ 
+ local_input:
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
++
+ 	do_cache &= res->fi && !itag;
+ 	if (do_cache) {
+ 		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+@@ -2361,7 +2374,7 @@ out:	return err;
+ 
+ 	rth = rt_dst_alloc(ip_rt_get_dev(net, res),
+ 			   flags | RTCF_LOCAL, res->type,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
++			   no_policy, false);
+ 	if (!rth)
+ 		goto e_nobufs;
+ 
 -- 
 2.35.1
 
