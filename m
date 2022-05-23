@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54567531ABA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1E65316E9
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240796AbiEWR3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42082 "EHLO
+        id S240528AbiEWRSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241780AbiEWR1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:06 -0400
+        with ESMTP id S239691AbiEWRR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21AFD76296;
-        Mon, 23 May 2022 10:22:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C448B6D968;
+        Mon, 23 May 2022 10:17:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1935460B35;
-        Mon, 23 May 2022 17:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A795C385AA;
-        Mon, 23 May 2022 17:17:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D9DC60EE2;
+        Mon, 23 May 2022 17:17:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A304C385AA;
+        Mon, 23 May 2022 17:17:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326230;
-        bh=JZDfGwicm4UzRJBNTauQ/RxXh66EuHlgvHU7cppd+uk=;
+        s=korg; t=1653326233;
+        bh=o5YtqxkUYupf5MqFxlK83h7HgWm6uI/kZfcY6w2ynMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+9axquIQgY9W56KiK46UIKaj1nw/3JJbm9NUGN+E9G6vT7qHCe6OY5D5KTIGoWp6
-         JF/O6m9yticTfa+8aeDF2oyfZfcJ+H3b5wSt/Sz+FwB8b8DxLxnPv8lUpr2as1YlPo
-         dpxDuxIPLjRCRdO9qvGSAq8MyiT6ZKh9mkJve+xg=
+        b=Cd0y1+UUcE5iXMVs9usZc0odsstHKbzrrWxrKiPGmjewPHAOPygVPsl+HI/Lgq/K6
+         7i6pmewtJEC2Nu1XTlY1flA0bYnzVMzheE2kYAAsstpcfnQeyYwY1G3ZTwRrgM5lB/
+         8W3avawU+BJPpheocclL0J3uzXQnawVnUAZfn/xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Marco Elver <elver@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 017/132] mm/kfence: reset PG_slab and memcg_data before freeing __kfence_pool
-Date:   Mon, 23 May 2022 19:03:46 +0200
-Message-Id: <20220523165826.446123536@linuxfoundation.org>
+        Greg Thelen <gthelen@google.com>, Yu Liao <liaoyu15@huawei.com>
+Subject: [PATCH 5.15 018/132] Revert "drm/i915/opregion: check port number bounds for SWSCI display power state"
+Date:   Mon, 23 May 2022 19:03:47 +0200
+Message-Id: <20220523165826.585851687@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 References: <20220523165823.492309987@linuxfoundation.org>
@@ -57,85 +52,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+From: Greg Thelen <gthelen@google.com>
 
-commit 2839b0999c20c9f6bf353849c69370e121e2fa1a upstream.
+This reverts commit b84857c06ef9e72d09fadafdbb3ce9af64af954f.
 
-When kfence fails to initialize kfence pool, it frees the pool.  But it
-does not reset memcg_data and PG_slab flag.
+5.10 stable contains 2 identical commits:
+1. commit eb7bf11e8ef1 ("drm/i915/opregion: check port number bounds for SWSCI display power state")
+2. commit b84857c06ef9 ("drm/i915/opregion: check port number bounds for SWSCI display power state")
 
-Below is a BUG because of this. Let's fix it by resetting memcg_data
-and PG_slab flag before free.
+Both commits add separate checks for the same condition. Revert the 2nd
+redundant check to match upstream, which only has one check.
 
-[    0.089149] BUG: Bad page state in process swapper/0  pfn:3d8e06
-[    0.089149] page:ffffea46cf638180 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x3d8e06
-[    0.089150] memcg:ffffffff94a475d1
-[    0.089150] flags: 0x17ffffc0000200(slab|node=0|zone=2|lastcpupid=0x1fffff)
-[    0.089151] raw: 0017ffffc0000200 ffffea46cf638188 ffffea46cf638188 0000000000000000
-[    0.089152] raw: 0000000000000000 0000000000000000 00000000ffffffff ffffffff94a475d1
-[    0.089152] page dumped because: page still charged to cgroup
-[    0.089153] Modules linked in:
-[    0.089153] CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B   W         5.18.0-rc1+ #965
-[    0.089154] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-[    0.089154] Call Trace:
-[    0.089155]  <TASK>
-[    0.089155]  dump_stack_lvl+0x49/0x5f
-[    0.089157]  dump_stack+0x10/0x12
-[    0.089158]  bad_page.cold+0x63/0x94
-[    0.089159]  check_free_page_bad+0x66/0x70
-[    0.089160]  __free_pages_ok+0x423/0x530
-[    0.089161]  __free_pages_core+0x8e/0xa0
-[    0.089162]  memblock_free_pages+0x10/0x12
-[    0.089164]  memblock_free_late+0x8f/0xb9
-[    0.089165]  kfence_init+0x68/0x92
-[    0.089166]  start_kernel+0x789/0x992
-[    0.089167]  x86_64_start_reservations+0x24/0x26
-[    0.089168]  x86_64_start_kernel+0xa9/0xaf
-[    0.089170]  secondary_startup_64_no_verify+0xd5/0xdb
-[    0.089171]  </TASK>
-
-Link: https://lkml.kernel.org/r/YnPG3pQrqfcgOlVa@hyeyoo
-Fixes: 0ce20dd84089 ("mm: add Kernel Electric-Fence infrastructure")
-Fixes: 8f0b36497303 ("mm: kfence: fix objcgs vector allocation")
-Signed-off-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-[42.hyeyoo@gmail.com: backport - use struct page]
-Signed-off-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Signed-off-by: Greg Thelen <gthelen@google.com>
+Signed-off-by: Yu Liao <liaoyu15@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kfence/core.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/i915/display/intel_opregion.c |   15 ---------------
+ 1 file changed, 15 deletions(-)
 
---- a/mm/kfence/core.c
-+++ b/mm/kfence/core.c
-@@ -510,6 +510,7 @@ static bool __init kfence_init_pool(void
- 	unsigned long addr = (unsigned long)__kfence_pool;
- 	struct page *pages;
- 	int i;
-+	char *p;
+--- a/drivers/gpu/drm/i915/display/intel_opregion.c
++++ b/drivers/gpu/drm/i915/display/intel_opregion.c
+@@ -376,21 +376,6 @@ int intel_opregion_notify_encoder(struct
+ 		return -EINVAL;
+ 	}
  
- 	if (!__kfence_pool)
- 		return false;
-@@ -592,6 +593,16 @@ err:
- 	 * fails for the first page, and therefore expect addr==__kfence_pool in
- 	 * most failure cases.
- 	 */
-+	for (p = (char *)addr; p < __kfence_pool + KFENCE_POOL_SIZE; p += PAGE_SIZE) {
-+		struct page *page = virt_to_page(p);
-+
-+		if (!PageSlab(page))
-+			continue;
-+#ifdef CONFIG_MEMCG
-+		page->memcg_data = 0;
-+#endif
-+		__ClearPageSlab(page);
-+	}
- 	memblock_free_late(__pa(addr), KFENCE_POOL_SIZE - (addr - (unsigned long)__kfence_pool));
- 	__kfence_pool = NULL;
- 	return false;
+-	/*
+-	 * The port numbering and mapping here is bizarre. The now-obsolete
+-	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
+-	 * special case, but port F and beyond are not. The functionality is
+-	 * supposed to be obsolete for new platforms. Just bail out if the port
+-	 * number is out of bounds after mapping.
+-	 */
+-	if (port > 4) {
+-		drm_dbg_kms(&dev_priv->drm,
+-			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
+-			    intel_encoder->base.base.id, intel_encoder->base.name,
+-			    port_name(intel_encoder->port), port);
+-		return -EINVAL;
+-	}
+-
+ 	if (!enable)
+ 		parm |= 4 << 8;
+ 
 
 
