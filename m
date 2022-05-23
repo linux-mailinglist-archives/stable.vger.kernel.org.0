@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD8F531604
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75FAE531BC5
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240990AbiEWRdy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38928 "EHLO
+        id S241586AbiEWRds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240326AbiEWRc3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D937C737A2;
-        Mon, 23 May 2022 10:27:15 -0700 (PDT)
+        with ESMTP id S242260AbiEWRcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526BE71A3F;
+        Mon, 23 May 2022 10:27:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ED62B811FF;
-        Mon, 23 May 2022 17:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E91BC385A9;
-        Mon, 23 May 2022 17:27:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94F27B81204;
+        Mon, 23 May 2022 17:27:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBC37C34115;
+        Mon, 23 May 2022 17:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326822;
-        bh=BxK7O4Gs2ObR0o2eB295lupu4Ic0VZFkTdV/DbE85ac=;
+        s=korg; t=1653326825;
+        bh=qnwdIkkYiFCRu6fRjyWwB/vxSHwpyJ8MWSzbKllOeWU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0015C13/37/brDw6ajhmeZlBcwQlBph2xE1zeR7doJ8Qf64He0grtJ7/7lnOrvKmv
-         OPjXOjE42UgJuqDJTuvoZyCxfwNJdmcNcWTuighXCrOidyLcL8NirrMH79BapXv750
-         zjMc57xMxIB5tUW7Sa9JcErzkdMRpwntgL+K/qKk=
+        b=K7fRZ7eINhnf5xDMYB5e0cN7qP1rbkc/uFX7g8IymnIBj6I3ADjMH9apV/m68z4N4
+         5PcU1871hMSZSdveyiy8Hdkv8MP24lu1LNGm5yr2LhIpJeACERGdKCk3SYPSbkYYui
+         IC6h4AlfLO2VGZK/HJCS+GYr1gSI6gNzR+Wd2qJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jae Hyun Yoo <quic_jaehyoo@quicinc.com>,
         Andrew Jeffery <andrew@aj.id.au>,
         Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 070/158] pinctrl: pinctrl-aspeed-g6: remove FWQSPID group in pinctrl
-Date:   Mon, 23 May 2022 19:03:47 +0200
-Message-Id: <20220523165842.507458155@linuxfoundation.org>
+Subject: [PATCH 5.17 071/158] ARM: dts: aspeed-g6: fix SPI1/SPI2 quad pin group
+Date:   Mon, 23 May 2022 19:03:48 +0200
+Message-Id: <20220523165842.676978574@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -56,67 +56,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
 
-[ Upstream commit 3eef2f48ba0933ba995529f522554ad5c276c39b ]
+[ Upstream commit 890362d41b244536ab63591f813393f5fdf59ed7 ]
 
-FWSPIDQ2 and FWSPIDQ3 are not part of FWSPI18 interface so remove
-FWQSPID group in pinctrl. These pins must be used with the FWSPI
-pins that are dedicated for boot SPI interface which provides
-same 3.3v logic level.
+Fix incorrect function mappings in pinctrl_qspi1_default and
+pinctrl_qspi2_default since their function should be SPI1 and
+SPI2 respectively.
 
-Fixes: 2eda1cdec49f ("pinctrl: aspeed: Add AST2600 pinmux support")
+Fixes: f510f04c8c83 ("ARM: dts: aspeed: Add AST2600 pinmux nodes")
 Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
 Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220329173932.2588289-3-quic_jaehyoo@quicinc.com
+Link: https://lore.kernel.org/r/20220329173932.2588289-8-quic_jaehyoo@quicinc.com
 Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-index a3fa03bcd9a3..54064714d73f 100644
---- a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-+++ b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-@@ -1236,18 +1236,12 @@ FUNC_GROUP_DECL(SALT8, AA12);
- FUNC_GROUP_DECL(WDTRST4, AA12);
+diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+index 06d60a8540e9..ac07c240419a 100644
+--- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+@@ -648,12 +648,12 @@ pinctrl_pwm9g1_default: pwm9g1_default {
+ 	};
  
- #define AE12 196
--SIG_EXPR_LIST_DECL_SEMG(AE12, FWSPIDQ2, FWQSPID, FWSPID,
--			SIG_DESC_SET(SCU438, 4));
- SIG_EXPR_LIST_DECL_SESG(AE12, GPIOY4, GPIOY4);
--PIN_DECL_(AE12, SIG_EXPR_LIST_PTR(AE12, FWSPIDQ2),
--	  SIG_EXPR_LIST_PTR(AE12, GPIOY4));
-+PIN_DECL_(AE12, SIG_EXPR_LIST_PTR(AE12, GPIOY4));
+ 	pinctrl_qspi1_default: qspi1_default {
+-		function = "QSPI1";
++		function = "SPI1";
+ 		groups = "QSPI1";
+ 	};
  
- #define AF12 197
--SIG_EXPR_LIST_DECL_SEMG(AF12, FWSPIDQ3, FWQSPID, FWSPID,
--			SIG_DESC_SET(SCU438, 5));
- SIG_EXPR_LIST_DECL_SESG(AF12, GPIOY5, GPIOY5);
--PIN_DECL_(AF12, SIG_EXPR_LIST_PTR(AF12, FWSPIDQ3),
--	  SIG_EXPR_LIST_PTR(AF12, GPIOY5));
-+PIN_DECL_(AF12, SIG_EXPR_LIST_PTR(AF12, GPIOY5));
+ 	pinctrl_qspi2_default: qspi2_default {
+-		function = "QSPI2";
++		function = "SPI2";
+ 		groups = "QSPI2";
+ 	};
  
- #define AC12 198
- SSSF_PIN_DECL(AC12, GPIOY6, FWSPIABR, SIG_DESC_SET(SCU438, 6));
-@@ -1520,9 +1514,8 @@ SIG_EXPR_LIST_DECL_SEMG(Y4, EMMCDAT7, EMMCG8, EMMC, SIG_DESC_SET(SCU404, 3));
- PIN_DECL_3(Y4, GPIO18E3, FWSPIDMISO, VBMISO, EMMCDAT7);
- 
- GROUP_DECL(FWSPID, Y1, Y2, Y3, Y4);
--GROUP_DECL(FWQSPID, Y1, Y2, Y3, Y4, AE12, AF12);
- GROUP_DECL(EMMCG8, AB4, AA4, AC4, AA5, Y5, AB5, AB6, AC5, Y1, Y2, Y3, Y4);
--FUNC_DECL_2(FWSPID, FWSPID, FWQSPID);
-+FUNC_DECL_1(FWSPID, FWSPID);
- FUNC_GROUP_DECL(VB, Y1, Y2, Y3, Y4);
- FUNC_DECL_3(EMMC, EMMCG1, EMMCG4, EMMCG8);
- /*
-@@ -1918,7 +1911,6 @@ static const struct aspeed_pin_group aspeed_g6_groups[] = {
- 	ASPEED_PINCTRL_GROUP(FSI2),
- 	ASPEED_PINCTRL_GROUP(FWSPIABR),
- 	ASPEED_PINCTRL_GROUP(FWSPID),
--	ASPEED_PINCTRL_GROUP(FWQSPID),
- 	ASPEED_PINCTRL_GROUP(FWSPIWP),
- 	ASPEED_PINCTRL_GROUP(GPIT0),
- 	ASPEED_PINCTRL_GROUP(GPIT1),
 -- 
 2.35.1
 
