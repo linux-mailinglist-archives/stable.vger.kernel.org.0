@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18A56531ADA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A975319E8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239210AbiEWREV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45574 "EHLO
+        id S240408AbiEWRX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239214AbiEWREN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EE295A588;
-        Mon, 23 May 2022 10:04:12 -0700 (PDT)
+        with ESMTP id S241291AbiEWRWO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D202877F2E;
+        Mon, 23 May 2022 10:18:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1408614CA;
-        Mon, 23 May 2022 17:04:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C563CC385AA;
-        Mon, 23 May 2022 17:04:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3CFCB81210;
+        Mon, 23 May 2022 17:17:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE38C385A9;
+        Mon, 23 May 2022 17:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325451;
-        bh=eLXtVv/gyCft0m7oLFDOCv2NdFuhvuKKxzvs6PE2RX0=;
+        s=korg; t=1653326249;
+        bh=VdZ3qN2N3rMjOlO5jRK39pc0DwqbAhKuawjvaF1x4mk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGN2Hrfx3IBpji1gFZvBFUyp7McKNytgwgvwpII+H8WQn7Sdcra6kdTvV8paqQo8s
-         qZi3/4EjJgvqIzK/ipLVv86fsrYhytHcrdYtLEhJ5Rxr2px1gb0R4dFDuXvh9prQF4
-         Abpsa3bM5/nT/xMnDrBNU4DnKUxfxAUAt2C9KAX0=
+        b=jsHJuiU6dtfGawWn0CbHp0nzjfP26oAG6SAi1qT36oSBYALrI1gaHz+AMXj22VvMz
+         ms+EuA1m1REaMrQpYamAfbq/OWSSARCxXZ++5t3m4uO4UY/VW8GyS+IN9Zy2g1nIT0
+         7hUdXMlwKuGX8JfOYd3o/YIzzocPekuaqKOHuO5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 16/25] NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+        stable@vger.kernel.org, Terry Bowman <terry.bowman@amd.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 005/132] i2c: piix4: Replace hardcoded memory map size with a #define
 Date:   Mon, 23 May 2022 19:03:34 +0200
-Message-Id: <20220523165747.575050147@linuxfoundation.org>
+Message-Id: <20220523165824.442712135@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
-References: <20220523165743.398280407@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +55,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Terry Bowman <terry.bowman@amd.com>
 
-[ Upstream commit 23dd4581350d4ffa23d58976ec46408f8f4c1e16 ]
+commit 93102cb449780f7b4eecf713451627b78373ce49 upstream.
 
-There are sleep in atomic context bugs when the request to secure
-element of st-nci is timeout. The root cause is that nci_skb_alloc
-with GFP_KERNEL parameter is called in st_nci_se_wt_timeout which is
-a timer handler. The call paths that could trigger bugs are shown below:
+Replace number constant with #define to improve readability and
+maintainability.
 
-    (interrupt context 1)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_skb_alloc(..., GFP_KERNEL) //may sleep
-
-   (interrupt context 2)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_send_data
-        nci_queue_tx_data_frags
-          nci_skb_alloc(..., GFP_KERNEL) //may sleep
-
-This patch changes allocation mode of nci_skb_alloc from GFP_KERNEL to
-GFP_ATOMIC in order to prevent atomic context sleeping. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: ed06aeefdac3 ("nfc: st-nci: Rename st21nfcb to st-nci")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220517012530.75714-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Terry Bowman <terry.bowman@amd.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/data.c | 2 +-
- net/nfc/nci/hci.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-piix4.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index d20383779710..b8a295dd15d8 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -130,7 +130,7 @@ static int nci_queue_tx_data_frags(struct nci_dev *ndev,
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -77,6 +77,7 @@
  
- 		skb_frag = nci_skb_alloc(ndev,
- 					 (NCI_DATA_HDR_SIZE + frag_len),
--					 GFP_KERNEL);
-+					 GFP_ATOMIC);
- 		if (skb_frag == NULL) {
- 			rc = -ENOMEM;
- 			goto free_exit;
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index 5fae3f064ad0..9c37618f36c6 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -165,7 +165,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
+ /* SB800 constants */
+ #define SB800_PIIX4_SMB_IDX		0xcd6
++#define SB800_PIIX4_SMB_MAP_SIZE	2
  
- 	i = 0;
- 	skb = nci_skb_alloc(ndev, conn_info->max_pkt_payload_len +
--			    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+			    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 	if (!skb)
- 		return -ENOMEM;
+ #define KERNCZ_IMC_IDX			0x3e
+ #define KERNCZ_IMC_DATA			0x3f
+@@ -290,7 +291,8 @@ static int piix4_setup_sb800(struct pci_
+ 	else
+ 		smb_en = (aux) ? 0x28 : 0x2c;
  
-@@ -198,7 +198,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
- 		if (i < data_len) {
- 			skb = nci_skb_alloc(ndev,
- 					    conn_info->max_pkt_payload_len +
--					    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+					    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 			if (!skb)
- 				return -ENOMEM;
+-	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb")) {
++	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE,
++				  "sb800_piix4_smb")) {
+ 		dev_err(&PIIX4_dev->dev,
+ 			"SMB base address index region 0x%x already in use.\n",
+ 			SB800_PIIX4_SMB_IDX);
+@@ -302,7 +304,7 @@ static int piix4_setup_sb800(struct pci_
+ 	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+ 	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
  
--- 
-2.35.1
-
+-	release_region(SB800_PIIX4_SMB_IDX, 2);
++	release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
+ 
+ 	if (!smb_en) {
+ 		smb_en_status = smba_en_lo & 0x10;
+@@ -371,7 +373,8 @@ static int piix4_setup_sb800(struct pci_
+ 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+ 		}
+ 	} else {
+-		if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2,
++		if (!request_muxed_region(SB800_PIIX4_SMB_IDX,
++					  SB800_PIIX4_SMB_MAP_SIZE,
+ 					  "sb800_piix4_smb")) {
+ 			release_region(piix4_smba, SMBIOSIZE);
+ 			return -EBUSY;
+@@ -384,7 +387,7 @@ static int piix4_setup_sb800(struct pci_
+ 				       SB800_PIIX4_PORT_IDX;
+ 		piix4_port_mask_sb800 = SB800_PIIX4_PORT_IDX_MASK;
+ 		piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
+-		release_region(SB800_PIIX4_SMB_IDX, 2);
++		release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
+ 	}
+ 
+ 	dev_info(&PIIX4_dev->dev,
+@@ -682,7 +685,8 @@ static s32 piix4_access_sb800(struct i2c
+ 	u8 port;
+ 	int retval;
+ 
+-	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, 2, "sb800_piix4_smb"))
++	if (!request_muxed_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE,
++				  "sb800_piix4_smb"))
+ 		return -EBUSY;
+ 
+ 	/* Request the SMBUS semaphore, avoid conflicts with the IMC */
+@@ -758,7 +762,7 @@ static s32 piix4_access_sb800(struct i2c
+ 		piix4_imc_wakeup();
+ 
+ release:
+-	release_region(SB800_PIIX4_SMB_IDX, 2);
++	release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
+ 	return retval;
+ }
+ 
 
 
