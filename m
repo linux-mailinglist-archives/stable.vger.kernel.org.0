@@ -2,116 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC03530BD3
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 11:03:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801C9530CD3
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 12:41:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbiEWI4P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 04:56:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49730 "EHLO
+        id S233602AbiEWJwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 05:52:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232300AbiEWI4O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 04:56:14 -0400
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DDA9B7FE;
-        Mon, 23 May 2022 01:56:04 -0700 (PDT)
-X-UUID: 06f49cb5f32b4d2297c06a9166530d90-20220523
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.5,REQID:fbc0daff-b31d-4f7e-a043-af2a02a861df,OB:0,LO
-        B:0,IP:0,URL:5,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACTI
-        ON:release,TS:5
-X-CID-META: VersionHash:2a19b09,CLOUDID:dc28467a-5ef6-470b-96c9-bdb8ced32786,C
-        OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:1,File:nil
-        ,QS:0,BEC:nil
-X-UUID: 06f49cb5f32b4d2297c06a9166530d90-20220523
-Received: from mtkexhb02.mediatek.inc [(172.21.101.103)] by mailgw01.mediatek.com
-        (envelope-from <chunfeng.yun@mediatek.com>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-SHA384 256/256)
-        with ESMTP id 984592553; Mon, 23 May 2022 16:55:59 +0800
-Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Mon, 23 May 2022 16:55:56 +0800
-Received: from mhfsdcap04 (10.17.3.154) by mtkcas11.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Mon, 23 May 2022 16:55:52 +0800
-Message-ID: <e48b8f9194df9add1849a50186570f30f086262f.camel@mediatek.com>
-Subject: Re: [PATCH 1/2] usb: xhci-mtk: fix fs isoc's transfer error
-From:   Chunfeng Yun <chunfeng.yun@mediatek.com>
-To:     AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-CC:     Mathias Nyman <mathias.nyman@intel.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        <linux-usb@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        Eddie Hung <eddie.hung@mediatek.com>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        <stable@vger.kernel.org>
-Date:   Mon, 23 May 2022 16:55:52 +0800
-In-Reply-To: <7781eaaf-ad09-7283-dbb8-69d0fb3f1d14@collabora.com>
-References: <20220512064931.31670-1-chunfeng.yun@mediatek.com>
-         <7781eaaf-ad09-7283-dbb8-69d0fb3f1d14@collabora.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+        with ESMTP id S233565AbiEWJwQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 05:52:16 -0400
+Received: from mail-il1-f199.google.com (mail-il1-f199.google.com [209.85.166.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D262033E3F
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 02:52:14 -0700 (PDT)
+Received: by mail-il1-f199.google.com with SMTP id x1-20020a056e020f0100b002c98fce9c13so8495610ilj.3
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 02:52:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=sVvRetvU66viZg03zt42J481swUWQOVgkFgrLPfYY/8=;
+        b=ydz6L+0Y8lB5apEl8e5uk4RAwpFR4je+lyva8JbwKWAzCqAo8blX5c4i+JRFxZVL6A
+         IjuRcDsezAo1QEFV55Dp9RJfmT+ZazkK06iMUXwL0wjj8yQdN7xekAlsaK4oFDzhKhoN
+         20tLw5tHjBUFRUWKAiNwpkUGK96uaTHiJ0ScTr6CSGJg9SUTpj/scgSCkEg0YNYQMqWp
+         yAKlVotBzJ/UQrC3P0Bfd9eVMa36nwnLlgDG+XVT0FSwfYAuE55Qpk5TF+9Ko5jZpeSy
+         wZnWL2a4CSUxPAnCXSpwjdARp61bTvi3ClgYF5WX1XBvBDmPIe9GDBh6Q6au3D9dFMBK
+         dqQA==
+X-Gm-Message-State: AOAM530fVshi7mzEb7rZo61Gq9yjIL52G4j2L0hd2ZOYC6jLX2z87+FX
+        45AeRZ6xpaRaJta4raa5IHOgUN6oG8l6o2Swm06U7UAU9qp4
+X-Google-Smtp-Source: ABdhPJyBawQvEWj+lTvgzmvc4lAf6KnVY19vIJFpJz7USDyprdxNu8Vi1MmNjhxvac1AWz6gU1x4Q9cbsnNbmF4BtY1R8C9sXxo+
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-MTK:  N
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,MAY_BE_FORGED,
-        T_SCC_BODY_TEXT_LINE,T_SPF_HELO_TEMPERROR,T_SPF_TEMPERROR,
-        UNPARSEABLE_RELAY autolearn=no autolearn_force=no version=3.4.6
+X-Received: by 2002:a05:6638:218b:b0:32e:9612:109e with SMTP id
+ s11-20020a056638218b00b0032e9612109emr8554181jaj.192.1653299534264; Mon, 23
+ May 2022 02:52:14 -0700 (PDT)
+Date:   Mon, 23 May 2022 02:52:14 -0700
+In-Reply-To: <000000000000b960c00594598949@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000727d7305dfaacb8d@google.com>
+Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
+From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
+To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2022-05-18 at 14:01 +0200, AngeloGioacchino Del Regno wrote:
-> Il 12/05/22 08:49, Chunfeng Yun ha scritto:
-> > Due to the scheduler allocates the optimal bandwidth for FS ISOC
-> > endpoints,
-> > this may be not enough actually and causes data transfer error, so
-> > come up
-> > with an estimate that is no less than the worst case bandwidth used
-> > for
-> > any one mframe, but may be an over-estimate.
-> > 
-> > Fixes: 451d3912586a ("usb: xhci-mtk: update fs bus bandwidth by
-> > bw_budget_table")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-> 
-> Hello Chunfeng,
-> I agree this is "a fix"... but is it the best fix?
-> 
-> Shooting the bandwidth very high will have power consumption
-> consequences, are
-> those measurable?
-This is usually limited into one interval; e.g. the last interval
-transfers 8 bytes in fact, but I assume it may transfer 188 bytes, I
-think the consumption increase can be ignored.
-
-> And if they are, what is the expected power consumption increase in
-> percentage
-> (and/or microamperes)? Also, out of the expected increase, have you
-> got any
-> measurement for that?
-> 
-> Assuming that the measurement is done for one SoC, it's possible to
-> make some
-> assumption about a different part.
-> 
-> Regards,
-> Angelo
-> 
-> > ---
-> >   drivers/usb/host/xhci-mtk-sch.c | 16 +++++++---------
-> >   1 file changed, 7 insertions(+), 9 deletions(-)
-> > 
-> > diff --git a/drivers/usb/host/xhci-mtk-sch.c
-> > b/drivers/usb/host/xhci-mtk-sch.c
-> > index f3139ce7b0a9..953d2cd1d4cc 100644
-> > --- a/drivers/usb/host/xhci-mtk-sch.c
-> > +++ b/drivers/usb/host/xhci-mtk-sch.c
-
+This bug is marked as fixed by commit:
+net: core: netlink: add helper refcount dec and lock function
+net: sched: add helper function to take reference to Qdisc
+net: sched: extend Qdisc with rcu
+net: sched: rename qdisc_destroy() to qdisc_put()
+net: sched: use Qdisc rcu API instead of relying on rtnl lock
+But I can't find it in any tested tree for more than 90 days.
+Is it a correct commit? Please update it by replying:
+#syz fix: exact-commit-title
+Until then the bug is still considered open and
+new crashes with the same signature are ignored.
