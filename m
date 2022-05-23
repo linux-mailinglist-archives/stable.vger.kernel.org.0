@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60343531A3C
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59E6653173B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242555AbiEWRno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35648 "EHLO
+        id S239732AbiEWRJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:09:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243273AbiEWRiA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6AA8BD12;
-        Mon, 23 May 2022 10:32:16 -0700 (PDT)
+        with ESMTP id S239524AbiEWRJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8273E4EA07;
+        Mon, 23 May 2022 10:09:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 818B261261;
-        Mon, 23 May 2022 17:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88D15C385A9;
-        Mon, 23 May 2022 17:31:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FCD0B811F6;
+        Mon, 23 May 2022 17:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD06DC385A9;
+        Mon, 23 May 2022 17:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327062;
-        bh=E0vUSpxPLIELQGfG4YeyedZtqjlmxegQcKpK3CCbthE=;
+        s=korg; t=1653325750;
+        bh=cKXq3/EbTX8YVQiuqecQn9SX4Ky7zX2DwSuQqg0oBr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnxiVdAXZqZUMYWVp5U8psj/GIaYqbsxP9toPrQm/uZtxUQ0ieno1zCjrhRqe6udG
-         XaCWGJr7zr+Tb1G62CwIjgpwPsHtCTD6SzyB2oxTVdlpsPugsaIBlZPepNZd069xxC
-         XXwm45Wies2mR2kAK13I5MNyMQl1hqKPl9385YYA=
+        b=jxg88mqbLUpQ16rUg0IM4Ac3GchGfiA1jn6ysy5QI9Ng4iwgwXbblM9WNPGPBO5/e
+         wIUkSMU67wOBi8fmU3ZA/g8CrRIJccsm4EJbwNX2MfIN6QkSDq5nfCOU0MdLM8onFT
+         +DdAd6dg4wjZgrwdEG3JNLEtd8ew9wkkHLIHmhtg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Eric Yang <Eric.Yang2@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 145/158] drm/amd/display: undo clearing of z10 related function pointers
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.14 13/33] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
 Date:   Mon, 23 May 2022 19:05:02 +0200
-Message-Id: <20220523165854.271190940@linuxfoundation.org>
+Message-Id: <20220523165750.023556838@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,42 +53,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Yang <Eric.Yang2@amd.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 9b9bd3f640640f94272a461b2dfe558f91b322c5 ]
+commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 upstream
 
-[Why]
-Z10 and S0i3 have some shared path. Previous code clean up ,
-incorrectly removed these pointers, which breaks s0i3 restore
+All callers of __mmc_switch() should now be specifying a valid timeout for
+the CMD6 command. However, just to be sure, let's print a warning and
+default to use the generic_cmd6_time in case the provided timeout_ms
+argument is zero.
 
-[How]
-Do not clear the function pointers based on Z10 disable.
+In this context, let's also simplify some of the corresponding code and
+clarify some related comments.
 
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Eric Yang <Eric.Yang2@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/mmc/core/mmc_ops.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-index d7559e5a99ce..e708f07fe75a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_init.c
-@@ -153,9 +153,4 @@ void dcn31_hw_sequencer_construct(struct dc *dc)
- 		dc->hwss.init_hw = dcn20_fpga_init_hw;
- 		dc->hwseq->funcs.init_pipes = NULL;
- 	}
--	if (dc->debug.disable_z10) {
--		/*hw not support z10 or sw disable it*/
--		dc->hwss.z10_restore = NULL;
--		dc->hwss.z10_save_init = NULL;
--	}
- }
--- 
-2.35.1
-
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -458,10 +458,6 @@ static int mmc_poll_for_busy(struct mmc_
+ 	bool expired = false;
+ 	bool busy = false;
+ 
+-	/* We have an unspecified cmd timeout, use the fallback value. */
+-	if (!timeout_ms)
+-		timeout_ms = MMC_OPS_TIMEOUT_MS;
+-
+ 	/*
+ 	 * In cases when not allowed to poll by using CMD13 or because we aren't
+ 	 * capable of polling by using ->card_busy(), then rely on waiting the
+@@ -534,14 +530,20 @@ int __mmc_switch(struct mmc_card *card,
+ 
+ 	mmc_retune_hold(host);
+ 
++	if (!timeout_ms) {
++		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
++			mmc_hostname(host));
++		timeout_ms = card->ext_csd.generic_cmd6_time;
++	}
++
+ 	/*
+ 	 * If the cmd timeout and the max_busy_timeout of the host are both
+ 	 * specified, let's validate them. A failure means we need to prevent
+ 	 * the host from doing hw busy detection, which is done by converting
+ 	 * to a R1 response instead of a R1B.
+ 	 */
+-	if (timeout_ms && host->max_busy_timeout &&
+-		(timeout_ms > host->max_busy_timeout))
++	if (host->max_busy_timeout &&
++	    (timeout_ms > host->max_busy_timeout))
+ 		use_r1b_resp = false;
+ 
+ 	cmd.opcode = MMC_SWITCH;
+@@ -552,10 +554,6 @@ int __mmc_switch(struct mmc_card *card,
+ 	cmd.flags = MMC_CMD_AC;
+ 	if (use_r1b_resp) {
+ 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
+-		/*
+-		 * A busy_timeout of zero means the host can decide to use
+-		 * whatever value it finds suitable.
+-		 */
+ 		cmd.busy_timeout = timeout_ms;
+ 	} else {
+ 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
 
 
