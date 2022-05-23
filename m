@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D399531CD0
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C9F53189C
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240570AbiEWRef (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:34:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38080 "EHLO
+        id S240348AbiEWRfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:35:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241099AbiEWRdI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0EB66B665;
-        Mon, 23 May 2022 10:27:41 -0700 (PDT)
+        with ESMTP id S241356AbiEWRdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD15531517;
+        Mon, 23 May 2022 10:27:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01313608C0;
-        Mon, 23 May 2022 17:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07726C385A9;
-        Mon, 23 May 2022 17:27:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCA70B811FF;
+        Mon, 23 May 2022 17:27:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AE3FC385A9;
+        Mon, 23 May 2022 17:27:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326860;
-        bh=ijzJ8gTCI2tpxHb0d4Z/XJHCnUqC/CuubuZHAu/u0VE=;
+        s=korg; t=1653326863;
+        bh=aEkIdIK1HK+zAi73+yH2wOt7/nPZkI+toLRk7OzRJ1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2IQCfR5wsgP4f/M3/xqDOwYxSdhMNgZfy9tk23mZ9h4/tCXMT/WCy6AtRSxcJ7abJ
-         2ndKgSR538JbhLUB71wk0xrGaNs+lr4n3HUTQbA6YcozRYDq9xCFYVt4xaXAprFkA+
-         VWvAHBC5MXOYEPXuuovS9jvqGpL7q+t7ZQuGFn5o=
+        b=SBEgfL/QDwL+0kTpJiMHGOBLZ6DU/f2zbtp/XAcBLvA2tZna1OISYVdCytOO/ZndV
+         Titdb4Q+CLP7p+mMJZz07hywctxtwhCsH7JYUe1vg3ceF53R/DbXFa35/kZyQMDcmU
+         TUmWQ8WhItGs76rjOMlCOUTsVdXMV6UpD6ZfMjF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>,
-        Alan Previn <alan.previn.teres.alexis@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 081/158] i915/guc/reset: Make __guc_reset_context aware of guilty engines
-Date:   Mon, 23 May 2022 19:03:58 +0200
-Message-Id: <20220523165844.491361523@linuxfoundation.org>
+Subject: [PATCH 5.17 082/158] xfrm: rework default policy structure
+Date:   Mon, 23 May 2022 19:03:59 +0200
+Message-Id: <20220523165844.663458845@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -57,153 +56,235 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
+From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 
-[ Upstream commit 89e96d822bd51f7afe2d3e95a34099480b5c3d55 ]
+[ Upstream commit b58b1f563ab78955d37e9e43e02790a85c66ac05 ]
 
-There are 2 ways an engine can get reset in i915 and the method of reset
-affects how KMD labels a context as guilty/innocent.
+This is a follow up of commit f8d858e607b2 ("xfrm: make user policy API
+complete"). The goal is to align userland API to the internal structures.
 
-(1) GuC initiated engine-reset: GuC resets a hung engine and notifies
-KMD. The context that hung on the engine is marked guilty and all other
-contexts are innocent. The innocent contexts are resubmitted.
-
-(2) GT based reset: When an engine heartbeat fails to tick, KMD
-initiates a gt/chip reset. All active contexts are marked as guilty and
-discarded.
-
-In order to correctly mark the contexts as guilty/innocent, pass a mask
-of engines that were reset to __guc_reset_context.
-
-Fixes: eb5e7da736f3 ("drm/i915/guc: Reset implementation for new GuC interface")
-Signed-off-by: Umesh Nerlige Ramappa <umesh.nerlige.ramappa@intel.com>
-Reviewed-by: Alan Previn <alan.previn.teres.alexis@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220426003045.3929439-1-umesh.nerlige.ramappa@intel.com
-(cherry picked from commit 303760aa914b7f5ac9602dbb4b471a2ad52eeb3e)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Reviewed-by:  Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_reset.c            |  2 +-
- drivers/gpu/drm/i915/gt/uc/intel_guc.h           |  2 +-
- .../gpu/drm/i915/gt/uc/intel_guc_submission.c    | 16 ++++++++--------
- drivers/gpu/drm/i915/gt/uc/intel_uc.c            |  2 +-
- drivers/gpu/drm/i915/gt/uc/intel_uc.h            |  2 +-
- 5 files changed, 12 insertions(+), 12 deletions(-)
+ include/net/netns/xfrm.h |  6 +----
+ include/net/xfrm.h       | 48 +++++++++++++++-------------------------
+ net/xfrm/xfrm_policy.c   | 10 ++++++---
+ net/xfrm/xfrm_user.c     | 43 +++++++++++++++--------------------
+ 4 files changed, 44 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-index 7be0002d9d70..f577582ddd9f 100644
---- a/drivers/gpu/drm/i915/gt/intel_reset.c
-+++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-@@ -791,7 +791,7 @@ static int gt_reset(struct intel_gt *gt, intel_engine_mask_t stalled_mask)
- 		__intel_engine_reset(engine, stalled_mask & engine->mask);
- 	local_bh_enable();
+diff --git a/include/net/netns/xfrm.h b/include/net/netns/xfrm.h
+index 947733a639a6..bd7c3be4af5d 100644
+--- a/include/net/netns/xfrm.h
++++ b/include/net/netns/xfrm.h
+@@ -66,11 +66,7 @@ struct netns_xfrm {
+ 	int			sysctl_larval_drop;
+ 	u32			sysctl_acq_expires;
  
--	intel_uc_reset(&gt->uc, true);
-+	intel_uc_reset(&gt->uc, ALL_ENGINES);
+-	u8			policy_default;
+-#define XFRM_POL_DEFAULT_IN	1
+-#define XFRM_POL_DEFAULT_OUT	2
+-#define XFRM_POL_DEFAULT_FWD	4
+-#define XFRM_POL_DEFAULT_MASK	7
++	u8			policy_default[XFRM_POLICY_MAX];
  
- 	intel_ggtt_restore_fences(gt->ggtt);
- 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc.h b/drivers/gpu/drm/i915/gt/uc/intel_guc.h
-index 3aabe164c329..e1fb8e1da128 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc.h
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc.h
-@@ -417,7 +417,7 @@ int intel_guc_global_policies_update(struct intel_guc *guc);
- void intel_guc_context_ban(struct intel_context *ce, struct i915_request *rq);
- 
- void intel_guc_submission_reset_prepare(struct intel_guc *guc);
--void intel_guc_submission_reset(struct intel_guc *guc, bool stalled);
-+void intel_guc_submission_reset(struct intel_guc *guc, intel_engine_mask_t stalled);
- void intel_guc_submission_reset_finish(struct intel_guc *guc);
- void intel_guc_submission_cancel_requests(struct intel_guc *guc);
- 
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index 154ad726e266..1e51a365833b 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -1603,9 +1603,9 @@ __unwind_incomplete_requests(struct intel_context *ce)
- 	spin_unlock_irqrestore(&sched_engine->lock, flags);
+ #ifdef CONFIG_SYSCTL
+ 	struct ctl_table_header	*sysctl_hdr;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 76aa6f11a540..6fb899ff5afc 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1081,25 +1081,18 @@ xfrm_state_addr_cmp(const struct xfrm_tmpl *tmpl, const struct xfrm_state *x, un
  }
  
--static void __guc_reset_context(struct intel_context *ce, bool stalled)
-+static void __guc_reset_context(struct intel_context *ce, intel_engine_mask_t stalled)
- {
--	bool local_stalled;
-+	bool guilty;
- 	struct i915_request *rq;
- 	unsigned long flags;
- 	u32 head;
-@@ -1647,7 +1647,7 @@ static void __guc_reset_context(struct intel_context *ce, bool stalled)
- 		if (!intel_context_is_pinned(ce))
- 			goto next_context;
+ #ifdef CONFIG_XFRM
+-static inline bool
+-xfrm_default_allow(struct net *net, int dir)
+-{
+-	u8 def = net->xfrm.policy_default;
+-
+-	switch (dir) {
+-	case XFRM_POLICY_IN:
+-		return def & XFRM_POL_DEFAULT_IN ? false : true;
+-	case XFRM_POLICY_OUT:
+-		return def & XFRM_POL_DEFAULT_OUT ? false : true;
+-	case XFRM_POLICY_FWD:
+-		return def & XFRM_POL_DEFAULT_FWD ? false : true;
+-	}
+-	return false;
+-}
+-
+ int __xfrm_policy_check(struct sock *, int dir, struct sk_buff *skb,
+ 			unsigned short family);
  
--		local_stalled = false;
-+		guilty = false;
- 		rq = intel_context_find_active_request(ce);
- 		if (!rq) {
- 			head = ce->ring->tail;
-@@ -1655,14 +1655,14 @@ static void __guc_reset_context(struct intel_context *ce, bool stalled)
++static inline bool __xfrm_check_nopolicy(struct net *net, struct sk_buff *skb,
++					 int dir)
++{
++	if (!net->xfrm.policy_count[dir] && !secpath_exists(skb))
++		return net->xfrm.policy_default[dir] == XFRM_USERPOLICY_ACCEPT;
++
++	return false;
++}
++
+ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 				       struct sk_buff *skb,
+ 				       unsigned int family, int reverse)
+@@ -1110,13 +1103,9 @@ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 	if (sk && sk->sk_policy[XFRM_POLICY_IN])
+ 		return __xfrm_policy_check(sk, ndir, skb, family);
+ 
+-	if (xfrm_default_allow(net, dir))
+-		return (!net->xfrm.policy_count[dir] && !secpath_exists(skb)) ||
+-		       (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
+-		       __xfrm_policy_check(sk, ndir, skb, family);
+-	else
+-		return (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
+-		       __xfrm_policy_check(sk, ndir, skb, family);
++	return __xfrm_check_nopolicy(net, skb, dir) ||
++	       (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
++	       __xfrm_policy_check(sk, ndir, skb, family);
+ }
+ 
+ static inline int xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb, unsigned short family)
+@@ -1168,13 +1157,12 @@ static inline int xfrm_route_forward(struct sk_buff *skb, unsigned short family)
+ {
+ 	struct net *net = dev_net(skb->dev);
+ 
+-	if (xfrm_default_allow(net, XFRM_POLICY_OUT))
+-		return !net->xfrm.policy_count[XFRM_POLICY_OUT] ||
+-			(skb_dst(skb)->flags & DST_NOXFRM) ||
+-			__xfrm_route_forward(skb, family);
+-	else
+-		return (skb_dst(skb)->flags & DST_NOXFRM) ||
+-			__xfrm_route_forward(skb, family);
++	if (!net->xfrm.policy_count[XFRM_POLICY_OUT] &&
++	    net->xfrm.policy_default[XFRM_POLICY_OUT] == XFRM_USERPOLICY_ACCEPT)
++		return true;
++
++	return (skb_dst(skb)->flags & DST_NOXFRM) ||
++	       __xfrm_route_forward(skb, family);
+ }
+ 
+ static inline int xfrm4_route_forward(struct sk_buff *skb)
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 882526159d3a..19aa994f5d2c 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3158,7 +3158,7 @@ struct dst_entry *xfrm_lookup_with_ifid(struct net *net,
+ 
+ nopol:
+ 	if (!(dst_orig->dev->flags & IFF_LOOPBACK) &&
+-	    !xfrm_default_allow(net, dir)) {
++	    net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK) {
+ 		err = -EPERM;
+ 		goto error;
+ 	}
+@@ -3569,7 +3569,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 	}
+ 
+ 	if (!pol) {
+-		if (!xfrm_default_allow(net, dir)) {
++		if (net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINNOPOLS);
+ 			return 0;
  		}
+@@ -3629,7 +3629,8 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 		}
+ 		xfrm_nr = ti;
  
- 		if (i915_request_started(rq))
--			local_stalled = true;
-+			guilty = stalled & ce->engine->mask;
+-		if (!xfrm_default_allow(net, dir) && !xfrm_nr) {
++		if (net->xfrm.policy_default[dir] == XFRM_USERPOLICY_BLOCK &&
++		    !xfrm_nr) {
+ 			XFRM_INC_STATS(net, LINUX_MIB_XFRMINNOSTATES);
+ 			goto reject;
+ 		}
+@@ -4118,6 +4119,9 @@ static int __net_init xfrm_net_init(struct net *net)
+ 	spin_lock_init(&net->xfrm.xfrm_policy_lock);
+ 	seqcount_spinlock_init(&net->xfrm.xfrm_policy_hash_generation, &net->xfrm.xfrm_policy_lock);
+ 	mutex_init(&net->xfrm.xfrm_cfg_mutex);
++	net->xfrm.policy_default[XFRM_POLICY_IN] = XFRM_USERPOLICY_ACCEPT;
++	net->xfrm.policy_default[XFRM_POLICY_FWD] = XFRM_USERPOLICY_ACCEPT;
++	net->xfrm.policy_default[XFRM_POLICY_OUT] = XFRM_USERPOLICY_ACCEPT;
  
- 		GEM_BUG_ON(i915_active_is_idle(&ce->active));
- 		head = intel_ring_wrap(ce->ring, rq->head);
+ 	rv = xfrm_statistics_init(net);
+ 	if (rv < 0)
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 72b2f173aac8..64fa8fdd6bbd 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1994,12 +1994,9 @@ static int xfrm_notify_userpolicy(struct net *net)
+ 	}
  
--		__i915_request_reset(rq, local_stalled && stalled);
-+		__i915_request_reset(rq, guilty);
- out_replay:
--		guc_reset_state(ce, head, local_stalled && stalled);
-+		guc_reset_state(ce, head, guilty);
- next_context:
- 		if (i != number_children)
- 			ce = list_next_entry(ce, parallel.child_link);
-@@ -1673,7 +1673,7 @@ static void __guc_reset_context(struct intel_context *ce, bool stalled)
- 	intel_context_put(parent);
+ 	up = nlmsg_data(nlh);
+-	up->in = net->xfrm.policy_default & XFRM_POL_DEFAULT_IN ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
+-	up->fwd = net->xfrm.policy_default & XFRM_POL_DEFAULT_FWD ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
+-	up->out = net->xfrm.policy_default & XFRM_POL_DEFAULT_OUT ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
++	up->in = net->xfrm.policy_default[XFRM_POLICY_IN];
++	up->fwd = net->xfrm.policy_default[XFRM_POLICY_FWD];
++	up->out = net->xfrm.policy_default[XFRM_POLICY_OUT];
+ 
+ 	nlmsg_end(skb, nlh);
+ 
+@@ -2010,26 +2007,26 @@ static int xfrm_notify_userpolicy(struct net *net)
+ 	return err;
  }
  
--void intel_guc_submission_reset(struct intel_guc *guc, bool stalled)
-+void intel_guc_submission_reset(struct intel_guc *guc, intel_engine_mask_t stalled)
++static bool xfrm_userpolicy_is_valid(__u8 policy)
++{
++	return policy == XFRM_USERPOLICY_BLOCK ||
++	       policy == XFRM_USERPOLICY_ACCEPT;
++}
++
+ static int xfrm_set_default(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			    struct nlattr **attrs)
  {
- 	struct intel_context *ce;
- 	unsigned long index;
-@@ -4042,7 +4042,7 @@ static void guc_context_replay(struct intel_context *ce)
- {
- 	struct i915_sched_engine *sched_engine = ce->engine->sched_engine;
+ 	struct net *net = sock_net(skb->sk);
+ 	struct xfrm_userpolicy_default *up = nlmsg_data(nlh);
  
--	__guc_reset_context(ce, true);
-+	__guc_reset_context(ce, ce->engine->mask);
- 	tasklet_hi_schedule(&sched_engine->tasklet);
- }
+-	if (up->in == XFRM_USERPOLICY_BLOCK)
+-		net->xfrm.policy_default |= XFRM_POL_DEFAULT_IN;
+-	else if (up->in == XFRM_USERPOLICY_ACCEPT)
+-		net->xfrm.policy_default &= ~XFRM_POL_DEFAULT_IN;
++	if (xfrm_userpolicy_is_valid(up->in))
++		net->xfrm.policy_default[XFRM_POLICY_IN] = up->in;
  
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_uc.c b/drivers/gpu/drm/i915/gt/uc/intel_uc.c
-index 09ed29df67bc..cbfb5a01cc1d 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_uc.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_uc.c
-@@ -592,7 +592,7 @@ void intel_uc_reset_prepare(struct intel_uc *uc)
- 	__uc_sanitize(uc);
- }
+-	if (up->fwd == XFRM_USERPOLICY_BLOCK)
+-		net->xfrm.policy_default |= XFRM_POL_DEFAULT_FWD;
+-	else if (up->fwd == XFRM_USERPOLICY_ACCEPT)
+-		net->xfrm.policy_default &= ~XFRM_POL_DEFAULT_FWD;
++	if (xfrm_userpolicy_is_valid(up->fwd))
++		net->xfrm.policy_default[XFRM_POLICY_FWD] = up->fwd;
  
--void intel_uc_reset(struct intel_uc *uc, bool stalled)
-+void intel_uc_reset(struct intel_uc *uc, intel_engine_mask_t stalled)
- {
- 	struct intel_guc *guc = &uc->guc;
+-	if (up->out == XFRM_USERPOLICY_BLOCK)
+-		net->xfrm.policy_default |= XFRM_POL_DEFAULT_OUT;
+-	else if (up->out == XFRM_USERPOLICY_ACCEPT)
+-		net->xfrm.policy_default &= ~XFRM_POL_DEFAULT_OUT;
++	if (xfrm_userpolicy_is_valid(up->out))
++		net->xfrm.policy_default[XFRM_POLICY_OUT] = up->out;
  
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_uc.h b/drivers/gpu/drm/i915/gt/uc/intel_uc.h
-index 866b462821c0..a8f38c2c60e2 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_uc.h
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_uc.h
-@@ -42,7 +42,7 @@ void intel_uc_driver_late_release(struct intel_uc *uc);
- void intel_uc_driver_remove(struct intel_uc *uc);
- void intel_uc_init_mmio(struct intel_uc *uc);
- void intel_uc_reset_prepare(struct intel_uc *uc);
--void intel_uc_reset(struct intel_uc *uc, bool stalled);
-+void intel_uc_reset(struct intel_uc *uc, intel_engine_mask_t stalled);
- void intel_uc_reset_finish(struct intel_uc *uc);
- void intel_uc_cancel_requests(struct intel_uc *uc);
- void intel_uc_suspend(struct intel_uc *uc);
+ 	rt_genid_bump_all(net);
+ 
+@@ -2059,13 +2056,9 @@ static int xfrm_get_default(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	}
+ 
+ 	r_up = nlmsg_data(r_nlh);
+-
+-	r_up->in = net->xfrm.policy_default & XFRM_POL_DEFAULT_IN ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
+-	r_up->fwd = net->xfrm.policy_default & XFRM_POL_DEFAULT_FWD ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
+-	r_up->out = net->xfrm.policy_default & XFRM_POL_DEFAULT_OUT ?
+-			XFRM_USERPOLICY_BLOCK : XFRM_USERPOLICY_ACCEPT;
++	r_up->in = net->xfrm.policy_default[XFRM_POLICY_IN];
++	r_up->fwd = net->xfrm.policy_default[XFRM_POLICY_FWD];
++	r_up->out = net->xfrm.policy_default[XFRM_POLICY_OUT];
+ 	nlmsg_end(r_skb, r_nlh);
+ 
+ 	return nlmsg_unicast(net->xfrm.nlsk, r_skb, portid);
 -- 
 2.35.1
 
