@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96B20531BFB
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B79853190F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240229AbiEWRan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S241309AbiEWRdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243010AbiEWR2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DC8A8E191;
-        Mon, 23 May 2022 10:25:09 -0700 (PDT)
+        with ESMTP id S241590AbiEWRaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBA03D480;
+        Mon, 23 May 2022 10:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E5A060B2C;
-        Mon, 23 May 2022 17:25:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FDA3C385A9;
-        Mon, 23 May 2022 17:25:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C1C3960AB8;
+        Mon, 23 May 2022 17:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B77C385A9;
+        Mon, 23 May 2022 17:25:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326702;
-        bh=Zc9iKb/8Gq+aQuRrHFAmmzOPypg+HrcmHQUblhe2SBU=;
+        s=korg; t=1653326705;
+        bh=yfpuvrALriU2AWHbZYOi2RouWp4WPi+wQvrf5G2qVMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P/nFSg8euwF4qUIdM04RoGhlSrYoCGhTtaP4nzvRwBJcV1/uHZ2/mJ3x+Nk2DW3EJ
-         g9D9epEgAcmn/y/xeibbCw8KtUqCuORnLaJ0d2k1Q/KReo7thzSxJibWedXyypklv0
-         /DeESKoxB5uCU5oGW6hMrKbawtXSGTqXv9PkxKW4=
+        b=lmf7tZR0qKHAjcc1ZkUgGMp764pBmcPT9rJC2vbp3y5I4x4eo4rP8HiqVmrheCuiu
+         j1FcwRymOq9HoIOOC9emWxTAPnyWRpWU6xp89zSFnNFfQ2rOtiXEaoXHniIhoE2B5A
+         6FUMBeNz/9lF9kWPP2LRc3nIfnEIFoH4AHCEfMcE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 013/158] Watchdog: sp5100_tco: Refactor MMIO base address initialization
-Date:   Mon, 23 May 2022 19:02:50 +0200
-Message-Id: <20220523165832.803150124@linuxfoundation.org>
+Subject: [PATCH 5.17 014/158] Watchdog: sp5100_tco: Add initialization using EFCH MMIO
+Date:   Mon, 23 May 2022 19:02:51 +0200
+Message-Id: <20220523165832.991276327@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -59,15 +59,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Terry Bowman <terry.bowman@amd.com>
 
-commit 1f182aca230086d4a4469c0f9136a6ea762d6385 upstream.
+commit 0578fff4aae5bce3f09875f58e68e9ffbab8daf5 upstream.
 
-Combine MMIO base address and alternate base address detection. Combine
-based on layout type. This will simplify the function by eliminating
-a switch case.
-
-Move existing request/release code into functions. This currently only
-supports port I/O request/release. The move into a separate function
-will make it ready for adding MMIO region support.
+cd6h/cd7h port I/O can be disabled on recent AMD hardware. Read
+accesses to disabled cd6h/cd7h port I/O will return F's and written
+data is dropped. It is recommended to replace the cd6h/cd7h
+port I/O with MMIO.
 
 Co-developed-by: Robert Richter <rrichter@amd.com>
 Signed-off-by: Robert Richter <rrichter@amd.com>
@@ -75,222 +72,157 @@ Signed-off-by: Terry Bowman <terry.bowman@amd.com>
 Tested-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220202153525.1693378-3-terry.bowman@amd.com
+Link: https://lore.kernel.org/r/20220202153525.1693378-4-terry.bowman@amd.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/sp5100_tco.c |  155 +++++++++++++++++++++---------------------
- drivers/watchdog/sp5100_tco.h |    1 
- 2 files changed, 82 insertions(+), 74 deletions(-)
+ drivers/watchdog/sp5100_tco.c |  100 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/watchdog/sp5100_tco.h |    5 ++
+ 2 files changed, 104 insertions(+), 1 deletion(-)
 
 --- a/drivers/watchdog/sp5100_tco.c
 +++ b/drivers/watchdog/sp5100_tco.c
-@@ -223,6 +223,55 @@ static u32 sp5100_tco_read_pm_reg32(u8 i
- 	return val;
+@@ -49,7 +49,7 @@
+ /* internal variables */
+ 
+ enum tco_reg_layout {
+-	sp5100, sb800, efch
++	sp5100, sb800, efch, efch_mmio
+ };
+ 
+ struct sp5100_tco {
+@@ -209,6 +209,8 @@ static void tco_timer_enable(struct sp51
+ 					  ~EFCH_PM_WATCHDOG_DISABLE,
+ 					  EFCH_PM_DECODEEN_SECOND_RES);
+ 		break;
++	default:
++		break;
+ 	}
  }
  
-+static u32 sp5100_tco_request_region(struct device *dev,
-+				     u32 mmio_addr,
-+				     const char *dev_name)
+@@ -307,6 +309,99 @@ static int sp5100_tco_timer_init(struct
+ 	return 0;
+ }
+ 
++static u8 efch_read_pm_reg8(void __iomem *addr, u8 index)
 +{
-+	if (!devm_request_mem_region(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE,
-+				     dev_name)) {
-+		dev_dbg(dev, "MMIO address 0x%08x already in use\n", mmio_addr);
-+		return 0;
-+	}
-+
-+	return mmio_addr;
++	return readb(addr + index);
 +}
 +
-+static u32 sp5100_tco_prepare_base(struct sp5100_tco *tco,
-+				   u32 mmio_addr,
-+				   u32 alt_mmio_addr,
-+				   const char *dev_name)
++static void efch_update_pm_reg8(void __iomem *addr, u8 index, u8 reset, u8 set)
 +{
-+	struct device *dev = tco->wdd.parent;
++	u8 val;
 +
-+	dev_dbg(dev, "Got 0x%08x from SBResource_MMIO register\n", mmio_addr);
++	val = readb(addr + index);
++	val &= reset;
++	val |= set;
++	writeb(val, addr + index);
++}
 +
-+	if (!mmio_addr && !alt_mmio_addr)
-+		return -ENODEV;
++static void tco_timer_enable_mmio(void __iomem *addr)
++{
++	efch_update_pm_reg8(addr, EFCH_PM_DECODEEN3,
++			    ~EFCH_PM_WATCHDOG_DISABLE,
++			    EFCH_PM_DECODEEN_SECOND_RES);
++}
 +
-+	/* Check for MMIO address and alternate MMIO address conflicts */
-+	if (mmio_addr)
-+		mmio_addr = sp5100_tco_request_region(dev, mmio_addr, dev_name);
++static int sp5100_tco_setupdevice_mmio(struct device *dev,
++				       struct watchdog_device *wdd)
++{
++	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
++	const char *dev_name = SB800_DEVNAME;
++	u32 mmio_addr = 0, alt_mmio_addr = 0;
++	struct resource *res;
++	void __iomem *addr;
++	int ret;
++	u32 val;
 +
-+	if (!mmio_addr && alt_mmio_addr)
-+		mmio_addr = sp5100_tco_request_region(dev, alt_mmio_addr, dev_name);
++	res = request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
++				       EFCH_PM_ACPI_MMIO_PM_SIZE,
++				       "sp5100_tco");
 +
-+	if (!mmio_addr) {
-+		dev_err(dev, "Failed to reserve MMIO or alternate MMIO region\n");
++	if (!res) {
++		dev_err(dev,
++			"Memory region 0x%08x already in use\n",
++			EFCH_PM_ACPI_MMIO_PM_ADDR);
 +		return -EBUSY;
 +	}
 +
-+	tco->tcobase = devm_ioremap(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE);
-+	if (!tco->tcobase) {
-+		dev_err(dev, "MMIO address 0x%08x failed mapping\n", mmio_addr);
-+		devm_release_mem_region(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE);
-+		return -ENOMEM;
++	addr = ioremap(EFCH_PM_ACPI_MMIO_PM_ADDR, EFCH_PM_ACPI_MMIO_PM_SIZE);
++	if (!addr) {
++		dev_err(dev, "Address mapping failed\n");
++		ret = -ENOMEM;
++		goto out;
 +	}
 +
-+	dev_info(dev, "Using 0x%08x for watchdog MMIO address\n", mmio_addr);
++	/*
++	 * EFCH_PM_DECODEEN_WDT_TMREN is dual purpose. This bitfield
++	 * enables sp5100_tco register MMIO space decoding. The bitfield
++	 * also starts the timer operation. Enable if not already enabled.
++	 */
++	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
++	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
++		efch_update_pm_reg8(addr, EFCH_PM_DECODEEN, 0xff,
++				    EFCH_PM_DECODEEN_WDT_TMREN);
++	}
 +
-+	return 0;
-+}
++	/* Error if the timer could not be enabled */
++	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
++	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
++		dev_err(dev, "Failed to enable the timer\n");
++		ret = -EFAULT;
++		goto out;
++	}
 +
- static int sp5100_tco_timer_init(struct sp5100_tco *tco)
- {
- 	struct watchdog_device *wdd = &tco->wdd;
-@@ -264,6 +313,7 @@ static int sp5100_tco_setupdevice(struct
- 	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
- 	const char *dev_name;
- 	u32 mmio_addr = 0, val;
-+	u32 alt_mmio_addr = 0;
- 	int ret;
- 
- 	/* Request the IO ports used by this driver */
-@@ -282,11 +332,32 @@ static int sp5100_tco_setupdevice(struct
- 		dev_name = SP5100_DEVNAME;
- 		mmio_addr = sp5100_tco_read_pm_reg32(SP5100_PM_WATCHDOG_BASE) &
- 								0xfffffff8;
++	mmio_addr = EFCH_PM_WDT_ADDR;
 +
-+		/*
-+		 * Secondly, find the watchdog timer MMIO address
-+		 * from SBResource_MMIO register.
-+		 */
++	/* Determine alternate MMIO base address */
++	val = efch_read_pm_reg8(addr, EFCH_PM_ISACONTROL);
++	if (val & EFCH_PM_ISACONTROL_MMIOEN)
++		alt_mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
++			EFCH_PM_ACPI_MMIO_WDT_OFFSET;
 +
-+		/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
-+		pci_read_config_dword(sp5100_tco_pci,
-+				      SP5100_SB_RESOURCE_MMIO_BASE,
-+				      &val);
-+
-+		/* Verify MMIO is enabled and using bar0 */
-+		if ((val & SB800_ACPI_MMIO_MASK) == SB800_ACPI_MMIO_DECODE_EN)
-+			alt_mmio_addr = (val & ~0xfff) + SB800_PM_WDT_MMIO_OFFSET;
- 		break;
- 	case sb800:
- 		dev_name = SB800_DEVNAME;
- 		mmio_addr = sp5100_tco_read_pm_reg32(SB800_PM_WATCHDOG_BASE) &
- 								0xfffffff8;
-+
-+		/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
-+		val = sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
-+
-+		/* Verify MMIO is enabled and using bar0 */
-+		if ((val & SB800_ACPI_MMIO_MASK) == SB800_ACPI_MMIO_DECODE_EN)
-+			alt_mmio_addr = (val & ~0xfff) + SB800_PM_WDT_MMIO_OFFSET;
- 		break;
- 	case efch:
- 		dev_name = SB800_DEVNAME;
-@@ -305,87 +376,23 @@ static int sp5100_tco_setupdevice(struct
- 		val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
- 		if (val & EFCH_PM_DECODEEN_WDT_TMREN)
- 			mmio_addr = EFCH_PM_WDT_ADDR;
-+
-+		val = sp5100_tco_read_pm_reg8(EFCH_PM_ISACONTROL);
-+		if (val & EFCH_PM_ISACONTROL_MMIOEN)
-+			alt_mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
-+				EFCH_PM_ACPI_MMIO_WDT_OFFSET;
- 		break;
- 	default:
- 		return -ENODEV;
- 	}
- 
--	/* Check MMIO address conflict */
--	if (!mmio_addr ||
--	    !devm_request_mem_region(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE,
--				     dev_name)) {
--		if (mmio_addr)
--			dev_dbg(dev, "MMIO address 0x%08x already in use\n",
--				mmio_addr);
--		switch (tco->tco_reg_layout) {
--		case sp5100:
--			/*
--			 * Secondly, Find the watchdog timer MMIO address
--			 * from SBResource_MMIO register.
--			 */
--			/* Read SBResource_MMIO from PCI config(PCI_Reg: 9Ch) */
--			pci_read_config_dword(sp5100_tco_pci,
--					      SP5100_SB_RESOURCE_MMIO_BASE,
--					      &mmio_addr);
--			if ((mmio_addr & (SB800_ACPI_MMIO_DECODE_EN |
--					  SB800_ACPI_MMIO_SEL)) !=
--						  SB800_ACPI_MMIO_DECODE_EN) {
--				ret = -ENODEV;
--				goto unreg_region;
--			}
--			mmio_addr &= ~0xFFF;
--			mmio_addr += SB800_PM_WDT_MMIO_OFFSET;
--			break;
--		case sb800:
--			/* Read SBResource_MMIO from AcpiMmioEn(PM_Reg: 24h) */
--			mmio_addr =
--				sp5100_tco_read_pm_reg32(SB800_PM_ACPI_MMIO_EN);
--			if ((mmio_addr & (SB800_ACPI_MMIO_DECODE_EN |
--					  SB800_ACPI_MMIO_SEL)) !=
--						  SB800_ACPI_MMIO_DECODE_EN) {
--				ret = -ENODEV;
--				goto unreg_region;
--			}
--			mmio_addr &= ~0xFFF;
--			mmio_addr += SB800_PM_WDT_MMIO_OFFSET;
--			break;
--		case efch:
--			val = sp5100_tco_read_pm_reg8(EFCH_PM_ISACONTROL);
--			if (!(val & EFCH_PM_ISACONTROL_MMIOEN)) {
--				ret = -ENODEV;
--				goto unreg_region;
--			}
--			mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
--				    EFCH_PM_ACPI_MMIO_WDT_OFFSET;
--			break;
--		}
--		dev_dbg(dev, "Got 0x%08x from SBResource_MMIO register\n",
--			mmio_addr);
--		if (!devm_request_mem_region(dev, mmio_addr,
--					     SP5100_WDT_MEM_MAP_SIZE,
--					     dev_name)) {
--			dev_dbg(dev, "MMIO address 0x%08x already in use\n",
--				mmio_addr);
--			ret = -EBUSY;
--			goto unreg_region;
--		}
 +	ret = sp5100_tco_prepare_base(tco, mmio_addr, alt_mmio_addr, dev_name);
 +	if (!ret) {
-+		/* Setup the watchdog timer */
-+		tco_timer_enable(tco);
++		tco_timer_enable_mmio(addr);
 +		ret = sp5100_tco_timer_init(tco);
- 	}
++	}
++
++out:
++	if (addr)
++		iounmap(addr);
++
++	release_resource(res);
++
++	return ret;
++}
++
+ static int sp5100_tco_setupdevice(struct device *dev,
+ 				  struct watchdog_device *wdd)
+ {
+@@ -316,6 +411,9 @@ static int sp5100_tco_setupdevice(struct
+ 	u32 alt_mmio_addr = 0;
+ 	int ret;
  
--	tco->tcobase = devm_ioremap(dev, mmio_addr, SP5100_WDT_MEM_MAP_SIZE);
--	if (!tco->tcobase) {
--		dev_err(dev, "failed to get tcobase address\n");
--		ret = -ENOMEM;
--		goto unreg_region;
--	}
--
--	dev_info(dev, "Using 0x%08x for watchdog MMIO address\n", mmio_addr);
--
--	/* Setup the watchdog timer */
--	tco_timer_enable(tco);
--
--	ret = sp5100_tco_timer_init(tco);
--
--unreg_region:
- 	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
- 	return ret;
- }
++	if (tco->tco_reg_layout == efch_mmio)
++		return sp5100_tco_setupdevice_mmio(dev, wdd);
++
+ 	/* Request the IO ports used by this driver */
+ 	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
+ 				  SP5100_PM_IOPORTS_SIZE, "sp5100_tco")) {
 --- a/drivers/watchdog/sp5100_tco.h
 +++ b/drivers/watchdog/sp5100_tco.h
-@@ -58,6 +58,7 @@
- #define SB800_PM_WATCHDOG_SECOND_RES	GENMASK(1, 0)
- #define SB800_ACPI_MMIO_DECODE_EN	BIT(0)
- #define SB800_ACPI_MMIO_SEL		BIT(1)
-+#define SB800_ACPI_MMIO_MASK		GENMASK(1, 0)
+@@ -83,4 +83,9 @@
+ #define EFCH_PM_ISACONTROL_MMIOEN	BIT(1)
  
- #define SB800_PM_WDT_MMIO_OFFSET	0xB00
- 
+ #define EFCH_PM_ACPI_MMIO_ADDR		0xfed80000
++#define EFCH_PM_ACPI_MMIO_PM_OFFSET	0x00000300
+ #define EFCH_PM_ACPI_MMIO_WDT_OFFSET	0x00000b00
++
++#define EFCH_PM_ACPI_MMIO_PM_ADDR	(EFCH_PM_ACPI_MMIO_ADDR +	\
++					 EFCH_PM_ACPI_MMIO_PM_OFFSET)
++#define EFCH_PM_ACPI_MMIO_PM_SIZE	8
 
 
