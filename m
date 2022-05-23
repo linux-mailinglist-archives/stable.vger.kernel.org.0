@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 71F94531CAE
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 612275316B9
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240238AbiEWRXg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42412 "EHLO
+        id S241620AbiEWRdu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241686AbiEWRWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:33 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D11087B9E3;
-        Mon, 23 May 2022 10:19:20 -0700 (PDT)
+        with ESMTP id S242379AbiEWRc2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB4D72E1A;
+        Mon, 23 May 2022 10:27:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77487B81204;
-        Mon, 23 May 2022 17:17:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98226C385A9;
-        Mon, 23 May 2022 17:17:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7772660AB8;
+        Mon, 23 May 2022 17:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806E4C385AA;
+        Mon, 23 May 2022 17:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326243;
-        bh=xhmdDEoKotcUO/7eHbPi3dL9BFugG1l1EDjl/avpqzE=;
+        s=korg; t=1653326831;
+        bh=7y2CQznIYaNLnJfzqbrtnBIEIajSKZwOQDySGCkC2mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qn+q4TQGhYrsXPNS0edZtEGcTM86WWHoYSBVr2bYKzix2fmVhgpc5gQgU4EKLMRpu
-         EsjYVA6LTQProwynVZl3bUp7Vc+zdKkUMHsn5RjQdxk6SqDuZyZ1Bi6RU6pZ8sxlDH
-         U11m+oN7bpgEzRDJOcsf2dvDAbf8GKFwxu/wscDg=
+        b=g2SOlOHaAsz4Y0GT5+n/UfFWTr8aXZB010Jkx8UXG3wGFK0OUb7hVYWD+lsHcLGHn
+         mBoC3d9KyQWi5CMgmmQuwkK6PRSoslimOMaOnmgtAo5uBDzHxSe24F+/ft6tUAB3Yy
+         AcvngXc0y51LcinLmQODbDvVhrxL0SyKzMm4a1wc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Gow <davidgow@google.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Kavyasree Kotagiri <kavyasree.kotagiri@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/132] um: Cleanup syscall_handler_t definition/cast, fix warning
+Subject: [PATCH 5.17 073/158] pinctrl: ocelot: Fix for lan966x alt mode
 Date:   Mon, 23 May 2022 19:03:50 +0200
-Message-Id: <20220523165827.024179835@linuxfoundation.org>
+Message-Id: <20220523165843.050863028@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-[ Upstream commit f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9 ]
+[ Upstream commit d3683eeb9d2b4aa5256f830721655ef2ee97e324 ]
 
-The syscall_handler_t type for x86_64 was defined as 'long (*)(void)',
-but always cast to 'long (*)(long, long, long, long, long, long)' before
-use. This now triggers a warning (see below).
+For lan966x, the GPIO 35 has the wrong function for alternate mode 2.
+The mode is not none but is PTP sync.
 
-Define syscall_handler_t as the latter instead, and remove the cast.
-This simplifies the code, and fixes the warning.
-
-Warning:
-In file included from ../arch/um/include/asm/processor-generic.h:13
-                 from ../arch/x86/um/asm/processor.h:41
-                 from ../include/linux/rcupdate.h:30
-                 from ../include/linux/rculist.h:11
-                 from ../include/linux/pid.h:5
-                 from ../include/linux/sched.h:14
-                 from ../include/linux/ptrace.h:6
-                 from ../arch/um/kernel/skas/syscall.c:7:
-../arch/um/kernel/skas/syscall.c: In function ‘handle_syscall’:
-../arch/x86/um/shared/sysdep/syscalls_64.h:18:11: warning: cast between incompatible function types from ‘long int (*)(void)’ to ‘long int (*)(long int,  long int,  long int,  long int,  long int,  long int)’ [
--Wcast-function-type]
-   18 |         (((long (*)(long, long, long, long, long, long)) \
-      |           ^
-../arch/x86/um/asm/ptrace.h:36:62: note: in definition of macro ‘PT_REGS_SET_SYSCALL_RETURN’
-   36 | #define PT_REGS_SET_SYSCALL_RETURN(r, res) (PT_REGS_AX(r) = (res))
-      |                                                              ^~~
-../arch/um/kernel/skas/syscall.c:46:33: note: in expansion of macro ‘EXECUTE_SYSCALL’
-   46 |                                 EXECUTE_SYSCALL(syscall, regs));
-      |                                 ^~~~~~~~~~~~~~~
-
-Signed-off-by: David Gow <davidgow@google.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 531d6ab36571c2 ("pinctrl: ocelot: Extend support for lan966x")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Reviewed-by: Kavyasree Kotagiri <kavyasree.kotagiri@microchip.com>
+Link: https://lore.kernel.org/r/20220413192918.3777234-1-horatiu.vultur@microchip.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/um/shared/sysdep/syscalls_64.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/pinctrl/pinctrl-ocelot.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/um/shared/sysdep/syscalls_64.h b/arch/x86/um/shared/sysdep/syscalls_64.h
-index 8a7d5e1da98e..1e6875b4ffd8 100644
---- a/arch/x86/um/shared/sysdep/syscalls_64.h
-+++ b/arch/x86/um/shared/sysdep/syscalls_64.h
-@@ -10,13 +10,12 @@
- #include <linux/msg.h>
- #include <linux/shm.h>
- 
--typedef long syscall_handler_t(void);
-+typedef long syscall_handler_t(long, long, long, long, long, long);
- 
- extern syscall_handler_t *sys_call_table[];
- 
- #define EXECUTE_SYSCALL(syscall, regs) \
--	(((long (*)(long, long, long, long, long, long)) \
--	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
-+	(((*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
- 		 		      UPT_SYSCALL_ARG2(&regs->regs), \
- 				      UPT_SYSCALL_ARG3(&regs->regs), \
- 				      UPT_SYSCALL_ARG4(&regs->regs), \
+diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
+index 370459243007..61e3844cddbf 100644
+--- a/drivers/pinctrl/pinctrl-ocelot.c
++++ b/drivers/pinctrl/pinctrl-ocelot.c
+@@ -129,6 +129,7 @@ enum {
+ 	FUNC_PTP1,
+ 	FUNC_PTP2,
+ 	FUNC_PTP3,
++	FUNC_PTPSYNC_0,
+ 	FUNC_PTPSYNC_1,
+ 	FUNC_PTPSYNC_2,
+ 	FUNC_PTPSYNC_3,
+@@ -252,6 +253,7 @@ static const char *const ocelot_function_names[] = {
+ 	[FUNC_PTP1]		= "ptp1",
+ 	[FUNC_PTP2]		= "ptp2",
+ 	[FUNC_PTP3]		= "ptp3",
++	[FUNC_PTPSYNC_0]	= "ptpsync_0",
+ 	[FUNC_PTPSYNC_1]	= "ptpsync_1",
+ 	[FUNC_PTPSYNC_2]	= "ptpsync_2",
+ 	[FUNC_PTPSYNC_3]	= "ptpsync_3",
+@@ -891,7 +893,7 @@ LAN966X_P(31,   GPIO,   FC3_c,     CAN1,      NONE,   OB_TRG,   RECO_b,      NON
+ LAN966X_P(32,   GPIO,   FC3_c,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,      NONE,        R);
+ LAN966X_P(33,   GPIO,   FC1_b,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,    MIIM_b,        R);
+ LAN966X_P(34,   GPIO,   FC1_b,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,    MIIM_b,        R);
+-LAN966X_P(35,   GPIO,   FC1_b,     NONE,   SGPIO_a,   CAN0_b,     NONE,      NONE,        R);
++LAN966X_P(35,   GPIO,   FC1_b,  PTPSYNC_0, SGPIO_a,   CAN0_b,     NONE,      NONE,        R);
+ LAN966X_P(36,   GPIO,    NONE,  PTPSYNC_1,    NONE,   CAN0_b,     NONE,      NONE,        R);
+ LAN966X_P(37,   GPIO, FC_SHRD0, PTPSYNC_2, TWI_SLC_GATE_AD, NONE, NONE,      NONE,        R);
+ LAN966X_P(38,   GPIO,    NONE,  PTPSYNC_3,    NONE,     NONE,     NONE,      NONE,        R);
 -- 
 2.35.1
 
