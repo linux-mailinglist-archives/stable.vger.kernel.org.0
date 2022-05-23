@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 310E3531845
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F34531991
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241982AbiEWRoi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
+        id S239275AbiEWREp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:04:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241743AbiEWRf4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:35:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AADEF87A0F;
-        Mon, 23 May 2022 10:29:23 -0700 (PDT)
+        with ESMTP id S239264AbiEWREl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55E2160B9B;
+        Mon, 23 May 2022 10:04:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AFAF61194;
-        Mon, 23 May 2022 17:28:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42406C385A9;
-        Mon, 23 May 2022 17:28:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4EB3B811F6;
+        Mon, 23 May 2022 17:04:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40B0DC385AA;
+        Mon, 23 May 2022 17:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326912;
-        bh=wkVrRs3ZmXWibR3yswrRvgW92+HWI718OMiomhJwUwg=;
+        s=korg; t=1653325477;
+        bh=g38ZTHA6CA9KSQxW8tPZQqLR6HoOyH7cl3Ykf1X8weA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBLiRQRGPlY1bTnUJNf3mptOGBGNjHk5/ECadAhAr6nMetD1+syA251B+7InjDk76
-         gaK+3qZgcQJ4/Wp0sfd8KzEnYTXsrS0hNZ3hcfwID8cL8KI/ji65Ppo5C08bnC1Njr
-         B5SliDu4C9ZTwPpFZQ4pRD3+8435+KQxczZt1BcM=
+        b=srEAr0KBTRaT3hzoqdGx8w5DavZ6BoJ8Q8wJSTbwVjhV7nGA8xbeaIDziS1KEkSfK
+         LgpTZBf7CVJRAxmxiLG5cmQzWLc0+rTuh2BvsS/Jr0mCjAOH4pOGjss8von/PBGsfX
+         7Cl99larC34bFqp27cYBLduNYuo5F1dZbBcF6rSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 5.17 065/158] drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 24/25] ethernet: tulip: fix missing pci_disable_device() on error in tulip_init_one()
 Date:   Mon, 23 May 2022 19:03:42 +0200
-Message-Id: <20220523165841.635430513@linuxfoundation.org>
+Message-Id: <20220523165750.008597497@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
+References: <20220523165743.398280407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,32 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 6e03b13cc7d9427c2c77feed1549191015615202 upstream.
+[ Upstream commit 51ca86b4c9c7c75f5630fa0dbe5f8f0bd98e3c3e ]
 
-drm_dp_mst_get_edid call kmemdup to create mst_edid. So mst_edid need to be
-freed after use.
+Fix the missing pci_disable_device() before return
+from tulip_init_one() in the error handling case.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20220516032042.13166-1-hbh25y@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220506094250.3630615-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/dec/tulip/tulip_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -4852,6 +4852,7 @@ static void fetch_monitor_name(struct dr
+diff --git a/drivers/net/ethernet/dec/tulip/tulip_core.c b/drivers/net/ethernet/dec/tulip/tulip_core.c
+index bbde90bc74fe..6224f9d22298 100644
+--- a/drivers/net/ethernet/dec/tulip/tulip_core.c
++++ b/drivers/net/ethernet/dec/tulip/tulip_core.c
+@@ -1412,8 +1412,10 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  
- 	mst_edid = drm_dp_mst_get_edid(port->connector, mgr, port);
- 	drm_edid_get_monitor_name(mst_edid, name, namelen);
-+	kfree(mst_edid);
+ 	/* alloc_etherdev ensures aligned and zeroed private structures */
+ 	dev = alloc_etherdev (sizeof (*tp));
+-	if (!dev)
++	if (!dev) {
++		pci_disable_device(pdev);
+ 		return -ENOMEM;
++	}
+ 
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+ 	if (pci_resource_len (pdev, 0) < tulip_tbl[chip_idx].io_size) {
+@@ -1792,6 +1794,7 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ err_out_free_netdev:
+ 	free_netdev (dev);
++	pci_disable_device(pdev);
+ 	return -ENODEV;
  }
  
- /**
+-- 
+2.35.1
+
 
 
