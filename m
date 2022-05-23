@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 240D4531B8B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAEB53170E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239200AbiEWREJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45314 "EHLO
+        id S239276AbiEWREq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:04:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239192AbiEWREH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D4F58E44;
-        Mon, 23 May 2022 10:04:06 -0700 (PDT)
+        with ESMTP id S239260AbiEWREo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:44 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6679262BC5;
+        Mon, 23 May 2022 10:04:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 651B9B811F8;
-        Mon, 23 May 2022 17:04:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDB77C385AA;
-        Mon, 23 May 2022 17:04:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FBCDB811E9;
+        Mon, 23 May 2022 17:04:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70933C385A9;
+        Mon, 23 May 2022 17:04:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325444;
-        bh=ysIqWVHbnrXLFB5Xh0t302S4eTBVDG6PTJHJP26q2Po=;
+        s=korg; t=1653325480;
+        bh=KK64IlH3w9eeVXqXAmJOrVOhdQ3ukjaBlyzBvMQ66Vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=at1Ml486X0pg/nOL7LBt9fA0BxOedXqYLWfUY/DDrqBemGac6CU7fCVP1Izv9Mcrp
-         6aE8OY2Zj0oeBcvn68/B8BvbAtBbAKwITmd6RxvsamcHZnFlU+WMD29KzrppLNSAfo
-         co0dS5fDQcCnKilVVSRzvL2zmb+5XEsauj8fvJRU=
+        b=PMlYIsf2mLr9+jZUE/Bohx45SOZuSlPqPkuwcfxzN8PxD+zwC+rSnpFf6MaDvF+nX
+         CO24Bj4uKLUnvhsZZmHpxFay21bmFeomOBlyqwt8DJV8HlGDnucb4jvPcMosnAxj7K
+         i7cjjMwh3Fyn8of4hr6I+l+7StMkFLwfAXl4Ro5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
-        He Ying <heying24@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/25] ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
-Date:   Mon, 23 May 2022 19:03:24 +0200
-Message-Id: <20220523165745.789905812@linuxfoundation.org>
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 07/25] mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+Date:   Mon, 23 May 2022 19:03:25 +0200
+Message-Id: <20220523165745.966956440@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
 References: <20220523165743.398280407@linuxfoundation.org>
@@ -55,104 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: linyujun <linyujun809@huawei.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 9be4c88bb7924f68f88cfd47d925c2d046f51a73 ]
+commit 24ed3bd01d6a844fd5e8a75f48d0a3d10ed71bf9 upstream
 
-The following KASAN warning is detected by QEMU.
+The timeout values used while waiting for a CMD6 for BKOPS or a CACHE_FLUSH
+to complete, are not defined by the eMMC spec. However, a timeout of 10
+minutes as is currently being used, is just silly for both of these cases.
+Instead, let's specify more reasonable timeouts, 120s for BKOPS and 30s for
+CACHE_FLUSH.
 
-==================================================================
-BUG: KASAN: stack-out-of-bounds in unwind_frame+0x508/0x870
-Read of size 4 at addr c36bba90 by task cat/163
-
-CPU: 1 PID: 163 Comm: cat Not tainted 5.10.0-rc1 #40
-Hardware name: ARM-Versatile Express
-[<c0113fac>] (unwind_backtrace) from [<c010e71c>] (show_stack+0x10/0x14)
-[<c010e71c>] (show_stack) from [<c0b805b4>] (dump_stack+0x98/0xb0)
-[<c0b805b4>] (dump_stack) from [<c0b7d658>] (print_address_description.constprop.0+0x58/0x4bc)
-[<c0b7d658>] (print_address_description.constprop.0) from [<c031435c>] (kasan_report+0x154/0x170)
-[<c031435c>] (kasan_report) from [<c0113c44>] (unwind_frame+0x508/0x870)
-[<c0113c44>] (unwind_frame) from [<c010e298>] (__save_stack_trace+0x110/0x134)
-[<c010e298>] (__save_stack_trace) from [<c01ce0d8>] (stack_trace_save+0x8c/0xb4)
-[<c01ce0d8>] (stack_trace_save) from [<c0313520>] (kasan_set_track+0x38/0x60)
-[<c0313520>] (kasan_set_track) from [<c0314cb8>] (kasan_set_free_info+0x20/0x2c)
-[<c0314cb8>] (kasan_set_free_info) from [<c0313474>] (__kasan_slab_free+0xec/0x120)
-[<c0313474>] (__kasan_slab_free) from [<c0311e20>] (kmem_cache_free+0x7c/0x334)
-[<c0311e20>] (kmem_cache_free) from [<c01c35dc>] (rcu_core+0x390/0xccc)
-[<c01c35dc>] (rcu_core) from [<c01013a8>] (__do_softirq+0x180/0x518)
-[<c01013a8>] (__do_softirq) from [<c0135214>] (irq_exit+0x9c/0xe0)
-[<c0135214>] (irq_exit) from [<c01a40e4>] (__handle_domain_irq+0xb0/0x110)
-[<c01a40e4>] (__handle_domain_irq) from [<c0691248>] (gic_handle_irq+0xa0/0xb8)
-[<c0691248>] (gic_handle_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x94)
-Exception stack(0xc36bb928 to 0xc36bb970)
-b920:                   c36bb9c0 00000000 c0126919 c0101228 c36bb9c0 b76d7730
-b940: c36b8000 c36bb9a0 c3335b00 c01ce0d8 00000003 c36bba3c c36bb940 c36bb978
-b960: c010e298 c011373c 60000013 ffffffff
-[<c0100b0c>] (__irq_svc) from [<c011373c>] (unwind_frame+0x0/0x870)
-[<c011373c>] (unwind_frame) from [<00000000>] (0x0)
-
-The buggy address belongs to the page:
-page:(ptrval) refcount:0 mapcount:0 mapping:00000000 index:0x0 pfn:0x636bb
-flags: 0x0()
-raw: 00000000 00000000 ef867764 00000000 00000000 00000000 ffffffff 00000000
-page dumped because: kasan: bad access detected
-
-addr c36bba90 is located in stack of task cat/163 at offset 48 in frame:
- stack_trace_save+0x0/0xb4
-
-this frame has 1 object:
- [32, 48) 'trace'
-
-Memory state around the buggy address:
- c36bb980: f1 f1 f1 f1 00 04 f2 f2 00 00 f3 f3 00 00 00 00
- c36bba00: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
->c36bba80: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
-                 ^
- c36bbb00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- c36bbb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-There is a same issue on x86 and has been resolved by the commit f7d27c35ddff
-("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
-The solution could be applied to arm architecture too.
-
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Reported-by: He Ying <heying24@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200122142747.5690-2-ulf.hansson@linaro.org
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+[kamal: Drop mmc_run_bkops hunk, non-existent]
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/stacktrace.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/mmc/core/core.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index c10c1de244eb..83d0aa217bb2 100644
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -50,17 +50,17 @@ int notrace unwind_frame(struct stackframe *frame)
- 		return -EINVAL;
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -61,6 +61,8 @@
+ /* The max erase timeout, used when host->max_busy_timeout isn't specified */
+ #define MMC_ERASE_TIMEOUT_MS	(60 * 1000) /* 60 s */
  
- 	frame->sp = frame->fp;
--	frame->fp = *(unsigned long *)(fp);
--	frame->pc = *(unsigned long *)(fp + 4);
-+	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
-+	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
- #else
- 	/* check current frame pointer is within bounds */
- 	if (fp < low + 12 || fp > high - 4)
- 		return -EINVAL;
++#define MMC_CACHE_FLUSH_TIMEOUT_MS     (30 * 1000) /* 30s */
++
+ static const unsigned freqs[] = { 400000, 300000, 200000, 100000 };
  
- 	/* restore the registers from the stack frame */
--	frame->fp = *(unsigned long *)(fp - 12);
--	frame->sp = *(unsigned long *)(fp - 8);
--	frame->pc = *(unsigned long *)(fp - 4);
-+	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
-+	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
-+	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
- #endif
- 
- 	return 0;
--- 
-2.35.1
-
+ /*
+@@ -2936,7 +2938,8 @@ int mmc_flush_cache(struct mmc_card *car
+ 			(card->ext_csd.cache_size > 0) &&
+ 			(card->ext_csd.cache_ctrl & 1)) {
+ 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+-				EXT_CSD_FLUSH_CACHE, 1, 0);
++				EXT_CSD_FLUSH_CACHE, 1,
++				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+ 		if (err)
+ 			pr_err("%s: cache flush error %d\n",
+ 					mmc_hostname(card->host), err);
 
 
