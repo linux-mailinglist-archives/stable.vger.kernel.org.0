@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01EBD53188A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9987353185D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243980AbiEWRie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:38:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35788 "EHLO
+        id S240965AbiEWRjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241679AbiEWRdz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:55 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D78817CB41;
-        Mon, 23 May 2022 10:28:04 -0700 (PDT)
+        with ESMTP id S241255AbiEWRe2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:34:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767A47CDC6;
+        Mon, 23 May 2022 10:28:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4BDB608C0;
-        Mon, 23 May 2022 17:28:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C95D3C385A9;
-        Mon, 23 May 2022 17:28:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 46AA2608C0;
+        Mon, 23 May 2022 17:28:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46740C385A9;
+        Mon, 23 May 2022 17:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326883;
-        bh=DpiMKSUnLxhXsBTF7zVyd2dd1Go1TMiq4kSzb6WHBI8=;
+        s=korg; t=1653326889;
+        bh=W89CsubPW/Em66wY0PHx9GzSKhev0KIhivQtzaBnt+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyRa1Xm9bD6UbOsVhKNDxgz19oMqc17HO/XFR6v0/lmm2ixms0aaDldwEA8GklPV4
-         Dqo8Cs+ITeUOXS7GcO4xWJ37qnG0qr6IT6n+4Z45JRne/3PMG0Fut0nhPK5Pd77Dvw
-         hZvAEfs0ZF4rQkuUtE2OvJWG1t94mS924Vlwg6n0=
+        b=c1EeB3GHF9ynaZs87rOC+Hd02/y6VqF9yVKrfWRBGQgMN6NBWrVdG5daldBwhz9xV
+         iqTn746obFPFDonjORKR1CU+VtVi+AD6NZ+Tvf+UxtcIVe/feBAzqeh/r5jLaZeDR9
+         S7txDlDg53rf5vAndDg9qpkWDbNnBiijEeffvS2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Vadim Fedorenko <vfedorenko@novek.ru>,
+        Jonathan Lemon <jonathan.lemon@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 088/158] netfilter: nft_flow_offload: fix offload with pppoe + vlan
-Date:   Mon, 23 May 2022 19:04:05 +0200
-Message-Id: <20220523165845.748878507@linuxfoundation.org>
+Subject: [PATCH 5.17 089/158] ptp: ocp: have adjtime handle negative delta_ns correctly
+Date:   Mon, 23 May 2022 19:04:06 +0200
+Message-Id: <20220523165845.891391295@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -54,36 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Jonathan Lemon <jonathan.lemon@gmail.com>
 
-[ Upstream commit 2456074935003b66c40f78df6adfc722435d43ea ]
+[ Upstream commit da2172a9bfec858ceeb0271b9d444378490398c8 ]
 
-When running a combination of PPPoE on top of a VLAN, we need to set
-info->outdev to the PPPoE device, otherwise PPPoE encap is skipped
-during software offload.
+delta_ns is a s64, but it was being passed ptp_ocp_adjtime_coarse
+as an u64.  Also, it turns out that timespec64_add_ns() only handles
+positive values, so perform the math with set_normalized_timespec().
 
-Fixes: 72efd585f714 ("netfilter: flowtable: add pppoe support")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 90f8f4c0e3ce ("ptp: ocp: Add ptp_ocp_adjtime_coarse for large adjustments")
+Suggested-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Signed-off-by: Jonathan Lemon <jonathan.lemon@gmail.com>
+Acked-by: Vadim Fedorenko <vfedorenko@novek.ru>
+Link: https://lore.kernel.org/r/20220513225231.1412-1-jonathan.lemon@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_flow_offload.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ptp/ptp_ocp.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
-index dd824193c920..12145a80ef03 100644
---- a/net/netfilter/nft_flow_offload.c
-+++ b/net/netfilter/nft_flow_offload.c
-@@ -123,7 +123,8 @@ static void nft_dev_path_info(const struct net_device_path_stack *stack,
- 				info->indev = NULL;
- 				break;
- 			}
--			info->outdev = path->dev;
-+			if (!info->outdev)
-+				info->outdev = path->dev;
- 			info->encap[info->num_encaps].id = path->encap.id;
- 			info->encap[info->num_encaps].proto = path->encap.proto;
- 			info->num_encaps++;
+diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
+index 17ad5f0d13b2..6585789ed695 100644
+--- a/drivers/ptp/ptp_ocp.c
++++ b/drivers/ptp/ptp_ocp.c
+@@ -625,7 +625,7 @@ __ptp_ocp_adjtime_locked(struct ptp_ocp *bp, u32 adj_val)
+ }
+ 
+ static void
+-ptp_ocp_adjtime_coarse(struct ptp_ocp *bp, u64 delta_ns)
++ptp_ocp_adjtime_coarse(struct ptp_ocp *bp, s64 delta_ns)
+ {
+ 	struct timespec64 ts;
+ 	unsigned long flags;
+@@ -634,7 +634,8 @@ ptp_ocp_adjtime_coarse(struct ptp_ocp *bp, u64 delta_ns)
+ 	spin_lock_irqsave(&bp->lock, flags);
+ 	err = __ptp_ocp_gettime_locked(bp, &ts, NULL);
+ 	if (likely(!err)) {
+-		timespec64_add_ns(&ts, delta_ns);
++		set_normalized_timespec64(&ts, ts.tv_sec,
++					  ts.tv_nsec + delta_ns);
+ 		__ptp_ocp_settime_locked(bp, &ts);
+ 	}
+ 	spin_unlock_irqrestore(&bp->lock, flags);
 -- 
 2.35.1
 
