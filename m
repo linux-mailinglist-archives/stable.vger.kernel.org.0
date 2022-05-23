@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60AEC531A47
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5ED5531A8B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239725AbiEWRX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
+        id S241099AbiEWSDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 14:03:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241871AbiEWRWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:41 -0400
+        with ESMTP id S243232AbiEWSBU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 14:01:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD0C17CB1F;
-        Mon, 23 May 2022 10:19:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FB6DFF74;
+        Mon, 23 May 2022 10:46:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE088B811FB;
-        Mon, 23 May 2022 17:19:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614CCC385AA;
-        Mon, 23 May 2022 17:19:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 101B9B81202;
+        Mon, 23 May 2022 17:29:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CCF8C34115;
+        Mon, 23 May 2022 17:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326377;
-        bh=BxK7O4Gs2ObR0o2eB295lupu4Ic0VZFkTdV/DbE85ac=;
+        s=korg; t=1653326969;
+        bh=4lto3opJQdBcvB9mshv3B7x9QIIiku/yZIV+JmzGeQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYe/Iu3akst3h8cuDSttpKiO/5ysKzmJ+vKcwZKVL+rucVKl9w30V+2BcskFctyLm
-         bBzmvV2lRYXoiC4xmO1vprygFZL/XTpRpVGopdgtMDle4i5UvXNvjJV2u2uD9aGH23
-         phVvN26NsC+moyTwMngeiGIju81m92xkjKZnj9mw=
+        b=xQzOtvM9JC0V7HwfC58bMUbkkTAuEsHm9mALqlQWRf7QXU0Q3EqHT5zjE30AVxSMt
+         7+iSAdVAQZDR5mfEhbT+KjvR3OyneIjUrGh7DhkZ1no4g+Raj+8hG/Khu9eo6LCANa
+         nFTQLGvsOW2FPBuGDh9oejvjeDKIgfblX46mZp9M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jae Hyun Yoo <quic_jaehyoo@quicinc.com>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/132] pinctrl: pinctrl-aspeed-g6: remove FWQSPID group in pinctrl
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 115/158] mptcp: Do TCP fallback on early DSS checksum failure
 Date:   Mon, 23 May 2022 19:04:32 +0200
-Message-Id: <20220523165833.727881581@linuxfoundation.org>
+Message-Id: <20220523165850.007093415@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+From: Mat Martineau <mathew.j.martineau@linux.intel.com>
 
-[ Upstream commit 3eef2f48ba0933ba995529f522554ad5c276c39b ]
+[ Upstream commit ae66fb2ba6c3dcaf8b9612b65aa949a1a4bed150 ]
 
-FWSPIDQ2 and FWSPIDQ3 are not part of FWSPI18 interface so remove
-FWQSPID group in pinctrl. These pins must be used with the FWSPI
-pins that are dedicated for boot SPI interface which provides
-same 3.3v logic level.
+RFC 8684 section 3.7 describes several opportunities for a MPTCP
+connection to "fall back" to regular TCP early in the connection
+process, before it has been confirmed that MPTCP options can be
+successfully propagated on all SYN, SYN/ACK, and data packets. If a peer
+acknowledges the first received data packet with a regular TCP header
+(no MPTCP options), fallback is allowed.
 
-Fixes: 2eda1cdec49f ("pinctrl: aspeed: Add AST2600 pinmux support")
-Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220329173932.2588289-3-quic_jaehyoo@quicinc.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
+If the recipient of that first data packet finds a MPTCP DSS checksum
+error, this provides an opportunity to fail gracefully with a TCP
+fallback rather than resetting the connection (as might happen if a
+checksum failure were detected later).
+
+This commit modifies the checksum failure code to attempt fallback on
+the initial subflow of a MPTCP connection, only if it's a failure in the
+first data mapping. In cases where the peer initiates the connection,
+requests checksums, is the first to send data, and the peer is sending
+incorrect checksums (see
+https://github.com/multipath-tcp/mptcp_net-next/issues/275), this allows
+the connection to proceed as TCP rather than reset.
+
+Fixes: dd8bcd1768ff ("mptcp: validate the data checksum")
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ net/mptcp/protocol.h |  3 ++-
+ net/mptcp/subflow.c  | 21 ++++++++++++++++++---
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-index a3fa03bcd9a3..54064714d73f 100644
---- a/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-+++ b/drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c
-@@ -1236,18 +1236,12 @@ FUNC_GROUP_DECL(SALT8, AA12);
- FUNC_GROUP_DECL(WDTRST4, AA12);
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index e4413b3e50c2..8015389859d9 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -443,7 +443,8 @@ struct mptcp_subflow_context {
+ 		can_ack : 1,        /* only after processing the remote a key */
+ 		disposable : 1,	    /* ctx can be free at ulp release time */
+ 		stale : 1,	    /* unable to snd/rcv data, do not use for xmit */
+-		local_id_valid : 1; /* local_id is correctly initialized */
++		local_id_valid : 1, /* local_id is correctly initialized */
++		valid_csum_seen : 1;        /* at least one csum validated */
+ 	enum mptcp_data_avail data_avail;
+ 	u32	remote_nonce;
+ 	u64	thmac;
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index e27574e9f969..7a3a70067c80 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -958,11 +958,14 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
+ 				 subflow->map_data_csum);
+ 	if (unlikely(csum)) {
+ 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_DATACSUMERR);
+-		subflow->send_mp_fail = 1;
+-		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
++		if (subflow->mp_join || subflow->valid_csum_seen) {
++			subflow->send_mp_fail = 1;
++			MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
++		}
+ 		return subflow->mp_join ? MAPPING_INVALID : MAPPING_DUMMY;
+ 	}
  
- #define AE12 196
--SIG_EXPR_LIST_DECL_SEMG(AE12, FWSPIDQ2, FWQSPID, FWSPID,
--			SIG_DESC_SET(SCU438, 4));
- SIG_EXPR_LIST_DECL_SESG(AE12, GPIOY4, GPIOY4);
--PIN_DECL_(AE12, SIG_EXPR_LIST_PTR(AE12, FWSPIDQ2),
--	  SIG_EXPR_LIST_PTR(AE12, GPIOY4));
-+PIN_DECL_(AE12, SIG_EXPR_LIST_PTR(AE12, GPIOY4));
++	subflow->valid_csum_seen = 1;
+ 	return MAPPING_OK;
+ }
  
- #define AF12 197
--SIG_EXPR_LIST_DECL_SEMG(AF12, FWSPIDQ3, FWQSPID, FWSPID,
--			SIG_DESC_SET(SCU438, 5));
- SIG_EXPR_LIST_DECL_SESG(AF12, GPIOY5, GPIOY5);
--PIN_DECL_(AF12, SIG_EXPR_LIST_PTR(AF12, FWSPIDQ3),
--	  SIG_EXPR_LIST_PTR(AF12, GPIOY5));
-+PIN_DECL_(AF12, SIG_EXPR_LIST_PTR(AF12, GPIOY5));
+@@ -1144,6 +1147,18 @@ static void subflow_sched_work_if_closed(struct mptcp_sock *msk, struct sock *ss
+ 	}
+ }
  
- #define AC12 198
- SSSF_PIN_DECL(AC12, GPIOY6, FWSPIABR, SIG_DESC_SET(SCU438, 6));
-@@ -1520,9 +1514,8 @@ SIG_EXPR_LIST_DECL_SEMG(Y4, EMMCDAT7, EMMCG8, EMMC, SIG_DESC_SET(SCU404, 3));
- PIN_DECL_3(Y4, GPIO18E3, FWSPIDMISO, VBMISO, EMMCDAT7);
++static bool subflow_can_fallback(struct mptcp_subflow_context *subflow)
++{
++	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
++
++	if (subflow->mp_join)
++		return false;
++	else if (READ_ONCE(msk->csum_enabled))
++		return !subflow->valid_csum_seen;
++	else
++		return !subflow->fully_established;
++}
++
+ static bool subflow_check_data_avail(struct sock *ssk)
+ {
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
+@@ -1221,7 +1236,7 @@ static bool subflow_check_data_avail(struct sock *ssk)
+ 		return true;
+ 	}
  
- GROUP_DECL(FWSPID, Y1, Y2, Y3, Y4);
--GROUP_DECL(FWQSPID, Y1, Y2, Y3, Y4, AE12, AF12);
- GROUP_DECL(EMMCG8, AB4, AA4, AC4, AA5, Y5, AB5, AB6, AC5, Y1, Y2, Y3, Y4);
--FUNC_DECL_2(FWSPID, FWSPID, FWQSPID);
-+FUNC_DECL_1(FWSPID, FWSPID);
- FUNC_GROUP_DECL(VB, Y1, Y2, Y3, Y4);
- FUNC_DECL_3(EMMC, EMMCG1, EMMCG4, EMMCG8);
- /*
-@@ -1918,7 +1911,6 @@ static const struct aspeed_pin_group aspeed_g6_groups[] = {
- 	ASPEED_PINCTRL_GROUP(FSI2),
- 	ASPEED_PINCTRL_GROUP(FWSPIABR),
- 	ASPEED_PINCTRL_GROUP(FWSPID),
--	ASPEED_PINCTRL_GROUP(FWQSPID),
- 	ASPEED_PINCTRL_GROUP(FWSPIWP),
- 	ASPEED_PINCTRL_GROUP(GPIT0),
- 	ASPEED_PINCTRL_GROUP(GPIT1),
+-	if (subflow->mp_join || subflow->fully_established) {
++	if (!subflow_can_fallback(subflow)) {
+ 		/* fatal protocol error, close the socket.
+ 		 * subflow_error_report() will introduce the appropriate barriers
+ 		 */
 -- 
 2.35.1
 
