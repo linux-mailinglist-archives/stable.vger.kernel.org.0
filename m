@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B805319C0
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB2D53173F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240149AbiEWRX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35688 "EHLO
+        id S241352AbiEWRnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:43:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241636AbiEWRWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:31 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D9E971D9B;
-        Mon, 23 May 2022 10:19:17 -0700 (PDT)
+        with ESMTP id S242953AbiEWRhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:51 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CC562CF4;
+        Mon, 23 May 2022 10:31:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B350EB81210;
-        Mon, 23 May 2022 17:19:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09BD3C385A9;
-        Mon, 23 May 2022 17:19:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8C9E611E3;
+        Mon, 23 May 2022 17:30:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B22BAC385AA;
+        Mon, 23 May 2022 17:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326355;
-        bh=gSowyZYMS8dn11shAF4owa+iXCWycbfZG+vSKBAfs9A=;
+        s=korg; t=1653327037;
+        bh=rfzafBr+vzy5/aFKXEY01e5txPHPWYUG+w4QZ6RalU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obU7eXT6Lm/b73zEpI9oKMX28DrZK8B1qSuvdE/4Hr/3QwRjX7Rxvwalk7g02SXu9
-         ICyYF/CoEPv8qs6PQGstezlFDZTnYBc4p67uWuX/bfleUTnDyf7UfYBwCUUscBxMQc
-         A3Mbgipg3Jn44U/nrA3FG+h2aExdlptu13w9diDE=
+        b=izblxOUiTMJ4FXz3+YlINJ8fC9u5hFoRsbpemCPIK3EXzcXzk3CYJzts8L19tVZtV
+         +VyaGcfsY8UiueNMGrcAduyg2nDiRMqBLPQGBm1UT1aBatqfUOWzwbD3Mfc36DkRig
+         3SzD8mmNGtkkjMleWOJ2ua4kMDD5xnshMzZQ4w+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wander Lairson Costa <wander@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [PATCH 5.15 048/132] selinux: fix bad cleanup on error in hashtab_duplicate()
-Date:   Mon, 23 May 2022 19:04:17 +0200
-Message-Id: <20220523165831.210664378@linuxfoundation.org>
+        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 101/158] NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+Date:   Mon, 23 May 2022 19:04:18 +0200
+Message-Id: <20220523165848.103053909@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Duoming Zhou <duoming@zju.edu.cn>
 
-commit 6254bd3db316c9ccb3b05caa8b438be63245466f upstream.
+[ Upstream commit 23dd4581350d4ffa23d58976ec46408f8f4c1e16 ]
 
-The code attempts to free the 'new' pointer using kmem_cache_free(),
-which is wrong because this function isn't responsible of freeing it.
-Instead, the function should free new->htable and clear the contents of
-*new (to prevent double-free).
+There are sleep in atomic context bugs when the request to secure
+element of st-nci is timeout. The root cause is that nci_skb_alloc
+with GFP_KERNEL parameter is called in st_nci_se_wt_timeout which is
+a timer handler. The call paths that could trigger bugs are shown below:
 
-Cc: stable@vger.kernel.org
-Fixes: c7c556f1e81b ("selinux: refactor changing booleans")
-Reported-by: Wander Lairson Costa <wander@redhat.com>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    (interrupt context 1)
+st_nci_se_wt_timeout
+  nci_hci_send_event
+    nci_hci_send_data
+      nci_skb_alloc(..., GFP_KERNEL) //may sleep
+
+   (interrupt context 2)
+st_nci_se_wt_timeout
+  nci_hci_send_event
+    nci_hci_send_data
+      nci_send_data
+        nci_queue_tx_data_frags
+          nci_skb_alloc(..., GFP_KERNEL) //may sleep
+
+This patch changes allocation mode of nci_skb_alloc from GFP_KERNEL to
+GFP_ATOMIC in order to prevent atomic context sleeping. The GFP_ATOMIC
+flag makes memory allocation operation could be used in atomic context.
+
+Fixes: ed06aeefdac3 ("nfc: st-nci: Rename st21nfcb to st-nci")
+Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20220517012530.75714-1-duoming@zju.edu.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/ss/hashtab.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/nfc/nci/data.c | 2 +-
+ net/nfc/nci/hci.c  | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -178,7 +178,8 @@ int hashtab_duplicate(struct hashtab *ne
- 			kmem_cache_free(hashtab_node_cachep, cur);
- 		}
- 	}
--	kmem_cache_free(hashtab_node_cachep, new);
-+	kfree(new->htable);
-+	memset(new, 0, sizeof(*new));
- 	return -ENOMEM;
- }
+diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
+index 6055dc9a82aa..aa5e712adf07 100644
+--- a/net/nfc/nci/data.c
++++ b/net/nfc/nci/data.c
+@@ -118,7 +118,7 @@ static int nci_queue_tx_data_frags(struct nci_dev *ndev,
  
+ 		skb_frag = nci_skb_alloc(ndev,
+ 					 (NCI_DATA_HDR_SIZE + frag_len),
+-					 GFP_KERNEL);
++					 GFP_ATOMIC);
+ 		if (skb_frag == NULL) {
+ 			rc = -ENOMEM;
+ 			goto free_exit;
+diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
+index 19703a649b5a..78c4b6addf15 100644
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -153,7 +153,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
+ 
+ 	i = 0;
+ 	skb = nci_skb_alloc(ndev, conn_info->max_pkt_payload_len +
+-			    NCI_DATA_HDR_SIZE, GFP_KERNEL);
++			    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
+ 	if (!skb)
+ 		return -ENOMEM;
+ 
+@@ -184,7 +184,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
+ 		if (i < data_len) {
+ 			skb = nci_skb_alloc(ndev,
+ 					    conn_info->max_pkt_payload_len +
+-					    NCI_DATA_HDR_SIZE, GFP_KERNEL);
++					    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
+ 			if (!skb)
+ 				return -ENOMEM;
+ 
+-- 
+2.35.1
+
 
 
