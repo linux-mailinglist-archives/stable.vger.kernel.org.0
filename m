@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8297D53182B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4197B531C8C
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240222AbiEWRaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38726 "EHLO
+        id S240942AbiEWRch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:32:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242419AbiEWR1n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4285A7CB63;
-        Mon, 23 May 2022 10:23:22 -0700 (PDT)
+        with ESMTP id S240803AbiEWR3M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:29:12 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D312D377DD;
+        Mon, 23 May 2022 10:26:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D1883B811FF;
-        Mon, 23 May 2022 17:23:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C62C385A9;
-        Mon, 23 May 2022 17:23:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D5A1B81211;
+        Mon, 23 May 2022 17:14:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B7D2C385A9;
+        Mon, 23 May 2022 17:14:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326590;
-        bh=Pq5/8Kq/7EMNq8IsfVTN43pOObgrPxSMbuD5x98pawk=;
+        s=korg; t=1653326054;
+        bh=N6jF/zf8eE9gSsnVR0cuxYXWWX2t6nRC2iwKobuSLnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbxKrC3FJa38f8KxI7Z286psM3GuHCRGG26mUtYCVFjZsDms+oLsXH+bU1Bs0NCeS
-         ijYyyVnGCT7Rp8yYhwG2XnHVRcaIJqIqLS+3daNDds4cP+jeeUea3dHrHobC0oopfT
-         viws+sKuOqiWfTkrBlndmY5zWU9AHDOhkwUjBmuU=
+        b=BcueUzLOXnX9n9k4ktqWkYeaXz42QUykPDm2E2aLWvFkbHpwzKXb+ZutfayNR0mS2
+         y5t7iJiPR3piDt79UuDsICd/Sf7GfbBx8q5oU8yNTL4e6S9L9Cn5J8/PwsYItZjs75
+         vr1voLgSQmYfbRrMQLc8oGgXv2hVATAdDTyTD03A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Daejun Park <daejun7.park@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/132] scsi: ufs: core: Fix referencing invalid rsp field
+        stable@vger.kernel.org, Kevin Mitchell <kevmitch@arista.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.4 48/68] igb: skip phy status check where unavailable
 Date:   Mon, 23 May 2022 19:05:15 +0200
-Message-Id: <20220523165841.056634318@linuxfoundation.org>
+Message-Id: <20220523165810.476425316@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daejun Park <daejun7.park@samsung.com>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit d5d92b64408443e113b9742f8f1c35278910dd4d ]
+[ Upstream commit 942d2ad5d2e0df758a645ddfadffde2795322728 ]
 
-Fix referencing sense data when it is invalid. When the length of the data
-segment is 0, there is no valid information in the rsp field, so
-ufshpb_rsp_upiu() is returned without additional operation.
+igb_read_phy_reg() will silently return, leaving phy_data untouched, if
+hw->ops.read_reg isn't set. Depending on the uninitialized value of
+phy_data, this led to the phy status check either succeeding immediately
+or looping continuously for 2 seconds before emitting a noisy err-level
+timeout. This message went out to the console even though there was no
+actual problem.
 
-Link: https://lore.kernel.org/r/252651381.41652940482659.JavaMail.epsvc@epcpadp4
-Fixes: 4b5f49079c52 ("scsi: ufs: ufshpb: L2P map management for HPB read")
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Instead, first check if there is read_reg function pointer. If not,
+proceed without trying to check the phy status register.
+
+Fixes: b72f3f72005d ("igb: When GbE link up, wait for Remote receiver status condition")
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshpb.c | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
-index f7eaf64293a4..14300896c57f 100644
---- a/drivers/scsi/ufs/ufshpb.c
-+++ b/drivers/scsi/ufs/ufshpb.c
-@@ -1257,6 +1257,13 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 	struct utp_hpb_rsp *rsp_field = &lrbp->ucd_rsp_ptr->hr;
- 	int data_seg_len;
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 3df25b231ab5..26c8d09ad4dd 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -5318,7 +5318,8 @@ static void igb_watchdog_task(struct work_struct *work)
+ 				break;
+ 			}
  
-+	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
-+		& MASK_RSP_UPIU_DATA_SEG_LEN;
-+
-+	/* If data segment length is zero, rsp_field is not valid */
-+	if (!data_seg_len)
-+		return;
-+
- 	if (unlikely(lrbp->lun != rsp_field->lun)) {
- 		struct scsi_device *sdev;
- 		bool found = false;
-@@ -1291,18 +1298,6 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 		return;
- 	}
+-			if (adapter->link_speed != SPEED_1000)
++			if (adapter->link_speed != SPEED_1000 ||
++			    !hw->phy.ops.read_reg)
+ 				goto no_wait;
  
--	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
--		& MASK_RSP_UPIU_DATA_SEG_LEN;
--
--	/* To flush remained rsp_list, we queue the map_work task */
--	if (!data_seg_len) {
--		if (!ufshpb_is_general_lun(hpb->lun))
--			return;
--
--		ufshpb_kick_map_work(hpb);
--		return;
--	}
--
- 	BUILD_BUG_ON(sizeof(struct utp_hpb_rsp) != UTP_HPB_RSP_SIZE);
- 
- 	if (!ufshpb_is_hpb_rsp_valid(hba, lrbp, rsp_field))
+ 			/* wait for Remote receiver status OK */
 -- 
 2.35.1
 
