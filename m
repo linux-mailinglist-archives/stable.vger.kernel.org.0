@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDA4531A49
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A13415317C1
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241464AbiEWRam (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38846 "EHLO
+        id S236508AbiEWRa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243006AbiEWR2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:17 -0400
+        with ESMTP id S239982AbiEWR2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:19 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BC9D84A28;
-        Mon, 23 May 2022 10:25:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF81185ED4;
+        Mon, 23 May 2022 10:25:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5EB760BD3;
-        Mon, 23 May 2022 17:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD3E5C385AA;
-        Mon, 23 May 2022 17:24:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB3E760B35;
+        Mon, 23 May 2022 17:24:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9A50C385A9;
+        Mon, 23 May 2022 17:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326660;
-        bh=potqC08jkvZW9/U+vgAilEzYyFF0q7v+dSF+fh3Bx2M=;
+        s=korg; t=1653326663;
+        bh=9TYJYF+vIYn4Rauou50K/Dlok5Da5u2dcSEtn1x3pCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQXwzbkKtFXSC0bShmsy5kBQXs66T/hRnPrkhARtFEVNvXM3UlJ+9y0JFMi81iiMu
-         LCGt1AIP9TxztW4BEPqoqiBIpsfZcEoAMOyyfglVkCe6PN/N4Yn6NfCT5b53YtmcxK
-         24nb11NDZM08xVkZgJFSASJvz/IAuObyBYpMU4hk=
+        b=sX1LJoZwNZHRLiKnRdbdwI6wgmZdpAB8Y/lNE/ONMT1NeiYJkHSr70ymaqvyb4hPr
+         i+l9kVqEz3Eqvghkw6+4cWWJpWJ1ZXJN+YWvVoIxkDoey07oae1fHw8+O/DojjWXaL
+         2yM3ZzU+wA1LTNkvjoFq0C5MnqZdchrPbPfhldW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hugo Villeneuve <hvilleneuve@dimonoff.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, David Laight <David.Laight@ACULAB.COM>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 020/158] rtc: pcf2127: fix bug when reading alarm registers
-Date:   Mon, 23 May 2022 19:02:57 +0200
-Message-Id: <20220523165833.977632246@linuxfoundation.org>
+Subject: [PATCH 5.17 021/158] kconfig: add fflush() before ferror() check
+Date:   Mon, 23 May 2022 19:02:58 +0200
+Message-Id: <20220523165834.123495216@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -54,43 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugo Villeneuve <hvilleneuve@dimonoff.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 73ce05302007eece23a6acb7dc124c92a2209087 ]
+[ Upstream commit 868653f421cd37e8ec3880da19f0aac93f5c46cc ]
 
-The first bug is that reading the 5 alarm registers results in a read
-operation of 20 bytes. The reason is because the destination buffer is
-defined as an array of "unsigned int", and we use the sizeof()
-operator on this array to define the bulk read count.
+As David Laight pointed out, there is not much point in calling
+ferror() unless you call fflush() first.
 
-The second bug is that the read value is invalid, because we are
-indexing the destination buffer as integers (4 bytes), instead of
-indexing it as u8.
-
-Changing the destination buffer type to u8 fixes both problems.
-
-Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220208162908.3182581-1-hugo@hugovil.com
+Reported-by: David Laight <David.Laight@ACULAB.COM>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf2127.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ scripts/kconfig/confdata.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/rtc/rtc-pcf2127.c b/drivers/rtc/rtc-pcf2127.c
-index 81a5b1f2e68c..6c9d8de41e7b 100644
---- a/drivers/rtc/rtc-pcf2127.c
-+++ b/drivers/rtc/rtc-pcf2127.c
-@@ -374,7 +374,8 @@ static int pcf2127_watchdog_init(struct device *dev, struct pcf2127 *pcf2127)
- static int pcf2127_rtc_read_alarm(struct device *dev, struct rtc_wkalrm *alrm)
- {
- 	struct pcf2127 *pcf2127 = dev_get_drvdata(dev);
--	unsigned int buf[5], ctrl2;
-+	u8 buf[5];
-+	unsigned int ctrl2;
- 	int ret;
+diff --git a/scripts/kconfig/confdata.c b/scripts/kconfig/confdata.c
+index d3c3a61308ad..94dcec2cc803 100644
+--- a/scripts/kconfig/confdata.c
++++ b/scripts/kconfig/confdata.c
+@@ -979,6 +979,7 @@ static int conf_write_autoconf_cmd(const char *autoconf_name)
  
- 	ret = regmap_read(pcf2127->regmap, PCF2127_REG_CTRL2, &ctrl2);
+ 	fprintf(out, "\n$(deps_config): ;\n");
+ 
++	fflush(out);
+ 	ret = ferror(out); /* error check for all fprintf() calls */
+ 	fclose(out);
+ 	if (ret)
+@@ -1097,6 +1098,7 @@ static int __conf_write_autoconf(const char *filename,
+ 		if ((sym->flags & SYMBOL_WRITE) && sym->name)
+ 			print_symbol(file, sym);
+ 
++	fflush(file);
+ 	/* check possible errors in conf_write_heading() and print_symbol() */
+ 	ret = ferror(file);
+ 	fclose(file);
 -- 
 2.35.1
 
