@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C9A531836
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2875318C0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240864AbiEWRji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
+        id S237053AbiEWRXP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241782AbiEWRgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:36:03 -0400
+        with ESMTP id S241351AbiEWRWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:17 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BCFF90CE8;
-        Mon, 23 May 2022 10:29:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C8678913;
+        Mon, 23 May 2022 10:18:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C0A6960B2C;
-        Mon, 23 May 2022 17:28:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9900C385A9;
-        Mon, 23 May 2022 17:28:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD66460BFA;
+        Mon, 23 May 2022 17:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B21C385A9;
+        Mon, 23 May 2022 17:17:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326919;
-        bh=2K0Ed2rmG9vLt8EFWi7OhhXbZZ/LsAZmEhrjRjuARM4=;
+        s=korg; t=1653326224;
+        bh=HYJvCzrRL8mx/moWrVn+AmAVKdhS3rpIkm0q464BD6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wYgwDuKlA+TNyRx4dXAXed3Ee8FKQOEEC3saczeCmQ9h0WjpbT9somWEqXucYsi7H
-         P+CDDCYUaCC0ccxyTR83NgE/fRcWHF1EW3p7YEzeHW3sbe683QDxCcjHXpL4Lq7IyE
-         6Lef+SdjJHItiySKX57HYvX1O2I3tdbq/ubyMcfs=
+        b=hRgl2EwmsIz+3RF3e5rVek9bKHnd1tggcbVJt/cxAH/mCGrMVNMq21Z+dYU24ZM04
+         rGBC069wWBezHsO3LQHKSYkG9MDYJFqSN2sCwOAWtmFdaZTkyDvduEjbKDYzFPMkcZ
+         LLOKKWDjuqpsXogLU/TEc+uXVXKB30LCw9ALS5kM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charan Teja Kalla <quic_charante@quicinc.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.17 067/158] dma-buf: ensure unique directory name for dmabuf stats
+        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
+        Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 015/132] Watchdog: sp5100_tco: Add initialization using EFCH MMIO
 Date:   Mon, 23 May 2022 19:03:44 +0200
-Message-Id: <20220523165841.999829287@linuxfoundation.org>
+Message-Id: <20220523165826.141439925@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +57,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charan Teja Kalla <quic_charante@quicinc.com>
+From: Terry Bowman <terry.bowman@amd.com>
 
-commit 370704e707a5f2d3c9a1d4ed8bd8cd67507d7bb5 upstream.
+commit 0578fff4aae5bce3f09875f58e68e9ffbab8daf5 upstream.
 
-The dmabuf file uses get_next_ino()(through dma_buf_getfile() ->
-alloc_anon_inode()) to get an inode number and uses the same as a
-directory name under /sys/kernel/dmabuf/buffers/<ino>. This directory is
-used to collect the dmabuf stats and it is created through
-dma_buf_stats_setup(). At current, failure to create this directory
-entry can make the dma_buf_export() to fail.
+cd6h/cd7h port I/O can be disabled on recent AMD hardware. Read
+accesses to disabled cd6h/cd7h port I/O will return F's and written
+data is dropped. It is recommended to replace the cd6h/cd7h
+port I/O with MMIO.
 
-Now, as the get_next_ino() can definitely give a repetitive inode no
-causing the directory entry creation to fail with -EEXIST. This is a
-problem on the systems where dmabuf stats functionality is enabled on
-the production builds can make the dma_buf_export(), though the dmabuf
-memory is allocated successfully, to fail just because it couldn't
-create stats entry.
-
-This issue we are able to see on the snapdragon system within 13 days
-where there already exists a directory with inode no "122602" so
-dma_buf_stats_setup() failed with -EEXIST as it is trying to create
-the same directory entry.
-
-To make the dentry name as unique, use the dmabuf fs specific inode
-which is based on the simple atomic variable increment. There is tmpfs
-subsystem too which relies on its own inode generation rather than
-relying on the get_next_ino() for the same reason of avoiding the
-duplicate inodes[1].
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/patch/?id=e809d5f0b5c912fe981dce738f3283b2010665f0
-
-Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
-Cc: <stable@vger.kernel.org> # 5.15.x+
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/1652441296-1986-1-git-send-email-quic_charante@quicinc.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
+Co-developed-by: Robert Richter <rrichter@amd.com>
+Signed-off-by: Robert Richter <rrichter@amd.com>
+Signed-off-by: Terry Bowman <terry.bowman@amd.com>
+Tested-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220202153525.1693378-4-terry.bowman@amd.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma-buf/dma-buf.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/watchdog/sp5100_tco.c |  100 +++++++++++++++++++++++++++++++++++++++++-
+ drivers/watchdog/sp5100_tco.h |    5 ++
+ 2 files changed, 104 insertions(+), 1 deletion(-)
 
---- a/drivers/dma-buf/dma-buf.c
-+++ b/drivers/dma-buf/dma-buf.c
-@@ -407,6 +407,7 @@ static inline int is_dma_buf_file(struct
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -48,7 +48,7 @@
+ /* internal variables */
  
- static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
- {
-+	static atomic64_t dmabuf_inode = ATOMIC64_INIT(0);
- 	struct file *file;
- 	struct inode *inode = alloc_anon_inode(dma_buf_mnt->mnt_sb);
+ enum tco_reg_layout {
+-	sp5100, sb800, efch
++	sp5100, sb800, efch, efch_mmio
+ };
  
-@@ -416,6 +417,13 @@ static struct file *dma_buf_getfile(stru
- 	inode->i_size = dmabuf->size;
- 	inode_set_bytes(inode, dmabuf->size);
+ struct sp5100_tco {
+@@ -201,6 +201,8 @@ static void tco_timer_enable(struct sp51
+ 					  ~EFCH_PM_WATCHDOG_DISABLE,
+ 					  EFCH_PM_DECODEEN_SECOND_RES);
+ 		break;
++	default:
++		break;
+ 	}
+ }
  
+@@ -299,6 +301,99 @@ static int sp5100_tco_timer_init(struct
+ 	return 0;
+ }
+ 
++static u8 efch_read_pm_reg8(void __iomem *addr, u8 index)
++{
++	return readb(addr + index);
++}
++
++static void efch_update_pm_reg8(void __iomem *addr, u8 index, u8 reset, u8 set)
++{
++	u8 val;
++
++	val = readb(addr + index);
++	val &= reset;
++	val |= set;
++	writeb(val, addr + index);
++}
++
++static void tco_timer_enable_mmio(void __iomem *addr)
++{
++	efch_update_pm_reg8(addr, EFCH_PM_DECODEEN3,
++			    ~EFCH_PM_WATCHDOG_DISABLE,
++			    EFCH_PM_DECODEEN_SECOND_RES);
++}
++
++static int sp5100_tco_setupdevice_mmio(struct device *dev,
++				       struct watchdog_device *wdd)
++{
++	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
++	const char *dev_name = SB800_DEVNAME;
++	u32 mmio_addr = 0, alt_mmio_addr = 0;
++	struct resource *res;
++	void __iomem *addr;
++	int ret;
++	u32 val;
++
++	res = request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
++				       EFCH_PM_ACPI_MMIO_PM_SIZE,
++				       "sp5100_tco");
++
++	if (!res) {
++		dev_err(dev,
++			"Memory region 0x%08x already in use\n",
++			EFCH_PM_ACPI_MMIO_PM_ADDR);
++		return -EBUSY;
++	}
++
++	addr = ioremap(EFCH_PM_ACPI_MMIO_PM_ADDR, EFCH_PM_ACPI_MMIO_PM_SIZE);
++	if (!addr) {
++		dev_err(dev, "Address mapping failed\n");
++		ret = -ENOMEM;
++		goto out;
++	}
++
 +	/*
-+	 * The ->i_ino acquired from get_next_ino() is not unique thus
-+	 * not suitable for using it as dentry name by dmabuf stats.
-+	 * Override ->i_ino with the unique and dmabuffs specific
-+	 * value.
++	 * EFCH_PM_DECODEEN_WDT_TMREN is dual purpose. This bitfield
++	 * enables sp5100_tco register MMIO space decoding. The bitfield
++	 * also starts the timer operation. Enable if not already enabled.
 +	 */
-+	inode->i_ino = atomic64_add_return(1, &dmabuf_inode);
- 	file = alloc_file_pseudo(inode, dma_buf_mnt, "dmabuf",
- 				 flags, &dma_buf_fops);
- 	if (IS_ERR(file))
++	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
++	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
++		efch_update_pm_reg8(addr, EFCH_PM_DECODEEN, 0xff,
++				    EFCH_PM_DECODEEN_WDT_TMREN);
++	}
++
++	/* Error if the timer could not be enabled */
++	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
++	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
++		dev_err(dev, "Failed to enable the timer\n");
++		ret = -EFAULT;
++		goto out;
++	}
++
++	mmio_addr = EFCH_PM_WDT_ADDR;
++
++	/* Determine alternate MMIO base address */
++	val = efch_read_pm_reg8(addr, EFCH_PM_ISACONTROL);
++	if (val & EFCH_PM_ISACONTROL_MMIOEN)
++		alt_mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
++			EFCH_PM_ACPI_MMIO_WDT_OFFSET;
++
++	ret = sp5100_tco_prepare_base(tco, mmio_addr, alt_mmio_addr, dev_name);
++	if (!ret) {
++		tco_timer_enable_mmio(addr);
++		ret = sp5100_tco_timer_init(tco);
++	}
++
++out:
++	if (addr)
++		iounmap(addr);
++
++	release_resource(res);
++
++	return ret;
++}
++
+ static int sp5100_tco_setupdevice(struct device *dev,
+ 				  struct watchdog_device *wdd)
+ {
+@@ -308,6 +403,9 @@ static int sp5100_tco_setupdevice(struct
+ 	u32 alt_mmio_addr = 0;
+ 	int ret;
+ 
++	if (tco->tco_reg_layout == efch_mmio)
++		return sp5100_tco_setupdevice_mmio(dev, wdd);
++
+ 	/* Request the IO ports used by this driver */
+ 	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
+ 				  SP5100_PM_IOPORTS_SIZE, "sp5100_tco")) {
+--- a/drivers/watchdog/sp5100_tco.h
++++ b/drivers/watchdog/sp5100_tco.h
+@@ -83,4 +83,9 @@
+ #define EFCH_PM_ISACONTROL_MMIOEN	BIT(1)
+ 
+ #define EFCH_PM_ACPI_MMIO_ADDR		0xfed80000
++#define EFCH_PM_ACPI_MMIO_PM_OFFSET	0x00000300
+ #define EFCH_PM_ACPI_MMIO_WDT_OFFSET	0x00000b00
++
++#define EFCH_PM_ACPI_MMIO_PM_ADDR	(EFCH_PM_ACPI_MMIO_ADDR +	\
++					 EFCH_PM_ACPI_MMIO_PM_OFFSET)
++#define EFCH_PM_ACPI_MMIO_PM_SIZE	8
 
 
