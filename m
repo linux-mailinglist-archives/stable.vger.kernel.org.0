@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B79853190F
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 722B1531713
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241309AbiEWRdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38318 "EHLO
+        id S241541AbiEWRdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241590AbiEWRaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:30 -0400
+        with ESMTP id S241137AbiEWRag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:36 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBA03D480;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3DEC54014;
         Mon, 23 May 2022 10:26:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1C3960AB8;
-        Mon, 23 May 2022 17:25:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3B77C385A9;
-        Mon, 23 May 2022 17:25:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DD1B60919;
+        Mon, 23 May 2022 17:25:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E818C385A9;
+        Mon, 23 May 2022 17:25:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326705;
-        bh=yfpuvrALriU2AWHbZYOi2RouWp4WPi+wQvrf5G2qVMA=;
+        s=korg; t=1653326708;
+        bh=MyMO1r+t/9l7ZlDEEqZOpYQ/cN0Efzy960/m/gIuCQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmf7tZR0qKHAjcc1ZkUgGMp764pBmcPT9rJC2vbp3y5I4x4eo4rP8HiqVmrheCuiu
-         j1FcwRymOq9HoIOOC9emWxTAPnyWRpWU6xp89zSFnNFfQ2rOtiXEaoXHniIhoE2B5A
-         6FUMBeNz/9lF9kWPP2LRc3nIfnEIFoH4AHCEfMcE=
+        b=0qObh/lOPHe6X8qbLpereKNU2fjbG4oUoPPdqua0UpUMmPCHRT7Pw+xD/XTqAGmSd
+         c/dxL92dNSooVjHGFdMAQafv2Kf3VH4rBqJK9sh31XIIhx5uas4estR+SCR2rzpD4V
+         y3DYipOMIjgM5am8lAYjjUTRSZnLsooT3E6RO1Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,9 +37,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Guenter Roeck <linux@roeck-us.net>,
         Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 014/158] Watchdog: sp5100_tco: Add initialization using EFCH MMIO
-Date:   Mon, 23 May 2022 19:02:51 +0200
-Message-Id: <20220523165832.991276327@linuxfoundation.org>
+Subject: [PATCH 5.17 015/158] Watchdog: sp5100_tco: Enable Family 17h+ CPUs
+Date:   Mon, 23 May 2022 19:02:52 +0200
+Message-Id: <20220523165833.161809742@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -59,12 +59,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Terry Bowman <terry.bowman@amd.com>
 
-commit 0578fff4aae5bce3f09875f58e68e9ffbab8daf5 upstream.
+commit 826270373f17fd8ebd10753ca0a5fd2ceb1dc38e upstream.
 
-cd6h/cd7h port I/O can be disabled on recent AMD hardware. Read
-accesses to disabled cd6h/cd7h port I/O will return F's and written
-data is dropped. It is recommended to replace the cd6h/cd7h
-port I/O with MMIO.
+The driver currently uses a CPU family match of 17h to determine
+EFCH_PM_DECODEEN_WDT_TMREN register support. This family check will not
+support future AMD CPUs and instead will require driver updates to add
+support.
+
+Remove the family 17h family check and add a check for SMBus PCI
+revision ID 0x51 or greater. The MMIO access method has been available
+since at least SMBus controllers using PCI revision 0x51. This revision
+check will support family 17h and future AMD processors including EFCH
+functionality without requiring driver changes.
 
 Co-developed-by: Robert Richter <rrichter@amd.com>
 Signed-off-by: Robert Richter <rrichter@amd.com>
@@ -72,157 +78,54 @@ Signed-off-by: Terry Bowman <terry.bowman@amd.com>
 Tested-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220202153525.1693378-4-terry.bowman@amd.com
+Link: https://lore.kernel.org/r/20220202153525.1693378-5-terry.bowman@amd.com
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/watchdog/sp5100_tco.c |  100 +++++++++++++++++++++++++++++++++++++++++-
- drivers/watchdog/sp5100_tco.h |    5 ++
- 2 files changed, 104 insertions(+), 1 deletion(-)
+ drivers/watchdog/sp5100_tco.c |   16 ++++------------
+ drivers/watchdog/sp5100_tco.h |    1 +
+ 2 files changed, 5 insertions(+), 12 deletions(-)
 
 --- a/drivers/watchdog/sp5100_tco.c
 +++ b/drivers/watchdog/sp5100_tco.c
-@@ -49,7 +49,7 @@
- /* internal variables */
- 
- enum tco_reg_layout {
--	sp5100, sb800, efch
-+	sp5100, sb800, efch, efch_mmio
- };
- 
- struct sp5100_tco {
-@@ -209,6 +209,8 @@ static void tco_timer_enable(struct sp51
- 					  ~EFCH_PM_WATCHDOG_DISABLE,
- 					  EFCH_PM_DECODEEN_SECOND_RES);
+@@ -87,6 +87,10 @@ static enum tco_reg_layout tco_reg_layou
+ 	    dev->revision < 0x40) {
+ 		return sp5100;
+ 	} else if (dev->vendor == PCI_VENDOR_ID_AMD &&
++	    sp5100_tco_pci->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
++	    sp5100_tco_pci->revision >= AMD_ZEN_SMBUS_PCI_REV) {
++		return efch_mmio;
++	} else if (dev->vendor == PCI_VENDOR_ID_AMD &&
+ 	    ((dev->device == PCI_DEVICE_ID_AMD_HUDSON2_SMBUS &&
+ 	     dev->revision >= 0x41) ||
+ 	    (dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
+@@ -459,18 +463,6 @@ static int sp5100_tco_setupdevice(struct
  		break;
-+	default:
-+		break;
- 	}
- }
- 
-@@ -307,6 +309,99 @@ static int sp5100_tco_timer_init(struct
- 	return 0;
- }
- 
-+static u8 efch_read_pm_reg8(void __iomem *addr, u8 index)
-+{
-+	return readb(addr + index);
-+}
-+
-+static void efch_update_pm_reg8(void __iomem *addr, u8 index, u8 reset, u8 set)
-+{
-+	u8 val;
-+
-+	val = readb(addr + index);
-+	val &= reset;
-+	val |= set;
-+	writeb(val, addr + index);
-+}
-+
-+static void tco_timer_enable_mmio(void __iomem *addr)
-+{
-+	efch_update_pm_reg8(addr, EFCH_PM_DECODEEN3,
-+			    ~EFCH_PM_WATCHDOG_DISABLE,
-+			    EFCH_PM_DECODEEN_SECOND_RES);
-+}
-+
-+static int sp5100_tco_setupdevice_mmio(struct device *dev,
-+				       struct watchdog_device *wdd)
-+{
-+	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
-+	const char *dev_name = SB800_DEVNAME;
-+	u32 mmio_addr = 0, alt_mmio_addr = 0;
-+	struct resource *res;
-+	void __iomem *addr;
-+	int ret;
-+	u32 val;
-+
-+	res = request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
-+				       EFCH_PM_ACPI_MMIO_PM_SIZE,
-+				       "sp5100_tco");
-+
-+	if (!res) {
-+		dev_err(dev,
-+			"Memory region 0x%08x already in use\n",
-+			EFCH_PM_ACPI_MMIO_PM_ADDR);
-+		return -EBUSY;
-+	}
-+
-+	addr = ioremap(EFCH_PM_ACPI_MMIO_PM_ADDR, EFCH_PM_ACPI_MMIO_PM_SIZE);
-+	if (!addr) {
-+		dev_err(dev, "Address mapping failed\n");
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/*
-+	 * EFCH_PM_DECODEEN_WDT_TMREN is dual purpose. This bitfield
-+	 * enables sp5100_tco register MMIO space decoding. The bitfield
-+	 * also starts the timer operation. Enable if not already enabled.
-+	 */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
-+	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
-+		efch_update_pm_reg8(addr, EFCH_PM_DECODEEN, 0xff,
-+				    EFCH_PM_DECODEEN_WDT_TMREN);
-+	}
-+
-+	/* Error if the timer could not be enabled */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
-+	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
-+		dev_err(dev, "Failed to enable the timer\n");
-+		ret = -EFAULT;
-+		goto out;
-+	}
-+
-+	mmio_addr = EFCH_PM_WDT_ADDR;
-+
-+	/* Determine alternate MMIO base address */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_ISACONTROL);
-+	if (val & EFCH_PM_ISACONTROL_MMIOEN)
-+		alt_mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
-+			EFCH_PM_ACPI_MMIO_WDT_OFFSET;
-+
-+	ret = sp5100_tco_prepare_base(tco, mmio_addr, alt_mmio_addr, dev_name);
-+	if (!ret) {
-+		tco_timer_enable_mmio(addr);
-+		ret = sp5100_tco_timer_init(tco);
-+	}
-+
-+out:
-+	if (addr)
-+		iounmap(addr);
-+
-+	release_resource(res);
-+
-+	return ret;
-+}
-+
- static int sp5100_tco_setupdevice(struct device *dev,
- 				  struct watchdog_device *wdd)
- {
-@@ -316,6 +411,9 @@ static int sp5100_tco_setupdevice(struct
- 	u32 alt_mmio_addr = 0;
- 	int ret;
- 
-+	if (tco->tco_reg_layout == efch_mmio)
-+		return sp5100_tco_setupdevice_mmio(dev, wdd);
-+
- 	/* Request the IO ports used by this driver */
- 	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
- 				  SP5100_PM_IOPORTS_SIZE, "sp5100_tco")) {
+ 	case efch:
+ 		dev_name = SB800_DEVNAME;
+-		/*
+-		 * On Family 17h devices, the EFCH_PM_DECODEEN_WDT_TMREN bit of
+-		 * EFCH_PM_DECODEEN not only enables the EFCH_PM_WDT_ADDR memory
+-		 * region, it also enables the watchdog itself.
+-		 */
+-		if (boot_cpu_data.x86 == 0x17) {
+-			val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
+-			if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
+-				sp5100_tco_update_pm_reg8(EFCH_PM_DECODEEN, 0xff,
+-							  EFCH_PM_DECODEEN_WDT_TMREN);
+-			}
+-		}
+ 		val = sp5100_tco_read_pm_reg8(EFCH_PM_DECODEEN);
+ 		if (val & EFCH_PM_DECODEEN_WDT_TMREN)
+ 			mmio_addr = EFCH_PM_WDT_ADDR;
 --- a/drivers/watchdog/sp5100_tco.h
 +++ b/drivers/watchdog/sp5100_tco.h
-@@ -83,4 +83,9 @@
- #define EFCH_PM_ISACONTROL_MMIOEN	BIT(1)
- 
- #define EFCH_PM_ACPI_MMIO_ADDR		0xfed80000
-+#define EFCH_PM_ACPI_MMIO_PM_OFFSET	0x00000300
- #define EFCH_PM_ACPI_MMIO_WDT_OFFSET	0x00000b00
-+
-+#define EFCH_PM_ACPI_MMIO_PM_ADDR	(EFCH_PM_ACPI_MMIO_ADDR +	\
-+					 EFCH_PM_ACPI_MMIO_PM_OFFSET)
-+#define EFCH_PM_ACPI_MMIO_PM_SIZE	8
+@@ -89,3 +89,4 @@
+ #define EFCH_PM_ACPI_MMIO_PM_ADDR	(EFCH_PM_ACPI_MMIO_ADDR +	\
+ 					 EFCH_PM_ACPI_MMIO_PM_OFFSET)
+ #define EFCH_PM_ACPI_MMIO_PM_SIZE	8
++#define AMD_ZEN_SMBUS_PCI_REV		0x51
 
 
