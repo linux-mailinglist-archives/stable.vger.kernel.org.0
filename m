@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD91F531D1E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 716E7531C5B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240166AbiEWRSl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
+        id S239624AbiEWRM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240216AbiEWRRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCC569CEF;
-        Mon, 23 May 2022 10:17:19 -0700 (PDT)
+        with ESMTP id S240532AbiEWRMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A00B62CE5;
+        Mon, 23 May 2022 10:11:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C9A6B8121C;
-        Mon, 23 May 2022 17:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81529C385A9;
-        Mon, 23 May 2022 17:15:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A636149F;
+        Mon, 23 May 2022 17:11:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CFEC385A9;
+        Mon, 23 May 2022 17:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326117;
-        bh=riyIxm/6DV0D51V6qS4eIgtQ8gmXffvMp6/SrgHtugg=;
+        s=korg; t=1653325863;
+        bh=us182Po8y/92L2m2KNkWy/1esHIVSixRF1EcaXFXeLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zhnelaajp4yDkd4ycE2hYvINNjzVR9L1vQhhoVxjZ1yKldvoovSaIg6fsKPPm7QOb
-         3ARTSQ6v9stH7tlI4XHSCXnez+x2mRXpqwvoQKe8xWVRa0nuXSG6QDZSbQ7Uew7Elx
-         QjjE+A7JR6++iVPWvsLd1mu/8QgVMvyxvA2V8DPY=
+        b=GHHHkUPKtYKTgs9cG/wGqqaKHUBf9oCWrgoBe6mSoDv0YtnZe6IJ7ipQWBbPwFZLc
+         LXy8gEfTYV+ct+ICUT1cWAu9dv8Zm/IYjRCBM2sZM56i5iqKOl6tTkV9fjtFIseaVF
+         fYdX21JLcAnQvRrS7kVTBKAoJKmFAIqMs22wIQJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Gottwald <gottwald@igel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 29/68] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
+        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 12/44] perf: Fix sys_perf_event_open() race against self
 Date:   Mon, 23 May 2022 19:04:56 +0200
-Message-Id: <20220523165807.394701006@linuxfoundation.org>
+Message-Id: <20220523165755.544731604@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 92597f97a40bf661bebceb92e26ff87c76d562d4 upstream.
+commit 3ac6487e584a1eb54071dbe1212e05b884136704 upstream.
 
-If a Root Port on Elo i2 is put into D3cold and then back into D0, the
-downstream device becomes permanently inaccessible, so add a bridge D3 DMI
-quirk for that system.
+Norbert reported that it's possible to race sys_perf_event_open() such
+that the looser ends up in another context from the group leader,
+triggering many WARNs.
 
-This was exposed by 14858dcc3b35 ("PCI: Use pci_update_current_state() in
-pci_enable_device_flags()"), but before that commit the Root Port in
-question had never been put into D3cold for real due to a mismatch between
-its power state retrieved from the PCI_PM_CTRL register (which was
-accessible even though the platform firmware indicated that the port was in
-D3cold) and the state of an ACPI power resource involved in its power
-management.
+The move_group case checks for races against itself, but the
+!move_group case doesn't, seemingly relying on the previous
+group_leader->ctx == ctx check. However, that check is racy due to not
+holding any locks at that time.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215715
-Link: https://lore.kernel.org/r/11980172.O9o76ZdvQC@kreacher
-Reported-by: Stefan Gottwald <gottwald@igel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org	# v5.15+
+Therefore, re-check the result after acquiring locks and bailing
+if they no longer match.
+
+Additionally, clarify the not_move_group case from the
+move_group-vs-move_group race.
+
+Fixes: f63a8daa5812 ("perf: Fix event->ctx locking")
+Reported-by: Norbert Slusarek <nslusarek@gmx.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ kernel/events/core.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2613,6 +2613,16 @@ static const struct dmi_system_id bridge
- 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
- 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
- 		},
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10758,6 +10758,9 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		 * Do not allow to attach to a group in a different task
+ 		 * or CPU context. If we're moving SW events, we'll fix
+ 		 * this up later, so allow that.
++		 *
++		 * Racy, not holding group_leader->ctx->mutex, see comment with
++		 * perf_event_ctx_lock().
+ 		 */
+ 		if (!move_group && group_leader->ctx != ctx)
+ 			goto err_context;
+@@ -10807,6 +10810,7 @@ SYSCALL_DEFINE5(perf_event_open,
+ 			} else {
+ 				perf_event_ctx_unlock(group_leader, gctx);
+ 				move_group = 0;
++				goto not_move_group;
+ 			}
+ 		}
+ 
+@@ -10823,7 +10827,17 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		}
+ 	} else {
+ 		mutex_lock(&ctx->mutex);
++
 +		/*
-+		 * Downstream device is not accessible after putting a root port
-+		 * into D3cold and back into D0 on Elo i2.
++		 * Now that we hold ctx->lock, (re)validate group_leader->ctx == ctx,
++		 * see the group_leader && !move_group test earlier.
 +		 */
-+		.ident = "Elo i2",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Elo Touch Solutions"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Elo i2"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "RevB"),
-+		},
- 	},
- #endif
- 	{ }
++		if (group_leader && group_leader->ctx != ctx) {
++			err = -EINVAL;
++			goto err_locked;
++		}
+ 	}
++not_move_group:
+ 
+ 	if (ctx->task == TASK_TOMBSTONE) {
+ 		err = -ESRCH;
 
 
