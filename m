@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A67785316FF
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEFA253178F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240493AbiEWRYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:24:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
+        id S240984AbiEWRjN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241911AbiEWRWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73F9D7CDEE;
-        Mon, 23 May 2022 10:19:46 -0700 (PDT)
+        with ESMTP id S241319AbiEWRfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:35:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB858199D;
+        Mon, 23 May 2022 10:28:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16E44B81205;
-        Mon, 23 May 2022 17:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE57C385A9;
-        Mon, 23 May 2022 17:18:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C46D060BD3;
+        Mon, 23 May 2022 17:28:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A8FC385A9;
+        Mon, 23 May 2022 17:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326306;
-        bh=z+Jn+M7wh7vmsuLFk1mgAF1yMw1bwX154BNorZBOq6A=;
+        s=korg; t=1653326903;
+        bh=0AHpmUS+psaj+teuBfn1XDZbhVkD+k3E0lH3K9SmT30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fw2QqYsOKoIOE1UkTpQW/gRaEGZC/BwKuwXwEtHPxwh8Aglaot1rhk7Bimr9tLa9M
-         xGJ33wFpIzjHLgAy6U3fKW2ejcWwGxDGHEVU6M44QL3gtFX/IfWhWnMmWpW4cMdEyf
-         Xcnk5ihnHTolWXNPBkxeADKmnzfnvcVdPF0lIgnc=
+        b=DIW28Gw87lXL6Y8672A/3UkY6Gy70C0L/GdamAT83kmtWi8UUZ+rwYIHxmxcd7fvF
+         3+NfJBlz4XSXfRdszmimCqyXKbNbGsCfQN0939BlSGiNASAh2dZKAy6HgO1XwwS3+C
+         KD0Z7QakKEb3AFU5wqwftiZnS4pbxaBlNOQaXnuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Yujun <linyujun809@huawei.com>,
-        He Ying <heying24@huawei.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 041/132] ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+Subject: [PATCH 5.17 093/158] net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
 Date:   Mon, 23 May 2022 19:04:10 +0200
-Message-Id: <20220523165830.190374934@linuxfoundation.org>
+Message-Id: <20220523165846.673407548@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,102 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: linyujun <linyujun809@huawei.com>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 9be4c88bb7924f68f88cfd47d925c2d046f51a73 ]
+[ Upstream commit 9e7fef9521e73ca8afd7da9e58c14654b02dfad8 ]
 
-The following KASAN warning is detected by QEMU.
+In vmxnet3_rq_alloc_rx_buf(), when dma_map_single() fails, rbi->skb is
+freed immediately. Similarly, in another branch, when dma_map_page() fails,
+rbi->page is also freed. In the two cases, vmxnet3_rq_alloc_rx_buf()
+returns an error to its callers vmxnet3_rq_init() -> vmxnet3_rq_init_all()
+-> vmxnet3_activate_dev(). Then vmxnet3_activate_dev() calls
+vmxnet3_rq_cleanup_all() in error handling code, and rbi->skb or rbi->page
+are freed again in vmxnet3_rq_cleanup_all(), causing use-after-free bugs.
 
-==================================================================
-BUG: KASAN: stack-out-of-bounds in unwind_frame+0x508/0x870
-Read of size 4 at addr c36bba90 by task cat/163
+To fix these possible bugs, rbi->skb and rbi->page should be cleared after
+they are freed.
 
-CPU: 1 PID: 163 Comm: cat Not tainted 5.10.0-rc1 #40
-Hardware name: ARM-Versatile Express
-[<c0113fac>] (unwind_backtrace) from [<c010e71c>] (show_stack+0x10/0x14)
-[<c010e71c>] (show_stack) from [<c0b805b4>] (dump_stack+0x98/0xb0)
-[<c0b805b4>] (dump_stack) from [<c0b7d658>] (print_address_description.constprop.0+0x58/0x4bc)
-[<c0b7d658>] (print_address_description.constprop.0) from [<c031435c>] (kasan_report+0x154/0x170)
-[<c031435c>] (kasan_report) from [<c0113c44>] (unwind_frame+0x508/0x870)
-[<c0113c44>] (unwind_frame) from [<c010e298>] (__save_stack_trace+0x110/0x134)
-[<c010e298>] (__save_stack_trace) from [<c01ce0d8>] (stack_trace_save+0x8c/0xb4)
-[<c01ce0d8>] (stack_trace_save) from [<c0313520>] (kasan_set_track+0x38/0x60)
-[<c0313520>] (kasan_set_track) from [<c0314cb8>] (kasan_set_free_info+0x20/0x2c)
-[<c0314cb8>] (kasan_set_free_info) from [<c0313474>] (__kasan_slab_free+0xec/0x120)
-[<c0313474>] (__kasan_slab_free) from [<c0311e20>] (kmem_cache_free+0x7c/0x334)
-[<c0311e20>] (kmem_cache_free) from [<c01c35dc>] (rcu_core+0x390/0xccc)
-[<c01c35dc>] (rcu_core) from [<c01013a8>] (__do_softirq+0x180/0x518)
-[<c01013a8>] (__do_softirq) from [<c0135214>] (irq_exit+0x9c/0xe0)
-[<c0135214>] (irq_exit) from [<c01a40e4>] (__handle_domain_irq+0xb0/0x110)
-[<c01a40e4>] (__handle_domain_irq) from [<c0691248>] (gic_handle_irq+0xa0/0xb8)
-[<c0691248>] (gic_handle_irq) from [<c0100b0c>] (__irq_svc+0x6c/0x94)
-Exception stack(0xc36bb928 to 0xc36bb970)
-b920:                   c36bb9c0 00000000 c0126919 c0101228 c36bb9c0 b76d7730
-b940: c36b8000 c36bb9a0 c3335b00 c01ce0d8 00000003 c36bba3c c36bb940 c36bb978
-b960: c010e298 c011373c 60000013 ffffffff
-[<c0100b0c>] (__irq_svc) from [<c011373c>] (unwind_frame+0x0/0x870)
-[<c011373c>] (unwind_frame) from [<00000000>] (0x0)
+The error log in our fault-injection testing is shown as follows:
 
-The buggy address belongs to the page:
-page:(ptrval) refcount:0 mapcount:0 mapping:00000000 index:0x0 pfn:0x636bb
-flags: 0x0()
-raw: 00000000 00000000 ef867764 00000000 00000000 00000000 ffffffff 00000000
-page dumped because: kasan: bad access detected
+[   14.319016] BUG: KASAN: use-after-free in consume_skb+0x2f/0x150
+...
+[   14.321586] Call Trace:
+...
+[   14.325357]  consume_skb+0x2f/0x150
+[   14.325671]  vmxnet3_rq_cleanup_all+0x33a/0x4e0 [vmxnet3]
+[   14.326150]  vmxnet3_activate_dev+0xb9d/0x2ca0 [vmxnet3]
+[   14.326616]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.361675] Allocated by task 351:
+...
+[   14.362688]  __netdev_alloc_skb+0x1b3/0x6f0
+[   14.362960]  vmxnet3_rq_alloc_rx_buf+0x1b0/0x8d0 [vmxnet3]
+[   14.363317]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.363661]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.367309]
+[   14.367412] Freed by task 351:
+...
+[   14.368932]  __dev_kfree_skb_any+0xd2/0xe0
+[   14.369193]  vmxnet3_rq_alloc_rx_buf+0x71e/0x8d0 [vmxnet3]
+[   14.369544]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.369883]  vmxnet3_open+0x387/0x470 [vmxnet3]
+[   14.370174]  __dev_open+0x28a/0x420
+[   14.370399]  __dev_change_flags+0x192/0x590
+[   14.370667]  dev_change_flags+0x7a/0x180
+[   14.370919]  do_setlink+0xb28/0x3570
+[   14.371150]  rtnl_newlink+0x1160/0x1740
+[   14.371399]  rtnetlink_rcv_msg+0x5bf/0xa50
+[   14.371661]  netlink_rcv_skb+0x1cd/0x3e0
+[   14.371913]  netlink_unicast+0x5dc/0x840
+[   14.372169]  netlink_sendmsg+0x856/0xc40
+[   14.372420]  ____sys_sendmsg+0x8a7/0x8d0
+[   14.372673]  __sys_sendmsg+0x1c2/0x270
+[   14.372914]  do_syscall_64+0x41/0x90
+[   14.373145]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+...
 
-addr c36bba90 is located in stack of task cat/163 at offset 48 in frame:
- stack_trace_save+0x0/0xb4
-
-this frame has 1 object:
- [32, 48) 'trace'
-
-Memory state around the buggy address:
- c36bb980: f1 f1 f1 f1 00 04 f2 f2 00 00 f3 f3 00 00 00 00
- c36bba00: 00 00 00 00 00 00 00 00 00 00 00 00 f1 f1 f1 f1
->c36bba80: 00 00 f3 f3 00 00 00 00 00 00 00 00 00 00 00 00
-                 ^
- c36bbb00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- c36bbb80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-==================================================================
-
-There is a same issue on x86 and has been resolved by the commit f7d27c35ddff
-("x86/mm, kasan: Silence KASAN warnings in get_wchan()").
-The solution could be applied to arm architecture too.
-
-Signed-off-by: Lin Yujun <linyujun809@huawei.com>
-Reported-by: He Ying <heying24@huawei.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Fixes: 5738a09d58d5a ("vmxnet3: fix checks for dma mapping errors")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Link: https://lore.kernel.org/r/20220514050656.2636588-1-r33s3n6@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/stacktrace.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/kernel/stacktrace.c b/arch/arm/kernel/stacktrace.c
-index db798eac7431..824774999825 100644
---- a/arch/arm/kernel/stacktrace.c
-+++ b/arch/arm/kernel/stacktrace.c
-@@ -53,17 +53,17 @@ int notrace unwind_frame(struct stackframe *frame)
- 		return -EINVAL;
- 
- 	frame->sp = frame->fp;
--	frame->fp = *(unsigned long *)(fp);
--	frame->pc = *(unsigned long *)(fp + 4);
-+	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp));
-+	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp + 4));
- #else
- 	/* check current frame pointer is within bounds */
- 	if (fp < low + 12 || fp > high - 4)
- 		return -EINVAL;
- 
- 	/* restore the registers from the stack frame */
--	frame->fp = *(unsigned long *)(fp - 12);
--	frame->sp = *(unsigned long *)(fp - 8);
--	frame->pc = *(unsigned long *)(fp - 4);
-+	frame->fp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 12));
-+	frame->sp = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 8));
-+	frame->pc = READ_ONCE_NOCHECK(*(unsigned long *)(fp - 4));
- #endif
- 
- 	return 0;
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index d9d90baac72a..1154f1884212 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -589,6 +589,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					dev_kfree_skb_any(rbi->skb);
++					rbi->skb = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
+@@ -613,6 +614,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					put_page(rbi->page);
++					rbi->page = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
 -- 
 2.35.1
 
