@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31C1531B77
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9650A5319F0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239184AbiEWREV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:04:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45378 "EHLO
+        id S241580AbiEWRdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239199AbiEWREJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:09 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFECE54FBB;
-        Mon, 23 May 2022 10:04:08 -0700 (PDT)
+        with ESMTP id S241144AbiEWRag (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A77C03914B;
+        Mon, 23 May 2022 10:26:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61C4D614BF;
-        Mon, 23 May 2022 17:04:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C89C385A9;
-        Mon, 23 May 2022 17:04:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5E35B811FF;
+        Mon, 23 May 2022 17:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B18AC385A9;
+        Mon, 23 May 2022 17:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325447;
-        bh=uIm61Ja8CySFdnlS4xGVURLTLLzoNaoSoJAbJKty5Ns=;
+        s=korg; t=1653326780;
+        bh=8k4BmRqodGC6Eg03FKMGlql20WFT7F+hBzlg1XRNmHc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z++1lF1JMerbS+fYCGBpWQgag9tOUvdkx0gqg50cjDeCdVV5K7JTFKHG9dBzX8Oj3
-         0bbAWlavRomEnxADcuXCdYZmRSKf5xMDlsMJCMpti2BQqCNXZy6KyQKwOkDwW2cy1C
-         gImvhMSwRqhPkcJEFeFBnz+1xsZJBTTC9t97Jxas=
+        b=XAmTz50siq65j2lVcsFWDUnCMr40lCbNM0R9P7zauAu33Pikbx4b4EBIH6GwLkW9X
+         OIrDkrXHttyz+/lx1AX3Yrd6VdYZHtn2+WbxJ3J+RuusginBb3gNBUOJqEcxKkGf/Y
+         YTqKnHhYI2X9F1pvcWzjtRN5056NGKVS17ptTvsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 15/25] net/qla3xxx: Fix a test in ql_reset_work()
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Ben Gardon <bgardon@google.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.17 056/158] KVM: x86/mmu: Update number of zapped pages even if page list is stable
 Date:   Mon, 23 May 2022 19:03:33 +0200
-Message-Id: <20220523165747.368958980@linuxfoundation.org>
+Message-Id: <20220523165840.062589262@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
-References: <20220523165743.398280407@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +55,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 5361448e45fac6fb96738df748229432a62d78b6 ]
+commit b28cb0cd2c5e80a8c0feb408a0e4b0dbb6d132c5 upstream.
 
-test_bit() tests if one bit is set or not.
-Here the logic seems to check of bit QL_RESET_PER_SCSI (i.e. 4) OR bit
-QL_RESET_START (i.e. 3) is set.
+When zapping obsolete pages, update the running count of zapped pages
+regardless of whether or not the list has become unstable due to zapping
+a shadow page with its own child shadow pages.  If the VM is backed by
+mostly 4kb pages, KVM can zap an absurd number of SPTEs without bumping
+the batch count and thus without yielding.  In the worst case scenario,
+this can cause a soft lokcup.
 
-In fact, it checks if bit 7 (4 | 3 = 7) is set, that is to say
-QL_ADAPTER_UP.
+ watchdog: BUG: soft lockup - CPU#12 stuck for 22s! [dirty_log_perf_:13020]
+   RIP: 0010:workingset_activation+0x19/0x130
+   mark_page_accessed+0x266/0x2e0
+   kvm_set_pfn_accessed+0x31/0x40
+   mmu_spte_clear_track_bits+0x136/0x1c0
+   drop_spte+0x1a/0xc0
+   mmu_page_zap_pte+0xef/0x120
+   __kvm_mmu_prepare_zap_page+0x205/0x5e0
+   kvm_mmu_zap_all_fast+0xd7/0x190
+   kvm_mmu_invalidate_zap_pages_in_memslot+0xe/0x10
+   kvm_page_track_flush_slot+0x5c/0x80
+   kvm_arch_flush_shadow_memslot+0xe/0x10
+   kvm_set_memslot+0x1a8/0x5d0
+   __kvm_set_memory_region+0x337/0x590
+   kvm_vm_ioctl+0xb08/0x1040
 
-This looks harmless, because this bit is likely be set, and when the
-ql_reset_work() delayed work is scheduled in ql3xxx_isr() (the only place
-that schedule this work), QL_RESET_START or QL_RESET_PER_SCSI is set.
-
-This has been spotted by smatch.
-
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/80e73e33f390001d9c0140ffa9baddf6466a41a2.1652637337.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fbb158cb88b6 ("KVM: x86/mmu: Revert "Revert "KVM: MMU: zap pages in batch""")
+Reported-by: David Matlack <dmatlack@google.com>
+Reviewed-by: Ben Gardon <bgardon@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20220511145122.3133334-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/mmu/mmu.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 147effc16316..e62e3a9d5249 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3625,7 +3625,8 @@ static void ql_reset_work(struct work_struct *work)
- 		qdev->mem_map_registers;
- 	unsigned long hw_flags;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5611,6 +5611,7 @@ static void kvm_zap_obsolete_pages(struc
+ {
+ 	struct kvm_mmu_page *sp, *node;
+ 	int nr_zapped, batch = 0;
++	bool unstable;
  
--	if (test_bit((QL_RESET_PER_SCSI | QL_RESET_START), &qdev->flags)) {
-+	if (test_bit(QL_RESET_PER_SCSI, &qdev->flags) ||
-+	    test_bit(QL_RESET_START, &qdev->flags)) {
- 		clear_bit(QL_LINK_MASTER, &qdev->flags);
+ restart:
+ 	list_for_each_entry_safe_reverse(sp, node,
+@@ -5642,11 +5643,12 @@ restart:
+ 			goto restart;
+ 		}
  
- 		/*
--- 
-2.35.1
-
+-		if (__kvm_mmu_prepare_zap_page(kvm, sp,
+-				&kvm->arch.zapped_obsolete_pages, &nr_zapped)) {
+-			batch += nr_zapped;
++		unstable = __kvm_mmu_prepare_zap_page(kvm, sp,
++				&kvm->arch.zapped_obsolete_pages, &nr_zapped);
++		batch += nr_zapped;
++
++		if (unstable)
+ 			goto restart;
+-		}
+ 	}
+ 
+ 	/*
 
 
