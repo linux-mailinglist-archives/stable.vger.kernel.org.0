@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADFC653199A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3115531CBC
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240617AbiEWRjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38184 "EHLO
+        id S240453AbiEWRYN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:24:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241228AbiEWRej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:34:39 -0400
+        with ESMTP id S241870AbiEWRWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849187CB06;
-        Mon, 23 May 2022 10:28:17 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379DF7CB47;
+        Mon, 23 May 2022 10:19:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A2FEF60AB8;
-        Mon, 23 May 2022 17:28:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2971C385A9;
-        Mon, 23 May 2022 17:28:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BBF760919;
+        Mon, 23 May 2022 17:18:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F56C385AA;
+        Mon, 23 May 2022 17:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326896;
-        bh=vos7HQtzitOQyk2ED8TgNzrVfaTcR+2ug2+cBt23yW0=;
+        s=korg; t=1653326303;
+        bh=DhR6AeTKiLjq/3nWP2sq4FthZdkWvOrag8B25MAR0RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V1QNtneMjl3GoC7LPXFX+R3xUjCM8O7a2e8rHy9qPWy2feike4FyQJHAYayjrJMum
-         /Uj1kEBxk52lG6oase4NP7iRyz665l97E8MXWZ483/gE9J+jyYEKhwTUoE1HSDclFQ
-         ztMKU3VSG6cMlce12ofiaQSCpjpNZVGGIdBVaboc=
+        b=zyDqPtNWlYfI1/tm/xfpWHmrkrJNuW+WgxLPlVnXgWXG7VyJ7y6wov3qxD46SQHde
+         DcpuKaK5zQZH8Pomj1+C10/MtzB5e9hosh0gOrRKeQhKITZh6aWTMIqLqhm3LeGFSC
+         d7aVG0DuUzql8m/iv43kCuPBFLsF/zhzljnDqmik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Benson Leung <bleung@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 091/158] net: lan966x: Fix assignment of the MAC address
-Date:   Mon, 23 May 2022 19:04:08 +0200
-Message-Id: <20220523165846.254861069@linuxfoundation.org>
+Subject: [PATCH 5.15 040/132] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+Date:   Mon, 23 May 2022 19:04:09 +0200
+Message-Id: <20220523165830.044146776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,88 +55,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit af8ca6eaa9b24a90484218e356f959a94bff22fa ]
+[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
 
-The following two scenarios were failing for lan966x.
-1. If the port had the address X and then trying to assign the same
-   address, then the HW was just removing this address because first it
-   tries to learn new address and then delete the old one. As they are
-   the same the HW remove it.
-2. If the port eth0 was assigned the same address as one of the other
-   ports eth1 then when assigning back the address to eth0 then the HW
-   was deleting the address of eth1.
+Debugfs console_log uses devm memory (e.g. debug_info in
+cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
+are independent.  An use-after-free issue is observed if userland
+program operates the debugfs after the memory has been freed.
 
-The case 1. is fixed by checking if the port has already the same
-address while case 2. is fixed by checking if the address is used by any
-other port.
+The call trace:
+ do_raw_spin_lock
+ _raw_spin_lock_irqsave
+ remove_wait_queue
+ ep_unregister_pollwait
+ ep_remove
+ do_epoll_ctl
 
-Fixes: e18aba8941b40b ("net: lan966x: add mactable support")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Link: https://lore.kernel.org/r/20220513180030.3076793-1-horatiu.vultur@microchip.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+A Python example to reproduce the issue:
+... import select
+... p = select.epoll()
+... f = open('/sys/kernel/debug/cros_scp/console_log')
+... p.register(f, select.POLLIN)
+... p.poll(1)
+[(4, 1)]                    # 4=fd, 1=select.POLLIN
+
+[ shutdown cros_scp at the point ]
+
+... p.poll(1)
+[(4, 16)]                   # 4=fd, 16=select.POLLHUP
+... p.unregister(f)
+
+An use-after-free issue raises here.  It called epoll_ctl with
+EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
+log_wq).
+
+Detaches log reader's workqueue from devm to make sure it is persistent
+even if the device has been removed.
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
+Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/microchip/lan966x/lan966x_main.c | 28 +++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-index 1f60fd125a1d..fee148bbf13e 100644
---- a/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-+++ b/drivers/net/ethernet/microchip/lan966x/lan966x_main.c
-@@ -100,6 +100,24 @@ static int lan966x_create_targets(struct platform_device *pdev,
- 	return 0;
- }
+diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
+index 272c89837d74..0dbceee87a4b 100644
+--- a/drivers/platform/chrome/cros_ec_debugfs.c
++++ b/drivers/platform/chrome/cros_ec_debugfs.c
+@@ -25,6 +25,9 @@
  
-+static bool lan966x_port_unique_address(struct net_device *dev)
-+{
-+	struct lan966x_port *port = netdev_priv(dev);
-+	struct lan966x *lan966x = port->lan966x;
-+	int p;
-+
-+	for (p = 0; p < lan966x->num_phys_ports; ++p) {
-+		port = lan966x->ports[p];
-+		if (!port || port->dev == dev)
-+			continue;
-+
-+		if (ether_addr_equal(dev->dev_addr, port->dev->dev_addr))
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- static int lan966x_port_set_mac_address(struct net_device *dev, void *p)
- {
- 	struct lan966x_port *port = netdev_priv(dev);
-@@ -107,16 +125,26 @@ static int lan966x_port_set_mac_address(struct net_device *dev, void *p)
- 	const struct sockaddr *addr = p;
- 	int ret;
+ #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
  
-+	if (ether_addr_equal(addr->sa_data, dev->dev_addr))
-+		return 0;
++/* waitqueue for log readers */
++static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
 +
- 	/* Learn the new net device MAC address in the mac table. */
- 	ret = lan966x_mac_cpu_learn(lan966x, addr->sa_data, HOST_PVID);
- 	if (ret)
- 		return ret;
+ /**
+  * struct cros_ec_debugfs - EC debugging information.
+  *
+@@ -33,7 +36,6 @@
+  * @log_buffer: circular buffer for console log information
+  * @read_msg: preallocated EC command and buffer to read console log
+  * @log_mutex: mutex to protect circular buffer
+- * @log_wq: waitqueue for log readers
+  * @log_poll_work: recurring task to poll EC for new console log data
+  * @panicinfo_blob: panicinfo debugfs blob
+  */
+@@ -44,7 +46,6 @@ struct cros_ec_debugfs {
+ 	struct circ_buf log_buffer;
+ 	struct cros_ec_command *read_msg;
+ 	struct mutex log_mutex;
+-	wait_queue_head_t log_wq;
+ 	struct delayed_work log_poll_work;
+ 	/* EC panicinfo */
+ 	struct debugfs_blob_wrapper panicinfo_blob;
+@@ -107,7 +108,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
+ 			buf_space--;
+ 		}
  
-+	/* If there is another port with the same address as the dev, then don't
-+	 * delete it from the MAC table
-+	 */
-+	if (!lan966x_port_unique_address(dev))
-+		goto out;
-+
- 	/* Then forget the previous one. */
- 	ret = lan966x_mac_cpu_forget(lan966x, dev->dev_addr, HOST_PVID);
- 	if (ret)
- 		return ret;
+-		wake_up(&debug_info->log_wq);
++		wake_up(&cros_ec_debugfs_log_wq);
+ 	}
  
-+out:
- 	eth_hw_addr_set(dev, addr->sa_data);
- 	return ret;
- }
+ 	mutex_unlock(&debug_info->log_mutex);
+@@ -141,7 +142,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
+ 
+ 		mutex_unlock(&debug_info->log_mutex);
+ 
+-		ret = wait_event_interruptible(debug_info->log_wq,
++		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
+ 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
+ 		if (ret < 0)
+ 			return ret;
+@@ -173,7 +174,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
+ 	struct cros_ec_debugfs *debug_info = file->private_data;
+ 	__poll_t mask = 0;
+ 
+-	poll_wait(file, &debug_info->log_wq, wait);
++	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
+ 
+ 	mutex_lock(&debug_info->log_mutex);
+ 	if (CIRC_CNT(debug_info->log_buffer.head,
+@@ -377,7 +378,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
+ 	debug_info->log_buffer.tail = 0;
+ 
+ 	mutex_init(&debug_info->log_mutex);
+-	init_waitqueue_head(&debug_info->log_wq);
+ 
+ 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
+ 			    debug_info, &cros_ec_console_log_fops);
 -- 
 2.35.1
 
