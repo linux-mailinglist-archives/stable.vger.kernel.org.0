@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2176E531743
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3D15531CD2
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239226AbiEWREk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:04:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46744 "EHLO
+        id S240987AbiEWRoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:44:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239224AbiEWREg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:36 -0400
+        with ESMTP id S242420AbiEWRhi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:38 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A75D1606C2;
-        Mon, 23 May 2022 10:04:35 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD94250020;
+        Mon, 23 May 2022 10:31:23 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03042614C1;
-        Mon, 23 May 2022 17:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D54C385A9;
-        Mon, 23 May 2022 17:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2849261117;
+        Mon, 23 May 2022 17:28:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 151E5C385A9;
+        Mon, 23 May 2022 17:28:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325474;
-        bh=J5AZ6YoBIpezjSlGXkcI10G3x5B8FyKLScmskPDYuuY=;
+        s=korg; t=1653326909;
+        bh=ICOpqBu5adW1yGmT60gbTxzEdRQB8LpjWZum/HlBgtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z3GBQW4ybRAI86qc4CFzd/aCI8Az3Jx45p1CRwoaQPWJ14xO+IWx6+O0Vmj2lPICX
-         Quq1oq03SuBPwbVWzu2RJdUmjJMWmT5JrPI/8I6BUF/qOKXMVgDVWOy9l0yMpyrGIT
-         IaPylWTB9YqUGXDaEkq40/1YQsACcVHSJ0LLdKRI=
+        b=zSt6422Zk3PKt6zaocPjQEfarHoRsTvSQDMZmKuS+XlUpPTySt18V83dU5iwQ0U8+
+         +T32kl7SS5iaF2rdDhA4YNsXZznUdCL6Ifv46z27mErfNsKSJ9WjCHf70GimxSf5Hx
+         v/O0ns5C7fn7TDvYOPly3OdygRJ1hU6NbhJEAezc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/25] mac80211: fix rx reordering with non explicit / psmp ack policy
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Anusha Srivatsa <anusha.srivatsa@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Subject: [PATCH 5.17 064/158] drm/i915/dmc: Add MMIO range restrictions
 Date:   Mon, 23 May 2022 19:03:41 +0200
-Message-Id: <20220523165749.857405906@linuxfoundation.org>
+Message-Id: <20220523165841.466221014@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
-References: <20220523165743.398280407@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +54,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Anusha Srivatsa <anusha.srivatsa@intel.com>
 
-[ Upstream commit 5e469ed9764d4722c59562da13120bd2dc6834c5 ]
+commit 54395a33718af1c04b5098203335b25382291a16 upstream.
 
-When the QoS ack policy was set to non explicit / psmp ack, frames are treated
-as not being part of a BA session, which causes extra latency on reordering.
-Fix this by only bypassing reordering for packets with no-ack policy
+Bspec has added some steps that check forDMC MMIO range before
+programming them
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Link: https://lore.kernel.org/r/20220420105038.36443-1-nbd@nbd.name
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+v2: Fix for CI
+v3: move register defines to .h (Anusha)
+- Check MMIO restrictions per pipe
+- Add MMIO restricton for v1 dmc header as well (Lucas)
+v4: s/_PICK/_PICK_EVEN and use it only for Pipe DMC scenario.
+- clean up sanity check logic.(Lucas)
+- Add MMIO range for RKL as well.(Anusha)
+v5: Use DISPLAY_VER instead of per platform check (Lucas)
+
+BSpec: 49193
+
+Cc: stable@vger.kernel.org
+Cc: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Anusha Srivatsa <anusha.srivatsa@intel.com>
+Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220511000847.1068302-1-anusha.srivatsa@intel.com
+(cherry picked from commit 21c47196aec3a93f913a7515e1e7b30e6c54d6c6)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dmc.c |   44 +++++++++++++++++++++++++++++++
+ drivers/gpu/drm/i915/i915_reg.h          |   16 +++++++++++
+ 2 files changed, 60 insertions(+)
 
-diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 41af02a70742..02845bed07d7 100644
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1179,8 +1179,7 @@ static void ieee80211_rx_reorder_ampdu(struct ieee80211_rx_data *rx,
- 		goto dont_reorder;
+--- a/drivers/gpu/drm/i915/display/intel_dmc.c
++++ b/drivers/gpu/drm/i915/display/intel_dmc.c
+@@ -367,6 +367,44 @@ static void dmc_set_fw_offset(struct int
+ 	}
+ }
  
- 	/* not part of a BA session */
--	if (ack_policy != IEEE80211_QOS_CTL_ACK_POLICY_BLOCKACK &&
--	    ack_policy != IEEE80211_QOS_CTL_ACK_POLICY_NORMAL)
-+	if (ack_policy == IEEE80211_QOS_CTL_ACK_POLICY_NOACK)
- 		goto dont_reorder;
++static bool dmc_mmio_addr_sanity_check(struct intel_dmc *dmc,
++				       const u32 *mmioaddr, u32 mmio_count,
++				       int header_ver, u8 dmc_id)
++{
++	struct drm_i915_private *i915 = container_of(dmc, typeof(*i915), dmc);
++	u32 start_range, end_range;
++	int i;
++
++	if (dmc_id >= DMC_FW_MAX) {
++		drm_warn(&i915->drm, "Unsupported firmware id %u\n", dmc_id);
++		return false;
++	}
++
++	if (header_ver == 1) {
++		start_range = DMC_MMIO_START_RANGE;
++		end_range = DMC_MMIO_END_RANGE;
++	} else if (dmc_id == DMC_FW_MAIN) {
++		start_range = TGL_MAIN_MMIO_START;
++		end_range = TGL_MAIN_MMIO_END;
++	} else if (DISPLAY_VER(i915) >= 13) {
++		start_range = ADLP_PIPE_MMIO_START;
++		end_range = ADLP_PIPE_MMIO_END;
++	} else if (DISPLAY_VER(i915) >= 12) {
++		start_range = TGL_PIPE_MMIO_START(dmc_id);
++		end_range = TGL_PIPE_MMIO_END(dmc_id);
++	} else {
++		drm_warn(&i915->drm, "Unknown mmio range for sanity check");
++		return false;
++	}
++
++	for (i = 0; i < mmio_count; i++) {
++		if (mmioaddr[i] < start_range || mmioaddr[i] > end_range)
++			return false;
++	}
++
++	return true;
++}
++
+ static u32 parse_dmc_fw_header(struct intel_dmc *dmc,
+ 			       const struct intel_dmc_header_base *dmc_header,
+ 			       size_t rem_size, u8 dmc_id)
+@@ -436,6 +474,12 @@ static u32 parse_dmc_fw_header(struct in
+ 		return 0;
+ 	}
  
- 	/* new, potentially un-ordered, ampdu frame - process it */
--- 
-2.35.1
-
++	if (!dmc_mmio_addr_sanity_check(dmc, mmioaddr, mmio_count,
++					dmc_header->header_ver, dmc_id)) {
++		drm_err(&i915->drm, "DMC firmware has Wrong MMIO Addresses\n");
++		return 0;
++	}
++
+ 	for (i = 0; i < mmio_count; i++) {
+ 		dmc_info->mmioaddr[i] = _MMIO(mmioaddr[i]);
+ 		dmc_info->mmiodata[i] = mmiodata[i];
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -7938,6 +7938,22 @@ enum {
+ /* MMIO address range for DMC program (0x80000 - 0x82FFF) */
+ #define DMC_MMIO_START_RANGE	0x80000
+ #define DMC_MMIO_END_RANGE	0x8FFFF
++#define DMC_V1_MMIO_START_RANGE	0x80000
++#define TGL_MAIN_MMIO_START	0x8F000
++#define TGL_MAIN_MMIO_END	0x8FFFF
++#define _TGL_PIPEA_MMIO_START	0x92000
++#define _TGL_PIPEA_MMIO_END	0x93FFF
++#define _TGL_PIPEB_MMIO_START	0x96000
++#define _TGL_PIPEB_MMIO_END	0x97FFF
++#define ADLP_PIPE_MMIO_START	0x5F000
++#define ADLP_PIPE_MMIO_END	0x5FFFF
++
++#define TGL_PIPE_MMIO_START(dmc_id)	_PICK_EVEN(((dmc_id) - 1), _TGL_PIPEA_MMIO_START,\
++						_TGL_PIPEB_MMIO_START)
++
++#define TGL_PIPE_MMIO_END(dmc_id)	_PICK_EVEN(((dmc_id) - 1), _TGL_PIPEA_MMIO_END,\
++						_TGL_PIPEB_MMIO_END)
++
+ #define SKL_DMC_DC3_DC5_COUNT	_MMIO(0x80030)
+ #define SKL_DMC_DC5_DC6_COUNT	_MMIO(0x8002C)
+ #define BXT_DMC_DC3_DC5_COUNT	_MMIO(0x80038)
 
 
