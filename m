@@ -2,93 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 688F1531CD1
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2626853194F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242079AbiEWRx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:53:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36918 "EHLO
+        id S240840AbiEWSDK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 14:03:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244896AbiEWRwm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:52:42 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996545D5C9;
-        Mon, 23 May 2022 10:41:58 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id u3so22435638wrg.3;
-        Mon, 23 May 2022 10:41:58 -0700 (PDT)
+        with ESMTP id S243701AbiEWSCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 14:02:01 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E84B0E15DC;
+        Mon, 23 May 2022 10:46:54 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id r6-20020a1c2b06000000b00396fee5ebc9so4931wmr.1;
+        Mon, 23 May 2022 10:46:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=Ua1KG5+18UaDCNZFTJYl8j8EfhH8Jue+YMkQxpze3FM=;
-        b=Sdz2gbs7o9fmuAj7XPQKKfEVW+WF2BtEoCvdTcZXSOCVyvuqfPCQYBWcMDJ3jRT6JV
-         6Uu0Pc5R/37kWFz5guNRCA8Xtzx5VF6dpcTPguyHafKHMDrR6ybS5um+YTFAt38mVU96
-         RRwhnnts4z3QOAAn4/V6MjlGqn2As7r208T4DHvlJq5bd0eWxS9d3kXAeIDqhr/sH7uM
-         ECjJs6+SK5CnE9mG9xIb/1NkHBg4awuxG8lzvCBNG/FNEl8Drq8gyCsX7yoqiGZteSD5
-         Ykl8DzPXfKrnENYc1E64cIggTTU+QFJaWUJ1g5pXHMyoe850xO8MePojCXv9VQvSkKTd
-         8ygQ==
-X-Gm-Message-State: AOAM531a8bLtVhBz9pjnIeXdm4jWHo6TzFYmhnwn7O+bDkNFwIHMBL2c
-        B0GUy0dX/qaDHJI6b0rEKtU=
-X-Google-Smtp-Source: ABdhPJxCnDyHcwKiqN87su/K7JV25u7QznK3u4WJ7C556Si7ECVW2PYU+dvPeWktzLbqMV+ExD3CUg==
-X-Received: by 2002:a05:6000:18ab:b0:20c:8d82:52c3 with SMTP id b11-20020a05600018ab00b0020c8d8252c3mr19720747wri.701.1653327611353;
-        Mon, 23 May 2022 10:40:11 -0700 (PDT)
-Received: from localhost.localdomain ([94.205.35.240])
-        by smtp.googlemail.com with ESMTPSA id o8-20020a1c7508000000b003942a244f2fsm9444242wmc.8.2022.05.23.10.40.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 May 2022 10:40:10 -0700 (PDT)
-From:   "Denis Efremov (Oracle)" <efremov@linux.com>
-To:     gregkh@linuxfoundation.org
-Cc:     "Denis Efremov (Oracle)" <efremov@linux.com>,
-        Larry.Finger@lwfinger.net, phil@philpotter.co.uk,
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=nqWcOyn3PXt1X1nKWcFnT+4sHBA6gWKtV/kf9MDUA7o=;
+        b=HKXHJBcOg7lQks5kDSUQtrxQgMC2fx2+weg16YS+NWI7HKddWW0051D0XlVWZnw8Ll
+         lRLtj7tDbxyt2ldKgMsNG3KWXnFwA5cstztvfbAiBcEcyHoBxxcSUkk9Hk6rAnSSaxJM
+         Gd/iyk53+92Hfy3JYsVu3CZZVB1HHFmUQnzRzdCZDqUldjmA6tqEnio8pFS0X4WDLhc+
+         LnwgXz2C9a2jexaB1mLszAXMtzJOCq3DNPceHjyrRZQbpis929atLctr1PbZ4aeGqEZ7
+         VJkQw9nGU6Vj7T5skqJFJ8sqK5/vmlxfGpcVAZ2IJcqoUfR4Uif1rFolA1ZEWYI/G/eB
+         Ghfw==
+X-Gm-Message-State: AOAM530ZUEiqDZtggv00Jth2NpR4H991Hc88Qn/Xob6TEMkqwx2TySqe
+        tF8kxdeCx96uNMo9Aqd6uEBznnJFEf0=
+X-Google-Smtp-Source: ABdhPJyEdWzCn0L2yyxPQcLUSRH/1H0nuvgdYiTusbHGyusRpWesuhpMBx3CwF3sI0evb0YKQ8o3zg==
+X-Received: by 2002:a05:600c:4fd3:b0:394:7fa6:2584 with SMTP id o19-20020a05600c4fd300b003947fa62584mr96129wmq.177.1653327674307;
+        Mon, 23 May 2022 10:41:14 -0700 (PDT)
+Received: from [192.168.1.126] ([94.205.35.240])
+        by smtp.gmail.com with ESMTPSA id x1-20020a1c7c01000000b00397122e63b6sm9334328wmc.29.2022.05.23.10.41.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 May 2022 10:41:13 -0700 (PDT)
+Message-ID: <22589460-930c-b307-acf0-2a49f5f5261f@linux.com>
+Date:   Mon, 23 May 2022 21:41:09 +0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH v5.10] staging: rtl8723bs: prevent ->Ssid overflow in
+ rtw_wx_set_scan()
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Larry.Finger@lwfinger.net, phil@philpotter.co.uk,
         dan.carpenter@oracle.com, straube.linux@gmail.com,
         linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
         kernel-janitors@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: [PATCH v5.4-v4.14] staging: rtl8723bs: prevent ->Ssid overflow in rtw_wx_set_scan()
-Date:   Mon, 23 May 2022 21:39:43 +0400
-Message-Id: <20220523173943.12486-1-efremov@linux.com>
-X-Mailer: git-send-email 2.36.1
-In-Reply-To: <YoZk3YLEDYKGG5xe@kroah.com>
 References: <YoZk3YLEDYKGG5xe@kroah.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+ <20220520035730.5533-1-efremov@linux.com> <YounkTGwmcQns3vy@kroah.com>
+From:   Denis Efremov <efremov@linux.com>
+In-Reply-To: <YounkTGwmcQns3vy@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,
         FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=no autolearn_force=no version=3.4.6
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This code has a check to prevent read overflow but it needs another
-check to prevent writing beyond the end of the ->Ssid[] array.
+Hi,
 
-Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Denis Efremov (Oracle) <efremov@linux.com>
----
- drivers/staging/rtl8723bs/os_dep/ioctl_linux.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+On 5/23/22 19:26, Greg KH wrote:
+> On Fri, May 20, 2022 at 07:57:30AM +0400, Denis Efremov (Oracle) wrote:
+>> This code has a check to prevent read overflow but it needs another
+>> check to prevent writing beyond the end of the ->Ssid[] array.
+>>
+>> Fixes: 554c0a3abf21 ("staging: Add rtl8723bs sdio wifi driver")
+>> Cc: stable <stable@vger.kernel.org>
+>> Signed-off-by: Denis Efremov (Oracle) <efremov@linux.com>
+>> ---
+>>  drivers/staging/rtl8723bs/os_dep/ioctl_linux.c | 6 ++++--
+>>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> And only 5.10 needs this?  What about all other kernel branches?
+> 
 
-diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-index d8d44fd9a92f..ea2fd3a73c3a 100644
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -1351,9 +1351,11 @@ static int rtw_wx_set_scan(struct net_device *dev, struct iw_request_info *a,
- 
- 					sec_len = *(pos++); len-= 1;
- 
--					if (sec_len>0 && sec_len<=len) {
-+					if (sec_len > 0 &&
-+					    sec_len <= len &&
-+					    sec_len <= 32) {
- 						ssid[ssid_index].SsidLength = sec_len;
--						memcpy(ssid[ssid_index].Ssid, pos, ssid[ssid_index].SsidLength);
-+						memcpy(ssid[ssid_index].Ssid, pos, sec_len);
- 						/* DBG_871X("%s COMBO_SCAN with specific ssid:%s, %d\n", __func__ */
- 						/* 	, ssid[ssid_index].Ssid, ssid[ssid_index].SsidLength); */
- 						ssid_index++;
--- 
-2.36.1
+From 5.10, 5.4, 4.19, to 4.14.
 
+There is a small spaces conflict in 5.4-4.14 kernels because of
+c77761d660a6 staging: rtl8723bs: Fix spacing issues
+
+I sent another patch to handle it.
+
+Thanks,
+Denis
