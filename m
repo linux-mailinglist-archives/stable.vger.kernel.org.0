@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F04531870
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 789A1531AE8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240848AbiEWRa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
+        id S240844AbiEWRaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242681AbiEWR14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D1EF8B0A0;
-        Mon, 23 May 2022 10:24:05 -0700 (PDT)
+        with ESMTP id S242800AbiEWR2F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744E08CB34;
+        Mon, 23 May 2022 10:24:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF9BC60919;
-        Mon, 23 May 2022 17:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC546C385AA;
-        Mon, 23 May 2022 17:23:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 395A6608C0;
+        Mon, 23 May 2022 17:23:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42429C385A9;
+        Mon, 23 May 2022 17:23:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326628;
-        bh=nScWFY4gOamTKpCNg1p1bMQC5EX4Fx5ExJONQ5sZ89k=;
+        s=korg; t=1653326615;
+        bh=P7ifuMvgfCQC7c5AuL095K8fyYyVN8m4teyXLs5ZboM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OMhG5g0uPt3YTEdcWoFYPEOh9wyBqBwtZ3VUb8wUur7O9QFnpsT0gzmKwkJ4VwWWd
-         rWQX2o9xBIVbteZjIWgjOepV8msYyl4sngM9GPN6ck4/lxZ52K0TWI30wZqcN92Z8u
-         MKQNQ0lGioOPtqGhorFX2JTLxQR6+ePG2jlkapoM=
+        b=cnlbLvvnw/IPzNWJlI870VHIgiiGGFde5dtSmqlevo/Yf3o0cknqD2E3MS6I6+it0
+         WHI0JYj/PdJgVjEZH8YqDpsRFS+zh+sMMhaxj0zJrHYayduTvD+QJUh6gb+BLtM+hV
+         VGJhvEVqRCfmNzRD1Hw+G1MRnrjIypl6ZpsciLZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.15 128/132] Input: ili210x - fix reset timing
-Date:   Mon, 23 May 2022 19:05:37 +0200
-Message-Id: <20220523165844.932797954@linuxfoundation.org>
+        stable@vger.kernel.org, Jae Hyun Yoo <quic_jaehyoo@quicinc.com>,
+        Rob Herring <robh@kernel.org>,
+        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>
+Subject: [PATCH 5.15 129/132] dt-bindings: pinctrl: aspeed-g6: remove FWQSPID group
+Date:   Mon, 23 May 2022 19:05:38 +0200
+Message-Id: <20220523165845.083615959@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 References: <20220523165823.492309987@linuxfoundation.org>
@@ -53,42 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
 
-commit e4920d42ce0e9c8aafb7f64b6d9d4ae02161e51e upstream.
+commit a29c96a4053dc3c1d39353b61089882f81c6b23d upstream.
 
-According to Ilitek "231x & ILI251x Programming Guide" Version: 2.30
-"2.1. Power Sequence", "T4 Chip Reset and discharge time" is minimum
-10ms and "T2 Chip initial time" is maximum 150ms. Adjust the reset
-timings such that T4 is 12ms and T2 is 160ms to fit those figures.
+FWQSPID is not a group of FWSPID so remove it.
 
-This prevents sporadic touch controller start up failures when some
-systems with at least ILI251x controller boot, without this patch
-the systems sometimes fail to communicate with the touch controller.
-
-Fixes: 201f3c803544c ("Input: ili210x - add reset GPIO support")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Link: https://lore.kernel.org/r/20220518204901.93534-1-marex@denx.de
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 7488838f2315 ("dt-bindings: pinctrl: aspeed: Document AST2600 pinmux")
+Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220329173932.2588289-4-quic_jaehyoo@quicinc.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/ili210x.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -420,9 +420,9 @@ static int ili210x_i2c_probe(struct i2c_
- 		if (error)
- 			return error;
- 
--		usleep_range(50, 100);
-+		usleep_range(12000, 15000);
- 		gpiod_set_value_cansleep(reset_gpio, 0);
--		msleep(100);
-+		msleep(160);
- 	}
- 
- 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+--- a/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
++++ b/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
+@@ -58,7 +58,7 @@ patternProperties:
+           $ref: "/schemas/types.yaml#/definitions/string"
+           enum: [ ADC0, ADC1, ADC10, ADC11, ADC12, ADC13, ADC14, ADC15, ADC2,
+                   ADC3, ADC4, ADC5, ADC6, ADC7, ADC8, ADC9, BMCINT, EMMCG1, EMMCG4,
+-                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWQSPID, FWSPIWP,
++                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWSPIWP,
+                   GPIT0, GPIT1, GPIT2, GPIT3, GPIT4, GPIT5, GPIT6, GPIT7, GPIU0, GPIU1,
+                   GPIU2, GPIU3, GPIU4, GPIU5, GPIU6, GPIU7, HVI3C3, HVI3C4, I2C1, I2C10,
+                   I2C11, I2C12, I2C13, I2C14, I2C15, I2C16, I2C2, I2C3, I2C4, I2C5,
 
 
