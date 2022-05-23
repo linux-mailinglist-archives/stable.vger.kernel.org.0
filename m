@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA3E531CF3
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAF095316F0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241732AbiEWRjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38080 "EHLO
+        id S240951AbiEWR3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243150AbiEWRhz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816B26FA1E;
-        Mon, 23 May 2022 10:32:07 -0700 (PDT)
+        with ESMTP id S239937AbiEWRZS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43AD787A0C;
+        Mon, 23 May 2022 10:20:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C20FBB8121A;
-        Mon, 23 May 2022 17:29:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D35C385A9;
-        Mon, 23 May 2022 17:29:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D477B60AB8;
+        Mon, 23 May 2022 17:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC807C385AA;
+        Mon, 23 May 2022 17:18:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326998;
-        bh=23su02o+7aksN6p3FS7YDRxWi6rUQ/aMOIQEY1F9QY8=;
+        s=korg; t=1653326326;
+        bh=YpVawoi7xCkGSEtVaEEqrpuhvW6Am6CjBJvohnMHpGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWfqN58+W68llD0fiBLtWJJC7roo7rSrRtTKorXJ35zL3XzVNdZWK5ZhbAca0qD6W
-         oDTB0KZqnl6P2p+gIMsC7shCLg21CSXTodZcpZXikx8c5bTGl/BREk0NGRdc3znoOn
-         dwhn+b9D3WKS2GkdsCbOuHXLwlG/W2PFT+doEa1w=
+        b=svx/qtRHKfKBUwelJ7TyWdu5fCrUYksj53mUXAllR9Qiwj05uEDhIG9v682AJWo1t
+         KU652p4YgDZdqG7Oul0oyTCg3pKe5th/mvSf8oh57qGLDNFLOQB+si7NcBxbjMaOvR
+         slt5/NCUiL1ut8AtR6Gl+hWVLpofXa1SB7bdl5W4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 097/158] ice: fix possible under reporting of ethtool Tx and Rx statistics
-Date:   Mon, 23 May 2022 19:04:14 +0200
-Message-Id: <20220523165847.535271104@linuxfoundation.org>
+        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 046/132] ALSA: hda/realtek: Add quirk for TongFang devices with pop noise
+Date:   Mon, 23 May 2022 19:04:15 +0200
+Message-Id: <20220523165830.886991583@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,51 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Greenwalt <paul.greenwalt@intel.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-[ Upstream commit 31b6298fd8e29effe9ed6b77351ac5969be56ce0 ]
+commit 8b3b2392ed68bcd17c7eb84ca615ce1e5f115b99 upstream.
 
-The hardware statistics counters are not cleared during resets so the
-drivers first access is to initialize the baseline and then subsequent
-reads are for reporting the counters. The statistics counters are read
-during the watchdog subtask when the interface is up. If the baseline
-is not initialized before the interface is up, then there can be a brief
-window in which some traffic can be transmitted/received before the
-initial baseline reading takes place.
+When audio stops playing there is an audible "pop"-noise when using
+headphones on the TongFang GMxMRxx, GKxNRxx, GMxZGxx, GMxTGxx and GMxAGxx.
 
-Directly initialize ethtool statistics in driver open so the baseline will
-be initialized when the interface is up, and any dropped packets
-incremented before the interface is up won't be reported.
+This quirk fixes this mostly.
 
-Fixes: 28dc1b86f8ea9 ("ice: ignore dropped packets during init")
-Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20220512180956.281804-1-wse@tuxedocomputers.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 7f6715eb862f..30f055e1a92a 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5907,9 +5907,10 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 			ice_ptp_link_change(pf, pf->hw.pf_id, true);
- 	}
- 
--	/* clear this now, and the first stats read will be used as baseline */
--	vsi->stat_offsets_loaded = false;
--
-+	/* Perform an initial read of the statistics registers now to
-+	 * set the baseline so counters are ready when interface is up
-+	 */
-+	ice_update_eth_stats(vsi);
- 	ice_service_task_schedule(pf);
- 
- 	return 0;
--- 
-2.35.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -9076,6 +9076,14 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
+ 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
+ 	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_SET_COEF_DEFAULTS),
++	SND_PCI_QUIRK(0x1d05, 0x1096, "TongFang GMxMRxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x1100, "TongFang GKxNRxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x1111, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x1119, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x1129, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x1147, "TongFang GMxTGxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x115c, "TongFang GMxTGxx", ALC269_FIXUP_NO_SHUTUP),
++	SND_PCI_QUIRK(0x1d05, 0x121b, "TongFang GMxAGxx", ALC269_FIXUP_NO_SHUTUP),
+ 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
 
 
