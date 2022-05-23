@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34187531C91
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D8F531AA2
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239806AbiEWRNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:13:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34940 "EHLO
+        id S239404AbiEWRJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:09:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240211AbiEWRLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:11:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB4F238B2;
-        Mon, 23 May 2022 10:11:16 -0700 (PDT)
+        with ESMTP id S239690AbiEWRJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:17 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F03206BFD5;
+        Mon, 23 May 2022 10:08:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BE4E614FB;
-        Mon, 23 May 2022 17:10:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12B53C385A9;
-        Mon, 23 May 2022 17:10:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4AECEB81202;
+        Mon, 23 May 2022 17:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F6C8C385A9;
+        Mon, 23 May 2022 17:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325838;
-        bh=z4dNxt/amUl9rRBPcT7kg7wnq1N98gWZo4V9yFbD8ag=;
+        s=korg; t=1653325721;
+        bh=0RExpm7wblGpAeSEAdGi/ol9O+UYZDtxWBrAUD8XZiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0VB5COgH2w61sJgSKvSyoiKOzeBRcuToQ/WFVWv8o8U44+ug5wPPH+TCtuIFdTTO
-         mmsw/jrORDsW8xd8oQ/1g+xUfPE4+TOMtjiP0YSeZcQMnb36uRk/2UqNuzDIdI2IiX
-         gHGUiEYeGPP8E3KWfjpBy+iEosYwX+DxNt9wEu9Q=
+        b=oG+oSVsdlb6tJDnNWTz8qwoDNjQb927lHbOv31hUMGWJBjocwG/AwKlccbPIMA9hy
+         Q7r5tChk94ysasLtCL+7wRu4oAJXFnzDBUFwDEnAGW7N01ZrKtL72tysYzxmi/HKLR
+         mv3nhi4JguD+sD1bo07KE0M1AItUoYVh1zBfC93M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/44] NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+        stable@vger.kernel.org, Kevin Mitchell <kevmitch@arista.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 4.14 22/33] igb: skip phy status check where unavailable
 Date:   Mon, 23 May 2022 19:05:11 +0200
-Message-Id: <20220523165758.067441087@linuxfoundation.org>
+Message-Id: <20220523165751.788904127@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit 23dd4581350d4ffa23d58976ec46408f8f4c1e16 ]
+[ Upstream commit 942d2ad5d2e0df758a645ddfadffde2795322728 ]
 
-There are sleep in atomic context bugs when the request to secure
-element of st-nci is timeout. The root cause is that nci_skb_alloc
-with GFP_KERNEL parameter is called in st_nci_se_wt_timeout which is
-a timer handler. The call paths that could trigger bugs are shown below:
+igb_read_phy_reg() will silently return, leaving phy_data untouched, if
+hw->ops.read_reg isn't set. Depending on the uninitialized value of
+phy_data, this led to the phy status check either succeeding immediately
+or looping continuously for 2 seconds before emitting a noisy err-level
+timeout. This message went out to the console even though there was no
+actual problem.
 
-    (interrupt context 1)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_skb_alloc(..., GFP_KERNEL) //may sleep
+Instead, first check if there is read_reg function pointer. If not,
+proceed without trying to check the phy status register.
 
-   (interrupt context 2)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_send_data
-        nci_queue_tx_data_frags
-          nci_skb_alloc(..., GFP_KERNEL) //may sleep
-
-This patch changes allocation mode of nci_skb_alloc from GFP_KERNEL to
-GFP_ATOMIC in order to prevent atomic context sleeping. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: ed06aeefdac3 ("nfc: st-nci: Rename st21nfcb to st-nci")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220517012530.75714-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b72f3f72005d ("igb: When GbE link up, wait for Remote receiver status condition")
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/data.c | 2 +-
- net/nfc/nci/hci.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index 5405d073804c..9e3f9460f14f 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -130,7 +130,7 @@ static int nci_queue_tx_data_frags(struct nci_dev *ndev,
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index 6bd30d51dafc..618063d21f96 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -4622,7 +4622,8 @@ static void igb_watchdog_task(struct work_struct *work)
+ 				break;
+ 			}
  
- 		skb_frag = nci_skb_alloc(ndev,
- 					 (NCI_DATA_HDR_SIZE + frag_len),
--					 GFP_KERNEL);
-+					 GFP_ATOMIC);
- 		if (skb_frag == NULL) {
- 			rc = -ENOMEM;
- 			goto free_exit;
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index c972c212e7ca..e5c5cff33236 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -165,7 +165,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
+-			if (adapter->link_speed != SPEED_1000)
++			if (adapter->link_speed != SPEED_1000 ||
++			    !hw->phy.ops.read_reg)
+ 				goto no_wait;
  
- 	i = 0;
- 	skb = nci_skb_alloc(ndev, conn_info->max_pkt_payload_len +
--			    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+			    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 	if (!skb)
- 		return -ENOMEM;
- 
-@@ -198,7 +198,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
- 		if (i < data_len) {
- 			skb = nci_skb_alloc(ndev,
- 					    conn_info->max_pkt_payload_len +
--					    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+					    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 			if (!skb)
- 				return -ENOMEM;
- 
+ 			/* wait for Remote receiver status OK */
 -- 
 2.35.1
 
