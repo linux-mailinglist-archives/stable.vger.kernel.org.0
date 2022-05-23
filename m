@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8779F531B80
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C266A531B1C
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239258AbiEWREg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46392 "EHLO
+        id S240189AbiEWRXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239186AbiEWREa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:30 -0400
+        with ESMTP id S240487AbiEWRUX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:20:23 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CECB2606C5;
-        Mon, 23 May 2022 10:04:28 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10F2873798;
+        Mon, 23 May 2022 10:17:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B638614CA;
-        Mon, 23 May 2022 17:04:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C77BC385AA;
-        Mon, 23 May 2022 17:04:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCD4C608C3;
+        Mon, 23 May 2022 17:17:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDEF3C3411A;
+        Mon, 23 May 2022 17:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325467;
-        bh=HSgZXCYSvJ2DAUSCVxoxr58HGGP+tTK7i18NqmCvYZI=;
+        s=korg; t=1653326272;
+        bh=9znBeQPirLwcHxKfvMKWkwzveHY1EuEg7yKV4L2fLe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/BwFFYO3dWIhZmOhD9pz+/iGh/rZuCQ8Db2RLyDADqgRVy1/noa6dmx+yL7UDWQO
-         hiAK8o3qwzZOguSo6dHxhqMYvREwuzoJ30eJnmnaAuU2PA8LQR1dYvNBj2VI0ezHld
-         jeQNDRnNmmK9U8zH79Glajlt5c+c+NCql8IphZQU=
+        b=DCb+Oeldj2PVYwO9LN1ug1CreAmcvnTHPHxfSsOAkWAQ7nJQK/PEl0De4Fs2NXltn
+         tFdO8+I83qZT8BOrONQq4IKSVJ3WiI9ca2EW96yC2cSfMJGTM5nA9gfljnVLgwlV+n
+         hkfXZ36k3Fel9Mef3kSMwQOKQfXx4T7MeZxLgk14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@gmail.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/25] perf bench numa: Address compiler error on s390
+        stable@vger.kernel.org, Terry Bowman <terry.bowman@amd.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.15 010/132] i2c: piix4: Add EFCH MMIO support to SMBus base address detect
 Date:   Mon, 23 May 2022 19:03:39 +0200
-Message-Id: <20220523165749.082966913@linuxfoundation.org>
+Message-Id: <20220523165825.314598394@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
-References: <20220523165743.398280407@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,64 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Terry Bowman <terry.bowman@amd.com>
 
-[ Upstream commit f8ac1c478424a9a14669b8cef7389b1e14e5229d ]
+commit 46967bc1ee93acd1d8953c87dc16f43de4076f93 upstream.
 
-The compilation on s390 results in this error:
+The EFCH SMBus controller's base address is determined using details in
+FCH::PM::DECODEEN[smbusasfiobase] and FCH::PM::DECODEEN[smbusasfioen].These
+register fields were accessed using cd6h/cd7h port I/O. cd6h/cd7h port I/O
+is no longer available in later AMD processors. Change base address
+detection to use MMIO instead of port I/O cd6h/cd7h.
 
-  # make DEBUG=y bench/numa.o
-  ...
-  bench/numa.c: In function ‘__bench_numa’:
-  bench/numa.c:1749:81: error: ‘%d’ directive output may be truncated
-              writing between 1 and 11 bytes into a region of size between
-              10 and 20 [-Werror=format-truncation=]
-  1749 |        snprintf(tname, sizeof(tname), "process%d:thread%d", p, t);
-                                                               ^~
-  ...
-  bench/numa.c:1749:64: note: directive argument in the range
-                 [-2147483647, 2147483646]
-  ...
-  #
-
-The maximum length of the %d replacement is 11 characters because of the
-negative sign.  Therefore extend the array by two more characters.
-
-Output after:
-
-  # make  DEBUG=y bench/numa.o > /dev/null 2>&1; ll bench/numa.o
-  -rw-r--r-- 1 root root 418320 May 19 09:11 bench/numa.o
-  #
-
-Fixes: 3aff8ba0a4c9c919 ("perf bench numa: Avoid possible truncation when using snprintf()")
-Suggested-by: Namhyung Kim <namhyung@gmail.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220520081158.2990006-1-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Terry Bowman <terry.bowman@amd.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/bench/numa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-piix4.c |   13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 7b364f2926d4..901e9d6efcec 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -1626,7 +1626,7 @@ static int __bench_numa(const char *name)
- 		"GB/sec,", "total-speed",	"GB/sec total speed");
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -344,10 +344,15 @@ static int piix4_setup_sb800_smba(struct
+ 	if (retval)
+ 		return retval;
  
- 	if (g->p.show_details >= 2) {
--		char tname[14 + 2 * 10 + 1];
-+		char tname[14 + 2 * 11 + 1];
- 		struct thread_data *td;
- 		for (p = 0; p < g->p.nr_proc; p++) {
- 			for (t = 0; t < g->p.nr_threads; t++) {
--- 
-2.35.1
-
+-	outb_p(smb_en, SB800_PIIX4_SMB_IDX);
+-	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
+-	outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
+-	smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
++	if (mmio_cfg.use_mmio) {
++		smba_en_lo = ioread8(mmio_cfg.addr);
++		smba_en_hi = ioread8(mmio_cfg.addr + 1);
++	} else {
++		outb_p(smb_en, SB800_PIIX4_SMB_IDX);
++		smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
++		outb_p(smb_en + 1, SB800_PIIX4_SMB_IDX);
++		smba_en_hi = inb_p(SB800_PIIX4_SMB_IDX + 1);
++	}
+ 
+ 	piix4_sb800_region_release(&PIIX4_dev->dev, &mmio_cfg);
+ 
 
 
