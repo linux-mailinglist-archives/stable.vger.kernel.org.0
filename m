@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34084531CA7
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C08FC531C18
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240915AbiEWRjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
+        id S240227AbiEWRXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241700AbiEWRe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:34:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4139B1106;
-        Mon, 23 May 2022 10:28:14 -0700 (PDT)
+        with ESMTP id S241810AbiEWRWi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:38 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E48CE7CB28;
+        Mon, 23 May 2022 10:19:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C72260AB8;
-        Mon, 23 May 2022 17:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 685AEC34115;
-        Mon, 23 May 2022 17:28:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91537B8120F;
+        Mon, 23 May 2022 17:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0707C385AA;
+        Mon, 23 May 2022 17:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326892;
-        bh=cSEm/zFR5167PdJWENspcU7NYCH2Ttzhbfav+iSdiyw=;
+        s=korg; t=1653326297;
+        bh=TGsK3aQ5NEMfZJcdqIApNUCgUyO9h4QFqmtyBlucvSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUHYJTMx6SNQjSL5tbhlGgOo+N3vN6H6zMUlrpUelUvf6HwkvC3mxlU2lZGtNE6La
-         pUuwtc8/0gLwEeD3q6nzpAyainsns1uM9RlQD7B5rHRGzu8x/f7Ht9bX457yRFgyx3
-         EJPjJ5HNUhaZwI7lMZFYH5AalmP4pqRd+C8QkIYw=
+        b=PRgo34jTFZURR3UsbrL8JSlGZsUNlwU+7rmPw6ohnVEkIpFPuv56NEOfWU+xXsGvQ
+         MdQK1aKv89PaTHIdReAeXHk0PxSs0q6nWtCa8E9O3ptBDy7LLHVu7j5j9X/6lz5DFK
+         reox2/yubg4FzPJZnwh7jAp0oeLjj1uQcMby20pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 090/158] Revert "PCI: aardvark: Rewrite IRQ code to chained IRQ handler"
+Subject: [PATCH 5.15 038/132] MIPS: lantiq: check the return value of kzalloc()
 Date:   Mon, 23 May 2022 19:04:07 +0200
-Message-Id: <20220523165846.080724761@linuxfoundation.org>
+Message-Id: <20220523165829.735402249@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,130 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit a3b69dd0ad6265c29c4b6fb381cd76fb3bebdf8c ]
+[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
 
-This reverts commit 1571d67dc190e50c6c56e8f88cdc39f7cc53166e.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check the
+return value of it to prevent potential wrong memory access or
+memory leak.
 
-This commit broke support for setting interrupt affinity. It looks like
-that it is related to the chained IRQ handler. Revert this commit until
-issue with setting interrupt affinity is fixed.
-
-Fixes: 1571d67dc190 ("PCI: aardvark: Rewrite IRQ code to chained IRQ handler")
-Link: https://lore.kernel.org/r/20220515125815.30157-1-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-aardvark.c | 48 ++++++++++++---------------
- 1 file changed, 22 insertions(+), 26 deletions(-)
+ arch/mips/lantiq/falcon/sysctrl.c |  2 ++
+ arch/mips/lantiq/xway/gptu.c      |  2 ++
+ arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-aardvark.c b/drivers/pci/controller/pci-aardvark.c
-index 5be382b19d9a..27169c023180 100644
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -272,7 +272,6 @@ struct advk_pcie {
- 		u32 actions;
- 	} wins[OB_WIN_COUNT];
- 	u8 wins_count;
--	int irq;
- 	struct irq_domain *rp_irq_domain;
- 	struct irq_domain *irq_domain;
- 	struct irq_chip irq_chip;
-@@ -1570,26 +1569,21 @@ static void advk_pcie_handle_int(struct advk_pcie *pcie)
- 	}
- }
- 
--static void advk_pcie_irq_handler(struct irq_desc *desc)
-+static irqreturn_t advk_pcie_irq_handler(int irq, void *arg)
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 42222f849bd2..446a2536999b 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
  {
--	struct advk_pcie *pcie = irq_desc_get_handler_data(desc);
--	struct irq_chip *chip = irq_desc_get_chip(desc);
--	u32 val, mask, status;
-+	struct advk_pcie *pcie = arg;
-+	u32 status;
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	chained_irq_enter(chip, desc);
-+	status = advk_readl(pcie, HOST_CTRL_INT_STATUS_REG);
-+	if (!(status & PCIE_IRQ_CORE_INT))
-+		return IRQ_NONE;
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = NULL;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
+index 3d5683e75cf1..200fe9ff641d 100644
+--- a/arch/mips/lantiq/xway/gptu.c
++++ b/arch/mips/lantiq/xway/gptu.c
+@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	val = advk_readl(pcie, HOST_CTRL_INT_STATUS_REG);
--	mask = advk_readl(pcie, HOST_CTRL_INT_MASK_REG);
--	status = val & ((~mask) & PCIE_IRQ_ALL_MASK);
-+	advk_pcie_handle_int(pcie);
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev_name(dev);
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index 917fac1636b7..084f6caba5f2 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -315,6 +315,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	if (status & PCIE_IRQ_CORE_INT) {
--		advk_pcie_handle_int(pcie);
-+	/* Clear interrupt */
-+	advk_writel(pcie, PCIE_IRQ_CORE_INT, HOST_CTRL_INT_STATUS_REG);
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -338,6 +340,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--		/* Clear interrupt */
--		advk_writel(pcie, PCIE_IRQ_CORE_INT, HOST_CTRL_INT_STATUS_REG);
--	}
--
--	chained_irq_exit(chip, desc);
-+	return IRQ_HANDLED;
- }
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -356,24 +360,28 @@ static void clkdev_add_pci(void)
+ 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
- static int advk_pcie_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
-@@ -1671,7 +1665,7 @@ static int advk_pcie_probe(struct platform_device *pdev)
- 	struct advk_pcie *pcie;
- 	struct pci_host_bridge *bridge;
- 	struct resource_entry *entry;
--	int ret;
-+	int ret, irq;
- 
- 	bridge = devm_pci_alloc_host_bridge(dev, sizeof(struct advk_pcie));
- 	if (!bridge)
-@@ -1757,9 +1751,17 @@ static int advk_pcie_probe(struct platform_device *pdev)
- 	if (IS_ERR(pcie->base))
- 		return PTR_ERR(pcie->base);
- 
--	pcie->irq = platform_get_irq(pdev, 0);
--	if (pcie->irq < 0)
--		return pcie->irq;
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	ret = devm_request_irq(dev, irq, advk_pcie_irq_handler,
-+			       IRQF_SHARED | IRQF_NO_THREAD, "advk-pcie",
-+			       pcie);
-+	if (ret) {
-+		dev_err(dev, "Failed to register interrupt\n");
-+		return ret;
+ 	/* main pci clock */
+-	clk->cl.dev_id = "17000000.pci";
+-	clk->cl.con_id = NULL;
+-	clk->cl.clk = clk;
+-	clk->rate = CLOCK_33M;
+-	clk->rates = valid_pci_rates;
+-	clk->enable = pci_enable;
+-	clk->disable = pmu_disable;
+-	clk->module = 0;
+-	clk->bits = PMU_PCI;
+-	clkdev_add(&clk->cl);
++	if (clk) {
++		clk->cl.dev_id = "17000000.pci";
++		clk->cl.con_id = NULL;
++		clk->cl.clk = clk;
++		clk->rate = CLOCK_33M;
++		clk->rates = valid_pci_rates;
++		clk->enable = pci_enable;
++		clk->disable = pmu_disable;
++		clk->module = 0;
++		clk->bits = PMU_PCI;
++		clkdev_add(&clk->cl);
 +	}
  
- 	pcie->reset_gpio = devm_gpiod_get_from_of_node(dev, dev->of_node,
- 						       "reset-gpios", 0,
-@@ -1816,15 +1818,12 @@ static int advk_pcie_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+ 	/* use internal/external bus clock */
+-	clk_ext->cl.dev_id = "17000000.pci";
+-	clk_ext->cl.con_id = "external";
+-	clk_ext->cl.clk = clk_ext;
+-	clk_ext->enable = pci_ext_enable;
+-	clk_ext->disable = pci_ext_disable;
+-	clkdev_add(&clk_ext->cl);
++	if (clk_ext) {
++		clk_ext->cl.dev_id = "17000000.pci";
++		clk_ext->cl.con_id = "external";
++		clk_ext->cl.clk = clk_ext;
++		clk_ext->enable = pci_ext_enable;
++		clk_ext->disable = pci_ext_disable;
++		clkdev_add(&clk_ext->cl);
++	}
+ }
  
--	irq_set_chained_handler_and_data(pcie->irq, advk_pcie_irq_handler, pcie);
--
- 	bridge->sysdata = pcie;
- 	bridge->ops = &advk_pcie_ops;
- 	bridge->map_irq = advk_pcie_map_irq;
+ /* xway socs can generate clocks on gpio pins */
+@@ -393,9 +401,15 @@ static void clkdev_add_clkout(void)
+ 		char *name;
  
- 	ret = pci_host_probe(bridge);
- 	if (ret < 0) {
--		irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
- 		advk_pcie_remove_rp_irq_domain(pcie);
- 		advk_pcie_remove_msi_irq_domain(pcie);
- 		advk_pcie_remove_irq_domain(pcie);
-@@ -1873,9 +1872,6 @@ static int advk_pcie_remove(struct platform_device *pdev)
- 	advk_writel(pcie, PCIE_ISR1_ALL_MASK, PCIE_ISR1_REG);
- 	advk_writel(pcie, PCIE_IRQ_ALL_MASK, HOST_CTRL_INT_STATUS_REG);
+ 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
++		if (!name)
++			continue;
+ 		sprintf(name, "clkout%d", i);
  
--	/* Remove IRQ handler */
--	irq_set_chained_handler_and_data(pcie->irq, NULL, NULL);
--
- 	/* Remove IRQ domains */
- 	advk_pcie_remove_rp_irq_domain(pcie);
- 	advk_pcie_remove_msi_irq_domain(pcie);
+ 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
++		if (!clk) {
++			kfree(name);
++			continue;
++		}
+ 		clk->cl.dev_id = "1f103000.cgu";
+ 		clk->cl.con_id = name;
+ 		clk->cl.clk = clk;
 -- 
 2.35.1
 
