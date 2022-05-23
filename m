@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DF7753162D
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B6025317A0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241320AbiEWRaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43404 "EHLO
+        id S239434AbiEWRMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:12:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241755AbiEWR1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAFFE7628D;
-        Mon, 23 May 2022 10:22:14 -0700 (PDT)
+        with ESMTP id S239624AbiEWRKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDBE16D1B6;
+        Mon, 23 May 2022 10:10:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B003B811FB;
-        Mon, 23 May 2022 17:21:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80420C385A9;
-        Mon, 23 May 2022 17:21:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7BA1614F5;
+        Mon, 23 May 2022 17:10:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC5D3C385A9;
+        Mon, 23 May 2022 17:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326514;
-        bh=YZE+m7ONmE5iuJpKWbbbuCCWQu4aPJghpauoTYok9a8=;
+        s=korg; t=1653325803;
+        bh=xhmdDEoKotcUO/7eHbPi3dL9BFugG1l1EDjl/avpqzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxYddLiix41UMmpOeqB5Ctkybu0wbyQLUxPwWWeXkwbl1C/v52xxOUZzMQZwFJnit
-         5B261oyua3fKARzq51sHUM9j9ke4H/WUyNRp4uKcQ/fFUAW+I20tDohsKgMQMY2GHy
-         Fv5JegohiEcsIgVUKC1zsHoDbku+BBLb6DnyNZrg=
+        b=h6GVaBdNz1kA574X1LLnePWB53r6P8K2UjmJMbvsFsKhyoTG7Gry9zmgsxYiLhy5M
+         mLvvuxQxLAbgiPWysYTNNWMrYUCTqUt2POFfNUeOv0BAGpZyOiyHPZO5cU8MiwNm+V
+         RPVBy5piLCib9VcsFyFGrBiS9+uS8SShT9yVBCfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, David Gow <davidgow@google.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 077/132] net: fix dev_fill_forward_path with pppoe + bridge
+Subject: [PATCH 4.19 02/44] um: Cleanup syscall_handler_t definition/cast, fix warning
 Date:   Mon, 23 May 2022 19:04:46 +0200
-Message-Id: <20220523165835.897101335@linuxfoundation.org>
+Message-Id: <20220523165753.908913811@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,67 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit cf2df74e202d81b09f09d84c2d8903e0e87e9274 ]
+[ Upstream commit f4f03f299a56ce4d73c5431e0327b3b6cb55ebb9 ]
 
-When calling dev_fill_forward_path on a pppoe device, the provided destination
-address is invalid. In order for the bridge fdb lookup to succeed, the pppoe
-code needs to update ctx->daddr to the correct value.
-Fix this by storing the address inside struct net_device_path_ctx
+The syscall_handler_t type for x86_64 was defined as 'long (*)(void)',
+but always cast to 'long (*)(long, long, long, long, long, long)' before
+use. This now triggers a warning (see below).
 
-Fixes: f6efc675c9dd ("net: ppp: resolve forwarding path for bridge pppoe devices")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Define syscall_handler_t as the latter instead, and remove the cast.
+This simplifies the code, and fixes the warning.
+
+Warning:
+In file included from ../arch/um/include/asm/processor-generic.h:13
+                 from ../arch/x86/um/asm/processor.h:41
+                 from ../include/linux/rcupdate.h:30
+                 from ../include/linux/rculist.h:11
+                 from ../include/linux/pid.h:5
+                 from ../include/linux/sched.h:14
+                 from ../include/linux/ptrace.h:6
+                 from ../arch/um/kernel/skas/syscall.c:7:
+../arch/um/kernel/skas/syscall.c: In function ‘handle_syscall’:
+../arch/x86/um/shared/sysdep/syscalls_64.h:18:11: warning: cast between incompatible function types from ‘long int (*)(void)’ to ‘long int (*)(long int,  long int,  long int,  long int,  long int,  long int)’ [
+-Wcast-function-type]
+   18 |         (((long (*)(long, long, long, long, long, long)) \
+      |           ^
+../arch/x86/um/asm/ptrace.h:36:62: note: in definition of macro ‘PT_REGS_SET_SYSCALL_RETURN’
+   36 | #define PT_REGS_SET_SYSCALL_RETURN(r, res) (PT_REGS_AX(r) = (res))
+      |                                                              ^~~
+../arch/um/kernel/skas/syscall.c:46:33: note: in expansion of macro ‘EXECUTE_SYSCALL’
+   46 |                                 EXECUTE_SYSCALL(syscall, regs));
+      |                                 ^~~~~~~~~~~~~~~
+
+Signed-off-by: David Gow <davidgow@google.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/pppoe.c   | 1 +
- include/linux/netdevice.h | 2 +-
- net/core/dev.c            | 2 +-
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ arch/x86/um/shared/sysdep/syscalls_64.h | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ppp/pppoe.c b/drivers/net/ppp/pppoe.c
-index 3619520340b7..e172743948ed 100644
---- a/drivers/net/ppp/pppoe.c
-+++ b/drivers/net/ppp/pppoe.c
-@@ -988,6 +988,7 @@ static int pppoe_fill_forward_path(struct net_device_path_ctx *ctx,
- 	path->encap.proto = htons(ETH_P_PPP_SES);
- 	path->encap.id = be16_to_cpu(po->num);
- 	memcpy(path->encap.h_dest, po->pppoe_pa.remote, ETH_ALEN);
-+	memcpy(ctx->daddr, po->pppoe_pa.remote, ETH_ALEN);
- 	path->dev = ctx->dev;
- 	ctx->dev = dev;
+diff --git a/arch/x86/um/shared/sysdep/syscalls_64.h b/arch/x86/um/shared/sysdep/syscalls_64.h
+index 8a7d5e1da98e..1e6875b4ffd8 100644
+--- a/arch/x86/um/shared/sysdep/syscalls_64.h
++++ b/arch/x86/um/shared/sysdep/syscalls_64.h
+@@ -10,13 +10,12 @@
+ #include <linux/msg.h>
+ #include <linux/shm.h>
  
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 62ff09467776..39f1893ecac0 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -887,7 +887,7 @@ struct net_device_path_stack {
+-typedef long syscall_handler_t(void);
++typedef long syscall_handler_t(long, long, long, long, long, long);
  
- struct net_device_path_ctx {
- 	const struct net_device *dev;
--	const u8		*daddr;
-+	u8			daddr[ETH_ALEN];
+ extern syscall_handler_t *sys_call_table[];
  
- 	int			num_vlans;
- 	struct {
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 804aba2228c2..5907212c00f3 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -741,11 +741,11 @@ int dev_fill_forward_path(const struct net_device *dev, const u8 *daddr,
- 	const struct net_device *last_dev;
- 	struct net_device_path_ctx ctx = {
- 		.dev	= dev,
--		.daddr	= daddr,
- 	};
- 	struct net_device_path *path;
- 	int ret = 0;
- 
-+	memcpy(ctx.daddr, daddr, sizeof(ctx.daddr));
- 	stack->num_paths = 0;
- 	while (ctx.dev && ctx.dev->netdev_ops->ndo_fill_forward_path) {
- 		last_dev = ctx.dev;
+ #define EXECUTE_SYSCALL(syscall, regs) \
+-	(((long (*)(long, long, long, long, long, long)) \
+-	  (*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
++	(((*sys_call_table[syscall]))(UPT_SYSCALL_ARG1(&regs->regs), \
+ 		 		      UPT_SYSCALL_ARG2(&regs->regs), \
+ 				      UPT_SYSCALL_ARG3(&regs->regs), \
+ 				      UPT_SYSCALL_ARG4(&regs->regs), \
 -- 
 2.35.1
 
