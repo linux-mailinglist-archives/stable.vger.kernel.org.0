@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BB425316AE
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A65C5318A5
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241805AbiEWRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:53:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35128 "EHLO
+        id S240091AbiEWROn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:14:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243876AbiEWRvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:51:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F225D5FC;
-        Mon, 23 May 2022 10:38:29 -0700 (PDT)
+        with ESMTP id S239623AbiEWRNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:13:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C44FF13F26;
+        Mon, 23 May 2022 10:12:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EFBC6090C;
-        Mon, 23 May 2022 17:29:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9520EC385A9;
-        Mon, 23 May 2022 17:29:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14339614CA;
+        Mon, 23 May 2022 17:12:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4084C385A9;
+        Mon, 23 May 2022 17:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326995;
-        bh=LYnJcQJy1pId1GQSjCERvqnOJ4fRwclu+T581GZ7mHI=;
+        s=korg; t=1653325927;
+        bh=lsTQfPcjQ3GMPoVWgE/XB3ejk49g6YF+BtG3dlMGAVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sfyIMllZ258Q7By9F3XAtX/emWP7Gw6/5kw0cp3M93C5ro5eDJ9aRAU952FUHepaZ
-         eAZruaaLehyHPDlAHomuNFAYp6SqtdHNinZpLgpJTkoC+3JsdMa14jBEwW7xyfdcvp
-         CyIZTLR4NzWb/y3bMcCp670eG1I6AO3cTkApKQSs=
+        b=bijjn5rLBoNRHqX8SV0GNX8DEManFY5wAk7y9SGrCgficrSRL3atRGZz7Nf0u0VTK
+         tcQohekVZRe04WCq8VypKVgjgH/1gIx1RC9k+LhS9AUnYBQeObXdxr+ModhA/4+3Fi
+         jUqYurRHsGA6Ksf89O/FH+mFvehvCO3EXqGmKpro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Daejun Park <daejun7.park@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 123/158] scsi: ufs: core: Fix referencing invalid rsp field
+Subject: [PATCH 5.4 13/68] MIPS: lantiq: check the return value of kzalloc()
 Date:   Mon, 23 May 2022 19:04:40 +0200
-Message-Id: <20220523165851.110975996@linuxfoundation.org>
+Message-Id: <20220523165804.752768414@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daejun Park <daejun7.park@samsung.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit d5d92b64408443e113b9742f8f1c35278910dd4d ]
+[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
 
-Fix referencing sense data when it is invalid. When the length of the data
-segment is 0, there is no valid information in the rsp field, so
-ufshpb_rsp_upiu() is returned without additional operation.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check the
+return value of it to prevent potential wrong memory access or
+memory leak.
 
-Link: https://lore.kernel.org/r/252651381.41652940482659.JavaMail.epsvc@epcpadp4
-Fixes: 4b5f49079c52 ("scsi: ufs: ufshpb: L2P map management for HPB read")
-Acked-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshpb.c | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ arch/mips/lantiq/falcon/sysctrl.c |  2 ++
+ arch/mips/lantiq/xway/gptu.c      |  2 ++
+ arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
-index b34feba1f53d..8dc818b03939 100644
---- a/drivers/scsi/ufs/ufshpb.c
-+++ b/drivers/scsi/ufs/ufshpb.c
-@@ -1256,6 +1256,13 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 	struct utp_hpb_rsp *rsp_field = &lrbp->ucd_rsp_ptr->hr;
- 	int data_seg_len;
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 037b08f3257e..a2837a54d972 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
-+	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
-+		& MASK_RSP_UPIU_DATA_SEG_LEN;
-+
-+	/* If data segment length is zero, rsp_field is not valid */
-+	if (!data_seg_len)
++	if (!clk)
 +		return;
-+
- 	if (unlikely(lrbp->lun != rsp_field->lun)) {
- 		struct scsi_device *sdev;
- 		bool found = false;
-@@ -1290,18 +1297,6 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
- 		return;
- 	}
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = NULL;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
+index 3d5683e75cf1..200fe9ff641d 100644
+--- a/arch/mips/lantiq/xway/gptu.c
++++ b/arch/mips/lantiq/xway/gptu.c
+@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
--		& MASK_RSP_UPIU_DATA_SEG_LEN;
--
--	/* To flush remained rsp_list, we queue the map_work task */
--	if (!data_seg_len) {
--		if (!ufshpb_is_general_lun(hpb->lun))
--			return;
--
--		ufshpb_kick_map_work(hpb);
--		return;
--	}
--
- 	BUILD_BUG_ON(sizeof(struct utp_hpb_rsp) != UTP_HPB_RSP_SIZE);
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev_name(dev);
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index 2ee68d6e8bb9..6c2d9779ac72 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -311,6 +311,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
- 	if (!ufshpb_is_hpb_rsp_valid(hba, lrbp, rsp_field))
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -334,6 +336,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -352,24 +356,28 @@ static void clkdev_add_pci(void)
+ 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
+ 	/* main pci clock */
+-	clk->cl.dev_id = "17000000.pci";
+-	clk->cl.con_id = NULL;
+-	clk->cl.clk = clk;
+-	clk->rate = CLOCK_33M;
+-	clk->rates = valid_pci_rates;
+-	clk->enable = pci_enable;
+-	clk->disable = pmu_disable;
+-	clk->module = 0;
+-	clk->bits = PMU_PCI;
+-	clkdev_add(&clk->cl);
++	if (clk) {
++		clk->cl.dev_id = "17000000.pci";
++		clk->cl.con_id = NULL;
++		clk->cl.clk = clk;
++		clk->rate = CLOCK_33M;
++		clk->rates = valid_pci_rates;
++		clk->enable = pci_enable;
++		clk->disable = pmu_disable;
++		clk->module = 0;
++		clk->bits = PMU_PCI;
++		clkdev_add(&clk->cl);
++	}
+ 
+ 	/* use internal/external bus clock */
+-	clk_ext->cl.dev_id = "17000000.pci";
+-	clk_ext->cl.con_id = "external";
+-	clk_ext->cl.clk = clk_ext;
+-	clk_ext->enable = pci_ext_enable;
+-	clk_ext->disable = pci_ext_disable;
+-	clkdev_add(&clk_ext->cl);
++	if (clk_ext) {
++		clk_ext->cl.dev_id = "17000000.pci";
++		clk_ext->cl.con_id = "external";
++		clk_ext->cl.clk = clk_ext;
++		clk_ext->enable = pci_ext_enable;
++		clk_ext->disable = pci_ext_disable;
++		clkdev_add(&clk_ext->cl);
++	}
+ }
+ 
+ /* xway socs can generate clocks on gpio pins */
+@@ -389,9 +397,15 @@ static void clkdev_add_clkout(void)
+ 		char *name;
+ 
+ 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
++		if (!name)
++			continue;
+ 		sprintf(name, "clkout%d", i);
+ 
+ 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
++		if (!clk) {
++			kfree(name);
++			continue;
++		}
+ 		clk->cl.dev_id = "1f103000.cgu";
+ 		clk->cl.con_id = name;
+ 		clk->cl.clk = clk;
 -- 
 2.35.1
 
