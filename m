@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A082531B96
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43A37531788
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240114AbiEWRR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47158 "EHLO
+        id S240702AbiEWR2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239867AbiEWRRX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 473E46B678;
-        Mon, 23 May 2022 10:17:12 -0700 (PDT)
+        with ESMTP id S242236AbiEWR1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33CA23BC9;
+        Mon, 23 May 2022 10:22:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4481A60920;
-        Mon, 23 May 2022 17:16:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05BD1C385A9;
-        Mon, 23 May 2022 17:16:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32881B811FB;
+        Mon, 23 May 2022 17:22:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B4B5C385AA;
+        Mon, 23 May 2022 17:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326162;
-        bh=MJt93V/iQDPanSdYDKTB/3t7EaS3fGLovZnpcT2ADsI=;
+        s=korg; t=1653326565;
+        bh=4s6MoWKIS38F4xjo4r0vvrDQD7m6z8w1d0frx8yRIGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyWhBgcsv+KGjcgt8iPXH26GXsimIxHUvaEDg006GD74Z9we2FW/iGezWkwZ8TXGV
-         IZRAP86ZVi0CH4ay0D7X7zTSUriOQqQV1MThOFeCiVO3nV74RWPDawlWjeAS9mnt2D
-         YhK59PTF0Z0jVwFDMAXSUfNDwUyEADfGeypahJw0=
+        b=fRZW/vScuk5NgpKl7XSKizWcma2gDu3yNIBjhQf4QjO07Gd2vqzs0Kg5QS1w/VeJt
+         75KB/EW5CPFDyb1uRSEznstFoXffZhoDdg45azNQxdO6N+h7VdP/AQqcSRPy9rGh9d
+         qfKibTm91eCKIWNk21f3DqQnlmnprIFoak7oOH5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 26/97] drbd: remove usage of list iterator variable after loop
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 121/132] ethernet: tulip: fix missing pci_disable_device() on error in tulip_init_one()
 Date:   Mon, 23 May 2022 19:05:30 +0200
-Message-Id: <20220523165816.355270008@linuxfoundation.org>
+Message-Id: <20220523165843.650909154@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,55 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakob Koschel <jakobkoschel@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
+[ Upstream commit 51ca86b4c9c7c75f5630fa0dbe5f8f0bd98e3c3e ]
 
-In preparation to limit the scope of a list iterator to the list
-traversal loop, use a dedicated pointer to iterate through the list [1].
+Fix the missing pci_disable_device() before return
+from tulip_init_one() in the error handling case.
 
-Since that variable should not be used past the loop iteration, a
-separate variable is used to 'remember the current location within the
-loop'.
-
-To either continue iterating from that position or skip the iteration
-(if the previous iteration was complete) list_prepare_entry() is used.
-
-Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
-Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
-Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220506094250.3630615-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/dec/tulip/tulip_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
-index 65b95aef8dbc..3cdbd81f983f 100644
---- a/drivers/block/drbd/drbd_main.c
-+++ b/drivers/block/drbd/drbd_main.c
-@@ -184,7 +184,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 		unsigned int set_size)
- {
- 	struct drbd_request *r;
--	struct drbd_request *req = NULL;
-+	struct drbd_request *req = NULL, *tmp = NULL;
- 	int expect_epoch = 0;
- 	int expect_size = 0;
+diff --git a/drivers/net/ethernet/dec/tulip/tulip_core.c b/drivers/net/ethernet/dec/tulip/tulip_core.c
+index fcedd733bacb..834a3f8c80da 100644
+--- a/drivers/net/ethernet/dec/tulip/tulip_core.c
++++ b/drivers/net/ethernet/dec/tulip/tulip_core.c
+@@ -1398,8 +1398,10 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
  
-@@ -238,8 +238,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
- 	 * to catch requests being barrier-acked "unexpectedly".
- 	 * It usually should find the same req again, or some READ preceding it. */
- 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
--		if (req->epoch == expect_epoch)
-+		if (req->epoch == expect_epoch) {
-+			tmp = req;
- 			break;
-+		}
-+	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
- 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
- 		if (req->epoch != expect_epoch)
- 			break;
+ 	/* alloc_etherdev ensures aligned and zeroed private structures */
+ 	dev = alloc_etherdev (sizeof (*tp));
+-	if (!dev)
++	if (!dev) {
++		pci_disable_device(pdev);
+ 		return -ENOMEM;
++	}
+ 
+ 	SET_NETDEV_DEV(dev, &pdev->dev);
+ 	if (pci_resource_len (pdev, 0) < tulip_tbl[chip_idx].io_size) {
+@@ -1778,6 +1780,7 @@ static int tulip_init_one(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ err_out_free_netdev:
+ 	free_netdev (dev);
++	pci_disable_device(pdev);
+ 	return -ENODEV;
+ }
+ 
 -- 
 2.35.1
 
