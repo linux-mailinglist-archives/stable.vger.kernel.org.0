@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED0D531C23
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFA253179F
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241506AbiEWRdg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38974 "EHLO
+        id S241380AbiEWRau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241643AbiEWRbB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:31:01 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9D065D3E;
-        Mon, 23 May 2022 10:26:52 -0700 (PDT)
+        with ESMTP id S239859AbiEWR2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF0F8FD45;
+        Mon, 23 May 2022 10:25:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69DF0B81211;
-        Mon, 23 May 2022 17:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A331DC34115;
-        Mon, 23 May 2022 17:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 852F0608C0;
+        Mon, 23 May 2022 17:25:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D82FC385A9;
+        Mon, 23 May 2022 17:25:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326809;
-        bh=u2udwhSZTeWHFosTEeRXpx2wintHjv8i2tYWDrM1eoU=;
+        s=korg; t=1653326722;
+        bh=zeyKZE8740RxC0fLVa0ngmzOPV4kdSKGulQZT2SyRhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=le+Utb67XWs/LFNsfGRQH7rJkDbJCn24edbQShOoYH59j1tG/7reA8JfSDzi1PQ4x
-         DoDCF1dhwqN8V4hRK7DP28gdiGj+z0pRYcf06mMpes1qYznAHcib3Pw0wGQERKoQ0l
-         hTRt/lCozcwpcDXaWXPVcVFq+w5sPh8tK7BN2zNk=
+        b=jItNr2b2p/ps/LItmqJ9mwe+dKXfXHBLOGyiwQxVAYlmF+I4UJU8VloyowLyO1q+S
+         wBeDjdDlAA+FK2QpQDBPZLW6kvkoYAnzxL9Tjjwu8t8VHFXMSCc0NFgJjc67wGPGqW
+         L/1q87Ysg4ZDLRo6zKnmdgjuzUeKdQZl6m6MEaes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinke Fan <fanjinke@hygon.cn>,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Guo Xuenan <guoxuenan@huawei.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Darrick J. Wong" <djwong@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 038/158] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
-Date:   Mon, 23 May 2022 19:03:15 +0200
-Message-Id: <20220523165836.817034786@linuxfoundation.org>
+Subject: [PATCH 5.17 039/158] fs: fix an infinite loop in iomap_fiemap
+Date:   Mon, 23 May 2022 19:03:16 +0200
+Message-Id: <20220523165836.959872332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -57,107 +56,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Guo Xuenan <guoxuenan@huawei.com>
 
-[ Upstream commit 3ae8fd41573af4fb3a490c9ed947fc936ba87190 ]
+[ Upstream commit 49df34221804cfd6384135b28b03c9461a31d024 ]
 
-Setting the century forward has been failing on AMD platforms.
-There was a previous attempt at fixing this for family 0x17 as part of
-commit 7ad295d5196a ("rtc: Fix the AltCentury value on AMD/Hygon
-platform") but this was later reverted due to some problems reported
-that appeared to stem from an FW bug on a family 0x17 desktop system.
+when get fiemap starting from MAX_LFS_FILESIZE, (maxbytes - *len) < start
+will always true , then *len set zero. because of start offset is beyond
+file size, for erofs filesystem it will always return iomap.length with
+zero,iomap iterate will enter infinite loop. it is necessary cover this
+corner case to avoid this situation.
 
-The same comments mentioned in the previous commit continue to apply
-to the newer platforms as well.
+------------[ cut here ]------------
+WARNING: CPU: 7 PID: 905 at fs/iomap/iter.c:35 iomap_iter+0x97f/0xc70
+Modules linked in: xfs erofs
+CPU: 7 PID: 905 Comm: iomap Tainted: G        W         5.17.0-rc8 #27
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1.1 04/01/2014
+RIP: 0010:iomap_iter+0x97f/0xc70
+Code: 85 a1 fc ff ff e8 71 be 9c ff 0f 1f 44 00 00 e9 92 fc ff ff e8 62 be 9c ff 0f 0b b8 fb ff ff ff e9 fc f8 ff ff e8 51 be 9c ff <0f> 0b e9 2b fc ff ff e8 45 be 9c ff 0f 0b e9 e1 fb ff ff e8 39 be
+RSP: 0018:ffff888060a37ab0 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: ffff888060a37bb0 RCX: 0000000000000000
+RDX: ffff88807e19a900 RSI: ffffffff81a7da7f RDI: ffff888060a37be0
+RBP: 7fffffffffffffff R08: 0000000000000000 R09: ffff888060a37c20
+R10: ffff888060a37c67 R11: ffffed100c146f8c R12: 7fffffffffffffff
+R13: 0000000000000000 R14: ffff888060a37bd8 R15: ffff888060a37c20
+FS:  00007fd3cca01540(0000) GS:ffff888108780000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000020010820 CR3: 0000000054b92000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ iomap_fiemap+0x1c9/0x2f0
+ erofs_fiemap+0x64/0x90 [erofs]
+ do_vfs_ioctl+0x40d/0x12e0
+ __x64_sys_ioctl+0xaa/0x1c0
+ do_syscall_64+0x35/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+ </TASK>
+---[ end trace 0000000000000000 ]---
+watchdog: BUG: soft lockup - CPU#7 stuck for 26s! [iomap:905]
 
-```
-MC146818 driver use function mc146818_set_time() to set register
-RTC_FREQ_SELECT(RTC_REG_A)'s bit4-bit6 field which means divider stage
-reset value on Intel platform to 0x7.
-
-While AMD/Hygon RTC_REG_A(0Ah)'s bit4 is defined as DV0 [Reference]:
-DV0 = 0 selects Bank 0, DV0 = 1 selects Bank 1. Bit5-bit6 is defined
-as reserved.
-
-DV0 is set to 1, it will select Bank 1, which will disable AltCentury
-register(0x32) access. As UEFI pass acpi_gbl_FADT.century 0x32
-(AltCentury), the CMOS write will be failed on code:
-CMOS_WRITE(century, acpi_gbl_FADT.century).
-
-Correct RTC_REG_A bank select bit(DV0) to 0 on AMD/Hygon CPUs, it will
-enable AltCentury(0x32) register writing and finally setup century as
-expected.
-```
-
-However in closer examination the change previously submitted was also
-modifying bits 5 & 6 which are declared reserved in the AMD documentation.
-So instead modify just the DV0 bank selection bit.
-
-Being cognizant that there was a failure reported before, split the code
-change out to a static function that can also be used for exclusions if
-any regressions such as Mikhail's pop up again.
-
-Cc: Jinke Fan <fanjinke@hygon.cn>
-Cc: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Link: https://lore.kernel.org/all/CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com/
-Link: https://www.amd.com/system/files/TechDocs/51192_Bolton_FCH_RRG.pdf
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220111225750.1699-1-mario.limonciello@amd.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Guo Xuenan <guoxuenan@huawei.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+[djwong: fix some typos]
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 16 +++++++++++++++-
- include/linux/mc146818rtc.h    |  2 ++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ fs/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 562f99b664a2..522449b25921 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -176,6 +176,17 @@ int mc146818_get_time(struct rtc_time *time)
- }
- EXPORT_SYMBOL_GPL(mc146818_get_time);
+diff --git a/fs/ioctl.c b/fs/ioctl.c
+index 1ed097e94af2..85f7e4ee6924 100644
+--- a/fs/ioctl.c
++++ b/fs/ioctl.c
+@@ -173,7 +173,7 @@ int fiemap_prep(struct inode *inode, struct fiemap_extent_info *fieinfo,
  
-+/* AMD systems don't allow access to AltCentury with DV1 */
-+static bool apply_amd_register_a_behavior(void)
-+{
-+#ifdef CONFIG_X86
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
-+	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
-+		return true;
-+#endif
-+	return false;
-+}
-+
- /* Set the current date and time in the real time clock. */
- int mc146818_set_time(struct rtc_time *time)
- {
-@@ -249,7 +260,10 @@ int mc146818_set_time(struct rtc_time *time)
- 	save_control = CMOS_READ(RTC_CONTROL);
- 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
- 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+	if (apply_amd_register_a_behavior())
-+		CMOS_WRITE((save_freq_select & ~RTC_AMD_BANK_SELECT), RTC_FREQ_SELECT);
-+	else
-+		CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
+ 	if (*len == 0)
+ 		return -EINVAL;
+-	if (start > maxbytes)
++	if (start >= maxbytes)
+ 		return -EFBIG;
  
- #ifdef CONFIG_MACH_DECSTATION
- 	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index 808bb4cee230..b0da04fe087b 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -86,6 +86,8 @@ struct cmos_rtc_board_info {
-    /* 2 values for divider stage reset, others for "testing purposes only" */
- #  define RTC_DIV_RESET1	0x60
- #  define RTC_DIV_RESET2	0x70
-+   /* In AMD BKDG bit 5 and 6 are reserved, bit 4 is for select dv0 bank */
-+#  define RTC_AMD_BANK_SELECT	0x10
-   /* Periodic intr. / Square wave rate select. 0=none, 1=32.8kHz,... 15=2Hz */
- # define RTC_RATE_SELECT 	0x0F
- 
+ 	/*
 -- 
 2.35.1
 
