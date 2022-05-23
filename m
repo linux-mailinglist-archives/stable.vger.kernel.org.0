@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93D5B531C01
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1432D531CF1
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240134AbiEWRSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
+        id S242341AbiEWRkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239884AbiEWRPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:15:36 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBFC2CE24;
-        Mon, 23 May 2022 10:12:42 -0700 (PDT)
+        with ESMTP id S244013AbiEWRig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53A5D986DB;
+        Mon, 23 May 2022 10:33:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F685614FB;
-        Mon, 23 May 2022 17:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF56C385A9;
-        Mon, 23 May 2022 17:12:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E947EB8121B;
+        Mon, 23 May 2022 17:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47759C385A9;
+        Mon, 23 May 2022 17:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325933;
-        bh=S/Zdde9w7eGhMCb2EOeDau2/KI1ORtneBg9rdIFvyok=;
+        s=korg; t=1653327004;
+        bh=78eIVbKrFEg+O5i0kkKIJmRGiqznDYuV/M2Fuaxz640=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfeqAWUDmW1Jh6Rilk841VqJI1cZUD/YrY64xN3GP8WIHPKz2PfnN+xdhBzIWw9AG
-         kwOJhrdXfTNiEM+lbLJ6vRlozsPxXASWtWO6nHglBXpKPX1TrJREAB1R3ICbhqybqA
-         bcIKWU7I+0GkwVSzUmlEB5fXd/h6myk+aFed0pWg=
+        b=Xcf0s5iNNSzDviA51yQfFzCKtbuXZkZtfopen475XPZiDH2qGtusubAXkRoF/HR9R
+         ZmhaYUd5zIphM4hF+lpus8BJtrZUSpAk01oOb6LfHWIErzjd7VtVKSGpJ/84hMLc4W
+         DmlXeg9DOLl9Z+jJqzS0XbIg4Ab57bRXDdL6n2go=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Benson Leung <bleung@chromium.org>,
+        stable@vger.kernel.org, Avi Kivity <avi@scylladb.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/68] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+Subject: [PATCH 5.17 125/158] perf build: Fix check for btf__load_from_kernel_by_id() in libbpf
 Date:   Mon, 23 May 2022 19:04:42 +0200
-Message-Id: <20220523165805.092507483@linuxfoundation.org>
+Message-Id: <20220523165851.378018376@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,118 +57,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
+[ Upstream commit 0ae065a5d265bc5ada13e350015458e0c5e5c351 ]
 
-Debugfs console_log uses devm memory (e.g. debug_info in
-cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
-are independent.  An use-after-free issue is observed if userland
-program operates the debugfs after the memory has been freed.
+Avi Kivity reported a problem where the __weak
+btf__load_from_kernel_by_id() in tools/perf/util/bpf-event.c was being
+used and it called btf__get_from_id() in tools/lib/bpf/btf.c that in
+turn called back to btf__load_from_kernel_by_id(), resulting in an
+endless loop.
 
-The call trace:
- do_raw_spin_lock
- _raw_spin_lock_irqsave
- remove_wait_queue
- ep_unregister_pollwait
- ep_remove
- do_epoll_ctl
+Fix this by adding a feature test to check if
+btf__load_from_kernel_by_id() is available when building perf with
+LIBBPF_DYNAMIC=1, and if not then provide the fallback to the old
+btf__get_from_id(), that doesn't call back to btf__load_from_kernel_by_id()
+since at that time it didn't exist at all.
 
-A Python example to reproduce the issue:
-... import select
-... p = select.epoll()
-... f = open('/sys/kernel/debug/cros_scp/console_log')
-... p.register(f, select.POLLIN)
-... p.poll(1)
-[(4, 1)]                    # 4=fd, 1=select.POLLIN
+Tested on Fedora 35 where we have libbpf-devel 0.4.0 with LIBBPF_DYNAMIC
+where we don't have btf__load_from_kernel_by_id() and thus its feature
+test fail, not defining HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID:
 
-[ shutdown cros_scp at the point ]
+  $ cat /tmp/build/perf-urgent/feature/test-libbpf-btf__load_from_kernel_by_id.make.output
+  test-libbpf-btf__load_from_kernel_by_id.c: In function ‘main’:
+  test-libbpf-btf__load_from_kernel_by_id.c:6:16: error: implicit declaration of function ‘btf__load_from_kernel_by_id’ [-Werror=implicit-function-declaration]
+      6 |         return btf__load_from_kernel_by_id(20151128, NULL);
+        |                ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cc1: all warnings being treated as errors
+  $
 
-... p.poll(1)
-[(4, 16)]                   # 4=fd, 16=select.POLLHUP
-... p.unregister(f)
+  $ nm /tmp/build/perf-urgent/perf | grep btf__load_from_kernel_by_id
+  00000000005ba180 T btf__load_from_kernel_by_id
+  $
 
-An use-after-free issue raises here.  It called epoll_ctl with
-EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
-log_wq).
+  $ objdump --disassemble=btf__load_from_kernel_by_id -S /tmp/build/perf-urgent/perf
 
-Detaches log reader's workqueue from devm to make sure it is persistent
-even if the device has been removed.
+  /tmp/build/perf-urgent/perf:     file format elf64-x86-64
+  <SNIP>
+  00000000005ba180 <btf__load_from_kernel_by_id>:
+  #include "record.h"
+  #include "util/synthetic-events.h"
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+  #ifndef HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
+  struct btf *btf__load_from_kernel_by_id(__u32 id)
+  {
+    5ba180:	55                   	push   %rbp
+    5ba181:	48 89 e5             	mov    %rsp,%rbp
+    5ba184:	48 83 ec 10          	sub    $0x10,%rsp
+    5ba188:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+    5ba18f:	00 00
+    5ba191:	48 89 45 f8          	mov    %rax,-0x8(%rbp)
+    5ba195:	31 c0                	xor    %eax,%eax
+         struct btf *btf;
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+         int err = btf__get_from_id(id, &btf);
+    5ba197:	48 8d 75 f0          	lea    -0x10(%rbp),%rsi
+    5ba19b:	e8 a0 57 e5 ff       	call   40f940 <btf__get_from_id@plt>
+    5ba1a0:	89 c2                	mov    %eax,%edx
+  #pragma GCC diagnostic pop
+
+         return err ? ERR_PTR(err) : btf;
+    5ba1a2:	48 98                	cltq
+    5ba1a4:	85 d2                	test   %edx,%edx
+    5ba1a6:	48 0f 44 45 f0       	cmove  -0x10(%rbp),%rax
+  }
+  <SNIP>
+
+Fixes: 218e7b775d368f38 ("perf bpf: Provide a weak btf__load_from_kernel_by_id() for older libbpf versions")
+Reported-by: Avi Kivity <avi@scylladb.com>
+Link: https://lore.kernel.org/linux-perf-users/f0add43b-3de5-20c5-22c4-70aff4af959f@scylladb.com
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lore.kernel.org/linux-perf-users/YobjjFOblY4Xvwo7@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/build/Makefile.feature                               | 1 +
+ tools/build/feature/Makefile                               | 4 ++++
+ .../feature/test-libbpf-btf__load_from_kernel_by_id.c      | 7 +++++++
+ tools/perf/Makefile.config                                 | 7 +++++++
+ tools/perf/util/bpf-event.c                                | 4 +++-
+ 5 files changed, 22 insertions(+), 1 deletion(-)
+ create mode 100644 tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
 
-diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
-index 6ae484989d1f..c4b57e1df192 100644
---- a/drivers/platform/chrome/cros_ec_debugfs.c
-+++ b/drivers/platform/chrome/cros_ec_debugfs.c
-@@ -26,6 +26,9 @@
+diff --git a/tools/build/Makefile.feature b/tools/build/Makefile.feature
+index ae61f464043a..c6a48d0ef9ff 100644
+--- a/tools/build/Makefile.feature
++++ b/tools/build/Makefile.feature
+@@ -98,6 +98,7 @@ FEATURE_TESTS_EXTRA :=                  \
+          llvm-version                   \
+          clang                          \
+          libbpf                         \
++         libbpf-btf__load_from_kernel_by_id \
+          libpfm4                        \
+          libdebuginfod			\
+          clang-bpf-co-re
+diff --git a/tools/build/feature/Makefile b/tools/build/feature/Makefile
+index de66e1cc0734..cb4a2a4fa2e4 100644
+--- a/tools/build/feature/Makefile
++++ b/tools/build/feature/Makefile
+@@ -57,6 +57,7 @@ FILES=                                          \
+          test-lzma.bin                          \
+          test-bpf.bin                           \
+          test-libbpf.bin                        \
++         test-libbpf-btf__load_from_kernel_by_id.bin	\
+          test-get_cpuid.bin                     \
+          test-sdt.bin                           \
+          test-cxx.bin                           \
+@@ -287,6 +288,9 @@ $(OUTPUT)test-bpf.bin:
+ $(OUTPUT)test-libbpf.bin:
+ 	$(BUILD) -lbpf
  
- #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
- 
-+/* waitqueue for log readers */
-+static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
++$(OUTPUT)test-libbpf-btf__load_from_kernel_by_id.bin:
++	$(BUILD) -lbpf
 +
- /**
-  * struct cros_ec_debugfs - EC debugging information.
-  *
-@@ -34,7 +37,6 @@
-  * @log_buffer: circular buffer for console log information
-  * @read_msg: preallocated EC command and buffer to read console log
-  * @log_mutex: mutex to protect circular buffer
-- * @log_wq: waitqueue for log readers
-  * @log_poll_work: recurring task to poll EC for new console log data
-  * @panicinfo_blob: panicinfo debugfs blob
-  */
-@@ -45,7 +47,6 @@ struct cros_ec_debugfs {
- 	struct circ_buf log_buffer;
- 	struct cros_ec_command *read_msg;
- 	struct mutex log_mutex;
--	wait_queue_head_t log_wq;
- 	struct delayed_work log_poll_work;
- 	/* EC panicinfo */
- 	struct debugfs_blob_wrapper panicinfo_blob;
-@@ -108,7 +109,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
- 			buf_space--;
- 		}
+ $(OUTPUT)test-sdt.bin:
+ 	$(BUILD)
  
--		wake_up(&debug_info->log_wq);
-+		wake_up(&cros_ec_debugfs_log_wq);
- 	}
+diff --git a/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
+new file mode 100644
+index 000000000000..f7c084428735
+--- /dev/null
++++ b/tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c
+@@ -0,0 +1,7 @@
++// SPDX-License-Identifier: GPL-2.0
++#include <bpf/libbpf.h>
++
++int main(void)
++{
++	return btf__load_from_kernel_by_id(20151128, NULL);
++}
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index f3bf9297bcc0..1bd64e7404b9 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -553,9 +553,16 @@ ifndef NO_LIBELF
+         ifeq ($(feature-libbpf), 1)
+           EXTLIBS += -lbpf
+           $(call detected,CONFIG_LIBBPF_DYNAMIC)
++
++          $(call feature_check,libbpf-btf__load_from_kernel_by_id)
++          ifeq ($(feature-libbpf-btf__load_from_kernel_by_id), 1)
++            CFLAGS += -DHAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
++          endif
+         else
+           dummy := $(error Error: No libbpf devel library found, please install libbpf-devel);
+         endif
++      else
++	CFLAGS += -DHAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
+       endif
+     endif
  
- 	mutex_unlock(&debug_info->log_mutex);
-@@ -142,7 +143,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
+diff --git a/tools/perf/util/bpf-event.c b/tools/perf/util/bpf-event.c
+index a517eaa51eb3..65dfd2c70246 100644
+--- a/tools/perf/util/bpf-event.c
++++ b/tools/perf/util/bpf-event.c
+@@ -22,7 +22,8 @@
+ #include "record.h"
+ #include "util/synthetic-events.h"
  
- 		mutex_unlock(&debug_info->log_mutex);
+-struct btf * __weak btf__load_from_kernel_by_id(__u32 id)
++#ifndef HAVE_LIBBPF_BTF__LOAD_FROM_KERNEL_BY_ID
++struct btf *btf__load_from_kernel_by_id(__u32 id)
+ {
+        struct btf *btf;
+ #pragma GCC diagnostic push
+@@ -32,6 +33,7 @@ struct btf * __weak btf__load_from_kernel_by_id(__u32 id)
  
--		ret = wait_event_interruptible(debug_info->log_wq,
-+		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
- 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
- 		if (ret < 0)
- 			return ret;
-@@ -174,7 +175,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
- 	struct cros_ec_debugfs *debug_info = file->private_data;
- 	__poll_t mask = 0;
+        return err ? ERR_PTR(err) : btf;
+ }
++#endif
  
--	poll_wait(file, &debug_info->log_wq, wait);
-+	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
- 
- 	mutex_lock(&debug_info->log_mutex);
- 	if (CIRC_CNT(debug_info->log_buffer.head,
-@@ -359,7 +360,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
- 	debug_info->log_buffer.tail = 0;
- 
- 	mutex_init(&debug_info->log_mutex);
--	init_waitqueue_head(&debug_info->log_wq);
- 
- 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
- 			    debug_info, &cros_ec_console_log_fops);
+ struct bpf_program * __weak
+ bpf_object__next_program(const struct bpf_object *obj, struct bpf_program *prev)
 -- 
 2.35.1
 
