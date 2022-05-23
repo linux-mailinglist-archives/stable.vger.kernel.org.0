@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C91531BE2
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26340531711
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240579AbiEWR2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43084 "EHLO
+        id S240652AbiEWRaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241514AbiEWR0u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D30F737A9;
-        Mon, 23 May 2022 10:21:56 -0700 (PDT)
+        with ESMTP id S242497AbiEWR1q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96F17CB4F;
+        Mon, 23 May 2022 10:23:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1E19B81214;
-        Mon, 23 May 2022 17:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24D32C385AA;
-        Mon, 23 May 2022 17:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 67F09B81212;
+        Mon, 23 May 2022 17:23:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A38C385A9;
+        Mon, 23 May 2022 17:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326082;
-        bh=S4saDqSBPAHF5po1ATrYvKaytjDDNFnmsPkryfjOuyw=;
+        s=korg; t=1653326603;
+        bh=EElDOJhrmrplxAnqdeL2YM32Vk1aHtjDVjTNQWjrJVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b06IUBeCnoHKVDgsEPMqzpONaLCoQW35Zad1wwnvIaRW4Eai2NyOT7kInRqIheDXN
-         NaUkrHpMOPM6J7sJ8/M2X0+fwQMUZv/mBFGKoKbpLiw2Q9DWDLUoAHVIvqrtljWMZJ
-         xrHVLY+KVZg+kiXwtCGsk7Qd+HOv4J1r2IKPf8MY=
+        b=Dc5s8N9ET4lFJsYpGLG3UryIyNxoMgL4BWnUeAMTI67HMhenI5bQ07KqdV+T946IV
+         AzdWO2L5FpcXvxmiXIc5Sz2UflT30AjLeGtbRzgLOfhNHUSvr17GDHhnEpFa2O4pK/
+         B5YLoTK3GG78OwYvYHpcrdSbcvRJXfHHuScqR294=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namhyung Kim <namhyung@gmail.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sumanth Korikkar <sumanthk@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 52/68] perf bench numa: Address compiler error on s390
+Subject: [PATCH 5.15 110/132] perf regs x86: Fix arch__intr_reg_mask() for the hybrid platform
 Date:   Mon, 23 May 2022 19:05:19 +0200
-Message-Id: <20220523165811.111295465@linuxfoundation.org>
+Message-Id: <20220523165841.742669302@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,62 +60,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit f8ac1c478424a9a14669b8cef7389b1e14e5229d ]
+[ Upstream commit 01b28e4a58152e8906eeb5f1b55a0c404c48c7c8 ]
 
-The compilation on s390 results in this error:
+The X86 specific arch__intr_reg_mask() is to check whether the kernel
+and hardware can collect XMM registers. But it doesn't work on some
+hybrid platform.
 
-  # make DEBUG=y bench/numa.o
-  ...
-  bench/numa.c: In function ‘__bench_numa’:
-  bench/numa.c:1749:81: error: ‘%d’ directive output may be truncated
-              writing between 1 and 11 bytes into a region of size between
-              10 and 20 [-Werror=format-truncation=]
-  1749 |        snprintf(tname, sizeof(tname), "process%d:thread%d", p, t);
-                                                               ^~
-  ...
-  bench/numa.c:1749:64: note: directive argument in the range
-                 [-2147483647, 2147483646]
-  ...
-  #
+Without the patch on ADL-N:
 
-The maximum length of the %d replacement is 11 characters because of the
-negative sign.  Therefore extend the array by two more characters.
+  $ perf record -I?
+  available registers: AX BX CX DX SI DI BP SP IP FLAGS CS SS R8 R9 R10
+  R11 R12 R13 R14 R15
 
-Output after:
+The config of the test event doesn't contain the PMU information. The
+kernel may fail to initialize it on the correct hybrid PMU and return
+the wrong non-supported information.
 
-  # make  DEBUG=y bench/numa.o > /dev/null 2>&1; ll bench/numa.o
-  -rw-r--r-- 1 root root 418320 May 19 09:11 bench/numa.o
-  #
+Add the PMU information into the config for the hybrid platform. The
+same register set is supported among different hybrid PMUs. Checking
+the first available one is good enough.
 
-Fixes: 3aff8ba0a4c9c919 ("perf bench numa: Avoid possible truncation when using snprintf()")
-Suggested-by: Namhyung Kim <namhyung@gmail.com>
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
-Cc: Sven Schnelle <svens@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Link: https://lore.kernel.org/r/20220520081158.2990006-1-tmricht@linux.ibm.com
+With the patch on ADL-N:
+
+  $ perf record -I?
+  available registers: AX BX CX DX SI DI BP SP IP FLAGS CS SS R8 R9 R10
+  R11 R12 R13 R14 R15 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 XMM9
+  XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
+
+Fixes: 6466ec14aaf44ff1 ("perf regs x86: Add X86 specific arch__intr_reg_mask()")
+Reported-by: Ammy Yi <ammy.yi@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
+Link: https://lore.kernel.org/r/20220518145125.1494156-1-kan.liang@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/arch/x86/util/perf_regs.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 5797253b9700..69d62e57a0c3 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -1630,7 +1630,7 @@ static int __bench_numa(const char *name)
- 		"GB/sec,", "total-speed",	"GB/sec total speed");
+diff --git a/tools/perf/arch/x86/util/perf_regs.c b/tools/perf/arch/x86/util/perf_regs.c
+index 207c56805c55..0ed177991ad0 100644
+--- a/tools/perf/arch/x86/util/perf_regs.c
++++ b/tools/perf/arch/x86/util/perf_regs.c
+@@ -9,6 +9,8 @@
+ #include "../../../util/perf_regs.h"
+ #include "../../../util/debug.h"
+ #include "../../../util/event.h"
++#include "../../../util/pmu.h"
++#include "../../../util/pmu-hybrid.h"
  
- 	if (g->p.show_details >= 2) {
--		char tname[14 + 2 * 10 + 1];
-+		char tname[14 + 2 * 11 + 1];
- 		struct thread_data *td;
- 		for (p = 0; p < g->p.nr_proc; p++) {
- 			for (t = 0; t < g->p.nr_threads; t++) {
+ const struct sample_reg sample_reg_masks[] = {
+ 	SMPL_REG(AX, PERF_REG_X86_AX),
+@@ -284,12 +286,22 @@ uint64_t arch__intr_reg_mask(void)
+ 		.disabled 		= 1,
+ 		.exclude_kernel		= 1,
+ 	};
++	struct perf_pmu *pmu;
+ 	int fd;
+ 	/*
+ 	 * In an unnamed union, init it here to build on older gcc versions
+ 	 */
+ 	attr.sample_period = 1;
+ 
++	if (perf_pmu__has_hybrid()) {
++		/*
++		 * The same register set is supported among different hybrid PMUs.
++		 * Only check the first available one.
++		 */
++		pmu = list_first_entry(&perf_pmu__hybrid_pmus, typeof(*pmu), hybrid_list);
++		attr.config |= (__u64)pmu->type << PERF_PMU_TYPE_SHIFT;
++	}
++
+ 	event_attr_init(&attr);
+ 
+ 	fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
 -- 
 2.35.1
 
