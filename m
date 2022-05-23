@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98086531AFF
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3486A531B6E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239459AbiEWRID (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:08:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59430 "EHLO
+        id S240974AbiEWRdD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239581AbiEWRHo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:07:44 -0400
+        with ESMTP id S240668AbiEWRaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8176C6AA53;
-        Mon, 23 May 2022 10:07:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCD4A39177;
+        Mon, 23 May 2022 10:26:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A129614DA;
-        Mon, 23 May 2022 17:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F5CC385AA;
-        Mon, 23 May 2022 17:07:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B64E2611CE;
+        Mon, 23 May 2022 17:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0E2CC385A9;
+        Mon, 23 May 2022 17:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325646;
-        bh=LDqDkY7VPKRx8bgA5xhpX3tDf25816+cVHFIZsqkKrs=;
+        s=korg; t=1653326771;
+        bh=COq4E386Kj6CEmG7VcQHWL7EBg1abKP2T8YeYMjuBuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RLFBEfOXScDGdw/wOLDiC2lCDLEEmUQMQzgIr6JelKmSdWlAk2VdzTOQsxyLnIj0K
-         egTvYNPSPbY/AQ+/PibtLdj7GvnHPMrn8PZ7/RTEwQjpAvkYs3CIuPFGlrXcidIp7w
-         BM/z3GzJAotSkNviVRt6rgM72el1DLcERfxM17+Y=
+        b=I8PXs7bG21zY48a2H2cITHLFLV5n9OLqMUIhu8TTSQmEg6Ig0dUElMhkb6qEt+Nvg
+         YfzgT/26w0oM+0Cq+UOPuri6wsavb93lxEF/m2Qjckd9RCDjmMelqAio3fJ0W11WFU
+         2JlIgFKUhCRrT4R/IdJ0og894REKDpu2jtzh0+Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 5.15 001/132] usb: gadget: fix race when gadget driver register via ioctl
+        stable@vger.kernel.org, Stefan Gottwald <gottwald@igel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.17 053/158] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
 Date:   Mon, 23 May 2022 19:03:30 +0200
-Message-Id: <20220523165823.723229741@linuxfoundation.org>
+Message-Id: <20220523165839.526959442@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,92 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 upstream.
+commit 92597f97a40bf661bebceb92e26ff87c76d562d4 upstream.
 
-The usb_gadget_register_driver can be called multi time by to
-threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
-to multiple registrations.
+If a Root Port on Elo i2 is put into D3cold and then back into D0, the
+downstream device becomes permanently inaccessible, so add a bridge D3 DMI
+quirk for that system.
 
-Call trace:
-  driver_register+0x220/0x3a0 drivers/base/driver.c:171
-  usb_gadget_register_driver_owner+0xfb/0x1e0
-    drivers/usb/gadget/udc/core.c:1546
-  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
-  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
-  ioctl USB_RAW_IOCTL_RUN
+This was exposed by 14858dcc3b35 ("PCI: Use pci_update_current_state() in
+pci_enable_device_flags()"), but before that commit the Root Port in
+question had never been put into D3cold for real due to a mismatch between
+its power state retrieved from the PCI_PM_CTRL register (which was
+accessible even though the platform firmware indicated that the port was in
+D3cold) and the state of an ACPI power resource involved in its power
+management.
 
-This routine allows two processes to register the same driver instance
-via ioctl syscall. which lead to a race condition.
-
-Please refer to the following scenarios.
-
-           T1                                  T2
-------------------------------------------------------------------
-usb_gadget_register_driver_owner
-  driver_register                    driver_register
-    driver_find                       driver_find
-    bus_add_driver                    bus_add_driver
-      priv alloced                     <context switch>
-      drv->p = priv;
-      <schedule out>
-      kobject_init_and_add // refcount = 1;
-   //couldn't find an available UDC or it's busy
-   <context switch>
-                                       priv alloced
-                                       drv->priv = priv;
-                                       kobject_init_and_add
-                                         ---> refcount = 1 <------
-                                       // register success
-                                       <context switch>
-===================== another ioctl/process ======================
-                                      driver_register
-                                       driver_find
-                                        k = kset_find_obj()
-                                         ---> refcount = 2 <------
-                                        <context out>
-   driver_unregister
-   // drv->p become T2's priv
-   ---> refcount = 1 <------
-   <context switch>
-                                        kobject_put(k)
-                                         ---> refcount = 0 <------
-                                        return priv->driver;
-                                        --------UAF here----------
-
-There will be UAF in this scenario.
-
-We can fix it by adding a new STATE_DEV_REGISTERING device state to
-avoid double register.
-
-Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215715
+Link: https://lore.kernel.org/r/11980172.O9o76ZdvQC@kreacher
+Reported-by: Stefan Gottwald <gottwald@igel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v5.15+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pci.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -145,6 +145,7 @@ enum dev_state {
- 	STATE_DEV_INVALID = 0,
- 	STATE_DEV_OPENED,
- 	STATE_DEV_INITIALIZED,
-+	STATE_DEV_REGISTERING,
- 	STATE_DEV_RUNNING,
- 	STATE_DEV_CLOSED,
- 	STATE_DEV_FAILED
-@@ -508,6 +509,7 @@ static int raw_ioctl_run(struct raw_dev
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-+	dev->state = STATE_DEV_REGISTERING;
- 	spin_unlock_irqrestore(&dev->lock, flags);
- 
- 	ret = usb_gadget_probe_driver(&dev->driver);
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2920,6 +2920,16 @@ static const struct dmi_system_id bridge
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
+ 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
+ 		},
++		/*
++		 * Downstream device is not accessible after putting a root port
++		 * into D3cold and back into D0 on Elo i2.
++		 */
++		.ident = "Elo i2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Elo Touch Solutions"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Elo i2"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "RevB"),
++		},
+ 	},
+ #endif
+ 	{ }
 
 
