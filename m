@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9D55317A1
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C90531915
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239678AbiEWRRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57932 "EHLO
+        id S229452AbiEWRaR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240853AbiEWRQp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55D669B51;
-        Mon, 23 May 2022 10:16:35 -0700 (PDT)
+        with ESMTP id S241697AbiEWR1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:05 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A7875208;
+        Mon, 23 May 2022 10:22:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FFF2B81204;
-        Mon, 23 May 2022 17:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BCB9C385AA;
-        Mon, 23 May 2022 17:13:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6F982CE16D6;
+        Mon, 23 May 2022 17:21:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46315C385A9;
+        Mon, 23 May 2022 17:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326017;
-        bh=tzRz9+4QZigOteXiZvFEjKVlKA33ZGoT+eMajcfxfmU=;
+        s=korg; t=1653326500;
+        bh=dDgockUMxqkKVjLARpU37Xk0WcVS855EiS8jPh0QiFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VTqA5LMN6U1i1EiSrFU/WkqhP8rfHyEKmuIhUwelud1VihtZk47NqvoS1muqikhGM
-         aTy9t1YLUTED6MRV8wPYDl+tZgC/o0epqVVDe5Sz1f/VYOXu5c7SHJMOxUTiqsTrOA
-         JtC8GwzICbJt7lLwrvAr/Lx4Nh5EnhZ+wjUP5Zbo=
+        b=Mle3TGWzZlGB03XXrgVTRpISCe1k2deoaUFrzB55W8/8/lRU8kLzW3gCDC1c+Zrsu
+         RZMUvf+YzcXwI+9izb5+VXVU0WGuOs4QGMXwYNCund2Ugy1/w162109/UNwxPfrFK2
+         M3BEe16MAoBySPjl3WzE1gl1VNUWY0+M0SUqpiuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 42/68] net/qla3xxx: Fix a test in ql_reset_work()
+        stable@vger.kernel.org, Kevin Mitchell <kevmitch@arista.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 100/132] igb: skip phy status check where unavailable
 Date:   Mon, 23 May 2022 19:05:09 +0200
-Message-Id: <20220523165809.551977508@linuxfoundation.org>
+Message-Id: <20220523165840.005997703@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,46 +56,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Kevin Mitchell <kevmitch@arista.com>
 
-[ Upstream commit 5361448e45fac6fb96738df748229432a62d78b6 ]
+[ Upstream commit 942d2ad5d2e0df758a645ddfadffde2795322728 ]
 
-test_bit() tests if one bit is set or not.
-Here the logic seems to check of bit QL_RESET_PER_SCSI (i.e. 4) OR bit
-QL_RESET_START (i.e. 3) is set.
+igb_read_phy_reg() will silently return, leaving phy_data untouched, if
+hw->ops.read_reg isn't set. Depending on the uninitialized value of
+phy_data, this led to the phy status check either succeeding immediately
+or looping continuously for 2 seconds before emitting a noisy err-level
+timeout. This message went out to the console even though there was no
+actual problem.
 
-In fact, it checks if bit 7 (4 | 3 = 7) is set, that is to say
-QL_ADAPTER_UP.
+Instead, first check if there is read_reg function pointer. If not,
+proceed without trying to check the phy status register.
 
-This looks harmless, because this bit is likely be set, and when the
-ql_reset_work() delayed work is scheduled in ql3xxx_isr() (the only place
-that schedule this work), QL_RESET_START or QL_RESET_PER_SCSI is set.
-
-This has been spotted by smatch.
-
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/80e73e33f390001d9c0140ffa9baddf6466a41a2.1652637337.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b72f3f72005d ("igb: When GbE link up, wait for Remote receiver status condition")
+Signed-off-by: Kevin Mitchell <kevmitch@arista.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 3 ++-
+ drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index da2862d59681..5e81cd317a32 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3629,7 +3629,8 @@ static void ql_reset_work(struct work_struct *work)
- 		qdev->mem_map_registers;
- 	unsigned long hw_flags;
+diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
+index bf8ef81f6c0e..b88303351484 100644
+--- a/drivers/net/ethernet/intel/igb/igb_main.c
++++ b/drivers/net/ethernet/intel/igb/igb_main.c
+@@ -5505,7 +5505,8 @@ static void igb_watchdog_task(struct work_struct *work)
+ 				break;
+ 			}
  
--	if (test_bit((QL_RESET_PER_SCSI | QL_RESET_START), &qdev->flags)) {
-+	if (test_bit(QL_RESET_PER_SCSI, &qdev->flags) ||
-+	    test_bit(QL_RESET_START, &qdev->flags)) {
- 		clear_bit(QL_LINK_MASTER, &qdev->flags);
+-			if (adapter->link_speed != SPEED_1000)
++			if (adapter->link_speed != SPEED_1000 ||
++			    !hw->phy.ops.read_reg)
+ 				goto no_wait;
  
- 		/*
+ 			/* wait for Remote receiver status OK */
 -- 
 2.35.1
 
