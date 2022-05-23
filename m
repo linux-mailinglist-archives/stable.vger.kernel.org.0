@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E34D531BA8
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E87BA531A18
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233669AbiEWRfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:35:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34892 "EHLO
+        id S240175AbiEWRXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240692AbiEWRdt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4139A7CB36;
-        Mon, 23 May 2022 10:27:54 -0700 (PDT)
+        with ESMTP id S241551AbiEWRW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF4978929;
+        Mon, 23 May 2022 10:19:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2F3860916;
-        Mon, 23 May 2022 17:27:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA127C34115;
-        Mon, 23 May 2022 17:27:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A853B8121F;
+        Mon, 23 May 2022 17:19:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1B6C34115;
+        Mon, 23 May 2022 17:19:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326873;
-        bh=Kb3EsYIGclp3SjLyiWotONiDJkvSpTjwoijaEjgWOrc=;
+        s=korg; t=1653326346;
+        bh=KRlYvPWMEKkubzqIFj6i84D49RI0Jy5hTL0Q+gTJ6io=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nGBXGB6pHFg0KSkFlZnqQCAcxHnMZmPTKGABd8JMJzlbVHGBWKq2im1X04S/dNgmj
-         3JIqT7AjREAF8HjAmC7NE3KsDhSQmEsuQyVKBIcU8lZVgH9qdtqE6zVI7elH5D9The
-         5p/eJqHY7GTfLccVRJOiXU4Th3623bZFEspD+9VE=
+        b=IAoVESHfdOZFGTH0L6M5+Zvu7x9i2mEZqMUSXQRprykbUnK/ZPv8M8Irf2lQDOaHx
+         sGeTyACcV0mC1XutfnCKA+59S5F+OsTqeYRRyFLo2TekcuuYwzvzMbhz2D06uV8w3A
+         U+WNh8n2mCFqfXML8gi9xURwuOcgn+NdLS+Z25YE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 085/158] netfilter: flowtable: fix excessive hw offload attempts after failure
+Subject: [PATCH 5.15 033/132] tools/virtio: compile with -pthread
 Date:   Mon, 23 May 2022 19:04:02 +0200
-Message-Id: <20220523165845.201616537@linuxfoundation.org>
+Message-Id: <20220523165828.982726057@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Michael S. Tsirkin <mst@redhat.com>
 
-[ Upstream commit 396ef64113a8ba01c46315d67a99db8dde3eef51 ]
+[ Upstream commit f03560a57c1f60db6ac23ffd9714e1c69e2f95c7 ]
 
-If a flow cannot be offloaded, the code currently repeatedly tries again as
-quickly as possible, which can significantly increase system load.
-Fix this by limiting flow timeout update and hardware offload retry to once
-per second.
+When using pthreads, one has to compile and link with -lpthread,
+otherwise e.g. glibc is not guaranteed to be reentrant.
 
-Fixes: c07531c01d82 ("netfilter: flowtable: Remove redundant hw refresh bit")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This replaces -lpthread.
+
+Reported-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/virtio/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index b90eca7a2f22..52e7f94d2450 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -329,8 +329,10 @@ void flow_offload_refresh(struct nf_flowtable *flow_table,
- 	u32 timeout;
+diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+index 0d7bbe49359d..1b25cc7c64bb 100644
+--- a/tools/virtio/Makefile
++++ b/tools/virtio/Makefile
+@@ -5,7 +5,8 @@ virtio_test: virtio_ring.o virtio_test.o
+ vringh_test: vringh_test.o vringh.o virtio_ring.o
  
- 	timeout = nf_flowtable_time_stamp + flow_offload_get_timeout(flow);
--	if (READ_ONCE(flow->timeout) != timeout)
-+	if (timeout - READ_ONCE(flow->timeout) > HZ)
- 		WRITE_ONCE(flow->timeout, timeout);
-+	else
-+		return;
- 
- 	if (likely(!nf_flowtable_hw_offload(flow_table)))
- 		return;
+ CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
+-LDFLAGS += -lpthread
++CFLAGS += -pthread
++LDFLAGS += -pthread
+ vpath %.c ../../drivers/virtio ../../drivers/vhost
+ mod:
+ 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
 -- 
 2.35.1
 
