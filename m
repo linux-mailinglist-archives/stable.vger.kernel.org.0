@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A65C5318A5
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5536B53180B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240091AbiEWROn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:14:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
+        id S240681AbiEWR2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239623AbiEWRNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:13:44 -0400
+        with ESMTP id S241270AbiEWR0j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:39 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C44FF13F26;
-        Mon, 23 May 2022 10:12:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB046FA0D;
+        Mon, 23 May 2022 10:21:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 14339614CA;
-        Mon, 23 May 2022 17:12:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F4084C385A9;
-        Mon, 23 May 2022 17:12:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CB9C6109A;
+        Mon, 23 May 2022 17:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3FFC385AA;
+        Mon, 23 May 2022 17:20:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325927;
-        bh=lsTQfPcjQ3GMPoVWgE/XB3ejk49g6YF+BtG3dlMGAVs=;
+        s=korg; t=1653326406;
+        bh=SFO6j3MetXUW18gM9ww64T2YO1nkB1MnQMxTj8wIJTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bijjn5rLBoNRHqX8SV0GNX8DEManFY5wAk7y9SGrCgficrSRL3atRGZz7Nf0u0VTK
-         tcQohekVZRe04WCq8VypKVgjgH/1gIx1RC9k+LhS9AUnYBQeObXdxr+ModhA/4+3Fi
-         jUqYurRHsGA6Ksf89O/FH+mFvehvCO3EXqGmKpro=
+        b=UU3Opoaob7TIFdn4xBmPdwneMTNTswrbajii1/888pIfIHgyn6hG+YVs7Q44TwRUh
+         qI7oSdBpYOaPPOhhrI9ZCJmyTieLZMtO1iuM9pKG2m/emuPhFI1ULO6basggNrTalv
+         UVxBk42Drc3HSt8I1nuRMjQHiuDgYhqOH/mpsrQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Harini Katakam <harini.katakam@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 13/68] MIPS: lantiq: check the return value of kzalloc()
+Subject: [PATCH 5.15 071/132] net: macb: Increment rx bd head after allocating skb and buffer
 Date:   Mon, 23 May 2022 19:04:40 +0200
-Message-Id: <20220523165804.752768414@linuxfoundation.org>
+Message-Id: <20220523165834.928906858@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +57,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Harini Katakam <harini.katakam@xilinx.com>
 
-[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
+[ Upstream commit 9500acc631dbb8b73166e25700e656b11f6007b6 ]
 
-kzalloc() is a memory allocation function which can return NULL when
-some internal memory errors happen. So it is better to check the
-return value of it to prevent potential wrong memory access or
-memory leak.
+In gem_rx_refill rx_prepared_head is incremented at the beginning of
+the while loop preparing the skb and data buffers. If the skb or data
+buffer allocation fails, this BD will be unusable BDs until the head
+loops back to the same BD (and obviously buffer allocation succeeds).
+In the unlikely event that there's a string of allocation failures,
+there will be an equal number of unusable BDs and an inconsistent RX
+BD chain. Hence increment the head at the end of the while loop to be
+clean.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: 4df95131ea80 ("net/macb: change RX path for GEM")
+Signed-off-by: Harini Katakam <harini.katakam@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20220512171900.32593-1-harini.katakam@xilinx.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/falcon/sysctrl.c |  2 ++
- arch/mips/lantiq/xway/gptu.c      |  2 ++
- arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
- 3 files changed, 34 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/cadence/macb_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
-index 037b08f3257e..a2837a54d972 100644
---- a/arch/mips/lantiq/falcon/sysctrl.c
-+++ b/arch/mips/lantiq/falcon/sysctrl.c
-@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 217c1a0f8940..2fd3dd4b8b81 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1250,7 +1250,6 @@ static void gem_rx_refill(struct macb_queue *queue)
+ 		/* Make hw descriptor updates visible to CPU */
+ 		rmb();
  
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = NULL;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
-index 3d5683e75cf1..200fe9ff641d 100644
---- a/arch/mips/lantiq/xway/gptu.c
-+++ b/arch/mips/lantiq/xway/gptu.c
-@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+-		queue->rx_prepared_head++;
+ 		desc = macb_rx_desc(queue, entry);
  
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev_name(dev);
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index 2ee68d6e8bb9..6c2d9779ac72 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -311,6 +311,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 		if (!queue->rx_skbuff[entry]) {
+@@ -1289,6 +1288,7 @@ static void gem_rx_refill(struct macb_queue *queue)
+ 			dma_wmb();
+ 			desc->addr &= ~MACB_BIT(RX_USED);
+ 		}
++		queue->rx_prepared_head++;
+ 	}
  
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -334,6 +336,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -352,24 +356,28 @@ static void clkdev_add_pci(void)
- 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
- 	/* main pci clock */
--	clk->cl.dev_id = "17000000.pci";
--	clk->cl.con_id = NULL;
--	clk->cl.clk = clk;
--	clk->rate = CLOCK_33M;
--	clk->rates = valid_pci_rates;
--	clk->enable = pci_enable;
--	clk->disable = pmu_disable;
--	clk->module = 0;
--	clk->bits = PMU_PCI;
--	clkdev_add(&clk->cl);
-+	if (clk) {
-+		clk->cl.dev_id = "17000000.pci";
-+		clk->cl.con_id = NULL;
-+		clk->cl.clk = clk;
-+		clk->rate = CLOCK_33M;
-+		clk->rates = valid_pci_rates;
-+		clk->enable = pci_enable;
-+		clk->disable = pmu_disable;
-+		clk->module = 0;
-+		clk->bits = PMU_PCI;
-+		clkdev_add(&clk->cl);
-+	}
- 
- 	/* use internal/external bus clock */
--	clk_ext->cl.dev_id = "17000000.pci";
--	clk_ext->cl.con_id = "external";
--	clk_ext->cl.clk = clk_ext;
--	clk_ext->enable = pci_ext_enable;
--	clk_ext->disable = pci_ext_disable;
--	clkdev_add(&clk_ext->cl);
-+	if (clk_ext) {
-+		clk_ext->cl.dev_id = "17000000.pci";
-+		clk_ext->cl.con_id = "external";
-+		clk_ext->cl.clk = clk_ext;
-+		clk_ext->enable = pci_ext_enable;
-+		clk_ext->disable = pci_ext_disable;
-+		clkdev_add(&clk_ext->cl);
-+	}
- }
- 
- /* xway socs can generate clocks on gpio pins */
-@@ -389,9 +397,15 @@ static void clkdev_add_clkout(void)
- 		char *name;
- 
- 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
-+		if (!name)
-+			continue;
- 		sprintf(name, "clkout%d", i);
- 
- 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
-+		if (!clk) {
-+			kfree(name);
-+			continue;
-+		}
- 		clk->cl.dev_id = "1f103000.cgu";
- 		clk->cl.con_id = name;
- 		clk->cl.clk = clk;
+ 	/* Make descriptor updates visible to hardware */
 -- 
 2.35.1
 
