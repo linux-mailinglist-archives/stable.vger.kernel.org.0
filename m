@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5ED5531A8B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A92531AD8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241099AbiEWSDL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 14:03:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39834 "EHLO
+        id S240713AbiEWR3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243232AbiEWSBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 14:01:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32FB6DFF74;
-        Mon, 23 May 2022 10:46:53 -0700 (PDT)
+        with ESMTP id S240648AbiEWRZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48CDB3EA89;
+        Mon, 23 May 2022 10:12:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 101B9B81202;
-        Mon, 23 May 2022 17:29:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CCF8C34115;
-        Mon, 23 May 2022 17:29:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34BCEB8120F;
+        Mon, 23 May 2022 17:11:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9495AC385A9;
+        Mon, 23 May 2022 17:11:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326969;
-        bh=4lto3opJQdBcvB9mshv3B7x9QIIiku/yZIV+JmzGeQA=;
+        s=korg; t=1653325902;
+        bh=AuNJiLT2mmTuKkv5FyUijn+gb+NPPAPZlGfZWgzy4Bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xQzOtvM9JC0V7HwfC58bMUbkkTAuEsHm9mALqlQWRf7QXU0Q3EqHT5zjE30AVxSMt
-         7+iSAdVAQZDR5mfEhbT+KjvR3OyneIjUrGh7DhkZ1no4g+Raj+8hG/Khu9eo6LCANa
-         nFTQLGvsOW2FPBuGDh9oejvjeDKIgfblX46mZp9M=
+        b=gCBUAc646cHqWnD/71RO5rqnn2VDcnVmRvnJxHmsai0OYiQ7zm8CPOGrte5D8E6LA
+         eubvNEVumIwhF7vuaASMmZwbbBHf2iXJIvxsadQsaVbOMpbROB8jkag9oIEO1E26FX
+         tgabjBaZSWa1g106kdgST1RONFy5hNSPAy7aD6J8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Jeff LaBundy <jeff@labundy.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 115/158] mptcp: Do TCP fallback on early DSS checksum failure
-Date:   Mon, 23 May 2022 19:04:32 +0200
-Message-Id: <20220523165850.007093415@linuxfoundation.org>
+Subject: [PATCH 5.4 06/68] Input: add bounds checking to input_set_capability()
+Date:   Mon, 23 May 2022 19:04:33 +0200
+Message-Id: <20220523165803.609691673@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,103 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mat Martineau <mathew.j.martineau@linux.intel.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit ae66fb2ba6c3dcaf8b9612b65aa949a1a4bed150 ]
+[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
 
-RFC 8684 section 3.7 describes several opportunities for a MPTCP
-connection to "fall back" to regular TCP early in the connection
-process, before it has been confirmed that MPTCP options can be
-successfully propagated on all SYN, SYN/ACK, and data packets. If a peer
-acknowledges the first received data packet with a regular TCP header
-(no MPTCP options), fallback is allowed.
+Update input_set_capability() to prevent kernel panic in case the
+event code exceeds the bitmap for the given event type.
 
-If the recipient of that first data packet finds a MPTCP DSS checksum
-error, this provides an opportunity to fail gracefully with a TCP
-fallback rather than resetting the connection (as might happen if a
-checksum failure were detected later).
-
-This commit modifies the checksum failure code to attempt fallback on
-the initial subflow of a MPTCP connection, only if it's a failure in the
-first data mapping. In cases where the peer initiates the connection,
-requests checksums, is the first to send data, and the peer is sending
-incorrect checksums (see
-https://github.com/multipath-tcp/mptcp_net-next/issues/275), this allows
-the connection to proceed as TCP rather than reset.
-
-Fixes: dd8bcd1768ff ("mptcp: validate the data checksum")
-Acked-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/protocol.h |  3 ++-
- net/mptcp/subflow.c  | 21 ++++++++++++++++++---
- 2 files changed, 20 insertions(+), 4 deletions(-)
+ drivers/input/input.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
-index e4413b3e50c2..8015389859d9 100644
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -443,7 +443,8 @@ struct mptcp_subflow_context {
- 		can_ack : 1,        /* only after processing the remote a key */
- 		disposable : 1,	    /* ctx can be free at ulp release time */
- 		stale : 1,	    /* unable to snd/rcv data, do not use for xmit */
--		local_id_valid : 1; /* local_id is correctly initialized */
-+		local_id_valid : 1, /* local_id is correctly initialized */
-+		valid_csum_seen : 1;        /* at least one csum validated */
- 	enum mptcp_data_avail data_avail;
- 	u32	remote_nonce;
- 	u64	thmac;
-diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index e27574e9f969..7a3a70067c80 100644
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -958,11 +958,14 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
- 				 subflow->map_data_csum);
- 	if (unlikely(csum)) {
- 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_DATACSUMERR);
--		subflow->send_mp_fail = 1;
--		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
-+		if (subflow->mp_join || subflow->valid_csum_seen) {
-+			subflow->send_mp_fail = 1;
-+			MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
-+		}
- 		return subflow->mp_join ? MAPPING_INVALID : MAPPING_DUMMY;
- 	}
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index e2eb9b9b8363..0e16a9980c6a 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -47,6 +47,17 @@ static DEFINE_MUTEX(input_mutex);
  
-+	subflow->valid_csum_seen = 1;
- 	return MAPPING_OK;
- }
+ static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
  
-@@ -1144,6 +1147,18 @@ static void subflow_sched_work_if_closed(struct mptcp_sock *msk, struct sock *ss
- 	}
- }
- 
-+static bool subflow_can_fallback(struct mptcp_subflow_context *subflow)
-+{
-+	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
++static const unsigned int input_max_code[EV_CNT] = {
++	[EV_KEY] = KEY_MAX,
++	[EV_REL] = REL_MAX,
++	[EV_ABS] = ABS_MAX,
++	[EV_MSC] = MSC_MAX,
++	[EV_SW] = SW_MAX,
++	[EV_LED] = LED_MAX,
++	[EV_SND] = SND_MAX,
++	[EV_FF] = FF_MAX,
++};
 +
-+	if (subflow->mp_join)
-+		return false;
-+	else if (READ_ONCE(msk->csum_enabled))
-+		return !subflow->valid_csum_seen;
-+	else
-+		return !subflow->fully_established;
-+}
-+
- static bool subflow_check_data_avail(struct sock *ssk)
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
  {
- 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
-@@ -1221,7 +1236,7 @@ static bool subflow_check_data_avail(struct sock *ssk)
- 		return true;
- 	}
- 
--	if (subflow->mp_join || subflow->fully_established) {
-+	if (!subflow_can_fallback(subflow)) {
- 		/* fatal protocol error, close the socket.
- 		 * subflow_error_report() will introduce the appropriate barriers
- 		 */
+@@ -1978,6 +1989,14 @@ EXPORT_SYMBOL(input_get_timestamp);
+  */
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
+ {
++	if (type < EV_CNT && input_max_code[type] &&
++	    code > input_max_code[type]) {
++		pr_err("%s: invalid code %u for type %u\n", __func__, code,
++		       type);
++		dump_stack();
++		return;
++	}
++
+ 	switch (type) {
+ 	case EV_KEY:
+ 		__set_bit(code, dev->keybit);
 -- 
 2.35.1
 
