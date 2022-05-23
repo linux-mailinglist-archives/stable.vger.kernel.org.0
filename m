@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A3D531C69
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C725316A9
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239679AbiEWRJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:09:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34860 "EHLO
+        id S239690AbiEWRKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:10:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239450AbiEWRJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CBBA6C54E;
-        Mon, 23 May 2022 10:08:43 -0700 (PDT)
+        with ESMTP id S239649AbiEWRKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E456CA83;
+        Mon, 23 May 2022 10:09:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95E9D614CA;
-        Mon, 23 May 2022 17:08:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D14C385A9;
-        Mon, 23 May 2022 17:08:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D17E2B811FF;
+        Mon, 23 May 2022 17:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35896C385A9;
+        Mon, 23 May 2022 17:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325708;
-        bh=ftxdWj3rbiElIFxqTAQAWauSR4gy98WNczgs3M9/a0M=;
+        s=korg; t=1653325782;
+        bh=uaVtAjgPGgzXjaW6iUUkGMw3JPgNjOG8AApm91RvokI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBXYVV4xbiXnlTS1VlczQQpyJrWur5tJpvQgMnPt7cWD/WPUrXh8uv/6+2lveaEvN
-         3mAVas7VkinNOaCP671grRd3NuoKHgCeoC1FZEcy2eJ96EESwGklINl6wlCfS0Gj0w
-         ACx1kvHdZDxm7RUvvp3DRwO/PSgn7SXcLVBjY1mI=
+        b=L4xE2yrJVLvdm8qYkMs1gjBJTgveQXtJn1D8LdUAjnq92olGvndxh9FWMu/MNlyMd
+         QxXiUjRn4q5sQdpO2PnmixLhms+GWc2ZANf66fLQdwK1i/RGxy2pH2HT0y3ISGavYo
+         XVcPTKpz0ZykxdfMmkpmrjEeJemRCcgMe08ZHANE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 4.14 10/33] drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
-Date:   Mon, 23 May 2022 19:04:59 +0200
-Message-Id: <20220523165748.819779721@linuxfoundation.org>
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.14 11/33] mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+Date:   Mon, 23 May 2022 19:05:00 +0200
+Message-Id: <20220523165749.400451941@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
 References: <20220523165746.957506211@linuxfoundation.org>
@@ -53,32 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 6e03b13cc7d9427c2c77feed1549191015615202 upstream.
+commit 24ed3bd01d6a844fd5e8a75f48d0a3d10ed71bf9 upstream
 
-drm_dp_mst_get_edid call kmemdup to create mst_edid. So mst_edid need to be
-freed after use.
+The timeout values used while waiting for a CMD6 for BKOPS or a CACHE_FLUSH
+to complete, are not defined by the eMMC spec. However, a timeout of 10
+minutes as is currently being used, is just silly for both of these cases.
+Instead, let's specify more reasonable timeouts, 120s for BKOPS and 30s for
+CACHE_FLUSH.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20220516032042.13166-1-hbh25y@gmail.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200122142747.5690-2-ulf.hansson@linaro.org
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/core/mmc_ops.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2910,6 +2910,7 @@ static void fetch_monitor_name(struct dr
+--- a/drivers/mmc/core/mmc_ops.c
++++ b/drivers/mmc/core/mmc_ops.c
+@@ -23,7 +23,9 @@
+ #include "host.h"
+ #include "mmc_ops.h"
  
- 	mst_edid = drm_dp_mst_get_edid(port->connector, mgr, port);
- 	drm_edid_get_monitor_name(mst_edid, name, namelen);
-+	kfree(mst_edid);
- }
+-#define MMC_OPS_TIMEOUT_MS	(10 * 60 * 1000) /* 10 minute timeout */
++#define MMC_OPS_TIMEOUT_MS		(10 * 60 * 1000) /* 10min*/
++#define MMC_BKOPS_TIMEOUT_MS		(120 * 1000) /* 120s */
++#define MMC_CACHE_FLUSH_TIMEOUT_MS	(30 * 1000) /* 30s */
  
- /**
+ static const u8 tuning_blk_pattern_4bit[] = {
+ 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
+@@ -979,7 +981,7 @@ void mmc_start_bkops(struct mmc_card *ca
+ 
+ 	mmc_claim_host(card->host);
+ 	if (card->ext_csd.raw_bkops_status >= EXT_CSD_BKOPS_LEVEL_2) {
+-		timeout = MMC_OPS_TIMEOUT_MS;
++		timeout = MMC_BKOPS_TIMEOUT_MS;
+ 		use_busy_signal = true;
+ 	} else {
+ 		timeout = 0;
+@@ -1022,7 +1024,8 @@ int mmc_flush_cache(struct mmc_card *car
+ 			(card->ext_csd.cache_size > 0) &&
+ 			(card->ext_csd.cache_ctrl & 1)) {
+ 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+-				EXT_CSD_FLUSH_CACHE, 1, 0);
++				 EXT_CSD_FLUSH_CACHE, 1,
++				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+ 		if (err)
+ 			pr_err("%s: cache flush error %d\n",
+ 					mmc_hostname(card->host), err);
 
 
