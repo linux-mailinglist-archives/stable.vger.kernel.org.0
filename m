@@ -2,103 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F61053125A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:22:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 409CD531091
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 15:20:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236015AbiEWNXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 09:23:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48044 "EHLO
+        id S235853AbiEWNDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 09:03:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236137AbiEWNXr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 09:23:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8560A369F1
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 06:23:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35758B810BD
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:23:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9155DC34100
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 13:23:43 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="cs3d0mOD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1653312222;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type;
-        bh=sfnIy+09Ssy7T1PJm481y7E1lIpyQeDn1byhyR4bJSo=;
-        b=cs3d0mODgRapvjp5SEUEtXgCBwcWQ1vaH3mnnf2DRo8qLbrTQumASKdba4GSdWqoRomI3j
-        XTLOPasnoSG/8xhikaJDhJG0x5z91FZtWuMbNYwwuyAchLfYoQqzONckYgrB9do7uQ6vXv
-        bfajYav+HVVx2vdbNpicjh1BN/7sIcg=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id b59c00e3 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO)
-        for <stable@vger.kernel.org>;
-        Mon, 23 May 2022 13:23:41 +0000 (UTC)
-Date:   Mon, 23 May 2022 14:54:45 +0200
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        stable@vger.kernel.org
-Subject: random.c backports for 5.18, 5.17, 5.15, and prior
-Message-ID: <YouECCoUA6eZEwKf@zx2c4.com>
+        with ESMTP id S233492AbiEWNDa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 09:03:30 -0400
+Received: from smtp5-g21.free.fr (smtp5-g21.free.fr [212.27.42.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501FC62C5
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 06:03:28 -0700 (PDT)
+Received: from geek500.localdomain (unknown [82.65.8.64])
+        (Authenticated sender: casteyde.christian@free.fr)
+        by smtp5-g21.free.fr (Postfix) with ESMTPSA id C7D665FFA6;
+        Mon, 23 May 2022 15:03:19 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+        s=smtp-20201208; t=1653311006;
+        bh=0z3zL/WZHRAKaLiAQMOG4o179eNPYBkTLCSIymjxibY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=g18WtXd2bLJ9zeIbshtgIkBV248tIir5K2ZBjZyYU9TtzTEYMTPE+lYVV7NFdmHCZ
+         JlR8A8eJl/UpH/rHtCQZXNaSCSKiwgxkD32f+eMCKl/9Vu4Dsh3yJX9aXzsf/BhUvA
+         r1EBKsDJVNrzE8EiSw3PIRQ4Va1bdsmhLFEqKJMma7t6fxCgAano6uEGhuhEHVtUr9
+         vbTqfe0/asN4JSf5Jvg+2U7OilKWQC9u8fkW6kr7xL/RKuHbnCbqYvNSF3Hb3RJ5Dq
+         w4z8h29RLpe40oK4EFLloEpAlWhIydxLFpQ/yJTXyf8RkjwO9y40jd2A39ybYhOoyh
+         4sBodO4/00Hlg==
+From:   Christian Casteyde <casteyde.christian@free.fr>
+To:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
+        alexander deucher <alexander.deucher@amd.com>,
+        gregkh@linuxfoundation.org,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: Re: [REGRESSION] Laptop with Ryzen 4600H fails to resume video since 5.17.4 (works 5.17.3)
+Date:   Mon, 23 May 2022 15:02:53 +0200
+Message-ID: <2585440.lGaqSPkdTl@geek500.localdomain>
+In-Reply-To: <2ce8f87e-785a-25b2-159a-cca45243b75b@leemhuis.info>
+References: <941867856.547807110.1652809066335.JavaMail.root@zimbra40-e7.priv.proxad.net> <CAAd53p4ddFYE+O6Je8z9XDy54nTiODJsQEn7PncZ95K_PXPtPQ@mail.gmail.com> <2ce8f87e-785a-25b2-159a-cca45243b75b@leemhuis.info>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="iso-8859-1"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg, Sasha,
+Hello
 
-I think we're finally at a good point to begin backporting the work I've
-done on random.c during the last 6 months. I've been maintaining
-branches for this incrementally as code has been merged into mainline,
-in order to make this moment easier than otherwise.
+I've checked with 5.18 the problem is still there.
+Interestingly, I tried to revert the commit but it was rejected because of =
+the=20
+change in the test from:
+        if (!adev->in_s0ix)=20
+to:
+      if (amdgpu_acpi_should_gpu_reset(adev))
 
-Assuming that Linus merges my PR for 5.19 [1] today, all of these
-patches are (or will be in a few hours) in Linus' tree. I've tried to
-backport most of the general scaffolding and design of the current state
-of random.c, while not backporting any new features or unusual
-functionality changes that might invite trouble. So, for example, the
-backports switch to using a cryptographic hash function, but they don't
-have changes like warning when the cycle counter is zero, attempting to
-use jitter on early uses of /dev/urandom, reseeding on suspend/hibernate
-notifications, or the vmgenid driver. Hopefully that strikes an okay
-balance between getting the core backported so that fixes are
-backportable, but not going too far by backporting new "nice to have"
-but unessential features.
+in amdgpu_pmops_suspend.
 
-In this git repo [2], there are three branches: linux-5.15.y,
-linux-5.17.y, and linux-5.18.y, which contain backports for everything
-up to and including [1].
+I fixed the rejection, keeping shoud_gpu_reset, but it still fails.
+Then I changed to restore test of in_s0ix as it was in 5.17, and it works.
+I tried with a call to amd_gpu_asic_reset without testing at all in_s0ix, i=
+t=20
+works.
 
-You'll probably want to backport this to earlier kernels as well. Given
-that there hasn't been overly much work on the rng in the last few
-years, it shouldn't be too hard to take my 5.15.y branch and fill in the
-missing pieces there to bring it back. Given how much changes, you could
-probably just take every random.c change for backporting to before 5.15.
+Therefore, my APU wants a reset in amdgpu_pmops_suspend.
 
-There is one snag, which is that some of the work I did during the 5.17
-cycle depends on crypto I added for WireGuard, which landed in 5.6. So
-for 5.4 and prior, that will need backports. Fortunately, I've already
-done this in [3], in the branch backport-5.4.y, which I've kept up to
-date for a few years now. This occasion might mark the perfect excuse
-we've been waiting for to just backport WireGuard too to 5.4 (which
-might make the Android work a bit easier also) :-D.
+By curiosity, I tried to do the reset in amdgpu_pmops_suspend_noirq as was=
+=20
+intended in 5.18 original code, commenting out the test of=20
+amdgpu_acpi_should_gpu_reset(adev) (since this APU wants a reset).
+This does not work, I got the Fence timeout errors or freezes.
 
-Let me know if you have any questions, and feel free to poke me on IRC.
-And if all of the above sounds terrible to you, and you'd rather just
-not take any of this into stable, I guess that's a valid path to take
-too.
+If I leave  noirq function unchanged (original 5.18 code), and just add a=20
+reset in suspend() as was done in 5.17, it works.
 
-Regards,
-Jason
+Therefore, my GPU does NOT want to be reset in noirq, the reset must be in=
+=20
+suspend.
 
-[1] https://lore.kernel.org/lkml/20220522214457.37108-1-Jason@zx2c4.com/
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/crng/random.git/
-[3] https://git.kernel.org/pub/scm/linux/kernel/git/zx2c4/wireguard-linux.git/
+In other words, I modified amdgpu_pmops_suspend (partial revert) like this =
+and=20
+this works on my laptop:
+
+static int amdgpu_pmops_suspend(struct device *dev)
+{
+	struct drm_device *drm_dev =3D dev_get_drvdata(dev);
+	struct amdgpu_device *adev =3D drm_to_adev(drm_dev);
++	int r;
+
+	if (amdgpu_acpi_is_s0ix_active(adev))
+		adev->in_s0ix =3D true;
+	else
+		adev->in_s3 =3D true;
+=2D	return amdgpu_device_suspend(drm_dev, true);
++	r =3D amdgpu_device_suspend(drm_dev, true);
++	if (r)
++		return r;
++	if (!adev->in_s0ix)
++		return amdgpu_asic_reset(adev);
+	return 0;
+}
+
+static int amdgpu_pmops_suspend_noirq(struct device *dev)
+{
+	struct drm_device *drm_dev =3D dev_get_drvdata(dev);
+	struct amdgpu_device *adev =3D drm_to_adev(drm_dev);
+
+	if (amdgpu_acpi_should_gpu_reset(adev))
+		return amdgpu_asic_reset(adev);
+
+	return 0;
+}
+
+I don't know if other APU want a reset, in the same context, and how to=20
+differentiate all the cases, so I cannot go further, but I can test patches=
+ if=20
+needed.
+
+CC
+
+Le mercredi 18 mai 2022, 08:37:27 CEST Thorsten Leemhuis a =E9crit :
+> On 18.05.22 07:54, Kai-Heng Feng wrote:
+> > On Wed, May 18, 2022 at 1:52 PM Thorsten Leemhuis
+> >=20
+> > <regressions@leemhuis.info> wrote:
+> >> On 17.05.22 19:37, casteyde.christian@free.fr wrote:
+> >>> I've tryied to revert the offending commit on 5.18-rc7 (887f75cfd0da
+> >>> ("drm/amdgpu: Ensure HDA function is suspended before ASIC reset"), a=
+nd
+> >>> the problem disappears so it's really this commit that breaks.
+> >>=20
+> >> In that case I'll update the regzbot status to make sure it's visible =
+as
+> >> regression introduced in the 5.18 cycle:
+> >>=20
+> >> #regzbot introduced: 887f75cfd0da
+> >>=20
+> >> BTW: obviously would be nice to get this fixed before 5.18 is released
+> >> (which might already happen on Sunday), especially as the culprit
+> >> apparently was already backported to stable, but I guess that won't be
+> >> easy...
+> >>=20
+> >> Which made me wondering: is reverting the culprit temporarily in
+> >> mainline (and reapplying it later with a fix) a option here?
+> >=20
+> > It's too soon to call it's the culprit.
+>=20
+> Well, sure, the root-cause might be somewhere else. But from the point
+> of kernel regressions (and tracking them) it's the culprit, as that's
+> the change that triggers the misbehavior. And that's how Linus
+> approaches these things as well when it comes to reverting to fix
+> regressions -- and he even might...
+>=20
+> > The suspend on the system
+> > doesn't work properly at the first place.
+>=20
+> ...ignore things like this, as long as a revert is unlikely to cause
+> more damage than good.
+>=20
+> Ciao. Thorsten
+>=20
+> >> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' ha=
+t)
+> >>=20
+> >> P.S.: As the Linux kernel's regression tracker I deal with a lot of
+> >> reports and sometimes miss something important when writing mails like
+> >> this. If that's the case here, don't hesitate to tell me in a public
+> >> reply, it's in everyone's interest to set the public record straight.
+
+
+
+
