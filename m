@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6D455316AB
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B23185319DC
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239943AbiEWRNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:13:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35464 "EHLO
+        id S239349AbiEWRJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:09:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240068AbiEWRLh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:11:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2E0DE0FD;
-        Mon, 23 May 2022 10:11:01 -0700 (PDT)
+        with ESMTP id S239585AbiEWRJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1966C567;
+        Mon, 23 May 2022 10:08:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68B60614FE;
-        Mon, 23 May 2022 17:11:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6043CC385A9;
-        Mon, 23 May 2022 17:11:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88CE3B81201;
+        Mon, 23 May 2022 17:08:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9467C385AA;
+        Mon, 23 May 2022 17:08:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325860;
-        bh=UnaGk7lT++MCESMYYRcly019jpbFLcXmscxoXEMCt6Q=;
+        s=korg; t=1653325711;
+        bh=UQmEn963an1N+8324q6nVW42Vd6cGd++y0TYi1GY9Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPsQLgqyVPw3tcE44GTP+szSXGe7hmCAiY4KyUsIwcvN3ynANHfAb36YEgK08WQ/j
-         8/E9R+NitrL/J+vt2gqosZw3dILGnIH/1VxClOHYMaupQGUm27F18kvda9N15XzCrg
-         MonTEV0++PYoBN3oqty+en22xLp9rMJ2zx4y434E=
+        b=zH1wukcXiv9gL3bYAdYyWmpGRVslXhf8/o1xzaD4cW9d9yKWJod51f0PgpTiYErLw
+         ZkOnYf1w+1UluNzGqN2taO7IGIAfNwX0bqOILyINy2OC+jd9ZUG5Qf7wn3Jg++HkD3
+         AFt6k8T23xFWZcpCBjZOV4wRx6LmX9mt1SwrfIjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 11/44] ALSA: wavefront: Proper check of get_user() error
+        stable@vger.kernel.org, Jakob Koschel <jakobkoschel@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/33] drbd: remove usage of list iterator variable after loop
 Date:   Mon, 23 May 2022 19:04:55 +0200
-Message-Id: <20220523165755.384333184@linuxfoundation.org>
+Message-Id: <20220523165748.190396884@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jakob Koschel <jakobkoschel@gmail.com>
 
-commit a34ae6c0660d3b96b0055f68ef74dc9478852245 upstream.
+[ Upstream commit 901aeda62efa21f2eae937bccb71b49ae531be06 ]
 
-The antient ISA wavefront driver reads its sample patch data (uploaded
-over an ioctl) via __get_user() with no good reason; likely just for
-some performance optimizations in the past.  Let's change this to the
-standard get_user() and the error check for handling the fault case
-properly.
+In preparation to limit the scope of a list iterator to the list
+traversal loop, use a dedicated pointer to iterate through the list [1].
 
-Reported-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220510103626.16635-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since that variable should not be used past the loop iteration, a
+separate variable is used to 'remember the current location within the
+loop'.
+
+To either continue iterating from that position or skip the iteration
+(if the previous iteration was complete) list_prepare_entry() is used.
+
+Link: https://lore.kernel.org/all/CAHk-=wgRr_D8CB-D9Kg-c=EHreAsk5SqXPwr9Y7k9sA6cWXJ6w@mail.gmail.com/ [1]
+Signed-off-by: Jakob Koschel <jakobkoschel@gmail.com>
+Link: https://lore.kernel.org/r/20220331220349.885126-1-jakobkoschel@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/wavefront/wavefront_synth.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/block/drbd/drbd_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/sound/isa/wavefront/wavefront_synth.c
-+++ b/sound/isa/wavefront/wavefront_synth.c
-@@ -1092,7 +1092,8 @@ wavefront_send_sample (snd_wavefront_t *
+diff --git a/drivers/block/drbd/drbd_main.c b/drivers/block/drbd/drbd_main.c
+index b998e3abca7a..1e02cb60b65b 100644
+--- a/drivers/block/drbd/drbd_main.c
++++ b/drivers/block/drbd/drbd_main.c
+@@ -195,7 +195,7 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
+ 		unsigned int set_size)
+ {
+ 	struct drbd_request *r;
+-	struct drbd_request *req = NULL;
++	struct drbd_request *req = NULL, *tmp = NULL;
+ 	int expect_epoch = 0;
+ 	int expect_size = 0;
  
- 			if (dataptr < data_end) {
- 		
--				__get_user (sample_short, dataptr);
-+				if (get_user(sample_short, dataptr))
-+					return -EFAULT;
- 				dataptr += skip;
- 		
- 				if (data_is_unsigned) { /* GUS ? */
+@@ -249,8 +249,11 @@ void tl_release(struct drbd_connection *connection, unsigned int barrier_nr,
+ 	 * to catch requests being barrier-acked "unexpectedly".
+ 	 * It usually should find the same req again, or some READ preceding it. */
+ 	list_for_each_entry(req, &connection->transfer_log, tl_requests)
+-		if (req->epoch == expect_epoch)
++		if (req->epoch == expect_epoch) {
++			tmp = req;
+ 			break;
++		}
++	req = list_prepare_entry(tmp, &connection->transfer_log, tl_requests);
+ 	list_for_each_entry_safe_from(req, r, &connection->transfer_log, tl_requests) {
+ 		if (req->epoch != expect_epoch)
+ 			break;
+-- 
+2.35.1
+
 
 
