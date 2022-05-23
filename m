@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 612275316B9
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45D72531908
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241620AbiEWRdu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38720 "EHLO
+        id S239941AbiEWRX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242379AbiEWRc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB4D72E1A;
-        Mon, 23 May 2022 10:27:12 -0700 (PDT)
+        with ESMTP id S241073AbiEWRV4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:21:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AEC0762BC;
+        Mon, 23 May 2022 10:18:19 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7772660AB8;
-        Mon, 23 May 2022 17:27:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806E4C385AA;
-        Mon, 23 May 2022 17:27:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C9060916;
+        Mon, 23 May 2022 17:17:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A840AC385A9;
+        Mon, 23 May 2022 17:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326831;
-        bh=7y2CQznIYaNLnJfzqbrtnBIEIajSKZwOQDySGCkC2mA=;
+        s=korg; t=1653326246;
+        bh=fRLcDfQ8QeGFUCx7xxxVuJJhEdpYFjB0Zj5ue9m3HEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2SOlOHaAsz4Y0GT5+n/UfFWTr8aXZB010Jkx8UXG3wGFK0OUb7hVYWD+lsHcLGHn
-         mBoC3d9KyQWi5CMgmmQuwkK6PRSoslimOMaOnmgtAo5uBDzHxSe24F+/ft6tUAB3Yy
-         AcvngXc0y51LcinLmQODbDvVhrxL0SyKzMm4a1wc=
+        b=2bSRcrIu1+OejPhkNIREuNEfRZDJmA5rjKviGGXDEvPsT8F+f6W/MktNPZjGJfdrd
+         VgtEcqFmisoOPnlZILgkep9zXrGhyTGokVti8x0/SMMwZAxXSQfLX20wj0j67Snq1v
+         5ANOTn/GOJJvESLjnUX5mZ0v3fW1l3tK5vbr/WHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Kavyasree Kotagiri <kavyasree.kotagiri@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Jeff LaBundy <jeff@labundy.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 073/158] pinctrl: ocelot: Fix for lan966x alt mode
-Date:   Mon, 23 May 2022 19:03:50 +0200
-Message-Id: <20220523165843.050863028@linuxfoundation.org>
+Subject: [PATCH 5.15 022/132] Input: add bounds checking to input_set_capability()
+Date:   Mon, 23 May 2022 19:03:51 +0200
+Message-Id: <20220523165827.194211472@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,52 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit d3683eeb9d2b4aa5256f830721655ef2ee97e324 ]
+[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
 
-For lan966x, the GPIO 35 has the wrong function for alternate mode 2.
-The mode is not none but is PTP sync.
+Update input_set_capability() to prevent kernel panic in case the
+event code exceeds the bitmap for the given event type.
 
-Fixes: 531d6ab36571c2 ("pinctrl: ocelot: Extend support for lan966x")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Kavyasree Kotagiri <kavyasree.kotagiri@microchip.com>
-Link: https://lore.kernel.org/r/20220413192918.3777234-1-horatiu.vultur@microchip.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ocelot.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/input.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-ocelot.c b/drivers/pinctrl/pinctrl-ocelot.c
-index 370459243007..61e3844cddbf 100644
---- a/drivers/pinctrl/pinctrl-ocelot.c
-+++ b/drivers/pinctrl/pinctrl-ocelot.c
-@@ -129,6 +129,7 @@ enum {
- 	FUNC_PTP1,
- 	FUNC_PTP2,
- 	FUNC_PTP3,
-+	FUNC_PTPSYNC_0,
- 	FUNC_PTPSYNC_1,
- 	FUNC_PTPSYNC_2,
- 	FUNC_PTPSYNC_3,
-@@ -252,6 +253,7 @@ static const char *const ocelot_function_names[] = {
- 	[FUNC_PTP1]		= "ptp1",
- 	[FUNC_PTP2]		= "ptp2",
- 	[FUNC_PTP3]		= "ptp3",
-+	[FUNC_PTPSYNC_0]	= "ptpsync_0",
- 	[FUNC_PTPSYNC_1]	= "ptpsync_1",
- 	[FUNC_PTPSYNC_2]	= "ptpsync_2",
- 	[FUNC_PTPSYNC_3]	= "ptpsync_3",
-@@ -891,7 +893,7 @@ LAN966X_P(31,   GPIO,   FC3_c,     CAN1,      NONE,   OB_TRG,   RECO_b,      NON
- LAN966X_P(32,   GPIO,   FC3_c,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,      NONE,        R);
- LAN966X_P(33,   GPIO,   FC1_b,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,    MIIM_b,        R);
- LAN966X_P(34,   GPIO,   FC1_b,     NONE,   SGPIO_a,     NONE,  MIIM_Sa,    MIIM_b,        R);
--LAN966X_P(35,   GPIO,   FC1_b,     NONE,   SGPIO_a,   CAN0_b,     NONE,      NONE,        R);
-+LAN966X_P(35,   GPIO,   FC1_b,  PTPSYNC_0, SGPIO_a,   CAN0_b,     NONE,      NONE,        R);
- LAN966X_P(36,   GPIO,    NONE,  PTPSYNC_1,    NONE,   CAN0_b,     NONE,      NONE,        R);
- LAN966X_P(37,   GPIO, FC_SHRD0, PTPSYNC_2, TWI_SLC_GATE_AD, NONE, NONE,      NONE,        R);
- LAN966X_P(38,   GPIO,    NONE,  PTPSYNC_3,    NONE,     NONE,     NONE,      NONE,        R);
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index ccaeb2426385..ba246fabc6c1 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -47,6 +47,17 @@ static DEFINE_MUTEX(input_mutex);
+ 
+ static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
+ 
++static const unsigned int input_max_code[EV_CNT] = {
++	[EV_KEY] = KEY_MAX,
++	[EV_REL] = REL_MAX,
++	[EV_ABS] = ABS_MAX,
++	[EV_MSC] = MSC_MAX,
++	[EV_SW] = SW_MAX,
++	[EV_LED] = LED_MAX,
++	[EV_SND] = SND_MAX,
++	[EV_FF] = FF_MAX,
++};
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+ {
+@@ -2074,6 +2085,14 @@ EXPORT_SYMBOL(input_get_timestamp);
+  */
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
+ {
++	if (type < EV_CNT && input_max_code[type] &&
++	    code > input_max_code[type]) {
++		pr_err("%s: invalid code %u for type %u\n", __func__, code,
++		       type);
++		dump_stack();
++		return;
++	}
++
+ 	switch (type) {
+ 	case EV_KEY:
+ 		__set_bit(code, dev->keybit);
 -- 
 2.35.1
 
