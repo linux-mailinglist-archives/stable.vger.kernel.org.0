@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B60DE531C9F
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD73E531943
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241793AbiEWRxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:53:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60662 "EHLO
+        id S239548AbiEWRHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:07:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243837AbiEWRvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:51:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 141526220C;
-        Mon, 23 May 2022 10:38:29 -0700 (PDT)
+        with ESMTP id S239533AbiEWRHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:07:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF6906AA4F;
+        Mon, 23 May 2022 10:07:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD5AE61218;
-        Mon, 23 May 2022 17:29:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3A3FC34116;
-        Mon, 23 May 2022 17:29:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3328AB811F0;
+        Mon, 23 May 2022 17:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FB22C385A9;
+        Mon, 23 May 2022 17:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326954;
-        bh=VcPpcPHrQ0SHo1DNrUEe4k1AjZowFc1+BAV9eUH1my4=;
+        s=korg; t=1653325627;
+        bh=ALhDDiyUuIA/5zUv3h6o0CEG467Pvbsx6fVAiLEImbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+/O5cl3nm3HMgq7v5xU9RY0H4wczhpXrGAF7MNYZBN7dGeUsG+QIDtRo4/vsJxdo
-         S453ue8H8tKZS9ORQ+t2HolFHovJ+5rXm+p7ePGas6cDoaK3KC0lqKwR/v6yC6rBip
-         WwoQMO27hzGNuX8m918MAqibj3a22GFSv3K8pW3c=
+        b=cPT+dJneOTk93O3ba+lpMkHwT/nvWSGYYQtIZpVcozieUjaYJFMUibehXShlmKu9s
+         1K7r2zoNB30J1hDa+LkrM05Lbf8VY8QbmC28nbAGDx30nJbv0Vwb10jwuW9jI/a3LD
+         DXFsFiLjfj4K81EBhrHRL7yLxpmX2Pq0Ut6W3k6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 111/158] ARM: 9196/1: spectre-bhb: enable for Cortex-A15
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 01/68] floppy: use a statically allocated error counter
 Date:   Mon, 23 May 2022 19:04:28 +0200
-Message-Id: <20220523165849.439583629@linuxfoundation.org>
+Message-Id: <20220523165802.768402454@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,36 +57,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Willy Tarreau <w@1wt.eu>
 
-[ Upstream commit 0dc14aa94ccd8ba35eb17a0f9b123d1566efd39e ]
+commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
 
-The Spectre-BHB mitigations were inadvertently left disabled for
-Cortex-A15, due to the fact that cpu_v7_bugs_init() is not called in
-that case. So fix that.
+Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
+request just to increment the error count.  There's no point keeping
+that one in the request anyway, and since the interrupt handler uses a
+static pointer to the error which cannot be kept in sync with the
+pending request, better make it use a static error counter that's reset
+for each new request.  This reset now happens when entering
+redo_fd_request() for a new request via set_next_request().
 
-Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+One initial concern about a single error counter was that errors on one
+floppy drive could be reported on another one, but this problem is not
+real given that the driver uses a single drive at a time, as that
+PC-compatible controllers also have this limitation by using shared
+signals.  As such the error count is always for the "current" drive.
+
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Tested-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-v7-bugs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/block/floppy.c |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
-index 06dbfb968182..fb9f3eb6bf48 100644
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -288,6 +288,7 @@ void cpu_v7_ca15_ibe(void)
- {
- 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(0)))
- 		cpu_v7_spectre_v2_init();
-+	cpu_v7_spectre_bhb_init();
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -521,8 +521,8 @@ static unsigned long fdc_busy;
+ static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
+ static DECLARE_WAIT_QUEUE_HEAD(command_done);
+ 
+-/* Errors during formatting are counted here. */
+-static int format_errors;
++/* errors encountered on the current (or last) request */
++static int floppy_errors;
+ 
+ /* Format request descriptor. */
+ static struct format_descr format_req;
+@@ -542,7 +542,6 @@ static struct format_descr format_req;
+ static char *floppy_track_buffer;
+ static int max_buffer_sectors;
+ 
+-static int *errors;
+ typedef void (*done_f)(int);
+ static const struct cont_t {
+ 	void (*interrupt)(void);
+@@ -1435,7 +1434,7 @@ static int interpret_errors(void)
+ 			if (DP->flags & FTD_MSG)
+ 				DPRINT("Over/Underrun - retrying\n");
+ 			bad = 0;
+-		} else if (*errors >= DP->max_errors.reporting) {
++		} else if (floppy_errors >= DP->max_errors.reporting) {
+ 			print_errors();
+ 		}
+ 		if (ST2 & ST2_WC || ST2 & ST2_BC)
+@@ -2055,7 +2054,7 @@ static void bad_flp_intr(void)
+ 		if (!next_valid_format())
+ 			return;
+ 	}
+-	err_count = ++(*errors);
++	err_count = ++floppy_errors;
+ 	INFBOUND(DRWE->badness, err_count);
+ 	if (err_count > DP->max_errors.abort)
+ 		cont->done(0);
+@@ -2200,9 +2199,8 @@ static int do_format(int drive, struct f
+ 		return -EINVAL;
+ 	}
+ 	format_req = *tmp_format_req;
+-	format_errors = 0;
+ 	cont = &format_cont;
+-	errors = &format_errors;
++	floppy_errors = 0;
+ 	ret = wait_til_done(redo_format, true);
+ 	if (ret == -EINTR)
+ 		return -EINTR;
+@@ -2677,7 +2675,7 @@ static int make_raw_rw_request(void)
+ 		 */
+ 		if (!direct ||
+ 		    (indirect * 2 > direct * 3 &&
+-		     *errors < DP->max_errors.read_track &&
++		     floppy_errors < DP->max_errors.read_track &&
+ 		     ((!probing ||
+ 		       (DP->read_track & (1 << DRS->probed_format)))))) {
+ 			max_size = blk_rq_sectors(current_req);
+@@ -2801,10 +2799,11 @@ static int set_next_request(void)
+ 	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
+ 					       queuelist);
+ 	if (current_req) {
+-		current_req->error_count = 0;
++		floppy_errors = 0;
+ 		list_del_init(&current_req->queuelist);
++		return 1;
+ 	}
+-	return current_req != NULL;
++	return 0;
  }
  
- void cpu_v7_bugs_init(void)
--- 
-2.35.1
-
+ static void redo_fd_request(void)
+@@ -2860,7 +2859,6 @@ do_request:
+ 		_floppy = floppy_type + DP->autodetect[DRS->probed_format];
+ 	} else
+ 		probing = 0;
+-	errors = &(current_req->error_count);
+ 	tmp = make_raw_rw_request();
+ 	if (tmp < 2) {
+ 		request_done(tmp);
 
 
