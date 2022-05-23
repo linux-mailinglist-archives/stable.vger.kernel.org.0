@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08585531CC2
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB895317FF
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241425AbiEWRap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38292 "EHLO
+        id S240314AbiEWRaC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243033AbiEWR2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:17 -0400
+        with ESMTP id S242769AbiEWR2A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:00 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E2D84A10;
-        Mon, 23 May 2022 10:25:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844758BD22;
+        Mon, 23 May 2022 10:24:21 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8973A608C0;
-        Mon, 23 May 2022 17:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B00DC385A9;
-        Mon, 23 May 2022 17:25:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A45B60B2C;
+        Mon, 23 May 2022 17:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E52DC385A9;
+        Mon, 23 May 2022 17:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326712;
-        bh=xEVNdeNhZjk77i/I9aZlNN5jc8Dr99dJMo/hpb7T4e0=;
+        s=korg; t=1653326650;
+        bh=airJjC0MifQFzoS4q1rZ//RwvnXOzHIIfM7a9aMTeuc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GIreRv9C9UcBgpnFfRDaXhBRFagSdeNXprz7l6wGTBFE3rTAvCnXh7+p0F+w3TfCD
-         kYQp62FX2t2ztsbMYwhLa/oCBiZdOkajJgjaQXIfAK/5lvXlXnJxFd0R+EXIG6YmjG
-         LCJR7kjINobmMAOQHLlXu87/twpGWi7AJUS75pDQ=
+        b=K9mOm1STWeXypyvlaSvCCvlRnP6k4PLhNENz97L5hhU2pjlE3EjQ7LqTxGHAJUS0K
+         3XaqLteUQXFCCU4wvqyoJ9/bwvcupNNP5duQQnAQXF0M+UvVPOgdpG3+ISu93E58b3
+         yWlsZ+Egu/i2YDVmW2WAfMq6gKxJo8rxXfyEitBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Greg Thelen <gthelen@google.com>, Yu Liao <liaoyu15@huawei.com>
-Subject: [PATCH 5.17 016/158] Revert "drm/i915/opregion: check port number bounds for SWSCI display power state"
-Date:   Mon, 23 May 2022 19:02:53 +0200
-Message-Id: <20220523165833.326212639@linuxfoundation.org>
+        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 017/158] gfs2: cancel timed-out glock requests
+Date:   Mon, 23 May 2022 19:02:54 +0200
+Message-Id: <20220523165833.486564248@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -52,47 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Thelen <gthelen@google.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-This reverts commit b84857c06ef9e72d09fadafdbb3ce9af64af954f.
+[ Upstream commit 1fc05c8d8426d4085a219c23f8855c4aaf9e3ffb ]
 
-5.10 stable contains 2 identical commits:
-1. commit eb7bf11e8ef1 ("drm/i915/opregion: check port number bounds for SWSCI display power state")
-2. commit b84857c06ef9 ("drm/i915/opregion: check port number bounds for SWSCI display power state")
+The gfs2 evict code tries to upgrade the iopen glock from SH to EX. If
+the attempt to upgrade times out, gfs2 needs to tell dlm to cancel the
+lock request or it can deadlock. We also need to wake up the process
+waiting for the lock when dlm sends its AST back to gfs2.
 
-Both commits add separate checks for the same condition. Revert the 2nd
-redundant check to match upstream, which only has one check.
-
-Signed-off-by: Greg Thelen <gthelen@google.com>
-Signed-off-by: Yu Liao <liaoyu15@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_opregion.c |   15 ---------------
- 1 file changed, 15 deletions(-)
+ fs/gfs2/glock.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_opregion.c
-+++ b/drivers/gpu/drm/i915/display/intel_opregion.c
-@@ -375,21 +375,6 @@ int intel_opregion_notify_encoder(struct
- 		return -EINVAL;
- 	}
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 6b23399eaee0..d368d9a2e8f0 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -669,6 +669,8 @@ static void finish_xmote(struct gfs2_glock *gl, unsigned int ret)
  
--	/*
--	 * The port numbering and mapping here is bizarre. The now-obsolete
--	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
--	 * special case, but port F and beyond are not. The functionality is
--	 * supposed to be obsolete for new platforms. Just bail out if the port
--	 * number is out of bounds after mapping.
--	 */
--	if (port > 4) {
--		drm_dbg_kms(&dev_priv->drm,
--			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
--			    intel_encoder->base.base.id, intel_encoder->base.name,
--			    port_name(intel_encoder->port), port);
--		return -EINVAL;
--	}
--
- 	if (!enable)
- 		parm |= 4 << 8;
+ 	/* Check for state != intended state */
+ 	if (unlikely(state != gl->gl_target)) {
++		if (gh && (ret & LM_OUT_CANCELED))
++			gfs2_holder_wake(gh);
+ 		if (gh && !test_bit(GLF_DEMOTE_IN_PROGRESS, &gl->gl_flags)) {
+ 			/* move to back of queue and try next entry */
+ 			if (ret & LM_OUT_CANCELED) {
+@@ -1691,6 +1693,14 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
+ 	struct gfs2_glock *gl = gh->gh_gl;
  
+ 	spin_lock(&gl->gl_lockref.lock);
++	if (list_is_first(&gh->gh_list, &gl->gl_holders) &&
++	    !test_bit(HIF_HOLDER, &gh->gh_iflags)) {
++		spin_unlock(&gl->gl_lockref.lock);
++		gl->gl_name.ln_sbd->sd_lockstruct.ls_ops->lm_cancel(gl);
++		wait_on_bit(&gh->gh_iflags, HIF_WAIT, TASK_UNINTERRUPTIBLE);
++		spin_lock(&gl->gl_lockref.lock);
++	}
++
+ 	__gfs2_glock_dq(gh);
+ 	spin_unlock(&gl->gl_lockref.lock);
+ }
+-- 
+2.35.1
+
 
 
