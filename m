@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1EC1531932
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141B5531866
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240491AbiEWR21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42380 "EHLO
+        id S240443AbiEWRYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:24:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240993AbiEWR0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:14 -0400
+        with ESMTP id S241724AbiEWRWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F6154027;
-        Mon, 23 May 2022 10:21:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B60F7B9F2;
+        Mon, 23 May 2022 10:19:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF88F610AA;
-        Mon, 23 May 2022 17:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3E22C385A9;
-        Mon, 23 May 2022 17:19:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4055D60B2E;
+        Mon, 23 May 2022 17:18:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 469E1C385A9;
+        Mon, 23 May 2022 17:18:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326349;
-        bh=AT/Rd9wE3+52vJDikiXM68bwTsARMYKRP6AQe2ANoRI=;
+        s=korg; t=1653326287;
+        bh=oJ86ZVXNQN28dxs9bB7fXpJWumVkqzS59KG85S56cLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cUhkj9v0KBKEWKgM4wNsR8SdKTZiD+pxsvzYJVd6po8QJbfubi7Z9SGAuZp+ohUIe
-         3d8N/Eg8mSWkvG5Fj7TqEKejSHL9sSiGPxT/wwCpFFDZ7kdSLASqA543ZsAXHmPaO9
-         wVrI0FCQMJ8VCFiailUOO3ofdDAVoVPB73dKx2Xg=
+        b=wW+p+3TrcIR6EzUcXuM6AmsKb7CWSA3uCSP3kocHTMtFtBRRDOpyiyeAIx4pPl1yG
+         fDsGaBc1VyJqc1GbOb8CR3SyTHw+XYoaFT2/Qkx6SjkQqtjbNEXcJ3Lc8ez5n+egRF
+         qm9ZqWmjOQrq38SiDLA3OAveqt/O1bxUbYCrE2tA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
         Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 034/132] nvmet: use a private workqueue instead of the system workqueue
-Date:   Mon, 23 May 2022 19:04:03 +0200
-Message-Id: <20220523165829.132547750@linuxfoundation.org>
+Subject: [PATCH 5.15 035/132] nvme-multipath: fix hang when disk goes live over reconnect
+Date:   Mon, 23 May 2022 19:04:04 +0200
+Message-Id: <20220523165829.279852979@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 References: <20220523165823.492309987@linuxfoundation.org>
@@ -56,450 +54,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sagi Grimberg <sagi@grimberg.me>
+From: Anton Eidelman <anton.eidelman@gmail.com>
 
-[ Upstream commit 8832cf922151e9dfa2821736beb0ae2dd3968b6e ]
+[ Upstream commit a4a6f3c8f61c3cfbda4998ad94596059ad7e4332 ]
 
-Any attempt to flush kernel-global WQs has possibility of deadlock
-so we should simply stop using them, instead introduce nvmet_wq
-which is the generic nvmet workqueue for work elements that
-don't explicitly require a dedicated workqueue (by the mere fact
-that they are using the system_wq).
+nvme_mpath_init_identify() invoked from nvme_init_identify() fetches a
+fresh ANA log from the ctrl.  This is essential to have an up to date
+path states for both existing namespaces and for those scan_work may
+discover once the ctrl is up.
 
-Changes were done using the following replaces:
+This happens in the following cases:
+  1) A new ctrl is being connected.
+  2) An existing ctrl is successfully reconnected.
+  3) An existing ctrl is being reset.
 
- - s/schedule_work(/queue_work(nvmet_wq, /g
- - s/schedule_delayed_work(/queue_delayed_work(nvmet_wq, /g
- - s/flush_scheduled_work()/flush_workqueue(nvmet_wq)/g
+While in (1) ctrl->namespaces is empty, (2 & 3) may have namespaces, and
+nvme_read_ana_log() may call nvme_update_ns_ana_state().
 
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+This result in a hang when the ANA state of an existing namespace changes
+and makes the disk live: nvme_mpath_set_live() issues IO to the namespace
+through the ctrl, which does NOT have IO queues yet.
+
+See sample hang below.
+
+Solution:
+- nvme_update_ns_ana_state() to call set_live only if ctrl is live
+- nvme_read_ana_log() call from nvme_mpath_init_identify()
+  therefore only fetches and parses the ANA log;
+  any erros in this process will fail the ctrl setup as appropriate;
+- a separate function nvme_mpath_update()
+  is called in nvme_start_ctrl();
+  this parses the ANA log without fetching it.
+  At this point the ctrl is live,
+  therefore, disks can be set live normally.
+
+Sample failure:
+    nvme nvme0: starting error recovery
+    nvme nvme0: Reconnecting in 10 seconds...
+    block nvme0n6: no usable path - requeuing I/O
+    INFO: task kworker/u8:3:312 blocked for more than 122 seconds.
+          Tainted: G            E     5.14.5-1.el7.elrepo.x86_64 #1
+    Workqueue: nvme-wq nvme_tcp_reconnect_ctrl_work [nvme_tcp]
+    Call Trace:
+     __schedule+0x2a2/0x7e0
+     schedule+0x4e/0xb0
+     io_schedule+0x16/0x40
+     wait_on_page_bit_common+0x15c/0x3e0
+     do_read_cache_page+0x1e0/0x410
+     read_cache_page+0x12/0x20
+     read_part_sector+0x46/0x100
+     read_lba+0x121/0x240
+     efi_partition+0x1d2/0x6a0
+     bdev_disk_changed.part.0+0x1df/0x430
+     bdev_disk_changed+0x18/0x20
+     blkdev_get_whole+0x77/0xe0
+     blkdev_get_by_dev+0xd2/0x3a0
+     __device_add_disk+0x1ed/0x310
+     device_add_disk+0x13/0x20
+     nvme_mpath_set_live+0x138/0x1b0 [nvme_core]
+     nvme_update_ns_ana_state+0x2b/0x30 [nvme_core]
+     nvme_update_ana_state+0xca/0xe0 [nvme_core]
+     nvme_parse_ana_log+0xac/0x170 [nvme_core]
+     nvme_read_ana_log+0x7d/0xe0 [nvme_core]
+     nvme_mpath_init_identify+0x105/0x150 [nvme_core]
+     nvme_init_identify+0x2df/0x4d0 [nvme_core]
+     nvme_init_ctrl_finish+0x8d/0x3b0 [nvme_core]
+     nvme_tcp_setup_ctrl+0x337/0x390 [nvme_tcp]
+     nvme_tcp_reconnect_ctrl_work+0x24/0x40 [nvme_tcp]
+     process_one_work+0x1bd/0x360
+     worker_thread+0x50/0x3d0
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/admin-cmd.c   |  2 +-
- drivers/nvme/target/configfs.c    |  2 +-
- drivers/nvme/target/core.c        | 24 ++++++++++++++++++------
- drivers/nvme/target/fc.c          |  8 ++++----
- drivers/nvme/target/fcloop.c      | 16 ++++++++--------
- drivers/nvme/target/io-cmd-file.c |  6 +++---
- drivers/nvme/target/loop.c        |  4 ++--
- drivers/nvme/target/nvmet.h       |  1 +
- drivers/nvme/target/passthru.c    |  2 +-
- drivers/nvme/target/rdma.c        | 12 ++++++------
- drivers/nvme/target/tcp.c         | 10 +++++-----
- 11 files changed, 50 insertions(+), 37 deletions(-)
+ drivers/nvme/host/core.c      |  1 +
+ drivers/nvme/host/multipath.c | 25 +++++++++++++++++++++++--
+ drivers/nvme/host/nvme.h      |  4 ++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/admin-cmd.c b/drivers/nvme/target/admin-cmd.c
-index aa6d84d8848e..52bb262d267a 100644
---- a/drivers/nvme/target/admin-cmd.c
-+++ b/drivers/nvme/target/admin-cmd.c
-@@ -978,7 +978,7 @@ void nvmet_execute_async_event(struct nvmet_req *req)
- 	ctrl->async_event_cmds[ctrl->nr_async_event_cmds++] = req;
- 	mutex_unlock(&ctrl->lock);
- 
--	schedule_work(&ctrl->async_event_work);
-+	queue_work(nvmet_wq, &ctrl->async_event_work);
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index f2bb57615762..87877397d1ad 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4358,6 +4358,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
+ 	if (ctrl->queue_count > 1) {
+ 		nvme_queue_scan(ctrl);
+ 		nvme_start_queues(ctrl);
++		nvme_mpath_update(ctrl);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(nvme_start_ctrl);
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index e9301b51db76..064acad505d3 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -574,8 +574,17 @@ static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
+ 	ns->ana_grpid = le32_to_cpu(desc->grpid);
+ 	ns->ana_state = desc->state;
+ 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
+-
+-	if (nvme_state_is_live(ns->ana_state))
++	/*
++	 * nvme_mpath_set_live() will trigger I/O to the multipath path device
++	 * and in turn to this path device.  However we cannot accept this I/O
++	 * if the controller is not live.  This may deadlock if called from
++	 * nvme_mpath_init_identify() and the ctrl will never complete
++	 * initialization, preventing I/O from completing.  For this case we
++	 * will reprocess the ANA log page in nvme_mpath_update() once the
++	 * controller is ready.
++	 */
++	if (nvme_state_is_live(ns->ana_state) &&
++	    ns->ctrl->state == NVME_CTRL_LIVE)
+ 		nvme_mpath_set_live(ns);
  }
  
- void nvmet_execute_keep_alive(struct nvmet_req *req)
-diff --git a/drivers/nvme/target/configfs.c b/drivers/nvme/target/configfs.c
-index 496d775c6770..cea30e4f5053 100644
---- a/drivers/nvme/target/configfs.c
-+++ b/drivers/nvme/target/configfs.c
-@@ -1554,7 +1554,7 @@ static void nvmet_port_release(struct config_item *item)
- 	struct nvmet_port *port = to_nvmet_port(item);
+@@ -662,6 +671,18 @@ static void nvme_ana_work(struct work_struct *work)
+ 	nvme_read_ana_log(ctrl);
+ }
  
- 	/* Let inflight controllers teardown complete */
--	flush_scheduled_work();
-+	flush_workqueue(nvmet_wq);
- 	list_del(&port->global_entry);
- 
- 	kfree(port->ana_state);
-diff --git a/drivers/nvme/target/core.c b/drivers/nvme/target/core.c
-index b8425fa34300..a8dafe8670f2 100644
---- a/drivers/nvme/target/core.c
-+++ b/drivers/nvme/target/core.c
-@@ -20,6 +20,9 @@ struct workqueue_struct *zbd_wq;
- static const struct nvmet_fabrics_ops *nvmet_transports[NVMF_TRTYPE_MAX];
- static DEFINE_IDA(cntlid_ida);
- 
-+struct workqueue_struct *nvmet_wq;
-+EXPORT_SYMBOL_GPL(nvmet_wq);
++void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++	u32 nr_change_groups = 0;
 +
- /*
-  * This read/write semaphore is used to synchronize access to configuration
-  * information on a target system that will result in discovery log page
-@@ -205,7 +208,7 @@ void nvmet_add_async_event(struct nvmet_ctrl *ctrl, u8 event_type,
- 	list_add_tail(&aen->entry, &ctrl->async_events);
- 	mutex_unlock(&ctrl->lock);
- 
--	schedule_work(&ctrl->async_event_work);
-+	queue_work(nvmet_wq, &ctrl->async_event_work);
- }
- 
- static void nvmet_add_to_changed_ns_log(struct nvmet_ctrl *ctrl, __le32 nsid)
-@@ -385,7 +388,7 @@ static void nvmet_keep_alive_timer(struct work_struct *work)
- 	if (reset_tbkas) {
- 		pr_debug("ctrl %d reschedule traffic based keep-alive timer\n",
- 			ctrl->cntlid);
--		schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
-+		queue_delayed_work(nvmet_wq, &ctrl->ka_work, ctrl->kato * HZ);
- 		return;
- 	}
- 
-@@ -403,7 +406,7 @@ void nvmet_start_keep_alive_timer(struct nvmet_ctrl *ctrl)
- 	pr_debug("ctrl %d start keep-alive timer for %d secs\n",
- 		ctrl->cntlid, ctrl->kato);
- 
--	schedule_delayed_work(&ctrl->ka_work, ctrl->kato * HZ);
-+	queue_delayed_work(nvmet_wq, &ctrl->ka_work, ctrl->kato * HZ);
- }
- 
- void nvmet_stop_keep_alive_timer(struct nvmet_ctrl *ctrl)
-@@ -1477,7 +1480,7 @@ void nvmet_ctrl_fatal_error(struct nvmet_ctrl *ctrl)
- 	mutex_lock(&ctrl->lock);
- 	if (!(ctrl->csts & NVME_CSTS_CFS)) {
- 		ctrl->csts |= NVME_CSTS_CFS;
--		schedule_work(&ctrl->fatal_err_work);
-+		queue_work(nvmet_wq, &ctrl->fatal_err_work);
- 	}
- 	mutex_unlock(&ctrl->lock);
- }
-@@ -1617,9 +1620,15 @@ static int __init nvmet_init(void)
- 		goto out_free_zbd_work_queue;
- 	}
- 
-+	nvmet_wq = alloc_workqueue("nvmet-wq", WQ_MEM_RECLAIM, 0);
-+	if (!nvmet_wq) {
-+		error = -ENOMEM;
-+		goto out_free_buffered_work_queue;
-+	}
++	if (!ctrl->ana_log_buf)
++		return;
 +
- 	error = nvmet_init_discovery();
- 	if (error)
--		goto out_free_work_queue;
-+		goto out_free_nvmet_work_queue;
- 
- 	error = nvmet_init_configfs();
- 	if (error)
-@@ -1628,7 +1637,9 @@ static int __init nvmet_init(void)
- 
- out_exit_discovery:
- 	nvmet_exit_discovery();
--out_free_work_queue:
-+out_free_nvmet_work_queue:
-+	destroy_workqueue(nvmet_wq);
-+out_free_buffered_work_queue:
- 	destroy_workqueue(buffered_io_wq);
- out_free_zbd_work_queue:
- 	destroy_workqueue(zbd_wq);
-@@ -1640,6 +1651,7 @@ static void __exit nvmet_exit(void)
- 	nvmet_exit_configfs();
- 	nvmet_exit_discovery();
- 	ida_destroy(&cntlid_ida);
-+	destroy_workqueue(nvmet_wq);
- 	destroy_workqueue(buffered_io_wq);
- 	destroy_workqueue(zbd_wq);
- 
-diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
-index 22b5108168a6..c43bc5e1c7a2 100644
---- a/drivers/nvme/target/fc.c
-+++ b/drivers/nvme/target/fc.c
-@@ -1491,7 +1491,7 @@ __nvmet_fc_free_assocs(struct nvmet_fc_tgtport *tgtport)
- 	list_for_each_entry_rcu(assoc, &tgtport->assoc_list, a_list) {
- 		if (!nvmet_fc_tgt_a_get(assoc))
- 			continue;
--		if (!schedule_work(&assoc->del_work))
-+		if (!queue_work(nvmet_wq, &assoc->del_work))
- 			/* already deleting - release local reference */
- 			nvmet_fc_tgt_a_put(assoc);
- 	}
-@@ -1546,7 +1546,7 @@ nvmet_fc_invalidate_host(struct nvmet_fc_target_port *target_port,
- 			continue;
- 		assoc->hostport->invalid = 1;
- 		noassoc = false;
--		if (!schedule_work(&assoc->del_work))
-+		if (!queue_work(nvmet_wq, &assoc->del_work))
- 			/* already deleting - release local reference */
- 			nvmet_fc_tgt_a_put(assoc);
- 	}
-@@ -1592,7 +1592,7 @@ nvmet_fc_delete_ctrl(struct nvmet_ctrl *ctrl)
- 		nvmet_fc_tgtport_put(tgtport);
- 
- 		if (found_ctrl) {
--			if (!schedule_work(&assoc->del_work))
-+			if (!queue_work(nvmet_wq, &assoc->del_work))
- 				/* already deleting - release local reference */
- 				nvmet_fc_tgt_a_put(assoc);
- 			return;
-@@ -2060,7 +2060,7 @@ nvmet_fc_rcv_ls_req(struct nvmet_fc_target_port *target_port,
- 	iod->rqstdatalen = lsreqbuf_len;
- 	iod->hosthandle = hosthandle;
- 
--	schedule_work(&iod->work);
-+	queue_work(nvmet_wq, &iod->work);
- 
- 	return 0;
- }
-diff --git a/drivers/nvme/target/fcloop.c b/drivers/nvme/target/fcloop.c
-index 54606f1872b4..5c16372f3b53 100644
---- a/drivers/nvme/target/fcloop.c
-+++ b/drivers/nvme/target/fcloop.c
-@@ -360,7 +360,7 @@ fcloop_h2t_ls_req(struct nvme_fc_local_port *localport,
- 		spin_lock(&rport->lock);
- 		list_add_tail(&rport->ls_list, &tls_req->ls_list);
- 		spin_unlock(&rport->lock);
--		schedule_work(&rport->ls_work);
-+		queue_work(nvmet_wq, &rport->ls_work);
- 		return ret;
- 	}
- 
-@@ -393,7 +393,7 @@ fcloop_h2t_xmt_ls_rsp(struct nvmet_fc_target_port *targetport,
- 		spin_lock(&rport->lock);
- 		list_add_tail(&rport->ls_list, &tls_req->ls_list);
- 		spin_unlock(&rport->lock);
--		schedule_work(&rport->ls_work);
-+		queue_work(nvmet_wq, &rport->ls_work);
- 	}
- 
- 	return 0;
-@@ -448,7 +448,7 @@ fcloop_t2h_ls_req(struct nvmet_fc_target_port *targetport, void *hosthandle,
- 		spin_lock(&tport->lock);
- 		list_add_tail(&tport->ls_list, &tls_req->ls_list);
- 		spin_unlock(&tport->lock);
--		schedule_work(&tport->ls_work);
-+		queue_work(nvmet_wq, &tport->ls_work);
- 		return ret;
- 	}
- 
-@@ -480,7 +480,7 @@ fcloop_t2h_xmt_ls_rsp(struct nvme_fc_local_port *localport,
- 		spin_lock(&tport->lock);
- 		list_add_tail(&tport->ls_list, &tls_req->ls_list);
- 		spin_unlock(&tport->lock);
--		schedule_work(&tport->ls_work);
-+		queue_work(nvmet_wq, &tport->ls_work);
- 	}
- 
- 	return 0;
-@@ -520,7 +520,7 @@ fcloop_tgt_discovery_evt(struct nvmet_fc_target_port *tgtport)
- 	tgt_rscn->tport = tgtport->private;
- 	INIT_WORK(&tgt_rscn->work, fcloop_tgt_rscn_work);
- 
--	schedule_work(&tgt_rscn->work);
-+	queue_work(nvmet_wq, &tgt_rscn->work);
- }
- 
- static void
-@@ -739,7 +739,7 @@ fcloop_fcp_req(struct nvme_fc_local_port *localport,
- 	INIT_WORK(&tfcp_req->tio_done_work, fcloop_tgt_fcprqst_done_work);
- 	kref_init(&tfcp_req->ref);
- 
--	schedule_work(&tfcp_req->fcp_rcv_work);
-+	queue_work(nvmet_wq, &tfcp_req->fcp_rcv_work);
- 
- 	return 0;
- }
-@@ -921,7 +921,7 @@ fcloop_fcp_req_release(struct nvmet_fc_target_port *tgtport,
++	mutex_lock(&ctrl->ana_lock);
++	nvme_parse_ana_log(ctrl, &nr_change_groups, nvme_update_ana_state);
++	mutex_unlock(&ctrl->ana_lock);
++}
++
+ static void nvme_anatt_timeout(struct timer_list *t)
  {
- 	struct fcloop_fcpreq *tfcp_req = tgt_fcp_req_to_fcpreq(tgt_fcpreq);
- 
--	schedule_work(&tfcp_req->tio_done_work);
-+	queue_work(nvmet_wq, &tfcp_req->tio_done_work);
+ 	struct nvme_ctrl *ctrl = from_timer(ctrl, t, anatt_timer);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index f1e5c7564cae..72bcd7e5716e 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -776,6 +776,7 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head);
+ int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
+ void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
++void nvme_mpath_update(struct nvme_ctrl *ctrl);
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
+ void nvme_mpath_stop(struct nvme_ctrl *ctrl);
+ bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
+@@ -850,6 +851,9 @@ static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
+ "Please enable CONFIG_NVME_MULTIPATH for full support of multi-port devices.\n");
+ 	return 0;
  }
- 
- static void
-@@ -976,7 +976,7 @@ fcloop_fcp_abort(struct nvme_fc_local_port *localport,
- 
- 	if (abortio)
- 		/* leave the reference while the work item is scheduled */
--		WARN_ON(!schedule_work(&tfcp_req->abort_rcv_work));
-+		WARN_ON(!queue_work(nvmet_wq, &tfcp_req->abort_rcv_work));
- 	else  {
- 		/*
- 		 * as the io has already had the done callback made,
-diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index df7e033dd273..228871d48106 100644
---- a/drivers/nvme/target/io-cmd-file.c
-+++ b/drivers/nvme/target/io-cmd-file.c
-@@ -292,7 +292,7 @@ static void nvmet_file_execute_flush(struct nvmet_req *req)
- 	if (!nvmet_check_transfer_len(req, 0))
- 		return;
- 	INIT_WORK(&req->f.work, nvmet_file_flush_work);
--	schedule_work(&req->f.work);
-+	queue_work(nvmet_wq, &req->f.work);
- }
- 
- static void nvmet_file_execute_discard(struct nvmet_req *req)
-@@ -352,7 +352,7 @@ static void nvmet_file_execute_dsm(struct nvmet_req *req)
- 	if (!nvmet_check_data_len_lte(req, nvmet_dsm_len(req)))
- 		return;
- 	INIT_WORK(&req->f.work, nvmet_file_dsm_work);
--	schedule_work(&req->f.work);
-+	queue_work(nvmet_wq, &req->f.work);
- }
- 
- static void nvmet_file_write_zeroes_work(struct work_struct *w)
-@@ -382,7 +382,7 @@ static void nvmet_file_execute_write_zeroes(struct nvmet_req *req)
- 	if (!nvmet_check_transfer_len(req, 0))
- 		return;
- 	INIT_WORK(&req->f.work, nvmet_file_write_zeroes_work);
--	schedule_work(&req->f.work);
-+	queue_work(nvmet_wq, &req->f.work);
- }
- 
- u16 nvmet_file_parse_io_cmd(struct nvmet_req *req)
-diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
-index 0285ccc7541f..2553f487c9f2 100644
---- a/drivers/nvme/target/loop.c
-+++ b/drivers/nvme/target/loop.c
-@@ -166,7 +166,7 @@ static blk_status_t nvme_loop_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		iod->req.transfer_len = blk_rq_payload_bytes(req);
- 	}
- 
--	schedule_work(&iod->work);
-+	queue_work(nvmet_wq, &iod->work);
- 	return BLK_STS_OK;
- }
- 
-@@ -187,7 +187,7 @@ static void nvme_loop_submit_async_event(struct nvme_ctrl *arg)
- 		return;
- 	}
- 
--	schedule_work(&iod->work);
-+	queue_work(nvmet_wq, &iod->work);
- }
- 
- static int nvme_loop_init_iod(struct nvme_loop_ctrl *ctrl,
-diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
-index 7143c7fa7464..dbeb0b8c1194 100644
---- a/drivers/nvme/target/nvmet.h
-+++ b/drivers/nvme/target/nvmet.h
-@@ -365,6 +365,7 @@ struct nvmet_req {
- 
- extern struct workqueue_struct *buffered_io_wq;
- extern struct workqueue_struct *zbd_wq;
-+extern struct workqueue_struct *nvmet_wq;
- 
- static inline void nvmet_set_result(struct nvmet_req *req, u32 result)
++static inline void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++}
+ static inline void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
  {
-diff --git a/drivers/nvme/target/passthru.c b/drivers/nvme/target/passthru.c
-index f0efb3537989..6220e1dd961a 100644
---- a/drivers/nvme/target/passthru.c
-+++ b/drivers/nvme/target/passthru.c
-@@ -281,7 +281,7 @@ static void nvmet_passthru_execute_cmd(struct nvmet_req *req)
- 	if (req->p.use_workqueue || effects) {
- 		INIT_WORK(&req->p.work, nvmet_passthru_execute_cmd_work);
- 		req->p.rq = rq;
--		schedule_work(&req->p.work);
-+		queue_work(nvmet_wq, &req->p.work);
- 	} else {
- 		rq->end_io_data = req;
- 		blk_execute_rq_nowait(ns ? ns->disk : NULL, rq, 0,
-diff --git a/drivers/nvme/target/rdma.c b/drivers/nvme/target/rdma.c
-index f1eedbf493d5..18e082091c82 100644
---- a/drivers/nvme/target/rdma.c
-+++ b/drivers/nvme/target/rdma.c
-@@ -1583,7 +1583,7 @@ static int nvmet_rdma_queue_connect(struct rdma_cm_id *cm_id,
- 
- 	if (queue->host_qid == 0) {
- 		/* Let inflight controller teardown complete */
--		flush_scheduled_work();
-+		flush_workqueue(nvmet_wq);
- 	}
- 
- 	ret = nvmet_rdma_cm_accept(cm_id, queue, &event->param.conn);
-@@ -1668,7 +1668,7 @@ static void __nvmet_rdma_queue_disconnect(struct nvmet_rdma_queue *queue)
- 
- 	if (disconnect) {
- 		rdma_disconnect(queue->cm_id);
--		schedule_work(&queue->release_work);
-+		queue_work(nvmet_wq, &queue->release_work);
- 	}
- }
- 
-@@ -1698,7 +1698,7 @@ static void nvmet_rdma_queue_connect_fail(struct rdma_cm_id *cm_id,
- 	mutex_unlock(&nvmet_rdma_queue_mutex);
- 
- 	pr_err("failed to connect queue %d\n", queue->idx);
--	schedule_work(&queue->release_work);
-+	queue_work(nvmet_wq, &queue->release_work);
- }
- 
- /**
-@@ -1772,7 +1772,7 @@ static int nvmet_rdma_cm_handler(struct rdma_cm_id *cm_id,
- 		if (!queue) {
- 			struct nvmet_rdma_port *port = cm_id->context;
- 
--			schedule_delayed_work(&port->repair_work, 0);
-+			queue_delayed_work(nvmet_wq, &port->repair_work, 0);
- 			break;
- 		}
- 		fallthrough;
-@@ -1902,7 +1902,7 @@ static void nvmet_rdma_repair_port_work(struct work_struct *w)
- 	nvmet_rdma_disable_port(port);
- 	ret = nvmet_rdma_enable_port(port);
- 	if (ret)
--		schedule_delayed_work(&port->repair_work, 5 * HZ);
-+		queue_delayed_work(nvmet_wq, &port->repair_work, 5 * HZ);
- }
- 
- static int nvmet_rdma_add_port(struct nvmet_port *nport)
-@@ -2046,7 +2046,7 @@ static void nvmet_rdma_remove_one(struct ib_device *ib_device, void *client_data
- 	}
- 	mutex_unlock(&nvmet_rdma_queue_mutex);
- 
--	flush_scheduled_work();
-+	flush_workqueue(nvmet_wq);
- }
- 
- static struct ib_client nvmet_rdma_ib_client = {
-diff --git a/drivers/nvme/target/tcp.c b/drivers/nvme/target/tcp.c
-index 2b8bab28417b..f592e5f7f5f3 100644
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -1251,7 +1251,7 @@ static void nvmet_tcp_schedule_release_queue(struct nvmet_tcp_queue *queue)
- 	spin_lock(&queue->state_lock);
- 	if (queue->state != NVMET_TCP_Q_DISCONNECTING) {
- 		queue->state = NVMET_TCP_Q_DISCONNECTING;
--		schedule_work(&queue->release_work);
-+		queue_work(nvmet_wq, &queue->release_work);
- 	}
- 	spin_unlock(&queue->state_lock);
- }
-@@ -1662,7 +1662,7 @@ static void nvmet_tcp_listen_data_ready(struct sock *sk)
- 		goto out;
- 
- 	if (sk->sk_state == TCP_LISTEN)
--		schedule_work(&port->accept_work);
-+		queue_work(nvmet_wq, &port->accept_work);
- out:
- 	read_unlock_bh(&sk->sk_callback_lock);
- }
-@@ -1793,7 +1793,7 @@ static u16 nvmet_tcp_install_queue(struct nvmet_sq *sq)
- 
- 	if (sq->qid == 0) {
- 		/* Let inflight controller teardown complete */
--		flush_scheduled_work();
-+		flush_workqueue(nvmet_wq);
- 	}
- 
- 	queue->nr_cmds = sq->size * 2;
-@@ -1854,12 +1854,12 @@ static void __exit nvmet_tcp_exit(void)
- 
- 	nvmet_unregister_transport(&nvmet_tcp_ops);
- 
--	flush_scheduled_work();
-+	flush_workqueue(nvmet_wq);
- 	mutex_lock(&nvmet_tcp_queue_mutex);
- 	list_for_each_entry(queue, &nvmet_tcp_queue_list, queue_list)
- 		kernel_sock_shutdown(queue->sock, SHUT_RDWR);
- 	mutex_unlock(&nvmet_tcp_queue_mutex);
--	flush_scheduled_work();
-+	flush_workqueue(nvmet_wq);
- 
- 	destroy_workqueue(nvmet_tcp_wq);
  }
 -- 
 2.35.1
