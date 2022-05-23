@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 311DF5318DC
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8297D53182B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240021AbiEWRN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:13:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
+        id S240222AbiEWRaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240772AbiEWRMi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA526B7EB;
-        Mon, 23 May 2022 10:12:05 -0700 (PDT)
+        with ESMTP id S242419AbiEWR1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4285A7CB63;
+        Mon, 23 May 2022 10:23:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FDA0B8120C;
-        Mon, 23 May 2022 17:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCBE3C34116;
-        Mon, 23 May 2022 17:10:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1883B811FF;
+        Mon, 23 May 2022 17:23:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C62C385A9;
+        Mon, 23 May 2022 17:23:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325854;
-        bh=r+YoF+Jk1Ur3+B15L67bp8ae8bJEZ2yCMEZHlxk8IZY=;
+        s=korg; t=1653326590;
+        bh=Pq5/8Kq/7EMNq8IsfVTN43pOObgrPxSMbuD5x98pawk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CL3obSWXshk2TgfDNmAmArd4MSZPbZe4JVtrchx7ca0ctLWkVfQs+6L5B6ejOFTdP
-         nwqaUgod/OEe6iRUg5P7vThC26eTRYv2TedvwIMLYiTc2lq8n0NlAdyNxTNGkSHpNm
-         Jxq6tozXw4SSp6m9x0TUusgUemWXDMKyjex9tGKs=
+        b=pbxKrC3FJa38f8KxI7Z286psM3GuHCRGG26mUtYCVFjZsDms+oLsXH+bU1Bs0NCeS
+         ijYyyVnGCT7Rp8yYhwG2XnHVRcaIJqIqLS+3daNDds4cP+jeeUea3dHrHobC0oopfT
+         viws+sKuOqiWfTkrBlndmY5zWU9AHDOhkwUjBmuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Daejun Park <daejun7.park@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 31/44] ARM: 9197/1: spectre-bhb: fix loop8 sequence for Thumb2
+Subject: [PATCH 5.15 106/132] scsi: ufs: core: Fix referencing invalid rsp field
 Date:   Mon, 23 May 2022 19:05:15 +0200
-Message-Id: <20220523165758.790815379@linuxfoundation.org>
+Message-Id: <20220523165841.056634318@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,35 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Daejun Park <daejun7.park@samsung.com>
 
-[ Upstream commit 3cfb3019979666bdf33a1010147363cf05e0f17b ]
+[ Upstream commit d5d92b64408443e113b9742f8f1c35278910dd4d ]
 
-In Thumb2, 'b . + 4' produces a branch instruction that uses a narrow
-encoding, and so it does not jump to the following instruction as
-expected. So use W(b) instead.
+Fix referencing sense data when it is invalid. When the length of the data
+segment is 0, there is no valid information in the rsp field, so
+ufshpb_rsp_upiu() is returned without additional operation.
 
-Fixes: 6c7cb60bff7a ("ARM: fix Thumb2 regression with Spectre BHB")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/252651381.41652940482659.JavaMail.epsvc@epcpadp4
+Fixes: 4b5f49079c52 ("scsi: ufs: ufshpb: L2P map management for HPB read")
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-armv.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshpb.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index a929b6acb149..d779cd1a3b0c 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1067,7 +1067,7 @@ vector_bhb_loop8_\name:
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index f7eaf64293a4..14300896c57f 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -1257,6 +1257,13 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 	struct utp_hpb_rsp *rsp_field = &lrbp->ucd_rsp_ptr->hr;
+ 	int data_seg_len;
  
- 	@ bhb workaround
- 	mov	r0, #8
--3:	b	. + 4
-+3:	W(b)	. + 4
- 	subs	r0, r0, #1
- 	bne	3b
- 	dsb
++	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
++		& MASK_RSP_UPIU_DATA_SEG_LEN;
++
++	/* If data segment length is zero, rsp_field is not valid */
++	if (!data_seg_len)
++		return;
++
+ 	if (unlikely(lrbp->lun != rsp_field->lun)) {
+ 		struct scsi_device *sdev;
+ 		bool found = false;
+@@ -1291,18 +1298,6 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 		return;
+ 	}
+ 
+-	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
+-		& MASK_RSP_UPIU_DATA_SEG_LEN;
+-
+-	/* To flush remained rsp_list, we queue the map_work task */
+-	if (!data_seg_len) {
+-		if (!ufshpb_is_general_lun(hpb->lun))
+-			return;
+-
+-		ufshpb_kick_map_work(hpb);
+-		return;
+-	}
+-
+ 	BUILD_BUG_ON(sizeof(struct utp_hpb_rsp) != UTP_HPB_RSP_SIZE);
+ 
+ 	if (!ufshpb_is_hpb_rsp_valid(hba, lrbp, rsp_field))
 -- 
 2.35.1
 
