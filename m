@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9F4531B13
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BB425316AE
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242377AbiEWRyA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:54:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42126 "EHLO
+        id S241805AbiEWRxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:53:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244836AbiEWRwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:52:39 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1DA373552;
-        Mon, 23 May 2022 10:41:51 -0700 (PDT)
+        with ESMTP id S243876AbiEWRvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:51:49 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F225D5FC;
+        Mon, 23 May 2022 10:38:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC6AEB811A1;
-        Mon, 23 May 2022 17:29:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44AB5C385A9;
-        Mon, 23 May 2022 17:29:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EFBC6090C;
+        Mon, 23 May 2022 17:29:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9520EC385A9;
+        Mon, 23 May 2022 17:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326991;
-        bh=Kbw3Xnbq7oGP6QE0nQJ/oVo/wLpyBdbsLPrTHZNtse0=;
+        s=korg; t=1653326995;
+        bh=LYnJcQJy1pId1GQSjCERvqnOJ4fRwclu+T581GZ7mHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffzRN2h4BW52jvgtSJf212PAk9s/9hP51zSwecS+jFWAgBUTK62Q7PnDpAPx388HJ
-         hNVB97l1OxOF9+KI5GcNXJqoBCyL9c67P4aJhZ/WPn0Wx6GgBVJQuUF/YisjkDqLzQ
-         G60mvOcQqiHiVkNsLG+kM+ScG3ClJLWmh2s2LsKY=
+        b=sfyIMllZ258Q7By9F3XAtX/emWP7Gw6/5kw0cp3M93C5ro5eDJ9aRAU952FUHepaZ
+         eAZruaaLehyHPDlAHomuNFAYp6SqtdHNinZpLgpJTkoC+3JsdMa14jBEwW7xyfdcvp
+         CyIZTLR4NzWb/y3bMcCp670eG1I6AO3cTkApKQSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Daejun Park <daejun7.park@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 122/158] riscv: dts: sifive: fu540-c000: align dma node name with dtschema
-Date:   Mon, 23 May 2022 19:04:39 +0200
-Message-Id: <20220523165850.970191315@linuxfoundation.org>
+Subject: [PATCH 5.17 123/158] scsi: ufs: core: Fix referencing invalid rsp field
+Date:   Mon, 23 May 2022 19:04:40 +0200
+Message-Id: <20220523165851.110975996@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -55,36 +55,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Daejun Park <daejun7.park@samsung.com>
 
-[ Upstream commit b17410182b6f98191fbf7f42d3b4a78512769d29 ]
+[ Upstream commit d5d92b64408443e113b9742f8f1c35278910dd4d ]
 
-Fixes dtbs_check warnings like:
+Fix referencing sense data when it is invalid. When the length of the data
+segment is 0, there is no valid information in the rsp field, so
+ufshpb_rsp_upiu() is returned without additional operation.
 
-  dma@3000000: $nodename:0: 'dma@3000000' does not match '^dma-controller(@.*)?$'
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Link: https://lore.kernel.org/r/20220407193856.18223-1-krzysztof.kozlowski@linaro.org
-Fixes: c5ab54e9945b ("riscv: dts: add support for PDMA device of HiFive Unleashed Rev A00")
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/252651381.41652940482659.JavaMail.epsvc@epcpadp4
+Fixes: 4b5f49079c52 ("scsi: ufs: ufshpb: L2P map management for HPB read")
+Acked-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Daejun Park <daejun7.park@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/fu540-c000.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshpb.c | 19 +++++++------------
+ 1 file changed, 7 insertions(+), 12 deletions(-)
 
-diff --git a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-index 3eef52b1a59b..fd93fdadd28c 100644
---- a/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-+++ b/arch/riscv/boot/dts/sifive/fu540-c000.dtsi
-@@ -167,7 +167,7 @@ uart0: serial@10010000 {
- 			clocks = <&prci PRCI_CLK_TLCLK>;
- 			status = "disabled";
- 		};
--		dma: dma@3000000 {
-+		dma: dma-controller@3000000 {
- 			compatible = "sifive,fu540-c000-pdma";
- 			reg = <0x0 0x3000000 0x0 0x8000>;
- 			interrupt-parent = <&plic0>;
+diff --git a/drivers/scsi/ufs/ufshpb.c b/drivers/scsi/ufs/ufshpb.c
+index b34feba1f53d..8dc818b03939 100644
+--- a/drivers/scsi/ufs/ufshpb.c
++++ b/drivers/scsi/ufs/ufshpb.c
+@@ -1256,6 +1256,13 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 	struct utp_hpb_rsp *rsp_field = &lrbp->ucd_rsp_ptr->hr;
+ 	int data_seg_len;
+ 
++	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
++		& MASK_RSP_UPIU_DATA_SEG_LEN;
++
++	/* If data segment length is zero, rsp_field is not valid */
++	if (!data_seg_len)
++		return;
++
+ 	if (unlikely(lrbp->lun != rsp_field->lun)) {
+ 		struct scsi_device *sdev;
+ 		bool found = false;
+@@ -1290,18 +1297,6 @@ void ufshpb_rsp_upiu(struct ufs_hba *hba, struct ufshcd_lrb *lrbp)
+ 		return;
+ 	}
+ 
+-	data_seg_len = be32_to_cpu(lrbp->ucd_rsp_ptr->header.dword_2)
+-		& MASK_RSP_UPIU_DATA_SEG_LEN;
+-
+-	/* To flush remained rsp_list, we queue the map_work task */
+-	if (!data_seg_len) {
+-		if (!ufshpb_is_general_lun(hpb->lun))
+-			return;
+-
+-		ufshpb_kick_map_work(hpb);
+-		return;
+-	}
+-
+ 	BUILD_BUG_ON(sizeof(struct utp_hpb_rsp) != UTP_HPB_RSP_SIZE);
+ 
+ 	if (!ufshpb_is_hpb_rsp_valid(hba, lrbp, rsp_field))
 -- 
 2.35.1
 
