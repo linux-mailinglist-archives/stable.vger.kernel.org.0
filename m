@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F76531A7F
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA27C531CEC
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236853AbiEWRKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:10:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37720 "EHLO
+        id S240515AbiEWRSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:18:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239547AbiEWRKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:08 -0400
+        with ESMTP id S240698AbiEWRQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69C6B6C553;
-        Mon, 23 May 2022 10:09:47 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4856F3BFA8;
+        Mon, 23 May 2022 10:16:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D698614CE;
-        Mon, 23 May 2022 17:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B02C385A9;
-        Mon, 23 May 2022 17:09:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 36EF461337;
+        Mon, 23 May 2022 17:13:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F29C385AA;
+        Mon, 23 May 2022 17:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325772;
-        bh=z4dNxt/amUl9rRBPcT7kg7wnq1N98gWZo4V9yFbD8ag=;
+        s=korg; t=1653326011;
+        bh=rxs6VDxjlSlsa8eXEMlrj2IGeSz+cSzxHHDu/XTGxjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0thNiHppGVwtrs+rOFvqsOnQp6SFwoLsakx7V3jxFkUYIAx8tBYUGsdhTFT45FNIw
-         JYYB1jA/u6HJwGr5fpWJTFXJYBSBdhKRwsMcn6Xp/sOnSXUciTBsbu99Ma+flJN90z
-         M4ov+oVBtBndT9L4B1+n4CTKAnEk0ycE38MHcZT4=
+        b=UwkfwNlBI4FPmsmcbjBrnq88Cnnie0rjo7+eIungHwBf+Uf7Zu1qYKqdc0Hsp4hZP
+         oyj8OUC4iqfLkVJfoOCA/KGgXc2UJd6apQ3UMpqIAHCLrHl/G7GyJMJ2RnPXtt2Z7g
+         yhOggqWP8d4jfIcfjVYbAT/kpKaUujliBirzc58c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 18/33] NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.4 40/68] ice: fix possible under reporting of ethtool Tx and Rx statistics
 Date:   Mon, 23 May 2022 19:05:07 +0200
-Message-Id: <20220523165751.029587860@linuxfoundation.org>
+Message-Id: <20220523165809.213413459@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
-References: <20220523165746.957506211@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Paul Greenwalt <paul.greenwalt@intel.com>
 
-[ Upstream commit 23dd4581350d4ffa23d58976ec46408f8f4c1e16 ]
+[ Upstream commit 31b6298fd8e29effe9ed6b77351ac5969be56ce0 ]
 
-There are sleep in atomic context bugs when the request to secure
-element of st-nci is timeout. The root cause is that nci_skb_alloc
-with GFP_KERNEL parameter is called in st_nci_se_wt_timeout which is
-a timer handler. The call paths that could trigger bugs are shown below:
+The hardware statistics counters are not cleared during resets so the
+drivers first access is to initialize the baseline and then subsequent
+reads are for reporting the counters. The statistics counters are read
+during the watchdog subtask when the interface is up. If the baseline
+is not initialized before the interface is up, then there can be a brief
+window in which some traffic can be transmitted/received before the
+initial baseline reading takes place.
 
-    (interrupt context 1)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_skb_alloc(..., GFP_KERNEL) //may sleep
+Directly initialize ethtool statistics in driver open so the baseline will
+be initialized when the interface is up, and any dropped packets
+incremented before the interface is up won't be reported.
 
-   (interrupt context 2)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_send_data
-        nci_queue_tx_data_frags
-          nci_skb_alloc(..., GFP_KERNEL) //may sleep
-
-This patch changes allocation mode of nci_skb_alloc from GFP_KERNEL to
-GFP_ATOMIC in order to prevent atomic context sleeping. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: ed06aeefdac3 ("nfc: st-nci: Rename st21nfcb to st-nci")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220517012530.75714-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 28dc1b86f8ea9 ("ice: ignore dropped packets during init")
+Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/nci/data.c | 2 +-
- net/nfc/nci/hci.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index 5405d073804c..9e3f9460f14f 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -130,7 +130,7 @@ static int nci_queue_tx_data_frags(struct nci_dev *ndev,
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 3eea68f3a526..88750a96cb3f 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3561,9 +3561,10 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 		netif_carrier_on(vsi->netdev);
+ 	}
  
- 		skb_frag = nci_skb_alloc(ndev,
- 					 (NCI_DATA_HDR_SIZE + frag_len),
--					 GFP_KERNEL);
-+					 GFP_ATOMIC);
- 		if (skb_frag == NULL) {
- 			rc = -ENOMEM;
- 			goto free_exit;
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index c972c212e7ca..e5c5cff33236 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -165,7 +165,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
+-	/* clear this now, and the first stats read will be used as baseline */
+-	vsi->stat_offsets_loaded = false;
+-
++	/* Perform an initial read of the statistics registers now to
++	 * set the baseline so counters are ready when interface is up
++	 */
++	ice_update_eth_stats(vsi);
+ 	ice_service_task_schedule(pf);
  
- 	i = 0;
- 	skb = nci_skb_alloc(ndev, conn_info->max_pkt_payload_len +
--			    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+			    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 	if (!skb)
- 		return -ENOMEM;
- 
-@@ -198,7 +198,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
- 		if (i < data_len) {
- 			skb = nci_skb_alloc(ndev,
- 					    conn_info->max_pkt_payload_len +
--					    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+					    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 			if (!skb)
- 				return -ENOMEM;
- 
+ 	return 0;
 -- 
 2.35.1
 
