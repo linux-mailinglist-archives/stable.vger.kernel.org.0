@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 995275319E6
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C1C5318F7
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240080AbiEWRSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34058 "EHLO
+        id S240926AbiEWR3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240823AbiEWRQn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 480503A70E;
-        Mon, 23 May 2022 10:16:27 -0700 (PDT)
+        with ESMTP id S242119AbiEWR10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B347B9DE;
+        Mon, 23 May 2022 10:22:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 235426090C;
-        Mon, 23 May 2022 17:15:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30370C385A9;
-        Mon, 23 May 2022 17:15:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86435B811CE;
+        Mon, 23 May 2022 17:22:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9246C385A9;
+        Mon, 23 May 2022 17:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326149;
-        bh=Lbbw7GNdNrGFc/ofISrNLMBDFyzyiQnXPSz9wVZu/iY=;
+        s=korg; t=1653326552;
+        bh=iKQ0hZxnLPgEJ50DVj3I4D8Qng3oKsd31mCAqKdvhDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UdVT2NCdgnFJUzUy8alp1RggavpihU0qv6aBuSN3761/FRh8HoObu3zRa/AV2bxSp
-         VvaSCZuKzsr+sE19cswI0giXJITwZixSMaI91NlkeCZRZxpKF5WWi3oLMGJgAiNr92
-         MQu4df/SOgDuxdZs/kKGe6kvqJgcbSjnok2kSKxQ=
+        b=I+vk4A4V8cFFTtKP9jnuJShpTKTPomBP8YzK5ocxFaVON5qMg+h35lvFewwzQ2UqT
+         DehwQXXix0HBe7EupFLvr53K5lkFBWFHFiqfIL1VNwaYtP1y/Q8fJjBAs1BpX75D5L
+         tyKTw2ubuid4Qr8PxcpA/Td59KBp4fBiJj+k3UyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 22/97] nvme-multipath: fix hang when disk goes live over reconnect
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 117/132] Revert "fbdev: Make fb_release() return -ENODEV if fbdev was unregistered"
 Date:   Mon, 23 May 2022 19:05:26 +0200
-Message-Id: <20220523165815.776802739@linuxfoundation.org>
+Message-Id: <20220523165842.957591725@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,163 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton.eidelman@gmail.com>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-[ Upstream commit a4a6f3c8f61c3cfbda4998ad94596059ad7e4332 ]
+[ Upstream commit 135332f34ba2662bc1e32b5c612e06a8cc41a053 ]
 
-nvme_mpath_init_identify() invoked from nvme_init_identify() fetches a
-fresh ANA log from the ctrl.  This is essential to have an up to date
-path states for both existing namespaces and for those scan_work may
-discover once the ctrl is up.
+This reverts commit aafa025c76dcc7d1a8c8f0bdefcbe4eb480b2f6a. That commit
+attempted to fix a NULL pointer dereference, caused by the struct fb_info
+associated with a framebuffer device to not longer be valid when the file
+descriptor was closed.
 
-This happens in the following cases:
-  1) A new ctrl is being connected.
-  2) An existing ctrl is successfully reconnected.
-  3) An existing ctrl is being reset.
+The issue was exposed by commit 27599aacbaef ("fbdev: Hot-unplug firmware
+fb devices on forced removal"), which added a new path that goes through
+the struct device removal instead of directly unregistering the fb.
 
-While in (1) ctrl->namespaces is empty, (2 & 3) may have namespaces, and
-nvme_read_ana_log() may call nvme_update_ns_ana_state().
+Most fbdev drivers have issues with the fb_info lifetime, because call to
+framebuffer_release() from their driver's .remove callback, rather than
+doing from fbops.fb_destroy callback. This meant that due to this switch,
+the fb_info was now destroyed too early, while references still existed,
+while before it was simply leaked.
 
-This result in a hang when the ANA state of an existing namespace changes
-and makes the disk live: nvme_mpath_set_live() issues IO to the namespace
-through the ctrl, which does NOT have IO queues yet.
+The patch we're reverting here reinstated that leak, hence "fixed" the
+regression. But the proper solution is to fix the drivers to not release
+the fb_info too soon.
 
-See sample hang below.
-
-Solution:
-- nvme_update_ns_ana_state() to call set_live only if ctrl is live
-- nvme_read_ana_log() call from nvme_mpath_init_identify()
-  therefore only fetches and parses the ANA log;
-  any erros in this process will fail the ctrl setup as appropriate;
-- a separate function nvme_mpath_update()
-  is called in nvme_start_ctrl();
-  this parses the ANA log without fetching it.
-  At this point the ctrl is live,
-  therefore, disks can be set live normally.
-
-Sample failure:
-    nvme nvme0: starting error recovery
-    nvme nvme0: Reconnecting in 10 seconds...
-    block nvme0n6: no usable path - requeuing I/O
-    INFO: task kworker/u8:3:312 blocked for more than 122 seconds.
-          Tainted: G            E     5.14.5-1.el7.elrepo.x86_64 #1
-    Workqueue: nvme-wq nvme_tcp_reconnect_ctrl_work [nvme_tcp]
-    Call Trace:
-     __schedule+0x2a2/0x7e0
-     schedule+0x4e/0xb0
-     io_schedule+0x16/0x40
-     wait_on_page_bit_common+0x15c/0x3e0
-     do_read_cache_page+0x1e0/0x410
-     read_cache_page+0x12/0x20
-     read_part_sector+0x46/0x100
-     read_lba+0x121/0x240
-     efi_partition+0x1d2/0x6a0
-     bdev_disk_changed.part.0+0x1df/0x430
-     bdev_disk_changed+0x18/0x20
-     blkdev_get_whole+0x77/0xe0
-     blkdev_get_by_dev+0xd2/0x3a0
-     __device_add_disk+0x1ed/0x310
-     device_add_disk+0x13/0x20
-     nvme_mpath_set_live+0x138/0x1b0 [nvme_core]
-     nvme_update_ns_ana_state+0x2b/0x30 [nvme_core]
-     nvme_update_ana_state+0xca/0xe0 [nvme_core]
-     nvme_parse_ana_log+0xac/0x170 [nvme_core]
-     nvme_read_ana_log+0x7d/0xe0 [nvme_core]
-     nvme_mpath_init_identify+0x105/0x150 [nvme_core]
-     nvme_init_identify+0x2df/0x4d0 [nvme_core]
-     nvme_init_ctrl_finish+0x8d/0x3b0 [nvme_core]
-     nvme_tcp_setup_ctrl+0x337/0x390 [nvme_tcp]
-     nvme_tcp_reconnect_ctrl_work+0x24/0x40 [nvme_tcp]
-     process_one_work+0x1bd/0x360
-     worker_thread+0x50/0x3d0
-
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220504115917.758787-1-javierm@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c      |  1 +
- drivers/nvme/host/multipath.c | 25 +++++++++++++++++++++++--
- drivers/nvme/host/nvme.h      |  4 ++++
- 3 files changed, 28 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbmem.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index ad4f1cfbad2e..e73a5c62a858 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4420,6 +4420,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
- 	if (ctrl->queue_count > 1) {
- 		nvme_queue_scan(ctrl);
- 		nvme_start_queues(ctrl);
-+		nvme_mpath_update(ctrl);
- 	}
- }
- EXPORT_SYMBOL_GPL(nvme_start_ctrl);
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 18a756444d5a..a9e15c8f907b 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -484,8 +484,17 @@ static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
- 	ns->ana_grpid = le32_to_cpu(desc->grpid);
- 	ns->ana_state = desc->state;
- 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 8e38a7a5cf2f..0371ad233fdf 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1436,10 +1436,7 @@ fb_release(struct inode *inode, struct file *file)
+ __acquires(&info->lock)
+ __releases(&info->lock)
+ {
+-	struct fb_info * const info = file_fb_info(file);
 -
--	if (nvme_state_is_live(ns->ana_state))
-+	/*
-+	 * nvme_mpath_set_live() will trigger I/O to the multipath path device
-+	 * and in turn to this path device.  However we cannot accept this I/O
-+	 * if the controller is not live.  This may deadlock if called from
-+	 * nvme_mpath_init_identify() and the ctrl will never complete
-+	 * initialization, preventing I/O from completing.  For this case we
-+	 * will reprocess the ANA log page in nvme_mpath_update() once the
-+	 * controller is ready.
-+	 */
-+	if (nvme_state_is_live(ns->ana_state) &&
-+	    ns->ctrl->state == NVME_CTRL_LIVE)
- 		nvme_mpath_set_live(ns);
- }
+-	if (!info)
+-		return -ENODEV;
++	struct fb_info * const info = file->private_data;
  
-@@ -572,6 +581,18 @@ static void nvme_ana_work(struct work_struct *work)
- 	nvme_read_ana_log(ctrl);
- }
- 
-+void nvme_mpath_update(struct nvme_ctrl *ctrl)
-+{
-+	u32 nr_change_groups = 0;
-+
-+	if (!ctrl->ana_log_buf)
-+		return;
-+
-+	mutex_lock(&ctrl->ana_lock);
-+	nvme_parse_ana_log(ctrl, &nr_change_groups, nvme_update_ana_state);
-+	mutex_unlock(&ctrl->ana_lock);
-+}
-+
- static void nvme_anatt_timeout(struct timer_list *t)
- {
- 	struct nvme_ctrl *ctrl = from_timer(ctrl, t, anatt_timer);
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index 10e5ae3a8c0d..95b9657cabaf 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -712,6 +712,7 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
- void nvme_mpath_remove_disk(struct nvme_ns_head *head);
- int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
- void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
-+void nvme_mpath_update(struct nvme_ctrl *ctrl);
- void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
- void nvme_mpath_stop(struct nvme_ctrl *ctrl);
- bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
-@@ -798,6 +799,9 @@ static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
- "Please enable CONFIG_NVME_MULTIPATH for full support of multi-port devices.\n");
- 	return 0;
- }
-+static inline void nvme_mpath_update(struct nvme_ctrl *ctrl)
-+{
-+}
- static inline void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
- {
- }
+ 	lock_fb_info(info);
+ 	if (info->fbops->fb_release)
 -- 
 2.35.1
 
