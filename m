@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 802DD531A42
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B79531987
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241304AbiEWRaD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42252 "EHLO
+        id S240217AbiEWRSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:18:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240915AbiEWR0J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:09 -0400
+        with ESMTP id S240588AbiEWRQb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:31 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8292343ADD;
-        Mon, 23 May 2022 10:21:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89726345;
+        Mon, 23 May 2022 10:15:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 279E4B8121D;
-        Mon, 23 May 2022 17:21:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75C1FC385A9;
-        Mon, 23 May 2022 17:21:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEBB0B81229;
+        Mon, 23 May 2022 17:15:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2EDC385A9;
+        Mon, 23 May 2022 17:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326468;
-        bh=JnNWw/t2HA0rSws4pPMJwzJIgFsdxCM4zHANsZhxPDw=;
+        s=korg; t=1653326130;
+        bh=43ADYlVSU0bl+oIij0x957OoDs9ZCDv4I1yKzplQidc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOymOp7Jmuc2PAu1SFiPP8a5F25xuaM6JdXsA29U161/fIZnFX5Pfu4s/vMgNTvuI
-         TUioVtPEoKFTHOH2tgkzSgzW66t+9DgYYK/tlhUGDaCAEfnSYIQFDsJe0gfMl/FutL
-         8uHzZRe9hW0Wzc7Dr1YlfYSYzxMxB1qfXtqYGrM0=
+        b=zK0Dkypi6mJ0PwCnOQacVGyYABwhR8d/dV+tVPukLVaanm3Pm/IwT6DW7DVUzeQHL
+         nUo+qMAE+xgPa64EbvHMcDhfWnNx6memaARl9NqjHCfQtSZHDnLiLIFHxvkZrhPcsz
+         8KQafUsCUDFP3LkzaZTVKLmszlyfSP5Yn7PFbT74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 091/132] net/mlx5e: Properly block LRO when XDP is enabled
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
+        <jerome.pouiller@silabs.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.4 33/68] dma-buf: fix use of DMA_BUF_SET_NAME_{A,B} in userspace
 Date:   Mon, 23 May 2022 19:05:00 +0200
-Message-Id: <20220523165838.377088716@linuxfoundation.org>
+Message-Id: <20220523165808.093124227@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Jérôme Pouiller <jerome.pouiller@silabs.com>
 
-[ Upstream commit cf6e34c8c22fba66bd21244b95ea47e235f68974 ]
+commit 7c3e9fcad9c7d8bb5d69a576044fb16b1d2e8a01 upstream.
 
-LRO is incompatible and mutually exclusive with XDP. However, the needed
-checks are only made when enabling XDP. If LRO is enabled when XDP is
-already active, the command will succeed, and XDP will be skipped in the
-data path, although still enabled.
+The typedefs u32 and u64 are not available in userspace. Thus user get
+an error he try to use DMA_BUF_SET_NAME_A or DMA_BUF_SET_NAME_B:
 
-This commit fixes the bug by checking the XDP status in
-mlx5e_fix_features and disabling LRO if XDP is enabled.
+    $ gcc -Wall   -c -MMD -c -o ioctls_list.o ioctls_list.c
+    In file included from /usr/include/x86_64-linux-gnu/asm/ioctl.h:1,
+                     from /usr/include/linux/ioctl.h:5,
+                     from /usr/include/asm-generic/ioctls.h:5,
+                     from ioctls_list.c:11:
+    ioctls_list.c:463:29: error: ‘u32’ undeclared here (not in a function)
+      463 |     { "DMA_BUF_SET_NAME_A", DMA_BUF_SET_NAME_A, -1, -1 }, // linux/dma-buf.h
+          |                             ^~~~~~~~~~~~~~~~~~
+    ioctls_list.c:464:29: error: ‘u64’ undeclared here (not in a function)
+      464 |     { "DMA_BUF_SET_NAME_B", DMA_BUF_SET_NAME_B, -1, -1 }, // linux/dma-buf.h
+          |                             ^~~~~~~~~~~~~~~~~~
 
-Fixes: 86994156c736 ("net/mlx5e: XDP fast RX drop bpf programs support")
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The issue was initially reported here[1].
+
+[1]: https://github.com/jerome-pouiller/ioctl/pull/14
+
+Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Fixes: a5bff92eaac4 ("dma-buf: Fix SET_NAME ioctl uapi")
+CC: stable@vger.kernel.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20220517072708.245265-1-Jerome.Pouiller@silabs.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ include/uapi/linux/dma-buf.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 01301bee420c..7efb898e9f96 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3542,6 +3542,13 @@ static netdev_features_t mlx5e_fix_features(struct net_device *netdev,
- 		}
- 	}
+--- a/include/uapi/linux/dma-buf.h
++++ b/include/uapi/linux/dma-buf.h
+@@ -44,7 +44,7 @@ struct dma_buf_sync {
+  * between them in actual uapi, they're just different numbers.
+  */
+ #define DMA_BUF_SET_NAME	_IOW(DMA_BUF_BASE, 1, const char *)
+-#define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, u32)
+-#define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, u64)
++#define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, __u32)
++#define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, __u64)
  
-+	if (params->xdp_prog) {
-+		if (features & NETIF_F_LRO) {
-+			netdev_warn(netdev, "LRO is incompatible with XDP\n");
-+			features &= ~NETIF_F_LRO;
-+		}
-+	}
-+
- 	if (MLX5E_GET_PFLAG(params, MLX5E_PFLAG_RX_CQE_COMPRESS)) {
- 		features &= ~NETIF_F_RXHASH;
- 		if (netdev->features & NETIF_F_RXHASH)
--- 
-2.35.1
-
+ #endif
 
 
