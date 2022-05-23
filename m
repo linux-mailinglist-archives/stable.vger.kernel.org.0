@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47E655316CD
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1C3531CA5
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242395AbiEWRyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:54:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34998 "EHLO
+        id S240450AbiEWRRj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244789AbiEWRwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:52:37 -0400
+        with ESMTP id S239910AbiEWRNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:13:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1EA373576;
-        Mon, 23 May 2022 10:41:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 132106D186;
+        Mon, 23 May 2022 10:12:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8C4DB81219;
-        Mon, 23 May 2022 17:29:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A3ECC385AA;
-        Mon, 23 May 2022 17:29:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2720FB81200;
+        Mon, 23 May 2022 17:11:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 797D6C385A9;
+        Mon, 23 May 2022 17:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326988;
-        bh=J+W5aT3WGDjIPtqn7XtpRBsj1Mc+Le+0Eohj62Ypi/o=;
+        s=korg; t=1653325917;
+        bh=8LPEfYxQenpH9D4InrKCnPBnl7PAFBo+jj2AGNeJ0tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfwqP0e/Bx3vScoFpRdVAkNS+ECWvmv5/RItXvSz/lgb5TD9UpCp7axmo1qyMfFNG
-         /AU6wJA93y8/P6LBpeqEfkcvK1eauQWayT5RA57OdyupRmxKJV8fxqtuRRXpH9iH35
-         8YCnCvnaki02og6XTV9K0bWZI+OBjaJrbhcYQlhw=
+        b=0GAilnGC4hhL1pAgNvKqN7FVPDz7xOc4jLVhqcQ0kSfTkyPrUOeyx5fkPQ3gwwwLl
+         tul1tDpHNgm7R/yvK0thpce2BW6GusoVx5kIHIrMIRMf5mguv37i9XAIQPNlNJdjeQ
+         /iSUgZmhXy7Lh12TFkV6gCJsnXIyNSVDxddgvQtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Lunn <andrew@lunn.ch>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Nikolay Aleksandrov <razor@blackwall.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 121/158] net: bridge: Clear offload_fwd_mark when passing frame up bridge interface.
+        stable@vger.kernel.org, Anton Eidelman <anton@lightbitslabs.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 11/68] nvme-multipath: fix hang when disk goes live over reconnect
 Date:   Mon, 23 May 2022 19:04:38 +0200
-Message-Id: <20220523165850.824312357@linuxfoundation.org>
+Message-Id: <20220523165804.401178525@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,69 +54,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Anton Eidelman <anton.eidelman@gmail.com>
 
-[ Upstream commit fbb3abdf2223cd0dfc07de85fe5a43ba7f435bdf ]
+[ Upstream commit a4a6f3c8f61c3cfbda4998ad94596059ad7e4332 ]
 
-It is possible to stack bridges on top of each other. Consider the
-following which makes use of an Ethernet switch:
+nvme_mpath_init_identify() invoked from nvme_init_identify() fetches a
+fresh ANA log from the ctrl.  This is essential to have an up to date
+path states for both existing namespaces and for those scan_work may
+discover once the ctrl is up.
 
-       br1
-     /    \
-    /      \
-   /        \
- br0.11    wlan0
-   |
-   br0
- /  |  \
-p1  p2  p3
+This happens in the following cases:
+  1) A new ctrl is being connected.
+  2) An existing ctrl is successfully reconnected.
+  3) An existing ctrl is being reset.
 
-br0 is offloaded to the switch. Above br0 is a vlan interface, for
-vlan 11. This vlan interface is then a slave of br1. br1 also has a
-wireless interface as a slave. This setup trunks wireless lan traffic
-over the copper network inside a VLAN.
+While in (1) ctrl->namespaces is empty, (2 & 3) may have namespaces, and
+nvme_read_ana_log() may call nvme_update_ns_ana_state().
 
-A frame received on p1 which is passed up to the bridge has the
-skb->offload_fwd_mark flag set to true, indicating that the switch has
-dealt with forwarding the frame out ports p2 and p3 as needed. This
-flag instructs the software bridge it does not need to pass the frame
-back down again. However, the flag is not getting reset when the frame
-is passed upwards. As a result br1 sees the flag, wrongly interprets
-it, and fails to forward the frame to wlan0.
+This result in a hang when the ANA state of an existing namespace changes
+and makes the disk live: nvme_mpath_set_live() issues IO to the namespace
+through the ctrl, which does NOT have IO queues yet.
 
-When passing a frame upwards, clear the flag. This is the Rx
-equivalent of br_switchdev_frame_unmark() in br_dev_xmit().
+See sample hang below.
 
-Fixes: f1c2eddf4cb6 ("bridge: switchdev: Use an helper to clear forward mark")
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Tested-by: Ido Schimmel <idosch@nvidia.com>
-Acked-by: Nikolay Aleksandrov <razor@blackwall.org>
-Link: https://lore.kernel.org/r/20220518005840.771575-1-andrew@lunn.ch
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Solution:
+- nvme_update_ns_ana_state() to call set_live only if ctrl is live
+- nvme_read_ana_log() call from nvme_mpath_init_identify()
+  therefore only fetches and parses the ANA log;
+  any erros in this process will fail the ctrl setup as appropriate;
+- a separate function nvme_mpath_update()
+  is called in nvme_start_ctrl();
+  this parses the ANA log without fetching it.
+  At this point the ctrl is live,
+  therefore, disks can be set live normally.
+
+Sample failure:
+    nvme nvme0: starting error recovery
+    nvme nvme0: Reconnecting in 10 seconds...
+    block nvme0n6: no usable path - requeuing I/O
+    INFO: task kworker/u8:3:312 blocked for more than 122 seconds.
+          Tainted: G            E     5.14.5-1.el7.elrepo.x86_64 #1
+    Workqueue: nvme-wq nvme_tcp_reconnect_ctrl_work [nvme_tcp]
+    Call Trace:
+     __schedule+0x2a2/0x7e0
+     schedule+0x4e/0xb0
+     io_schedule+0x16/0x40
+     wait_on_page_bit_common+0x15c/0x3e0
+     do_read_cache_page+0x1e0/0x410
+     read_cache_page+0x12/0x20
+     read_part_sector+0x46/0x100
+     read_lba+0x121/0x240
+     efi_partition+0x1d2/0x6a0
+     bdev_disk_changed.part.0+0x1df/0x430
+     bdev_disk_changed+0x18/0x20
+     blkdev_get_whole+0x77/0xe0
+     blkdev_get_by_dev+0xd2/0x3a0
+     __device_add_disk+0x1ed/0x310
+     device_add_disk+0x13/0x20
+     nvme_mpath_set_live+0x138/0x1b0 [nvme_core]
+     nvme_update_ns_ana_state+0x2b/0x30 [nvme_core]
+     nvme_update_ana_state+0xca/0xe0 [nvme_core]
+     nvme_parse_ana_log+0xac/0x170 [nvme_core]
+     nvme_read_ana_log+0x7d/0xe0 [nvme_core]
+     nvme_mpath_init_identify+0x105/0x150 [nvme_core]
+     nvme_init_identify+0x2df/0x4d0 [nvme_core]
+     nvme_init_ctrl_finish+0x8d/0x3b0 [nvme_core]
+     nvme_tcp_setup_ctrl+0x337/0x390 [nvme_tcp]
+     nvme_tcp_reconnect_ctrl_work+0x24/0x40 [nvme_tcp]
+     process_one_work+0x1bd/0x360
+     worker_thread+0x50/0x3d0
+
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_input.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/nvme/host/core.c      |  1 +
+ drivers/nvme/host/multipath.c | 25 +++++++++++++++++++++++--
+ drivers/nvme/host/nvme.h      |  4 ++++
+ 3 files changed, 28 insertions(+), 2 deletions(-)
 
-diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
-index b50382f957c1..6743c8a0fe8e 100644
---- a/net/bridge/br_input.c
-+++ b/net/bridge/br_input.c
-@@ -39,6 +39,13 @@ static int br_pass_frame_up(struct sk_buff *skb)
- 	dev_sw_netstats_rx_add(brdev, skb->len);
- 
- 	vg = br_vlan_group_rcu(br);
-+
-+	/* Reset the offload_fwd_mark because there could be a stacked
-+	 * bridge above, and it should not think this bridge it doing
-+	 * that bridge's work forwarding out its ports.
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 6a9a42809f97..79e22618817d 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4047,6 +4047,7 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl)
+ 	if (ctrl->queue_count > 1) {
+ 		nvme_queue_scan(ctrl);
+ 		nvme_start_queues(ctrl);
++		nvme_mpath_update(ctrl);
+ 	}
+ 	ctrl->created = true;
+ }
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 4d615337e6e2..811f7b96b551 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -501,8 +501,17 @@ static void nvme_update_ns_ana_state(struct nvme_ana_group_desc *desc,
+ 	ns->ana_grpid = le32_to_cpu(desc->grpid);
+ 	ns->ana_state = desc->state;
+ 	clear_bit(NVME_NS_ANA_PENDING, &ns->flags);
+-
+-	if (nvme_state_is_live(ns->ana_state))
++	/*
++	 * nvme_mpath_set_live() will trigger I/O to the multipath path device
++	 * and in turn to this path device.  However we cannot accept this I/O
++	 * if the controller is not live.  This may deadlock if called from
++	 * nvme_mpath_init_identify() and the ctrl will never complete
++	 * initialization, preventing I/O from completing.  For this case we
++	 * will reprocess the ANA log page in nvme_mpath_update() once the
++	 * controller is ready.
 +	 */
-+	br_switchdev_frame_unmark(skb);
++	if (nvme_state_is_live(ns->ana_state) &&
++	    ns->ctrl->state == NVME_CTRL_LIVE)
+ 		nvme_mpath_set_live(ns);
+ }
+ 
+@@ -586,6 +595,18 @@ static void nvme_ana_work(struct work_struct *work)
+ 	nvme_read_ana_log(ctrl);
+ }
+ 
++void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++	u32 nr_change_groups = 0;
 +
- 	/* Bridge is just like any other port.  Make sure the
- 	 * packet is allowed except in promisc mode when someone
- 	 * may be running packet capture.
++	if (!ctrl->ana_log_buf)
++		return;
++
++	mutex_lock(&ctrl->ana_lock);
++	nvme_parse_ana_log(ctrl, &nr_change_groups, nvme_update_ana_state);
++	mutex_unlock(&ctrl->ana_lock);
++}
++
+ static void nvme_anatt_timeout(struct timer_list *t)
+ {
+ 	struct nvme_ctrl *ctrl = from_timer(ctrl, t, anatt_timer);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 2df90d4355b9..1d1431dd4f9e 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -551,6 +551,7 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head);
+ int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
+ void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
++void nvme_mpath_update(struct nvme_ctrl *ctrl);
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
+ void nvme_mpath_stop(struct nvme_ctrl *ctrl);
+ bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
+@@ -648,6 +649,9 @@ static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
+ "Please enable CONFIG_NVME_MULTIPATH for full support of multi-port devices.\n");
+ 	return 0;
+ }
++static inline void nvme_mpath_update(struct nvme_ctrl *ctrl)
++{
++}
+ static inline void nvme_mpath_uninit(struct nvme_ctrl *ctrl)
+ {
+ }
 -- 
 2.35.1
 
