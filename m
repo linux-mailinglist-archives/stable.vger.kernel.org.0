@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 716E7531C5B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3000531B3D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239624AbiEWRM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:12:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37706 "EHLO
+        id S240883AbiEWRju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240532AbiEWRMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:31 -0400
+        with ESMTP id S243101AbiEWRhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A00B62CE5;
-        Mon, 23 May 2022 10:11:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B837E6A016;
+        Mon, 23 May 2022 10:32:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A636149F;
-        Mon, 23 May 2022 17:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60CFEC385A9;
-        Mon, 23 May 2022 17:11:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 28D7D6127D;
+        Mon, 23 May 2022 17:32:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3233FC385A9;
+        Mon, 23 May 2022 17:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325863;
-        bh=us182Po8y/92L2m2KNkWy/1esHIVSixRF1EcaXFXeLU=;
+        s=korg; t=1653327124;
+        bh=Y3HnaIdwRzgm8ZRIpbxNDktGkEgObnYgq8LHzhYZ0eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHHHkUPKtYKTgs9cG/wGqqaKHUBf9oCWrgoBe6mSoDv0YtnZe6IJ7ipQWBbPwFZLc
-         LXy8gEfTYV+ct+ICUT1cWAu9dv8Zm/IYjRCBM2sZM56i5iqKOl6tTkV9fjtFIseaVF
-         fYdX21JLcAnQvRrS7kVTBKAoJKmFAIqMs22wIQJE=
+        b=NOaXnKwAItDo/wJ+BzJbriqsoo8ruZUAKG02YL90VMqMAqJbenUNkDwx+/GDvZY9V
+         UyJyZ1jmt+wbsTmoDxQpvKZhF7lalv+TwdIAdXd0Yfm9A0cxRRaZCwSdWtGAGNZbTd
+         rzQnNo4FBYk28uTbDoNktM1DPT6HF7gb/Gkh+tww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 12/44] perf: Fix sys_perf_event_open() race against self
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 139/158] Revert "fbdev: Make fb_release() return -ENODEV if fbdev was unregistered"
 Date:   Mon, 23 May 2022 19:04:56 +0200
-Message-Id: <20220523165755.544731604@linuxfoundation.org>
+Message-Id: <20220523165853.351893106@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-commit 3ac6487e584a1eb54071dbe1212e05b884136704 upstream.
+[ Upstream commit 135332f34ba2662bc1e32b5c612e06a8cc41a053 ]
 
-Norbert reported that it's possible to race sys_perf_event_open() such
-that the looser ends up in another context from the group leader,
-triggering many WARNs.
+This reverts commit aafa025c76dcc7d1a8c8f0bdefcbe4eb480b2f6a. That commit
+attempted to fix a NULL pointer dereference, caused by the struct fb_info
+associated with a framebuffer device to not longer be valid when the file
+descriptor was closed.
 
-The move_group case checks for races against itself, but the
-!move_group case doesn't, seemingly relying on the previous
-group_leader->ctx == ctx check. However, that check is racy due to not
-holding any locks at that time.
+The issue was exposed by commit 27599aacbaef ("fbdev: Hot-unplug firmware
+fb devices on forced removal"), which added a new path that goes through
+the struct device removal instead of directly unregistering the fb.
 
-Therefore, re-check the result after acquiring locks and bailing
-if they no longer match.
+Most fbdev drivers have issues with the fb_info lifetime, because call to
+framebuffer_release() from their driver's .remove callback, rather than
+doing from fbops.fb_destroy callback. This meant that due to this switch,
+the fb_info was now destroyed too early, while references still existed,
+while before it was simply leaked.
 
-Additionally, clarify the not_move_group case from the
-move_group-vs-move_group race.
+The patch we're reverting here reinstated that leak, hence "fixed" the
+regression. But the proper solution is to fix the drivers to not release
+the fb_info too soon.
 
-Fixes: f63a8daa5812 ("perf: Fix event->ctx locking")
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220504115917.758787-1-javierm@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/video/fbdev/core/fbmem.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -10758,6 +10758,9 @@ SYSCALL_DEFINE5(perf_event_open,
- 		 * Do not allow to attach to a group in a different task
- 		 * or CPU context. If we're moving SW events, we'll fix
- 		 * this up later, so allow that.
-+		 *
-+		 * Racy, not holding group_leader->ctx->mutex, see comment with
-+		 * perf_event_ctx_lock().
- 		 */
- 		if (!move_group && group_leader->ctx != ctx)
- 			goto err_context;
-@@ -10807,6 +10810,7 @@ SYSCALL_DEFINE5(perf_event_open,
- 			} else {
- 				perf_event_ctx_unlock(group_leader, gctx);
- 				move_group = 0;
-+				goto not_move_group;
- 			}
- 		}
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 10a9369c9dea..00f0f282e7a1 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1438,10 +1438,7 @@ fb_release(struct inode *inode, struct file *file)
+ __acquires(&info->lock)
+ __releases(&info->lock)
+ {
+-	struct fb_info * const info = file_fb_info(file);
+-
+-	if (!info)
+-		return -ENODEV;
++	struct fb_info * const info = file->private_data;
  
-@@ -10823,7 +10827,17 @@ SYSCALL_DEFINE5(perf_event_open,
- 		}
- 	} else {
- 		mutex_lock(&ctx->mutex);
-+
-+		/*
-+		 * Now that we hold ctx->lock, (re)validate group_leader->ctx == ctx,
-+		 * see the group_leader && !move_group test earlier.
-+		 */
-+		if (group_leader && group_leader->ctx != ctx) {
-+			err = -EINVAL;
-+			goto err_locked;
-+		}
- 	}
-+not_move_group:
- 
- 	if (ctx->task == TASK_TOMBSTONE) {
- 		err = -ESRCH;
+ 	lock_fb_info(info);
+ 	if (info->fbops->fb_release)
+-- 
+2.35.1
+
 
 
