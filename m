@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3115531CBC
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E11B531BA3
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240453AbiEWRYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:24:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43418 "EHLO
+        id S241072AbiEWRjU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241870AbiEWRWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379DF7CB47;
-        Mon, 23 May 2022 10:19:37 -0700 (PDT)
+        with ESMTP id S241330AbiEWRfJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:35:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8998217E;
+        Mon, 23 May 2022 10:28:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BBF760919;
-        Mon, 23 May 2022 17:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66F56C385AA;
-        Mon, 23 May 2022 17:18:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EF7DBB81219;
+        Mon, 23 May 2022 17:28:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F53CC3411D;
+        Mon, 23 May 2022 17:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326303;
-        bh=DhR6AeTKiLjq/3nWP2sq4FthZdkWvOrag8B25MAR0RQ=;
+        s=korg; t=1653326899;
+        bh=6/+AtATp5I5eZRQNupUjuNlrDcvNHti0LxiGEAq67F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zyDqPtNWlYfI1/tm/xfpWHmrkrJNuW+WgxLPlVnXgWXG7VyJ7y6wov3qxD46SQHde
-         DcpuKaK5zQZH8Pomj1+C10/MtzB5e9hosh0gOrRKeQhKITZh6aWTMIqLqhm3LeGFSC
-         d7aVG0DuUzql8m/iv43kCuPBFLsF/zhzljnDqmik=
+        b=fLUWKHweqyRjr3j3g0sckes1SuFVsKXbXLvUmmsGVBi3ZkW56comfZsdNgxIJ0vYx
+         7QB3zKMX2dtECl7nh5MEfsxeFZeRzqauGXmKxI3OmszJB1SQ8Dkg2ECGDur2tZQERd
+         4MroTt5gdjjFVp3zvhenW1zPwusQ98qI43AbXoAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
-        Guenter Roeck <groeck@google.com>,
-        Benson Leung <bleung@chromium.org>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/132] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+Subject: [PATCH 5.17 092/158] net: systemport: Fix an error handling path in bcm_sysport_probe()
 Date:   Mon, 23 May 2022 19:04:09 +0200
-Message-Id: <20220523165830.044146776@linuxfoundation.org>
+Message-Id: <20220523165846.444642721@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,118 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
+[ Upstream commit ef6b1cd11962aec21c58d137006ab122dbc8d6fd ]
 
-Debugfs console_log uses devm memory (e.g. debug_info in
-cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
-are independent.  An use-after-free issue is observed if userland
-program operates the debugfs after the memory has been freed.
+if devm_clk_get_optional() fails, we still need to go through the error
+handling path.
 
-The call trace:
- do_raw_spin_lock
- _raw_spin_lock_irqsave
- remove_wait_queue
- ep_unregister_pollwait
- ep_remove
- do_epoll_ctl
+Add the missing goto.
 
-A Python example to reproduce the issue:
-... import select
-... p = select.epoll()
-... f = open('/sys/kernel/debug/cros_scp/console_log')
-... p.register(f, select.POLLIN)
-... p.poll(1)
-[(4, 1)]                    # 4=fd, 1=select.POLLIN
-
-[ shutdown cros_scp at the point ]
-
-... p.poll(1)
-[(4, 16)]                   # 4=fd, 16=select.POLLHUP
-... p.unregister(f)
-
-An use-after-free issue raises here.  It called epoll_ctl with
-EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
-log_wq).
-
-Detaches log reader's workqueue from devm to make sure it is persistent
-even if the device has been removed.
-
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Reviewed-by: Guenter Roeck <groeck@google.com>
-Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
-Signed-off-by: Benson Leung <bleung@chromium.org>
+Fixes: 6328a126896ea ("net: systemport: Manage Wake-on-LAN clock")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/99d70634a81c229885ae9e4ee69b2035749f7edc.1652634040.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/broadcom/bcmsysport.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
-index 272c89837d74..0dbceee87a4b 100644
---- a/drivers/platform/chrome/cros_ec_debugfs.c
-+++ b/drivers/platform/chrome/cros_ec_debugfs.c
-@@ -25,6 +25,9 @@
+diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
+index 60dde29974bf..df51be3cbe06 100644
+--- a/drivers/net/ethernet/broadcom/bcmsysport.c
++++ b/drivers/net/ethernet/broadcom/bcmsysport.c
+@@ -2585,8 +2585,10 @@ static int bcm_sysport_probe(struct platform_device *pdev)
+ 		device_set_wakeup_capable(&pdev->dev, 1);
  
- #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
+ 	priv->wol_clk = devm_clk_get_optional(&pdev->dev, "sw_sysportwol");
+-	if (IS_ERR(priv->wol_clk))
+-		return PTR_ERR(priv->wol_clk);
++	if (IS_ERR(priv->wol_clk)) {
++		ret = PTR_ERR(priv->wol_clk);
++		goto err_deregister_fixed_link;
++	}
  
-+/* waitqueue for log readers */
-+static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
-+
- /**
-  * struct cros_ec_debugfs - EC debugging information.
-  *
-@@ -33,7 +36,6 @@
-  * @log_buffer: circular buffer for console log information
-  * @read_msg: preallocated EC command and buffer to read console log
-  * @log_mutex: mutex to protect circular buffer
-- * @log_wq: waitqueue for log readers
-  * @log_poll_work: recurring task to poll EC for new console log data
-  * @panicinfo_blob: panicinfo debugfs blob
-  */
-@@ -44,7 +46,6 @@ struct cros_ec_debugfs {
- 	struct circ_buf log_buffer;
- 	struct cros_ec_command *read_msg;
- 	struct mutex log_mutex;
--	wait_queue_head_t log_wq;
- 	struct delayed_work log_poll_work;
- 	/* EC panicinfo */
- 	struct debugfs_blob_wrapper panicinfo_blob;
-@@ -107,7 +108,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
- 			buf_space--;
- 		}
- 
--		wake_up(&debug_info->log_wq);
-+		wake_up(&cros_ec_debugfs_log_wq);
- 	}
- 
- 	mutex_unlock(&debug_info->log_mutex);
-@@ -141,7 +142,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
- 
- 		mutex_unlock(&debug_info->log_mutex);
- 
--		ret = wait_event_interruptible(debug_info->log_wq,
-+		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
- 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
- 		if (ret < 0)
- 			return ret;
-@@ -173,7 +174,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
- 	struct cros_ec_debugfs *debug_info = file->private_data;
- 	__poll_t mask = 0;
- 
--	poll_wait(file, &debug_info->log_wq, wait);
-+	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
- 
- 	mutex_lock(&debug_info->log_mutex);
- 	if (CIRC_CNT(debug_info->log_buffer.head,
-@@ -377,7 +378,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
- 	debug_info->log_buffer.tail = 0;
- 
- 	mutex_init(&debug_info->log_mutex);
--	init_waitqueue_head(&debug_info->log_wq);
- 
- 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
- 			    debug_info, &cros_ec_console_log_fops);
+ 	/* Set the needed headroom once and for all */
+ 	BUILD_BUG_ON(sizeof(struct bcm_tsb) != 8);
 -- 
 2.35.1
 
