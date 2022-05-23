@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD41A531D16
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADE25531679
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:51:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241931AbiEWRkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39304 "EHLO
+        id S239828AbiEWRNF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:13:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243855AbiEWRi3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D893573556;
-        Mon, 23 May 2022 10:32:49 -0700 (PDT)
+        with ESMTP id S240482AbiEWRM3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1849583AB;
+        Mon, 23 May 2022 10:11:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46AF6B81223;
-        Mon, 23 May 2022 17:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 676C1C3411A;
-        Mon, 23 May 2022 17:30:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABF29614EB;
+        Mon, 23 May 2022 17:09:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91CFBC34115;
+        Mon, 23 May 2022 17:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327021;
-        bh=EElDOJhrmrplxAnqdeL2YM32Vk1aHtjDVjTNQWjrJVY=;
+        s=korg; t=1653325786;
+        bh=4rBaSOrIJjKLFiIam8gz65RXThh97E5diUSE/kUbUD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3O8+z9bHWSe8SyVTKa9C0tIwZ6Ln/e4MBfAABuLjk+GY5qUkMXKeJ+UuWNeZFsm5
-         xXLI4ySb6BTbexGCYGD8A3D5cRv2ERBLj30cJCy9NZdie5XdFECaFJF/1+OJi6gVar
-         wD8fqO3xS519uqIX1Dse1aDCtQMe+jGNnxhiJJXs=
+        b=DuogWZftBiuZAFqxiVk4hXngnMU431IQq3vTdL4hKfndcL3DXqB4C1UgvLEEIodP/
+         CRGyCHE8TnGLNJdDRtmxv7M+Lv9SwUUE1eybSoXFFIqoodzem8K9s6ExjbEI+NT5+V
+         N4u1NKEmo0kySmNG0fYcJvH4Ky5FKABE52r5/mx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ammy Yi <ammy.yi@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Xing Zhengjun <zhengjun.xing@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
+        Jeff LaBundy <jeff@labundy.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 130/158] perf regs x86: Fix arch__intr_reg_mask() for the hybrid platform
+Subject: [PATCH 4.19 03/44] Input: add bounds checking to input_set_capability()
 Date:   Mon, 23 May 2022 19:04:47 +0200
-Message-Id: <20220523165852.042521015@linuxfoundation.org>
+Message-Id: <20220523165754.069303666@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,88 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jeff LaBundy <jeff@labundy.com>
 
-[ Upstream commit 01b28e4a58152e8906eeb5f1b55a0c404c48c7c8 ]
+[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
 
-The X86 specific arch__intr_reg_mask() is to check whether the kernel
-and hardware can collect XMM registers. But it doesn't work on some
-hybrid platform.
+Update input_set_capability() to prevent kernel panic in case the
+event code exceeds the bitmap for the given event type.
 
-Without the patch on ADL-N:
-
-  $ perf record -I?
-  available registers: AX BX CX DX SI DI BP SP IP FLAGS CS SS R8 R9 R10
-  R11 R12 R13 R14 R15
-
-The config of the test event doesn't contain the PMU information. The
-kernel may fail to initialize it on the correct hybrid PMU and return
-the wrong non-supported information.
-
-Add the PMU information into the config for the hybrid platform. The
-same register set is supported among different hybrid PMUs. Checking
-the first available one is good enough.
-
-With the patch on ADL-N:
-
-  $ perf record -I?
-  available registers: AX BX CX DX SI DI BP SP IP FLAGS CS SS R8 R9 R10
-  R11 R12 R13 R14 R15 XMM0 XMM1 XMM2 XMM3 XMM4 XMM5 XMM6 XMM7 XMM8 XMM9
-  XMM10 XMM11 XMM12 XMM13 XMM14 XMM15
-
-Fixes: 6466ec14aaf44ff1 ("perf regs x86: Add X86 specific arch__intr_reg_mask()")
-Reported-by: Ammy Yi <ammy.yi@intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Acked-by: Ian Rogers <irogers@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Xing Zhengjun <zhengjun.xing@linux.intel.com>
-Link: https://lore.kernel.org/r/20220518145125.1494156-1-kan.liang@linux.intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
+Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/x86/util/perf_regs.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/input/input.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/tools/perf/arch/x86/util/perf_regs.c b/tools/perf/arch/x86/util/perf_regs.c
-index 207c56805c55..0ed177991ad0 100644
---- a/tools/perf/arch/x86/util/perf_regs.c
-+++ b/tools/perf/arch/x86/util/perf_regs.c
-@@ -9,6 +9,8 @@
- #include "../../../util/perf_regs.h"
- #include "../../../util/debug.h"
- #include "../../../util/event.h"
-+#include "../../../util/pmu.h"
-+#include "../../../util/pmu-hybrid.h"
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index a0d90022fcf7..dcbf53b5b2bc 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -50,6 +50,17 @@ static DEFINE_MUTEX(input_mutex);
  
- const struct sample_reg sample_reg_masks[] = {
- 	SMPL_REG(AX, PERF_REG_X86_AX),
-@@ -284,12 +286,22 @@ uint64_t arch__intr_reg_mask(void)
- 		.disabled 		= 1,
- 		.exclude_kernel		= 1,
- 	};
-+	struct perf_pmu *pmu;
- 	int fd;
- 	/*
- 	 * In an unnamed union, init it here to build on older gcc versions
- 	 */
- 	attr.sample_period = 1;
+ static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
  
-+	if (perf_pmu__has_hybrid()) {
-+		/*
-+		 * The same register set is supported among different hybrid PMUs.
-+		 * Only check the first available one.
-+		 */
-+		pmu = list_first_entry(&perf_pmu__hybrid_pmus, typeof(*pmu), hybrid_list);
-+		attr.config |= (__u64)pmu->type << PERF_PMU_TYPE_SHIFT;
++static const unsigned int input_max_code[EV_CNT] = {
++	[EV_KEY] = KEY_MAX,
++	[EV_REL] = REL_MAX,
++	[EV_ABS] = ABS_MAX,
++	[EV_MSC] = MSC_MAX,
++	[EV_SW] = SW_MAX,
++	[EV_LED] = LED_MAX,
++	[EV_SND] = SND_MAX,
++	[EV_FF] = FF_MAX,
++};
++
+ static inline int is_event_supported(unsigned int code,
+ 				     unsigned long *bm, unsigned int max)
+ {
+@@ -1915,6 +1926,14 @@ EXPORT_SYMBOL(input_free_device);
+  */
+ void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
+ {
++	if (type < EV_CNT && input_max_code[type] &&
++	    code > input_max_code[type]) {
++		pr_err("%s: invalid code %u for type %u\n", __func__, code,
++		       type);
++		dump_stack();
++		return;
 +	}
 +
- 	event_attr_init(&attr);
- 
- 	fd = sys_perf_event_open(&attr, 0, -1, -1, 0);
+ 	switch (type) {
+ 	case EV_KEY:
+ 		__set_bit(code, dev->keybit);
 -- 
 2.35.1
 
