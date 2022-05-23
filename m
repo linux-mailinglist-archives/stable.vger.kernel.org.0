@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E58531C7C
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABA87531816
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239736AbiEWRMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37766 "EHLO
+        id S241563AbiEWRdp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239797AbiEWRKt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:49 -0400
+        with ESMTP id S241317AbiEWR0l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:41 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9646C0C2;
-        Mon, 23 May 2022 10:10:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BDD70936;
+        Mon, 23 May 2022 10:21:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D267FB811FF;
-        Mon, 23 May 2022 17:10:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2863EC385A9;
-        Mon, 23 May 2022 17:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A634EB81201;
+        Mon, 23 May 2022 17:21:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB63CC385A9;
+        Mon, 23 May 2022 17:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325828;
-        bh=dyxp/OnlY0m1FU8iZJRv1ipNM6H0VBNRarR2JtfRlCE=;
+        s=korg; t=1653326497;
+        bh=5oRlh7tuF7dVaXSfZaL8viUWBLDUMf14LLLak6DqBOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOn1DBM9irUNQ9kB/mySd8xMSEKXHpcjWt9NZYB+S/j4y6AubRpbqfFTCfElKV/hl
-         rzfkyRti2QKgoDHs5ckW+io/0XkT3rGjFssWaqpAWgxZosTOtEPDGN6n53AZQHlD45
-         RqCb8RKZWaxIblpMrugVzpgR4uacZb+KS+M9dcd8=
+        b=2nhQjbM4waT8+JsrN3d4t3pAUzPzKD+KE43uD28p1usFr2fJ/EnZDcCLgvVeOvVWg
+         pL5lrXbLJ+tTP8y4BN6naHlXtRspwmpFYhEBWV9blL6yveUJMDXrfykZIDdwqZKTsk
+         Bh92MQp1HWLvT/YPHA9XvkDuMj5eTUQLirs8N4Lc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Zixuan Fu <r33s3n6@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/44] net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+Subject: [PATCH 5.15 099/132] mptcp: Do TCP fallback on early DSS checksum failure
 Date:   Mon, 23 May 2022 19:05:08 +0200
-Message-Id: <20220523165757.555117477@linuxfoundation.org>
+Message-Id: <20220523165839.836410309@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zixuan Fu <r33s3n6@gmail.com>
+From: Mat Martineau <mathew.j.martineau@linux.intel.com>
 
-[ Upstream commit edf410cb74dc612fd47ef5be319c5a0bcd6e6ccd ]
+[ Upstream commit ae66fb2ba6c3dcaf8b9612b65aa949a1a4bed150 ]
 
-In vmxnet3_rq_create(), when dma_alloc_coherent() fails,
-vmxnet3_rq_destroy() is called. It sets rq->rx_ring[i].base to NULL. Then
-vmxnet3_rq_create() returns an error to its callers mxnet3_rq_create_all()
--> vmxnet3_change_mtu(). Then vmxnet3_change_mtu() calls
-vmxnet3_force_close() -> dev_close() in error handling code. And the driver
-calls vmxnet3_close() -> vmxnet3_quiesce_dev() -> vmxnet3_rq_cleanup_all()
--> vmxnet3_rq_cleanup(). In vmxnet3_rq_cleanup(),
-rq->rx_ring[ring_idx].base is accessed, but this variable is NULL, causing
-a NULL pointer dereference.
+RFC 8684 section 3.7 describes several opportunities for a MPTCP
+connection to "fall back" to regular TCP early in the connection
+process, before it has been confirmed that MPTCP options can be
+successfully propagated on all SYN, SYN/ACK, and data packets. If a peer
+acknowledges the first received data packet with a regular TCP header
+(no MPTCP options), fallback is allowed.
 
-To fix this possible bug, an if statement is added to check whether
-rq->rx_ring[0].base is NULL in vmxnet3_rq_cleanup() and exit early if so.
+If the recipient of that first data packet finds a MPTCP DSS checksum
+error, this provides an opportunity to fail gracefully with a TCP
+fallback rather than resetting the connection (as might happen if a
+checksum failure were detected later).
 
-The error log in our fault-injection testing is shown as follows:
+This commit modifies the checksum failure code to attempt fallback on
+the initial subflow of a MPTCP connection, only if it's a failure in the
+first data mapping. In cases where the peer initiates the connection,
+requests checksums, is the first to send data, and the peer is sending
+incorrect checksums (see
+https://github.com/multipath-tcp/mptcp_net-next/issues/275), this allows
+the connection to proceed as TCP rather than reset.
 
-[   65.220135] BUG: kernel NULL pointer dereference, address: 0000000000000008
-...
-[   65.222633] RIP: 0010:vmxnet3_rq_cleanup_all+0x396/0x4e0 [vmxnet3]
-...
-[   65.227977] Call Trace:
-...
-[   65.228262]  vmxnet3_quiesce_dev+0x80f/0x8a0 [vmxnet3]
-[   65.228580]  vmxnet3_close+0x2c4/0x3f0 [vmxnet3]
-[   65.228866]  __dev_close_many+0x288/0x350
-[   65.229607]  dev_close_many+0xa4/0x480
-[   65.231124]  dev_close+0x138/0x230
-[   65.231933]  vmxnet3_force_close+0x1f0/0x240 [vmxnet3]
-[   65.232248]  vmxnet3_change_mtu+0x75d/0x920 [vmxnet3]
-...
-
-Fixes: d1a890fa37f27 ("net: VMware virtual Ethernet NIC driver: vmxnet3")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
-Link: https://lore.kernel.org/r/20220514050711.2636709-1-r33s3n6@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: dd8bcd1768ff ("mptcp: validate the data checksum")
+Acked-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/mptcp/protocol.h |  3 ++-
+ net/mptcp/subflow.c  | 21 ++++++++++++++++++---
+ 2 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index 1df67c899d4f..a57ea3914968 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1586,6 +1586,10 @@ vmxnet3_rq_cleanup(struct vmxnet3_rx_queue *rq,
- 	u32 i, ring_idx;
- 	struct Vmxnet3_RxDesc *rxd;
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 8d70e491139a..62ad31482644 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -437,7 +437,8 @@ struct mptcp_subflow_context {
+ 		can_ack : 1,        /* only after processing the remote a key */
+ 		disposable : 1,	    /* ctx can be free at ulp release time */
+ 		stale : 1,	    /* unable to snd/rcv data, do not use for xmit */
+-		local_id_valid : 1; /* local_id is correctly initialized */
++		local_id_valid : 1, /* local_id is correctly initialized */
++		valid_csum_seen : 1;        /* at least one csum validated */
+ 	enum mptcp_data_avail data_avail;
+ 	u32	remote_nonce;
+ 	u64	thmac;
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 204dfb82f697..c52a824c0669 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -958,11 +958,14 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
+ 				 subflow->map_data_csum);
+ 	if (unlikely(csum)) {
+ 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_DATACSUMERR);
+-		subflow->send_mp_fail = 1;
+-		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
++		if (subflow->mp_join || subflow->valid_csum_seen) {
++			subflow->send_mp_fail = 1;
++			MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_MPFAILTX);
++		}
+ 		return subflow->mp_join ? MAPPING_INVALID : MAPPING_DUMMY;
+ 	}
  
-+	/* ring has already been cleaned up */
-+	if (!rq->rx_ring[0].base)
-+		return;
++	subflow->valid_csum_seen = 1;
+ 	return MAPPING_OK;
+ }
+ 
+@@ -1144,6 +1147,18 @@ static void subflow_sched_work_if_closed(struct mptcp_sock *msk, struct sock *ss
+ 	}
+ }
+ 
++static bool subflow_can_fallback(struct mptcp_subflow_context *subflow)
++{
++	struct mptcp_sock *msk = mptcp_sk(subflow->conn);
 +
- 	for (ring_idx = 0; ring_idx < 2; ring_idx++) {
- 		for (i = 0; i < rq->rx_ring[ring_idx].size; i++) {
- #ifdef __BIG_ENDIAN_BITFIELD
++	if (subflow->mp_join)
++		return false;
++	else if (READ_ONCE(msk->csum_enabled))
++		return !subflow->valid_csum_seen;
++	else
++		return !subflow->fully_established;
++}
++
+ static bool subflow_check_data_avail(struct sock *ssk)
+ {
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
+@@ -1221,7 +1236,7 @@ static bool subflow_check_data_avail(struct sock *ssk)
+ 		return true;
+ 	}
+ 
+-	if (subflow->mp_join || subflow->fully_established) {
++	if (!subflow_can_fallback(subflow)) {
+ 		/* fatal protocol error, close the socket.
+ 		 * subflow_error_report() will introduce the appropriate barriers
+ 		 */
 -- 
 2.35.1
 
