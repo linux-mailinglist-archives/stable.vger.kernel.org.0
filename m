@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76731531D33
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35F23531ACA
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239354AbiEWRFw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:05:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
+        id S240040AbiEWRRm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239383AbiEWRFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:05:45 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3F96A033;
-        Mon, 23 May 2022 10:05:43 -0700 (PDT)
+        with ESMTP id S240190AbiEWRQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:06 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F53033EA6;
+        Mon, 23 May 2022 10:12:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 89CC7B811F8;
-        Mon, 23 May 2022 17:05:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C52C5C385A9;
-        Mon, 23 May 2022 17:05:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A0B6614DA;
+        Mon, 23 May 2022 17:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195BFC385A9;
+        Mon, 23 May 2022 17:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325540;
-        bh=Ll2zT/Ukebt5P5omwc24AcztSigF+XyQC8s6gXohrEE=;
+        s=korg; t=1653325943;
+        bh=7AxRauhBes5Wq7dlmgGQcUfOyuDyRK5+gI93aVdZ/bE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4lIS12raF3oDfL1NOmnjTdDCA4GdPBgsJ/UDGtl/pwHG5W08F+gMfAcQ61JzRTdu
-         sJ1Yq/WnAXSUExohdskR0rTXrc4bmAvzwnF6JDSbqI3mlQ2Poya65JI93DQkRK5uW/
-         JktHcotPfbLApr4fAE8QovOw26L4iC6aZOLkfAig=
+        b=RZvMWinUxzF2oegB0bxq1iyxYTrS0D9+J4f9EdkVBkSthcemFSijIwZj9CDQceSzC
+         dLeUlmGs7JjfooO094GO00AbeGz17yto0wtx8RGH/FluUN62/EFJyGngS07XJu708M
+         8KcfAn9NvsC/U+bR7NDVgYVXTqcQFa30kK3PQ7Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 01/44] floppy: use a statically allocated error counter
+        stable@vger.kernel.org,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        David Hildenbrand <david@redhat.com>,
+        Hao Sun <sunhao.th@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 18/68] nilfs2: fix lockdep warnings during disk space reclamation
 Date:   Mon, 23 May 2022 19:04:45 +0200
-Message-Id: <20220523165753.770169487@linuxfoundation.org>
+Message-Id: <20220523165805.649955086@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,110 +59,349 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
+[ Upstream commit 6e211930f79aa45d422009a5f2e5467d2369ffe5 ]
 
-Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
-request just to increment the error count.  There's no point keeping
-that one in the request anyway, and since the interrupt handler uses a
-static pointer to the error which cannot be kept in sync with the
-pending request, better make it use a static error counter that's reset
-for each new request.  This reset now happens when entering
-redo_fd_request() for a new request via set_next_request().
+During disk space reclamation, nilfs2 still emits the following lockdep
+warning due to page/folio operations on shadowed page caches that nilfs2
+uses to get a snapshot of DAT file in memory:
 
-One initial concern about a single error counter was that errors on one
-floppy drive could be reported on another one, but this problem is not
-real given that the driver uses a single drive at a time, as that
-PC-compatible controllers also have this limitation by using shared
-signals.  As such the error count is always for the "current" drive.
+  WARNING: CPU: 0 PID: 2643 at include/linux/backing-dev.h:272 __folio_mark_dirty+0x645/0x670
+  ...
+  RIP: 0010:__folio_mark_dirty+0x645/0x670
+  ...
+  Call Trace:
+    filemap_dirty_folio+0x74/0xd0
+    __set_page_dirty_nobuffers+0x85/0xb0
+    nilfs_copy_dirty_pages+0x288/0x510 [nilfs2]
+    nilfs_mdt_save_to_shadow_map+0x50/0xe0 [nilfs2]
+    nilfs_clean_segments+0xee/0x5d0 [nilfs2]
+    nilfs_ioctl_clean_segments.isra.19+0xb08/0xf40 [nilfs2]
+    nilfs_ioctl+0xc52/0xfb0 [nilfs2]
+    __x64_sys_ioctl+0x11d/0x170
 
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Tested-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
+This fixes the remaining warning by using inode objects to hold those
+page caches.
+
+Link: https://lkml.kernel.org/r/1647867427-30498-3-git-send-email-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Hao Sun <sunhao.th@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ fs/nilfs2/dat.c   |  4 ++-
+ fs/nilfs2/inode.c | 63 ++++++++++++++++++++++++++++++++++++++++++++---
+ fs/nilfs2/mdt.c   | 38 +++++++++++++++++++---------
+ fs/nilfs2/mdt.h   |  6 ++---
+ fs/nilfs2/nilfs.h |  2 ++
+ 5 files changed, 92 insertions(+), 21 deletions(-)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -520,8 +520,8 @@ static unsigned long fdc_busy;
- static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
- static DECLARE_WAIT_QUEUE_HEAD(command_done);
+diff --git a/fs/nilfs2/dat.c b/fs/nilfs2/dat.c
+index 6f4066636be9..a3523a243e11 100644
+--- a/fs/nilfs2/dat.c
++++ b/fs/nilfs2/dat.c
+@@ -497,7 +497,9 @@ int nilfs_dat_read(struct super_block *sb, size_t entry_size,
+ 	di = NILFS_DAT_I(dat);
+ 	lockdep_set_class(&di->mi.mi_sem, &dat_lock_key);
+ 	nilfs_palloc_setup_cache(dat, &di->palloc_cache);
+-	nilfs_mdt_setup_shadow_map(dat, &di->shadow);
++	err = nilfs_mdt_setup_shadow_map(dat, &di->shadow);
++	if (err)
++		goto failed;
  
--/* Errors during formatting are counted here. */
--static int format_errors;
-+/* errors encountered on the current (or last) request */
-+static int floppy_errors;
+ 	err = nilfs_read_inode_common(dat, raw_inode);
+ 	if (err)
+diff --git a/fs/nilfs2/inode.c b/fs/nilfs2/inode.c
+index b0a0822e371c..35b0bfe9324f 100644
+--- a/fs/nilfs2/inode.c
++++ b/fs/nilfs2/inode.c
+@@ -29,6 +29,7 @@
+  * @root: pointer on NILFS root object (mounted checkpoint)
+  * @for_gc: inode for GC flag
+  * @for_btnc: inode for B-tree node cache flag
++ * @for_shadow: inode for shadowed page cache flag
+  */
+ struct nilfs_iget_args {
+ 	u64 ino;
+@@ -36,6 +37,7 @@ struct nilfs_iget_args {
+ 	struct nilfs_root *root;
+ 	bool for_gc;
+ 	bool for_btnc;
++	bool for_shadow;
+ };
  
- /* Format request descriptor. */
- static struct format_descr format_req;
-@@ -541,7 +541,6 @@ static struct format_descr format_req;
- static char *floppy_track_buffer;
- static int max_buffer_sectors;
+ static int nilfs_iget_test(struct inode *inode, void *opaque);
+@@ -325,7 +327,7 @@ static int nilfs_insert_inode_locked(struct inode *inode,
+ {
+ 	struct nilfs_iget_args args = {
+ 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
+-		.for_btnc = false
++		.for_btnc = false, .for_shadow = false
+ 	};
  
--static int *errors;
- typedef void (*done_f)(int);
- static const struct cont_t {
- 	void (*interrupt)(void);
-@@ -1434,7 +1433,7 @@ static int interpret_errors(void)
- 			if (DP->flags & FTD_MSG)
- 				DPRINT("Over/Underrun - retrying\n");
- 			bad = 0;
--		} else if (*errors >= DP->max_errors.reporting) {
-+		} else if (floppy_errors >= DP->max_errors.reporting) {
- 			print_errors();
- 		}
- 		if (ST2 & ST2_WC || ST2 & ST2_BC)
-@@ -2054,7 +2053,7 @@ static void bad_flp_intr(void)
- 		if (!next_valid_format())
- 			return;
+ 	return insert_inode_locked4(inode, ino, nilfs_iget_test, &args);
+@@ -543,6 +545,12 @@ static int nilfs_iget_test(struct inode *inode, void *opaque)
+ 	} else if (args->for_btnc) {
+ 		return 0;
  	}
--	err_count = ++(*errors);
-+	err_count = ++floppy_errors;
- 	INFBOUND(DRWE->badness, err_count);
- 	if (err_count > DP->max_errors.abort)
- 		cont->done(0);
-@@ -2199,9 +2198,8 @@ static int do_format(int drive, struct f
- 		return -EINVAL;
++	if (test_bit(NILFS_I_SHADOW, &ii->i_state)) {
++		if (!args->for_shadow)
++			return 0;
++	} else if (args->for_shadow) {
++		return 0;
++	}
+ 
+ 	if (!test_bit(NILFS_I_GCINODE, &ii->i_state))
+ 		return !args->for_gc;
+@@ -564,6 +572,8 @@ static int nilfs_iget_set(struct inode *inode, void *opaque)
+ 		NILFS_I(inode)->i_state = BIT(NILFS_I_GCINODE);
+ 	if (args->for_btnc)
+ 		NILFS_I(inode)->i_state |= BIT(NILFS_I_BTNC);
++	if (args->for_shadow)
++		NILFS_I(inode)->i_state |= BIT(NILFS_I_SHADOW);
+ 	return 0;
+ }
+ 
+@@ -572,7 +582,7 @@ struct inode *nilfs_ilookup(struct super_block *sb, struct nilfs_root *root,
+ {
+ 	struct nilfs_iget_args args = {
+ 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
+-		.for_btnc = false
++		.for_btnc = false, .for_shadow = false
+ 	};
+ 
+ 	return ilookup5(sb, ino, nilfs_iget_test, &args);
+@@ -583,7 +593,7 @@ struct inode *nilfs_iget_locked(struct super_block *sb, struct nilfs_root *root,
+ {
+ 	struct nilfs_iget_args args = {
+ 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
+-		.for_btnc = false
++		.for_btnc = false, .for_shadow = false
+ 	};
+ 
+ 	return iget5_locked(sb, ino, nilfs_iget_test, nilfs_iget_set, &args);
+@@ -615,7 +625,7 @@ struct inode *nilfs_iget_for_gc(struct super_block *sb, unsigned long ino,
+ {
+ 	struct nilfs_iget_args args = {
+ 		.ino = ino, .root = NULL, .cno = cno, .for_gc = true,
+-		.for_btnc = false
++		.for_btnc = false, .for_shadow = false
+ 	};
+ 	struct inode *inode;
+ 	int err;
+@@ -662,6 +672,7 @@ int nilfs_attach_btree_node_cache(struct inode *inode)
+ 	args.cno = ii->i_cno;
+ 	args.for_gc = test_bit(NILFS_I_GCINODE, &ii->i_state) != 0;
+ 	args.for_btnc = true;
++	args.for_shadow = test_bit(NILFS_I_SHADOW, &ii->i_state) != 0;
+ 
+ 	btnc_inode = iget5_locked(inode->i_sb, inode->i_ino, nilfs_iget_test,
+ 				  nilfs_iget_set, &args);
+@@ -697,6 +708,50 @@ void nilfs_detach_btree_node_cache(struct inode *inode)
  	}
- 	format_req = *tmp_format_req;
--	format_errors = 0;
- 	cont = &format_cont;
--	errors = &format_errors;
-+	floppy_errors = 0;
- 	ret = wait_til_done(redo_format, true);
- 	if (ret == -EINTR)
- 		return -EINTR;
-@@ -2684,7 +2682,7 @@ static int make_raw_rw_request(void)
- 		 */
- 		if (!direct ||
- 		    (indirect * 2 > direct * 3 &&
--		     *errors < DP->max_errors.read_track &&
-+		     floppy_errors < DP->max_errors.read_track &&
- 		     ((!probing ||
- 		       (DP->read_track & (1 << DRS->probed_format)))))) {
- 			max_size = blk_rq_sectors(current_req);
-@@ -2818,7 +2816,7 @@ static int set_next_request(void)
- 		if (q) {
- 			current_req = blk_fetch_request(q);
- 			if (current_req) {
--				current_req->error_count = 0;
-+				floppy_errors = 0;
- 				break;
- 			}
- 		}
-@@ -2880,7 +2878,6 @@ do_request:
- 		_floppy = floppy_type + DP->autodetect[DRS->probed_format];
- 	} else
- 		probing = 0;
--	errors = &(current_req->error_count);
- 	tmp = make_raw_rw_request();
- 	if (tmp < 2) {
- 		request_done(tmp);
+ }
+ 
++/**
++ * nilfs_iget_for_shadow - obtain inode for shadow mapping
++ * @inode: inode object that uses shadow mapping
++ *
++ * nilfs_iget_for_shadow() allocates a pair of inodes that holds page
++ * caches for shadow mapping.  The page cache for data pages is set up
++ * in one inode and the one for b-tree node pages is set up in the
++ * other inode, which is attached to the former inode.
++ *
++ * Return Value: On success, a pointer to the inode for data pages is
++ * returned. On errors, one of the following negative error code is returned
++ * in a pointer type.
++ *
++ * %-ENOMEM - Insufficient memory available.
++ */
++struct inode *nilfs_iget_for_shadow(struct inode *inode)
++{
++	struct nilfs_iget_args args = {
++		.ino = inode->i_ino, .root = NULL, .cno = 0, .for_gc = false,
++		.for_btnc = false, .for_shadow = true
++	};
++	struct inode *s_inode;
++	int err;
++
++	s_inode = iget5_locked(inode->i_sb, inode->i_ino, nilfs_iget_test,
++			       nilfs_iget_set, &args);
++	if (unlikely(!s_inode))
++		return ERR_PTR(-ENOMEM);
++	if (!(s_inode->i_state & I_NEW))
++		return inode;
++
++	NILFS_I(s_inode)->i_flags = 0;
++	memset(NILFS_I(s_inode)->i_bmap, 0, sizeof(struct nilfs_bmap));
++	mapping_set_gfp_mask(s_inode->i_mapping, GFP_NOFS);
++
++	err = nilfs_attach_btree_node_cache(s_inode);
++	if (unlikely(err)) {
++		iget_failed(s_inode);
++		return ERR_PTR(err);
++	}
++	unlock_new_inode(s_inode);
++	return s_inode;
++}
++
+ void nilfs_write_inode_common(struct inode *inode,
+ 			      struct nilfs_inode *raw_inode, int has_bmap)
+ {
+diff --git a/fs/nilfs2/mdt.c b/fs/nilfs2/mdt.c
+index 3a1200220b97..7c9055d767d1 100644
+--- a/fs/nilfs2/mdt.c
++++ b/fs/nilfs2/mdt.c
+@@ -469,9 +469,18 @@ int nilfs_mdt_init(struct inode *inode, gfp_t gfp_mask, size_t objsz)
+ void nilfs_mdt_clear(struct inode *inode)
+ {
+ 	struct nilfs_mdt_info *mdi = NILFS_MDT(inode);
++	struct nilfs_shadow_map *shadow = mdi->mi_shadow;
+ 
+ 	if (mdi->mi_palloc_cache)
+ 		nilfs_palloc_destroy_cache(inode);
++
++	if (shadow) {
++		struct inode *s_inode = shadow->inode;
++
++		shadow->inode = NULL;
++		iput(s_inode);
++		mdi->mi_shadow = NULL;
++	}
+ }
+ 
+ /**
+@@ -505,12 +514,15 @@ int nilfs_mdt_setup_shadow_map(struct inode *inode,
+ 			       struct nilfs_shadow_map *shadow)
+ {
+ 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
++	struct inode *s_inode;
+ 
+ 	INIT_LIST_HEAD(&shadow->frozen_buffers);
+-	address_space_init_once(&shadow->frozen_data);
+-	nilfs_mapping_init(&shadow->frozen_data, inode);
+-	address_space_init_once(&shadow->frozen_btnodes);
+-	nilfs_mapping_init(&shadow->frozen_btnodes, inode);
++
++	s_inode = nilfs_iget_for_shadow(inode);
++	if (IS_ERR(s_inode))
++		return PTR_ERR(s_inode);
++
++	shadow->inode = s_inode;
+ 	mi->mi_shadow = shadow;
+ 	return 0;
+ }
+@@ -524,13 +536,14 @@ int nilfs_mdt_save_to_shadow_map(struct inode *inode)
+ 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
+ 	struct nilfs_inode_info *ii = NILFS_I(inode);
+ 	struct nilfs_shadow_map *shadow = mi->mi_shadow;
++	struct inode *s_inode = shadow->inode;
+ 	int ret;
+ 
+-	ret = nilfs_copy_dirty_pages(&shadow->frozen_data, inode->i_mapping);
++	ret = nilfs_copy_dirty_pages(s_inode->i_mapping, inode->i_mapping);
+ 	if (ret)
+ 		goto out;
+ 
+-	ret = nilfs_copy_dirty_pages(&shadow->frozen_btnodes,
++	ret = nilfs_copy_dirty_pages(NILFS_I(s_inode)->i_assoc_inode->i_mapping,
+ 				     ii->i_assoc_inode->i_mapping);
+ 	if (ret)
+ 		goto out;
+@@ -547,7 +560,7 @@ int nilfs_mdt_freeze_buffer(struct inode *inode, struct buffer_head *bh)
+ 	struct page *page;
+ 	int blkbits = inode->i_blkbits;
+ 
+-	page = grab_cache_page(&shadow->frozen_data, bh->b_page->index);
++	page = grab_cache_page(shadow->inode->i_mapping, bh->b_page->index);
+ 	if (!page)
+ 		return -ENOMEM;
+ 
+@@ -579,7 +592,7 @@ nilfs_mdt_get_frozen_buffer(struct inode *inode, struct buffer_head *bh)
+ 	struct page *page;
+ 	int n;
+ 
+-	page = find_lock_page(&shadow->frozen_data, bh->b_page->index);
++	page = find_lock_page(shadow->inode->i_mapping, bh->b_page->index);
+ 	if (page) {
+ 		if (page_has_buffers(page)) {
+ 			n = bh_offset(bh) >> inode->i_blkbits;
+@@ -620,11 +633,11 @@ void nilfs_mdt_restore_from_shadow_map(struct inode *inode)
+ 		nilfs_palloc_clear_cache(inode);
+ 
+ 	nilfs_clear_dirty_pages(inode->i_mapping, true);
+-	nilfs_copy_back_pages(inode->i_mapping, &shadow->frozen_data);
++	nilfs_copy_back_pages(inode->i_mapping, shadow->inode->i_mapping);
+ 
+ 	nilfs_clear_dirty_pages(ii->i_assoc_inode->i_mapping, true);
+ 	nilfs_copy_back_pages(ii->i_assoc_inode->i_mapping,
+-			      &shadow->frozen_btnodes);
++			      NILFS_I(shadow->inode)->i_assoc_inode->i_mapping);
+ 
+ 	nilfs_bmap_restore(ii->i_bmap, &shadow->bmap_store);
+ 
+@@ -639,10 +652,11 @@ void nilfs_mdt_clear_shadow_map(struct inode *inode)
+ {
+ 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
+ 	struct nilfs_shadow_map *shadow = mi->mi_shadow;
++	struct inode *shadow_btnc_inode = NILFS_I(shadow->inode)->i_assoc_inode;
+ 
+ 	down_write(&mi->mi_sem);
+ 	nilfs_release_frozen_buffers(shadow);
+-	truncate_inode_pages(&shadow->frozen_data, 0);
+-	truncate_inode_pages(&shadow->frozen_btnodes, 0);
++	truncate_inode_pages(shadow->inode->i_mapping, 0);
++	truncate_inode_pages(shadow_btnc_inode->i_mapping, 0);
+ 	up_write(&mi->mi_sem);
+ }
+diff --git a/fs/nilfs2/mdt.h b/fs/nilfs2/mdt.h
+index e77aea4bb921..9d8ac0d27c16 100644
+--- a/fs/nilfs2/mdt.h
++++ b/fs/nilfs2/mdt.h
+@@ -18,14 +18,12 @@
+ /**
+  * struct nilfs_shadow_map - shadow mapping of meta data file
+  * @bmap_store: shadow copy of bmap state
+- * @frozen_data: shadowed dirty data pages
+- * @frozen_btnodes: shadowed dirty b-tree nodes' pages
++ * @inode: holder of page caches used in shadow mapping
+  * @frozen_buffers: list of frozen buffers
+  */
+ struct nilfs_shadow_map {
+ 	struct nilfs_bmap_store bmap_store;
+-	struct address_space frozen_data;
+-	struct address_space frozen_btnodes;
++	struct inode *inode;
+ 	struct list_head frozen_buffers;
+ };
+ 
+diff --git a/fs/nilfs2/nilfs.h b/fs/nilfs2/nilfs.h
+index 3b646d377237..4895d978369a 100644
+--- a/fs/nilfs2/nilfs.h
++++ b/fs/nilfs2/nilfs.h
+@@ -92,6 +92,7 @@ enum {
+ 	NILFS_I_BMAP,			/* has bmap and btnode_cache */
+ 	NILFS_I_GCINODE,		/* inode for GC, on memory only */
+ 	NILFS_I_BTNC,			/* inode for btree node cache */
++	NILFS_I_SHADOW,			/* inode for shadowed page cache */
+ };
+ 
+ /*
+@@ -260,6 +261,7 @@ extern struct inode *nilfs_iget_for_gc(struct super_block *sb,
+ 				       unsigned long ino, __u64 cno);
+ int nilfs_attach_btree_node_cache(struct inode *inode);
+ void nilfs_detach_btree_node_cache(struct inode *inode);
++struct inode *nilfs_iget_for_shadow(struct inode *inode);
+ extern void nilfs_update_inode(struct inode *, struct buffer_head *, int);
+ extern void nilfs_truncate(struct inode *);
+ extern void nilfs_evict_inode(struct inode *);
+-- 
+2.35.1
+
 
 
