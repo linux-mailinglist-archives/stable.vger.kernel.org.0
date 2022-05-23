@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27BF0531B08
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18C36531912
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240763AbiEWRdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43392 "EHLO
+        id S242065AbiEWRtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:49:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241370AbiEWR0o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:44 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CE887A2E;
-        Mon, 23 May 2022 10:21:44 -0700 (PDT)
+        with ESMTP id S242409AbiEWRsf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:48:35 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 297B4AEE1D;
+        Mon, 23 May 2022 10:37:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3323A6116C;
-        Mon, 23 May 2022 17:20:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1863DC385A9;
-        Mon, 23 May 2022 17:20:28 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3E35BCE1714;
+        Mon, 23 May 2022 17:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE1BC385A9;
+        Mon, 23 May 2022 17:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326429;
-        bh=bJzOwjF3X17Jgfd2o6J6v0+niskXRCoLjBovkKW+Lx8=;
+        s=korg; t=1653326944;
+        bh=XK2F6p7d/WIZRUdb45MDYHJw0InqyYcOPlFCpErby0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRZ4fg4fQHPdJBaQWkoh576JSMJ4FZbEW5W4GKdAUoxDzwG1NnfObbtzwU7fUs8U1
-         RnKGheX+s1tZk/HqdZIe50D7bjNe4aqUbMAcdpD69hQy1OXkbnVcTH+fb1FIarTk/O
-         Gqxi4irWN1jIJyZmeCObvkySs7wchoMc2PIEa/7M=
+        b=HlaHy+/SaxGWYk4aSfhf9vPH1Bg4sGhWo2twwNsh7U4ZlURtqsk+6XoAPfPq1g94H
+         bluuVyJ1Wgcg8eXJmrhJW7rjZmoR8lMyifpxbeU2jj9XjJckdbfdim9D2xsJHbfC1B
+         HQ0Iygc5iXDpZ+R4q4K4sEeJgyvBNBypGru2hjq8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Brian Masney <bmasney@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.15 055/132] crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
-Date:   Mon, 23 May 2022 19:04:24 +0200
-Message-Id: <20220523165832.389583567@linuxfoundation.org>
+        stable@vger.kernel.org, Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 108/158] net/mlx5e: Remove HW-GRO from reported features
+Date:   Mon, 23 May 2022 19:04:25 +0200
+Message-Id: <20220523165849.017693297@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Gal Pressman <gal@nvidia.com>
 
-commit 16287397ec5c08aa58db6acf7dbc55470d78087d upstream.
+[ Upstream commit 6bbd723035badafe4a8eb17ccdecd96eae7a96d5 ]
 
-The commit referenced in the Fixes tag removed the 'break' from the else
-branch in qcom_rng_read(), causing an infinite loop whenever 'max' is
-not a multiple of WORD_SZ. This can be reproduced e.g. by running:
+We got reports of certain HW-GRO flows causing kernel call traces, which
+might be related to firmware. To be on the safe side, disable the
+feature for now and re-enable it once a driver/firmware fix is found.
 
-    kcapi-rng -b 67 >/dev/null
-
-There are many ways to fix this without adding back the 'break', but
-they all seem more awkward than simply adding it back, so do just that.
-
-Tested on a machine with Qualcomm Amberwing processor.
-
-Fixes: a680b1832ced ("crypto: qcom-rng - ensure buffer for generate is completely filled")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Brian Masney <bmasney@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 83439f3c37aa ("net/mlx5e: Add HW-GRO offload")
+Signed-off-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qcom-rng.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/crypto/qcom-rng.c
-+++ b/drivers/crypto/qcom-rng.c
-@@ -65,6 +65,7 @@ static int qcom_rng_read(struct qcom_rng
- 		} else {
- 			/* copy only remaining bytes */
- 			memcpy(data, &val, max - currsize);
-+			break;
- 		}
- 	} while (currsize < max);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 4b83dd05afcd..3500faf08671 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4828,10 +4828,6 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+ 	netdev->hw_features      |= NETIF_F_HW_VLAN_CTAG_FILTER;
+ 	netdev->hw_features      |= NETIF_F_HW_VLAN_STAG_TX;
  
+-	if (!!MLX5_CAP_GEN(mdev, shampo) &&
+-	    mlx5e_check_fragmented_striding_rq_cap(mdev))
+-		netdev->hw_features    |= NETIF_F_GRO_HW;
+-
+ 	if (mlx5e_tunnel_any_tx_proto_supported(mdev)) {
+ 		netdev->hw_enc_features |= NETIF_F_HW_CSUM;
+ 		netdev->hw_enc_features |= NETIF_F_TSO;
+-- 
+2.35.1
+
 
 
