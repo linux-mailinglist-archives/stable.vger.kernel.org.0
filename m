@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45D72531908
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1559531C7E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239941AbiEWRX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59674 "EHLO
+        id S241188AbiEWRdz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241073AbiEWRV4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:21:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AEC0762BC;
-        Mon, 23 May 2022 10:18:19 -0700 (PDT)
+        with ESMTP id S240699AbiEWRcb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE94374DCA;
+        Mon, 23 May 2022 10:27:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5C9060916;
-        Mon, 23 May 2022 17:17:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A840AC385A9;
-        Mon, 23 May 2022 17:17:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65437B81204;
+        Mon, 23 May 2022 17:27:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBC62C385A9;
+        Mon, 23 May 2022 17:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326246;
-        bh=fRLcDfQ8QeGFUCx7xxxVuJJhEdpYFjB0Zj5ue9m3HEs=;
+        s=korg; t=1653326835;
+        bh=m4cwoyy/BQKWuB7tsuReyl/3ZsdpUuEU3bjsJk2tUpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2bSRcrIu1+OejPhkNIREuNEfRZDJmA5rjKviGGXDEvPsT8F+f6W/MktNPZjGJfdrd
-         VgtEcqFmisoOPnlZILgkep9zXrGhyTGokVti8x0/SMMwZAxXSQfLX20wj0j67Snq1v
-         5ANOTn/GOJJvESLjnUX5mZ0v3fW1l3tK5vbr/WHM=
+        b=KpQBwxMcO0y23GRZ8/HK8XVrsm2YZWzFA6z5aijAW4eun5Ykg9b3mMUEP529KI39t
+         5tckJORQUKHn/Adt2AzCXkv0krZkztxqCQ2XSq76y06nd4ZTZ2c7rWRVArSzh0Wm8p
+         8BA/JYb0DCsgnhjdizhI20417e5nPys3gT89oM4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
-        Jeff LaBundy <jeff@labundy.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Youngmin Han <Youngmin.Han@geappliances.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 022/132] Input: add bounds checking to input_set_capability()
+Subject: [PATCH 5.17 074/158] pinctrl: mediatek: mt8365: fix IES control pins
 Date:   Mon, 23 May 2022 19:03:51 +0200
-Message-Id: <20220523165827.194211472@linuxfoundation.org>
+Message-Id: <20220523165843.223365224@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,60 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff LaBundy <jeff@labundy.com>
+From: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 
-[ Upstream commit 409353cbe9fe48f6bc196114c442b1cff05a39bc ]
+[ Upstream commit f680058f406863b55ac226d1c157701939c63db4 ]
 
-Update input_set_capability() to prevent kernel panic in case the
-event code exceeds the bitmap for the given event type.
+IES26 (BIT 16 of IES1_CFG_ADDR) controls the following pads:
 
-Suggested-by: Tomasz Moń <tomasz.mon@camlingroup.com>
-Signed-off-by: Jeff LaBundy <jeff@labundy.com>
-Reviewed-by: Tomasz Moń <tomasz.mon@camlingroup.com>
-Link: https://lore.kernel.org/r/20220320032537.545250-1-jeff@labundy.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+- PAD_I2S_DATA_IN (GPIO114)
+- PAD_I2S_LRCK (GPIO115)
+- PAD_I2S_BCK (GPIO116)
+
+The pinctrl table is wrong since it lists pins 114 to 112.
+
+Update the table with the correct values.
+
+Fixes: e94d8b6fb83a ("pinctrl: mediatek: add support for mt8365 SoC")
+Reported-by: Youngmin Han <Youngmin.Han@geappliances.com>
+Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Link: https://lore.kernel.org/r/20220426125714.298907-1-mkorpershoek@baylibre.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/input.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/pinctrl/mediatek/pinctrl-mt8365.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index ccaeb2426385..ba246fabc6c1 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -47,6 +47,17 @@ static DEFINE_MUTEX(input_mutex);
- 
- static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
- 
-+static const unsigned int input_max_code[EV_CNT] = {
-+	[EV_KEY] = KEY_MAX,
-+	[EV_REL] = REL_MAX,
-+	[EV_ABS] = ABS_MAX,
-+	[EV_MSC] = MSC_MAX,
-+	[EV_SW] = SW_MAX,
-+	[EV_LED] = LED_MAX,
-+	[EV_SND] = SND_MAX,
-+	[EV_FF] = FF_MAX,
-+};
-+
- static inline int is_event_supported(unsigned int code,
- 				     unsigned long *bm, unsigned int max)
- {
-@@ -2074,6 +2085,14 @@ EXPORT_SYMBOL(input_get_timestamp);
-  */
- void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
- {
-+	if (type < EV_CNT && input_max_code[type] &&
-+	    code > input_max_code[type]) {
-+		pr_err("%s: invalid code %u for type %u\n", __func__, code,
-+		       type);
-+		dump_stack();
-+		return;
-+	}
-+
- 	switch (type) {
- 	case EV_KEY:
- 		__set_bit(code, dev->keybit);
+diff --git a/drivers/pinctrl/mediatek/pinctrl-mt8365.c b/drivers/pinctrl/mediatek/pinctrl-mt8365.c
+index 79b1fee5a1eb..ddee0db72d26 100644
+--- a/drivers/pinctrl/mediatek/pinctrl-mt8365.c
++++ b/drivers/pinctrl/mediatek/pinctrl-mt8365.c
+@@ -259,7 +259,7 @@ static const struct mtk_pin_ies_smt_set mt8365_ies_set[] = {
+ 	MTK_PIN_IES_SMT_SPEC(104, 104, 0x420, 13),
+ 	MTK_PIN_IES_SMT_SPEC(105, 109, 0x420, 14),
+ 	MTK_PIN_IES_SMT_SPEC(110, 113, 0x420, 15),
+-	MTK_PIN_IES_SMT_SPEC(114, 112, 0x420, 16),
++	MTK_PIN_IES_SMT_SPEC(114, 116, 0x420, 16),
+ 	MTK_PIN_IES_SMT_SPEC(117, 119, 0x420, 17),
+ 	MTK_PIN_IES_SMT_SPEC(120, 122, 0x420, 18),
+ 	MTK_PIN_IES_SMT_SPEC(123, 125, 0x420, 19),
 -- 
 2.35.1
 
