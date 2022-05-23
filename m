@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B79531987
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A415316E4
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240217AbiEWRSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34032 "EHLO
+        id S240569AbiEWRSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:18:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240588AbiEWRQb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:31 -0400
+        with ESMTP id S240562AbiEWRQ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:29 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89726345;
-        Mon, 23 May 2022 10:15:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C109171D92;
+        Mon, 23 May 2022 10:15:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CEBB0B81229;
-        Mon, 23 May 2022 17:15:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D2EDC385A9;
-        Mon, 23 May 2022 17:15:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D955B81210;
+        Mon, 23 May 2022 17:13:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E28ADC385AA;
+        Mon, 23 May 2022 17:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326130;
-        bh=43ADYlVSU0bl+oIij0x957OoDs9ZCDv4I1yKzplQidc=;
+        s=korg; t=1653325992;
+        bh=JPZQFf+Z10UugVERxncmE+0Y4M/PuyKVWD8ZnKhZ/7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zK0Dkypi6mJ0PwCnOQacVGyYABwhR8d/dV+tVPukLVaanm3Pm/IwT6DW7DVUzeQHL
-         nUo+qMAE+xgPa64EbvHMcDhfWnNx6memaARl9NqjHCfQtSZHDnLiLIFHxvkZrhPcsz
-         8KQafUsCUDFP3LkzaZTVKLmszlyfSP5Yn7PFbT74=
+        b=gtSisNXbXP+Ybh9zYC8swmQhzdj7pTjKT+ktisAN5bcHfbweL4qia0FDlBcK+We3R
+         4QE/pRq9yphcyn2ynnSfMHQ0ShZvK3R1gzioA2yh6GzAOV5BffYLfDFjRnkWHQWmsJ
+         qDcEboebZYJG+AG56L3gqOS6Cd+ns5YE4vq1yTgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Pouiller?= 
-        <jerome.pouiller@silabs.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
-Subject: [PATCH 5.4 33/68] dma-buf: fix use of DMA_BUF_SET_NAME_{A,B} in userspace
-Date:   Mon, 23 May 2022 19:05:00 +0200
-Message-Id: <20220523165808.093124227@linuxfoundation.org>
+        stable@vger.kernel.org, Jae Hyun Yoo <quic_jaehyoo@quicinc.com>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 34/68] ARM: dts: aspeed-g6: remove FWQSPID group in pinctrl dtsi
+Date:   Mon, 23 May 2022 19:05:01 +0200
+Message-Id: <20220523165808.266598660@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
 References: <20220523165802.500642349@linuxfoundation.org>
@@ -55,51 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jérôme Pouiller <jerome.pouiller@silabs.com>
+From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
 
-commit 7c3e9fcad9c7d8bb5d69a576044fb16b1d2e8a01 upstream.
+[ Upstream commit efddaa397cceefb61476e383c26fafd1f8ab6356 ]
 
-The typedefs u32 and u64 are not available in userspace. Thus user get
-an error he try to use DMA_BUF_SET_NAME_A or DMA_BUF_SET_NAME_B:
+FWSPIDQ2 and FWSPIDQ3 are not part of FWSPI18 interface so remove
+FWQSPID group in pinctrl dtsi. These pins must be used with the
+FWSPI pins that are dedicated for boot SPI interface which provides
+same 3.3v logic level.
 
-    $ gcc -Wall   -c -MMD -c -o ioctls_list.o ioctls_list.c
-    In file included from /usr/include/x86_64-linux-gnu/asm/ioctl.h:1,
-                     from /usr/include/linux/ioctl.h:5,
-                     from /usr/include/asm-generic/ioctls.h:5,
-                     from ioctls_list.c:11:
-    ioctls_list.c:463:29: error: ‘u32’ undeclared here (not in a function)
-      463 |     { "DMA_BUF_SET_NAME_A", DMA_BUF_SET_NAME_A, -1, -1 }, // linux/dma-buf.h
-          |                             ^~~~~~~~~~~~~~~~~~
-    ioctls_list.c:464:29: error: ‘u64’ undeclared here (not in a function)
-      464 |     { "DMA_BUF_SET_NAME_B", DMA_BUF_SET_NAME_B, -1, -1 }, // linux/dma-buf.h
-          |                             ^~~~~~~~~~~~~~~~~~
-
-The issue was initially reported here[1].
-
-[1]: https://github.com/jerome-pouiller/ioctl/pull/14
-
-Signed-off-by: Jérôme Pouiller <jerome.pouiller@silabs.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Fixes: a5bff92eaac4 ("dma-buf: Fix SET_NAME ioctl uapi")
-CC: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20220517072708.245265-1-Jerome.Pouiller@silabs.com
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2f6edb6bcb2f ("ARM: dts: aspeed: Fix AST2600 quad spi group")
+Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220329173932.2588289-2-quic_jaehyoo@quicinc.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/uapi/linux/dma-buf.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/include/uapi/linux/dma-buf.h
-+++ b/include/uapi/linux/dma-buf.h
-@@ -44,7 +44,7 @@ struct dma_buf_sync {
-  * between them in actual uapi, they're just different numbers.
-  */
- #define DMA_BUF_SET_NAME	_IOW(DMA_BUF_BASE, 1, const char *)
--#define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, u32)
--#define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, u64)
-+#define DMA_BUF_SET_NAME_A	_IOW(DMA_BUF_BASE, 1, __u32)
-+#define DMA_BUF_SET_NAME_B	_IOW(DMA_BUF_BASE, 1, __u64)
+diff --git a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+index f310f4d3bcc7..4792b3d9459d 100644
+--- a/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi
+@@ -117,11 +117,6 @@ pinctrl_fwspid_default: fwspid_default {
+ 		groups = "FWSPID";
+ 	};
  
- #endif
+-	pinctrl_fwqspid_default: fwqspid_default {
+-		function = "FWSPID";
+-		groups = "FWQSPID";
+-	};
+-
+ 	pinctrl_fwspiwp_default: fwspiwp_default {
+ 		function = "FWSPIWP";
+ 		groups = "FWSPIWP";
+-- 
+2.35.1
+
 
 
