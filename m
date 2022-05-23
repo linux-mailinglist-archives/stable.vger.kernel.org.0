@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AB3453171A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AE4D531B57
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239559AbiEWRH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:07:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
+        id S242411AbiEWRkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239551AbiEWRHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:07:36 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BFB6B004;
-        Mon, 23 May 2022 10:07:16 -0700 (PDT)
+        with ESMTP id S243512AbiEWRiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3D36D97B;
+        Mon, 23 May 2022 10:32:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98D43B811F0;
-        Mon, 23 May 2022 17:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0D9BC385A9;
-        Mon, 23 May 2022 17:07:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22AFAB81235;
+        Mon, 23 May 2022 17:31:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7595BC34115;
+        Mon, 23 May 2022 17:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325633;
-        bh=H0R7sOJ74r5n90kpbHhyXe3/tBEaDV75G93ywL8THNo=;
+        s=korg; t=1653327075;
+        bh=CjDagl7s1yUewHYXWMFrzcpaB6LIIM2ZSZMxbuBP6VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OzPIGO5vbBpgWJd6glfM/FoEOCMfQJNo4FPbjffG/4WV+IetQ/t8qMca2yYEpC3n
-         RX+TqLZPnI9mHjAL38N1hrpqig4mgfP1H/ml3OIyeElSu/x6y/sroYhmAVg5RqttsB
-         qGA4G9nr0L8Gr+P4BP2ulbnOGQx7aN60+v5J9ZSY=
+        b=DTMlqamM/o+hCbv7QNHEp9C+uP8ySCVx4P+oP4DOxIKGPWXhqFXOPFAjOR/HDEA33
+         tPMRQBGCo6hBBYQGIIaS23h/8YgJaQNkKxTL0pjvumBAaLdB1mRAFxE6FR4V0VToee
+         QI86aiV75IsY7Iy2X8hOmstZe5+Tri77DhIQ/QLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 5.10 01/97] usb: gadget: fix race when gadget driver register via ioctl
-Date:   Mon, 23 May 2022 19:05:05 +0200
-Message-Id: <20220523165812.501448044@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 149/158] net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+Date:   Mon, 23 May 2022 19:05:06 +0200
+Message-Id: <20220523165854.831016577@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,92 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 upstream.
+[ Upstream commit 0807ce0b010418a191e0e4009803b2d74c3245d5 ]
 
-The usb_gadget_register_driver can be called multi time by to
-threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
-to multiple registrations.
+Switch to using pcim_enable_device() to avoid missing pci_disable_device().
 
-Call trace:
-  driver_register+0x220/0x3a0 drivers/base/driver.c:171
-  usb_gadget_register_driver_owner+0xfb/0x1e0
-    drivers/usb/gadget/udc/core.c:1546
-  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
-  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
-  ioctl USB_RAW_IOCTL_RUN
-
-This routine allows two processes to register the same driver instance
-via ioctl syscall. which lead to a race condition.
-
-Please refer to the following scenarios.
-
-           T1                                  T2
-------------------------------------------------------------------
-usb_gadget_register_driver_owner
-  driver_register                    driver_register
-    driver_find                       driver_find
-    bus_add_driver                    bus_add_driver
-      priv alloced                     <context switch>
-      drv->p = priv;
-      <schedule out>
-      kobject_init_and_add // refcount = 1;
-   //couldn't find an available UDC or it's busy
-   <context switch>
-                                       priv alloced
-                                       drv->priv = priv;
-                                       kobject_init_and_add
-                                         ---> refcount = 1 <------
-                                       // register success
-                                       <context switch>
-===================== another ioctl/process ======================
-                                      driver_register
-                                       driver_find
-                                        k = kset_find_obj()
-                                         ---> refcount = 2 <------
-                                        <context out>
-   driver_unregister
-   // drv->p become T2's priv
-   ---> refcount = 1 <------
-   <context switch>
-                                        kobject_put(k)
-                                         ---> refcount = 0 <------
-                                        return priv->driver;
-                                        --------UAF here----------
-
-There will be UAF in this scenario.
-
-We can fix it by adding a new STATE_DEV_REGISTERING device state to
-avoid double register.
-
-Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20220510031316.1780409-1-yangyingliang@huawei.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -144,6 +144,7 @@ enum dev_state {
- 	STATE_DEV_INVALID = 0,
- 	STATE_DEV_OPENED,
- 	STATE_DEV_INITIALIZED,
-+	STATE_DEV_REGISTERING,
- 	STATE_DEV_RUNNING,
- 	STATE_DEV_CLOSED,
- 	STATE_DEV_FAILED
-@@ -507,6 +508,7 @@ static int raw_ioctl_run(struct raw_dev
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-+	dev->state = STATE_DEV_REGISTERING;
- 	spin_unlock_irqrestore(&dev->lock, flags);
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
+index fcf17d8a0494..644bb54f5f02 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
+@@ -181,7 +181,7 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
+ 		return -ENOMEM;
  
- 	ret = usb_gadget_probe_driver(&dev->driver);
+ 	/* Enable pci device */
+-	ret = pci_enable_device(pdev);
++	ret = pcim_enable_device(pdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "%s: ERROR: failed to enable device\n",
+ 			__func__);
+@@ -241,8 +241,6 @@ static void stmmac_pci_remove(struct pci_dev *pdev)
+ 		pcim_iounmap_regions(pdev, BIT(i));
+ 		break;
+ 	}
+-
+-	pci_disable_device(pdev);
+ }
+ 
+ static int __maybe_unused stmmac_pci_suspend(struct device *dev)
+-- 
+2.35.1
+
 
 
