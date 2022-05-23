@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701DD531947
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B365316CA
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240310AbiEWRTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:19:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
+        id S240460AbiEWRTS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:19:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240317AbiEWRRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 705E63A70E;
-        Mon, 23 May 2022 10:17:27 -0700 (PDT)
+        with ESMTP id S240106AbiEWRRh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2539A71D88;
+        Mon, 23 May 2022 10:17:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3957B811CC;
-        Mon, 23 May 2022 17:15:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D122C385A9;
-        Mon, 23 May 2022 17:15:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 994D0608C3;
+        Mon, 23 May 2022 17:16:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9810EC385A9;
+        Mon, 23 May 2022 17:16:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326152;
-        bh=9+gK3EfVe4i70R1qceW78UceKAnxu03KRWGw5bq5nDs=;
+        s=korg; t=1653326198;
+        bh=EH69Z5XiNYzDbxjM0ck1W39n8wl/6fzKXeS4geIBYDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uVXkmWxZSVnlrK1rJElqOa+HZ4aVBfjo5G6y8JlnmHDYdVMqbjQZqVMas/hp3SS2
-         TvSpYmGQI+RfsOUqhg4Vm8PWYl173Jpc7fSh/0n1V6d1VwolVtdKLfO5GV8B1+J3zy
-         kwG/RY6I4SlKgTXmtC0W/2GQXWr/dw/S+ZFIcrIA=
+        b=H71RF3+ebAxMuIk+S2R4iDHFFdFzaVIoCZQVoszqUUh3iYIdXN51el85mlvobCvSe
+         lKNCXsxZ4pffyTLxtSSmIJMF6f2IB4E12diU+wBPCDHWCKEe2uUvlK+Aat88C9Xwfu
+         SAJZQEIl6gk6JeonFEpdGqVZUf2Xn6v/m0UKIRow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jinke Fan <fanjinke@hygon.cn>,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 23/97] rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+        stable@vger.kernel.org,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Gwendal Grignou <gwendal@chromium.org>
+Subject: [PATCH 5.4 60/68] block: return ELEVATOR_DISCARD_MERGE if possible
 Date:   Mon, 23 May 2022 19:05:27 +0200
-Message-Id: <20220523165815.913462426@linuxfoundation.org>
+Message-Id: <20220523165812.360622432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,109 +55,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 3ae8fd41573af4fb3a490c9ed947fc936ba87190 ]
+commit 866663b7b52d2da267b28e12eed89ee781b8fed1 upstream.
 
-Setting the century forward has been failing on AMD platforms.
-There was a previous attempt at fixing this for family 0x17 as part of
-commit 7ad295d5196a ("rtc: Fix the AltCentury value on AMD/Hygon
-platform") but this was later reverted due to some problems reported
-that appeared to stem from an FW bug on a family 0x17 desktop system.
+When merging one bio to request, if they are discard IO and the queue
+supports multi-range discard, we need to return ELEVATOR_DISCARD_MERGE
+because both block core and related drivers(nvme, virtio-blk) doesn't
+handle mixed discard io merge(traditional IO merge together with
+discard merge) well.
 
-The same comments mentioned in the previous commit continue to apply
-to the newer platforms as well.
+Fix the issue by returning ELEVATOR_DISCARD_MERGE in this situation,
+so both blk-mq and drivers just need to handle multi-range discard.
 
-```
-MC146818 driver use function mc146818_set_time() to set register
-RTC_FREQ_SELECT(RTC_REG_A)'s bit4-bit6 field which means divider stage
-reset value on Intel platform to 0x7.
-
-While AMD/Hygon RTC_REG_A(0Ah)'s bit4 is defined as DV0 [Reference]:
-DV0 = 0 selects Bank 0, DV0 = 1 selects Bank 1. Bit5-bit6 is defined
-as reserved.
-
-DV0 is set to 1, it will select Bank 1, which will disable AltCentury
-register(0x32) access. As UEFI pass acpi_gbl_FADT.century 0x32
-(AltCentury), the CMOS write will be failed on code:
-CMOS_WRITE(century, acpi_gbl_FADT.century).
-
-Correct RTC_REG_A bank select bit(DV0) to 0 on AMD/Hygon CPUs, it will
-enable AltCentury(0x32) register writing and finally setup century as
-expected.
-```
-
-However in closer examination the change previously submitted was also
-modifying bits 5 & 6 which are declared reserved in the AMD documentation.
-So instead modify just the DV0 bank selection bit.
-
-Being cognizant that there was a failure reported before, split the code
-change out to a static function that can also be used for exclusions if
-any regressions such as Mikhail's pop up again.
-
-Cc: Jinke Fan <fanjinke@hygon.cn>
-Cc: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Link: https://lore.kernel.org/all/CABXGCsMLob0DC25JS8wwAYydnDoHBSoMh2_YLPfqm3TTvDE-Zw@mail.gmail.com/
-Link: https://www.amd.com/system/files/TechDocs/51192_Bolton_FCH_RRG.pdf
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220111225750.1699-1-mario.limonciello@amd.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Fixes: 2705dfb20947 ("block: fix discard request merge")
+Link: https://lore.kernel.org/r/20210729034226.1591070-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-mc146818-lib.c | 16 +++++++++++++++-
- include/linux/mc146818rtc.h    |  2 ++
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ block/bfq-iosched.c    |    3 +++
+ block/blk-merge.c      |   15 ---------------
+ block/elevator.c       |    3 +++
+ block/mq-deadline.c    |    2 ++
+ include/linux/blkdev.h |   16 ++++++++++++++++
+ 5 files changed, 24 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/rtc/rtc-mc146818-lib.c b/drivers/rtc/rtc-mc146818-lib.c
-index 5add637c9ad2..b036ff33fbe6 100644
---- a/drivers/rtc/rtc-mc146818-lib.c
-+++ b/drivers/rtc/rtc-mc146818-lib.c
-@@ -99,6 +99,17 @@ unsigned int mc146818_get_time(struct rtc_time *time)
- }
- EXPORT_SYMBOL_GPL(mc146818_get_time);
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2251,6 +2251,9 @@ static int bfq_request_merge(struct requ
+ 	__rq = bfq_find_rq_fmerge(bfqd, bio, q);
+ 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
+ 		*req = __rq;
++
++		if (blk_discard_mergable(__rq))
++			return ELEVATOR_DISCARD_MERGE;
+ 		return ELEVATOR_FRONT_MERGE;
+ 	}
  
-+/* AMD systems don't allow access to AltCentury with DV1 */
-+static bool apply_amd_register_a_behavior(void)
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -721,21 +721,6 @@ static void blk_account_io_merge(struct
+ 		part_stat_unlock();
+ 	}
+ }
+-/*
+- * Two cases of handling DISCARD merge:
+- * If max_discard_segments > 1, the driver takes every bio
+- * as a range and send them to controller together. The ranges
+- * needn't to be contiguous.
+- * Otherwise, the bios/requests will be handled as same as
+- * others which should be contiguous.
+- */
+-static inline bool blk_discard_mergable(struct request *req)
+-{
+-	if (req_op(req) == REQ_OP_DISCARD &&
+-	    queue_max_discard_segments(req->q) > 1)
+-		return true;
+-	return false;
+-}
+ 
+ static enum elv_merge blk_try_req_merge(struct request *req,
+ 					struct request *next)
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -337,6 +337,9 @@ enum elv_merge elv_merge(struct request_
+ 	__rq = elv_rqhash_find(q, bio->bi_iter.bi_sector);
+ 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
+ 		*req = __rq;
++
++		if (blk_discard_mergable(__rq))
++			return ELEVATOR_DISCARD_MERGE;
+ 		return ELEVATOR_BACK_MERGE;
+ 	}
+ 
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -452,6 +452,8 @@ static int dd_request_merge(struct reque
+ 
+ 		if (elv_bio_merge_ok(__rq, bio)) {
+ 			*rq = __rq;
++			if (blk_discard_mergable(__rq))
++				return ELEVATOR_DISCARD_MERGE;
+ 			return ELEVATOR_FRONT_MERGE;
+ 		}
+ 	}
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -1409,6 +1409,22 @@ static inline int queue_limit_discard_al
+ 	return offset << SECTOR_SHIFT;
+ }
+ 
++/*
++ * Two cases of handling DISCARD merge:
++ * If max_discard_segments > 1, the driver takes every bio
++ * as a range and send them to controller together. The ranges
++ * needn't to be contiguous.
++ * Otherwise, the bios/requests will be handled as same as
++ * others which should be contiguous.
++ */
++static inline bool blk_discard_mergable(struct request *req)
 +{
-+#ifdef CONFIG_X86
-+	if (boot_cpu_data.x86_vendor == X86_VENDOR_AMD ||
-+	    boot_cpu_data.x86_vendor == X86_VENDOR_HYGON)
++	if (req_op(req) == REQ_OP_DISCARD &&
++	    queue_max_discard_segments(req->q) > 1)
 +		return true;
-+#endif
 +	return false;
 +}
 +
- /* Set the current date and time in the real time clock. */
- int mc146818_set_time(struct rtc_time *time)
+ static inline int bdev_discard_alignment(struct block_device *bdev)
  {
-@@ -172,7 +183,10 @@ int mc146818_set_time(struct rtc_time *time)
- 	save_control = CMOS_READ(RTC_CONTROL);
- 	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
- 	save_freq_select = CMOS_READ(RTC_FREQ_SELECT);
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+	if (apply_amd_register_a_behavior())
-+		CMOS_WRITE((save_freq_select & ~RTC_AMD_BANK_SELECT), RTC_FREQ_SELECT);
-+	else
-+		CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
- 
- #ifdef CONFIG_MACH_DECSTATION
- 	CMOS_WRITE(real_yrs, RTC_DEC_YEAR);
-diff --git a/include/linux/mc146818rtc.h b/include/linux/mc146818rtc.h
-index 0661af17a758..1e0205811394 100644
---- a/include/linux/mc146818rtc.h
-+++ b/include/linux/mc146818rtc.h
-@@ -86,6 +86,8 @@ struct cmos_rtc_board_info {
-    /* 2 values for divider stage reset, others for "testing purposes only" */
- #  define RTC_DIV_RESET1	0x60
- #  define RTC_DIV_RESET2	0x70
-+   /* In AMD BKDG bit 5 and 6 are reserved, bit 4 is for select dv0 bank */
-+#  define RTC_AMD_BANK_SELECT	0x10
-   /* Periodic intr. / Square wave rate select. 0=none, 1=32.8kHz,... 15=2Hz */
- # define RTC_RATE_SELECT 	0x0F
- 
--- 
-2.35.1
-
+ 	struct request_queue *q = bdev_get_queue(bdev);
 
 
