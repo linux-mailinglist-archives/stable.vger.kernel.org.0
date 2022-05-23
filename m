@@ -2,140 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBFE2531064
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 15:20:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4665530FF8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 15:19:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235302AbiEWMCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 08:02:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43014 "EHLO
+        id S235499AbiEWMht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 08:37:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235309AbiEWMCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 08:02:35 -0400
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08072CDE0
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 05:02:34 -0700 (PDT)
-Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24NBOplA018984;
-        Mon, 23 May 2022 12:02:24 GMT
+        with ESMTP id S235490AbiEWMhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 08:37:48 -0400
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AA9A4CD79
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 05:37:46 -0700 (PDT)
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24NCO9tX017331;
+        Mon, 23 May 2022 05:37:41 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : content-type : content-transfer-encoding :
+ subject : date : message-id : content-transfer-encoding : content-type :
  mime-version; s=PPS06212021;
- bh=25EC3c1BE1O7IeRj6Ilu0VLk9LGAumdeJ6KPTg0NKqw=;
- b=kHh7UuPJ09GMmJENh1YtDl0viS3mNNIVf8sq5tunbTjyMnth5QEhd0ffgTf4d0d741ID
- 3t38a6PfU6ZFicT6+iJKOGCvsfThrwPFUtSInajtE0Bo9969EoSfA+pfir9wlERViulg
- U2zcr6Wh8NVK7bJsfvpo4FayVfHTmUIFpsxuQnYK41NMjgNujdE4Ax21yFSV9JmM9WoH
- rxVmQVWSCL/sx6gvG2aEdY8TPEPG0w++WHae2LZ1qDKTV8Alh01CJ3Vc3fKPnlcnnx7v
- ayN6vgkglar5jXQ5EwRdU1XX/tl1q1yVb5BYWGnU8x26RSxQ0+3rT9FOUpwLAKKpyUvB 1g== 
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2109.outbound.protection.outlook.com [104.47.70.109])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3g6s94hac1-1
+ bh=XevORpDtO0gGtTxssAhNw8liPCNO0+mwu/4+q0CKip0=;
+ b=lJu0q/oCRtrJABPah6RIN7B7Pjvp+FzDQbCdOe6FBm6YLVN6BwDANwPongDKpBZynYhl
+ AvWT58WqRm6VKxBiPb15khlidO0UgaZJgZ6MHxPvxOG69bY6d/MjuZ61OnwsjVuv91PC
+ mxDdrAc9i+Jj1QcZxqz2EDpRxoRAJj92j903EKC9eWtI4qgzP1J21fJuUaFK3XoDGK6x
+ Q1DYz/CBBQ+cztQZqIrxCoIWqnmtVlFA4vE9dkmqpfQISwC98/cGy7tsAHqT3NROTvqL
+ bCyBxMfIQcjidqgNVQj3eAxB2K8ppEhRo7XUU4NnG3XOkDRx5ZISCxJgkXSEs4CEclox 3w== 
+Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam07lp2043.outbound.protection.outlook.com [104.47.56.43])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3g6uc199nn-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 May 2022 12:02:24 +0000
+        Mon, 23 May 2022 05:37:41 -0700
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZEzjXxB8nYEyB7ZK73QFHKuI8qCbWn5D5eI1bbPBbQYWlSb0HzNCUJrfMP6NbtkpOU/8YvWDAh7gaYlcuTb5ZntPu2TspXAbaX2MGEs914ufbgnplbYx602UfJn6ZuAr3NaOrQqYO6EMeqr2svatyBs273wuHT43DXlf58I7lNNsm2PQXvuJutJ4j+nN18rWnFSf8Gu9fFFntDWyNENebXtPqQyV57cbWJcSc8A4XJ7LjQq7nsgdQW2qIx9BKP0xCLPXk1gaHr96CpC333l3jm8jRtCHXtAgoCV9G6skWCjuNJMzbiQS07gw2aSlk/AY102IcPNkaWcYd2NpN1eCxQ==
+ b=PZ/jwejO4eok2i2AG8VQgWvUiv82SsT+BUqw42mofexKVCIxOum8nuADXVVefEQmbiCN28Dzap9ljFDIroIklQExDXflK0bc+w/QZ8C146f5MN4dbgLFmZDR949brugl/8AwhQAx3HtSGfvuWhZcIPMSiPxu943K3Mz5EVStGLLxMa7kv4YjaLXSJYtukFZ2XD3ttMv1vYTv2ZwKUTMzu6udnXCSebbEWFSRwQNd/slFTZl6CSqkyiKDheHNcNoXzuzn7ksj5gsnAlLAuHK4pYEV7zBfaw5zn4LsI36FzvfCRXGGRnSRS/Ah5pzXmUXYatqOnRq5B7Ykml1/OeBBcw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=25EC3c1BE1O7IeRj6Ilu0VLk9LGAumdeJ6KPTg0NKqw=;
- b=M0Kfr8KxYMw+lyUQSSZ24XCIuxn8U4ZvyYU828KyvhqdgeYAARG3a9lnmbeFT2bQW8qUAKylG/FzeXNGZ1PAYgQVTS9GrHk3qXwl4PMawhrmwOjq14xJkY0sh1OnJ0aLKiV4JLbaeTgd3QTBA+dVGoEqvj2LLkGNf0Ed9JntX+1LKQp7p44uuQ6I/nz2OVYtgCrwcsCiV94QzbgNK1ViWT4Bipgg/DD9PUXn4dSmDTPA86/J9haatmsvTrkLuie3QW7HwjVE0ahYdxff52UBy5BkIL1Zdt96aynikKZEqQDaFDDYVDLvA0wj2srmHxWjBI0Ky35w+I/D9zVodINoeQ==
+ bh=XevORpDtO0gGtTxssAhNw8liPCNO0+mwu/4+q0CKip0=;
+ b=ZqcNN+sqhALF/hdaliYDnqU9lm/Cc1sdA0ePToUtB+qDexehA601HqnuoJmSPNsUus7fDIpY7Ps3ep8Dc0o3Q3+3DCTpgeuYUzkdQ4Qm1Rxf/3bP1H94jiCk0Ao9Ee8eMaUMOLGAl7RDmcwfoI+vVNd973JMpolnO7eQrKQzO3zIq2UtnokXcAssTVuu2mmGW5Q6qmnN4WE38XP8IEDFHB3bHIWSmvEqVc5U/4yrH6Q0FJUzasHZlVLumKhyJyLHQg82CaHq3qi8eIzbd4/kcKd+l2mqAKjCO5agkQwZuKN9TFkR8NHWtJytOHEyEl4JEkvlVrFMkqAfCR8jV5LKnw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
-Received: from DM4PR11MB5327.namprd11.prod.outlook.com (13.101.57.214) by
- DM8PR11MB5672.namprd11.prod.outlook.com (10.242.161.138) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5273.16; Mon, 23 May 2022 12:02:21 +0000
+Received: from DM4PR11MB5327.namprd11.prod.outlook.com (2603:10b6:5:392::22)
+ by DM5PR1101MB2268.namprd11.prod.outlook.com (2603:10b6:4:53::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.17; Mon, 23 May
+ 2022 12:37:39 +0000
 Received: from DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::1d93:1511:5d6:9842]) by DM4PR11MB5327.namprd11.prod.outlook.com
  ([fe80::1d93:1511:5d6:9842%5]) with mapi id 15.20.5273.022; Mon, 23 May 2022
- 12:02:21 +0000
+ 12:37:38 +0000
 From:   Ovidiu Panait <ovidiu.panait@windriver.com>
 To:     stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Halil Pasic <pasic@linux.ibm.com>, Christoph Hellwig <hch@lst.de>,
         Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 5.4 1/1] Reinstate some of "swiotlb: rework "fix info leak with DMA_FROM_DEVICE""
-Date:   Mon, 23 May 2022 15:01:57 +0300
-Message-Id: <20220523120157.364113-1-ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 1/2] swiotlb: fix info leak with DMA_FROM_DEVICE
+Date:   Mon, 23 May 2022 15:37:21 +0300
+Message-Id: <20220523123722.439088-1-ovidiu.panait@windriver.com>
 X-Mailer: git-send-email 2.36.1
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: AS9P250CA0003.EURP250.PROD.OUTLOOK.COM
- (2603:10a6:20b:532::9) To DM4PR11MB5327.namprd11.prod.outlook.com
+Content-Type: text/plain
+X-ClientProxiedBy: AS8P250CA0004.EURP250.PROD.OUTLOOK.COM
+ (2603:10a6:20b:330::9) To DM4PR11MB5327.namprd11.prod.outlook.com
  (2603:10b6:5:392::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d7d7a1d0-ad50-4983-573e-08da3cb417a2
-X-MS-TrafficTypeDiagnostic: DM8PR11MB5672:EE_
-X-Microsoft-Antispam-PRVS: <DM8PR11MB5672B7638133477536DABEC7FED49@DM8PR11MB5672.namprd11.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: f017e91c-1917-42d8-0629-08da3cb905a7
+X-MS-TrafficTypeDiagnostic: DM5PR1101MB2268:EE_
+X-Microsoft-Antispam-PRVS: <DM5PR1101MB226805B56CE49E23C07CB7DAFED49@DM5PR1101MB2268.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: l6lKD0HxP8qw/xTNIHvMrs3BdZ/hMB1EZJ9+66I8lEAD3GlWUI8Mt9uyl9wOgUTOohTV6U0cI9LmIX+LHIO6dawRP8uTHTgDvLU/yqy8wx3IQjdhHpbWhJ1cuW5FgQPtFY/SCTL/YXVLe2Y/hPXI7YZa4srUGO67w/PZtZBytSVtLW726J1U2E1aUEoIhniYL5wMJKDzhVe7D1xbyc0tlgggzSxRTPv2GutqdXXVFxsEF7XPrJdHh6NNui/xwIfd8aZZ1aRFw/VpkbVSmULDYL5c4EVF5K5cE+suXhm2f9b2oG4C875ElfhQj4jsnKB2Xb9OlTgBSfwingpLkwWJ5QQNO7T1dWYrg734pIF/guad6R1m1oxXLBi3mSxbEjkPX+MVINeRWTZMuGvmxU+cE33hnCleNvkaMwRFgGZmTzIXtJmKF7pUlgTJZ499L/WGpyiaA+WktLZrNaod//PuuTCzKgINZAcveYsDnxvfhR2qlv2BH5aZ1l8X81K9Ov7cTxY6soHeV5Q2J4J4SF6GD0A2vD627dZpLrBbXSGE4ckjof0ZayLhwDys3rdYVSMttsm2dwv8pyujA3o37e1VTI/I4oq2ZYJPW86LVZjKKfUXQyG0kbz2yVj1ZDSFMdLHi0wdPN6jGF7NospRAf4wTPUt7/05yRxgHBrjEjRG1W/YfBvlcOfrBU2hATKsOwL/oJ81iB+d0VzgPZkmxcK2TOQXcJAqtkSfIeTLzA1u5guokEd683jrKxQ2C+ojw8ZAciZKmAhA8PS8t1qH6SPZfnO2Pxc3YqRsIyz9mPOL/9A+nTy803WnVm+n8BLrnCmEq5ohyonx2/9t9vEblpfbNA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6666004)(38100700002)(52116002)(5660300002)(8936002)(38350700002)(107886003)(2616005)(86362001)(6486002)(2906002)(66946007)(66556008)(66476007)(186003)(36756003)(316002)(8676002)(4326008)(54906003)(966005)(1076003)(508600001)(83380400001)(6506007)(44832011)(6512007)(6916009)(26005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: XPueT3VwCIN5Vxkq/pDXa1nt8ZQ9OfbOKh7K8h4qio+ia4LNgHdIr3Lb57sXLahioEFg3p2puV5TnDPbzfNHHYIySKDGuPjaXJA7o6vRw5g+qAJ74buo2elf9/nBoUj6DqVn+cxauVIpmYknI89jvdTZLxL0IJRBkwXDRhT/wjOnRrjRF5LSuxyI6eHyfnS7LAvGK1HRydHFekWlnPWzjY4uCUPJPwwzHeUz2DIWHQP1htWA52KrN1rbeLWNNx1N95fNRtapGPdydweiUTc5I6FwCfGZ0Qa4VAWMc6Qlh9c2ceBURNhDisbtOfPIvjk5mV/CWMQgnq3OuY54H2HMSpY+KYjFjZ4PrfVSCR9Di/um40poGCGj8XRo+W7oGdueytHS7leXcnnUb0stEnUJY6sGXReXGVqdmB0C9WOuIFrZ8a3BsUYxgcZntVJyuO/hLm2BN4fk+jXUZZogL6jqNDPZf+v+6wyimAGqFKvxp54pKsofKK2+NHa6TRussYiKUCPPUcLlvNnLjShMDokVZ2/6Gp43uIriZ5a/2m/7mQESmgMKQvZYja2Hv9ltLfq7ln9d4ijtIHPeEtP9dGd3DCVMPyuadfLtsnDacUVSuwnvHfxTE1zMxkot1C+jP6bKS1rgIqXwZ8ZIlddjkc3xwCq5P57i+YX43i07PKO5io+oQTG1NwhcjbB0vaYEgntTpQnCUOMCRirBA4e0NvLjjw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR11MB5327.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(4326008)(66946007)(8676002)(6512007)(86362001)(66556008)(66476007)(26005)(6506007)(36756003)(38100700002)(38350700002)(316002)(508600001)(52116002)(6486002)(6916009)(8936002)(54906003)(6666004)(1076003)(186003)(5660300002)(83380400001)(44832011)(2906002)(107886003)(2616005);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?L3RubGcwa0V6d1FNN2RsMENEUmo3YmUyd1BBOTI5Sm1QNUFUY0RLbEVEWWVH?=
- =?utf-8?B?S0lCMGJldXVUTTkyRU03dlFVTmVxS2IxT0R2WXRWOWNMSFBOYVdUSmwySjlP?=
- =?utf-8?B?eHZhczViNWVnMHlGbDJ1RVhGWCtVNVJHZFFROWRXcWhVclE3UENKVGhVSWRD?=
- =?utf-8?B?QnVtNjNiakU4dTlscWxxOVBuZTd6bUtqUVA5eUpxejkxUHAxdFZ5M3hSaXA1?=
- =?utf-8?B?emJ2cDJBRkcreFJZbmJTSDYwMGZPRndqcTVETk4zWGMydlhNZ0dML2g0cEI5?=
- =?utf-8?B?cXhFYnBzSkZvL3ZGT3FvQ2FjQU42UGlzVjdBQnQ3NE5vT2NYQjNDYnV2ZGxa?=
- =?utf-8?B?c3c4bzR2Nk94UlVHTEJvZ2JHK1JVYzljOVBja1hoSFhLejNHUW1Eejkvcml0?=
- =?utf-8?B?S2VtZnpxL1dGdERodEV3a3lhL2pDZEJoREtIYUNiMWFoTFZTMWo5VG9KakhY?=
- =?utf-8?B?TjJwTDdXVWhuMHRXeVRlemExb1JmMjF2V2ZoR2hkOUNjQ1NGVHdYUzE5UDh3?=
- =?utf-8?B?VkZBaTNHWGJGTWxVNWdBc2RDcWZYbVNYbXV2RFVWbktNbzVzQmgxUDNBS2cz?=
- =?utf-8?B?RFArNkFoM1l6VndZblc2YUp6SUZNU1lXcWVUaU1UT0pJbWh1RmlkdU53S25Z?=
- =?utf-8?B?dW15b3lJVGRSTUdqOXB5T1lrVzdHcW9QcWd6azNtbytIZXMyY0NiNXB6clNt?=
- =?utf-8?B?NUgrdnltcFBKdXVJWExGWGxaOE9sbTQxay9mS1ZBNTRGYW5wWWVDWE9kOE81?=
- =?utf-8?B?WmtkVUphL243QU9RNklNRVEzVGg4MGlwZmlTRUV5bHkvR3A2ODRKREpVdU0z?=
- =?utf-8?B?akI5M0o3eVptVWk5M1oxWkN0eTU2dkk2Zkx4NjR1bHExNW0yOUZtZ2sxMlpw?=
- =?utf-8?B?TVRKekNUUjhKSURkNE13N2gxaTNJSVEyUXk4bERLbXd2K3NmVnc0aE9ZdGtq?=
- =?utf-8?B?bGFvY0RmeENzdTZ6NG9uOVF3NUxnREJhaXdtYXNhTks1NzUrOVJ0L0lsSHQz?=
- =?utf-8?B?SG9RbmNkTi9pREtETFFUekdsN3ZEWnMvcGtzMWRKc1lnQTBFQVA5Uk9saHdD?=
- =?utf-8?B?bmd5eFllck1kNnhWOXI5MTgzdGpRenJjY28xcGtyS2xWZEdlQWlsUSsxRE9j?=
- =?utf-8?B?ejlRRm9ybmVLNEMwNzRtUWo4Uy9jeldxOWRnVlhCdGJnUE1TOUxMbmIzWUs0?=
- =?utf-8?B?RmQzUU5EYy82WnkrdGFyMG5rVzkxd1BQL3RqM1d3MDdPZE9YV2pidU9aelkz?=
- =?utf-8?B?UWtibGptNHFSN2IxZmFGaG1va1d4QUlKcTI4QVIxN2FQcXdIWS8xMkp4SUpK?=
- =?utf-8?B?Z3FtQVdsRzhSQWlpWS9MdFBQQjdncUUrK29oWEhtRjZ2OUhxKzQxd24zWDhM?=
- =?utf-8?B?aXNlQzBQQStuTWgyc1lIeUF1TURnSVlYZnJwM2Jvbm9Vc205Ui9GaUp3bWIv?=
- =?utf-8?B?ZmRFZElLcjBiMGFocmpaZnJwVU9VT0lLM2tPUWp6U3VjZXVNTURlSzNFdSti?=
- =?utf-8?B?WGhHRitZQ1VDKzVLS1JFeXN3K1dVY3JIM092OHNaNXUzYUhnQS9uT1RJb2Zk?=
- =?utf-8?B?SWFxU2JhSjV5QWMzWkM2Z2hMMGVFcGwyd2dId3ZoTklrU09LM2RPS2Z4VS95?=
- =?utf-8?B?RlFiRk1obDlib0UxR2Q4b0xMN3U3ZEttYjFBZ2xsVjAzVFBUN0p4T2laWVFi?=
- =?utf-8?B?SWJDcGdzdVV5RXM0RVUxOWFqbkVvMTFubVZ4MVJKYXFpOGtxanJWYVFsSDZL?=
- =?utf-8?B?L253cm9iM1ZEUGxnU3ZEekxENkxpUEtHUCsyWFRweElDWkh5TmFQWXo0N3hJ?=
- =?utf-8?B?YkhNUDdBR2RkZkJiMmlLZDdtWVdzSTAyZklLR0xsZi9ybVJFNmNPV3MzRnd2?=
- =?utf-8?B?dUhlK29HWCtpQklCMnRKMWhsNmtCYnprNEt3MzRleitxU1FtMmJoRitPV2FU?=
- =?utf-8?B?clg2V0VaMk9pQlJsNFpIRkVtNy82QUNxS0IzczRrYlpSWWhaM2NBREZ2dkIx?=
- =?utf-8?B?VUxLVnd0S2llYzlHZGh5OGpqMVlqNW5oekhsd0RtczJIcVJPOTRyUnZKMlBO?=
- =?utf-8?B?alV4aFlUWTFwSnNNVmdZRHZuOHkxaDlMV0hsWjVmV1c4Q2VRWTNvR0ZTTW1t?=
- =?utf-8?B?UDY3WHJhRjM3b3Y3L3FrRlF0a2pENmJNU08wY2RSQnVuUTRKM2JaZTNxY1NY?=
- =?utf-8?B?elhSL0V6ckhsZ2dWc3prYkR3TFQ4SHVIVFpHMmhFbGxpeUc4RExtRVgrSnVJ?=
- =?utf-8?B?TjFsdDI2M2xaaFZwekxmcUptdXRCQ1VoVXhMY3hxTjhGd1ZsZGhTK0hkL21q?=
- =?utf-8?B?SnB4MUhtRXFrNmJ5NS9zTDFVZDcyZ3ZvQkN0QXFYTHgrcFNMTTlQRDVOcG1q?=
- =?utf-8?Q?Nk3HvtOHuMYezKNo=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3wzE+bclLsmrcKDge+BiIxJSzBeqz/8nQBYbuy7D6szFT234QCZBtvJw9cx9?=
+ =?us-ascii?Q?Gmb8VOaDWRMI/UKXr6CU4UYUOhmp2ccae2VEkambKaY8D/vbv4bfqnvnGNcT?=
+ =?us-ascii?Q?QsTO8WIHu885LN7OW5dMb//risouW7uKR8wc80TCDD1rpTjXlXYnvTUIB5wL?=
+ =?us-ascii?Q?LWLzhgr+miMaBrcjiSZD9VBgbGUrqdfItvmEln3+vtpbaWOHTvGDzQ0UKmez?=
+ =?us-ascii?Q?8jvz6PnfYau1/gpdxDoIq15I7F6bM9nRUjhdrmwGVxgc/9OZWpXd8Geyxr0P?=
+ =?us-ascii?Q?QH+N7i9QFSCLE7jO3ioIGyo/xpuy8cZNsGmrlZw0SrPZmxvbFDhbg3ecA/gd?=
+ =?us-ascii?Q?R3JMCr28ec+PhlXaFA3+oz7lYgAN6eZ7BglaXu4F9gb8hxflO/lCOG59QbQU?=
+ =?us-ascii?Q?0nfA7d6vPaOxHeePLOyCFj78w1rMPzhMiCZpYc+MBn1rkiTnupW8ssFF4Cga?=
+ =?us-ascii?Q?XCb8s2cqgwHWJ6DcjnY2FhQr+QHCrwC7Hmwq3kET2u/0gclFf9pguNsIt1u4?=
+ =?us-ascii?Q?xC7y4qtWdKRnNAZyUDo1Ng4KoSlJBHIqpaIEMJ80LSCfI+K1SkJfIl5jobyd?=
+ =?us-ascii?Q?PzyBbYS8hrRv1j0usN/BSIt2tdYSwYNyniZeOoaLewmMz32lhYQ+w56DkCEd?=
+ =?us-ascii?Q?SXE2s1SLMC8fwr+ce6XYO1fCmYYCG5MRFEZsXaIwYnBx6O70HXFwhR6+TDZD?=
+ =?us-ascii?Q?FCDHP1JF8dIkF2aDtg+IEwpYL5DcC9TIghlKJzvRHOVMc+HYzFjTDKNth0xO?=
+ =?us-ascii?Q?kbLrT279eqR2oW6grizTDqsbsUfcYpGuYwqtN+foDYbB82ZmYqGkBiD65uUn?=
+ =?us-ascii?Q?jcZcJy49Q9duV7UKZKlT4k9eK8H+/TCM1kT5XRQkzw9mzZQqe9pqXD0DoWSp?=
+ =?us-ascii?Q?cr3yvXW2M95jV0mwv1I92INGHMxb9/v/Vcipyye4E38TwZFCcK2Ofm62ri3F?=
+ =?us-ascii?Q?eJkzkwegYcCwEhRpjrU961TyDvuJJ2RWxlGWl1JhsEEzmmFW4PGQJ/dYzuCE?=
+ =?us-ascii?Q?Jh9OZUrtsWA9IJksj2cCoDuKrz0bTnEHE0Lvp1bCSm3GW5wQchfS8YDB663S?=
+ =?us-ascii?Q?qZGqV+xWvgK30aetwAUf89IvD3z4T6DoUH8O54GTNqLmQRzOZbskvUT+hDSo?=
+ =?us-ascii?Q?0KN9TvYmB5EiPaNbmI8cG53O55hIcm1t/Sntsw4ac0n9BCNMtxgJWV0b4y/1?=
+ =?us-ascii?Q?pPSasxkjyrdlr7VZnVUaWg/iiHC981XdF+LQD+eZIp7e27qOJfj6HqbIqVMr?=
+ =?us-ascii?Q?S8WeXEjHeibEY9J6lACdBf5DN/dFvbJSBSRZbbKegZyNc/8AxxO0OEqMkKBZ?=
+ =?us-ascii?Q?s3AbMFofZSesDWDAa/5yKh/8w/Q/3Cb6B/im7hVhVNR8GWBaLq7D2vJV5Cdt?=
+ =?us-ascii?Q?oBW7k2diWKJV7mISRrUeNuVh/bsCumPIeUxRcaKIqRgN4H4Vf9bA2OxskED1?=
+ =?us-ascii?Q?ZMQWg3cUB8IfrQABubPxIdWzbZlmeWe78MVZIfKkcraDiIcN22Syqy/fEiih?=
+ =?us-ascii?Q?W9l71yAnZeaNhNpHKTDmzQJwKBEoaHnzxmjaB6pvqSHaKjdC09MUWs2koFCm?=
+ =?us-ascii?Q?BQxUf5RBDsSBG6mA5B7qAAdsqo1plZMfXkahLtGzOh7SW8Ew783J1GgezEXe?=
+ =?us-ascii?Q?njOGgtnLQDC8H2bLszF5gKhBgUKddg5rt1hH371wVKtEr6nD81dSdNGIUt19?=
+ =?us-ascii?Q?4UyD+hYZOldMiZJ8jWZHYY6SUVk+3b2URw9nXtEzXaRoaZue5+3wqwAFP2oO?=
+ =?us-ascii?Q?h/9yvluzPZu3rYZ5XkXYnvDwwI0Yggw=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d7d7a1d0-ad50-4983-573e-08da3cb417a2
+X-MS-Exchange-CrossTenant-Network-Message-Id: f017e91c-1917-42d8-0629-08da3cb905a7
 X-MS-Exchange-CrossTenant-AuthSource: DM4PR11MB5327.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 May 2022 12:02:21.5891
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 May 2022 12:37:38.8889
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: pVNacn4vB4UyOtZGZ5t4HLbwt+iT7U1QwiW0CFz5jHE9nNZ0Z9TuJvKWWy/a3+jqGyvy6pUQ9tmNHWhnzagNRcBXD/i2Ioh9ibQPlP3XJk8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM8PR11MB5672
-X-Proofpoint-GUID: 0tRxZzL0xMp_BCii8kfHqc_8exC7caFV
-X-Proofpoint-ORIG-GUID: 0tRxZzL0xMp_BCii8kfHqc_8exC7caFV
+X-MS-Exchange-CrossTenant-UserPrincipalName: sbzWO9maLdFpZiro9N1gCtTrnQzGbCIMmFHndeJa6ur1VZzt61uEksiCTy2xmo2NL66Moie5MT3e+dm8cwLsZ91wNvO3qDKcGkiFwzNzcAg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR1101MB2268
+X-Proofpoint-GUID: yvYWdtsbuQc3t-87FlvegeEDegeKCRG3
+X-Proofpoint-ORIG-GUID: yvYWdtsbuQc3t-87FlvegeEDegeKCRG3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
- definitions=2022-05-23_04,2022-05-23_01,2022-02-23_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 adultscore=0
- mlxlogscore=999 phishscore=0 mlxscore=0 suspectscore=0 bulkscore=0
- impostorscore=0 malwarescore=0 spamscore=0 lowpriorityscore=0
- priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2202240000 definitions=main-2205230067
+ definitions=2022-05-23_06,2022-05-23_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ priorityscore=1501 clxscore=1015 suspectscore=0 mlxscore=0 adultscore=0
+ spamscore=0 phishscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2205230070
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
         SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
@@ -146,106 +134,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-commit 901c7280ca0d5e2b4a8929fbe0bfb007ac2a6544 upstream.
+commit ddbd89deb7d32b1fbb879f48d68fda1a8ac58e8e upstream.
 
-Halil Pasic points out [1] that the full revert of that commit (revert
-in bddac7c1e02b), and that a partial revert that only reverts the
-problematic case, but still keeps some of the cleanups is probably
-better.  ￼
+The problem I'm addressing was discovered by the LTP test covering
+cve-2018-1000204.
 
-And that partial revert [2] had already been verified by Oleksandr
-Natalenko to also fix the issue, I had just missed that in the long
-discussion.
+A short description of what happens follows:
+1) The test case issues a command code 00 (TEST UNIT READY) via the SG_IO
+   interface with: dxfer_len == 524288, dxdfer_dir == SG_DXFER_FROM_DEV
+   and a corresponding dxferp. The peculiar thing about this is that TUR
+   is not reading from the device.
+2) In sg_start_req() the invocation of blk_rq_map_user() effectively
+   bounces the user-space buffer. As if the device was to transfer into
+   it. Since commit a45b599ad808 ("scsi: sg: allocate with __GFP_ZERO in
+   sg_build_indirect()") we make sure this first bounce buffer is
+   allocated with GFP_ZERO.
+3) For the rest of the story we keep ignoring that we have a TUR, so the
+   device won't touch the buffer we prepare as if the we had a
+   DMA_FROM_DEVICE type of situation. My setup uses a virtio-scsi device
+   and the  buffer allocated by SG is mapped by the function
+   virtqueue_add_split() which uses DMA_FROM_DEVICE for the "in" sgs (here
+   scatter-gather and not scsi generics). This mapping involves bouncing
+   via the swiotlb (we need swiotlb to do virtio in protected guest like
+   s390 Secure Execution, or AMD SEV).
+4) When the SCSI TUR is done, we first copy back the content of the second
+   (that is swiotlb) bounce buffer (which most likely contains some
+   previous IO data), to the first bounce buffer, which contains all
+   zeros.  Then we copy back the content of the first bounce buffer to
+   the user-space buffer.
+5) The test case detects that the buffer, which it zero-initialized,
+  ain't all zeros and fails.
 
-So let's reinstate the cleanups from commit aa6f8dcbab47 ("swiotlb:
-rework "fix info leak with DMA_FROM_DEVICE""), and effectively only
-revert the part that caused problems.
+One can argue that this is an swiotlb problem, because without swiotlb
+we leak all zeros, and the swiotlb should be transparent in a sense that
+it does not affect the outcome (if all other participants are well
+behaved).
 
-Link: https://lore.kernel.org/all/20220328013731.017ae3e3.pasic@linux.ibm.com/ [1]
-Link: https://lore.kernel.org/all/20220324055732.GB12078@lst.de/ [2]
-Link: https://lore.kernel.org/all/4386660.LvFx2qVVIh@natalenko.name/ [3]
-Suggested-by: Halil Pasic <pasic@linux.ibm.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Cc: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[OP: backport to 5.4: adjusted context]
+Copying the content of the original buffer into the swiotlb buffer is
+the only way I can think of to make swiotlb transparent in such
+scenarios. So let's do just that if in doubt, but allow the driver
+to tell us that the whole mapped buffer is going to be overwritten,
+in which case we can preserve the old behavior and avoid the performance
+impact of the extra bounce.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+[OP: backport to 4.19: adjusted context]
 Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
-This is part of CVE-2022-0854 patchset:
-[1] ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
-[2] 901c7280ca0d ("Reinstate some of "swiotlb: rework "fix info leak with DMA_FROM_DEVICE""")
-
-[1] is already present in 5.4-stable.
-[2] is present in 5.17/5.16/5.15, but not in 5.10 and 5.4 branches;
-
- Documentation/DMA-attributes.txt | 10 ----------
- include/linux/dma-mapping.h      |  8 --------
- kernel/dma/swiotlb.c             | 13 ++++++++-----
- 3 files changed, 8 insertions(+), 23 deletions(-)
+ Documentation/DMA-attributes.txt | 10 ++++++++++
+ include/linux/dma-mapping.h      |  8 ++++++++
+ kernel/dma/swiotlb.c             |  3 ++-
+ 3 files changed, 20 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/DMA-attributes.txt b/Documentation/DMA-attributes.txt
-index 7193505a98ca..8f8d97f65d73 100644
+index 8f8d97f65d73..7193505a98ca 100644
 --- a/Documentation/DMA-attributes.txt
 +++ b/Documentation/DMA-attributes.txt
-@@ -156,13 +156,3 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
+@@ -156,3 +156,13 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
  subsystem that the buffer is fully accessible at the elevated privilege
  level (and ideally inaccessible or at least read-only at the
  lesser-privileged levels).
--
--DMA_ATTR_PRIVILEGED
---------------------
--
--Some advanced peripherals such as remote processors and GPUs perform
--accesses to DMA buffers in both privileged "supervisor" and unprivileged
--"user" modes.  This attribute is used to indicate to the DMA-mapping
--subsystem that the buffer is fully accessible at the elevated privilege
--level (and ideally inaccessible or at least read-only at the
--lesser-privileged levels).
++
++DMA_ATTR_PRIVILEGED
++-------------------
++
++Some advanced peripherals such as remote processors and GPUs perform
++accesses to DMA buffers in both privileged "supervisor" and unprivileged
++"user" modes.  This attribute is used to indicate to the DMA-mapping
++subsystem that the buffer is fully accessible at the elevated privilege
++level (and ideally inaccessible or at least read-only at the
++lesser-privileged levels).
 diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index da90f20e11c1..4d450672b7d6 100644
+index 669cde2fa872..a0ccba8ca1db 100644
 --- a/include/linux/dma-mapping.h
 +++ b/include/linux/dma-mapping.h
-@@ -70,14 +70,6 @@
+@@ -70,6 +70,14 @@
   */
  #define DMA_ATTR_PRIVILEGED		(1UL << 9)
  
--/*
-- * This is a hint to the DMA-mapping subsystem that the device is expected
-- * to overwrite the entire mapped size, thus the caller does not require any
-- * of the previous buffer contents to be preserved. This allows
-- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-- */
--#define DMA_ATTR_OVERWRITE		(1UL << 10)
--
++/*
++ * This is a hint to the DMA-mapping subsystem that the device is expected
++ * to overwrite the entire mapped size, thus the caller does not require any
++ * of the previous buffer contents to be preserved. This allows
++ * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
++ */
++#define DMA_ATTR_OVERWRITE		(1UL << 10)
++
  /*
   * A dma_addr_t can hold any valid DMA or bus address for the platform.
   * It can be given to a device to use as a DMA source or target.  A CPU cannot
 diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index f17b771856d1..913cb71198af 100644
+index 6f7d4e977c5c..33bed537a64b 100644
 --- a/kernel/dma/swiotlb.c
 +++ b/kernel/dma/swiotlb.c
-@@ -571,11 +571,14 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
- 	 */
+@@ -588,7 +588,8 @@ phys_addr_t swiotlb_tbl_map_single(struct device *hwdev,
  	for (i = 0; i < nslots; i++)
  		io_tlb_orig_addr[index+i] = orig_addr + (i << IO_TLB_SHIFT);
--	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
--	    dir == DMA_BIDIRECTIONAL))
--		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
--
-+	/*
-+	 * When dir == DMA_FROM_DEVICE we could omit the copy from the orig
-+	 * to the tlb buffer, if we knew for sure the device will
-+	 * overwirte the entire current content. But we don't. Thus
-+	 * unconditional bounce may prevent leaking swiotlb content (i.e.
-+	 * kernel memory) to user-space.
-+	 */
-+	swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
+ 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
+-	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
++	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
++	    dir == DMA_BIDIRECTIONAL))
+ 		swiotlb_bounce(orig_addr, tlb_addr, size, DMA_TO_DEVICE);
  
+ 	return tlb_addr;
 -- 
 2.36.1
 
