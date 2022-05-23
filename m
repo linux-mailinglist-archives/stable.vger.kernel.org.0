@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF7B531AA7
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B6FE531D0A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241341AbiEWRxM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:53:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35938 "EHLO
+        id S241610AbiEWRjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243841AbiEWRvt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:51:49 -0400
+        with ESMTP id S241858AbiEWRgN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:36:13 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144F463539;
-        Mon, 23 May 2022 10:38:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4526191579;
+        Mon, 23 May 2022 10:30:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C424260916;
-        Mon, 23 May 2022 17:29:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD122C385AA;
-        Mon, 23 May 2022 17:29:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDAF160AB8;
+        Mon, 23 May 2022 17:29:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5670C385A9;
+        Mon, 23 May 2022 17:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326982;
-        bh=avndaQch640ZfRGocl3/Glaq1ZfFlwbRC5EyDnOyZQ4=;
+        s=korg; t=1653326985;
+        bh=q397SqOxgwTvP4betPRapKBfjpqHdQtGoq/IFQzfvWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2Bvx5NSP1bGsU8mVRPCsyGL/tncvnOEOQ6yHyku7cycy9BpydijxOQvgkDsP4YTt
-         abyXQ81aUBwebcqS00xVL2h54JlAlr7S/RU4naUb/gQBo/63k1Qx/+ap1TN4ctQdMA
-         e2Z6YJCBacnjpxTtTLvnECm6s6fg0qvosTNF2lTg=
+        b=o6jX647fItpXaJCf3EREhWMwCMZmWmuWstrFtJuvIawgoNUyga9U4egenkXfyxWJv
+         x6OriRS08+ivXSXip3eix8O8rEJRVrFtY66cK0/2ubacqaS+vZ+lBDQwBn6mrT8mcy
+         LBym8qPI9Vn/83QiwrzAU4fd1v6y0sE2B0MICHFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritaro Takenaka <ritarot634@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+        Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 119/158] netfilter: flowtable: move dst_check to packet path
-Date:   Mon, 23 May 2022 19:04:36 +0200
-Message-Id: <20220523165850.563558597@linuxfoundation.org>
+Subject: [PATCH 5.17 120/158] vdpa/mlx5: Use consistent RQT size
+Date:   Mon, 23 May 2022 19:04:37 +0200
+Message-Id: <20220523165850.697295863@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -54,107 +55,220 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritaro Takenaka <ritarot634@gmail.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit 2738d9d963bd1f06d5114c2b4fa5771a95703991 ]
+[ Upstream commit acde3929492bcb9ceb0df1270230c422b1013798 ]
 
-Fixes sporadic IPv6 packet loss when flow offloading is enabled.
+The current code evaluates RQT size based on the configured number of
+virtqueues. This can raise an issue in the following scenario:
 
-IPv6 route GC and flowtable GC are not synchronized.
-When dst_cache becomes stale and a packet passes through the flow before
-the flowtable GC teardowns it, the packet can be dropped.
-So, it is necessary to check dst every time in packet path.
+Assume MQ was negotiated.
+1. mlx5_vdpa_set_map() gets called.
+2. handle_ctrl_mq() is called setting cur_num_vqs to some value, lower
+   than the configured max VQs.
+3. A second set_map gets called, but now a smaller number of VQs is used
+   to evaluate the size of the RQT.
+4. handle_ctrl_mq() is called with a value larger than what the RQT can
+   hold. This will emit errors and the driver state is compromised.
 
-Fixes: 227e1e4d0d6c ("netfilter: nf_flowtable: skip device lookup from interface index")
-Signed-off-by: Ritaro Takenaka <ritarot634@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+To fix this, we use a new field in struct mlx5_vdpa_net to hold the
+required number of entries in the RQT. This value is evaluated in
+mlx5_vdpa_set_driver_features() where we have the negotiated features
+all set up.
+
+In addition to that, we take into consideration the max capability of RQT
+entries early when the device is added so we don't need to take consider
+it when creating the RQT.
+
+Last, we remove the use of mlx5_vdpa_max_qps() which just returns the
+max_vas / 2 and make the code clearer.
+
+Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 23 +----------------------
- net/netfilter/nf_flow_table_ip.c   | 19 +++++++++++++++++++
- 2 files changed, 20 insertions(+), 22 deletions(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 61 +++++++++++--------------------
+ 1 file changed, 21 insertions(+), 40 deletions(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index de783c9094d7..9fb407084c50 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -415,32 +415,11 @@ nf_flow_table_iterate(struct nf_flowtable *flow_table,
- 	return err;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 1b5de3af1a62..9c45be8ab178 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -161,6 +161,7 @@ struct mlx5_vdpa_net {
+ 	struct mlx5_flow_handle *rx_rule_mcast;
+ 	bool setup;
+ 	u32 cur_num_vqs;
++	u32 rqt_size;
+ 	struct notifier_block nb;
+ 	struct vdpa_callback config_cb;
+ 	struct mlx5_vdpa_wq_ent cvq_ent;
+@@ -204,17 +205,12 @@ static __virtio16 cpu_to_mlx5vdpa16(struct mlx5_vdpa_dev *mvdev, u16 val)
+ 	return __cpu_to_virtio16(mlx5_vdpa_is_little_endian(mvdev), val);
  }
  
--static bool flow_offload_stale_dst(struct flow_offload_tuple *tuple)
+-static inline u32 mlx5_vdpa_max_qps(int max_vqs)
 -{
--	struct dst_entry *dst;
--
--	if (tuple->xmit_type == FLOW_OFFLOAD_XMIT_NEIGH ||
--	    tuple->xmit_type == FLOW_OFFLOAD_XMIT_XFRM) {
--		dst = tuple->dst_cache;
--		if (!dst_check(dst, tuple->dst_cookie))
--			return true;
--	}
--
--	return false;
+-	return max_vqs / 2;
 -}
 -
--static bool nf_flow_has_stale_dst(struct flow_offload *flow)
--{
--	return flow_offload_stale_dst(&flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].tuple) ||
--	       flow_offload_stale_dst(&flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].tuple);
--}
--
- static void nf_flow_offload_gc_step(struct nf_flowtable *flow_table,
- 				    struct flow_offload *flow, void *data)
+ static u16 ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev)
  {
- 	if (nf_flow_has_expired(flow) ||
--	    nf_ct_is_dying(flow->ct) ||
--	    nf_flow_has_stale_dst(flow))
-+	    nf_ct_is_dying(flow->ct))
- 		flow_offload_teardown(flow);
+ 	if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+ 		return 2;
  
- 	if (test_bit(NF_FLOW_TEARDOWN, &flow->flags)) {
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index 6257d87c3a56..28026467b54c 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -227,6 +227,15 @@ static bool nf_flow_exceeds_mtu(const struct sk_buff *skb, unsigned int mtu)
- 	return true;
+-	return 2 * mlx5_vdpa_max_qps(mvdev->max_vqs);
++	return mvdev->max_vqs;
  }
  
-+static inline bool nf_flow_dst_check(struct flow_offload_tuple *tuple)
-+{
-+	if (tuple->xmit_type != FLOW_OFFLOAD_XMIT_NEIGH &&
-+	    tuple->xmit_type != FLOW_OFFLOAD_XMIT_XFRM)
-+		return true;
-+
-+	return dst_check(tuple->dst_cache, tuple->dst_cookie);
-+}
-+
- static unsigned int nf_flow_xmit_xfrm(struct sk_buff *skb,
- 				      const struct nf_hook_state *state,
- 				      struct dst_entry *dst)
-@@ -346,6 +355,11 @@ nf_flow_offload_ip_hook(void *priv, struct sk_buff *skb,
- 	if (nf_flow_state_check(flow, iph->protocol, skb, thoff))
- 		return NF_ACCEPT;
+ static bool is_ctrl_vq_idx(struct mlx5_vdpa_dev *mvdev, u16 idx)
+@@ -1236,25 +1232,13 @@ static void teardown_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *
+ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ {
+ 	__be32 *list;
+-	int max_rqt;
+ 	void *rqtc;
+ 	int inlen;
+ 	void *in;
+ 	int i, j;
+ 	int err;
+-	int num;
+-
+-	if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_MQ)))
+-		num = 1;
+-	else
+-		num = ndev->cur_num_vqs / 2;
  
-+	if (!nf_flow_dst_check(&tuplehash->tuple)) {
-+		flow_offload_teardown(flow);
-+		return NF_ACCEPT;
-+	}
-+
- 	if (skb_try_make_writable(skb, thoff + hdrsize))
- 		return NF_DROP;
+-	max_rqt = min_t(int, roundup_pow_of_two(num),
+-			1 << MLX5_CAP_GEN(ndev->mvdev.mdev, log_max_rqt_size));
+-	if (max_rqt < 1)
+-		return -EOPNOTSUPP;
+-
+-	inlen = MLX5_ST_SZ_BYTES(create_rqt_in) + max_rqt * MLX5_ST_SZ_BYTES(rq_num);
++	inlen = MLX5_ST_SZ_BYTES(create_rqt_in) + ndev->rqt_size * MLX5_ST_SZ_BYTES(rq_num);
+ 	in = kzalloc(inlen, GFP_KERNEL);
+ 	if (!in)
+ 		return -ENOMEM;
+@@ -1263,12 +1247,12 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ 	rqtc = MLX5_ADDR_OF(create_rqt_in, in, rqt_context);
  
-@@ -582,6 +596,11 @@ nf_flow_offload_ipv6_hook(void *priv, struct sk_buff *skb,
- 	if (nf_flow_state_check(flow, ip6h->nexthdr, skb, thoff))
- 		return NF_ACCEPT;
+ 	MLX5_SET(rqtc, rqtc, list_q_type, MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q);
+-	MLX5_SET(rqtc, rqtc, rqt_max_size, max_rqt);
++	MLX5_SET(rqtc, rqtc, rqt_max_size, ndev->rqt_size);
+ 	list = MLX5_ADDR_OF(rqtc, rqtc, rq_num[0]);
+-	for (i = 0, j = 0; i < max_rqt; i++, j += 2)
+-		list[i] = cpu_to_be32(ndev->vqs[j % (2 * num)].virtq_id);
++	for (i = 0, j = 0; i < ndev->rqt_size; i++, j += 2)
++		list[i] = cpu_to_be32(ndev->vqs[j % ndev->cur_num_vqs].virtq_id);
  
-+	if (!nf_flow_dst_check(&tuplehash->tuple)) {
-+		flow_offload_teardown(flow);
-+		return NF_ACCEPT;
-+	}
+-	MLX5_SET(rqtc, rqtc, rqt_actual_size, max_rqt);
++	MLX5_SET(rqtc, rqtc, rqt_actual_size, ndev->rqt_size);
+ 	err = mlx5_vdpa_create_rqt(&ndev->mvdev, in, inlen, &ndev->res.rqtn);
+ 	kfree(in);
+ 	if (err)
+@@ -1282,19 +1266,13 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+ static int modify_rqt(struct mlx5_vdpa_net *ndev, int num)
+ {
+ 	__be32 *list;
+-	int max_rqt;
+ 	void *rqtc;
+ 	int inlen;
+ 	void *in;
+ 	int i, j;
+ 	int err;
+ 
+-	max_rqt = min_t(int, roundup_pow_of_two(ndev->cur_num_vqs / 2),
+-			1 << MLX5_CAP_GEN(ndev->mvdev.mdev, log_max_rqt_size));
+-	if (max_rqt < 1)
+-		return -EOPNOTSUPP;
+-
+-	inlen = MLX5_ST_SZ_BYTES(modify_rqt_in) + max_rqt * MLX5_ST_SZ_BYTES(rq_num);
++	inlen = MLX5_ST_SZ_BYTES(modify_rqt_in) + ndev->rqt_size * MLX5_ST_SZ_BYTES(rq_num);
+ 	in = kzalloc(inlen, GFP_KERNEL);
+ 	if (!in)
+ 		return -ENOMEM;
+@@ -1305,10 +1283,10 @@ static int modify_rqt(struct mlx5_vdpa_net *ndev, int num)
+ 	MLX5_SET(rqtc, rqtc, list_q_type, MLX5_RQTC_LIST_Q_TYPE_VIRTIO_NET_Q);
+ 
+ 	list = MLX5_ADDR_OF(rqtc, rqtc, rq_num[0]);
+-	for (i = 0, j = 0; i < max_rqt; i++, j += 2)
++	for (i = 0, j = 0; i < ndev->rqt_size; i++, j += 2)
+ 		list[i] = cpu_to_be32(ndev->vqs[j % num].virtq_id);
+ 
+-	MLX5_SET(rqtc, rqtc, rqt_actual_size, max_rqt);
++	MLX5_SET(rqtc, rqtc, rqt_actual_size, ndev->rqt_size);
+ 	err = mlx5_vdpa_modify_rqt(&ndev->mvdev, in, inlen, ndev->res.rqtn);
+ 	kfree(in);
+ 	if (err)
+@@ -1582,7 +1560,7 @@ static virtio_net_ctrl_ack handle_ctrl_mq(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+ 
+ 		newqps = mlx5vdpa16_to_cpu(mvdev, mq.virtqueue_pairs);
+ 		if (newqps < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+-		    newqps > mlx5_vdpa_max_qps(mvdev->max_vqs))
++		    newqps > ndev->rqt_size)
+ 			break;
+ 
+ 		if (ndev->cur_num_vqs == 2 * newqps) {
+@@ -1937,7 +1915,7 @@ static int setup_virtqueues(struct mlx5_vdpa_dev *mvdev)
+ 	int err;
+ 	int i;
+ 
+-	for (i = 0; i < 2 * mlx5_vdpa_max_qps(mvdev->max_vqs); i++) {
++	for (i = 0; i < mvdev->max_vqs; i++) {
+ 		err = setup_vq(ndev, &ndev->vqs[i]);
+ 		if (err)
+ 			goto err_vq;
+@@ -2008,9 +1986,11 @@ static int mlx5_vdpa_set_driver_features(struct vdpa_device *vdev, u64 features)
+ 
+ 	ndev->mvdev.actual_features = features & ndev->mvdev.mlx_features;
+ 	if (ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_MQ))
+-		ndev->cur_num_vqs = 2 * mlx5vdpa16_to_cpu(mvdev, ndev->config.max_virtqueue_pairs);
++		ndev->rqt_size = mlx5vdpa16_to_cpu(mvdev, ndev->config.max_virtqueue_pairs);
+ 	else
+-		ndev->cur_num_vqs = 2;
++		ndev->rqt_size = 1;
 +
- 	if (skb_try_make_writable(skb, thoff + hdrsize))
- 		return NF_DROP;
++	ndev->cur_num_vqs = 2 * ndev->rqt_size;
+ 
+ 	update_cvq_info(mvdev);
+ 	return err;
+@@ -2463,7 +2443,7 @@ static void init_mvqs(struct mlx5_vdpa_net *ndev)
+ 	struct mlx5_vdpa_virtqueue *mvq;
+ 	int i;
+ 
+-	for (i = 0; i < 2 * mlx5_vdpa_max_qps(ndev->mvdev.max_vqs); ++i) {
++	for (i = 0; i < ndev->mvdev.max_vqs; ++i) {
+ 		mvq = &ndev->vqs[i];
+ 		memset(mvq, 0, offsetof(struct mlx5_vdpa_virtqueue, ri));
+ 		mvq->index = i;
+@@ -2583,7 +2563,8 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+ 		return -EOPNOTSUPP;
+ 	}
+ 
+-	max_vqs = MLX5_CAP_DEV_VDPA_EMULATION(mdev, max_num_virtio_queues);
++	max_vqs = min_t(int, MLX5_CAP_DEV_VDPA_EMULATION(mdev, max_num_virtio_queues),
++			1 << MLX5_CAP_GEN(mdev, log_max_rqt_size));
+ 	if (max_vqs < 2) {
+ 		dev_warn(mdev->device,
+ 			 "%d virtqueues are supported. At least 2 are required\n",
+@@ -2647,7 +2628,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+ 		ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MAC);
+ 	}
+ 
+-	config->max_virtqueue_pairs = cpu_to_mlx5vdpa16(mvdev, mlx5_vdpa_max_qps(max_vqs));
++	config->max_virtqueue_pairs = cpu_to_mlx5vdpa16(mvdev, max_vqs / 2);
+ 	mvdev->vdev.dma_dev = &mdev->pdev->dev;
+ 	err = mlx5_vdpa_alloc_resources(&ndev->mvdev);
+ 	if (err)
+@@ -2674,7 +2655,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+ 	ndev->nb.notifier_call = event_handler;
+ 	mlx5_notifier_register(mdev, &ndev->nb);
+ 	mvdev->vdev.mdev = &mgtdev->mgtdev;
+-	err = _vdpa_register_device(&mvdev->vdev, 2 * mlx5_vdpa_max_qps(max_vqs) + 1);
++	err = _vdpa_register_device(&mvdev->vdev, max_vqs + 1);
+ 	if (err)
+ 		goto err_reg;
  
 -- 
 2.35.1
