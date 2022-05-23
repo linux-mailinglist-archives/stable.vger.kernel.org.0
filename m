@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA733531D13
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB298531A3D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240670AbiEWR2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42412 "EHLO
+        id S239889AbiEWRRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242228AbiEWR1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:32 -0400
+        with ESMTP id S240709AbiEWRQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:40 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0AF7C15D;
-        Mon, 23 May 2022 10:22:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F95012752;
+        Mon, 23 May 2022 10:16:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DAAE60916;
-        Mon, 23 May 2022 17:22:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87147C385A9;
-        Mon, 23 May 2022 17:22:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A4FF608C3;
+        Mon, 23 May 2022 17:16:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E39C385A9;
+        Mon, 23 May 2022 17:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326568;
-        bh=CjDagl7s1yUewHYXWMFrzcpaB6LIIM2ZSZMxbuBP6VU=;
+        s=korg; t=1653326165;
+        bh=DhR6AeTKiLjq/3nWP2sq4FthZdkWvOrag8B25MAR0RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CXsvun6XPw6eSeF5Qx5Tx8Y78+eAqqIuftr5c5fCOR78OEKZQoMfU6ywWaueC+POy
-         ISLN79rQKhtXNAGZ0SuPhX83f4+US/F+CQN21/TLzQXOLh8HeHN7MQp1CpQwoNDl+l
-         6NiDaWlH89A26yC3LcS5pjO8ZwP3xVweaVYUiiJg=
+        b=MFu5MH02Svij+sOyXikXt3+7cqbC2RqiM2C4Bf4+j7EZ/72z3DEcJdOWrAWNpJPEK
+         1ExcsIwVWUnlQxY7HtfmNcnmWKC9rf29SVHXUMcYKWQ3MJPdwiiMm7DswbZbCi6IPV
+         r2iAJya3p1/jep5juDyXR5V3zBAuQbH6aTb0JQMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
+        Guenter Roeck <groeck@google.com>,
+        Benson Leung <bleung@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 122/132] net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+Subject: [PATCH 5.10 27/97] platform/chrome: cros_ec_debugfs: detach log reader wq from devm
 Date:   Mon, 23 May 2022 19:05:31 +0200
-Message-Id: <20220523165843.852129969@linuxfoundation.org>
+Message-Id: <20220523165816.495757072@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
+References: <20220523165812.244140613@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit 0807ce0b010418a191e0e4009803b2d74c3245d5 ]
+[ Upstream commit 0e8eb5e8acbad19ac2e1856b2fb2320184299b33 ]
 
-Switch to using pcim_enable_device() to avoid missing pci_disable_device().
+Debugfs console_log uses devm memory (e.g. debug_info in
+cros_ec_console_log_poll()).  However, lifecycles of device and debugfs
+are independent.  An use-after-free issue is observed if userland
+program operates the debugfs after the memory has been freed.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220510031316.1780409-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The call trace:
+ do_raw_spin_lock
+ _raw_spin_lock_irqsave
+ remove_wait_queue
+ ep_unregister_pollwait
+ ep_remove
+ do_epoll_ctl
+
+A Python example to reproduce the issue:
+... import select
+... p = select.epoll()
+... f = open('/sys/kernel/debug/cros_scp/console_log')
+... p.register(f, select.POLLIN)
+... p.poll(1)
+[(4, 1)]                    # 4=fd, 1=select.POLLIN
+
+[ shutdown cros_scp at the point ]
+
+... p.poll(1)
+[(4, 16)]                   # 4=fd, 16=select.POLLHUP
+... p.unregister(f)
+
+An use-after-free issue raises here.  It called epoll_ctl with
+EPOLL_CTL_DEL which in turn to use the workqueue in the devm (i.e.
+log_wq).
+
+Detaches log reader's workqueue from devm to make sure it is persistent
+even if the device has been removed.
+
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Reviewed-by: Guenter Roeck <groeck@google.com>
+Link: https://lore.kernel.org/r/20220209051130.386175-1-tzungbi@google.com
+Signed-off-by: Benson Leung <bleung@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/platform/chrome/cros_ec_debugfs.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-index fcf17d8a0494..644bb54f5f02 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-@@ -181,7 +181,7 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
- 		return -ENOMEM;
+diff --git a/drivers/platform/chrome/cros_ec_debugfs.c b/drivers/platform/chrome/cros_ec_debugfs.c
+index 272c89837d74..0dbceee87a4b 100644
+--- a/drivers/platform/chrome/cros_ec_debugfs.c
++++ b/drivers/platform/chrome/cros_ec_debugfs.c
+@@ -25,6 +25,9 @@
  
- 	/* Enable pci device */
--	ret = pci_enable_device(pdev);
-+	ret = pcim_enable_device(pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "%s: ERROR: failed to enable device\n",
- 			__func__);
-@@ -241,8 +241,6 @@ static void stmmac_pci_remove(struct pci_dev *pdev)
- 		pcim_iounmap_regions(pdev, BIT(i));
- 		break;
+ #define CIRC_ADD(idx, size, value)	(((idx) + (value)) & ((size) - 1))
+ 
++/* waitqueue for log readers */
++static DECLARE_WAIT_QUEUE_HEAD(cros_ec_debugfs_log_wq);
++
+ /**
+  * struct cros_ec_debugfs - EC debugging information.
+  *
+@@ -33,7 +36,6 @@
+  * @log_buffer: circular buffer for console log information
+  * @read_msg: preallocated EC command and buffer to read console log
+  * @log_mutex: mutex to protect circular buffer
+- * @log_wq: waitqueue for log readers
+  * @log_poll_work: recurring task to poll EC for new console log data
+  * @panicinfo_blob: panicinfo debugfs blob
+  */
+@@ -44,7 +46,6 @@ struct cros_ec_debugfs {
+ 	struct circ_buf log_buffer;
+ 	struct cros_ec_command *read_msg;
+ 	struct mutex log_mutex;
+-	wait_queue_head_t log_wq;
+ 	struct delayed_work log_poll_work;
+ 	/* EC panicinfo */
+ 	struct debugfs_blob_wrapper panicinfo_blob;
+@@ -107,7 +108,7 @@ static void cros_ec_console_log_work(struct work_struct *__work)
+ 			buf_space--;
+ 		}
+ 
+-		wake_up(&debug_info->log_wq);
++		wake_up(&cros_ec_debugfs_log_wq);
  	}
--
--	pci_disable_device(pdev);
- }
  
- static int __maybe_unused stmmac_pci_suspend(struct device *dev)
+ 	mutex_unlock(&debug_info->log_mutex);
+@@ -141,7 +142,7 @@ static ssize_t cros_ec_console_log_read(struct file *file, char __user *buf,
+ 
+ 		mutex_unlock(&debug_info->log_mutex);
+ 
+-		ret = wait_event_interruptible(debug_info->log_wq,
++		ret = wait_event_interruptible(cros_ec_debugfs_log_wq,
+ 					CIRC_CNT(cb->head, cb->tail, LOG_SIZE));
+ 		if (ret < 0)
+ 			return ret;
+@@ -173,7 +174,7 @@ static __poll_t cros_ec_console_log_poll(struct file *file,
+ 	struct cros_ec_debugfs *debug_info = file->private_data;
+ 	__poll_t mask = 0;
+ 
+-	poll_wait(file, &debug_info->log_wq, wait);
++	poll_wait(file, &cros_ec_debugfs_log_wq, wait);
+ 
+ 	mutex_lock(&debug_info->log_mutex);
+ 	if (CIRC_CNT(debug_info->log_buffer.head,
+@@ -377,7 +378,6 @@ static int cros_ec_create_console_log(struct cros_ec_debugfs *debug_info)
+ 	debug_info->log_buffer.tail = 0;
+ 
+ 	mutex_init(&debug_info->log_mutex);
+-	init_waitqueue_head(&debug_info->log_wq);
+ 
+ 	debugfs_create_file("console_log", S_IFREG | 0444, debug_info->dir,
+ 			    debug_info, &cros_ec_console_log_fops);
 -- 
 2.35.1
 
