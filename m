@@ -2,120 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 391D553099A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 08:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82CD2530A5A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 10:01:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229608AbiEWGmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 02:42:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50320 "EHLO
+        id S230514AbiEWHvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 03:51:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229472AbiEWGmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 02:42:02 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0734D61B;
-        Sun, 22 May 2022 23:41:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A45A9B80F00;
-        Mon, 23 May 2022 06:26:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B428C385A9;
-        Mon, 23 May 2022 06:26:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653287179;
-        bh=yJL8uVkYFpCvvkQePY+koScMornVS7Wnyustin7mw/g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ynj3tOGCvNqo72OBHX0D0hj+3UxSSIvV8VNH9O3Xf2U6A7vX/Vn0Otn7qof6go3Bb
-         2kGKsZ4IlTf3/qOVa2/Ehao5ArR+cTFAyVEma1RvVjTTNhfnwra1LCkDAjNrW+2GqY
-         MwJq8/+a2KIIdf3iFpb/h9IHmSIbI5qtctZlDxes=
-Date:   Mon, 23 May 2022 08:26:15 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        dmaengine@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH] dmaengine: mxs: fix driver registering
-Message-ID: <YospB9JZdwVfkIhj@kroah.com>
-References: <20220522202223.1343109-1-dario.binacchi@amarulasolutions.com>
+        with ESMTP id S231311AbiEWHu5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 03:50:57 -0400
+Received: from mail.coredeal.pl (mail.coredeal.pl [51.75.73.133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABDC218B20
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 00:50:54 -0700 (PDT)
+Received: by mail.coredeal.pl (Postfix, from userid 1002)
+        id 55456A2576; Mon, 23 May 2022 07:50:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=coredeal.pl; s=mail;
+        t=1653292253; bh=9KGuIG62LgzC9aYmjKxzocuYLRCVghXg6v9Q1q2LHec=;
+        h=Date:From:To:Subject:From;
+        b=Uoq0KTqraAKn6H5RMpotBAeKjFcn4q9HQgcjjf4NhUvQ4SQqfbr61h+NGiOYVfamy
+         0ngJCq3VfBduTvRtgFIWfsfASiP9xUThYBPJWvCjibzhuI3+wqIXQnlFcfeRuLTx4o
+         5V4ElhRkJ+XA2FTfPFC6bJZuG+BoF88v/SyEUw/4ZPTmCwgY/6CLvFsbrvqf6JGQ+0
+         xCWkuf/7dyGu9PIlRVCFDoZ+wqsm4L/a1YlNb3oOzHZHztDojYh7x1ircg6SvYSQR0
+         +VUbvmjs/gUp4wvCQgxPD1KxM0DGXqUSWfcgWzprMmJ38z1awbU26JN4NVRGVePKrz
+         FwkyNfupp543w==
+Received: by mail.coredeal.pl for <stable@vger.kernel.org>; Mon, 23 May 2022 07:50:34 GMT
+Message-ID: <20220523064500-0.1.39.qdni.0.j0i04phork@coredeal.pl>
+Date:   Mon, 23 May 2022 07:50:34 GMT
+From:   "Krzysztof Maj" <krzysztof.maj@coredeal.pl>
+To:     <stable@vger.kernel.org>
+Subject: Biznesowy angielski
+X-Mailer: mail.coredeal.pl
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220522202223.1343109-1-dario.binacchi@amarulasolutions.com>
-X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 22, 2022 at 10:22:23PM +0200, Dario Binacchi wrote:
-> Driver registration fails on SOC imx8mn as its supplier, the clock
-> control module, is not ready. Since platform_driver_probe(), as
-> reported by its description, is incompatible with deferred probing,
-> we have to use platform_driver_register().
-> 
-> Fixes: a580b8c5429a ("dmaengine: mxs-dma: add dma support for i.MX23/28")
-> Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-> Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-> 
-> ---
-> 
->  drivers/dma/mxs-dma.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/dma/mxs-dma.c b/drivers/dma/mxs-dma.c
-> index 994fc4d2aca4..b8a3e692330d 100644
-> --- a/drivers/dma/mxs-dma.c
-> +++ b/drivers/dma/mxs-dma.c
-> @@ -670,7 +670,7 @@ static enum dma_status mxs_dma_tx_status(struct dma_chan *chan,
->  	return mxs_chan->status;
->  }
->  
-> -static int __init mxs_dma_init(struct mxs_dma_engine *mxs_dma)
-> +static int mxs_dma_init(struct mxs_dma_engine *mxs_dma)
->  {
->  	int ret;
->  
-> @@ -741,7 +741,7 @@ static struct dma_chan *mxs_dma_xlate(struct of_phandle_args *dma_spec,
->  				     ofdma->of_node);
->  }
->  
-> -static int __init mxs_dma_probe(struct platform_device *pdev)
-> +static int mxs_dma_probe(struct platform_device *pdev)
->  {
->  	struct device_node *np = pdev->dev.of_node;
->  	const struct mxs_dma_type *dma_type;
-> @@ -839,10 +839,7 @@ static struct platform_driver mxs_dma_driver = {
->  		.name	= "mxs-dma",
->  		.of_match_table = mxs_dma_dt_ids,
->  	},
-> +	.probe = mxs_dma_probe,
->  };
->  
-> -static int __init mxs_dma_module_init(void)
-> -{
-> -	return platform_driver_probe(&mxs_dma_driver, mxs_dma_probe);
-> -}
-> -subsys_initcall(mxs_dma_module_init);
-> +module_platform_driver(mxs_dma_driver);
-> -- 
-> 2.32.0
-> 
+Dzie=C5=84 dobry,=20
 
-<formletter>
+czy rozwa=C5=BCali Pa=C5=84stwo rozw=C3=B3j kwalifikacji j=C4=99zykowych =
+swoich pracownik=C3=B3w?
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+Opracowali=C5=9Bmy kursy j=C4=99zykowe dla r=C3=B3=C5=BCnych bran=C5=BC, =
+w kt=C3=B3rych koncentrujemy si=C4=99 na podniesieniu poziomu s=C5=82owni=
+ctwa i jako=C5=9Bci komunikacji wykorzystuj=C4=85c autorsk=C4=85 metod=C4=
+=99, stworzon=C4=85 specjalnie dla wymagaj=C4=85cego biznesu.=20
 
-</formletter>
+Niestandardowy kurs on-line, dopasowany do profilu firmy i obszar=C3=B3w =
+=C5=9Bwiadczonych us=C5=82ug, w szybkim czasie przyniesie efekty, kt=C3=B3=
+re zwi=C4=99ksz=C4=85 komfort i jako=C5=9B=C4=87 pracy, rozwijaj=C4=85c m=
+o=C5=BCliwo=C5=9Bci biznesowe.=20
+
+Zdalne szkolenie j=C4=99zykowe to m.in. zaj=C4=99cia z native speakerami,=
+ kt=C3=B3re w szybkim czasie naucz=C4=85 pracownik=C3=B3w rozmawia=C4=87 =
+za pomoc=C4=85 jasnego i zwi=C4=99z=C5=82ego j=C4=99zyka Business English=
+=2E
+
+Czy m=C3=B3g=C5=82bym przedstawi=C4=87 wi=C4=99cej szczeg=C3=B3=C5=82=C3=B3=
+w i opowiedzie=C4=87 jak dzia=C5=82amy?=20
+
+
+Pozdrawiam
+Krzysztof Maj
