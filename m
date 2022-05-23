@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32DA85318FD
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A0A4531725
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240013AbiEWRRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33976 "EHLO
+        id S241307AbiEWRks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240563AbiEWRQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92F671D97;
-        Mon, 23 May 2022 10:15:48 -0700 (PDT)
+        with ESMTP id S243558AbiEWRiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E15BC92D3F;
+        Mon, 23 May 2022 10:32:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FE17B81217;
-        Mon, 23 May 2022 17:14:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE73C385A9;
-        Mon, 23 May 2022 17:14:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6502661148;
+        Mon, 23 May 2022 17:31:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69CA2C385A9;
+        Mon, 23 May 2022 17:31:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326066;
-        bh=nWUczX5AkbtAlWDQoWKWiwrApqdIJWmsu7IwsxkK100=;
+        s=korg; t=1653327098;
+        bh=KMJw0XGdeFrhnpx31BYQkcRwZavS3EmcsQkFOgcVIGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JRF+eHhYuGcI0P+pZn/QrDIbRASGl6x7B3/YoakDeuPgCiLLaTUn1Jl85BUJIt/E8
-         COSHyvXaEFzrt2RP2eTzMsXrJKIy4VPr8OPaGbCaYC0dV9t6IIcbMwRTaXg2PxUKdl
-         +aMExkAkceFal2BZRHxmDlviFqUs/3bn2at6DP9g=
+        b=GroUAV+3v2UGpKiPqa335qPbF8Ufz/AdH90lmQ35thd6fpo3AE/S46tkc65vd1rlZ
+         l0KLLCh2StZf2tKeGaEAm2HRnkksKhYUSa2eP6XCS6pT5ABGTlwgoRrBq5xPMujN/G
+         3oTo2Y6Z42DfR6s27NVP1TcrXCjUiCYVt1Om38sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 08/97] rtc: fix use-after-free on device removal
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.17 155/158] Input: ili210x - fix reset timing
 Date:   Mon, 23 May 2022 19:05:12 +0200
-Message-Id: <20220523165813.699743640@linuxfoundation.org>
+Message-Id: <20220523165855.871483935@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
+commit e4920d42ce0e9c8aafb7f64b6d9d4ae02161e51e upstream.
 
-If the irqwork is still scheduled or running while the RTC device is
-removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
-timerqueue and ensure the work is stopped to fix this.
+According to Ilitek "231x & ILI251x Programming Guide" Version: 2.30
+"2.1. Power Sequence", "T4 Chip Reset and discharge time" is minimum
+10ms and "T2 Chip initial time" is maximum 150ms. Adjust the reset
+timings such that T4 is 12ms and T2 is 160ms to fit those figures.
 
- BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
- Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
+This prevents sporadic touch controller start up failures when some
+systems with at least ILI251x controller boot, without this patch
+the systems sometimes fail to communicate with the touch controller.
 
- Workqueue: events rtc_timer_do_work
- Call trace:
-  mutex_lock+0x94/0x110
-  rtc_timer_do_work+0xec/0x630
-  process_one_work+0x5fc/0x1344
-  ...
-
- Allocated by task 551:
-  kmem_cache_alloc_trace+0x384/0x6e0
-  devm_rtc_allocate_device+0xf0/0x574
-  devm_rtc_device_register+0x2c/0x12c
-  ...
-
- Freed by task 572:
-  kfree+0x114/0x4d0
-  rtc_device_release+0x64/0x80
-  device_release+0x8c/0x1f4
-  kobject_put+0x1c4/0x4b0
-  put_device+0x20/0x30
-  devm_rtc_release_device+0x1c/0x30
-  devm_action_release+0x54/0x90
-  release_nodes+0x124/0x310
-  devres_release_group+0x170/0x240
-  i2c_device_remove+0xd8/0x314
-  ...
-
- Last potentially related work creation:
-  insert_work+0x5c/0x330
-  queue_work_on+0xcc/0x154
-  rtc_set_time+0x188/0x5bc
-  rtc_dev_ioctl+0x2ac/0xbd0
-  ...
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 201f3c803544c ("Input: ili210x - add reset GPIO support")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Link: https://lore.kernel.org/r/20220518204901.93534-1-marex@denx.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/class.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/input/touchscreen/ili210x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index 7c88d190c51f..625effe6cb65 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -26,6 +26,15 @@ struct class *rtc_class;
- static void rtc_device_release(struct device *dev)
- {
- 	struct rtc_device *rtc = to_rtc_device(dev);
-+	struct timerqueue_head *head = &rtc->timerqueue;
-+	struct timerqueue_node *node;
-+
-+	mutex_lock(&rtc->ops_lock);
-+	while ((node = timerqueue_getnext(head)))
-+		timerqueue_del(head, node);
-+	mutex_unlock(&rtc->ops_lock);
-+
-+	cancel_work_sync(&rtc->irqwork);
+--- a/drivers/input/touchscreen/ili210x.c
++++ b/drivers/input/touchscreen/ili210x.c
+@@ -951,9 +951,9 @@ static int ili210x_i2c_probe(struct i2c_
+ 		if (error)
+ 			return error;
  
- 	ida_simple_remove(&rtc_ida, rtc->id);
- 	kfree(rtc);
--- 
-2.35.1
-
+-		usleep_range(50, 100);
++		usleep_range(12000, 15000);
+ 		gpiod_set_value_cansleep(reset_gpio, 0);
+-		msleep(100);
++		msleep(160);
+ 	}
+ 
+ 	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
 
 
