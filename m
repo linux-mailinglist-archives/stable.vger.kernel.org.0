@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FC19531C97
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4725D531AA5
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240839AbiEWRaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60060 "EHLO
+        id S241201AbiEWRai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242945AbiEWR2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC13F8BD20;
-        Mon, 23 May 2022 10:24:58 -0700 (PDT)
+        with ESMTP id S242980AbiEWR2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:28:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0718B8DDCF;
+        Mon, 23 May 2022 10:25:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DCDA60B2C;
-        Mon, 23 May 2022 17:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C1CC385A9;
-        Mon, 23 May 2022 17:24:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4497CB80FF4;
+        Mon, 23 May 2022 17:25:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC88C385A9;
+        Mon, 23 May 2022 17:24:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326695;
-        bh=l+dweFhCBdHCnU3oBcjOgofbeTDxRhLUVlx7Mb2HFa0=;
+        s=korg; t=1653326699;
+        bh=8C4PATx0O8Jqsari8A1PCzDaVw8WREZnXuzovcN9IPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oO6fZ+c0rF6LLPNNd2eBRPKDFyVX7MTIIbGKPW0wWe/upvn5qZ8+q2fPOSWuY73+5
-         vAphUa3kPdtsJxpUIu5X0Lzr93Ubnh6JMVFSXK6PHuw+K9azOa/ZLGty0ldYyRaETS
-         X+glKDriqnh76Fpfoa1UH2/FE5mISdYYV/arotAA=
+        b=Wv2rH1WD3yL0QR3bgKS6I4dqQWJZW6viNVYb0eMpV/7kjr2xXjkvSlOd/8s5BvZnA
+         dQ6QF3bRL8dvDZeUKcdwscjGCZ0PIqQjC/pyyPgtr7TF5m8m3Msa35j9IgEn1aE0WS
+         6liMOl8vY03Vtih6Q8DFlpvltltz61UhpHQrvOag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Terry Bowman <terry.bowman@amd.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
+        Terry Bowman <terry.bowman@amd.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 011/158] i2c: piix4: Enable EFCH MMIO for Family 17h+
-Date:   Mon, 23 May 2022 19:02:48 +0200
-Message-Id: <20220523165832.457360822@linuxfoundation.org>
+Subject: [PATCH 5.17 012/158] Watchdog: sp5100_tco: Move timer initialization into function
+Date:   Mon, 23 May 2022 19:02:49 +0200
+Message-Id: <20220523165832.639720507@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -57,68 +59,107 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Terry Bowman <terry.bowman@amd.com>
 
-commit 6cf72f41808ab5db1d7718b999b3ff0166e67e45 upstream.
+commit abd71a948f7aab47ca49d3e7fe6afa6c48c8aae0 upstream.
 
-Enable EFCH MMIO using check for SMBus PCI revision ID value 0x51 or
-greater. This PCI revision ID check will enable family 17h and future
-AMD processors with the same EFCH SMBus controller HW.
+Refactor driver's timer initialization into new function. This is needed
+inorder to support adding new device layouts while using common timer
+initialization.
 
+Co-developed-by: Robert Richter <rrichter@amd.com>
+Signed-off-by: Robert Richter <rrichter@amd.com>
 Signed-off-by: Terry Bowman <terry.bowman@amd.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Tested-by: Jean Delvare <jdelvare@suse.de>
 Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20220202153525.1693378-2-terry.bowman@amd.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-piix4.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ drivers/watchdog/sp5100_tco.c |   65 +++++++++++++++++++++++-------------------
+ 1 file changed, 36 insertions(+), 29 deletions(-)
 
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -229,6 +229,18 @@ static void piix4_sb800_region_release(s
- 	release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
+--- a/drivers/watchdog/sp5100_tco.c
++++ b/drivers/watchdog/sp5100_tco.c
+@@ -223,6 +223,41 @@ static u32 sp5100_tco_read_pm_reg32(u8 i
+ 	return val;
  }
  
-+static bool piix4_sb800_use_mmio(struct pci_dev *PIIX4_dev)
++static int sp5100_tco_timer_init(struct sp5100_tco *tco)
 +{
++	struct watchdog_device *wdd = &tco->wdd;
++	struct device *dev = wdd->parent;
++	u32 val;
++
++	val = readl(SP5100_WDT_CONTROL(tco->tcobase));
++	if (val & SP5100_WDT_DISABLED) {
++		dev_err(dev, "Watchdog hardware is disabled\n");
++		return -ENODEV;
++	}
++
 +	/*
-+	 * cd6h/cd7h port I/O accesses can be disabled on AMD processors
-+	 * w/ SMBus PCI revision ID 0x51 or greater. MMIO is supported on
-+	 * the same processors and is the recommended access method.
++	 * Save WatchDogFired status, because WatchDogFired flag is
++	 * cleared here.
 +	 */
-+	return (PIIX4_dev->vendor == PCI_VENDOR_ID_AMD &&
-+		PIIX4_dev->device == PCI_DEVICE_ID_AMD_KERNCZ_SMBUS &&
-+		PIIX4_dev->revision >= 0x51);
++	if (val & SP5100_WDT_FIRED)
++		wdd->bootstatus = WDIOF_CARDRESET;
++
++	/* Set watchdog action to reset the system */
++	val &= ~SP5100_WDT_ACTION_RESET;
++	writel(val, SP5100_WDT_CONTROL(tco->tcobase));
++
++	/* Set a reasonable heartbeat before we stop the timer */
++	tco_timer_set_timeout(wdd, wdd->timeout);
++
++	/*
++	 * Stop the TCO before we change anything so we don't race with
++	 * a zeroed timer.
++	 */
++	tco_timer_stop(wdd);
++
++	return 0;
 +}
 +
- static int piix4_setup(struct pci_dev *PIIX4_dev,
- 		       const struct pci_device_id *id)
+ static int sp5100_tco_setupdevice(struct device *dev,
+ 				  struct watchdog_device *wdd)
  {
-@@ -339,7 +351,7 @@ static int piix4_setup_sb800_smba(struct
- 	u8 smba_en_hi;
- 	int retval;
+@@ -348,35 +383,7 @@ static int sp5100_tco_setupdevice(struct
+ 	/* Setup the watchdog timer */
+ 	tco_timer_enable(tco);
  
--	mmio_cfg.use_mmio = 0;
-+	mmio_cfg.use_mmio = piix4_sb800_use_mmio(PIIX4_dev);
- 	retval = piix4_sb800_region_request(&PIIX4_dev->dev, &mmio_cfg);
- 	if (retval)
- 		return retval;
-@@ -461,7 +473,7 @@ static int piix4_setup_sb800(struct pci_
- 			piix4_port_shift_sb800 = SB800_PIIX4_PORT_IDX_SHIFT;
- 		}
- 	} else {
--		mmio_cfg.use_mmio = 0;
-+		mmio_cfg.use_mmio = piix4_sb800_use_mmio(PIIX4_dev);
- 		retval = piix4_sb800_region_request(&PIIX4_dev->dev, &mmio_cfg);
- 		if (retval) {
- 			release_region(piix4_smba, SMBIOSIZE);
-@@ -944,6 +956,7 @@ static int piix4_add_adapter(struct pci_
- 		return -ENOMEM;
- 	}
+-	val = readl(SP5100_WDT_CONTROL(tco->tcobase));
+-	if (val & SP5100_WDT_DISABLED) {
+-		dev_err(dev, "Watchdog hardware is disabled\n");
+-		ret = -ENODEV;
+-		goto unreg_region;
+-	}
+-
+-	/*
+-	 * Save WatchDogFired status, because WatchDogFired flag is
+-	 * cleared here.
+-	 */
+-	if (val & SP5100_WDT_FIRED)
+-		wdd->bootstatus = WDIOF_CARDRESET;
+-	/* Set watchdog action to reset the system */
+-	val &= ~SP5100_WDT_ACTION_RESET;
+-	writel(val, SP5100_WDT_CONTROL(tco->tcobase));
+-
+-	/* Set a reasonable heartbeat before we stop the timer */
+-	tco_timer_set_timeout(wdd, wdd->timeout);
+-
+-	/*
+-	 * Stop the TCO before we change anything so we don't race with
+-	 * a zeroed timer.
+-	 */
+-	tco_timer_stop(wdd);
+-
+-	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
+-
+-	return 0;
++	ret = sp5100_tco_timer_init(tco);
  
-+	adapdata->mmio_cfg.use_mmio = piix4_sb800_use_mmio(dev);
- 	adapdata->smba = smba;
- 	adapdata->sb800_main = sb800_main;
- 	adapdata->port = port << piix4_port_shift_sb800;
+ unreg_region:
+ 	release_region(SP5100_IO_PM_INDEX_REG, SP5100_PM_IOPORTS_SIZE);
 
 
