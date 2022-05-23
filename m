@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AE4D531B57
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D2BC5319B7
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242411AbiEWRkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
+        id S240203AbiEWR2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243512AbiEWRiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:16 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F3D36D97B;
-        Mon, 23 May 2022 10:32:29 -0700 (PDT)
+        with ESMTP id S241735AbiEWR1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7C975200;
+        Mon, 23 May 2022 10:22:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22AFAB81235;
-        Mon, 23 May 2022 17:31:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7595BC34115;
-        Mon, 23 May 2022 17:31:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E55061149;
+        Mon, 23 May 2022 17:21:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A84C385A9;
+        Mon, 23 May 2022 17:21:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327075;
-        bh=CjDagl7s1yUewHYXWMFrzcpaB6LIIM2ZSZMxbuBP6VU=;
+        s=korg; t=1653326491;
+        bh=b1f3Xs/RdsG4s/2l3MGwmQkavIui4Nkfu8c/7GVi37E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTMlqamM/o+hCbv7QNHEp9C+uP8ySCVx4P+oP4DOxIKGPWXhqFXOPFAjOR/HDEA33
-         tPMRQBGCo6hBBYQGIIaS23h/8YgJaQNkKxTL0pjvumBAaLdB1mRAFxE6FR4V0VToee
-         QI86aiV75IsY7Iy2X8hOmstZe5+Tri77DhIQ/QLc=
+        b=ssi+FhIjAkuhXZzVCT2HFfNJ5TSsVPknWN5kYpnbx7rI7vrIbSQHw57ECxee00lje
+         e0yZuOWsHQvvY2ChT0h/Oih/LEGd3VeiQTSHJePviOkMg1+C48aMYW3Icu1T5EJHWP
+         8ndljjV82m0lpekL7QJP/1ZtLhtEI5E2VSa1SPrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 149/158] net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+Subject: [PATCH 5.15 097/132] mptcp: fix checksum byte order
 Date:   Mon, 23 May 2022 19:05:06 +0200
-Message-Id: <20220523165854.831016577@linuxfoundation.org>
+Message-Id: <20220523165839.452698115@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 0807ce0b010418a191e0e4009803b2d74c3245d5 ]
+[ Upstream commit ba2c89e0ea74a904d5231643245753d77422e7f5 ]
 
-Switch to using pcim_enable_device() to avoid missing pci_disable_device().
+The MPTCP code typecasts the checksum value to u16 and
+then converts it to big endian while storing the value into
+the MPTCP option.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20220510031316.1780409-1-yangyingliang@huawei.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+As a result, the wire encoding for little endian host is
+wrong, and that causes interoperabilty interoperability
+issues with other implementation or host with different endianness.
+
+Address the issue writing in the packet the unmodified __sum16 value.
+
+MPTCP checksum is disabled by default, interoperating with systems
+with bad mptcp-level csum encoding should cause fallback to TCP.
+
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/275
+Fixes: c5b39e26d003 ("mptcp: send out checksum for DSS")
+Fixes: 390b95a5fb84 ("mptcp: receive checksum for DSS")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/mptcp/options.c  | 36 ++++++++++++++++++++++++------------
+ net/mptcp/protocol.h |  2 +-
+ net/mptcp/subflow.c  |  2 +-
+ 3 files changed, 26 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-index fcf17d8a0494..644bb54f5f02 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c
-@@ -181,7 +181,7 @@ static int stmmac_pci_probe(struct pci_dev *pdev,
- 		return -ENOMEM;
+diff --git a/net/mptcp/options.c b/net/mptcp/options.c
+index d158f53d3bc3..193f0fcce8d8 100644
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -107,7 +107,7 @@ static void mptcp_parse_option(const struct sk_buff *skb,
+ 			ptr += 2;
+ 		}
+ 		if (opsize == TCPOLEN_MPTCP_MPC_ACK_DATA_CSUM) {
+-			mp_opt->csum = (__force __sum16)get_unaligned_be16(ptr);
++			mp_opt->csum = get_unaligned((__force __sum16 *)ptr);
+ 			mp_opt->suboptions |= OPTION_MPTCP_CSUMREQD;
+ 			ptr += 2;
+ 		}
+@@ -221,7 +221,7 @@ static void mptcp_parse_option(const struct sk_buff *skb,
  
- 	/* Enable pci device */
--	ret = pci_enable_device(pdev);
-+	ret = pcim_enable_device(pdev);
- 	if (ret) {
- 		dev_err(&pdev->dev, "%s: ERROR: failed to enable device\n",
- 			__func__);
-@@ -241,8 +241,6 @@ static void stmmac_pci_remove(struct pci_dev *pdev)
- 		pcim_iounmap_regions(pdev, BIT(i));
- 		break;
- 	}
--
--	pci_disable_device(pdev);
+ 			if (opsize == expected_opsize + TCPOLEN_MPTCP_DSS_CHECKSUM) {
+ 				mp_opt->suboptions |= OPTION_MPTCP_CSUMREQD;
+-				mp_opt->csum = (__force __sum16)get_unaligned_be16(ptr);
++				mp_opt->csum = get_unaligned((__force __sum16 *)ptr);
+ 				ptr += 2;
+ 			}
+ 
+@@ -1214,7 +1214,7 @@ static void mptcp_set_rwin(const struct tcp_sock *tp)
+ 		WRITE_ONCE(msk->rcv_wnd_sent, ack_seq);
  }
  
- static int __maybe_unused stmmac_pci_suspend(struct device *dev)
+-u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum)
++__sum16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum)
+ {
+ 	struct csum_pseudo_header header;
+ 	__wsum csum;
+@@ -1230,15 +1230,25 @@ u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum)
+ 	header.csum = 0;
+ 
+ 	csum = csum_partial(&header, sizeof(header), sum);
+-	return (__force u16)csum_fold(csum);
++	return csum_fold(csum);
+ }
+ 
+-static u16 mptcp_make_csum(const struct mptcp_ext *mpext)
++static __sum16 mptcp_make_csum(const struct mptcp_ext *mpext)
+ {
+ 	return __mptcp_make_csum(mpext->data_seq, mpext->subflow_seq, mpext->data_len,
+ 				 ~csum_unfold(mpext->csum));
+ }
+ 
++static void put_len_csum(u16 len, __sum16 csum, void *data)
++{
++	__sum16 *sumptr = data + 2;
++	__be16 *ptr = data;
++
++	put_unaligned_be16(len, ptr);
++
++	put_unaligned(csum, sumptr);
++}
++
+ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
+ 			 struct mptcp_out_options *opts)
+ {
+@@ -1315,8 +1325,9 @@ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
+ 			put_unaligned_be32(mpext->subflow_seq, ptr);
+ 			ptr += 1;
+ 			if (opts->csum_reqd) {
+-				put_unaligned_be32(mpext->data_len << 16 |
+-						   mptcp_make_csum(mpext), ptr);
++				put_len_csum(mpext->data_len,
++					     mptcp_make_csum(mpext),
++					     ptr);
+ 			} else {
+ 				put_unaligned_be32(mpext->data_len << 16 |
+ 						   TCPOPT_NOP << 8 | TCPOPT_NOP, ptr);
+@@ -1364,11 +1375,12 @@ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
+ 			goto mp_capable_done;
+ 
+ 		if (opts->csum_reqd) {
+-			put_unaligned_be32(opts->data_len << 16 |
+-					   __mptcp_make_csum(opts->data_seq,
+-							     opts->subflow_seq,
+-							     opts->data_len,
+-							     ~csum_unfold(opts->csum)), ptr);
++			put_len_csum(opts->data_len,
++				     __mptcp_make_csum(opts->data_seq,
++						       opts->subflow_seq,
++						       opts->data_len,
++						       ~csum_unfold(opts->csum)),
++				     ptr);
+ 		} else {
+ 			put_unaligned_be32(opts->data_len << 16 |
+ 					   TCPOPT_NOP << 8 | TCPOPT_NOP, ptr);
+diff --git a/net/mptcp/protocol.h b/net/mptcp/protocol.h
+index 6bcdaf01f483..72a259a74b57 100644
+--- a/net/mptcp/protocol.h
++++ b/net/mptcp/protocol.h
+@@ -718,7 +718,7 @@ void mptcp_token_destroy(struct mptcp_sock *msk);
+ void mptcp_crypto_key_sha(u64 key, u32 *token, u64 *idsn);
+ 
+ void mptcp_crypto_hmac_sha(u64 key1, u64 key2, u8 *msg, int len, void *hmac);
+-u16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum);
++__sum16 __mptcp_make_csum(u64 data_seq, u32 subflow_seq, u16 data_len, __wsum sum);
+ 
+ void __init mptcp_pm_init(void);
+ void mptcp_pm_data_init(struct mptcp_sock *msk);
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 04afead7316f..9c7deffe7cb6 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -846,7 +846,7 @@ static enum mapping_status validate_data_csum(struct sock *ssk, struct sk_buff *
+ {
+ 	struct mptcp_subflow_context *subflow = mptcp_subflow_ctx(ssk);
+ 	u32 offset, seq, delta;
+-	u16 csum;
++	__sum16 csum;
+ 	int len;
+ 
+ 	if (!csum_reqd)
 -- 
 2.35.1
 
