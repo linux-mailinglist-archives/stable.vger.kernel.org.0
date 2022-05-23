@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9368F53174E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8CA9531CE4
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239898AbiEWRSN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60434 "EHLO
+        id S240932AbiEWR3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240561AbiEWRQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:29 -0400
+        with ESMTP id S240489AbiEWRZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C162571D95;
-        Mon, 23 May 2022 10:15:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9144A11449;
+        Mon, 23 May 2022 10:21:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7AE8CB811CC;
-        Mon, 23 May 2022 17:13:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9B86C36AE7;
-        Mon, 23 May 2022 17:13:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9F22B811FE;
+        Mon, 23 May 2022 17:20:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C61C34115;
+        Mon, 23 May 2022 17:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325989;
-        bh=V4ztirCZvI7TkmIHEYzWcBUTEshg8t47dAxHMOJ2Es8=;
+        s=korg; t=1653326445;
+        bh=+Amairj8U8GW1OyfSYV76KxnNpCLyPfmgJ3BR4dJjmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9oaFD2f+Cc7ioqIJmk4XVTSpCelnQze+jbpkAkPDUkU5Uje8kjvza7lNQL3njHmi
-         VyNIib60gK5RlqMIntkTX75MiB/FqGpHfrxNcxSWLvwrxWe5u6IMitS+pDtlsri2pI
-         GGuPANI43pa3zv0hoQJfYGC7NhXmhWLGek5BANPo=
+        b=DICNcjAuT4ACAxhg8E2JF0MGUcwmb4L9vFm/9lD/fboQ9iwbCt88EgP49IncDHZGQ
+         VutfaILcQkPOJ8E9mKv6VAM+WTZXoAcQOBy1ToswqUs3pIHLVtZBbQrJqypeehwXtU
+         aImsI6dqXElP5u4r/epTUiHILO/Dcor9Iw/rdSNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felix Fu <foyjog@gmail.com>, Al Viro <viro@zeniv.linux.org.uk>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Meena Shanmugam <meenashanmugam@google.com>
-Subject: [PATCH 5.4 25/68] SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
-Date:   Mon, 23 May 2022 19:04:52 +0200
-Message-Id: <20220523165806.781218013@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 084/132] ice: fix possible under reporting of ethtool Tx and Rx statistics
+Date:   Mon, 23 May 2022 19:04:53 +0200
+Message-Id: <20220523165837.042443737@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +55,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meena Shanmugam <meenashanmugam@google.com>
+From: Paul Greenwalt <paul.greenwalt@intel.com>
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+[ Upstream commit 31b6298fd8e29effe9ed6b77351ac5969be56ce0 ]
 
-commit f00432063db1a0db484e85193eccc6845435b80e upstream.
+The hardware statistics counters are not cleared during resets so the
+drivers first access is to initialize the baseline and then subsequent
+reads are for reporting the counters. The statistics counters are read
+during the watchdog subtask when the interface is up. If the baseline
+is not initialized before the interface is up, then there can be a brief
+window in which some traffic can be transmitted/received before the
+initial baseline reading takes place.
 
-We must ensure that all sockets are closed before we call xprt_free()
-and release the reference to the net namespace. The problem is that
-calling fput() will defer closing the socket until delayed_fput() gets
-called.
-Let's fix the situation by allowing rpciod and the transport teardown
-code (which runs on the system wq) to call __fput_sync(), and directly
-close the socket.
+Directly initialize ethtool statistics in driver open so the baseline will
+be initialized when the interface is up, and any dropped packets
+incremented before the interface is up won't be reported.
 
-Reported-by: Felix Fu <foyjog@gmail.com>
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Fixes: a73881c96d73 ("SUNRPC: Fix an Oops in udp_poll()")
-Cc: stable@vger.kernel.org # 5.1.x: 3be232f11a3c: SUNRPC: Prevent immediate close+reconnect
-Cc: stable@vger.kernel.org # 5.1.x: 89f42494f92f: SUNRPC: Don't call connect() more than once on a TCP socket
-Cc: stable@vger.kernel.org # 5.1.x
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[meenashanmugam: Fix merge conflict in xprt_connect]
-Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 28dc1b86f8ea9 ("ice: ignore dropped packets during init")
+Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/file_table.c       |    1 +
- net/sunrpc/xprt.c     |    5 +----
- net/sunrpc/xprtsock.c |   16 +++++++++++++---
- 3 files changed, 15 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/fs/file_table.c
-+++ b/fs/file_table.c
-@@ -375,6 +375,7 @@ void __fput_sync(struct file *file)
- }
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 27b5c75ce386..188abf36a5b2 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -5656,9 +5656,10 @@ static int ice_up_complete(struct ice_vsi *vsi)
+ 		netif_carrier_on(vsi->netdev);
+ 	}
  
- EXPORT_SYMBOL(fput);
-+EXPORT_SYMBOL(__fput_sync);
- 
- void __init files_init(void)
- {
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -868,10 +868,7 @@ void xprt_connect(struct rpc_task *task)
- 	if (!xprt_lock_write(xprt, task))
- 		return;
- 
--	if (test_and_clear_bit(XPRT_CLOSE_WAIT, &xprt->state))
--		xprt->ops->close(xprt);
+-	/* clear this now, and the first stats read will be used as baseline */
+-	vsi->stat_offsets_loaded = false;
 -
--	if (!xprt_connected(xprt)) {
-+	if (!xprt_connected(xprt) && !test_bit(XPRT_CLOSE_WAIT, &xprt->state)) {
- 		task->tk_rqstp->rq_connect_cookie = xprt->connect_cookie;
- 		rpc_sleep_on_timeout(&xprt->pending, task, NULL,
- 				xprt_request_timeout(task->tk_rqstp));
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -989,7 +989,7 @@ static int xs_local_send_request(struct
- 
- 	/* Close the stream if the previous transmission was incomplete */
- 	if (xs_send_request_was_aborted(transport, req)) {
--		xs_close(xprt);
-+		xprt_force_disconnect(xprt);
- 		return -ENOTCONN;
- 	}
- 
-@@ -1027,7 +1027,7 @@ static int xs_local_send_request(struct
- 			-status);
- 		/* fall through */
- 	case -EPIPE:
--		xs_close(xprt);
-+		xprt_force_disconnect(xprt);
- 		status = -ENOTCONN;
- 	}
- 
-@@ -1303,6 +1303,16 @@ static void xs_reset_transport(struct so
- 
- 	if (sk == NULL)
- 		return;
-+	/*
-+	 * Make sure we're calling this in a context from which it is safe
-+	 * to call __fput_sync(). In practice that means rpciod and the
-+	 * system workqueue.
++	/* Perform an initial read of the statistics registers now to
++	 * set the baseline so counters are ready when interface is up
 +	 */
-+	if (!(current->flags & PF_WQ_WORKER)) {
-+		WARN_ON_ONCE(1);
-+		set_bit(XPRT_CLOSE_WAIT, &xprt->state);
-+		return;
-+	}
++	ice_update_eth_stats(vsi);
+ 	ice_service_task_schedule(pf);
  
- 	if (atomic_read(&transport->xprt.swapper))
- 		sk_clear_memalloc(sk);
-@@ -1326,7 +1336,7 @@ static void xs_reset_transport(struct so
- 	mutex_unlock(&transport->recv_mutex);
- 
- 	trace_rpc_socket_close(xprt, sock);
--	fput(filp);
-+	__fput_sync(filp);
- 
- 	xprt_disconnect_done(xprt);
- }
+ 	return 0;
+-- 
+2.35.1
+
 
 
