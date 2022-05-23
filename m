@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF095316F0
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E07F531657
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240951AbiEWR3Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
+        id S242184AbiEWRkN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239937AbiEWRZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:18 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43AD787A0C;
-        Mon, 23 May 2022 10:20:56 -0700 (PDT)
+        with ESMTP id S243820AbiEWRi2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C1673567;
+        Mon, 23 May 2022 10:32:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D477B60AB8;
-        Mon, 23 May 2022 17:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC807C385AA;
-        Mon, 23 May 2022 17:18:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DE23B8122D;
+        Mon, 23 May 2022 17:30:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8F74C385AA;
+        Mon, 23 May 2022 17:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326326;
-        bh=YpVawoi7xCkGSEtVaEEqrpuhvW6Am6CjBJvohnMHpGY=;
+        s=korg; t=1653327027;
+        bh=RGM320wqGVhKSeycGOcLU5m9mfigPzUiOf7ABwtT81w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svx/qtRHKfKBUwelJ7TyWdu5fCrUYksj53mUXAllR9Qiwj05uEDhIG9v682AJWo1t
-         KU652p4YgDZdqG7Oul0oyTCg3pKe5th/mvSf8oh57qGLDNFLOQB+si7NcBxbjMaOvR
-         slt5/NCUiL1ut8AtR6Gl+hWVLpofXa1SB7bdl5W4=
+        b=SYh/7k+67MQnfSOx9/x+FqZ+VviL3cv8RURCBGSLTQUJMBZbWHgLp3Yl95aMvGPvE
+         b8sYdtC0Ky7sMYY/aUgGoYAJYWp4flddsP+cPKmViXuKdoK3TuALAgw39gfyhXwSQl
+         FiGEkMjucxHoM97BhQ4KxVWoZaJyrheANgfhKwV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Werner Sembach <wse@tuxedocomputers.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 046/132] ALSA: hda/realtek: Add quirk for TongFang devices with pop noise
+        stable@vger.kernel.org,
+        Michal Wilczynski <michal.wilczynski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan <gurucharanx.g@intel.com>
+Subject: [PATCH 5.17 098/158] ice: Fix interrupt moderation settings getting cleared
 Date:   Mon, 23 May 2022 19:04:15 +0200
-Message-Id: <20220523165830.886991583@linuxfoundation.org>
+Message-Id: <20220523165847.710787622@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +56,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Werner Sembach <wse@tuxedocomputers.com>
+From: Michal Wilczynski <michal.wilczynski@intel.com>
 
-commit 8b3b2392ed68bcd17c7eb84ca615ce1e5f115b99 upstream.
+[ Upstream commit bf13502ed5f941b0777b3fd1e24dac5d93f3886c ]
 
-When audio stops playing there is an audible "pop"-noise when using
-headphones on the TongFang GMxMRxx, GKxNRxx, GMxZGxx, GMxTGxx and GMxAGxx.
+Adaptive-rx and Adaptive-tx are interrupt moderation settings
+that can be enabled/disabled using ethtool:
+ethtool -C ethX adaptive-rx on/off adaptive-tx on/off
 
-This quirk fixes this mostly.
+Unfortunately those settings are getting cleared after
+changing number of queues, or in ethtool world 'channels':
+ethtool -L ethX rx 1 tx 1
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220512180956.281804-1-wse@tuxedocomputers.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Clearing was happening due to introduction of bit fields
+in ice_ring_container struct. This way only itr_setting
+bits were rebuilt during ice_vsi_rebuild_set_coalesce().
+
+Introduce an anonymous struct of bitfields and create a
+union to refer to them as a single variable.
+This way variable can be easily saved and restored.
+
+Fixes: 61dc79ced7aa ("ice: Restore interrupt throttle settings after VSI rebuild")
+Signed-off-by: Michal Wilczynski <michal.wilczynski@intel.com>
+Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_lib.c  | 16 ++++++++--------
+ drivers/net/ethernet/intel/ice/ice_txrx.h | 11 ++++++++---
+ 2 files changed, 16 insertions(+), 11 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9076,6 +9076,14 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1c06, 0x2013, "Lemote A1802", ALC269_FIXUP_LEMOTE_A1802),
- 	SND_PCI_QUIRK(0x1c06, 0x2015, "Lemote A190X", ALC269_FIXUP_LEMOTE_A190X),
- 	SND_PCI_QUIRK(0x1d05, 0x1132, "TongFang PHxTxX1", ALC256_FIXUP_SET_COEF_DEFAULTS),
-+	SND_PCI_QUIRK(0x1d05, 0x1096, "TongFang GMxMRxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x1100, "TongFang GKxNRxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x1111, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x1119, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x1129, "TongFang GMxZGxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x1147, "TongFang GMxTGxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x115c, "TongFang GMxTGxx", ALC269_FIXUP_NO_SHUTUP),
-+	SND_PCI_QUIRK(0x1d05, 0x121b, "TongFang GMxAGxx", ALC269_FIXUP_NO_SHUTUP),
- 	SND_PCI_QUIRK(0x1d72, 0x1602, "RedmiBook", ALC255_FIXUP_XIAOMI_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1d72, 0x1701, "XiaomiNotebook Pro", ALC298_FIXUP_DELL1_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1d72, 0x1901, "RedmiBook 14", ALC256_FIXUP_ASUS_HEADSET_MIC),
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 15bb6f001a04..5f86cc1cfd09 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -3207,8 +3207,8 @@ ice_vsi_rebuild_get_coalesce(struct ice_vsi *vsi,
+ 	ice_for_each_q_vector(vsi, i) {
+ 		struct ice_q_vector *q_vector = vsi->q_vectors[i];
+ 
+-		coalesce[i].itr_tx = q_vector->tx.itr_setting;
+-		coalesce[i].itr_rx = q_vector->rx.itr_setting;
++		coalesce[i].itr_tx = q_vector->tx.itr_settings;
++		coalesce[i].itr_rx = q_vector->rx.itr_settings;
+ 		coalesce[i].intrl = q_vector->intrl;
+ 
+ 		if (i < vsi->num_txq)
+@@ -3264,21 +3264,21 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
+ 		 */
+ 		if (i < vsi->alloc_rxq && coalesce[i].rx_valid) {
+ 			rc = &vsi->q_vectors[i]->rx;
+-			rc->itr_setting = coalesce[i].itr_rx;
++			rc->itr_settings = coalesce[i].itr_rx;
+ 			ice_write_itr(rc, rc->itr_setting);
+ 		} else if (i < vsi->alloc_rxq) {
+ 			rc = &vsi->q_vectors[i]->rx;
+-			rc->itr_setting = coalesce[0].itr_rx;
++			rc->itr_settings = coalesce[0].itr_rx;
+ 			ice_write_itr(rc, rc->itr_setting);
+ 		}
+ 
+ 		if (i < vsi->alloc_txq && coalesce[i].tx_valid) {
+ 			rc = &vsi->q_vectors[i]->tx;
+-			rc->itr_setting = coalesce[i].itr_tx;
++			rc->itr_settings = coalesce[i].itr_tx;
+ 			ice_write_itr(rc, rc->itr_setting);
+ 		} else if (i < vsi->alloc_txq) {
+ 			rc = &vsi->q_vectors[i]->tx;
+-			rc->itr_setting = coalesce[0].itr_tx;
++			rc->itr_settings = coalesce[0].itr_tx;
+ 			ice_write_itr(rc, rc->itr_setting);
+ 		}
+ 
+@@ -3292,12 +3292,12 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
+ 	for (; i < vsi->num_q_vectors; i++) {
+ 		/* transmit */
+ 		rc = &vsi->q_vectors[i]->tx;
+-		rc->itr_setting = coalesce[0].itr_tx;
++		rc->itr_settings = coalesce[0].itr_tx;
+ 		ice_write_itr(rc, rc->itr_setting);
+ 
+ 		/* receive */
+ 		rc = &vsi->q_vectors[i]->rx;
+-		rc->itr_setting = coalesce[0].itr_rx;
++		rc->itr_settings = coalesce[0].itr_rx;
+ 		ice_write_itr(rc, rc->itr_setting);
+ 
+ 		vsi->q_vectors[i]->intrl = coalesce[0].intrl;
+diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
+index b7b3bd4816f0..ec4733272034 100644
+--- a/drivers/net/ethernet/intel/ice/ice_txrx.h
++++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
+@@ -379,9 +379,14 @@ struct ice_ring_container {
+ 	/* this matches the maximum number of ITR bits, but in usec
+ 	 * values, so it is shifted left one bit (bit zero is ignored)
+ 	 */
+-	u16 itr_setting:13;
+-	u16 itr_reserved:2;
+-	u16 itr_mode:1;
++	union {
++		struct {
++			u16 itr_setting:13;
++			u16 itr_reserved:2;
++			u16 itr_mode:1;
++		};
++		u16 itr_settings;
++	};
+ 	enum ice_container_type type;
+ };
+ 
+-- 
+2.35.1
+
 
 
