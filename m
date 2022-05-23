@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2671531C4E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30E1A531746
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237616AbiEWRJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:09:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
+        id S241371AbiEWRaH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239148AbiEWRJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC836C57E;
-        Mon, 23 May 2022 10:08:50 -0700 (PDT)
+        with ESMTP id S242642AbiEWR1z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:55 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 372E081991;
+        Mon, 23 May 2022 10:23:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0517EB81200;
-        Mon, 23 May 2022 17:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32020C385A9;
-        Mon, 23 May 2022 17:08:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 748816150D;
+        Mon, 23 May 2022 17:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76852C385A9;
+        Mon, 23 May 2022 17:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325727;
-        bh=4QCZPleviOfuZ1ZwMThHIKWJ0OshKRzdD/4GOWZGbTQ=;
+        s=korg; t=1653326040;
+        bh=zwcO8lqTqAcSsX0UaXjLztxupOJ62iPjlXdzDDNc34s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eIW1PKvYBeEkScdkrpDAZ53/SvxXE6XloqzuhqPV+Zg1wX9kXcPwl/TDwh4XwseI1
-         j+KVZ2pcFN6hdEceQs1VUYQzwShQVLqEYETkzw0yg9Sq7nIVS+OWcwHr5fJOG2TW3P
-         HXoFM7eBX1odDq0iY9FtROOZP1wgGv3iLMFLOl+M=
+        b=0e6uF1lttUbpwVMpMRWzofsNjXRiOpCoVDcmgNKHqMwLy2nPAK/heeipZm2rJQ+eL
+         Vk8eUcMgS1Rz4WGc7MVjPCQEJFxwGzZaYXF+FhHVH06lIpGDTQ/KnyJQES47NaYflh
+         C0TEIZbG9zR38HVFuoHxQsDzIrQ0iAQgL4rt5Ybs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Haibo Chen <haibo.chen@nxp.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/33] gpio: gpio-vf610: do not touch other bits when set the target bit
+Subject: [PATCH 5.4 46/68] ARM: 9196/1: spectre-bhb: enable for Cortex-A15
 Date:   Mon, 23 May 2022 19:05:13 +0200
-Message-Id: <20220523165752.186790332@linuxfoundation.org>
+Message-Id: <20220523165810.180099864@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
-References: <20220523165746.957506211@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haibo Chen <haibo.chen@nxp.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 9bf3ac466faa83d51a8fe9212131701e58fdef74 ]
+[ Upstream commit 0dc14aa94ccd8ba35eb17a0f9b123d1566efd39e ]
 
-For gpio controller contain register PDDR, when set one target bit,
-current logic will clear all other bits, this is wrong. Use operator
-'|=' to fix it.
+The Spectre-BHB mitigations were inadvertently left disabled for
+Cortex-A15, due to the fact that cpu_v7_bugs_init() is not called in
+that case. So fix that.
 
-Fixes: 659d8a62311f ("gpio: vf610: add imx7ulp support")
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
-Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-vf610.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/arm/mm/proc-v7-bugs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
-index 3210fba16a9b..91d6966c3d29 100644
---- a/drivers/gpio/gpio-vf610.c
-+++ b/drivers/gpio/gpio-vf610.c
-@@ -135,9 +135,13 @@ static int vf610_gpio_direction_output(struct gpio_chip *chip, unsigned gpio,
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index 097ef85bb7f2..bcb9181601d9 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -301,6 +301,7 @@ void cpu_v7_ca15_ibe(void)
  {
- 	struct vf610_gpio_port *port = gpiochip_get_data(chip);
- 	unsigned long mask = BIT(gpio);
-+	u32 val;
+ 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(0)))
+ 		cpu_v7_spectre_v2_init();
++	cpu_v7_spectre_bhb_init();
+ }
  
--	if (port->sdata && port->sdata->have_paddr)
--		vf610_gpio_writel(mask, port->gpio_base + GPIO_PDDR);
-+	if (port->sdata && port->sdata->have_paddr) {
-+		val = vf610_gpio_readl(port->gpio_base + GPIO_PDDR);
-+		val |= mask;
-+		vf610_gpio_writel(val, port->gpio_base + GPIO_PDDR);
-+	}
- 
- 	vf610_gpio_set(chip, gpio, value);
- 
+ void cpu_v7_bugs_init(void)
 -- 
 2.35.1
 
