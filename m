@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F592531611
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D47531CA4
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239815AbiEWRNE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:13:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34800 "EHLO
+        id S241328AbiEWRnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240193AbiEWRLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:11:46 -0400
+        with ESMTP id S243118AbiEWRhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:54 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 532E310A4;
-        Mon, 23 May 2022 10:11:14 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD4095D650;
+        Mon, 23 May 2022 10:32:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E1F8B61507;
-        Mon, 23 May 2022 17:11:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7AB8C385A9;
-        Mon, 23 May 2022 17:11:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E5E6761245;
+        Mon, 23 May 2022 17:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E013AC385AA;
+        Mon, 23 May 2022 17:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325873;
-        bh=VXtcAqn6/M6grVmBFWvrRlt1YfHPvmVTbARNuX4JhIs=;
+        s=korg; t=1653327053;
+        bh=ylNL2KoBbgg1rlNKg/jmvhK/PANiXZGeYbNkevaViIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piDoXEo54M1KxdfCC6Z4V6qNj+FfE4HrpG0CfvpZyqsIv4z1knTOexyqmArHbYQRq
-         b2jh1XQIqGdPusiDj/jPPm1CLBxuLp3gaqlBhdtjOR0WgqBjQvF4Z0ak7s0iIVkQYk
-         /Nl4oEyRdeRx06kPM2RF6xPV3eDchSZnbABf8Tjc=
+        b=nXbY7+Ps4rPWsVhgj7VPGmOwoUqtqCmVvF5Dkn7RxQ+NuiF4RNZU2LoUluPd4oGLv
+         udzDu4ZlW2sHcWASHugfhGFzFsDUD+2GnXSUORTuoMQYCFe4yaE3Bn1xpmNHSSw6pm
+         ymgK4zdScvYIkfv9pIZ8y+XHXSlxAR2LZOzM8sso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
-        Brian Masney <bmasney@redhat.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.19 15/44] crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
+        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 142/158] platform/x86: thinkpad_acpi: Correct dual fan probe
 Date:   Mon, 23 May 2022 19:04:59 +0200
-Message-Id: <20220523165756.026136368@linuxfoundation.org>
+Message-Id: <20220523165853.830772851@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-commit 16287397ec5c08aa58db6acf7dbc55470d78087d upstream.
+[ Upstream commit aa2fef6f40e6ccc22e932b36898f260f0e5a021a ]
 
-The commit referenced in the Fixes tag removed the 'break' from the else
-branch in qcom_rng_read(), causing an infinite loop whenever 'max' is
-not a multiple of WORD_SZ. This can be reproduced e.g. by running:
+There was an issue with the dual fan probe whereby the probe was
+failing as it assuming that second_fan support was not available.
 
-    kcapi-rng -b 67 >/dev/null
+Corrected the logic so the probe works correctly. Cleaned up so
+quirks only used if 2nd fan not detected.
 
-There are many ways to fix this without adding back the 'break', but
-they all seem more awkward than simply adding it back, so do just that.
+Tested on X1 Carbon 10 (2 fans), X1 Carbon 9 (2 fans) and T490 (1 fan)
 
-Tested on a machine with Qualcomm Amberwing processor.
-
-Fixes: a680b1832ced ("crypto: qcom-rng - ensure buffer for generate is completely filled")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Reviewed-by: Brian Masney <bmasney@redhat.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Link: https://lore.kernel.org/r/20220502191200.63470-1-markpearson@lenovo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qcom-rng.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/thinkpad_acpi.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
---- a/drivers/crypto/qcom-rng.c
-+++ b/drivers/crypto/qcom-rng.c
-@@ -64,6 +64,7 @@ static int qcom_rng_read(struct qcom_rng
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index c43586f1cb4b..0ea71416d292 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -8766,24 +8766,27 @@ static int __init fan_init(struct ibm_init_struct *iibm)
+ 			fan_status_access_mode = TPACPI_FAN_RD_TPEC;
+ 			if (quirks & TPACPI_FAN_Q1)
+ 				fan_quirk1_setup();
+-			if (quirks & TPACPI_FAN_2FAN) {
+-				tp_features.second_fan = 1;
+-				pr_info("secondary fan support enabled\n");
+-			}
+-			if (quirks & TPACPI_FAN_2CTL) {
+-				tp_features.second_fan = 1;
+-				tp_features.second_fan_ctl = 1;
+-				pr_info("secondary fan control enabled\n");
+-			}
+ 			/* Try and probe the 2nd fan */
++			tp_features.second_fan = 1; /* needed for get_speed to work */
+ 			res = fan2_get_speed(&speed);
+ 			if (res >= 0) {
+ 				/* It responded - so let's assume it's there */
+ 				tp_features.second_fan = 1;
+ 				tp_features.second_fan_ctl = 1;
+ 				pr_info("secondary fan control detected & enabled\n");
++			} else {
++				/* Fan not auto-detected */
++				tp_features.second_fan = 0;
++				if (quirks & TPACPI_FAN_2FAN) {
++					tp_features.second_fan = 1;
++					pr_info("secondary fan support enabled\n");
++				}
++				if (quirks & TPACPI_FAN_2CTL) {
++					tp_features.second_fan = 1;
++					tp_features.second_fan_ctl = 1;
++					pr_info("secondary fan control enabled\n");
++				}
+ 			}
+-
  		} else {
- 			/* copy only remaining bytes */
- 			memcpy(data, &val, max - currsize);
-+			break;
- 		}
- 	} while (currsize < max);
- 
+ 			pr_err("ThinkPad ACPI EC access misbehaving, fan status and control unavailable\n");
+ 			return -ENODEV;
+-- 
+2.35.1
+
 
 
