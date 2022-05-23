@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C11235316D2
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 005A5531AF0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239788AbiEWRM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:12:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
+        id S229643AbiEWRca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:32:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239705AbiEWRKh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:37 -0400
+        with ESMTP id S241656AbiEWR04 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:56 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A35826B674;
-        Mon, 23 May 2022 10:10:16 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F17074DF7;
+        Mon, 23 May 2022 10:22:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83109B81203;
-        Mon, 23 May 2022 17:09:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D99A6C385A9;
-        Mon, 23 May 2022 17:09:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4BA6B81212;
+        Mon, 23 May 2022 17:22:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37BD4C385A9;
+        Mon, 23 May 2022 17:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325796;
-        bh=k25EnSYBuBHACKjBV50Gd+fEfovRN5hpv6egPbQrWPY=;
+        s=korg; t=1653326526;
+        bh=qNHebJRGb8uPHTrOIkZkAqrNApxnintuF7GRvK2g2j0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=017YhRiQEkA5vhv+0Sgl/mPZk3cXFa7zPrfuw4Zz67R+JAQ41Ffvx1dE+QBlrcMqK
-         bi2MeqV6h9Xz17gz0y33/ZREflGUWjCAKthZx8NsSKygo/w9WnEQ5FDTfihMR2ANUG
-         1qLBRjhseq5fCmwu4ummT9ujY71c1PwzEaLqP/S0=
+        b=LdcfPcxKoiXSLLzYoby1ZFgcTcBlY4lzUvENuMSGeW4lK4fZ/QPYLChruHK5gcj9l
+         rSPQtxT01T0v5pUD73sZyLpFOWRGtd+KCvwve8+OARam7xg8vH11hQwNvsGKPLob2j
+         CXbZex3veR8/WYDyM/8bs0K9ub6fnVykMAe/hucA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
+        Zixuan Fu <r33s3n6@gmail.com>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 06/44] MIPS: lantiq: check the return value of kzalloc()
+Subject: [PATCH 5.15 081/132] net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
 Date:   Mon, 23 May 2022 19:04:50 +0200
-Message-Id: <20220523165754.589700916@linuxfoundation.org>
+Message-Id: <20220523165836.529172539@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
-References: <20220523165752.797318097@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,133 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoke Wang <xkernel.wang@foxmail.com>
+From: Zixuan Fu <r33s3n6@gmail.com>
 
-[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
+[ Upstream commit 9e7fef9521e73ca8afd7da9e58c14654b02dfad8 ]
 
-kzalloc() is a memory allocation function which can return NULL when
-some internal memory errors happen. So it is better to check the
-return value of it to prevent potential wrong memory access or
-memory leak.
+In vmxnet3_rq_alloc_rx_buf(), when dma_map_single() fails, rbi->skb is
+freed immediately. Similarly, in another branch, when dma_map_page() fails,
+rbi->page is also freed. In the two cases, vmxnet3_rq_alloc_rx_buf()
+returns an error to its callers vmxnet3_rq_init() -> vmxnet3_rq_init_all()
+-> vmxnet3_activate_dev(). Then vmxnet3_activate_dev() calls
+vmxnet3_rq_cleanup_all() in error handling code, and rbi->skb or rbi->page
+are freed again in vmxnet3_rq_cleanup_all(), causing use-after-free bugs.
 
-Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To fix these possible bugs, rbi->skb and rbi->page should be cleared after
+they are freed.
+
+The error log in our fault-injection testing is shown as follows:
+
+[   14.319016] BUG: KASAN: use-after-free in consume_skb+0x2f/0x150
+...
+[   14.321586] Call Trace:
+...
+[   14.325357]  consume_skb+0x2f/0x150
+[   14.325671]  vmxnet3_rq_cleanup_all+0x33a/0x4e0 [vmxnet3]
+[   14.326150]  vmxnet3_activate_dev+0xb9d/0x2ca0 [vmxnet3]
+[   14.326616]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.361675] Allocated by task 351:
+...
+[   14.362688]  __netdev_alloc_skb+0x1b3/0x6f0
+[   14.362960]  vmxnet3_rq_alloc_rx_buf+0x1b0/0x8d0 [vmxnet3]
+[   14.363317]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.363661]  vmxnet3_open+0x387/0x470 [vmxnet3]
+...
+[   14.367309]
+[   14.367412] Freed by task 351:
+...
+[   14.368932]  __dev_kfree_skb_any+0xd2/0xe0
+[   14.369193]  vmxnet3_rq_alloc_rx_buf+0x71e/0x8d0 [vmxnet3]
+[   14.369544]  vmxnet3_activate_dev+0x3e3/0x2ca0 [vmxnet3]
+[   14.369883]  vmxnet3_open+0x387/0x470 [vmxnet3]
+[   14.370174]  __dev_open+0x28a/0x420
+[   14.370399]  __dev_change_flags+0x192/0x590
+[   14.370667]  dev_change_flags+0x7a/0x180
+[   14.370919]  do_setlink+0xb28/0x3570
+[   14.371150]  rtnl_newlink+0x1160/0x1740
+[   14.371399]  rtnetlink_rcv_msg+0x5bf/0xa50
+[   14.371661]  netlink_rcv_skb+0x1cd/0x3e0
+[   14.371913]  netlink_unicast+0x5dc/0x840
+[   14.372169]  netlink_sendmsg+0x856/0xc40
+[   14.372420]  ____sys_sendmsg+0x8a7/0x8d0
+[   14.372673]  __sys_sendmsg+0x1c2/0x270
+[   14.372914]  do_syscall_64+0x41/0x90
+[   14.373145]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+...
+
+Fixes: 5738a09d58d5a ("vmxnet3: fix checks for dma mapping errors")
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Signed-off-by: Zixuan Fu <r33s3n6@gmail.com>
+Link: https://lore.kernel.org/r/20220514050656.2636588-1-r33s3n6@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/lantiq/falcon/sysctrl.c |  2 ++
- arch/mips/lantiq/xway/gptu.c      |  2 ++
- arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
- 3 files changed, 34 insertions(+), 16 deletions(-)
+ drivers/net/vmxnet3/vmxnet3_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
-index 82bbd0e2e298..714d92659489 100644
---- a/arch/mips/lantiq/falcon/sysctrl.c
-+++ b/arch/mips/lantiq/falcon/sysctrl.c
-@@ -169,6 +169,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = NULL;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
-index e304aabd6678..7d4081d67d61 100644
---- a/arch/mips/lantiq/xway/gptu.c
-+++ b/arch/mips/lantiq/xway/gptu.c
-@@ -124,6 +124,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev_name(dev);
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
-index e0af39b33e28..293ebb833659 100644
---- a/arch/mips/lantiq/xway/sysctrl.c
-+++ b/arch/mips/lantiq/xway/sysctrl.c
-@@ -313,6 +313,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -336,6 +338,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
- {
- 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
-+	if (!clk)
-+		return;
- 	clk->cl.dev_id = dev;
- 	clk->cl.con_id = con;
- 	clk->cl.clk = clk;
-@@ -354,24 +358,28 @@ static void clkdev_add_pci(void)
- 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
- 
- 	/* main pci clock */
--	clk->cl.dev_id = "17000000.pci";
--	clk->cl.con_id = NULL;
--	clk->cl.clk = clk;
--	clk->rate = CLOCK_33M;
--	clk->rates = valid_pci_rates;
--	clk->enable = pci_enable;
--	clk->disable = pmu_disable;
--	clk->module = 0;
--	clk->bits = PMU_PCI;
--	clkdev_add(&clk->cl);
-+	if (clk) {
-+		clk->cl.dev_id = "17000000.pci";
-+		clk->cl.con_id = NULL;
-+		clk->cl.clk = clk;
-+		clk->rate = CLOCK_33M;
-+		clk->rates = valid_pci_rates;
-+		clk->enable = pci_enable;
-+		clk->disable = pmu_disable;
-+		clk->module = 0;
-+		clk->bits = PMU_PCI;
-+		clkdev_add(&clk->cl);
-+	}
- 
- 	/* use internal/external bus clock */
--	clk_ext->cl.dev_id = "17000000.pci";
--	clk_ext->cl.con_id = "external";
--	clk_ext->cl.clk = clk_ext;
--	clk_ext->enable = pci_ext_enable;
--	clk_ext->disable = pci_ext_disable;
--	clkdev_add(&clk_ext->cl);
-+	if (clk_ext) {
-+		clk_ext->cl.dev_id = "17000000.pci";
-+		clk_ext->cl.con_id = "external";
-+		clk_ext->cl.clk = clk_ext;
-+		clk_ext->enable = pci_ext_enable;
-+		clk_ext->disable = pci_ext_disable;
-+		clkdev_add(&clk_ext->cl);
-+	}
- }
- 
- /* xway socs can generate clocks on gpio pins */
-@@ -391,9 +399,15 @@ static void clkdev_add_clkout(void)
- 		char *name;
- 
- 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
-+		if (!name)
-+			continue;
- 		sprintf(name, "clkout%d", i);
- 
- 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
-+		if (!clk) {
-+			kfree(name);
-+			continue;
-+		}
- 		clk->cl.dev_id = "1f103000.cgu";
- 		clk->cl.con_id = name;
- 		clk->cl.clk = clk;
+diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
+index 5b0215b7c176..8ab86bbdbf5e 100644
+--- a/drivers/net/vmxnet3/vmxnet3_drv.c
++++ b/drivers/net/vmxnet3/vmxnet3_drv.c
+@@ -589,6 +589,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					dev_kfree_skb_any(rbi->skb);
++					rbi->skb = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
+@@ -613,6 +614,7 @@ vmxnet3_rq_alloc_rx_buf(struct vmxnet3_rx_queue *rq, u32 ring_idx,
+ 				if (dma_mapping_error(&adapter->pdev->dev,
+ 						      rbi->dma_addr)) {
+ 					put_page(rbi->page);
++					rbi->page = NULL;
+ 					rq->stats.rx_buf_alloc_failure++;
+ 					break;
+ 				}
 -- 
 2.35.1
 
