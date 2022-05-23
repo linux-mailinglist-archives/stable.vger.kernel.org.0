@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAFE5316C6
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B37F531B5B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239848AbiEWRS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:18:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34002 "EHLO
+        id S233254AbiEWRaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240570AbiEWRQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EC1A72212;
-        Mon, 23 May 2022 10:15:52 -0700 (PDT)
+        with ESMTP id S242115AbiEWR10 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:26 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5372E79802;
+        Mon, 23 May 2022 10:22:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60EB7B8121F;
-        Mon, 23 May 2022 17:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAF17C385A9;
-        Mon, 23 May 2022 17:15:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 827ACB81212;
+        Mon, 23 May 2022 17:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15F3C385A9;
+        Mon, 23 May 2022 17:22:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326105;
-        bh=Em6VDN095tlB4mBZm4+ai7DDqRwvok4lEQCa+cyHyY4=;
+        s=korg; t=1653326539;
+        bh=gyaOyE+b+/ZmSKL5VDSV4RHRE+86ekHfm27E14h51Ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aKZJIDl/FDDl1+Q5i0YE83a1xutycno35+JgxUYapdCm7nrVt4N+qj3uIEF4nfTpe
-         2QKMlivYPbwHFNugogwQmS4sg0ggYO5DAuF469c2whdCZOezYb0IUGPgn1Vp2dRfmD
-         MyG9ffayoGu1gXS/JH+RByknUpyOMqce87txGeYA=
+        b=hIK0qOYRmkpqJ6ZZiKvvS6ZTvMhJU5W+gYuzRKiFu+8J8e7/XCTurkhXpvOVHbHEO
+         m9ZqCmJomQxbbr/ulh6WsfpVnj3wVcXHVm35VmHjehNdNirFOyV5rh+RO2zfAXG322
+         C279g/njUsLz9XmEzGepwMK0mvbN2Yu6xjUkDsu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Gleb Chesnokov <Chesnokov.G@raidix.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 55/68] selftests: add ping test with ping_group_range tuned
+Subject: [PATCH 5.15 113/132] scsi: qla2xxx: Fix missed DMA unmap for aborted commands
 Date:   Mon, 23 May 2022 19:05:22 +0200
-Message-Id: <20220523165811.579043620@linuxfoundation.org>
+Message-Id: <20220523165842.265434495@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+From: Gleb Chesnokov <Chesnokov.G@raidix.com>
 
-[ Upstream commit e71b7f1f44d3d88c677769c85ef0171caf9fc89f ]
+[ Upstream commit 26f9ce53817a8fd84b69a73473a7de852a24c897 ]
 
-The 'ping' utility is able to manage two kind of sockets (raw or icmp),
-depending on the sysctl ping_group_range. By default, ping_group_range is
-set to '1 0', which forces ping to use an ip raw socket.
+Aborting commands that have already been sent to the firmware can
+cause BUG in qlt_free_cmd(): BUG_ON(cmd->sg_mapped)
 
-Let's replay the ping tests by allowing 'ping' to use the ip icmp socket.
-After the previous patch, ipv4 tests results are the same with both kinds
-of socket. For ipv6, there are a lot a new failures (the previous patch
-fixes only two cases).
+For instance:
 
-Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+ - Command passes rdx_to_xfer state, maps sgl, sends to the firmware
+
+ - Reset occurs, qla2xxx performs ISP error recovery, aborts the command
+
+ - Target stack calls qlt_abort_cmd() and then qlt_free_cmd()
+
+ - BUG_ON(cmd->sg_mapped) in qlt_free_cmd() occurs because sgl was not
+   unmapped
+
+Thus, unmap sgl in qlt_abort_cmd() for commands with the aborted flag set.
+
+Link: https://lore.kernel.org/r/AS8PR10MB4952D545F84B6B1DFD39EC1E9DEE9@AS8PR10MB4952.EURPRD10.PROD.OUTLOOK.COM
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Gleb Chesnokov <Chesnokov.G@raidix.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fcnal-test.sh | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/scsi/qla2xxx/qla_target.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/net/fcnal-test.sh b/tools/testing/selftests/net/fcnal-test.sh
-index 157822331954..d2ac09b35dcf 100755
---- a/tools/testing/selftests/net/fcnal-test.sh
-+++ b/tools/testing/selftests/net/fcnal-test.sh
-@@ -757,10 +757,16 @@ ipv4_ping()
- 	setup
- 	set_sysctl net.ipv4.raw_l3mdev_accept=1 2>/dev/null
- 	ipv4_ping_novrf
-+	setup
-+	set_sysctl net.ipv4.ping_group_range='0 2147483647' 2>/dev/null
-+	ipv4_ping_novrf
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index f5d32d830a9b..ae5eaa4a9283 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -3837,6 +3837,9 @@ int qlt_abort_cmd(struct qla_tgt_cmd *cmd)
  
- 	log_subsection "With VRF"
- 	setup "yes"
- 	ipv4_ping_vrf
-+	setup "yes"
-+	set_sysctl net.ipv4.ping_group_range='0 2147483647' 2>/dev/null
-+	ipv4_ping_vrf
- }
- 
- ################################################################################
-@@ -2005,10 +2011,16 @@ ipv6_ping()
- 	log_subsection "No VRF"
- 	setup
- 	ipv6_ping_novrf
-+	setup
-+	set_sysctl net.ipv4.ping_group_range='0 2147483647' 2>/dev/null
-+	ipv6_ping_novrf
- 
- 	log_subsection "With VRF"
- 	setup "yes"
- 	ipv6_ping_vrf
-+	setup "yes"
-+	set_sysctl net.ipv4.ping_group_range='0 2147483647' 2>/dev/null
-+	ipv6_ping_vrf
- }
- 
- ################################################################################
+ 	spin_lock_irqsave(&cmd->cmd_lock, flags);
+ 	if (cmd->aborted) {
++		if (cmd->sg_mapped)
++			qlt_unmap_sg(vha, cmd);
++
+ 		spin_unlock_irqrestore(&cmd->cmd_lock, flags);
+ 		/*
+ 		 * It's normal to see 2 calls in this path:
 -- 
 2.35.1
 
