@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E6653173B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A395531883
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239732AbiEWRJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:09:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
+        id S239753AbiEWRMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:12:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239524AbiEWRJ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:29 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8273E4EA07;
-        Mon, 23 May 2022 10:09:15 -0700 (PDT)
+        with ESMTP id S240531AbiEWRMb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:12:31 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C458762CCB;
+        Mon, 23 May 2022 10:11:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FCD0B811F6;
-        Mon, 23 May 2022 17:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD06DC385A9;
-        Mon, 23 May 2022 17:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B47861509;
+        Mon, 23 May 2022 17:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E404C34118;
+        Mon, 23 May 2022 17:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325750;
-        bh=cKXq3/EbTX8YVQiuqecQn9SX4Ky7zX2DwSuQqg0oBr0=;
+        s=korg; t=1653325809;
+        bh=G9ZRHRw/SjKlN1Cm8RgRF6kGTUhjJSALMeiIry7VasE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jxg88mqbLUpQ16rUg0IM4Ac3GchGfiA1jn6ysy5QI9Ng4iwgwXbblM9WNPGPBO5/e
-         wIUkSMU67wOBi8fmU3ZA/g8CrRIJccsm4EJbwNX2MfIN6QkSDq5nfCOU0MdLM8onFT
-         +DdAd6dg4wjZgrwdEG3JNLEtd8ew9wkkHLIHmhtg=
+        b=0qKOAybkDRj3DRcDBWp6VXdpzjCvAuBs9PSdcs7NPV1f+/DX703bfjCguU337i3Lq
+         +fVttgc9PnTegps2jxDEEUl0PyR5Nn8+8Yvw+YWusL3YqzEc0WcBCg7NHrMO1APeph
+         tZjmeeLR8sAk2aOpqTUlq8t8o7VNLT7OSJcy7flo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Ulf Hansson <ulf.hansson@linaro.org>,
         Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.14 13/33] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+Subject: [PATCH 4.19 18/44] mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
 Date:   Mon, 23 May 2022 19:05:02 +0200
-Message-Id: <20220523165750.023556838@linuxfoundation.org>
+Message-Id: <20220523165756.536633554@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
-References: <20220523165746.957506211@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +55,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 upstream
+commit 24ed3bd01d6a844fd5e8a75f48d0a3d10ed71bf9 upstream
 
-All callers of __mmc_switch() should now be specifying a valid timeout for
-the CMD6 command. However, just to be sure, let's print a warning and
-default to use the generic_cmd6_time in case the provided timeout_ms
-argument is zero.
-
-In this context, let's also simplify some of the corresponding code and
-clarify some related comments.
+The timeout values used while waiting for a CMD6 for BKOPS or a CACHE_FLUSH
+to complete, are not defined by the eMMC spec. However, a timeout of 10
+minutes as is currently being used, is just silly for both of these cases.
+Instead, let's specify more reasonable timeouts, 120s for BKOPS and 30s for
+CACHE_FLUSH.
 
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
+Link: https://lore.kernel.org/r/20200122142747.5690-2-ulf.hansson@linaro.org
 Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/mmc_ops.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/mmc/core/mmc_ops.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 --- a/drivers/mmc/core/mmc_ops.c
 +++ b/drivers/mmc/core/mmc_ops.c
-@@ -458,10 +458,6 @@ static int mmc_poll_for_busy(struct mmc_
- 	bool expired = false;
- 	bool busy = false;
+@@ -23,7 +23,9 @@
+ #include "host.h"
+ #include "mmc_ops.h"
  
--	/* We have an unspecified cmd timeout, use the fallback value. */
--	if (!timeout_ms)
--		timeout_ms = MMC_OPS_TIMEOUT_MS;
--
- 	/*
- 	 * In cases when not allowed to poll by using CMD13 or because we aren't
- 	 * capable of polling by using ->card_busy(), then rely on waiting the
-@@ -534,14 +530,20 @@ int __mmc_switch(struct mmc_card *card,
+-#define MMC_OPS_TIMEOUT_MS	(10 * 60 * 1000) /* 10 minute timeout */
++#define MMC_OPS_TIMEOUT_MS		(10 * 60 * 1000) /* 10min*/
++#define MMC_BKOPS_TIMEOUT_MS		(120 * 1000) /* 120s */
++#define MMC_CACHE_FLUSH_TIMEOUT_MS	(30 * 1000) /* 30s */
  
- 	mmc_retune_hold(host);
- 
-+	if (!timeout_ms) {
-+		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
-+			mmc_hostname(host));
-+		timeout_ms = card->ext_csd.generic_cmd6_time;
-+	}
-+
- 	/*
- 	 * If the cmd timeout and the max_busy_timeout of the host are both
- 	 * specified, let's validate them. A failure means we need to prevent
- 	 * the host from doing hw busy detection, which is done by converting
- 	 * to a R1 response instead of a R1B.
+ static const u8 tuning_blk_pattern_4bit[] = {
+ 	0xff, 0x0f, 0xff, 0x00, 0xff, 0xcc, 0xc3, 0xcc,
+@@ -947,7 +949,7 @@ void mmc_run_bkops(struct mmc_card *card
+ 	 * urgent levels by using an asynchronous background task, when idle.
  	 */
--	if (timeout_ms && host->max_busy_timeout &&
--		(timeout_ms > host->max_busy_timeout))
-+	if (host->max_busy_timeout &&
-+	    (timeout_ms > host->max_busy_timeout))
- 		use_r1b_resp = false;
+ 	err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+-			EXT_CSD_BKOPS_START, 1, MMC_OPS_TIMEOUT_MS);
++			 EXT_CSD_BKOPS_START, 1, MMC_BKOPS_TIMEOUT_MS);
+ 	if (err)
+ 		pr_warn("%s: Error %d starting bkops\n",
+ 			mmc_hostname(card->host), err);
+@@ -965,7 +967,8 @@ int mmc_flush_cache(struct mmc_card *car
  
- 	cmd.opcode = MMC_SWITCH;
-@@ -552,10 +554,6 @@ int __mmc_switch(struct mmc_card *card,
- 	cmd.flags = MMC_CMD_AC;
- 	if (use_r1b_resp) {
- 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
--		/*
--		 * A busy_timeout of zero means the host can decide to use
--		 * whatever value it finds suitable.
--		 */
- 		cmd.busy_timeout = timeout_ms;
- 	} else {
- 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
+ 	if (mmc_cache_enabled(card->host)) {
+ 		err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+-				EXT_CSD_FLUSH_CACHE, 1, 0);
++				 EXT_CSD_FLUSH_CACHE, 1,
++				 MMC_CACHE_FLUSH_TIMEOUT_MS);
+ 		if (err)
+ 			pr_err("%s: cache flush error %d\n",
+ 					mmc_hostname(card->host), err);
 
 
