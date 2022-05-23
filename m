@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02D1A531938
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2671531C4E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242060AbiEWRkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39372 "EHLO
+        id S237616AbiEWRJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:09:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243563AbiEWRiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:18 -0400
+        with ESMTP id S239148AbiEWRJU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:20 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDF9F71A3C;
-        Mon, 23 May 2022 10:32:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC836C57E;
+        Mon, 23 May 2022 10:08:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 793ADB80EB0;
-        Mon, 23 May 2022 17:31:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A38BBC385A9;
-        Mon, 23 May 2022 17:31:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0517EB81200;
+        Mon, 23 May 2022 17:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32020C385A9;
+        Mon, 23 May 2022 17:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327102;
-        bh=P7ifuMvgfCQC7c5AuL095K8fyYyVN8m4teyXLs5ZboM=;
+        s=korg; t=1653325727;
+        bh=4QCZPleviOfuZ1ZwMThHIKWJ0OshKRzdD/4GOWZGbTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3s1r76q4dkHaCBSyVdEwaT0ZMhdErNOUi1wvKTI6coogpcxJEo3hmIuEAKQnXRbj
-         4hq8A4t942K1lU4P/g7b+jzte3v5lsn6BtRU7kVlR8ND/5Hy6Hyc4Db/Ur9VrKWkH7
-         puF/TD0pX2kEMQHlTvQzcB7HiaQSBh5xzN5C9Dmo=
+        b=eIW1PKvYBeEkScdkrpDAZ53/SvxXE6XloqzuhqPV+Zg1wX9kXcPwl/TDwh4XwseI1
+         j+KVZ2pcFN6hdEceQs1VUYQzwShQVLqEYETkzw0yg9Sq7nIVS+OWcwHr5fJOG2TW3P
+         HXoFM7eBX1odDq0iY9FtROOZP1wgGv3iLMFLOl+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jae Hyun Yoo <quic_jaehyoo@quicinc.com>,
-        Rob Herring <robh@kernel.org>,
-        Andrew Jeffery <andrew@aj.id.au>, Joel Stanley <joel@jms.id.au>
-Subject: [PATCH 5.17 156/158] dt-bindings: pinctrl: aspeed-g6: remove FWQSPID group
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Haibo Chen <haibo.chen@nxp.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 24/33] gpio: gpio-vf610: do not touch other bits when set the target bit
 Date:   Mon, 23 May 2022 19:05:13 +0200
-Message-Id: <20220523165856.039264573@linuxfoundation.org>
+Message-Id: <20220523165752.186790332@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,33 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit a29c96a4053dc3c1d39353b61089882f81c6b23d upstream.
+[ Upstream commit 9bf3ac466faa83d51a8fe9212131701e58fdef74 ]
 
-FWQSPID is not a group of FWSPID so remove it.
+For gpio controller contain register PDDR, when set one target bit,
+current logic will clear all other bits, this is wrong. Use operator
+'|=' to fix it.
 
-Fixes: 7488838f2315 ("dt-bindings: pinctrl: aspeed: Document AST2600 pinmux")
-Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
-Link: https://lore.kernel.org/r/20220329173932.2588289-4-quic_jaehyoo@quicinc.com
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 659d8a62311f ("gpio: vf610: add imx7ulp support")
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-vf610.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
-+++ b/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
-@@ -58,7 +58,7 @@ patternProperties:
-           $ref: "/schemas/types.yaml#/definitions/string"
-           enum: [ ADC0, ADC1, ADC10, ADC11, ADC12, ADC13, ADC14, ADC15, ADC2,
-                   ADC3, ADC4, ADC5, ADC6, ADC7, ADC8, ADC9, BMCINT, EMMCG1, EMMCG4,
--                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWQSPID, FWSPIWP,
-+                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWSPIWP,
-                   GPIT0, GPIT1, GPIT2, GPIT3, GPIT4, GPIT5, GPIT6, GPIT7, GPIU0, GPIU1,
-                   GPIU2, GPIU3, GPIU4, GPIU5, GPIU6, GPIU7, HVI3C3, HVI3C4, I2C1, I2C10,
-                   I2C11, I2C12, I2C13, I2C14, I2C15, I2C16, I2C2, I2C3, I2C4, I2C5,
+diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
+index 3210fba16a9b..91d6966c3d29 100644
+--- a/drivers/gpio/gpio-vf610.c
++++ b/drivers/gpio/gpio-vf610.c
+@@ -135,9 +135,13 @@ static int vf610_gpio_direction_output(struct gpio_chip *chip, unsigned gpio,
+ {
+ 	struct vf610_gpio_port *port = gpiochip_get_data(chip);
+ 	unsigned long mask = BIT(gpio);
++	u32 val;
+ 
+-	if (port->sdata && port->sdata->have_paddr)
+-		vf610_gpio_writel(mask, port->gpio_base + GPIO_PDDR);
++	if (port->sdata && port->sdata->have_paddr) {
++		val = vf610_gpio_readl(port->gpio_base + GPIO_PDDR);
++		val |= mask;
++		vf610_gpio_writel(val, port->gpio_base + GPIO_PDDR);
++	}
+ 
+ 	vf610_gpio_set(chip, gpio, value);
+ 
+-- 
+2.35.1
+
 
 
