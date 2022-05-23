@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC4053133B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:23:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B858653125C
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237466AbiEWPBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 11:01:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37218 "EHLO
+        id S237505AbiEWPIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 11:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237481AbiEWPAY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 11:00:24 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9695BD08;
-        Mon, 23 May 2022 08:00:22 -0700 (PDT)
+        with ESMTP id S237628AbiEWPIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 11:08:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E6FA5C752
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 08:08:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56C0EB81136;
-        Mon, 23 May 2022 15:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0EBBC385AA;
-        Mon, 23 May 2022 15:00:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB5C61269
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 15:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A601C385A9;
+        Mon, 23 May 2022 15:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653318020;
-        bh=IUaEfLj6953s/H4mbcGF6KlLruM+MM9WWWcWdgxpOWs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K/Za5QKWDzE6PsRsSeWsx+zVtE7/Ad05Qi3B44uTxU+3Lv0rXiXLMgNRM8Bk4gfJu
-         wDLaM/dFjZ/mXFtnKYgU4IWX1DL1RF56VaT3dM4dE36JbrUGsLexrKnURTO0b+B3Op
-         E0VLtnZBgUW0nN/akEG+qhZHdvuROerLG1Z35ek0=
-Date:   Mon, 23 May 2022 17:00:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Petr Malat <oss@malat.biz>
-Cc:     linux-mtd@lists.infradead.org, Joern Engel <joern@lazybastard.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] mtd: phram: Map RAM using memremap instead of ioremap
-Message-ID: <YouhgL/sAHtrxbeR@kroah.com>
-References: <20220523142825.3144904-1-oss@malat.biz>
+        s=korg; t=1653318512;
+        bh=xOPseEn1duZlBr9XWjzzLehzaQK8tjSZRL2p8wRb78Q=;
+        h=Subject:To:Cc:From:Date:From;
+        b=dNvuEjN1eK7Pv5cq2NgArjB827qwsK4XSxdpcRvf8ukU7hJgnTjfERwu2mjmWdnPT
+         TsFTu5Ho9l0l0iFhWz9mXO3Zn47RNmm0yaiuwq5MjyzoE/EA03+zuRqJHDwBFu/g5t
+         Ij+4W1uXBxZb2/p9mJTGoDMzmBblh9oa3U5xTHPE=
+Subject: FAILED: patch "[PATCH] dt-bindings: pinctrl: aspeed-g6: remove FWQSPID group" failed to apply to 5.4-stable tree
+To:     quic_jaehyoo@quicinc.com, andrew@aj.id.au, joel@jms.id.au,
+        robh@kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 23 May 2022 17:08:29 +0200
+Message-ID: <165331850910996@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220523142825.3144904-1-oss@malat.biz>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -50,111 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 23, 2022 at 04:28:25PM +0200, Petr Malat wrote:
-> One can't use memcpy on memory obtained by ioremap, because IO memory
-> may have different alignment and size access restriction than the system
-> memory. Use memremap as phram driver operates on RAM.
-> 
-> This fixes an unaligned access on ARM64, which could be triggered with
-> e.g. dd if=/dev/phram/by-name/testdev bs=8190 count=1
-> 
->    Unable to handle kernel paging request at virtual address ffffffc01208bfbf
->    Mem abort info:
->      ESR = 0x96000021
->      EC = 0x25: DABT (current EL), IL = 32 bits
->      SET = 0, FnV = 0
->      EA = 0, S1PTW = 0
->    Data abort info:
->      ISV = 0, ISS = 0x00000021
->      CM = 0, WnR = 0
->    swapper pgtable: 4k pages, 39-bit VAs, pgdp=0000000000cd5000
->    [ffffffc01208bfbf] pgd=00000002fffff003, p4d=00000002fffff003, pud=00000002fffff003, pmd=0000000100b43003, pte=0068000022221717
->    Internal error: Oops: 96000021 [#1] PREEMPT SMP
->    CPU: 2 PID: 14768 Comm: dd Tainted: G           O      5.10.116-f13ddced70 #1
->    Hardware name: AXM56xx Victoria (DT)
->    pstate: 80000005 (Nzcv daif -PAN -UAO -TCO BTYPE=--)
->    pc : __memcpy+0x168/0x230
->    lr : phram_read+0x68/0xb0 [phram]
->    sp : ffffffc0138f3bd0
->    x29: ffffffc0138f3bd0 x28: 0000000034a50090
->    x27: 0000000000000000 x26: ffffff81176ce000
->    x25: 0000000000000000 x24: 0000000000000000
->    x23: ffffffc0138f3cb8 x22: ffffff8109475000
->    x21: 0000000000000000 x20: ffffff81176ce000
->    x19: 0000000000001fff x18: 0000000000000020
->    x17: 0000000000000000 x16: 0000000000000000
->    x15: ffffff8125861410 x14: 0000000000000000
->    x13: 0000000000000000 x12: 0000000000000000
->    x11: 0000000000000000 x10: 0000000000000000
->    x9 : 0000000000000000 x8 : 0000000000000000
->    x7 : 0000000000000000 x6 : 0000000000000000
->    x5 : ffffff81176cffff x4 : ffffffc01208bfff
->    x3 : ffffff81176cff80 x2 : ffffffffffffffef
->    x1 : ffffffc01208bfc0 x0 : ffffff81176ce000
->    Call trace:
->     __memcpy+0x168/0x230
->     mtd_read_oob_std+0x80/0x90
->     mtd_read_oob+0x8c/0x150
->     mtd_read+0x54/0x80
->     mtdchar_read+0xdc/0x2c0
->     vfs_read+0xb8/0x1e4
->     ksys_read+0x78/0x10c
->     __arm64_sys_read+0x28/0x34
->     do_el0_svc+0x94/0x1f0
->     el0_svc+0x20/0x30
->     el0_sync_handler+0x1a4/0x1c0
->     el0_sync+0x180/0x1c0
->    Code: a984346c a9c4342c f1010042 54fffee8 (a97c3c8e)
->    ---[ end trace 5707221d643416b6 ]---
-> 
-> Signed-off-by: Petr Malat <oss@malat.biz>
-> ---
->  drivers/mtd/devices/phram.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/mtd/devices/phram.c b/drivers/mtd/devices/phram.c
-> index d503821a3e60..25d3674b4e51 100644
-> --- a/drivers/mtd/devices/phram.c
-> +++ b/drivers/mtd/devices/phram.c
-> @@ -83,7 +83,7 @@ static void unregister_devices(void)
->  
->  	list_for_each_entry_safe(this, safe, &phram_list, list) {
->  		mtd_device_unregister(&this->mtd);
-> -		iounmap(this->mtd.priv);
-> +		memunmap(this->mtd.priv);
->  		kfree(this->mtd.name);
->  		kfree(this);
->  	}
-> @@ -99,9 +99,9 @@ static int register_device(char *name, phys_addr_t start, size_t len, uint32_t e
->  		goto out0;
->  
->  	ret = -EIO;
-> -	new->mtd.priv = ioremap(start, len);
-> +	new->mtd.priv = memremap(start, len, MEMREMAP_WB);
->  	if (!new->mtd.priv) {
-> -		pr_err("ioremap failed\n");
-> +		pr_err("memremap failed\n");
->  		goto out1;
->  	}
->  
-> @@ -129,7 +129,7 @@ static int register_device(char *name, phys_addr_t start, size_t len, uint32_t e
->  	return 0;
->  
->  out2:
-> -	iounmap(new->mtd.priv);
-> +	memunmap(new->mtd.priv);
->  out1:
->  	kfree(new);
->  out0:
-> -- 
-> 2.30.2
-> 
 
-<formletter>
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
+thanks,
 
-</formletter>
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From a29c96a4053dc3c1d39353b61089882f81c6b23d Mon Sep 17 00:00:00 2001
+From: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+Date: Tue, 29 Mar 2022 10:39:28 -0700
+Subject: [PATCH] dt-bindings: pinctrl: aspeed-g6: remove FWQSPID group
+
+FWQSPID is not a group of FWSPID so remove it.
+
+Fixes: 7488838f2315 ("dt-bindings: pinctrl: aspeed: Document AST2600 pinmux")
+Signed-off-by: Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20220329173932.2588289-4-quic_jaehyoo@quicinc.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+
+diff --git a/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml b/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
+index 57b68d6c7c70..eb6e2f2dc9eb 100644
+--- a/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
++++ b/Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml
+@@ -58,7 +58,7 @@ patternProperties:
+           $ref: "/schemas/types.yaml#/definitions/string"
+           enum: [ ADC0, ADC1, ADC10, ADC11, ADC12, ADC13, ADC14, ADC15, ADC2,
+                   ADC3, ADC4, ADC5, ADC6, ADC7, ADC8, ADC9, BMCINT, EMMCG1, EMMCG4,
+-                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWQSPID, FWSPIWP,
++                  EMMCG8, ESPI, ESPIALT, FSI1, FSI2, FWSPIABR, FWSPID, FWSPIWP,
+                   GPIT0, GPIT1, GPIT2, GPIT3, GPIT4, GPIT5, GPIT6, GPIT7, GPIU0, GPIU1,
+                   GPIU2, GPIU3, GPIU4, GPIU5, GPIU6, GPIU7, HVI3C3, HVI3C4, I2C1, I2C10,
+                   I2C11, I2C12, I2C13, I2C14, I2C15, I2C16, I2C2, I2C3, I2C4, I2C5,
+
