@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 598E95317FA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25668531C59
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240712AbiEWR2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42924 "EHLO
+        id S240794AbiEWR3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240876AbiEWR0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A88E9403CD;
-        Mon, 23 May 2022 10:21:12 -0700 (PDT)
+        with ESMTP id S240660AbiEWRZN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D716D4DA;
+        Mon, 23 May 2022 10:12:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 73019B8121B;
-        Mon, 23 May 2022 17:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7383C385A9;
-        Mon, 23 May 2022 17:21:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B30561506;
+        Mon, 23 May 2022 17:11:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 923D2C385A9;
+        Mon, 23 May 2022 17:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326462;
-        bh=FkQJY2YpFBPSa+N7BK6rVU62t3c0Wequ8vrIz/IzQYQ=;
+        s=korg; t=1653325870;
+        bh=DOzl2i/fZq1TM8XTi6mtuKhgW3PJ9qE7juRr+ueh0u4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OeMBfrkjsIc3f4WRKSRUHObh+H8yAYiR67eQQ5Fsjub/47ogtS1lkoVVB0Qq6Vk+p
-         sxVoh8NLnmVhjSfRxH4eJNPFGBRbA2K7a+0aEq6aSUohQ5c3t+Ti5O1pf4c4FckiAM
-         +vvzcBSocxShSQGBXDRo45m/WCCCzcemIDNvJ2Aw=
+        b=WX2MW8V02jOSr+rD3onEb2xBSIkX4JLb6bE2cwKsl6q7VdKIxjS2EjAgmb8VH003X
+         Ly9Cdh65WJ4OqhTXkxHJtmC46eA4G3mNeTKkj6n4LgKf05sbC/SVRPqM42suOcLVds
+         okbaCM9n8LriqWsuM19f2kZryrEaMqEBCmaY1e/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Duoming Zhou <duoming@zju.edu.cn>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 089/132] NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+        stable@vger.kernel.org, Stefan Gottwald <gottwald@igel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 14/44] PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
 Date:   Mon, 23 May 2022 19:04:58 +0200
-Message-Id: <20220523165837.905342926@linuxfoundation.org>
+Message-Id: <20220523165755.854177532@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,81 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duoming Zhou <duoming@zju.edu.cn>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 23dd4581350d4ffa23d58976ec46408f8f4c1e16 ]
+commit 92597f97a40bf661bebceb92e26ff87c76d562d4 upstream.
 
-There are sleep in atomic context bugs when the request to secure
-element of st-nci is timeout. The root cause is that nci_skb_alloc
-with GFP_KERNEL parameter is called in st_nci_se_wt_timeout which is
-a timer handler. The call paths that could trigger bugs are shown below:
+If a Root Port on Elo i2 is put into D3cold and then back into D0, the
+downstream device becomes permanently inaccessible, so add a bridge D3 DMI
+quirk for that system.
 
-    (interrupt context 1)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_skb_alloc(..., GFP_KERNEL) //may sleep
+This was exposed by 14858dcc3b35 ("PCI: Use pci_update_current_state() in
+pci_enable_device_flags()"), but before that commit the Root Port in
+question had never been put into D3cold for real due to a mismatch between
+its power state retrieved from the PCI_PM_CTRL register (which was
+accessible even though the platform firmware indicated that the port was in
+D3cold) and the state of an ACPI power resource involved in its power
+management.
 
-   (interrupt context 2)
-st_nci_se_wt_timeout
-  nci_hci_send_event
-    nci_hci_send_data
-      nci_send_data
-        nci_queue_tx_data_frags
-          nci_skb_alloc(..., GFP_KERNEL) //may sleep
-
-This patch changes allocation mode of nci_skb_alloc from GFP_KERNEL to
-GFP_ATOMIC in order to prevent atomic context sleeping. The GFP_ATOMIC
-flag makes memory allocation operation could be used in atomic context.
-
-Fixes: ed06aeefdac3 ("nfc: st-nci: Rename st21nfcb to st-nci")
-Signed-off-by: Duoming Zhou <duoming@zju.edu.cn>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20220517012530.75714-1-duoming@zju.edu.cn
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215715
+Link: https://lore.kernel.org/r/11980172.O9o76ZdvQC@kreacher
+Reported-by: Stefan Gottwald <gottwald@igel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org	# v5.15+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/nci/data.c | 2 +-
- net/nfc/nci/hci.c  | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/pci/pci.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/net/nfc/nci/data.c b/net/nfc/nci/data.c
-index 6055dc9a82aa..aa5e712adf07 100644
---- a/net/nfc/nci/data.c
-+++ b/net/nfc/nci/data.c
-@@ -118,7 +118,7 @@ static int nci_queue_tx_data_frags(struct nci_dev *ndev,
- 
- 		skb_frag = nci_skb_alloc(ndev,
- 					 (NCI_DATA_HDR_SIZE + frag_len),
--					 GFP_KERNEL);
-+					 GFP_ATOMIC);
- 		if (skb_frag == NULL) {
- 			rc = -ENOMEM;
- 			goto free_exit;
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index e199912ee1e5..85b808fdcbc3 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -153,7 +153,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
- 
- 	i = 0;
- 	skb = nci_skb_alloc(ndev, conn_info->max_pkt_payload_len +
--			    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+			    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 	if (!skb)
- 		return -ENOMEM;
- 
-@@ -184,7 +184,7 @@ static int nci_hci_send_data(struct nci_dev *ndev, u8 pipe,
- 		if (i < data_len) {
- 			skb = nci_skb_alloc(ndev,
- 					    conn_info->max_pkt_payload_len +
--					    NCI_DATA_HDR_SIZE, GFP_KERNEL);
-+					    NCI_DATA_HDR_SIZE, GFP_ATOMIC);
- 			if (!skb)
- 				return -ENOMEM;
- 
--- 
-2.35.1
-
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -2517,6 +2517,16 @@ static const struct dmi_system_id bridge
+ 			DMI_MATCH(DMI_BOARD_VENDOR, "Gigabyte Technology Co., Ltd."),
+ 			DMI_MATCH(DMI_BOARD_NAME, "X299 DESIGNARE EX-CF"),
+ 		},
++		/*
++		 * Downstream device is not accessible after putting a root port
++		 * into D3cold and back into D0 on Elo i2.
++		 */
++		.ident = "Elo i2",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Elo Touch Solutions"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Elo i2"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "RevB"),
++		},
+ 	},
+ #endif
+ 	{ }
 
 
