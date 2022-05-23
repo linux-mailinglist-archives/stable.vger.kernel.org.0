@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D77B531634
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E993F5319D8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240110AbiEWRTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48532 "EHLO
+        id S240908AbiEWR3Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239982AbiEWRSH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:18:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781686B66B;
-        Mon, 23 May 2022 10:17:36 -0700 (PDT)
+        with ESMTP id S242174AbiEWR13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86DBC7B9F9;
+        Mon, 23 May 2022 10:22:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F86C60AB8;
-        Mon, 23 May 2022 17:16:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E725C385AA;
-        Mon, 23 May 2022 17:16:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2248860B2C;
+        Mon, 23 May 2022 17:22:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FD59C385A9;
+        Mon, 23 May 2022 17:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326207;
-        bh=s/wM9yw1sAuIFJAp3+xxsTnu7j5+IlJj2gurHg09ouM=;
+        s=korg; t=1653326545;
+        bh=NOcKAOcWqu9x5L2iNzWHO089IBLx44Kt1k0BYvn8aJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cam8vyqqkOCJV493SkGG2hbUjjduymzfXxrIW6euYSOfHbwbsCl22jMYQp/p7BHSt
-         9cBVrqSCGJ9ZK3begpt2cAMGxIGQMfCGqDe7X8iwVAZda04j6U2wtlfN9HoruRGxAa
-         QHGAVYUcgjx4toVx9z71bavJd9OOEfY6g7a/zlMA=
+        b=AwsENx+98HcOHZOzYr8Ie7t33DjQUnvb5rFHhhhivsys9PfI94mKxfwqcotGHO5lH
+         Ri2W6ifOjMHls7SMbme5aVgKi2Nru2EyjncriOCGfd4zwlFK+BMnYfxpCElVsX0lgo
+         tlsN2fgX+QddzzaBRajgmkhYGjOlhbx3adEdn1og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org,
+        Kieran Frewen <kieran.frewen@morsemicro.com>,
+        Bassem Dawood <bassem@morsemicro.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 20/97] vhost_vdpa: dont setup irq offloading when irq_num < 0
+Subject: [PATCH 5.15 115/132] nl80211: validate S1G channel width
 Date:   Mon, 23 May 2022 19:05:24 +0200
-Message-Id: <20220523165815.482489476@linuxfoundation.org>
+Message-Id: <20220523165842.599097735@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,39 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Kieran Frewen <kieran.frewen@morsemicro.com>
 
-[ Upstream commit cce0ab2b2a39072d81f98017f7b076f3410ef740 ]
+[ Upstream commit 5d087aa759eb82b8208411913f6c2158bd85abc0 ]
 
-When irq number is negative(e.g., -EINVAL), the virtqueue
-may be disabled or the virtqueues are sharing a device irq.
-In such case, we should not setup irq offloading for a virtqueue.
+Validate the S1G channel width input by user to ensure it matches
+that of the requested channel
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Link: https://lore.kernel.org/r/20220222115428.998334-3-lingshan.zhu@intel.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Kieran Frewen <kieran.frewen@morsemicro.com>
+Signed-off-by: Bassem Dawood <bassem@morsemicro.com>
+Link: https://lore.kernel.org/r/20220420041321.3788789-2-kieran.frewen@morsemicro.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/vdpa.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index e4d60009d908..04578aa87e4d 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -97,8 +97,11 @@ static void vhost_vdpa_setup_vq_irq(struct vhost_vdpa *v, u16 qid)
- 		return;
- 
- 	irq = ops->get_vq_irq(vdpa, qid);
-+	if (irq < 0)
-+		return;
-+
- 	irq_bypass_unregister_producer(&vq->call_ctx.producer);
--	if (!vq->call_ctx.ctx || irq < 0)
-+	if (!vq->call_ctx.ctx)
- 		return;
- 
- 	vq->call_ctx.producer.token = vq->call_ctx.ctx;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index fe9cade6b4fb..9fae09e860e1 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3080,6 +3080,15 @@ int nl80211_parse_chandef(struct cfg80211_registered_device *rdev,
+ 	} else if (attrs[NL80211_ATTR_CHANNEL_WIDTH]) {
+ 		chandef->width =
+ 			nla_get_u32(attrs[NL80211_ATTR_CHANNEL_WIDTH]);
++		if (chandef->chan->band == NL80211_BAND_S1GHZ) {
++			/* User input error for channel width doesn't match channel  */
++			if (chandef->width != ieee80211_s1g_channel_width(chandef->chan)) {
++				NL_SET_ERR_MSG_ATTR(extack,
++						    attrs[NL80211_ATTR_CHANNEL_WIDTH],
++						    "bad channel width");
++				return -EINVAL;
++			}
++		}
+ 		if (attrs[NL80211_ATTR_CENTER_FREQ1]) {
+ 			chandef->center_freq1 =
+ 				nla_get_u32(attrs[NL80211_ATTR_CENTER_FREQ1]);
 -- 
 2.35.1
 
