@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74002531C0B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06794531976
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240641AbiEWRaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S239836AbiEWRKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:10:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242623AbiEWR1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:50 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 879508AE49;
-        Mon, 23 May 2022 10:23:55 -0700 (PDT)
+        with ESMTP id S239647AbiEWRKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:10:19 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 350C26CA8A;
+        Mon, 23 May 2022 10:09:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C38E614B8;
-        Mon, 23 May 2022 17:14:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 875C6C385AA;
-        Mon, 23 May 2022 17:14:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 824D4B811F6;
+        Mon, 23 May 2022 17:09:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A3EC385A9;
+        Mon, 23 May 2022 17:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326044;
-        bh=8GWzTs85Pxk1rZUbXj+jCv4NPHgoEoM04ax8K/ETauY=;
+        s=korg; t=1653325779;
+        bh=UodYB9RZCKj8YDl/NrPyDzZlEGObUwSATbKP+WigtdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MFBHMAjDzopDb+VJwKdTvCE6BfK/nRPVglkwAHc2NfcRyA4J+Rs6rJWPeJXYuNxbe
-         mURwG8pbq9E1/TwZV0ABrROpzfJgzULBhDQsAD3Wz5l96wUoeV9/oewkV+vjf+Y9On
-         v/hLZ/TqJop9cH3dm2Yqq582VgcPG1UBZ80Pfz7Y=
+        b=L5RnQaCZNQ2gvFAj4+rLrej47IetSO/y65mwOMhuN4dPnGIQi+cEQ1kpn+Zlsl9al
+         n0GI+8rAjnty0JCdbDJSWTPacFHScP1hVSqryOhS1aTxjW4XBfQ2rrNdOaY+phRiGn
+         N5FcCXF8Jw+huJM+Z0B9o/oq1L3X7ZoriHLrPvvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Neftin <sasha.neftin@intel.com>,
-        Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 5.10 05/97] igc: Remove _I_PHY_ID checking
+        stable@vger.kernel.org, Ard Biesheuvel <ardb@kernel.org>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/33] ARM: 9196/1: spectre-bhb: enable for Cortex-A15
 Date:   Mon, 23 May 2022 19:05:09 +0200
-Message-Id: <20220523165813.189873956@linuxfoundation.org>
+Message-Id: <20220523165751.433712311@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasha Neftin <sasha.neftin@intel.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 7c496de538eebd8212dc2a3c9a468386b264d0d4 upstream.
+[ Upstream commit 0dc14aa94ccd8ba35eb17a0f9b123d1566efd39e ]
 
-i225 devices have only one PHY vendor. There is no point checking
-_I_PHY_ID during the link establishment and auto-negotiation process.
-This patch comes to clean up these pointless checkings.
+The Spectre-BHB mitigations were inadvertently left disabled for
+Cortex-A15, due to the fact that cpu_v7_bugs_init() is not called in
+that case. So fix that.
 
-Signed-off-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Dvora Fuxbrumer <dvorax.fuxbrumer@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: b9baf5c8c5c3 ("ARM: Spectre-BHB workaround")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igc/igc_base.c |   10 +---------
- drivers/net/ethernet/intel/igc/igc_main.c |    3 +--
- drivers/net/ethernet/intel/igc/igc_phy.c  |    6 ++----
- 3 files changed, 4 insertions(+), 15 deletions(-)
+ arch/arm/mm/proc-v7-bugs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/intel/igc/igc_base.c
-+++ b/drivers/net/ethernet/intel/igc/igc_base.c
-@@ -187,15 +187,7 @@ static s32 igc_init_phy_params_base(stru
+diff --git a/arch/arm/mm/proc-v7-bugs.c b/arch/arm/mm/proc-v7-bugs.c
+index 1b6e770bc1cd..8b78694d56b8 100644
+--- a/arch/arm/mm/proc-v7-bugs.c
++++ b/arch/arm/mm/proc-v7-bugs.c
+@@ -297,6 +297,7 @@ void cpu_v7_ca15_ibe(void)
+ {
+ 	if (check_spectre_auxcr(this_cpu_ptr(&spectre_warned), BIT(0)))
+ 		cpu_v7_spectre_v2_init();
++	cpu_v7_spectre_bhb_init();
+ }
  
- 	igc_check_for_copper_link(hw);
- 
--	/* Verify phy id and set remaining function pointers */
--	switch (phy->id) {
--	case I225_I_PHY_ID:
--		phy->type	= igc_phy_i225;
--		break;
--	default:
--		ret_val = -IGC_ERR_PHY;
--		goto out;
--	}
-+	phy->type = igc_phy_i225;
- 
- out:
- 	return ret_val;
---- a/drivers/net/ethernet/intel/igc/igc_main.c
-+++ b/drivers/net/ethernet/intel/igc/igc_main.c
-@@ -4189,8 +4189,7 @@ bool igc_has_link(struct igc_adapter *ad
- 		break;
- 	}
- 
--	if (hw->mac.type == igc_i225 &&
--	    hw->phy.id == I225_I_PHY_ID) {
-+	if (hw->mac.type == igc_i225) {
- 		if (!netif_carrier_ok(adapter->netdev)) {
- 			adapter->flags &= ~IGC_FLAG_NEED_LINK_UPDATE;
- 		} else if (!(adapter->flags & IGC_FLAG_NEED_LINK_UPDATE)) {
---- a/drivers/net/ethernet/intel/igc/igc_phy.c
-+++ b/drivers/net/ethernet/intel/igc/igc_phy.c
-@@ -249,8 +249,7 @@ static s32 igc_phy_setup_autoneg(struct
- 			return ret_val;
- 	}
- 
--	if ((phy->autoneg_mask & ADVERTISE_2500_FULL) &&
--	    hw->phy.id == I225_I_PHY_ID) {
-+	if (phy->autoneg_mask & ADVERTISE_2500_FULL) {
- 		/* Read the MULTI GBT AN Control Register - reg 7.32 */
- 		ret_val = phy->ops.read_reg(hw, (STANDARD_AN_REG_MASK <<
- 					    MMD_DEVADDR_SHIFT) |
-@@ -390,8 +389,7 @@ static s32 igc_phy_setup_autoneg(struct
- 		ret_val = phy->ops.write_reg(hw, PHY_1000T_CTRL,
- 					     mii_1000t_ctrl_reg);
- 
--	if ((phy->autoneg_mask & ADVERTISE_2500_FULL) &&
--	    hw->phy.id == I225_I_PHY_ID)
-+	if (phy->autoneg_mask & ADVERTISE_2500_FULL)
- 		ret_val = phy->ops.write_reg(hw,
- 					     (STANDARD_AN_REG_MASK <<
- 					     MMD_DEVADDR_SHIFT) |
+ void cpu_v7_bugs_init(void)
+-- 
+2.35.1
+
 
 
