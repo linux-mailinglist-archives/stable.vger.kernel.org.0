@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 169A953182E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAFF4531A17
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240502AbiEWRT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:19:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48564 "EHLO
+        id S240726AbiEWRZw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:25:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240492AbiEWRST (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:18:19 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7AB86B7D2;
-        Mon, 23 May 2022 10:17:36 -0700 (PDT)
+        with ESMTP id S240630AbiEWRZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:25:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28E071CB26;
+        Mon, 23 May 2022 10:12:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6149461541;
-        Mon, 23 May 2022 17:15:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67620C385A9;
-        Mon, 23 May 2022 17:15:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C381F614CC;
+        Mon, 23 May 2022 17:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B1FC385A9;
+        Mon, 23 May 2022 17:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326136;
-        bh=kyCpt+kxit9oAreUT89imPW8qUa5FVx/lcfqw+8Zcqo=;
+        s=korg; t=1653325956;
+        bh=db0bn8cymktHvmduNfZ39OYCAVGbmotRIWLE2wPYw7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TI42MIfWJQqiyEuqLTsZyFQh/OuTqQkaCR19Sq9SmCR0E05oDSNBGnpvteblUIVWc
-         Bn6sx6mSrDYnahcNMSzWx70pZiG/aQl9CGw4JS8IxG0PzO75iL8vs5L7Y6nO2bI/Ys
-         gvibD2NLM30DrN2vOtXIGUyHt50H6gJUfKJ6nV20=
+        b=L9ICoUOfdbfXfb8xZZZUey/IBYuQlzvueITsRRz7UaR+p6A5kFj/l7ibZmanX6t28
+         gXg4N4NtJHPFmRqRt4pKsv2QcDrU2huR+Gg3obocLfdU98fXsDc3FH3ZWQ9wGtYFHl
+         24iwhqH3pHx2lmUT8vLuUiArfA0HHapLIiAOEJUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Namhyung Kim <namhyung@gmail.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sumanth Korikkar <sumanthk@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/97] crypto: stm32 - fix reference leak in stm32_crc_remove
+Subject: [PATCH 4.19 36/44] perf bench numa: Address compiler error on s390
 Date:   Mon, 23 May 2022 19:05:20 +0200
-Message-Id: <20220523165814.896256749@linuxfoundation.org>
+Message-Id: <20220523165759.773361408@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165752.797318097@linuxfoundation.org>
+References: <20220523165752.797318097@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,37 +59,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Thomas Richter <tmricht@linux.ibm.com>
 
-[ Upstream commit e9a36feecee0ee5845f2e0656f50f9942dd0bed3 ]
+[ Upstream commit f8ac1c478424a9a14669b8cef7389b1e14e5229d ]
 
-pm_runtime_get_sync() will increment pm usage counter even it
-failed. Forgetting to call pm_runtime_put_noidle will result
-in reference leak in stm32_crc_remove, so we should fix it.
+The compilation on s390 results in this error:
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+  # make DEBUG=y bench/numa.o
+  ...
+  bench/numa.c: In function ‘__bench_numa’:
+  bench/numa.c:1749:81: error: ‘%d’ directive output may be truncated
+              writing between 1 and 11 bytes into a region of size between
+              10 and 20 [-Werror=format-truncation=]
+  1749 |        snprintf(tname, sizeof(tname), "process%d:thread%d", p, t);
+                                                               ^~
+  ...
+  bench/numa.c:1749:64: note: directive argument in the range
+                 [-2147483647, 2147483646]
+  ...
+  #
+
+The maximum length of the %d replacement is 11 characters because of the
+negative sign.  Therefore extend the array by two more characters.
+
+Output after:
+
+  # make  DEBUG=y bench/numa.o > /dev/null 2>&1; ll bench/numa.o
+  -rw-r--r-- 1 root root 418320 May 19 09:11 bench/numa.o
+  #
+
+Fixes: 3aff8ba0a4c9c919 ("perf bench numa: Avoid possible truncation when using snprintf()")
+Suggested-by: Namhyung Kim <namhyung@gmail.com>
+Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
+Cc: Heiko Carstens <hca@linux.ibm.com>
+Cc: Sumanth Korikkar <sumanthk@linux.ibm.com>
+Cc: Sven Schnelle <svens@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220520081158.2990006-1-tmricht@linux.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-crc32.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/perf/bench/numa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
-index be1bf39a317d..90a920e7f664 100644
---- a/drivers/crypto/stm32/stm32-crc32.c
-+++ b/drivers/crypto/stm32/stm32-crc32.c
-@@ -384,8 +384,10 @@ static int stm32_crc_remove(struct platform_device *pdev)
- 	struct stm32_crc *crc = platform_get_drvdata(pdev);
- 	int ret = pm_runtime_get_sync(crc->dev);
+diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
+index 91c0a4434da2..e7fde88a0845 100644
+--- a/tools/perf/bench/numa.c
++++ b/tools/perf/bench/numa.c
+@@ -1631,7 +1631,7 @@ static int __bench_numa(const char *name)
+ 		"GB/sec,", "total-speed",	"GB/sec total speed");
  
--	if (ret < 0)
-+	if (ret < 0) {
-+		pm_runtime_put_noidle(crc->dev);
- 		return ret;
-+	}
- 
- 	spin_lock(&crc_list.lock);
- 	list_del(&crc->list);
+ 	if (g->p.show_details >= 2) {
+-		char tname[14 + 2 * 10 + 1];
++		char tname[14 + 2 * 11 + 1];
+ 		struct thread_data *td;
+ 		for (p = 0; p < g->p.nr_proc; p++) {
+ 			for (t = 0; t < g->p.nr_threads; t++) {
 -- 
 2.35.1
 
