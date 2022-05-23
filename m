@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 248D45319EE
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DAC3531648
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240298AbiEWRaM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:30:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37296 "EHLO
+        id S240045AbiEWRR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242181AbiEWR1a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACAA6793BA;
-        Mon, 23 May 2022 10:22:43 -0700 (PDT)
+        with ESMTP id S239967AbiEWRRU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9322AEF;
+        Mon, 23 May 2022 10:17:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DBBBB811FF;
-        Mon, 23 May 2022 17:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D43C385A9;
-        Mon, 23 May 2022 17:22:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85FC160919;
+        Mon, 23 May 2022 17:15:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88388C385A9;
+        Mon, 23 May 2022 17:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326561;
-        bh=k+ohMeJjp2tFo/hvSvVUArrdssbnYwApznZxYrJaEVc=;
+        s=korg; t=1653326159;
+        bh=TGsK3aQ5NEMfZJcdqIApNUCgUyO9h4QFqmtyBlucvSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0dM8AS250Twb0JhjLmEkYZBkGHiFJK6OIxKr5Xi4+n5S4VvdMJRoWH3NOOh4tjKYK
-         mGXcjahU9NeHmpNHdWKRoOJsreGut+GE97cPUe81VbGEDonIdGd5Kcw0u2ObFbMmLg
-         J2IOJVe4Pw0jyank+dEv17LKsqRTB6ZLQNKSYVVs=
+        b=vKCBQVqXQUla5ngG8p/Br4aB68Ou8NIcMpEvAGLsrWPLhDsxqrUxG3BrHSaZPqclH
+         P6MLgzEYKvCUot8TBKzdaNt3FB1773IrlNcqjtVdZUy4qNiJUvsaLd4KYwk7NyfN6r
+         HNipUh7Ni7BODw1W2OrVHnQgp5ND4QPqenA6g+wU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Xiaoke Wang <xkernel.wang@foxmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 120/132] nl80211: fix locking in nl80211_set_tx_bitrate_mask()
+Subject: [PATCH 5.10 25/97] MIPS: lantiq: check the return value of kzalloc()
 Date:   Mon, 23 May 2022 19:05:29 +0200
-Message-Id: <20220523165843.476534977@linuxfoundation.org>
+Message-Id: <20220523165816.223105432@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
+References: <20220523165812.244140613@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +54,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Xiaoke Wang <xkernel.wang@foxmail.com>
 
-[ Upstream commit f971e1887fdb3ab500c9bebf4b98f62d49a20655 ]
+[ Upstream commit 34123208bbcc8c884a0489f543a23fe9eebb5514 ]
 
-This accesses the wdev's chandef etc., so cannot safely
-be used without holding the lock.
+kzalloc() is a memory allocation function which can return NULL when
+some internal memory errors happen. So it is better to check the
+return value of it to prevent potential wrong memory access or
+memory leak.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Link: https://lore.kernel.org/r/20220506102136.06b7205419e6.I2a87c05fbd8bc5e565e84d190d4cfd2e92695a90@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Xiaoke Wang <xkernel.wang@foxmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/mips/lantiq/falcon/sysctrl.c |  2 ++
+ arch/mips/lantiq/xway/gptu.c      |  2 ++
+ arch/mips/lantiq/xway/sysctrl.c   | 46 ++++++++++++++++++++-----------
+ 3 files changed, 34 insertions(+), 16 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 9fae09e860e1..7c65ad17bf50 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -11341,18 +11341,23 @@ static int nl80211_set_tx_bitrate_mask(struct sk_buff *skb,
- 	struct cfg80211_bitrate_mask mask;
- 	struct cfg80211_registered_device *rdev = info->user_ptr[0];
- 	struct net_device *dev = info->user_ptr[1];
-+	struct wireless_dev *wdev = dev->ieee80211_ptr;
- 	int err;
+diff --git a/arch/mips/lantiq/falcon/sysctrl.c b/arch/mips/lantiq/falcon/sysctrl.c
+index 42222f849bd2..446a2536999b 100644
+--- a/arch/mips/lantiq/falcon/sysctrl.c
++++ b/arch/mips/lantiq/falcon/sysctrl.c
+@@ -167,6 +167,8 @@ static inline void clkdev_add_sys(const char *dev, unsigned int module,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
- 	if (!rdev->ops->set_bitrate_mask)
- 		return -EOPNOTSUPP;
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = NULL;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/gptu.c b/arch/mips/lantiq/xway/gptu.c
+index 3d5683e75cf1..200fe9ff641d 100644
+--- a/arch/mips/lantiq/xway/gptu.c
++++ b/arch/mips/lantiq/xway/gptu.c
+@@ -122,6 +122,8 @@ static inline void clkdev_add_gptu(struct device *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
-+	wdev_lock(wdev);
- 	err = nl80211_parse_tx_bitrate_mask(info, info->attrs,
- 					    NL80211_ATTR_TX_RATES, &mask,
- 					    dev, true);
- 	if (err)
--		return err;
-+		goto out;
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev_name(dev);
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+diff --git a/arch/mips/lantiq/xway/sysctrl.c b/arch/mips/lantiq/xway/sysctrl.c
+index 917fac1636b7..084f6caba5f2 100644
+--- a/arch/mips/lantiq/xway/sysctrl.c
++++ b/arch/mips/lantiq/xway/sysctrl.c
+@@ -315,6 +315,8 @@ static void clkdev_add_pmu(const char *dev, const char *con, bool deactivate,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
  
--	return rdev_set_bitrate_mask(rdev, dev, NULL, &mask);
-+	err = rdev_set_bitrate_mask(rdev, dev, NULL, &mask);
-+out:
-+	wdev_unlock(wdev);
-+	return err;
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -338,6 +340,8 @@ static void clkdev_add_cgu(const char *dev, const char *con,
+ {
+ 	struct clk *clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
++	if (!clk)
++		return;
+ 	clk->cl.dev_id = dev;
+ 	clk->cl.con_id = con;
+ 	clk->cl.clk = clk;
+@@ -356,24 +360,28 @@ static void clkdev_add_pci(void)
+ 	struct clk *clk_ext = kzalloc(sizeof(struct clk), GFP_KERNEL);
+ 
+ 	/* main pci clock */
+-	clk->cl.dev_id = "17000000.pci";
+-	clk->cl.con_id = NULL;
+-	clk->cl.clk = clk;
+-	clk->rate = CLOCK_33M;
+-	clk->rates = valid_pci_rates;
+-	clk->enable = pci_enable;
+-	clk->disable = pmu_disable;
+-	clk->module = 0;
+-	clk->bits = PMU_PCI;
+-	clkdev_add(&clk->cl);
++	if (clk) {
++		clk->cl.dev_id = "17000000.pci";
++		clk->cl.con_id = NULL;
++		clk->cl.clk = clk;
++		clk->rate = CLOCK_33M;
++		clk->rates = valid_pci_rates;
++		clk->enable = pci_enable;
++		clk->disable = pmu_disable;
++		clk->module = 0;
++		clk->bits = PMU_PCI;
++		clkdev_add(&clk->cl);
++	}
+ 
+ 	/* use internal/external bus clock */
+-	clk_ext->cl.dev_id = "17000000.pci";
+-	clk_ext->cl.con_id = "external";
+-	clk_ext->cl.clk = clk_ext;
+-	clk_ext->enable = pci_ext_enable;
+-	clk_ext->disable = pci_ext_disable;
+-	clkdev_add(&clk_ext->cl);
++	if (clk_ext) {
++		clk_ext->cl.dev_id = "17000000.pci";
++		clk_ext->cl.con_id = "external";
++		clk_ext->cl.clk = clk_ext;
++		clk_ext->enable = pci_ext_enable;
++		clk_ext->disable = pci_ext_disable;
++		clkdev_add(&clk_ext->cl);
++	}
  }
  
- static int nl80211_register_mgmt(struct sk_buff *skb, struct genl_info *info)
+ /* xway socs can generate clocks on gpio pins */
+@@ -393,9 +401,15 @@ static void clkdev_add_clkout(void)
+ 		char *name;
+ 
+ 		name = kzalloc(sizeof("clkout0"), GFP_KERNEL);
++		if (!name)
++			continue;
+ 		sprintf(name, "clkout%d", i);
+ 
+ 		clk = kzalloc(sizeof(struct clk), GFP_KERNEL);
++		if (!clk) {
++			kfree(name);
++			continue;
++		}
+ 		clk->cl.dev_id = "1f103000.cgu";
+ 		clk->cl.con_id = name;
+ 		clk->cl.clk = clk;
 -- 
 2.35.1
 
