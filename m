@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC26531B95
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B645531980
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239933AbiEWRRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
+        id S242082AbiEWRkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240085AbiEWROn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:14:43 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF20DEBF;
-        Mon, 23 May 2022 10:12:34 -0700 (PDT)
+        with ESMTP id S243459AbiEWRiO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:14 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3342A93465;
+        Mon, 23 May 2022 10:32:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DC63B811F6;
-        Mon, 23 May 2022 17:12:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9820C385AA;
-        Mon, 23 May 2022 17:12:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E420760B35;
+        Mon, 23 May 2022 17:32:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACD88C385A9;
+        Mon, 23 May 2022 17:32:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325953;
-        bh=0bHuKlaZyD4pTHB6Ty/v9KNYAtL/A59eG8fgVGdQav4=;
+        s=korg; t=1653327134;
+        bh=hpOjpmyQvfaALi4mtyz1e6kIE+O99SXN5GXatvJOfqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H67gd2QqLOy/zoVHP6UqEWGPKGFTY3XZmzR+Aq3MOWofr+Q6+ELEhVaoBM4yhgum6
-         BTPoNPORnAmsNBvJKYJvfkbCJaFtY+dx8gFIo812eUr0YjvoMHVmxf6RNJovSh/7b1
-         vefUFlcnZWB8Wft+4JnHy9+FzTcxMM2Os9yVFjd0=
+        b=e7/mj6uBhViSHW8MHpakrHrW3qWOSSlB6jIYAeJIHi3kq3TgIsHT1ya+23VHvTKiq
+         eyzZU+ypL4DXJcNV1D+EF1+pqCSfw76PfX5lJoIKkcysJvTPMdA8MuBifDRM6iCUfb
+         2/eKJstLpAZ9hxZDB948sjb53E201F5mwt+jil5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.4 21/68] mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
-Date:   Mon, 23 May 2022 19:04:48 +0200
-Message-Id: <20220523165806.139716938@linuxfoundation.org>
+        stable@vger.kernel.org, Kajol Jain <kjain@linux.ibm.com>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Disha Goel <disgoel@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 132/158] perf test bpf: Skip test if clang is not present
+Date:   Mon, 23 May 2022 19:04:49 +0200
+Message-Id: <20220523165852.300414915@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,71 +62,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-commit 533a6cfe08f96a7b5c65e06d20916d552c11b256 upstream
+[ Upstream commit 8994e97be3eb3c3a7b59d6223018ffab8c272e2d ]
 
-All callers of __mmc_switch() should now be specifying a valid timeout for
-the CMD6 command. However, just to be sure, let's print a warning and
-default to use the generic_cmd6_time in case the provided timeout_ms
-argument is zero.
+Perf BPF filter test fails in environment where "clang" is not
+installed.
 
-In this context, let's also simplify some of the corresponding code and
-clarify some related comments.
+Test failure logs:
 
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Link: https://lore.kernel.org/r/20200122142747.5690-4-ulf.hansson@linaro.org
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+<<>>
+ 42: BPF filter                    :
+ 42.1: Basic BPF filtering         : Skip
+ 42.2: BPF pinning                 : FAILED!
+ 42.3: BPF prologue generation     : FAILED!
+<<>>
+
+Enabling verbose option provided debug logs which says clang/llvm needs
+to be installed. Snippet of verbose logs:
+
+<<>>
+ 42.2: BPF pinning                  :
+ --- start ---
+test child forked, pid 61423
+ERROR:	unable to find clang.
+Hint:	Try to install latest clang/llvm to support BPF.
+        Check your $PATH
+
+<<logs_here>>
+
+Failed to compile test case: 'Basic BPF llvm compile'
+Unable to get BPF object, fix kbuild first
+test child finished with -1
+ ---- end ----
+BPF filter subtest 2: FAILED!
+<<>>
+
+Here subtests, "BPF pinning" and "BPF prologue generation" failed and
+logs shows clang/llvm is needed. After installing clang, testcase
+passes.
+
+Reason on why subtest failure happens though logs has proper debug
+information:
+
+Main function __test__bpf calls test_llvm__fetch_bpf_obj by
+passing 4th argument as true ( 4th arguments maps to parameter
+"force" in test_llvm__fetch_bpf_obj ). But this will cause
+test_llvm__fetch_bpf_obj to skip the check for clang/llvm.
+
+Snippet of code part which checks for clang based on
+parameter "force" in test_llvm__fetch_bpf_obj:
+
+<<>>
+if (!force && (!llvm_param.user_set_param &&
+<<>>
+
+Since force is set to "false", test won't get skipped and fails to
+compile test case. The BPF code compilation needs clang, So pass the
+fourth argument as "false" and also skip the test if reason for return
+is "TEST_SKIP"
+
+After the patch:
+
+<<>>
+ 42: BPF filter                    :
+ 42.1: Basic BPF filtering         : Skip
+ 42.2: BPF pinning                 : Skip
+ 42.3: BPF prologue generation     : Skip
+<<>>
+
+Fixes: ba1fae431e74bb42 ("perf test: Add 'perf test BPF'")
+Reviewed-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Disha Goel <disgoel@linux.vnet.ibm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: https://lore.kernel.org/r/20220511115438.84032-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/mmc_ops.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ tools/perf/tests/bpf.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/core/mmc_ops.c
-+++ b/drivers/mmc/core/mmc_ops.c
-@@ -460,10 +460,6 @@ static int mmc_poll_for_busy(struct mmc_
- 	bool expired = false;
- 	bool busy = false;
+diff --git a/tools/perf/tests/bpf.c b/tools/perf/tests/bpf.c
+index 573490530194..592ab02d5ba3 100644
+--- a/tools/perf/tests/bpf.c
++++ b/tools/perf/tests/bpf.c
+@@ -222,11 +222,11 @@ static int __test__bpf(int idx)
  
--	/* We have an unspecified cmd timeout, use the fallback value. */
--	if (!timeout_ms)
--		timeout_ms = MMC_OPS_TIMEOUT_MS;
--
- 	/*
- 	 * In cases when not allowed to poll by using CMD13 or because we aren't
- 	 * capable of polling by using ->card_busy(), then rely on waiting the
-@@ -536,6 +532,12 @@ int __mmc_switch(struct mmc_card *card,
- 
- 	mmc_retune_hold(host);
- 
-+	if (!timeout_ms) {
-+		pr_warn("%s: unspecified timeout for CMD6 - use generic\n",
-+			mmc_hostname(host));
-+		timeout_ms = card->ext_csd.generic_cmd6_time;
-+	}
-+
- 	/*
- 	 * If the cmd timeout and the max_busy_timeout of the host are both
- 	 * specified, let's validate them. A failure means we need to prevent
-@@ -544,7 +546,7 @@ int __mmc_switch(struct mmc_card *card,
- 	 * which also means they are on their own when it comes to deal with the
- 	 * busy timeout.
- 	 */
--	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) && timeout_ms &&
-+	if (!(host->caps & MMC_CAP_NEED_RSP_BUSY) &&
- 	    host->max_busy_timeout && (timeout_ms > host->max_busy_timeout))
- 		use_r1b_resp = false;
- 
-@@ -556,10 +558,6 @@ int __mmc_switch(struct mmc_card *card,
- 	cmd.flags = MMC_CMD_AC;
- 	if (use_r1b_resp) {
- 		cmd.flags |= MMC_RSP_SPI_R1B | MMC_RSP_R1B;
--		/*
--		 * A busy_timeout of zero means the host can decide to use
--		 * whatever value it finds suitable.
--		 */
- 		cmd.busy_timeout = timeout_ms;
- 	} else {
- 		cmd.flags |= MMC_RSP_SPI_R1 | MMC_RSP_R1;
+ 	ret = test_llvm__fetch_bpf_obj(&obj_buf, &obj_buf_sz,
+ 				       bpf_testcase_table[idx].prog_id,
+-				       true, NULL);
++				       false, NULL);
+ 	if (ret != TEST_OK || !obj_buf || !obj_buf_sz) {
+ 		pr_debug("Unable to get BPF object, %s\n",
+ 			 bpf_testcase_table[idx].msg_compile_fail);
+-		if (idx == 0)
++		if ((idx == 0) || (ret == TEST_SKIP))
+ 			return TEST_SKIP;
+ 		else
+ 			return TEST_FAIL;
+@@ -370,9 +370,11 @@ static int test__bpf_prologue_test(struct test_suite *test __maybe_unused,
+ static struct test_case bpf_tests[] = {
+ #ifdef HAVE_LIBBPF_SUPPORT
+ 	TEST_CASE("Basic BPF filtering", basic_bpf_test),
+-	TEST_CASE("BPF pinning", bpf_pinning),
++	TEST_CASE_REASON("BPF pinning", bpf_pinning,
++			"clang isn't installed or environment missing BPF support"),
+ #ifdef HAVE_BPF_PROLOGUE
+-	TEST_CASE("BPF prologue generation", bpf_prologue_test),
++	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test,
++			"clang isn't installed or environment missing BPF support"),
+ #else
+ 	TEST_CASE_REASON("BPF prologue generation", bpf_prologue_test, "not compiled in"),
+ #endif
+-- 
+2.35.1
+
 
 
