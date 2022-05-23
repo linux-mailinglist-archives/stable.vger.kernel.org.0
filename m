@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B827C5318DA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6844531606
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240586AbiEWRYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:24:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48972 "EHLO
+        id S241603AbiEWRdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241536AbiEWRW0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:26 -0400
+        with ESMTP id S242317AbiEWRcZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:25 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3A872237;
-        Mon, 23 May 2022 10:19:07 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51D5272E05;
+        Mon, 23 May 2022 10:27:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FD5D60C07;
-        Mon, 23 May 2022 17:17:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 234C9C385AA;
-        Mon, 23 May 2022 17:17:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1005B608C0;
+        Mon, 23 May 2022 17:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BBFAC385AA;
+        Mon, 23 May 2022 17:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326236;
-        bh=vtfdmjHYyYmA5vp7V1TIWM3kVm7ahhApIciXEJruAOs=;
+        s=korg; t=1653326828;
+        bh=5bH7H4zGMBgeHEFbaAZv0/6QAQAaX1t2ZSNtFSywXWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkSHVrmnwpw8t8z05J+XIb9nd2x76gWuGFHZs4De8meiHnDo3Al3OowNpp7N3EhOK
-         6XW0OlwC1WVe+B+bum3pysAzMy5FZkeDoZjeRyVjqTLH8e8tpXIV93eoNOrxeF61eg
-         rq5lAphnTEqb5X54fGUYPIEcKiJj3mQcssS3zbmA=
+        b=0SSeH+ferziS38n6Uk7cU2wyWyXxnmwoes33aNAVHLEFFBBC4OEdmk24OLC9SRl5s
+         xdiLSJTFuStXtHpZ3i4i/aI3iVIhq8Vk6wwaiJbeem3oHVHx4MsP1C/ppHmR2bxLEu
+         nSia9HtOJKxg2WINtpHY/zJvKwqG/QQfEC4oderQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/132] rtc: fix use-after-free on device removal
-Date:   Mon, 23 May 2022 19:03:48 +0200
-Message-Id: <20220523165826.725167595@linuxfoundation.org>
+        stable@vger.kernel.org, Howard Chiu <howard_chiu@aspeedtech.com>,
+        Joel Stanley <joel@jms.id.au>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 072/158] ARM: dts: aspeed: Add video engine to g6
+Date:   Mon, 23 May 2022 19:03:49 +0200
+Message-Id: <20220523165842.883024624@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+From: Howard Chiu <howard_chiu@aspeedtech.com>
 
-[ Upstream commit c8fa17d9f08a448184f03d352145099b5beb618e ]
+[ Upstream commit 32e62d1beab70d485980013312e747a25c4e13f7 ]
 
-If the irqwork is still scheduled or running while the RTC device is
-removed, a use-after-free occurs in rtc_timer_do_work().  Cleanup the
-timerqueue and ensure the work is stopped to fix this.
+This node was accidentally removed by commit 645afe73f951 ("ARM: dts:
+aspeed: ast2600: Update XDMA engine node").
 
- BUG: KASAN: use-after-free in mutex_lock+0x94/0x110
- Write of size 8 at addr ffffff801d846338 by task kworker/3:1/41
-
- Workqueue: events rtc_timer_do_work
- Call trace:
-  mutex_lock+0x94/0x110
-  rtc_timer_do_work+0xec/0x630
-  process_one_work+0x5fc/0x1344
-  ...
-
- Allocated by task 551:
-  kmem_cache_alloc_trace+0x384/0x6e0
-  devm_rtc_allocate_device+0xf0/0x574
-  devm_rtc_device_register+0x2c/0x12c
-  ...
-
- Freed by task 572:
-  kfree+0x114/0x4d0
-  rtc_device_release+0x64/0x80
-  device_release+0x8c/0x1f4
-  kobject_put+0x1c4/0x4b0
-  put_device+0x20/0x30
-  devm_rtc_release_device+0x1c/0x30
-  devm_action_release+0x54/0x90
-  release_nodes+0x124/0x310
-  devres_release_group+0x170/0x240
-  i2c_device_remove+0xd8/0x314
-  ...
-
- Last potentially related work creation:
-  insert_work+0x5c/0x330
-  queue_work_on+0xcc/0x154
-  rtc_set_time+0x188/0x5bc
-  rtc_dev_ioctl+0x2ac/0xbd0
-  ...
-
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210160951.7718-1-vincent.whitchurch@axis.com
+Fixes: 645afe73f951 ("ARM: dts: aspeed: ast2600: Update XDMA engine node")
+Signed-off-by: Howard Chiu <howard_chiu@aspeedtech.com>
+Link: https://lore.kernel.org/r/SG2PR06MB2315C57600A0132FEF40F21EE61E9@SG2PR06MB2315.apcprd06.prod.outlook.com
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/class.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/arm/boot/dts/aspeed-g6.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/rtc/class.c b/drivers/rtc/class.c
-index f77bc089eb6b..0aef7df2ea70 100644
---- a/drivers/rtc/class.c
-+++ b/drivers/rtc/class.c
-@@ -26,6 +26,15 @@ struct class *rtc_class;
- static void rtc_device_release(struct device *dev)
- {
- 	struct rtc_device *rtc = to_rtc_device(dev);
-+	struct timerqueue_head *head = &rtc->timerqueue;
-+	struct timerqueue_node *node;
-+
-+	mutex_lock(&rtc->ops_lock);
-+	while ((node = timerqueue_getnext(head)))
-+		timerqueue_del(head, node);
-+	mutex_unlock(&rtc->ops_lock);
-+
-+	cancel_work_sync(&rtc->irqwork);
+diff --git a/arch/arm/boot/dts/aspeed-g6.dtsi b/arch/arm/boot/dts/aspeed-g6.dtsi
+index c32e87fad4dc..aac55b3aeded 100644
+--- a/arch/arm/boot/dts/aspeed-g6.dtsi
++++ b/arch/arm/boot/dts/aspeed-g6.dtsi
+@@ -389,6 +389,16 @@ sbc: secure-boot-controller@1e6f2000 {
+ 				reg = <0x1e6f2000 0x1000>;
+ 			};
  
- 	ida_simple_remove(&rtc_ida, rtc->id);
- 	mutex_destroy(&rtc->ops_lock);
++			video: video@1e700000 {
++				compatible = "aspeed,ast2600-video-engine";
++				reg = <0x1e700000 0x1000>;
++				clocks = <&syscon ASPEED_CLK_GATE_VCLK>,
++					 <&syscon ASPEED_CLK_GATE_ECLK>;
++				clock-names = "vclk", "eclk";
++				interrupts = <GIC_SPI 7 IRQ_TYPE_LEVEL_HIGH>;
++				status = "disabled";
++			};
++
+ 			gpio0: gpio@1e780000 {
+ 				#gpio-cells = <2>;
+ 				gpio-controller;
 -- 
 2.35.1
 
