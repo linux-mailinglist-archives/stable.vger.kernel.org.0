@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D70B5316A3
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B79D531754
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240174AbiEWRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:33:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39266 "EHLO
+        id S241686AbiEWReB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:34:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241007AbiEWRcl (ORCPT
+        with ESMTP id S241103AbiEWRcl (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:32:41 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E236D7890F;
-        Mon, 23 May 2022 10:27:25 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0AB79825;
+        Mon, 23 May 2022 10:27:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F298608C0;
-        Mon, 23 May 2022 17:27:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E5F3C385A9;
-        Mon, 23 May 2022 17:27:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 523B860919;
+        Mon, 23 May 2022 17:27:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50623C385A9;
+        Mon, 23 May 2022 17:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326844;
-        bh=wP8oCIlK2oDbgwEMgq/WN9tjdtUuWnR4GBzeW+e+HSw=;
+        s=korg; t=1653326847;
+        bh=z9KitDqnllZPX+NUcFczaCCn/qxRFGh1THplW/YBoOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0sFvTTGQ93AwdlsYIxuh6KuV9YQUMSQe/gNAV7JAyON3XHqOeLRFg01K39rsUxSf
-         WnhbcZno9zx7U6kMe3OJizOK1oUDrs7umAC23Ypf0VR/SvBiWO5fVekCd5i8hGPwh+
-         CLEbZ7xPmdQzrT27FupEQk09z6yE48S9TwpzyO6Y=
+        b=XI+BuiScBJwhH+5+JAPCFdfTl+uFr0mLanvAPGdluYzfmHwi7WiSvXBlZqsj2KbE+
+         0YePvuLudonDVrZpJnhC6cXtpeHOipIX48FLKF5AnFYjx6ogfG6qvNrBXTVwrYwy9P
+         /JK9R6AuE5L80pchYV+hokykgh87RaQ5po5QhpWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 077/158] net: ipa: record proper RX transaction count
-Date:   Mon, 23 May 2022 19:03:54 +0200
-Message-Id: <20220523165843.777492251@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Ming Lei <ming.lei@redhat.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 078/158] block/mq-deadline: Set the fifo_time member also if inserting at head
+Date:   Mon, 23 May 2022 19:03:55 +0200
+Message-Id: <20220523165843.956480333@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -54,59 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit d8290cbe1111105f92f0c8ab455bec8bf98d0630 ]
+[ Upstream commit 725f22a1477c9c15aa67ad3af96fe28ec4fe72d2 ]
 
-Each time we are notified that some number of transactions on an RX
-channel has completed, we record the number of bytes that have been
-transferred since the previous notification.  We also track the
-number of transactions completed, but that is not currently being
-calculated correctly; we're currently counting the number of such
-notifications, but each notification can represent many transaction
-completions.  Fix this.
+Before commit 322cff70d46c the fifo_time member of requests on a dispatch
+list was not used. Commit 322cff70d46c introduces code that reads the
+fifo_time member of requests on dispatch lists. Hence this patch that sets
+the fifo_time member when adding a request to a dispatch list.
 
-Fixes: 650d1603825d8 ("soc: qcom: ipa: the generic software interface")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Fixes: 322cff70d46c ("block/mq-deadline: Prioritize high-priority requests")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Link: https://lore.kernel.org/r/20220513171307.32564-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/gsi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ block/mq-deadline.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
-index bc981043cc80..a701178a1d13 100644
---- a/drivers/net/ipa/gsi.c
-+++ b/drivers/net/ipa/gsi.c
-@@ -1367,9 +1367,10 @@ static void gsi_evt_ring_rx_update(struct gsi_evt_ring *evt_ring, u32 index)
- 	struct gsi_event *event_done;
- 	struct gsi_event *event;
- 	struct gsi_trans *trans;
-+	u32 trans_count = 0;
- 	u32 byte_count = 0;
--	u32 old_index;
- 	u32 event_avail;
-+	u32 old_index;
+diff --git a/block/mq-deadline.c b/block/mq-deadline.c
+index 3ed5eaf3446a..6ed602b2f80a 100644
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -742,6 +742,7 @@ static void dd_insert_request(struct blk_mq_hw_ctx *hctx, struct request *rq,
  
- 	trans_info = &channel->trans_info;
+ 	if (at_head) {
+ 		list_add(&rq->queuelist, &per_prio->dispatch);
++		rq->fifo_time = jiffies;
+ 	} else {
+ 		deadline_add_rq_rb(per_prio, rq);
  
-@@ -1390,6 +1391,7 @@ static void gsi_evt_ring_rx_update(struct gsi_evt_ring *evt_ring, u32 index)
- 	do {
- 		trans->len = __le16_to_cpu(event->len);
- 		byte_count += trans->len;
-+		trans_count++;
- 
- 		/* Move on to the next event and transaction */
- 		if (--event_avail)
-@@ -1401,7 +1403,7 @@ static void gsi_evt_ring_rx_update(struct gsi_evt_ring *evt_ring, u32 index)
- 
- 	/* We record RX bytes when they are received */
- 	channel->byte_count += byte_count;
--	channel->trans_count++;
-+	channel->trans_count += trans_count;
- }
- 
- /* Initialize a ring, including allocating DMA memory for its entries */
 -- 
 2.35.1
 
