@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2F16531785
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8DDB5317FD
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239918AbiEWRRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45108 "EHLO
+        id S240266AbiEWRXi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:23:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240969AbiEWRQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50B86B665;
-        Mon, 23 May 2022 10:16:40 -0700 (PDT)
+        with ESMTP id S241781AbiEWRWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:36 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CD4D7CB24;
+        Mon, 23 May 2022 10:19:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 99935B81205;
-        Mon, 23 May 2022 17:13:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB92AC385A9;
-        Mon, 23 May 2022 17:12:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EBFA060C21;
+        Mon, 23 May 2022 17:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0289CC385A9;
+        Mon, 23 May 2022 17:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325979;
-        bh=XmBQV3f1U39XKjofWdJcehcZCPUMgpflEGSWZaI+XD0=;
+        s=korg; t=1653326371;
+        bh=b6NFvtV05C67/m5JJ+rIvl1ZWELbS0fmHb1VDGSWuUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mK8mRP/92OrUtkg98ZJji2VdOdNTS5aqWNnB+PTdtyoSmLqho80UkrW/ubU8ORXrU
-         ckcq6DTv0rKhcmaAdEg2U78palmkPPLnxJv9AL1dtl9Swhp+XUiYCkpctownGJIOcd
-         ur7BWP+4EBE55P/2hiqVDxrXTogrsACeoBDjC/sM=
+        b=Puv2SpwCD6U9Xr74YUwQynyKMgW6ZznNV6W/Ot/uLry9es7B5kdUTwwJm4M/K1ypp
+         n1eM+shqbAAChVaTdwiETSyeLsIaVVrYjR14aGqgcQrUk8retUy2PsaIKWadMfxvn+
+         4z6K6uw7/crqIXjoicfCSzlVid1K2u3rPqLW4qMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Benes <mbenes@suse.cz>,
-        Juergen Gross <jgross@suse.com>,
-        Markus Boehme <markubo@amazon.com>
-Subject: [PATCH 5.4 03/68] x86/xen: Make the secondary CPU idle tasks reliable
+        stable@vger.kernel.org,
+        Charan Teja Kalla <quic_charante@quicinc.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Subject: [PATCH 5.15 061/132] dma-buf: ensure unique directory name for dmabuf stats
 Date:   Mon, 23 May 2022 19:04:30 +0200
-Message-Id: <20220523165803.141513758@linuxfoundation.org>
+Message-Id: <20220523165833.397196931@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,70 +54,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Benes <mbenes@suse.cz>
+From: Charan Teja Kalla <quic_charante@quicinc.com>
 
-commit c3881eb58d56116c79ac4ee4f40fd15ead124c4b upstream.
+commit 370704e707a5f2d3c9a1d4ed8bd8cd67507d7bb5 upstream.
 
-The unwinder reports the secondary CPU idle tasks' stack on XEN PV as
-unreliable, which affects at least live patching.
-cpu_initialize_context() sets up the context of the CPU through
-VCPUOP_initialise hypercall. After it is woken up, the idle task starts
-in cpu_bringup_and_idle() function and its stack starts at the offset
-right below pt_regs. The unwinder correctly detects the end of stack
-there but it is confused by NULL return address in the last frame.
+The dmabuf file uses get_next_ino()(through dma_buf_getfile() ->
+alloc_anon_inode()) to get an inode number and uses the same as a
+directory name under /sys/kernel/dmabuf/buffers/<ino>. This directory is
+used to collect the dmabuf stats and it is created through
+dma_buf_stats_setup(). At current, failure to create this directory
+entry can make the dma_buf_export() to fail.
 
-Introduce a wrapper in assembly, which just calls
-cpu_bringup_and_idle(). The return address is thus pushed on the stack
-and the wrapper contains the annotation hint for the unwinder regarding
-the stack state.
+Now, as the get_next_ino() can definitely give a repetitive inode no
+causing the directory entry creation to fail with -EEXIST. This is a
+problem on the systems where dmabuf stats functionality is enabled on
+the production builds can make the dma_buf_export(), though the dmabuf
+memory is allocated successfully, to fail just because it couldn't
+create stats entry.
 
-Signed-off-by: Miroslav Benes <mbenes@suse.cz>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Markus Boehme <markubo@amazon.com>
+This issue we are able to see on the snapdragon system within 13 days
+where there already exists a directory with inode no "122602" so
+dma_buf_stats_setup() failed with -EEXIST as it is trying to create
+the same directory entry.
+
+To make the dentry name as unique, use the dmabuf fs specific inode
+which is based on the simple atomic variable increment. There is tmpfs
+subsystem too which relies on its own inode generation rather than
+relying on the get_next_ino() for the same reason of avoiding the
+duplicate inodes[1].
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/patch/?id=e809d5f0b5c912fe981dce738f3283b2010665f0
+
+Signed-off-by: Charan Teja Kalla <quic_charante@quicinc.com>
+Cc: <stable@vger.kernel.org> # 5.15.x+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1652441296-1986-1-git-send-email-quic_charante@quicinc.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/xen/smp_pv.c   |    3 ++-
- arch/x86/xen/xen-head.S |   10 ++++++++++
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ drivers/dma-buf/dma-buf.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/arch/x86/xen/smp_pv.c
-+++ b/arch/x86/xen/smp_pv.c
-@@ -53,6 +53,7 @@ static DEFINE_PER_CPU(struct xen_common_
- static DEFINE_PER_CPU(struct xen_common_irq, xen_pmu_irq) = { .irq = -1 };
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -436,6 +436,7 @@ static inline int is_dma_buf_file(struct
  
- static irqreturn_t xen_irq_work_interrupt(int irq, void *dev_id);
-+void asm_cpu_bringup_and_idle(void);
- 
- static void cpu_bringup(void)
+ static struct file *dma_buf_getfile(struct dma_buf *dmabuf, int flags)
  {
-@@ -310,7 +311,7 @@ cpu_initialize_context(unsigned int cpu,
- 	 * pointing just below where pt_regs would be if it were a normal
- 	 * kernel entry.
- 	 */
--	ctxt->user_regs.eip = (unsigned long)cpu_bringup_and_idle;
-+	ctxt->user_regs.eip = (unsigned long)asm_cpu_bringup_and_idle;
- 	ctxt->flags = VGCF_IN_KERNEL;
- 	ctxt->user_regs.eflags = 0x1000; /* IOPL_RING1 */
- 	ctxt->user_regs.ds = __USER_DS;
---- a/arch/x86/xen/xen-head.S
-+++ b/arch/x86/xen/xen-head.S
-@@ -58,6 +58,16 @@ ENTRY(startup_xen)
- 	call xen_start_kernel
- END(startup_xen)
- 	__FINIT
-+
-+#ifdef CONFIG_XEN_PV_SMP
-+.pushsection .text
-+SYM_CODE_START(asm_cpu_bringup_and_idle)
-+	UNWIND_HINT_EMPTY
-+
-+	call cpu_bringup_and_idle
-+SYM_CODE_END(asm_cpu_bringup_and_idle)
-+.popsection
-+#endif
- #endif
++	static atomic64_t dmabuf_inode = ATOMIC64_INIT(0);
+ 	struct file *file;
+ 	struct inode *inode = alloc_anon_inode(dma_buf_mnt->mnt_sb);
  
- .pushsection .text
+@@ -445,6 +446,13 @@ static struct file *dma_buf_getfile(stru
+ 	inode->i_size = dmabuf->size;
+ 	inode_set_bytes(inode, dmabuf->size);
+ 
++	/*
++	 * The ->i_ino acquired from get_next_ino() is not unique thus
++	 * not suitable for using it as dentry name by dmabuf stats.
++	 * Override ->i_ino with the unique and dmabuffs specific
++	 * value.
++	 */
++	inode->i_ino = atomic64_add_return(1, &dmabuf_inode);
+ 	file = alloc_file_pseudo(inode, dma_buf_mnt, "dmabuf",
+ 				 flags, &dma_buf_fops);
+ 	if (IS_ERR(file))
 
 
