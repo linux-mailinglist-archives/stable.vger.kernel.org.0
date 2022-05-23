@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB5E53164C
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CDFF53175A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240495AbiEWRRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37684 "EHLO
+        id S241508AbiEWRaj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239986AbiEWRRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D1346B653;
-        Mon, 23 May 2022 10:17:06 -0700 (PDT)
+        with ESMTP id S242401AbiEWR1m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:42 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 906EF7CB2E;
+        Mon, 23 May 2022 10:23:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2872BB81210;
-        Mon, 23 May 2022 17:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F54C385AA;
-        Mon, 23 May 2022 17:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D072608C0;
+        Mon, 23 May 2022 17:23:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 877E5C385AA;
+        Mon, 23 May 2022 17:23:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326182;
-        bh=qNsw8UK5s/gGHb4MLQDTHi7UXjBbR34W4sjFr7+B9qs=;
+        s=korg; t=1653326584;
+        bh=IUN29lJ+JAwPbvxgjq8dqn4ODUTyFTt6/A5kJgrGy2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2UFbfb3dYSUY+BUpaAltX4NFS937S+Q3GiW4gXZ5IgbyqsYG5cnaSYt8cnTP3Ry5C
-         0W8P+Mk/Mr497H4We+NqWrVtGDqSN0RiPgS8zcuAejzd+a1qAlPVFEaGjYQ9R2lmtd
-         ugn8uXWWKGJkQIBmtQPwHjKY2bOj6eP6QRyrjE4A=
+        b=w3L7ICqeDr3ICLA9u03pyMWD7iYHuuJbhR59nI/NE0YHYnWTGz59jZHScW8shnbRn
+         Xj5rruSqSLDYyBgUWmkbDDtsH3WDZah9t8dE5H1csE/W+qHmbtINhtjDOycXgSJOvW
+         ayZ+dBj18IxcOkSZ+9hHyBdJsfvf4iNWSijltCTY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 31/97] Revert "swiotlb: fix info leak with DMA_FROM_DEVICE"
+        stable@vger.kernel.org, Aashay Shringarpure <aashay@google.com>,
+        Yi Chou <yich@google.com>,
+        Shervin Oloumi <enlightened@google.com>,
+        Grant Grundler <grundler@chromium.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 126/132] net: atlantic: verify hw_head_ lies within TX buffer ring
 Date:   Mon, 23 May 2022 19:05:35 +0200
-Message-Id: <20220523165817.160571252@linuxfoundation.org>
+Message-Id: <20220523165844.539556765@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165812.244140613@linuxfoundation.org>
-References: <20220523165812.244140613@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,68 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit d4d975e7921079f877f828099bb8260af335508f.
+From: Grant Grundler <grundler@chromium.org>
 
-Upstream had a follow-up fix, revert, and a semi-reverted-revert.
-Instead of going through this chain which is more painful to backport,
-I'm just going to revert this original commit and pick the final one.
+[ Upstream commit 2120b7f4d128433ad8c5f503a9584deba0684901 ]
 
+Bounds check hw_head index provided by NIC to verify it lies
+within the TX buffer ring.
+
+Reported-by: Aashay Shringarpure <aashay@google.com>
+Reported-by: Yi Chou <yich@google.com>
+Reported-by: Shervin Oloumi <enlightened@google.com>
+Signed-off-by: Grant Grundler <grundler@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/core-api/dma-attributes.rst | 8 --------
- include/linux/dma-mapping.h               | 8 --------
- kernel/dma/swiotlb.c                      | 3 +--
- 3 files changed, 1 insertion(+), 18 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/core-api/dma-attributes.rst b/Documentation/core-api/dma-attributes.rst
-index 17706dc91ec9..1887d92e8e92 100644
---- a/Documentation/core-api/dma-attributes.rst
-+++ b/Documentation/core-api/dma-attributes.rst
-@@ -130,11 +130,3 @@ accesses to DMA buffers in both privileged "supervisor" and unprivileged
- subsystem that the buffer is fully accessible at the elevated privilege
- level (and ideally inaccessible or at least read-only at the
- lesser-privileged levels).
--
--DMA_ATTR_OVERWRITE
--------------------
--
--This is a hint to the DMA-mapping subsystem that the device is expected to
--overwrite the entire mapped size, thus the caller does not require any of the
--previous buffer contents to be preserved. This allows bounce-buffering
--implementations to optimise DMA_FROM_DEVICE transfers.
-diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
-index a9361178c5db..a7d70cdee25e 100644
---- a/include/linux/dma-mapping.h
-+++ b/include/linux/dma-mapping.h
-@@ -61,14 +61,6 @@
-  */
- #define DMA_ATTR_PRIVILEGED		(1UL << 9)
+diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+index 9f1b15077e7d..45c17c585d74 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+@@ -889,6 +889,13 @@ int hw_atl_b0_hw_ring_tx_head_update(struct aq_hw_s *self,
+ 		err = -ENXIO;
+ 		goto err_exit;
+ 	}
++
++	/* Validate that the new hw_head_ is reasonable. */
++	if (hw_head_ >= ring->size) {
++		err = -ENXIO;
++		goto err_exit;
++	}
++
+ 	ring->hw_head = hw_head_;
+ 	err = aq_hw_err_from_flags(self);
  
--/*
-- * This is a hint to the DMA-mapping subsystem that the device is expected
-- * to overwrite the entire mapped size, thus the caller does not require any
-- * of the previous buffer contents to be preserved. This allows
-- * bounce-buffering implementations to optimise DMA_FROM_DEVICE transfers.
-- */
--#define DMA_ATTR_OVERWRITE		(1UL << 10)
--
- /*
-  * A dma_addr_t can hold any valid DMA or bus address for the platform.  It can
-  * be given to a device to use as a DMA source or target.  It is specific to a
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 62b1e5fa8673..0ed0e1f215c7 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -598,8 +598,7 @@ phys_addr_t swiotlb_tbl_map_single(struct device *dev, phys_addr_t orig_addr,
- 
- 	tlb_addr = slot_addr(io_tlb_start, index) + offset;
- 	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC) &&
--	    (!(attrs & DMA_ATTR_OVERWRITE) || dir == DMA_TO_DEVICE ||
--	    dir == DMA_BIDIRECTIONAL))
-+	    (dir == DMA_TO_DEVICE || dir == DMA_BIDIRECTIONAL))
- 		swiotlb_bounce(orig_addr, tlb_addr, mapping_size, DMA_TO_DEVICE);
- 	return tlb_addr;
- }
 -- 
 2.35.1
 
