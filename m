@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 292B25317C4
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 836465319C4
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238866AbiEWR3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
+        id S239702AbiEWRJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:09:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240865AbiEWR0H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:07 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0D217A9E;
-        Mon, 23 May 2022 10:21:11 -0700 (PDT)
+        with ESMTP id S239448AbiEWRJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:09:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 108F26C0E6;
+        Mon, 23 May 2022 10:08:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5B0B8121C;
-        Mon, 23 May 2022 17:21:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81072C385A9;
-        Mon, 23 May 2022 17:20:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C80A2B81200;
+        Mon, 23 May 2022 17:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 253EEC385A9;
+        Mon, 23 May 2022 17:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326459;
-        bh=IiG6DVAr/cCMbHcZiaclUM7731Pl9HADJE4+83bC76I=;
+        s=korg; t=1653325704;
+        bh=sr/B4d37/4qkj9pTFmmpK3Nokr8z6fDzlyR7FE+yYD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bW2ecwIzm2hysXfGCiqAwHdAxyIyXMZ5eX9A7izzBiipG5B61Q5ECuBzjQYVY3Atv
-         pjPYh5emy0sXH1UZw3V8Lmb7XPYn2YZIvD4cwF17uh3OEKaxzICbjxxDZaMSdi97Tv
-         VZsmyaBdsemVhONfvA0N0mdii9f2GbAIo1G1cnKo=
+        b=BNGwyC4iBm4+tf/TJZ4871IUxN7ij9PMYLrdtdFAOFgeeeov5VbEUXrwAKrC1s07i
+         K5KISfy/wq4Rmx/kaLGhhKWIdj1BeoHW9DhIneMmvAhrOz43wDiHAQUCuyyzRXDqea
+         CULxv45B/44d2gDjt4d0XoCrodSgt0mrImFksjXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 088/132] net/qla3xxx: Fix a test in ql_reset_work()
-Date:   Mon, 23 May 2022 19:04:57 +0200
-Message-Id: <20220523165837.690435785@linuxfoundation.org>
+        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 09/33] perf: Fix sys_perf_event_open() race against self
+Date:   Mon, 23 May 2022 19:04:58 +0200
+Message-Id: <20220523165748.703871602@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165746.957506211@linuxfoundation.org>
+References: <20220523165746.957506211@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +54,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 5361448e45fac6fb96738df748229432a62d78b6 ]
+commit 3ac6487e584a1eb54071dbe1212e05b884136704 upstream.
 
-test_bit() tests if one bit is set or not.
-Here the logic seems to check of bit QL_RESET_PER_SCSI (i.e. 4) OR bit
-QL_RESET_START (i.e. 3) is set.
+Norbert reported that it's possible to race sys_perf_event_open() such
+that the looser ends up in another context from the group leader,
+triggering many WARNs.
 
-In fact, it checks if bit 7 (4 | 3 = 7) is set, that is to say
-QL_ADAPTER_UP.
+The move_group case checks for races against itself, but the
+!move_group case doesn't, seemingly relying on the previous
+group_leader->ctx == ctx check. However, that check is racy due to not
+holding any locks at that time.
 
-This looks harmless, because this bit is likely be set, and when the
-ql_reset_work() delayed work is scheduled in ql3xxx_isr() (the only place
-that schedule this work), QL_RESET_START or QL_RESET_PER_SCSI is set.
+Therefore, re-check the result after acquiring locks and bailing
+if they no longer match.
 
-This has been spotted by smatch.
+Additionally, clarify the not_move_group case from the
+move_group-vs-move_group race.
 
-Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/80e73e33f390001d9c0140ffa9baddf6466a41a2.1652637337.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: f63a8daa5812 ("perf: Fix event->ctx locking")
+Reported-by: Norbert Slusarek <nslusarek@gmx.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/events/core.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index 4eb9ea280474..40d14d80f6f1 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -3612,7 +3612,8 @@ static void ql_reset_work(struct work_struct *work)
- 		qdev->mem_map_registers;
- 	unsigned long hw_flags;
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -10228,6 +10228,9 @@ SYSCALL_DEFINE5(perf_event_open,
+ 		 * Do not allow to attach to a group in a different task
+ 		 * or CPU context. If we're moving SW events, we'll fix
+ 		 * this up later, so allow that.
++		 *
++		 * Racy, not holding group_leader->ctx->mutex, see comment with
++		 * perf_event_ctx_lock().
+ 		 */
+ 		if (!move_group && group_leader->ctx != ctx)
+ 			goto err_context;
+@@ -10277,11 +10280,22 @@ SYSCALL_DEFINE5(perf_event_open,
+ 			} else {
+ 				perf_event_ctx_unlock(group_leader, gctx);
+ 				move_group = 0;
++				goto not_move_group;
+ 			}
+ 		}
+ 	} else {
+ 		mutex_lock(&ctx->mutex);
++
++		/*
++		 * Now that we hold ctx->lock, (re)validate group_leader->ctx == ctx,
++		 * see the group_leader && !move_group test earlier.
++		 */
++		if (group_leader && group_leader->ctx != ctx) {
++			err = -EINVAL;
++			goto err_locked;
++		}
+ 	}
++not_move_group:
  
--	if (test_bit((QL_RESET_PER_SCSI | QL_RESET_START), &qdev->flags)) {
-+	if (test_bit(QL_RESET_PER_SCSI, &qdev->flags) ||
-+	    test_bit(QL_RESET_START, &qdev->flags)) {
- 		clear_bit(QL_LINK_MASTER, &qdev->flags);
- 
- 		/*
--- 
-2.35.1
-
+ 	if (ctx->task == TASK_TOMBSTONE) {
+ 		err = -ESRCH;
 
 
