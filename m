@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E87BA531A18
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AFA7531C99
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240175AbiEWRXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48984 "EHLO
+        id S240772AbiEWRfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:35:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241551AbiEWRW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF4978929;
-        Mon, 23 May 2022 10:19:07 -0700 (PDT)
+        with ESMTP id S241636AbiEWRdu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B668D7CB45;
+        Mon, 23 May 2022 10:27:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A853B8121F;
-        Mon, 23 May 2022 17:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1B6C34115;
-        Mon, 23 May 2022 17:19:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 230A960C42;
+        Mon, 23 May 2022 17:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29C80C385A9;
+        Mon, 23 May 2022 17:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326346;
-        bh=KRlYvPWMEKkubzqIFj6i84D49RI0Jy5hTL0Q+gTJ6io=;
+        s=korg; t=1653326876;
+        bh=v4X3XFtOTn07sCrVecFkbC+2a2JcsoUia1LKm6l68E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAoVESHfdOZFGTH0L6M5+Zvu7x9i2mEZqMUSXQRprykbUnK/ZPv8M8Irf2lQDOaHx
-         sGeTyACcV0mC1XutfnCKA+59S5F+OsTqeYRRyFLo2TekcuuYwzvzMbhz2D06uV8w3A
-         U+WNh8n2mCFqfXML8gi9xURwuOcgn+NdLS+Z25YE=
+        b=kM5Y1zO4oqQ5VOUPq1om5HQFa5atNNUMqod9hA2TKUO8FmZuTcLVmOiGlghcTi30g
+         HZqyju165TKDfA0dsrAk7qmYLGj0nKOlkotHSy/hL5VNaDouTa27G3sZrMTjeRAHnZ
+         lpJzeXRraMHCrpBaj2QmkVMhEuyNmheA7bidiDM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/132] tools/virtio: compile with -pthread
-Date:   Mon, 23 May 2022 19:04:02 +0200
-Message-Id: <20220523165828.982726057@linuxfoundation.org>
+Subject: [PATCH 5.17 086/158] netfilter: nft_flow_offload: skip dst neigh lookup for ppp devices
+Date:   Mon, 23 May 2022 19:04:03 +0200
+Message-Id: <20220523165845.375227086@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,36 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael S. Tsirkin <mst@redhat.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit f03560a57c1f60db6ac23ffd9714e1c69e2f95c7 ]
+[ Upstream commit 45ca3e61999e9a30ca2b7cfbf9da8a9f8d13be31 ]
 
-When using pthreads, one has to compile and link with -lpthread,
-otherwise e.g. glibc is not guaranteed to be reentrant.
+The dst entry does not contain a valid hardware address, so skip the lookup
+in order to avoid running into errors here.
+The proper hardware address is filled in from nft_dev_path_info
 
-This replaces -lpthread.
-
-Reported-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 72efd585f714 ("netfilter: flowtable: add pppoe support")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/virtio/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/netfilter/nft_flow_offload.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index 0d7bbe49359d..1b25cc7c64bb 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -5,7 +5,8 @@ virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
+diff --git a/net/netfilter/nft_flow_offload.c b/net/netfilter/nft_flow_offload.c
+index 0af34ad41479..dd824193c920 100644
+--- a/net/netfilter/nft_flow_offload.c
++++ b/net/netfilter/nft_flow_offload.c
+@@ -36,6 +36,15 @@ static void nft_default_forward_path(struct nf_flow_route *route,
+ 	route->tuple[dir].xmit_type	= nft_xmit_type(dst_cache);
+ }
  
- CFLAGS += -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
--LDFLAGS += -lpthread
-+CFLAGS += -pthread
-+LDFLAGS += -pthread
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
++static bool nft_is_valid_ether_device(const struct net_device *dev)
++{
++	if (!dev || (dev->flags & IFF_LOOPBACK) || dev->type != ARPHRD_ETHER ||
++	    dev->addr_len != ETH_ALEN || !is_valid_ether_addr(dev->dev_addr))
++		return false;
++
++	return true;
++}
++
+ static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
+ 				     const struct dst_entry *dst_cache,
+ 				     const struct nf_conn *ct,
+@@ -47,6 +56,9 @@ static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
+ 	struct neighbour *n;
+ 	u8 nud_state;
+ 
++	if (!nft_is_valid_ether_device(dev))
++		goto out;
++
+ 	n = dst_neigh_lookup(dst_cache, daddr);
+ 	if (!n)
+ 		return -1;
+@@ -60,6 +72,7 @@ static int nft_dev_fill_forward_path(const struct nf_flow_route *route,
+ 	if (!(nud_state & NUD_VALID))
+ 		return -1;
+ 
++out:
+ 	return dev_fill_forward_path(dev, ha, stack);
+ }
+ 
+@@ -78,15 +91,6 @@ struct nft_forward_info {
+ 	enum flow_offload_xmit_type xmit_type;
+ };
+ 
+-static bool nft_is_valid_ether_device(const struct net_device *dev)
+-{
+-	if (!dev || (dev->flags & IFF_LOOPBACK) || dev->type != ARPHRD_ETHER ||
+-	    dev->addr_len != ETH_ALEN || !is_valid_ether_addr(dev->dev_addr))
+-		return false;
+-
+-	return true;
+-}
+-
+ static void nft_dev_path_info(const struct net_device_path_stack *stack,
+ 			      struct nft_forward_info *info,
+ 			      unsigned char *ha, struct nf_flowtable *flowtable)
 -- 
 2.35.1
 
