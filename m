@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F32E531A82
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83CED5318EF
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241739AbiEWRbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:31:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43412 "EHLO
+        id S240467AbiEWRRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:17:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241749AbiEWR1G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3196762A2;
-        Mon, 23 May 2022 10:22:14 -0700 (PDT)
+        with ESMTP id S240166AbiEWRP3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:15:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05FF062CE;
+        Mon, 23 May 2022 10:12:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80EC2B81205;
-        Mon, 23 May 2022 17:22:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB8D4C385A9;
-        Mon, 23 May 2022 17:22:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4D12614CA;
+        Mon, 23 May 2022 17:12:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6571C385A9;
+        Mon, 23 May 2022 17:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326523;
-        bh=rvSzg4byCwgWMomkfs8o838Z56L/SF9292ftwShD6Y0=;
+        s=korg; t=1653325963;
+        bh=iaOavnu9uVLIPR/Pfk/FPb5GyxAQ7s5vYCI00gmarEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qcunDlAuwNoGdecGABmO1jGCI2UzjLMRFvDbP250M0KijUi1RSXyP87cMGID2gzkQ
-         JARiasrIlVqdYefHGYYqq4ADgyAdvoCJtSZsSDFhJG2EGbOE/azg/hop46Ut8K7Aqc
-         8lUUy6DW+swOwPVAMwoCez8kyN3uPP2sQV7Yc1QE=
+        b=1Yrg43+CiIjizx0a3kXSKPvqrxKSW2Lvk7PRNtECzXJyDlDM3wH8awXeNqumlvAYB
+         JmdoAhAaGF5L9yNj6BrdsPzTyAL3B3+WG536gFlu97n1R8d0pWGShYn8CbvL5Uhok4
+         CTrc33KHD58cHDVlb6uVzpFBZENEoMeXyegpkivc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 080/132] net: systemport: Fix an error handling path in bcm_sysport_probe()
-Date:   Mon, 23 May 2022 19:04:49 +0200
-Message-Id: <20220523165836.357952461@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Meena Shanmugam <meenashanmugam@google.com>
+Subject: [PATCH 5.4 23/68] SUNRPC: Prevent immediate close+reconnect
+Date:   Mon, 23 May 2022 19:04:50 +0200
+Message-Id: <20220523165806.474707162@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Meena Shanmugam <meenashanmugam@google.com>
 
-[ Upstream commit ef6b1cd11962aec21c58d137006ab122dbc8d6fd ]
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-if devm_clk_get_optional() fails, we still need to go through the error
-handling path.
+commit 3be232f11a3cc9b0ef0795e39fa11bdb8e422a06 upstream.
 
-Add the missing goto.
+If we have already set up the socket and are waiting for it to connect,
+then don't immediately close and retry.
 
-Fixes: 6328a126896ea ("net: systemport: Manage Wake-on-LAN clock")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/99d70634a81c229885ae9e4ee69b2035749f7edc.1652634040.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bcmsysport.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/sunrpc/xprt.c     |    3 ++-
+ net/sunrpc/xprtsock.c |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcmsysport.c b/drivers/net/ethernet/broadcom/bcmsysport.c
-index 0877b3d7f88c..ae541a9d1eee 100644
---- a/drivers/net/ethernet/broadcom/bcmsysport.c
-+++ b/drivers/net/ethernet/broadcom/bcmsysport.c
-@@ -2585,8 +2585,10 @@ static int bcm_sysport_probe(struct platform_device *pdev)
- 		device_set_wakeup_capable(&pdev->dev, 1);
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -722,7 +722,8 @@ EXPORT_SYMBOL_GPL(xprt_disconnect_done);
+  */
+ static void xprt_schedule_autoclose_locked(struct rpc_xprt *xprt)
+ {
+-	set_bit(XPRT_CLOSE_WAIT, &xprt->state);
++	if (test_and_set_bit(XPRT_CLOSE_WAIT, &xprt->state))
++		return;
+ 	if (test_and_set_bit(XPRT_LOCKED, &xprt->state) == 0)
+ 		queue_work(xprtiod_workqueue, &xprt->task_cleanup);
+ 	else if (xprt->snd_task && !test_bit(XPRT_SND_IS_COOKIE, &xprt->state))
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -2469,7 +2469,7 @@ static void xs_connect(struct rpc_xprt *
  
- 	priv->wol_clk = devm_clk_get_optional(&pdev->dev, "sw_sysportwol");
--	if (IS_ERR(priv->wol_clk))
--		return PTR_ERR(priv->wol_clk);
-+	if (IS_ERR(priv->wol_clk)) {
-+		ret = PTR_ERR(priv->wol_clk);
-+		goto err_deregister_fixed_link;
-+	}
+ 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
  
- 	/* Set the needed headroom once and for all */
- 	BUILD_BUG_ON(sizeof(struct bcm_tsb) != 8);
--- 
-2.35.1
-
+-	if (transport->sock != NULL) {
++	if (transport->sock != NULL && !xprt_connecting(xprt)) {
+ 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
+ 				"seconds\n",
+ 				xprt, xprt->reestablish_timeout / HZ);
 
 
