@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEA3C53194D
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E90885316F7
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240024AbiEWRZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:25:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43680 "EHLO
+        id S241346AbiEWRfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:35:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240054AbiEWRX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:23:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 652BB82179;
-        Mon, 23 May 2022 10:20:44 -0700 (PDT)
+        with ESMTP id S241358AbiEWRdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:33:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3679279810;
+        Mon, 23 May 2022 10:27:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48CCE610E8;
-        Mon, 23 May 2022 17:19:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48273C385AA;
-        Mon, 23 May 2022 17:18:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFD8BB81204;
+        Mon, 23 May 2022 17:27:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23149C385A9;
+        Mon, 23 May 2022 17:27:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326339;
-        bh=92+NFS0k3PNxcxMEA45Y2iFX4nKAdzYI4g8D6reYW64=;
+        s=korg; t=1653326866;
+        bh=WsuSbAaIujyTIwrBD5apsAefDfG4Oh395kfYZcVJZF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfvq1/gnjwpO5H/W4UNwLalpxzVILti+vuIUZWPln1FJ3VA/fXnbCNPgwyfx/LtYD
-         7sMjX9UeADe3pscL18e9y3yOvxe6i0h1OC2Ddo8fWBG/h3dQkGkN/P47yXwSpPj9G3
-         lxAo/UwlLaZBtaBT+qGe36xyPdJLHGFWwxYD3dsE=
+        b=R0ZIaLVpFlZV3xPt1tYXH2SjiIPNhuuDqXhAl7cvBQ9ihCVriNgaH7HHYqJhdDYhQ
+         BXS2T7D+PEyMAvhV7RoY3HNYfW1vj+ZLLeH7WOpjIUj4J2cyzpslQalBURfF4zPUjx
+         dNlBfFtjTRG9TPrMcPplQSKDAMfEz/JnOg96q8WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Rosato <mjrosato@linux.ibm.com>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Shmulik Ladkani <shmulik.ladkani@gmail.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/132] s390/pci: improve zpci_dev reference counting
+Subject: [PATCH 5.17 083/158] xfrm: fix "disable_policy" flag use when arriving from different devices
 Date:   Mon, 23 May 2022 19:04:00 +0200
-Message-Id: <20220523165828.674238706@linuxfoundation.org>
+Message-Id: <20220523165844.849740900@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,133 +56,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Eyal Birger <eyal.birger@gmail.com>
 
-[ Upstream commit c122383d221dfa2f41cfe5e672540595de986fde ]
+[ Upstream commit e6175a2ed1f18bf2f649625bf725e07adcfa6a28 ]
 
-Currently zpci_dev uses kref based reference counting but only accounts
-for one original reference plus one reference from an added pci_dev to
-its underlying zpci_dev. Counting just the original reference worked
-until the pci_dev reference was added in commit 2a671f77ee49 ("s390/pci:
-fix use after free of zpci_dev") because once a zpci_dev goes away, i.e.
-enters the reserved state, it would immediately get released. However
-with the pci_dev reference this is no longer the case and the zpci_dev
-may still appear in multiple availability events indicating that it was
-reserved. This was solved by detecting when the zpci_dev is already on
-its way out but still hanging around. This has however shown some light
-on how unusual our zpci_dev reference counting is.
+In IPv4 setting the "disable_policy" flag on a device means no policy
+should be enforced for traffic originating from the device. This was
+implemented by seting the DST_NOPOLICY flag in the dst based on the
+originating device.
 
-Improve upon this by modelling zpci_dev reference counting on pci_dev.
-Analogous to pci_get_slot() increment the reference count in
-get_zdev_by_fid(). Thus all users of get_zdev_by_fid() must drop the
-reference once they are done with the zpci_dev.
+However, dsts are cached in nexthops regardless of the originating
+devices, in which case, the DST_NOPOLICY flag value may be incorrect.
 
-Similar to pci_scan_single_device(), zpci_create_device() returns the
-device with an initial count of 1 and the device added to the zpci_list
-(analogous to the PCI bus' device_list). In turn users of
-zpci_create_device() must only drop the reference once the device is
-gone from the point of view of the zPCI subsystem, it might still be
-referenced by the common PCI subsystem though.
+Consider the following setup:
 
-Reviewed-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+                     +------------------------------+
+                     | ROUTER                       |
+  +-------------+    | +-----------------+          |
+  | ipsec src   |----|-|ipsec0           |          |
+  +-------------+    | |disable_policy=0 |   +----+ |
+                     | +-----------------+   |eth1|-|-----
+  +-------------+    | +-----------------+   +----+ |
+  | noipsec src |----|-|eth0             |          |
+  +-------------+    | |disable_policy=1 |          |
+                     | +-----------------+          |
+                     +------------------------------+
+
+Where ROUTER has a default route towards eth1.
+
+dst entries for traffic arriving from eth0 would have DST_NOPOLICY
+and would be cached and therefore can be reused by traffic originating
+from ipsec0, skipping policy check.
+
+Fix by setting a IPSKB_NOPOLICY flag in IPCB and observing it instead
+of the DST in IN/FWD IPv4 policy checks.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Shmulik Ladkani <shmulik.ladkani@gmail.com>
+Signed-off-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/pci/pci.c       | 1 +
- arch/s390/pci/pci_bus.h   | 3 ++-
- arch/s390/pci/pci_clp.c   | 9 +++++++--
- arch/s390/pci/pci_event.c | 7 ++++++-
- 4 files changed, 16 insertions(+), 4 deletions(-)
+ include/net/ip.h   |  1 +
+ include/net/xfrm.h | 14 +++++++++++++-
+ net/ipv4/route.c   | 23 ++++++++++++++++++-----
+ 3 files changed, 32 insertions(+), 6 deletions(-)
 
-diff --git a/arch/s390/pci/pci.c b/arch/s390/pci/pci.c
-index b833155ce838..639924d98331 100644
---- a/arch/s390/pci/pci.c
-+++ b/arch/s390/pci/pci.c
-@@ -69,6 +69,7 @@ struct zpci_dev *get_zdev_by_fid(u32 fid)
- 	list_for_each_entry(tmp, &zpci_list, entry) {
- 		if (tmp->fid == fid) {
- 			zdev = tmp;
-+			zpci_zdev_get(zdev);
- 			break;
+diff --git a/include/net/ip.h b/include/net/ip.h
+index b51bae43b0dd..9fba950fdf12 100644
+--- a/include/net/ip.h
++++ b/include/net/ip.h
+@@ -56,6 +56,7 @@ struct inet_skb_parm {
+ #define IPSKB_DOREDIRECT	BIT(5)
+ #define IPSKB_FRAG_PMTU		BIT(6)
+ #define IPSKB_L3SLAVE		BIT(7)
++#define IPSKB_NOPOLICY		BIT(8)
+ 
+ 	u16			frag_max_size;
+ };
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 6fb899ff5afc..d2efddce65d4 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1093,6 +1093,18 @@ static inline bool __xfrm_check_nopolicy(struct net *net, struct sk_buff *skb,
+ 	return false;
+ }
+ 
++static inline bool __xfrm_check_dev_nopolicy(struct sk_buff *skb,
++					     int dir, unsigned short family)
++{
++	if (dir != XFRM_POLICY_OUT && family == AF_INET) {
++		/* same dst may be used for traffic originating from
++		 * devices with different policy settings.
++		 */
++		return IPCB(skb)->flags & IPSKB_NOPOLICY;
++	}
++	return skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY);
++}
++
+ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 				       struct sk_buff *skb,
+ 				       unsigned int family, int reverse)
+@@ -1104,7 +1116,7 @@ static inline int __xfrm_policy_check2(struct sock *sk, int dir,
+ 		return __xfrm_policy_check(sk, ndir, skb, family);
+ 
+ 	return __xfrm_check_nopolicy(net, skb, dir) ||
+-	       (skb_dst(skb) && (skb_dst(skb)->flags & DST_NOPOLICY)) ||
++	       __xfrm_check_dev_nopolicy(skb, dir, family) ||
+ 	       __xfrm_policy_check(sk, ndir, skb, family);
+ }
+ 
+diff --git a/net/ipv4/route.c b/net/ipv4/route.c
+index eef07b62b2d8..1cdfac733bd8 100644
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -1721,6 +1721,7 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	struct in_device *in_dev = __in_dev_get_rcu(dev);
+ 	unsigned int flags = RTCF_MULTICAST;
+ 	struct rtable *rth;
++	bool no_policy;
+ 	u32 itag = 0;
+ 	int err;
+ 
+@@ -1731,8 +1732,12 @@ static int ip_route_input_mc(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	if (our)
+ 		flags |= RTCF_LOCAL;
+ 
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
++
+ 	rth = rt_dst_alloc(dev_net(dev)->loopback_dev, flags, RTN_MULTICAST,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
++			   no_policy, false);
+ 	if (!rth)
+ 		return -ENOBUFS;
+ 
+@@ -1791,7 +1796,7 @@ static int __mkroute_input(struct sk_buff *skb,
+ 	struct rtable *rth;
+ 	int err;
+ 	struct in_device *out_dev;
+-	bool do_cache;
++	bool do_cache, no_policy;
+ 	u32 itag = 0;
+ 
+ 	/* get a working reference to the output device */
+@@ -1836,6 +1841,10 @@ static int __mkroute_input(struct sk_buff *skb,
  		}
  	}
-diff --git a/arch/s390/pci/pci_bus.h b/arch/s390/pci/pci_bus.h
-index e359d2686178..ecef3a9e16c0 100644
---- a/arch/s390/pci/pci_bus.h
-+++ b/arch/s390/pci/pci_bus.h
-@@ -19,7 +19,8 @@ void zpci_bus_remove_device(struct zpci_dev *zdev, bool set_error);
- void zpci_release_device(struct kref *kref);
- static inline void zpci_zdev_put(struct zpci_dev *zdev)
- {
--	kref_put(&zdev->kref, zpci_release_device);
-+	if (zdev)
-+		kref_put(&zdev->kref, zpci_release_device);
- }
  
- static inline void zpci_zdev_get(struct zpci_dev *zdev)
-diff --git a/arch/s390/pci/pci_clp.c b/arch/s390/pci/pci_clp.c
-index be077b39da33..5011d27461fd 100644
---- a/arch/s390/pci/pci_clp.c
-+++ b/arch/s390/pci/pci_clp.c
-@@ -22,6 +22,8 @@
- #include <asm/clp.h>
- #include <uapi/asm/clp.h>
- 
-+#include "pci_bus.h"
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
 +
- bool zpci_unique_uid;
- 
- void update_uid_checking(bool new)
-@@ -403,8 +405,11 @@ static void __clp_add(struct clp_fh_list_entry *entry, void *data)
- 		return;
- 
- 	zdev = get_zdev_by_fid(entry->fid);
--	if (!zdev)
--		zpci_create_device(entry->fid, entry->fh, entry->config_state);
-+	if (zdev) {
-+		zpci_zdev_put(zdev);
-+		return;
-+	}
-+	zpci_create_device(entry->fid, entry->fh, entry->config_state);
- }
- 
- int clp_scan_pci_devices(void)
-diff --git a/arch/s390/pci/pci_event.c b/arch/s390/pci/pci_event.c
-index 5b8d647523f9..6d57625b8ed9 100644
---- a/arch/s390/pci/pci_event.c
-+++ b/arch/s390/pci/pci_event.c
-@@ -62,10 +62,12 @@ static void __zpci_event_error(struct zpci_ccdf_err *ccdf)
- 	       pdev ? pci_name(pdev) : "n/a", ccdf->pec, ccdf->fid);
- 
- 	if (!pdev)
--		return;
-+		goto no_pdev;
- 
- 	pdev->error_state = pci_channel_io_perm_failure;
- 	pci_dev_put(pdev);
-+no_pdev:
-+	zpci_zdev_put(zdev);
- }
- 
- void zpci_event_error(void *data)
-@@ -94,6 +96,7 @@ static void zpci_event_hard_deconfigured(struct zpci_dev *zdev, u32 fh)
- static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- {
- 	struct zpci_dev *zdev = get_zdev_by_fid(ccdf->fid);
-+	bool existing_zdev = !!zdev;
- 	enum zpci_state state;
- 
- 	zpci_err("avail CCDF:\n");
-@@ -156,6 +159,8 @@ static void __zpci_event_availability(struct zpci_ccdf_avail *ccdf)
- 	default:
- 		break;
+ 	fnhe = find_exception(nhc, daddr);
+ 	if (do_cache) {
+ 		if (fnhe)
+@@ -1848,8 +1857,7 @@ static int __mkroute_input(struct sk_buff *skb,
+ 		}
  	}
-+	if (existing_zdev)
-+		zpci_zdev_put(zdev);
- }
  
- void zpci_event_availability(void *data)
+-	rth = rt_dst_alloc(out_dev->dev, 0, res->type,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY),
++	rth = rt_dst_alloc(out_dev->dev, 0, res->type, no_policy,
+ 			   IN_DEV_ORCONF(out_dev, NOXFRM));
+ 	if (!rth) {
+ 		err = -ENOBUFS;
+@@ -2224,6 +2232,7 @@ static int ip_route_input_slow(struct sk_buff *skb, __be32 daddr, __be32 saddr,
+ 	struct rtable	*rth;
+ 	struct flowi4	fl4;
+ 	bool do_cache = true;
++	bool no_policy;
+ 
+ 	/* IP on this device is disabled. */
+ 
+@@ -2341,6 +2350,10 @@ out:	return err;
+ 	RT_CACHE_STAT_INC(in_brd);
+ 
+ local_input:
++	no_policy = IN_DEV_ORCONF(in_dev, NOPOLICY);
++	if (no_policy)
++		IPCB(skb)->flags |= IPSKB_NOPOLICY;
++
+ 	do_cache &= res->fi && !itag;
+ 	if (do_cache) {
+ 		struct fib_nh_common *nhc = FIB_RES_NHC(*res);
+@@ -2355,7 +2368,7 @@ out:	return err;
+ 
+ 	rth = rt_dst_alloc(ip_rt_get_dev(net, res),
+ 			   flags | RTCF_LOCAL, res->type,
+-			   IN_DEV_ORCONF(in_dev, NOPOLICY), false);
++			   no_policy, false);
+ 	if (!rth)
+ 		goto e_nobufs;
+ 
 -- 
 2.35.1
 
