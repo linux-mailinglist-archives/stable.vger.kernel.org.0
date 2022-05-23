@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC8E531A3E
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C8E5317E0
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241660AbiEWRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38206 "EHLO
+        id S241519AbiEWR7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:59:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242952AbiEWRhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:51 -0400
+        with ESMTP id S244661AbiEWR6L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:58:11 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D606351C;
-        Mon, 23 May 2022 10:31:56 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC6D094199;
+        Mon, 23 May 2022 10:43:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD99B611E6;
-        Mon, 23 May 2022 17:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0CA0C385A9;
-        Mon, 23 May 2022 17:30:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0276561226;
+        Mon, 23 May 2022 17:30:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB45CC385A9;
+        Mon, 23 May 2022 17:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327040;
-        bh=JtVMK1J56BWXLZvCcn/YesZxEVRZCxup/GGdgk9PEC8=;
+        s=korg; t=1653327043;
+        bh=rB9twHthhy+1I4CbI2xTfKeQ0WsyU8vWo13GNgf2yfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aG5iBD5yaBYWY0ASydJP8L1YhcTitrTOeyhwS0eji/SImztfjDy5S2nSVJG9KGdC6
-         2jwhSvpWL3zNf452dkhTizW1m5dfGaa38KA8vEOeY30Lfn9VN2rAFsNh7ECwp6MQ9U
-         yohSOXWgHl7imNoaDuz8j4beDUA/AhPO4YuD1z4s=
+        b=rC23St0U//sNC/pgtpxNFQ/EnDZv93q8Z8bdm/c4Jn530KNaJBHgPWhpVEpNaD1QQ
+         ht59F3nRefnXEtttzexlP6xZXvLqAEEzBnrBEGg4T4PCpPoWKgyNzGT+bCyBfd9nMJ
+         WiOXOQgQX82bbCO8Dev0t1ZapVkO1JzoveW/XmS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Dickman <maord@nvidia.com>,
-        Yevgeny Kliteynik <kliteyn@nvidia.com>,
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Mark Bloch <mbloch@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 102/158] net/mlx5: DR, Fix missing flow_source when creating multi-destination FW table
-Date:   Mon, 23 May 2022 19:04:19 +0200
-Message-Id: <20220523165848.231649115@linuxfoundation.org>
+Subject: [PATCH 5.17 103/158] net/mlx5: Initialize flow steering during driver probe
+Date:   Mon, 23 May 2022 19:04:20 +0200
+Message-Id: <20220523165848.361460752@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -55,127 +55,395 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 2c5fc6cd269ad3476da99dad02521d2af4a8e906 ]
+[ Upstream commit b33886971dbc4a86d1ec5369a2aaefc60a7cd72d ]
 
-In order to support multiple destination FTEs with SW steering
-FW table is created with single FTE with multiple actions and
-SW steering rule forward to it. When creating this table, flow
-source isn't set according to the original FTE.
+Currently, software objects of flow steering are created and destroyed
+during reload flow. In case a device is unloaded, the following error
+is printed during grace period:
 
-Fix this by passing the original FTE flow source to the created
-FW table.
+ mlx5_core 0000:00:0b.0: mlx5_fw_fatal_reporter_err_work:690:(pid 95):
+    Driver is in error state. Unloading
 
-Fixes: 34583beea4b7 ("net/mlx5: DR, Create multi-destination table for SW-steering use")
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Yevgeny Kliteynik <kliteyn@nvidia.com>
+As a solution to fix use-after-free bugs, where we try to access
+these objects, when reading the value of flow_steering_mode devlink
+param[1], let's split flow steering creation and destruction into two
+routines:
+    * init and cleanup: memory, cache, and pools allocation/free.
+    * create and destroy: namespaces initialization and cleanup.
+
+While at it, re-order the cleanup function to mirror the init function.
+
+[1]
+Kasan trace:
+
+[  385.119849 ] BUG: KASAN: use-after-free in mlx5_devlink_fs_mode_get+0x3b/0xa0
+[  385.119849 ] Read of size 4 at addr ffff888104b79308 by task bash/291
+[  385.119849 ]
+[  385.119849 ] CPU: 1 PID: 291 Comm: bash Not tainted 5.17.0-rc1+ #2
+[  385.119849 ] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-2.fc32 04/01/2014
+[  385.119849 ] Call Trace:
+[  385.119849 ]  <TASK>
+[  385.119849 ]  dump_stack_lvl+0x6e/0x91
+[  385.119849 ]  print_address_description.constprop.0+0x1f/0x160
+[  385.119849 ]  ? mlx5_devlink_fs_mode_get+0x3b/0xa0
+[  385.119849 ]  ? mlx5_devlink_fs_mode_get+0x3b/0xa0
+[  385.119849 ]  kasan_report.cold+0x83/0xdf
+[  385.119849 ]  ? devlink_param_notify+0x20/0x190
+[  385.119849 ]  ? mlx5_devlink_fs_mode_get+0x3b/0xa0
+[  385.119849 ]  mlx5_devlink_fs_mode_get+0x3b/0xa0
+[  385.119849 ]  devlink_nl_param_fill+0x18a/0xa50
+[  385.119849 ]  ? _raw_spin_lock_irqsave+0x8d/0xe0
+[  385.119849 ]  ? devlink_flash_update_timeout_notify+0xf0/0xf0
+[  385.119849 ]  ? __wake_up_common+0x4b/0x1e0
+[  385.119849 ]  ? preempt_count_sub+0x14/0xc0
+[  385.119849 ]  ? _raw_spin_unlock_irqrestore+0x28/0x40
+[  385.119849 ]  ? __wake_up_common_lock+0xe3/0x140
+[  385.119849 ]  ? __wake_up_common+0x1e0/0x1e0
+[  385.119849 ]  ? __sanitizer_cov_trace_const_cmp8+0x27/0x80
+[  385.119849 ]  ? __rcu_read_unlock+0x48/0x70
+[  385.119849 ]  ? kasan_unpoison+0x23/0x50
+[  385.119849 ]  ? __kasan_slab_alloc+0x2c/0x80
+[  385.119849 ]  ? memset+0x20/0x40
+[  385.119849 ]  ? __sanitizer_cov_trace_const_cmp4+0x25/0x80
+[  385.119849 ]  devlink_param_notify+0xce/0x190
+[  385.119849 ]  devlink_unregister+0x92/0x2b0
+[  385.119849 ]  remove_one+0x41/0x140
+[  385.119849 ]  pci_device_remove+0x68/0x140
+[  385.119849 ]  ? pcibios_free_irq+0x10/0x10
+[  385.119849 ]  __device_release_driver+0x294/0x3f0
+[  385.119849 ]  device_driver_detach+0x82/0x130
+[  385.119849 ]  unbind_store+0x193/0x1b0
+[  385.119849 ]  ? subsys_interface_unregister+0x270/0x270
+[  385.119849 ]  drv_attr_store+0x4e/0x70
+[  385.119849 ]  ? drv_attr_show+0x60/0x60
+[  385.119849 ]  sysfs_kf_write+0xa7/0xc0
+[  385.119849 ]  kernfs_fop_write_iter+0x23a/0x2f0
+[  385.119849 ]  ? sysfs_kf_bin_read+0x160/0x160
+[  385.119849 ]  new_sync_write+0x311/0x430
+[  385.119849 ]  ? new_sync_read+0x480/0x480
+[  385.119849 ]  ? _raw_spin_lock+0x87/0xe0
+[  385.119849 ]  ? __sanitizer_cov_trace_cmp4+0x25/0x80
+[  385.119849 ]  ? security_file_permission+0x94/0xa0
+[  385.119849 ]  vfs_write+0x4c7/0x590
+[  385.119849 ]  ksys_write+0xf6/0x1e0
+[  385.119849 ]  ? __x64_sys_read+0x50/0x50
+[  385.119849 ]  ? fpregs_assert_state_consistent+0x99/0xa0
+[  385.119849 ]  do_syscall_64+0x3d/0x90
+[  385.119849 ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[  385.119849 ] RIP: 0033:0x7fc36ef38504
+[  385.119849 ] Code: 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb b3 0f 1f
+80 00 00 00 00 48 8d 05 f9 61 0d 00 8b 00 85 c0 75 13 b8 01 00 00 00 0f
+05 <48> 3d 00 f0 ff ff 77 54 c3 0f 1f 00 41 54 49 89 d4 55 48 89 f5 53
+[  385.119849 ] RSP: 002b:00007ffde0ff3d08 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+[  385.119849 ] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007fc36ef38504
+[  385.119849 ] RDX: 000000000000000c RSI: 00007fc370521040 RDI: 0000000000000001
+[  385.119849 ] RBP: 00007fc370521040 R08: 00007fc36f00b8c0 R09: 00007fc36ee4b740
+[  385.119849 ] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fc36f00a760
+[  385.119849 ] R13: 000000000000000c R14: 00007fc36f005760 R15: 000000000000000c
+[  385.119849 ]  </TASK>
+[  385.119849 ]
+[  385.119849 ] Allocated by task 65:
+[  385.119849 ]  kasan_save_stack+0x1e/0x40
+[  385.119849 ]  __kasan_kmalloc+0x81/0xa0
+[  385.119849 ]  mlx5_init_fs+0x11b/0x1160
+[  385.119849 ]  mlx5_load+0x13c/0x220
+[  385.119849 ]  mlx5_load_one+0xda/0x160
+[  385.119849 ]  mlx5_recover_device+0xb8/0x100
+[  385.119849 ]  mlx5_health_try_recover+0x2f9/0x3a1
+[  385.119849 ]  devlink_health_reporter_recover+0x75/0x100
+[  385.119849 ]  devlink_health_report+0x26c/0x4b0
+[  385.275909 ]  mlx5_fw_fatal_reporter_err_work+0x11e/0x1b0
+[  385.275909 ]  process_one_work+0x520/0x970
+[  385.275909 ]  worker_thread+0x378/0x950
+[  385.275909 ]  kthread+0x1bb/0x200
+[  385.275909 ]  ret_from_fork+0x1f/0x30
+[  385.275909 ]
+[  385.275909 ] Freed by task 65:
+[  385.275909 ]  kasan_save_stack+0x1e/0x40
+[  385.275909 ]  kasan_set_track+0x21/0x30
+[  385.275909 ]  kasan_set_free_info+0x20/0x30
+[  385.275909 ]  __kasan_slab_free+0xfc/0x140
+[  385.275909 ]  kfree+0xa5/0x3b0
+[  385.275909 ]  mlx5_unload+0x2e/0xb0
+[  385.275909 ]  mlx5_unload_one+0x86/0xb0
+[  385.275909 ]  mlx5_fw_fatal_reporter_err_work.cold+0xca/0xcf
+[  385.275909 ]  process_one_work+0x520/0x970
+[  385.275909 ]  worker_thread+0x378/0x950
+[  385.275909 ]  kthread+0x1bb/0x200
+[  385.275909 ]  ret_from_fork+0x1f/0x30
+[  385.275909 ]
+[  385.275909 ] The buggy address belongs to the object at ffff888104b79300
+[  385.275909 ]  which belongs to the cache kmalloc-128 of size 128
+[  385.275909 ] The buggy address is located 8 bytes inside of
+[  385.275909 ]  128-byte region [ffff888104b79300, ffff888104b79380)
+[  385.275909 ] The buggy address belongs to the page:
+[  385.275909 ] page:00000000de44dd39 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x104b78
+[  385.275909 ] head:00000000de44dd39 order:1 compound_mapcount:0
+[  385.275909 ] flags: 0x8000000000010200(slab|head|zone=2)
+[  385.275909 ] raw: 8000000000010200 0000000000000000 dead000000000122 ffff8881000428c0
+[  385.275909 ] raw: 0000000000000000 0000000080200020 00000001ffffffff 0000000000000000
+[  385.275909 ] page dumped because: kasan: bad access detected
+[  385.275909 ]
+[  385.275909 ] Memory state around the buggy address:
+[  385.275909 ]  ffff888104b79200: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 fc fc
+[  385.275909 ]  ffff888104b79280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  385.275909 ] >ffff888104b79300: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  385.275909 ]                       ^
+[  385.275909 ]  ffff888104b79380: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  385.275909 ]  ffff888104b79400: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+[  385.275909 ]]
+
+Fixes: e890acd5ff18 ("net/mlx5: Add devlink flow_steering_mode parameter")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Mark Bloch <mbloch@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/steering/dr_action.c    | 6 ++++--
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c    | 4 +++-
- drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h | 3 ++-
- drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c    | 4 +++-
- drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h   | 3 ++-
- 5 files changed, 14 insertions(+), 6 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/fs_core.c | 131 ++++++++++--------
+ .../net/ethernet/mellanox/mlx5/core/fs_core.h |   6 +-
+ .../net/ethernet/mellanox/mlx5/core/main.c    |  15 +-
+ 3 files changed, 91 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c
-index c61a5e83c78c..5d1caf97a8fc 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c
-@@ -847,7 +847,8 @@ struct mlx5dr_action *
- mlx5dr_action_create_mult_dest_tbl(struct mlx5dr_domain *dmn,
- 				   struct mlx5dr_action_dest *dests,
- 				   u32 num_of_dests,
--				   bool ignore_flow_level)
-+				   bool ignore_flow_level,
-+				   u32 flow_source)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+index 537c82b9aa53..b6f58d16d145 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -2656,28 +2656,6 @@ static void cleanup_root_ns(struct mlx5_flow_root_namespace *root_ns)
+ 	clean_tree(&root_ns->ns.node);
+ }
+ 
+-void mlx5_cleanup_fs(struct mlx5_core_dev *dev)
+-{
+-	struct mlx5_flow_steering *steering = dev->priv.steering;
+-
+-	cleanup_root_ns(steering->root_ns);
+-	cleanup_root_ns(steering->fdb_root_ns);
+-	steering->fdb_root_ns = NULL;
+-	kfree(steering->fdb_sub_ns);
+-	steering->fdb_sub_ns = NULL;
+-	cleanup_root_ns(steering->port_sel_root_ns);
+-	cleanup_root_ns(steering->sniffer_rx_root_ns);
+-	cleanup_root_ns(steering->sniffer_tx_root_ns);
+-	cleanup_root_ns(steering->rdma_rx_root_ns);
+-	cleanup_root_ns(steering->rdma_tx_root_ns);
+-	cleanup_root_ns(steering->egress_root_ns);
+-	mlx5_cleanup_fc_stats(dev);
+-	kmem_cache_destroy(steering->ftes_cache);
+-	kmem_cache_destroy(steering->fgs_cache);
+-	mlx5_ft_pool_destroy(dev);
+-	kfree(steering);
+-}
+-
+ static int init_sniffer_tx_root_ns(struct mlx5_flow_steering *steering)
  {
- 	struct mlx5dr_cmd_flow_destination_hw_info *hw_dests;
- 	struct mlx5dr_action **ref_actions;
-@@ -919,7 +920,8 @@ mlx5dr_action_create_mult_dest_tbl(struct mlx5dr_domain *dmn,
- 				      reformat_req,
- 				      &action->dest_tbl->fw_tbl.id,
- 				      &action->dest_tbl->fw_tbl.group_id,
--				      ignore_flow_level);
-+				      ignore_flow_level,
-+				      flow_source);
- 	if (ret)
- 		goto free_action;
+ 	struct fs_prio *prio;
+@@ -3063,42 +3041,27 @@ static int init_egress_root_ns(struct mlx5_flow_steering *steering)
+ 	return err;
+ }
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c
-index 68a4c32d5f34..f05ef0cd54ba 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c
-@@ -104,7 +104,8 @@ int mlx5dr_fw_create_md_tbl(struct mlx5dr_domain *dmn,
- 			    bool reformat_req,
- 			    u32 *tbl_id,
- 			    u32 *group_id,
--			    bool ignore_flow_level)
-+			    bool ignore_flow_level,
-+			    u32 flow_source)
+-int mlx5_init_fs(struct mlx5_core_dev *dev)
++void mlx5_fs_core_cleanup(struct mlx5_core_dev *dev)
  {
- 	struct mlx5dr_cmd_create_flow_table_attr ft_attr = {};
- 	struct mlx5dr_cmd_fte_info fte_info = {};
-@@ -139,6 +140,7 @@ int mlx5dr_fw_create_md_tbl(struct mlx5dr_domain *dmn,
- 	fte_info.val = val;
- 	fte_info.dest_arr = dest;
- 	fte_info.ignore_flow_level = ignore_flow_level;
-+	fte_info.flow_context.flow_source = flow_source;
+-	struct mlx5_flow_steering *steering;
+-	int err = 0;
+-
+-	err = mlx5_init_fc_stats(dev);
+-	if (err)
+-		return err;
+-
+-	err = mlx5_ft_pool_init(dev);
+-	if (err)
+-		return err;
+-
+-	steering = kzalloc(sizeof(*steering), GFP_KERNEL);
+-	if (!steering) {
+-		err = -ENOMEM;
+-		goto err;
+-	}
+-
+-	steering->dev = dev;
+-	dev->priv.steering = steering;
++	struct mlx5_flow_steering *steering = dev->priv.steering;
  
- 	ret = mlx5dr_cmd_set_fte(dmn->mdev, 0, 0, &ft_info, *group_id, &fte_info);
- 	if (ret) {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-index 55fcb751e24a..64f41e7938e1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h
-@@ -1463,7 +1463,8 @@ int mlx5dr_fw_create_md_tbl(struct mlx5dr_domain *dmn,
- 			    bool reformat_req,
- 			    u32 *tbl_id,
- 			    u32 *group_id,
--			    bool ignore_flow_level);
-+			    bool ignore_flow_level,
-+			    u32 flow_source);
- void mlx5dr_fw_destroy_md_tbl(struct mlx5dr_domain *dmn, u32 tbl_id,
- 			      u32 group_id);
- #endif  /* _DR_TYPES_H_ */
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-index 3f311462bedf..05393fe11132 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c
-@@ -520,6 +520,7 @@ static int mlx5_cmd_dr_create_fte(struct mlx5_flow_root_namespace *ns,
- 	} else if (num_term_actions > 1) {
- 		bool ignore_flow_level =
- 			!!(fte->action.flags & FLOW_ACT_IGNORE_FLOW_LEVEL);
-+		u32 flow_source = fte->flow_context.flow_source;
+-	if (mlx5_fs_dr_is_supported(dev))
+-		steering->mode = MLX5_FLOW_STEERING_MODE_SMFS;
+-	else
+-		steering->mode = MLX5_FLOW_STEERING_MODE_DMFS;
++	cleanup_root_ns(steering->root_ns);
++	cleanup_root_ns(steering->fdb_root_ns);
++	steering->fdb_root_ns = NULL;
++	kfree(steering->fdb_sub_ns);
++	steering->fdb_sub_ns = NULL;
++	cleanup_root_ns(steering->port_sel_root_ns);
++	cleanup_root_ns(steering->sniffer_rx_root_ns);
++	cleanup_root_ns(steering->sniffer_tx_root_ns);
++	cleanup_root_ns(steering->rdma_rx_root_ns);
++	cleanup_root_ns(steering->rdma_tx_root_ns);
++	cleanup_root_ns(steering->egress_root_ns);
++}
  
- 		if (num_actions == MLX5_FLOW_CONTEXT_ACTION_MAX ||
- 		    fs_dr_num_actions == MLX5_FLOW_CONTEXT_ACTION_MAX) {
-@@ -529,7 +530,8 @@ static int mlx5_cmd_dr_create_fte(struct mlx5_flow_root_namespace *ns,
- 		tmp_action = mlx5dr_action_create_mult_dest_tbl(domain,
- 								term_actions,
- 								num_term_actions,
--								ignore_flow_level);
-+								ignore_flow_level,
-+								flow_source);
- 		if (!tmp_action) {
- 			err = -EOPNOTSUPP;
- 			goto free_actions;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-index dfa223415fe2..74a7a2f4d50d 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h
-@@ -96,7 +96,8 @@ struct mlx5dr_action *
- mlx5dr_action_create_mult_dest_tbl(struct mlx5dr_domain *dmn,
- 				   struct mlx5dr_action_dest *dests,
- 				   u32 num_of_dests,
--				   bool ignore_flow_level);
-+				   bool ignore_flow_level,
-+				   u32 flow_source);
+-	steering->fgs_cache = kmem_cache_create("mlx5_fs_fgs",
+-						sizeof(struct mlx5_flow_group), 0,
+-						0, NULL);
+-	steering->ftes_cache = kmem_cache_create("mlx5_fs_ftes", sizeof(struct fs_fte), 0,
+-						 0, NULL);
+-	if (!steering->ftes_cache || !steering->fgs_cache) {
+-		err = -ENOMEM;
+-		goto err;
+-	}
++int mlx5_fs_core_init(struct mlx5_core_dev *dev)
++{
++	struct mlx5_flow_steering *steering = dev->priv.steering;
++	int err = 0;
  
- struct mlx5dr_action *mlx5dr_action_create_drop(void);
+ 	if ((((MLX5_CAP_GEN(dev, port_type) == MLX5_CAP_PORT_TYPE_ETH) &&
+ 	      (MLX5_CAP_GEN(dev, nic_flow_table))) ||
+@@ -3157,8 +3120,64 @@ int mlx5_init_fs(struct mlx5_core_dev *dev)
+ 	}
  
+ 	return 0;
++
++err:
++	mlx5_fs_core_cleanup(dev);
++	return err;
++}
++
++void mlx5_fs_core_free(struct mlx5_core_dev *dev)
++{
++	struct mlx5_flow_steering *steering = dev->priv.steering;
++
++	kmem_cache_destroy(steering->ftes_cache);
++	kmem_cache_destroy(steering->fgs_cache);
++	kfree(steering);
++	mlx5_ft_pool_destroy(dev);
++	mlx5_cleanup_fc_stats(dev);
++}
++
++int mlx5_fs_core_alloc(struct mlx5_core_dev *dev)
++{
++	struct mlx5_flow_steering *steering;
++	int err = 0;
++
++	err = mlx5_init_fc_stats(dev);
++	if (err)
++		return err;
++
++	err = mlx5_ft_pool_init(dev);
++	if (err)
++		goto err;
++
++	steering = kzalloc(sizeof(*steering), GFP_KERNEL);
++	if (!steering) {
++		err = -ENOMEM;
++		goto err;
++	}
++
++	steering->dev = dev;
++	dev->priv.steering = steering;
++
++	if (mlx5_fs_dr_is_supported(dev))
++		steering->mode = MLX5_FLOW_STEERING_MODE_SMFS;
++	else
++		steering->mode = MLX5_FLOW_STEERING_MODE_DMFS;
++
++	steering->fgs_cache = kmem_cache_create("mlx5_fs_fgs",
++						sizeof(struct mlx5_flow_group), 0,
++						0, NULL);
++	steering->ftes_cache = kmem_cache_create("mlx5_fs_ftes", sizeof(struct fs_fte), 0,
++						 0, NULL);
++	if (!steering->ftes_cache || !steering->fgs_cache) {
++		err = -ENOMEM;
++		goto err;
++	}
++
++	return 0;
++
+ err:
+-	mlx5_cleanup_fs(dev);
++	mlx5_fs_core_free(dev);
+ 	return err;
+ }
+ 
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
+index 5469b08d635f..6366bf50a564 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.h
+@@ -293,8 +293,10 @@ int mlx5_flow_namespace_set_peer(struct mlx5_flow_root_namespace *ns,
+ int mlx5_flow_namespace_set_mode(struct mlx5_flow_namespace *ns,
+ 				 enum mlx5_flow_steering_mode mode);
+ 
+-int mlx5_init_fs(struct mlx5_core_dev *dev);
+-void mlx5_cleanup_fs(struct mlx5_core_dev *dev);
++int mlx5_fs_core_alloc(struct mlx5_core_dev *dev);
++void mlx5_fs_core_free(struct mlx5_core_dev *dev);
++int mlx5_fs_core_init(struct mlx5_core_dev *dev);
++void mlx5_fs_core_cleanup(struct mlx5_core_dev *dev);
+ 
+ int mlx5_fs_egress_acls_init(struct mlx5_core_dev *dev, int total_vports);
+ void mlx5_fs_egress_acls_cleanup(struct mlx5_core_dev *dev);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index bba72b220cc3..f1437b6d4418 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -939,6 +939,12 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
+ 		goto err_sf_table_cleanup;
+ 	}
+ 
++	err = mlx5_fs_core_alloc(dev);
++	if (err) {
++		mlx5_core_err(dev, "Failed to alloc flow steering\n");
++		goto err_fs;
++	}
++
+ 	dev->dm = mlx5_dm_create(dev);
+ 	if (IS_ERR(dev->dm))
+ 		mlx5_core_warn(dev, "Failed to init device memory%d\n", err);
+@@ -949,6 +955,8 @@ static int mlx5_init_once(struct mlx5_core_dev *dev)
+ 
+ 	return 0;
+ 
++err_fs:
++	mlx5_sf_table_cleanup(dev);
+ err_sf_table_cleanup:
+ 	mlx5_sf_hw_table_cleanup(dev);
+ err_sf_hw_table_cleanup:
+@@ -986,6 +994,7 @@ static void mlx5_cleanup_once(struct mlx5_core_dev *dev)
+ 	mlx5_hv_vhca_destroy(dev->hv_vhca);
+ 	mlx5_fw_tracer_destroy(dev->tracer);
+ 	mlx5_dm_cleanup(dev);
++	mlx5_fs_core_free(dev);
+ 	mlx5_sf_table_cleanup(dev);
+ 	mlx5_sf_hw_table_cleanup(dev);
+ 	mlx5_vhca_event_cleanup(dev);
+@@ -1192,7 +1201,7 @@ static int mlx5_load(struct mlx5_core_dev *dev)
+ 		goto err_tls_start;
+ 	}
+ 
+-	err = mlx5_init_fs(dev);
++	err = mlx5_fs_core_init(dev);
+ 	if (err) {
+ 		mlx5_core_err(dev, "Failed to init flow steering\n");
+ 		goto err_fs;
+@@ -1237,7 +1246,7 @@ static int mlx5_load(struct mlx5_core_dev *dev)
+ err_vhca:
+ 	mlx5_vhca_event_stop(dev);
+ err_set_hca:
+-	mlx5_cleanup_fs(dev);
++	mlx5_fs_core_cleanup(dev);
+ err_fs:
+ 	mlx5_accel_tls_cleanup(dev);
+ err_tls_start:
+@@ -1266,7 +1275,7 @@ static void mlx5_unload(struct mlx5_core_dev *dev)
+ 	mlx5_ec_cleanup(dev);
+ 	mlx5_sf_hw_table_destroy(dev);
+ 	mlx5_vhca_event_stop(dev);
+-	mlx5_cleanup_fs(dev);
++	mlx5_fs_core_cleanup(dev);
+ 	mlx5_accel_ipsec_cleanup(dev);
+ 	mlx5_accel_tls_cleanup(dev);
+ 	mlx5_fpga_device_stop(dev);
 -- 
 2.35.1
 
