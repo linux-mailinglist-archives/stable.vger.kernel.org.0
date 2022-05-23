@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3EA1531C04
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E48A553181E
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242428AbiEWRky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35364 "EHLO
+        id S240223AbiEWRSV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:18:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243457AbiEWRiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:14 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90A18DDC4;
-        Mon, 23 May 2022 10:32:20 -0700 (PDT)
+        with ESMTP id S240666AbiEWRQj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6B013DE2;
+        Mon, 23 May 2022 10:16:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F73EB81210;
-        Mon, 23 May 2022 17:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BBBAC3411A;
-        Mon, 23 May 2022 17:30:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C3D61538;
+        Mon, 23 May 2022 17:15:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41361C385A9;
+        Mon, 23 May 2022 17:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327050;
-        bh=Q6WGn+T2IYOJX+pYvJtK4Xq4x5ALfQD1/9ZqxdvFrkU=;
+        s=korg; t=1653326133;
+        bh=hfN64kEhFU/FzzVPdDp9ONjzRmOgpNHI4qtV1X1y8BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmbeNHO9I4g/t5asLmNS+s9sTtpiGLXRbwI4POo8oGeLU3ggaaDL2L5WhXIaVJCuX
-         Dj7nkz5WmKsF1Os7jeg60+ZETs9lnN/lkSi1iOITZqIOvFGy7gAG10j4JH9mOcBwP5
-         LyBNeCRC6czkIohFDbADnzR35cXT+kLXZ/aCIn+g=
+        b=FZXNlYqt4rhlrrRAzVPUy+va1l3B4KKhl5TJZ3+j5IFIXacltEdeXskG28sKBvJ2s
+         mSlLG6KeiduVhfmP01CEV13nUHQMwVJ9NJ+5oqIWkXh5CodGcezyOH/ecO/S6cArOL
+         SzQdQ+pwNLRMUBC9M/3996IakM5cIEYzKO192UhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
-        Krishna Kant <krishna.kant@purestorage.com>,
-        Seamus Connor <sconnor@purestorage.com>,
-        Brian Bunker <brian@purestorage.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 133/158] scsi: scsi_dh_alua: Properly handle the ALUA transitioning state
-Date:   Mon, 23 May 2022 19:04:50 +0200
-Message-Id: <20220523165852.430311385@linuxfoundation.org>
+        Enrico Scholz <enrico.scholz@sigma-chemnitz.de>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Meena Shanmugam <meenashanmugam@google.com>
+Subject: [PATCH 5.4 24/68] SUNRPC: Dont call connect() more than once on a TCP socket
+Date:   Mon, 23 May 2022 19:04:51 +0200
+Message-Id: <20220523165806.630090168@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Bunker <brian@purestorage.com>
+From: Meena Shanmugam <meenashanmugam@google.com>
 
-[ Upstream commit 6056a92ceb2a7705d61df7ec5370548e96aee258 ]
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-The handling of the ALUA transitioning state is currently broken. When a
-target goes into this state, it is expected that the target is allowed to
-stay in this state for the implicit transition timeout without a path
-failure. The handler has this logic, but it gets skipped currently.
+commit 89f42494f92f448747bd8a7ab1ae8b5d5520577d upstream.
 
-When the target transitions, there is in-flight I/O from the initiator. The
-first of these responses from the target will be a unit attention letting
-the initiator know that the ALUA state has changed.  The remaining
-in-flight I/Os, before the initiator finds out that the portal state has
-changed, will return not ready, ALUA state is transitioning. The portal
-state will change to SCSI_ACCESS_STATE_TRANSITIONING. This will lead to all
-new I/O immediately failing the path unexpectedly. The path failure happens
-in less than a second instead of the expected successes until the
-transition timer is exceeded.
+Avoid socket state races due to repeated calls to ->connect() using the
+same socket. If connect() returns 0 due to the connection having
+completed, but we are in fact in a closing state, then we may leave the
+XPRT_CONNECTING flag set on the transport.
 
-Allow I/Os to continue while the path is in the ALUA transitioning
-state. The handler already takes care of a target that stays in the
-transitioning state for too long by changing the state to ALUA state
-standby once the transition timeout is exceeded at which point the path
-will fail.
-
-Link: https://lore.kernel.org/r/CAHZQxy+4sTPz9+pY3=7VJH+CLUJsDct81KtnR2be8ycN5mhqTg@mail.gmail.com
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Acked-by: Krishna Kant <krishna.kant@purestorage.com>
-Acked-by: Seamus Connor <sconnor@purestorage.com>
-Signed-off-by: Brian Bunker <brian@purestorage.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Enrico Scholz <enrico.scholz@sigma-chemnitz.de>
+Fixes: 3be232f11a3c ("SUNRPC: Prevent immediate close+reconnect")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[meenashanmugam: Fix merge conflict in xs_tcp_setup_socket]
+Signed-off-by: Meena Shanmugam <meenashanmugam@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/device_handler/scsi_dh_alua.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ Added fallthrough which I missed in 5.10 patch.
 
-diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
-index 37d06f993b76..1d9be771f3ee 100644
---- a/drivers/scsi/device_handler/scsi_dh_alua.c
-+++ b/drivers/scsi/device_handler/scsi_dh_alua.c
-@@ -1172,9 +1172,8 @@ static blk_status_t alua_prep_fn(struct scsi_device *sdev, struct request *req)
- 	case SCSI_ACCESS_STATE_OPTIMAL:
- 	case SCSI_ACCESS_STATE_ACTIVE:
- 	case SCSI_ACCESS_STATE_LBA:
--		return BLK_STS_OK;
- 	case SCSI_ACCESS_STATE_TRANSITIONING:
--		return BLK_STS_AGAIN;
-+		return BLK_STS_OK;
- 	default:
- 		req->rq_flags |= RQF_QUIET;
- 		return BLK_STS_IOERR;
--- 
-2.35.1
+ include/linux/sunrpc/xprtsock.h |    1 +
+ net/sunrpc/xprtsock.c           |   22 ++++++++++++----------
+ 2 files changed, 13 insertions(+), 10 deletions(-)
 
+--- a/include/linux/sunrpc/xprtsock.h
++++ b/include/linux/sunrpc/xprtsock.h
+@@ -90,6 +90,7 @@ struct sock_xprt {
+ #define XPRT_SOCK_WAKE_WRITE	(5)
+ #define XPRT_SOCK_WAKE_PENDING	(6)
+ #define XPRT_SOCK_WAKE_DISCONNECT	(7)
++#define XPRT_SOCK_CONNECT_SENT	(8)
+ 
+ #endif /* __KERNEL__ */
+ 
+--- a/net/sunrpc/xprtsock.c
++++ b/net/sunrpc/xprtsock.c
+@@ -2384,10 +2384,14 @@ static void xs_tcp_setup_socket(struct w
+ 	struct rpc_xprt *xprt = &transport->xprt;
+ 	int status = -EIO;
+ 
+-	if (!sock) {
+-		sock = xs_create_sock(xprt, transport,
+-				xs_addr(xprt)->sa_family, SOCK_STREAM,
+-				IPPROTO_TCP, true);
++	if (xprt_connected(xprt))
++		goto out;
++	if (test_and_clear_bit(XPRT_SOCK_CONNECT_SENT,
++			       &transport->sock_state) ||
++	    !sock) {
++		xs_reset_transport(transport);
++		sock = xs_create_sock(xprt, transport, xs_addr(xprt)->sa_family,
++				      SOCK_STREAM, IPPROTO_TCP, true);
+ 		if (IS_ERR(sock)) {
+ 			status = PTR_ERR(sock);
+ 			goto out;
+@@ -2418,6 +2422,8 @@ static void xs_tcp_setup_socket(struct w
+ 		break;
+ 	case 0:
+ 	case -EINPROGRESS:
++		set_bit(XPRT_SOCK_CONNECT_SENT, &transport->sock_state);
++		fallthrough;
+ 	case -EALREADY:
+ 		xprt_unlock_connect(xprt, transport);
+ 		return;
+@@ -2469,13 +2475,9 @@ static void xs_connect(struct rpc_xprt *
+ 
+ 	WARN_ON_ONCE(!xprt_lock_connect(xprt, task, transport));
+ 
+-	if (transport->sock != NULL && !xprt_connecting(xprt)) {
++	if (transport->sock != NULL) {
+ 		dprintk("RPC:       xs_connect delayed xprt %p for %lu "
+-				"seconds\n",
+-				xprt, xprt->reestablish_timeout / HZ);
+-
+-		/* Start by resetting any existing state */
+-		xs_reset_transport(transport);
++			"seconds\n", xprt, xprt->reestablish_timeout / HZ);
+ 
+ 		delay = xprt_reconnect_delay(xprt);
+ 		xprt_reconnect_backoff(xprt, XS_TCP_INIT_REEST_TO);
 
 
