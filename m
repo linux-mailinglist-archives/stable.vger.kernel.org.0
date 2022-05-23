@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F23531ACA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7283453170D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240040AbiEWRRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:17:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34144 "EHLO
+        id S241875AbiEWRkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:40:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240190AbiEWRQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:16:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F53033EA6;
-        Mon, 23 May 2022 10:12:44 -0700 (PDT)
+        with ESMTP id S244110AbiEWRiw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE32299680;
+        Mon, 23 May 2022 10:33:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A0B6614DA;
-        Mon, 23 May 2022 17:12:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 195BFC385A9;
-        Mon, 23 May 2022 17:12:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D4D01B811FF;
+        Mon, 23 May 2022 17:30:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 187A6C385A9;
+        Mon, 23 May 2022 17:30:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325943;
-        bh=7AxRauhBes5Wq7dlmgGQcUfOyuDyRK5+gI93aVdZ/bE=;
+        s=korg; t=1653327017;
+        bh=lxYW3mkhaz99pmAtcNmmuE12bsbVyXiI8wvqBE9mi0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RZvMWinUxzF2oegB0bxq1iyxYTrS0D9+J4f9EdkVBkSthcemFSijIwZj9CDQceSzC
-         dLeUlmGs7JjfooO094GO00AbeGz17yto0wtx8RGH/FluUN62/EFJyGngS07XJu708M
-         8KcfAn9NvsC/U+bR7NDVgYVXTqcQFa30kK3PQ7Ps=
+        b=OxnMitZ6uuHXzztfzENz5EFFIhds1P1OPAsEjb+zICWMGbvBuXWVCMsH9oXQrFzIt
+         PXGQ+CqUPKMRR7LyhHPIvLhHl8m1UGTPm6IVNDVbJBetHEPr6xft32gW9NcEnSxi/k
+         FIPzwP0A0TcL/7L2zhN4QQxGy4ggSd9xz+09nH6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        David Hildenbrand <david@redhat.com>,
-        Hao Sun <sunhao.th@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        Athira Jajeev <atrajeev@linux.vnet.ibm.com>,
+        Ian Rogers <irogers@google.com>,
+        Disha Goel <disgoel@linux.vnet.ibm.com>,
+        Jiri Olsa <jolsa@kernel.org>, Kajol Jain <kjain@linux.ibm.com>,
+        linuxppc-dev@lists.ozlabs.org,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 18/68] nilfs2: fix lockdep warnings during disk space reclamation
-Date:   Mon, 23 May 2022 19:04:45 +0200
-Message-Id: <20220523165805.649955086@linuxfoundation.org>
+Subject: [PATCH 5.17 129/158] perf test: Fix "all PMU test" to skip hv_24x7/hv_gpci tests on powerpc
+Date:   Mon, 23 May 2022 19:04:46 +0200
+Message-Id: <20220523165851.912540965@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,347 +62,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit 6e211930f79aa45d422009a5f2e5467d2369ffe5 ]
+[ Upstream commit 451ed8058c69a3fee29fa9e2967a4e22a221fe75 ]
 
-During disk space reclamation, nilfs2 still emits the following lockdep
-warning due to page/folio operations on shadowed page caches that nilfs2
-uses to get a snapshot of DAT file in memory:
+"perf all PMU test" picks the input events from "perf list --raw-dump
+pmu" list and runs "perf stat -e" for each of the event in the list. In
+case of powerpc, the PowerVM environment supports events from hv_24x7
+and hv_gpci PMU which is of example format like below:
 
-  WARNING: CPU: 0 PID: 2643 at include/linux/backing-dev.h:272 __folio_mark_dirty+0x645/0x670
-  ...
-  RIP: 0010:__folio_mark_dirty+0x645/0x670
-  ...
-  Call Trace:
-    filemap_dirty_folio+0x74/0xd0
-    __set_page_dirty_nobuffers+0x85/0xb0
-    nilfs_copy_dirty_pages+0x288/0x510 [nilfs2]
-    nilfs_mdt_save_to_shadow_map+0x50/0xe0 [nilfs2]
-    nilfs_clean_segments+0xee/0x5d0 [nilfs2]
-    nilfs_ioctl_clean_segments.isra.19+0xb08/0xf40 [nilfs2]
-    nilfs_ioctl+0xc52/0xfb0 [nilfs2]
-    __x64_sys_ioctl+0x11d/0x170
+- hv_24x7/CPM_ADJUNCT_INST,domain=?,core=?/
+- hv_gpci/event,partition_id=?/
 
-This fixes the remaining warning by using inode objects to hold those
-page caches.
+The value for "?" needs to be filled in depending on system and
+respective event. CPM_ADJUNCT_INST needs have core value and domain
+value. hv_gpci event needs partition_id.  Similarly, there are other
+events for hv_24x7 and hv_gpci having "?" in event format. Hence skip
+these events on powerpc platform since values like partition_id, domain
+is specific to system and event.
 
-Link: https://lkml.kernel.org/r/1647867427-30498-3-git-send-email-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 3d5ac9effcc640d5 ("perf test: Workload test of all PMUs")
+Signed-off-by: Athira Jajeev <atrajeev@linux.vnet.ibm.com>
+Acked-by: Ian Rogers <irogers@google.com>
+Cc: Disha Goel <disgoel@linux.vnet.ibm.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Kajol Jain <kjain@linux.ibm.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Link: https://lore.kernel.org/r/20220520101236.17249-1-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nilfs2/dat.c   |  4 ++-
- fs/nilfs2/inode.c | 63 ++++++++++++++++++++++++++++++++++++++++++++---
- fs/nilfs2/mdt.c   | 38 +++++++++++++++++++---------
- fs/nilfs2/mdt.h   |  6 ++---
- fs/nilfs2/nilfs.h |  2 ++
- 5 files changed, 92 insertions(+), 21 deletions(-)
+ tools/perf/tests/shell/stat_all_pmu.sh | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/fs/nilfs2/dat.c b/fs/nilfs2/dat.c
-index 6f4066636be9..a3523a243e11 100644
---- a/fs/nilfs2/dat.c
-+++ b/fs/nilfs2/dat.c
-@@ -497,7 +497,9 @@ int nilfs_dat_read(struct super_block *sb, size_t entry_size,
- 	di = NILFS_DAT_I(dat);
- 	lockdep_set_class(&di->mi.mi_sem, &dat_lock_key);
- 	nilfs_palloc_setup_cache(dat, &di->palloc_cache);
--	nilfs_mdt_setup_shadow_map(dat, &di->shadow);
-+	err = nilfs_mdt_setup_shadow_map(dat, &di->shadow);
-+	if (err)
-+		goto failed;
+diff --git a/tools/perf/tests/shell/stat_all_pmu.sh b/tools/perf/tests/shell/stat_all_pmu.sh
+index b30dba455f36..9c9ef33e0b3c 100755
+--- a/tools/perf/tests/shell/stat_all_pmu.sh
++++ b/tools/perf/tests/shell/stat_all_pmu.sh
+@@ -5,6 +5,16 @@
+ set -e
  
- 	err = nilfs_read_inode_common(dat, raw_inode);
- 	if (err)
-diff --git a/fs/nilfs2/inode.c b/fs/nilfs2/inode.c
-index b0a0822e371c..35b0bfe9324f 100644
---- a/fs/nilfs2/inode.c
-+++ b/fs/nilfs2/inode.c
-@@ -29,6 +29,7 @@
-  * @root: pointer on NILFS root object (mounted checkpoint)
-  * @for_gc: inode for GC flag
-  * @for_btnc: inode for B-tree node cache flag
-+ * @for_shadow: inode for shadowed page cache flag
-  */
- struct nilfs_iget_args {
- 	u64 ino;
-@@ -36,6 +37,7 @@ struct nilfs_iget_args {
- 	struct nilfs_root *root;
- 	bool for_gc;
- 	bool for_btnc;
-+	bool for_shadow;
- };
- 
- static int nilfs_iget_test(struct inode *inode, void *opaque);
-@@ -325,7 +327,7 @@ static int nilfs_insert_inode_locked(struct inode *inode,
- {
- 	struct nilfs_iget_args args = {
- 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
--		.for_btnc = false
-+		.for_btnc = false, .for_shadow = false
- 	};
- 
- 	return insert_inode_locked4(inode, ino, nilfs_iget_test, &args);
-@@ -543,6 +545,12 @@ static int nilfs_iget_test(struct inode *inode, void *opaque)
- 	} else if (args->for_btnc) {
- 		return 0;
- 	}
-+	if (test_bit(NILFS_I_SHADOW, &ii->i_state)) {
-+		if (!args->for_shadow)
-+			return 0;
-+	} else if (args->for_shadow) {
-+		return 0;
-+	}
- 
- 	if (!test_bit(NILFS_I_GCINODE, &ii->i_state))
- 		return !args->for_gc;
-@@ -564,6 +572,8 @@ static int nilfs_iget_set(struct inode *inode, void *opaque)
- 		NILFS_I(inode)->i_state = BIT(NILFS_I_GCINODE);
- 	if (args->for_btnc)
- 		NILFS_I(inode)->i_state |= BIT(NILFS_I_BTNC);
-+	if (args->for_shadow)
-+		NILFS_I(inode)->i_state |= BIT(NILFS_I_SHADOW);
- 	return 0;
- }
- 
-@@ -572,7 +582,7 @@ struct inode *nilfs_ilookup(struct super_block *sb, struct nilfs_root *root,
- {
- 	struct nilfs_iget_args args = {
- 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
--		.for_btnc = false
-+		.for_btnc = false, .for_shadow = false
- 	};
- 
- 	return ilookup5(sb, ino, nilfs_iget_test, &args);
-@@ -583,7 +593,7 @@ struct inode *nilfs_iget_locked(struct super_block *sb, struct nilfs_root *root,
- {
- 	struct nilfs_iget_args args = {
- 		.ino = ino, .root = root, .cno = 0, .for_gc = false,
--		.for_btnc = false
-+		.for_btnc = false, .for_shadow = false
- 	};
- 
- 	return iget5_locked(sb, ino, nilfs_iget_test, nilfs_iget_set, &args);
-@@ -615,7 +625,7 @@ struct inode *nilfs_iget_for_gc(struct super_block *sb, unsigned long ino,
- {
- 	struct nilfs_iget_args args = {
- 		.ino = ino, .root = NULL, .cno = cno, .for_gc = true,
--		.for_btnc = false
-+		.for_btnc = false, .for_shadow = false
- 	};
- 	struct inode *inode;
- 	int err;
-@@ -662,6 +672,7 @@ int nilfs_attach_btree_node_cache(struct inode *inode)
- 	args.cno = ii->i_cno;
- 	args.for_gc = test_bit(NILFS_I_GCINODE, &ii->i_state) != 0;
- 	args.for_btnc = true;
-+	args.for_shadow = test_bit(NILFS_I_SHADOW, &ii->i_state) != 0;
- 
- 	btnc_inode = iget5_locked(inode->i_sb, inode->i_ino, nilfs_iget_test,
- 				  nilfs_iget_set, &args);
-@@ -697,6 +708,50 @@ void nilfs_detach_btree_node_cache(struct inode *inode)
- 	}
- }
- 
-+/**
-+ * nilfs_iget_for_shadow - obtain inode for shadow mapping
-+ * @inode: inode object that uses shadow mapping
-+ *
-+ * nilfs_iget_for_shadow() allocates a pair of inodes that holds page
-+ * caches for shadow mapping.  The page cache for data pages is set up
-+ * in one inode and the one for b-tree node pages is set up in the
-+ * other inode, which is attached to the former inode.
-+ *
-+ * Return Value: On success, a pointer to the inode for data pages is
-+ * returned. On errors, one of the following negative error code is returned
-+ * in a pointer type.
-+ *
-+ * %-ENOMEM - Insufficient memory available.
-+ */
-+struct inode *nilfs_iget_for_shadow(struct inode *inode)
-+{
-+	struct nilfs_iget_args args = {
-+		.ino = inode->i_ino, .root = NULL, .cno = 0, .for_gc = false,
-+		.for_btnc = false, .for_shadow = true
-+	};
-+	struct inode *s_inode;
-+	int err;
-+
-+	s_inode = iget5_locked(inode->i_sb, inode->i_ino, nilfs_iget_test,
-+			       nilfs_iget_set, &args);
-+	if (unlikely(!s_inode))
-+		return ERR_PTR(-ENOMEM);
-+	if (!(s_inode->i_state & I_NEW))
-+		return inode;
-+
-+	NILFS_I(s_inode)->i_flags = 0;
-+	memset(NILFS_I(s_inode)->i_bmap, 0, sizeof(struct nilfs_bmap));
-+	mapping_set_gfp_mask(s_inode->i_mapping, GFP_NOFS);
-+
-+	err = nilfs_attach_btree_node_cache(s_inode);
-+	if (unlikely(err)) {
-+		iget_failed(s_inode);
-+		return ERR_PTR(err);
-+	}
-+	unlock_new_inode(s_inode);
-+	return s_inode;
-+}
-+
- void nilfs_write_inode_common(struct inode *inode,
- 			      struct nilfs_inode *raw_inode, int has_bmap)
- {
-diff --git a/fs/nilfs2/mdt.c b/fs/nilfs2/mdt.c
-index 3a1200220b97..7c9055d767d1 100644
---- a/fs/nilfs2/mdt.c
-+++ b/fs/nilfs2/mdt.c
-@@ -469,9 +469,18 @@ int nilfs_mdt_init(struct inode *inode, gfp_t gfp_mask, size_t objsz)
- void nilfs_mdt_clear(struct inode *inode)
- {
- 	struct nilfs_mdt_info *mdi = NILFS_MDT(inode);
-+	struct nilfs_shadow_map *shadow = mdi->mi_shadow;
- 
- 	if (mdi->mi_palloc_cache)
- 		nilfs_palloc_destroy_cache(inode);
-+
-+	if (shadow) {
-+		struct inode *s_inode = shadow->inode;
-+
-+		shadow->inode = NULL;
-+		iput(s_inode);
-+		mdi->mi_shadow = NULL;
-+	}
- }
- 
- /**
-@@ -505,12 +514,15 @@ int nilfs_mdt_setup_shadow_map(struct inode *inode,
- 			       struct nilfs_shadow_map *shadow)
- {
- 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
-+	struct inode *s_inode;
- 
- 	INIT_LIST_HEAD(&shadow->frozen_buffers);
--	address_space_init_once(&shadow->frozen_data);
--	nilfs_mapping_init(&shadow->frozen_data, inode);
--	address_space_init_once(&shadow->frozen_btnodes);
--	nilfs_mapping_init(&shadow->frozen_btnodes, inode);
-+
-+	s_inode = nilfs_iget_for_shadow(inode);
-+	if (IS_ERR(s_inode))
-+		return PTR_ERR(s_inode);
-+
-+	shadow->inode = s_inode;
- 	mi->mi_shadow = shadow;
- 	return 0;
- }
-@@ -524,13 +536,14 @@ int nilfs_mdt_save_to_shadow_map(struct inode *inode)
- 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
- 	struct nilfs_inode_info *ii = NILFS_I(inode);
- 	struct nilfs_shadow_map *shadow = mi->mi_shadow;
-+	struct inode *s_inode = shadow->inode;
- 	int ret;
- 
--	ret = nilfs_copy_dirty_pages(&shadow->frozen_data, inode->i_mapping);
-+	ret = nilfs_copy_dirty_pages(s_inode->i_mapping, inode->i_mapping);
- 	if (ret)
- 		goto out;
- 
--	ret = nilfs_copy_dirty_pages(&shadow->frozen_btnodes,
-+	ret = nilfs_copy_dirty_pages(NILFS_I(s_inode)->i_assoc_inode->i_mapping,
- 				     ii->i_assoc_inode->i_mapping);
- 	if (ret)
- 		goto out;
-@@ -547,7 +560,7 @@ int nilfs_mdt_freeze_buffer(struct inode *inode, struct buffer_head *bh)
- 	struct page *page;
- 	int blkbits = inode->i_blkbits;
- 
--	page = grab_cache_page(&shadow->frozen_data, bh->b_page->index);
-+	page = grab_cache_page(shadow->inode->i_mapping, bh->b_page->index);
- 	if (!page)
- 		return -ENOMEM;
- 
-@@ -579,7 +592,7 @@ nilfs_mdt_get_frozen_buffer(struct inode *inode, struct buffer_head *bh)
- 	struct page *page;
- 	int n;
- 
--	page = find_lock_page(&shadow->frozen_data, bh->b_page->index);
-+	page = find_lock_page(shadow->inode->i_mapping, bh->b_page->index);
- 	if (page) {
- 		if (page_has_buffers(page)) {
- 			n = bh_offset(bh) >> inode->i_blkbits;
-@@ -620,11 +633,11 @@ void nilfs_mdt_restore_from_shadow_map(struct inode *inode)
- 		nilfs_palloc_clear_cache(inode);
- 
- 	nilfs_clear_dirty_pages(inode->i_mapping, true);
--	nilfs_copy_back_pages(inode->i_mapping, &shadow->frozen_data);
-+	nilfs_copy_back_pages(inode->i_mapping, shadow->inode->i_mapping);
- 
- 	nilfs_clear_dirty_pages(ii->i_assoc_inode->i_mapping, true);
- 	nilfs_copy_back_pages(ii->i_assoc_inode->i_mapping,
--			      &shadow->frozen_btnodes);
-+			      NILFS_I(shadow->inode)->i_assoc_inode->i_mapping);
- 
- 	nilfs_bmap_restore(ii->i_bmap, &shadow->bmap_store);
- 
-@@ -639,10 +652,11 @@ void nilfs_mdt_clear_shadow_map(struct inode *inode)
- {
- 	struct nilfs_mdt_info *mi = NILFS_MDT(inode);
- 	struct nilfs_shadow_map *shadow = mi->mi_shadow;
-+	struct inode *shadow_btnc_inode = NILFS_I(shadow->inode)->i_assoc_inode;
- 
- 	down_write(&mi->mi_sem);
- 	nilfs_release_frozen_buffers(shadow);
--	truncate_inode_pages(&shadow->frozen_data, 0);
--	truncate_inode_pages(&shadow->frozen_btnodes, 0);
-+	truncate_inode_pages(shadow->inode->i_mapping, 0);
-+	truncate_inode_pages(shadow_btnc_inode->i_mapping, 0);
- 	up_write(&mi->mi_sem);
- }
-diff --git a/fs/nilfs2/mdt.h b/fs/nilfs2/mdt.h
-index e77aea4bb921..9d8ac0d27c16 100644
---- a/fs/nilfs2/mdt.h
-+++ b/fs/nilfs2/mdt.h
-@@ -18,14 +18,12 @@
- /**
-  * struct nilfs_shadow_map - shadow mapping of meta data file
-  * @bmap_store: shadow copy of bmap state
-- * @frozen_data: shadowed dirty data pages
-- * @frozen_btnodes: shadowed dirty b-tree nodes' pages
-+ * @inode: holder of page caches used in shadow mapping
-  * @frozen_buffers: list of frozen buffers
-  */
- struct nilfs_shadow_map {
- 	struct nilfs_bmap_store bmap_store;
--	struct address_space frozen_data;
--	struct address_space frozen_btnodes;
-+	struct inode *inode;
- 	struct list_head frozen_buffers;
- };
- 
-diff --git a/fs/nilfs2/nilfs.h b/fs/nilfs2/nilfs.h
-index 3b646d377237..4895d978369a 100644
---- a/fs/nilfs2/nilfs.h
-+++ b/fs/nilfs2/nilfs.h
-@@ -92,6 +92,7 @@ enum {
- 	NILFS_I_BMAP,			/* has bmap and btnode_cache */
- 	NILFS_I_GCINODE,		/* inode for GC, on memory only */
- 	NILFS_I_BTNC,			/* inode for btree node cache */
-+	NILFS_I_SHADOW,			/* inode for shadowed page cache */
- };
- 
- /*
-@@ -260,6 +261,7 @@ extern struct inode *nilfs_iget_for_gc(struct super_block *sb,
- 				       unsigned long ino, __u64 cno);
- int nilfs_attach_btree_node_cache(struct inode *inode);
- void nilfs_detach_btree_node_cache(struct inode *inode);
-+struct inode *nilfs_iget_for_shadow(struct inode *inode);
- extern void nilfs_update_inode(struct inode *, struct buffer_head *, int);
- extern void nilfs_truncate(struct inode *);
- extern void nilfs_evict_inode(struct inode *);
+ for p in $(perf list --raw-dump pmu); do
++  # In powerpc, skip the events for hv_24x7 and hv_gpci.
++  # These events needs input values to be filled in for
++  # core, chip, partition id based on system.
++  # Example: hv_24x7/CPM_ADJUNCT_INST,domain=?,core=?/
++  # hv_gpci/event,partition_id=?/
++  # Hence skip these events for ppc.
++  if echo "$p" |grep -Eq 'hv_24x7|hv_gpci' ; then
++    echo "Skipping: Event '$p' in powerpc"
++    continue
++  fi
+   echo "Testing $p"
+   result=$(perf stat -e "$p" true 2>&1)
+   if ! echo "$result" | grep -q "$p" && ! echo "$result" | grep -q "<not supported>" ; then
 -- 
 2.35.1
 
