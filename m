@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D572E5319AF
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06238531939
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236915AbiEWRc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55522 "EHLO
+        id S239291AbiEWREv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:04:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241359AbiEWRaG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:30:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDE014199A;
-        Mon, 23 May 2022 10:26:32 -0700 (PDT)
+        with ESMTP id S239199AbiEWREu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:04:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B7155FF36;
+        Mon, 23 May 2022 10:04:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84D63B81201;
-        Mon, 23 May 2022 17:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBFCC385A9;
-        Mon, 23 May 2022 17:25:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2AAB614C7;
+        Mon, 23 May 2022 17:04:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA51C385A9;
+        Mon, 23 May 2022 17:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326758;
-        bh=kSQxfRLsKbcGNHqDQ9mWHv2wLSoCgR+sGkZsvK+qVMo=;
+        s=korg; t=1653325487;
+        bh=w37guEZIi9YdWbu0gvfh8Afk2sCoA5rp+b+1nsLFmfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fMh7h7sR5b83wHM4oS8Xwvlno/6hJSdAdpARVRZNHyPIG0Tv9ZxLDnQM4uYs4wN0v
-         ylqrl++g3VagwVnHRf5i/jIW/ps7a6gZ3WUlXDO0gIZHyMRDplOR4rDb0fYP+Ex8yc
-         ZkDqDM3l3YoH8rZapMWtW3RFj9RCEvSNoDo6LeC4=
+        b=17iF5qZmUsv4paCXTMkB5iHRLtW0AjaP14M63i8tCG9Iku2xWlxJtk8D8ekIxl1aV
+         EIdfL4YE0lFy57+lU8r8MDPIJzsjHur+j6y2jroCrvIt5gtAIY8hiXag8mCALqU8r2
+         deWRFwxKvUNWVwcmNYu0F5Kv2AUkLRO/teOna10M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 049/158] perf: Fix sys_perf_event_open() race against self
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kamal Dasu <kdasu.kdev@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.9 08/25] mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
 Date:   Mon, 23 May 2022 19:03:26 +0200
-Message-Id: <20220523165838.783098334@linuxfoundation.org>
+Message-Id: <20220523165746.128948726@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
+References: <20220523165743.398280407@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-commit 3ac6487e584a1eb54071dbe1212e05b884136704 upstream.
+commit ad91619aa9d78ab1c6d4a969c3db68bc331ae76c upstream
 
-Norbert reported that it's possible to race sys_perf_event_open() such
-that the looser ends up in another context from the group leader,
-triggering many WARNs.
+The INAND_CMD38_ARG_EXT_CSD is a vendor specific EXT_CSD register, which is
+used to prepare an erase/trim operation. However, it doesn't make sense to
+use a timeout of 10 minutes while updating the register, which becomes the
+case when the timeout_ms argument for mmc_switch() is set to zero.
 
-The move_group case checks for races against itself, but the
-!move_group case doesn't, seemingly relying on the previous
-group_leader->ctx == ctx check. However, that check is racy due to not
-holding any locks at that time.
+Instead, let's use the generic_cmd6_time, as that seems like a reasonable
+timeout to use for these cases.
 
-Therefore, re-check the result after acquiring locks and bailing
-if they no longer match.
-
-Additionally, clarify the not_move_group case from the
-move_group-vs-move_group race.
-
-Fixes: f63a8daa5812 ("perf: Fix event->ctx locking")
-Reported-by: Norbert Slusarek <nslusarek@gmx.net>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Link: https://lore.kernel.org/r/20200122142747.5690-3-ulf.hansson@linaro.org
+Signed-off-by: Kamal Dasu <kdasu.kdev@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/mmc/card/block.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -12327,6 +12327,9 @@ SYSCALL_DEFINE5(perf_event_open,
- 		 * Do not allow to attach to a group in a different task
- 		 * or CPU context. If we're moving SW events, we'll fix
- 		 * this up later, so allow that.
-+		 *
-+		 * Racy, not holding group_leader->ctx->mutex, see comment with
-+		 * perf_event_ctx_lock().
- 		 */
- 		if (!move_group && group_leader->ctx != ctx)
- 			goto err_context;
-@@ -12392,6 +12395,7 @@ SYSCALL_DEFINE5(perf_event_open,
- 			} else {
- 				perf_event_ctx_unlock(group_leader, gctx);
- 				move_group = 0;
-+				goto not_move_group;
- 			}
- 		}
- 
-@@ -12408,7 +12412,17 @@ SYSCALL_DEFINE5(perf_event_open,
- 		}
- 	} else {
- 		mutex_lock(&ctx->mutex);
-+
-+		/*
-+		 * Now that we hold ctx->lock, (re)validate group_leader->ctx == ctx,
-+		 * see the group_leader && !move_group test earlier.
-+		 */
-+		if (group_leader && group_leader->ctx != ctx) {
-+			err = -EINVAL;
-+			goto err_locked;
-+		}
+--- a/drivers/mmc/card/block.c
++++ b/drivers/mmc/card/block.c
+@@ -1192,7 +1192,7 @@ retry:
+ 				 arg == MMC_TRIM_ARG ?
+ 				 INAND_CMD38_ARG_TRIM :
+ 				 INAND_CMD38_ARG_ERASE,
+-				 0);
++				 card->ext_csd.generic_cmd6_time);
+ 		if (err)
+ 			goto out;
  	}
-+not_move_group:
- 
- 	if (ctx->task == TASK_TOMBSTONE) {
- 		err = -ESRCH;
+@@ -1235,7 +1235,7 @@ retry:
+ 				 arg == MMC_SECURE_TRIM1_ARG ?
+ 				 INAND_CMD38_ARG_SECTRIM1 :
+ 				 INAND_CMD38_ARG_SECERASE,
+-				 0);
++				 card->ext_csd.generic_cmd6_time);
+ 		if (err)
+ 			goto out_retry;
+ 	}
+@@ -1251,7 +1251,7 @@ retry:
+ 			err = mmc_switch(card, EXT_CSD_CMD_SET_NORMAL,
+ 					 INAND_CMD38_ARG_EXT_CSD,
+ 					 INAND_CMD38_ARG_SECTRIM2,
+-					 0);
++					 card->ext_csd.generic_cmd6_time);
+ 			if (err)
+ 				goto out_retry;
+ 		}
 
 
