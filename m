@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77AD6531B2A
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D90F531CE6
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240676AbiEWR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
+        id S241082AbiEWR3d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242744AbiEWR16 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9478B088;
-        Mon, 23 May 2022 10:24:16 -0700 (PDT)
+        with ESMTP id S242626AbiEWR1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09AD68AE53;
+        Mon, 23 May 2022 10:23:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 606ECB81214;
-        Mon, 23 May 2022 17:24:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B958FC385A9;
-        Mon, 23 May 2022 17:24:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C41F660C21;
+        Mon, 23 May 2022 17:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD8C9C385A9;
+        Mon, 23 May 2022 17:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326644;
-        bh=qWn9ZKbQrzQkwnnfeCk8yx1PqGXI3vpJJRoBj0bQd+U=;
+        s=korg; t=1653326631;
+        bh=uW7pbc6d6A5YERBrHNp98Gy1nbsBfo6zo6NCvtszUc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGl6ofFSXGhWs3F+PX9HUSIeHdMddAqzrcs3/d5h9kzYugN3GY9Uo+I8Ezef7dv6A
-         Wqa4hWYefJMb5GMR3qyPFSXBvt0br3uVq8UJatsUft+0ZdaG0ZDlfh4BynhQd05EeN
-         d4nndiztEiT9hJPHO33MfOzv4aitYMxMy5vhPHfQ=
+        b=szZOzxNw1cLwf6c5vZqOIEYSWFAoNcbI5EHph6xje1xelpphnNqKcsd22I+pt+GzQ
+         gx78xQ6Ce6+U67lmA4aP5NUixn8JbF8LsNagzdDz7rxuMxj/RfjZhDWYetk+g89Owl
+         KXLrgy/25iN7X/Lagz6e/dCx+Q4rcHxXs1kVhhH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.17 002/158] floppy: use a statically allocated error counter
-Date:   Mon, 23 May 2022 19:02:39 +0200
-Message-Id: <20220523165830.950640194@linuxfoundation.org>
+        stable@vger.kernel.org, Terry Bowman <terry.bowman@amd.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Mario Limonciello <Mario.Limonciello@amd.com>
+Subject: [PATCH 5.17 003/158] kernel/resource: Introduce request_mem_region_muxed()
+Date:   Mon, 23 May 2022 19:02:40 +0200
+Message-Id: <20220523165831.122499648@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
@@ -55,105 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Terry Bowman <terry.bowman@amd.com>
 
-commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
+commit 27c196c7b73cb70bbed3a9df46563bab60e63415 upstream.
 
-Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
-request just to increment the error count.  There's no point keeping
-that one in the request anyway, and since the interrupt handler uses a
-static pointer to the error which cannot be kept in sync with the
-pending request, better make it use a static error counter that's reset
-for each new request.  This reset now happens when entering
-redo_fd_request() for a new request via set_next_request().
+Support for requesting muxed memory region is implemented but not
+currently callable as a macro. Add the request muxed memory
+region macro.
 
-One initial concern about a single error counter was that errors on one
-floppy drive could be reported on another one, but this problem is not
-real given that the driver uses a single drive at a time, as that
-PC-compatible controllers also have this limitation by using shared
-signals.  As such the error count is always for the "current" drive.
+MMIO memory accesses can be synchronized using request_mem_region() which
+is already available. This call will return failure if the resource is
+busy. The 'muxed' version of this macro will handle a busy resource by
+using a wait queue to retry until the resource is available.
 
-Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-Tested-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Terry Bowman <terry.bowman@amd.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: Mario Limonciello <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/floppy.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ include/linux/ioport.h |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -509,8 +509,8 @@ static unsigned long fdc_busy;
- static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
- static DECLARE_WAIT_QUEUE_HEAD(command_done);
- 
--/* Errors during formatting are counted here. */
--static int format_errors;
-+/* errors encountered on the current (or last) request */
-+static int floppy_errors;
- 
- /* Format request descriptor. */
- static struct format_descr format_req;
-@@ -530,7 +530,6 @@ static struct format_descr format_req;
- static char *floppy_track_buffer;
- static int max_buffer_sectors;
- 
--static int *errors;
- typedef void (*done_f)(int);
- static const struct cont_t {
- 	void (*interrupt)(void);
-@@ -1455,7 +1454,7 @@ static int interpret_errors(void)
- 			if (drive_params[current_drive].flags & FTD_MSG)
- 				DPRINT("Over/Underrun - retrying\n");
- 			bad = 0;
--		} else if (*errors >= drive_params[current_drive].max_errors.reporting) {
-+		} else if (floppy_errors >= drive_params[current_drive].max_errors.reporting) {
- 			print_errors();
- 		}
- 		if (reply_buffer[ST2] & ST2_WC || reply_buffer[ST2] & ST2_BC)
-@@ -2095,7 +2094,7 @@ static void bad_flp_intr(void)
- 		if (!next_valid_format(current_drive))
- 			return;
- 	}
--	err_count = ++(*errors);
-+	err_count = ++floppy_errors;
- 	INFBOUND(write_errors[current_drive].badness, err_count);
- 	if (err_count > drive_params[current_drive].max_errors.abort)
- 		cont->done(0);
-@@ -2241,9 +2240,8 @@ static int do_format(int drive, struct f
- 		return -EINVAL;
- 	}
- 	format_req = *tmp_format_req;
--	format_errors = 0;
- 	cont = &format_cont;
--	errors = &format_errors;
-+	floppy_errors = 0;
- 	ret = wait_til_done(redo_format, true);
- 	if (ret == -EINTR)
- 		return -EINTR;
-@@ -2761,10 +2759,11 @@ static int set_next_request(void)
- 	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
- 					       queuelist);
- 	if (current_req) {
--		current_req->error_count = 0;
-+		floppy_errors = 0;
- 		list_del_init(&current_req->queuelist);
-+		return 1;
- 	}
--	return current_req != NULL;
-+	return 0;
- }
- 
- /* Starts or continues processing request. Will automatically unlock the
-@@ -2823,7 +2822,6 @@ do_request:
- 		_floppy = floppy_type + drive_params[current_drive].autodetect[drive_state[current_drive].probed_format];
- 	} else
- 		probing = 0;
--	errors = &(current_req->error_count);
- 	tmp = make_raw_rw_request();
- 	if (tmp < 2) {
- 		request_done(tmp);
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -262,6 +262,8 @@ resource_union(struct resource *r1, stru
+ #define request_muxed_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name), IORESOURCE_MUXED)
+ #define __request_mem_region(start,n,name, excl) __request_region(&iomem_resource, (start), (n), (name), excl)
+ #define request_mem_region(start,n,name) __request_region(&iomem_resource, (start), (n), (name), 0)
++#define request_mem_region_muxed(start, n, name) \
++	__request_region(&iomem_resource, (start), (n), (name), IORESOURCE_MUXED)
+ #define request_mem_region_exclusive(start,n,name) \
+ 	__request_region(&iomem_resource, (start), (n), (name), IORESOURCE_EXCLUSIVE)
+ #define rename_region(region, newname) do { (region)->name = (newname); } while (0)
 
 
