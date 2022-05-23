@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB2875318C0
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EBA0531CEB
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237053AbiEWRXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48664 "EHLO
+        id S241241AbiEWRj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:39:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241351AbiEWRWR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:17 -0400
+        with ESMTP id S241833AbiEWRgI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:36:08 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4C8678913;
-        Mon, 23 May 2022 10:18:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FE05635C;
+        Mon, 23 May 2022 10:30:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD66460BFA;
-        Mon, 23 May 2022 17:17:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87B21C385A9;
-        Mon, 23 May 2022 17:17:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D405D60BD3;
+        Mon, 23 May 2022 17:28:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCC34C385AA;
+        Mon, 23 May 2022 17:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326224;
-        bh=HYJvCzrRL8mx/moWrVn+AmAVKdhS3rpIkm0q464BD6w=;
+        s=korg; t=1653326922;
+        bh=XuJqssLHAYRSvGU8Ajeukhh8M9uJA/q0j2R7aBNCtUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRgl2EwmsIz+3RF3e5rVek9bKHnd1tggcbVJt/cxAH/mCGrMVNMq21Z+dYU24ZM04
-         rGBC069wWBezHsO3LQHKSYkG9MDYJFqSN2sCwOAWtmFdaZTkyDvduEjbKDYzFPMkcZ
-         LLOKKWDjuqpsXogLU/TEc+uXVXKB30LCw9ALS5kM=
+        b=thowyEjyLECiFPvPpC4ghd4FAWjZzIamHjE1ylrmCWNaCI5WQEDFDNGpmGNsOuYcc
+         TsjEi9Mp5OHJukrmOjdLdkdXVEGnwukPcbtN9a9idXwUgHHpoJvPJuFsupFu6XgmrJ
+         VZjonjdrDdn33aqkMLNxhCDaheoICxRDhnqIQFiE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Richter <rrichter@amd.com>,
-        Terry Bowman <terry.bowman@amd.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.15 015/132] Watchdog: sp5100_tco: Add initialization using EFCH MMIO
-Date:   Mon, 23 May 2022 19:03:44 +0200
-Message-Id: <20220523165826.141439925@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 068/158] arm64: dts: qcom: sm8250: dont enable rx/tx macro by default
+Date:   Mon, 23 May 2022 19:03:45 +0200
+Message-Id: <20220523165842.172033471@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,172 +56,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Terry Bowman <terry.bowman@amd.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 0578fff4aae5bce3f09875f58e68e9ffbab8daf5 upstream.
+[ Upstream commit 18019eb62efb68c9b365acca9c4fcb2e0d459487 ]
 
-cd6h/cd7h port I/O can be disabled on recent AMD hardware. Read
-accesses to disabled cd6h/cd7h port I/O will return F's and written
-data is dropped. It is recommended to replace the cd6h/cd7h
-port I/O with MMIO.
+Enabling rxmacro and txmacro nodes by defaults makes Qualcomm RB5 to
+crash and reboot while probing audio devices. Disable these device tree
+nodes by default and enabled them only when necessary (for the
+SM8250-MTP board).
 
-Co-developed-by: Robert Richter <rrichter@amd.com>
-Signed-off-by: Robert Richter <rrichter@amd.com>
-Signed-off-by: Terry Bowman <terry.bowman@amd.com>
-Tested-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20220202153525.1693378-4-terry.bowman@amd.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
-Cc: Mario Limonciello <Mario.Limonciello@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 24f52ef0c4bf ("arm64: dts: qcom: sm8250: Add nodes for tx and rx macros with soundwire masters")
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20220401185814.519653-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/sp5100_tco.c |  100 +++++++++++++++++++++++++++++++++++++++++-
- drivers/watchdog/sp5100_tco.h |    5 ++
- 2 files changed, 104 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sm8250-mtp.dts | 12 ++++++++++++
+ arch/arm64/boot/dts/qcom/sm8250.dtsi    |  4 ++++
+ 2 files changed, 16 insertions(+)
 
---- a/drivers/watchdog/sp5100_tco.c
-+++ b/drivers/watchdog/sp5100_tco.c
-@@ -48,7 +48,7 @@
- /* internal variables */
- 
- enum tco_reg_layout {
--	sp5100, sb800, efch
-+	sp5100, sb800, efch, efch_mmio
+diff --git a/arch/arm64/boot/dts/qcom/sm8250-mtp.dts b/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
+index fb99cc2827c7..7ab3627cc347 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
++++ b/arch/arm64/boot/dts/qcom/sm8250-mtp.dts
+@@ -622,6 +622,10 @@ &qupv3_id_2 {
+ 	status = "okay";
  };
  
- struct sp5100_tco {
-@@ -201,6 +201,8 @@ static void tco_timer_enable(struct sp51
- 					  ~EFCH_PM_WATCHDOG_DISABLE,
- 					  EFCH_PM_DECODEEN_SECOND_RES);
- 		break;
-+	default:
-+		break;
- 	}
- }
++&rxmacro {
++	status = "okay";
++};
++
+ &slpi {
+ 	status = "okay";
+ 	firmware-name = "qcom/sm8250/slpi.mbn";
+@@ -773,6 +777,8 @@ right_spkr: wsa8810-left@0,4{
+ };
  
-@@ -299,6 +301,99 @@ static int sp5100_tco_timer_init(struct
- 	return 0;
- }
+ &swr1 {
++	status = "okay";
++
+ 	wcd_rx: wcd9380-rx@0,4 {
+ 		compatible = "sdw20217010d00";
+ 		reg = <0 4>;
+@@ -781,6 +787,8 @@ wcd_rx: wcd9380-rx@0,4 {
+ };
  
-+static u8 efch_read_pm_reg8(void __iomem *addr, u8 index)
-+{
-+	return readb(addr + index);
-+}
+ &swr2 {
++	status = "okay";
 +
-+static void efch_update_pm_reg8(void __iomem *addr, u8 index, u8 reset, u8 set)
-+{
-+	u8 val;
-+
-+	val = readb(addr + index);
-+	val &= reset;
-+	val |= set;
-+	writeb(val, addr + index);
-+}
-+
-+static void tco_timer_enable_mmio(void __iomem *addr)
-+{
-+	efch_update_pm_reg8(addr, EFCH_PM_DECODEEN3,
-+			    ~EFCH_PM_WATCHDOG_DISABLE,
-+			    EFCH_PM_DECODEEN_SECOND_RES);
-+}
-+
-+static int sp5100_tco_setupdevice_mmio(struct device *dev,
-+				       struct watchdog_device *wdd)
-+{
-+	struct sp5100_tco *tco = watchdog_get_drvdata(wdd);
-+	const char *dev_name = SB800_DEVNAME;
-+	u32 mmio_addr = 0, alt_mmio_addr = 0;
-+	struct resource *res;
-+	void __iomem *addr;
-+	int ret;
-+	u32 val;
-+
-+	res = request_mem_region_muxed(EFCH_PM_ACPI_MMIO_PM_ADDR,
-+				       EFCH_PM_ACPI_MMIO_PM_SIZE,
-+				       "sp5100_tco");
-+
-+	if (!res) {
-+		dev_err(dev,
-+			"Memory region 0x%08x already in use\n",
-+			EFCH_PM_ACPI_MMIO_PM_ADDR);
-+		return -EBUSY;
-+	}
-+
-+	addr = ioremap(EFCH_PM_ACPI_MMIO_PM_ADDR, EFCH_PM_ACPI_MMIO_PM_SIZE);
-+	if (!addr) {
-+		dev_err(dev, "Address mapping failed\n");
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	/*
-+	 * EFCH_PM_DECODEEN_WDT_TMREN is dual purpose. This bitfield
-+	 * enables sp5100_tco register MMIO space decoding. The bitfield
-+	 * also starts the timer operation. Enable if not already enabled.
-+	 */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
-+	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
-+		efch_update_pm_reg8(addr, EFCH_PM_DECODEEN, 0xff,
-+				    EFCH_PM_DECODEEN_WDT_TMREN);
-+	}
-+
-+	/* Error if the timer could not be enabled */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_DECODEEN);
-+	if (!(val & EFCH_PM_DECODEEN_WDT_TMREN)) {
-+		dev_err(dev, "Failed to enable the timer\n");
-+		ret = -EFAULT;
-+		goto out;
-+	}
-+
-+	mmio_addr = EFCH_PM_WDT_ADDR;
-+
-+	/* Determine alternate MMIO base address */
-+	val = efch_read_pm_reg8(addr, EFCH_PM_ISACONTROL);
-+	if (val & EFCH_PM_ISACONTROL_MMIOEN)
-+		alt_mmio_addr = EFCH_PM_ACPI_MMIO_ADDR +
-+			EFCH_PM_ACPI_MMIO_WDT_OFFSET;
-+
-+	ret = sp5100_tco_prepare_base(tco, mmio_addr, alt_mmio_addr, dev_name);
-+	if (!ret) {
-+		tco_timer_enable_mmio(addr);
-+		ret = sp5100_tco_timer_init(tco);
-+	}
-+
-+out:
-+	if (addr)
-+		iounmap(addr);
-+
-+	release_resource(res);
-+
-+	return ret;
-+}
-+
- static int sp5100_tco_setupdevice(struct device *dev,
- 				  struct watchdog_device *wdd)
- {
-@@ -308,6 +403,9 @@ static int sp5100_tco_setupdevice(struct
- 	u32 alt_mmio_addr = 0;
- 	int ret;
+ 	wcd_tx: wcd9380-tx@0,3 {
+ 		compatible = "sdw20217010d00";
+ 		reg = <0 3>;
+@@ -819,6 +827,10 @@ config {
+ 	};
+ };
  
-+	if (tco->tco_reg_layout == efch_mmio)
-+		return sp5100_tco_setupdevice_mmio(dev, wdd);
++&txmacro {
++	status = "okay";
++};
 +
- 	/* Request the IO ports used by this driver */
- 	if (!request_muxed_region(SP5100_IO_PM_INDEX_REG,
- 				  SP5100_PM_IOPORTS_SIZE, "sp5100_tco")) {
---- a/drivers/watchdog/sp5100_tco.h
-+++ b/drivers/watchdog/sp5100_tco.h
-@@ -83,4 +83,9 @@
- #define EFCH_PM_ISACONTROL_MMIOEN	BIT(1)
+ &uart12 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index a92230bec1dd..bd212f6c351f 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -2150,6 +2150,7 @@ rxmacro: rxmacro@3200000 {
+ 			pinctrl-0 = <&rx_swr_active>;
+ 			compatible = "qcom,sm8250-lpass-rx-macro";
+ 			reg = <0 0x3200000 0 0x1000>;
++			status = "disabled";
  
- #define EFCH_PM_ACPI_MMIO_ADDR		0xfed80000
-+#define EFCH_PM_ACPI_MMIO_PM_OFFSET	0x00000300
- #define EFCH_PM_ACPI_MMIO_WDT_OFFSET	0x00000b00
-+
-+#define EFCH_PM_ACPI_MMIO_PM_ADDR	(EFCH_PM_ACPI_MMIO_ADDR +	\
-+					 EFCH_PM_ACPI_MMIO_PM_OFFSET)
-+#define EFCH_PM_ACPI_MMIO_PM_SIZE	8
+ 			clocks = <&q6afecc LPASS_CLK_ID_TX_CORE_MCLK LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
+ 				<&q6afecc LPASS_CLK_ID_TX_CORE_NPL_MCLK  LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
+@@ -2168,6 +2169,7 @@ rxmacro: rxmacro@3200000 {
+ 		swr1: soundwire-controller@3210000 {
+ 			reg = <0 0x3210000 0 0x2000>;
+ 			compatible = "qcom,soundwire-v1.5.1";
++			status = "disabled";
+ 			interrupts = <GIC_SPI 298 IRQ_TYPE_LEVEL_HIGH>;
+ 			clocks = <&rxmacro>;
+ 			clock-names = "iface";
+@@ -2195,6 +2197,7 @@ txmacro: txmacro@3220000 {
+ 			pinctrl-0 = <&tx_swr_active>;
+ 			compatible = "qcom,sm8250-lpass-tx-macro";
+ 			reg = <0 0x3220000 0 0x1000>;
++			status = "disabled";
+ 
+ 			clocks = <&q6afecc LPASS_CLK_ID_TX_CORE_MCLK LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
+ 				 <&q6afecc LPASS_CLK_ID_TX_CORE_NPL_MCLK  LPASS_CLK_ATTRIBUTE_COUPLE_NO>,
+@@ -2218,6 +2221,7 @@ swr2: soundwire-controller@3230000 {
+ 			compatible = "qcom,soundwire-v1.5.1";
+ 			interrupts-extended = <&intc GIC_SPI 297 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "core";
++			status = "disabled";
+ 
+ 			clocks = <&txmacro>;
+ 			clock-names = "iface";
+-- 
+2.35.1
+
 
 
