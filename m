@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF8A5318E9
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77AD6531B2A
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239257AbiEWRFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:05:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50176 "EHLO
+        id S240676AbiEWR2f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239341AbiEWRFb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:05:31 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E66864D25;
-        Mon, 23 May 2022 10:05:30 -0700 (PDT)
+        with ESMTP id S242744AbiEWR16 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD9478B088;
+        Mon, 23 May 2022 10:24:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3A5F1CE1708;
-        Mon, 23 May 2022 17:05:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40EE0C385A9;
-        Mon, 23 May 2022 17:05:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 606ECB81214;
+        Mon, 23 May 2022 17:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B958FC385A9;
+        Mon, 23 May 2022 17:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325526;
-        bh=LDqDkY7VPKRx8bgA5xhpX3tDf25816+cVHFIZsqkKrs=;
+        s=korg; t=1653326644;
+        bh=qWn9ZKbQrzQkwnnfeCk8yx1PqGXI3vpJJRoBj0bQd+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ntji3vXANWDVWZJlFHB0VcBrVvu8zX5c/N1rGqMEndWon3CS6zdEjbVQ2K1MJ+2vF
-         abU1kSTYx6C8M32KT4j8IaFOo6yuNSmLn2xtxybPCJW5FlfZTHT/MYf2kaINidTCQG
-         l2ytXvLDOPjO8nLjBS/5LecpXYegDLrsVq79xEDA=
+        b=SGl6ofFSXGhWs3F+PX9HUSIeHdMddAqzrcs3/d5h9kzYugN3GY9Uo+I8Ezef7dv6A
+         Wqa4hWYefJMb5GMR3qyPFSXBvt0br3uVq8UJatsUft+0ZdaG0ZDlfh4BynhQd05EeN
+         d4nndiztEiT9hJPHO33MfOzv4aitYMxMy5vhPHfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Schspa Shi <schspa@gmail.com>
-Subject: [PATCH 5.17 001/158] usb: gadget: fix race when gadget driver register via ioctl
-Date:   Mon, 23 May 2022 19:02:38 +0200
-Message-Id: <20220523165830.798478501@linuxfoundation.org>
+        stable@vger.kernel.org, Minh Yuan <yuanmingbuaa@gmail.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Denis Efremov <efremov@linux.com>, Willy Tarreau <w@1wt.eu>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.17 002/158] floppy: use a statically allocated error counter
+Date:   Mon, 23 May 2022 19:02:39 +0200
+Message-Id: <20220523165830.950640194@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
 References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -57,92 +55,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Schspa Shi <schspa@gmail.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 upstream.
+commit f71f01394f742fc4558b3f9f4c7ef4c4cf3b07c8 upstream.
 
-The usb_gadget_register_driver can be called multi time by to
-threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
-to multiple registrations.
+Interrupt handler bad_flp_intr() may cause a UAF on the recently freed
+request just to increment the error count.  There's no point keeping
+that one in the request anyway, and since the interrupt handler uses a
+static pointer to the error which cannot be kept in sync with the
+pending request, better make it use a static error counter that's reset
+for each new request.  This reset now happens when entering
+redo_fd_request() for a new request via set_next_request().
 
-Call trace:
-  driver_register+0x220/0x3a0 drivers/base/driver.c:171
-  usb_gadget_register_driver_owner+0xfb/0x1e0
-    drivers/usb/gadget/udc/core.c:1546
-  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
-  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
-  ioctl USB_RAW_IOCTL_RUN
+One initial concern about a single error counter was that errors on one
+floppy drive could be reported on another one, but this problem is not
+real given that the driver uses a single drive at a time, as that
+PC-compatible controllers also have this limitation by using shared
+signals.  As such the error count is always for the "current" drive.
 
-This routine allows two processes to register the same driver instance
-via ioctl syscall. which lead to a race condition.
-
-Please refer to the following scenarios.
-
-           T1                                  T2
-------------------------------------------------------------------
-usb_gadget_register_driver_owner
-  driver_register                    driver_register
-    driver_find                       driver_find
-    bus_add_driver                    bus_add_driver
-      priv alloced                     <context switch>
-      drv->p = priv;
-      <schedule out>
-      kobject_init_and_add // refcount = 1;
-   //couldn't find an available UDC or it's busy
-   <context switch>
-                                       priv alloced
-                                       drv->priv = priv;
-                                       kobject_init_and_add
-                                         ---> refcount = 1 <------
-                                       // register success
-                                       <context switch>
-===================== another ioctl/process ======================
-                                      driver_register
-                                       driver_find
-                                        k = kset_find_obj()
-                                         ---> refcount = 2 <------
-                                        <context out>
-   driver_unregister
-   // drv->p become T2's priv
-   ---> refcount = 1 <------
-   <context switch>
-                                        kobject_put(k)
-                                         ---> refcount = 0 <------
-                                        return priv->driver;
-                                        --------UAF here----------
-
-There will be UAF in this scenario.
-
-We can fix it by adding a new STATE_DEV_REGISTERING device state to
-avoid double register.
-
-Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Signed-off-by: Schspa Shi <schspa@gmail.com>
-Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
+Reported-by: Minh Yuan <yuanmingbuaa@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Tested-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/raw_gadget.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/block/floppy.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/drivers/usb/gadget/legacy/raw_gadget.c
-+++ b/drivers/usb/gadget/legacy/raw_gadget.c
-@@ -145,6 +145,7 @@ enum dev_state {
- 	STATE_DEV_INVALID = 0,
- 	STATE_DEV_OPENED,
- 	STATE_DEV_INITIALIZED,
-+	STATE_DEV_REGISTERING,
- 	STATE_DEV_RUNNING,
- 	STATE_DEV_CLOSED,
- 	STATE_DEV_FAILED
-@@ -508,6 +509,7 @@ static int raw_ioctl_run(struct raw_dev
- 		ret = -EINVAL;
- 		goto out_unlock;
- 	}
-+	dev->state = STATE_DEV_REGISTERING;
- 	spin_unlock_irqrestore(&dev->lock, flags);
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -509,8 +509,8 @@ static unsigned long fdc_busy;
+ static DECLARE_WAIT_QUEUE_HEAD(fdc_wait);
+ static DECLARE_WAIT_QUEUE_HEAD(command_done);
  
- 	ret = usb_gadget_probe_driver(&dev->driver);
+-/* Errors during formatting are counted here. */
+-static int format_errors;
++/* errors encountered on the current (or last) request */
++static int floppy_errors;
+ 
+ /* Format request descriptor. */
+ static struct format_descr format_req;
+@@ -530,7 +530,6 @@ static struct format_descr format_req;
+ static char *floppy_track_buffer;
+ static int max_buffer_sectors;
+ 
+-static int *errors;
+ typedef void (*done_f)(int);
+ static const struct cont_t {
+ 	void (*interrupt)(void);
+@@ -1455,7 +1454,7 @@ static int interpret_errors(void)
+ 			if (drive_params[current_drive].flags & FTD_MSG)
+ 				DPRINT("Over/Underrun - retrying\n");
+ 			bad = 0;
+-		} else if (*errors >= drive_params[current_drive].max_errors.reporting) {
++		} else if (floppy_errors >= drive_params[current_drive].max_errors.reporting) {
+ 			print_errors();
+ 		}
+ 		if (reply_buffer[ST2] & ST2_WC || reply_buffer[ST2] & ST2_BC)
+@@ -2095,7 +2094,7 @@ static void bad_flp_intr(void)
+ 		if (!next_valid_format(current_drive))
+ 			return;
+ 	}
+-	err_count = ++(*errors);
++	err_count = ++floppy_errors;
+ 	INFBOUND(write_errors[current_drive].badness, err_count);
+ 	if (err_count > drive_params[current_drive].max_errors.abort)
+ 		cont->done(0);
+@@ -2241,9 +2240,8 @@ static int do_format(int drive, struct f
+ 		return -EINVAL;
+ 	}
+ 	format_req = *tmp_format_req;
+-	format_errors = 0;
+ 	cont = &format_cont;
+-	errors = &format_errors;
++	floppy_errors = 0;
+ 	ret = wait_til_done(redo_format, true);
+ 	if (ret == -EINTR)
+ 		return -EINTR;
+@@ -2761,10 +2759,11 @@ static int set_next_request(void)
+ 	current_req = list_first_entry_or_null(&floppy_reqs, struct request,
+ 					       queuelist);
+ 	if (current_req) {
+-		current_req->error_count = 0;
++		floppy_errors = 0;
+ 		list_del_init(&current_req->queuelist);
++		return 1;
+ 	}
+-	return current_req != NULL;
++	return 0;
+ }
+ 
+ /* Starts or continues processing request. Will automatically unlock the
+@@ -2823,7 +2822,6 @@ do_request:
+ 		_floppy = floppy_type + drive_params[current_drive].autodetect[drive_state[current_drive].probed_format];
+ 	} else
+ 		probing = 0;
+-	errors = &(current_req->error_count);
+ 	tmp = make_raw_rw_request();
+ 	if (tmp < 2) {
+ 		request_done(tmp);
 
 
