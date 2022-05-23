@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A2ED5319FA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83AC15316D5
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241066AbiEWRjn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42306 "EHLO
+        id S240521AbiEWR22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:28:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242992AbiEWRhv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB07362BE5;
-        Mon, 23 May 2022 10:31:53 -0700 (PDT)
+        with ESMTP id S240772AbiEWR0E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:04 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ABB4E22;
+        Mon, 23 May 2022 10:21:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 67ABC611C2;
-        Mon, 23 May 2022 17:29:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 279CCC385AA;
-        Mon, 23 May 2022 17:29:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BD192B81219;
+        Mon, 23 May 2022 17:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F6C0C3411C;
+        Mon, 23 May 2022 17:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326963;
-        bh=d6w+5UsSdjDcHDg9m5UaDK+DMi109APCcdCUrmrVj6w=;
+        s=korg; t=1653326316;
+        bh=DNfz1o6qKb6qIfL/FrsqbiDZgTcZ8zxQ00E+YIOP5tI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yGBsk6LaboQ+It5oVs4y4RLBv3l61doXrW5nEXdmfgLkDnCUHzAhv00CAtabFKXhd
-         TWoZ92MOx7abFp+PLfXn7zG2vbDEQhgISVrKLB3/NsOn3V3iVaSzvaG9S6uAyy2MKk
-         kRLczDFiyiMz4MYbGn4jy8nT4fyqmDxmjzZ1PuAE=
+        b=YcPC848wAF+4Mr0Qb0o3z9X9I2mjQh03DT78NLpjzzQSf1mxkWDtskV/OLrrwyxVd
+         7DUaP4Hn2t0FiLzs5ICC8XgA8qo2hwtVcT7A0ym0nHL3Buxo4GqH+8gRk3WL99SpNz
+         kCLXxWpUI1RNCTU65vmBMmFDrYb+MAexZGgNOcJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>,
-        Michal Schmidt <mschmidt@redhat.com>,
-        Dave Cain <dcain@redhat.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan <gurucharanx.g@intel.com>
-Subject: [PATCH 5.17 096/158] ice: fix crash when writing timestamp on RX rings
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 044/132] ALSA: usb-audio: Restore Rane SL-1 quirk
 Date:   Mon, 23 May 2022 19:04:13 +0200
-Message-Id: <20220523165847.300118321@linuxfoundation.org>
+Message-Id: <20220523165830.606361258@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,107 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 4503cc7fdf9a84cd631b0cb8ecb3c9b1bdbf3594 ]
+commit 5c62383c06837b5719cd5447a5758b791279e653 upstream.
 
-Do not allow to write timestamps on RX rings if PF is being configured.
-When PF is being configured RX rings can be freed or rebuilt. If at the
-same time timestamps are updated, the kernel will crash by dereferencing
-null RX ring pointer.
+At cleaning up and moving the device rename from the quirk table to
+its own table, we removed the entry for Rane SL-1 as we thought it's
+only for renaming.  It turned out, however, that the quirk is required
+for matching with the device that declares itself as no standard
+audio but only as vendor-specific.
 
-PID: 1449   TASK: ff187d28ed658040  CPU: 34  COMMAND: "ice-ptp-0000:51"
- #0 [ff1966a94a713bb0] machine_kexec at ffffffff9d05a0be
- #1 [ff1966a94a713c08] __crash_kexec at ffffffff9d192e9d
- #2 [ff1966a94a713cd0] crash_kexec at ffffffff9d1941bd
- #3 [ff1966a94a713ce8] oops_end at ffffffff9d01bd54
- #4 [ff1966a94a713d08] no_context at ffffffff9d06bda4
- #5 [ff1966a94a713d60] __bad_area_nosemaphore at ffffffff9d06c10c
- #6 [ff1966a94a713da8] do_page_fault at ffffffff9d06cae4
- #7 [ff1966a94a713de0] page_fault at ffffffff9da0107e
-    [exception RIP: ice_ptp_update_cached_phctime+91]
-    RIP: ffffffffc076db8b  RSP: ff1966a94a713e98  RFLAGS: 00010246
-    RAX: 16e3db9c6b7ccae4  RBX: ff187d269dd3c180  RCX: ff187d269cd4d018
-    RDX: 0000000000000000  RSI: 0000000000000000  RDI: 0000000000000000
-    RBP: ff187d269cfcc644   R8: ff187d339b9641b0   R9: 0000000000000000
-    R10: 0000000000000002  R11: 0000000000000000  R12: ff187d269cfcc648
-    R13: ffffffff9f128784  R14: ffffffff9d101b70  R15: ff187d269cfcc640
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #8 [ff1966a94a713ea0] ice_ptp_periodic_work at ffffffffc076dbef [ice]
- #9 [ff1966a94a713ee0] kthread_worker_fn at ffffffff9d101c1b
- #10 [ff1966a94a713f10] kthread at ffffffff9d101b4d
- #11 [ff1966a94a713f50] ret_from_fork at ffffffff9da0023f
+Restore the quirk entry for Rane SL-1 to fix the regression.
 
-Fixes: 77a781155a65 ("ice: enable receive hardware timestamping")
-Signed-off-by: Arkadiusz Kubalewski <arkadiusz.kubalewski@intel.com>
-Reviewed-by: Michal Schmidt <mschmidt@redhat.com>
-Tested-by: Dave Cain <dcain@redhat.com>
-Tested-by: Gurucharan <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=215887
+Fixes: 5436f59bc5bc ("ALSA: usb-audio: Move device rename and profile quirks to an internal table")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220516103112.12950-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ sound/usb/quirks-table.h |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index 45ae97b8b97d..836c67f1aa46 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -499,12 +499,19 @@ ice_ptp_read_src_clk_reg(struct ice_pf *pf, struct ptp_system_timestamp *sts)
-  * This function must be called periodically to ensure that the cached value
-  * is never more than 2 seconds old. It must also be called whenever the PHC
-  * time has been changed.
-+ *
-+ * Return:
-+ * * 0 - OK, successfully updated
-+ * * -EAGAIN - PF was busy, need to reschedule the update
-  */
--static void ice_ptp_update_cached_phctime(struct ice_pf *pf)
-+static int ice_ptp_update_cached_phctime(struct ice_pf *pf)
- {
- 	u64 systime;
- 	int i;
- 
-+	if (test_and_set_bit(ICE_CFG_BUSY, pf->state))
-+		return -EAGAIN;
-+
- 	/* Read the current PHC time */
- 	systime = ice_ptp_read_src_clk_reg(pf, NULL);
- 
-@@ -527,6 +534,9 @@ static void ice_ptp_update_cached_phctime(struct ice_pf *pf)
- 			WRITE_ONCE(vsi->rx_rings[j]->cached_phctime, systime);
- 		}
+--- a/sound/usb/quirks-table.h
++++ b/sound/usb/quirks-table.h
+@@ -3235,6 +3235,15 @@ YAMAHA_DEVICE(0x7010, "UB99"),
  	}
-+	clear_bit(ICE_CFG_BUSY, pf->state);
+ },
+ 
++/* Rane SL-1 */
++{
++	USB_DEVICE(0x13e5, 0x0001),
++	.driver_info = (unsigned long) & (const struct snd_usb_audio_quirk) {
++		.ifnum = QUIRK_ANY_INTERFACE,
++		.type = QUIRK_AUDIO_STANDARD_INTERFACE
++        }
++},
 +
-+	return 0;
- }
- 
- /**
-@@ -2322,17 +2332,18 @@ static void ice_ptp_periodic_work(struct kthread_work *work)
- {
- 	struct ice_ptp *ptp = container_of(work, struct ice_ptp, work.work);
- 	struct ice_pf *pf = container_of(ptp, struct ice_pf, ptp);
-+	int err;
- 
- 	if (!test_bit(ICE_FLAG_PTP, pf->flags))
- 		return;
- 
--	ice_ptp_update_cached_phctime(pf);
-+	err = ice_ptp_update_cached_phctime(pf);
- 
- 	ice_ptp_tx_tstamp_cleanup(&pf->hw, &pf->ptp.port.tx);
- 
--	/* Run twice a second */
-+	/* Run twice a second or reschedule if phc update failed */
- 	kthread_queue_delayed_work(ptp->kworker, &ptp->work,
--				   msecs_to_jiffies(500));
-+				   msecs_to_jiffies(err ? 10 : 500));
- }
- 
- /**
--- 
-2.35.1
-
+ /* disabled due to regression for other devices;
+  * see https://bugzilla.kernel.org/show_bug.cgi?id=199905
+  */
 
 
