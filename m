@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FDC5531A13
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4B9A531C9B
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240356AbiEWRXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:23:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49282 "EHLO
+        id S241529AbiEWRdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241556AbiEWRW2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:22:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15BA7892C;
-        Mon, 23 May 2022 10:19:08 -0700 (PDT)
+        with ESMTP id S241854AbiEWRb1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:31:27 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8240644D8;
+        Mon, 23 May 2022 10:26:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14B1FB81201;
-        Mon, 23 May 2022 17:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 749FEC385A9;
-        Mon, 23 May 2022 17:17:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 028E660916;
+        Mon, 23 May 2022 17:26:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0564EC385A9;
+        Mon, 23 May 2022 17:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326265;
-        bh=GvPy1TSq0hpYJR7v+A8xk20wsgXU7QBU18utSfY49Sc=;
+        s=korg; t=1653326815;
+        bh=bJzOwjF3X17Jgfd2o6J6v0+niskXRCoLjBovkKW+Lx8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n2EFeN3yvrthkrycVV6rviYPu5PpxD4mJkSuPD9xrxBnCmSI/zKUbLsKGh5GBCIx/
-         EGbVf8ljDA4BAUaeyVXITXzCTtyHDkwhyLCJuQQI/ZLCs9R1B3M2ILfPn5MFiPozFB
-         4TrXl2xA6ueY2XEFSXAishRERnRWoSohFn/bSm+w=
+        b=ZOtMTRDK6Pbp0GT1ttvQZ4el8UJYAFQGTW5tx2DL4lvqnccXnPK0SVLZ4KiDqM4Ij
+         aztPVB7wO3pEs8r30ThTHDjyhSu/ao0GaKaQo9kZqRxvf22dTjF52w6GO8T4EZeN65
+         cWzi1WiBAkzo4tZ9EGf0nx33cwhABb2oauFqjxwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Terry Bowman <terry.bowman@amd.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.15 008/132] i2c: piix4: Move SMBus port selection into function
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Brian Masney <bmasney@redhat.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.17 060/158] crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
 Date:   Mon, 23 May 2022 19:03:37 +0200
-Message-Id: <20220523165824.975018684@linuxfoundation.org>
+Message-Id: <20220523165840.778467821@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,76 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Terry Bowman <terry.bowman@amd.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit fbafbd51bff52cb3a920fd98d4dae2a78dd433d0 upstream.
+commit 16287397ec5c08aa58db6acf7dbc55470d78087d upstream.
 
-Move port selection code into a separate function. Refactor is in
-preparation for following MMIO changes.
+The commit referenced in the Fixes tag removed the 'break' from the else
+branch in qcom_rng_read(), causing an infinite loop whenever 'max' is
+not a multiple of WORD_SZ. This can be reproduced e.g. by running:
 
-Signed-off-by: Terry Bowman <terry.bowman@amd.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+    kcapi-rng -b 67 >/dev/null
+
+There are many ways to fix this without adding back the 'break', but
+they all seem more awkward than simply adding it back, so do just that.
+
+Tested on a machine with Qualcomm Amberwing processor.
+
+Fixes: a680b1832ced ("crypto: qcom-rng - ensure buffer for generate is completely filled")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: Brian Masney <bmasney@redhat.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-piix4.c |   27 +++++++++++++++++----------
- 1 file changed, 17 insertions(+), 10 deletions(-)
+ drivers/crypto/qcom-rng.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/i2c/busses/i2c-piix4.c
-+++ b/drivers/i2c/busses/i2c-piix4.c
-@@ -698,6 +698,20 @@ static void piix4_imc_wakeup(void)
- 	release_region(KERNCZ_IMC_IDX, 2);
- }
- 
-+static int piix4_sb800_port_sel(u8 port)
-+{
-+	u8 smba_en_lo, val;
-+
-+	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
-+	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
-+
-+	val = (smba_en_lo & ~piix4_port_mask_sb800) | port;
-+	if (smba_en_lo != val)
-+		outb_p(val, SB800_PIIX4_SMB_IDX + 1);
-+
-+	return (smba_en_lo & piix4_port_mask_sb800);
-+}
-+
- /*
-  * Handles access to multiple SMBus ports on the SB800.
-  * The port is selected by bits 2:1 of the smb_en register (0x2c).
-@@ -714,8 +728,7 @@ static s32 piix4_access_sb800(struct i2c
- 	unsigned short piix4_smba = adapdata->smba;
- 	int retries = MAX_TIMEOUT;
- 	int smbslvcnt;
--	u8 smba_en_lo;
--	u8 port;
-+	u8 prev_port;
- 	int retval;
- 
- 	retval = piix4_sb800_region_request(&adap->dev);
-@@ -775,18 +788,12 @@ static s32 piix4_access_sb800(struct i2c
+--- a/drivers/crypto/qcom-rng.c
++++ b/drivers/crypto/qcom-rng.c
+@@ -65,6 +65,7 @@ static int qcom_rng_read(struct qcom_rng
+ 		} else {
+ 			/* copy only remaining bytes */
+ 			memcpy(data, &val, max - currsize);
++			break;
  		}
- 	}
+ 	} while (currsize < max);
  
--	outb_p(piix4_port_sel_sb800, SB800_PIIX4_SMB_IDX);
--	smba_en_lo = inb_p(SB800_PIIX4_SMB_IDX + 1);
--
--	port = adapdata->port;
--	if ((smba_en_lo & piix4_port_mask_sb800) != port)
--		outb_p((smba_en_lo & ~piix4_port_mask_sb800) | port,
--		       SB800_PIIX4_SMB_IDX + 1);
-+	prev_port = piix4_sb800_port_sel(adapdata->port);
- 
- 	retval = piix4_access(adap, addr, flags, read_write,
- 			      command, size, data);
- 
--	outb_p(smba_en_lo, SB800_PIIX4_SMB_IDX + 1);
-+	piix4_sb800_port_sel(prev_port);
- 
- 	/* Release the semaphore */
- 	outb_p(smbslvcnt | 0x20, SMBSLVCNT);
 
 
