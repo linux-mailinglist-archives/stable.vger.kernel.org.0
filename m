@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7EE2531885
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:54:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 292B25317C4
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242027AbiEWRkf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:40:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46134 "EHLO
+        id S238866AbiEWR3k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:29:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243632AbiEWRiV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:38:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19619939A5;
-        Mon, 23 May 2022 10:32:35 -0700 (PDT)
+        with ESMTP id S240865AbiEWR0H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B0D217A9E;
+        Mon, 23 May 2022 10:21:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39CF1B8122F;
-        Mon, 23 May 2022 17:32:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90E48C385A9;
-        Mon, 23 May 2022 17:32:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D5B0B8121C;
+        Mon, 23 May 2022 17:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81072C385A9;
+        Mon, 23 May 2022 17:20:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653327128;
-        bh=doQRzfdvKQcqj96z7UMVJeMF3Ya4m94Bf6rITo95dKE=;
+        s=korg; t=1653326459;
+        bh=IiG6DVAr/cCMbHcZiaclUM7731Pl9HADJE4+83bC76I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qc5iKlDyuX9xqE3zSbkyqer/mvYiZWTRzvwO92fPAHeGuDPwSGBEQge6nuXiFHeV
-         hzirlOZL5NmEgv5PDAhEPxGqjLEZxEb6rNYHEDEDlMur6aicopHiutmD4MupyjmHC1
-         yDIWgbcitzL30HzgOlfjWpaX7f0EmG+6mIsS8T+0=
+        b=bW2ecwIzm2hysXfGCiqAwHdAxyIyXMZ5eX9A7izzBiipG5B61Q5ECuBzjQYVY3Atv
+         pjPYh5emy0sXH1UZw3V8Lmb7XPYn2YZIvD4cwF17uh3OEKaxzICbjxxDZaMSdi97Tv
+         VZsmyaBdsemVhONfvA0N0mdii9f2GbAIo1G1cnKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.17 140/158] fbdev: Prevent possible use-after-free in fb_release()
+Subject: [PATCH 5.15 088/132] net/qla3xxx: Fix a test in ql_reset_work()
 Date:   Mon, 23 May 2022 19:04:57 +0200
-Message-Id: <20220523165853.511238020@linuxfoundation.org>
+Message-Id: <20220523165837.690435785@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,45 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 89bfd4017e58faaf70411555e7f508495114e90b ]
+[ Upstream commit 5361448e45fac6fb96738df748229432a62d78b6 ]
 
-Most fbdev drivers have issues with the fb_info lifetime, because call to
-framebuffer_release() from their driver's .remove callback, rather than
-doing from fbops.fb_destroy callback.
+test_bit() tests if one bit is set or not.
+Here the logic seems to check of bit QL_RESET_PER_SCSI (i.e. 4) OR bit
+QL_RESET_START (i.e. 3) is set.
 
-Doing that will destroy the fb_info too early, while references to it may
-still exist, leading to a use-after-free error.
+In fact, it checks if bit 7 (4 | 3 = 7) is set, that is to say
+QL_ADAPTER_UP.
 
-To prevent this, check the fb_info reference counter when attempting to
-kfree the data structure in framebuffer_release(). That will leak it but
-at least will prevent the mentioned error.
+This looks harmless, because this bit is likely be set, and when the
+ql_reset_work() delayed work is scheduled in ql3xxx_isr() (the only place
+that schedule this work), QL_RESET_START or QL_RESET_PER_SCSI is set.
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220505220413.365977-1-javierm@redhat.com
+This has been spotted by smatch.
+
+Fixes: 5a4faa873782 ("[PATCH] qla3xxx NIC driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/80e73e33f390001d9c0140ffa9baddf6466a41a2.1652637337.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbsysfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
-index 26892940c213..82e31a2d845e 100644
---- a/drivers/video/fbdev/core/fbsysfs.c
-+++ b/drivers/video/fbdev/core/fbsysfs.c
-@@ -80,6 +80,10 @@ void framebuffer_release(struct fb_info *info)
- {
- 	if (!info)
- 		return;
-+
-+	if (WARN_ON(refcount_read(&info->count)))
-+		return;
-+
- 	kfree(info->apertures);
- 	kfree(info);
- }
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index 4eb9ea280474..40d14d80f6f1 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -3612,7 +3612,8 @@ static void ql_reset_work(struct work_struct *work)
+ 		qdev->mem_map_registers;
+ 	unsigned long hw_flags;
+ 
+-	if (test_bit((QL_RESET_PER_SCSI | QL_RESET_START), &qdev->flags)) {
++	if (test_bit(QL_RESET_PER_SCSI, &qdev->flags) ||
++	    test_bit(QL_RESET_START, &qdev->flags)) {
+ 		clear_bit(QL_LINK_MASTER, &qdev->flags);
+ 
+ 		/*
 -- 
 2.35.1
 
