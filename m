@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8B365316CA
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6635316E8
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240460AbiEWRTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:19:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49356 "EHLO
+        id S231373AbiEWRar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240106AbiEWRRh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:17:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2539A71D88;
-        Mon, 23 May 2022 10:17:29 -0700 (PDT)
+        with ESMTP id S242081AbiEWR1Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85A147A82D;
+        Mon, 23 May 2022 10:22:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 994D0608C3;
-        Mon, 23 May 2022 17:16:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9810EC385A9;
-        Mon, 23 May 2022 17:16:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ECE27B80FF4;
+        Mon, 23 May 2022 17:22:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A4A7C385A9;
+        Mon, 23 May 2022 17:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326198;
-        bh=EH69Z5XiNYzDbxjM0ck1W39n8wl/6fzKXeS4geIBYDA=;
+        s=korg; t=1653326555;
+        bh=2G3O/BeuOB/LP+pXY8WjpNyQcb0iZ9J+DrQIeLIcGXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H71RF3+ebAxMuIk+S2R4iDHFFdFzaVIoCZQVoszqUUh3iYIdXN51el85mlvobCvSe
-         lKNCXsxZ4pffyTLxtSSmIJMF6f2IB4E12diU+wBPCDHWCKEe2uUvlK+Aat88C9Xwfu
-         SAJZQEIl6gk6JeonFEpdGqVZUf2Xn6v/m0UKIRow=
+        b=J9vC7aQ0f02A5Hx26xNjH4gR+V9HRbJKu9Yu3oLqZ3rk6QJ3iapPzdJ/i6uIwLZ/8
+         imxu1IzhFCuqss70uUtUPaVMzbi3G1kJZv6905ApdqMsr3pLfbLZ6KAr1gg0etwAzs
+         FsmxJT8Cwt8lCSt+kG/pxNe545WkKdZxJm/z5NJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH 5.4 60/68] block: return ELEVATOR_DISCARD_MERGE if possible
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 118/132] fbdev: Prevent possible use-after-free in fb_release()
 Date:   Mon, 23 May 2022 19:05:27 +0200
-Message-Id: <20220523165812.360622432@linuxfoundation.org>
+Message-Id: <20220523165843.109124190@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
-References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,118 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-commit 866663b7b52d2da267b28e12eed89ee781b8fed1 upstream.
+[ Upstream commit 89bfd4017e58faaf70411555e7f508495114e90b ]
 
-When merging one bio to request, if they are discard IO and the queue
-supports multi-range discard, we need to return ELEVATOR_DISCARD_MERGE
-because both block core and related drivers(nvme, virtio-blk) doesn't
-handle mixed discard io merge(traditional IO merge together with
-discard merge) well.
+Most fbdev drivers have issues with the fb_info lifetime, because call to
+framebuffer_release() from their driver's .remove callback, rather than
+doing from fbops.fb_destroy callback.
 
-Fix the issue by returning ELEVATOR_DISCARD_MERGE in this situation,
-so both blk-mq and drivers just need to handle multi-range discard.
+Doing that will destroy the fb_info too early, while references to it may
+still exist, leading to a use-after-free error.
 
-Reported-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Fixes: 2705dfb20947 ("block: fix discard request merge")
-Link: https://lore.kernel.org/r/20210729034226.1591070-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To prevent this, check the fb_info reference counter when attempting to
+kfree the data structure in framebuffer_release(). That will leak it but
+at least will prevent the mentioned error.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220505220413.365977-1-javierm@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c    |    3 +++
- block/blk-merge.c      |   15 ---------------
- block/elevator.c       |    3 +++
- block/mq-deadline.c    |    2 ++
- include/linux/blkdev.h |   16 ++++++++++++++++
- 5 files changed, 24 insertions(+), 15 deletions(-)
+ drivers/video/fbdev/core/fbsysfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2251,6 +2251,9 @@ static int bfq_request_merge(struct requ
- 	__rq = bfq_find_rq_fmerge(bfqd, bio, q);
- 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
- 		*req = __rq;
-+
-+		if (blk_discard_mergable(__rq))
-+			return ELEVATOR_DISCARD_MERGE;
- 		return ELEVATOR_FRONT_MERGE;
- 	}
- 
---- a/block/blk-merge.c
-+++ b/block/blk-merge.c
-@@ -721,21 +721,6 @@ static void blk_account_io_merge(struct
- 		part_stat_unlock();
- 	}
- }
--/*
-- * Two cases of handling DISCARD merge:
-- * If max_discard_segments > 1, the driver takes every bio
-- * as a range and send them to controller together. The ranges
-- * needn't to be contiguous.
-- * Otherwise, the bios/requests will be handled as same as
-- * others which should be contiguous.
-- */
--static inline bool blk_discard_mergable(struct request *req)
--{
--	if (req_op(req) == REQ_OP_DISCARD &&
--	    queue_max_discard_segments(req->q) > 1)
--		return true;
--	return false;
--}
- 
- static enum elv_merge blk_try_req_merge(struct request *req,
- 					struct request *next)
---- a/block/elevator.c
-+++ b/block/elevator.c
-@@ -337,6 +337,9 @@ enum elv_merge elv_merge(struct request_
- 	__rq = elv_rqhash_find(q, bio->bi_iter.bi_sector);
- 	if (__rq && elv_bio_merge_ok(__rq, bio)) {
- 		*req = __rq;
-+
-+		if (blk_discard_mergable(__rq))
-+			return ELEVATOR_DISCARD_MERGE;
- 		return ELEVATOR_BACK_MERGE;
- 	}
- 
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -452,6 +452,8 @@ static int dd_request_merge(struct reque
- 
- 		if (elv_bio_merge_ok(__rq, bio)) {
- 			*rq = __rq;
-+			if (blk_discard_mergable(__rq))
-+				return ELEVATOR_DISCARD_MERGE;
- 			return ELEVATOR_FRONT_MERGE;
- 		}
- 	}
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -1409,6 +1409,22 @@ static inline int queue_limit_discard_al
- 	return offset << SECTOR_SHIFT;
- }
- 
-+/*
-+ * Two cases of handling DISCARD merge:
-+ * If max_discard_segments > 1, the driver takes every bio
-+ * as a range and send them to controller together. The ranges
-+ * needn't to be contiguous.
-+ * Otherwise, the bios/requests will be handled as same as
-+ * others which should be contiguous.
-+ */
-+static inline bool blk_discard_mergable(struct request *req)
-+{
-+	if (req_op(req) == REQ_OP_DISCARD &&
-+	    queue_max_discard_segments(req->q) > 1)
-+		return true;
-+	return false;
-+}
-+
- static inline int bdev_discard_alignment(struct block_device *bdev)
+diff --git a/drivers/video/fbdev/core/fbsysfs.c b/drivers/video/fbdev/core/fbsysfs.c
+index 65dae05fff8e..ce699396d6ba 100644
+--- a/drivers/video/fbdev/core/fbsysfs.c
++++ b/drivers/video/fbdev/core/fbsysfs.c
+@@ -80,6 +80,10 @@ void framebuffer_release(struct fb_info *info)
  {
- 	struct request_queue *q = bdev_get_queue(bdev);
+ 	if (!info)
+ 		return;
++
++	if (WARN_ON(refcount_read(&info->count)))
++		return;
++
+ 	kfree(info->apertures);
+ 	kfree(info);
+ }
+-- 
+2.35.1
+
 
 
