@@ -2,46 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E71531A54
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C50B5531A34
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240272AbiEWR2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:28:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42114 "EHLO
+        id S239348AbiEWRHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:07:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241095AbiEWR0R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3EC064D0C;
-        Mon, 23 May 2022 10:21:23 -0700 (PDT)
+        with ESMTP id S239552AbiEWRHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:07:36 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E7B6AA4E;
+        Mon, 23 May 2022 10:07:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FEEE60A2A;
-        Mon, 23 May 2022 17:19:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A264C385A9;
-        Mon, 23 May 2022 17:19:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8916DB811F8;
+        Mon, 23 May 2022 17:07:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99661C385A9;
+        Mon, 23 May 2022 17:07:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326361;
-        bh=ZJCdzB4JjmfNnE0xCuIeYbYphw6GuQ+RQi5gJUGaDuM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1UeL+vKDq/9oNpZoTlawWMkc55A2DndGaFDBBz5vwVKZ0kBLebGMxsZug+yiNNMIr
-         K1RDe8XRA2ZSoeVYYcZ1P7Q5F77HYmQXbfcECJ2L/2DS+bX6WIbL/BXd9DSlsxME4u
-         OgRLA+sTQ2MBFtU6txOU7CZniDfOx8YSF6Vh3kqc=
+        s=korg; t=1653325630;
+        bh=lpud0YoSIFzb5VEeZIOD/hyl1cdNw0K79PgKuahr3DY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=DTBaw53Jp7yPBM9feMkK+bpz4BbNIRJfU0Hd8+Z5x0ROxN4EA46dFoz9sb7xBcX/7
+         WV1Y+RtvFl0toe7WOq0FoC9lbqhVrjqgNeaOQnkpsIEw+RFS9xZGy0r5vZ8vfe6Crc
+         CfS4iTdsagbPyfCjdLGHZA8xCMllkwP5TdnsleUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        Anusha Srivatsa <anusha.srivatsa@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 5.15 058/132] drm/i915/dmc: Add MMIO range restrictions
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+Subject: [PATCH 5.4 00/68] 5.4.196-rc1 review
 Date:   Mon, 23 May 2022 19:04:27 +0200
-Message-Id: <20220523165832.873976122@linuxfoundation.org>
+Message-Id: <20220523165802.500642349@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.196-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.196-rc1
+X-KernelTest-Deadline: 2022-05-25T17:03+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -54,122 +62,333 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anusha Srivatsa <anusha.srivatsa@intel.com>
+This is the start of the stable review cycle for the 5.4.196 release.
+There are 68 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 54395a33718af1c04b5098203335b25382291a16 upstream.
+Responses should be made by Wed, 25 May 2022 16:56:55 +0000.
+Anything received after that time might be too late.
 
-Bspec has added some steps that check forDMC MMIO range before
-programming them
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.196-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-v2: Fix for CI
-v3: move register defines to .h (Anusha)
-- Check MMIO restrictions per pipe
-- Add MMIO restricton for v1 dmc header as well (Lucas)
-v4: s/_PICK/_PICK_EVEN and use it only for Pipe DMC scenario.
-- clean up sanity check logic.(Lucas)
-- Add MMIO range for RKL as well.(Anusha)
-v5: Use DISPLAY_VER instead of per platform check (Lucas)
+thanks,
 
-BSpec: 49193
+greg k-h
 
-Cc: stable@vger.kernel.org
-Cc: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Anusha Srivatsa <anusha.srivatsa@intel.com>
-Reviewed-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220511000847.1068302-1-anusha.srivatsa@intel.com
-(cherry picked from commit 21c47196aec3a93f913a7515e1e7b30e6c54d6c6)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/display/intel_dmc.c |   44 +++++++++++++++++++++++++++++++
- drivers/gpu/drm/i915/i915_reg.h          |   16 +++++++++++
- 2 files changed, 60 insertions(+)
+-------------
+Pseudo-Shortlog of commits:
 
---- a/drivers/gpu/drm/i915/display/intel_dmc.c
-+++ b/drivers/gpu/drm/i915/display/intel_dmc.c
-@@ -375,6 +375,44 @@ static void dmc_set_fw_offset(struct int
- 	}
- }
- 
-+static bool dmc_mmio_addr_sanity_check(struct intel_dmc *dmc,
-+				       const u32 *mmioaddr, u32 mmio_count,
-+				       int header_ver, u8 dmc_id)
-+{
-+	struct drm_i915_private *i915 = container_of(dmc, typeof(*i915), dmc);
-+	u32 start_range, end_range;
-+	int i;
-+
-+	if (dmc_id >= DMC_FW_MAX) {
-+		drm_warn(&i915->drm, "Unsupported firmware id %u\n", dmc_id);
-+		return false;
-+	}
-+
-+	if (header_ver == 1) {
-+		start_range = DMC_MMIO_START_RANGE;
-+		end_range = DMC_MMIO_END_RANGE;
-+	} else if (dmc_id == DMC_FW_MAIN) {
-+		start_range = TGL_MAIN_MMIO_START;
-+		end_range = TGL_MAIN_MMIO_END;
-+	} else if (DISPLAY_VER(i915) >= 13) {
-+		start_range = ADLP_PIPE_MMIO_START;
-+		end_range = ADLP_PIPE_MMIO_END;
-+	} else if (DISPLAY_VER(i915) >= 12) {
-+		start_range = TGL_PIPE_MMIO_START(dmc_id);
-+		end_range = TGL_PIPE_MMIO_END(dmc_id);
-+	} else {
-+		drm_warn(&i915->drm, "Unknown mmio range for sanity check");
-+		return false;
-+	}
-+
-+	for (i = 0; i < mmio_count; i++) {
-+		if (mmioaddr[i] < start_range || mmioaddr[i] > end_range)
-+			return false;
-+	}
-+
-+	return true;
-+}
-+
- static u32 parse_dmc_fw_header(struct intel_dmc *dmc,
- 			       const struct intel_dmc_header_base *dmc_header,
- 			       size_t rem_size, u8 dmc_id)
-@@ -444,6 +482,12 @@ static u32 parse_dmc_fw_header(struct in
- 		return 0;
- 	}
- 
-+	if (!dmc_mmio_addr_sanity_check(dmc, mmioaddr, mmio_count,
-+					dmc_header->header_ver, dmc_id)) {
-+		drm_err(&i915->drm, "DMC firmware has Wrong MMIO Addresses\n");
-+		return 0;
-+	}
-+
- 	for (i = 0; i < mmio_count; i++) {
- 		dmc_info->mmioaddr[i] = _MMIO(mmioaddr[i]);
- 		dmc_info->mmiodata[i] = mmiodata[i];
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -7818,6 +7818,22 @@ enum {
- /* MMIO address range for DMC program (0x80000 - 0x82FFF) */
- #define DMC_MMIO_START_RANGE	0x80000
- #define DMC_MMIO_END_RANGE	0x8FFFF
-+#define DMC_V1_MMIO_START_RANGE	0x80000
-+#define TGL_MAIN_MMIO_START	0x8F000
-+#define TGL_MAIN_MMIO_END	0x8FFFF
-+#define _TGL_PIPEA_MMIO_START	0x92000
-+#define _TGL_PIPEA_MMIO_END	0x93FFF
-+#define _TGL_PIPEB_MMIO_START	0x96000
-+#define _TGL_PIPEB_MMIO_END	0x97FFF
-+#define ADLP_PIPE_MMIO_START	0x5F000
-+#define ADLP_PIPE_MMIO_END	0x5FFFF
-+
-+#define TGL_PIPE_MMIO_START(dmc_id)	_PICK_EVEN(((dmc_id) - 1), _TGL_PIPEA_MMIO_START,\
-+						_TGL_PIPEB_MMIO_START)
-+
-+#define TGL_PIPE_MMIO_END(dmc_id)	_PICK_EVEN(((dmc_id) - 1), _TGL_PIPEA_MMIO_END,\
-+						_TGL_PIPEB_MMIO_END)
-+
- #define SKL_DMC_DC3_DC5_COUNT	_MMIO(0x80030)
- #define SKL_DMC_DC5_DC6_COUNT	_MMIO(0x8002C)
- #define BXT_DMC_DC3_DC5_COUNT	_MMIO(0x80038)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.196-rc1
+
+David Howells <dhowells@redhat.com>
+    afs: Fix afs_getattr() to refetch file status if callback break occurred
+
+Yang Yingliang <yangyingliang@huawei.com>
+    i2c: mt7621: fix missing clk_disable_unprepare() on error in mtk_i2c_probe()
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/xen: Mark cpu_bringup_and_idle() as dead_end_function
+
+Juergen Gross <jgross@suse.com>
+    x86/xen: fix booting 32-bit pv guest
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    Reinstate some of "swiotlb: rework "fix info leak with DMA_FROM_DEVICE""
+
+Abel Vesa <abel.vesa@nxp.com>
+    ARM: dts: imx7: Use audio_mclk_post_div instead audio_mclk_root_clk
+
+Thiébaud Weksteen <tweek@google.com>
+    firmware_loader: use kernel credentials when reading firmware
+
+Tan Tee Min <tee.min.tan@linux.intel.com>
+    net: stmmac: disable Split Header (SPH) for Intel platforms
+
+Ming Lei <ming.lei@redhat.com>
+    block: return ELEVATOR_DISCARD_MERGE if possible
+
+Marek Vasut <marex@denx.de>
+    Input: ili210x - fix reset timing
+
+Grant Grundler <grundler@chromium.org>
+    net: atlantic: verify hw_head_ lies within TX buffer ring
+
+Yang Yingliang <yangyingliang@huawei.com>
+    net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+
+Yang Yingliang <yangyingliang@huawei.com>
+    ethernet: tulip: fix missing pci_disable_device() on error in tulip_init_one()
+
+Nicolas Dichtel <nicolas.dichtel@6wind.com>
+    selftests: add ping test with ping_group_range tuned
+
+Felix Fietkau <nbd@nbd.name>
+    mac80211: fix rx reordering with non explicit / psmp ack policy
+
+Gleb Chesnokov <Chesnokov.G@raidix.com>
+    scsi: qla2xxx: Fix missed DMA unmap for aborted commands
+
+Thomas Richter <tmricht@linux.ibm.com>
+    perf bench numa: Address compiler error on s390
+
+Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+    gpio: mvebu/pwm: Refuse requests with inverted polarity
+
+Haibo Chen <haibo.chen@nxp.com>
+    gpio: gpio-vf610: do not touch other bits when set the target bit
+
+Andrew Lunn <andrew@lunn.ch>
+    net: bridge: Clear offload_fwd_mark when passing frame up bridge interface.
+
+Kevin Mitchell <kevmitch@arista.com>
+    igb: skip phy status check where unavailable
+
+Ard Biesheuvel <ardb@kernel.org>
+    ARM: 9197/1: spectre-bhb: fix loop8 sequence for Thumb2
+
+Ard Biesheuvel <ardb@kernel.org>
+    ARM: 9196/1: spectre-bhb: enable for Cortex-A15
+
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    net: af_key: add check for pfkey_broadcast in function pfkey_process
+
+Maxim Mikityanskiy <maximmi@nvidia.com>
+    net/mlx5e: Properly block LRO when XDP is enabled
+
+Duoming Zhou <duoming@zju.edu.cn>
+    NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net/qla3xxx: Fix a test in ql_reset_work()
+
+Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
+    clk: at91: generated: consider range when calculating best rate
+
+Paul Greenwalt <paul.greenwalt@intel.com>
+    ice: fix possible under reporting of ethtool Tx and Rx statistics
+
+Zixuan Fu <r33s3n6@gmail.com>
+    net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+
+Zixuan Fu <r33s3n6@gmail.com>
+    net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
+
+Paolo Abeni <pabeni@redhat.com>
+    net/sched: act_pedit: sanitize shift argument before usage
+
+Harini Katakam <harini.katakam@xilinx.com>
+    net: macb: Increment rx bd head after allocating skb and buffer
+
+Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+    ARM: dts: aspeed-g6: fix SPI1/SPI2 quad pin group
+
+Jae Hyun Yoo <quic_jaehyoo@quicinc.com>
+    ARM: dts: aspeed-g6: remove FWQSPID group in pinctrl dtsi
+
+Jérôme Pouiller <jerome.pouiller@silabs.com>
+    dma-buf: fix use of DMA_BUF_SET_NAME_{A,B} in userspace
+
+Hangyu Hua <hbh25y@gmail.com>
+    drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
+
+Ondrej Mosnacek <omosnace@redhat.com>
+    crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86/mmu: Update number of zapped pages even if page list is stable
+
+Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+    PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
+
+Al Viro <viro@zeniv.linux.org.uk>
+    Fix double fget() in vhost_net_set_backend()
+
+Peter Zijlstra <peterz@infradead.org>
+    perf: Fix sys_perf_event_open() race against self
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: wavefront: Proper check of get_user() error
+
+Meena Shanmugam <meenashanmugam@google.com>
+    SUNRPC: Ensure we flush any closed sockets before xs_xprt_free()
+
+Meena Shanmugam <meenashanmugam@google.com>
+    SUNRPC: Don't call connect() more than once on a TCP socket
+
+Meena Shanmugam <meenashanmugam@google.com>
+    SUNRPC: Prevent immediate close+reconnect
+
+Meena Shanmugam <meenashanmugam@google.com>
+    SUNRPC: Clean up scheduling of autoclose
+
+Ulf Hansson <ulf.hansson@linaro.org>
+    mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+
+Ulf Hansson <ulf.hansson@linaro.org>
+    mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+
+Ulf Hansson <ulf.hansson@linaro.org>
+    mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+
+Ryusuke Konishi <konishi.ryusuke@gmail.com>
+    nilfs2: fix lockdep warnings during disk space reclamation
+
+Ryusuke Konishi <konishi.ryusuke@gmail.com>
+    nilfs2: fix lockdep warnings in page operations for btree nodes
+
+linyujun <linyujun809@huawei.com>
+    ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+
+Tzung-Bi Shih <tzungbi@google.com>
+    platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+
+Jakob Koschel <jakobkoschel@gmail.com>
+    drbd: remove usage of list iterator variable after loop
+
+Xiaoke Wang <xkernel.wang@foxmail.com>
+    MIPS: lantiq: check the return value of kzalloc()
+
+Mario Limonciello <mario.limonciello@amd.com>
+    rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+
+Anton Eidelman <anton.eidelman@gmail.com>
+    nvme-multipath: fix hang when disk goes live over reconnect
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    ALSA: hda/realtek: Enable headset mic on Lenovo P360
+
+Peter Zijlstra <peterz@infradead.org>
+    crypto: x86/chacha20 - Avoid spurious jumps to other functions
+
+Zheng Yongjun <zhengyongjun3@huawei.com>
+    crypto: stm32 - fix reference leak in stm32_crc_remove
+
+Zheng Yongjun <zhengyongjun3@huawei.com>
+    Input: stmfts - fix reference leak in stmfts_input_open
+
+Jeff LaBundy <jeff@labundy.com>
+    Input: add bounds checking to input_set_capability()
+
+David Gow <davidgow@google.com>
+    um: Cleanup syscall_handler_t definition/cast, fix warning
+
+Vincent Whitchurch <vincent.whitchurch@axis.com>
+    rtc: fix use-after-free on device removal
+
+Miroslav Benes <mbenes@suse.cz>
+    x86/xen: Make the secondary CPU idle tasks reliable
+
+Miroslav Benes <mbenes@suse.cz>
+    x86/xen: Make the boot CPU idle task reliable
+
+Willy Tarreau <w@1wt.eu>
+    floppy: use a statically allocated error counter
+
+
+-------------
+
+Diffstat:
+
+ Documentation/DMA-attributes.txt                   |  10 --
+ Makefile                                           |   4 +-
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi           |   9 +-
+ arch/arm/boot/dts/imx7-colibri.dtsi                |   4 +-
+ arch/arm/boot/dts/imx7-mba7.dtsi                   |   2 +-
+ arch/arm/boot/dts/imx7d-nitrogen7.dts              |   2 +-
+ arch/arm/boot/dts/imx7d-pico-hobbit.dts            |   4 +-
+ arch/arm/boot/dts/imx7d-pico-pi.dts                |   4 +-
+ arch/arm/boot/dts/imx7d-sdb.dts                    |   2 +-
+ arch/arm/boot/dts/imx7s-warp.dts                   |   4 +-
+ arch/arm/kernel/entry-armv.S                       |   2 +-
+ arch/arm/kernel/stacktrace.c                       |  10 +-
+ arch/arm/mm/proc-v7-bugs.c                         |   1 +
+ arch/mips/lantiq/falcon/sysctrl.c                  |   2 +
+ arch/mips/lantiq/xway/gptu.c                       |   2 +
+ arch/mips/lantiq/xway/sysctrl.c                    |  46 +++---
+ arch/x86/crypto/chacha-avx512vl-x86_64.S           |   4 +-
+ arch/x86/kvm/mmu.c                                 |  10 +-
+ arch/x86/um/shared/sysdep/syscalls_64.h            |   5 +-
+ arch/x86/xen/smp_pv.c                              |   3 +-
+ arch/x86/xen/xen-head.S                            |  18 ++-
+ block/bfq-iosched.c                                |   3 +
+ block/blk-merge.c                                  |  15 --
+ block/elevator.c                                   |   3 +
+ block/mq-deadline.c                                |   2 +
+ drivers/base/firmware_loader/main.c                |  17 +++
+ drivers/block/drbd/drbd_main.c                     |   7 +-
+ drivers/block/floppy.c                             |  20 ++-
+ drivers/clk/at91/clk-generated.c                   |   4 +
+ drivers/crypto/qcom-rng.c                          |   1 +
+ drivers/crypto/stm32/stm32-crc32.c                 |   4 +-
+ drivers/gpio/gpio-mvebu.c                          |   3 +
+ drivers/gpio/gpio-vf610.c                          |   8 +-
+ drivers/gpu/drm/drm_dp_mst_topology.c              |   1 +
+ drivers/i2c/busses/i2c-mt7621.c                    |  10 +-
+ drivers/input/input.c                              |  19 +++
+ drivers/input/touchscreen/ili210x.c                |   4 +-
+ drivers/input/touchscreen/stmfts.c                 |   8 +-
+ drivers/mmc/core/block.c                           |   6 +-
+ drivers/mmc/core/mmc_ops.c                         |  25 ++--
+ .../ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c  |   7 +
+ drivers/net/ethernet/cadence/macb_main.c           |   2 +-
+ drivers/net/ethernet/dec/tulip/tulip_core.c        |   5 +-
+ drivers/net/ethernet/intel/ice/ice_main.c          |   7 +-
+ drivers/net/ethernet/intel/igb/igb_main.c          |   3 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |   7 +
+ drivers/net/ethernet/qlogic/qla3xxx.c              |   3 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   2 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c   |   5 +-
+ drivers/net/vmxnet3/vmxnet3_drv.c                  |   6 +
+ drivers/nvme/host/core.c                           |   1 +
+ drivers/nvme/host/multipath.c                      |  25 +++-
+ drivers/nvme/host/nvme.h                           |   4 +
+ drivers/pci/pci.c                                  |  10 ++
+ drivers/platform/chrome/cros_ec_debugfs.c          |  12 +-
+ drivers/rtc/class.c                                |   9 ++
+ drivers/rtc/rtc-mc146818-lib.c                     |  16 ++-
+ drivers/scsi/qla2xxx/qla_target.c                  |   3 +
+ drivers/vhost/net.c                                |  15 +-
+ fs/afs/inode.c                                     |  14 +-
+ fs/file_table.c                                    |   1 +
+ fs/nilfs2/btnode.c                                 |  23 ++-
+ fs/nilfs2/btnode.h                                 |   1 +
+ fs/nilfs2/btree.c                                  |  27 ++--
+ fs/nilfs2/dat.c                                    |   4 +-
+ fs/nilfs2/gcinode.c                                |   7 +-
+ fs/nilfs2/inode.c                                  | 159 +++++++++++++++++++--
+ fs/nilfs2/mdt.c                                    |  43 ++++--
+ fs/nilfs2/mdt.h                                    |   6 +-
+ fs/nilfs2/nilfs.h                                  |  16 +--
+ fs/nilfs2/page.c                                   |   7 +-
+ fs/nilfs2/segment.c                                |   9 +-
+ fs/nilfs2/super.c                                  |   5 +-
+ include/linux/blkdev.h                             |  16 +++
+ include/linux/dma-mapping.h                        |   8 --
+ include/linux/mc146818rtc.h                        |   2 +
+ include/linux/stmmac.h                             |   1 +
+ include/linux/sunrpc/xprtsock.h                    |   1 +
+ include/uapi/linux/dma-buf.h                       |   4 +-
+ kernel/dma/swiotlb.c                               |  13 +-
+ kernel/events/core.c                               |  14 ++
+ net/bridge/br_input.c                              |   7 +
+ net/key/af_key.c                                   |   6 +-
+ net/mac80211/rx.c                                  |   3 +-
+ net/nfc/nci/data.c                                 |   2 +-
+ net/nfc/nci/hci.c                                  |   4 +-
+ net/sched/act_pedit.c                              |   4 +
+ net/sunrpc/xprt.c                                  |  34 ++---
+ net/sunrpc/xprtsock.c                              |  36 +++--
+ sound/isa/wavefront/wavefront_synth.c              |   3 +-
+ sound/pci/hda/patch_realtek.c                      |   1 +
+ tools/objtool/check.c                              |   1 +
+ tools/perf/bench/numa.c                            |   2 +-
+ tools/testing/selftests/net/fcnal-test.sh          |  12 ++
+ 94 files changed, 682 insertions(+), 264 deletions(-)
 
 
