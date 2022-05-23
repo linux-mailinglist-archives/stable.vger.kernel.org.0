@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 698CE5316A5
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98086531AFF
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239262AbiEWRFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:05:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48298 "EHLO
+        id S239459AbiEWRID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:08:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbiEWRFC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:05:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8758E62CD9;
-        Mon, 23 May 2022 10:05:01 -0700 (PDT)
+        with ESMTP id S239581AbiEWRHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:07:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8176C6AA53;
+        Mon, 23 May 2022 10:07:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E33FF614BC;
-        Mon, 23 May 2022 17:05:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9C7AC385A9;
-        Mon, 23 May 2022 17:04:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A129614DA;
+        Mon, 23 May 2022 17:07:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17F5CC385AA;
+        Mon, 23 May 2022 17:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653325500;
-        bh=/n1jvuZgXfMmssLmtGUHlHxOaxvfRQ7eIBhQycsuqxc=;
+        s=korg; t=1653325646;
+        bh=LDqDkY7VPKRx8bgA5xhpX3tDf25816+cVHFIZsqkKrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KNR8CxlAvbaJf/pmUoOmjcnGvCFTdR6mJw8F0sYdEXr4deQGgvi3XoK7Ysmed+4sD
-         S+b4YBjCiQ9xrbQqCbcQFo/nAJXeL//eQItvTfB1OL+LuW3hMd2I6hO+moKTXG1LnM
-         jJafdm9EsQK1V6UA00RojVIDg4LKIswGcMsiURak=
+        b=RLFBEfOXScDGdw/wOLDiC2lCDLEEmUQMQzgIr6JelKmSdWlAk2VdzTOQsxyLnIj0K
+         egTvYNPSPbY/AQ+/PibtLdj7GvnHPMrn8PZ7/RTEwQjpAvkYs3CIuPFGlrXcidIp7w
+         BM/z3GzJAotSkNviVRt6rgM72el1DLcERfxM17+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Lyude Paul <lyude@redhat.com>
-Subject: [PATCH 4.9 12/25] drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
+        stable@vger.kernel.org,
+        syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Schspa Shi <schspa@gmail.com>
+Subject: [PATCH 5.15 001/132] usb: gadget: fix race when gadget driver register via ioctl
 Date:   Mon, 23 May 2022 19:03:30 +0200
-Message-Id: <20220523165746.853184064@linuxfoundation.org>
+Message-Id: <20220523165823.723229741@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
-References: <20220523165743.398280407@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,32 +57,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Schspa Shi <schspa@gmail.com>
 
-commit 6e03b13cc7d9427c2c77feed1549191015615202 upstream.
+commit 5f0b5f4d50fa0faa8c76ef9d42a42e8d43f98b44 upstream.
 
-drm_dp_mst_get_edid call kmemdup to create mst_edid. So mst_edid need to be
-freed after use.
+The usb_gadget_register_driver can be called multi time by to
+threads via USB_RAW_IOCTL_RUN ioctl syscall, which will lead
+to multiple registrations.
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://patchwork.freedesktop.org/patch/msgid/20220516032042.13166-1-hbh25y@gmail.com
+Call trace:
+  driver_register+0x220/0x3a0 drivers/base/driver.c:171
+  usb_gadget_register_driver_owner+0xfb/0x1e0
+    drivers/usb/gadget/udc/core.c:1546
+  raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:513 [inline]
+  raw_ioctl+0x1883/0x2730 drivers/usb/gadget/legacy/raw_gadget.c:1220
+  ioctl USB_RAW_IOCTL_RUN
+
+This routine allows two processes to register the same driver instance
+via ioctl syscall. which lead to a race condition.
+
+Please refer to the following scenarios.
+
+           T1                                  T2
+------------------------------------------------------------------
+usb_gadget_register_driver_owner
+  driver_register                    driver_register
+    driver_find                       driver_find
+    bus_add_driver                    bus_add_driver
+      priv alloced                     <context switch>
+      drv->p = priv;
+      <schedule out>
+      kobject_init_and_add // refcount = 1;
+   //couldn't find an available UDC or it's busy
+   <context switch>
+                                       priv alloced
+                                       drv->priv = priv;
+                                       kobject_init_and_add
+                                         ---> refcount = 1 <------
+                                       // register success
+                                       <context switch>
+===================== another ioctl/process ======================
+                                      driver_register
+                                       driver_find
+                                        k = kset_find_obj()
+                                         ---> refcount = 2 <------
+                                        <context out>
+   driver_unregister
+   // drv->p become T2's priv
+   ---> refcount = 1 <------
+   <context switch>
+                                        kobject_put(k)
+                                         ---> refcount = 0 <------
+                                        return priv->driver;
+                                        --------UAF here----------
+
+There will be UAF in this scenario.
+
+We can fix it by adding a new STATE_DEV_REGISTERING device state to
+avoid double register.
+
+Reported-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/all/000000000000e66c2805de55b15a@google.com/
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Signed-off-by: Schspa Shi <schspa@gmail.com>
+Link: https://lore.kernel.org/r/20220508150247.38204-1-schspa@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_dp_mst_topology.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/legacy/raw_gadget.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/drm_dp_mst_topology.c
-@@ -2830,6 +2830,7 @@ static void fetch_monitor_name(struct dr
+--- a/drivers/usb/gadget/legacy/raw_gadget.c
++++ b/drivers/usb/gadget/legacy/raw_gadget.c
+@@ -145,6 +145,7 @@ enum dev_state {
+ 	STATE_DEV_INVALID = 0,
+ 	STATE_DEV_OPENED,
+ 	STATE_DEV_INITIALIZED,
++	STATE_DEV_REGISTERING,
+ 	STATE_DEV_RUNNING,
+ 	STATE_DEV_CLOSED,
+ 	STATE_DEV_FAILED
+@@ -508,6 +509,7 @@ static int raw_ioctl_run(struct raw_dev
+ 		ret = -EINVAL;
+ 		goto out_unlock;
+ 	}
++	dev->state = STATE_DEV_REGISTERING;
+ 	spin_unlock_irqrestore(&dev->lock, flags);
  
- 	mst_edid = drm_dp_mst_get_edid(port->connector, mgr, port);
- 	drm_edid_get_monitor_name(mst_edid, name, namelen);
-+	kfree(mst_edid);
- }
- 
- /**
+ 	ret = usb_gadget_probe_driver(&dev->driver);
 
 
