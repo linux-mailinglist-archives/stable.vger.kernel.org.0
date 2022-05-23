@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B27531B0B
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E53C5317AE
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:53:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241162AbiEWRcq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:32:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43452 "EHLO
+        id S241498AbiEWRn7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:43:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241422AbiEWR0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:26:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BD5F737BA;
-        Mon, 23 May 2022 10:21:50 -0700 (PDT)
+        with ESMTP id S242795AbiEWRhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:37:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007165D5F3;
+        Mon, 23 May 2022 10:31:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FB3461175;
-        Mon, 23 May 2022 17:20:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AE1FC385A9;
-        Mon, 23 May 2022 17:20:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 88134608C3;
+        Mon, 23 May 2022 17:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86315C385A9;
+        Mon, 23 May 2022 17:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326419;
-        bh=PStYNHifrHb/iPNvuKCDmvAMKGKOKHMZKdb3MQjoiAk=;
+        s=korg; t=1653326934;
+        bh=hcRyfJ/pCYThU0VoLkwhw+m+Amf5znE5EpP8FRpqnL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DF/GsC+sPClTQnaB+yqUckTlJpQfEesUMflToZyp1pHi+kip1yfa8ahUMpwtPwKZg
-         P3pRQJC8wJWZtsvuPl4+YIkFSg1tBZG1M7DgGjKxYfeWmUbSr7yZUqy1L+oLsNjxa5
-         fivWye/OVCJ6vCvxWEgfcH8OPmWEoe2ALCdtNph0=
+        b=hGZK86BjFvQU2rpc9Yk91dzqAxgWpyxA387kOxKFEmD7a2GOrCmv4GYlrU5StDLLm
+         BcCs6HFW90ipCUC9D9AdOTX8zdDsNpDmLd2+JQsupHfMAkfcl0+BcCwyJxhQYLNj6G
+         QGV9vy3syuzdfq2ammgvX4N1rils5/vrwhq+1Tnk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
-        Ben Gardon <bgardon@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 052/132] KVM: x86/mmu: Update number of zapped pages even if page list is stable
-Date:   Mon, 23 May 2022 19:04:21 +0200
-Message-Id: <20220523165831.865928845@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.17 105/158] net/mlx5e: Block rx-gro-hw feature in switchdev mode
+Date:   Mon, 23 May 2022 19:04:22 +0200
+Message-Id: <20220523165848.622257461@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
-References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165830.581652127@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,71 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit b28cb0cd2c5e80a8c0feb408a0e4b0dbb6d132c5 upstream.
+[ Upstream commit 15a5078cab30d7aa02ad14bfadebf247d95fc239 ]
 
-When zapping obsolete pages, update the running count of zapped pages
-regardless of whether or not the list has become unstable due to zapping
-a shadow page with its own child shadow pages.  If the VM is backed by
-mostly 4kb pages, KVM can zap an absurd number of SPTEs without bumping
-the batch count and thus without yielding.  In the worst case scenario,
-this can cause a soft lokcup.
+When the driver is in switchdev mode and rx-gro-hw is set, the RQ needs
+special CQE handling. Till then, block setting of rx-gro-hw feature in
+switchdev mode, to avoid failure while setting the feature due to
+failure while opening the RQ.
 
- watchdog: BUG: soft lockup - CPU#12 stuck for 22s! [dirty_log_perf_:13020]
-   RIP: 0010:workingset_activation+0x19/0x130
-   mark_page_accessed+0x266/0x2e0
-   kvm_set_pfn_accessed+0x31/0x40
-   mmu_spte_clear_track_bits+0x136/0x1c0
-   drop_spte+0x1a/0xc0
-   mmu_page_zap_pte+0xef/0x120
-   __kvm_mmu_prepare_zap_page+0x205/0x5e0
-   kvm_mmu_zap_all_fast+0xd7/0x190
-   kvm_mmu_invalidate_zap_pages_in_memslot+0xe/0x10
-   kvm_page_track_flush_slot+0x5c/0x80
-   kvm_arch_flush_shadow_memslot+0xe/0x10
-   kvm_set_memslot+0x1a8/0x5d0
-   __kvm_set_memory_region+0x337/0x590
-   kvm_vm_ioctl+0xb08/0x1040
-
-Fixes: fbb158cb88b6 ("KVM: x86/mmu: Revert "Revert "KVM: MMU: zap pages in batch""")
-Reported-by: David Matlack <dmatlack@google.com>
-Reviewed-by: Ben Gardon <bgardon@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220511145122.3133334-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f97d5c2a453e ("net/mlx5e: Add handle SHAMPO cqe support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/mmu/mmu.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5590,6 +5590,7 @@ static void kvm_zap_obsolete_pages(struc
- {
- 	struct kvm_mmu_page *sp, *node;
- 	int nr_zapped, batch = 0;
-+	bool unstable;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 169e3524bb1c..d468daa7dc20 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3829,6 +3829,10 @@ static netdev_features_t mlx5e_fix_uplink_rep_features(struct net_device *netdev
+ 	if (netdev->features & NETIF_F_NTUPLE)
+ 		netdev_warn(netdev, "Disabling ntuple, not supported in switchdev mode\n");
  
- restart:
- 	list_for_each_entry_safe_reverse(sp, node,
-@@ -5621,11 +5622,12 @@ restart:
- 			goto restart;
- 		}
- 
--		if (__kvm_mmu_prepare_zap_page(kvm, sp,
--				&kvm->arch.zapped_obsolete_pages, &nr_zapped)) {
--			batch += nr_zapped;
-+		unstable = __kvm_mmu_prepare_zap_page(kvm, sp,
-+				&kvm->arch.zapped_obsolete_pages, &nr_zapped);
-+		batch += nr_zapped;
++	features &= ~NETIF_F_GRO_HW;
++	if (netdev->features & NETIF_F_GRO_HW)
++		netdev_warn(netdev, "Disabling HW_GRO, not supported in switchdev mode\n");
 +
-+		if (unstable)
- 			goto restart;
--		}
- 	}
+ 	return features;
+ }
  
- 	/*
+-- 
+2.35.1
+
 
 
