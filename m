@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B052531720
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A4D53173D
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 22:52:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240882AbiEWR3M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 13:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43680 "EHLO
+        id S240640AbiEWRaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 13:30:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242358AbiEWR1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA037CB36;
-        Mon, 23 May 2022 10:22:58 -0700 (PDT)
+        with ESMTP id S242409AbiEWR1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 13:27:43 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE9C07CB42;
+        Mon, 23 May 2022 10:23:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F8AC60919;
-        Mon, 23 May 2022 17:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B5D3C385A9;
-        Mon, 23 May 2022 17:22:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB951B811FF;
+        Mon, 23 May 2022 17:23:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D37DC385A9;
+        Mon, 23 May 2022 17:23:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653326577;
-        bh=Z0yLV7OaN3ICxtsmf7PdR/dPOvR2eTHVeN76hlLFETA=;
+        s=korg; t=1653326580;
+        bh=rAZen7RQzLM1AtPnxO+QsytUnBXywbtMIxIy+YJqXqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9vjxL9l9oY7T+N1L/Wi/z4HBAhaQhD3VMD/nGtCdsPjX66gzZhlxvi8Kf/NmTl0l
-         YL8/oWIzp6yA31KdV3BRDD0HUnC137Ge7LW2i7XO3Ynd/Cl1R0xV01wI+Anxo89EmS
-         oxTLVeTjlwkK0pAgRdmuB1AWR3FgFdrPuoJUNCIw=
+        b=OV4xBtC1VB5KJuR6TxVdpGbrGpMd7AqOVUA0R5h9piKY4StS1wk33OvdvJbJvwsv1
+         +EX6Yo4apo57Vyljj5Lc8WuqFTRK0rrp5i+Rp2Gbw7akn2hWnJAIqZzmqqlDyXV1PT
+         KUJX+w0nGHRJjbMTCRi187TjOQq8WCe7mqKBuOdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grant Grundler <grundler@chromium.org>,
+        stable@vger.kernel.org, Aashay Shringarpure <aashay@google.com>,
+        Yi Chou <yich@google.com>,
+        Shervin Oloumi <enlightened@google.com>,
+        Grant Grundler <grundler@chromium.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 124/132] net: atlantic: reduce scope of is_rsc_complete
-Date:   Mon, 23 May 2022 19:05:33 +0200
-Message-Id: <20220523165844.146817007@linuxfoundation.org>
+Subject: [PATCH 5.15 125/132] net: atlantic: add check for MAX_SKB_FRAGS
+Date:   Mon, 23 May 2022 19:05:34 +0200
+Message-Id: <20220523165844.367829071@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 References: <20220523165823.492309987@linuxfoundation.org>
@@ -56,64 +59,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Grant Grundler <grundler@chromium.org>
 
-[ Upstream commit 79784d77ebbd3ec516b7a5ce555d979fb7946202 ]
+[ Upstream commit 6aecbba12b5c90b26dc062af3b9de8c4b3a2f19f ]
 
-Don't defer handling the err case outside the loop. That's pointless.
+Enforce that the CPU can not get stuck in an infinite loop.
 
-And since is_rsc_complete is only used inside this loop, declare
-it inside the loop to reduce it's scope.
-
+Reported-by: Aashay Shringarpure <aashay@google.com>
+Reported-by: Yi Chou <yich@google.com>
+Reported-by: Shervin Oloumi <enlightened@google.com>
 Signed-off-by: Grant Grundler <grundler@chromium.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-index 7cf5a48e9a7d..339efdfb1d49 100644
+index 339efdfb1d49..e9c6f1fa0b1a 100644
 --- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
 +++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
-@@ -345,7 +345,6 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
- 		     int budget)
- {
- 	struct net_device *ndev = aq_nic_get_ndev(self->aq_nic);
--	bool is_rsc_completed = true;
- 	int err = 0;
+@@ -362,6 +362,7 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
+ 			continue;
  
- 	for (; (self->sw_head != self->hw_head) && budget;
-@@ -365,6 +364,8 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
  		if (!buff->is_eop) {
++			unsigned int frag_cnt = 0U;
  			buff_ = buff;
  			do {
-+				bool is_rsc_completed = true;
-+
- 				if (buff_->next >= self->size) {
+ 				bool is_rsc_completed = true;
+@@ -370,6 +371,8 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
  					err = -EIO;
  					goto err_exit;
-@@ -376,18 +377,16 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
+ 				}
++
++				frag_cnt++;
+ 				next_ = buff_->next,
+ 				buff_ = &self->buff_ring[next_];
+ 				is_rsc_completed =
+@@ -377,7 +380,8 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
  							    next_,
  							    self->hw_head);
  
--				if (unlikely(!is_rsc_completed))
--					break;
-+				if (unlikely(!is_rsc_completed)) {
-+					err = 0;
-+					goto err_exit;
-+				}
- 
- 				buff->is_error |= buff_->is_error;
- 				buff->is_cso_err |= buff_->is_cso_err;
- 
- 			} while (!buff_->is_eop);
- 
--			if (!is_rsc_completed) {
--				err = 0;
--				goto err_exit;
--			}
- 			if (buff->is_error ||
- 			    (buff->is_lro && buff->is_cso_err)) {
- 				buff_ = buff;
+-				if (unlikely(!is_rsc_completed)) {
++				if (unlikely(!is_rsc_completed) ||
++						frag_cnt > MAX_SKB_FRAGS) {
+ 					err = 0;
+ 					goto err_exit;
+ 				}
 -- 
 2.35.1
 
