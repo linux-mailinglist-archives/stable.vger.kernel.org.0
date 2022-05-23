@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1347D53133C
-	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE6E531244
+	for <lists+stable@lfdr.de>; Mon, 23 May 2022 18:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237564AbiEWPTV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 11:19:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46952 "EHLO
+        id S237714AbiEWPUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 11:20:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237712AbiEWPTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 11:19:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91745DA5A
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 08:19:15 -0700 (PDT)
+        with ESMTP id S237681AbiEWPUk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 11:20:40 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 431045DA79
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 08:20:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 311DE612A0
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 15:19:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 374CFC385AA;
-        Mon, 23 May 2022 15:19:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 04FF2B81117
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 15:20:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60F25C385A9;
+        Mon, 23 May 2022 15:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653319154;
-        bh=+r60ibFCnWAhGrZYJ9zU/SjDeivOAM1qgVGoGYi8Lhc=;
+        s=korg; t=1653319236;
+        bh=NFxnRajJwBRWw9mfWKKMshEVwuK6ml43RM9MDwzrjUQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jZYjllT7U2Tjl6Qs44b1yfPTmBZrXjhmg3bCuCUavm4qzYd9LJz+CtPIK175ch924
-         CDMfupUGQa0MidZvq6hs4Y8SGrWm1AOqe8eZcUxrnIMlg5zLA9RrAOGmLKh7NLd3v7
-         bz1QCmxO74kbkQu1i2DzjIsW2YRN8r7RrM4I/xn0=
-Date:   Mon, 23 May 2022 17:19:11 +0200
+        b=NO1H9s6tL00SLTtzkqynmR2PWAirb/bSgC31374rjJNjck6P9qrQa+eaWlw85Mrh+
+         FBGswZNGaWqP5utaHueHxeO0bweGJFx4GSllqNKyuq+ZGgyEIVtuLmTcT1Jj/h5TUL
+         rtJN+EM2M7gfnCTAn1bTUbCJnBL5AcjxC/h5/JnU=
+Date:   Mon, 23 May 2022 17:20:33 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Philippe Schenker <dev@pschenker.ch>
-Cc:     abel.vesa@nxp.com, francesco.dolcini@toradex.com, peng.fan@nxp.com,
-        philippe.schenker@toradex.com, stable@vger.kernel.org,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: Re: [PATCH 5.4] ARM: dts: imx7: Use audio_mclk_post_div instead
- audio_mclk_root_clk
-Message-ID: <Youl7/TNGYaKQRc6@kroah.com>
-References: <20220523101227.194594-1-dev@pschenker.ch>
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>
+Cc:     stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH 5.10 1/1] Reinstate some of "swiotlb: rework "fix info
+ leak with DMA_FROM_DEVICE""
+Message-ID: <YoumQWO3dYqQJ29D@kroah.com>
+References: <20220523114008.297420-1-ovidiu.panait@windriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20220523101227.194594-1-dev@pschenker.ch>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220523114008.297420-1-ovidiu.panait@windriver.com>
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
@@ -52,22 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 23, 2022 at 12:12:27PM +0200, Philippe Schenker wrote:
-> From: Abel Vesa <abel.vesa@nxp.com>
+On Mon, May 23, 2022 at 02:40:08PM +0300, Ovidiu Panait wrote:
+> From: Linus Torvalds <torvalds@linux-foundation.org>
 > 
-> commit 4cb7df64c732b2b9918424095c11660c2a8c4a33 upstream.
+> commit 901c7280ca0d5e2b4a8929fbe0bfb007ac2a6544 upstream.
 > 
-> The audio_mclk_root_clk was added as a gate with the CCGR121 (0x4790),
-> but according to the reference manual, there is no such gate. Moreover,
-> the consumer driver of the mentioned clock might gate it and leave
-> the ECSPI2 (the true owner of that gate) hanging. So lets use the
-> audio_mclk_post_div, which is the parent.
+> Halil Pasic points out [1] that the full revert of that commit (revert
+> in bddac7c1e02b), and that a partial revert that only reverts the
+> problematic case, but still keeps some of the cleanups is probably
+> better.  ￼
 > 
-> Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
-> Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-> [ps: backport to 5.4]
-> Signed-off-by: Philippe Schenker <philippe.schenker@toradex.com>
+> And that partial revert [2] had already been verified by Oleksandr
+> Natalenko to also fix the issue, I had just missed that in the long
+> discussion.
+> 
+> So let's reinstate the cleanups from commit aa6f8dcbab47 ("swiotlb:
+> rework "fix info leak with DMA_FROM_DEVICE""), and effectively only
+> revert the part that caused problems.
+> 
+> Link: https://lore.kernel.org/all/20220328013731.017ae3e3.pasic@linux.ibm.com/ [1]
+> Link: https://lore.kernel.org/all/20220324055732.GB12078@lst.de/ [2]
+> Link: https://lore.kernel.org/all/4386660.LvFx2qVVIh@natalenko.name/ [3]
+> Suggested-by: Halil Pasic <pasic@linux.ibm.com>
+> Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+> Cc: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+> [OP: backport to 5.10: adjusted context]
+> Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+> ---
+> This is part of CVE-2022-0854 patchset:
+> [1] ddbd89deb7d3 ("swiotlb: fix info leak with DMA_FROM_DEVICE")
+> [2] 901c7280ca0d ("Reinstate some of "swiotlb: rework "fix info leak with DMA_FROM_DEVICE""")
+> 
+> [1] is already present in 5.10-stable.
+> [2] is present in 5.17/5.16/5.15, but not in 5.10 and 5.4 branches;
+> 
+>  Documentation/core-api/dma-attributes.rst |  8 --------
+>  include/linux/dma-mapping.h               |  8 --------
+>  kernel/dma/swiotlb.c                      | 12 ++++++++----
+>  3 files changed, 8 insertions(+), 20 deletions(-)
 
-Now queued up, thanks.
+This looks much different than the backport Sasha did.  I'll drop his
+and review all of this after this next round of -rc releases go out.
+
+thanks,
 
 greg k-h
