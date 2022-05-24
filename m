@@ -2,69 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D54BD53291E
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 13:36:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E765532A04
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 14:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235578AbiEXLgt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 07:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36240 "EHLO
+        id S237109AbiEXMFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 08:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232768AbiEXLgt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 07:36:49 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D350735274;
-        Tue, 24 May 2022 04:36:47 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id b4so3352151iog.11;
-        Tue, 24 May 2022 04:36:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=mkvrcAte7FxPPc+oZsCsxzLAlE1N1sD1MIfr4Pm9EqQ=;
-        b=lh0cN/iTNvjdZ+VmBrm0XPJbEsECW7txebxrm+sMRyeWK0MqvVFOyPSqFElWk/CvoZ
-         4GIaop6hhU/adXey6F3dQGHnqVzJ2vezdIde+qsBSN/nwhAPNM6hCkiCC8PWymzUBIrL
-         rPq4JAsCYATEabgSuno0neiXoh3xbz+11kAGPg4rtKGcxDFgRosEe+IG74iee+SRvSwd
-         8yrMf0ZHA58j2m4/cgasmC+xBcmH1sAZPteC4hhgv6gGhLOqbWkR5Z/vFYWgg85ZdMiE
-         M2q2H1Dd3J4efnDAN6cJk7rSTdFkbzwnKsDNIagYd56O66ie6kan+0cBICSWuk8YFdPm
-         EJbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=mkvrcAte7FxPPc+oZsCsxzLAlE1N1sD1MIfr4Pm9EqQ=;
-        b=vh2Janfx2AG8qRNYUNFPuDjlOzQIZhUmPWgYonrAdKDo3AuWnSYGp1F96eAaxA7lCx
-         wG0fEYtTo6y3nM8IiuUO7JEIrATbRGsV0mj+fUlwBhVgsq4heOr6QLH7LOD/qlquYzk0
-         2fMz9IIkTeaVbIdYM+XUuz5L6RP2rxLAWsHO2sNksiRQlcFQ2vKzyvj48I7JBgHhIF4U
-         bKsgqSLRGjjCg4yFbzWOrvjaKygwERM/n1ryULv85G833i3hjW0KMbfRWtSG/C/uRdaP
-         ImpJ7o96+tXzKcoEjyfflTEtanbcj+zq3bp28PIiiCNnJa3kX5FGLwrRookR9k+ZBLUR
-         zpUg==
-X-Gm-Message-State: AOAM531VAtbgnLht3O0M1NDViYzZU663bayOlfr8mR9So5OkXZ04s5Ed
-        wuGb/aUWtqVrcrnrkGlAJxZyVcsjzNUalVPjpBI=
-X-Google-Smtp-Source: ABdhPJw8aA9WYDdVl8/rhGUtThrS4ESbwHfRLxQ8owMxYT0Z8GDe0kmg3Vt/7ZVCYvwxsGQkMwYaGQ==
-X-Received: by 2002:a05:6638:408b:b0:32e:e205:6714 with SMTP id m11-20020a056638408b00b0032ee2056714mr2012819jam.153.1653392206900;
-        Tue, 24 May 2022 04:36:46 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id a3-20020a056638058300b0032e3b9e3d38sm3393717jar.126.2022.05.24.04.36.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 May 2022 04:36:46 -0700 (PDT)
-Message-ID: <628cc34e.1c69fb81.1a7d2.d107@mx.google.com>
-Date:   Tue, 24 May 2022 04:36:46 -0700 (PDT)
-X-Google-Original-Date: Tue, 24 May 2022 11:36:45 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
-Subject: RE: [PATCH 5.17 000/158] 5.17.10-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        with ESMTP id S234556AbiEXMFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 08:05:09 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0CB644D8
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 05:05:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9EDCE61543
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 12:05:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB53C385AA;
+        Tue, 24 May 2022 12:05:03 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="GdsRKiSy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1653393901;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CQzn+ULQIsY5a6uvvJSnpwdv1yDItOMPm0/5lWHlw5k=;
+        b=GdsRKiSyBqgUXRUiN5My5S5pMSxBsF38f9eMRAPMa8Xzo+rb73sFuk1pn3NZ8qfJAjHmBI
+        536GzlxixdXIMsfduZWBVGCHkADeRkvMSJOrsCCn3yXTsP7TTohZKKAU6RLIKn3d06Dblo
+        aa+wfWaBZlrOJ76GF6z7H9qEjJ9+XXo=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 03836c4f (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Tue, 24 May 2022 12:05:01 +0000 (UTC)
+Date:   Tue, 24 May 2022 14:04:57 +0200
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     gregkh@linuxfoundation.org, sashal@kernel.org,
+        stable@vger.kernel.org
+Subject: Re: random.c backports for 5.18, 5.17, 5.15, and prior
+Message-ID: <YozJ6eFqFf5sHU+J@zx2c4.com>
+References: <YouECCoUA6eZEwKf@zx2c4.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YouECCoUA6eZEwKf@zx2c4.com>
+X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,27 +55,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 23 May 2022 19:02:37 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.17.10 release.
-> There are 158 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 25 May 2022 16:56:55 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.10-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Mon, May 23, 2022 at 02:54:45PM +0200, Jason A. Donenfeld wrote:
+> In this git repo [2], there are three branches: linux-5.15.y,
+> linux-5.17.y, and linux-5.18.y, which contain backports for everything
+> up to and including [1].
 
-5.17.10-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+There's now a linux-5.10.y branch too.
 
+Jason
