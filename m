@@ -2,44 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E24D532E1A
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:01:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84395532E2D
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239374AbiEXQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:00:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
+        id S237743AbiEXQBT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:01:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237666AbiEXQAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:21 -0400
+        with ESMTP id S239416AbiEXQAW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29DA2A30B6;
-        Tue, 24 May 2022 09:00:13 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E25C69D4E2;
+        Tue, 24 May 2022 09:00:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A60836175C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 549A961667;
+        Tue, 24 May 2022 16:00:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7A9C34118;
         Tue, 24 May 2022 16:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BD9AC34113;
-        Tue, 24 May 2022 16:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653408012;
-        bh=6Cm8N7iGoLf4zRP7xWJkH3JlP5PHe89qcww/m1kqHZs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BCx66EXnkT5X2sso95W6sgv51Ov/eCOfBHae3jYYR6V8A0s22LjcJBxKJ6EMyVFQ2
-         ZReBSE6dEv4GtRA/l5RZSA96aXVSAc1iL7U1zsw4L43uGTRQJgJgp/8qQoFVIMXO4G
-         aIq+qQGBDqIyQ8iQuhgynfWxilCvQwQk5TqUGunjv0bAN2mLDf1lvPQvEGo21O8d91
-         8SFwKDvIUfvk+SpAlJZ2yzwDOHxdPlE9CtQtjC0Q8GDD4rcVws3Eb87Fi29mli5gbH
-         nccJAoqYULPE9+XToPkSqybY1hsQwq7JSxoi76VzOFgOtGK+Ovth0nCCAeOGnZi7tN
-         ow4I6BlsjTnHg==
+        s=k20201202; t=1653408013;
+        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=rd1v2CfJfxeKV3IyUsI+RZ+IDtMPhi7pIMv2OIFw6vpTXeqra7/i7BSv5b60Ctkbp
+         GWGHFChyjq5/NK6+ODoSWGiGMHD+/auPIu8wGgmg8yjZ9slamHxYX0kkTmL2HwR0E0
+         j7tIdED1cF1QvbJDXJrqnKjxDJfJqr9tQq3HjZGjd/NHOqHBY1SL4mGCoHSwtdTM27
+         vm06VuLS2U3mVRrHQ6owWTx98l83FemaULxB0yMrf351Ng9VSj6yCFBxalNTgSKClL
+         W4s6ospIZllHU63Kvild84wTkdC/vSPgFX2z5OREatUTK4qSd7N7S/Sq2uc/eRzeMF
+         /tOk+CR6evIfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Forest Crossman <cyrozap@gmail.com>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alexander@tsoy.me, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 01/10] ALSA: usb-audio: Don't get sample rate for MCT Trigger 5 USB-to-HDMI
-Date:   Tue, 24 May 2022 11:59:58 -0400
-Message-Id: <20220524160009.826957-1-sashal@kernel.org>
+Cc:     IotaHydrae <writeforever@foxmail.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, wens@csie.org,
+        jernej.skrabec@gmail.com, samuel@sholland.org,
+        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 02/10] pinctrl: sunxi: fix f1c100s uart2 function
+Date:   Tue, 24 May 2022 11:59:59 -0400
+Message-Id: <20220524160009.826957-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220524160009.826957-1-sashal@kernel.org>
+References: <20220524160009.826957-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,34 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Forest Crossman <cyrozap@gmail.com>
+From: IotaHydrae <writeforever@foxmail.com>
 
-[ Upstream commit d7be213849232a2accb219d537edf056d29186b4 ]
+[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
 
-This device doesn't support reading the sample rate, so we need to apply
-this quirk to avoid a 15-second delay waiting for three timeouts.
+Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
 
-Signed-off-by: Forest Crossman <cyrozap@gmail.com>
-Link: https://lore.kernel.org/r/20220504002444.114011-2-cyrozap@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+When the pin PD13 and PD14 is setting up to uart2 function in dts,
+there's an error occurred:
+1c20800.pinctrl: unsupported function uart2 on pin PD14
+
+Because 'uart2' is not any one multiplexing option of PD14,
+and pinctrl don't know how to configure it.
+
+So change the pin PD14 lvds1 function to uart2.
+
+Signed-off-by: IotaHydrae <writeforever@foxmail.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index ab9f3da49941..fbbe59054c3f 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1822,6 +1822,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
- 	DEVICE_FLG(0x06f8, 0xd002, /* Hercules DJ Console (Macintosh Edition) */
- 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
-+	DEVICE_FLG(0x0711, 0x5800, /* MCT Trigger 5 USB-to-HDMI */
-+		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
- 		   QUIRK_FLAG_GET_SAMPLE_RATE),
- 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
+diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+index 2801ca706273..68a5b627fb9b 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
++++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+ 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
+-		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
+ 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 -- 
 2.35.1
 
