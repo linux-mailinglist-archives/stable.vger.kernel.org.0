@@ -2,72 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5538B532F2E
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE10532F75
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 19:09:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234343AbiEXQp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:45:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
+        id S238388AbiEXRJD convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 24 May 2022 13:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233170AbiEXQp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:45:27 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF427427FF;
-        Tue, 24 May 2022 09:45:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1653410713;
-        bh=gLTqESgkAFXqK+taUv6Ift55c8iBixK6EHmM6tkr+gs=;
-        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
-        b=Ntf5/GKPt7waxQaMaK91YXanz0KAshFY6MJ595uEIAJGjwVkzYt11D2x5AiYA0b4L
-         twFxRySc+irwcXFnXYMcXCcV6bmOiofaZRn0+Bbib8yOkx5N2cAqRkOjefbe7J6YES
-         Iqi2teVjOTaqqmn8FakI/Zq7URGni2+MtNEz2W84=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.20.60] ([92.116.137.3]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MPokN-1oFtl42BsZ-00MrQe; Tue, 24
- May 2022 18:45:13 +0200
-Message-ID: <786f58e8-aa61-d439-c9bb-4a27599d2aa5@gmx.de>
-Date:   Tue, 24 May 2022 18:44:59 +0200
+        with ESMTP id S230376AbiEXRJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 13:09:03 -0400
+Received: from mx0a-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82F997C149
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 10:09:01 -0700 (PDT)
+Received: from pps.filterd (m0001303.ppops.net [127.0.0.1])
+        by m0001303.ppops.net (8.17.1.5/8.17.1.5) with ESMTP id 24O8OtCR015419
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 10:09:00 -0700
+Received: from maileast.thefacebook.com ([163.114.130.16])
+        by m0001303.ppops.net (PPS) with ESMTPS id 3g6urw23j7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 10:09:00 -0700
+Received: from twshared5413.23.frc3.facebook.com (2620:10d:c0a8:1b::d) by
+ mail.thefacebook.com (2620:10d:c0a8:82::c) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2375.28; Tue, 24 May 2022 10:08:59 -0700
+Received: by devbig932.frc1.facebook.com (Postfix, from userid 4523)
+        id 8F680809F036; Tue, 24 May 2022 10:08:43 -0700 (PDT)
+From:   Song Liu <song@kernel.org>
+To:     <linux-kernel@vger.kernel.org>
+CC:     <mingo@redhat.com>, <rostedt@goodmis.org>, <kernel-team@fb.com>,
+        Song Liu <song@kernel.org>, <stable@vger.kernel.org>
+Subject: [PATCH v2] ftrace: clean up hash direct_functions on register failures
+Date:   Tue, 24 May 2022 10:08:39 -0700
+Message-ID: <20220524170839.900849-1-song@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH AUTOSEL 5.10 2/8] parisc: Disable debug code regarding
- cache flushes in handle_nadtlb_fault()
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     John David Anglin <dave.anglin@bell.net>,
-        James.Bottomley@HansenPartnership.com, akpm@linux-foundation.org,
-        zhengqi.arch@bytedance.com, linux-parisc@vger.kernel.org
-References: <20220524160035.827109-1-sashal@kernel.org>
- <20220524160035.827109-2-sashal@kernel.org>
-From:   Helge Deller <deller@gmx.de>
-In-Reply-To: <20220524160035.827109-2-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:lxjHMfxahx2TQbAWs57lPcq/4pfkYB1LueL12A81ItzRKOHqtC5
- prI0PdUpPX+ZV+ug1dWE1Y7yDjLaTULuj+7l6JO6U9GOmUDrP2LKSXlcuH3eLy//2gEzQJx
- rQCRNoz3YEBjeuiS/K6R5a2HK3vGW1GKMQmpK4W1srU3zXvyUyiW4IZYwoOKVlxdMIpOc/T
- mQX/e4mgmonfqX73Lu0+w==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:rWhv9GBFGZM=:xV29K9fWzhmf773KfTlsUz
- Ikf52/0aHB5vOQIBKFABHzm6X5oWLcXySsabm19UtEQZXtfdAhJIo1vNjaZ2W2fLBRBZCqrTT
- /lio+1p84hJdwbNA6rDXzYkDwcGyt7dpTX3k5eBgN0YRen/FOoQ9OsdqUmBSJF7SEuTAceSwd
- ZnVy3lbLOt3tdB5YjpAYX7Gpu6p+X0dABKH/e7rh9Y1wxch1RxkldREvqIhjv/iYb9fnMDZi5
- 8DNLr9WK6wPTSxVrvs7wypDhJV4ogp+aQajIg3KpSVJ7lgxnFKgxUEeHDmATxfmsiUZkSMKmY
- vSZtgDu+IGyus8QN6NNepGsyfz8vCXS+a+2odmFsdHXwRekxQtwsoJKaGsotS1uCaD6Zi/lcU
- BuysxZIVSy1nAe5pFiWc+P/nSSffq+4LhQohcJKATQvJXMK2mo3Z0+U5BtWGa0ORy/2rmRyAO
- CPL+rAkPRsqRtlogQ5XUg7ExSQn2H7mfB09FC+5vPhgxQE3/bGM6VCz5TosHQzuDpzUZtegC6
- Pby5VvYreBkcsOvDoplsz9u9e+f3Wc7bFsmoVaJO9QNBBGp010y0PStDWONLb0laMRhIb/98V
- jsS8+cc6xXSwjilMZ3aKdxhekaqpyNa/dw+yKk4sN91HBuagQzXYF6YSlr+dmrKRYkf8OiAqw
- uSM3itKcDJyy0N5elr+W/c2++Q312XgmoRP1QAOzC7QDTx2RSqRWMM5udX42bJ2LwY7ewAlH2
- 3riI5TlvuyK6EqKQ2Ko7DkmxnSeiwzUsJtclqZmgKlC+7271iIWIBBeE8Dihi85PcSbsNsbxD
- 0InxplVOTwNoOS6VKdfNKB3cyKnb9PON3L2hkDHvldS0jkgXOdSQImaYeYZMzLabpePOFpUBV
- hIOQw5g684ZgL9eB5H2fhKntcSGZYHcn7SUYeR6fO6Cy44U/ZPu+eJ0VtUyA31yEXIhYC+a5r
- xiI8Co0QpY8gGE467YLTdE/58i4VESW5xHTPMLcROGTbNaxAwYtzzgavX3Z0AWj9iaWdWMxnO
- pQLncz4W/54Ax76szGC7XTjtcvBv1CbBYFmj7IutA/Nb4Ey7G5qkz3OXAP1liorvUcgkdtLzL
- 2ICqcEcttdAj1H1mW5MYdSxcZAbvMXw07qN
-X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+Content-Transfer-Encoding: 8BIT
+X-FB-Internal: Safe
+Content-Type: text/plain
+X-Proofpoint-GUID: ZcHL8O_TQr9dE6Fy7FogERuerpQ0_MMg
+X-Proofpoint-ORIG-GUID: ZcHL8O_TQr9dE6Fy7FogERuerpQ0_MMg
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
+ definitions=2022-05-24_08,2022-05-23_01,2022-02-23_01
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,
+        RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,77 +54,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Sascha,
+We see the following GPF when register_ftrace_direct fails:
 
-On 5/24/22 18:00, Sasha Levin wrote:
-> From: John David Anglin <dave.anglin@bell.net>
->
-> [ Upstream commit 67c35a3b646cc68598ff0bb28de5f8bd7b2e81b3 ]
->
-> Change the "BUG" to "WARNING" and disable the message because it trigger=
-s
-> occasionally in spite of the check in flush_cache_page_if_present.
+[ ] general protection fault, probably for non-canonical address \
+  0x200000000000010: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
+[...]
+[ ] RIP: 0010:ftrace_find_rec_direct+0x53/0x70
+[ ] Code: 48 c1 e0 03 48 03 42 08 48 8b 10 31 c0 48 85 d2 74 [...]
+[ ] RSP: 0018:ffffc9000138bc10 EFLAGS: 00010206
+[ ] RAX: 0000000000000000 RBX: ffffffff813e0df0 RCX: 000000000000003b
+[ ] RDX: 0200000000000000 RSI: 000000000000000c RDI: ffffffff813e0df0
+[ ] RBP: ffffffffa00a3000 R08: ffffffff81180ce0 R09: 0000000000000001
+[ ] R10: ffffc9000138bc18 R11: 0000000000000001 R12: ffffffff813e0df0
+[ ] R13: ffffffff813e0df0 R14: ffff888171b56400 R15: 0000000000000000
+[ ] FS:  00007fa9420c7780(0000) GS:ffff888ff6a00000(0000) knlGS:000000000
+[ ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ ] CR2: 000000000770d000 CR3: 0000000107d50003 CR4: 0000000000370ee0
+[ ] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ ] Call Trace:
+[ ]  <TASK>
+[ ]  register_ftrace_direct+0x54/0x290
+[ ]  ? render_sigset_t+0xa0/0xa0
+[ ]  bpf_trampoline_update+0x3f5/0x4a0
+[ ]  ? 0xffffffffa00a3000
+[ ]  bpf_trampoline_link_prog+0xa9/0x140
+[ ]  bpf_tracing_prog_attach+0x1dc/0x450
+[ ]  bpf_raw_tracepoint_open+0x9a/0x1e0
+[ ]  ? find_held_lock+0x2d/0x90
+[ ]  ? lock_release+0x150/0x430
+[ ]  __sys_bpf+0xbd6/0x2700
+[ ]  ? lock_is_held_type+0xd8/0x130
+[ ]  __x64_sys_bpf+0x1c/0x20
+[ ]  do_syscall_64+0x3a/0x80
+[ ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ ] RIP: 0033:0x7fa9421defa9
+[ ] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 9 f8 [...]
+[ ] RSP: 002b:00007ffed743bd78 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
+[ ] RAX: ffffffffffffffda RBX: 00000000069d2480 RCX: 00007fa9421defa9
+[ ] RDX: 0000000000000078 RSI: 00007ffed743bd80 RDI: 0000000000000011
+[ ] RBP: 00007ffed743be00 R08: 0000000000bb7270 R09: 0000000000000000
+[ ] R10: 00000000069da210 R11: 0000000000000246 R12: 0000000000000001
+[ ] R13: 00007ffed743c4b0 R14: 00000000069d2480 R15: 0000000000000001
+[ ]  </TASK>
+[ ] Modules linked in: klp_vm(OK)
+[ ] ---[ end trace 0000000000000000 ]---
 
-Please drop this patch from the backporting-queue (v5.10, v5.15 and v5.17)=
-.
-It's not necessary since the warning will only trigger on v5.18 on machine=
-s
-with PA8800/PA8900 processors.
+One way to trigger this is:
+  1. load a livepatch that patches kernel function xxx;
+  2. run bpftrace -e 'kfunc:xxx {}', this will fail (expected for now);
+  3. repeat #2 => gpf.
 
-Thanks.
-Helge
+This is because the entry is added to direct_functions, but not removed.
+Fix this by remove the entry from direct_functions when
+register_ftrace_direct fails.
 
+Also remove the last trailing space from ftrace.c, so we don't have to
+worry about it anymore.
 
-> The pte value extracted for the "from" page in copy_user_highpage is rac=
-y and
-> occasionally the pte is cleared before the flush is complete.  I assume =
-that
-> the page is simultaneously flushed by flush_cache_mm before the pte is c=
-leared
-> as nullifying the fdc doesn't seem to cause problems.
->
-> I investigated various locking scenarios but I wasn't able to find a way=
- to
-> sequence the flushes.  This code is called for every COW break and locks=
- impact
-> performance.
->
-> This patch is related to the bigger cache flush patch because we need th=
-e pte
-> on PA8800/PA8900 to flush using the vma context.
-> I have also seen this from copy_to_user_page and copy_from_user_page.
->
-> The messages appear infrequently when enabled.
->
-> Signed-off-by: John David Anglin <dave.anglin@bell.net>
-> Signed-off-by: Helge Deller <deller@gmx.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  arch/parisc/mm/fault.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-> index 5faa3cff4738..2472780d4039 100644
-> --- a/arch/parisc/mm/fault.c
-> +++ b/arch/parisc/mm/fault.c
-> @@ -22,6 +22,8 @@
->
->  #include <asm/traps.h>
->
-> +#define DEBUG_NATLB 0
-> +
->  /* Various important other fields */
->  #define bit22set(x)		(x & 0x00000200)
->  #define bits23_25set(x)		(x & 0x000001c0)
-> @@ -449,8 +451,8 @@ handle_nadtlb_fault(struct pt_regs *regs)
->  		fallthrough;
->  	case 0x380:
->  		/* PDC and FIC instructions */
-> -		if (printk_ratelimit()) {
-> -			pr_warn("BUG: nullifying cache flush/purge instruction\n");
-> +		if (DEBUG_NATLB && printk_ratelimit()) {
-> +			pr_warn("WARNING: nullifying cache flush/purge instruction\n");
->  			show_regs(regs);
->  		}
->  		if (insn & 0x20) {
+Cc: stable@vger.kernel.org
+Fixes: 763e34e74bb7 ("ftrace: Add register_ftrace_direct()")
+Signed-off-by: Song Liu <song@kernel.org>
+---
+ kernel/trace/ftrace.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
+index 4557023295c2..fa6de95a4e4e 100644
+--- a/kernel/trace/ftrace.c
++++ b/kernel/trace/ftrace.c
+@@ -4448,7 +4448,7 @@ int ftrace_func_mapper_add_ip(struct ftrace_func_mapper *mapper,
+  * @ip: The instruction pointer address to remove the data from
+  *
+  * Returns the data if it is found, otherwise NULL.
+- * Note, if the data pointer is used as the data itself, (see 
++ * Note, if the data pointer is used as the data itself, (see
+  * ftrace_func_mapper_find_ip(), then the return value may be meaningless,
+  * if the data pointer was set to zero.
+  */
+@@ -5151,8 +5151,6 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
+ 		goto out_unlock;
+ 
+ 	ret = ftrace_set_filter_ip(&direct_ops, ip, 0, 0);
+-	if (ret)
+-		remove_hash_entry(direct_functions, entry);
+ 
+ 	if (!ret && !(direct_ops.flags & FTRACE_OPS_FL_ENABLED)) {
+ 		ret = register_ftrace_function(&direct_ops);
+@@ -5161,6 +5159,7 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
+ 	}
+ 
+ 	if (ret) {
++		remove_hash_entry(direct_functions, entry);
+ 		kfree(entry);
+ 		if (!direct->count) {
+ 			list_del_rcu(&direct->next);
+-- 
+2.30.2
 
