@@ -2,72 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C95D532436
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 09:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D3D53248E
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 09:57:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbiEXHh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 03:37:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33276 "EHLO
+        id S234102AbiEXH5P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 03:57:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229981AbiEXHh5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 03:37:57 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 492C76EC67
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 00:37:55 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id z15so581499wrg.11
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 00:37:55 -0700 (PDT)
+        with ESMTP id S235720AbiEXH45 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 03:56:57 -0400
+Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A241DA44
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 00:56:54 -0700 (PDT)
+Received: by mail-lf1-x131.google.com with SMTP id v8so27532753lfd.8
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 00:56:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=6wind.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=kBh4Q11GjjoCmn9oHvVJ+UO224sUnrM4p4PfaUvrWck=;
-        b=jU9N4xRdgYZbp3SgzjL/ZGKE2sBYy8lJllpnugwyyxtja/wrdOmUZa277Mj54fesS1
-         9haJoxr3ki3XLYosAxZsl2BoobTC/kJL0gN1+ppKLaWm3hez4PTQ+Nl5GDb0jUXHfH8S
-         vu6IfZY6eAuSrIzgUxbQx6QHMC8KG7aeFGGjmgYX/n8l/a69bxChPjV3wJD6yRzgbLm3
-         oq2dYcE0yv5e/VlLqhxMFdtqDMbbX9Ouwv1FHus/9GzPlIpL7Yz6vX4PvKeWTP3t9COi
-         aRT3275i333H1u8VpSSkg4+mqq/01pR5pkYKWqdiuJQNCoYXMyliN4nOISUl3XItGMwx
-         LcOA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pBgGkkAH7mvQXF9WylQ4T7piOJca/zTRdkEUSZA985A=;
+        b=FO0V0vfetXtV6gZayJqmNkvBKjiUfH6zZRU3a3zGGRK3mmmMsjdvRPvrl9zB6Wpr6F
+         ja9AHcilquUQA3SKDZfDzJs2kSTS0jNin/IEUxVqhn7rfpdO2ecu4TnkY74nWz9D0ivp
+         g5UMdEvf6M7mj3kkaNdZbFtOsa7MD5IytTPnt5lS8EwPF42+jtYUDMC89rM3BDjyidr3
+         t87wILw+slu8VKDBo+HuX7jj5JMOwWp4utoCG8kcZ/Yz4tezECRK+4PfUzF4qHmFjpfg
+         4+fm03aVgUpZx9cBCwCdTlCTMO2P1OBfUoZPtePZEDn3QgPFTuMeKrYvreCiLGuEyfEx
+         7wig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=kBh4Q11GjjoCmn9oHvVJ+UO224sUnrM4p4PfaUvrWck=;
-        b=sa7AYNlUSgXqGcEYj3imteUrnIsdNhsL3dUgRK0c/xYvpOBP0uNoOOi3LFKzFllUyM
-         4IzriSyWp1JvQFYJOVsxRPeH8hZ6SSgECzPXVqxYnjO4QgDsr6nWNm2mMhmycle/Jn53
-         eG7+HNuhMhMQEPfymN/Zct/5hUbsWk2nnpwlWGsjy5mDq8O5UMb1mbh1caV8JPvNLSzw
-         z56AcWVCW0nk7mycdRgXSXiAPI1dCd61P/e4zccSFZ6+DIyrKbIl0DTN1KWpzVRyJhHB
-         Q/owDTpGo8j/lPIXy2utTYJRndcp6rymGffO3UWRE1vVev8MYN5tYw5ay1KasjVSHmc5
-         pEhA==
-X-Gm-Message-State: AOAM5304vOsz57gkzmauYuyp0ey5Dfq7C8VBys4TXhz5AhQm1V6zwE9T
-        +8JQ9ffWT8hYQ/ur2XoVdICTlQ==
-X-Google-Smtp-Source: ABdhPJwua5YP/u3Cf5c9aMABHdiaJ+jF8V019sUQTwndAnDJSMgOh6/yyQjTdQEQ/9MbDDhgR+JedA==
-X-Received: by 2002:a5d:4d8a:0:b0:20d:2ba:7db8 with SMTP id b10-20020a5d4d8a000000b0020d02ba7db8mr22390965wru.624.1653377873865;
-        Tue, 24 May 2022 00:37:53 -0700 (PDT)
-Received: from 6wind.com ([2a01:e0a:5ac:6460:c065:401d:87eb:9b25])
-        by smtp.gmail.com with ESMTPSA id v3-20020adfc5c3000000b0020fcda69b7fsm8257971wrg.109.2022.05.24.00.37.53
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pBgGkkAH7mvQXF9WylQ4T7piOJca/zTRdkEUSZA985A=;
+        b=Ky2LFs7Cx3XxEgaL9lUGUlUpCmpcCxZLbJb0SEwzUkvZ6b5aVm76vRetyQo0j90fIl
+         UDhp9FEDmDaQuX0Ub+zAO2C8ZB+JUdco8R1twI6jGdcctFYfiGaQNuI0n6DhYVk+F1mE
+         o+PX/u0QLE4DQBwbhksOnDNy6g5mh7bxUjK9mDyxSAD/RUeKP8Sdf/jydgjyNOpH+GR/
+         zXeQrNP50lYLviVnUtTZE97KRRP2Bkr7VE6c/GBCxrX3cXiTfRn2BIx6SsWby7TkESEi
+         CS4Ym8saCr2EpGM+24Rc/XrMUHNgrcWPCHQNqY0aSraKTUDK5SGvagk3lYZiG/5qovZs
+         w5tA==
+X-Gm-Message-State: AOAM5335Ni5sBcyd6wK2Gq2R84TbY2FbTnf2w7psqj8S4xUZU2iTQNtl
+        u0YG8KXuFJyuuKvfmY2VV0s49w==
+X-Google-Smtp-Source: ABdhPJw6EqaoAwa2V3tEe9Vm8F4/YqgEreO3L30XjeM0sFYK1sD92DBzq48KKmekbCd+05AC8A0EbQ==
+X-Received: by 2002:a05:6512:a85:b0:478:6f48:6371 with SMTP id m5-20020a0565120a8500b004786f486371mr6457046lfu.655.1653379012676;
+        Tue, 24 May 2022 00:56:52 -0700 (PDT)
+Received: from localhost.localdomain (c-fdcc225c.014-348-6c756e10.bbcust.telenor.se. [92.34.204.253])
+        by smtp.gmail.com with ESMTPSA id y11-20020a2e7d0b000000b00253d95eebe4sm2326486ljc.21.2022.05.24.00.56.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 May 2022 00:37:53 -0700 (PDT)
-Date:   Tue, 24 May 2022 09:37:52 +0200
-From:   Olivier Matz <olivier.matz@6wind.com>
-To:     netdev@vger.kernel.org
-Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, intel-wired-lan@osuosl.org,
-        Paul Menzel <pmenzel@molgen.mpg.de>, stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Subject: Re: [PATCH net v2 0/2] ixgbe: fix promiscuous mode on VF
-Message-ID: <YoyLUEk9n1uXHscH@platinum>
-References: <20220406095252.22338-1-olivier.matz@6wind.com>
- <YmaLWN0aGIKCzkHP@platinum>
+        Tue, 24 May 2022 00:56:52 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+To:     Peter Rosin <peda@axentia.se>, Jonathan Cameron <jic23@kernel.org>,
+        linux-iio@vger.kernel.org
+Cc:     Lars-Peter Clausen <lars@metafoo.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Liam Beguin <liambeguin@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] iio: afe: rescale: Fix logic bug
+Date:   Tue, 24 May 2022 09:54:48 +0200
+Message-Id: <20220524075448.140238-1-linus.walleij@linaro.org>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YmaLWN0aGIKCzkHP@platinum>
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -75,38 +69,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+When introducing support for processed channels I needed
+to invert the expression:
 
-On Mon, Apr 25, 2022 at 01:51:53PM +0200, Olivier Matz wrote:
-> Hi,
-> 
-> On Wed, Apr 06, 2022 at 11:52:50AM +0200, Olivier Matz wrote:
-> > These 2 patches fix issues related to the promiscuous mode on VF.
-> > 
-> > Comments are welcome,
-> > Olivier
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-> > 
-> > Changes since v1:
-> > - resend with CC intel-wired-lan
-> > - remove CC Hiroshi Shimamoto (address does not exist anymore)
-> > 
-> > Olivier Matz (2):
-> >   ixgbe: fix bcast packets Rx on VF after promisc removal
-> >   ixgbe: fix unexpected VLAN Rx in promisc mode on VF
-> > 
-> >  drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 8 ++++----
-> >  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> Any feedback about this patchset?
-> Comments are welcome.
+  if (!iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
+      !iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE))
+        dev_err(dev, "source channel does not support raw/scale\n");
 
-I didn't get feedback for this patchset until now. Am I doing things
-correctly? Am I targeting the appropriate mailing lists and people?
+To the inverse, meaning detect when we can usse raw+scale
+rather than when we can not. This was the result:
 
-Please let me know if I missed something.
+  if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
+      iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE))
+       dev_info(dev, "using raw+scale source channel\n");
 
-Thanks,
-Olivier
+Ooops. Spot the error. Yep old George Boole came up and bit me.
+That should be an &&.
+
+The current code "mostly works" because we have not run into
+systems supporting only raw but not scale or only scale but not
+raw, and I doubt there are few using the rescaler on anything
+such, but let's fix the logic.
+
+Cc: Liam Beguin <liambeguin@gmail.com>
+Cc: stable@vger.kernel.org
+Fixes: 53ebee949980 ("iio: afe: iio-rescale: Support processed channels")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ drivers/iio/afe/iio-rescale.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/iio/afe/iio-rescale.c b/drivers/iio/afe/iio-rescale.c
+index 7e511293d6d1..dc426e1484f0 100644
+--- a/drivers/iio/afe/iio-rescale.c
++++ b/drivers/iio/afe/iio-rescale.c
+@@ -278,7 +278,7 @@ static int rescale_configure_channel(struct device *dev,
+ 	chan->ext_info = rescale->ext_info;
+ 	chan->type = rescale->cfg->type;
+ 
+-	if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) ||
++	if (iio_channel_has_info(schan, IIO_CHAN_INFO_RAW) &&
+ 	    iio_channel_has_info(schan, IIO_CHAN_INFO_SCALE)) {
+ 		dev_info(dev, "using raw+scale source channel\n");
+ 	} else if (iio_channel_has_info(schan, IIO_CHAN_INFO_PROCESSED)) {
+-- 
+2.35.3
+
