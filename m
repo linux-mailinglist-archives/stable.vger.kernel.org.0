@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 800825320A2
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 04:05:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6115320A6
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 04:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231465AbiEXCDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 May 2022 22:03:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38022 "EHLO
+        id S229907AbiEXCGG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 May 2022 22:06:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229782AbiEXCDu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 22:03:50 -0400
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21651814B3
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 19:03:49 -0700 (PDT)
-Received: by mail-yb1-xb33.google.com with SMTP id o80so28571077ybg.1
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 19:03:49 -0700 (PDT)
+        with ESMTP id S233173AbiEXCGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 May 2022 22:06:04 -0400
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC9E21157
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 19:06:01 -0700 (PDT)
+Received: by mail-yb1-xb2f.google.com with SMTP id v26so225765ybd.2
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 19:06:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=TaVPaezuXUUrJn/l8xmCpgZkWa6d5zHyRlmrXLhO/ck=;
-        b=uIzHBbGmscqYkk5YohOM8OsjUsXU8fDOwAUtDVPHA75xpn1q6C3X2uZ488g+tzU7zw
-         jVGPPboOxNeROw31pFhfbwxrc3Hw1JRhkvzrvpNBgRt6tOzuixn6zDxKmgKNUuv0wVKC
-         N1LmkUIMPO04+Ji/RnvHBypLFs00fUferBOBIMmVHJAIedsN4WFvzaSV6A73nbU92fnZ
-         KVx3egFCMlWJHy0PLiaMRRhz/zxq9NgD/Ic0G2Gu/vujlyOTcwJwlWaDeJP4jY/OmmeC
-         vlctrc4fY60S78dMlfRUn61/Wjl84AQxoTGEBHs4lc9Z9/ZogxzhAF0Pwp7PoLBW+RDA
-         mL/w==
+        bh=tIkJW2gxLvGg84WdJbSo1YnKOP5/twq07nYRU0g7ITo=;
+        b=VqcKdNNWsVs+ATs1ecY7HkNg10LXhevBsXbuH32rqluy/EItUj1AUXvjgIYZ68MgXq
+         G4kJPNnZb8ip2D+xwUaeMzdrrFyDTLDx9Q+6gDt6+bsVOJFbtI0SXkueha41fTA/D7CV
+         GcdDdlf3d1Wg5330WQWotBNycQ+WpEiTH2ZChJkmy3SDXRGkx3GLWxEt8ynX8iU0xZFg
+         pR0ueFJa67dcBtq/IqWYrjKaw1TOcIgOMJ+rU9MRZUQpbK5SNpxPL31uE/GzUM96y6rf
+         XIlfW1bThIqvKriwI23rm1EGfW08VqJw3OYJgTYJNX2MDUyNSWhn+fLi0mFErm2wSTDB
+         B0kQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TaVPaezuXUUrJn/l8xmCpgZkWa6d5zHyRlmrXLhO/ck=;
-        b=Vgw5PTgbfB6yMWz5VLJ31Gofiz7LE+PkINWd/+CVtbCNpn18eYVvgUs+QiElMRJNTw
-         zo5b9swI0O+imTCYPhMSia/l7VeJ99HOIT58j70zWnTnJud3oWbiwxpDB99QW6m+Y76D
-         YUezEi+DAa9XxsL6eO0quSMYxq8gytvgEngjBl2VzcKuhrSml6GI+r5sxT5Y3jJfkuxr
-         t1w9BLYFw/tFRwmLUwNulijlvA1XbSZwG/L9wqxZ9N8saQJaoKNHjZ/Vt22sYE5Uagur
-         5m/1YUkh9cfj1SDrd9mLQvtCroC13BGXKTrsDEgypO/jFBH4yEGdOKAGF2jNi0x8/+wv
-         1ucw==
-X-Gm-Message-State: AOAM532SsLstQf4HfKf44VrBdWV8kuKqgv1LJVFZXsJnoho14T5TuPgR
-        poNHe/K06D//DeEpDlecjMLPU5wy62H73RHjLP2qbA==
-X-Google-Smtp-Source: ABdhPJxvU6BMoSSQay1UgirokJ2A1InFgZ6SALJbt1MZYS+enKWNWgg8+Fs8vfal1/J9ful/7aNSZi7MHchdhXspUWY=
-X-Received: by 2002:a25:814a:0:b0:64f:f06c:cf6d with SMTP id
- j10-20020a25814a000000b0064ff06ccf6dmr6315456ybm.88.1653357828191; Mon, 23
- May 2022 19:03:48 -0700 (PDT)
+        bh=tIkJW2gxLvGg84WdJbSo1YnKOP5/twq07nYRU0g7ITo=;
+        b=FxXtKR9VNutUuKNBX0xYG3q9l/UiVfvVmjnZnz7OegaQCHSTV6Mz4pzZgHPiaoKGwO
+         MsT+wIM9azD7NOdtbjZgzyAEI0paPkzax8/UHjFudDkcaizGBhyFFRNHsAGGgkKD1WHV
+         cn5nmOfsqJmLXQs+KjfeuRrR//q7iC94C9HhCgOoJWAKhgi7aUltrpOlPQatvMShoCHL
+         jCEbNQbAIDDMhVJf5xgxy0YfBGWtC/FFxW/uYdBulXOLthVxX/7fQnhPDe3ofg3WD1RC
+         0ZTrT2frtTSpvB62XnW5EFIqxRV8kManRVjtaEfxUOCzT9BjUwCfRQKKrgiPgn/kBUeO
+         szNA==
+X-Gm-Message-State: AOAM531DTz4shJMv4QZpMbJaANtkuaImMMbMpqoj3dEpjqya3RvtOAPQ
+        Jxw9voiD6+9ZAga5d3diyquWlZmhunEhDajzb3zC/Q==
+X-Google-Smtp-Source: ABdhPJyxlXyi5tEZkdiQo+LuI7ApwXaXj1nl9wLrSzQSPaPPfntXJU1y+Kpvxqz2tQjNr0yjo5nSFADXJ11vLZ7qk1c=
+X-Received: by 2002:a25:d18a:0:b0:652:f8fd:5009 with SMTP id
+ i132-20020a25d18a000000b00652f8fd5009mr396899ybg.412.1653357961048; Mon, 23
+ May 2022 19:06:01 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220523165830.581652127@linuxfoundation.org>
-In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+References: <20220523165823.492309987@linuxfoundation.org>
+In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 24 May 2022 07:33:36 +0530
-Message-ID: <CA+G9fYvc+fogFhRpy4r04A6ch4t58S3i8BnPdz5oCj_yuOf86A@mail.gmail.com>
-Subject: Re: [PATCH 5.17 000/158] 5.17.10-rc1 review
+Date:   Tue, 24 May 2022 07:35:49 +0530
+Message-ID: <CA+G9fYtXE09W56rGs5y-EdBD9fTBOmxqJ5+ndf0=gV1t_jDYpA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/132] 5.15.42-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
@@ -70,11 +70,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 23 May 2022 at 22:35, Greg Kroah-Hartman
+On Mon, 23 May 2022 at 22:37, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.17.10 release.
-> There are 158 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.15.42 release.
+> There are 132 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,10 +83,10 @@ On Mon, 23 May 2022 at 22:35, Greg Kroah-Hartman
 >
 > The whole patch series can be found in one patch at:
 >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.17.10-rc1.gz
+5.15.42-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.17.y
+-rc.git linux-5.15.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -99,29 +99,29 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.17.10-rc1
+* kernel: 5.15.42-rc1
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.17.y
-* git commit: 389f9b0047fd0c936414cad5400875652b2711ef
-* git describe: v5.17.9-159-g389f9b0047fd
+* git branch: linux-5.15.y
+* git commit: 03faf123d8c854ca0eafbd28c2b2f11e2a3de61f
+* git describe: v5.15.41-133-g03faf123d8c8
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.17.y/build/v5.17=
-.9-159-g389f9b0047fd
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.41-133-g03faf123d8c8
 
-## Test Regressions (compared to v5.17.8-115-g3f3287e39741)
+## Test Regressions (compared to v5.15.40-103-g293cfb310f44)
 No test regressions found.
 
-## Metric Regressions (compared to v5.17.8-115-g3f3287e39741)
+## Metric Regressions (compared to v5.15.40-103-g293cfb310f44)
 No metric regressions found.
 
-## Test Fixes (compared to v5.17.8-115-g3f3287e39741)
+## Test Fixes (compared to v5.15.40-103-g293cfb310f44)
 No test fixes found.
 
-## Metric Fixes (compared to v5.17.8-115-g3f3287e39741)
+## Metric Fixes (compared to v5.15.40-103-g293cfb310f44)
 No metric fixes found.
 
 ## Test result summary
-total: 102240, pass: 86820, fail: 722, skip: 13738, xfail: 960
+total: 98644, pass: 83692, fail: 622, skip: 13281, xfail: 1049
 
 ## Build Summary
 * arc: 10 total, 10 passed, 0 failed
@@ -206,7 +206,6 @@ total: 102240, pass: 86820, fail: 722, skip: 13738, xfail: 960
 * ltp-cpuhotplug-tests
 * ltp-crypto-tests
 * ltp-cve-tests
-* ltp-cve-tests
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
@@ -230,7 +229,6 @@ total: 102240, pass: 86820, fail: 722, skip: 13738, xfail: 960
 * packetdrill
 * perf
 * perf/Zstd-perf.data-compression
-* prep-inline
 * rcutorture
 * ssuite
 * v4l2-compliance
