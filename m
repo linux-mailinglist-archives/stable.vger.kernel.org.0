@@ -2,79 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAED5532F03
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:31:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5538B532F2E
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239793AbiEXQaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:30:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54054 "EHLO
+        id S234343AbiEXQp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:45:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239794AbiEXQat (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:30:49 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4334D5EBD5;
-        Tue, 24 May 2022 09:30:37 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id n18so16291780plg.5;
-        Tue, 24 May 2022 09:30:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=Q2gMJw1ZmAVIkKFyONaRXBbSho1N5Bi+EIY2WJ8x/7M=;
-        b=HWkf7rdLEBVd4E1jJ9d2FhSSavnGuCpYLmnGdO1TuU/mxAjVldST3aAKO8z9NDxyxa
-         ZWwrFEc12bmH1VRGPylO30y3klkyRFqIydGo0g2k4RmKJjeVRAnq9S1Im/+yXZIs27YP
-         4k6Az4yUX8QNu0Twsht/N4T8ZUCy7pm5KAAm0W+L0zofJVA2VGC3cKpFc0PmQX5a0LjR
-         m5YU4HAx4rbf73+j7vBiFMrb3Ir9CeR8MUmVwjzSifyywVtvd27z6r3098tTP+NamfUa
-         cMxd//1+bL88jE5rWuLPLwIhGPKtHUvbAsahXa/GMrS0ymUN9ICJpeTN0rl+JzZRjtV8
-         m1jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=Q2gMJw1ZmAVIkKFyONaRXBbSho1N5Bi+EIY2WJ8x/7M=;
-        b=sw4YeEdz3jHp1xyGmEbsP70s2PmXdrUP/ELf8PnoTHoR/y8Ki/eFY/0V4X/ThMa3Qd
-         CqGXg6GbaGmh3wTzTAUOa42UbgeVYx0rNpQV9VUval4eQ+tUe50IaMtQbAVKsr8HK/0J
-         InCb0m3wmu/IlW5F0P/eiN6GXlmrkmfAenzMRyjJx/g2yNoxAY6oZyIiwgQ/1wKV+yJ3
-         66xXPoUUreVt78CN0z2krGnj/ueafEtWO3hYH3KK+r1cjhq91UrdSOzS0dbsGvRLkkgW
-         pZtwLzf9EoKdwpJx3zfWwfSaE/99hh5VZ18Yf91WxEZgZJjjNHyo/epsXvMDVsw6YbhE
-         s8kg==
-X-Gm-Message-State: AOAM5332VoFCTDWzI7Y0Kb13mlj9M6eutJ4l+nDNs5tHgySFP87o/zG9
-        /NoDsi/S1JwCgalEq8UkKUE=
-X-Google-Smtp-Source: ABdhPJxxjt9PhhF/Qfg1O/+UB6ZOEnQgdywnFvtHUQP92Hky43iajQQzzW1PGKxcC8S/JknBAeF8aQ==
-X-Received: by 2002:a17:902:cec9:b0:162:43f0:ba8a with SMTP id d9-20020a170902cec900b0016243f0ba8amr3273966plg.85.1653409836325;
-        Tue, 24 May 2022 09:30:36 -0700 (PDT)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id ev8-20020a17090aeac800b001cb6527ca39sm9630pjb.0.2022.05.24.09.30.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 24 May 2022 09:30:35 -0700 (PDT)
-Message-ID: <883fc4cf-dce0-a433-5cf7-7de68be17ffb@gmail.com>
-Date:   Tue, 24 May 2022 09:30:34 -0700
+        with ESMTP id S233170AbiEXQp1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:45:27 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF427427FF;
+        Tue, 24 May 2022 09:45:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1653410713;
+        bh=gLTqESgkAFXqK+taUv6Ift55c8iBixK6EHmM6tkr+gs=;
+        h=X-UI-Sender-Class:Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=Ntf5/GKPt7waxQaMaK91YXanz0KAshFY6MJ595uEIAJGjwVkzYt11D2x5AiYA0b4L
+         twFxRySc+irwcXFnXYMcXCcV6bmOiofaZRn0+Bbib8yOkx5N2cAqRkOjefbe7J6YES
+         Iqi2teVjOTaqqmn8FakI/Zq7URGni2+MtNEz2W84=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.20.60] ([92.116.137.3]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MPokN-1oFtl42BsZ-00MrQe; Tue, 24
+ May 2022 18:45:13 +0200
+Message-ID: <786f58e8-aa61-d439-c9bb-4a27599d2aa5@gmx.de>
+Date:   Tue, 24 May 2022 18:44:59 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 4.9 00/25] 4.9.316-rc1 review
+ Thunderbird/91.9.0
+Subject: Re: [PATCH AUTOSEL 5.10 2/8] parisc: Disable debug code regarding
+ cache flushes in handle_nadtlb_fault()
 Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jon Hunter <jonathanh@nvidia.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
-References: <20220523165743.398280407@linuxfoundation.org>
- <6f4034a5-f692-8a64-a09d-8bfe49767b78@nvidia.com>
- <YozK4DvamHBJ1qdX@kroah.com>
- <fbeb9833-4166-1919-e6ab-9ac7625a21d6@nvidia.com>
- <Yoz0Xv59MrUwFkMT@kroah.com>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <Yoz0Xv59MrUwFkMT@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     John David Anglin <dave.anglin@bell.net>,
+        James.Bottomley@HansenPartnership.com, akpm@linux-foundation.org,
+        zhengqi.arch@bytedance.com, linux-parisc@vger.kernel.org
+References: <20220524160035.827109-1-sashal@kernel.org>
+ <20220524160035.827109-2-sashal@kernel.org>
+From:   Helge Deller <deller@gmx.de>
+In-Reply-To: <20220524160035.827109-2-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:lxjHMfxahx2TQbAWs57lPcq/4pfkYB1LueL12A81ItzRKOHqtC5
+ prI0PdUpPX+ZV+ug1dWE1Y7yDjLaTULuj+7l6JO6U9GOmUDrP2LKSXlcuH3eLy//2gEzQJx
+ rQCRNoz3YEBjeuiS/K6R5a2HK3vGW1GKMQmpK4W1srU3zXvyUyiW4IZYwoOKVlxdMIpOc/T
+ mQX/e4mgmonfqX73Lu0+w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:rWhv9GBFGZM=:xV29K9fWzhmf773KfTlsUz
+ Ikf52/0aHB5vOQIBKFABHzm6X5oWLcXySsabm19UtEQZXtfdAhJIo1vNjaZ2W2fLBRBZCqrTT
+ /lio+1p84hJdwbNA6rDXzYkDwcGyt7dpTX3k5eBgN0YRen/FOoQ9OsdqUmBSJF7SEuTAceSwd
+ ZnVy3lbLOt3tdB5YjpAYX7Gpu6p+X0dABKH/e7rh9Y1wxch1RxkldREvqIhjv/iYb9fnMDZi5
+ 8DNLr9WK6wPTSxVrvs7wypDhJV4ogp+aQajIg3KpSVJ7lgxnFKgxUEeHDmATxfmsiUZkSMKmY
+ vSZtgDu+IGyus8QN6NNepGsyfz8vCXS+a+2odmFsdHXwRekxQtwsoJKaGsotS1uCaD6Zi/lcU
+ BuysxZIVSy1nAe5pFiWc+P/nSSffq+4LhQohcJKATQvJXMK2mo3Z0+U5BtWGa0ORy/2rmRyAO
+ CPL+rAkPRsqRtlogQ5XUg7ExSQn2H7mfB09FC+5vPhgxQE3/bGM6VCz5TosHQzuDpzUZtegC6
+ Pby5VvYreBkcsOvDoplsz9u9e+f3Wc7bFsmoVaJO9QNBBGp010y0PStDWONLb0laMRhIb/98V
+ jsS8+cc6xXSwjilMZ3aKdxhekaqpyNa/dw+yKk4sN91HBuagQzXYF6YSlr+dmrKRYkf8OiAqw
+ uSM3itKcDJyy0N5elr+W/c2++Q312XgmoRP1QAOzC7QDTx2RSqRWMM5udX42bJ2LwY7ewAlH2
+ 3riI5TlvuyK6EqKQ2Ko7DkmxnSeiwzUsJtclqZmgKlC+7271iIWIBBeE8Dihi85PcSbsNsbxD
+ 0InxplVOTwNoOS6VKdfNKB3cyKnb9PON3L2hkDHvldS0jkgXOdSQImaYeYZMzLabpePOFpUBV
+ hIOQw5g684ZgL9eB5H2fhKntcSGZYHcn7SUYeR6fO6Cy44U/ZPu+eJ0VtUyA31yEXIhYC+a5r
+ xiI8Co0QpY8gGE467YLTdE/58i4VESW5xHTPMLcROGTbNaxAwYtzzgavX3Z0AWj9iaWdWMxnO
+ pQLncz4W/54Ax76szGC7XTjtcvBv1CbBYFmj7IutA/Nb4Ey7G5qkz3OXAP1liorvUcgkdtLzL
+ 2ICqcEcttdAj1H1mW5MYdSxcZAbvMXw07qN
+X-Spam-Status: No, score=-5.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -82,111 +75,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/24/22 08:06, Greg Kroah-Hartman wrote:
-> On Tue, May 24, 2022 at 03:55:58PM +0100, Jon Hunter wrote:
->>
->> On 24/05/2022 13:09, Greg Kroah-Hartman wrote:
->>
->> ...
->>
->>>> I am seeing a boot regression on tegra124-jetson-tk1 and reverting the above
->>>> commit is fixing the problem. This also appears to impact linux-4.14.y,
->>>> 4.19.y and 5.4.y.
->>>>
->>>> Test results for stable-v4.9:
->>>>       8 builds:	8 pass, 0 fail
->>>>       18 boots:	16 pass, 2 fail
->>>>       18 tests:	18 pass, 0 fail
->>>>
->>>> Linux version:	4.9.316-rc1-gbe4ec3e3faa1
->>>> Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
->>>>                   tegra210-p2371-2180, tegra30-cardhu-a04
->>>>
->>>> Boot failures:	tegra124-jetson-tk1
->>>
->>> Odd.  This is also in 5.10.y, right?  No issues there?  Are we missing
->>> something?
->>
->>
->> Actually, the more I look at this, the more I see various intermittent
->> reports with this and it is also impacting the mainline.
->>
->> The problem is that the commit in question is causing a ton of messages to
->> be printed a boot and this sometimes is causing the boot test to fail
->> because the boot is taking too long. The console shows ...
->>
->> [ 1233.327547] CPU0: Spectre BHB: using loop workaround
->> [ 1233.327795] CPU1: Spectre BHB: using loop workaround
->> [ 1233.328270] CPU1: Spectre BHB: using loop workaround
->> [ 1233.328700] CPU1: Spectre BHB: using loop workaround
->> [ 1233.355477] CPU2: Spectre BHB: using loop workaround
->> ** 7 printk messages dropped **
->> [ 1233.366271] CPU0: Spectre BHB: using loop workaround
->> [ 1233.366580] CPU0: Spectre BHB: using loop workaround
->> [ 1233.366815] CPU1: Spectre BHB: using loop workaround
->> [ 1233.405475] CPU1: Spectre BHB: using loop workaround
->> [ 1233.405874] CPU0: Spectre BHB: using loop workaround
->> [ 1233.406041] CPU1: Spectre BHB: using loop workaround
->> ** 1 printk messages dropped **
->>
->> There is a similar report of this [0] and I believe that we need a similar
->> fix for the above prints as well. I have reported this to Ard [1]. So I am
->> not sure that these Spectre BHB patches are quite ready for stable.
-> 
-> These patches are quite small, and just enable it for this known-broken
-> cpu type.
-> 
-> If there is an issue enabling it for this cpu type, then we can work on
-> that upstream, but there shouldn't be a reason to prevent this from
-> being merged now, especially given that it is supposed to be fixing a
-> known issue.
+Hello Sascha,
 
-Jonathan any chance this is Tegra specific? Our ARCH_BRCMSTB SoCs which 
-use a Brahma-B15 which uses nearly the same ca15 processor functions 
-defined in arch/arm/mm/proc-v7.S reports the following *before* changes:
+On 5/24/22 18:00, Sasha Levin wrote:
+> From: John David Anglin <dave.anglin@bell.net>
+>
+> [ Upstream commit 67c35a3b646cc68598ff0bb28de5f8bd7b2e81b3 ]
+>
+> Change the "BUG" to "WARNING" and disable the message because it trigger=
+s
+> occasionally in spite of the check in flush_cache_page_if_present.
 
-[    0.001641] CPU: Testing write buffer coherency: ok
-[    0.001685] CPU0: Spectre v2: using ICIALLU workaround
-[    0.001703] ftrace: allocating 30541 entries in 120 pages
-[    0.044600] CPU0: update cpu_capacity 1024
-[    0.044633] CPU0: thread -1, cpu 0, socket 0, mpidr 80000000
-[    0.044662] Setting up static identity map for 0x200000 - 0x200060
-[    0.047410] brcmstb: biuctrl: MCP: Write pairing already disabled
-[    0.048974] CPU1: update cpu_capacity 1024
-[    0.048978] CPU1: thread -1, cpu 1, socket 0, mpidr 80000001
-[    0.048981] CPU1: Spectre v2: using ICIALLU workaround
-[    0.050234] CPU2: update cpu_capacity 1024
-[    0.050238] CPU2: thread -1, cpu 2, socket 0, mpidr 80000002
-[    0.050241] CPU2: Spectre v2: using ICIALLU workaround
-[    0.051437] CPU3: update cpu_capacity 1024
-[    0.051441] CPU3: thread -1, cpu 3, socket 0, mpidr 80000003
-[    0.051444] CPU3: Spectre v2: using ICIALLU workaround
-[    0.051532] Brought up 4 CPUs
+Please drop this patch from the backporting-queue (v5.10, v5.15 and v5.17)=
+.
+It's not necessary since the warning will only trigger on v5.18 on machine=
+s
+with PA8800/PA8900 processors.
 
-and this *after* merging 4.9.316-rc1:
+Thanks.
+Helge
 
-[    0.001626] CPU: Testing write buffer coherency: ok
-[    0.001670] CPU0: Spectre v2: using ICIALLU workaround
-[    0.001689] CPU0: Spectre BHB: using loop workaround
-[    0.001705] ftrace: allocating 30542 entries in 120 pages
-[    0.043752] CPU0: update cpu_capacity 1024
-[    0.043784] CPU0: thread -1, cpu 0, socket 0, mpidr 80000000
-[    0.043813] Setting up static identity map for 0x200000 - 0x200060
-[    0.046547] brcmstb: biuctrl: MCP: Write pairing already disabled
-[    0.048121] CPU1: update cpu_capacity 1024
-[    0.048124] CPU1: thread -1, cpu 1, socket 0, mpidr 80000001
-[    0.048129] CPU1: Spectre v2: using ICIALLU workaround
-[    0.048165] CPU1: Spectre BHB: using loop workaround
-[    0.049398] CPU2: update cpu_capacity 1024
-[    0.049402] CPU2: thread -1, cpu 2, socket 0, mpidr 80000002
-[    0.049405] CPU2: Spectre v2: using ICIALLU workaround
-[    0.049440] CPU2: Spectre BHB: using loop workaround
-[    0.050613] CPU3: update cpu_capacity 1024
-[    0.050617] CPU3: thread -1, cpu 3, socket 0, mpidr 80000003
-[    0.050619] CPU3: Spectre v2: using ICIALLU workaround
-[    0.050653] CPU3: Spectre BHB: using loop workaround
-[    0.050722] Brought up 4 CPUs
-[    0.050738] SMP: Total of 4 processors activated (216.00 BogoMIPS).
-[    0.050753] CPU: All CPU(s) started in HYP mode.
--- 
-Florian
+
+> The pte value extracted for the "from" page in copy_user_highpage is rac=
+y and
+> occasionally the pte is cleared before the flush is complete.  I assume =
+that
+> the page is simultaneously flushed by flush_cache_mm before the pte is c=
+leared
+> as nullifying the fdc doesn't seem to cause problems.
+>
+> I investigated various locking scenarios but I wasn't able to find a way=
+ to
+> sequence the flushes.  This code is called for every COW break and locks=
+ impact
+> performance.
+>
+> This patch is related to the bigger cache flush patch because we need th=
+e pte
+> on PA8800/PA8900 to flush using the vma context.
+> I have also seen this from copy_to_user_page and copy_from_user_page.
+>
+> The messages appear infrequently when enabled.
+>
+> Signed-off-by: John David Anglin <dave.anglin@bell.net>
+> Signed-off-by: Helge Deller <deller@gmx.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  arch/parisc/mm/fault.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+> index 5faa3cff4738..2472780d4039 100644
+> --- a/arch/parisc/mm/fault.c
+> +++ b/arch/parisc/mm/fault.c
+> @@ -22,6 +22,8 @@
+>
+>  #include <asm/traps.h>
+>
+> +#define DEBUG_NATLB 0
+> +
+>  /* Various important other fields */
+>  #define bit22set(x)		(x & 0x00000200)
+>  #define bits23_25set(x)		(x & 0x000001c0)
+> @@ -449,8 +451,8 @@ handle_nadtlb_fault(struct pt_regs *regs)
+>  		fallthrough;
+>  	case 0x380:
+>  		/* PDC and FIC instructions */
+> -		if (printk_ratelimit()) {
+> -			pr_warn("BUG: nullifying cache flush/purge instruction\n");
+> +		if (DEBUG_NATLB && printk_ratelimit()) {
+> +			pr_warn("WARNING: nullifying cache flush/purge instruction\n");
+>  			show_regs(regs);
+>  		}
+>  		if (insn & 0x20) {
+
