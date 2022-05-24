@@ -2,205 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1458D532783
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 12:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27F375327D4
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 12:39:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236064AbiEXKYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 06:24:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48740 "EHLO
+        id S236281AbiEXKhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 06:37:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236062AbiEXKYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 06:24:04 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ADEA84A07;
-        Tue, 24 May 2022 03:24:03 -0700 (PDT)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 53F0221A33;
-        Tue, 24 May 2022 10:24:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1653387842; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wmJpe9/Kua8zJtz04nyJuieA4qrmKJ7yZERYmqpEk9U=;
-        b=kL3pgzhQwy+p9basbRNDyUTjsHRB0/JIOa1/SjQHHY3uHXlWmg38gv9arjBXjieWxnrgik
-        +sUBk6YlXy99wl2Y+0uKWoTekZOcRrt5jEGveaUFYybtwlfZ5PuAaBgMcEvrs33ZGZyknT
-        9XSOrACj/AuX7r+yGt66Rvxp8s9jCjo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1653387842;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wmJpe9/Kua8zJtz04nyJuieA4qrmKJ7yZERYmqpEk9U=;
-        b=2ZUYf07VUG2cNKyTEZCRjJXAmLYGky1fYaxUEx6AD6kgTdWnRdxtXyMYa9f9Ypkoz0/INk
-        BkDHewXqwmkwNRDw==
-Received: from localhost.localdomain (colyli.tcp.ovpn1.nue.suse.de [10.163.16.22])
-        by relay2.suse.de (Postfix) with ESMTP id 11E602C141;
-        Tue, 24 May 2022 10:23:59 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     axboe@kernel.dk
-Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Coly Li <colyli@suse.de>,
-        Nikhil Kshirsagar <nkshirsagar@gmail.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 4/4] bcache: avoid journal no-space deadlock by reserving 1 journal bucket
-Date:   Tue, 24 May 2022 18:23:36 +0800
-Message-Id: <20220524102336.10684-5-colyli@suse.de>
-X-Mailer: git-send-email 2.35.3
-In-Reply-To: <20220524102336.10684-1-colyli@suse.de>
-References: <20220524102336.10684-1-colyli@suse.de>
+        with ESMTP id S235995AbiEXKgz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 06:36:55 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA610186C7
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 03:36:53 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id y13so33682628eje.2
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 03:36:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=efJfb6ASd4SXzdbY2yXcyj41fSCPZcHikLo8hjsY0Ig=;
+        b=Awzzxhs6+6hcBPP8m5qIyC5tmvBlbPqoropJaEAoJG++6hebQ0gULunJQWH7wuFQAe
+         IllvliG2+arOX7/lGY+7rtHME0lTjstpE4/lEcL5jYVpIobaHZcGG9ORuvu7G+14aE7/
+         qemODoZFKBugwZbkmrYxxY7KzmTL1u8Y+1Oay3XEOvjMFsYy3x5PglG451z4uLtDFKNM
+         dRNi18yjBdDJHJuEQAtS5A8QfcJ6mtXjGgHd3192h1hBqNAvFGD9c4M5nnZn5iWt60zr
+         muSfxXKIH5JB0y3cJ5VI7pbGBnxVlth1QJiFdPreWeUswXxRxer+Pl2FcbPCA/P4YdAg
+         unhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=efJfb6ASd4SXzdbY2yXcyj41fSCPZcHikLo8hjsY0Ig=;
+        b=5HvwxvlLQv0fPLwPutsftr4BBFc75UJs6igxz17fxDI7NYFWwaxxdaoTtUd3MDtseK
+         MNCAHkCr3hV6WxkwJAHKhRLl8GKOrLJ4F44ff8JO3ZRNagSBsE1HN2R+F/Vpapvk63NA
+         QWctbqhJsrC1P5jjqh6qZIvyHZEfZuIQIThWck6Qq2CDYIKvQPNmar15B8UQaCyIZoUB
+         zBzMWlgbQfhBbU6WaoySuS0WN9mldBUUPhoPBBH0+wHMHeyWaKulXm+Tgk+lawTLbaWj
+         sWai5YWTg0OjAZC8VldqDeP1qCPVuX9RcUXCHGjdordQU55U1hgkqG/1G01s65bKb1j5
+         jSTQ==
+X-Gm-Message-State: AOAM5332JSbPEMnIA1bUWVw2ypYtxeGpLm7xo9hj0X4FqTmQtd7xviXq
+        A3iHvpwLiZgZccu5c4GycVT/TQOv4fyf2UBZJ5o=
+X-Google-Smtp-Source: ABdhPJwo+eAj+f/o+edb9ka10PL/wnHZDr6nAyQtF8V/gWAYG0grXyURteXmkZsUkGfiJ6L/JXsCwqHnfIxwYpeEVeM=
+X-Received: by 2002:a17:906:f24f:b0:6fe:9b70:6d63 with SMTP id
+ gy15-20020a170906f24f00b006fe9b706d63mr22465542ejb.255.1653388611537; Tue, 24
+ May 2022 03:36:51 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+Sender: oxfardkinz@gmail.com
+Received: by 2002:a05:6408:25a8:b0:184:ca72:8bc3 with HTTP; Tue, 24 May 2022
+ 03:36:50 -0700 (PDT)
+From:   Jackie James <jackiejames614@gmail.com>
+Date:   Mon, 23 May 2022 22:36:50 -1200
+X-Google-Sender-Auth: Y7PCshP9iL3pzyZ7b8mbQOMPMeU
+Message-ID: <CANdM44kxsFYSbbiur5kZjDf4jixtFTc_N0ZQNay7KpkU2cFcWA@mail.gmail.com>
+Subject: Gooday my beloved,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=7.2 required=5.0 tests=ADVANCE_FEE_5_NEW_MONEY,
+        BAYES_99,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        FREEMAIL_FROM,LOTS_OF_MONEY,MONEY_FRAUD_8,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_MONEY autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2a00:1450:4864:20:0:0:0:62f listed in]
+        [list.dnswl.org]
+        *  3.5 BAYES_99 BODY: Bayes spam probability is 99 to 100%
+        *      [score: 0.9924]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [jackiejames614[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
+        *  0.0 MONEY_FRAUD_8 Lots of money and very many fraud phrases
+        *  3.0 ADVANCE_FEE_5_NEW_MONEY Advance Fee fraud and lots of money
+        *  0.9 UNDISC_MONEY Undisclosed recipients + money/fraud signs
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The journal no-space deadlock was reported time to time. Such deadlock
-can happen in the following situation.
+Hello my dear,
 
-When all journal buckets are fully filled by active jset with heavy
-write I/O load, the cache set registration (after a reboot) will load
-all active jsets and inserting them into the btree again (which is
-called journal replay). If a journaled bkey is inserted into a btree
-node and results btree node split, new journal request might be
-triggered. For example, the btree grows one more level after the node
-split, then the root node record in cache device super block will be
-upgrade by bch_journal_meta() from bch_btree_set_root(). But there is no
-space in journal buckets, the journal replay has to wait for new journal
-bucket to be reclaimed after at least one journal bucket replayed. This
-is one example that how the journal no-space deadlock happens.
+  I sent this mail praying it will get to you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day. I bring peace and love to you. It is by the grace of God, I
+had no choice than to do what is lawful and right in the sight of God
+for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
+y
+and glory upon my life,I am Mrs,Jackie Grayson,a widow.I am suffering
+from a long time brain tumor, It has defiled all forms of medical
+treatment, and right now I have about a few months to leave, according
+to medical experts.
 
-The solution to avoid the deadlock is to reserve 1 journal bucket in
-run time, and only permit the reserved journal bucket to be used during
-cache set registration procedure for things like journal replay. Then
-the journal space will never be fully filled, there is no chance for
-journal no-space deadlock to happen anymore.
+   The situation has gotten complicated recently with my inability to
+hear proper, am communicating with you with the help of the chief
+nurse herein the hospital, from all indication my conditions is really
+deteriorating and it is quite obvious that, according to my doctors
+they have advised me that I may not live too long, Because this
+illness has gotten to a very bad stage. I plead that you will not
+expose or betray this trust and confidence that I am about to repose
+on you for the mutual benefit of the orphans and the less privilege. I
+have some funds I inherited from my late husband, the sum of
+($11,500,000.00 Dollars).Having known my condition, I decided to
+donate this fund to you believing that you will utilize it the way i
+am going to instruct herein.
 
-This patch adds a new member "bool do_reserve" in struct journal, it is
-inititalized to 0 (false) when struct journal is allocated, and set to
-1 (true) by bch_journal_space_reserve() when all initialization done in
-run_cache_set(). In the run time when journal_reclaim() tries to
-allocate a new journal bucket, free_journal_buckets() is called to check
-whether there are enough free journal buckets to use. If there is only
-1 free journal bucket and journal->do_reserve is 1 (true), the last
-bucket is reserved and free_journal_buckets() will return 0 to indicate
-no free journal bucket. Then journal_reclaim() will give up, and try
-next time to see whetheer there is free journal bucket to allocate. By
-this method, there is always 1 jouranl bucket reserved in run time.
-
-During the cache set registration, journal->do_reserve is 0 (false), so
-the reserved journal bucket can be used to avoid the no-space deadlock.
-
-Reported-by: Nikhil Kshirsagar <nkshirsagar@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
----
- drivers/md/bcache/journal.c | 31 ++++++++++++++++++++++++++-----
- drivers/md/bcache/journal.h |  2 ++
- drivers/md/bcache/super.c   |  1 +
- 3 files changed, 29 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index df5347ea450b..e5da469a4235 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -405,6 +405,11 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
- 	return ret;
- }
- 
-+void bch_journal_space_reserve(struct journal *j)
-+{
-+	j->do_reserve = true;
-+}
-+
- /* Journalling */
- 
- static void btree_flush_write(struct cache_set *c)
-@@ -621,12 +626,30 @@ static void do_journal_discard(struct cache *ca)
- 	}
- }
- 
-+static unsigned int free_journal_buckets(struct cache_set *c)
-+{
-+	struct journal *j = &c->journal;
-+	struct cache *ca = c->cache;
-+	struct journal_device *ja = &c->cache->journal;
-+	unsigned int n;
-+
-+	/* In case njournal_buckets is not power of 2 */
-+	if (ja->cur_idx >= ja->discard_idx)
-+		n = ca->sb.njournal_buckets +  ja->discard_idx - ja->cur_idx;
-+	else
-+		n = ja->discard_idx - ja->cur_idx;
-+
-+	if (n > (1 + j->do_reserve))
-+		return n - (1 + j->do_reserve);
-+
-+	return 0;
-+}
-+
- static void journal_reclaim(struct cache_set *c)
- {
- 	struct bkey *k = &c->journal.key;
- 	struct cache *ca = c->cache;
- 	uint64_t last_seq;
--	unsigned int next;
- 	struct journal_device *ja = &ca->journal;
- 	atomic_t p __maybe_unused;
- 
-@@ -649,12 +672,10 @@ static void journal_reclaim(struct cache_set *c)
- 	if (c->journal.blocks_free)
- 		goto out;
- 
--	next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
--	/* No space available on this device */
--	if (next == ja->discard_idx)
-+	if (!free_journal_buckets(c))
- 		goto out;
- 
--	ja->cur_idx = next;
-+	ja->cur_idx = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
- 	k->ptr[0] = MAKE_PTR(0,
- 			     bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
- 			     ca->sb.nr_this_dev);
-diff --git a/drivers/md/bcache/journal.h b/drivers/md/bcache/journal.h
-index f2ea34d5f431..cd316b4a1e95 100644
---- a/drivers/md/bcache/journal.h
-+++ b/drivers/md/bcache/journal.h
-@@ -105,6 +105,7 @@ struct journal {
- 	spinlock_t		lock;
- 	spinlock_t		flush_write_lock;
- 	bool			btree_flushing;
-+	bool			do_reserve;
- 	/* used when waiting because the journal was full */
- 	struct closure_waitlist	wait;
- 	struct closure		io;
-@@ -182,5 +183,6 @@ int bch_journal_replay(struct cache_set *c, struct list_head *list);
- 
- void bch_journal_free(struct cache_set *c);
- int bch_journal_alloc(struct cache_set *c);
-+void bch_journal_space_reserve(struct journal *j);
- 
- #endif /* _BCACHE_JOURNAL_H */
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index bf3de149d3c9..2bb55278d22d 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -2128,6 +2128,7 @@ static int run_cache_set(struct cache_set *c)
- 
- 	flash_devs_run(c);
- 
-+	bch_journal_space_reserve(&c->journal);
- 	set_bit(CACHE_SET_RUNNING, &c->flags);
- 	return 0;
- err:
--- 
-2.35.3
-
+   I need you to assist me and reclaim this money and use it for
+Charity works, for orphanages and gives justice and help to the poor,
+needy and widows says The Lord." Jeremiah 22:15-16.=E2=80=9C and also build
+schools for less privilege that will be named after my late husband if
+possible and to promote the word of God and the effort that the house
+of God is maintained. I do not want a situation where this money will
+be used in an ungodly manner. That's why I'm taking this decision. I'm
+not afraid of death, so I know where I'm going. I accept this decision
+because I do not have any child who will inherit this money after I
+die. Please I want your sincerely and urgent answer to know if you
+will be able to execute this project for the glory of God, and I will
+give you more information on how the fund will be transferred to your
+bank account. May the grace, peace, love and the truth in the Word of
+God be with you and all those that you love and care for.
+I'm waiting for your immediate reply,
+Respectfully,
+Mrs,Jackie Grayson.
+Writting From the hospital,
+May God Bless you,
