@@ -2,143 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1466532369
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 08:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A03F532371
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 08:43:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230300AbiEXGmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 02:42:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43956 "EHLO
+        id S233881AbiEXGnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 02:43:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229945AbiEXGmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 02:42:17 -0400
-Received: from out2.migadu.com (out2.migadu.com [188.165.223.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D7C31938
-        for <stable@vger.kernel.org>; Mon, 23 May 2022 23:42:15 -0700 (PDT)
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1653374534;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=z9BomDPslMVbI/PFNphqSP681/9WI8wlrwx4OxrAfKk=;
-        b=mig72ZT1X3lczrBoKOCK+kxr7uEXsbDXRvf5cccqsxD+3o8SX1YZwR00WVNzRuDWoLAPk2
-        /YRNdaPHqsVWy4XHoQ2EtrmETOL9ThNRuLSYr/7OZxUYnEgCkpvZ9Hk2t4M9AggNek/l9C
-        XAFSFbCWVkhN/CKXsl/KdRlAc6WbtrA=
-From:   Guoqing Jiang <guoqing.jiang@linux.dev>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org
-Cc:     vkuznets@redhat.com, pbonzini@redhat.com,
-        sebastien.boeuf@intel.com, kai.liu@suse.com
-Subject: [PATCH 5.10] KVM: x86: Properly handle APF vs disabled LAPIC situation
-Date:   Tue, 24 May 2022 14:42:04 +0800
-Message-Id: <20220524064204.18598-1-guoqing.jiang@linux.dev>
+        with ESMTP id S233671AbiEXGns (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 02:43:48 -0400
+Received: from qproxy5-pub.mail.unifiedlayer.com (qproxy5-pub.mail.unifiedlayer.com [69.89.21.30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58D967CB1F
+        for <stable@vger.kernel.org>; Mon, 23 May 2022 23:43:48 -0700 (PDT)
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 751A18036877
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 06:43:47 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id C642C100482BE
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 06:43:46 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id tOGgnDBu5Qs3CtOGgnFCiu; Tue, 24 May 2022 06:43:46 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=A+Opg4aG c=1 sm=1 tr=0 ts=628c7ea2
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=oZkIemNP1mAA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Um+lJsmom1evKLmv0TS2POJdkosp2k84+u0Ar1sEbvw=; b=lD/T/zNrazyhBgT9VQqeqyRKtS
+        0Bioi6bKKyVx7ql5o3dIUXZSAjeRt2ru2DEdmasK4BK0XyKC4pZXDgMXRBIyc3T6gG+AwBhN8VAcx
+        UeqI0crz4pXDsQqLCovJyw6hAVIDDEbsYxFNz3mqB4XTaS3iWdJGrWdTxLXuzYpDYGN6a7XidvaDF
+        4gtJKsg4l0PlOT3DiR4gtSOBgbPOtCWJaK/aI6i8pTNIvzQfj4MrvNoyM+JCOVZSWXDDUi2ZurcQp
+        aZcD5JA1fqSDvf6QJmypAn0NjGcCCv46vsKmmv+UXzTGrIKFOYGmrR7r7FdeYcBffJI3WRpSW9M2m
+        jXJbPlhQ==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:52006 helo=[10.0.1.48])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1ntOGe-003oWV-R8; Tue, 24 May 2022 00:43:44 -0600
+Subject: Re: [PATCH 5.17 000/158] 5.17.10-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
+References: <20220523165830.581652127@linuxfoundation.org>
+In-Reply-To: <20220523165830.581652127@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <53925135-eda7-9c5a-d019-bb618366ed7e@w6rz.net>
+Date:   Mon, 23 May 2022 23:43:42 -0700
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
-X-Migadu-Auth-User: linux.dev
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1ntOGe-003oWV-R8
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.48]) [73.162.232.9]:52006
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 3
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
+On 5/23/22 10:02 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.17.10 release.
+> There are 158 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 25 May 2022 16:56:55 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.10-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Backport of commit 2f15d027c05fac406decdb5eceb9ec0902b68f53 upstream.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Async PF 'page ready' event may happen when LAPIC is (temporary) disabled.
-In particular, Sebastien reports that when Linux kernel is directly booted
-by Cloud Hypervisor, LAPIC is 'software disabled' when APF mechanism is
-initialized. On initialization KVM tries to inject 'wakeup all' event and
-puts the corresponding token to the slot. It is, however, failing to inject
-an interrupt (kvm_apic_set_irq() -> __apic_accept_irq() -> !apic_enabled())
-so the guest never gets notified and the whole APF mechanism gets stuck.
-The same issue is likely to happen if the guest temporary disables LAPIC
-and a previously unavailable page becomes available.
-
-Do two things to resolve the issue:
-- Avoid dequeuing 'page ready' events from APF queue when LAPIC is
-  disabled.
-- Trigger an attempt to deliver pending 'page ready' events when LAPIC
-  becomes enabled (SPIV or MSR_IA32_APICBASE).
-
-Reported-by: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210422092948.568327-1-vkuznets@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[Guoqing: backport to 5.10-stable ]
-Signed-off-by: Guoqing Jiang <guoqing.jiang@linux.dev>
----
-Hi,
-
-We encountered below task hang issue with 5.10.113 stable kernel.
-
-[  246.845061] INFO: task rpmbuild:2303 blocked for more than 122 seconds.
-[  246.846269]       Not tainted 5.10.113-1.1.se2-default #1
-[  246.847103] "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-[  246.848248] task:rpmbuild        state:D stack:    0 pid: 2303 ppid:  2302 flags:0x00000000
-[  246.848252] Call Trace:
-[  246.848266]  __schedule+0x3f6/0x7c0
-[  246.848289]  ? __handle_mm_fault+0x3dd/0x6d0
-[  246.848291]  schedule+0x46/0xb0
-[  246.848295]  kvm_async_pf_task_wait_schedule+0x4b/0x90
-[  246.848297]  ? handle_mm_fault+0xbc/0x280
-[  246.848300]  __kvm_handle_async_pf+0x4f/0xb0
-[  246.848303]  exc_page_fault+0x204/0x540
-[  246.848305]  ? asm_exc_page_fault+0x8/0x30
-[  246.848307]  asm_exc_page_fault+0x1e/0x30
-[  246.848310] RIP: 0033:0x7f122fbdfc90
-
-And after investigating, this patch resolve the issue. 5.12 stable kernel
-has already merged it by commit 36825931c607.
-
-Thanks,
-Guoqing    
-
- arch/x86/kvm/lapic.c | 6 ++++++
- arch/x86/kvm/x86.c   | 2 +-
- 2 files changed, 7 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index a3ef793fce5f..6ed6b090be94 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -297,6 +297,10 @@ static inline void apic_set_spiv(struct kvm_lapic *apic, u32 val)
- 
- 		atomic_set_release(&apic->vcpu->kvm->arch.apic_map_dirty, DIRTY);
- 	}
-+
-+	/* Check if there are APF page ready requests pending */
-+	if (enabled)
-+		kvm_make_request(KVM_REQ_APF_READY, apic->vcpu);
- }
- 
- static inline void kvm_apic_set_xapic_id(struct kvm_lapic *apic, u8 id)
-@@ -2260,6 +2264,8 @@ void kvm_lapic_set_base(struct kvm_vcpu *vcpu, u64 value)
- 		if (value & MSR_IA32_APICBASE_ENABLE) {
- 			kvm_apic_set_xapic_id(apic, vcpu->vcpu_id);
- 			static_key_slow_dec_deferred(&apic_hw_disabled);
-+			/* Check if there are APF page ready requests pending */
-+			kvm_make_request(KVM_REQ_APF_READY, vcpu);
- 		} else {
- 			static_key_slow_inc(&apic_hw_disabled.key);
- 			atomic_set_release(&apic->vcpu->kvm->arch.apic_map_dirty, DIRTY);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 4588f73bf59a..ae18062c26a6 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -11146,7 +11146,7 @@ bool kvm_arch_can_dequeue_async_page_present(struct kvm_vcpu *vcpu)
- 	if (!kvm_pv_async_pf_enabled(vcpu))
- 		return true;
- 	else
--		return apf_pageready_slot_free(vcpu);
-+		return kvm_lapic_enabled(vcpu) && apf_pageready_slot_free(vcpu);
- }
- 
- void kvm_arch_start_assignment(struct kvm *kvm)
--- 
-2.34.1
+Tested-by: Ron Economos <re@w6rz.net>
 
