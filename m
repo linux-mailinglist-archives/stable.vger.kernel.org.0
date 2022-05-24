@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4B6532E08
+	by mail.lfdr.de (Postfix) with ESMTP id 56EA0532E09
 	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:00:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239189AbiEXQAC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46412 "EHLO
+        id S239237AbiEXQAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239232AbiEXQAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:00 -0400
+        with ESMTP id S239241AbiEXQAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:01 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFCB89CF47;
-        Tue, 24 May 2022 08:59:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DA389CF6B;
+        Tue, 24 May 2022 08:59:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 392F5B81A3A;
-        Tue, 24 May 2022 15:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9F96C34115;
-        Tue, 24 May 2022 15:59:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E43A6B81785;
+        Tue, 24 May 2022 15:59:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7580FC34113;
+        Tue, 24 May 2022 15:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653407988;
-        bh=mtfcqPLfpPwbKXS08XGxYgeqQ6x+a1HiRMcVM75SB2k=;
+        s=k20201202; t=1653407989;
+        bh=003EFPVAWAtkcipXIjXUvRz6XdQ5O2kKi9sJjDH1Xkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eT7ui749mZKJzSbeif5vlv276ziBc2i1nDZxyjlL1gwvOBN68zDHMJEhlptFNqE/O
-         mwcsYyf2ufGxUOiMyH5dLe/rYGGvPMMomL44bw8fGqWlqdgXKPBSgF6dC00Yx1Zmtc
-         ffeohSfzQZfQnfHxMvAu+PQ1GEGlwz7EtnY8WZqG12YVnHDnNK/wH+6dHfXvAzJRK2
-         U8XT9pdOYAlcat5c0pBlfrq5nn3AJCR/LyPp0HcaqFtWIeHmVrN7RKWRCUuyj+d79s
-         ZeGJHAnp8n3moAF3chEp8cuppqmWv+kNzsWMyr10I3VNrCYHef7aTtCsgQj7dSQmKE
-         T1hnBrbp2TPPQ==
+        b=mpocOByTlKqY852Hdyx107R7UdAKKRferxhLvE01kUa+MeYEymm9EfhY0nRaCIuwo
+         KpIAtaWRAH5bPXok6/v2pGKYDKGYmSOb1qXXaX34so2itYCo+zPGxsmQBguolITPt1
+         T36X4Mt33X4Kt5pQtqY/bC2qFXovTcLRMw5a2FOcP/Jfe8PpxJV5EkWVpV2SJd6WC5
+         Ro0DeavtBOe1d+Ju1rwVS0XpoQ4qnUJzKOATXOibKtp5Hlud0kRWK2sRNW5a76RHeu
+         +vn+szlmAm7TRD1QJf7AXO1eYaLwZnaKiOW/7p2OZNJ+PbuxnAVFOlnDrmqD6tUGKw
+         ixqKh0ztwWXag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, zhengqi.arch@bytedance.com,
-        akpm@linux-foundation.org, linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 06/12] parisc: Disable debug code regarding cache flushes in handle_nadtlb_fault()
-Date:   Tue, 24 May 2022 11:59:20 -0400
-Message-Id: <20220524155929.826793-6-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>,
+        syzbot+5b1e53987f858500ec00@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, dennis@kernel.org,
+        tj@kernel.org, cl@linux.com, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.17 07/12] percpu_ref_init(): clean ->percpu_count_ref on failure
+Date:   Tue, 24 May 2022 11:59:21 -0400
+Message-Id: <20220524155929.826793-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220524155929.826793-1-sashal@kernel.org>
 References: <20220524155929.826793-1-sashal@kernel.org>
@@ -57,59 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 67c35a3b646cc68598ff0bb28de5f8bd7b2e81b3 ]
+[ Upstream commit a91714312eb16f9ecd1f7f8b3efe1380075f28d4 ]
 
-Change the "BUG" to "WARNING" and disable the message because it triggers
-occasionally in spite of the check in flush_cache_page_if_present.
+That way percpu_ref_exit() is safe after failing percpu_ref_init().
+At least one user (cgroup_create()) had a double-free that way;
+there might be other similar bugs.  Easier to fix in percpu_ref_init(),
+rather than playing whack-a-mole in sloppy users...
 
-The pte value extracted for the "from" page in copy_user_highpage is racy and
-occasionally the pte is cleared before the flush is complete.  I assume that
-the page is simultaneously flushed by flush_cache_mm before the pte is cleared
-as nullifying the fdc doesn't seem to cause problems.
+Usual symptoms look like a messed refcounting in one of subsystems
+that use percpu allocations (might be percpu-refcount, might be
+something else).  Having refcounts for two different objects share
+memory is Not Nice(tm)...
 
-I investigated various locking scenarios but I wasn't able to find a way to
-sequence the flushes.  This code is called for every COW break and locks impact
-performance.
-
-This patch is related to the bigger cache flush patch because we need the pte
-on PA8800/PA8900 to flush using the vma context.
-I have also seen this from copy_to_user_page and copy_from_user_page.
-
-The messages appear infrequently when enabled.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: syzbot+5b1e53987f858500ec00@syzkaller.appspotmail.com
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/mm/fault.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ lib/percpu-refcount.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
-index f114e102aaf2..84bc437be5cd 100644
---- a/arch/parisc/mm/fault.c
-+++ b/arch/parisc/mm/fault.c
-@@ -22,6 +22,8 @@
+diff --git a/lib/percpu-refcount.c b/lib/percpu-refcount.c
+index af9302141bcf..e5c5315da274 100644
+--- a/lib/percpu-refcount.c
++++ b/lib/percpu-refcount.c
+@@ -76,6 +76,7 @@ int percpu_ref_init(struct percpu_ref *ref, percpu_ref_func_t *release,
+ 	data = kzalloc(sizeof(*ref->data), gfp);
+ 	if (!data) {
+ 		free_percpu((void __percpu *)ref->percpu_count_ptr);
++		ref->percpu_count_ptr = 0;
+ 		return -ENOMEM;
+ 	}
  
- #include <asm/traps.h>
- 
-+#define DEBUG_NATLB 0
-+
- /* Various important other fields */
- #define bit22set(x)		(x & 0x00000200)
- #define bits23_25set(x)		(x & 0x000001c0)
-@@ -450,8 +452,8 @@ handle_nadtlb_fault(struct pt_regs *regs)
- 		fallthrough;
- 	case 0x380:
- 		/* PDC and FIC instructions */
--		if (printk_ratelimit()) {
--			pr_warn("BUG: nullifying cache flush/purge instruction\n");
-+		if (DEBUG_NATLB && printk_ratelimit()) {
-+			pr_warn("WARNING: nullifying cache flush/purge instruction\n");
- 			show_regs(regs);
- 		}
- 		if (insn & 0x20) {
 -- 
 2.35.1
 
