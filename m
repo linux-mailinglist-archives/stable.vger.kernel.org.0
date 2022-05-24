@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2A23532E16
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:01:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 609A1532E12
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:01:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237885AbiEXQAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:00:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
+        id S239273AbiEXQAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239309AbiEXQAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63DF39AE7B;
-        Tue, 24 May 2022 09:00:01 -0700 (PDT)
+        with ESMTP id S239367AbiEXQAQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC189A0D24;
+        Tue, 24 May 2022 09:00:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84B1A61769;
-        Tue, 24 May 2022 16:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A025C34115;
-        Tue, 24 May 2022 15:59:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8265B81785;
+        Tue, 24 May 2022 16:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49972C34113;
+        Tue, 24 May 2022 16:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653407999;
-        bh=B0fbzs5NVpRoXeOmEKHVbepGaopA9N/slql/ABvPCnI=;
+        s=k20201202; t=1653408003;
+        bh=g01vBZVStxAahFQTmtaV2HaIpT1FseCZakkCwgxe3N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXtEgWFMuz1RF7Wup01zcpvlwR8nXyXwIMKi+H3xb+geIOd/ajnxHRo1H7ErJtzLq
-         9CKYC1Qf9fK5qvWUGoKNNCP1urrvlbAWE+u36UkUT1rFZ7K0RrQbfRLW+QWlouoPXa
-         p8b+fS39jwJbLrXtzWlBbXfuQMaNPvhqUUxfMEJlQqsP0qeudMAKIOcf+U46dAfDJX
-         wj/khUHqtFdQFRJFsi6q5zZDVIj4vPb01yEyPonA86a4d/MyQdohz8KyN4uzQV2Tta
-         SeE1Ftyd7S5wHTZYBTyXrlAblwG0yybaALGi1AiPnb7ko0rSyuG3qIkwunQqvRhT2T
-         eJAZlyF6Ze7MA==
+        b=eoc6kqvzhTMevu48p42rOmBR5X1xRmDZQr1/hTCqlnNBTxgmKl3ywbHFhfLxR8Db+
+         Gd6IqboOXlqrn+V56+TFJY8C9mzk3tRcFLL3G854Z7fFc58jhFkQ6WlLm4+bYgtFq7
+         1F7taFsgUaHOLfbbbrlO/IEfhnrQLmnVcXSJ4KNdDybqacyrJlXeQU4QE/8h9JCrpA
+         M+1zdHVnkuUqLLXWeIhswT9q+qR/fwctcMVHJmujhMXzxI8o8/rx+m/TDFAyilyjju
+         SxA9aOZIvVhDleRL8tnZRCxLFk9j1jr+MoPGrDs8WzTSW5tqR+Z0CKu4IPHv6ssmWL
+         b6o/LZj/f6pMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joel Stanley <joel@jms.id.au>, David Wilder <wilder@us.ibm.com>,
-        Dylan Hung <dylan_hung@aspeedtech.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, guoheyi@linux.alibaba.com,
-        arnd@arndb.de, chenhao288@hisilicon.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 10/12] net: ftgmac100: Disable hardware checksum on AST2600
-Date:   Tue, 24 May 2022 11:59:24 -0400
-Message-Id: <20220524155929.826793-10-sashal@kernel.org>
+Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "From : Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        seth.heasley@intel.com, nhorman@tuxdriver.com, bp@suse.de,
+        christophe.jaillet@wanadoo.fr, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 11/12] i2c: ismt: Provide a DMA buffer for Interrupt Cause Logging
+Date:   Tue, 24 May 2022 11:59:25 -0400
+Message-Id: <20220524155929.826793-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220524155929.826793-1-sashal@kernel.org>
 References: <20220524155929.826793-1-sashal@kernel.org>
@@ -59,90 +58,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Stanley <joel@jms.id.au>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 6fd45e79e8b93b8d22fb8fe22c32fbad7e9190bd ]
+[ Upstream commit 17a0f3acdc6ec8b89ad40f6e22165a4beee25663 ]
 
-The AST2600 when using the i210 NIC over NC-SI has been observed to
-produce incorrect checksum results with specific MTU values. This was
-first observed when sending data across a long distance set of networks.
+Before sending a MSI the hardware writes information pertinent to the
+interrupt cause to a memory location pointed by SMTICL register. This
+memory holds three double words where the least significant bit tells
+whether the interrupt cause of master/target/error is valid. The driver
+does not use this but we need to set it up because otherwise it will
+perform DMA write to the default address (0) and this will cause an
+IOMMU fault such as below:
 
-On a local network, the following test was performed using a 1MB file of
-random data.
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write] Request device [00:12.0] PASID ffffffff fault addr 0
+        [fault reason 05] PTE Write access is not set
 
-On the receiver run this script:
+To prevent this from happening, provide a proper DMA buffer for this
+that then gets mapped by the IOMMU accordingly.
 
- #!/bin/bash
- while [ 1 ]; do
-        # Zero the stats
-        nstat -r  > /dev/null
-        nc -l 9899 > test-file
-        # Check for checksum errors
-        TcpInCsumErrors=$(nstat | grep TcpInCsumErrors)
-        if [ -z "$TcpInCsumErrors" ]; then
-                echo No TcpInCsumErrors
-        else
-                echo TcpInCsumErrors = $TcpInCsumErrors
-        fi
- done
-
-On an AST2600 system:
-
- # nc <IP of  receiver host> 9899 < test-file
-
-The test was repeated with various MTU values:
-
- # ip link set mtu 1410 dev eth0
-
-The observed results:
-
- 1500 - good
- 1434 - bad
- 1400 - good
- 1410 - bad
- 1420 - good
-
-The test was repeated after disabling tx checksumming:
-
- # ethtool -K eth0 tx-checksumming off
-
-And all MTU values tested resulted in transfers without error.
-
-An issue with the driver cannot be ruled out, however there has been no
-bug discovered so far.
-
-David has done the work to take the original bug report of slow data
-transfer between long distance connections and triaged it down to this
-test case.
-
-The vendor suspects this this is a hardware issue when using NC-SI. The
-fixes line refers to the patch that introduced AST2600 support.
-
-Reported-by: David Wilder <wilder@us.ibm.com>
-Reviewed-by: Dylan Hung <dylan_hung@aspeedtech.com>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/i2c/busses/i2c-ismt.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
-index caf48023f8ea..5231818943c6 100644
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -1928,6 +1928,11 @@ static int ftgmac100_probe(struct platform_device *pdev)
- 	/* AST2400  doesn't have working HW checksum generation */
- 	if (np && (of_device_is_compatible(np, "aspeed,ast2400-mac")))
- 		netdev->hw_features &= ~NETIF_F_HW_CSUM;
+diff --git a/drivers/i2c/busses/i2c-ismt.c b/drivers/i2c/busses/i2c-ismt.c
+index f4820fd3dc13..c01430ce103a 100644
+--- a/drivers/i2c/busses/i2c-ismt.c
++++ b/drivers/i2c/busses/i2c-ismt.c
+@@ -82,6 +82,7 @@
+ 
+ #define ISMT_DESC_ENTRIES	2	/* number of descriptor entries */
+ #define ISMT_MAX_RETRIES	3	/* number of SMBus retries to attempt */
++#define ISMT_LOG_ENTRIES	3	/* number of interrupt cause log entries */
+ 
+ /* Hardware Descriptor Constants - Control Field */
+ #define ISMT_DESC_CWRL	0x01	/* Command/Write Length */
+@@ -175,6 +176,8 @@ struct ismt_priv {
+ 	u8 head;				/* ring buffer head pointer */
+ 	struct completion cmp;			/* interrupt completion */
+ 	u8 buffer[I2C_SMBUS_BLOCK_MAX + 16];	/* temp R/W data buffer */
++	dma_addr_t log_dma;
++	u32 *log;
+ };
+ 
+ static const struct pci_device_id ismt_ids[] = {
+@@ -411,6 +414,9 @@ static int ismt_access(struct i2c_adapter *adap, u16 addr,
+ 	memset(desc, 0, sizeof(struct ismt_desc));
+ 	desc->tgtaddr_rw = ISMT_DESC_ADDR_RW(addr, read_write);
+ 
++	/* Always clear the log entries */
++	memset(priv->log, 0, ISMT_LOG_ENTRIES * sizeof(u32));
 +
-+	/* AST2600 tx checksum with NCSI is broken */
-+	if (priv->use_ncsi && of_device_is_compatible(np, "aspeed,ast2600-mac"))
-+		netdev->hw_features &= ~NETIF_F_HW_CSUM;
+ 	/* Initialize common control bits */
+ 	if (likely(pci_dev_msi_enabled(priv->pci_dev)))
+ 		desc->control = ISMT_DESC_INT | ISMT_DESC_FAIR;
+@@ -708,6 +714,8 @@ static void ismt_hw_init(struct ismt_priv *priv)
+ 	/* initialize the Master Descriptor Base Address (MDBA) */
+ 	writeq(priv->io_rng_dma, priv->smba + ISMT_MSTR_MDBA);
+ 
++	writeq(priv->log_dma, priv->smba + ISMT_GR_SMTICL);
 +
- 	if (np && of_get_property(np, "no-hw-checksum", NULL))
- 		netdev->hw_features &= ~(NETIF_F_HW_CSUM | NETIF_F_RXCSUM);
- 	netdev->features |= netdev->hw_features;
+ 	/* initialize the Master Control Register (MCTRL) */
+ 	writel(ISMT_MCTRL_MEIE, priv->smba + ISMT_MSTR_MCTRL);
+ 
+@@ -795,6 +803,12 @@ static int ismt_dev_init(struct ismt_priv *priv)
+ 	priv->head = 0;
+ 	init_completion(&priv->cmp);
+ 
++	priv->log = dmam_alloc_coherent(&priv->pci_dev->dev,
++					ISMT_LOG_ENTRIES * sizeof(u32),
++					&priv->log_dma, GFP_KERNEL);
++	if (!priv->log)
++		return -ENOMEM;
++
+ 	return 0;
+ }
+ 
 -- 
 2.35.1
 
