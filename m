@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFBC532E35
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 952C7532E39
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:02:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239425AbiEXQBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:01:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
+        id S238824AbiEXQCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:02:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239546AbiEXQBC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:01:02 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2A20A76F3;
-        Tue, 24 May 2022 09:00:40 -0700 (PDT)
+        with ESMTP id S239349AbiEXQBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:01:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9E5A0D24;
+        Tue, 24 May 2022 09:00:44 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B556461777;
-        Tue, 24 May 2022 16:00:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B219BC34115;
-        Tue, 24 May 2022 16:00:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D9B2B817F2;
+        Tue, 24 May 2022 16:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27AECC3411A;
+        Tue, 24 May 2022 16:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653408039;
-        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BqxUHNAoWYAoRxC/+FRm9UBwYUD7R3Si3XKKQ41sh06M4L3Tu7VqDupaSrf1ttt0h
-         FZawlEUUjezWAzLay50Ee9g03U083hNJVT41oLwAE234zmScUc0etmElV2ieUg/pwD
-         9G1i6SpTlKZGKJSdKn7Xr8c4uvsiZDc7FT58XrT+Rwg0ZlZ4bSQpKd3gAlrsQTmSlN
-         w7g7Ae7zTt3fABNcnLp/V+oTu9VQbdEZk46dPp8NCZmUj70Z88RhLJbgti+KPKf3Je
-         gGPyLqVp4uLYIj7SzKxPbyviJIu7bUc3lmNPD1Lvw9t2//BwV6WT8K/HZ1uGyy5+0b
-         YQ4XjApqkIvXA==
+        s=k20201202; t=1653408042;
+        bh=uNYcJ4Cr7Q5JHM1D51Lx3IAU4uaYLwTacB3qIeJzItk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NJT/7W5zuf8GQg8VeRKfviCplSiM/BQ440CvBns3DITo2tL3SNeWn+ygwyUq68TXT
+         J9FfQUPhDLZKMOHBuYN26x2158ZfXJtCjCrU3jm5KAXzJTmMiKHBmcKmKmz8lnY2eb
+         LjZnMeyMWCbHDYy3xiywnoSkX6FQIIIcwxHNmdZKF7TVDFOZVtK2PCJpeOybzlvZuS
+         yzGzH+BMLp5SPAPSdWlCSpL6e+AGOfp15nYjNdxx0mKxF6f+O4r2VFTXSOGUJtMD2l
+         eNPwlnmLOu4F8Q/zpnrgeDDYN3ZEIOSp29Esuxm7FmFTO3YB0xM+btoYUazjeaV8Xu
+         4IfpJomM8j6vA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     IotaHydrae <writeforever@foxmail.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, wens@csie.org,
-        jernej.skrabec@gmail.com, samuel@sholland.org,
-        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 1/8] pinctrl: sunxi: fix f1c100s uart2 function
-Date:   Tue, 24 May 2022 12:00:28 -0400
-Message-Id: <20220524160035.827109-1-sashal@kernel.org>
+Cc:     John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, akpm@linux-foundation.org,
+        zhengqi.arch@bytedance.com, linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 2/8] parisc: Disable debug code regarding cache flushes in handle_nadtlb_fault()
+Date:   Tue, 24 May 2022 12:00:29 -0400
+Message-Id: <20220524160035.827109-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220524160035.827109-1-sashal@kernel.org>
+References: <20220524160035.827109-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,43 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: IotaHydrae <writeforever@foxmail.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
+[ Upstream commit 67c35a3b646cc68598ff0bb28de5f8bd7b2e81b3 ]
 
-Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
+Change the "BUG" to "WARNING" and disable the message because it triggers
+occasionally in spite of the check in flush_cache_page_if_present.
 
-When the pin PD13 and PD14 is setting up to uart2 function in dts,
-there's an error occurred:
-1c20800.pinctrl: unsupported function uart2 on pin PD14
+The pte value extracted for the "from" page in copy_user_highpage is racy and
+occasionally the pte is cleared before the flush is complete.  I assume that
+the page is simultaneously flushed by flush_cache_mm before the pte is cleared
+as nullifying the fdc doesn't seem to cause problems.
 
-Because 'uart2' is not any one multiplexing option of PD14,
-and pinctrl don't know how to configure it.
+I investigated various locking scenarios but I wasn't able to find a way to
+sequence the flushes.  This code is called for every COW break and locks impact
+performance.
 
-So change the pin PD14 lvds1 function to uart2.
+This patch is related to the bigger cache flush patch because we need the pte
+on PA8800/PA8900 to flush using the vma context.
+I have also seen this from copy_to_user_page and copy_from_user_page.
 
-Signed-off-by: IotaHydrae <writeforever@foxmail.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+The messages appear infrequently when enabled.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/parisc/mm/fault.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-index 2801ca706273..68a5b627fb9b 100644
---- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
- 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
--		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
-+		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
- 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+diff --git a/arch/parisc/mm/fault.c b/arch/parisc/mm/fault.c
+index 5faa3cff4738..2472780d4039 100644
+--- a/arch/parisc/mm/fault.c
++++ b/arch/parisc/mm/fault.c
+@@ -22,6 +22,8 @@
+ 
+ #include <asm/traps.h>
+ 
++#define DEBUG_NATLB 0
++
+ /* Various important other fields */
+ #define bit22set(x)		(x & 0x00000200)
+ #define bits23_25set(x)		(x & 0x000001c0)
+@@ -449,8 +451,8 @@ handle_nadtlb_fault(struct pt_regs *regs)
+ 		fallthrough;
+ 	case 0x380:
+ 		/* PDC and FIC instructions */
+-		if (printk_ratelimit()) {
+-			pr_warn("BUG: nullifying cache flush/purge instruction\n");
++		if (DEBUG_NATLB && printk_ratelimit()) {
++			pr_warn("WARNING: nullifying cache flush/purge instruction\n");
+ 			show_regs(regs);
+ 		}
+ 		if (insn & 0x20) {
 -- 
 2.35.1
 
