@@ -2,133 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E95532B31
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 15:23:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18959532C50
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 16:35:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237332AbiEXNXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 09:23:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55524 "EHLO
+        id S237743AbiEXOec (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 10:34:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235573AbiEXNW7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 09:22:59 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D5D1994F6
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 06:22:55 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id v66so21369264oib.3
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 06:22:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=XeiufcpwSIY/Zpt8BFry97S7pt6Ekixag30xT58L2+Q=;
-        b=dOx4+UtQO/4OdOdhCu5ecWkuEwzZHI7wsvpk/VHpK8XzEICiRoTjSuMKBa6rnFBfK5
-         djUn+M6WFbg1GrQnpe1o4vpt8jn/I+hEs8UXy660ggevaMAppuHNdTorSV3O7kdJ628r
-         IbQTv1WT5LUrCkGu0u9ZGUZrvsKOqJ0rV3fpzOK4uFOrbRhP3+kcCD+w5uBJeiKEnd26
-         fPK6T6KgEEfTfXUb45o18TcTzl3jJTuae+Xz6oAvCLQD+OTGCskLIGot52v8s0dXYzJg
-         N+eWJTjpSSNyGgwFhBhP7+ZwOI8Y9oGheih0EDwXcUUQ3VKutmTB3g+vEf8o6UjHKZwW
-         4YJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=XeiufcpwSIY/Zpt8BFry97S7pt6Ekixag30xT58L2+Q=;
-        b=y5FItIydYEct2dzK2MP3y0dWTrCoc1cFV9SRG96Wgbi1krOzH3SRdOSHoB2vRFM3p+
-         WBi3BwsWP0u6XxMX+/YSdRROA59oniKPkcEjjCPCJ6Ck363iDsRn8BRp9wcHzUe1FOwk
-         RpSefoy2on8nGKZoq0kKrAOoVzgMLBJmjT/uklAss8dz//oksXgmjichM5XQJ7EsGq1m
-         EKIJALM44MjwLbeE4A7vbHohmfcjxULB8u/iIN9YSKE9w6CDGBd74zNKPWyoRDQ9MTjx
-         S+F9QKuiu9NtwYvka3XFBf+H/c6KLGPHjBf8n90Ud3dmkeNMXoUokXF6uti1YgvZZKYu
-         kO+Q==
-X-Gm-Message-State: AOAM533OFAf2C2dlzM9bzyhX7dNsIHQowIMT46UjGdXdUaWXPQF4YltN
-        ypKQAWc2BgLHsnA2RUtv3atf7aNeidDqXRowaY4=
-X-Google-Smtp-Source: ABdhPJyfE3D2oTmcS5ulnnoqwnJv9wjykCzWTKkqrfgmApxm49ttOdH0/apGEbsEqKYwIZ5EVjEHuu7gG4kF8YUoAWs=
-X-Received: by 2002:a54:469a:0:b0:322:9e32:e71a with SMTP id
- k26-20020a54469a000000b003229e32e71amr2212881oic.282.1653398574550; Tue, 24
- May 2022 06:22:54 -0700 (PDT)
+        with ESMTP id S232272AbiEXOea (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 10:34:30 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 69B5D6B7D2
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 07:34:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1653402868;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=IATTeiwvknjib2mrV8AsShseYTokKOCsuZyH3XiozGg=;
+        b=DBUJ9oJ26+/FUdoNmc+ifahWN/422WpXCUjLMzl84EgzqPB7V2wpyWS1xFAe+X63KS6fbN
+        rX5+Rdvlyo6I8jZeCqxItNxaSXQVxVLRyCgymEpANg2MkBAL+R2nalaRLgrWV5TbTrvJ0g
+        4O5Zoba497L93x/dwZp+7TUzov41Qto=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-371-NrBM45JvN8msUeNP_0rhTg-1; Tue, 24 May 2022 10:34:25 -0400
+X-MC-Unique: NrBM45JvN8msUeNP_0rhTg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 96EA63C10236;
+        Tue, 24 May 2022 14:34:24 +0000 (UTC)
+Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 723F82026D07;
+        Tue, 24 May 2022 14:34:24 +0000 (UTC)
+From:   Paolo Bonzini <pbonzini@redhat.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>, stable@vger.kernel.org
+Subject: [PATCH] x86, kvm: use correct GFP flags for preemption disabled
+Date:   Tue, 24 May 2022 10:34:24 -0400
+Message-Id: <20220524143424.6790-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6358:9225:b0:9b:4d7b:9eb4 with HTTP; Tue, 24 May 2022
- 06:22:53 -0700 (PDT)
-Reply-To: ahb2017tg@gmail.com
-From:   andrea mamon <cba1978tg@gmail.com>
-Date:   Tue, 24 May 2022 15:22:53 +0200
-Message-ID: <CAJoV5MRh+0oHK1kBauMUiRqFLVTezhXgtpZK2dFT8FR=Cxrs7w@mail.gmail.com>
-Subject: Hola
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=7.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY autolearn=no
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
+X-Spam-Status: No, score=-3.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        SPF_HELO_NONE,SPF_NONE,T_SCC_BODY_TEXT_LINE autolearn=unavailable
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:243 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5155]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [cba1978tg[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  3.3 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  1.7 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  0.9 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Querido amigo ,
+Commit ddd7ed842627 ("x86/kvm: Alloc dummy async #PF token outside of
+raw spinlock") leads to the following Smatch static checker warning:
 
-Mucho tiempo, espero que todo est=C3=A9 bien junto con su familia, si es
-as=C3=AD, gloria a Dios Todopoderoso. Bueno, lamento escuchar esta noticia
-y entender que la culpa no es m=C3=ADa. Me complace informarles sobre mi
-=C3=A9xito en la transferencia de esos fondos bajo la cooperaci=C3=B3n de u=
-n
-nuevo socio de EE. UU. Actualmente estoy en EE. UU. para recibir
-tratamiento mientras tanto, no olvid=C3=A9 sus esfuerzos pasados ??e
-intentos de obtener los fondos a pesar de que nos fall=C3=B3 de alguna
-manera. Ahora comun=C3=ADquese con mi pastor mientras estaba en Togo. Dej=
-=C3=A9
-$ 500,000.00 para usted.
-como su propia parte para compensar sus esfuerzos de entrada durante
-la transacci=C3=B3n sin importar que falle debido a su falta de
-comprensi=C3=B3n.
-Nombre: Pastora Mar=C3=ADa Antonio
-Direcci=C3=B3n: 55 avenida slyvanus olympio
-Correo electr=C3=B3nico: chika_abarla2008@yahoo.com
-P=C3=ADdale que le env=C3=ADe la cantidad total de $ 500,000.00 d=C3=B3lare=
-s
-estadounidenses que dej=C3=A9 como compensaci=C3=B3n por todos los esfuerzo=
-s e
-intentos anteriores para ayudarme en este asunto. Apreci=C3=A9 mucho sus
-esfuerzos en ese momento. As=C3=AD que si=C3=A9ntase libre y p=C3=B3ngase e=
-n contacto
-con ellos e ind=C3=ADqueles c=C3=B3mo desea recibir su parte.
-Por favor, av=C3=ADsame de inmediato si recibes tu parte para que podamos
-compartir la alegr=C3=ADa juntos despu=C3=A9s de todos los sufrimientos en =
-ese
-momento, est=C3=A1 bien.
+	arch/x86/kernel/kvm.c:212 kvm_async_pf_task_wake()
+	warn: sleeping in atomic context
 
-En este momento, estoy muy ocupado con mi tratamiento y mi salud. As=C3=AD
-que no dude en ponerse en contacto con mi pastor hoy de inmediato para
-reclamar.
-tu fondo Gracias de nuevo y que Dios los bendiga.
+arch/x86/kernel/kvm.c
+    202         raw_spin_lock(&b->lock);
+    203         n = _find_apf_task(b, token);
+    204         if (!n) {
+    205                 /*
+    206                  * Async #PF not yet handled, add a dummy entry for the token.
+    207                  * Allocating the token must be down outside of the raw lock
+    208                  * as the allocator is preemptible on PREEMPT_RT kernels.
+    209                  */
+    210                 if (!dummy) {
+    211                         raw_spin_unlock(&b->lock);
+--> 212                         dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
+                                                                ^^^^^^^^^^
+Smatch thinks the caller has preempt disabled.  The `smdb.py preempt
+kvm_async_pf_task_wake` output call tree is:
 
-Saludos,
-se=C3=B1ora andrea mam=C3=B3n
+sysvec_kvm_asyncpf_interrupt() <- disables preempt
+-> __sysvec_kvm_asyncpf_interrupt()
+   -> kvm_async_pf_task_wake()
+
+The caller is this:
+
+arch/x86/kernel/kvm.c
+   290        DEFINE_IDTENTRY_SYSVEC(sysvec_kvm_asyncpf_interrupt)
+   291        {
+   292                struct pt_regs *old_regs = set_irq_regs(regs);
+   293                u32 token;
+   294
+   295                ack_APIC_irq();
+   296
+   297                inc_irq_stat(irq_hv_callback_count);
+   298
+   299                if (__this_cpu_read(apf_reason.enabled)) {
+   300                        token = __this_cpu_read(apf_reason.token);
+   301                        kvm_async_pf_task_wake(token);
+   302                        __this_cpu_write(apf_reason.token, 0);
+   303                        wrmsrl(MSR_KVM_ASYNC_PF_ACK, 1);
+   304                }
+   305
+   306                set_irq_regs(old_regs);
+   307        }
+
+The DEFINE_IDTENTRY_SYSVEC() is a wrapper that calls this function
+from the call_on_irqstack_cond().  It's inside the call_on_irqstack_cond()
+where preempt is disabled (unless it's already disabled).  The
+irq_enter/exit_rcu() functions disable/enable preempt.
+
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ arch/x86/kernel/kvm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 35b3c5836703..1a3658f7e6d9 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -209,7 +209,7 @@ void kvm_async_pf_task_wake(u32 token)
+ 		 */
+ 		if (!dummy) {
+ 			raw_spin_unlock(&b->lock);
+-			dummy = kzalloc(sizeof(*dummy), GFP_KERNEL);
++			dummy = kzalloc(sizeof(*dummy), GFP_ATOMIC);
+ 
+ 			/*
+ 			 * Continue looping on allocation failure, eventually
+-- 
+2.31.1
+
