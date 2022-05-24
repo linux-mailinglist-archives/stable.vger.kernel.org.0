@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5197853277B
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 12:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1458D532783
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 12:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236060AbiEXKYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 06:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
+        id S236064AbiEXKYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 06:24:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236055AbiEXKYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 06:24:01 -0400
+        with ESMTP id S236062AbiEXKYE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 06:24:04 -0400
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80EF8B09F;
-        Tue, 24 May 2022 03:24:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ADEA84A07;
+        Tue, 24 May 2022 03:24:03 -0700 (PDT)
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id 9506621A33;
-        Tue, 24 May 2022 10:23:59 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTP id 53F0221A33;
+        Tue, 24 May 2022 10:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1653387839; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1653387842; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9kjfZ17/ruoaTQnJvYhTQS9cRBP4eTRXwhgVvBnbNYg=;
-        b=oSHxcOdjt49hLLYzL9q+838dBG9MHwh9kgdH4B0UNRo6irv687YY7y4FfGdH5rN2bOILRe
-        ojAzUE9V+g84+cZVOIG4aPps9lYg0fyA4eNReOEJKqK7AeKv6/pSBOZndyEvy9zuwW8+rt
-        H9Lala7u54oiOe3tdaoLKcS3GDJ+Ws8=
+        bh=wmJpe9/Kua8zJtz04nyJuieA4qrmKJ7yZERYmqpEk9U=;
+        b=kL3pgzhQwy+p9basbRNDyUTjsHRB0/JIOa1/SjQHHY3uHXlWmg38gv9arjBXjieWxnrgik
+        +sUBk6YlXy99wl2Y+0uKWoTekZOcRrt5jEGveaUFYybtwlfZ5PuAaBgMcEvrs33ZGZyknT
+        9XSOrACj/AuX7r+yGt66Rvxp8s9jCjo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1653387839;
+        s=susede2_ed25519; t=1653387842;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=9kjfZ17/ruoaTQnJvYhTQS9cRBP4eTRXwhgVvBnbNYg=;
-        b=aZuP0r6rUyfq51A2vzbvsWw8LB8ykyS4mOtSN/xymIyr82a1tlszPUj4x1nlpSbgUqQ352
-        GfWcsJfbkC3TFDCA==
+        bh=wmJpe9/Kua8zJtz04nyJuieA4qrmKJ7yZERYmqpEk9U=;
+        b=2ZUYf07VUG2cNKyTEZCRjJXAmLYGky1fYaxUEx6AD6kgTdWnRdxtXyMYa9f9Ypkoz0/INk
+        BkDHewXqwmkwNRDw==
 Received: from localhost.localdomain (colyli.tcp.ovpn1.nue.suse.de [10.163.16.22])
-        by relay2.suse.de (Postfix) with ESMTP id E27122C141;
-        Tue, 24 May 2022 10:23:57 +0000 (UTC)
+        by relay2.suse.de (Postfix) with ESMTP id 11E602C141;
+        Tue, 24 May 2022 10:23:59 +0000 (UTC)
 From:   Coly Li <colyli@suse.de>
 To:     axboe@kernel.dk
 Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
-        Coly Li <colyli@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 3/4] bcache: remove incremental dirty sector counting for bch_sectors_dirty_init()
-Date:   Tue, 24 May 2022 18:23:35 +0800
-Message-Id: <20220524102336.10684-4-colyli@suse.de>
+        Coly Li <colyli@suse.de>,
+        Nikhil Kshirsagar <nkshirsagar@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 4/4] bcache: avoid journal no-space deadlock by reserving 1 journal bucket
+Date:   Tue, 24 May 2022 18:23:36 +0800
+Message-Id: <20220524102336.10684-5-colyli@suse.de>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20220524102336.10684-1-colyli@suse.de>
 References: <20220524102336.10684-1-colyli@suse.de>
@@ -60,135 +62,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-After making bch_sectors_dirty_init() being multithreaded, the existing
-incremental dirty sector counting in bch_root_node_dirty_init() doesn't
-release btree occupation after iterating 500000 (INIT_KEYS_EACH_TIME)
-bkeys. Because a read lock is added on btree root node to prevent the
-btree to be split during the dirty sectors counting, other I/O requester
-has no chance to gain the write lock even restart bcache_btree().
+The journal no-space deadlock was reported time to time. Such deadlock
+can happen in the following situation.
 
-That is to say, the incremental dirty sectors counting is incompatible
-to the multhreaded bch_sectors_dirty_init(). We have to choose one and
-drop another one.
+When all journal buckets are fully filled by active jset with heavy
+write I/O load, the cache set registration (after a reboot) will load
+all active jsets and inserting them into the btree again (which is
+called journal replay). If a journaled bkey is inserted into a btree
+node and results btree node split, new journal request might be
+triggered. For example, the btree grows one more level after the node
+split, then the root node record in cache device super block will be
+upgrade by bch_journal_meta() from bch_btree_set_root(). But there is no
+space in journal buckets, the journal replay has to wait for new journal
+bucket to be reclaimed after at least one journal bucket replayed. This
+is one example that how the journal no-space deadlock happens.
 
-In my testing, with 512 bytes random writes, I generate 1.2T dirty data
-and a btree with 400K nodes. With single thread and incremental dirty
-sectors counting, it takes 30+ minites to register the backing device.
-And with multithreaded dirty sectors counting, the backing device
-registration can be accomplished within 2 minutes.
+The solution to avoid the deadlock is to reserve 1 journal bucket in
+run time, and only permit the reserved journal bucket to be used during
+cache set registration procedure for things like journal replay. Then
+the journal space will never be fully filled, there is no chance for
+journal no-space deadlock to happen anymore.
 
-The 30+ minutes V.S. 2- minutes difference makes me decide to keep
-multithreaded bch_sectors_dirty_init() and drop the incremental dirty
-sectors counting. This is what this patch does.
+This patch adds a new member "bool do_reserve" in struct journal, it is
+inititalized to 0 (false) when struct journal is allocated, and set to
+1 (true) by bch_journal_space_reserve() when all initialization done in
+run_cache_set(). In the run time when journal_reclaim() tries to
+allocate a new journal bucket, free_journal_buckets() is called to check
+whether there are enough free journal buckets to use. If there is only
+1 free journal bucket and journal->do_reserve is 1 (true), the last
+bucket is reserved and free_journal_buckets() will return 0 to indicate
+no free journal bucket. Then journal_reclaim() will give up, and try
+next time to see whetheer there is free journal bucket to allocate. By
+this method, there is always 1 jouranl bucket reserved in run time.
 
-But INIT_KEYS_EACH_TIME is kept, in sectors_dirty_init_fn() the CPU
-will be released by cond_resched() after every INIT_KEYS_EACH_TIME keys
-iterated. This is to avoid the watchdog reports a bogus soft lockup
-warning.
+During the cache set registration, journal->do_reserve is 0 (false), so
+the reserved journal bucket can be used to avoid the no-space deadlock.
 
-Fixes: b144e45fc576 ("bcache: make bch_sectors_dirty_init() to be multithreaded")
+Reported-by: Nikhil Kshirsagar <nkshirsagar@gmail.com>
 Signed-off-by: Coly Li <colyli@suse.de>
 Cc: stable@vger.kernel.org
 ---
- drivers/md/bcache/writeback.c | 41 +++++++++++------------------------
- 1 file changed, 13 insertions(+), 28 deletions(-)
+ drivers/md/bcache/journal.c | 31 ++++++++++++++++++++++++++-----
+ drivers/md/bcache/journal.h |  2 ++
+ drivers/md/bcache/super.c   |  1 +
+ 3 files changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index d24c09490f8e..75b71199800d 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -805,13 +805,11 @@ static int bch_writeback_thread(void *arg)
- 
- /* Init */
- #define INIT_KEYS_EACH_TIME	500000
--#define INIT_KEYS_SLEEP_MS	100
- 
- struct sectors_dirty_init {
- 	struct btree_op	op;
- 	unsigned int	inode;
- 	size_t		count;
--	struct bkey	start;
- };
- 
- static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
-@@ -827,11 +825,8 @@ static int sectors_dirty_init_fn(struct btree_op *_op, struct btree *b,
- 					     KEY_START(k), KEY_SIZE(k));
- 
- 	op->count++;
--	if (atomic_read(&b->c->search_inflight) &&
--	    !(op->count % INIT_KEYS_EACH_TIME)) {
--		bkey_copy_key(&op->start, k);
--		return -EAGAIN;
--	}
-+	if (!(op->count % INIT_KEYS_EACH_TIME))
-+		cond_resched();
- 
- 	return MAP_CONTINUE;
- }
-@@ -846,24 +841,16 @@ static int bch_root_node_dirty_init(struct cache_set *c,
- 	bch_btree_op_init(&op.op, -1);
- 	op.inode = d->id;
- 	op.count = 0;
--	op.start = KEY(op.inode, 0, 0);
--
--	do {
--		ret = bcache_btree(map_keys_recurse,
--				   k,
--				   c->root,
--				   &op.op,
--				   &op.start,
--				   sectors_dirty_init_fn,
--				   0);
--		if (ret == -EAGAIN)
--			schedule_timeout_interruptible(
--				msecs_to_jiffies(INIT_KEYS_SLEEP_MS));
--		else if (ret < 0) {
--			pr_warn("sectors dirty init failed, ret=%d!\n", ret);
--			break;
--		}
--	} while (ret == -EAGAIN);
-+
-+	ret = bcache_btree(map_keys_recurse,
-+			   k,
-+			   c->root,
-+			   &op.op,
-+			   &KEY(op.inode, 0, 0),
-+			   sectors_dirty_init_fn,
-+			   0);
-+	if (ret < 0)
-+		pr_warn("sectors dirty init failed, ret=%d!\n", ret);
- 
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index df5347ea450b..e5da469a4235 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -405,6 +405,11 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
  	return ret;
  }
-@@ -907,7 +894,6 @@ static int bch_dirty_init_thread(void *arg)
- 				goto out;
- 			}
- 			skip_nr--;
--			cond_resched();
- 		}
  
- 		if (p) {
-@@ -917,7 +903,6 @@ static int bch_dirty_init_thread(void *arg)
- 
- 		p = NULL;
- 		prev_idx = cur_idx;
--		cond_resched();
- 	}
- 
- out:
-@@ -956,11 +941,11 @@ void bch_sectors_dirty_init(struct bcache_device *d)
- 		bch_btree_op_init(&op.op, -1);
- 		op.inode = d->id;
- 		op.count = 0;
--		op.start = KEY(op.inode, 0, 0);
- 
- 		for_each_key_filter(&c->root->keys,
- 				    k, &iter, bch_ptr_invalid)
- 			sectors_dirty_init_fn(&op.op, c->root, k);
++void bch_journal_space_reserve(struct journal *j)
++{
++	j->do_reserve = true;
++}
 +
- 		rw_unlock(0, c->root);
- 		return;
+ /* Journalling */
+ 
+ static void btree_flush_write(struct cache_set *c)
+@@ -621,12 +626,30 @@ static void do_journal_discard(struct cache *ca)
  	}
+ }
+ 
++static unsigned int free_journal_buckets(struct cache_set *c)
++{
++	struct journal *j = &c->journal;
++	struct cache *ca = c->cache;
++	struct journal_device *ja = &c->cache->journal;
++	unsigned int n;
++
++	/* In case njournal_buckets is not power of 2 */
++	if (ja->cur_idx >= ja->discard_idx)
++		n = ca->sb.njournal_buckets +  ja->discard_idx - ja->cur_idx;
++	else
++		n = ja->discard_idx - ja->cur_idx;
++
++	if (n > (1 + j->do_reserve))
++		return n - (1 + j->do_reserve);
++
++	return 0;
++}
++
+ static void journal_reclaim(struct cache_set *c)
+ {
+ 	struct bkey *k = &c->journal.key;
+ 	struct cache *ca = c->cache;
+ 	uint64_t last_seq;
+-	unsigned int next;
+ 	struct journal_device *ja = &ca->journal;
+ 	atomic_t p __maybe_unused;
+ 
+@@ -649,12 +672,10 @@ static void journal_reclaim(struct cache_set *c)
+ 	if (c->journal.blocks_free)
+ 		goto out;
+ 
+-	next = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
+-	/* No space available on this device */
+-	if (next == ja->discard_idx)
++	if (!free_journal_buckets(c))
+ 		goto out;
+ 
+-	ja->cur_idx = next;
++	ja->cur_idx = (ja->cur_idx + 1) % ca->sb.njournal_buckets;
+ 	k->ptr[0] = MAKE_PTR(0,
+ 			     bucket_to_sector(c, ca->sb.d[ja->cur_idx]),
+ 			     ca->sb.nr_this_dev);
+diff --git a/drivers/md/bcache/journal.h b/drivers/md/bcache/journal.h
+index f2ea34d5f431..cd316b4a1e95 100644
+--- a/drivers/md/bcache/journal.h
++++ b/drivers/md/bcache/journal.h
+@@ -105,6 +105,7 @@ struct journal {
+ 	spinlock_t		lock;
+ 	spinlock_t		flush_write_lock;
+ 	bool			btree_flushing;
++	bool			do_reserve;
+ 	/* used when waiting because the journal was full */
+ 	struct closure_waitlist	wait;
+ 	struct closure		io;
+@@ -182,5 +183,6 @@ int bch_journal_replay(struct cache_set *c, struct list_head *list);
+ 
+ void bch_journal_free(struct cache_set *c);
+ int bch_journal_alloc(struct cache_set *c);
++void bch_journal_space_reserve(struct journal *j);
+ 
+ #endif /* _BCACHE_JOURNAL_H */
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index bf3de149d3c9..2bb55278d22d 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -2128,6 +2128,7 @@ static int run_cache_set(struct cache_set *c)
+ 
+ 	flash_devs_run(c);
+ 
++	bch_journal_space_reserve(&c->journal);
+ 	set_bit(CACHE_SET_RUNNING, &c->flags);
+ 	return 0;
+ err:
 -- 
 2.35.3
 
