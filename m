@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F6BD532E17
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:01:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E24D532E1A
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239341AbiEXQAx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:00:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46420 "EHLO
+        id S239374AbiEXQA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239388AbiEXQAS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D472DA2071;
-        Tue, 24 May 2022 09:00:09 -0700 (PDT)
+        with ESMTP id S237666AbiEXQAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:00:21 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29DA2A30B6;
+        Tue, 24 May 2022 09:00:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27345B81A50;
-        Tue, 24 May 2022 16:00:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1441C36AE3;
-        Tue, 24 May 2022 16:00:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A60836175C;
+        Tue, 24 May 2022 16:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BD9AC34113;
+        Tue, 24 May 2022 16:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653408006;
-        bh=UIvOGU9ezNqd/V+eh1/mLYA2MyU4xUyFduSUC7Zg0Ms=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DyIzsUUMdy2+3Mgx7hmadgjiYxEniyFYsKNiBZp1Y3whY5dVUtB6Lcp8UbwRQyAzX
-         TXiNPUscxuXGw9Ksh0MAdmLmEPGJuDR3N6QqI6PWg6ied8DbCGinymk7c28o1I7HwX
-         k8BmaXm23xYJ3ZgPDxegsLI355DwH8YCcIQHN9s7Gzu+7syWsk20NhYJgDcTnKEbrN
-         6DgbGFe10cnKt1sxZ14dpD2QWPjXMgvPqCbCyzKsAW220wy0RZvnqJMqASAt8hiRLt
-         AdASl9SDXcR1b8KZ6n28mhSYteCFk0vE31d+AZbImycMrlF3Hy4IgLAfG3xn5hVnoU
-         DUXdTJwJuTV5g==
+        s=k20201202; t=1653408012;
+        bh=6Cm8N7iGoLf4zRP7xWJkH3JlP5PHe89qcww/m1kqHZs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BCx66EXnkT5X2sso95W6sgv51Ov/eCOfBHae3jYYR6V8A0s22LjcJBxKJ6EMyVFQ2
+         ZReBSE6dEv4GtRA/l5RZSA96aXVSAc1iL7U1zsw4L43uGTRQJgJgp/8qQoFVIMXO4G
+         aIq+qQGBDqIyQ8iQuhgynfWxilCvQwQk5TqUGunjv0bAN2mLDf1lvPQvEGo21O8d91
+         8SFwKDvIUfvk+SpAlJZ2yzwDOHxdPlE9CtQtjC0Q8GDD4rcVws3Eb87Fi29mli5gbH
+         nccJAoqYULPE9+XToPkSqybY1hsQwq7JSxoi76VzOFgOtGK+Ovth0nCCAeOGnZi7tN
+         ow4I6BlsjTnHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Piyush Malgujar <pmalgujar@marvell.com>,
-        Szymon Balcerak <sbalcerak@marvell.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        rric@kernel.org, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 12/12] drivers: i2c: thunderx: Allow driver to work with ACPI defined TWSI controllers
-Date:   Tue, 24 May 2022 11:59:26 -0400
-Message-Id: <20220524155929.826793-12-sashal@kernel.org>
+Cc:     Forest Crossman <cyrozap@gmail.com>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
+        tiwai@suse.com, alexander@tsoy.me, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.15 01/10] ALSA: usb-audio: Don't get sample rate for MCT Trigger 5 USB-to-HDMI
+Date:   Tue, 24 May 2022 11:59:58 -0400
+Message-Id: <20220524160009.826957-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220524155929.826793-1-sashal@kernel.org>
-References: <20220524155929.826793-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,33 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Piyush Malgujar <pmalgujar@marvell.com>
+From: Forest Crossman <cyrozap@gmail.com>
 
-[ Upstream commit 03a35bc856ddc09f2cc1f4701adecfbf3b464cb3 ]
+[ Upstream commit d7be213849232a2accb219d537edf056d29186b4 ]
 
-Due to i2c->adap.dev.fwnode not being set, ACPI_COMPANION() wasn't properly
-found for TWSI controllers.
+This device doesn't support reading the sample rate, so we need to apply
+this quirk to avoid a 15-second delay waiting for three timeouts.
 
-Signed-off-by: Szymon Balcerak <sbalcerak@marvell.com>
-Signed-off-by: Piyush Malgujar <pmalgujar@marvell.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Forest Crossman <cyrozap@gmail.com>
+Link: https://lore.kernel.org/r/20220504002444.114011-2-cyrozap@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-thunderx-pcidrv.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/usb/quirks.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-index 12c90aa0900e..a77cd86fe75e 100644
---- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
-@@ -213,6 +213,7 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
- 	i2c->adap.bus_recovery_info = &octeon_i2c_recovery_info;
- 	i2c->adap.dev.parent = dev;
- 	i2c->adap.dev.of_node = pdev->dev.of_node;
-+	i2c->adap.dev.fwnode = dev->fwnode;
- 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
- 		 "Cavium ThunderX i2c adapter at %s", dev_name(dev));
- 	i2c_set_adapdata(&i2c->adap, i2c);
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index ab9f3da49941..fbbe59054c3f 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1822,6 +1822,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
+ 	DEVICE_FLG(0x06f8, 0xd002, /* Hercules DJ Console (Macintosh Edition) */
+ 		   QUIRK_FLAG_IGNORE_CTL_ERROR),
++	DEVICE_FLG(0x0711, 0x5800, /* MCT Trigger 5 USB-to-HDMI */
++		   QUIRK_FLAG_GET_SAMPLE_RATE),
+ 	DEVICE_FLG(0x074d, 0x3553, /* Outlaw RR2150 (Micronas UAC3553B) */
+ 		   QUIRK_FLAG_GET_SAMPLE_RATE),
+ 	DEVICE_FLG(0x08bb, 0x2702, /* LineX FM Transmitter */
 -- 
 2.35.1
 
