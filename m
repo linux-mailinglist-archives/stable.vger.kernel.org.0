@@ -2,88 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3A83533131
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 21:03:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C5B533215
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 22:02:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240823AbiEXTDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 15:03:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55462 "EHLO
+        id S237169AbiEXUA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 16:00:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240814AbiEXTDM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 15:03:12 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D8B9E9F3;
-        Tue, 24 May 2022 12:01:44 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1F3461668;
-        Tue, 24 May 2022 19:01:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E931CC34100;
-        Tue, 24 May 2022 19:01:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653418896;
-        bh=KSZsbhwiRi3M8nxpOedIKbFYyLcvnJ63M8XoVXAIzeU=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=BOFqdBMgOE0t35cDDks6OE8Twthx5wZ9OuWLqN4oNuXkjA0Pb8Z9VbTh69HeCJ/FR
-         l57QTmEidl5VAJd6e7Vh6L+mR2QPo3h9NqADkIAtTdcofr2TUuPj69OyMYh4hvAlye
-         TQDeR9aKkiVrcEmatu3vIBk3fyYAsj/jlY8O1nUZZhkrCutKeF4IwVDe88vyods8cm
-         t5xgla4YRyo0yIOvq5u8SKI5g0Ma+J1GaZ/o8rqZPCnYl2NowzaoNMO4VHYmHVXWyg
-         Mhl7uZK9xwW7RMLC0BwDLqcR38YHvimkH67Z29wnM6Ez4DywCNF6YAbKpJEGTbgBZH
-         qb1dtcUpEGx0g==
-Date:   Tue, 24 May 2022 12:01:34 -0700
-From:   Jakub Kicinski <kuba@kernel.org>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>, Joel Stanley <joel@jms.id.au>,
-        David Wilder <wilder@us.ibm.com>,
-        Dylan Hung <dylan_hung@aspeedtech.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>, guoheyi@linux.alibaba.com,
-        chenhao288@hisilicon.com, Networking <netdev@vger.kernel.org>
-Subject: Re: [PATCH AUTOSEL 5.17 10/12] net: ftgmac100: Disable hardware
- checksum on AST2600
-Message-ID: <20220524120134.2c466107@kernel.org>
-In-Reply-To: <CAK8P3a2EZKnLB5c9YuKbaug16tG7juidmQ+g-wLNHx_-zxTD5A@mail.gmail.com>
-References: <20220524155929.826793-1-sashal@kernel.org>
-        <20220524155929.826793-10-sashal@kernel.org>
-        <CAK8P3a3J6gh-0Z8JKEBDva7ox39ps5CCxJ4K7T1LyWMbTHna8Q@mail.gmail.com>
-        <CAK8P3a2EZKnLB5c9YuKbaug16tG7juidmQ+g-wLNHx_-zxTD5A@mail.gmail.com>
+        with ESMTP id S233450AbiEXUA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 16:00:58 -0400
+Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5A6D5A2CC;
+        Tue, 24 May 2022 13:00:57 -0700 (PDT)
+Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-e93bbb54f9so23558222fac.12;
+        Tue, 24 May 2022 13:00:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=xdqMHHqBDBxG4fAcbv9a3pbuucj1HKocdtacUijQBY0=;
+        b=f3TW6LctIYA0rr2hs0QM9c05JYG/kaVoeAYYXwY1cQ+FtBFgQRazqvAM0u9gzOCAwP
+         ydLjZBp601qeTyqC1YX5RXS0iTWYEiUwtrmobikSy12YDaYkn9Q1zpclP17Z3Xcz3OUh
+         r4Bh3C19zoNsLGy/rWUZ4c/RfzN4hjAMu2s5KqeGTT4KSHoPha4FknAOeQR5mkG3LW2L
+         i3bGtY3d4U7Y/I9dteNvldkAjld5v57QfXT5j59KYfqin4s2cMscRmf99GzRgwan3xaK
+         P4vk1IwIX/hIvz4+TFBBsiClVheeJqUTRbsIpfSSyLHyrKy5cB6PVxc1HJsaVvU2zTiq
+         xGow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=xdqMHHqBDBxG4fAcbv9a3pbuucj1HKocdtacUijQBY0=;
+        b=g/c0eKlamRQERzhmdJfriMpyox/UGZAPR6RLOgjc7THRMjp55uUvwJG1NM+Vf7F5oR
+         qhwG5lgUXz179SGrF3RVMpT7tSfJdMTLwg/YJQJ1FOsJnXr+dUZFRIB5UufwBRZQ88o1
+         xQfCmxrtDUPRPkgDLJZE1MtVRtqRQ4jXXKVVDhyoOn2Gv0/P1TpELC2Vfsor4dpmXODz
+         8iBXdd6/p2sODEf3AAhnCRY9RcrWNCmz6n7OZftHpYKsVJ29wUXYTf4JCANVI+Apbr/X
+         65fDdd27FQeZ0SefvIKjyk27m3YUPdtR3aYhYP7Eut5qXBL2IQT6vDQjE+tZtGWIGADE
+         ocQg==
+X-Gm-Message-State: AOAM530JEM0KuJDl8xrTb4FKQPrMGg5FH2ZU4er4aBc2jxaA/Tq0varH
+        Yg+Xa8z9L5u3Z09KT5frDa8=
+X-Google-Smtp-Source: ABdhPJzsH4g80/KHIaZHGBEwZ3bJZKxpyWl1QV/M2QAcpyOpZc+6mDiBi3XcJ+Z4rrlbxESu26qdGQ==
+X-Received: by 2002:a05:6870:a117:b0:f1:bb16:4606 with SMTP id m23-20020a056870a11700b000f1bb164606mr3562835oae.174.1653422456953;
+        Tue, 24 May 2022 13:00:56 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id o83-20020acabe56000000b0032603df9d24sm5464564oif.47.2022.05.24.13.00.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 May 2022 13:00:56 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 24 May 2022 13:00:54 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 4.9 00/25] 4.9.316-rc1 review
+Message-ID: <20220524200054.GA3987156@roeck-us.net>
+References: <20220523165743.398280407@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220523165743.398280407@linuxfoundation.org>
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 24 May 2022 20:47:51 +0200 Arnd Bergmann wrote:
-> On Tue, May 24, 2022 at 8:47 PM Arnd Bergmann <arnd@arndb.de> wrote:
-> >
-> > On Tue, May 24, 2022 at 5:59 PM Sasha Levin <sashal@kernel.org> wrote:  
-> > >
-> > >  # ip link set mtu 1410 dev eth0
-> > >
-> > > The observed results:
-> > >
-> > >  1500 - good
-> > >  1434 - bad
-> > >  1400 - good
-> > >  1410 - bad
-> > >  1420 - good  
-> >
-> > Does it require multiples of four? Maybe it just skips the last bytes?  
+On Mon, May 23, 2022 at 07:03:18PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.316 release.
+> There are 25 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Nevermind, I missed that this was a backport of a merged patch, rather
-> than a new one.
+> Responses should be made by Wed, 25 May 2022 16:56:55 +0000.
+> Anything received after that time might be too late.
+> 
 
-Great minds think alike, tho ;)
+Build results:
+	total: 163 pass: 163 fail: 0
+Qemu test results:
+	total: 397 pass: 397 fail: 0
 
-https://lore.kernel.org/all/YowcZUX3lwAA6c5k@lunn.ch/
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
