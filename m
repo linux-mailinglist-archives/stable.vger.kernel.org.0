@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D75D5532DFE
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C0768532E04
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:00:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239184AbiEXP7s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 11:59:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
+        id S239200AbiEXP7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 11:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239182AbiEXP7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 11:59:45 -0400
+        with ESMTP id S239191AbiEXP7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 11:59:47 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1841A9968A;
-        Tue, 24 May 2022 08:59:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D1079B1BF;
+        Tue, 24 May 2022 08:59:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BD258B81A3A;
-        Tue, 24 May 2022 15:59:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B21DC34113;
-        Tue, 24 May 2022 15:59:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F02AB81A50;
+        Tue, 24 May 2022 15:59:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5BB6C34119;
+        Tue, 24 May 2022 15:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653407981;
-        bh=jN+1HIsiA3bRhuPvFKVuv5fZquiqYbHfsKIPAUjrDbU=;
+        s=k20201202; t=1653407983;
+        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ManMZzIA6Ikh7C3injz4DLATRPTGi8MAIMz0K+5JW+lnlbOXf5QnY3wHnJTZjkLBX
-         8mmsJnX1RV1jjaWAkx0ACmFOg3WPIZH1I5MiD01ELbjgamt7yOQBelHFH62IN2iB9y
-         sYwF93E3V+kGR3Ayyc3XXW5iPAXZoQy+h1s557iifPx6YQ7fZOYWW9F4mx2CU60vXs
-         dQ2DhO9XkhOsfVlKxOFil1mx7qas7o2x6tRePGOxe/t4nGMy+MtyJ68gkdsBWLYpxJ
-         bH9/6wSWeNq3nP0M8qqS3efLCaKKLoMwOtCcVzZi1HBp7S2Q8KoqOoMPNX/TsN27UY
-         e+5hmydhDVvZQ==
+        b=JV6Y+kYzlxA50DwabvFq0xTfWb0dmxTYBk0BS1gmdBWXT1R6IA6xIY4UgPX7YzvtV
+         rTrk8DYPY7TZNIQrKKzX3K5Qy3QOeKcA9eyPMMRQyVmq8Sd1UTrshRDHNZ5g8tqPaT
+         vq0i9FRyQhVKE4itrgQQ9j8eBkFHRYNVQfqitxFqOLTuOdEW+TDsTgrC7HkFT2lxjk
+         kp4TOCodAt4vwWb0p1zzBNtYFvAqWq/w/plED49/YYD2LN3yY1xsbpn9tSrfLtqQvJ
+         LHHKtobHptxhfXwCP50xujCoCjWKvNKrHsu2OtEerFiAILGHlLG/PXVYiK6bDyZg9g
+         z6mDhkt+l4d5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Dustin L. Howett" <dustin@howett.net>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
-        perex@perex.cz, tiwai@suse.com, jeremy.szu@canonical.com,
-        wse@tuxedocomputers.com, kai.heng.feng@canonical.com,
-        andy.chi@canonical.com, tanureal@opensource.cirrus.com,
-        cam@neo-zeon.de, kailang@realtek.com, yong.wu@mediatek.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 03/12] ALSA: hda/realtek: Add quirk for the Framework Laptop
-Date:   Tue, 24 May 2022 11:59:17 -0400
-Message-Id: <20220524155929.826793-3-sashal@kernel.org>
+Cc:     IotaHydrae <writeforever@foxmail.com>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, wens@csie.org,
+        jernej.skrabec@gmail.com, samuel@sholland.org,
+        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.17 04/12] pinctrl: sunxi: fix f1c100s uart2 function
+Date:   Tue, 24 May 2022 11:59:18 -0400
+Message-Id: <20220524155929.826793-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220524155929.826793-1-sashal@kernel.org>
 References: <20220524155929.826793-1-sashal@kernel.org>
@@ -60,72 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Dustin L. Howett" <dustin@howett.net>
+From: IotaHydrae <writeforever@foxmail.com>
 
-[ Upstream commit 309d7363ca3d9fcdb92ff2d958be14d7e8707f68 ]
+[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
 
-Some board revisions of the Framework Laptop have an ALC295 with a
-disconnected or faulty headset mic presence detect.
+Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
 
-The "dell-headset-multi" fixup addresses this issue, but also enables an
-inoperative "Headphone Mic" input device whenever a headset is
-connected.
+When the pin PD13 and PD14 is setting up to uart2 function in dts,
+there's an error occurred:
+1c20800.pinctrl: unsupported function uart2 on pin PD14
 
-Adding a new quirk chain specific to the Framework Laptop resolves this
-issue. The one introduced here is based on the System76 "no headphone
-mic" quirk chain.
+Because 'uart2' is not any one multiplexing option of PD14,
+and pinctrl don't know how to configure it.
 
-The VID:PID f111:0001 have been allocated to Framework Computer for this
-board revision.
+So change the pin PD14 lvds1 function to uart2.
 
-Revision history:
-- v2: Moved to a custom quirk chain to suppress the "Headphone Mic"
-  pincfg.
-
-Signed-off-by: Dustin L. Howett <dustin@howett.net>
-Link: https://lore.kernel.org/r/20220511010759.3554-1-dustin@howett.net
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: IotaHydrae <writeforever@foxmail.com>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index 8425eadf6873..18af98d18b6e 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7038,6 +7038,7 @@ enum {
- 	ALC287_FIXUP_LEGION_16ACHG6,
- 	ALC287_FIXUP_CS35L41_I2C_2,
- 	ALC285_FIXUP_HP_SPEAKERS_MICMUTE_LED,
-+	ALC295_FIXUP_FRAMEWORK_LAPTOP_MIC_NO_PRESENCE,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8814,6 +8815,15 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_DELL4_MIC_NO_PRESENCE,
- 	},
-+	[ALC295_FIXUP_FRAMEWORK_LAPTOP_MIC_NO_PRESENCE] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x02a1112c }, /* use as headset mic, without its own jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HEADSET_MODE_NO_HP_MIC
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -9286,6 +9296,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x8086, 0x2074, "Intel NUC 8", ALC233_FIXUP_INTEL_NUC8_DMIC),
- 	SND_PCI_QUIRK(0x8086, 0x2080, "Intel NUC 8 Rugged", ALC256_FIXUP_INTEL_NUC8_RUGGED),
- 	SND_PCI_QUIRK(0x8086, 0x2081, "Intel NUC 10", ALC256_FIXUP_INTEL_NUC10),
-+	SND_PCI_QUIRK(0xf111, 0x0001, "Framework Laptop", ALC295_FIXUP_FRAMEWORK_LAPTOP_MIC_NO_PRESENCE),
- 
- #if 0
- 	/* Below is a quirk table taken from the old code.
+diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+index 2801ca706273..68a5b627fb9b 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
++++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
+@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+ 		  SUNXI_FUNCTION(0x1, "gpio_out"),
+ 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
+-		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
++		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
+ 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
+ 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
+ 		  SUNXI_FUNCTION(0x0, "gpio_in"),
 -- 
 2.35.1
 
