@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD56A532E53
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:03:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A45CC532E55
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 18:03:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239349AbiEXQCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 12:02:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47030 "EHLO
+        id S239312AbiEXQCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 12:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239490AbiEXQCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:02:04 -0400
+        with ESMTP id S239353AbiEXQCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 12:02:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A94D825D3;
-        Tue, 24 May 2022 09:01:06 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C24364E2;
+        Tue, 24 May 2022 09:01:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 996156175C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1687B61763;
+        Tue, 24 May 2022 16:01:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78FBBC34113;
         Tue, 24 May 2022 16:01:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCED8C34116;
-        Tue, 24 May 2022 16:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653408065;
-        bh=+8/rSL0dktqyZfvWABToCYxgk0Wct5z+yxpZFfy6gak=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QgDQbHQ/wXB1z7xvhmrgK5avhksMYuyJUyR8c/YolT+M56Jl2BQzU2tcZRQHaEbi8
-         IjLOFmtfqQ+GBYG9fWoABoSy0wlJhb6OPJ1E9ZpejLxeHdhlyATfbpwy1yTGbqZ4GE
-         lk+zyS8UfcQ4a13yGU/P31pq0JgSc3czURT4GCwTdRqKk/KoZTaZLgCZfu3myTxL7I
-         9SjBou4MtiqgsX+nciToaO2BsJontW4FP8fz6blQ8Q92f6+CvKEGrm132tjxm+kEr1
-         6x1Ni0BejF/VlzC3oQjp658eRsdAvUDzx+r3QtiXiMD1iBbwYU8Ub6u7TWl0qboHkO
-         LTWNW+E176MEw==
+        s=k20201202; t=1653408066;
+        bh=lFktN1E1t+rxFQGdQ28nXe9HkrtZhQdy6eSxkYzOlmM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NFKBYnYaJc2l3yrrdaw8y9n1ko51sL5t+BNDJddvMP/CS9x4Jobl/LssFcwTHhdQO
+         0oZgQ/mBvKX255oFtFkS/iDuw/UhKGa1dnNVVsXTShYqvJau/a9DUqUzJncDUnDvrM
+         w68lsps6UTrfRyXmwhaf33/lgxp11lGVKSuNrF6iDXgzSZMTQENbu0T18OMiUu+Wr8
+         +YB3VO7s/DNdCgXmtf/kpqXAZkzxl1zfLRCOHU4G6HVLuLkwgZjwgyinplfOspUY7H
+         oIV9cEXEPr3nSs46oMLhHy0cKZQh4YaZSCvMN6RFDRc4ZVTVsbyD+Vz+6h+INtDbI9
+         kle/ub8pnW2/g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     IotaHydrae <writeforever@foxmail.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, wens@csie.org,
-        jernej.skrabec@gmail.com, samuel@sholland.org,
-        linux-gpio@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.4 1/5] pinctrl: sunxi: fix f1c100s uart2 function
-Date:   Tue, 24 May 2022 12:00:57 -0400
-Message-Id: <20220524160102.827227-1-sashal@kernel.org>
+Cc:     Thomas Bartschies <thomas.bartschies@cvk.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 2/5] net: af_key: check encryption module availability consistency
+Date:   Tue, 24 May 2022 12:00:58 -0400
+Message-Id: <20220524160102.827227-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220524160102.827227-1-sashal@kernel.org>
+References: <20220524160102.827227-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,43 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: IotaHydrae <writeforever@foxmail.com>
+From: Thomas Bartschies <thomas.bartschies@cvk.de>
 
-[ Upstream commit fa8785e5931367e2b43f2c507f26bcf3e281c0ca ]
+[ Upstream commit 015c44d7bff3f44d569716117becd570c179ca32 ]
 
-Change suniv f1c100s pinctrl,PD14 multiplexing function lvds1 to uart2
+Since the recent introduction supporting the SM3 and SM4 hash algos for IPsec, the kernel
+produces invalid pfkey acquire messages, when these encryption modules are disabled. This
+happens because the availability of the algos wasn't checked in all necessary functions.
+This patch adds these checks.
 
-When the pin PD13 and PD14 is setting up to uart2 function in dts,
-there's an error occurred:
-1c20800.pinctrl: unsupported function uart2 on pin PD14
-
-Because 'uart2' is not any one multiplexing option of PD14,
-and pinctrl don't know how to configure it.
-
-So change the pin PD14 lvds1 function to uart2.
-
-Signed-off-by: IotaHydrae <writeforever@foxmail.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/tencent_70C1308DDA794C81CAEF389049055BACEC09@qq.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Thomas Bartschies <thomas.bartschies@cvk.de>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/key/af_key.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-index 2801ca706273..68a5b627fb9b 100644
---- a/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-+++ b/drivers/pinctrl/sunxi/pinctrl-suniv-f1c100s.c
-@@ -204,7 +204,7 @@ static const struct sunxi_desc_pin suniv_f1c100s_pins[] = {
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
- 		  SUNXI_FUNCTION(0x1, "gpio_out"),
- 		  SUNXI_FUNCTION(0x2, "lcd"),		/* D20 */
--		  SUNXI_FUNCTION(0x3, "lvds1"),		/* RX */
-+		  SUNXI_FUNCTION(0x3, "uart2"),		/* RX */
- 		  SUNXI_FUNCTION_IRQ_BANK(0x6, 0, 14)),
- 	SUNXI_PIN(SUNXI_PINCTRL_PIN(D, 15),
- 		  SUNXI_FUNCTION(0x0, "gpio_in"),
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 2ac9560020f9..d8bceb8cf756 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -2902,7 +2902,7 @@ static int count_ah_combs(const struct xfrm_tmpl *t)
+ 			break;
+ 		if (!aalg->pfkey_supported)
+ 			continue;
+-		if (aalg_tmpl_set(t, aalg))
++		if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 			sz += sizeof(struct sadb_comb);
+ 	}
+ 	return sz + sizeof(struct sadb_prop);
+@@ -2920,7 +2920,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 		if (!ealg->pfkey_supported)
+ 			continue;
+ 
+-		if (!(ealg_tmpl_set(t, ealg)))
++		if (!(ealg_tmpl_set(t, ealg) && ealg->available))
+ 			continue;
+ 
+ 		for (k = 1; ; k++) {
+@@ -2931,7 +2931,7 @@ static int count_esp_combs(const struct xfrm_tmpl *t)
+ 			if (!aalg->pfkey_supported)
+ 				continue;
+ 
+-			if (aalg_tmpl_set(t, aalg))
++			if (aalg_tmpl_set(t, aalg) && aalg->available)
+ 				sz += sizeof(struct sadb_comb);
+ 		}
+ 	}
 -- 
 2.35.1
 
