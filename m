@@ -2,123 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A528A5330B5
-	for <lists+stable@lfdr.de>; Tue, 24 May 2022 20:55:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5D25330B8
+	for <lists+stable@lfdr.de>; Tue, 24 May 2022 20:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237000AbiEXSzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 14:55:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45820 "EHLO
+        id S239720AbiEXSzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 14:55:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234401AbiEXSzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 14:55:22 -0400
+        with ESMTP id S234401AbiEXSzf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 14:55:35 -0400
 Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FFB55717A
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 11:55:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C53605717A
+        for <stable@vger.kernel.org>; Tue, 24 May 2022 11:55:34 -0700 (PDT)
 Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OHWfDd005307;
-        Tue, 24 May 2022 18:54:44 GMT
+        by mx0a-0064b401.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 24OHW7bV004747;
+        Tue, 24 May 2022 18:55:08 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : content-type :
- mime-version; s=PPS06212021;
- bh=zDPYP0T2iw8IXh2xrFXtKoP5aSCEsUSCLqBWfqK4/RM=;
- b=jNThh9vmmgO/rAL5vfxXL4AhNv8Epz5RQnUbnfx/AjoM9TLPF50EfshRB3x7+Ug4FJWB
- R7KtzGg739joJuCsHlt6jpSGqzfOiHQwLMY5+D6fVkYRUutjGZcp3wACeV84wmoYl/8i
- X+ixPtwak/+t6KZTWaMhRXQuEEsOzzYIMM+iOs7ixudEKerHJJf+5FDd0eoXnJh2Tq/n
- 3DkqT6DZhen9m8QEJAjK1mMUN6ze6v0Obh8NyGD1hjESI/MNvJU2nO+l8R7sZZcGMxuP
- RGQ/7T/Bdygm4vY/jcUVeIJ6XCr1uo3gms74hIraNcRVUWpefpsgrigN28GEGpS/ibvg KQ== 
-Received: from nam11-dm6-obe.outbound.protection.outlook.com (mail-dm6nam11lp2174.outbound.protection.outlook.com [104.47.57.174])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3g93ub01wu-1
+ subject : date : message-id : content-type : mime-version; s=PPS06212021;
+ bh=qVUnQXgfSLQYY+hQCR+CwL5zuoAOP4Ny9Eg20TwXmsI=;
+ b=gR4rX+bgbe6H4juWpgg8MrGETcByTBH+Ap6baIttQSpfxtaW6CJezrZpnAQQl2RH106C
+ 0+qKf6i0u+kMra2RZajvKlO83CQl6lhL+FTfeDFLM5nqywH/4nqIArywVIDA9mHCjnWg
+ NfFu0djZjz0FaSVDpIXFgNWm6SHNe8daD7yDYFgf+/6Bm+m4vrZnGtCLKfSksbOyvGvt
+ eTq9rftKLLTny6MviigQCNOexKmvYD3BoCyXIU7kUez/Qt4BdXSZLNFC/SaBcFnnMnWS
+ i/nmEQVBscJbovzm/lnBA0DH2AG2dDyExbWV/V4L0iXVRpJsMuWXJPEI3PbWjXBkm+1d tQ== 
+Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2108.outbound.protection.outlook.com [104.47.58.108])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3g93ub01x4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 24 May 2022 18:54:44 +0000
+        Tue, 24 May 2022 18:55:07 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BJHMbAoJpMTuYM/Zpb9VUhLV57tU9jlOnF/R1xWY1Q2V9vOWcNBrqyBYoNk06hx8q4Bk9J0wHK5RgpZIv7SKs0mx3RNeLl2cr0syjO4ebO4wQ8mT/PiqNV6+8noSamYUqBfrGnaszjAPOFPF+gpOIePacTMWfzfSTEnmcxBbc/OqaN+ePvlNK4lTxfoY5lsSUmntYL0V6jpK5FLjoTW0qMBKK6BWqFDkIbN37RpGtus7qYEWHSLQZyuGr6+mPHPPYFZnKyhFCEk7NCvecnskhNt8KRRvld4hVNfC8hyC1a/AkbsXwqMpUkuq/T6vF0SKEow0OdA8etB6hL+eX6uNiw==
+ b=EB/Xdt3mVaq75VLJnHmGcrefDCI7q/3O2Hava1cg0BuX9dx/kIacJuMbz5Bh5oRmGzbaHZPuF37CyM+/FbCAZun4WkJpy3My+tD6ZcdkU/HvMzikzyAwbpQLkZ1Z04GRnYORrPwTcE7KktYfh3M0crZK0lkG9ZDBFXS70w4TbazSeGnqGOYU/TPbFdpS3xkTWpWTqMkBZvVpKmwFFX+HbKMI0wm/1qFxi17a6whsaMrRSLa5ll58d+AA22eVn0J6cB5BkLDldLQUaqxXF6a4dp8fu3It8c1wWJKmlMBCqktQsSc55VGq1ob4N5/CPCgb/Uk6gIocu2hVRGUJqX2xOw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zDPYP0T2iw8IXh2xrFXtKoP5aSCEsUSCLqBWfqK4/RM=;
- b=TqfSXyG5ZBMmPBP/m63qrE2Vfza37o+KUYGfI5Ca3hbYXYl7a6SEjDqeRtB2aYzyICrR/owohpEBSviQ/Z9vG9Fa555uNPN8J9cPsc7+Gcd2yGfxvbtd3mcyMB7ki/2Vozg3GPsttdz+/NwBZ0k6ibrA/eWMGNUsDF0d2YQdIuo2zkS+EGCHXZLWvgdBMmbkApztU2i1BYj+WNl3uHTIAmGu23kp+R+1NY6LRNEdnARrPKLOXpTc0BYzYKyyW4i8p2s/fLpP1AQt3f++9m/7QIaBoqIKTzYxgS/IobZ/HgbWkiH/xLcq7Wg5HwrU4zjpbluqf+lF1vpekj75t0Nl4w==
+ bh=qVUnQXgfSLQYY+hQCR+CwL5zuoAOP4Ny9Eg20TwXmsI=;
+ b=Px+IjaDLNy0oc/SVue6Y2gJCKEz8JctB0k5DqTvd3jXyQ9Ki6bbfZkiDw6BC2gjPpYKSzp0HJJKSuU1lRtLlzHSIEG8t/ke4rMu1ePMGfYYeQqzb/4o97/YTf6Rqt5XZsSQS2fgt8Q3RRimzqaGRda833lxhIBbHkgLNRrVh7AFpb3p9C04x+FdUyDmBmFX/XgQHfgewfw/kNFw9uRYcdtXA+IXqppeMU/MJUKpmME4ckzYE2n71b6Sq6E4eQkugi8hrQl3hGrtPNgVFViG7eBubmOFpRXJC2Ff++bx9MG20Qtaa8LHC2uV1ZVCfL3vvrFs8sVQ7LEmp5RWfaI9k9w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
 Received: from SJ0PR11MB4989.namprd11.prod.outlook.com (2603:10b6:a03:2d9::22)
- by DM5PR11MB1819.namprd11.prod.outlook.com (2603:10b6:3:10a::15) with
+ by BN6PR11MB1252.namprd11.prod.outlook.com (2603:10b6:404:47::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5273.16; Tue, 24 May
- 2022 18:54:42 +0000
+ 2022 18:55:04 +0000
 Received: from SJ0PR11MB4989.namprd11.prod.outlook.com
  ([fe80::2c35:ad13:51c9:9c4d]) by SJ0PR11MB4989.namprd11.prod.outlook.com
  ([fe80::2c35:ad13:51c9:9c4d%5]) with mapi id 15.20.5273.023; Tue, 24 May 2022
- 18:54:42 +0000
+ 18:55:04 +0000
 From:   Stefan Ghinea <stefan.ghinea@windriver.com>
 To:     stable@vger.kernel.org
 Cc:     edumazet@google.com, willemb@google.com, davem@davemloft.net,
         Jason@zx2c4.com, moshe.kol@mail.huji.ac.il,
         yossi.gilad@mail.huji.ac.il, aksecurity@gmail.com, w@1wt.eu,
         kuba@kernel.org
-Subject: [PATCH 5.10 2/2] secure_seq: use the 64 bits of the siphash for port offset calculation
-Date:   Tue, 24 May 2022 21:54:23 +0300
-Message-Id: <20220524185423.23312-2-stefan.ghinea@windriver.com>
+Subject: [PATCH 5.4 1/2] tcp: change source port randomizarion at connect() time
+Date:   Tue, 24 May 2022 21:54:48 +0300
+Message-Id: <20220524185449.23519-1-stefan.ghinea@windriver.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20220524185423.23312-1-stefan.ghinea@windriver.com>
-References: <20220524185423.23312-1-stefan.ghinea@windriver.com>
 Content-Type: text/plain
-X-ClientProxiedBy: VI1PR06CA0155.eurprd06.prod.outlook.com
- (2603:10a6:803:a0::48) To SJ0PR11MB4989.namprd11.prod.outlook.com
+X-ClientProxiedBy: VI1PR09CA0162.eurprd09.prod.outlook.com
+ (2603:10a6:800:120::16) To SJ0PR11MB4989.namprd11.prod.outlook.com
  (2603:10b6:a03:2d9::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 68f44861-e167-4d67-2a84-08da3db6dc93
-X-MS-TrafficTypeDiagnostic: DM5PR11MB1819:EE_
-X-Microsoft-Antispam-PRVS: <DM5PR11MB1819E6A528564443FF18F4D7F2D79@DM5PR11MB1819.namprd11.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 998fbf01-7d58-456f-9d65-08da3db6e99d
+X-MS-TrafficTypeDiagnostic: BN6PR11MB1252:EE_
+X-Microsoft-Antispam-PRVS: <BN6PR11MB1252AF76A87001FAB797656EF2D79@BN6PR11MB1252.namprd11.prod.outlook.com>
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: xdmrzCsFVd/RyO1+w/dvsexVFH4lVs+e5DsmAHgI2WHmMv6AIZ0lLPX8E5Jd0OlryBw4PdIHq6CzJCMIleQOggfv+l0MBfUNG0/AqBdmcs6EtiU+gefPHWeEjH54qqcHoPJ/Vk03FFFhmRgMWipbXJ/kIkxuSmOX2a5EHns4HRSln/1XA9Er/gyT2H2m1mn6lwlGwamfWr+J9cSKO+QHIz2ibualdTRdHTCIK7BnCTcR6zgAW2R9OmHFB1sk7/TvYEECtiUqIKQci78/8AgcU52fyfulo9A362scoQTniOvRSr915+IzhgytNFDqciZqWRh4m1ksqogLe02d9IBB/vdX1AKxZMTaDT216jv/DHdDiit6T+030lYM0h3wXepZGUN9uxaKpgWtJctExDXjqIV+l68nLlaFUDh7bS3H/AvaflteY290Ka7g4ueK6Ii2CIz3NwmnSO/qsrszK+wPRonqI5uXkjFA66vZooO4s7LFWQ9l84mwJWgJBEt/UQkmtjZWUjsrvet+h6CifUx5hAKxbetGcNeU72wtqSx2HTcLWbdrptDkGtzex7dZusiwl+0D8NaT/yPv+jNAvoN2m14ifa50P9FMjcSAERxfv3RYZDUVh7QeRmEO7F2c8VPatippk60d9HpMXE96nPFuCuwaCeDUOhi5Y+YsvRQlguy+VlGrNNn4pSZfMyunhFbxngv0tc9uW2LPzVItPLAVuw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB4989.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(186003)(6486002)(52116002)(83380400001)(86362001)(316002)(6916009)(508600001)(6512007)(6666004)(26005)(6506007)(38100700002)(1076003)(36756003)(38350700002)(44832011)(2906002)(5660300002)(66476007)(66556008)(66946007)(8936002)(7416002)(8676002)(4326008)(2616005);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: Anmhvea/3flIix+ZQu5vT1Y6s54+UCqmVM7wbYT97pmWmYPu9mQzboK2gra5NA+TUbKXJ3g4bLjcHi7RmSf61wAqeanFDis2emO7v8UZDNgYgwpcrFXs4Z3IKY4w+whytfTMpSHWM0m/Myuor2wsbBNJipWPolE+/Z/wNu5gYYjOSffY7oBXkgRaGXJ+Zx4fbtbbT0g0WB5lO/wWOt/tZEzyniho2ZK85oER2gxBgkAmN5FpRiwecxI3DozEBsUFBBJWsEPPYuGiLXEl6ZKDUVHh9C5uLzNeskqauM5UsQ4zO6fJ2TwA8EyLB91WBKovY60D1fx6BDUuy8BVnU7Ui7DtUrvNYREzp4lJ26GakuP8asBThHVjeDkhcDO6taiJNQmUDT1g7McPGUf+9GC8FXlkEABdiZ5Vob2ueuP2XfrHQXXcAV0I+cVxG/KXW7JRtnek+7CVVgg5d1QnyG4KmE59uXhdHkvPvoWsytUGXYXVsBz1+r9VBfOiVO/Bh2tllYetfp+1OyBE5sWo71MvWvz7RskuhveMyvqBEQ5j68J+BvmXLkV9XEgpJVnyOLMGSif0bzMOTqm0FnC05BTrpCkFZm9+lSm2DIYsnNS3Cr+FqTqPqzsGTzmAvJjKn+3ftO5RPFNObrW5UyesILBwIoDaug45c53uR6NQgvsvetDzMWk7FxOOu+uViTfCwojrzhRHEOG4Q9r/UUgqFdGhwg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB4989.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(86362001)(66574015)(2616005)(1076003)(2906002)(38350700002)(316002)(186003)(38100700002)(83380400001)(52116002)(36756003)(44832011)(4326008)(26005)(5660300002)(7416002)(8676002)(8936002)(66476007)(66946007)(66556008)(508600001)(6506007)(6666004)(6512007)(6486002)(6916009);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LKRo7dqS8hhrUq9CuIpasiL0D2fEdm2/THpNEENwVje9YR6OdnWHOWCIeoav?=
- =?us-ascii?Q?z7SzZwmRQpBfNN36a2uquxenshKpz5JzTmNswZBdyCTe5+Oxrr5sAxZlxgDJ?=
- =?us-ascii?Q?WzwZ6cNtJwzSDbVFX2Kw4OVlZ6aGTNgvI85UGdAIIQb/WcC+hnuNOau2ZDPu?=
- =?us-ascii?Q?7NdXkxb3OVlWghmx7e/uKCR2TvuTah8K/aahFs7eHkqqcQ9ajuzzLY/WSs3I?=
- =?us-ascii?Q?rNft5o1mC3bW5J9r+ekIsIz0EB/r8wy6CMoa/iZv/Kvt0dQPV3Iq1LGqLRMx?=
- =?us-ascii?Q?mFQ8CQoIyWFqy2z0sZ+Gg3DyXYfq1RsJoiveu8fK+eqt6YMQL6dCGvZA+m3y?=
- =?us-ascii?Q?jS3CA0XZOErGboOxUFkjZqZlMZ+jv05EylmPMts31nd71uHY1iLx3OBBPx0m?=
- =?us-ascii?Q?LKPRmjS1BvKsshjEdUPhyvlQXY/a2AXYvElviVZDyt3qekjY42+VnEitKdSV?=
- =?us-ascii?Q?AjIOKK+5uaEaATDzYnK1odrfmfeKW0jOTjY+kwkyivFBAfyl5MuDsWntjubb?=
- =?us-ascii?Q?UVLpYuo/74edRxQjclWgJIHiT+DEGZP5I/aole02LDaYsFmthfHKLckzkBak?=
- =?us-ascii?Q?ioRqVUJxCgx+R4aK7RpFwiwsUmsY39io5NiVq9052tm/JjECXAwcuBsKHhIk?=
- =?us-ascii?Q?uOa5K7GxpkBzZREfr/moK0qc/YJC/HSaJl+1EGaSY5F8FyJdsdMAt1Jwv4FQ?=
- =?us-ascii?Q?ppv29J9XOc1iETA5pQ3QKysKMYEHvghIC9Q8GekjCgC+iZbQPoaKpUTAWeVv?=
- =?us-ascii?Q?e1nuYbyVt6c/SUOhhJhojdw3+ekpxbqPiZxltl5GLfz5obD0BKRar889QwBJ?=
- =?us-ascii?Q?Xmd6CvGdzmx37zQuN868KPT4qMlgNVWWi1wRGew99ewQ1uPFACcWmo3FrYTd?=
- =?us-ascii?Q?AM0aURvXvNkA9yG8Ee0ZFyyeHQ5dLZptekqoOjSIAPqXPqYHAkMuUjU+PfW1?=
- =?us-ascii?Q?hcZa9YS2GF29krUinxw0vxZGx0cr575bhAxZ9UFcEaXIf4sXi/BJoWDxvbBw?=
- =?us-ascii?Q?q3NZ0MMNQH00+ljDDg0L5tk3kGI7ow0XE8rFW9PelcbGzYpIh698uGxgOg1A?=
- =?us-ascii?Q?slYxQd5F58P7K0maN7JJYJzQdAyp2GKQ2s6QxRkUxQQ6PXjdQg7a6Bnhm0g8?=
- =?us-ascii?Q?4WFkn9bMwpWXoFrjr51vKJ9sV5YHbVRI0livDWAvdm7bpA7sivWYwE0meEXT?=
- =?us-ascii?Q?DFP8G/e3WVbwLmv7cv98hC0eCyYudJuSsMrOXQryz40i0mr2lzjWiupyi13a?=
- =?us-ascii?Q?cnU1qbmrqCe3feHK+sioHoDkoeS+diN0j+QQ/OYX3n4cAG4IjF2W9Us8uKXK?=
- =?us-ascii?Q?fzOEGIXMO5o57B+FMTeGYLcVO7xGDcTjcyVgw+scFX+k3cKCnShaJ34CXVBr?=
- =?us-ascii?Q?yIBDSIkSOWaxeUWs1b63hWJ32M6/cVKzkK5iYIx1zhFu0vUoTjJxy4oPdoIw?=
- =?us-ascii?Q?WECriOINsrTeeInL4CZTA4k3lvtOjH0/dgKBvjYXJFqECTaqqcUBT/pZc37P?=
- =?us-ascii?Q?OPPzQ64K4b0qs0w0eW5tBL4wjsuhe6Dxo9+4G0Eq9EPaNi1bc/Nw8vJnrjzY?=
- =?us-ascii?Q?qbJIhP23scV3kLh5VctHHl282+cp1HNAVsf5r0l/NmsKX2b0cFFRwHVKC2rq?=
- =?us-ascii?Q?+Ap8DZ7CBNA8tr0BzsFZy2qJQVWo5sgCAeq9oRe5AdgB4rpktDlmW6wfSvKA?=
- =?us-ascii?Q?1PiFA2f/iFb6W0fz/l4UUUBVL+ye9mTX81aEJUVeHvp9xjrrRXr3Mi826N3I?=
- =?us-ascii?Q?Dn4VjY/6MGawswKtM9dMDVaEMm8tABM=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?lko7n2j8t0AGPOA3/spboWubDBFgCOEDHQoQw4m3W5P+9F0DMiVTNwAqneKM?=
+ =?us-ascii?Q?3BFpdsGVq2DWtWl/SHFcuNS19tUMHBlXYICFgND+4fUfqecbE2Vy+KbiRKQv?=
+ =?us-ascii?Q?/ea04BpVTyy0uOYPG6up3s5wp1u2U/8rbULqGD5PlvS4Dp+9KfG9pwFWxye2?=
+ =?us-ascii?Q?aWc1/jayoos5BG9gLFLXU1Qll51XnCFLvAwmOCaqUeLyrTPqkjUb98RM/pvy?=
+ =?us-ascii?Q?qiCabyPbsX/Qx2W9TB4cYl1JcjTGMR/j1hW9NxhQYUZPIGVvBZv2nHJAhOoZ?=
+ =?us-ascii?Q?0cVSAXua2JB2XwDDkPWiE2jZat3dfOmAoWreGHIP3qe9GR1wXUZtVn03c9rL?=
+ =?us-ascii?Q?sKgp4eNEvey2XE64gwiUdR2lBfRTI3sQo75kPhPDM9y3FjlUjkDf7Xl+e8lN?=
+ =?us-ascii?Q?cmTg9aUDvSP4NzJ6LTwE/KB+JFynQXOAqQDWUaEjC9EXdVinj+Z+7NNC2KKz?=
+ =?us-ascii?Q?dEObFfAPvuBrQWLtIUDLqWSahI4pFXQhbq+ji0kpk0I49aTabO/hileigKeX?=
+ =?us-ascii?Q?h49Jf8XducaqyuBrSXvG79ZDCiLQ8T5PR0/RowRUYd7LuiEgDEzHqYbfalp4?=
+ =?us-ascii?Q?oN3XaE4gbi/Qlhm0Y+Kbwg8nNF9YqMVVPcwFd8Iuaqce+afURSnjb695SROr?=
+ =?us-ascii?Q?7wYgkUU4hap1I76E0bIsAZQgMqnXUgsKlOVg1xkT3KIesPnlm0CTVg0aqMt6?=
+ =?us-ascii?Q?1gyvmjPbaHpKCpiBhoIWdoN4roMR/aXRnZIFTIgYtCGDTZPUx7qn5Szd20Tv?=
+ =?us-ascii?Q?vPP9ifacdWzolB/jBl59ZVOjTE6MAemZxycWUrV95f4VLT6MPecjl7U3yRUi?=
+ =?us-ascii?Q?5spA3pkDbYaDS27546+Wdk/rJCaYyN2x+OusGuwe2DgL1wG3elFhAAPbn6u5?=
+ =?us-ascii?Q?PZohawXNTmmyzu/MsAzzsaj2Ypk1NA3AEfKAh9oeuZ912skzMw45RW5RAfxh?=
+ =?us-ascii?Q?+fm54c/zHNoAWYzrwF7uqP1u8GEGckhn5HbVdjBuP97R91qbYAbHqoF1jddx?=
+ =?us-ascii?Q?1TXGFYXI5/TqOYsGTzdipMSyywswG5MLDVCRDDLCINXEoeoSP0wb1a3iWOLx?=
+ =?us-ascii?Q?Z8VT115NQKjHIE1Rmnn5pbKXKdfnhZT/+BKGvyEwKATQ8a2R7pDbNSQC2EkM?=
+ =?us-ascii?Q?T7jGQ/hrVmRdCdIvmcya/qEQFUPPsm7v6m9EDt1ytZtI5PUxQI7i08vnEEJq?=
+ =?us-ascii?Q?38VY9PZbdjHuIOjtRJo7/Bs3/8LCvy81XmLnp0M/0e5St6DOWpjbNcw55Kfl?=
+ =?us-ascii?Q?fFyCbBdOJ9J24yXvRQ9DTFeD8fSbCfwLFiwqYHVKLuNkFAmeF612bITSjtNz?=
+ =?us-ascii?Q?QjIDMb0cdCaanQ0h07jsvhYKRZ8PzyXOx9Xt67cROL9drFjqTeueNzIvP2wD?=
+ =?us-ascii?Q?d/MFL2FWT/JFkYW02whPC4h1xgPn/tpe+ZMHDhwDBYTgbyExwrSVyYs0SbaW?=
+ =?us-ascii?Q?vTuR5asvSzhOAv7/Ijm1UaojDXknOP9jwMQhRSe2UT3xp6tLUcAAJRfUMtly?=
+ =?us-ascii?Q?zzVtT+kEqbMKmDwZCGKnYi4GgR2YgNWb0yEvk490bEwt5LpOMhfaT/c++TY/?=
+ =?us-ascii?Q?39ZXbVM9g3jx80cixVIPGqk1PpGWvD/IljbCGJQurfbDP8emwmcQkovNnuFS?=
+ =?us-ascii?Q?EolbT0us2VKtj1jc43HJUbIZJweZW7hrflu7JOgySeGP44IXR3GllP8rBsef?=
+ =?us-ascii?Q?8Zgb7QIy9MlVpQcAmjRy367kZefVb9WNYXqqv79yLytXfhu3xJ3o+6ox6P7+?=
+ =?us-ascii?Q?JCMCHudBD6V3USezKC2SpCU4yaUbMlM=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 68f44861-e167-4d67-2a84-08da3db6dc93
+X-MS-Exchange-CrossTenant-Network-Message-Id: 998fbf01-7d58-456f-9d65-08da3db6e99d
 X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB4989.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 May 2022 18:54:42.2195
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 May 2022 18:55:04.0671
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 4B250Y0LUt6ARTAZf/z44/LVy/5bcGFkJfblC2dKvjlj24LtVH7C3bgH45hh3tsb+lYnU3nlt836u5rQhHUAhf/dQ1ACZTfmkCOILY9quGw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR11MB1819
-X-Proofpoint-ORIG-GUID: KlSUJlZHamRTWCmHwoF00KOuqV3kZce3
-X-Proofpoint-GUID: KlSUJlZHamRTWCmHwoF00KOuqV3kZce3
+X-MS-Exchange-CrossTenant-UserPrincipalName: WG95qTLse71D3vaJhSxW37nP9fqiIy7z+XxEvGpaQCpec4Wz4X1NbMGAAMzpT92aPkK+vBCPRxrTdGLLYmSWqzZMO83mMH93s5qR3SwcRm8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR11MB1252
+X-Proofpoint-ORIG-GUID: RVRiMkQtzDdu_yMb1mfDY16PDnGX7L6W
+X-Proofpoint-GUID: RVRiMkQtzDdu_yMb1mfDY16PDnGX7L6W
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.874,Hydra:6.0.486,FMLib:17.11.64.514
  definitions=2022-05-24_09,2022-05-23_01,2022-02-23_01
@@ -137,149 +134,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream
+commit 190cc82489f46f9d88e73c81a47e14f80a791e1a upstream
 
-SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
-7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
-remained truncated to 32-bit only. In order to exploit more bits from the
-hash, let's make the functions return the full 64-bit of siphash_3u32().
-We also make sure the port offset calculation in __inet_hash_connect()
-remains done on 32-bit to avoid the need for div_u64_rem() and an extra
-cost on 32-bit systems.
+RFC 6056 (Recommendations for Transport-Protocol Port Randomization)
+provides good summary of why source selection needs extra care.
 
-Cc: Jason A. Donenfeld <Jason@zx2c4.com>
-Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
-Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
-Cc: Amit Klein <aksecurity@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[SG: Adjusted context]
+David Dworken reminded us that linux implements Algorithm 3
+as described in RFC 6056 3.3.3
+
+Quoting David :
+   In the context of the web, this creates an interesting info leak where
+   websites can count how many TCP connections a user's computer is
+   establishing over time. For example, this allows a website to count
+   exactly how many subresources a third party website loaded.
+   This also allows:
+   - Distinguishing between different users behind a VPN based on
+       distinct source port ranges.
+   - Tracking users over time across multiple networks.
+   - Covert communication channels between different browsers/browser
+       profiles running on the same computer
+   - Tracking what applications are running on a computer based on
+       the pattern of how fast source ports are getting incremented.
+
+Section 3.3.4 describes an enhancement, that reduces
+attackers ability to use the basic information currently
+stored into the shared 'u32 hint'.
+
+This change also decreases collision rate when
+multiple applications need to connect() to
+different destinations.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: David Dworken <ddworken@google.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 ---
- include/net/inet_hashtables.h |  2 +-
- include/net/secure_seq.h      |  4 ++--
- net/core/secure_seq.c         |  4 ++--
- net/ipv4/inet_hashtables.c    | 10 ++++++----
- net/ipv6/inet6_hashtables.c   |  4 ++--
- 5 files changed, 13 insertions(+), 11 deletions(-)
+ net/ipv4/inet_hashtables.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/include/net/inet_hashtables.h b/include/net/inet_hashtables.h
-index ca6a3ea9057e..d4d611064a76 100644
---- a/include/net/inet_hashtables.h
-+++ b/include/net/inet_hashtables.h
-@@ -419,7 +419,7 @@ static inline void sk_rcv_saddr_set(struct sock *sk, __be32 addr)
- }
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--			struct sock *sk, u32 port_offset,
-+			struct sock *sk, u64 port_offset,
- 			int (*check_established)(struct inet_timewait_death_row *,
- 						 struct sock *, __u16,
- 						 struct inet_timewait_sock **));
-diff --git a/include/net/secure_seq.h b/include/net/secure_seq.h
-index d7d2495f83c2..dac91aa38c5a 100644
---- a/include/net/secure_seq.h
-+++ b/include/net/secure_seq.h
-@@ -4,8 +4,8 @@
- 
- #include <linux/types.h>
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport);
- u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
- 		   __be16 sport, __be16 dport);
-diff --git a/net/core/secure_seq.c b/net/core/secure_seq.c
-index b8a33c841846..7131cd1fb2ad 100644
---- a/net/core/secure_seq.c
-+++ b/net/core/secure_seq.c
-@@ -96,7 +96,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr, const __be32 *daddr,
- }
- EXPORT_SYMBOL(secure_tcpv6_seq);
- 
--u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
-+u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
- 			       __be16 dport)
- {
- 	const struct {
-@@ -146,7 +146,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
- }
- EXPORT_SYMBOL_GPL(secure_tcp_seq);
- 
--u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
-+u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
- {
- 	net_secret_init();
- 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
 diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 3beaf9e84cf2..44b524136f95 100644
+index cbbeb0eea0c3..dbfcefc264d6 100644
 --- a/net/ipv4/inet_hashtables.c
 +++ b/net/ipv4/inet_hashtables.c
-@@ -504,7 +504,7 @@ static int __inet_check_established(struct inet_timewait_death_row *death_row,
- 	return -EADDRNOTAVAIL;
+@@ -671,6 +671,17 @@ void inet_unhash(struct sock *sk)
  }
+ EXPORT_SYMBOL_GPL(inet_unhash);
  
--static u32 inet_sk_port_offset(const struct sock *sk)
-+static u64 inet_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
- 
-@@ -734,7 +734,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
- static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
- 
- int __inet_hash_connect(struct inet_timewait_death_row *death_row,
--		struct sock *sk, u32 port_offset,
-+		struct sock *sk, u64 port_offset,
- 		int (*check_established)(struct inet_timewait_death_row *,
- 			struct sock *, __u16, struct inet_timewait_sock **))
- {
-@@ -777,7 +777,9 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	net_get_random_once(table_perturb, sizeof(table_perturb));
- 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
- 
--	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
-+	offset = READ_ONCE(table_perturb[index]) + port_offset;
-+	offset %= remaining;
++/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
++ * Note that we use 32bit integers (vs RFC 'short integers')
++ * because 2^16 is not a multiple of num_ephemeral and this
++ * property might be used by clever attacker.
++ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
++ * we use 256 instead to really give more isolation and
++ * privacy, this only consumes 1 KB of kernel memory.
++ */
++#define INET_TABLE_PERTURB_SHIFT 8
++static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
 +
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		struct sock *sk, u32 port_offset,
+ 		int (*check_established)(struct inet_timewait_death_row *,
+@@ -684,8 +695,8 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	struct inet_bind_bucket *tb;
+ 	u32 remaining, offset;
+ 	int ret, i, low, high;
+-	static u32 hint;
+ 	int l3mdev;
++	u32 index;
+ 
+ 	if (port) {
+ 		head = &hinfo->bhash[inet_bhashfn(net, port,
+@@ -712,7 +723,10 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	if (likely(remaining > 1))
+ 		remaining &= ~1U;
+ 
+-	offset = (hint + port_offset) % remaining;
++	net_get_random_once(table_perturb, sizeof(table_perturb));
++	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
++
++	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
  	/* In first pass we try ports of @low parity.
  	 * inet_csk_get_port() does the opposite choice.
  	 */
-@@ -854,7 +856,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- int inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		      struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet_sk_port_offset(sk);
-diff --git a/net/ipv6/inet6_hashtables.c b/net/ipv6/inet6_hashtables.c
-index 0a2e7f228391..40203255ed88 100644
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -308,7 +308,7 @@ static int __inet6_check_established(struct inet_timewait_death_row *death_row,
+@@ -766,7 +780,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
  	return -EADDRNOTAVAIL;
- }
  
--static u32 inet6_sk_port_offset(const struct sock *sk)
-+static u64 inet6_sk_port_offset(const struct sock *sk)
- {
- 	const struct inet_sock *inet = inet_sk(sk);
+ ok:
+-	hint += i + 2;
++	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
  
-@@ -320,7 +320,7 @@ static u32 inet6_sk_port_offset(const struct sock *sk)
- int inet6_hash_connect(struct inet_timewait_death_row *death_row,
- 		       struct sock *sk)
- {
--	u32 port_offset = 0;
-+	u64 port_offset = 0;
- 
- 	if (!inet_sk(sk)->inet_num)
- 		port_offset = inet6_sk_port_offset(sk);
+ 	/* Head lock still held and bh's disabled */
+ 	inet_bind_hash(sk, tb, port);
 -- 
 2.36.1
 
