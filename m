@@ -2,171 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (unknown [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA0A4533C78
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 14:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D735C533C8F
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 14:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbiEYMPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 May 2022 08:15:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54480 "EHLO
+        id S241046AbiEYMZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 08:25:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbiEYMPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 08:15:36 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C8C827169
-        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:15:35 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id cv10so2873390pjb.4
-        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:15:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZO/Gy49BNDY+eaKuEB5zIC8gE8hIiVQ3ih+2tGinUzs=;
-        b=IWEaiBo9P6NJ0y+L8AaqnxY/jCDFyzFtAQVq6G+X9Z58b7aCrF+Cuu2CZVGy6yOAyL
-         Z5oEYvKCKRprwVA09n++2v43MEEspOIIZ0cf05FnTGpHWD6sI+3xMy67ikPrvPCeh/sY
-         rJL1LneY8pAM8rEn3RqvZXpqt2sI3de6aAu8p/KCSCLgq7kgos65ZQliXcAgM8dsTfjk
-         qRmUJAClXYBsUptzhdyi8x/tdkMLuEh/8cLcSiBsMrhxM3mZB0+W1j8ATpG24l9A03gj
-         NygiOl/F8CEn/XkZu6GE60OKEt6DLL/sk1Zcgjs8cxatZhjwUv7nc1r+VPQljb61qyF+
-         HKJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZO/Gy49BNDY+eaKuEB5zIC8gE8hIiVQ3ih+2tGinUzs=;
-        b=2ol8MvyWAkdcenDa0a3NrCW2Ax4KVGwK1gDNw6nCnpuOojBSo3Rxap0QPvoUOM/uuW
-         SIe+y9BZ8I74AvlCcu5eijppd/6A+g5cCMdy4jh3tOISISy+vLo5jsQCaglJiai8wl/d
-         3UrYoAn9XWtKBGwJWtoeMW2vJYnimX7QWL2tpXwpG/c/v74nrVXoRpaSFzqZtAaxTJK9
-         RUw8Ftmzlw+yiPndqr8oPSfIKO4G4i3iJB3INMhDNzLedsOJlyqw0JaPio+d4SbItJ0e
-         5t6EBMjqI+IWWF1Q6KTdBOt+kfWQHx3PblVPlnDqhe+vzVSrFbSFGlC12YgeoBfhKxT2
-         lM+A==
-X-Gm-Message-State: AOAM533LRmMWWYX3YugkP6Bj8kmI3NQFRTsTgsr+pszz8U5HYOxIEUCG
-        XOAfMe8kA4alpLiykKbdyEV4LCyUh5e2g+5zTzA=
-X-Google-Smtp-Source: ABdhPJwvqKaCQXycGeMJrng2TTvzyTGIUFGuAR5IcieSDGmzrDB0phK6+kRNMrMt6ITGkIdLnVvD5A==
-X-Received: by 2002:a17:902:e8cf:b0:161:f6f6:f68 with SMTP id v15-20020a170902e8cf00b00161f6f60f68mr24306473plg.13.1653480934995;
-        Wed, 25 May 2022 05:15:34 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o2-20020a170902d4c200b0016168e90f2csm9272368plg.208.2022.05.25.05.15.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 May 2022 05:15:34 -0700 (PDT)
-Message-ID: <628e1de6.1c69fb81.76e92.546f@mx.google.com>
-Date:   Wed, 25 May 2022 05:15:34 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231726AbiEYMZi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 08:25:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347E16D3AC
+        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:25:37 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 81BFB61711
+        for <stable@vger.kernel.org>; Wed, 25 May 2022 12:25:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78442C34113;
+        Wed, 25 May 2022 12:25:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653481535;
+        bh=2znGh1s/eVsz7Fjr0CgOkei6MenX44CicFVVkPOfXxE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=saoKls/Fx8b3fgAV9Yu1nyt0HN09NXCU1YYMPxcG9+KD8TdHvHnO4Bt2aU6BW75Mv
+         BmRknH6uukaZjsbt23JyHxV+Nm2E+IP9KJoTP0tlFXYXGnsdztO2boiJGucH8JZ8cS
+         MGbI+ktJoSss1Vn3Y1LtJt8Itzs3qgUr+wmpV380=
+Date:   Wed, 25 May 2022 14:25:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Matthieu Baerts <matthieu.baerts@tessares.net>
+Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        stable@vger.kernel.org, sashal@kernel.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        MPTCP Upstream <mptcp@lists.linux.dev>
+Subject: Re: [PATCH] mptcp: Do TCP fallback on early DSS checksum failure
+Message-ID: <Yo4gPPQ1GVzblG8B@kroah.com>
+References: <20220524181041.19543-1-mathew.j.martineau@linux.intel.com>
+ <Yo3gG9H8Sw/w7baR@kroah.com>
+ <0648dc99-7465-871c-90a1-8a69f60d893c@tessares.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.17.9-159-g2d0a99577edb
-X-Kernelci-Branch: queue/5.17
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/queue/5.17 baseline: 118 runs,
- 2 regressions (v5.17.9-159-g2d0a99577edb)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0648dc99-7465-871c-90a1-8a69f60d893c@tessares.net>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.17 baseline: 118 runs, 2 regressions (v5.17.9-159-g2d0a99=
-577edb)
+On Wed, May 25, 2022 at 12:32:04PM +0200, Matthieu Baerts wrote:
+> Hi Greg, Mat,
+> 
+> On 25/05/2022 09:51, Greg KH wrote:
+> > On Tue, May 24, 2022 at 11:10:41AM -0700, Mat Martineau wrote:
+> >> [ Upstream commit ae66fb2ba6c3dcaf8b9612b65aa949a1a4bed150 ]
+> >>
+> >> RFC 8684 section 3.7 describes several opportunities for a MPTCP
+> >> connection to "fall back" to regular TCP early in the connection
+> >> process, before it has been confirmed that MPTCP options can be
+> >> successfully propagated on all SYN, SYN/ACK, and data packets. If a peer
+> >> acknowledges the first received data packet with a regular TCP header
+> >> (no MPTCP options), fallback is allowed.
+> >>
+> >> If the recipient of that first data packet finds a MPTCP DSS checksum
+> >> error, this provides an opportunity to fail gracefully with a TCP
+> >> fallback rather than resetting the connection (as might happen if a
+> >> checksum failure were detected later).
+> >>
+> >> This commit modifies the checksum failure code to attempt fallback on
+> >> the initial subflow of a MPTCP connection, only if it's a failure in the
+> >> first data mapping. In cases where the peer initiates the connection,
+> >> requests checksums, is the first to send data, and the peer is sending
+> >> incorrect checksums (see
+> >> https://github.com/multipath-tcp/mptcp_net-next/issues/275), this allows
+> >> the connection to proceed as TCP rather than reset.
+> >>
+> >> Cc: <stable@vger.kernel.org> # 5.17.x
+> >> Cc: <stable@vger.kernel.org> # 5.15.x
+> >> Fixes: dd8bcd1768ff ("mptcp: validate the data checksum")
+> >> Acked-by: Paolo Abeni <pabeni@redhat.com>
+> >> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+> >> Signed-off-by: David S. Miller <davem@davemloft.net>
+> >> [mathew.j.martineau: backport: Resolved bitfield conflict in protocol.h]
+> >> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+> >> ---
+> >>
+> >> This patch is already in 5.17.10-rc1 and 5.15.42-rc1, but involves a
+> >> context dependency on upstream commit 4cf86ae84c71 which I have
+> >> requested to be dropped from the stable queues.
+> >>
+> >> I'm posting this backport without the protocol.h conflict to
+> >> (hopefully?) make it easier for the stable maintainers to drop
+> >> 4cf86ae84c71.
+> >>
+> >> For context see https://lore.kernel.org/stable/fa953ec-288f-7715-c6fb-47a222e85270@linux.intel.com/
+> > 
+> > THanks, will take this after this round of releases.
+> 
+> It might already be too late but is it possible to have this patch
+> ("mptcp: Do TCP fallback on early DSS checksum failure") and "mptcp: fix
+> checksum byte order" in the same stable release?
+> 
+> Note that "mptcp: fix checksum byte order" patch has been recently
+> queued by Sasha at the same time as "mptcp: Do TCP fallback on early DSS
+> checksum failure".
+> 
+> A bit of context: "mptcp: fix checksum byte order" fixes an important
+> encoding issue but it also breaks the interoperability with previous
+> Linux versions not having this patch.
+> 
+> The patch from Mat ("mptcp: Do TCP fallback on early DSS checksum
+> failure") improves the situation when there is this interoperability
+> issue with a previous Linux versions not implementing the RFC properly.
+> The improvement is there to make the MPTCP connections falling back to
+> TCP instead of resetting them: at least there is a connection.
+> 
+> In other words, that would be really nice to have these two commits
+> backported together. If it is easier, it looks best to me to delay the
+> main fix ("mptcp: fix checksum byte order") than having the two patches
+> in different stable versions. But I understand it was not clear and
+> maybe too late to do these modifications.
+> 
+> Anyway, thank you for your work maintaining these stable versions! :)
 
-Regressions Summary
--------------------
+I have already done a release with the first change in it, sorry, but
+have queued this up now.  Given that this is fixing a problem with that
+commit, I'll go do a release right now for 5.17 and 5.15.
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+thanks,
 
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig    | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.17/ker=
-nel/v5.17.9-159-g2d0a99577edb/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.17
-  Describe: v5.17.9-159-g2d0a99577edb
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2d0a99577edbef00c3ecaaa711f4021558bac3f8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/628de99f2f6513923da39bce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.9-1=
-59-g2d0a99577edb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.9-1=
-59-g2d0a99577edb/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson=
--tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220513.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/628de99f2f6513923da39=
-bcf
-        failing since 1 day (last pass: v5.17.7, first fail: v5.17.9-158-g0=
-fff55a57433d) =
-
- =
-
-
-
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig    | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/628de5ca9a106536c1a39bd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.9-1=
-59-g2d0a99577edb/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.17/v5.17.9-1=
-59-g2d0a99577edb/arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk=
-1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220513.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/628de5ca9a106536c1a39=
-bd5
-        failing since 1 day (last pass: v5.17.7-12-g470ab13d43837, first fa=
-il: v5.17.9-158-g0fff55a57433d) =
-
- =20
+greg k-h
