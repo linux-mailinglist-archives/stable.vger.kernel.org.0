@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 671785336CB
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 08:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FD2353372A
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 09:14:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244159AbiEYGfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 May 2022 02:35:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46484 "EHLO
+        id S233146AbiEYHOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 03:14:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242458AbiEYGfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 02:35:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD92D506CD
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 23:35:40 -0700 (PDT)
+        with ESMTP id S241216AbiEYHOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 03:14:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7785FBCBE;
+        Wed, 25 May 2022 00:07:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F51E615E5
-        for <stable@vger.kernel.org>; Wed, 25 May 2022 06:35:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5917DC385B8;
-        Wed, 25 May 2022 06:35:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 291A9B81C9E;
+        Wed, 25 May 2022 07:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813CCC385B8;
+        Wed, 25 May 2022 07:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653460539;
-        bh=6VP4DD8YebyyrVsk0HcOy27lobRHqoSaOj6lNuuZzUQ=;
-        h=Subject:To:Cc:From:Date:From;
-        b=tgOKRSh3bGhzRYXmd0m7a5tE6afr5kuOF67JHMyx5raJYis48JAWvdBMKUbKY1Qck
-         y/KhjyM6NS47vuUtctD6RkKDXxKQZgd1VYCwxtPIubnZieZz4g3RXFROejvSoMa2gq
-         O73srKXDdAiJB4Cp35EL5ku99U5sLL5px7UFBUnw=
-Subject: FAILED: patch "[PATCH] lockdown: also lock down previous kgdb use" failed to apply to 5.10-stable tree
-To:     daniel.thompson@linaro.org, dianders@chromium.org,
-        stephen.s.brennan@oracle.com, torvalds@linux-foundation.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 25 May 2022 08:35:28 +0200
-Message-ID: <1653460528108184@kroah.com>
+        s=korg; t=1653462472;
+        bh=8ESvm++a82fEcdvlYbR2qSsDZuAVK7VKAr11PEqJ0oQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=QOgGUKV3Q1pDjeXFrqm2LjUmJftKalzS8bpwaqW6oTjFz3c+p6NZz16EphVNGUbuo
+         OrkcDdxJHHFYGJ/qfrYY77alcId16KLxxymEzaqbYEWKuL7DgFcZg5k4tQZr8DDHZm
+         RsxizN1EDqeoPaVu7BGCR177XOoDYiDJX8iFMN68=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.9.316
+Date:   Wed, 25 May 2022 09:07:48 +0200
+Message-Id: <16534624692895@kroah.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -48,209 +49,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+I'm announcing the release of the 4.9.316 kernel.
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+All users of the 4.9 kernel series must upgrade.
+
+The updated 4.9.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.9.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
 thanks,
 
 greg k-h
 
------------------- original commit in Linus's tree ------------------
+------------
 
-From eadb2f47a3ced5c64b23b90fd2a3463f63726066 Mon Sep 17 00:00:00 2001
-From: Daniel Thompson <daniel.thompson@linaro.org>
-Date: Mon, 23 May 2022 19:11:02 +0100
-Subject: [PATCH] lockdown: also lock down previous kgdb use
+ Makefile                                         |    2 -
+ arch/arm/kernel/entry-armv.S                     |    2 -
+ arch/arm/kernel/stacktrace.c                     |   10 ++---
+ arch/arm/mm/proc-v7-bugs.c                       |    1 
+ arch/mips/lantiq/falcon/sysctrl.c                |    2 +
+ arch/mips/lantiq/xway/gptu.c                     |    2 +
+ arch/mips/lantiq/xway/sysctrl.c                  |   46 +++++++++++++++--------
+ arch/x86/um/shared/sysdep/syscalls_64.h          |    5 +-
+ drivers/block/drbd/drbd_main.c                   |    7 ++-
+ drivers/block/floppy.c                           |   19 ++++-----
+ drivers/gpu/drm/drm_dp_mst_topology.c            |    1 
+ drivers/input/input.c                            |   19 +++++++++
+ drivers/mmc/card/block.c                         |    6 +--
+ drivers/mmc/core/core.c                          |    5 ++
+ drivers/mmc/core/mmc_ops.c                       |    9 ++--
+ drivers/net/ethernet/dec/tulip/tulip_core.c      |    5 ++
+ drivers/net/ethernet/intel/igb/igb_main.c        |    3 +
+ drivers/net/ethernet/qlogic/qla3xxx.c            |    3 +
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c |    4 --
+ drivers/net/vmxnet3/vmxnet3_drv.c                |    6 +++
+ drivers/scsi/qla2xxx/qla_target.c                |    3 +
+ kernel/events/core.c                             |   14 +++++++
+ net/key/af_key.c                                 |    6 ++-
+ net/mac80211/rx.c                                |    3 -
+ net/nfc/nci/data.c                               |    2 -
+ net/nfc/nci/hci.c                                |    4 +-
+ sound/isa/wavefront/wavefront_synth.c            |    3 +
+ tools/perf/bench/numa.c                          |    2 -
+ 28 files changed, 133 insertions(+), 61 deletions(-)
 
-KGDB and KDB allow read and write access to kernel memory, and thus
-should be restricted during lockdown.  An attacker with access to a
-serial port (for example, via a hypervisor console, which some cloud
-vendors provide over the network) could trigger the debugger so it is
-important that the debugger respect the lockdown mode when/if it is
-triggered.
+Ard Biesheuvel (2):
+      ARM: 9196/1: spectre-bhb: enable for Cortex-A15
+      ARM: 9197/1: spectre-bhb: fix loop8 sequence for Thumb2
 
-Fix this by integrating lockdown into kdb's existing permissions
-mechanism.  Unfortunately kgdb does not have any permissions mechanism
-(although it certainly could be added later) so, for now, kgdb is simply
-and brutally disabled by immediately exiting the gdb stub without taking
-any action.
+Christophe JAILLET (1):
+      net/qla3xxx: Fix a test in ql_reset_work()
 
-For lockdowns established early in the boot (e.g. the normal case) then
-this should be fine but on systems where kgdb has set breakpoints before
-the lockdown is enacted than "bad things" will happen.
+David Gow (1):
+      um: Cleanup syscall_handler_t definition/cast, fix warning
 
-CVE: CVE-2022-21499
-Co-developed-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Duoming Zhou (1):
+      NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 25b3ef71f495..7fc4e9f49f54 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -121,10 +121,12 @@ enum lockdown_reason {
- 	LOCKDOWN_DEBUGFS,
- 	LOCKDOWN_XMON_WR,
- 	LOCKDOWN_BPF_WRITE_USER,
-+	LOCKDOWN_DBG_WRITE_KERNEL,
- 	LOCKDOWN_INTEGRITY_MAX,
- 	LOCKDOWN_KCORE,
- 	LOCKDOWN_KPROBES,
- 	LOCKDOWN_BPF_READ_KERNEL,
-+	LOCKDOWN_DBG_READ_KERNEL,
- 	LOCKDOWN_PERF,
- 	LOCKDOWN_TRACEFS,
- 	LOCKDOWN_XMON_RW,
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index da06a5553835..7beceb447211 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -53,6 +53,7 @@
- #include <linux/vmacache.h>
- #include <linux/rcupdate.h>
- #include <linux/irq.h>
-+#include <linux/security.h>
- 
- #include <asm/cacheflush.h>
- #include <asm/byteorder.h>
-@@ -752,6 +753,29 @@ cpu_master_loop:
- 				continue;
- 			kgdb_connected = 0;
- 		} else {
-+			/*
-+			 * This is a brutal way to interfere with the debugger
-+			 * and prevent gdb being used to poke at kernel memory.
-+			 * This could cause trouble if lockdown is applied when
-+			 * there is already an active gdb session. For now the
-+			 * answer is simply "don't do that". Typically lockdown
-+			 * *will* be applied before the debug core gets started
-+			 * so only developers using kgdb for fairly advanced
-+			 * early kernel debug can be biten by this. Hopefully
-+			 * they are sophisticated enough to take care of
-+			 * themselves, especially with help from the lockdown
-+			 * message printed on the console!
-+			 */
-+			if (security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL)) {
-+				if (IS_ENABLED(CONFIG_KGDB_KDB)) {
-+					/* Switch back to kdb if possible... */
-+					dbg_kdb_mode = 1;
-+					continue;
-+				} else {
-+					/* ... otherwise just bail */
-+					break;
-+				}
-+			}
- 			error = gdb_serial_stub(ks);
- 		}
- 
-diff --git a/kernel/debug/kdb/kdb_main.c b/kernel/debug/kdb/kdb_main.c
-index 0852a537dad4..ead4da947127 100644
---- a/kernel/debug/kdb/kdb_main.c
-+++ b/kernel/debug/kdb/kdb_main.c
-@@ -45,6 +45,7 @@
- #include <linux/proc_fs.h>
- #include <linux/uaccess.h>
- #include <linux/slab.h>
-+#include <linux/security.h>
- #include "kdb_private.h"
- 
- #undef	MODULE_PARAM_PREFIX
-@@ -166,10 +167,62 @@ struct task_struct *kdb_curr_task(int cpu)
- }
- 
- /*
-- * Check whether the flags of the current command and the permissions
-- * of the kdb console has allow a command to be run.
-+ * Update the permissions flags (kdb_cmd_enabled) to match the
-+ * current lockdown state.
-+ *
-+ * Within this function the calls to security_locked_down() are "lazy". We
-+ * avoid calling them if the current value of kdb_cmd_enabled already excludes
-+ * flags that might be subject to lockdown. Additionally we deliberately check
-+ * the lockdown flags independently (even though read lockdown implies write
-+ * lockdown) since that results in both simpler code and clearer messages to
-+ * the user on first-time debugger entry.
-+ *
-+ * The permission masks during a read+write lockdown permits the following
-+ * flags: INSPECT, SIGNAL, REBOOT (and ALWAYS_SAFE).
-+ *
-+ * The INSPECT commands are not blocked during lockdown because they are
-+ * not arbitrary memory reads. INSPECT covers the backtrace family (sometimes
-+ * forcing them to have no arguments) and lsmod. These commands do expose
-+ * some kernel state but do not allow the developer seated at the console to
-+ * choose what state is reported. SIGNAL and REBOOT should not be controversial,
-+ * given these are allowed for root during lockdown already.
-+ */
-+static void kdb_check_for_lockdown(void)
-+{
-+	const int write_flags = KDB_ENABLE_MEM_WRITE |
-+				KDB_ENABLE_REG_WRITE |
-+				KDB_ENABLE_FLOW_CTRL;
-+	const int read_flags = KDB_ENABLE_MEM_READ |
-+			       KDB_ENABLE_REG_READ;
-+
-+	bool need_to_lockdown_write = false;
-+	bool need_to_lockdown_read = false;
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | write_flags))
-+		need_to_lockdown_write =
-+			security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL);
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | read_flags))
-+		need_to_lockdown_read =
-+			security_locked_down(LOCKDOWN_DBG_READ_KERNEL);
-+
-+	/* De-compose KDB_ENABLE_ALL if required */
-+	if (need_to_lockdown_write || need_to_lockdown_read)
-+		if (kdb_cmd_enabled & KDB_ENABLE_ALL)
-+			kdb_cmd_enabled = KDB_ENABLE_MASK & ~KDB_ENABLE_ALL;
-+
-+	if (need_to_lockdown_write)
-+		kdb_cmd_enabled &= ~write_flags;
-+
-+	if (need_to_lockdown_read)
-+		kdb_cmd_enabled &= ~read_flags;
-+}
-+
-+/*
-+ * Check whether the flags of the current command, the permissions of the kdb
-+ * console and the lockdown state allow a command to be run.
-  */
--static inline bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
-+static bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
- 				   bool no_args)
- {
- 	/* permissions comes from userspace so needs massaging slightly */
-@@ -1180,6 +1233,9 @@ static int kdb_local(kdb_reason_t reason, int error, struct pt_regs *regs,
- 		kdb_curr_task(raw_smp_processor_id());
- 
- 	KDB_DEBUG_STATE("kdb_local 1", reason);
-+
-+	kdb_check_for_lockdown();
-+
- 	kdb_go_count = 0;
- 	if (reason == KDB_REASON_DEBUG) {
- 		/* special case below */
-diff --git a/security/security.c b/security/security.c
-index b7cf5cbfdc67..aaf6566deb9f 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -59,10 +59,12 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1] = {
- 	[LOCKDOWN_DEBUGFS] = "debugfs access",
- 	[LOCKDOWN_XMON_WR] = "xmon write access",
- 	[LOCKDOWN_BPF_WRITE_USER] = "use of bpf to write user RAM",
-+	[LOCKDOWN_DBG_WRITE_KERNEL] = "use of kgdb/kdb to write kernel RAM",
- 	[LOCKDOWN_INTEGRITY_MAX] = "integrity",
- 	[LOCKDOWN_KCORE] = "/proc/kcore access",
- 	[LOCKDOWN_KPROBES] = "use of kprobes",
- 	[LOCKDOWN_BPF_READ_KERNEL] = "use of bpf to read kernel RAM",
-+	[LOCKDOWN_DBG_READ_KERNEL] = "use of kgdb/kdb to read kernel RAM",
- 	[LOCKDOWN_PERF] = "unsafe use of perf",
- 	[LOCKDOWN_TRACEFS] = "use of tracefs",
- 	[LOCKDOWN_XMON_RW] = "xmon read and write access",
+Felix Fietkau (1):
+      mac80211: fix rx reordering with non explicit / psmp ack policy
+
+Gleb Chesnokov (1):
+      scsi: qla2xxx: Fix missed DMA unmap for aborted commands
+
+Greg Kroah-Hartman (1):
+      Linux 4.9.316
+
+Hangyu Hua (1):
+      drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
+
+Jakob Koschel (1):
+      drbd: remove usage of list iterator variable after loop
+
+Jeff LaBundy (1):
+      Input: add bounds checking to input_set_capability()
+
+Jiasheng Jiang (1):
+      net: af_key: add check for pfkey_broadcast in function pfkey_process
+
+Kevin Mitchell (1):
+      igb: skip phy status check where unavailable
+
+Peter Zijlstra (1):
+      perf: Fix sys_perf_event_open() race against self
+
+Takashi Iwai (1):
+      ALSA: wavefront: Proper check of get_user() error
+
+Thomas Richter (1):
+      perf bench numa: Address compiler error on s390
+
+Ulf Hansson (3):
+      mmc: core: Specify timeouts for BKOPS and CACHE_FLUSH for eMMC
+      mmc: block: Use generic_cmd6_time when modifying INAND_CMD38_ARG_EXT_CSD
+      mmc: core: Default to generic_cmd6_time as timeout in __mmc_switch()
+
+Willy Tarreau (1):
+      floppy: use a statically allocated error counter
+
+Xiaoke Wang (1):
+      MIPS: lantiq: check the return value of kzalloc()
+
+Yang Yingliang (2):
+      ethernet: tulip: fix missing pci_disable_device() on error in tulip_init_one()
+      net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+
+Zixuan Fu (2):
+      net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
+      net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+
+linyujun (1):
+      ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
 
