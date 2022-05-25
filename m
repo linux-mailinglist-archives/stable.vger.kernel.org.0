@@ -2,44 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650E35335E7
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 05:47:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8FD53365B
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 07:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239759AbiEYDrm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 23:47:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47462 "EHLO
+        id S241073AbiEYFUs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 01:20:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235282AbiEYDrl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 23:47:41 -0400
-Received: from alahly-cah-01.alahly.local (unknown [213.212.208.166])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59A3D6CA81
-        for <stable@vger.kernel.org>; Tue, 24 May 2022 20:47:39 -0700 (PDT)
-Received: from User (103.153.79.240) by Alahly-CAH-01.alahly.local
- (192.168.0.20) with Microsoft SMTP Server id 14.3.498.0; Wed, 25 May 2022
- 05:46:53 +0200
-Reply-To: <investmentdept2022@miketailorinv.us>
-From:   MIKE TAILOR INVESTMENT <webmaster@alahly.com>
-Subject: Re: Invest !!!
-Date:   Tue, 24 May 2022 20:32:30 -0700
+        with ESMTP id S236574AbiEYFUr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 01:20:47 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17EA51D337;
+        Tue, 24 May 2022 22:20:47 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 37D0BCE1DEB;
+        Wed, 25 May 2022 05:20:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 454C9C385B8;
+        Wed, 25 May 2022 05:20:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653456043;
+        bh=Ax7SXV8AbCEPJQ0FyfMaUKPPB7QiTryTXgGkV2IOmoQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=bHBQH0lLy+51bYky1vvejahr0d5UTgGUnv5tXk8I7NEdRAYEEb1o4RTpcHsGuOzLy
+         fLV1qiTgxEOnyUz71g++l11EYAa60g8yXPMtaHYnqjOTJA8IEsN1NqRSKGwi0ZJQnZ
+         N0tC6OKY4PPSuMDQtmQwY64wCu/nQAtM87zAxoBScLyh12Wp7K661d/J7P+GUqKttU
+         z9MFFIH6ZkSJwBMnJ3qdmV5f+0OwWWNuFKqPtw8soimQO6DR0LBukwYV3Udx1RBjbA
+         FXWqRobr/Vrn5D7r7VloLszFh81p6qb58UwzGJbJISQRO+i4s99d00dE//D0fLeOFU
+         lDhEt+s/k2XYQ==
+Date:   Tue, 24 May 2022 22:20:42 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Thomas Bartschies <thomas.bartschies@cvk.de>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.17 08/12] net: af_key: check encryption module
+ availability consistency
+Message-ID: <20220524222042.40557dbb@kernel.org>
+In-Reply-To: <20220524110908.7a237987@kernel.org>
+References: <20220524155929.826793-1-sashal@kernel.org>
+        <20220524155929.826793-8-sashal@kernel.org>
+        <20220524110908.7a237987@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="Windows-1251"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-ID: <e75a30d9-6060-4527-be4c-ef5d0aa6bc61@ALAHLY-CAH-01.alahly.local>
-To:     Undisclosed recipients:;
-X-Originating-IP: [103.153.79.240]
-X-Spam-Status: No, score=4.2 required=5.0 tests=AXB_XMAILER_MIMEOLE_OL_024C2,
-        BAYES_50,FAKE_REPLY_C,FORGED_MUA_OUTLOOK,FSL_CTYPE_WIN1251,
-        FSL_NEW_HELO_USER,NSL_RCVD_FROM_USER,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mike Tailor Inv is currently doing a great Promo, You have the opportunity to invest at least  $250 USD and earn $2,500 USD in 4 working days. Contact the investment company via this email: ( investmentdept2022@miketailorinv.us ). The higher  you  invest the higher your profit value.
+On Tue, 24 May 2022 11:09:08 -0700 Jakub Kicinski wrote:
+> On Tue, 24 May 2022 11:59:22 -0400 Sasha Levin wrote:
+> > From: Thomas Bartschies <thomas.bartschies@cvk.de>
+> > 
+> > [ Upstream commit 015c44d7bff3f44d569716117becd570c179ca32 ]
+> > 
+> > Since the recent introduction supporting the SM3 and SM4 hash algos for IPsec, the kernel
+> > produces invalid pfkey acquire messages, when these encryption modules are disabled. This
+> > happens because the availability of the algos wasn't checked in all necessary functions.
+> > This patch adds these checks.
+> > 
+> > Signed-off-by: Thomas Bartschies <thomas.bartschies@cvk.de>
+> > Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>  
+> 
+> I don't see anyone else complaining yet so let me step up.
+> 
+> Please drop this, it's getting reverted.
+
+I take that back, sorry, it's a different patch.
+I meant not to backport 4dc2a5a8f6754492180741facf2a8787f2c415d7.
