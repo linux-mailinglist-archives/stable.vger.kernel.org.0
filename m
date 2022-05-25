@@ -2,274 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (unknown [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C509E533CEF
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 14:49:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B54B533CF8
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 14:51:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230213AbiEYMtY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 May 2022 08:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35466 "EHLO
+        id S240016AbiEYMu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 08:50:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229806AbiEYMtX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 08:49:23 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E5837B9FF
-        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:49:22 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id n124-20020a1c2782000000b003972dfca96cso3283523wmn.4
-        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:49:22 -0700 (PDT)
+        with ESMTP id S243854AbiEYMuP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 08:50:15 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0FE07B9FF
+        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:50:13 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id t5so3523638edc.2
+        for <stable@vger.kernel.org>; Wed, 25 May 2022 05:50:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=kRB7ryb46d5qyv6BlNJ+7J4Cdvyyut4gXAX0jDtf2ww=;
-        b=h31x4ScLeHWFbavoidXwe1LEwV5Bl3GaMiZE9VTYzzdkqcNZN9xe1ENSCxNJSJeREu
-         4DsxWEVJEWjTgeKmtK3yPDWwZRlEmmPIcW6BJ2Jub0UuHcdIReK8qr7nB7DFtdw9xprS
-         ZhV20XPLEyOXYoqLcgzrJJMU2T/+agiyvY6SRTCqHbRCgP0cRhL9yrDE8d9tFeV+IpCX
-         J7ElhgEk05yWw3J/lNoabMjbX+VJLTnRz+RgeIXKzBnBVimyyMc/Zcj9xTrbbIwrPEjC
-         49StpC8PXeFkb44wZLWvnLfPmMevQD8xJgZd7mQamtsfp0cYE2wmthz8Zo3mC23lO2EX
-         mHpw==
+        d=tessares-net.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=u27c4+MAtr4957DdCi/W76U+MTxmUmdTJPcJgTY5UTk=;
+        b=aznQV9mVTpNhq3fFa6aGL3hyugIhLP+vI5xO1/e0S281AWqJDAWa7mmS29pVe/mXEV
+         PGK869qlEB9gzhVa2aTw1Knp+IIbJNnlfDjgcUQaCQQpoPgV/Oq/OzCgJYChsEOnGo88
+         +YtOMYq0EUf/IjJ5WpRJTDLI0EirJp72yhxcEfShIRi3R0/0HjpX9lCX6NCtFW8sYF7S
+         +BNGSh4HuXZ3VRBiIu+HGtcMhxM+XrdtBFTgErA29IzcBWGTraNbB9cm53hMknHJcREt
+         DVmPOGkXM8At9Zur479O8pvgY49jNSEYbIz5qUtxDN4AEvNT0m6E24J1xDtCB+p+uWSq
+         NuGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=kRB7ryb46d5qyv6BlNJ+7J4Cdvyyut4gXAX0jDtf2ww=;
-        b=c0Vy5EYFyGO7GPM2VnU4izf+fXWIudxN+nKJIYRPTVwz1ShdxylUKfz8yI3GqOTM9t
-         BdsorjfWRDJYVlY0dLUWNAiFwgpd+MwIMo9rGVJDw6LrSVIp/M/dGs4ieHB7uj6yXays
-         6lvWV6yUFZ0mdMwx/YpFq37UlY8JLN6vR2uqFQgQKCw/JNFc2XTjrarnN+/ulChhDDkV
-         IPgE8n2PIV/eFiyewKuwtBjNAXgnwg1tL4gTTvXrm825E9OmupnQ9lTMj+q4O8EbZ+Lk
-         ariibrHXeAa/0JMEneSERL6Wwp5OMzm38laeOGxWfl5XQnVrgxJWnEwyAuqiclnLgD7n
-         H08Q==
-X-Gm-Message-State: AOAM533SW7AQFvIz2DE64F1hdUbCs+sIEkd3KAGdRYtDB8m/V/hJfggR
-        KmHOyfBu7uDLnXRFCZ7KNS2f04K1X0ovfMOv
-X-Google-Smtp-Source: ABdhPJxlDwfN6clgN7SVk+Ud7ns00fARl1oYCybCwSNcEVhQOiaF178eF/37h6EUFYtXnAZzZRiNcQ==
-X-Received: by 2002:a05:600c:190b:b0:394:880f:ae2c with SMTP id j11-20020a05600c190b00b00394880fae2cmr7826770wmq.79.1653482960379;
-        Wed, 25 May 2022 05:49:20 -0700 (PDT)
-Received: from maple.lan (cpc141216-aztw34-2-0-cust174.18-1.cable.virginm.net. [80.7.220.175])
-        by smtp.gmail.com with ESMTPSA id t22-20020a1c7716000000b00397381a7ae8sm1661736wmi.30.2022.05.25.05.49.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 May 2022 05:49:19 -0700 (PDT)
-From:   Daniel Thompson <daniel.thompson@linaro.org>
-To:     stable@vger.kernel.org
-Subject: [PATCH v5.10] lockdown: also lock down previous kgdb use
-Date:   Wed, 25 May 2022 13:49:18 +0100
-Message-Id: <20220525124918.114232-1-daniel.thompson@linaro.org>
-X-Mailer: git-send-email 2.35.1
+        bh=u27c4+MAtr4957DdCi/W76U+MTxmUmdTJPcJgTY5UTk=;
+        b=3EFODT+XGuLKR5g1ngiXHwmbsRR/wc55ziOsKTmLNRFcrc11oPaLi+prFWcOcmFsDq
+         lIG41dKc1EK+r0pvskuV8TQCfvC1YrWcdli0fvkJHIxJfnaV/sDN6AeHKsyre9nFt+or
+         AC5uIhjKd8/OvuAo/lE6skItc7Ec4AmatbOBBrUPAmaRiHGYj6HRl0PSUTdXtO0rrLfn
+         11I3l/25Ag42I0uEB8/ZWJqAX8UT22pvv4sEXYms41qf1u2/Ic1qPAnlEFtreHWgtssr
+         PvfcnzM0so+s9RamC/HntnFLjYTiOJOwp47/qVlaOK9K0m7TpaamHD22WtchkrcnjmO8
+         6q+g==
+X-Gm-Message-State: AOAM5313EFUxI8VDMTW+LtwUuG/ptOizSLLXv0wcQP6cFrENwJ/2eK7H
+        WJ4keac9SEZMRNUNI9UuzvCEWg==
+X-Google-Smtp-Source: ABdhPJypnth1vypu9Rzch+m9eE7OQlClYAB1f8BVQE8dygwpS8pfkKKKj5ScRmQ6JvelQmsq+eIqGw==
+X-Received: by 2002:a05:6402:43c4:b0:41d:9403:8dca with SMTP id p4-20020a05640243c400b0041d94038dcamr33456591edc.184.1653483012403;
+        Wed, 25 May 2022 05:50:12 -0700 (PDT)
+Received: from ?IPV6:2a02:578:8593:1200:2c21:b442:2fc3:f06f? ([2a02:578:8593:1200:2c21:b442:2fc3:f06f])
+        by smtp.gmail.com with ESMTPSA id bf15-20020a0564021a4f00b0042a9fcd7c73sm10786001edb.46.2022.05.25.05.50.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 May 2022 05:50:12 -0700 (PDT)
+Message-ID: <7ca5a59a-c1a4-92ae-1d93-59ff73a487ce@tessares.net>
+Date:   Wed, 25 May 2022 14:50:11 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] mptcp: Do TCP fallback on early DSS checksum failure
+Content-Language: en-GB
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        stable@vger.kernel.org, sashal@kernel.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        MPTCP Upstream <mptcp@lists.linux.dev>
+References: <20220524181041.19543-1-mathew.j.martineau@linux.intel.com>
+ <Yo3gG9H8Sw/w7baR@kroah.com>
+ <0648dc99-7465-871c-90a1-8a69f60d893c@tessares.net>
+ <Yo4gPPQ1GVzblG8B@kroah.com>
+ <be79c0fc-25b2-98ad-2e66-4ecfc6a64deb@tessares.net>
+ <Yo4k0e7VFCRVpsRG@kroah.com>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+In-Reply-To: <Yo4k0e7VFCRVpsRG@kroah.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit eadb2f47a3ced5c64b23b90fd2a3463f63726066 upstream.
+On 25/05/2022 14:45, Greg KH wrote:
+> On Wed, May 25, 2022 at 02:36:10PM +0200, Matthieu Baerts wrote:
+>> On 25/05/2022 14:25, Greg KH wrote:
+>>> On Wed, May 25, 2022 at 12:32:04PM +0200, Matthieu Baerts wrote:
+>>>> Hi Greg, Mat,
+>>>>
+>>>> On 25/05/2022 09:51, Greg KH wrote:
+>>>>> On Tue, May 24, 2022 at 11:10:41AM -0700, Mat Martineau wrote:
+>>>>>> [ Upstream commit ae66fb2ba6c3dcaf8b9612b65aa949a1a4bed150 ]
+>>>>>>
+>>>>>> RFC 8684 section 3.7 describes several opportunities for a MPTCP
+>>>>>> connection to "fall back" to regular TCP early in the connection
+>>>>>> process, before it has been confirmed that MPTCP options can be
+>>>>>> successfully propagated on all SYN, SYN/ACK, and data packets. If a peer
+>>>>>> acknowledges the first received data packet with a regular TCP header
+>>>>>> (no MPTCP options), fallback is allowed.
+>>>>>>
+>>>>>> If the recipient of that first data packet finds a MPTCP DSS checksum
+>>>>>> error, this provides an opportunity to fail gracefully with a TCP
+>>>>>> fallback rather than resetting the connection (as might happen if a
+>>>>>> checksum failure were detected later).
+>>>>>>
+>>>>>> This commit modifies the checksum failure code to attempt fallback on
+>>>>>> the initial subflow of a MPTCP connection, only if it's a failure in the
+>>>>>> first data mapping. In cases where the peer initiates the connection,
+>>>>>> requests checksums, is the first to send data, and the peer is sending
+>>>>>> incorrect checksums (see
+>>>>>> https://github.com/multipath-tcp/mptcp_net-next/issues/275), this allows
+>>>>>> the connection to proceed as TCP rather than reset.
+>>>>>>
+>>>>>> Cc: <stable@vger.kernel.org> # 5.17.x
+>>>>>> Cc: <stable@vger.kernel.org> # 5.15.x
+>>>>>> Fixes: dd8bcd1768ff ("mptcp: validate the data checksum")
+>>>>>> Acked-by: Paolo Abeni <pabeni@redhat.com>
+>>>>>> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+>>>>>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>>>>>> [mathew.j.martineau: backport: Resolved bitfield conflict in protocol.h]
+>>>>>> Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+>>>>>> ---
+>>>>>>
+>>>>>> This patch is already in 5.17.10-rc1 and 5.15.42-rc1, but involves a
+>>>>>> context dependency on upstream commit 4cf86ae84c71 which I have
+>>>>>> requested to be dropped from the stable queues.
+>>>>>>
+>>>>>> I'm posting this backport without the protocol.h conflict to
+>>>>>> (hopefully?) make it easier for the stable maintainers to drop
+>>>>>> 4cf86ae84c71.
+>>>>>>
+>>>>>> For context see https://lore.kernel.org/stable/fa953ec-288f-7715-c6fb-47a222e85270@linux.intel.com/
+>>>>>
+>>>>> THanks, will take this after this round of releases.
+>>>>
+>>>> It might already be too late but is it possible to have this patch
+>>>> ("mptcp: Do TCP fallback on early DSS checksum failure") and "mptcp: fix
+>>>> checksum byte order" in the same stable release?
+>>>>
+>>>> Note that "mptcp: fix checksum byte order" patch has been recently
+>>>> queued by Sasha at the same time as "mptcp: Do TCP fallback on early DSS
+>>>> checksum failure".
+>>>>
+>>>> A bit of context: "mptcp: fix checksum byte order" fixes an important
+>>>> encoding issue but it also breaks the interoperability with previous
+>>>> Linux versions not having this patch.
+>>>>
+>>>> The patch from Mat ("mptcp: Do TCP fallback on early DSS checksum
+>>>> failure") improves the situation when there is this interoperability
+>>>> issue with a previous Linux versions not implementing the RFC properly.
+>>>> The improvement is there to make the MPTCP connections falling back to
+>>>> TCP instead of resetting them: at least there is a connection.
+>>>>
+>>>> In other words, that would be really nice to have these two commits
+>>>> backported together. If it is easier, it looks best to me to delay the
+>>>> main fix ("mptcp: fix checksum byte order") than having the two patches
+>>>> in different stable versions. But I understand it was not clear and
+>>>> maybe too late to do these modifications.
+>>>>
+>>>> Anyway, thank you for your work maintaining these stable versions! :)
+>>>
+>>> I have already done a release with the first change in it, sorry, but
+>>> have queued this up now.  Given that this is fixing a problem with that
+>>> commit, I'll go do a release right now for 5.17 and 5.15.
+>>
+>> I'm sorry for the troubles this is causing you but thank you for doing that!
+>>
+>> Please note that on the bright side, the DSS Checksum feature is
+>> disabled by default so hopefully, this interoperability issue should not
+>> affect too many people. It is hard to quantify but I guess there is no
+>> need to rush if you prefer to wait before doing this release.
+> 
+> No worries, it was easy to do a new release, now done!
 
-KGDB and KDB allow read and write access to kernel memory, and thus
-should be restricted during lockdown.  An attacker with access to a
-serial port (for example, via a hypervisor console, which some cloud
-vendors provide over the network) could trigger the debugger so it is
-important that the debugger respect the lockdown mode when/if it is
-triggered.
+Wow, our first MPTCP-only stable release! :-)
 
-Fix this by integrating lockdown into kdb's existing permissions
-mechanism.  Unfortunately kgdb does not have any permissions mechanism
-(although it certainly could be added later) so, for now, kgdb is simply
-and brutally disabled by immediately exiting the gdb stub without taking
-any action.
+Again thank you!
 
-For lockdowns established early in the boot (e.g. the normal case) then
-this should be fine but on systems where kgdb has set breakpoints before
-the lockdown is enacted than "bad things" will happen.
-
-CVE: CVE-2022-21499
-Co-developed-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
----
-
-Notes:
-    Original patch did not backport cleanly. This backport is fixed up,
-    compile tested (on arm64) and side-by-side compared against the
-    original.
-
- include/linux/security.h    |  2 ++
- kernel/debug/debug_core.c   | 24 ++++++++++++++
- kernel/debug/kdb/kdb_main.c | 62 +++++++++++++++++++++++++++++++++++--
- security/security.c         |  2 ++
- 4 files changed, 87 insertions(+), 3 deletions(-)
-
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 35355429648e..330029ef7e89 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -121,10 +121,12 @@ enum lockdown_reason {
- 	LOCKDOWN_DEBUGFS,
- 	LOCKDOWN_XMON_WR,
- 	LOCKDOWN_BPF_WRITE_USER,
-+	LOCKDOWN_DBG_WRITE_KERNEL,
- 	LOCKDOWN_INTEGRITY_MAX,
- 	LOCKDOWN_KCORE,
- 	LOCKDOWN_KPROBES,
- 	LOCKDOWN_BPF_READ,
-+	LOCKDOWN_DBG_READ_KERNEL,
- 	LOCKDOWN_PERF,
- 	LOCKDOWN_TRACEFS,
- 	LOCKDOWN_XMON_RW,
-diff --git a/kernel/debug/debug_core.c b/kernel/debug/debug_core.c
-index 8661eb2b1771..0f31b22abe8d 100644
---- a/kernel/debug/debug_core.c
-+++ b/kernel/debug/debug_core.c
-@@ -56,6 +56,7 @@
- #include <linux/vmacache.h>
- #include <linux/rcupdate.h>
- #include <linux/irq.h>
-+#include <linux/security.h>
-
- #include <asm/cacheflush.h>
- #include <asm/byteorder.h>
-@@ -756,6 +757,29 @@ static int kgdb_cpu_enter(struct kgdb_state *ks, struct pt_regs *regs,
- 				continue;
- 			kgdb_connected = 0;
- 		} else {
-+			/*
-+			 * This is a brutal way to interfere with the debugger
-+			 * and prevent gdb being used to poke at kernel memory.
-+			 * This could cause trouble if lockdown is applied when
-+			 * there is already an active gdb session. For now the
-+			 * answer is simply "don't do that". Typically lockdown
-+			 * *will* be applied before the debug core gets started
-+			 * so only developers using kgdb for fairly advanced
-+			 * early kernel debug can be biten by this. Hopefully
-+			 * they are sophisticated enough to take care of
-+			 * themselves, especially with help from the lockdown
-+			 * message printed on the console!
-+			 */
-+			if (security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL)) {
-+				if (IS_ENABLED(CONFIG_KGDB_KDB)) {
-+					/* Switch back to kdb if possible... */
-+					dbg_kdb_mode = 1;
-+					continue;
-+				} else {
-+					/* ... otherwise just bail */
-+					break;
-+				}
-+			}
- 			error = gdb_serial_stub(ks);
- 		}
-
-diff --git a/kernel/debug/kdb/kdb_main.c b/kernel/debug/kdb/kdb_main.c
-index 930ac1b25ec7..4e09fab52faf 100644
---- a/kernel/debug/kdb/kdb_main.c
-+++ b/kernel/debug/kdb/kdb_main.c
-@@ -45,6 +45,7 @@
- #include <linux/proc_fs.h>
- #include <linux/uaccess.h>
- #include <linux/slab.h>
-+#include <linux/security.h>
- #include "kdb_private.h"
-
- #undef	MODULE_PARAM_PREFIX
-@@ -197,10 +198,62 @@ struct task_struct *kdb_curr_task(int cpu)
- }
-
- /*
-- * Check whether the flags of the current command and the permissions
-- * of the kdb console has allow a command to be run.
-+ * Update the permissions flags (kdb_cmd_enabled) to match the
-+ * current lockdown state.
-+ *
-+ * Within this function the calls to security_locked_down() are "lazy". We
-+ * avoid calling them if the current value of kdb_cmd_enabled already excludes
-+ * flags that might be subject to lockdown. Additionally we deliberately check
-+ * the lockdown flags independently (even though read lockdown implies write
-+ * lockdown) since that results in both simpler code and clearer messages to
-+ * the user on first-time debugger entry.
-+ *
-+ * The permission masks during a read+write lockdown permits the following
-+ * flags: INSPECT, SIGNAL, REBOOT (and ALWAYS_SAFE).
-+ *
-+ * The INSPECT commands are not blocked during lockdown because they are
-+ * not arbitrary memory reads. INSPECT covers the backtrace family (sometimes
-+ * forcing them to have no arguments) and lsmod. These commands do expose
-+ * some kernel state but do not allow the developer seated at the console to
-+ * choose what state is reported. SIGNAL and REBOOT should not be controversial,
-+ * given these are allowed for root during lockdown already.
-+ */
-+static void kdb_check_for_lockdown(void)
-+{
-+	const int write_flags = KDB_ENABLE_MEM_WRITE |
-+				KDB_ENABLE_REG_WRITE |
-+				KDB_ENABLE_FLOW_CTRL;
-+	const int read_flags = KDB_ENABLE_MEM_READ |
-+			       KDB_ENABLE_REG_READ;
-+
-+	bool need_to_lockdown_write = false;
-+	bool need_to_lockdown_read = false;
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | write_flags))
-+		need_to_lockdown_write =
-+			security_locked_down(LOCKDOWN_DBG_WRITE_KERNEL);
-+
-+	if (kdb_cmd_enabled & (KDB_ENABLE_ALL | read_flags))
-+		need_to_lockdown_read =
-+			security_locked_down(LOCKDOWN_DBG_READ_KERNEL);
-+
-+	/* De-compose KDB_ENABLE_ALL if required */
-+	if (need_to_lockdown_write || need_to_lockdown_read)
-+		if (kdb_cmd_enabled & KDB_ENABLE_ALL)
-+			kdb_cmd_enabled = KDB_ENABLE_MASK & ~KDB_ENABLE_ALL;
-+
-+	if (need_to_lockdown_write)
-+		kdb_cmd_enabled &= ~write_flags;
-+
-+	if (need_to_lockdown_read)
-+		kdb_cmd_enabled &= ~read_flags;
-+}
-+
-+/*
-+ * Check whether the flags of the current command, the permissions of the kdb
-+ * console and the lockdown state allow a command to be run.
-  */
--static inline bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
-+static bool kdb_check_flags(kdb_cmdflags_t flags, int permissions,
- 				   bool no_args)
- {
- 	/* permissions comes from userspace so needs massaging slightly */
-@@ -1194,6 +1247,9 @@ static int kdb_local(kdb_reason_t reason, int error, struct pt_regs *regs,
- 		kdb_curr_task(raw_smp_processor_id());
-
- 	KDB_DEBUG_STATE("kdb_local 1", reason);
-+
-+	kdb_check_for_lockdown();
-+
- 	kdb_go_count = 0;
- 	if (reason == KDB_REASON_DEBUG) {
- 		/* special case below */
-diff --git a/security/security.c b/security/security.c
-index d9d42d64f89f..360706cdabab 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -59,10 +59,12 @@ const char *const lockdown_reasons[LOCKDOWN_CONFIDENTIALITY_MAX+1] = {
- 	[LOCKDOWN_DEBUGFS] = "debugfs access",
- 	[LOCKDOWN_XMON_WR] = "xmon write access",
- 	[LOCKDOWN_BPF_WRITE_USER] = "use of bpf to write user RAM",
-+	[LOCKDOWN_DBG_WRITE_KERNEL] = "use of kgdb/kdb to write kernel RAM",
- 	[LOCKDOWN_INTEGRITY_MAX] = "integrity",
- 	[LOCKDOWN_KCORE] = "/proc/kcore access",
- 	[LOCKDOWN_KPROBES] = "use of kprobes",
- 	[LOCKDOWN_BPF_READ] = "use of bpf to read kernel RAM",
-+	[LOCKDOWN_DBG_READ_KERNEL] = "use of kgdb/kdb to read kernel RAM",
- 	[LOCKDOWN_PERF] = "unsafe use of perf",
- 	[LOCKDOWN_TRACEFS] = "use of tracefs",
- 	[LOCKDOWN_XMON_RW] = "xmon read and write access",
-
-base-commit: c204ee3350ebbc4e2ab108cbce7afc0cac1c407d
---
-2.35.1
-
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
