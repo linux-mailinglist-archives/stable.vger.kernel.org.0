@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2776533861
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 10:27:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A043B533864
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 10:27:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229699AbiEYI1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 May 2022 04:27:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58596 "EHLO
+        id S234330AbiEYI1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 04:27:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229649AbiEYI1k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 04:27:40 -0400
-Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 013ED20BDD;
-        Wed, 25 May 2022 01:27:37 -0700 (PDT)
-X-UUID: 96467fc6f1d24a0da4c5d013fd2bf27e-20220525
+        with ESMTP id S233543AbiEYI1p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 04:27:45 -0400
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDBE546B3;
+        Wed, 25 May 2022 01:27:43 -0700 (PDT)
+X-UUID: 7da760e4220a4839b849f4b8838a50f7-20220525
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.5,REQID:ee338470-198f-485b-81e6-c01d91845684,OB:0,LO
-        B:0,IP:0,URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
-        ION:release,TS:-5
-X-CID-META: VersionHash:2a19b09,CLOUDID:91236847-4fb1-496b-8f1d-39e733fed1ea,C
+X-CID-O-INFO: VERSION:1.1.5,REQID:955eeae6-8869-47c0-b4a8-2aa237d82673,OB:0,LO
+        B:0,IP:0,URL:5,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,RULE:Release_Ham,ACT
+        ION:release,TS:0
+X-CID-META: VersionHash:2a19b09,CLOUDID:51f82bb8-3c45-407b-8f66-25095432a27a,C
         OID:IGNORED,Recheck:0,SF:nil,TC:nil,Content:0,EDM:-3,IP:nil,URL:1,File:nil
         ,QS:0,BEC:nil
-X-UUID: 96467fc6f1d24a0da4c5d013fd2bf27e-20220525
-Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
+X-UUID: 7da760e4220a4839b849f4b8838a50f7-20220525
+Received: from mtkmbs11n1.mediatek.inc [(172.21.101.185)] by mailgw01.mediatek.com
         (envelope-from <mark-pk.tsai@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 741277775; Wed, 25 May 2022 16:27:34 +0800
-Received: from mtkmbs07n1.mediatek.inc (172.21.101.16) by
- mtkmbs10n2.mediatek.inc (172.21.101.183) with Microsoft SMTP Server
+        with ESMTP id 844525860; Wed, 25 May 2022 16:27:37 +0800
+Received: from MTKMBS07N2.mediatek.inc (172.21.101.141) by
+ mtkmbs11n2.mediatek.inc (172.21.101.187) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.792.3;
- Wed, 25 May 2022 16:27:33 +0800
+ Wed, 25 May 2022 16:27:36 +0800
 Received: from mtkcas11.mediatek.inc (172.21.101.40) by
- mtkmbs07n1.mediatek.inc (172.21.101.16) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 25 May 2022 16:27:33 +0800
+ mtkmbs07n2.mediatek.inc (172.21.101.141) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 25 May 2022 16:27:35 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas11.mediatek.inc
  (172.21.101.73) with Microsoft SMTP Server id 15.0.1497.2 via Frontend
- Transport; Wed, 25 May 2022 16:27:33 +0800
+ Transport; Wed, 25 May 2022 16:27:35 +0800
 From:   Mark-PK Tsai <mark-pk.tsai@mediatek.com>
 To:     <stable@vger.kernel.org>
 CC:     <mchehab@kernel.org>, <matthias.bgg@gmail.com>,
@@ -44,11 +44,14 @@ CC:     <mchehab@kernel.org>, <matthias.bgg@gmail.com>,
         <sakari.ailus@linux.intel.com>, <linux-media@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-mediatek@lists.infradead.org>, <yj.chiang@mediatek.com>
-Subject: [PATCH 5.4 0/2] media: vim2m: Fix potential NULL pointer dereference
-Date:   Wed, 25 May 2022 16:27:29 +0800
-Message-ID: <20220525082731.28235-1-mark-pk.tsai@mediatek.com>
+        <linux-mediatek@lists.infradead.org>, <yj.chiang@mediatek.com>,
+        "Mauro Carvalho Chehab" <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 1/2] media: vim2m: Register video device after setting up internals
+Date:   Wed, 25 May 2022 16:27:30 +0800
+Message-ID: <20220525082731.28235-2-mark-pk.tsai@mediatek.com>
 X-Mailer: git-send-email 2.18.0
+In-Reply-To: <20220525082731.28235-1-mark-pk.tsai@mediatek.com>
+References: <20220525082731.28235-1-mark-pk.tsai@mediatek.com>
 MIME-Version: 1.0
 Content-Type: text/plain
 X-MTK:  N
@@ -61,50 +64,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Backport upstream solution [1][2] to fix below kernel panic:
+commit 	cf7f34777a5b4100a3a44ff95f3d949c62892bdd upstream.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000208
-...
-pc : _raw_spin_lock_irqsave+0x50/0x90
-lr : v4l2_m2m_cancel_job+0x38/0x1c4 [v4l2_mem2mem]
-sp : ffffffc012d2bcb0
-x29: ffffffc012d2bcb0 x28: ffffff8098d6bb00
-x27: 0000000000000000 x26: ffffffc01009b5c8
-x25: 00000000000e001f x24: ffffff808ff3eb50
-x23: ffffffc01009f5a0 x22: 0000000000000000
-x21: ffffff808ffef000 x20: 0000000000000208
-x19: 0000000000000000 x18: ffffffc012b51048
-x17: ffffffc011e0ef7c x16: 00000000000000c0
-x15: ffffffc010fc78f4 x14: ffffffc0119dd790
-x13: 0000000000001b26 x12: 0000000053555555
-x11: 0000000000000002 x10: 0000000000000001
-x9 : 0000000000000000 x8 : 0000000000000208
-x7 : 2020202020202020 x6 : ffffffc011e313a6
-x5 : 0000000000000000 x4 : 0000000000000008
-x3 : 000000000000002e x2 : 0000000000000001
-x1 : 0000000000000000 x0 : 0000000000000208
-Call trace:
- _raw_spin_lock_irqsave+0x50/0x90
- v4l2_m2m_cancel_job+0x38/0x1c4 [v4l2_mem2mem]
- v4l2_m2m_ctx_release+0x38/0x60 [v4l2_mem2mem]
- vim2m_release+0x5c/0xe0 [vim2m]
- v4l2_release+0x90/0x18c
- __fput+0xdc/0x2cc
- ____fput+0x10/0x1c
- task_work_run+0xc4/0x130
- do_notify_resume+0xdc/0x158
- work_pending+0x8/0x10
+Prevent NULL (or close to NULL) pointer dereference in various places by
+registering the video device only when the V4L2 m2m framework has been set
+up.
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cf7f34777a5b4100a3a44ff95f3d949c62892bdd
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1a28dce222a6ece725689ad58c0cf4a1b48894f4
+Fixes: commit 96d8eab5d0a1 ("V4L/DVB: [v5,2/2] v4l: Add a mem-to-mem videobuf framework test device")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[ backport to 5.4 LTS ]
+CC: stable@vger.kernel.org
+Signed-off-by: Mark-PK Tsai <mark-pk.tsai@mediatek.com>
+---
+ drivers/media/platform/vim2m.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-Mark-PK Tsai (2):
-  media: vim2m: Register video device after setting up internals
-  media: vim2m: initialize the media device earlier
-
- drivers/media/platform/vim2m.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/media/platform/vim2m.c b/drivers/media/platform/vim2m.c
+index 8d6b09623d88..02f5bc82ba46 100644
+--- a/drivers/media/platform/vim2m.c
++++ b/drivers/media/platform/vim2m.c
+@@ -1333,12 +1333,6 @@ static int vim2m_probe(struct platform_device *pdev)
+ 	vfd->lock = &dev->dev_mutex;
+ 	vfd->v4l2_dev = &dev->v4l2_dev;
+ 
+-	ret = video_register_device(vfd, VFL_TYPE_GRABBER, 0);
+-	if (ret) {
+-		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
+-		goto error_v4l2;
+-	}
+-
+ 	video_set_drvdata(vfd, dev);
+ 	v4l2_info(&dev->v4l2_dev,
+ 		  "Device registered as /dev/video%d\n", vfd->num);
+@@ -1353,6 +1347,12 @@ static int vim2m_probe(struct platform_device *pdev)
+ 		goto error_dev;
+ 	}
+ 
++	ret = video_register_device(vfd, VFL_TYPE_GRABBER, 0);
++	if (ret) {
++		v4l2_err(&dev->v4l2_dev, "Failed to register video device\n");
++		goto error_m2m;
++	}
++
+ #ifdef CONFIG_MEDIA_CONTROLLER
+ 	dev->mdev.dev = &pdev->dev;
+ 	strscpy(dev->mdev.model, "vim2m", sizeof(dev->mdev.model));
+@@ -1366,7 +1366,7 @@ static int vim2m_probe(struct platform_device *pdev)
+ 						 MEDIA_ENT_F_PROC_VIDEO_SCALER);
+ 	if (ret) {
+ 		v4l2_err(&dev->v4l2_dev, "Failed to init mem2mem media controller\n");
+-		goto error_dev;
++		goto error_v4l2;
+ 	}
+ 
+ 	ret = media_device_register(&dev->mdev);
+@@ -1381,11 +1381,13 @@ static int vim2m_probe(struct platform_device *pdev)
+ error_m2m_mc:
+ 	v4l2_m2m_unregister_media_controller(dev->m2m_dev);
+ #endif
+-error_dev:
++error_v4l2:
+ 	video_unregister_device(&dev->vfd);
+ 	/* vim2m_device_release called by video_unregister_device to release various objects */
+ 	return ret;
+-error_v4l2:
++error_m2m:
++	v4l2_m2m_release(dev->m2m_dev);
++error_dev:
+ 	v4l2_device_unregister(&dev->v4l2_dev);
+ error_free:
+ 	kfree(dev);
 -- 
 2.18.0
 
