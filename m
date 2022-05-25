@@ -2,91 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 684DB5337F2
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 10:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FAE533841
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 10:20:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231444AbiEYIEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 May 2022 04:04:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
+        id S231360AbiEYIU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 May 2022 04:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234458AbiEYIEj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 04:04:39 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED497819B8;
-        Wed, 25 May 2022 01:04:36 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S231300AbiEYIU2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 May 2022 04:20:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA6D921E26;
+        Wed, 25 May 2022 01:20:26 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id D242821A2C;
-        Wed, 25 May 2022 08:04:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1653465874; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=u54F3tBmZy4oEFFTEii/zsvHbSaqW5NzYzMHIue11NU=;
-        b=qr6HgqRj4PEUo3/fXiBQRoD33u8fWnrhW12UNFY0flwr/f0PC+eeIwANzVMPLYDLxw4M6q
-        CkU02Yg+tyBQxTDJvYfOQl1nFeR4HAW8Zd2zHYWB0JCB8Av5oZg0twLhSs6hru2kDPKZxI
-        6sYDAUrljLpfA0C8y4T4zmOpbZ5cXEA=
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0A0E913ADF;
-        Wed, 25 May 2022 08:04:34 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ecAVARLjjWLhKAAAMHmgww
-        (envelope-from <jgross@suse.com>); Wed, 25 May 2022 08:04:34 +0000
-Message-ID: <1cb5b845-a326-ce60-3a08-c2e13fe6d4ad@suse.com>
-Date:   Wed, 25 May 2022 10:04:33 +0200
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E3C46182C;
+        Wed, 25 May 2022 08:20:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 631B5C385B8;
+        Wed, 25 May 2022 08:20:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653466825;
+        bh=SRGr9bBaAAy0ZPMAE/+nMYWecpULf5GsPZfwyOj7qZU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mAzY8Y67YQoKaLcC9i542K0ful3HsFNpPeBwt47U/mRXkeLJ9v1H1GUJC9opimqyR
+         L9BZt3IcalKdL8mGjVp7bkJstApX5eSQEdrhO4F98uuFokYaYlSN0D3vZszh7uAVLB
+         taG+C2FopI0JoaMwICdk9PJQnIUplyQiExLgbt+4=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 5.15.42
+Date:   Wed, 25 May 2022 10:20:21 +0200
+Message-Id: <165346682110712@kroah.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Content-Language: en-US
-To:     Thorsten Leemhuis <regressions@leemhuis.info>,
-        Chuck Zmudzinski <brchuckz@netscape.net>,
-        Jan Beulich <jbeulich@suse.com>, regressions@lists.linux.dev,
-        stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        xen-devel@lists.xenproject.org, x86@kernel.org,
-        linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-References: <20220503132207.17234-1-jgross@suse.com>
- <20220503132207.17234-3-jgross@suse.com>
- <1d86d8ff-6878-5488-e8c4-cbe8a5e8f624@suse.com>
- <0dcb05d0-108f-6252-e768-f75b393a7f5c@suse.com>
- <77255e5b-12bf-5390-6910-dafbaff18e96@netscape.net>
- <a2e95587-418b-879f-2468-8699a6df4a6a@suse.com>
- <8b1ebea5-7820-69c4-2e2b-9866d55bc180@netscape.net>
- <c5fa3c3f-e602-ed68-d670-d59b93c012a0@netscape.net>
- <3bff3562-bb1e-04e6-6eca-8d9bc355f2eb@suse.com>
- <3ca084a9-768e-a6f5-ace4-cd347978dec7@netscape.net>
- <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
- <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
- <dae4cc45-a1cd-e33f-25ef-c536df9b49e6@leemhuis.info>
- <3fc70595-3dcc-4901-0f3f-193f043b753f@netscape.net>
- <eab9fdb0-11ef-4556-bdd7-f021cc5f10b7@leemhuis.info>
-From:   Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH 2/2] x86/pat: add functions to query specific cache mode
- availability
-In-Reply-To: <eab9fdb0-11ef-4556-bdd7-f021cc5f10b7@leemhuis.info>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------BfyGk3XKVACj6W41lAYZo2BD"
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -95,320 +50,510 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------BfyGk3XKVACj6W41lAYZo2BD
-Content-Type: multipart/mixed; boundary="------------53G0UGMnr335AXWugItqKkAF";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Thorsten Leemhuis <regressions@leemhuis.info>,
- Chuck Zmudzinski <brchuckz@netscape.net>, Jan Beulich <jbeulich@suse.com>,
- regressions@lists.linux.dev, stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
- David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>,
- xen-devel@lists.xenproject.org, x86@kernel.org,
- linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org
-Message-ID: <1cb5b845-a326-ce60-3a08-c2e13fe6d4ad@suse.com>
-Subject: Re: [PATCH 2/2] x86/pat: add functions to query specific cache mode
- availability
-References: <20220503132207.17234-1-jgross@suse.com>
- <20220503132207.17234-3-jgross@suse.com>
- <1d86d8ff-6878-5488-e8c4-cbe8a5e8f624@suse.com>
- <0dcb05d0-108f-6252-e768-f75b393a7f5c@suse.com>
- <77255e5b-12bf-5390-6910-dafbaff18e96@netscape.net>
- <a2e95587-418b-879f-2468-8699a6df4a6a@suse.com>
- <8b1ebea5-7820-69c4-2e2b-9866d55bc180@netscape.net>
- <c5fa3c3f-e602-ed68-d670-d59b93c012a0@netscape.net>
- <3bff3562-bb1e-04e6-6eca-8d9bc355f2eb@suse.com>
- <3ca084a9-768e-a6f5-ace4-cd347978dec7@netscape.net>
- <9af0181a-e143-4474-acda-adbe72fc6227@suse.com>
- <b2585c19-d38b-9640-64ab-d0c9be24be34@netscape.net>
- <dae4cc45-a1cd-e33f-25ef-c536df9b49e6@leemhuis.info>
- <3fc70595-3dcc-4901-0f3f-193f043b753f@netscape.net>
- <eab9fdb0-11ef-4556-bdd7-f021cc5f10b7@leemhuis.info>
-In-Reply-To: <eab9fdb0-11ef-4556-bdd7-f021cc5f10b7@leemhuis.info>
+I'm announcing the release of the 5.15.42 kernel.
 
---------------53G0UGMnr335AXWugItqKkAF
-Content-Type: multipart/mixed; boundary="------------1JYoJE0gc0gGkSGQBbWTf8g3"
+All users of the 5.15 kernel series must upgrade.
 
---------------1JYoJE0gc0gGkSGQBbWTf8g3
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+The updated 5.15.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.15.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
-T24gMjUuMDUuMjIgMDk6NDUsIFRob3JzdGVuIExlZW1odWlzIHdyb3RlOg0KPiANCj4gDQo+
-IE9uIDI0LjA1LjIyIDIwOjMyLCBDaHVjayBabXVkemluc2tpIHdyb3RlOg0KPj4gT24gNS8y
-MS8yMiA2OjQ3IEFNLCBUaG9yc3RlbiBMZWVtaHVpcyB3cm90ZToNCj4+PiBPbiAyMC4wNS4y
-MiAxNjo0OCwgQ2h1Y2sgWm11ZHppbnNraSB3cm90ZToNCj4+Pj4gT24gNS8yMC8yMDIyIDEw
-OjA2IEFNLCBKYW4gQmV1bGljaCB3cm90ZToNCj4+Pj4+IE9uIDIwLjA1LjIwMjIgMTU6MzMs
-IENodWNrIFptdWR6aW5za2kgd3JvdGU6DQo+Pj4+Pj4gT24gNS8yMC8yMDIyIDU6NDEgQU0s
-IEphbiBCZXVsaWNoIHdyb3RlOg0KPj4+Pj4+PiBPbiAyMC4wNS4yMDIyIDEwOjMwLCBDaHVj
-ayBabXVkemluc2tpIHdyb3RlOg0KPj4+Pj4+Pj4gT24gNS8yMC8yMDIyIDI6NTkgQU0sIENo
-dWNrIFptdWR6aW5za2kgd3JvdGU6DQo+Pj4+Pj4+Pj4gT24gNS8yMC8yMDIyIDI6MDUgQU0s
-IEphbiBCZXVsaWNoIHdyb3RlOg0KPj4+Pj4+Pj4+PiBPbiAyMC4wNS4yMDIyIDA2OjQzLCBD
-aHVjayBabXVkemluc2tpIHdyb3RlOg0KPj4+Pj4+Pj4+Pj4gT24gNS80LzIyIDU6MTQgQU0s
-IEp1ZXJnZW4gR3Jvc3Mgd3JvdGU6DQo+Pj4+Pj4+Pj4+Pj4gT24gMDQuMDUuMjIgMTA6MzEs
-IEphbiBCZXVsaWNoIHdyb3RlOg0KPj4+Pj4+Pj4+Pj4+PiBPbiAwMy4wNS4yMDIyIDE1OjIy
-LCBKdWVyZ2VuIEdyb3NzIHdyb3RlOg0KPj4+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4+PiAu
-Li4gdGhlc2UgdXNlcyB0aGVyZSBhcmUgc2V2ZXJhbCBtb3JlLiBZb3Ugc2F5IG5vdGhpbmcg
-b24gd2h5DQo+Pj4+Pj4+Pj4+Pj4+IHRob3NlIHdhbnQNCj4+Pj4+Pj4+Pj4+Pj4gbGVhdmlu
-ZyB1bmFsdGVyZWQuIFdoZW4gcHJlcGFyaW5nIG15IGVhcmxpZXIgcGF0Y2ggSSBkaWQNCj4+
-Pj4+Pj4+Pj4+Pj4gaW5zcGVjdCB0aGVtDQo+Pj4+Pj4+Pj4+Pj4+IGFuZCBjYW1lIHRvIHRo
-ZSBjb25jbHVzaW9uIHRoYXQgdGhlc2UgYWxsIHdvdWxkIGFsc28gYmV0dGVyDQo+Pj4+Pj4+
-Pj4+Pj4+IG9ic2VydmUgdGhlDQo+Pj4+Pj4+Pj4+Pj4+IGFkanVzdGVkIGJlaGF2aW9yIChv
-ciBlbHNlIEkgY291bGRuJ3QgaGF2ZSBsZWZ0IHBhdF9lbmFibGVkKCkNCj4+Pj4+Pj4+Pj4+
-Pj4gYXMgdGhlDQo+Pj4+Pj4+Pj4+Pj4+IG9ubHkgcHJlZGljYXRlKS4gSW4gZmFjdCwgYXMg
-c2FpZCBpbiB0aGUgZGVzY3JpcHRpb24gb2YgbXkNCj4+Pj4+Pj4+Pj4+Pj4gZWFybGllcg0K
-Pj4+Pj4+Pj4+Pj4+PiBwYXRjaCwgaW4NCj4+Pj4+Pj4+Pj4+Pj4gbXkgZGVidWdnaW5nIEkg
-ZGlkIGZpbmQgdGhlIHVzZSBpbiBpOTE1X2dlbV9vYmplY3RfcGluX21hcCgpDQo+Pj4+Pj4+
-Pj4+Pj4+IHRvIGJlDQo+Pj4+Pj4+Pj4+Pj4+IHRoZQ0KPj4+Pj4+Pj4+Pj4+PiBwcm9ibGVt
-YXRpYyBvbmUsIHdoaWNoIHlvdSBsZWF2ZSBhbG9uZS4NCj4+Pj4+Pj4+Pj4+PiBPaCwgSSBt
-aXNzZWQgdGhhdCBvbmUsIHNvcnJ5Lg0KPj4+Pj4+Pj4+Pj4gVGhhdCBpcyB3aHkgeW91ciBw
-YXRjaCB3b3VsZCBub3QgZml4IG15IEhhc3dlbGwgdW5sZXNzDQo+Pj4+Pj4+Pj4+PiBpdCBh
-bHNvIHRvdWNoZXMgaTkxNV9nZW1fb2JqZWN0X3Bpbl9tYXAoKSBpbg0KPj4+Pj4+Pj4+Pj4g
-ZHJpdmVycy9ncHUvZHJtL2k5MTUvZ2VtL2k5MTVfZ2VtX3BhZ2VzLmMNCj4+Pj4+Pj4+Pj4+
-DQo+Pj4+Pj4+Pj4+Pj4gSSB3YW50ZWQgdG8gYmUgcmF0aGVyIGRlZmVuc2l2ZSBpbiBteSBj
-aGFuZ2VzLCBidXQgSSBhZ3JlZSBhdA0KPj4+Pj4+Pj4+Pj4+IGxlYXN0DQo+Pj4+Pj4+Pj4+
-Pj4gdGhlDQo+Pj4+Pj4+Pj4+Pj4gY2FzZSBpbiBhcmNoX3BoeXNfd2NfYWRkKCkgbWlnaHQg
-d2FudCB0byBiZSBjaGFuZ2VkLCB0b28uDQo+Pj4+Pj4+Pj4+PiBJIHRoaW5rIHlvdXIgYXBw
-cm9hY2ggbmVlZHMgdG8gYmUgbW9yZSBhZ2dyZXNzaXZlIHNvIGl0IHdpbGwgZml4DQo+Pj4+
-Pj4+Pj4+PiBhbGwgdGhlIGtub3duIGZhbHNlIG5lZ2F0aXZlcyBpbnRyb2R1Y2VkIGJ5IGJk
-ZDhiNmM5ODIzOQ0KPj4+Pj4+Pj4+Pj4gc3VjaCBhcyB0aGUgb25lIGluIGk5MTVfZ2VtX29i
-amVjdF9waW5fbWFwKCkuDQo+Pj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+Pj4gSSBsb29rZWQgYXQg
-SmFuJ3MgYXBwcm9hY2ggYW5kIEkgdGhpbmsgaXQgd291bGQgZml4IHRoZSBpc3N1ZQ0KPj4+
-Pj4+Pj4+Pj4gd2l0aCBteSBIYXN3ZWxsIGFzIGxvbmcgYXMgSSBkb24ndCB1c2UgdGhlIG5v
-cGF0IG9wdGlvbi4gSQ0KPj4+Pj4+Pj4+Pj4gcmVhbGx5IGRvbid0IGhhdmUgYSBzdHJvbmcg
-b3BpbmlvbiBvbiB0aGF0IHF1ZXN0aW9uLCBidXQgSQ0KPj4+Pj4+Pj4+Pj4gdGhpbmsgdGhl
-IG5vcGF0IG9wdGlvbiBhcyBhIExpbnV4IGtlcm5lbCBvcHRpb24sIGFzIG9wcG9zZWQNCj4+
-Pj4+Pj4+Pj4+IHRvIGEgaHlwZXJ2aXNvciBvcHRpb24sIHNob3VsZCBvbmx5IGFmZmVjdCB0
-aGUga2VybmVsLCBhbmQNCj4+Pj4+Pj4+Pj4+IGlmIHRoZSBoeXBlcnZpc29yIHByb3ZpZGVz
-IHRoZSBwYXQgZmVhdHVyZSwgdGhlbiB0aGUga2VybmVsDQo+Pj4+Pj4+Pj4+PiBzaG91bGQg
-bm90IG92ZXJyaWRlIHRoYXQsDQo+Pj4+Pj4+Pj4+IEhtbSwgd2h5IHdvdWxkIHRoZSBrZXJu
-ZWwgbm90IGJlIGFsbG93ZWQgdG8gb3ZlcnJpZGUgdGhhdD8gU3VjaA0KPj4+Pj4+Pj4+PiBh
-biBvdmVycmlkZSB3b3VsZCBhZmZlY3Qgb25seSB0aGUgc2luZ2xlIGRvbWFpbiB3aGVyZSB0
-aGUNCj4+Pj4+Pj4+Pj4ga2VybmVsIHJ1bnM7IG90aGVyIGRvbWFpbnMgY291bGQgdGFrZSB0
-aGVpciBvd24gZGVjaXNpb25zLg0KPj4+Pj4+Pj4+Pg0KPj4+Pj4+Pj4+PiBBbHNvLCBmb3Ig
-dGhlIHNha2Ugb2YgY29tcGxldGVuZXNzOiAibm9wYXQiIHVzZWQgd2hlbiBydW5uaW5nIG9u
-DQo+Pj4+Pj4+Pj4+IGJhcmUgbWV0YWwgaGFzIHRoZSBzYW1lIGJhZCBlZmZlY3Qgb24gc3lz
-dGVtIGJvb3QsIHNvIHRoZXJlDQo+Pj4+Pj4+Pj4+IHByZXR0eSBjbGVhcmx5IGlzIGFuIGVy
-cm9yIGNsZWFudXAgaXNzdWUgaW4gdGhlIGk5MTUgZHJpdmVyLiBCdXQNCj4+Pj4+Pj4+Pj4g
-dGhhdCdzIG9ydGhvZ29uYWwsIGFuZCBJIGV4cGVjdCB0aGUgbWFpbnRhaW5lcnMgbWF5IG5v
-dCBldmVuIGNhcmUNCj4+Pj4+Pj4+Pj4gKGJ1dCB0ZWxsIHVzICJkb24ndCBkbyB0aGF0IHRo
-ZW4iKS4NCj4+Pj4+Pj4+IEFjdHVhbGx5IEkganVzdCBkaWQgYSB0ZXN0IHdpdGggdGhlIGxh
-c3Qgb2ZmaWNpYWwgRGViaWFuIGtlcm5lbA0KPj4+Pj4+Pj4gYnVpbGQgb2YgTGludXggNS4x
-NiwgdGhhdCBpcywgYSBrZXJuZWwgYmVmb3JlIGJkZDhiNmM5ODIzOSB3YXMNCj4+Pj4+Pj4+
-IGFwcGxpZWQuIEluIGZhY3QsIHRoZSBub3BhdCBvcHRpb24gZG9lcyAqbm90KiBicmVhayB0
-aGUgaTkxNSBkcml2ZXINCj4+Pj4+Pj4+IGluIDUuMTYuIFRoYXQgaXMsIHdpdGggdGhlIG5v
-cGF0IG9wdGlvbiwgdGhlIGk5MTUgZHJpdmVyIGxvYWRzDQo+Pj4+Pj4+PiBub3JtYWxseSBv
-biBib3RoIHRoZSBiYXJlIG1ldGFsIGFuZCBvbiB0aGUgWGVuIGh5cGVydmlzb3IuDQo+Pj4+
-Pj4+PiBUaGF0IG1lYW5zIHlvdXIgcHJlc3VtcHRpb24gKGFuZCB0aGUgcHJlc3VtcHRpb24g
-b2YNCj4+Pj4+Pj4+IHRoZSBhdXRob3Igb2YgYmRkOGI2Yzk4MjM5KSB0aGF0IHRoZSAibm9w
-YXQiIG9wdGlvbiB3YXMNCj4+Pj4+Pj4+IGJlaW5nIG9ic2VydmVkIGJ5IHRoZSBpOTE1IGRy
-aXZlciBpcyBpbmNvcnJlY3QuIFNldHRpbmcgIm5vcGF0Ig0KPj4+Pj4+Pj4gaGFkIG5vIGVm
-ZmVjdCBvbiBteSBzeXN0ZW0gd2l0aCBMaW51eCA1LjE2LiBTbyBhZnRlciBkb2luZyB0aGVz
-ZQ0KPj4+Pj4+Pj4gdGVzdHMsIEkgYW0gYWdhaW5zdCB0aGUgYWdncmVzc2l2ZSBhcHByb2Fj
-aCBvZiBicmVha2luZyB0aGUgaTkxNQ0KPj4+Pj4+Pj4gZHJpdmVyIHdpdGggdGhlICJub3Bh
-dCIgb3B0aW9uIGJlY2F1c2UgcHJpb3IgdG8gYmRkOGI2Yzk4MjM5LA0KPj4+Pj4+Pj4gbm9w
-YXQgZGlkIG5vdCBicmVhayB0aGUgaTkxNSBkcml2ZXIuIFdoeSBicmVhayBpdCBub3c/DQo+
-Pj4+Pj4+IEJlY2F1c2UgdGhhdCdzLCBpbiBteSB1bmRlcnN0YW5kaW5nLCBpcyB0aGUgcHVy
-cG9zZSBvZiAibm9wYXQiDQo+Pj4+Pj4+IChub3QgYnJlYWtpbmcgdGhlIGRyaXZlciBvZiBj
-b3Vyc2UgLSB0aGF0J3MgYSBkcml2ZXIgYnVnIC0sIGJ1dA0KPj4+Pj4+PiBoYXZpbmcgYW4g
-ZWZmZWN0IG9uIHRoZSBkcml2ZXIpLg0KPj4+Pj4+IEkgd291bGRuJ3QgY2FsbCBpdCBhIGRy
-aXZlciBidWcsIGJ1dCBhbiBpbmNvcnJlY3QgY29uZmlndXJhdGlvbiBvZiB0aGUNCj4+Pj4+
-PiBrZXJuZWwgYnkgdGhlIHVzZXIuwqAgSSBwcmVzdW1lIFg4Nl9GRUFUVVJFX1BBVCBpcyBy
-ZXF1aXJlZCBieSB0aGUNCj4+Pj4+PiBpOTE1IGRyaXZlcg0KPj4+Pj4gVGhlIGRyaXZlciBv
-dWdodCB0byB3b3JrIGZpbmUgd2l0aG91dCBQQVQgKGFuZCBoZW5jZSB3aXRob3V0IGJlaW5n
-DQo+Pj4+PiBhYmxlIHRvIG1ha2UgV0MgbWFwcGluZ3MpLiBJdCB3b3VsZCB1c2UgVUMgaW5z
-dGVhZCBhbmQgYmUgc2xvdywgYnV0DQo+Pj4+PiBpdCBvdWdodCB0byB3b3JrLg0KPj4+Pj4N
-Cj4+Pj4+PiBhbmQgdGhlcmVmb3JlIHRoZSBkcml2ZXIgc2hvdWxkIHJlZnVzZSB0byBkaXNh
-YmxlDQo+Pj4+Pj4gaXQgaWYgdGhlIHVzZXIgcmVxdWVzdHMgdG8gZGlzYWJsZSBpdCBhbmQg
-aW5zdGVhZCB3YXJuIHRoZSB1c2VyIHRoYXQNCj4+Pj4+PiB0aGUgZHJpdmVyIGRpZCBub3Qg
-ZGlzYWJsZSB0aGUgZmVhdHVyZSwgY29udHJhcnkgdG8gd2hhdCB0aGUgdXNlcg0KPj4+Pj4+
-IHJlcXVlc3RlZCB3aXRoIHRoZSBub3BhdCBvcHRpb24uDQo+Pj4+Pj4NCj4+Pj4+PiBJbiBh
-bnkgY2FzZSwgbXkgdGVzdCBkaWQgbm90IHZlcmlmeSB0aGF0IHdoZW4gbm9wYXQgaXMgc2V0
-IGluIExpbnV4DQo+Pj4+Pj4gNS4xNiwNCj4+Pj4+PiB0aGUgdGhyZWFkIHRha2VzIHRoZSBz
-YW1lIGNvZGUgcGF0aCBhcyB3aGVuIG5vcGF0IGlzIG5vdCBzZXQsDQo+Pj4+Pj4gc28gSSBh
-bSBub3QgdG90YWxseSBzdXJlIHRoYXQgdGhlIHJlYXNvbiBub3BhdCBkb2VzIG5vdCBicmVh
-ayB0aGUNCj4+Pj4+PiBpOTE1IGRyaXZlciBpbiA1LjE2IGlzIHRoYXQgc3RhdGljX2NwdV9o
-YXMoWDg2X0ZFQVRVUkVfUEFUKQ0KPj4+Pj4+IHJldHVybnMgdHJ1ZSBldmVuIHdoZW4gbm9w
-YXQgaXMgc2V0LiBJIGNvdWxkIHRlc3QgaXQgd2l0aCBhIGN1c3RvbQ0KPj4+Pj4+IGxvZyBt
-ZXNzYWdlIGluIDUuMTYgaWYgdGhhdCBpcyBuZWNlc3NhcnkuDQo+Pj4+Pj4NCj4+Pj4+PiBB
-cmUgeW91IHNheWluZyBpdCB3YXMgd3JvbmcgZm9yIHN0YXRpY19jcHVfaGFzKFg4Nl9GRUFU
-VVJFX1BBVCkNCj4+Pj4+PiB0byByZXR1cm4gdHJ1ZSBpbiA1LjE2IHdoZW4gdGhlIHVzZXIg
-cmVxdWVzdHMgbm9wYXQ/DQo+Pj4+PiBObywgSSdtIG5vdCBzYXlpbmcgdGhhdC4gSXQgd2Fz
-IHdyb25nIGZvciB0aGlzIGNvbnN0cnVjdCB0byBiZSB1c2VkDQo+Pj4+PiBpbiB0aGUgZHJp
-dmVyLCB3aGljaCB3YXMgZml4ZWQgZm9yIDUuMTcgKGFuZCB3aGljaCBoYWQgY2F1c2VkIHRo
-ZQ0KPj4+Pj4gcmVncmVzc2lvbiBJIGRpZCBvYnNlcnZlLCBsZWFkaW5nIHRvIHRoZSBwYXRj
-aCBhcyBhIGhvcGVmdWxseSBsZWFzdA0KPj4+Pj4gYmFkIG9wdGlvbikuDQo+Pj4+Pg0KPj4+
-Pj4+IEkgdGhpbmsgdGhhdCBpcw0KPj4+Pj4+IGp1c3QgcGVybWl0dGluZyBhIGJhZCBjb25m
-aWd1cmF0aW9uIHRvIGJyZWFrIHRoZSBkcml2ZXIgdGhhdCBhDQo+Pj4+Pj4gd2VsbC13cml0
-dGVuIG9wZXJhdGluZyBzeXN0ZW0gc2hvdWxkIG5vdCBhbGxvdy4gVGhlIGk5MTUgZHJpdmVy
-DQo+Pj4+Pj4gd2FzLCBpbiBteSBvcGluaW9uLCBjb3JyZWN0bHkgaWdub3JpbmcgdGhlIG5v
-cGF0IG9wdGlvbiBpbiA1LjE2DQo+Pj4+Pj4gYmVjYXVzZSB0aGF0IG9wdGlvbiBpcyBub3Qg
-Y29tcGF0aWJsZSB3aXRoIHRoZSBoYXJkd2FyZSB0aGUNCj4+Pj4+PiBpOTE1IGRyaXZlciBp
-cyB0cnlpbmcgdG8gaW5pdGlhbGl6ZSBhbmQgc2V0dXAgYXQgYm9vdCB0aW1lLiBBdCBsZWFz
-dA0KPj4+Pj4+IHRoYXQgaXMgbXkgdW5kZXJzdGFuZGluZyBub3csIGJ1dCBJIHdpbGwgbmVl
-ZCB0byB0ZXN0IGl0IG9uIDUuMTYNCj4+Pj4+PiB0byBiZSBzdXJlIEkgdW5kZXJzdGFuZCBp
-dCBjb3JyZWN0bHkuDQo+Pj4+Pj4NCj4+Pj4+PiBBbHNvLCBBRkFJQ1QsIHlvdXIgcGF0Y2gg
-d291bGQgYnJlYWsgdGhlIGRyaXZlciB3aGVuIHRoZSBub3BhdA0KPj4+Pj4+IG9wdGlvbiBp
-cyBzZXQgYW5kIG9ubHkgZml4IHRoZSByZWdyZXNzaW9uIGludHJvZHVjZWQgYnkgYmRkOGI2
-Yzk4MjM5DQo+Pj4+Pj4gd2hlbiBub3BhdCBpcyBub3Qgc2V0IG9uIG15IGJveCwgc28geW91
-ciBwYXRjaCB3b3VsZA0KPj4+Pj4+IGludHJvZHVjZSBhIHJlZ3Jlc3Npb24gcmVsYXRpdmUg
-dG8gTGludXggNS4xNiBhbmQgZWFybGllciBmb3IgdGhlDQo+Pj4+Pj4gY2FzZSB3aGVuIG5v
-cGF0IGlzIHNldCBvbiBteSBib3guIEkgdGhpbmsgeW91ciBwb2ludCB3b3VsZA0KPj4+Pj4+
-IGJlIHRoYXQgaXQgaXMgbm90IGEgcmVncmVzc2lvbiBpZiBpdCBpcyBhbiBpbmNvcnJlY3Qg
-dXNlcg0KPj4+Pj4+IGNvbmZpZ3VyYXRpb24uDQo+Pj4+PiBBZ2FpbiBubyAtIG15IHZpZXcg
-aXMgdGhhdCB0aGVyZSdzIGEgc2VwYXJhdGUsIHByZS1leGlzdGluZyBpc3N1ZQ0KPj4+Pj4g
-aW4gdGhlIGRyaXZlciB3aGljaCB3YXMgdW5jb3ZlcmVkIGJ5IHRoZSBjaGFuZ2UuIFRoaXMg
-bWF5IGJlIGENCj4+Pj4+IHBlcmNlaXZlZCByZWdyZXNzaW9uLCBidXQgaXMgaW1vIGRpZmZl
-cmVudCBmcm9tIGEgcmVhbCBvbmUuDQo+Pj4gU29ycnksIGZvciB5b3UgbWF5YmUsIGJ1dCBJ
-J20gcHJldHR5IHN1cmUgZm9yIExpbnVzIGl0J3Mgbm90IHdoZW4gaXQNCj4+PiBjb21lcyB0
-byB0aGUgIm5vIHJlZ3Jlc3Npb25zIHJ1bGUiLiBKdXN0IHRvb2sgYSBxdWljayBsb29rIGF0
-IHF1b3Rlcw0KPj4+IGZyb20gTGludXMNCj4+PiBodHRwczovL3d3dy5rZXJuZWwub3JnL2Rv
-Yy9odG1sL2xhdGVzdC9wcm9jZXNzL2hhbmRsaW5nLXJlZ3Jlc3Npb25zLmh0bWwNCj4+PiBh
-bmQgZm91bmQgdGhpcyBzdGF0ZW1lbnQgZnJvbSBMaW51cyB0byBiYWNrIHRoaXMgdXA6DQo+
-Pj4NCj4+PiBgYGANCj4+PiBPbmUgX3BhcnRpY3VsYXJseV8gbGFzdC1taW51dGUgcmV2ZXJ0
-IGlzIHRoZSB0b3AtbW9zdCBjb21taXQgKGlnbm9yaW5nDQo+Pj4gdGhlIHZlcnNpb24gY2hh
-bmdlIGl0c2VsZikgZG9uZSBqdXN0IGJlZm9yZSB0aGUgcmVsZWFzZSwgYW5kIHdoaWxlDQo+
-Pj4gaXQncyB2ZXJ5IGFubm95aW5nLCBpdCdzIHBlcmhhcHMgYWxzbyBpbnN0cnVjdGl2ZS4N
-Cj4+Pg0KPj4+IFdoYXQncyBpbnN0cnVjdGl2ZSBhYm91dCBpdCBpcyB0aGF0IEkgcmV2ZXJ0
-ZWQgYSBjb21taXQgdGhhdCB3YXNuJ3QNCj4+PiBhY3R1YWxseSBidWdneS4gSW4gZmFjdCwg
-aXQgd2FzIGRvaW5nIGV4YWN0bHkgd2hhdCBpdCBzZXQgb3V0IHRvIGRvLA0KPj4+IGFuZCBk
-aWQgaXQgdmVyeSB3ZWxsLiBJbiBmYWN0IGl0IGRpZCBpdCBfc29fIHdlbGwgdGhhdCB0aGUg
-bXVjaA0KPj4+IGltcHJvdmVkIElPIHBhdHRlcm5zIGl0IGNhdXNlZCB0aGVuIGVuZGVkIHVw
-IHJldmVhbGluZyBhIHVzZXItdmlzaWJsZQ0KPj4+IHJlZ3Jlc3Npb24gZHVlIHRvIGEgcmVh
-bCBidWcgaW4gYSBjb21wbGV0ZWx5IHVucmVsYXRlZCBhcmVhLg0KPj4+IGBgYA0KPj4+DQo+
-Pj4gSGUgc2FpZCB0aGF0IGhlcmU6DQo+Pj4gaHR0cHM6Ly93d3cua2VybmVsLm9yZy9kb2Mv
-aHRtbC9sYXRlc3QvcHJvY2Vzcy9oYW5kbGluZy1yZWdyZXNzaW9ucy5odG1sDQo+Pj4NCj4+
-PiBUaGUgc2l0dWF0aW9uIGlzIG9mIGNvdXJzZSBkaWZmZXJlbnQgaGVyZSwgYnV0IHNpbWls
-YXIgZW5vdWdoLg0KPj4+DQo+Pj4+IFNpbmNlIGl0IGlzIGEgcmVncmVzc2lvbiwgSSB0aGlu
-ayBmb3Igbm93IGJkZDhiNmM5ODIzOSBzaG91bGQNCj4+Pj4gYmUgcmV2ZXJ0ZWQgYW5kIHRo
-ZSBmaXggYmFja3BvcnRlZCB0byBMaW51eCA1LjE3IHN0YWJsZSB1bnRpbA0KPj4+PiB0aGUg
-dW5kZXJseWluZyBtZW1vcnkgc3Vic3lzdGVtIGNhbiBwcm92aWRlIHRoZSBpOTE1IGRyaXZl
-cg0KPj4+PiB3aXRoIGFuIHVwZGF0ZWQgdGVzdCBmb3IgdGhlIFBBVCBmZWF0dXJlIHRoYXQg
-YWxzbyBtZWV0cyB0aGUNCj4+Pj4gcmVxdWlyZW1lbnRzIG9mIHRoZSBhdXRob3Igb2YgYmRk
-OGI2Yzk4MjM5IHdpdGhvdXQgYnJlYWtpbmcNCj4+Pj4gdGhlIGk5MTUgZHJpdmVyLg0KPj4+
-IEknbSBub3QgYSBkZXZlbG9wZXIgYW5kIEknbSBkb24ndCBrbm93biB0aGUgZGV0YWlscyBv
-ZiB0aGlzIHRocmVhZCBhbmQNCj4+PiB0aGUgYmFja3N0b3J5IG9mIHRoZSByZWdyZXNzaW9u
-LCBidXQgaXQgc291bmRzIGxpa2UgdGhhdCdzIHRoZSBhcHByb2FjaA0KPj4+IHRoYXQgaXMg
-bmVlZGVkIGhlcmUgdW50aWwgc29tZW9uZSBjb21lcyB1cCB3aXRoIGEgZml4IGZvciB0aGUg
-cmVncmVzc2lvbg0KPj4+IGV4cG9zZWQgYnkgYmRkOGI2Yzk4MjM5Lg0KPj4+DQo+Pj4gQnV0
-IGlmIEknbSB3cm9uZywgcGxlYXNlIHRlbGwgbWUuDQo+Pg0KPj4gWW91IGFyZSBtb3N0bHkg
-cmlnaHQsIEkgdGhpbmsuIFJldmVydGluZyBiZGQ4YjZjOTgyMzkgZml4ZXMNCj4+IGl0LiBU
-aGVyZSBpcyBhbm90aGVyIHdheSB0byBmaXggaXQsIHRob3VnaC4NCj4gDQo+IFllYWgsIEkn
-bSBhd2FyZSBvZiBpdC4gQnV0IGl0IHNlZW1zLi4uDQo+IA0KPj4gVGhlIHBhdGNoIHByb3Bv
-c2VkDQo+PiBieSBKYW4gQmV1bGljaCBhbHNvIGZpeGVzIHRoZSByZWdyZXNzaW9uIG9uIG15
-IHN5c3RlbSwgc28gYXMNCj4+IHRoZSBwZXJzb24gcmVwb3J0aW5nIHRoaXMgaXMgYSByZWdy
-ZXNzaW9uLCBJIHdvdWxkIGFsc28gYmUgc2F0aXNmaWVkDQo+PiB3aXRoIEphbidzIHBhdGNo
-IGluc3RlYWQgb2YgcmV2ZXJ0aW5nIGJkZDhiNmM5ODIzOSBhcyBhIGZpeC4gSmFuDQo+PiBw
-b3N0ZWQgaGlzIHByb3Bvc2VkIHBhdGNoIGhlcmU6DQo+Pg0KPj4gaHR0cHM6Ly9sb3JlLmtl
-cm5lbC5vcmcvbGttbC85Mzg1ZmE2MC1mYTVkLWY1NTktYTEzNy02NjA4NDA4Zjg4YjBAc3Vz
-ZS5jb20vDQo+IA0KPiAuLi50aGF0IGFwcHJvYWNoIGlzIG5vdCBtYWtpbmcgYW55IHByb2dy
-ZXNzIGVpdGhlcj8NCj4gDQo+IEphbiwgY2FuIGNvdWxkIHByb3ZpZGUgYSBzaG9ydCBzdGF0
-dXMgdXBkYXRlIGhlcmU/IEknZCByZWFsbHkgbGlrZSB0bw0KPiBnZXQgdGhpcyByZWdyZXNz
-aW9uIGZpeGVkIG9uZSB3YXkgb3IgYW5vdGhlciByYXRoZXIgc29vbmVyIHRoYW4gbGF0ZXIs
-DQo+IGFzIHRoaXMgaXMgdGFrZW4gd2F5IHRvIGxvbmcgYWxyZWFkeSBJTUhPLg0KPiANCj4+
-IFRoZSBvbmx5IHJlc2VydmF0aW9uIEkgaGF2ZSBhYm91dCBKYW4ncyBwYXRjaCBpcyB0aGF0
-IHRoZSBjb21taXQNCj4+IG1lc3NhZ2UgZG9lcyBub3QgY2xlYXJseSBleHBsYWluIGhvdyB0
-aGUgcGF0Y2ggY2hhbmdlcyB3aGF0DQo+PiB0aGUgbm9wYXQga2VybmVsIGJvb3Qgb3B0aW9u
-IGRvZXMuIEl0IGRvZXNuJ3QgYWZmZWN0IG1lIGJlY2F1c2UNCj4+IEkgZG9uJ3QgdXNlIG5v
-cGF0LCBidXQgaXQgc2hvdWxkIHByb2JhYmx5IGJlIG1lbnRpb25lZCBpbiB0aGUNCj4+IGNv
-bW1pdCBtZXNzYWdlLCBhcyBwb2ludGVkIG91dCBoZXJlOg0KPj4NCj4+IGh0dHBzOi8vbG9y
-ZS5rZXJuZWwub3JnL2xrbWwvYmQ5ZWQyYzItMTMzNy0yN2JiLWM5ZGEtZGZjN2IzMWQ0OTJj
-QG5ldHNjYXBlLm5ldC8NCj4+DQo+Pg0KPj4gV2hhdGV2ZXIgZml4IGZvciB0aGUgcmVncmVz
-c2lvbiBleHBvc2VkIGJ5IGJkZDhiNmM5ODIzOSBhbHNvDQo+PiBuZWVkcyB0byBiZSBiYWNr
-cG9ydGVkIHRvIHRoZSBzdGFibGUgdmVyc2lvbnMgNS4xNyBhbmQgNS4xOC4NCj4gDQo+IFN1
-cmUuDQo+IA0KPiBCVFcsIGFzIHlvdSBzZWVtIHRvIGJlIGZhbWlsaWFyIHdpdGggdGhlIGlz
-c3VlOiB0aGVyZSBpcyBhbm90aGVyIHJlcG9ydA0KPiBhYm91dCBhIHJlZ3Jlc3Npb24gV1JU
-IHRvIFhlbiBhbmQgaTkxNSAodGhhdCBpcyBhbHNvIG5vdCBtYWtpbmcgcmVhbGx5DQo+IHBy
-b2dyZXNzKToNCj4gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbGttbC9ZbiUyRlRnajFFaHMl
-MkZCZHBIcEBpdGwtZW1haWwvDQo+IA0KPiBJdCdzIGp1c3QgYSB3aWxkIGd1ZXNzLCBidXQg
-Ym91bGQgdGhpcyBzb21laG93IGJlIHJlbGF0ZWQ/DQoNCk5vLCBkb2Vzbid0IHNlZW0gc28u
-DQoNCkknbSBqdXN0IHJldmlld2luZyB0aGUgc3VnZ2VzdGVkIGZpeDoNCg0KaHR0cHM6Ly9s
-b3JlLmtlcm5lbC5vcmcvbGttbC9ZbzBMd21WVURTQlpiNDRLQGl0bC1lbWFpbC8NCg0KDQpK
-dWVyZ2VuDQo=
---------------1JYoJE0gc0gGkSGQBbWTf8g3
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+thanks,
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+greg k-h
 
-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
-jR/i1DG86lem3iBDXzXsZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+------------
 
---------------1JYoJE0gc0gGkSGQBbWTf8g3--
+ Documentation/arm64/silicon-errata.rst                                |    3 
+ Documentation/devicetree/bindings/pinctrl/aspeed,ast2600-pinctrl.yaml |    2 
+ Makefile                                                              |    2 
+ arch/arm/boot/dts/aspeed-bmc-ibm-everest.dts                          |   15 
+ arch/arm/boot/dts/aspeed-bmc-ibm-rainier.dts                          |   15 
+ arch/arm/boot/dts/aspeed-g6-pinctrl.dtsi                              |    9 
+ arch/arm/boot/dts/aspeed-g6.dtsi                                      |   35 +
+ arch/arm/kernel/entry-armv.S                                          |    2 
+ arch/arm/kernel/stacktrace.c                                          |   10 
+ arch/arm/mm/proc-v7-bugs.c                                            |    1 
+ arch/arm64/kernel/cpu_errata.c                                        |    2 
+ arch/arm64/kernel/mte.c                                               |    3 
+ arch/arm64/kernel/paravirt.c                                          |   29 
+ arch/mips/lantiq/falcon/sysctrl.c                                     |    2 
+ arch/mips/lantiq/xway/gptu.c                                          |    2 
+ arch/mips/lantiq/xway/sysctrl.c                                       |   46 -
+ arch/riscv/boot/dts/sifive/fu540-c000.dtsi                            |    2 
+ arch/s390/kernel/traps.c                                              |    6 
+ arch/s390/pci/pci.c                                                   |    1 
+ arch/s390/pci/pci_bus.h                                               |    3 
+ arch/s390/pci/pci_clp.c                                               |    9 
+ arch/s390/pci/pci_event.c                                             |    7 
+ arch/x86/crypto/chacha-avx512vl-x86_64.S                              |    4 
+ arch/x86/kvm/mmu/mmu.c                                                |   10 
+ arch/x86/um/shared/sysdep/syscalls_64.h                               |    5 
+ drivers/block/drbd/drbd_main.c                                        |    7 
+ drivers/block/floppy.c                                                |   18 
+ drivers/clk/at91/clk-generated.c                                      |    4 
+ drivers/crypto/qcom-rng.c                                             |    1 
+ drivers/crypto/stm32/stm32-crc32.c                                    |    4 
+ drivers/dma-buf/dma-buf.c                                             |    8 
+ drivers/gpio/gpio-mvebu.c                                             |    3 
+ drivers/gpio/gpio-vf610.c                                             |    8 
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h                                   |    2 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c                              |   14 
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c                               |    2 
+ drivers/gpu/drm/drm_dp_mst_topology.c                                 |    1 
+ drivers/gpu/drm/i915/display/intel_dmc.c                              |   44 +
+ drivers/gpu/drm/i915/display/intel_opregion.c                         |   15 
+ drivers/gpu/drm/i915/i915_reg.h                                       |   16 
+ drivers/i2c/busses/i2c-mt7621.c                                       |   10 
+ drivers/i2c/busses/i2c-piix4.c                                        |  213 +++++-
+ drivers/input/input.c                                                 |   19 
+ drivers/input/touchscreen/ili210x.c                                   |    4 
+ drivers/input/touchscreen/stmfts.c                                    |    8 
+ drivers/net/can/m_can/m_can_pci.c                                     |   48 -
+ drivers/net/ethernet/aquantia/atlantic/aq_ring.c                      |   20 
+ drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c             |    7 
+ drivers/net/ethernet/broadcom/bcmsysport.c                            |    6 
+ drivers/net/ethernet/cadence/macb_main.c                              |    2 
+ drivers/net/ethernet/dec/tulip/tulip_core.c                           |    5 
+ drivers/net/ethernet/intel/ice/ice_base.c                             |    2 
+ drivers/net/ethernet/intel/ice/ice_ethtool.c                          |   38 -
+ drivers/net/ethernet/intel/ice/ice_lib.c                              |   16 
+ drivers/net/ethernet/intel/ice/ice_main.c                             |    7 
+ drivers/net/ethernet/intel/ice/ice_ptp.c                              |   19 
+ drivers/net/ethernet/intel/ice/ice_txrx.h                             |   17 
+ drivers/net/ethernet/intel/igb/igb_main.c                             |    3 
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c                     |    7 
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_action.c          |    6 
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_fw.c              |    4 
+ drivers/net/ethernet/mellanox/mlx5/core/steering/dr_types.h           |    3 
+ drivers/net/ethernet/mellanox/mlx5/core/steering/fs_dr.c              |    4 
+ drivers/net/ethernet/mellanox/mlx5/core/steering/mlx5dr.h             |    3 
+ drivers/net/ethernet/qlogic/qla3xxx.c                                 |    3 
+ drivers/net/ethernet/stmicro/stmmac/stmmac_pci.c                      |    4 
+ drivers/net/ipa/gsi.c                                                 |    6 
+ drivers/net/ppp/pppoe.c                                               |    1 
+ drivers/net/vmxnet3/vmxnet3_drv.c                                     |    6 
+ drivers/net/wireless/mediatek/mt76/mt7921/dma.c                       |  115 ---
+ drivers/net/wireless/mediatek/mt76/mt7921/mcu.c                       |   20 
+ drivers/net/wireless/mediatek/mt76/mt7921/pci.c                       |  121 +++
+ drivers/nvme/host/core.c                                              |    1 
+ drivers/nvme/host/multipath.c                                         |   25 
+ drivers/nvme/host/nvme.h                                              |    4 
+ drivers/nvme/host/pci.c                                               |    5 
+ drivers/nvme/target/admin-cmd.c                                       |    2 
+ drivers/nvme/target/configfs.c                                        |    2 
+ drivers/nvme/target/core.c                                            |   24 
+ drivers/nvme/target/fc.c                                              |    8 
+ drivers/nvme/target/fcloop.c                                          |   16 
+ drivers/nvme/target/io-cmd-file.c                                     |    6 
+ drivers/nvme/target/loop.c                                            |    4 
+ drivers/nvme/target/nvmet.h                                           |    1 
+ drivers/nvme/target/passthru.c                                        |    2 
+ drivers/nvme/target/rdma.c                                            |   12 
+ drivers/nvme/target/tcp.c                                             |   10 
+ drivers/pci/controller/pci-aardvark.c                                 |   48 -
+ drivers/pci/pci.c                                                     |   10 
+ drivers/pinctrl/aspeed/pinctrl-aspeed-g6.c                            |   14 
+ drivers/pinctrl/mediatek/pinctrl-mt8365.c                             |    2 
+ drivers/platform/chrome/cros_ec_debugfs.c                             |   12 
+ drivers/rtc/class.c                                                   |    9 
+ drivers/rtc/rtc-mc146818-lib.c                                        |   16 
+ drivers/rtc/rtc-pcf2127.c                                             |    3 
+ drivers/rtc/rtc-sun6i.c                                               |   14 
+ drivers/scsi/device_handler/scsi_dh_alua.c                            |    3 
+ drivers/scsi/qla2xxx/qla_target.c                                     |    3 
+ drivers/scsi/ufs/ufshpb.c                                             |   19 
+ drivers/usb/gadget/legacy/raw_gadget.c                                |    2 
+ drivers/vhost/net.c                                                   |   15 
+ drivers/vhost/vdpa.c                                                  |    5 
+ drivers/video/fbdev/core/fbmem.c                                      |    5 
+ drivers/video/fbdev/core/fbsysfs.c                                    |    4 
+ drivers/watchdog/sp5100_tco.c                                         |  334 ++++++----
+ drivers/watchdog/sp5100_tco.h                                         |    7 
+ fs/afs/inode.c                                                        |   14 
+ fs/gfs2/file.c                                                        |    4 
+ fs/io_uring.c                                                         |    7 
+ fs/ioctl.c                                                            |    2 
+ fs/nilfs2/btnode.c                                                    |   23 
+ fs/nilfs2/btnode.h                                                    |    1 
+ fs/nilfs2/btree.c                                                     |   27 
+ fs/nilfs2/dat.c                                                       |    4 
+ fs/nilfs2/gcinode.c                                                   |    7 
+ fs/nilfs2/inode.c                                                     |  159 ++++
+ fs/nilfs2/mdt.c                                                       |   43 -
+ fs/nilfs2/mdt.h                                                       |    6 
+ fs/nilfs2/nilfs.h                                                     |   16 
+ fs/nilfs2/page.c                                                      |    7 
+ fs/nilfs2/segment.c                                                   |    9 
+ fs/nilfs2/super.c                                                     |    5 
+ include/linux/ceph/osd_client.h                                       |    3 
+ include/linux/ioport.h                                                |    2 
+ include/linux/mc146818rtc.h                                           |    2 
+ include/linux/netdevice.h                                             |    2 
+ include/linux/security.h                                              |    2 
+ include/net/ip.h                                                      |    1 
+ include/net/netns/xfrm.h                                              |    6 
+ include/net/xfrm.h                                                    |   58 -
+ include/uapi/linux/dma-buf.h                                          |    4 
+ kernel/debug/debug_core.c                                             |   24 
+ kernel/debug/kdb/kdb_main.c                                           |   62 +
+ kernel/events/core.c                                                  |   14 
+ mm/kfence/core.c                                                      |   11 
+ net/bridge/br_input.c                                                 |    7 
+ net/ceph/osd_client.c                                                 |  302 +++------
+ net/core/dev.c                                                        |    2 
+ net/core/skbuff.c                                                     |    4 
+ net/ipv4/route.c                                                      |   23 
+ net/key/af_key.c                                                      |    6 
+ net/mac80211/rx.c                                                     |    3 
+ net/mptcp/options.c                                                   |   40 -
+ net/mptcp/protocol.h                                                  |    1 
+ net/mptcp/subflow.c                                                   |   15 
+ net/netfilter/nf_flow_table_core.c                                    |   80 --
+ net/netfilter/nf_flow_table_ip.c                                      |   19 
+ net/netfilter/nft_flow_offload.c                                      |   28 
+ net/nfc/nci/data.c                                                    |    2 
+ net/nfc/nci/hci.c                                                     |    4 
+ net/sched/act_pedit.c                                                 |    4 
+ net/wireless/nl80211.c                                                |   18 
+ net/xfrm/xfrm_policy.c                                                |   10 
+ net/xfrm/xfrm_user.c                                                  |   43 -
+ security/security.c                                                   |    2 
+ security/selinux/ss/hashtab.c                                         |    3 
+ sound/isa/wavefront/wavefront_synth.c                                 |    3 
+ sound/pci/hda/patch_realtek.c                                         |   17 
+ sound/usb/quirks-table.h                                              |    9 
+ tools/build/Makefile.feature                                          |    1 
+ tools/build/feature/Makefile                                          |    4 
+ tools/build/feature/test-libbpf-btf__load_from_kernel_by_id.c         |    7 
+ tools/perf/Makefile.config                                            |    7 
+ tools/perf/arch/x86/util/perf_regs.c                                  |   12 
+ tools/perf/bench/numa.c                                               |    2 
+ tools/perf/util/bpf-event.c                                           |    4 
+ tools/testing/selftests/net/fcnal-test.sh                             |   12 
+ tools/virtio/Makefile                                                 |    3 
+ 168 files changed, 1929 insertions(+), 1059 deletions(-)
 
---------------53G0UGMnr335AXWugItqKkAF--
+Al Viro (1):
+      Fix double fget() in vhost_net_set_backend()
 
---------------BfyGk3XKVACj6W41lAYZo2BD
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+Alex Elder (1):
+      net: ipa: record proper RX transaction count
 
------BEGIN PGP SIGNATURE-----
+Andre Przywara (1):
+      rtc: sun6i: Fix time overflow handling
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmKN4xEFAwAAAAAACgkQsN6d1ii/Ey+J
-awf/UGRdyZzPs0sv6p9bQhiaqdyYojQ0J5NbXM0b9Ib3Tt9fZU8sd+mMbYBi7mFpZjUeHcd9BuN6
-7YMWPs0HlVJQOzww9nfd9pbwOndzbll8JmYLDGhRCOC2uffROxp6mxGBraNNPUdFxYZ7piwMdPwB
-NRvAr8E6HGriaiA6t1y3iiTtkMHNZmKAe1ILof4mIBNFOwVacGHKiDU1FOrKFHqjYfncSOh+p6Hn
-XskdgoFUNP8G2KUM1xehwvk1bFWk+m59+hWoHmJqomTYCkn6PogPpbkJiRBe5B3tUcmuIED0VOPY
-tjJMPtkkk97jswLdC2BSjp3XIbXSMmqs3uFFtk5NfQ==
-=rhGD
------END PGP SIGNATURE-----
+Andreas Gruenbacher (1):
+      gfs2: Disable page faults during lockless buffered reads
 
---------------BfyGk3XKVACj6W41lAYZo2BD--
+Andrew Lunn (1):
+      net: bridge: Clear offload_fwd_mark when passing frame up bridge interface.
+
+Anton Eidelman (1):
+      nvme-multipath: fix hang when disk goes live over reconnect
+
+Anusha Srivatsa (1):
+      drm/i915/dmc: Add MMIO range restrictions
+
+Ard Biesheuvel (2):
+      ARM: 9196/1: spectre-bhb: enable for Cortex-A15
+      ARM: 9197/1: spectre-bhb: fix loop8 sequence for Thumb2
+
+Arkadiusz Kubalewski (1):
+      ice: fix crash when writing timestamp on RX rings
+
+Arnaldo Carvalho de Melo (1):
+      perf build: Fix check for btf__load_from_kernel_by_id() in libbpf
+
+Brian Bunker (1):
+      scsi: scsi_dh_alua: Properly handle the ALUA transitioning state
+
+Catalin Marinas (1):
+      arm64: mte: Ensure the cleared tags are visible before setting the PTE
+
+Charan Teja Kalla (1):
+      dma-buf: ensure unique directory name for dmabuf stats
+
+Christophe JAILLET (2):
+      net: systemport: Fix an error handling path in bcm_sysport_probe()
+      net/qla3xxx: Fix a test in ql_reset_work()
+
+Codrin Ciubotariu (1):
+      clk: at91: generated: consider range when calculating best rate
+
+Daejun Park (1):
+      scsi: ufs: core: Fix referencing invalid rsp field
+
+Daniel Thompson (1):
+      lockdown: also lock down previous kgdb use
+
+Daniel Vetter (1):
+      fbdev: Prevent possible use-after-free in fb_release()
+
+David Gow (1):
+      um: Cleanup syscall_handler_t definition/cast, fix warning
+
+David Howells (1):
+      afs: Fix afs_getattr() to refetch file status if callback break occurred
+
+Duoming Zhou (1):
+      NFC: nci: fix sleep in atomic context bugs caused by nci_skb_alloc
+
+Eddie James (1):
+      ARM: dts: aspeed: Add ADC for AST2600 and enable for Rainier and Everest
+
+Eyal Birger (1):
+      xfrm: fix "disable_policy" flag use when arriving from different devices
+
+Felix Fietkau (5):
+      netfilter: flowtable: fix excessive hw offload attempts after failure
+      netfilter: nft_flow_offload: skip dst neigh lookup for ppp devices
+      net: fix dev_fill_forward_path with pppoe + bridge
+      netfilter: nft_flow_offload: fix offload with pppoe + vlan
+      mac80211: fix rx reordering with non explicit / psmp ack policy
+
+Geliang Tang (2):
+      mptcp: change the parameter of __mptcp_make_csum
+      mptcp: reuse __mptcp_make_csum in validate_data_csum
+
+Gleb Chesnokov (1):
+      scsi: qla2xxx: Fix missed DMA unmap for aborted commands
+
+Grant Grundler (4):
+      net: atlantic: fix "frag[0] not initialized"
+      net: atlantic: reduce scope of is_rsc_complete
+      net: atlantic: add check for MAX_SKB_FRAGS
+      net: atlantic: verify hw_head_ lies within TX buffer ring
+
+Greg Kroah-Hartman (1):
+      Linux 5.15.42
+
+Greg Thelen (1):
+      Revert "drm/i915/opregion: check port number bounds for SWSCI display power state"
+
+Guo Xuenan (1):
+      fs: fix an infinite loop in iomap_fiemap
+
+Haibo Chen (1):
+      gpio: gpio-vf610: do not touch other bits when set the target bit
+
+Hangyu Hua (1):
+      drm/dp/mst: fix a possible memory leak in fetch_monitor_name()
+
+Harini Katakam (1):
+      net: macb: Increment rx bd head after allocating skb and buffer
+
+Heiko Carstens (1):
+      s390/traps: improve panic message for translation-specification exception
+
+Howard Chiu (1):
+      ARM: dts: aspeed: Add video engine to g6
+
+Hugo Villeneuve (1):
+      rtc: pcf2127: fix bug when reading alarm registers
+
+Hyeonggon Yoo (1):
+      mm/kfence: reset PG_slab and memcg_data before freeing __kfence_pool
+
+Ilya Dryomov (1):
+      libceph: fix potential use-after-free on linger ping and resends
+
+Jae Hyun Yoo (4):
+      ARM: dts: aspeed-g6: remove FWQSPID group in pinctrl dtsi
+      pinctrl: pinctrl-aspeed-g6: remove FWQSPID group in pinctrl
+      ARM: dts: aspeed-g6: fix SPI1/SPI2 quad pin group
+      dt-bindings: pinctrl: aspeed-g6: remove FWQSPID group
+
+Jakob Koschel (1):
+      drbd: remove usage of list iterator variable after loop
+
+Jarkko Nikula (1):
+      Revert "can: m_can: pci: use custom bit timings for Elkhart Lake"
+
+Javier Martinez Canillas (1):
+      Revert "fbdev: Make fb_release() return -ENODEV if fbdev was unregistered"
+
+Jeff LaBundy (1):
+      Input: add bounds checking to input_set_capability()
+
+Jiasheng Jiang (1):
+      net: af_key: add check for pfkey_broadcast in function pfkey_process
+
+Joel Stanley (1):
+      ARM: dts: aspeed: Add secure boot controller node
+
+Johannes Berg (1):
+      nl80211: fix locking in nl80211_set_tx_bitrate_mask()
+
+Jérôme Pouiller (1):
+      dma-buf: fix use of DMA_BUF_SET_NAME_{A,B} in userspace
+
+Kai-Heng Feng (1):
+      ALSA: hda/realtek: Enable headset mic on Lenovo P360
+
+Kan Liang (1):
+      perf regs x86: Fix arch__intr_reg_mask() for the hybrid platform
+
+Kevin Mitchell (1):
+      igb: skip phy status check where unavailable
+
+Kieran Frewen (1):
+      nl80211: validate S1G channel width
+
+Krzysztof Kozlowski (1):
+      riscv: dts: sifive: fu540-c000: align dma node name with dtschema
+
+Lina Wang (1):
+      net: fix wrong network header length
+
+Maciej Fijalkowski (1):
+      ice: move ice_container_type onto ice_ring_container
+
+Maor Dickman (1):
+      net/mlx5: DR, Fix missing flow_source when creating multi-destination FW table
+
+Marek Vasut (1):
+      Input: ili210x - fix reset timing
+
+Mario Limonciello (2):
+      rtc: mc146818-lib: Fix the AltCentury for AMD platforms
+      drm/amd: Don't reset dGPUs if the system is going to s2idle
+
+Mattijs Korpershoek (1):
+      pinctrl: mediatek: mt8365: fix IES control pins
+
+Maxim Mikityanskiy (1):
+      net/mlx5e: Properly block LRO when XDP is enabled
+
+Michael S. Tsirkin (1):
+      tools/virtio: compile with -pthread
+
+Michal Wilczynski (1):
+      ice: Fix interrupt moderation settings getting cleared
+
+Monish Kumar R (1):
+      nvme-pci: add quirks for Samsung X5 SSDs
+
+Nicolas Dichtel (2):
+      xfrm: rework default policy structure
+      selftests: add ping test with ping_group_range tuned
+
+Niklas Schnelle (1):
+      s390/pci: improve zpci_dev reference counting
+
+Ondrej Mosnacek (2):
+      selinux: fix bad cleanup on error in hashtab_duplicate()
+      crypto: qcom-rng - fix infinite loop on requests not multiple of WORD_SZ
+
+Pablo Neira Ayuso (2):
+      netfilter: flowtable: fix TCP flow teardown
+      netfilter: flowtable: pass flowtable to nf_flow_table_iterate()
+
+Pali Rohár (1):
+      Revert "PCI: aardvark: Rewrite IRQ code to chained IRQ handler"
+
+Paolo Abeni (2):
+      net/sched: act_pedit: sanitize shift argument before usage
+      mptcp: fix checksum byte order
+
+Paul Greenwalt (1):
+      ice: fix possible under reporting of ethtool Tx and Rx statistics
+
+Pavel Begunkov (1):
+      io_uring: arm poll for non-nowait files
+
+Peter Zijlstra (2):
+      crypto: x86/chacha20 - Avoid spurious jumps to other functions
+      perf: Fix sys_perf_event_open() race against self
+
+Prakruthi Deepak Heragu (1):
+      arm64: paravirt: Use RCU read locks to guard stolen_time
+
+Rafael J. Wysocki (1):
+      PCI/PM: Avoid putting Elo i2 PCIe Ports in D3cold
+
+Randy Dunlap (1):
+      ALSA: hda - fix unused Realtek function when PM is not enabled
+
+Ritaro Takenaka (1):
+      netfilter: flowtable: move dst_check to packet path
+
+Ryusuke Konishi (2):
+      nilfs2: fix lockdep warnings in page operations for btree nodes
+      nilfs2: fix lockdep warnings during disk space reclamation
+
+Sagi Grimberg (1):
+      nvmet: use a private workqueue instead of the system workqueue
+
+Schspa Shi (1):
+      usb: gadget: fix race when gadget driver register via ioctl
+
+Sean Christopherson (1):
+      KVM: x86/mmu: Update number of zapped pages even if page list is stable
+
+Sean Wang (1):
+      mt76: mt7921e: fix possible probe failure after reboot
+
+Shreyas K K (1):
+      arm64: Enable repeat tlbi workaround on KRYO4XX gold CPUs
+
+Takashi Iwai (2):
+      ALSA: usb-audio: Restore Rane SL-1 quirk
+      ALSA: wavefront: Proper check of get_user() error
+
+Terry Bowman (13):
+      kernel/resource: Introduce request_mem_region_muxed()
+      i2c: piix4: Replace hardcoded memory map size with a #define
+      i2c: piix4: Move port I/O region request/release code into functions
+      i2c: piix4: Move SMBus controller base address detect into function
+      i2c: piix4: Move SMBus port selection into function
+      i2c: piix4: Add EFCH MMIO support to region request and release
+      i2c: piix4: Add EFCH MMIO support to SMBus base address detect
+      i2c: piix4: Add EFCH MMIO support for SMBus port select
+      i2c: piix4: Enable EFCH MMIO for Family 17h+
+      Watchdog: sp5100_tco: Move timer initialization into function
+      Watchdog: sp5100_tco: Refactor MMIO base address initialization
+      Watchdog: sp5100_tco: Add initialization using EFCH MMIO
+      Watchdog: sp5100_tco: Enable Family 17h+ CPUs
+
+Thomas Richter (1):
+      perf bench numa: Address compiler error on s390
+
+Tzung-Bi Shih (1):
+      platform/chrome: cros_ec_debugfs: detach log reader wq from devm
+
+Uwe Kleine-König (1):
+      gpio: mvebu/pwm: Refuse requests with inverted polarity
+
+Vincent Whitchurch (1):
+      rtc: fix use-after-free on device removal
+
+Werner Sembach (1):
+      ALSA: hda/realtek: Add quirk for TongFang devices with pop noise
+
+Willy Tarreau (1):
+      floppy: use a statically allocated error counter
+
+Xiaoke Wang (1):
+      MIPS: lantiq: check the return value of kzalloc()
+
+Yang Yingliang (3):
+      ethernet: tulip: fix missing pci_disable_device() on error in tulip_init_one()
+      net: stmmac: fix missing pci_disable_device() on error in stmmac_pci_probe()
+      i2c: mt7621: fix missing clk_disable_unprepare() on error in mtk_i2c_probe()
+
+Zheng Yongjun (2):
+      Input: stmfts - fix reference leak in stmfts_input_open
+      crypto: stm32 - fix reference leak in stm32_crc_remove
+
+Zhu Lingshan (1):
+      vhost_vdpa: don't setup irq offloading when irq_num < 0
+
+Zixuan Fu (2):
+      net: vmxnet3: fix possible use-after-free bugs in vmxnet3_rq_alloc_rx_buf()
+      net: vmxnet3: fix possible NULL pointer dereference in vmxnet3_rq_cleanup()
+
+linyujun (1):
+      ARM: 9191/1: arm/stacktrace, kasan: Silence KASAN warnings in unwind_frame()
+
