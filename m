@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C205533445
-	for <lists+stable@lfdr.de>; Wed, 25 May 2022 02:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A85AD533463
+	for <lists+stable@lfdr.de>; Wed, 25 May 2022 02:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238903AbiEYAXx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 May 2022 20:23:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58642 "EHLO
+        id S233912AbiEYAml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 May 2022 20:42:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234347AbiEYAXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 20:23:52 -0400
-Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B3B65BD21;
-        Tue, 24 May 2022 17:23:51 -0700 (PDT)
-Received: by mail-il1-x135.google.com with SMTP id o16so12920292ilq.8;
-        Tue, 24 May 2022 17:23:51 -0700 (PDT)
+        with ESMTP id S229603AbiEYAmk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 May 2022 20:42:40 -0400
+Received: from mail-io1-xd31.google.com (mail-io1-xd31.google.com [IPv6:2607:f8b0:4864:20::d31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBA852E4D;
+        Tue, 24 May 2022 17:42:40 -0700 (PDT)
+Received: by mail-io1-xd31.google.com with SMTP id y8so178215iof.10;
+        Tue, 24 May 2022 17:42:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Oh7IQWIZ3peE69FCjIauLlZHhes85Wb72An0tykVojE=;
-        b=MiwAbK50xPaA6WyUZqHsYzlwDATpBvsomOGizrUMQhu0LB6Dl4DlOUnfkhYhZTpDRc
-         ZhJO6A8I03MDobNUPTdhA8nZrH2KMxaMp3imgBGlnhT8UKJPF6Tim43JScF3AiB2FK96
-         8zNJU/J+H6WeWTFT81TkxkGQtu8VMDY1MuY7gzL9WEVDAPZOpharJEqABnQQBavPYjmp
-         Z35mAb/wtsRIusrR7t36MsQjUQ7Dqtzm4Vd/nNn3kZMxKjv99KKNpg45E3YPzpprmnEl
-         ymPyhscVcd1dzvMhJ1HjQvvFUOMWYqD9tAIQ3IeJtOf1dsjxOK/7vc1EklaYlGV9fdTA
-         hHuw==
+        bh=M/vA5r8vB9NIZuGH+3Gn4tx8CmzZqeLKwScmkVCbeQk=;
+        b=n2L99c5Shgph/DR4WjewPD48c09R9zz3I8cw0ztfDD3Qh3KdpF2X3OZ38KlVnxSUAN
+         kpo/2TMLVAzYEXW0k6vU8Cfg6ZwGyVajhQCC89eqssVL9jT/7B/wKVFwpopOKd9n1vge
+         U5lj/KVZ/aJgAEfSNDdQySzim8oMeEkI9oeeNDHlt05gK3ndEgO3j4EYcx1I/PUeV/0v
+         /0haj6FterVuqzvw7uRaX90uJjGIFXYjY6w+ax9HYSzt9Bc9yXVThVUUonujD6vnekxK
+         FW3OZQzIYRdJvSjYdRa8YR1JsceQj+ppA5OVBEDOsta0rZPzPwGcRLkSRMZPs9ial9Sh
+         3SeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Oh7IQWIZ3peE69FCjIauLlZHhes85Wb72An0tykVojE=;
-        b=dic1jDvVJv8XY5LX50IOe1JjciK44MzBcvehc6dMH6Om/DygO4LpnI6Jv+Z/LYLlRk
-         oH5PzI68Q/eRn8Fx9tQklBcbx8jldivsIuoydZBCwuienLJt6o7cc/PhhHp7rmQU+WEQ
-         kyRJarmj64Lykt1y6e3GHBnlCB/hniZFXsNcGT6hDTQk3QbUisU6MxVooydPxHJvY0+u
-         AwwpVe6KtNs9AsC+QrfLh6PvjCvh9zHPolP7eSNaGtWKpAcj/dz92bg94LK0yJTLElVD
-         KzhfS7Ah2eahkXo9adD79YYcyPdj2JDVLLzShX/MGYnxgmkssxh8txxC7eaCiHydr5GR
-         kHsQ==
-X-Gm-Message-State: AOAM533ozZlCe0eTHqDUGUyINWv82hTqWV1JqDfz8ZUVc8rA5HDx947F
-        pjLiO3S524VI0PwSEHWW43HJLscMkUi3GdUzasc=
-X-Google-Smtp-Source: ABdhPJxynA3FtMX0PZW2cTomP11Gz9aj0hFtPgBBBo8nCM7bVbaZL7xCEumiMoL9b0tQoXyziDoMcaqyzFKtB+wpVTI=
-X-Received: by 2002:a05:6e02:1ca9:b0:2d1:3c18:a63f with SMTP id
- x9-20020a056e021ca900b002d13c18a63fmr14510403ill.259.1653438230961; Tue, 24
- May 2022 17:23:50 -0700 (PDT)
+        bh=M/vA5r8vB9NIZuGH+3Gn4tx8CmzZqeLKwScmkVCbeQk=;
+        b=IACcZ5sHB73TSIdCtsch7mtxhx+kvXpNe78p5IrA7jK+UYZkc+HnKK951duMips3Sv
+         geut/XXRRKBTH4fcBIWV4Af6+4HFJqu/HBRpyr3gplML3MSRO2hEXoTe4YsAgK76RUsf
+         LzBClZxBxYF40clRPk0sLJWh0fI5gN4N25sILYyZ7KAGT6RL2x7ShYqwJdO2UzDrdoP5
+         3+xqPwfaLoqhy27UwB9oWgC/FZVDrsl7bznK7xDVjwPGz4SmhvQ4hgtRxoJgJnS6DsPT
+         X6CQjfhCNRVpAlIbCTkqG0xJ0c1UqOsm3Nwexk0yr159yFF9qPlZBabTVQAlkMHg13KV
+         oJSQ==
+X-Gm-Message-State: AOAM530q4j/W0QHU9exrwK//sXRzztdpqAJPrswUU/OmQQIuqGEvS3Xt
+        1BAy/r7CnxU3PjB7LbuPG8a19rZYVRJi5S8mlrM=
+X-Google-Smtp-Source: ABdhPJzHA9OmUKmEMxk3iOzuQs9Yj/N8YCthYnmMrHZK4bJTZB35BW1J5JCBoPuJtgua05+Ixu/Zamn5iVZuj8b+sxA=
+X-Received: by 2002:a05:6602:1801:b0:662:37bb:c722 with SMTP id
+ t1-20020a056602180100b0066237bbc722mr6750290ioh.202.1653439359362; Tue, 24
+ May 2022 17:42:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220523165823.492309987@linuxfoundation.org>
-In-Reply-To: <20220523165823.492309987@linuxfoundation.org>
+References: <20220523165802.500642349@linuxfoundation.org>
+In-Reply-To: <20220523165802.500642349@linuxfoundation.org>
 From:   Khalid Masum <khalid.masum.92@gmail.com>
-Date:   Wed, 25 May 2022 06:23:40 +0600
-Message-ID: <CAABMjtH6c6iFXxONOz19Cixuo6+HwDwvM5u34Hb7DDCUQVecJA@mail.gmail.com>
-Subject: Re: [PATCH 5.15 000/132] 5.15.42-rc1 review
+Date:   Wed, 25 May 2022 06:42:29 +0600
+Message-ID: <CAABMjtGTdZAAwr8Kxy1fxXJdYo1WuoiwE_MrSbdimNaQEcxCRA@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/68] 5.4.196-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel-mentees@lists.linuxfoundation.org
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
@@ -73,8 +73,8 @@ X-Mailing-List: stable@vger.kernel.org
 On Mon, May 23, 2022 at 11:08 PM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.15.42 release.
-> There are 132 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.4.196 release.
+> There are 68 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -82,9 +82,9 @@ On Mon, May 23, 2022 at 11:08 PM Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.42-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.196-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -93,7 +93,7 @@ On Mon, May 23, 2022 at 11:08 PM Greg Kroah-Hartman
 
 Compiled and booted on my arch x86_64 system. No dmesg regressions.
 
-Tested-by: Khalid Masum<khalid.masum.92@gmail.com>
+Tested-by: Khalid Masum<khalid.masum.92 at gmail.com>
 
 thanks,
 -- Khalid Masum
