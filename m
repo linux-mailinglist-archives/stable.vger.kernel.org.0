@@ -2,107 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BDDC3534F0B
-	for <lists+stable@lfdr.de>; Thu, 26 May 2022 14:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5981534F2D
+	for <lists+stable@lfdr.de>; Thu, 26 May 2022 14:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238069AbiEZMYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 May 2022 08:24:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53202 "EHLO
+        id S1347286AbiEZMcs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 May 2022 08:32:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbiEZMYJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 May 2022 08:24:09 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27FF3C966E;
-        Thu, 26 May 2022 05:24:08 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0322B820D0;
-        Thu, 26 May 2022 12:24:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E651C385A9;
-        Thu, 26 May 2022 12:24:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653567845;
-        bh=pXQ2y8qFFse1aW7YCdsD7dao6a8hX9aO58+GzC/aTXg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WzgnavGfQcAGdgHfWGM+61V0ZIvYhglLUR7rph10TGTHK9TXNrrArftyN3KxljxZG
-         BcZqTFep1SO5Q/LTHreT4nBus3TZp/A/9F/IF1yi8T/3d6kjKbGQxeKOqpIInfUrpI
-         XT8yZcvpnEelrzAFW8uOI2TJ6R9S2hu/zwFMTHbM=
-Date:   Thu, 26 May 2022 14:24:01 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mark-PK Tsai <mark-pk.tsai@mediatek.com>
-Cc:     stable@vger.kernel.org, mchehab@kernel.org, matthias.bgg@gmail.com,
-        hverkuil-cisco@xs4all.nl, sakari.ailus@linux.intel.com,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, yj.chiang@mediatek.com
-Subject: Re: [PATCH 5.4 0/2] media: vim2m: Fix potential NULL pointer
- dereference
-Message-ID: <Yo9xYT2Ln6V9MbYA@kroah.com>
-References: <20220525082731.28235-1-mark-pk.tsai@mediatek.com>
+        with ESMTP id S1347281AbiEZMcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 May 2022 08:32:43 -0400
+Received: from vps0.lunn.ch (vps0.lunn.ch [185.16.172.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46D5D9596;
+        Thu, 26 May 2022 05:32:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+        s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+        Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+        bh=wF8XuVv4mQ1+nmm8VPTygZ9HsG27ew/AaBd2b5MOd4g=; b=wC8se2ghyF+jb6nNGxIwCKn6/N
+        HcTNdSoruv7771/MS7Vrmvb529ZovFG7BgUiVjo5s7CH85tvFAJ4FYkGP7b4gb9W4OgDcLmV50/Jg
+        oK3i8Y98rAfBC8oNoqOQrAufk2u0k599YYz+sKezh7Bu8ZoajLAZbch1Bq35CD2nvubE=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+        (envelope-from <andrew@lunn.ch>)
+        id 1nuCf0-004Lth-Cu; Thu, 26 May 2022 14:32:14 +0200
+Date:   Thu, 26 May 2022 14:32:14 +0200
+From:   Andrew Lunn <andrew@lunn.ch>
+To:     Tan Tee Min <tee.min.tan@linux.intel.com>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Russell King <linux@armlinux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, Dan Murphy <dmurphy@ti.com>,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Voon Wei Feng <weifeng.voon@intel.com>,
+        Sit Michael Wei Hong <michael.wei.hong.sit@intel.com>,
+        Ling Pei Lee <pei.lee.ling@intel.com>,
+        Looi Hong Aun <hong.aun.looi@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Tan Tee Min <tee.min.tan@intel.com>
+Subject: Re: [PATCH net-next v2 1/1] net: phy: dp83867: retrigger SGMII AN
+ when link change
+Message-ID: <Yo9zTmMduwel8XeZ@lunn.ch>
+References: <20220526090347.128742-1-tee.min.tan@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220525082731.28235-1-mark-pk.tsai@mediatek.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+In-Reply-To: <20220526090347.128742-1-tee.min.tan@linux.intel.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 25, 2022 at 04:27:29PM +0800, Mark-PK Tsai wrote:
-> Backport upstream solution [1][2] to fix below kernel panic:
+On Thu, May 26, 2022 at 05:03:47PM +0800, Tan Tee Min wrote:
+> There is a limitation in TI DP83867 PHY device where SGMII AN is only
+> triggered once after the device is booted up. Even after the PHY TPI is
+> down and up again, SGMII AN is not triggered and hence no new in-band
+> message from PHY to MAC side SGMII.
 > 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000000000000208
-> ...
-> pc : _raw_spin_lock_irqsave+0x50/0x90
-> lr : v4l2_m2m_cancel_job+0x38/0x1c4 [v4l2_mem2mem]
-> sp : ffffffc012d2bcb0
-> x29: ffffffc012d2bcb0 x28: ffffff8098d6bb00
-> x27: 0000000000000000 x26: ffffffc01009b5c8
-> x25: 00000000000e001f x24: ffffff808ff3eb50
-> x23: ffffffc01009f5a0 x22: 0000000000000000
-> x21: ffffff808ffef000 x20: 0000000000000208
-> x19: 0000000000000000 x18: ffffffc012b51048
-> x17: ffffffc011e0ef7c x16: 00000000000000c0
-> x15: ffffffc010fc78f4 x14: ffffffc0119dd790
-> x13: 0000000000001b26 x12: 0000000053555555
-> x11: 0000000000000002 x10: 0000000000000001
-> x9 : 0000000000000000 x8 : 0000000000000208
-> x7 : 2020202020202020 x6 : ffffffc011e313a6
-> x5 : 0000000000000000 x4 : 0000000000000008
-> x3 : 000000000000002e x2 : 0000000000000001
-> x1 : 0000000000000000 x0 : 0000000000000208
-> Call trace:
->  _raw_spin_lock_irqsave+0x50/0x90
->  v4l2_m2m_cancel_job+0x38/0x1c4 [v4l2_mem2mem]
->  v4l2_m2m_ctx_release+0x38/0x60 [v4l2_mem2mem]
->  vim2m_release+0x5c/0xe0 [vim2m]
->  v4l2_release+0x90/0x18c
->  __fput+0xdc/0x2cc
->  ____fput+0x10/0x1c
->  task_work_run+0xc4/0x130
->  do_notify_resume+0xdc/0x158
->  work_pending+0x8/0x10
+> This could cause an issue during power up, when PHY is up prior to MAC.
+> At this condition, once MAC side SGMII is up, MAC side SGMII wouldn`t
+> receive new in-band message from TI PHY with correct link status, speed
+> and duplex info.
 > 
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=cf7f34777a5b4100a3a44ff95f3d949c62892bdd
-> [2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=1a28dce222a6ece725689ad58c0cf4a1b48894f4
-> 
-> Mark-PK Tsai (2):
->   media: vim2m: Register video device after setting up internals
->   media: vim2m: initialize the media device earlier
-> 
->  drivers/media/platform/vim2m.c | 22 +++++++++++++---------
->  1 file changed, 13 insertions(+), 9 deletions(-)
-> 
-> -- 
-> 2.18.0
-> 
+> As suggested by TI, implemented a SW solution here to retrigger SGMII
+> Auto-Neg whenever there is a link change.
 
-All now queued up, thanks.
+Is there a bit in the PHY which reports host side link? There is no
+point triggering an AN if there is already link.
 
-greg k-h
+      Andrew
