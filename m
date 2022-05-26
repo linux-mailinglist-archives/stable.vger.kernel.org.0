@@ -2,76 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55AD8534D06
-	for <lists+stable@lfdr.de>; Thu, 26 May 2022 12:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41296534E8F
+	for <lists+stable@lfdr.de>; Thu, 26 May 2022 13:48:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347001AbiEZKL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 May 2022 06:11:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42078 "EHLO
+        id S239770AbiEZLsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 May 2022 07:48:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346978AbiEZKL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 May 2022 06:11:56 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D8B921AB
-        for <stable@vger.kernel.org>; Thu, 26 May 2022 03:11:47 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id l20-20020a17090a409400b001dd2a9d555bso1369608pjg.0
-        for <stable@vger.kernel.org>; Thu, 26 May 2022 03:11:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ventanamicro.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=wbBG7lEDJH2LFVXucK5oQ/R2hCfil/fSiH5Kza4Gi8k=;
-        b=V5XR0cYmYpPHz45TXlrQdMJrLi9mC6lsy2W+x/KJ31gATxWb3Jcl0MrAB+D24bI7f3
-         4cWVas5pCyylxxCZLBWe4mQfSoke/VDU2WYlrymgElTYZAOaG723fCyOoELiQShkPJOT
-         1JZwGsy0Lp23kfxFyXK4dhbP3HKfGwYOKkJB0bxLkU+akzyGUbizbF/W22JUzStz/kvb
-         /YZE17RoALpfuH1WSU7xai3fAWdlXw2P6hUoIe1PwT4W09BwfsX4JWi9svdHWlFZSnTi
-         XZgvOErgNi8zbTcAf6Ej1LPhdSLC9CuCpS7dDMCmuN5koT27cwVrnYTiCV3TrhPaZwT8
-         /aOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wbBG7lEDJH2LFVXucK5oQ/R2hCfil/fSiH5Kza4Gi8k=;
-        b=xle5URKYU3WeUWymTupS6Ose+lZ873eRK3Kzzgk9nrWAC8brVwQCWERqJxXJ9LjBtc
-         FazXdn6eX9Amr3eGUqWaeZCxtJGSw79HMcJ9oOsbJIALlwfpw207CdCDlHNWtTTjhBRF
-         4n8u9AhK8Lp4wooZvTF0Exa4VKgctTk8FBPn2+evXd52JXwloHjbERAz1hA3EAnPEQFG
-         4J3gYeqrA89LndLmQkfIQnQuBQt4GTAHf4IhuQSLuJweTOmCXPf5P+G3saoHbbUM8Nph
-         5MNEKN7E2Fk4WHvPufg3bddb4Iq4xozjLOsrjTjb5phgHTTU+QCvWekCu/AFZYqPlFpb
-         +R2g==
-X-Gm-Message-State: AOAM533tijKJTC1xGxaPrzSAUtyp4C/URjTZ9mWpD1Slo/d5PBMTUFJ0
-        htB5oko0p1RO/+jUtCpafNVo7Q==
-X-Google-Smtp-Source: ABdhPJwr+qQVKMcopGMW+cRM74SlJB+kkVtaSsSNVzIL44tSlSNiDBT302sF2fUP6vTOWuit+8GjCQ==
-X-Received: by 2002:a17:902:d50e:b0:163:80b4:30a3 with SMTP id b14-20020a170902d50e00b0016380b430a3mr937520plg.159.1653559907098;
-        Thu, 26 May 2022 03:11:47 -0700 (PDT)
-Received: from kerodipc.Dlink ([49.206.9.238])
-        by smtp.gmail.com with ESMTPSA id z17-20020a170902d55100b0015f309f14d0sm1114861plf.56.2022.05.26.03.11.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 May 2022 03:11:46 -0700 (PDT)
-From:   Sunil V L <sunilvl@ventanamicro.com>
-To:     Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Marc Zyngier <maz@kernel.org>,
-        Atish Patra <atishp@rivosinc.com>,
-        Heinrich Schuchardt <heinrich.schuchardt@canonical.com>,
-        Anup Patel <apatel@ventanamicro.com>
-Cc:     linux-riscv@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-efi@vger.kernel.org, Sunil V L <sunil.vl@gmail.com>,
-        Sunil V L <sunilvl@ventanamicro.com>, stable@vger.kernel.org
-Subject: [PATCH V2 2/5] riscv: spinwait: Fix hartid variable type
-Date:   Thu, 26 May 2022 15:41:28 +0530
-Message-Id: <20220526101131.2340729-3-sunilvl@ventanamicro.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220526101131.2340729-1-sunilvl@ventanamicro.com>
-References: <20220526101131.2340729-1-sunilvl@ventanamicro.com>
+        with ESMTP id S1347276AbiEZLsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 May 2022 07:48:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 781C056755
+        for <stable@vger.kernel.org>; Thu, 26 May 2022 04:46:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 189FEB81D2D
+        for <stable@vger.kernel.org>; Thu, 26 May 2022 11:46:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 526A3C385A9;
+        Thu, 26 May 2022 11:46:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1653565609;
+        bh=oUl/uI1opB2xwlnP4oBPqq50nczn685O/UQhmES9OsU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=0Mv7sVyIRo+XPh7tXQimqze3ADO4slqONQf1Q5NpJ7+jO99bqvlqdle/gTDG/iCEb
+         gX/4dkbcm4TEyF1IJASidQfAdXr4rFY4j3gT9esc037paP2ABmRHBAWLoe3fldlH/G
+         XrsMgCS22cKBc2x+VX3w0PupxV9L+wQGTVhMVbY8=
+Date:   Thu, 26 May 2022 13:46:47 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: AMD SFH sensor discovery
+Message-ID: <Yo9op+9hgd+JfqDG@kroah.com>
+References: <MN0PR12MB6101243B86EAF100FE859714E2D69@MN0PR12MB6101.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=unavailable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MN0PR12MB6101243B86EAF100FE859714E2D69@MN0PR12MB6101.namprd12.prod.outlook.com>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -79,40 +49,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The hartid variable is of type int but compared with
-ULONG_MAX(INVALID_HARTID). This issue is fixed by changing
-the hartid variable type to unsigned long.
+On Wed, May 25, 2022 at 07:23:59PM +0000, Limonciello, Mario wrote:
+> [Public]
+> 
+> Hi,
+> 
+> The firmware on some OEM laptops with AMD SOCs advertise that they have sensors connected to AMD SFH but they really don't
+> physically have them. In 5.19 a commit has gone in that discovers this case and prevents the driver from advertising this sensor
+> to userspace.  This might not seem like a big deal to have sensors advertised that aren't really there, but AMD has observed
+> that specifically on orientation sensors the random garbage data associated can cause userspace to interpret a screen rotation
+> during resume from suspend.  
+> 
+> As GNOME has a daemon running that interprets these events I've seen first hand that it can cause the display go upside down
+> without a lot of recourse other than command line tools or rebooting.
+> 
+> Can you please backport this commit to 5.15.y+ and later to fix this:
+> commit b5d7f43e97dabfa04a4be5ff027ce7da119332be ("HID: amd_sfh: Add support for sensor discovery")
 
-Fixes: c78f94f35cf6 ("RISC-V: Use __cpu_up_stack/task_pointer only for spinwait method")
-Cc: stable@vger.kernel.org
+How queued up, thanks.
 
-Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
----
- arch/riscv/kernel/cpu_ops_spinwait.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/riscv/kernel/cpu_ops_spinwait.c b/arch/riscv/kernel/cpu_ops_spinwait.c
-index 346847f6c41c..3ade9152a3c7 100644
---- a/arch/riscv/kernel/cpu_ops_spinwait.c
-+++ b/arch/riscv/kernel/cpu_ops_spinwait.c
-@@ -18,7 +18,7 @@ void *__cpu_spinwait_task_pointer[NR_CPUS] __section(".data");
- static void cpu_update_secondary_bootdata(unsigned int cpuid,
- 				   struct task_struct *tidle)
- {
--	int hartid = cpuid_to_hartid_map(cpuid);
-+	unsigned long hartid = cpuid_to_hartid_map(cpuid);
- 
- 	/*
- 	 * The hartid must be less than NR_CPUS to avoid out-of-bound access
-@@ -27,7 +27,7 @@ static void cpu_update_secondary_bootdata(unsigned int cpuid,
- 	 * spinwait booting is not the recommended approach for any platforms
- 	 * booting Linux in S-mode and can be disabled in the future.
- 	 */
--	if (hartid == INVALID_HARTID || hartid >= NR_CPUS)
-+	if (hartid == INVALID_HARTID || hartid >= (unsigned long) NR_CPUS)
- 		return;
- 
- 	/* Make sure tidle is updated */
--- 
-2.25.1
-
+greg k-h
