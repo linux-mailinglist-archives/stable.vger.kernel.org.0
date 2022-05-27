@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BA035361A9
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A3F5361FD
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:13:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350087AbiE0MHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:07:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42326 "EHLO
+        id S1352412AbiE0MIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:08:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353648AbiE0MGI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:06:08 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1538D1666B5;
-        Fri, 27 May 2022 04:55:06 -0700 (PDT)
+        with ESMTP id S1353233AbiE0MFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE5B163F5E;
+        Fri, 27 May 2022 04:54:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 50700CE251D;
-        Fri, 27 May 2022 11:55:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52713C385A9;
-        Fri, 27 May 2022 11:55:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDA0961E09;
+        Fri, 27 May 2022 11:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02183C385A9;
+        Fri, 27 May 2022 11:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652503;
-        bh=bosGeQX7eVZuVUwD8SGaD3sYSzWZCOulil/ea+NDSMQ=;
+        s=korg; t=1653652456;
+        bh=76oionJbUWHK6noOc6OvKBCGTvYI7yBCZX+ppwL95F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Zt6j/UFzGIuvkzEIOaHVNx9zuM0EIwxrGW5iutUPy5h7Th6BuHwWF0VyBWAYAuda
-         G7IVNAo9y4HbPCIdIvOXwuI/uaue/Rd3YUuCOiMjc6fHUlcI/04/x0Ykv1VgnP82rp
-         F2q3aal8EDLIO+XsaZST267Cc4G8nbKea+COzPBw=
+        b=NGAZP0ynaNbWCiAkp4sK2JHXuE6qBzZMQNyVOKVKCYlADPZyx6ticEBzoQXyaQbdc
+         C8c2/Iol7fv942VuJonvrWhZUJWyS4UY1fJXC5HUFi5eeTb0XJCgAlDF9v0+6EnQFw
+         is6O/Va0DgqJM31eh8OBWH0dMqmEj7fkBuRJ62hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 162/163] random: check for signals after page of pool writes
+Subject: [PATCH 5.15 141/145] random: convert to using fops->read_iter()
 Date:   Fri, 27 May 2022 10:50:42 +0200
-Message-Id: <20220527084850.783635348@linuxfoundation.org>
+Message-Id: <20220527084907.568432116@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,101 +54,191 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 1ce6c8d68f8ac587f54d0a271ac594d3d51f3efb upstream.
+commit 1b388e7765f2eaa137cf5d92b47ef5925ad83ced upstream.
 
-get_random_bytes_user() checks for signals after producing a PAGE_SIZE
-worth of output, just like /dev/zero does. write_pool() is doing
-basically the same work (actually, slightly more expensive), and so
-should stop to check for signals in the same way. Let's also name it
-write_pool_user() to match get_random_bytes_user(), so this won't be
-misused in the future.
+This is a pre-requisite to wiring up splice() again for the random
+and urandom drivers. It also allows us to remove the INT_MAX check in
+getrandom(), because import_single_range() applies capping internally.
 
-Before this patch, massive writes to /dev/urandom would tie up the
-process for an extremely long time and make it unterminatable. After, it
-can be successfully interrupted. The following test program can be used
-to see this works as intended:
-
-  #include <unistd.h>
-  #include <fcntl.h>
-  #include <signal.h>
-  #include <stdio.h>
-
-  static unsigned char x[~0U];
-
-  static void handle(int) { }
-
-  int main(int argc, char *argv[])
-  {
-    pid_t pid = getpid(), child;
-    int fd;
-    signal(SIGUSR1, handle);
-    if (!(child = fork())) {
-      for (;;)
-        kill(pid, SIGUSR1);
-    }
-    fd = open("/dev/urandom", O_WRONLY);
-    pause();
-    printf("interrupted after writing %zd bytes\n", write(fd, x, sizeof(x)));
-    close(fd);
-    kill(child, SIGTERM);
-    return 0;
-  }
-
-Result before: "interrupted after writing 2147479552 bytes"
-Result after: "interrupted after writing 4096 bytes"
-
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[Jason: rewrote get_random_bytes_user() to simplify and also incorporate
+ additional suggestions from Al.]
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/char/random.c |   66 ++++++++++++++++++++++----------------------------
+ 1 file changed, 30 insertions(+), 36 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1255,7 +1255,7 @@ static __poll_t random_poll(struct file
- 	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
+@@ -52,6 +52,7 @@
+ #include <linux/uuid.h>
+ #include <linux/uaccess.h>
+ #include <linux/siphash.h>
++#include <linux/uio.h>
+ #include <crypto/chacha.h>
+ #include <crypto/blake2s.h>
+ #include <asm/processor.h>
+@@ -448,13 +449,13 @@ void get_random_bytes(void *buf, size_t
  }
+ EXPORT_SYMBOL(get_random_bytes);
  
--static ssize_t write_pool(struct iov_iter *iter)
-+static ssize_t write_pool_user(struct iov_iter *iter)
+-static ssize_t get_random_bytes_user(void __user *ubuf, size_t len)
++static ssize_t get_random_bytes_user(struct iov_iter *iter)
  {
- 	u8 block[BLAKE2S_BLOCK_SIZE];
- 	ssize_t ret = 0;
-@@ -1270,7 +1270,13 @@ static ssize_t write_pool(struct iov_ite
- 		mix_pool_bytes(block, copied);
- 		if (!iov_iter_count(iter) || copied != sizeof(block))
- 			break;
--		cond_resched();
-+
-+		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
-+		if (ret % PAGE_SIZE == 0) {
-+			if (signal_pending(current))
-+				break;
-+			cond_resched();
-+		}
+-	size_t block_len, left, ret = 0;
+ 	u32 chacha_state[CHACHA_STATE_WORDS];
+-	u8 output[CHACHA_BLOCK_SIZE];
++	u8 block[CHACHA_BLOCK_SIZE];
++	size_t ret = 0, copied;
+ 
+-	if (!len)
++	if (unlikely(!iov_iter_count(iter)))
+ 		return 0;
+ 
+ 	/*
+@@ -468,30 +469,22 @@ static ssize_t get_random_bytes_user(voi
+ 	 * use chacha_state after, so we can simply return those bytes to
+ 	 * the user directly.
+ 	 */
+-	if (len <= CHACHA_KEY_SIZE) {
+-		ret = len - copy_to_user(ubuf, &chacha_state[4], len);
++	if (iov_iter_count(iter) <= CHACHA_KEY_SIZE) {
++		ret = copy_to_iter(&chacha_state[4], CHACHA_KEY_SIZE, iter);
+ 		goto out_zero_chacha;
  	}
  
- 	memzero_explicit(block, sizeof(block));
-@@ -1279,7 +1285,7 @@ static ssize_t write_pool(struct iov_ite
+ 	for (;;) {
+-		chacha20_block(chacha_state, output);
++		chacha20_block(chacha_state, block);
+ 		if (unlikely(chacha_state[12] == 0))
+ 			++chacha_state[13];
  
- static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
+-		block_len = min_t(size_t, len, CHACHA_BLOCK_SIZE);
+-		left = copy_to_user(ubuf, output, block_len);
+-		if (left) {
+-			ret += block_len - left;
+-			break;
+-		}
+-
+-		ubuf += block_len;
+-		ret += block_len;
+-		len -= block_len;
+-		if (!len)
++		copied = copy_to_iter(block, sizeof(block), iter);
++		ret += copied;
++		if (!iov_iter_count(iter) || copied != sizeof(block))
+ 			break;
+ 
+-		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
++		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
+ 		if (ret % PAGE_SIZE == 0) {
+ 			if (signal_pending(current))
+ 				break;
+@@ -499,7 +492,7 @@ static ssize_t get_random_bytes_user(voi
+ 		}
+ 	}
+ 
+-	memzero_explicit(output, sizeof(output));
++	memzero_explicit(block, sizeof(block));
+ out_zero_chacha:
+ 	memzero_explicit(chacha_state, sizeof(chacha_state));
+ 	return ret ? ret : -EFAULT;
+@@ -1228,6 +1221,10 @@ static void __cold try_to_generate_entro
+ 
+ SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags)
  {
--	return write_pool(iter);
-+	return write_pool_user(iter);
- }
++	struct iov_iter iter;
++	struct iovec iov;
++	int ret;
++
+ 	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
+ 		return -EINVAL;
  
- static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
-@@ -1346,7 +1352,7 @@ static long random_ioctl(struct file *f,
- 		ret = import_single_range(WRITE, p, len, &iov, &iter);
+@@ -1238,19 +1235,18 @@ SYSCALL_DEFINE3(getrandom, char __user *
+ 	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
+ 		return -EINVAL;
+ 
+-	if (len > INT_MAX)
+-		len = INT_MAX;
+-
+ 	if (!crng_ready() && !(flags & GRND_INSECURE)) {
+-		int ret;
+-
+ 		if (flags & GRND_NONBLOCK)
+ 			return -EAGAIN;
+ 		ret = wait_for_random_bytes();
  		if (unlikely(ret))
  			return ret;
--		ret = write_pool(&iter);
-+		ret = write_pool_user(&iter);
- 		if (unlikely(ret < 0))
- 			return ret;
- 		/* Since we're crediting, enforce that it was all written into the pool. */
+ 	}
+-	return get_random_bytes_user(ubuf, len);
++
++	ret = import_single_range(READ, ubuf, len, &iov, &iter);
++	if (unlikely(ret))
++		return ret;
++	return get_random_bytes_user(&iter);
+ }
+ 
+ static __poll_t random_poll(struct file *file, poll_table *wait)
+@@ -1294,8 +1290,7 @@ static ssize_t random_write(struct file
+ 	return (ssize_t)len;
+ }
+ 
+-static ssize_t urandom_read(struct file *file, char __user *ubuf,
+-			    size_t len, loff_t *ppos)
++static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+ 	static int maxwarn = 10;
+ 
+@@ -1304,23 +1299,22 @@ static ssize_t urandom_read(struct file
+ 			++urandom_warning.missed;
+ 		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
+ 			--maxwarn;
+-			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
+-				  current->comm, len);
++			pr_notice("%s: uninitialized urandom read (%zu bytes read)\n",
++				  current->comm, iov_iter_count(iter));
+ 		}
+ 	}
+ 
+-	return get_random_bytes_user(ubuf, len);
++	return get_random_bytes_user(iter);
+ }
+ 
+-static ssize_t random_read(struct file *file, char __user *ubuf,
+-			   size_t len, loff_t *ppos)
++static ssize_t random_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+ 	int ret;
+ 
+ 	ret = wait_for_random_bytes();
+ 	if (ret != 0)
+ 		return ret;
+-	return get_random_bytes_user(ubuf, len);
++	return get_random_bytes_user(iter);
+ }
+ 
+ static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
+@@ -1382,7 +1376,7 @@ static int random_fasync(int fd, struct
+ }
+ 
+ const struct file_operations random_fops = {
+-	.read = random_read,
++	.read_iter = random_read_iter,
+ 	.write = random_write,
+ 	.poll = random_poll,
+ 	.unlocked_ioctl = random_ioctl,
+@@ -1392,7 +1386,7 @@ const struct file_operations random_fops
+ };
+ 
+ const struct file_operations urandom_fops = {
+-	.read = urandom_read,
++	.read_iter = urandom_read_iter,
+ 	.write = random_write,
+ 	.unlocked_ioctl = random_ioctl,
+ 	.compat_ioctl = compat_ptr_ioctl,
 
 
