@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE62535BFE
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4909B53603D
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:49:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349993AbiE0Iwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:52:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33302 "EHLO
+        id S236361AbiE0Lru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:47:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350133AbiE0IwK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:52:10 -0400
+        with ESMTP id S241735AbiE0LrJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:47:09 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0C634A917;
-        Fri, 27 May 2022 01:52:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A83DF13C084;
+        Fri, 27 May 2022 04:43:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B333B61D3D;
-        Fri, 27 May 2022 08:52:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F7EFC385A9;
-        Fri, 27 May 2022 08:52:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A19A961D46;
+        Fri, 27 May 2022 11:43:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE40C385A9;
+        Fri, 27 May 2022 11:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641522;
-        bh=IPrm7l7Y4DEnj3K/unR0h1dsLN/bo46PUM9Qs6lbRoE=;
+        s=korg; t=1653651785;
+        bh=N4I2vRnlz5HhcFVb3tpYEZeesn0q49B0+WAvsvwec5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3WCZrSLijQU24wvrqfa1XiiTSTV2OXjivwTZiyluNYmlZwys5Vj04JLPH22Z1nqt
-         2PK9nNsO+UBOeFXKDjJ+pNwKmsIFhx7eZNM0lqiS9MK4yTsX1uN1GwDJ5CXCo5zAMG
-         hKe8IcZlTBC7ANymBQfQVBBkEPapHjR6GIJvSzwM=
+        b=TNwRBDbJWhFPrm25OpprEfkoFfh8nWoifYWUVMFsIo5/LcToHhXKl+rLQtmlsTbMH
+         qc5ZZrjYoSJYVd3lNgIPi0QVU7T9fz/koBPh1dpo4Wda6QQAJLhS2CEcHRpT90gqpM
+         SN76DhnVmXuIENPHb0ILUyuaq6QkSl/6GQa/y/V0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
         Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@ozlabs.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 05/47] ia64: define get_cycles macro for arch-override
+Subject: [PATCH 5.17 073/111] powerpc: define get_cycles macro for arch-override
 Date:   Fri, 27 May 2022 10:49:45 +0200
-Message-Id: <20220527084801.950246641@linuxfoundation.org>
+Message-Id: <20220527084829.811811836@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
-References: <20220527084801.223648383@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,9 +59,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 57c0900b91d8891ab43f0e6b464d059fda51d102 upstream.
+commit 408835832158df0357e18e96da7f2d1ed6b80e7f upstream.
 
-Itanium defines a get_cycles() function, but it does not do the usual
+PowerPC defines a get_cycles() function, but it does not do the usual
 `#define get_cycles get_cycles` dance, making it impossible for generic
 code to see if an arch-specific function was defined. While the
 get_cycles() ifdef is not currently used, the following timekeeping
@@ -67,21 +70,24 @@ when defining random_get_entropy().
 
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@ozlabs.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Acked-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/include/asm/timex.h |    1 +
+ arch/powerpc/include/asm/timex.h |    1 +
  1 file changed, 1 insertion(+)
 
---- a/arch/ia64/include/asm/timex.h
-+++ b/arch/ia64/include/asm/timex.h
-@@ -39,6 +39,7 @@ get_cycles (void)
- 	ret = ia64_getreg(_IA64_REG_AR_ITC);
- 	return ret;
+--- a/arch/powerpc/include/asm/timex.h
++++ b/arch/powerpc/include/asm/timex.h
+@@ -19,6 +19,7 @@ static inline cycles_t get_cycles(void)
+ {
+ 	return mftb();
  }
 +#define get_cycles get_cycles
  
- extern void ia64_cpu_local_tick (void);
- extern unsigned long long ia64_native_sched_clock (void);
+ #endif	/* __KERNEL__ */
+ #endif	/* _ASM_POWERPC_TIMEX_H */
 
 
