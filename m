@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 097B2536157
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C88535F81
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350159AbiE0Lyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:54:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57152 "EHLO
+        id S1351442AbiE0LjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351971AbiE0LyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:54:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24EB3158973;
-        Fri, 27 May 2022 04:47:47 -0700 (PDT)
+        with ESMTP id S1351542AbiE0LiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:38:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD676131F1D;
+        Fri, 27 May 2022 04:38:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4578B824D2;
-        Fri, 27 May 2022 11:47:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B85C385A9;
-        Fri, 27 May 2022 11:47:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35E2861CE7;
+        Fri, 27 May 2022 11:38:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46974C385A9;
+        Fri, 27 May 2022 11:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652064;
-        bh=m1t48f8J1t5GlS2HZ+kgwhOatWjtlZrYDKKdcmlt4Co=;
+        s=korg; t=1653651491;
+        bh=tRdguKMsCMb3cgWGW47OTk5Q8fgyO7J3GqqlMWdLRDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABBLQ8zT8yLeaGgCmpc2uvamtas35mwapEcuiigMilgNf/7rzcHdLGlzR0T4bk17Y
-         z+LOFzX7wv9BCwnDhPEDj/gjOHZSokIoWmLfzuYaNw3f8zsP2kxVpCn5VObn5qKTAO
-         Jp/51TfeCXAHwgwJLX7nmQ7iD/PhrMjJIIMEQcKo=
+        b=KCFRwMZsUmJcR4f8A7+fhzrNGyj6jAn9JSGD0d7NklE6qTzQTPw2wYHxx7ZetR6t4
+         ROoTQMxSFro7xbqPaLXmgLCdcDMl3AnDrSWjjW7fhG54NKHTPAlxmgDOgrs/cDrBI/
+         fGz1lUT6k9SNiCK/rpoXuwwXmNeYLa5FvGTgLMgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 061/145] random: add proper SPDX header
+Subject: [PATCH 5.17 050/111] random: dont let 644 read-only sysctls be written to
 Date:   Fri, 27 May 2022 10:49:22 +0200
-Message-Id: <20220527084857.992170339@linuxfoundation.org>
+Message-Id: <20220527084826.508704032@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,72 +56,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a07fdae346c35c6ba286af1c88e0effcfa330bf9 upstream.
+commit 77553cf8f44863b31da242cf24671d76ddb61597 upstream.
 
-Convert the current license into the SPDX notation of "(GPL-2.0 OR
-BSD-3-Clause)". This infers GPL-2.0 from the text "ALTERNATIVELY, this
-product may be distributed under the terms of the GNU General Public
-License, in which case the provisions of the GPL are required INSTEAD OF
-the above restrictions" and it infers BSD-3-Clause from the verbatim
-BSD 3 clause license in the file.
+We leave around these old sysctls for compatibility, and we keep them
+"writable" for compatibility, but even after writing, we should keep
+reporting the same value. This is consistent with how userspaces tend to
+use sysctl_random_write_wakeup_bits, writing to it, and then later
+reading from it and using the value.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   37 +------------------------------------
- 1 file changed, 1 insertion(+), 36 deletions(-)
+ drivers/char/random.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1,44 +1,9 @@
-+// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
- /*
-- * random.c -- A strong random number generator
-- *
-  * Copyright (C) 2017-2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-- *
-  * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
-- *
-  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
-  * rights reserved.
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions
-- * are met:
-- * 1. Redistributions of source code must retain the above copyright
-- *    notice, and the entire permission notice in its entirety,
-- *    including the disclaimer of warranties.
-- * 2. Redistributions in binary form must reproduce the above copyright
-- *    notice, this list of conditions and the following disclaimer in the
-- *    documentation and/or other materials provided with the distribution.
-- * 3. The name of the author may not be used to endorse or promote
-- *    products derived from this software without specific prior
-- *    written permission.
-- *
-- * ALTERNATIVELY, this product may be distributed under the terms of
-- * the GNU General Public License, in which case the provisions of the GPL are
-- * required INSTEAD OF the above restrictions.  (This clause is
-- * necessary due to a potential bad interaction between the GPL and
-- * the restrictions contained in a BSD-style copyright.)
-- *
-- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
-- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
-- * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
-- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-- * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
-- * DAMAGE.
-  */
+@@ -1669,6 +1669,13 @@ static int proc_do_uuid(struct ctl_table
+ 	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+ }
  
- /*
++/* The same as proc_dointvec, but writes don't change anything. */
++static int proc_do_rointvec(struct ctl_table *table, int write, void *buffer,
++			    size_t *lenp, loff_t *ppos)
++{
++	return write ? 0 : proc_dointvec(table, 0, buffer, lenp, ppos);
++}
++
+ static struct ctl_table random_table[] = {
+ 	{
+ 		.procname	= "poolsize",
+@@ -1689,14 +1696,14 @@ static struct ctl_table random_table[] =
+ 		.data		= &sysctl_random_write_wakeup_bits,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_do_rointvec,
+ 	},
+ 	{
+ 		.procname	= "urandom_min_reseed_secs",
+ 		.data		= &sysctl_random_min_urandom_seed,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec,
++		.proc_handler	= proc_do_rointvec,
+ 	},
+ 	{
+ 		.procname	= "boot_id",
 
 
