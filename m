@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2067F535FEA
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92318535CD0
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351694AbiE0LqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56836 "EHLO
+        id S232997AbiE0JDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:03:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352174AbiE0Lpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:30 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0602140867;
-        Fri, 27 May 2022 04:42:09 -0700 (PDT)
+        with ESMTP id S1350314AbiE0I7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:02 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E80579B3;
+        Fri, 27 May 2022 01:55:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2ADDE61D54;
-        Fri, 27 May 2022 11:42:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C768C385A9;
-        Fri, 27 May 2022 11:42:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7A5D1CE237A;
+        Fri, 27 May 2022 08:55:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83D59C34100;
+        Fri, 27 May 2022 08:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651728;
-        bh=6cEbCemrHSo5uu84Ne4VBpDDNncNXsxqhB5T/ss4p+Q=;
+        s=korg; t=1653641722;
+        bh=m1t48f8J1t5GlS2HZ+kgwhOatWjtlZrYDKKdcmlt4Co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pu45vBSQwglbAk7zFDlbwlFHrFVbFSM2EmnZPi2367HpB/YjBrgqpaiTV85+J+V/I
-         N1dtGsJlge/L3VwKDOIOmZcz4CJRxXpN9dz4ayWme9CJpvzkJ9kXeW54q8V76xahIx
-         8au+TnwCNhNRGgf38TVcjXFmu1Ef3NVWq41GfiYQ=
+        b=Yo65ibpVD1mcKbt+cWT5Dr/0gbtYpiPtYVi3trLhuwM193y4deJ62PlMbP9ihrPGa
+         YSaX+3B6nYCF0lql0mmdtGjayRTqpEm04Mto0cj9BQnFyRU4wfyg/EOlSGgUckIIc1
+         bsNi+sMNfEZOl/7d9D76Fy5NRA0gFTF0PhBl19p8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 037/145] random: only call crng_finalize_init() for primary_crng
+Subject: [PATCH 5.17 026/111] random: add proper SPDX header
 Date:   Fri, 27 May 2022 10:48:58 +0200
-Message-Id: <20220527084855.384796466@linuxfoundation.org>
+Message-Id: <20220527084823.206306225@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +55,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Brodowski <linux@dominikbrodowski.net>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 9d5505f1eebeca778074a0260ed077fd85f8792c upstream.
+commit a07fdae346c35c6ba286af1c88e0effcfa330bf9 upstream.
 
-crng_finalize_init() returns instantly if it is called for another pool
-than primary_crng. The test whether crng_finalize_init() is still required
-can be moved to the relevant caller in crng_reseed(), and
-crng_need_final_init can be reset to false if crng_finalize_init() is
-called with workqueues ready. Then, no previous callsite will call
-crng_finalize_init() unless it is needed, and we can get rid of the
-superfluous function parameter.
+Convert the current license into the SPDX notation of "(GPL-2.0 OR
+BSD-3-Clause)". This infers GPL-2.0 from the text "ALTERNATIVELY, this
+product may be distributed under the terms of the GNU General Public
+License, in which case the provisions of the GPL are required INSTEAD OF
+the above restrictions" and it infers BSD-3-Clause from the verbatim
+BSD 3 clause license in the file.
 
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/char/random.c |   37 +------------------------------------
+ 1 file changed, 1 insertion(+), 36 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -800,10 +800,8 @@ static void __init crng_initialize_prima
- 	primary_crng.init_time = jiffies - CRNG_RESEED_INTERVAL - 1;
- }
+@@ -1,44 +1,9 @@
++// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
+ /*
+- * random.c -- A strong random number generator
+- *
+  * Copyright (C) 2017-2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+- *
+  * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
+- *
+  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
+  * rights reserved.
+- *
+- * Redistribution and use in source and binary forms, with or without
+- * modification, are permitted provided that the following conditions
+- * are met:
+- * 1. Redistributions of source code must retain the above copyright
+- *    notice, and the entire permission notice in its entirety,
+- *    including the disclaimer of warranties.
+- * 2. Redistributions in binary form must reproduce the above copyright
+- *    notice, this list of conditions and the following disclaimer in the
+- *    documentation and/or other materials provided with the distribution.
+- * 3. The name of the author may not be used to endorse or promote
+- *    products derived from this software without specific prior
+- *    written permission.
+- *
+- * ALTERNATIVELY, this product may be distributed under the terms of
+- * the GNU General Public License, in which case the provisions of the GPL are
+- * required INSTEAD OF the above restrictions.  (This clause is
+- * necessary due to a potential bad interaction between the GPL and
+- * the restrictions contained in a BSD-style copyright.)
+- *
+- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
+- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
+- * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
+- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
+- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+- * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
+- * DAMAGE.
+  */
  
--static void crng_finalize_init(struct crng_state *crng)
-+static void crng_finalize_init(void)
- {
--	if (crng != &primary_crng || crng_init >= 2)
--		return;
- 	if (!system_wq) {
- 		/* We can't call numa_crng_init until we have workqueues,
- 		 * so mark this for processing later. */
-@@ -814,6 +812,7 @@ static void crng_finalize_init(struct cr
- 	invalidate_batched_entropy();
- 	numa_crng_init();
- 	crng_init = 2;
-+	crng_need_final_init = false;
- 	process_random_ready_list();
- 	wake_up_interruptible(&crng_init_wait);
- 	kill_fasync(&fasync, SIGIO, POLL_IN);
-@@ -980,7 +979,8 @@ static void crng_reseed(struct crng_stat
- 	memzero_explicit(&buf, sizeof(buf));
- 	WRITE_ONCE(crng->init_time, jiffies);
- 	spin_unlock_irqrestore(&crng->lock, flags);
--	crng_finalize_init(crng);
-+	if (crng == &primary_crng && crng_init < 2)
-+		crng_finalize_init();
- }
- 
- static void _extract_crng(struct crng_state *crng, u8 out[CHACHA_BLOCK_SIZE])
-@@ -1697,7 +1697,7 @@ int __init rand_initialize(void)
- {
- 	init_std_data();
- 	if (crng_need_final_init)
--		crng_finalize_init(&primary_crng);
-+		crng_finalize_init();
- 	crng_initialize_primary();
- 	crng_global_init_time = jiffies;
- 	if (ratelimit_disable) {
+ /*
 
 
