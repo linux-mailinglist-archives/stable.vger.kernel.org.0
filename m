@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E52055361D4
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4FD536167
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352336AbiE0MIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:08:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42810 "EHLO
+        id S1346461AbiE0MBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:01:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353244AbiE0MFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58607163F67;
-        Fri, 27 May 2022 04:54:20 -0700 (PDT)
+        with ESMTP id S1352776AbiE0MA4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 538483969E;
+        Fri, 27 May 2022 04:52:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5C2E61E0C;
-        Fri, 27 May 2022 11:54:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2606C385A9;
-        Fri, 27 May 2022 11:54:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95300B824DA;
+        Fri, 27 May 2022 11:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E59D4C36AF7;
+        Fri, 27 May 2022 11:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652459;
-        bh=EdvDb6S1nAsYSuEuAgFLSFEXfil7BR7zKQAkFZL/bng=;
+        s=korg; t=1653652368;
+        bh=6szvqkdjoU+O8bp4LyOclQVEm9CULO8mYqsEvKUxCeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FPM0Wzn3uHAcI4D9eZZn3fM6dMRjcsNXlAuMcGSHenV9aHcdySPvCFmwImxCH8nYu
-         gT+JB8fXy+zkRAJZFDSiBaa7JL/L1hrOR/GyCQb18IN1cZ83yaVsHagzjYVQuZDenW
-         NnFdjOOtW+Gq1azlBVGuQL5B17uR2wuoTAYRrr4A=
+        b=SAhVPuwr1fvve/Iri12uj+cFHZkGIMS2m1tyW42zPWNKkIYEpGVB5XEwnjB6WfJtj
+         tXi3vn/ReCC82ZU8slse9CQOIFRH9tpItJGQ6+uKVBjhtPcRF41achlIFwaYX4NID7
+         nE3BQxKyHqpGSJ7oSbupNHwjh0I9WhTwr5ZHz3Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Joe Perches <joe@perches.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 148/163] random: remove ratelimiting for in-kernel unseeded randomness
+Subject: [PATCH 5.15 127/145] random: use symbolic constants for crng_init states
 Date:   Fri, 27 May 2022 10:50:28 +0200
-Message-Id: <20220527084848.936012635@linuxfoundation.org>
+Message-Id: <20220527084905.925492255@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,198 +57,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit cc1e127bfa95b5fb2f9307e7168bf8b2b45b4c5e upstream.
+commit e3d2c5e79a999aa4e7d6f0127e16d3da5a4ff70d upstream.
 
-The CONFIG_WARN_ALL_UNSEEDED_RANDOM debug option controls whether the
-kernel warns about all unseeded randomness or just the first instance.
-There's some complicated rate limiting and comparison to the previous
-caller, such that even with CONFIG_WARN_ALL_UNSEEDED_RANDOM enabled,
-developers still don't see all the messages or even an accurate count of
-how many were missed. This is the result of basically parallel
-mechanisms aimed at accomplishing more or less the same thing, added at
-different points in random.c history, which sort of compete with the
-first-instance-only limiting we have now.
+crng_init represents a state machine, with three states, and various
+rules for transitions. For the longest time, we've been managing these
+with "0", "1", and "2", and expecting people to figure it out. To make
+the code more obvious, replace these with proper enum values
+representing the transition, and then redocument what each of these
+states mean.
 
-It turns out, however, that nobody cares about the first unseeded
-randomness instance of in-kernel users. The same first user has been
-there for ages now, and nobody is doing anything about it. It isn't even
-clear that anybody _can_ do anything about it. Most places that can do
-something about it have switched over to using get_random_bytes_wait()
-or wait_for_random_bytes(), which is the right thing to do, but there is
-still much code that needs randomness sometimes during init, and as a
-geeneral rule, if you're not using one of the _wait functions or the
-readiness notifier callback, you're bound to be doing it wrong just
-based on that fact alone.
-
-So warning about this same first user that can't easily change is simply
-not an effective mechanism for anything at all. Users can't do anything
-about it, as the Kconfig text points out -- the problem isn't in
-userspace code -- and kernel developers don't or more often can't react
-to it.
-
-Instead, show the warning for all instances when CONFIG_WARN_ALL_UNSEEDED_RANDOM
-is set, so that developers can debug things need be, or if it isn't set,
-don't show a warning at all.
-
-At the same time, CONFIG_WARN_ALL_UNSEEDED_RANDOM now implies setting
-random.ratelimit_disable=1 on by default, since if you care about one
-you probably care about the other too. And we can clean up usage around
-the related urandom_warning ratelimiter as well (whose behavior isn't
-changing), so that it properly counts missed messages after the 10
-message threshold is reached.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Joe Perches <joe@perches.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   61 ++++++++++++++------------------------------------
- lib/Kconfig.debug     |    3 --
- 2 files changed, 19 insertions(+), 45 deletions(-)
+ drivers/char/random.c |   38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -86,11 +86,10 @@ static DEFINE_SPINLOCK(random_ready_chai
- static RAW_NOTIFIER_HEAD(random_ready_chain);
+@@ -70,16 +70,16 @@
+  *********************************************************************/
  
- /* Control how we warn userspace. */
--static struct ratelimit_state unseeded_warning =
--	RATELIMIT_STATE_INIT("warn_unseeded_randomness", HZ, 3);
- static struct ratelimit_state urandom_warning =
- 	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
--static int ratelimit_disable __read_mostly;
-+static int ratelimit_disable __read_mostly =
-+	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
- module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
- MODULE_PARM_DESC(ratelimit_disable, "Disable random ratelimit suppression");
- 
-@@ -183,27 +182,15 @@ static void process_random_ready_list(vo
- 	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
- }
- 
--#define warn_unseeded_randomness(previous) \
--	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
-+#define warn_unseeded_randomness() \
-+	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
- 
--static void _warn_unseeded_randomness(const char *func_name, void *caller, void **previous)
-+static void _warn_unseeded_randomness(const char *func_name, void *caller)
- {
--#ifdef CONFIG_WARN_ALL_UNSEEDED_RANDOM
--	const bool print_once = false;
--#else
--	static bool print_once __read_mostly;
--#endif
--
--	if (print_once || crng_ready() ||
--	    (previous && (caller == READ_ONCE(*previous))))
-+	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
- 		return;
--	WRITE_ONCE(*previous, caller);
--#ifndef CONFIG_WARN_ALL_UNSEEDED_RANDOM
--	print_once = true;
--#endif
--	if (__ratelimit(&unseeded_warning))
--		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
--				func_name, caller, crng_init);
-+	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
-+			func_name, caller, crng_init);
- }
- 
- 
-@@ -456,9 +443,7 @@ static void _get_random_bytes(void *buf,
+ /*
+- * crng_init =  0 --> Uninitialized
+- *		1 --> Initialized
+- *		2 --> Initialized from input_pool
+- *
+  * crng_init is protected by base_crng->lock, and only increases
+- * its value (from 0->1->2).
++ * its value (from empty->early->ready).
   */
- void get_random_bytes(void *buf, size_t nbytes)
- {
--	static void *previous;
--
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 	_get_random_bytes(buf, nbytes);
- }
- EXPORT_SYMBOL(get_random_bytes);
-@@ -554,10 +539,9 @@ u64 get_random_u64(void)
- 	u64 ret;
- 	unsigned long flags;
- 	struct batched_entropy *batch;
--	static void *previous;
- 	unsigned long next_gen;
- 
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 
- 	if  (!crng_ready()) {
- 		_get_random_bytes(&ret, sizeof(ret));
-@@ -593,10 +577,9 @@ u32 get_random_u32(void)
- 	u32 ret;
- 	unsigned long flags;
- 	struct batched_entropy *batch;
--	static void *previous;
- 	unsigned long next_gen;
- 
--	warn_unseeded_randomness(&previous);
-+	warn_unseeded_randomness();
- 
- 	if  (!crng_ready()) {
- 		_get_random_bytes(&ret, sizeof(ret));
-@@ -823,16 +806,9 @@ static void credit_init_bits(size_t nbit
- 		wake_up_interruptible(&crng_init_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
- 		pr_notice("crng init done\n");
--		if (unseeded_warning.missed) {
--			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
--				  unseeded_warning.missed);
--			unseeded_warning.missed = 0;
--		}
--		if (urandom_warning.missed) {
-+		if (urandom_warning.missed)
- 			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
- 				  urandom_warning.missed);
--			urandom_warning.missed = 0;
--		}
- 	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
- 		spin_lock_irqsave(&base_crng.lock, flags);
- 		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
-@@ -945,10 +921,6 @@ int __init rand_initialize(void)
- 	else if (arch_init && trust_cpu)
- 		credit_init_bits(BLAKE2S_BLOCK_SIZE * 8);
- 
--	if (ratelimit_disable) {
--		urandom_warning.interval = 0;
--		unseeded_warning.interval = 0;
--	}
- 	return 0;
- }
- 
-@@ -1394,11 +1366,14 @@ static ssize_t urandom_read(struct file
- {
- 	static int maxwarn = 10;
- 
--	if (!crng_ready() && maxwarn > 0) {
--		maxwarn--;
--		if (__ratelimit(&urandom_warning))
-+	if (!crng_ready()) {
-+		if (!ratelimit_disable && maxwarn <= 0)
-+			++urandom_warning.missed;
-+		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
-+			--maxwarn;
- 			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
- 				  current->comm, nbytes);
-+		}
+-static int crng_init = 0;
+-#define crng_ready() (likely(crng_init > 1))
+-/* Various types of waiters for crng_init->2 transition. */
++static enum {
++	CRNG_EMPTY = 0, /* Little to no entropy collected */
++	CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
++	CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
++} crng_init = CRNG_EMPTY;
++#define crng_ready() (likely(crng_init >= CRNG_READY))
++/* Various types of waiters for crng_init->CRNG_READY transition. */
+ static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
+ static struct fasync_struct *fasync;
+ static DEFINE_SPINLOCK(random_ready_chain_lock);
+@@ -284,7 +284,7 @@ static void crng_reseed(void)
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ 	WRITE_ONCE(base_crng.birth, jiffies);
+ 	if (!crng_ready()) {
+-		crng_init = 2;
++		crng_init = CRNG_READY;
+ 		finalize_init = true;
  	}
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+@@ -378,7 +378,7 @@ static void crng_make_state(u32 chacha_s
+ 	 * For the fast path, we check whether we're ready, unlocked first, and
+ 	 * then re-check once locked later. In the case where we're really not
+ 	 * ready, we do fast key erasure with the base_crng directly, extracting
+-	 * when crng_init==0.
++	 * when crng_init is CRNG_EMPTY.
+ 	 */
+ 	if (!crng_ready()) {
+ 		bool ready;
+@@ -386,7 +386,7 @@ static void crng_make_state(u32 chacha_s
+ 		spin_lock_irqsave(&base_crng.lock, flags);
+ 		ready = crng_ready();
+ 		if (!ready) {
+-			if (crng_init == 0)
++			if (crng_init == CRNG_EMPTY)
+ 				extract_entropy(base_crng.key, sizeof(base_crng.key));
+ 			crng_fast_key_erasure(base_crng.key, chacha_state,
+ 					      random_data, random_data_len);
+@@ -740,8 +740,8 @@ EXPORT_SYMBOL(get_random_bytes_arch);
  
- 	return get_random_bytes_user(buf, nbytes);
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1426,8 +1426,7 @@ config WARN_ALL_UNSEEDED_RANDOM
- 	  so architecture maintainers really need to do what they can
- 	  to get the CRNG seeded sooner after the system is booted.
- 	  However, since users cannot do anything actionable to
--	  address this, by default the kernel will issue only a single
--	  warning for the first use of unseeded randomness.
-+	  address this, by default this option is disabled.
+ enum {
+ 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
+-	POOL_INIT_BITS = POOL_BITS, /* No point in settling for less. */
+-	POOL_FAST_INIT_BITS = POOL_INIT_BITS / 2
++	POOL_READY_BITS = POOL_BITS, /* When crng_init->CRNG_READY */
++	POOL_EARLY_BITS = POOL_READY_BITS / 2 /* When crng_init->CRNG_EARLY */
+ };
  
- 	  Say Y here if you want to receive warnings for all uses of
- 	  unseeded randomness.  This will be of use primarily for
+ static struct {
+@@ -836,13 +836,13 @@ static void credit_init_bits(size_t nbit
+ 		init_bits = min_t(unsigned int, POOL_BITS, orig + add);
+ 	} while (cmpxchg(&input_pool.init_bits, orig, init_bits) != orig);
+ 
+-	if (!crng_ready() && init_bits >= POOL_INIT_BITS)
++	if (!crng_ready() && init_bits >= POOL_READY_BITS)
+ 		crng_reseed();
+-	else if (unlikely(crng_init == 0 && init_bits >= POOL_FAST_INIT_BITS)) {
++	else if (unlikely(crng_init == CRNG_EMPTY && init_bits >= POOL_EARLY_BITS)) {
+ 		spin_lock_irqsave(&base_crng.lock, flags);
+-		if (crng_init == 0) {
++		if (crng_init == CRNG_EMPTY) {
+ 			extract_entropy(base_crng.key, sizeof(base_crng.key));
+-			crng_init = 1;
++			crng_init = CRNG_EARLY;
+ 		}
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 	}
+@@ -1517,7 +1517,7 @@ const struct file_operations urandom_fop
+  *
+  * - write_wakeup_threshold - the amount of entropy in the input pool
+  *   below which write polls to /dev/random will unblock, requesting
+- *   more entropy, tied to the POOL_INIT_BITS constant. It is writable
++ *   more entropy, tied to the POOL_READY_BITS constant. It is writable
+  *   to avoid breaking old userspaces, but writing to it does not
+  *   change any behavior of the RNG.
+  *
+@@ -1532,7 +1532,7 @@ const struct file_operations urandom_fop
+ #include <linux/sysctl.h>
+ 
+ static int sysctl_random_min_urandom_seed = CRNG_RESEED_INTERVAL / HZ;
+-static int sysctl_random_write_wakeup_bits = POOL_INIT_BITS;
++static int sysctl_random_write_wakeup_bits = POOL_READY_BITS;
+ static int sysctl_poolsize = POOL_BITS;
+ static u8 sysctl_bootid[UUID_SIZE];
+ 
 
 
