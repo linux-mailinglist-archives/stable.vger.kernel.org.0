@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01DF2536053
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:49:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F62D535C80
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351897AbiE0LrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:47:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57062 "EHLO
+        id S1350288AbiE0JCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351890AbiE0LrG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:47:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7D50149D9D;
-        Fri, 27 May 2022 04:43:05 -0700 (PDT)
+        with ESMTP id S1350373AbiE0I7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C995C874;
+        Fri, 27 May 2022 01:55:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FD41B824D8;
-        Fri, 27 May 2022 11:43:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B210FC385A9;
-        Fri, 27 May 2022 11:43:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 214EB61D6F;
+        Fri, 27 May 2022 08:55:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B0F1C385A9;
+        Fri, 27 May 2022 08:55:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651782;
-        bh=1gYXjOiQ/z90nRzb8U321OxJ4EeK2vYVDyO9CPVnJcY=;
+        s=korg; t=1653641741;
+        bh=i2Ls4FRmXeR8s7LWB/7GTRBtb7/HOAyQN4vOp63lBFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jb3wYEpSijFYMUZ8SEST8m8RXaZo3GfbiTXRv2mGlhQLDlV3zwGUaaSKmFlEpEYCL
-         ht77FslIbjVZp5IP0EN7+2cQaLYx1GoQxfSW89YKRAzfUNWIm7lx1qwLR8FWyRfdOi
-         2aJVImPU36p7H0J/3QYsNhqAwLdeXoytn6OsaEcU=
+        b=gIJNFahT/Y36NVU0zm0bG4J7vlHqxFjAdC4yf1qogVlG+zEB0QoVEHtZ7GzKjWtSk
+         W/Q/BjPgvQiqJr7quH3Wv3Uw5iPtsEMMI7CtUuOWuDRNaC046rR3qxGAc0r2RAGeUt
+         A4aDWGgCB23IeLYq9qVX7eKRTr1RaaooCJ43/uLM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 049/163] random: cleanup fractional entropy shift constants
-Date:   Fri, 27 May 2022 10:48:49 +0200
-Message-Id: <20220527084834.876976182@linuxfoundation.org>
+Subject: [PATCH 5.17 018/111] random: use hash function for crng_slow_load()
+Date:   Fri, 27 May 2022 10:48:50 +0200
+Message-Id: <20220527084821.857162460@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +57,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 18263c4e8e62f7329f38f5eadc568751242ca89c upstream.
+commit 66e4c2b9541503d721e936cc3898c9f25f4591ff upstream.
 
-The entropy estimator is calculated in terms of 1/8 bits, which means
-there are various constants where things are shifted by 3. Move these
-into our pool info enum with the other relevant constants. While we're
-at it, move an English assertion about sizes into a proper BUILD_BUG_ON
-so that the compiler can ensure this invariant.
+Since we have a hash function that's really fast, and the goal of
+crng_slow_load() is reportedly to "touch all of the crng's state", we
+can just hash the old state together with the new state and call it a
+day. This way we dont need to reason about another LFSR or worry about
+various attacks there. This code is only ever used at early boot and
+then never again.
 
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/char/random.c |   40 ++++++++++++++--------------------------
+ 1 file changed, 14 insertions(+), 26 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -359,16 +359,6 @@
- /* #define ADD_INTERRUPT_BENCH */
- 
- /*
-- * To allow fractional bits to be tracked, the entropy_count field is
-- * denominated in units of 1/8th bits.
-- *
-- * 2*(POOL_ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
-- * credit_entropy_bits() needs to be 64 bits wide.
-- */
--#define POOL_ENTROPY_SHIFT 3
--#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
--
--/*
-  * If the entropy count falls under this number of bits, then we
-  * should wake up processes which are selecting or polling on write
-  * access to /dev/random.
-@@ -425,8 +415,13 @@ enum poolinfo {
- 	POOL_WORDMASK = POOL_WORDS - 1,
- 	POOL_BYTES = POOL_WORDS * sizeof(u32),
- 	POOL_BITS = POOL_BYTES * 8,
--	POOL_BITSHIFT = ilog2(POOL_WORDS) + 5,
--	POOL_FRACBITS = POOL_WORDS << (POOL_ENTROPY_SHIFT + 5),
-+	POOL_BITSHIFT = ilog2(POOL_BITS),
+@@ -477,42 +477,30 @@ static size_t crng_fast_load(const u8 *c
+  * all), and (2) it doesn't have the performance constraints of
+  * crng_fast_load().
+  *
+- * So we do something more comprehensive which is guaranteed to touch
+- * all of the primary_crng's state, and which uses a LFSR with a
+- * period of 255 as part of the mixing algorithm.  Finally, we do
+- * *not* advance crng_init_cnt since buffer we may get may be something
+- * like a fixed DMI table (for example), which might very well be
+- * unique to the machine, but is otherwise unvarying.
++ * So, we simply hash the contents in with the current key. Finally,
++ * we do *not* advance crng_init_cnt since buffer we may get may be
++ * something like a fixed DMI table (for example), which might very
++ * well be unique to the machine, but is otherwise unvarying.
+  */
+-static int crng_slow_load(const u8 *cp, size_t len)
++static void crng_slow_load(const u8 *cp, size_t len)
+ {
+ 	unsigned long flags;
+-	static u8 lfsr = 1;
+-	u8 tmp;
+-	unsigned int i, max = sizeof(base_crng.key);
+-	const u8 *src_buf = cp;
+-	u8 *dest_buf = base_crng.key;
++	struct blake2s_state hash;
 +
-+	/* To allow fractional bits to be tracked, the entropy_count field is
-+	 * denominated in units of 1/8th bits. */
-+	POOL_ENTROPY_SHIFT = 3,
-+#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
-+	POOL_FRACBITS = POOL_BITS << POOL_ENTROPY_SHIFT,
++	blake2s_init(&hash, sizeof(base_crng.key));
  
- 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
- 	POOL_TAP1 = 104,
-@@ -652,6 +647,9 @@ static void credit_entropy_bits(int nbit
- 	int entropy_count, entropy_bits, orig;
- 	int nfrac = nbits << POOL_ENTROPY_SHIFT;
- 
-+	/* Ensure that the multiplication can avoid being 64 bits wide. */
-+	BUILD_BUG_ON(2 * (POOL_ENTROPY_SHIFT + POOL_BITSHIFT) > 31);
-+
- 	if (!nbits)
- 		return;
- 
-@@ -687,13 +685,13 @@ retry:
- 		/* The +2 corresponds to the /4 in the denominator */
- 
- 		do {
--			unsigned int anfrac = min(pnfrac, POOL_FRACBITS/2);
-+			unsigned int anfrac = min(pnfrac, POOL_FRACBITS / 2);
- 			unsigned int add =
--				((POOL_FRACBITS - entropy_count)*anfrac*3) >> s;
-+				((POOL_FRACBITS - entropy_count) * anfrac * 3) >> s;
- 
- 			entropy_count += add;
- 			pnfrac -= anfrac;
--		} while (unlikely(entropy_count < POOL_FRACBITS-2 && pnfrac));
-+		} while (unlikely(entropy_count < POOL_FRACBITS - 2 && pnfrac));
+ 	if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-		return 0;
++		return;
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+-		return 0;
++		return;
  	}
+-	if (len > max)
+-		max = len;
  
- 	if (WARN_ON(entropy_count < 0)) {
+-	for (i = 0; i < max; i++) {
+-		tmp = lfsr;
+-		lfsr >>= 1;
+-		if (tmp & 1)
+-			lfsr ^= 0xE1;
+-		tmp = dest_buf[i % sizeof(base_crng.key)];
+-		dest_buf[i % sizeof(base_crng.key)] ^= src_buf[i % len] ^ lfsr;
+-		lfsr += (tmp << 3) | (tmp >> 5);
+-	}
++	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++	blake2s_update(&hash, cp, len);
++	blake2s_final(&hash, base_crng.key);
++
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+-	return 1;
+ }
+ 
+ static void crng_reseed(void)
 
 
