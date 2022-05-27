@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EAC153631A
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 15:02:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A72553631C
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 15:02:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351633AbiE0NCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 09:02:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47380 "EHLO
+        id S1351635AbiE0NCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 09:02:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238766AbiE0NCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 09:02:46 -0400
-Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D918A38DA5;
-        Fri, 27 May 2022 06:02:43 -0700 (PDT)
-Received: by mail-wm1-x329.google.com with SMTP id f23-20020a7bcc17000000b003972dda143eso4534008wmh.3;
-        Fri, 27 May 2022 06:02:43 -0700 (PDT)
+        with ESMTP id S238766AbiE0NCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 09:02:48 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0CFB3BBF6;
+        Fri, 27 May 2022 06:02:45 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id e2so5829558wrc.1;
+        Fri, 27 May 2022 06:02:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=LuV2WNWBzFzDFM9UzO8H2iJ9QFWj2tDa1lgS6fde0JU=;
-        b=UvvABez8z9lZbkFJbj4IVJXKTyWP60hfRwmj8uhW2+hn4U1iQQbSVlNjLJj6JzsDvv
-         dkfqaUixXEd8l0L7AijSNvw/t8RUb4NiIvD7pIFPvIBFLwp6kgL4lesmCjG3qACe/e3F
-         MJhJoMoEZd0vBm/TY2/A09Ga98djpZBtJ8TdG/h1hsZnR1dUotLFRFZdZH04jGolLm3Y
-         ++tksUi/5t8gVMQZqkdOoicsQbDeV/8qp63Tc5uRy2lmcUqY96a/DUh6VZcUje2TUxWZ
-         Z79q+Ef1cPoYuN6klaYXfXlk3RMJxAyn9HhQjWewtr7AzNUn8RGum5OWbZyaUH8Ml6q5
-         Nb6Q==
+        bh=GX4MGgyF/rjjoLGNo+9vAqeePSGvpBNozK+r4g9/A+k=;
+        b=WF5HqPxbrl/Q0v5xS46WO1rdGfy3EU8Ofaho5g9NSk0r5JGrIU41JYpKF3I4HTr8HD
+         Yj+JGTfZeNs7XnviBu8b6O4DK6MvNBQepI8Ul1QIfni/dkmL1lT42rWxcrPpLJ6SiQau
+         6NHbwO/BYVcG5249uVPL/iFmNMP6QfGeVaBDmx3zXBLiPDQxU1oRAfldywMe+YOMACNU
+         unfMV5VpqgFsGNT8s8FyXBlRGMW6jPk2Pe3rRkvZ4LOGq1cj6MnQsW6bMK88SZpdPF2f
+         tArFk3Uhqr1vbZj6sH2aWpJbV4uxSH+nonJS4AVzJG0b3K2T2DfZv1FyCgk7tHMMgFPL
+         V4rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=LuV2WNWBzFzDFM9UzO8H2iJ9QFWj2tDa1lgS6fde0JU=;
-        b=cofpERDbE4rfFECfpE2aqVZH4zlgaGsoxZFQWbs6A9tqwY/axaoXNO4Ttw5LSt5PBB
-         wWR1rjduqJIYCXLyfy3HMzCVDF4OPNR319F1QOKe6Icnvu1u6BBM9sPe+rlPL/gk8o2/
-         xYswje9GIDP5yAB2M8xK8a6FaGdwk69apZU2g7jdNjfaHU9gjBD46OaV+zOPHg7pu8mb
-         o/V6P5RIueIe96Hau5ixrmdRg2Bm7mM3kw1VF9vZAAqy7a1mZL+IOmdN+1jhMlNygXaT
-         rQeEowImZdH1V/KgnDmpKhYBk0tk1yKXNFXXRRV6sG0cDujEP8WzmKSH2wKRQkJiotkX
-         D9CQ==
-X-Gm-Message-State: AOAM532LlxDIklD24ayg1x1YYu0Tmt3xIsXN8gKxIfFKeajus8oKGjki
-        mrRb83PfcOzUWHQPubxwhGA=
-X-Google-Smtp-Source: ABdhPJwsxtxffw7pnTMq8yhgFiR9e6Tit/BAK9nBylpRWsfXZIdOd72ycjqt3uI8ZhN4FIicAqtwaQ==
-X-Received: by 2002:a05:600c:2053:b0:397:36f3:c95e with SMTP id p19-20020a05600c205300b0039736f3c95emr6940543wmg.185.1653656561818;
-        Fri, 27 May 2022 06:02:41 -0700 (PDT)
+        bh=GX4MGgyF/rjjoLGNo+9vAqeePSGvpBNozK+r4g9/A+k=;
+        b=OioIdla4XHvyfsKgOBhgBrj+eScesWMKrtmxi+yakK8ROBOfte07i4YQ+CvPqI0PGV
+         hGwAqI1PvmuJfabV9BUo5gXWbJQUlCsWGADOS+P8aU/vdziC2GmfP4IOinFC2c4IC+Gk
+         iHylbOQu5WXMeb7FuRjyyuZxY0os9qpSozeKUbuRsdHq+VMM3GqE6tR7+8nZL+lQuXmY
+         ykeyKG00NG2zWxim9aVHqHxzeBOGsLVrztLcmcztF5LYv3IKbdg5N+4XWVJyB4pG40fL
+         1ivzoH4etnQmjaFrdNDk3RXNiE7d6EF1dsRpPJNFrq1c334mtgUy6P+liulONSqCXsiS
+         dDtg==
+X-Gm-Message-State: AOAM530xfpFn98JslyPykhyTF9S1Yc/MwD82sUZ0rhaBjM0/kLfxd/kc
+        7XBURuqPatchCySA2i0OcU0=
+X-Google-Smtp-Source: ABdhPJy1q3PRNZwMMAFcy5ZRipoCnbeFWrR/Mu0fze51q6kG+gtQQO4yW+vNSHIcK0KgSJt1oBFUDg==
+X-Received: by 2002:adf:f145:0:b0:210:598:4042 with SMTP id y5-20020adff145000000b0021005984042mr7755494wro.139.1653656563929;
+        Fri, 27 May 2022 06:02:43 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([77.137.79.96])
-        by smtp.gmail.com with ESMTPSA id l36-20020a05600c08a400b003942a244f48sm1932569wmp.33.2022.05.27.06.02.39
+        by smtp.gmail.com with ESMTPSA id l36-20020a05600c08a400b003942a244f48sm1932569wmp.33.2022.05.27.06.02.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 May 2022 06:02:41 -0700 (PDT)
+        Fri, 27 May 2022 06:02:43 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -60,10 +60,10 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         Tyler Hicks <code@tyhicks.com>, Jan Kara <jack@suse.cz>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        Kaixu Xia <kaixuxia@tencent.com>
-Subject: [PATCH 5.10 v2 2/5] xfs: show the proper user quota options
-Date:   Fri, 27 May 2022 16:02:16 +0300
-Message-Id: <20220527130219.3110260-3-amir73il@gmail.com>
+        zlang@redhat.com, Dave Chinner <dchinner@redhat.com>
+Subject: [PATCH 5.10 v2 3/5] xfs: fix the forward progress assertion in xfs_iwalk_run_callbacks
+Date:   Fri, 27 May 2022 16:02:17 +0300
+Message-Id: <20220527130219.3110260-4-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220527130219.3110260-1-amir73il@gmail.com>
 References: <20220527130219.3110260-1-amir73il@gmail.com>
@@ -79,44 +79,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaixu Xia <kaixuxia@tencent.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit 237d7887ae723af7d978e8b9a385fdff416f357b upstream.
+commit a5336d6bb2d02d0e9d4d3c8be04b80b8b68d56c8 upstream.
 
-The quota option 'usrquota' should be shown if both the XFS_UQUOTA_ACCT
-and XFS_UQUOTA_ENFD flags are set. The option 'uqnoenforce' should be
-shown when only the XFS_UQUOTA_ACCT flag is set. The current code logic
-seems wrong, Fix it and show proper options.
+In commit 27c14b5daa82 we started tracking the last inode seen during an
+inode walk to avoid infinite loops if a corrupt inobt record happens to
+have a lower ir_startino than the record preceeding it.  Unfortunately,
+the assertion trips over the case where there are completely empty inobt
+records (which can happen quite easily on 64k page filesystems) because
+we advance the tracking cursor without actually putting the empty record
+into the processing buffer.  Fix the assert to allow for this case.
 
-Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reported-by: zlang@redhat.com
+Fixes: 27c14b5daa82 ("xfs: ensure inobt record walks always make forward progress")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Zorro Lang <zlang@redhat.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/xfs/xfs_super.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/xfs/xfs_iwalk.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-index e3e229e52512..5ebd6cdc44a7 100644
---- a/fs/xfs/xfs_super.c
-+++ b/fs/xfs/xfs_super.c
-@@ -199,10 +199,12 @@ xfs_fs_show_options(
- 		seq_printf(m, ",swidth=%d",
- 				(int)XFS_FSB_TO_BB(mp, mp->m_swidth));
+diff --git a/fs/xfs/xfs_iwalk.c b/fs/xfs/xfs_iwalk.c
+index 2a45138831e3..eae3aff9bc97 100644
+--- a/fs/xfs/xfs_iwalk.c
++++ b/fs/xfs/xfs_iwalk.c
+@@ -363,7 +363,7 @@ xfs_iwalk_run_callbacks(
+ 	/* Delete cursor but remember the last record we cached... */
+ 	xfs_iwalk_del_inobt(tp, curpp, agi_bpp, 0);
+ 	irec = &iwag->recs[iwag->nr_recs - 1];
+-	ASSERT(next_agino == irec->ir_startino + XFS_INODES_PER_CHUNK);
++	ASSERT(next_agino >= irec->ir_startino + XFS_INODES_PER_CHUNK);
  
--	if (mp->m_qflags & (XFS_UQUOTA_ACCT|XFS_UQUOTA_ENFD))
--		seq_puts(m, ",usrquota");
--	else if (mp->m_qflags & XFS_UQUOTA_ACCT)
--		seq_puts(m, ",uqnoenforce");
-+	if (mp->m_qflags & XFS_UQUOTA_ACCT) {
-+		if (mp->m_qflags & XFS_UQUOTA_ENFD)
-+			seq_puts(m, ",usrquota");
-+		else
-+			seq_puts(m, ",uqnoenforce");
-+	}
- 
- 	if (mp->m_qflags & XFS_PQUOTA_ACCT) {
- 		if (mp->m_qflags & XFS_PQUOTA_ENFD)
+ 	error = xfs_iwalk_ag_recs(iwag);
+ 	if (error)
 -- 
 2.25.1
 
