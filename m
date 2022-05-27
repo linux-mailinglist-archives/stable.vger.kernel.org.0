@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A755360EB
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:01:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C12A65360F8
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352187AbiE0L6O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
+        id S1352162AbiE0L6G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:58:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353294AbiE0L4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B365D13C4D9;
-        Fri, 27 May 2022 04:50:41 -0700 (PDT)
+        with ESMTP id S1353279AbiE0L4W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54C0313128C;
+        Fri, 27 May 2022 04:50:28 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F78661D56;
-        Fri, 27 May 2022 11:50:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B487C385A9;
-        Fri, 27 May 2022 11:50:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16F17B8091D;
+        Fri, 27 May 2022 11:50:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8244EC385A9;
+        Fri, 27 May 2022 11:50:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652240;
-        bh=wCIxM11oAIZ58tWjDjX3rKJf4O9UkbW0mU0KOD/Q4VQ=;
+        s=korg; t=1653652225;
+        bh=JWoSuLel7PwTYBN0zYFNGRuSZCQhuOHrSWdEZjoxqOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rdzJQ6jZFjMEu4OgEvRXjZOMGWC0XSN4E+dlRkLQXrmTZNmsZOAfvdx7O7lcKSzh6
-         kdM0Lv2supBEu5skakgPFejyXferpB6/EgSzgBScTryFrqc/iIjVzhFQLF+SQUEoiS
-         DElKOGivvyZifnaA+nP/0+Otit7PP8feq0ZyYFn4=
+        b=cRgpQhbYtDDDgO6qcwHKXnvZ77M8nCRhIQNm4WD4H2s2ugOrnyXqfENoVn9Ddj8eo
+         HdCV9OaAF1Dw1UeEmEd20Q9II+4Eyx50Uyfi7ggXwSANDUJyY6yaaJezKZypPG8xy1
+         qnxN5u240LxM5YjxYjIMxUfCbbb/xdiBO2mYb6/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Theodore Tso <tytso@mit.edu>,
+        Thomas Gleixner <tglx@linutronix.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 097/145] random: check for signal_pending() outside of need_resched() check
+Subject: [PATCH 5.10 118/163] random: make random_get_entropy() return an unsigned long
 Date:   Fri, 27 May 2022 10:49:58 +0200
-Message-Id: <20220527084902.457011649@linuxfoundation.org>
+Message-Id: <20220527084844.488432178@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +56,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1448769c9cdb69ad65287f4f7ab58bc5f2f5d7ba upstream.
+commit b0c3e796f24b588b862b61ce235d3c9417dc8983 upstream.
 
-signal_pending() checks TIF_NOTIFY_SIGNAL and TIF_SIGPENDING, which
-signal that the task should bail out of the syscall when possible. This
-is a separate concept from need_resched(), which checks
-TIF_NEED_RESCHED, signaling that the task should preempt.
+Some implementations were returning type `unsigned long`, while others
+that fell back to get_cycles() were implicitly returning a `cycles_t` or
+an untyped constant int literal. That makes for weird and confusing
+code, and basically all code in the kernel already handled it like it
+was an `unsigned long`. I recently tried to handle it as the largest
+type it could be, a `cycles_t`, but doing so doesn't really help with
+much.
 
-In particular, with the current code, the signal_pending() bailout
-probably won't work reliably.
+Instead let's just make random_get_entropy() return an unsigned long all
+the time. This also matches the commonly used `arch_get_random_long()`
+function, so now RDRAND and RDTSC return the same sized integer, which
+means one can fallback to the other more gracefully.
 
-Change this to look like other functions that read lots of data, such as
-read_zero().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jann Horn <jannh@google.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |   20 +++++++-------------
+ include/linux/timex.h |    2 +-
+ 2 files changed, 8 insertions(+), 14 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -551,13 +551,13 @@ static ssize_t get_random_bytes_user(voi
+@@ -1015,7 +1015,7 @@ int __init rand_initialize(void)
+  */
+ void add_device_randomness(const void *buf, size_t size)
+ {
+-	cycles_t cycles = random_get_entropy();
++	unsigned long cycles = random_get_entropy();
+ 	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+@@ -1046,8 +1046,7 @@ struct timer_rand_state {
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+ {
+-	cycles_t cycles = random_get_entropy();
+-	unsigned long flags, now = jiffies;
++	unsigned long cycles = random_get_entropy(), now = jiffies, flags;
+ 	long delta, delta2, delta3;
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+@@ -1302,8 +1301,7 @@ static void mix_interrupt_randomness(str
+ void add_interrupt_randomness(int irq)
+ {
+ 	enum { MIX_INFLIGHT = 1U << 31 };
+-	cycles_t cycles = random_get_entropy();
+-	unsigned long now = jiffies;
++	unsigned long cycles = random_get_entropy(), now = jiffies;
+ 	struct fast_pool *fast_pool = this_cpu_ptr(&irq_randomness);
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
+@@ -1316,16 +1314,12 @@ void add_interrupt_randomness(int irq)
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+ 
+-	if (sizeof(cycles) == 8)
++	if (sizeof(unsigned long) == 8) {
+ 		irq_data.u64[0] = cycles ^ rol64(now, 32) ^ irq;
+-	else {
++		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
++	} else {
+ 		irq_data.u32[0] = cycles ^ irq;
+ 		irq_data.u32[1] = now;
+-	}
+-
+-	if (sizeof(unsigned long) == 8)
+-		irq_data.u64[1] = regs ? instruction_pointer(regs) : _RET_IP_;
+-	else {
+ 		irq_data.u32[2] = regs ? instruction_pointer(regs) : _RET_IP_;
+ 		irq_data.u32[3] = get_reg(fast_pool, regs);
  	}
+@@ -1372,7 +1366,7 @@ static void entropy_timer(struct timer_l
+ static void try_to_generate_entropy(void)
+ {
+ 	struct {
+-		cycles_t cycles;
++		unsigned long cycles;
+ 		struct timer_list timer;
+ 	} stack;
  
- 	do {
--		if (large_request && need_resched()) {
-+		if (large_request) {
- 			if (signal_pending(current)) {
- 				if (!ret)
- 					ret = -ERESTARTSYS;
- 				break;
- 			}
--			schedule();
-+			cond_resched();
- 		}
+--- a/include/linux/timex.h
++++ b/include/linux/timex.h
+@@ -75,7 +75,7 @@
+  * By default we use get_cycles() for this purpose, but individual
+  * architectures may override this in their asm/timex.h header file.
+  */
+-#define random_get_entropy()	get_cycles()
++#define random_get_entropy()	((unsigned long)get_cycles())
+ #endif
  
- 		chacha20_block(chacha_state, output);
+ /*
 
 
