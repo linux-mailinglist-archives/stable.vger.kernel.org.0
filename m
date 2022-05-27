@@ -2,1003 +2,1240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 124A1535B33
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:13:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48348535B38
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:14:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348791AbiE0IMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:12:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34946 "EHLO
+        id S239105AbiE0IOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:14:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234168AbiE0IMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:12:08 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F17FFF589;
-        Fri, 27 May 2022 01:12:05 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95774B80AAF;
-        Fri, 27 May 2022 08:12:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4BBC385A9;
-        Fri, 27 May 2022 08:12:01 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="ewfgbzTG"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1653639118;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=2fSI6BzKLJuOrxdtKurEG1F/w+ZalYybpolT/H7lk9A=;
-        b=ewfgbzTG0bAQydCxzwK4KTYYHUtRLVXCFAVcikyEBHiFofuqRfrq2pssCyVph/TgB3TFKh
-        DHAFQYaM+rG7JR/zJ5iDDRcz20Id5m0oj2gtAWkBOn0OMCX9LXgR1Wj62LJtrhVS4vNk4L
-        QoyZQIjF1TQ6ZJX2m9xW2GFiCqyCO/o=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 9cd0e160 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 27 May 2022 08:11:50 +0000 (UTC)
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-To:     linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        herbert@gondor.apana.org.au
-Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        gaochao <gaochao49@huawei.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH crypto v2] crypto: blake2s - remove shash module
-Date:   Fri, 27 May 2022 10:11:06 +0200
-Message-Id: <20220527081106.63227-1-Jason@zx2c4.com>
-In-Reply-To: <YpCGQvpirQWaAiRF@zx2c4.com>
-References: <YpCGQvpirQWaAiRF@zx2c4.com>
+        with ESMTP id S232768AbiE0IOK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:14:10 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D065FD37B
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 01:14:08 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id q18so3511630pln.12
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 01:14:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=GI74iQBTe1RcErPNphxlIplt2qw4KFjbjRyk41mpp98=;
+        b=6Sw4TyPSbuajcWzOtQin+UhNcCiBAGf/t1gzTMgylpQQji14KVhtWHmoAWlx51twfu
+         nafEvF6ypH2xn+9GMI79SThvqZjRtlXk+uunxkZ1HXhjLR8sfOCYSnZ/EJFV2LwIEuTl
+         I2UBMW2ujjrIeKmQOXIsCqKXzBUUlXuM62bDeolPB/XX0sax1Idiu48l+W62rTPudQx8
+         CvFNuNShTIw2xG6OFRVIxK2lw5IGuDbbhDLPNpXKpRg8/Fuv5mS/9GJ22CvCJsmTbhO8
+         VrdvTk3ip6y7AkupzqfKu7Kcopwt8XAwN0MRbt3V+4RtSld7wQ1PLV+ysP+waWRlq0Mm
+         BQLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=GI74iQBTe1RcErPNphxlIplt2qw4KFjbjRyk41mpp98=;
+        b=BDxnpAq7hL8nF49Fsye3IBYDE4TXK1Q9g/jy3HB7NFotnbkKKhed/4rqkvZTPF71fg
+         SVgf8dmMBIQVE0dBalE0t4/WtDyMhG58QMRxYY0hJqDrCjVinxpXjNth9HtRIxGBUh09
+         bEagDjH11MpBLf7fTQXYoboEX1JCH54evAHXEdhzTM5ZbjHffF60aJB3Jtmt3DRNe4o/
+         jU6PyXXBImaknfx/iItBXCGvbuKQezyjwm69Ut04Qr861f+xe29o5yhQq/IeS0r5MUlP
+         5H13UIH/B8FHMiDH97IsVsny4+ZPln9MvdfS6GyPo9BCkhe2Aw3ZYqdkiSIvAtoQn2nm
+         1sgw==
+X-Gm-Message-State: AOAM531a6wqUyq3MK6n3Hsmq6Q/0A+NTPN1CzNfZbyny2xeXdSir3ivw
+        WsDjqNfdfAQqCzvpicFYNaC3erF/bzrvXC0V7u0=
+X-Google-Smtp-Source: ABdhPJwVUhE8saOUjtiIIKmYzdwxAUNARzuHP6XNm6OqFE5MkxvzoE8C4AVuX1hz6WSF+ODGCB+fug==
+X-Received: by 2002:a17:902:8602:b0:162:eaf:3630 with SMTP id f2-20020a170902860200b001620eaf3630mr29604590plo.118.1653639246810;
+        Fri, 27 May 2022 01:14:06 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d7-20020a170902cec700b0016381e80f2asm2477190plg.111.2022.05.27.01.14.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 May 2022 01:14:06 -0700 (PDT)
+Message-ID: <6290884e.1c69fb81.dfbc1.56be@mx.google.com>
+Date:   Fri, 27 May 2022 01:14:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.19.245-7-g9c188d12745c8
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y build: 197 builds: 6 failed, 191 passed,
+ 2 errors, 32 warnings (v4.19.245-7-g9c188d12745c8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-BLAKE2s has no use as an shash, with no users of it. Just remove all of
-this unnecessary plumbing. Removing this shash was something we talked
-about back when we were making BLAKE2s a built-in, but I simply never
-got around to doing it. So this completes that project.
+stable-rc/linux-4.19.y build: 197 builds: 6 failed, 191 passed, 2 errors, 3=
+2 warnings (v4.19.245-7-g9c188d12745c8)
 
-Importantly, this fixs a bug in which the lib code depends on
-crypto_simd_disabled_for_test, causing linker errors.
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.245-7-g9c188d12745c8/
 
-Also add more alignment tests to the selftests and compare SIMD and
-non-SIMD compression functions, to make up for what we lose from
-testmgr.c.
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.245-7-g9c188d12745c8
+Git Commit: 9c188d12745c8f51e2a7695f2a29b12bd640d702
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 7 unique architectures
 
-Cc: gaochao <gaochao49@huawei.com>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: stable@vger.kernel.org
-Fixes: 6048fdcc5f26 ("lib/crypto: blake2s: include as built-in")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Build Failures Detected:
+
+arm:
+    rpc_defconfig: (gcc-10) FAIL
+
+mips:
+    ip27_defconfig: (gcc-10) FAIL
+    ip28_defconfig: (gcc-10) FAIL
+
+riscv:
+    allnoconfig: (gcc-10) FAIL
+    defconfig: (gcc-10) FAIL
+    tinyconfig: (gcc-10) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+
+arm64:
+    defconfig (gcc-10): 3 warnings
+    defconfig+arm64-chromebook (gcc-10): 3 warnings
+
+arm:
+    omap1_defconfig (gcc-10): 1 warning
+    rpc_defconfig (gcc-10): 2 errors
+
+i386:
+    allnoconfig (gcc-10): 2 warnings
+    i386_defconfig (gcc-10): 2 warnings
+    tinyconfig (gcc-10): 2 warnings
+
+mips:
+    lemote2f_defconfig (gcc-10): 1 warning
+    loongson3_defconfig (gcc-10): 1 warning
+    malta_qemu_32r6_defconfig (gcc-10): 1 warning
+    mtx1_defconfig (gcc-10): 3 warnings
+    nlm_xlp_defconfig (gcc-10): 1 warning
+
+riscv:
+
+x86_64:
+    allnoconfig (gcc-10): 3 warnings
+    tinyconfig (gcc-10): 3 warnings
+    x86_64_defconfig (gcc-10): 3 warnings
+    x86_64_defconfig+x86-chromebook (gcc-10): 3 warnings
+
+Errors summary:
+
+    2    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    2    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+h=3D=E2=80=99
+
+Warnings summary:
+
+    7    ld: warning: creating DT_TEXTREL in a PIE
+    6    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+d-only section `.head.text'
+    4    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic s=
+uffix given and no register operands; using default for `sysret'
+    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+d-only section `.head.text'
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    2    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    {standard input}:132: Warning: macro instruction expanded into mul=
+tiple instructions
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+741824 invokes undefined behavior [-Waggressive-loop-optimizations]
+    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
+ is larger than 1024 bytes [-Wframe-larger-than=3D]
+    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
+ismatches
+
+Warnings:
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+
+---------------------------------------------------------------------------=
+-----
+defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warn=
+ings, 0 section mismatches
+
+Warnings:
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+    aarch64-linux-gnu-ld: warning: -z norelro ignored
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
+gs, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
+g, 0 section mismatches
+
+Warnings:
+    {standard input}:132: Warning: macro instruction expanded into multiple=
+ instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
+4 invokes undefined behavior [-Waggressive-loop-optimizations]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
+arger than 1024 bytes [-Wframe-larger-than=3D]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
+ch=E2=80=99 assumed to have one element
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
+ mismatches
+
+Errors:
+    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-march=3D=
+=E2=80=99
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
+ mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
+3 warnings, 0 section mismatches
+
+Warnings:
+    arch/x86/entry/entry_64.S:1738: Warning: no instruction mnemonic suffix=
+ given and no register operands; using default for `sysret'
+    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
+y section `.head.text'
+    ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
 ---
- arch/arm/crypto/Kconfig           |   2 +-
- arch/arm/crypto/Makefile          |   4 +-
- arch/arm/crypto/blake2s-shash.c   |  75 -----------
- arch/x86/crypto/Makefile          |   4 +-
- arch/x86/crypto/blake2s-glue.c    |   3 +-
- arch/x86/crypto/blake2s-shash.c   |  77 -----------
- crypto/Kconfig                    |  20 +--
- crypto/Makefile                   |   1 -
- crypto/blake2s_generic.c          |  75 -----------
- crypto/tcrypt.c                   |  12 --
- crypto/testmgr.c                  |  24 ----
- crypto/testmgr.h                  | 217 ------------------------------
- include/crypto/internal/blake2s.h | 108 ---------------
- lib/crypto/blake2s-selftest.c     |  32 ++++-
- lib/crypto/blake2s.c              |  36 ++++-
- 15 files changed, 65 insertions(+), 625 deletions(-)
- delete mode 100644 arch/arm/crypto/blake2s-shash.c
- delete mode 100644 arch/x86/crypto/blake2s-shash.c
- delete mode 100644 crypto/blake2s_generic.c
-
-diff --git a/arch/arm/crypto/Kconfig b/arch/arm/crypto/Kconfig
-index e4dba5461cb3..149a5bd6b88c 100644
---- a/arch/arm/crypto/Kconfig
-+++ b/arch/arm/crypto/Kconfig
-@@ -63,7 +63,7 @@ config CRYPTO_SHA512_ARM
- 	  using optimized ARM assembler and NEON, when available.
- 
- config CRYPTO_BLAKE2S_ARM
--	tristate "BLAKE2s digest algorithm (ARM)"
-+	bool "BLAKE2s digest algorithm (ARM)"
- 	select CRYPTO_ARCH_HAVE_LIB_BLAKE2S
- 	help
- 	  BLAKE2s digest algorithm optimized with ARM scalar instructions.  This
-diff --git a/arch/arm/crypto/Makefile b/arch/arm/crypto/Makefile
-index 0274f81cc8ea..971e74546fb1 100644
---- a/arch/arm/crypto/Makefile
-+++ b/arch/arm/crypto/Makefile
-@@ -9,8 +9,7 @@ obj-$(CONFIG_CRYPTO_SHA1_ARM) += sha1-arm.o
- obj-$(CONFIG_CRYPTO_SHA1_ARM_NEON) += sha1-arm-neon.o
- obj-$(CONFIG_CRYPTO_SHA256_ARM) += sha256-arm.o
- obj-$(CONFIG_CRYPTO_SHA512_ARM) += sha512-arm.o
--obj-$(CONFIG_CRYPTO_BLAKE2S_ARM) += blake2s-arm.o
--obj-$(if $(CONFIG_CRYPTO_BLAKE2S_ARM),y) += libblake2s-arm.o
-+obj-$(CONFIG_CRYPTO_BLAKE2S_ARM) += libblake2s-arm.o
- obj-$(CONFIG_CRYPTO_BLAKE2B_NEON) += blake2b-neon.o
- obj-$(CONFIG_CRYPTO_CHACHA20_NEON) += chacha-neon.o
- obj-$(CONFIG_CRYPTO_POLY1305_ARM) += poly1305-arm.o
-@@ -32,7 +31,6 @@ sha256-arm-neon-$(CONFIG_KERNEL_MODE_NEON) := sha256_neon_glue.o
- sha256-arm-y	:= sha256-core.o sha256_glue.o $(sha256-arm-neon-y)
- sha512-arm-neon-$(CONFIG_KERNEL_MODE_NEON) := sha512-neon-glue.o
- sha512-arm-y	:= sha512-core.o sha512-glue.o $(sha512-arm-neon-y)
--blake2s-arm-y   := blake2s-shash.o
- libblake2s-arm-y:= blake2s-core.o blake2s-glue.o
- blake2b-neon-y  := blake2b-neon-core.o blake2b-neon-glue.o
- sha1-arm-ce-y	:= sha1-ce-core.o sha1-ce-glue.o
-diff --git a/arch/arm/crypto/blake2s-shash.c b/arch/arm/crypto/blake2s-shash.c
-deleted file mode 100644
-index 763c73beea2d..000000000000
---- a/arch/arm/crypto/blake2s-shash.c
-+++ /dev/null
-@@ -1,75 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
--/*
-- * BLAKE2s digest algorithm, ARM scalar implementation
-- *
-- * Copyright 2020 Google LLC
-- */
--
--#include <crypto/internal/blake2s.h>
--#include <crypto/internal/hash.h>
--
--#include <linux/module.h>
--
--static int crypto_blake2s_update_arm(struct shash_desc *desc,
--				     const u8 *in, unsigned int inlen)
--{
--	return crypto_blake2s_update(desc, in, inlen, false);
--}
--
--static int crypto_blake2s_final_arm(struct shash_desc *desc, u8 *out)
--{
--	return crypto_blake2s_final(desc, out, false);
--}
--
--#define BLAKE2S_ALG(name, driver_name, digest_size)			\
--	{								\
--		.base.cra_name		= name,				\
--		.base.cra_driver_name	= driver_name,			\
--		.base.cra_priority	= 200,				\
--		.base.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,	\
--		.base.cra_blocksize	= BLAKE2S_BLOCK_SIZE,		\
--		.base.cra_ctxsize	= sizeof(struct blake2s_tfm_ctx), \
--		.base.cra_module	= THIS_MODULE,			\
--		.digestsize		= digest_size,			\
--		.setkey			= crypto_blake2s_setkey,	\
--		.init			= crypto_blake2s_init,		\
--		.update			= crypto_blake2s_update_arm,	\
--		.final			= crypto_blake2s_final_arm,	\
--		.descsize		= sizeof(struct blake2s_state),	\
--	}
--
--static struct shash_alg blake2s_arm_algs[] = {
--	BLAKE2S_ALG("blake2s-128", "blake2s-128-arm", BLAKE2S_128_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-160", "blake2s-160-arm", BLAKE2S_160_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-224", "blake2s-224-arm", BLAKE2S_224_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-256", "blake2s-256-arm", BLAKE2S_256_HASH_SIZE),
--};
--
--static int __init blake2s_arm_mod_init(void)
--{
--	return IS_REACHABLE(CONFIG_CRYPTO_HASH) ?
--		crypto_register_shashes(blake2s_arm_algs,
--					ARRAY_SIZE(blake2s_arm_algs)) : 0;
--}
--
--static void __exit blake2s_arm_mod_exit(void)
--{
--	if (IS_REACHABLE(CONFIG_CRYPTO_HASH))
--		crypto_unregister_shashes(blake2s_arm_algs,
--					  ARRAY_SIZE(blake2s_arm_algs));
--}
--
--module_init(blake2s_arm_mod_init);
--module_exit(blake2s_arm_mod_exit);
--
--MODULE_DESCRIPTION("BLAKE2s digest algorithm, ARM scalar implementation");
--MODULE_LICENSE("GPL");
--MODULE_AUTHOR("Eric Biggers <ebiggers@google.com>");
--MODULE_ALIAS_CRYPTO("blake2s-128");
--MODULE_ALIAS_CRYPTO("blake2s-128-arm");
--MODULE_ALIAS_CRYPTO("blake2s-160");
--MODULE_ALIAS_CRYPTO("blake2s-160-arm");
--MODULE_ALIAS_CRYPTO("blake2s-224");
--MODULE_ALIAS_CRYPTO("blake2s-224-arm");
--MODULE_ALIAS_CRYPTO("blake2s-256");
--MODULE_ALIAS_CRYPTO("blake2s-256-arm");
-diff --git a/arch/x86/crypto/Makefile b/arch/x86/crypto/Makefile
-index 2831685adf6f..8ed4597fdf6a 100644
---- a/arch/x86/crypto/Makefile
-+++ b/arch/x86/crypto/Makefile
-@@ -61,9 +61,7 @@ sha256-ssse3-$(CONFIG_AS_SHA256_NI) += sha256_ni_asm.o
- obj-$(CONFIG_CRYPTO_SHA512_SSSE3) += sha512-ssse3.o
- sha512-ssse3-y := sha512-ssse3-asm.o sha512-avx-asm.o sha512-avx2-asm.o sha512_ssse3_glue.o
- 
--obj-$(CONFIG_CRYPTO_BLAKE2S_X86) += blake2s-x86_64.o
--blake2s-x86_64-y := blake2s-shash.o
--obj-$(if $(CONFIG_CRYPTO_BLAKE2S_X86),y) += libblake2s-x86_64.o
-+obj-$(CONFIG_CRYPTO_BLAKE2S_X86) += libblake2s-x86_64.o
- libblake2s-x86_64-y := blake2s-core.o blake2s-glue.o
- 
- obj-$(CONFIG_CRYPTO_GHASH_CLMUL_NI_INTEL) += ghash-clmulni-intel.o
-diff --git a/arch/x86/crypto/blake2s-glue.c b/arch/x86/crypto/blake2s-glue.c
-index 69853c13e8fb..aaba21230528 100644
---- a/arch/x86/crypto/blake2s-glue.c
-+++ b/arch/x86/crypto/blake2s-glue.c
-@@ -4,7 +4,6 @@
-  */
- 
- #include <crypto/internal/blake2s.h>
--#include <crypto/internal/simd.h>
- 
- #include <linux/types.h>
- #include <linux/jump_label.h>
-@@ -33,7 +32,7 @@ void blake2s_compress(struct blake2s_state *state, const u8 *block,
- 	/* SIMD disables preemption, so relax after processing each page. */
- 	BUILD_BUG_ON(SZ_4K / BLAKE2S_BLOCK_SIZE < 8);
- 
--	if (!static_branch_likely(&blake2s_use_ssse3) || !crypto_simd_usable()) {
-+	if (!static_branch_likely(&blake2s_use_ssse3) || !may_use_simd()) {
- 		blake2s_compress_generic(state, block, nblocks, inc);
- 		return;
- 	}
-diff --git a/arch/x86/crypto/blake2s-shash.c b/arch/x86/crypto/blake2s-shash.c
-deleted file mode 100644
-index 59ae28abe35c..000000000000
---- a/arch/x86/crypto/blake2s-shash.c
-+++ /dev/null
-@@ -1,77 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0 OR MIT
--/*
-- * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-- */
--
--#include <crypto/internal/blake2s.h>
--#include <crypto/internal/simd.h>
--#include <crypto/internal/hash.h>
--
--#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--#include <linux/sizes.h>
--
--#include <asm/cpufeature.h>
--#include <asm/processor.h>
--
--static int crypto_blake2s_update_x86(struct shash_desc *desc,
--				     const u8 *in, unsigned int inlen)
--{
--	return crypto_blake2s_update(desc, in, inlen, false);
--}
--
--static int crypto_blake2s_final_x86(struct shash_desc *desc, u8 *out)
--{
--	return crypto_blake2s_final(desc, out, false);
--}
--
--#define BLAKE2S_ALG(name, driver_name, digest_size)			\
--	{								\
--		.base.cra_name		= name,				\
--		.base.cra_driver_name	= driver_name,			\
--		.base.cra_priority	= 200,				\
--		.base.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,	\
--		.base.cra_blocksize	= BLAKE2S_BLOCK_SIZE,		\
--		.base.cra_ctxsize	= sizeof(struct blake2s_tfm_ctx), \
--		.base.cra_module	= THIS_MODULE,			\
--		.digestsize		= digest_size,			\
--		.setkey			= crypto_blake2s_setkey,	\
--		.init			= crypto_blake2s_init,		\
--		.update			= crypto_blake2s_update_x86,	\
--		.final			= crypto_blake2s_final_x86,	\
--		.descsize		= sizeof(struct blake2s_state),	\
--	}
--
--static struct shash_alg blake2s_algs[] = {
--	BLAKE2S_ALG("blake2s-128", "blake2s-128-x86", BLAKE2S_128_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-160", "blake2s-160-x86", BLAKE2S_160_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-224", "blake2s-224-x86", BLAKE2S_224_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-256", "blake2s-256-x86", BLAKE2S_256_HASH_SIZE),
--};
--
--static int __init blake2s_mod_init(void)
--{
--	if (IS_REACHABLE(CONFIG_CRYPTO_HASH) && boot_cpu_has(X86_FEATURE_SSSE3))
--		return crypto_register_shashes(blake2s_algs, ARRAY_SIZE(blake2s_algs));
--	return 0;
--}
--
--static void __exit blake2s_mod_exit(void)
--{
--	if (IS_REACHABLE(CONFIG_CRYPTO_HASH) && boot_cpu_has(X86_FEATURE_SSSE3))
--		crypto_unregister_shashes(blake2s_algs, ARRAY_SIZE(blake2s_algs));
--}
--
--module_init(blake2s_mod_init);
--module_exit(blake2s_mod_exit);
--
--MODULE_ALIAS_CRYPTO("blake2s-128");
--MODULE_ALIAS_CRYPTO("blake2s-128-x86");
--MODULE_ALIAS_CRYPTO("blake2s-160");
--MODULE_ALIAS_CRYPTO("blake2s-160-x86");
--MODULE_ALIAS_CRYPTO("blake2s-224");
--MODULE_ALIAS_CRYPTO("blake2s-224-x86");
--MODULE_ALIAS_CRYPTO("blake2s-256");
--MODULE_ALIAS_CRYPTO("blake2s-256-x86");
--MODULE_LICENSE("GPL v2");
-diff --git a/crypto/Kconfig b/crypto/Kconfig
-index 41068811fd0e..f567271ed10d 100644
---- a/crypto/Kconfig
-+++ b/crypto/Kconfig
-@@ -691,26 +691,8 @@ config CRYPTO_BLAKE2B
- 
- 	  See https://blake2.net for further information.
- 
--config CRYPTO_BLAKE2S
--	tristate "BLAKE2s digest algorithm"
--	select CRYPTO_LIB_BLAKE2S_GENERIC
--	select CRYPTO_HASH
--	help
--	  Implementation of cryptographic hash function BLAKE2s
--	  optimized for 8-32bit platforms and can produce digests of any size
--	  between 1 to 32.  The keyed hash is also implemented.
--
--	  This module provides the following algorithms:
--
--	  - blake2s-128
--	  - blake2s-160
--	  - blake2s-224
--	  - blake2s-256
--
--	  See https://blake2.net for further information.
--
- config CRYPTO_BLAKE2S_X86
--	tristate "BLAKE2s digest algorithm (x86 accelerated version)"
-+	bool "BLAKE2s digest algorithm (x86 accelerated version)"
- 	depends on X86 && 64BIT
- 	select CRYPTO_LIB_BLAKE2S_GENERIC
- 	select CRYPTO_ARCH_HAVE_LIB_BLAKE2S
-diff --git a/crypto/Makefile b/crypto/Makefile
-index f754c4d17d6b..40d4c2690a49 100644
---- a/crypto/Makefile
-+++ b/crypto/Makefile
-@@ -83,7 +83,6 @@ obj-$(CONFIG_CRYPTO_STREEBOG) += streebog_generic.o
- obj-$(CONFIG_CRYPTO_WP512) += wp512.o
- CFLAGS_wp512.o := $(call cc-option,-fno-schedule-insns)  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=79149
- obj-$(CONFIG_CRYPTO_BLAKE2B) += blake2b_generic.o
--obj-$(CONFIG_CRYPTO_BLAKE2S) += blake2s_generic.o
- obj-$(CONFIG_CRYPTO_GF128MUL) += gf128mul.o
- obj-$(CONFIG_CRYPTO_ECB) += ecb.o
- obj-$(CONFIG_CRYPTO_CBC) += cbc.o
-diff --git a/crypto/blake2s_generic.c b/crypto/blake2s_generic.c
-deleted file mode 100644
-index 5f96a21f8788..000000000000
---- a/crypto/blake2s_generic.c
-+++ /dev/null
-@@ -1,75 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0 OR MIT
--/*
-- * shash interface to the generic implementation of BLAKE2s
-- *
-- * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-- */
--
--#include <crypto/internal/blake2s.h>
--#include <crypto/internal/hash.h>
--
--#include <linux/types.h>
--#include <linux/kernel.h>
--#include <linux/module.h>
--
--static int crypto_blake2s_update_generic(struct shash_desc *desc,
--					 const u8 *in, unsigned int inlen)
--{
--	return crypto_blake2s_update(desc, in, inlen, true);
--}
--
--static int crypto_blake2s_final_generic(struct shash_desc *desc, u8 *out)
--{
--	return crypto_blake2s_final(desc, out, true);
--}
--
--#define BLAKE2S_ALG(name, driver_name, digest_size)			\
--	{								\
--		.base.cra_name		= name,				\
--		.base.cra_driver_name	= driver_name,			\
--		.base.cra_priority	= 100,				\
--		.base.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,	\
--		.base.cra_blocksize	= BLAKE2S_BLOCK_SIZE,		\
--		.base.cra_ctxsize	= sizeof(struct blake2s_tfm_ctx), \
--		.base.cra_module	= THIS_MODULE,			\
--		.digestsize		= digest_size,			\
--		.setkey			= crypto_blake2s_setkey,	\
--		.init			= crypto_blake2s_init,		\
--		.update			= crypto_blake2s_update_generic, \
--		.final			= crypto_blake2s_final_generic,	\
--		.descsize		= sizeof(struct blake2s_state),	\
--	}
--
--static struct shash_alg blake2s_algs[] = {
--	BLAKE2S_ALG("blake2s-128", "blake2s-128-generic",
--		    BLAKE2S_128_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-160", "blake2s-160-generic",
--		    BLAKE2S_160_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-224", "blake2s-224-generic",
--		    BLAKE2S_224_HASH_SIZE),
--	BLAKE2S_ALG("blake2s-256", "blake2s-256-generic",
--		    BLAKE2S_256_HASH_SIZE),
--};
--
--static int __init blake2s_mod_init(void)
--{
--	return crypto_register_shashes(blake2s_algs, ARRAY_SIZE(blake2s_algs));
--}
--
--static void __exit blake2s_mod_exit(void)
--{
--	crypto_unregister_shashes(blake2s_algs, ARRAY_SIZE(blake2s_algs));
--}
--
--subsys_initcall(blake2s_mod_init);
--module_exit(blake2s_mod_exit);
--
--MODULE_ALIAS_CRYPTO("blake2s-128");
--MODULE_ALIAS_CRYPTO("blake2s-128-generic");
--MODULE_ALIAS_CRYPTO("blake2s-160");
--MODULE_ALIAS_CRYPTO("blake2s-160-generic");
--MODULE_ALIAS_CRYPTO("blake2s-224");
--MODULE_ALIAS_CRYPTO("blake2s-224-generic");
--MODULE_ALIAS_CRYPTO("blake2s-256");
--MODULE_ALIAS_CRYPTO("blake2s-256-generic");
--MODULE_LICENSE("GPL v2");
-diff --git a/crypto/tcrypt.c b/crypto/tcrypt.c
-index 2bacf8384f59..66b7ca1ccb23 100644
---- a/crypto/tcrypt.c
-+++ b/crypto/tcrypt.c
-@@ -1669,10 +1669,6 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
- 		ret += tcrypt_test("rmd160");
- 		break;
- 
--	case 41:
--		ret += tcrypt_test("blake2s-256");
--		break;
--
- 	case 42:
- 		ret += tcrypt_test("blake2b-512");
- 		break;
-@@ -2240,10 +2236,6 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
- 		test_hash_speed("rmd160", sec, generic_hash_speed_template);
- 		if (mode > 300 && mode < 400) break;
- 		fallthrough;
--	case 316:
--		test_hash_speed("blake2s-256", sec, generic_hash_speed_template);
--		if (mode > 300 && mode < 400) break;
--		fallthrough;
- 	case 317:
- 		test_hash_speed("blake2b-512", sec, generic_hash_speed_template);
- 		if (mode > 300 && mode < 400) break;
-@@ -2352,10 +2344,6 @@ static int do_test(const char *alg, u32 type, u32 mask, int m, u32 num_mb)
- 		test_ahash_speed("rmd160", sec, generic_hash_speed_template);
- 		if (mode > 400 && mode < 500) break;
- 		fallthrough;
--	case 416:
--		test_ahash_speed("blake2s-256", sec, generic_hash_speed_template);
--		if (mode > 400 && mode < 500) break;
--		fallthrough;
- 	case 417:
- 		test_ahash_speed("blake2b-512", sec, generic_hash_speed_template);
- 		if (mode > 400 && mode < 500) break;
-diff --git a/crypto/testmgr.c b/crypto/testmgr.c
-index 4948201065cc..56facdb63843 100644
---- a/crypto/testmgr.c
-+++ b/crypto/testmgr.c
-@@ -4324,30 +4324,6 @@ static const struct alg_test_desc alg_test_descs[] = {
- 		.suite = {
- 			.hash = __VECS(blake2b_512_tv_template)
- 		}
--	}, {
--		.alg = "blake2s-128",
--		.test = alg_test_hash,
--		.suite = {
--			.hash = __VECS(blakes2s_128_tv_template)
--		}
--	}, {
--		.alg = "blake2s-160",
--		.test = alg_test_hash,
--		.suite = {
--			.hash = __VECS(blakes2s_160_tv_template)
--		}
--	}, {
--		.alg = "blake2s-224",
--		.test = alg_test_hash,
--		.suite = {
--			.hash = __VECS(blakes2s_224_tv_template)
--		}
--	}, {
--		.alg = "blake2s-256",
--		.test = alg_test_hash,
--		.suite = {
--			.hash = __VECS(blakes2s_256_tv_template)
--		}
- 	}, {
- 		.alg = "cbc(aes)",
- 		.test = alg_test_skcipher,
-diff --git a/crypto/testmgr.h b/crypto/testmgr.h
-index 4d7449fc6a65..c29658337d96 100644
---- a/crypto/testmgr.h
-+++ b/crypto/testmgr.h
-@@ -34034,221 +34034,4 @@ static const struct hash_testvec blake2b_512_tv_template[] = {{
- 			  0xae, 0x15, 0x81, 0x15, 0xd0, 0x88, 0xa0, 0x3c, },
- }};
- 
--static const struct hash_testvec blakes2s_128_tv_template[] = {{
--	.digest = (u8[]){ 0x64, 0x55, 0x0d, 0x6f, 0xfe, 0x2c, 0x0a, 0x01,
--			  0xa1, 0x4a, 0xba, 0x1e, 0xad, 0xe0, 0x20, 0x0c, },
--}, {
--	.plaintext = blake2_ordered_sequence,
--	.psize = 64,
--	.digest = (u8[]){ 0xdc, 0x66, 0xca, 0x8f, 0x03, 0x86, 0x58, 0x01,
--			  0xb0, 0xff, 0xe0, 0x6e, 0xd8, 0xa1, 0xa9, 0x0e, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 1,
--	.digest = (u8[]){ 0x88, 0x1e, 0x42, 0xe7, 0xbb, 0x35, 0x80, 0x82,
--			  0x63, 0x7c, 0x0a, 0x0f, 0xd7, 0xec, 0x6c, 0x2f, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 7,
--	.digest = (u8[]){ 0xcf, 0x9e, 0x07, 0x2a, 0xd5, 0x22, 0xf2, 0xcd,
--			  0xa2, 0xd8, 0x25, 0x21, 0x80, 0x86, 0x73, 0x1c, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 15,
--	.digest = (u8[]){ 0xf6, 0x33, 0x5a, 0x2c, 0x22, 0xa0, 0x64, 0xb2,
--			  0xb6, 0x3f, 0xeb, 0xbc, 0xd1, 0xc3, 0xe5, 0xb2, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 247,
--	.digest = (u8[]){ 0x72, 0x66, 0x49, 0x60, 0xf9, 0x4a, 0xea, 0xbe,
--			  0x1f, 0xf4, 0x60, 0xce, 0xb7, 0x81, 0xcb, 0x09, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 256,
--	.digest = (u8[]){ 0xd5, 0xa4, 0x0e, 0xc3, 0x16, 0xc7, 0x51, 0xa6,
--			  0x3c, 0xd0, 0xd9, 0x11, 0x57, 0xfa, 0x1e, 0xbb, },
--}};
--
--static const struct hash_testvec blakes2s_160_tv_template[] = {{
--	.plaintext = blake2_ordered_sequence,
--	.psize = 7,
--	.digest = (u8[]){ 0xb4, 0xf2, 0x03, 0x49, 0x37, 0xed, 0xb1, 0x3e,
--			  0x5b, 0x2a, 0xca, 0x64, 0x82, 0x74, 0xf6, 0x62,
--			  0xe3, 0xf2, 0x84, 0xff, },
--}, {
--	.plaintext = blake2_ordered_sequence,
--	.psize = 256,
--	.digest = (u8[]){ 0xaa, 0x56, 0x9b, 0xdc, 0x98, 0x17, 0x75, 0xf2,
--			  0xb3, 0x68, 0x83, 0xb7, 0x9b, 0x8d, 0x48, 0xb1,
--			  0x9b, 0x2d, 0x35, 0x05, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.digest = (u8[]){ 0x50, 0x16, 0xe7, 0x0c, 0x01, 0xd0, 0xd3, 0xc3,
--			  0xf4, 0x3e, 0xb1, 0x6e, 0x97, 0xa9, 0x4e, 0xd1,
--			  0x79, 0x65, 0x32, 0x93, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 1,
--	.digest = (u8[]){ 0x1c, 0x2b, 0xcd, 0x9a, 0x68, 0xca, 0x8c, 0x71,
--			  0x90, 0x29, 0x6c, 0x54, 0xfa, 0x56, 0x4a, 0xef,
--			  0xa2, 0x3a, 0x56, 0x9c, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 15,
--	.digest = (u8[]){ 0x36, 0xc3, 0x5f, 0x9a, 0xdc, 0x7e, 0xbf, 0x19,
--			  0x68, 0xaa, 0xca, 0xd8, 0x81, 0xbf, 0x09, 0x34,
--			  0x83, 0x39, 0x0f, 0x30, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 64,
--	.digest = (u8[]){ 0x86, 0x80, 0x78, 0xa4, 0x14, 0xec, 0x03, 0xe5,
--			  0xb6, 0x9a, 0x52, 0x0e, 0x42, 0xee, 0x39, 0x9d,
--			  0xac, 0xa6, 0x81, 0x63, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 247,
--	.digest = (u8[]){ 0x2d, 0xd8, 0xd2, 0x53, 0x66, 0xfa, 0xa9, 0x01,
--			  0x1c, 0x9c, 0xaf, 0xa3, 0xe2, 0x9d, 0x9b, 0x10,
--			  0x0a, 0xf6, 0x73, 0xe8, },
--}};
--
--static const struct hash_testvec blakes2s_224_tv_template[] = {{
--	.plaintext = blake2_ordered_sequence,
--	.psize = 1,
--	.digest = (u8[]){ 0x61, 0xb9, 0x4e, 0xc9, 0x46, 0x22, 0xa3, 0x91,
--			  0xd2, 0xae, 0x42, 0xe6, 0x45, 0x6c, 0x90, 0x12,
--			  0xd5, 0x80, 0x07, 0x97, 0xb8, 0x86, 0x5a, 0xfc,
--			  0x48, 0x21, 0x97, 0xbb, },
--}, {
--	.plaintext = blake2_ordered_sequence,
--	.psize = 247,
--	.digest = (u8[]){ 0x9e, 0xda, 0xc7, 0x20, 0x2c, 0xd8, 0x48, 0x2e,
--			  0x31, 0x94, 0xab, 0x46, 0x6d, 0x94, 0xd8, 0xb4,
--			  0x69, 0xcd, 0xae, 0x19, 0x6d, 0x9e, 0x41, 0xcc,
--			  0x2b, 0xa4, 0xd5, 0xf6, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.digest = (u8[]){ 0x32, 0xc0, 0xac, 0xf4, 0x3b, 0xd3, 0x07, 0x9f,
--			  0xbe, 0xfb, 0xfa, 0x4d, 0x6b, 0x4e, 0x56, 0xb3,
--			  0xaa, 0xd3, 0x27, 0xf6, 0x14, 0xbf, 0xb9, 0x32,
--			  0xa7, 0x19, 0xfc, 0xb8, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 7,
--	.digest = (u8[]){ 0x73, 0xad, 0x5e, 0x6d, 0xb9, 0x02, 0x8e, 0x76,
--			  0xf2, 0x66, 0x42, 0x4b, 0x4c, 0xfa, 0x1f, 0xe6,
--			  0x2e, 0x56, 0x40, 0xe5, 0xa2, 0xb0, 0x3c, 0xe8,
--			  0x7b, 0x45, 0xfe, 0x05, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 15,
--	.digest = (u8[]){ 0x16, 0x60, 0xfb, 0x92, 0x54, 0xb3, 0x6e, 0x36,
--			  0x81, 0xf4, 0x16, 0x41, 0xc3, 0x3d, 0xd3, 0x43,
--			  0x84, 0xed, 0x10, 0x6f, 0x65, 0x80, 0x7a, 0x3e,
--			  0x25, 0xab, 0xc5, 0x02, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 64,
--	.digest = (u8[]){ 0xca, 0xaa, 0x39, 0x67, 0x9c, 0xf7, 0x6b, 0xc7,
--			  0xb6, 0x82, 0xca, 0x0e, 0x65, 0x36, 0x5b, 0x7c,
--			  0x24, 0x00, 0xfa, 0x5f, 0xda, 0x06, 0x91, 0x93,
--			  0x6a, 0x31, 0x83, 0xb5, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 256,
--	.digest = (u8[]){ 0x90, 0x02, 0x26, 0xb5, 0x06, 0x9c, 0x36, 0x86,
--			  0x94, 0x91, 0x90, 0x1e, 0x7d, 0x2a, 0x71, 0xb2,
--			  0x48, 0xb5, 0xe8, 0x16, 0xfd, 0x64, 0x33, 0x45,
--			  0xb3, 0xd7, 0xec, 0xcc, },
--}};
--
--static const struct hash_testvec blakes2s_256_tv_template[] = {{
--	.plaintext = blake2_ordered_sequence,
--	.psize = 15,
--	.digest = (u8[]){ 0xd9, 0x7c, 0x82, 0x8d, 0x81, 0x82, 0xa7, 0x21,
--			  0x80, 0xa0, 0x6a, 0x78, 0x26, 0x83, 0x30, 0x67,
--			  0x3f, 0x7c, 0x4e, 0x06, 0x35, 0x94, 0x7c, 0x04,
--			  0xc0, 0x23, 0x23, 0xfd, 0x45, 0xc0, 0xa5, 0x2d, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.digest = (u8[]){ 0x48, 0xa8, 0x99, 0x7d, 0xa4, 0x07, 0x87, 0x6b,
--			  0x3d, 0x79, 0xc0, 0xd9, 0x23, 0x25, 0xad, 0x3b,
--			  0x89, 0xcb, 0xb7, 0x54, 0xd8, 0x6a, 0xb7, 0x1a,
--			  0xee, 0x04, 0x7a, 0xd3, 0x45, 0xfd, 0x2c, 0x49, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 1,
--	.digest = (u8[]){ 0x22, 0x27, 0xae, 0xaa, 0x6e, 0x81, 0x56, 0x03,
--			  0xa7, 0xe3, 0xa1, 0x18, 0xa5, 0x9a, 0x2c, 0x18,
--			  0xf4, 0x63, 0xbc, 0x16, 0x70, 0xf1, 0xe7, 0x4b,
--			  0x00, 0x6d, 0x66, 0x16, 0xae, 0x9e, 0x74, 0x4e, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 7,
--	.digest = (u8[]){ 0x58, 0x5d, 0xa8, 0x60, 0x1c, 0xa4, 0xd8, 0x03,
--			  0x86, 0x86, 0x84, 0x64, 0xd7, 0xa0, 0x8e, 0x15,
--			  0x2f, 0x05, 0xa2, 0x1b, 0xbc, 0xef, 0x7a, 0x34,
--			  0xb3, 0xc5, 0xbc, 0x4b, 0xf0, 0x32, 0xeb, 0x12, },
--}, {
--	.ksize = 32,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 64,
--	.digest = (u8[]){ 0x89, 0x75, 0xb0, 0x57, 0x7f, 0xd3, 0x55, 0x66,
--			  0xd7, 0x50, 0xb3, 0x62, 0xb0, 0x89, 0x7a, 0x26,
--			  0xc3, 0x99, 0x13, 0x6d, 0xf0, 0x7b, 0xab, 0xab,
--			  0xbd, 0xe6, 0x20, 0x3f, 0xf2, 0x95, 0x4e, 0xd4, },
--}, {
--	.ksize = 1,
--	.key = "B",
--	.plaintext = blake2_ordered_sequence,
--	.psize = 247,
--	.digest = (u8[]){ 0x2e, 0x74, 0x1c, 0x1d, 0x03, 0xf4, 0x9d, 0x84,
--			  0x6f, 0xfc, 0x86, 0x32, 0x92, 0x49, 0x7e, 0x66,
--			  0xd7, 0xc3, 0x10, 0x88, 0xfe, 0x28, 0xb3, 0xe0,
--			  0xbf, 0x50, 0x75, 0xad, 0x8e, 0xa4, 0xe6, 0xb2, },
--}, {
--	.ksize = 16,
--	.key = blake2_ordered_sequence,
--	.plaintext = blake2_ordered_sequence,
--	.psize = 256,
--	.digest = (u8[]){ 0xb9, 0xd2, 0x81, 0x0e, 0x3a, 0xb1, 0x62, 0x9b,
--			  0xad, 0x44, 0x05, 0xf4, 0x92, 0x2e, 0x99, 0xc1,
--			  0x4a, 0x47, 0xbb, 0x5b, 0x6f, 0xb2, 0x96, 0xed,
--			  0xd5, 0x06, 0xb5, 0x3a, 0x7c, 0x7a, 0x65, 0x1d, },
--}};
--
- #endif	/* _CRYPTO_TESTMGR_H */
-diff --git a/include/crypto/internal/blake2s.h b/include/crypto/internal/blake2s.h
-index 52363eee2b20..506d56530ca9 100644
---- a/include/crypto/internal/blake2s.h
-+++ b/include/crypto/internal/blake2s.h
-@@ -8,7 +8,6 @@
- #define _CRYPTO_INTERNAL_BLAKE2S_H
- 
- #include <crypto/blake2s.h>
--#include <crypto/internal/hash.h>
- #include <linux/string.h>
- 
- void blake2s_compress_generic(struct blake2s_state *state, const u8 *block,
-@@ -19,111 +18,4 @@ void blake2s_compress(struct blake2s_state *state, const u8 *block,
- 
- bool blake2s_selftest(void);
- 
--static inline void blake2s_set_lastblock(struct blake2s_state *state)
--{
--	state->f[0] = -1;
--}
--
--/* Helper functions for BLAKE2s shared by the library and shash APIs */
--
--static __always_inline void
--__blake2s_update(struct blake2s_state *state, const u8 *in, size_t inlen,
--		 bool force_generic)
--{
--	const size_t fill = BLAKE2S_BLOCK_SIZE - state->buflen;
--
--	if (unlikely(!inlen))
--		return;
--	if (inlen > fill) {
--		memcpy(state->buf + state->buflen, in, fill);
--		if (force_generic)
--			blake2s_compress_generic(state, state->buf, 1,
--						 BLAKE2S_BLOCK_SIZE);
--		else
--			blake2s_compress(state, state->buf, 1,
--					 BLAKE2S_BLOCK_SIZE);
--		state->buflen = 0;
--		in += fill;
--		inlen -= fill;
--	}
--	if (inlen > BLAKE2S_BLOCK_SIZE) {
--		const size_t nblocks = DIV_ROUND_UP(inlen, BLAKE2S_BLOCK_SIZE);
--		/* Hash one less (full) block than strictly possible */
--		if (force_generic)
--			blake2s_compress_generic(state, in, nblocks - 1,
--						 BLAKE2S_BLOCK_SIZE);
--		else
--			blake2s_compress(state, in, nblocks - 1,
--					 BLAKE2S_BLOCK_SIZE);
--		in += BLAKE2S_BLOCK_SIZE * (nblocks - 1);
--		inlen -= BLAKE2S_BLOCK_SIZE * (nblocks - 1);
--	}
--	memcpy(state->buf + state->buflen, in, inlen);
--	state->buflen += inlen;
--}
--
--static __always_inline void
--__blake2s_final(struct blake2s_state *state, u8 *out, bool force_generic)
--{
--	blake2s_set_lastblock(state);
--	memset(state->buf + state->buflen, 0,
--	       BLAKE2S_BLOCK_SIZE - state->buflen); /* Padding */
--	if (force_generic)
--		blake2s_compress_generic(state, state->buf, 1, state->buflen);
--	else
--		blake2s_compress(state, state->buf, 1, state->buflen);
--	cpu_to_le32_array(state->h, ARRAY_SIZE(state->h));
--	memcpy(out, state->h, state->outlen);
--}
--
--/* Helper functions for shash implementations of BLAKE2s */
--
--struct blake2s_tfm_ctx {
--	u8 key[BLAKE2S_KEY_SIZE];
--	unsigned int keylen;
--};
--
--static inline int crypto_blake2s_setkey(struct crypto_shash *tfm,
--					const u8 *key, unsigned int keylen)
--{
--	struct blake2s_tfm_ctx *tctx = crypto_shash_ctx(tfm);
--
--	if (keylen == 0 || keylen > BLAKE2S_KEY_SIZE)
--		return -EINVAL;
--
--	memcpy(tctx->key, key, keylen);
--	tctx->keylen = keylen;
--
--	return 0;
--}
--
--static inline int crypto_blake2s_init(struct shash_desc *desc)
--{
--	const struct blake2s_tfm_ctx *tctx = crypto_shash_ctx(desc->tfm);
--	struct blake2s_state *state = shash_desc_ctx(desc);
--	unsigned int outlen = crypto_shash_digestsize(desc->tfm);
--
--	__blake2s_init(state, outlen, tctx->key, tctx->keylen);
--	return 0;
--}
--
--static inline int crypto_blake2s_update(struct shash_desc *desc,
--					const u8 *in, unsigned int inlen,
--					bool force_generic)
--{
--	struct blake2s_state *state = shash_desc_ctx(desc);
--
--	__blake2s_update(state, in, inlen, force_generic);
--	return 0;
--}
--
--static inline int crypto_blake2s_final(struct shash_desc *desc, u8 *out,
--				       bool force_generic)
--{
--	struct blake2s_state *state = shash_desc_ctx(desc);
--
--	__blake2s_final(state, out, force_generic);
--	return 0;
--}
--
- #endif /* _CRYPTO_INTERNAL_BLAKE2S_H */
-diff --git a/lib/crypto/blake2s-selftest.c b/lib/crypto/blake2s-selftest.c
-index 409e4b728770..38996ee73a64 100644
---- a/lib/crypto/blake2s-selftest.c
-+++ b/lib/crypto/blake2s-selftest.c
-@@ -4,6 +4,8 @@
-  */
- 
- #include <crypto/internal/blake2s.h>
-+#include <linux/kernel.h>
-+#include <linux/random.h>
- #include <linux/string.h>
- 
- /*
-@@ -548,7 +550,8 @@ bool __init blake2s_selftest(void)
- 	u8 key[BLAKE2S_KEY_SIZE];
- 	u8 buf[ARRAY_SIZE(blake2s_testvecs)];
- 	u8 hash[BLAKE2S_HASH_SIZE];
--	struct blake2s_state state;
-+	u8 blocks[BLAKE2S_BLOCK_SIZE * 4];
-+	struct blake2s_state state, state1, state2;
- 	bool success = true;
- 	int i, l;
- 
-@@ -587,5 +590,32 @@ bool __init blake2s_selftest(void)
- 		}
- 	}
- 
-+	for (i = 0; i < 2048; ++i) {
-+		get_random_bytes(blocks, sizeof(blocks));
-+		get_random_bytes(&state, sizeof(state));
-+
-+		memcpy(&state1, &state, sizeof(state1));
-+		memcpy(&state2, &state, sizeof(state2));
-+		blake2s_compress(&state1, blocks, 4, sizeof(blocks));
-+		blake2s_compress_generic(&state2, blocks, 4, sizeof(blocks));
-+		if (memcmp(&state1, &state2, sizeof(state1))) {
-+			pr_err("blake2s random compress self-test %d: FAIL\n",
-+			       i + 1);
-+			success = false;
-+		}
-+
-+		for (l = 1; l < 8; ++l) {
-+			memcpy(&state1, &state, sizeof(state1));
-+			memcpy(&state2, &state, sizeof(state2));
-+			blake2s_compress(&state1, blocks + l, 3, sizeof(blocks) - BLAKE2S_BLOCK_SIZE);
-+			blake2s_compress_generic(&state2, blocks + l, 3, sizeof(blocks) - BLAKE2S_BLOCK_SIZE);
-+			if (memcmp(&state1, &state2, sizeof(state1))) {
-+				pr_err("blake2s random compress align %d self-test %d: FAIL\n",
-+				       l, i + 1);
-+				success = false;
-+			}
-+		}
-+	}
-+
- 	return success;
- }
-diff --git a/lib/crypto/blake2s.c b/lib/crypto/blake2s.c
-index c71c09621c09..716da32cf4dc 100644
---- a/lib/crypto/blake2s.c
-+++ b/lib/crypto/blake2s.c
-@@ -16,16 +16,43 @@
- #include <linux/init.h>
- #include <linux/bug.h>
- 
-+static inline void blake2s_set_lastblock(struct blake2s_state *state)
-+{
-+	state->f[0] = -1;
-+}
-+
- void blake2s_update(struct blake2s_state *state, const u8 *in, size_t inlen)
- {
--	__blake2s_update(state, in, inlen, false);
-+	const size_t fill = BLAKE2S_BLOCK_SIZE - state->buflen;
-+
-+	if (unlikely(!inlen))
-+		return;
-+	if (inlen > fill) {
-+		memcpy(state->buf + state->buflen, in, fill);
-+		blake2s_compress(state, state->buf, 1, BLAKE2S_BLOCK_SIZE);
-+		state->buflen = 0;
-+		in += fill;
-+		inlen -= fill;
-+	}
-+	if (inlen > BLAKE2S_BLOCK_SIZE) {
-+		const size_t nblocks = DIV_ROUND_UP(inlen, BLAKE2S_BLOCK_SIZE);
-+		blake2s_compress(state, in, nblocks - 1, BLAKE2S_BLOCK_SIZE);
-+		in += BLAKE2S_BLOCK_SIZE * (nblocks - 1);
-+		inlen -= BLAKE2S_BLOCK_SIZE * (nblocks - 1);
-+	}
-+	memcpy(state->buf + state->buflen, in, inlen);
-+	state->buflen += inlen;
- }
- EXPORT_SYMBOL(blake2s_update);
- 
- void blake2s_final(struct blake2s_state *state, u8 *out)
- {
- 	WARN_ON(IS_ENABLED(DEBUG) && !out);
--	__blake2s_final(state, out, false);
-+	blake2s_set_lastblock(state);
-+	memset(state->buf + state->buflen, 0, BLAKE2S_BLOCK_SIZE - state->buflen); /* Padding */
-+	blake2s_compress(state, state->buf, 1, state->buflen);
-+	cpu_to_le32_array(state->h, ARRAY_SIZE(state->h));
-+	memcpy(out, state->h, state->outlen);
- 	memzero_explicit(state, sizeof(*state));
- }
- EXPORT_SYMBOL(blake2s_final);
-@@ -38,12 +65,7 @@ static int __init blake2s_mod_init(void)
- 	return 0;
- }
- 
--static void __exit blake2s_mod_exit(void)
--{
--}
--
- module_init(blake2s_mod_init);
--module_exit(blake2s_mod_exit);
- MODULE_LICENSE("GPL v2");
- MODULE_DESCRIPTION("BLAKE2s hash function");
- MODULE_AUTHOR("Jason A. Donenfeld <Jason@zx2c4.com>");
--- 
-2.35.1
-
+For more info write to <info@kernelci.org>
