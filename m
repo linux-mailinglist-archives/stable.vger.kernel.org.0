@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B98DD53617F
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD08D535CC5
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351941AbiE0L6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
+        id S1350029AbiE0IyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:54:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353303AbiE0L4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB79B106A7A;
-        Fri, 27 May 2022 04:50:50 -0700 (PDT)
+        with ESMTP id S1350156AbiE0Ixd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:53:33 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B63F47059;
+        Fri, 27 May 2022 01:52:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4748961D9B;
-        Fri, 27 May 2022 11:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5570CC385A9;
-        Fri, 27 May 2022 11:50:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E01FCE23C7;
+        Fri, 27 May 2022 08:52:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62E39C385B8;
+        Fri, 27 May 2022 08:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652249;
-        bh=vzwuZWnm6kpqwOb+2kD3Qz0bX3zG6yU4MW7xDk9XB+o=;
+        s=korg; t=1653641567;
+        bh=J1anhnQln/EliotBsnMe08GPXBpw3kfeLcgjnsnc5jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKU0vi4GvWBXW3c7tyP1yO4DmTyUg6wXQrb9pJ+3PkzJNKW0U28ebTXn87sRv5kbA
-         goQWEoHIYxma5NNDf8ZMyTaYoP+wIsb5qgxAR8+eYaShCcit4jBAfuZwqlqny1dBcR
-         Pjpe7FWIDY4kPUrNE4UKA2/jOfoZiSkvfYADqQrw=
+        b=DVId/TZpVD+nCDOa99YwZ6b79TIDgjRocsVU8gbV1NbnuEH633pFv9sS2RZTONgLR
+         ogaeYU9q/VsHklskXb8Zbz+3Js+eTHUnYkf82d80KOHgD6n4GqAvh7G0HeuQrWrZup
+         PM2843HIucqZrNNM5uQddDM0/3+TlG5VrC9qWHng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Richard Henderson <rth@twiddle.net>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        Matt Turner <mattst88@gmail.com>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Joe Perches <joe@perches.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 107/145] alpha: define get_cycles macro for arch-override
+Subject: [PATCH 5.18 28/47] random: use symbolic constants for crng_init states
 Date:   Fri, 27 May 2022 10:50:08 +0200
-Message-Id: <20220527084903.533958942@linuxfoundation.org>
+Message-Id: <20220527084806.035134906@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+References: <20220527084801.223648383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,34 +57,123 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1097710bc9660e1e588cf2186a35db3d95c4d258 upstream.
+commit e3d2c5e79a999aa4e7d6f0127e16d3da5a4ff70d upstream.
 
-Alpha defines a get_cycles() function, but it does not do the usual
-`#define get_cycles get_cycles` dance, making it impossible for generic
-code to see if an arch-specific function was defined. While the
-get_cycles() ifdef is not currently used, the following timekeeping
-patch in this series will depend on the macro existing (or not existing)
-when defining random_get_entropy().
+crng_init represents a state machine, with three states, and various
+rules for transitions. For the longest time, we've been managing these
+with "0", "1", and "2", and expecting people to figure it out. To make
+the code more obvious, replace these with proper enum values
+representing the transition, and then redocument what each of these
+states mean.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Richard Henderson <rth@twiddle.net>
-Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Acked-by: Matt Turner <mattst88@gmail.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Joe Perches <joe@perches.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/alpha/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |   38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
 
---- a/arch/alpha/include/asm/timex.h
-+++ b/arch/alpha/include/asm/timex.h
-@@ -28,5 +28,6 @@ static inline cycles_t get_cycles (void)
- 	__asm__ __volatile__ ("rpcc %0" : "=r"(ret));
- 	return ret;
- }
-+#define get_cycles get_cycles
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -70,16 +70,16 @@
+  *********************************************************************/
  
- #endif
+ /*
+- * crng_init =  0 --> Uninitialized
+- *		1 --> Initialized
+- *		2 --> Initialized from input_pool
+- *
+  * crng_init is protected by base_crng->lock, and only increases
+- * its value (from 0->1->2).
++ * its value (from empty->early->ready).
+  */
+-static int crng_init = 0;
+-#define crng_ready() (likely(crng_init > 1))
+-/* Various types of waiters for crng_init->2 transition. */
++static enum {
++	CRNG_EMPTY = 0, /* Little to no entropy collected */
++	CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
++	CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
++} crng_init = CRNG_EMPTY;
++#define crng_ready() (likely(crng_init >= CRNG_READY))
++/* Various types of waiters for crng_init->CRNG_READY transition. */
+ static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
+ static struct fasync_struct *fasync;
+ static DEFINE_SPINLOCK(random_ready_chain_lock);
+@@ -282,7 +282,7 @@ static void crng_reseed(void)
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ 	WRITE_ONCE(base_crng.birth, jiffies);
+ 	if (!crng_ready()) {
+-		crng_init = 2;
++		crng_init = CRNG_READY;
+ 		finalize_init = true;
+ 	}
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+@@ -376,7 +376,7 @@ static void crng_make_state(u32 chacha_s
+ 	 * For the fast path, we check whether we're ready, unlocked first, and
+ 	 * then re-check once locked later. In the case where we're really not
+ 	 * ready, we do fast key erasure with the base_crng directly, extracting
+-	 * when crng_init==0.
++	 * when crng_init is CRNG_EMPTY.
+ 	 */
+ 	if (!crng_ready()) {
+ 		bool ready;
+@@ -384,7 +384,7 @@ static void crng_make_state(u32 chacha_s
+ 		spin_lock_irqsave(&base_crng.lock, flags);
+ 		ready = crng_ready();
+ 		if (!ready) {
+-			if (crng_init == 0)
++			if (crng_init == CRNG_EMPTY)
+ 				extract_entropy(base_crng.key, sizeof(base_crng.key));
+ 			crng_fast_key_erasure(base_crng.key, chacha_state,
+ 					      random_data, random_data_len);
+@@ -738,8 +738,8 @@ EXPORT_SYMBOL(get_random_bytes_arch);
+ 
+ enum {
+ 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
+-	POOL_INIT_BITS = POOL_BITS, /* No point in settling for less. */
+-	POOL_FAST_INIT_BITS = POOL_INIT_BITS / 2
++	POOL_READY_BITS = POOL_BITS, /* When crng_init->CRNG_READY */
++	POOL_EARLY_BITS = POOL_READY_BITS / 2 /* When crng_init->CRNG_EARLY */
+ };
+ 
+ static struct {
+@@ -834,13 +834,13 @@ static void credit_init_bits(size_t nbit
+ 		init_bits = min_t(unsigned int, POOL_BITS, orig + add);
+ 	} while (cmpxchg(&input_pool.init_bits, orig, init_bits) != orig);
+ 
+-	if (!crng_ready() && init_bits >= POOL_INIT_BITS)
++	if (!crng_ready() && init_bits >= POOL_READY_BITS)
+ 		crng_reseed();
+-	else if (unlikely(crng_init == 0 && init_bits >= POOL_FAST_INIT_BITS)) {
++	else if (unlikely(crng_init == CRNG_EMPTY && init_bits >= POOL_EARLY_BITS)) {
+ 		spin_lock_irqsave(&base_crng.lock, flags);
+-		if (crng_init == 0) {
++		if (crng_init == CRNG_EMPTY) {
+ 			extract_entropy(base_crng.key, sizeof(base_crng.key));
+-			crng_init = 1;
++			crng_init = CRNG_EARLY;
+ 		}
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 	}
+@@ -1561,7 +1561,7 @@ const struct file_operations urandom_fop
+  *
+  * - write_wakeup_threshold - the amount of entropy in the input pool
+  *   below which write polls to /dev/random will unblock, requesting
+- *   more entropy, tied to the POOL_INIT_BITS constant. It is writable
++ *   more entropy, tied to the POOL_READY_BITS constant. It is writable
+  *   to avoid breaking old userspaces, but writing to it does not
+  *   change any behavior of the RNG.
+  *
+@@ -1576,7 +1576,7 @@ const struct file_operations urandom_fop
+ #include <linux/sysctl.h>
+ 
+ static int sysctl_random_min_urandom_seed = CRNG_RESEED_INTERVAL / HZ;
+-static int sysctl_random_write_wakeup_bits = POOL_INIT_BITS;
++static int sysctl_random_write_wakeup_bits = POOL_READY_BITS;
+ static int sysctl_poolsize = POOL_BITS;
+ static u8 sysctl_bootid[UUID_SIZE];
+ 
 
 
