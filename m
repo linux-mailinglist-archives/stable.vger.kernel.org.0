@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B93A9536104
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1FE3536173
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352363AbiE0L6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57394 "EHLO
+        id S1351979AbiE0L7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:59:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352979AbiE0Lzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:48 -0400
+        with ESMTP id S1352092AbiE0Ly2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:54:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A9FA15E4AC;
-        Fri, 27 May 2022 04:49:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0D0414AC85;
+        Fri, 27 May 2022 04:47:54 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05CA261D56;
-        Fri, 27 May 2022 11:49:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F8A0C385A9;
-        Fri, 27 May 2022 11:49:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE1461D94;
+        Fri, 27 May 2022 11:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2907EC385A9;
+        Fri, 27 May 2022 11:47:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652169;
-        bh=zTFvryAIcAqt8k5+IXPQcP3S6FP+SfretL5/RXylZ4k=;
+        s=korg; t=1653652073;
+        bh=vExNtks3s2vUV7vJmjZMcrWxyRl5B5nx6iqGjZKV/I4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJks2256fK6/NvZqZLdRrv22cxVS/WlBH1rbw4o+Uf2zR5qrBzsq1mOmR5LcXtohr
-         DZAaXtwIx3sbgBjuyHj8y5ePYp8CrG/S/9omjMepLmMXrFexJ1FaPhhkW/Jm3QYzwx
-         yRDYVIrEGHZnOuZY9yR0q8+TvvvhKZf83d5Ae7jk=
+        b=1+/MsaUmkE0EhhvCodKqtRaPjpWkS7eQRqnhDuB0HtWlZeDUn5DyYLFmBEwlU5qIJ
+         60BuonTiPSbcccY4L8M+srphCgw9Uh2N05dK7HDyUOc2yCzvjUf1djJ4xtZtJqu75c
+         LLammWZlaa5l4wLgSrUVD1MAtIRq6DYczL7TUrKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sultan Alsawaf <sultan@kerneltoast.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 099/163] random: cleanup UUID handling
+Subject: [PATCH 5.15 078/145] random: clear fast pool, crng, and batches in cpuhp bring up
 Date:   Fri, 27 May 2022 10:49:39 +0200
-Message-Id: <20220527084841.700138598@linuxfoundation.org>
+Message-Id: <20220527084900.103448057@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,91 +60,215 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 64276a9939ff414f2f0db38036cf4e1a0a703394 upstream.
+commit 3191dd5a1179ef0fad5a050a1702ae98b6251e8f upstream.
 
-Rather than hard coding various lengths, we can use the right constants.
-Strings should be `char *` while buffers should be `u8 *`. Rather than
-have a nonsensical and unused maxlength, just remove it. Finally, use
-snprintf instead of sprintf, just out of good hygiene.
+For the irq randomness fast pool, rather than having to use expensive
+atomics, which were visibly the most expensive thing in the entire irq
+handler, simply take care of the extreme edge case of resetting count to
+zero in the cpuhp online handler, just after workqueues have been
+reenabled. This simplifies the code a bit and lets us use vanilla
+variables rather than atomics, and performance should be improved.
 
-As well, remove the old comment about returning a binary UUID via the
-binary sysctl syscall. That syscall was removed from the kernel in 5.5,
-and actually, the "uuid_strategy" function and related infrastructure
-for even serving it via the binary sysctl syscall was removed with
-894d2491153a ("sysctl drivers: Remove dead binary sysctl support") back
-in 2.6.33.
+As well, very early on when the CPU comes up, while interrupts are still
+disabled, we clear out the per-cpu crng and its batches, so that it
+always starts with fresh randomness.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/char/random.c      |   62 ++++++++++++++++++++++++++++++++++-----------
+ include/linux/cpuhotplug.h |    2 +
+ include/linux/random.h     |    5 +++
+ kernel/cpu.c               |   11 +++++++
+ 4 files changed, 65 insertions(+), 15 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1661,22 +1661,25 @@ const struct file_operations urandom_fop
- static int sysctl_random_min_urandom_seed = 60;
- static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
- static int sysctl_poolsize = POOL_BITS;
--static char sysctl_bootid[16];
-+static u8 sysctl_bootid[UUID_SIZE];
+@@ -698,6 +698,25 @@ u32 get_random_u32(void)
+ }
+ EXPORT_SYMBOL(get_random_u32);
  
- /*
-  * This function is used to return both the bootid UUID, and random
-- * UUID.  The difference is in whether table->data is NULL; if it is,
-+ * UUID. The difference is in whether table->data is NULL; if it is,
-  * then a new UUID is generated and returned to the user.
-- *
-- * If the user accesses this via the proc interface, the UUID will be
-- * returned as an ASCII string in the standard UUID format; if via the
-- * sysctl system call, as 16 bytes of binary data.
-  */
- static int proc_do_uuid(struct ctl_table *table, int write, void *buffer,
- 			size_t *lenp, loff_t *ppos)
- {
--	struct ctl_table fake_table;
--	unsigned char buf[64], tmp_uuid[16], *uuid;
-+	u8 tmp_uuid[UUID_SIZE], *uuid;
-+	char uuid_string[UUID_STRING_LEN + 1];
-+	struct ctl_table fake_table = {
-+		.data = uuid_string,
-+		.maxlen = UUID_STRING_LEN
-+	};
++#ifdef CONFIG_SMP
++/*
++ * This function is called when the CPU is coming up, with entry
++ * CPUHP_RANDOM_PREPARE, which comes before CPUHP_WORKQUEUE_PREP.
++ */
++int random_prepare_cpu(unsigned int cpu)
++{
++	/*
++	 * When the cpu comes back online, immediately invalidate both
++	 * the per-cpu crng and all batches, so that we serve fresh
++	 * randomness.
++	 */
++	per_cpu_ptr(&crngs, cpu)->generation = ULONG_MAX;
++	per_cpu_ptr(&batched_entropy_u32, cpu)->position = UINT_MAX;
++	per_cpu_ptr(&batched_entropy_u64, cpu)->position = UINT_MAX;
++	return 0;
++}
++#endif
 +
-+	if (write)
-+		return -EPERM;
+ /**
+  * randomize_page - Generate a random, page aligned address
+  * @start:	The smallest acceptable address the caller will take.
+@@ -1183,7 +1202,7 @@ struct fast_pool {
+ 	};
+ 	struct work_struct mix;
+ 	unsigned long last;
+-	atomic_t count;
++	unsigned int count;
+ 	u16 reg_idx;
+ };
  
- 	uuid = table->data;
- 	if (!uuid) {
-@@ -1691,12 +1694,8 @@ static int proc_do_uuid(struct ctl_table
- 		spin_unlock(&bootid_spinlock);
+@@ -1219,6 +1238,29 @@ static void fast_mix(u32 pool[4])
+ 
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
+ 
++#ifdef CONFIG_SMP
++/*
++ * This function is called when the CPU has just come online, with
++ * entry CPUHP_AP_RANDOM_ONLINE, just after CPUHP_AP_WORKQUEUE_ONLINE.
++ */
++int random_online_cpu(unsigned int cpu)
++{
++	/*
++	 * During CPU shutdown and before CPU onlining, add_interrupt_
++	 * randomness() may schedule mix_interrupt_randomness(), and
++	 * set the MIX_INFLIGHT flag. However, because the worker can
++	 * be scheduled on a different CPU during this period, that
++	 * flag will never be cleared. For that reason, we zero out
++	 * the flag here, which runs just after workqueues are onlined
++	 * for the CPU again. This also has the effect of setting the
++	 * irq randomness count to zero so that new accumulated irqs
++	 * are fresh.
++	 */
++	per_cpu_ptr(&irq_randomness, cpu)->count = 0;
++	return 0;
++}
++#endif
++
+ static u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
+ {
+ 	u32 *ptr = (u32 *)regs;
+@@ -1243,15 +1285,6 @@ static void mix_interrupt_randomness(str
+ 	local_irq_disable();
+ 	if (fast_pool != this_cpu_ptr(&irq_randomness)) {
+ 		local_irq_enable();
+-		/*
+-		 * If we are unlucky enough to have been moved to another CPU,
+-		 * during CPU hotplug while the CPU was shutdown then we set
+-		 * our count to zero atomically so that when the CPU comes
+-		 * back online, it can enqueue work again. The _release here
+-		 * pairs with the atomic_inc_return_acquire in
+-		 * add_interrupt_randomness().
+-		 */
+-		atomic_set_release(&fast_pool->count, 0);
+ 		return;
  	}
  
--	sprintf(buf, "%pU", uuid);
--
--	fake_table.data = buf;
--	fake_table.maxlen = sizeof(buf);
--
--	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
-+	snprintf(uuid_string, sizeof(uuid_string), "%pU", uuid);
-+	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
- }
+@@ -1260,7 +1293,7 @@ static void mix_interrupt_randomness(str
+ 	 * consistent view, before we reenable irqs again.
+ 	 */
+ 	memcpy(pool, fast_pool->pool32, sizeof(pool));
+-	atomic_set(&fast_pool->count, 0);
++	fast_pool->count = 0;
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
  
- extern struct ctl_table random_table[];
-@@ -1732,13 +1731,11 @@ struct ctl_table random_table[] = {
- 	{
- 		.procname	= "boot_id",
- 		.data		= &sysctl_bootid,
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
+@@ -1296,14 +1329,13 @@ void add_interrupt_randomness(int irq)
+ 	}
+ 
+ 	fast_mix(fast_pool->pool32);
+-	/* The _acquire here pairs with the atomic_set_release in mix_interrupt_randomness(). */
+-	new_count = (unsigned int)atomic_inc_return_acquire(&fast_pool->count);
++	new_count = ++fast_pool->count;
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if (new_count >= 64 &&
+ 		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+ 					 true, true) > 0) {
+-			atomic_set(&fast_pool->count, 0);
++			fast_pool->count = 0;
+ 			fast_pool->last = now;
+ 			if (spin_trylock(&input_pool.lock)) {
+ 				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+@@ -1321,7 +1353,7 @@ void add_interrupt_randomness(int irq)
+ 
+ 	if (unlikely(!fast_pool->mix.func))
+ 		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
+-	atomic_or(MIX_INFLIGHT, &fast_pool->count);
++	fast_pool->count |= MIX_INFLIGHT;
+ 	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
+ }
+ EXPORT_SYMBOL_GPL(add_interrupt_randomness);
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -99,6 +99,7 @@ enum cpuhp_state {
+ 	CPUHP_LUSTRE_CFS_DEAD,
+ 	CPUHP_AP_ARM_CACHE_B15_RAC_DEAD,
+ 	CPUHP_PADATA_DEAD,
++	CPUHP_RANDOM_PREPARE,
+ 	CPUHP_WORKQUEUE_PREP,
+ 	CPUHP_POWER_NUMA_PREPARE,
+ 	CPUHP_HRTIMERS_PREPARE,
+@@ -238,6 +239,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_CSKY_ONLINE,
+ 	CPUHP_AP_WATCHDOG_ONLINE,
+ 	CPUHP_AP_WORKQUEUE_ONLINE,
++	CPUHP_AP_RANDOM_ONLINE,
+ 	CPUHP_AP_RCUTREE_ONLINE,
+ 	CPUHP_AP_BASE_CACHEINFO_ONLINE,
+ 	CPUHP_AP_ONLINE_DYN,
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -156,4 +156,9 @@ static inline bool __init arch_get_rando
+ }
+ #endif
+ 
++#ifdef CONFIG_SMP
++extern int random_prepare_cpu(unsigned int cpu);
++extern int random_online_cpu(unsigned int cpu);
++#endif
++
+ #endif /* _LINUX_RANDOM_H */
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -34,6 +34,7 @@
+ #include <linux/scs.h>
+ #include <linux/percpu-rwsem.h>
+ #include <linux/cpuset.h>
++#include <linux/random.h>
+ 
+ #include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+@@ -1659,6 +1660,11 @@ static struct cpuhp_step cpuhp_hp_states
+ 		.startup.single		= perf_event_init_cpu,
+ 		.teardown.single	= perf_event_exit_cpu,
  	},
- 	{
- 		.procname	= "uuid",
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
++	[CPUHP_RANDOM_PREPARE] = {
++		.name			= "random:prepare",
++		.startup.single		= random_prepare_cpu,
++		.teardown.single	= NULL,
++	},
+ 	[CPUHP_WORKQUEUE_PREP] = {
+ 		.name			= "workqueue:prepare",
+ 		.startup.single		= workqueue_prepare_cpu,
+@@ -1782,6 +1788,11 @@ static struct cpuhp_step cpuhp_hp_states
+ 		.startup.single		= workqueue_online_cpu,
+ 		.teardown.single	= workqueue_offline_cpu,
  	},
++	[CPUHP_AP_RANDOM_ONLINE] = {
++		.name			= "random:online",
++		.startup.single		= random_online_cpu,
++		.teardown.single	= NULL,
++	},
+ 	[CPUHP_AP_RCUTREE_ONLINE] = {
+ 		.name			= "RCU/tree:online",
+ 		.startup.single		= rcutree_online_cpu,
 
 
