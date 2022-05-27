@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 337BB5365D7
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 18:18:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 446125365DB
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 18:19:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344731AbiE0QSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 12:18:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57650 "EHLO
+        id S1345440AbiE0QTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 12:19:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243257AbiE0QSd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 12:18:33 -0400
+        with ESMTP id S243257AbiE0QTT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 12:19:19 -0400
 Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB4D8FD58
-        for <stable@vger.kernel.org>; Fri, 27 May 2022 09:18:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E47C9549A
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 09:19:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
         Message-Id:Date:Subject:Cc:To:From:Content-Type:Sender:Reply-To:Content-ID:
         Content-Description:Resent-Date:Resent-From:Resent-To:Resent-Cc:
         Resent-Message-ID:In-Reply-To:References;
-        bh=RY2sEtFu3ppxXoV9b8MCWjPocsvy846F55eTP5nID1Y=; t=1653668312; x=1654877912; 
-        b=eoZ9FEbT63KW6Xv7JZZ92uyPDaKYOaPXXJX63X/hzgY+kEvo2MViOCi6FIcrVNKbR3jZFcbAkOm
-        lLH/bePT28GCOaQnAxcAQ0HZsRWvEot4dM3Wd60CIRohk27uAQmEHinPr4JgsY+/iNFyap6qfHcPX
-        ysMIyNQVYU+WXPAAMoGYTpopnzRd/UTKF4YPCv9cniC5V8IiKQ6AdfZNQHt6Y97QjoI9nCe0eWAUi
-        f6B/pJOFuA6fdQ6L16rglS1yWHaRWpv8N/qOJqHpUR3DGoi/A40DkAuuj39e1Pnyqq5RAiSfLczdF
-        13dDajWoTNoo5YE35y/uhALDVzSKYrCqoFgg==;
+        bh=ADvDNdaZVMPfQf2g0/CMlH2g3NZFfWCLx2967dDgzEY=; t=1653668358; x=1654877958; 
+        b=uTG8McbucQHy+ZkNg03x+Z8NFNfSE39qkjNRkCowPCxKiOZebmWpUf8H/uASHbx8fuCnyZKBjHg
+        nhn/+82XXUBJivoROYZBnpSe4BdVV+aqCbshTEOoMG3yV9kZpegwNC5LeMYKztuDCJWUE0h9sXv6F
+        tIZm0nQqClc8UzM5SJH9mKpuLNYbwKneZI24L/u3Ok75DNqPZ60jDFjK5LrxJ5daK/6TMGOVT8LuD
+        60QV0UTg4Wlug3A9UqDQHUgdoYXYxaRs4b23BURp8Y8Bqw5REruvZw+bpp9QQ6EKqrEU8XuiQgg4o
+        r6G0sSvqH/zrcJ2vNrV3fJ9wa7pEfu5TQY8Q==;
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.95)
         (envelope-from <johannes@sipsolutions.net>)
-        id 1nucfV-0066Mn-IM;
-        Fri, 27 May 2022 18:18:29 +0200
+        id 1nucgE-0066NF-Lw;
+        Fri, 27 May 2022 18:19:14 +0200
 From:   Johannes Berg <johannes@sipsolutions.net>
 To:     stable@vger.kernel.org
 Cc:     Miri Korenblit <miriam.rachel.korenblit@intel.com>
-Subject: [PATCH 5.4] cfg80211: set custom regdomain after wiphy registration
-Date:   Fri, 27 May 2022 18:18:26 +0200
-Message-Id: <20220527161826.712499-1-johannes@sipsolutions.net>
+Subject: [PATCH 5.10] cfg80211: set custom regdomain after wiphy registration
+Date:   Fri, 27 May 2022 18:19:06 +0200
+Message-Id: <20220527161906.712731-1-johannes@sipsolutions.net>
 X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -70,19 +70,19 @@ Signed-off-by: Johannes Berg <johannes.berg@intel.com>
  2 files changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/net/wireless/core.c b/net/wireless/core.c
-index 5d151e8f8932..f7228afd81eb 100644
+index 3f4554723761..3b25b78896a2 100644
 --- a/net/wireless/core.c
 +++ b/net/wireless/core.c
 @@ -5,7 +5,7 @@
   * Copyright 2006-2010		Johannes Berg <johannes@sipsolutions.net>
   * Copyright 2013-2014  Intel Mobile Communications GmbH
   * Copyright 2015-2017	Intel Deutschland GmbH
-- * Copyright (C) 2018-2019 Intel Corporation
+- * Copyright (C) 2018-2020 Intel Corporation
 + * Copyright (C) 2018-2021 Intel Corporation
   */
  
  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-@@ -891,9 +891,6 @@ int wiphy_register(struct wiphy *wiphy)
+@@ -918,9 +918,6 @@ int wiphy_register(struct wiphy *wiphy)
  		return res;
  	}
  
@@ -92,7 +92,7 @@ index 5d151e8f8932..f7228afd81eb 100644
  	list_add_rcu(&rdev->list, &cfg80211_rdev_list);
  	cfg80211_rdev_list_generation++;
  
-@@ -904,6 +901,9 @@ int wiphy_register(struct wiphy *wiphy)
+@@ -931,6 +928,9 @@ int wiphy_register(struct wiphy *wiphy)
  	cfg80211_debugfs_rdev_add(rdev);
  	nl80211_notify_wiphy(rdev, NL80211_CMD_NEW_WIPHY);
  
@@ -103,10 +103,10 @@ index 5d151e8f8932..f7228afd81eb 100644
  		struct regulatory_request request;
  
 diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 0f3b57a73670..74caece77963 100644
+index a04fdfb35f07..6b3386e1d93a 100644
 --- a/net/wireless/reg.c
 +++ b/net/wireless/reg.c
-@@ -3790,6 +3790,7 @@ void wiphy_regulatory_register(struct wiphy *wiphy)
+@@ -4001,6 +4001,7 @@ void wiphy_regulatory_register(struct wiphy *wiphy)
  
  	wiphy_update_regulatory(wiphy, lr->initiator);
  	wiphy_all_share_dfs_chan_state(wiphy);
