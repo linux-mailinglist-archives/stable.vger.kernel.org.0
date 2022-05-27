@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49CC8535CDC
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6417853616B
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239195AbiE0I6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:58:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
+        id S1352031AbiE0L6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:58:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350185AbiE0I42 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:56:28 -0400
+        with ESMTP id S1353414AbiE0L42 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:28 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E2335D648;
-        Fri, 27 May 2022 01:54:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 870EC2658;
+        Fri, 27 May 2022 04:51:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B60C261C01;
-        Fri, 27 May 2022 08:54:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6752BC385A9;
-        Fri, 27 May 2022 08:54:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C521F61DDC;
+        Fri, 27 May 2022 11:51:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3C52C385A9;
+        Fri, 27 May 2022 11:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641671;
-        bh=wvyHoClL7ERvP595o/9+eYZSIUBBJhySOGYGJJR06BA=;
+        s=korg; t=1653652306;
+        bh=bYGVN7kfmeQdES4CFzs8Cvo+1Ksjh/MOcCcr62PeBgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oVghuaahenzFAbzcn0m9WhRwrnsqHQ/m4S5kU3nR2qKfzx8m4oDXLbgs24+tXZOtU
-         uHrTGaeIjHkbDK6BwHxpi/NP/uKO2RJZ/l8CCn8mNpNqnS29Q/VofXqISTxWr6efvJ
-         0OQVlCZDKxv6xoGOe4Gl6ZkYfioqYxK2tl2MEJLI=
+        b=lYXhubbxAyj+Hjp8zzZm1rC+kT6o9zJIPjOAdi13WDrN1LWFOdV7SlbExs+Pn8f9S
+         xy3HPfkuaTtkWbU1wN10P1srVPC02EYiH0f26OBIF1J98UK2FRCZGY+vIVTlvbiTtP
+         aPd4v8jkTAnQaOOFfupV0zhyhTc/sELpphUhstI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 32/47] random: use proper jiffies comparison macro
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 132/163] nios2: use fallback for random_get_entropy() instead of zero
 Date:   Fri, 27 May 2022 10:50:12 +0200
-Message-Id: <20220527084806.743460928@linuxfoundation.org>
+Message-Id: <20220527084846.561679347@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
-References: <20220527084801.223648383@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -54,27 +57,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 8a5b8a4a4ceb353b4dd5bafd09e2b15751bcdb51 upstream.
+commit c04e72700f2293013dab40208e809369378f224c upstream.
 
-This expands to exactly the same code that it replaces, but makes things
-consistent by using the same macro for jiffy comparisons throughout.
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
 
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/nios2/include/asm/timex.h |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -324,7 +324,7 @@ static bool crng_has_old_seed(void)
- 			interval = max_t(unsigned int, CRNG_RESEED_START_INTERVAL,
- 					 (unsigned int)uptime / 2 * HZ);
- 	}
--	return time_after(jiffies, READ_ONCE(base_crng.birth) + interval);
-+	return time_is_before_jiffies(READ_ONCE(base_crng.birth) + interval);
- }
+--- a/arch/nios2/include/asm/timex.h
++++ b/arch/nios2/include/asm/timex.h
+@@ -8,5 +8,8 @@
+ typedef unsigned long cycles_t;
  
- /*
+ extern cycles_t get_cycles(void);
++#define get_cycles get_cycles
++
++#define random_get_entropy() (((unsigned long)get_cycles()) ?: random_get_entropy_fallback())
+ 
+ #endif
 
 
