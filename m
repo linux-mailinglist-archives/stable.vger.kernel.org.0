@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 102435361DE
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4697C5361A3
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352779AbiE0MJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:09:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58806 "EHLO
+        id S1348282AbiE0MHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:07:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353114AbiE0MF2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:28 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EEF91611C6;
-        Fri, 27 May 2022 04:54:07 -0700 (PDT)
+        with ESMTP id S1352342AbiE0MEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:04:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9E014CA28;
+        Fri, 27 May 2022 04:53:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5E6AB824D6;
-        Fri, 27 May 2022 11:54:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A186C385A9;
-        Fri, 27 May 2022 11:54:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97D3561DB1;
+        Fri, 27 May 2022 11:53:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A24A6C34118;
+        Fri, 27 May 2022 11:53:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652444;
-        bh=81gDVT10vRHr4NSjABh1MpIn1JKtc9qJu7EIoMD7Pvw=;
+        s=korg; t=1653652418;
+        bh=FHmPyj2D2tGbC8s1f5us7ysnhTDu4Fn5V+6b2VESaaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6EG0hkTfJm88JvsfDEcJ3pnL/qq+/Ep2teFZgL+5WsOLO7PfnDMm8Nx9w4JeulCT
-         ZW1TAvIwspaMG61zreoukDomV7HaJOHs6Q7L0qxU1rnhpLbvsbMjp2cJw29aNyRSV1
-         XbHaXfbO/yecgfgejXO2uKW4XgOn1iOdQpgmPzAA=
+        b=NDKwLKa3JR34fk15FPqFAG2nxDZkK8Jppkex/BALRmLHeXcBY5SMIwSsnn58drDr7
+         YcahS9REiZh2BKJkCOoKbbzrKBm+b83Cq+3lk+pb7hogJDn/fkHL1MeneK/o0TIJEJ
+         BtEZvzH8v8ldwQ8GcoavE5U4PejSoKw7r9jnwaZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 156/163] random: move initialization functions out of hot pages
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 135/145] random: remove extern from functions in header
 Date:   Fri, 27 May 2022 10:50:36 +0200
-Message-Id: <20220527084849.942059392@linuxfoundation.org>
+Message-Id: <20220527084906.816395677@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,172 +54,136 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 560181c27b582557d633ecb608110075433383af upstream.
+commit 7782cfeca7d420e8bb707613d4cfb0f7ff29bb3a upstream.
 
-Much of random.c is devoted to initializing the rng and accounting for
-when a sufficient amount of entropy has been added. In a perfect world,
-this would all happen during init, and so we could mark these functions
-as __init. But in reality, this isn't the case: sometimes the rng only
-finishes initializing some seconds after system init is finished.
+Accoriding to the kernel style guide, having `extern` on functions in
+headers is old school and deprecated, and doesn't add anything. So remove
+them from random.h, and tidy up the file a little bit too.
 
-For this reason, at the moment, a whole host of functions that are only
-used relatively close to system init and then never again are intermixed
-with functions that are used in hot code all the time. This creates more
-cache misses than necessary.
-
-In order to pack the hot code closer together, this commit moves the
-initialization functions that can't be marked as __init into
-.text.unlikely by way of the __cold attribute.
-
-Of particular note is moving credit_init_bits() into a macro wrapper
-that inlines the crng_ready() static branch check. This avoids a
-function call to a nop+ret, and most notably prevents extra entropy
-arithmetic from being computed in mix_interrupt_randomness().
-
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ include/linux/random.h |   71 +++++++++++++++++++------------------------------
+ 1 file changed, 28 insertions(+), 43 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -109,7 +109,7 @@ bool rng_is_initialized(void)
- }
- EXPORT_SYMBOL(rng_is_initialized);
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -12,13 +12,12 @@
  
--static void crng_set_ready(struct work_struct *work)
-+static void __cold crng_set_ready(struct work_struct *work)
- {
- 	static_branch_enable(&crng_is_ready);
- }
-@@ -148,7 +148,7 @@ EXPORT_SYMBOL(wait_for_random_bytes);
-  * returns: 0 if callback is successfully added
-  *	    -EALREADY if pool is already initialised (callback not called)
-  */
--int register_random_ready_notifier(struct notifier_block *nb)
-+int __cold register_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret = -EALREADY;
-@@ -167,7 +167,7 @@ EXPORT_SYMBOL(register_random_ready_noti
- /*
-  * Delete a previously registered readiness callback function.
-  */
--int unregister_random_ready_notifier(struct notifier_block *nb)
-+int __cold unregister_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
- 	int ret;
-@@ -179,7 +179,7 @@ int unregister_random_ready_notifier(str
- }
- EXPORT_SYMBOL(unregister_random_ready_notifier);
+ struct notifier_block;
  
--static void process_random_ready_list(void)
-+static void __cold process_random_ready_list(void)
- {
- 	unsigned long flags;
+-extern void add_device_randomness(const void *, size_t);
+-extern void add_bootloader_randomness(const void *, size_t);
+-extern void add_input_randomness(unsigned int type, unsigned int code,
+-				 unsigned int value) __latent_entropy;
+-extern void add_interrupt_randomness(int irq) __latent_entropy;
+-extern void add_hwgenerator_randomness(const void *buffer, size_t count,
+-				       size_t entropy);
++void add_device_randomness(const void *, size_t);
++void add_bootloader_randomness(const void *, size_t);
++void add_input_randomness(unsigned int type, unsigned int code,
++			  unsigned int value) __latent_entropy;
++void add_interrupt_randomness(int irq) __latent_entropy;
++void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
  
-@@ -189,15 +189,9 @@ static void process_random_ready_list(vo
+ #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ static inline void add_latent_entropy(void)
+@@ -26,21 +25,11 @@ static inline void add_latent_entropy(vo
+ 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
  }
- 
- #define warn_unseeded_randomness() \
--	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
+ #else
+-static inline void add_latent_entropy(void) {}
+-#endif
 -
--static void _warn_unseeded_randomness(const char *func_name, void *caller)
--{
--	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
--		return;
--	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
--			func_name, caller, crng_init);
--}
-+	if (IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) && !crng_ready()) \
-+		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n", \
-+				__func__, (void *)_RET_IP_, crng_init)
+-extern void get_random_bytes(void *buf, size_t nbytes);
+-extern int wait_for_random_bytes(void);
+-extern int __init random_init(const char *command_line);
+-extern bool rng_is_initialized(void);
+-extern int register_random_ready_notifier(struct notifier_block *nb);
+-extern int unregister_random_ready_notifier(struct notifier_block *nb);
+-extern size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
+-
+-#ifndef MODULE
+-extern const struct file_operations random_fops, urandom_fops;
++static inline void add_latent_entropy(void) { }
+ #endif
  
++void get_random_bytes(void *buf, size_t nbytes);
++size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
+ u32 get_random_u32(void);
+ u64 get_random_u64(void);
+ static inline unsigned int get_random_int(void)
+@@ -72,11 +61,17 @@ static inline unsigned long get_random_l
  
- /*********************************************************************
-@@ -616,7 +610,7 @@ EXPORT_SYMBOL(get_random_u32);
-  * This function is called when the CPU is coming up, with entry
-  * CPUHP_RANDOM_PREPARE, which comes before CPUHP_WORKQUEUE_PREP.
-  */
--int random_prepare_cpu(unsigned int cpu)
-+int __cold random_prepare_cpu(unsigned int cpu)
+ static inline unsigned long get_random_canary(void)
  {
- 	/*
- 	 * When the cpu comes back online, immediately invalidate both
-@@ -791,13 +785,15 @@ static void extract_entropy(void *buf, s
- 	memzero_explicit(&block, sizeof(block));
+-	unsigned long val = get_random_long();
+-
+-	return val & CANARY_MASK;
++	return get_random_long() & CANARY_MASK;
  }
  
--static void credit_init_bits(size_t bits)
-+#define credit_init_bits(bits) if (!crng_ready()) _credit_init_bits(bits)
++unsigned long randomize_page(unsigned long start, unsigned long range);
 +
-+static void __cold _credit_init_bits(size_t bits)
- {
- 	static struct execute_work set_ready;
- 	unsigned int new, orig, add;
- 	unsigned long flags;
++int __init random_init(const char *command_line);
++bool rng_is_initialized(void);
++int wait_for_random_bytes(void);
++int register_random_ready_notifier(struct notifier_block *nb);
++int unregister_random_ready_notifier(struct notifier_block *nb);
++
+ /* Calls wait_for_random_bytes() and then calls get_random_bytes(buf, nbytes).
+  * Returns the result of the call to wait_for_random_bytes. */
+ static inline int get_random_bytes_wait(void *buf, size_t nbytes)
+@@ -100,8 +95,6 @@ declare_get_random_var_wait(int)
+ declare_get_random_var_wait(long)
+ #undef declare_get_random_var
  
--	if (crng_ready() || !bits)
-+	if (!bits)
- 		return;
+-unsigned long randomize_page(unsigned long start, unsigned long range);
+-
+ /*
+  * This is designed to be standalone for just prandom
+  * users, but for now we include it from <linux/random.h>
+@@ -112,22 +105,10 @@ unsigned long randomize_page(unsigned lo
+ #ifdef CONFIG_ARCH_RANDOM
+ # include <asm/archrandom.h>
+ #else
+-static inline bool __must_check arch_get_random_long(unsigned long *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_int(unsigned int *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_seed_long(unsigned long *v)
+-{
+-	return false;
+-}
+-static inline bool __must_check arch_get_random_seed_int(unsigned int *v)
+-{
+-	return false;
+-}
++static inline bool __must_check arch_get_random_long(unsigned long *v) { return false; }
++static inline bool __must_check arch_get_random_int(unsigned int *v) { return false; }
++static inline bool __must_check arch_get_random_seed_long(unsigned long *v) { return false; }
++static inline bool __must_check arch_get_random_seed_int(unsigned int *v) { return false; }
+ #endif
  
- 	add = min_t(size_t, bits, POOL_BITS);
-@@ -976,7 +972,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  * Handle random seed passed by bootloader, and credit it if
-  * CONFIG_RANDOM_TRUST_BOOTLOADER is set.
-  */
--void add_bootloader_randomness(const void *buf, size_t len)
-+void __cold add_bootloader_randomness(const void *buf, size_t len)
- {
- 	mix_pool_bytes(buf, len);
- 	if (trust_bootloader)
-@@ -1022,7 +1018,7 @@ static void fast_mix(unsigned long s[4],
-  * This function is called when the CPU has just come online, with
-  * entry CPUHP_AP_RANDOM_ONLINE, just after CPUHP_AP_WORKQUEUE_ONLINE.
-  */
--int random_online_cpu(unsigned int cpu)
-+int __cold random_online_cpu(unsigned int cpu)
- {
- 	/*
- 	 * During CPU shutdown and before CPU onlining, add_interrupt_
-@@ -1177,7 +1173,7 @@ static void add_timer_randomness(struct
- 	if (in_irq())
- 		this_cpu_ptr(&irq_randomness)->count += max(1u, bits * 64) - 1;
- 	else
--		credit_init_bits(bits);
-+		_credit_init_bits(bits);
- }
+ /*
+@@ -151,8 +132,12 @@ static inline bool __init arch_get_rando
+ #endif
  
- void add_input_randomness(unsigned int type, unsigned int code, unsigned int value)
-@@ -1205,7 +1201,7 @@ void add_disk_randomness(struct gendisk
- }
- EXPORT_SYMBOL_GPL(add_disk_randomness);
+ #ifdef CONFIG_SMP
+-extern int random_prepare_cpu(unsigned int cpu);
+-extern int random_online_cpu(unsigned int cpu);
++int random_prepare_cpu(unsigned int cpu);
++int random_online_cpu(unsigned int cpu);
++#endif
++
++#ifndef MODULE
++extern const struct file_operations random_fops, urandom_fops;
+ #endif
  
--void rand_initialize_disk(struct gendisk *disk)
-+void __cold rand_initialize_disk(struct gendisk *disk)
- {
- 	struct timer_rand_state *state;
- 
-@@ -1234,7 +1230,7 @@ void rand_initialize_disk(struct gendisk
-  *
-  * So the re-arming always happens in the entropy loop itself.
-  */
--static void entropy_timer(struct timer_list *t)
-+static void __cold entropy_timer(struct timer_list *t)
- {
- 	credit_init_bits(1);
- }
-@@ -1243,7 +1239,7 @@ static void entropy_timer(struct timer_l
-  * If we have an actual cycle counter, see if we can
-  * generate enough entropy with timing noise
-  */
--static void try_to_generate_entropy(void)
-+static void __cold try_to_generate_entropy(void)
- {
- 	struct {
- 		unsigned long entropy;
+ #endif /* _LINUX_RANDOM_H */
 
 
