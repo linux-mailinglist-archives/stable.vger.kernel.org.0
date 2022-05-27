@@ -2,53 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 059A6535F90
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:41:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8D50535FCB
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:43:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344430AbiE0LkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:40:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
+        id S1346075AbiE0LmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:42:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351658AbiE0Lj6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:39:58 -0400
+        with ESMTP id S1351565AbiE0Llp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:41:45 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3377913B8D1;
-        Fri, 27 May 2022 04:38:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE8A2133255;
+        Fri, 27 May 2022 04:40:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D6BA2B824D6;
-        Fri, 27 May 2022 11:38:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA558C385A9;
-        Fri, 27 May 2022 11:38:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63678B824DA;
+        Fri, 27 May 2022 11:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1989C385A9;
+        Fri, 27 May 2022 11:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651533;
-        bh=X1XNy8TH7ZpSDPxThdHUSlYhCXZLMFIpqWoo35o6R1U=;
+        s=korg; t=1653651610;
+        bh=cmSJxlEvBCbyDxTaNo1HC2OzkcM6kNw/KvVhcsbx2ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lP0XTB3YtWzo/y2wr9KK3wQ5PFWplRHSPo2eURlov+P9DeJZPZ0MnWjlhfaXU7L2q
-         GEYHonSLtLN9js7Wv20mZxUtRvWT6rLM+rtZvccZMwTrqZ5ulYE8JK11eoBd9Crwl/
-         7x3ELExn+NcrbgZJctDeCWyspXDymBMURf2R8c0U=
+        b=adDp87DxOSh17xSE9TFuWmSqEw5BjY+wfrF/wyqUYli/iUKHwTh271LHt0Qgtm3So
+         Ow0kxJoTmLASvmZjQPHslncP/URI5Vb/LNNBF84GC/IzC9ULyGeGGfc20y2cqZ4kBb
+         wMEa2XrprTJgngoVtxmh6x0nDfAoaaw+KUbj5ki8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org,
-        x86@kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 030/163] random: remove unused irq_flags argument from add_interrupt_randomness()
+Subject: [PATCH 5.15 009/145] lib/crypto: sha1: re-roll loops to reduce code size
 Date:   Fri, 27 May 2022 10:48:30 +0200
-Message-Id: <20220527084832.356162983@linuxfoundation.org>
+Message-Id: <20220527084851.970700751@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,104 +55,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 703f7066f40599c290babdb79dd61319264987e9 upstream.
+commit 9a1536b093bb5bf60689021275fd24d513bb8db0 upstream.
 
-Since commit
-   ee3e00e9e7101 ("random: use registers from interrupted code for CPU's w/o a cycle counter")
+With SHA-1 no longer being used for anything performance oriented, and
+also soon to be phased out entirely, we can make up for the space added
+by unrolled BLAKE2s by simply re-rolling SHA-1. Since SHA-1 is so much
+more complex, re-rolling it more or less takes care of the code size
+added by BLAKE2s. And eventually, hopefully we'll see SHA-1 removed
+entirely from most small kernel builds.
 
-the irq_flags argument is no longer used.
-
-Remove unused irq_flags.
-
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: linux-hyperv@vger.kernel.org
-Cc: x86@kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Wei Liu <wei.liu@kernel.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c |    2 +-
- drivers/char/random.c          |    4 ++--
- drivers/hv/vmbus_drv.c         |    2 +-
- include/linux/random.h         |    2 +-
- kernel/irq/handle.c            |    2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ lib/sha1.c |   95 ++++++++-----------------------------------------------------
+ 1 file changed, 14 insertions(+), 81 deletions(-)
 
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -84,7 +84,7 @@ DEFINE_IDTENTRY_SYSVEC(sysvec_hyperv_sti
- 	inc_irq_stat(hyperv_stimer0_count);
- 	if (hv_stimer0_handler)
- 		hv_stimer0_handler();
--	add_interrupt_randomness(HYPERV_STIMER0_VECTOR, 0);
-+	add_interrupt_randomness(HYPERV_STIMER0_VECTOR);
- 	ack_APIC_irq();
+--- a/lib/sha1.c
++++ b/lib/sha1.c
+@@ -9,6 +9,7 @@
+ #include <linux/kernel.h>
+ #include <linux/export.h>
+ #include <linux/bitops.h>
++#include <linux/string.h>
+ #include <crypto/sha1.h>
+ #include <asm/unaligned.h>
  
- 	set_irq_regs(old_regs);
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -200,7 +200,7 @@
-  *	void add_device_randomness(const void *buf, unsigned int size);
-  * 	void add_input_randomness(unsigned int type, unsigned int code,
-  *                                unsigned int value);
-- *	void add_interrupt_randomness(int irq, int irq_flags);
-+ *	void add_interrupt_randomness(int irq);
-  * 	void add_disk_randomness(struct gendisk *disk);
-  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
-  *					size_t entropy);
-@@ -1273,7 +1273,7 @@ static __u32 get_reg(struct fast_pool *f
- 	return *ptr;
- }
+@@ -55,7 +56,8 @@
+ #define SHA_ROUND(t, input, fn, constant, A, B, C, D, E) do { \
+ 	__u32 TEMP = input(t); setW(t, TEMP); \
+ 	E += TEMP + rol32(A,5) + (fn) + (constant); \
+-	B = ror32(B, 2); } while (0)
++	B = ror32(B, 2); \
++	TEMP = E; E = D; D = C; C = B; B = A; A = TEMP; } while (0)
  
--void add_interrupt_randomness(int irq, int irq_flags)
-+void add_interrupt_randomness(int irq)
+ #define T_0_15(t, A, B, C, D, E)  SHA_ROUND(t, SHA_SRC, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+ #define T_16_19(t, A, B, C, D, E) SHA_ROUND(t, SHA_MIX, (((C^D)&B)^D) , 0x5a827999, A, B, C, D, E )
+@@ -84,6 +86,7 @@
+ void sha1_transform(__u32 *digest, const char *data, __u32 *array)
  {
- 	struct entropy_store	*r;
- 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1351,7 +1351,7 @@ static void vmbus_isr(void)
- 			tasklet_schedule(&hv_cpu->msg_dpc);
- 	}
+ 	__u32 A, B, C, D, E;
++	unsigned int i = 0;
  
--	add_interrupt_randomness(hv_get_vector(), 0);
-+	add_interrupt_randomness(hv_get_vector());
- }
+ 	A = digest[0];
+ 	B = digest[1];
+@@ -92,94 +95,24 @@ void sha1_transform(__u32 *digest, const
+ 	E = digest[4];
  
- /*
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -35,7 +35,7 @@ static inline void add_latent_entropy(vo
+ 	/* Round 1 - iterations 0-16 take their input from 'data' */
+-	T_0_15( 0, A, B, C, D, E);
+-	T_0_15( 1, E, A, B, C, D);
+-	T_0_15( 2, D, E, A, B, C);
+-	T_0_15( 3, C, D, E, A, B);
+-	T_0_15( 4, B, C, D, E, A);
+-	T_0_15( 5, A, B, C, D, E);
+-	T_0_15( 6, E, A, B, C, D);
+-	T_0_15( 7, D, E, A, B, C);
+-	T_0_15( 8, C, D, E, A, B);
+-	T_0_15( 9, B, C, D, E, A);
+-	T_0_15(10, A, B, C, D, E);
+-	T_0_15(11, E, A, B, C, D);
+-	T_0_15(12, D, E, A, B, C);
+-	T_0_15(13, C, D, E, A, B);
+-	T_0_15(14, B, C, D, E, A);
+-	T_0_15(15, A, B, C, D, E);
++	for (; i < 16; ++i)
++		T_0_15(i, A, B, C, D, E);
  
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value) __latent_entropy;
--extern void add_interrupt_randomness(int irq, int irq_flags) __latent_entropy;
-+extern void add_interrupt_randomness(int irq) __latent_entropy;
+ 	/* Round 1 - tail. Input from 512-bit mixing array */
+-	T_16_19(16, E, A, B, C, D);
+-	T_16_19(17, D, E, A, B, C);
+-	T_16_19(18, C, D, E, A, B);
+-	T_16_19(19, B, C, D, E, A);
++	for (; i < 20; ++i)
++		T_16_19(i, A, B, C, D, E);
  
- extern void get_random_bytes(void *buf, int nbytes);
- extern int wait_for_random_bytes(void);
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -195,7 +195,7 @@ irqreturn_t handle_irq_event_percpu(stru
+ 	/* Round 2 */
+-	T_20_39(20, A, B, C, D, E);
+-	T_20_39(21, E, A, B, C, D);
+-	T_20_39(22, D, E, A, B, C);
+-	T_20_39(23, C, D, E, A, B);
+-	T_20_39(24, B, C, D, E, A);
+-	T_20_39(25, A, B, C, D, E);
+-	T_20_39(26, E, A, B, C, D);
+-	T_20_39(27, D, E, A, B, C);
+-	T_20_39(28, C, D, E, A, B);
+-	T_20_39(29, B, C, D, E, A);
+-	T_20_39(30, A, B, C, D, E);
+-	T_20_39(31, E, A, B, C, D);
+-	T_20_39(32, D, E, A, B, C);
+-	T_20_39(33, C, D, E, A, B);
+-	T_20_39(34, B, C, D, E, A);
+-	T_20_39(35, A, B, C, D, E);
+-	T_20_39(36, E, A, B, C, D);
+-	T_20_39(37, D, E, A, B, C);
+-	T_20_39(38, C, D, E, A, B);
+-	T_20_39(39, B, C, D, E, A);
++	for (; i < 40; ++i)
++		T_20_39(i, A, B, C, D, E);
  
- 	retval = __handle_irq_event_percpu(desc, &flags);
+ 	/* Round 3 */
+-	T_40_59(40, A, B, C, D, E);
+-	T_40_59(41, E, A, B, C, D);
+-	T_40_59(42, D, E, A, B, C);
+-	T_40_59(43, C, D, E, A, B);
+-	T_40_59(44, B, C, D, E, A);
+-	T_40_59(45, A, B, C, D, E);
+-	T_40_59(46, E, A, B, C, D);
+-	T_40_59(47, D, E, A, B, C);
+-	T_40_59(48, C, D, E, A, B);
+-	T_40_59(49, B, C, D, E, A);
+-	T_40_59(50, A, B, C, D, E);
+-	T_40_59(51, E, A, B, C, D);
+-	T_40_59(52, D, E, A, B, C);
+-	T_40_59(53, C, D, E, A, B);
+-	T_40_59(54, B, C, D, E, A);
+-	T_40_59(55, A, B, C, D, E);
+-	T_40_59(56, E, A, B, C, D);
+-	T_40_59(57, D, E, A, B, C);
+-	T_40_59(58, C, D, E, A, B);
+-	T_40_59(59, B, C, D, E, A);
++	for (; i < 60; ++i)
++		T_40_59(i, A, B, C, D, E);
  
--	add_interrupt_randomness(desc->irq_data.irq, flags);
-+	add_interrupt_randomness(desc->irq_data.irq);
+ 	/* Round 4 */
+-	T_60_79(60, A, B, C, D, E);
+-	T_60_79(61, E, A, B, C, D);
+-	T_60_79(62, D, E, A, B, C);
+-	T_60_79(63, C, D, E, A, B);
+-	T_60_79(64, B, C, D, E, A);
+-	T_60_79(65, A, B, C, D, E);
+-	T_60_79(66, E, A, B, C, D);
+-	T_60_79(67, D, E, A, B, C);
+-	T_60_79(68, C, D, E, A, B);
+-	T_60_79(69, B, C, D, E, A);
+-	T_60_79(70, A, B, C, D, E);
+-	T_60_79(71, E, A, B, C, D);
+-	T_60_79(72, D, E, A, B, C);
+-	T_60_79(73, C, D, E, A, B);
+-	T_60_79(74, B, C, D, E, A);
+-	T_60_79(75, A, B, C, D, E);
+-	T_60_79(76, E, A, B, C, D);
+-	T_60_79(77, D, E, A, B, C);
+-	T_60_79(78, C, D, E, A, B);
+-	T_60_79(79, B, C, D, E, A);
++	for (; i < 80; ++i)
++		T_60_79(i, A, B, C, D, E);
  
- 	if (!noirqdebug)
- 		note_interrupt(desc, retval);
+ 	digest[0] += A;
+ 	digest[1] += B;
 
 
