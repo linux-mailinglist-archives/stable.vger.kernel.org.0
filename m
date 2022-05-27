@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5FCD536076
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E325360D4
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352065AbiE0Lti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40396 "EHLO
+        id S1351726AbiE0LyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:54:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352042AbiE0Lsj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:48:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECA9314CA10;
-        Fri, 27 May 2022 04:43:50 -0700 (PDT)
+        with ESMTP id S1352055AbiE0LtH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:49:07 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6530F13128A;
+        Fri, 27 May 2022 04:44:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3197B61D46;
-        Fri, 27 May 2022 11:43:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B442C385A9;
-        Fri, 27 May 2022 11:43:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAEE2B8091D;
+        Fri, 27 May 2022 11:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EF1C385A9;
+        Fri, 27 May 2022 11:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651829;
-        bh=vTKQqfjX4F70+FXW6akEB42FGx0gbfSWX/LAI81xnYI=;
+        s=korg; t=1653651838;
+        bh=zvNJAXoilwDxTtaE7iGov4VsUnmsvHqf6cJHqz+4f5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQezBE2J3DCjn6bhiBf4hGHs2TzvnT5a57tM2hV+CCOAzGAQFiZ37ziCLC7d7Skoa
-         pP0LYjj43hS/C6EO2eAWwL6fDXz4iTMxI6F6xwSZ1rM0ppaLtLOjcE9AVD2jE8CoAX
-         cCZb8H6oehapT9sOg76W2nSXbkdRLhrONOiNmQ8w=
+        b=BqvEu44qxgEJ6hTw4zDBF68UOAEp5rld95SYP6icdqkG6yCSCwEyRRS08WnvPvat2
+         jswQtMcywz3RB9gCiuhxLd3h61uSkXsbCoGMC8uNY9vlT8DVQsPPBdn/7nDZotawzW
+         kHqOBzAmej97dOS7sVJ6v735E1FR6zeG7SO5yuRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Eric Biggers <ebiggers@google.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 042/145] random: make credit_entropy_bits() always safe
-Date:   Fri, 27 May 2022 10:49:03 +0200
-Message-Id: <20220527084855.991765846@linuxfoundation.org>
+Subject: [PATCH 5.10 064/163] random: use RDSEED instead of RDRAND in entropy extraction
+Date:   Fri, 27 May 2022 10:49:04 +0200
+Message-Id: <20220527084836.940612093@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,86 +57,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a49c010e61e1938be851f5e49ac219d49b704103 upstream.
+commit 28f425e573e906a4c15f8392cc2b1561ef448595 upstream.
 
-This is called from various hwgenerator drivers, so rather than having
-one "safe" version for userspace and one "unsafe" version for the
-kernel, just make everything safe; the checks are cheap and sensible to
-have anyway.
+When /dev/random was directly connected with entropy extraction, without
+any expansion stage, extract_buf() was called for every 10 bytes of data
+read from /dev/random. For that reason, RDRAND was used rather than
+RDSEED. At the same time, crng_reseed() was still only called every 5
+minutes, so there RDSEED made sense.
 
-Reported-by: Sultan Alsawaf <sultan@kerneltoast.com>
+Those olden days were also a time when the entropy collector did not use
+a cryptographic hash function, which meant most bets were off in terms
+of real preimage resistance. For that reason too it didn't matter
+_that_ much whether RDSEED was mixed in before or after entropy
+extraction; both choices were sort of bad.
+
+But now we have a cryptographic hash function at work, and with that we
+get real preimage resistance. We also now only call extract_entropy()
+every 5 minutes, rather than every 10 bytes. This allows us to do two
+important things.
+
+First, we can switch to using RDSEED in extract_entropy(), as Dominik
+suggested. Second, we can ensure that RDSEED input always goes into the
+cryptographic hash function with other things before being used
+directly. This eliminates a category of attacks in which the CPU knows
+the current state of the crng and knows that we're going to xor RDSEED
+into it, and so it computes a malicious RDSEED. By going through our
+hash function, it would require the CPU to compute a preimage on the
+fly, which isn't going to happen.
+
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Suggested-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+ drivers/char/random.c |   22 +++++++++-------------
+ 1 file changed, 9 insertions(+), 13 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -447,18 +447,15 @@ static void process_random_ready_list(vo
- 	spin_unlock_irqrestore(&random_ready_list_lock, flags);
- }
+@@ -727,13 +727,8 @@ static void crng_reseed(struct crng_stat
+ 					CHACHA_KEY_SIZE);
+ 	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+-	for (i = 0; i < 8; i++) {
+-		unsigned long rv;
+-		if (!arch_get_random_seed_long(&rv) &&
+-		    !arch_get_random_long(&rv))
+-			rv = random_get_entropy();
+-		crng->state[i + 4] ^= buf.key[i] ^ rv;
+-	}
++	for (i = 0; i < 8; i++)
++		crng->state[i + 4] ^= buf.key[i];
+ 	memzero_explicit(&buf, sizeof(buf));
+ 	WRITE_ONCE(crng->init_time, jiffies);
+ 	spin_unlock_irqrestore(&crng->lock, flags);
+@@ -1054,16 +1049,17 @@ static void extract_entropy(void *buf, s
+ 	unsigned long flags;
+ 	u8 seed[BLAKE2S_HASH_SIZE], next_key[BLAKE2S_HASH_SIZE];
+ 	struct {
+-		unsigned long rdrand[32 / sizeof(long)];
++		unsigned long rdseed[32 / sizeof(long)];
+ 		size_t counter;
+ 	} block;
+ 	size_t i;
  
--/*
-- * Credit (or debit) the entropy store with n bits of entropy.
-- * Use credit_entropy_bits_safe() if the value comes from userspace
-- * or otherwise should be checked for extreme values.
-- */
- static void credit_entropy_bits(int nbits)
- {
- 	int entropy_count, orig;
+ 	trace_extract_entropy(nbytes, input_pool.entropy_count);
  
--	if (!nbits)
-+	if (nbits <= 0)
- 		return;
+-	for (i = 0; i < ARRAY_SIZE(block.rdrand); ++i) {
+-		if (!arch_get_random_long(&block.rdrand[i]))
+-			block.rdrand[i] = random_get_entropy();
++	for (i = 0; i < ARRAY_SIZE(block.rdseed); ++i) {
++		if (!arch_get_random_seed_long(&block.rdseed[i]) &&
++		    !arch_get_random_long(&block.rdseed[i]))
++			block.rdseed[i] = random_get_entropy();
+ 	}
  
-+	nbits = min(nbits, POOL_BITS);
-+
- 	do {
- 		orig = READ_ONCE(input_pool.entropy_count);
- 		entropy_count = min(POOL_BITS, orig + nbits);
-@@ -470,18 +467,6 @@ static void credit_entropy_bits(int nbit
- 		crng_reseed(&primary_crng, true);
- }
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+@@ -1071,7 +1067,7 @@ static void extract_entropy(void *buf, s
+ 	/* seed = HASHPRF(last_key, entropy_input) */
+ 	blake2s_final(&input_pool.hash, seed);
  
--static int credit_entropy_bits_safe(int nbits)
--{
--	if (nbits < 0)
--		return -EINVAL;
--
--	/* Cap the value to avoid overflows */
--	nbits = min(nbits, POOL_BITS);
--
--	credit_entropy_bits(nbits);
--	return 0;
--}
--
- /*********************************************************************
-  *
-  * CRNG using CHACHA20
-@@ -1526,7 +1511,10 @@ static long random_ioctl(struct file *f,
- 			return -EPERM;
- 		if (get_user(ent_count, p))
- 			return -EFAULT;
--		return credit_entropy_bits_safe(ent_count);
-+		if (ent_count < 0)
-+			return -EINVAL;
-+		credit_entropy_bits(ent_count);
-+		return 0;
- 	case RNDADDENTROPY:
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
-@@ -1539,7 +1527,8 @@ static long random_ioctl(struct file *f,
- 		retval = write_pool((const char __user *)p, size);
- 		if (retval < 0)
- 			return retval;
--		return credit_entropy_bits_safe(ent_count);
-+		credit_entropy_bits(ent_count);
-+		return 0;
- 	case RNDZAPENTCNT:
- 	case RNDCLEARPOOL:
- 		/*
+-	/* next_key = HASHPRF(seed, RDRAND || 0) */
++	/* next_key = HASHPRF(seed, RDSEED || 0) */
+ 	block.counter = 0;
+ 	blake2s(next_key, (u8 *)&block, seed, sizeof(next_key), sizeof(block), sizeof(seed));
+ 	blake2s_init_key(&input_pool.hash, BLAKE2S_HASH_SIZE, next_key, sizeof(next_key));
+@@ -1081,7 +1077,7 @@ static void extract_entropy(void *buf, s
+ 
+ 	while (nbytes) {
+ 		i = min_t(size_t, nbytes, BLAKE2S_HASH_SIZE);
+-		/* output = HASHPRF(seed, RDRAND || ++counter) */
++		/* output = HASHPRF(seed, RDSEED || ++counter) */
+ 		++block.counter;
+ 		blake2s(buf, (u8 *)&block, seed, i, sizeof(block), sizeof(seed));
+ 		nbytes -= i;
 
 
