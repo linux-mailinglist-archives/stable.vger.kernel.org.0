@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3E79535C47
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA4535360C2
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351276AbiE0JBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 05:01:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
+        id S229984AbiE0Lvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:51:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350320AbiE0I7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:03 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D634B59091;
-        Fri, 27 May 2022 01:55:29 -0700 (PDT)
+        with ESMTP id S1352421AbiE0LuY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6461814E2F8;
+        Fri, 27 May 2022 04:44:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 21CF9CE237A;
-        Fri, 27 May 2022 08:55:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23808C385A9;
-        Fri, 27 May 2022 08:55:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7BD061D52;
+        Fri, 27 May 2022 11:44:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6E29C385A9;
+        Fri, 27 May 2022 11:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641726;
-        bh=mqr+CmKBFFHkb8QDzclxqHbsHvaX+z4Z1RjSRFRczNg=;
+        s=korg; t=1653651874;
+        bh=a9XVNqU5sn7bRAO9DMP0qktS82o+XYBC9OPCV8lHv6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJhz5S5hFWoq/eZf004BVGtij3bVkJ6iMA9p0OLyRmCb+OA3tOdtE9+A8B7wwjiDx
-         nrB+S7FrTYGid4Sue0x6hrbBOsMpcSpdl6yY8zD3P1gr6RWLqCZ5Ej7E5/KYAkbYp3
-         0ODRzaAQoI0IzxHcnC5ZYaarVy259P2nU++Zq2UQ=
+        b=PF3GWdDkHinKGbcZsXjKlLMDgkTU3JVobTqPLDKhjBZB93IbgU7XQzBjxmPu7zeQ8
+         HXMtWFj3PWTnuKpu9DKnjZtcy25zXFokm0ljCY83rU4/NGvh47F/z3SNrMly10BsJL
+         V3ycGEZvMic6em6WuciegcNXFqZaxK3X+YN7c5do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Eric Biggers <ebiggers@google.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 027/111] random: deobfuscate irq u32/u64 contributions
+Subject: [PATCH 5.10 059/163] random: always wake up entropy writers after extraction
 Date:   Fri, 27 May 2022 10:48:59 +0200
-Message-Id: <20220527084823.344476921@linuxfoundation.org>
+Message-Id: <20220527084836.307932306@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,121 +58,141 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b2f408fe403800c91a49f6589d95b6759ce1b30b upstream.
+commit 489c7fc44b5740d377e8cfdbf0851036e493af00 upstream.
 
-In the irq handler, we fill out 16 bytes differently on 32-bit and
-64-bit platforms, and for 32-bit vs 64-bit cycle counters, which doesn't
-always correspond with the bitness of the platform. Whether or not you
-like this strangeness, it is a matter of fact.  But it might not be a
-fact you well realized until now, because the code that loaded the irq
-info into 4 32-bit words was quite confusing.  Instead, this commit
-makes everything explicit by having separate (compile-time) branches for
-32-bit and 64-bit types.
+Now that POOL_BITS == POOL_MIN_BITS, we must unconditionally wake up
+entropy writers after every extraction. Therefore there's no point of
+write_wakeup_threshold, so we can move it to the dustbin of unused
+compatibility sysctls. While we're at it, we can fix a small comparison
+where we were waking up after <= min rather than < min.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
+Suggested-by: Eric Biggers <ebiggers@kernel.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   49 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ Documentation/admin-guide/sysctl/kernel.rst |    7 ++++-
+ drivers/char/random.c                       |   33 +++++++++-------------------
+ 2 files changed, 16 insertions(+), 24 deletions(-)
 
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -1011,14 +1011,17 @@ This is a directory, with the following
+ * ``poolsize``: the entropy pool size, in bits;
+ 
+ * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
+-  number of seconds between urandom pool reseeding).
++  number of seconds between urandom pool reseeding). This file is
++  writable for compatibility purposes, but writing to it has no effect
++  on any RNG behavior.
+ 
+ * ``uuid``: a UUID generated every time this is retrieved (this can
+   thus be used to generate UUIDs at will);
+ 
+ * ``write_wakeup_threshold``: when the entropy count drops below this
+   (as a number of bits), processes waiting to write to ``/dev/random``
+-  are woken up.
++  are woken up. This file is writable for compatibility purposes, but
++  writing to it has no effect on any RNG behavior.
+ 
+ If ``drivers/char/random.c`` is built with ``ADD_INTERRUPT_BENCH``
+ defined, these additional entries are present:
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -283,7 +283,10 @@ static void mix_pool_bytes(const void *i
- }
- 
- struct fast_pool {
--	u32 pool[4];
-+	union {
-+		u32 pool32[4];
-+		u64 pool64[2];
-+	};
- 	unsigned long last;
- 	u16 reg_idx;
- 	u8 count;
-@@ -294,10 +297,10 @@ struct fast_pool {
-  * collector.  It's hardcoded for an 128 bit pool and assumes that any
-  * locks that might be needed are taken by the caller.
+@@ -296,12 +296,6 @@ enum {
   */
--static void fast_mix(struct fast_pool *f)
-+static void fast_mix(u32 pool[4])
- {
--	u32 a = f->pool[0],	b = f->pool[1];
--	u32 c = f->pool[2],	d = f->pool[3];
-+	u32 a = pool[0],	b = pool[1];
-+	u32 c = pool[2],	d = pool[3];
+ static DECLARE_WAIT_QUEUE_HEAD(random_write_wait);
+ static struct fasync_struct *fasync;
+-/*
+- * If the entropy count falls under this number of bits, then we
+- * should wake up processes which are selecting or polling on write
+- * access to /dev/random.
+- */
+-static int random_write_wakeup_bits = POOL_MIN_BITS;
  
- 	a += b;			c += d;
- 	b = rol32(b, 6);	d = rol32(d, 27);
-@@ -315,9 +318,8 @@ static void fast_mix(struct fast_pool *f
- 	b = rol32(b, 16);	d = rol32(d, 14);
- 	d ^= a;			b ^= c;
+ static DEFINE_SPINLOCK(random_ready_list_lock);
+ static LIST_HEAD(random_ready_list);
+@@ -739,10 +733,8 @@ static void crng_reseed(struct crng_stat
+ 				return;
+ 		} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
+ 		extract_entropy(buf.key, sizeof(buf.key));
+-		if (random_write_wakeup_bits) {
+-			wake_up_interruptible(&random_write_wait);
+-			kill_fasync(&fasync, SIGIO, POLL_OUT);
+-		}
++		wake_up_interruptible(&random_write_wait);
++		kill_fasync(&fasync, SIGIO, POLL_OUT);
+ 	} else {
+ 		_extract_crng(&primary_crng, buf.block);
+ 		_crng_backtrack_protect(&primary_crng, buf.block,
+@@ -1471,7 +1463,7 @@ static __poll_t random_poll(struct file
+ 	mask = 0;
+ 	if (crng_ready())
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+-	if (input_pool.entropy_count < random_write_wakeup_bits)
++	if (input_pool.entropy_count < POOL_MIN_BITS)
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+ 	return mask;
+ }
+@@ -1556,7 +1548,7 @@ static long random_ioctl(struct file *f,
+ 		 */
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		if (xchg(&input_pool.entropy_count, 0) && random_write_wakeup_bits) {
++		if (xchg(&input_pool.entropy_count, 0)) {
+ 			wake_up_interruptible(&random_write_wait);
+ 			kill_fasync(&fasync, SIGIO, POLL_OUT);
+ 		}
+@@ -1636,9 +1628,9 @@ SYSCALL_DEFINE3(getrandom, char __user *
  
--	f->pool[0] = a;  f->pool[1] = b;
--	f->pool[2] = c;  f->pool[3] = d;
--	f->count++;
-+	pool[0] = a;  pool[1] = b;
-+	pool[2] = c;  pool[3] = d;
+ #include <linux/sysctl.h>
+ 
+-static int min_write_thresh;
+-static int max_write_thresh = POOL_BITS;
+ static int random_min_urandom_seed = 60;
++static int random_write_wakeup_bits = POOL_MIN_BITS;
++static int sysctl_poolsize = POOL_BITS;
+ static char sysctl_bootid[16];
+ 
+ /*
+@@ -1677,7 +1669,6 @@ static int proc_do_uuid(struct ctl_table
+ 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
  }
  
- static void process_random_ready_list(void)
-@@ -784,29 +786,34 @@ void add_interrupt_randomness(int irq)
- 	struct pt_regs *regs = get_irq_regs();
- 	unsigned long now = jiffies;
- 	cycles_t cycles = random_get_entropy();
--	u32 c_high, j_high;
--	u64 ip;
+-static int sysctl_poolsize = POOL_BITS;
+ extern struct ctl_table random_table[];
+ struct ctl_table random_table[] = {
+ 	{
+@@ -1699,9 +1690,7 @@ struct ctl_table random_table[] = {
+ 		.data		= &random_write_wakeup_bits,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0644,
+-		.proc_handler	= proc_dointvec_minmax,
+-		.extra1		= &min_write_thresh,
+-		.extra2		= &max_write_thresh,
++		.proc_handler	= proc_dointvec,
+ 	},
+ 	{
+ 		.procname	= "urandom_min_reseed_secs",
+@@ -1882,13 +1871,13 @@ void add_hwgenerator_randomness(const ch
+ 	}
  
- 	if (cycles == 0)
- 		cycles = get_reg(fast_pool, regs);
--	c_high = (sizeof(cycles) > 4) ? cycles >> 32 : 0;
--	j_high = (sizeof(now) > 4) ? now >> 32 : 0;
--	fast_pool->pool[0] ^= cycles ^ j_high ^ irq;
--	fast_pool->pool[1] ^= now ^ c_high;
--	ip = regs ? instruction_pointer(regs) : _RET_IP_;
--	fast_pool->pool[2] ^= ip;
--	fast_pool->pool[3] ^=
--		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
- 
--	fast_mix(fast_pool);
-+	if (sizeof(cycles) == 8)
-+		fast_pool->pool64[0] ^= cycles ^ rol64(now, 32) ^ irq;
-+	else {
-+		fast_pool->pool32[0] ^= cycles ^ irq;
-+		fast_pool->pool32[1] ^= now;
-+	}
-+
-+	if (sizeof(unsigned long) == 8)
-+		fast_pool->pool64[1] ^= regs ? instruction_pointer(regs) : _RET_IP_;
-+	else {
-+		fast_pool->pool32[2] ^= regs ? instruction_pointer(regs) : _RET_IP_;
-+		fast_pool->pool32[3] ^= get_reg(fast_pool, regs);
-+	}
-+
-+	fast_mix(fast_pool->pool32);
-+	++fast_pool->count;
- 
- 	if (unlikely(crng_init == 0)) {
- 		if (fast_pool->count >= 64 &&
--		    crng_fast_load(fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
-+		    crng_fast_load(fast_pool->pool32, sizeof(fast_pool->pool32)) > 0) {
- 			fast_pool->count = 0;
- 			fast_pool->last = now;
- 			if (spin_trylock(&input_pool.lock)) {
--				_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
- 				spin_unlock(&input_pool.lock);
- 			}
- 		}
-@@ -820,7 +827,7 @@ void add_interrupt_randomness(int irq)
- 		return;
- 
- 	fast_pool->last = now;
--	_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+	_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
- 	spin_unlock(&input_pool.lock);
- 
- 	fast_pool->count = 0;
+ 	/* Throttle writing if we're above the trickle threshold.
+-	 * We'll be woken up again once below random_write_wakeup_thresh,
+-	 * when the calling thread is about to terminate, or once
+-	 * CRNG_RESEED_INTERVAL has lapsed.
++	 * We'll be woken up again once below POOL_MIN_BITS, when
++	 * the calling thread is about to terminate, or once
++	 * CRNG_RESEED_INTERVAL has elapsed.
+ 	 */
+ 	wait_event_interruptible_timeout(random_write_wait,
+ 			!system_wq || kthread_should_stop() ||
+-			input_pool.entropy_count <= random_write_wakeup_bits,
++			input_pool.entropy_count < POOL_MIN_BITS,
+ 			CRNG_RESEED_INTERVAL);
+ 	mix_pool_bytes(buffer, count);
+ 	credit_entropy_bits(entropy);
 
 
