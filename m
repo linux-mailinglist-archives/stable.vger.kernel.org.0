@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 238C4536009
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C8C535FF9
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239195AbiE0LoU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:44:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58520 "EHLO
+        id S1351840AbiE0Lqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:46:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351809AbiE0Ln6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:43:58 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A37F066FB0;
-        Fri, 27 May 2022 04:40:49 -0700 (PDT)
+        with ESMTP id S1351961AbiE0LpL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 101B3132765;
+        Fri, 27 May 2022 04:41:36 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F08CF61CB7;
-        Fri, 27 May 2022 11:40:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDCFC34113;
-        Fri, 27 May 2022 11:40:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 733F4B824D9;
+        Fri, 27 May 2022 11:41:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B775DC385A9;
+        Fri, 27 May 2022 11:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651648;
-        bh=f9E5EI7jJkflJj4QutB3zPFBUaC/T63F6pOaKTQ3D9I=;
+        s=korg; t=1653651693;
+        bh=vPRTMm+R+ACCNBJFw2ofXGsoF9uzS5IfdoIy6DONyu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e5zMnNmP+SVrGUpqey/iR9Wt+kzNuydn5xQV+aNLDDz2QKeUMsO257Fga+cmcqne4
-         WomhFL/0Q3cVm5S46mi3zaOWy6v0PC+AF00MPDj4SdCrYPv1jxx8K1y6gv5VbEFvlU
-         xx49OmuY2SGnwIzl/4zwB4cz1PijfkDO4x69vVsc=
+        b=QFWCIQAY9jLnJHljPVDhpxWAZiNDaCnGtSosnTl6wCLxD+h8CihOoTC6QVY5LbNlW
+         cs4iIoredgYoOpcf+vMw3QgYF9UL2I/C+H2FgQ/m0cGipKrIUkqBlt63G//dz8ldyb
+         dr4kASJw/TLs7t1DouwXhkoe710vNNjN013rCoE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Schspa Shi <schspa@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 043/163] random: remove incomplete last_data logic
+Subject: [PATCH 5.15 022/145] random: fix typo in comments
 Date:   Fri, 27 May 2022 10:48:43 +0200
-Message-Id: <20220527084834.058330176@linuxfoundation.org>
+Message-Id: <20220527084853.575502765@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +53,29 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Schspa Shi <schspa@gmail.com>
 
-commit a4bfa9b31802c14ff5847123c12b98d5e36b3985 upstream.
+commit c0a8a61e7abbf66729687ee63659ee25983fbb1e upstream.
 
-There were a few things added under the "if (fips_enabled)" banner,
-which never really got completed, and the FIPS people anyway are
-choosing a different direction. Rather than keep around this halfbaked
-code, get rid of it so that we can focus on a single design of the RNG
-rather than two designs.
+s/or/for
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Schspa Shi <schspa@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   39 ++++-----------------------------------
- 1 file changed, 4 insertions(+), 35 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -337,7 +337,6 @@
- #include <linux/spinlock.h>
- #include <linux/kthread.h>
- #include <linux/percpu.h>
--#include <linux/fips.h>
- #include <linux/ptrace.h>
- #include <linux/workqueue.h>
- #include <linux/irq.h>
-@@ -517,14 +516,12 @@ struct entropy_store {
- 	u16 add_ptr;
- 	u16 input_rotate;
- 	int entropy_count;
--	unsigned int last_data_init:1;
--	u8 last_data[EXTRACT_SIZE];
- };
- 
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
- 			       size_t nbytes, int min, int rsvd);
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
--				size_t nbytes, int fips);
-+				size_t nbytes);
- 
- static void crng_reseed(struct crng_state *crng, struct entropy_store *r);
- static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
-@@ -821,7 +818,7 @@ static void crng_initialize_secondary(st
- 
- static void __init crng_initialize_primary(struct crng_state *crng)
- {
--	_extract_entropy(&input_pool, &crng->state[4], sizeof(u32) * 12, 0);
-+	_extract_entropy(&input_pool, &crng->state[4], sizeof(u32) * 12);
- 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
- 		invalidate_batched_entropy();
- 		numa_crng_init();
-@@ -1426,22 +1423,13 @@ static void extract_buf(struct entropy_s
- }
- 
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
--				size_t nbytes, int fips)
-+				size_t nbytes)
- {
- 	ssize_t ret = 0, i;
- 	u8 tmp[EXTRACT_SIZE];
--	unsigned long flags;
- 
- 	while (nbytes) {
- 		extract_buf(r, tmp);
--
--		if (fips) {
--			spin_lock_irqsave(&r->lock, flags);
--			if (!memcmp(tmp, r->last_data, EXTRACT_SIZE))
--				panic("Hardware RNG duplicated output!\n");
--			memcpy(r->last_data, tmp, EXTRACT_SIZE);
--			spin_unlock_irqrestore(&r->lock, flags);
--		}
- 		i = min_t(int, nbytes, EXTRACT_SIZE);
- 		memcpy(buf, tmp, i);
- 		nbytes -= i;
-@@ -1467,28 +1455,9 @@ static ssize_t _extract_entropy(struct e
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
- 				 size_t nbytes, int min, int reserved)
- {
--	u8 tmp[EXTRACT_SIZE];
--	unsigned long flags;
--
--	/* if last_data isn't primed, we need EXTRACT_SIZE extra bytes */
--	if (fips_enabled) {
--		spin_lock_irqsave(&r->lock, flags);
--		if (!r->last_data_init) {
--			r->last_data_init = 1;
--			spin_unlock_irqrestore(&r->lock, flags);
--			trace_extract_entropy(r->name, EXTRACT_SIZE,
--					      ENTROPY_BITS(r), _RET_IP_);
--			extract_buf(r, tmp);
--			spin_lock_irqsave(&r->lock, flags);
--			memcpy(r->last_data, tmp, EXTRACT_SIZE);
--		}
--		spin_unlock_irqrestore(&r->lock, flags);
--	}
--
- 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
- 	nbytes = account(r, nbytes, min, reserved);
--
--	return _extract_entropy(r, buf, nbytes, fips_enabled);
-+	return _extract_entropy(r, buf, nbytes);
- }
- 
- #define warn_unseeded_randomness(previous) \
+@@ -101,7 +101,7 @@
+  * ===============================
+  *
+  * There are four exported interfaces; two for use within the kernel,
+- * and two or use from userspace.
++ * and two for use from userspace.
+  *
+  * Exported interfaces ---- userspace output
+  * -----------------------------------------
 
 
