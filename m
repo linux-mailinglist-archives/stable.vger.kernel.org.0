@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F012535BFD
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB76D536184
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349964AbiE0IvW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:51:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57092 "EHLO
+        id S1352071AbiE0L7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:59:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349994AbiE0IvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:51:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 275A6139;
-        Fri, 27 May 2022 01:51:11 -0700 (PDT)
+        with ESMTP id S1352344AbiE0LzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 807A415A3F7;
+        Fri, 27 May 2022 04:48:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66E7161D3E;
-        Fri, 27 May 2022 08:51:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB94C385A9;
-        Fri, 27 May 2022 08:51:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1A4161DB2;
+        Fri, 27 May 2022 11:48:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE29CC385A9;
+        Fri, 27 May 2022 11:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641469;
-        bh=BghL1surAkgirDQEAlsYzgJhE3Bu1nCy2mEUcXP8XK4=;
+        s=korg; t=1653652091;
+        bh=zTFvryAIcAqt8k5+IXPQcP3S6FP+SfretL5/RXylZ4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aG9qFZHTokKP1Ildca7c2cCwjjsmDaYuSvrklGb/ajJUIh3iXnj1camtzU44xPhHY
-         o2zCwMOvlI0G8aqGPImDPAHYQctguOTvP1BBdhM4JkfS3TPbbQdlzyb2N8rhzjewfW
-         BwxSIYg5h67mp8hKpqKUiuL0CyQ5/14Fgxbdfh8s=
+        b=zZDQTWpERKkZOJNJT++SdmOrEglRHFxsjYfhMlgVE+E6obj0zycjCwzYlg1Vi8OXX
+         xFFPb1JCIT4N8x3axLDFUgg/GqTid+rFd92oy70RJihZH6vb+AdScWJrbh8M9NPLMI
+         towPZadMIKS+lymtDa0KG03FqKiOJAC2+Mp4ORZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.18 02/47] HID: amd_sfh: Add support for sensor discovery
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 081/145] random: cleanup UUID handling
 Date:   Fri, 27 May 2022 10:49:42 +0200
-Message-Id: <20220527084801.537720164@linuxfoundation.org>
+Message-Id: <20220527084900.455371095@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
-References: <20220527084801.223648383@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,86 +54,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b5d7f43e97dabfa04a4be5ff027ce7da119332be upstream.
+commit 64276a9939ff414f2f0db38036cf4e1a0a703394 upstream.
 
-Sensor discovery status fails in case of broken sensors or
-platform not supported. Hence disable driver on failure
-of sensor discovery.
+Rather than hard coding various lengths, we can use the right constants.
+Strings should be `char *` while buffers should be `u8 *`. Rather than
+have a nonsensical and unused maxlength, just remove it. Finally, use
+snprintf instead of sprintf, just out of good hygiene.
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+As well, remove the old comment about returning a binary UUID via the
+binary sysctl syscall. That syscall was removed from the kernel in 5.5,
+and actually, the "uuid_strategy" function and related infrastructure
+for even serving it via the binary sysctl syscall was removed with
+894d2491153a ("sysctl drivers: Remove dead binary sysctl support") back
+in 2.6.33.
+
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_client.c |   11 +++++++++++
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   |    7 +++++++
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.h   |    4 ++++
- 3 files changed, 22 insertions(+)
+ drivers/char/random.c |   29 +++++++++++++----------------
+ 1 file changed, 13 insertions(+), 16 deletions(-)
 
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -227,6 +227,17 @@ int amd_sfh_hid_client_init(struct amd_m
- 		dev_dbg(dev, "sid 0x%x status 0x%x\n",
- 			cl_data->sensor_idx[i], cl_data->sensor_sts[i]);
- 	}
-+	if (privdata->mp2_ops->discovery_status &&
-+	    privdata->mp2_ops->discovery_status(privdata) == 0) {
-+		amd_sfh_hid_client_deinit(privdata);
-+		for (i = 0; i < cl_data->num_hid_devices; i++) {
-+			devm_kfree(dev, cl_data->feature_report[i]);
-+			devm_kfree(dev, in_data->input_report[i]);
-+			devm_kfree(dev, cl_data->report_descr[i]);
-+		}
-+		dev_warn(dev, "Failed to discover, sensors not enabled\n");
-+		return -EOPNOTSUPP;
-+	}
- 	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
- 	return 0;
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1661,22 +1661,25 @@ const struct file_operations urandom_fop
+ static int sysctl_random_min_urandom_seed = 60;
+ static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
+ static int sysctl_poolsize = POOL_BITS;
+-static char sysctl_bootid[16];
++static u8 sysctl_bootid[UUID_SIZE];
  
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -130,6 +130,12 @@ static int amd_sfh_irq_init_v2(struct am
- 	return 0;
+ /*
+  * This function is used to return both the bootid UUID, and random
+- * UUID.  The difference is in whether table->data is NULL; if it is,
++ * UUID. The difference is in whether table->data is NULL; if it is,
+  * then a new UUID is generated and returned to the user.
+- *
+- * If the user accesses this via the proc interface, the UUID will be
+- * returned as an ASCII string in the standard UUID format; if via the
+- * sysctl system call, as 16 bytes of binary data.
+  */
+ static int proc_do_uuid(struct ctl_table *table, int write, void *buffer,
+ 			size_t *lenp, loff_t *ppos)
+ {
+-	struct ctl_table fake_table;
+-	unsigned char buf[64], tmp_uuid[16], *uuid;
++	u8 tmp_uuid[UUID_SIZE], *uuid;
++	char uuid_string[UUID_STRING_LEN + 1];
++	struct ctl_table fake_table = {
++		.data = uuid_string,
++		.maxlen = UUID_STRING_LEN
++	};
++
++	if (write)
++		return -EPERM;
+ 
+ 	uuid = table->data;
+ 	if (!uuid) {
+@@ -1691,12 +1694,8 @@ static int proc_do_uuid(struct ctl_table
+ 		spin_unlock(&bootid_spinlock);
+ 	}
+ 
+-	sprintf(buf, "%pU", uuid);
+-
+-	fake_table.data = buf;
+-	fake_table.maxlen = sizeof(buf);
+-
+-	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
++	snprintf(uuid_string, sizeof(uuid_string), "%pU", uuid);
++	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
  }
  
-+static int amd_sfh_dis_sts_v2(struct amd_mp2_dev *privdata)
-+{
-+	return (readl(privdata->mmio + AMD_P2C_MSG(1)) &
-+		      SENSOR_DISCOVERY_STATUS_MASK) >> SENSOR_DISCOVERY_STATUS_SHIFT;
-+}
-+
- void amd_start_sensor(struct amd_mp2_dev *privdata, struct amd_mp2_sensor_info info)
- {
- 	union sfh_cmd_param cmd_param;
-@@ -245,6 +251,7 @@ static const struct amd_mp2_ops amd_sfh_
- 	.response = amd_sfh_wait_response_v2,
- 	.clear_intr = amd_sfh_clear_intr_v2,
- 	.init_intr = amd_sfh_irq_init_v2,
-+	.discovery_status = amd_sfh_dis_sts_v2,
- };
- 
- static const struct amd_mp2_ops amd_sfh_ops = {
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-@@ -39,6 +39,9 @@
- 
- #define AMD_SFH_IDLE_LOOP	200
- 
-+#define SENSOR_DISCOVERY_STATUS_MASK		GENMASK(5, 3)
-+#define SENSOR_DISCOVERY_STATUS_SHIFT		3
-+
- /* SFH Command register */
- union sfh_cmd_base {
- 	u32 ul;
-@@ -143,5 +146,6 @@ struct amd_mp2_ops {
- 	 int (*response)(struct amd_mp2_dev *mp2, u8 sid, u32 sensor_sts);
- 	 void (*clear_intr)(struct amd_mp2_dev *privdata);
- 	 int (*init_intr)(struct amd_mp2_dev *privdata);
-+	 int (*discovery_status)(struct amd_mp2_dev *privdata);
- };
- #endif
+ extern struct ctl_table random_table[];
+@@ -1732,13 +1731,11 @@ struct ctl_table random_table[] = {
+ 	{
+ 		.procname	= "boot_id",
+ 		.data		= &sysctl_bootid,
+-		.maxlen		= 16,
+ 		.mode		= 0444,
+ 		.proc_handler	= proc_do_uuid,
+ 	},
+ 	{
+ 		.procname	= "uuid",
+-		.maxlen		= 16,
+ 		.mode		= 0444,
+ 		.proc_handler	= proc_do_uuid,
+ 	},
 
 
