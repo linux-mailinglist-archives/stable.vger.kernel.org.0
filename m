@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1CA535C70
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 368515360CE
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237444AbiE0JDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 05:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
+        id S1351978AbiE0Lxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:53:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350282AbiE0I6r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:58:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E588C56C1A;
-        Fri, 27 May 2022 01:55:21 -0700 (PDT)
+        with ESMTP id S1352316AbiE0LuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA85614D7AC;
+        Fri, 27 May 2022 04:44:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A93C3B823D9;
-        Fri, 27 May 2022 08:55:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEFBAC385B8;
-        Fri, 27 May 2022 08:55:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C643D61D50;
+        Fri, 27 May 2022 11:44:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4468C385A9;
+        Fri, 27 May 2022 11:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641719;
-        bh=aKJ6WoDEOhdGQOXt8LBXzcQsK4XbJjpx5d+KyM3odns=;
+        s=korg; t=1653651865;
+        bh=83qPZrUT7KuXEJvnScy3SjQdm61FaH6D0xV56qBfN7Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaRzxr308CHcBqvRm5Z5d7y7pyk8j8GTu5wLcn1zp76o9eyaTF6E+vCVrSyRV8QYT
-         UFgLDmdJTDXZUnnk0op7eGW8luMD5Qe5Y0nGO1qe59BhD+cj8wpvDWHJcqMoZ6c6FP
-         bI67gUNrpHVZ99ZWPkTlXk843s0wb18fFZtLo9Cc=
+        b=0jHWd52UtV53K2eclaLedCPAXJh6MTALUNOWFaotbu95Hi71CPIxUz4iw8sz7VkOs
+         TuiMREQboAmvYF/oYkXr634LwmT+a3U2mbTjekzBwFxTtGY+ogaShGe0VoQoV4IDBd
+         MibQpktCfS1YWQDuzrJH1pghe0gwAlVSB4njkN5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         Eric Biggers <ebiggers@google.com>,
+        Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 025/111] random: remove unused tracepoints
-Date:   Fri, 27 May 2022 10:48:57 +0200
-Message-Id: <20220527084823.063888450@linuxfoundation.org>
+Subject: [PATCH 5.10 058/163] random: use linear min-entropy accumulation crediting
+Date:   Fri, 27 May 2022 10:48:58 +0200
+Message-Id: <20220527084836.185252776@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,380 +58,283 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 14c174633f349cb41ea90c2c0aaddac157012f74 upstream.
+commit c570449094844527577c5c914140222cb1893e3f upstream.
 
-These explicit tracepoints aren't really used and show sign of aging.
-It's work to keep these up to date, and before I attempted to keep them
-up to date, they weren't up to date, which indicates that they're not
-really used. These days there are better ways of introspecting anyway.
+30e37ec516ae ("random: account for entropy loss due to overwrites")
+assumed that adding new entropy to the LFSR pool probabilistically
+cancelled out old entropy there, so entropy was credited asymptotically,
+approximating Shannon entropy of independent sources (rather than a
+stronger min-entropy notion) using 1/8th fractional bits and replacing
+a constant 2-2/√𝑒 term (~0.786938) with 3/4 (0.75) to slightly
+underestimate it. This wasn't superb, but it was perhaps better than
+nothing, so that's what was done. Which entropy specifically was being
+cancelled out and how much precisely each time is hard to tell, though
+as I showed with the attack code in my previous commit, a motivated
+adversary with sufficient information can actually cancel out
+everything.
+
+Since we're no longer using an LFSR for entropy accumulation, this
+probabilistic cancellation is no longer relevant. Rather, we're now
+using a computational hash function as the accumulator and we've
+switched to working in the random oracle model, from which we can now
+revisit the question of min-entropy accumulation, which is done in
+detail in <https://eprint.iacr.org/2019/198>.
+
+Consider a long input bit string that is built by concatenating various
+smaller independent input bit strings. Each one of these inputs has a
+designated min-entropy, which is what we're passing to
+credit_entropy_bits(h). When we pass the concatenation of these to a
+random oracle, it means that an adversary trying to receive back the
+same reply as us would need to become certain about each part of the
+concatenated bit string we passed in, which means becoming certain about
+all of those h values. That means we can estimate the accumulation by
+simply adding up the h values in calls to credit_entropy_bits(h);
+there's no probabilistic cancellation at play like there was said to be
+for the LFSR. Incidentally, this is also what other entropy accumulators
+based on computational hash functions do as well.
+
+So this commit replaces credit_entropy_bits(h) with essentially `total =
+min(POOL_BITS, total + h)`, done with a cmpxchg loop as before.
+
+What if we're wrong and the above is nonsense? It's not, but let's
+assume we don't want the actual _behavior_ of the code to change much.
+Currently that behavior is not extracting from the input pool until it
+has 128 bits of entropy in it. With the old algorithm, we'd hit that
+magic 128 number after roughly 256 calls to credit_entropy_bits(1). So,
+we can retain more or less the old behavior by waiting to extract from
+the input pool until it hits 256 bits of entropy using the new code. For
+people concerned about this change, it means that there's not that much
+practical behavioral change. And for folks actually trying to model
+the behavior rigorously, it means that we have an even higher margin
+against attacks.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Jean-Philippe Aumasson <jeanphilippe.aumasson@gmail.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c         |   30 -----
- include/trace/events/random.h |  212 ------------------------------------------
- lib/random32.c                |    2 
- 3 files changed, 3 insertions(+), 241 deletions(-)
- delete mode 100644 include/trace/events/random.h
+ drivers/char/random.c |  114 ++++++++------------------------------------------
+ 1 file changed, 20 insertions(+), 94 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -237,9 +237,6 @@
- #include <asm/irq_regs.h>
- #include <asm/io.h>
+@@ -286,17 +286,9 @@
  
--#define CREATE_TRACE_POINTS
--#include <trace/events/random.h>
--
- enum {
+ /* #define ADD_INTERRUPT_BENCH */
+ 
+-enum poolinfo {
++enum {
  	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
- 	POOL_MIN_BITS = POOL_BITS /* No point in settling for less. */
-@@ -315,7 +312,6 @@ static void mix_pool_bytes(const void *i
- {
- 	unsigned long flags;
- 
--	trace_mix_pool_bytes(nbytes, _RET_IP_);
- 	spin_lock_irqsave(&input_pool.lock, flags);
- 	_mix_pool_bytes(in, nbytes);
- 	spin_unlock_irqrestore(&input_pool.lock, flags);
-@@ -389,8 +385,6 @@ static void credit_entropy_bits(size_t n
- 		entropy_count = min_t(unsigned int, POOL_BITS, orig + add);
- 	} while (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig);
- 
--	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
+-	POOL_BITSHIFT = ilog2(POOL_BITS),
+-	POOL_MIN_BITS = POOL_BITS / 2,
 -
- 	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
- 		crng_reseed();
- }
-@@ -721,7 +715,6 @@ void add_device_randomness(const void *b
- 	if (!crng_ready() && size)
- 		crng_slow_load(buf, size);
+-	/* To allow fractional bits to be tracked, the entropy_count field is
+-	 * denominated in units of 1/8th bits. */
+-	POOL_ENTROPY_SHIFT = 3,
+-#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
+-	POOL_FRACBITS = POOL_BITS << POOL_ENTROPY_SHIFT,
+-	POOL_MIN_FRACBITS = POOL_MIN_BITS << POOL_ENTROPY_SHIFT
++	POOL_MIN_BITS = POOL_BITS /* No point in settling for less. */
+ };
  
--	trace_add_device_randomness(size, _RET_IP_);
- 	spin_lock_irqsave(&input_pool.lock, flags);
- 	_mix_pool_bytes(buf, size);
- 	_mix_pool_bytes(&time, sizeof(time));
-@@ -800,7 +793,6 @@ void add_input_randomness(unsigned int t
+ /*
+@@ -309,7 +301,7 @@ static struct fasync_struct *fasync;
+  * should wake up processes which are selecting or polling on write
+  * access to /dev/random.
+  */
+-static int random_write_wakeup_bits = POOL_BITS * 3 / 4;
++static int random_write_wakeup_bits = POOL_MIN_BITS;
+ 
+ static DEFINE_SPINLOCK(random_ready_list_lock);
+ static LIST_HEAD(random_ready_list);
+@@ -469,66 +461,18 @@ static void process_random_ready_list(vo
+ static void credit_entropy_bits(int nbits)
+ {
+ 	int entropy_count, orig;
+-	int nfrac = nbits << POOL_ENTROPY_SHIFT;
+-
+-	/* Ensure that the multiplication can avoid being 64 bits wide. */
+-	BUILD_BUG_ON(2 * (POOL_ENTROPY_SHIFT + POOL_BITSHIFT) > 31);
+ 
+ 	if (!nbits)
+ 		return;
+ 
+-retry:
+-	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
+-	if (nfrac < 0) {
+-		/* Debit */
+-		entropy_count += nfrac;
+-	} else {
+-		/*
+-		 * Credit: we have to account for the possibility of
+-		 * overwriting already present entropy.	 Even in the
+-		 * ideal case of pure Shannon entropy, new contributions
+-		 * approach the full value asymptotically:
+-		 *
+-		 * entropy <- entropy + (pool_size - entropy) *
+-		 *	(1 - exp(-add_entropy/pool_size))
+-		 *
+-		 * For add_entropy <= pool_size/2 then
+-		 * (1 - exp(-add_entropy/pool_size)) >=
+-		 *    (add_entropy/pool_size)*0.7869...
+-		 * so we can approximate the exponential with
+-		 * 3/4*add_entropy/pool_size and still be on the
+-		 * safe side by adding at most pool_size/2 at a time.
+-		 *
+-		 * The use of pool_size-2 in the while statement is to
+-		 * prevent rounding artifacts from making the loop
+-		 * arbitrarily long; this limits the loop to log2(pool_size)*2
+-		 * turns no matter how large nbits is.
+-		 */
+-		int pnfrac = nfrac;
+-		const int s = POOL_BITSHIFT + POOL_ENTROPY_SHIFT + 2;
+-		/* The +2 corresponds to the /4 in the denominator */
+-
+-		do {
+-			unsigned int anfrac = min(pnfrac, POOL_FRACBITS / 2);
+-			unsigned int add =
+-				((POOL_FRACBITS - entropy_count) * anfrac * 3) >> s;
+-
+-			entropy_count += add;
+-			pnfrac -= anfrac;
+-		} while (unlikely(entropy_count < POOL_FRACBITS - 2 && pnfrac));
+-	}
+-
+-	if (WARN_ON(entropy_count < 0)) {
+-		pr_warn("negative entropy/overflow: count %d\n", entropy_count);
+-		entropy_count = 0;
+-	} else if (entropy_count > POOL_FRACBITS)
+-		entropy_count = POOL_FRACBITS;
+-	if (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig)
+-		goto retry;
++	do {
++		orig = READ_ONCE(input_pool.entropy_count);
++		entropy_count = min(POOL_BITS, orig + nbits);
++	} while (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig);
+ 
+-	trace_credit_entropy_bits(nbits, entropy_count >> POOL_ENTROPY_SHIFT, _RET_IP_);
++	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
+ 
+-	if (crng_init < 2 && entropy_count >= POOL_MIN_FRACBITS)
++	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
+ 		crng_reseed(&primary_crng, true);
+ }
+ 
+@@ -791,7 +735,7 @@ static void crng_reseed(struct crng_stat
+ 		int entropy_count;
+ 		do {
+ 			entropy_count = READ_ONCE(input_pool.entropy_count);
+-			if (entropy_count < POOL_MIN_FRACBITS)
++			if (entropy_count < POOL_MIN_BITS)
+ 				return;
+ 		} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
+ 		extract_entropy(buf.key, sizeof(buf.key));
+@@ -1014,7 +958,7 @@ void add_input_randomness(unsigned int t
  	last_value = value;
  	add_timer_randomness(&input_timer_state,
  			     (type << 4) ^ code ^ (code >> 4) ^ value);
--	trace_add_input_randomness(input_pool.entropy_count);
+-	trace_add_input_randomness(POOL_ENTROPY_BITS());
++	trace_add_input_randomness(input_pool.entropy_count);
  }
  EXPORT_SYMBOL_GPL(add_input_randomness);
  
-@@ -880,7 +872,6 @@ void add_disk_randomness(struct gendisk
+@@ -1112,7 +1056,7 @@ void add_disk_randomness(struct gendisk
  		return;
  	/* first major is 1, so we get >= 0x200 here */
  	add_timer_randomness(disk->random, 0x100 + disk_devt(disk));
--	trace_add_disk_randomness(disk_devt(disk), input_pool.entropy_count);
+-	trace_add_disk_randomness(disk_devt(disk), POOL_ENTROPY_BITS());
++	trace_add_disk_randomness(disk_devt(disk), input_pool.entropy_count);
  }
  EXPORT_SYMBOL_GPL(add_disk_randomness);
  #endif
-@@ -905,8 +896,6 @@ static void extract_entropy(void *buf, s
+@@ -1137,7 +1081,7 @@ static void extract_entropy(void *buf, s
  	} block;
  	size_t i;
  
--	trace_extract_entropy(nbytes, input_pool.entropy_count);
--
- 	for (i = 0; i < ARRAY_SIZE(block.rdseed); ++i) {
- 		if (!arch_get_random_seed_long(&block.rdseed[i]) &&
- 		    !arch_get_random_long(&block.rdseed[i]))
-@@ -978,8 +967,6 @@ static void _get_random_bytes(void *buf,
- 	u8 tmp[CHACHA_BLOCK_SIZE];
- 	size_t len;
+-	trace_extract_entropy(nbytes, POOL_ENTROPY_BITS());
++	trace_extract_entropy(nbytes, input_pool.entropy_count);
  
--	trace_get_random_bytes(nbytes, _RET_IP_);
--
- 	if (!nbytes)
- 		return;
+ 	for (i = 0; i < ARRAY_SIZE(block.rdrand); ++i) {
+ 		if (!arch_get_random_long(&block.rdrand[i]))
+@@ -1486,9 +1430,9 @@ static ssize_t urandom_read_nowarn(struc
+ {
+ 	int ret;
  
-@@ -1176,7 +1163,6 @@ size_t __must_check get_random_bytes_arc
- 	size_t left = nbytes;
- 	u8 *p = buf;
- 
--	trace_get_random_bytes_arch(left, _RET_IP_);
- 	while (left) {
- 		unsigned long v;
- 		size_t chunk = min_t(size_t, left, sizeof(unsigned long));
-@@ -1260,16 +1246,6 @@ void rand_initialize_disk(struct gendisk
+-	nbytes = min_t(size_t, nbytes, INT_MAX >> (POOL_ENTROPY_SHIFT + 3));
++	nbytes = min_t(size_t, nbytes, INT_MAX >> 6);
+ 	ret = extract_crng_user(buf, nbytes);
+-	trace_urandom_read(8 * nbytes, 0, POOL_ENTROPY_BITS());
++	trace_urandom_read(8 * nbytes, 0, input_pool.entropy_count);
+ 	return ret;
  }
- #endif
  
--static ssize_t urandom_read_nowarn(struct file *file, char __user *buf,
--				   size_t nbytes, loff_t *ppos)
+@@ -1527,7 +1471,7 @@ static __poll_t random_poll(struct file
+ 	mask = 0;
+ 	if (crng_ready())
+ 		mask |= EPOLLIN | EPOLLRDNORM;
+-	if (POOL_ENTROPY_BITS() < random_write_wakeup_bits)
++	if (input_pool.entropy_count < random_write_wakeup_bits)
+ 		mask |= EPOLLOUT | EPOLLWRNORM;
+ 	return mask;
+ }
+@@ -1582,8 +1526,7 @@ static long random_ioctl(struct file *f,
+ 	switch (cmd) {
+ 	case RNDGETENTCNT:
+ 		/* inherently racy, no point locking */
+-		ent_count = POOL_ENTROPY_BITS();
+-		if (put_user(ent_count, p))
++		if (put_user(input_pool.entropy_count, p))
+ 			return -EFAULT;
+ 		return 0;
+ 	case RNDADDTOENTCNT:
+@@ -1734,23 +1677,6 @@ static int proc_do_uuid(struct ctl_table
+ 	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
+ }
+ 
+-/*
+- * Return entropy available scaled to integral bits
+- */
+-static int proc_do_entropy(struct ctl_table *table, int write, void *buffer,
+-			   size_t *lenp, loff_t *ppos)
 -{
--	ssize_t ret;
+-	struct ctl_table fake_table;
+-	int entropy_count;
 -
--	ret = get_random_bytes_user(buf, nbytes);
--	trace_urandom_read(nbytes, input_pool.entropy_count);
--	return ret;
+-	entropy_count = *(int *)table->data >> POOL_ENTROPY_SHIFT;
+-
+-	fake_table.data = &entropy_count;
+-	fake_table.maxlen = sizeof(entropy_count);
+-
+-	return proc_dointvec(&fake_table, write, buffer, lenp, ppos);
 -}
 -
- static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
- 			    loff_t *ppos)
- {
-@@ -1282,7 +1258,7 @@ static ssize_t urandom_read(struct file
- 				  current->comm, nbytes);
- 	}
- 
--	return urandom_read_nowarn(file, buf, nbytes, ppos);
-+	return get_random_bytes_user(buf, nbytes);
- }
- 
- static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
-@@ -1293,7 +1269,7 @@ static ssize_t random_read(struct file *
- 	ret = wait_for_random_bytes();
- 	if (ret != 0)
- 		return ret;
--	return urandom_read_nowarn(file, buf, nbytes, ppos);
-+	return get_random_bytes_user(buf, nbytes);
- }
- 
- static __poll_t random_poll(struct file *file, poll_table *wait)
-@@ -1454,7 +1430,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 		if (unlikely(ret))
- 			return ret;
- 	}
--	return urandom_read_nowarn(NULL, buf, count, NULL);
-+	return get_random_bytes_user(buf, count);
- }
- 
- /********************************************************************
---- a/include/trace/events/random.h
-+++ /dev/null
-@@ -1,212 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#undef TRACE_SYSTEM
--#define TRACE_SYSTEM random
--
--#if !defined(_TRACE_RANDOM_H) || defined(TRACE_HEADER_MULTI_READ)
--#define _TRACE_RANDOM_H
--
--#include <linux/writeback.h>
--#include <linux/tracepoint.h>
--
--TRACE_EVENT(add_device_randomness,
--	TP_PROTO(size_t bytes, unsigned long IP),
--
--	TP_ARGS(bytes, IP),
--
--	TP_STRUCT__entry(
--		__field(size_t,		bytes	)
--		__field(unsigned long,	IP	)
--	),
--
--	TP_fast_assign(
--		__entry->bytes		= bytes;
--		__entry->IP		= IP;
--	),
--
--	TP_printk("bytes %zu caller %pS",
--		__entry->bytes, (void *)__entry->IP)
--);
--
--DECLARE_EVENT_CLASS(random__mix_pool_bytes,
--	TP_PROTO(size_t bytes, unsigned long IP),
--
--	TP_ARGS(bytes, IP),
--
--	TP_STRUCT__entry(
--		__field(size_t,		bytes	)
--		__field(unsigned long,	IP	)
--	),
--
--	TP_fast_assign(
--		__entry->bytes		= bytes;
--		__entry->IP		= IP;
--	),
--
--	TP_printk("input pool: bytes %zu caller %pS",
--		  __entry->bytes, (void *)__entry->IP)
--);
--
--DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes,
--	TP_PROTO(size_t bytes, unsigned long IP),
--
--	TP_ARGS(bytes, IP)
--);
--
--DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes_nolock,
--	TP_PROTO(int bytes, unsigned long IP),
--
--	TP_ARGS(bytes, IP)
--);
--
--TRACE_EVENT(credit_entropy_bits,
--	TP_PROTO(size_t bits, size_t entropy_count, unsigned long IP),
--
--	TP_ARGS(bits, entropy_count, IP),
--
--	TP_STRUCT__entry(
--		__field(size_t,		bits			)
--		__field(size_t,		entropy_count		)
--		__field(unsigned long,	IP			)
--	),
--
--	TP_fast_assign(
--		__entry->bits		= bits;
--		__entry->entropy_count	= entropy_count;
--		__entry->IP		= IP;
--	),
--
--	TP_printk("input pool: bits %zu entropy_count %zu caller %pS",
--		  __entry->bits, __entry->entropy_count, (void *)__entry->IP)
--);
--
--TRACE_EVENT(add_input_randomness,
--	TP_PROTO(size_t input_bits),
--
--	TP_ARGS(input_bits),
--
--	TP_STRUCT__entry(
--		__field(size_t,	input_bits		)
--	),
--
--	TP_fast_assign(
--		__entry->input_bits	= input_bits;
--	),
--
--	TP_printk("input_pool_bits %zu", __entry->input_bits)
--);
--
--TRACE_EVENT(add_disk_randomness,
--	TP_PROTO(dev_t dev, size_t input_bits),
--
--	TP_ARGS(dev, input_bits),
--
--	TP_STRUCT__entry(
--		__field(dev_t,		dev			)
--		__field(size_t,		input_bits		)
--	),
--
--	TP_fast_assign(
--		__entry->dev		= dev;
--		__entry->input_bits	= input_bits;
--	),
--
--	TP_printk("dev %d,%d input_pool_bits %zu", MAJOR(__entry->dev),
--		  MINOR(__entry->dev), __entry->input_bits)
--);
--
--DECLARE_EVENT_CLASS(random__get_random_bytes,
--	TP_PROTO(size_t nbytes, unsigned long IP),
--
--	TP_ARGS(nbytes, IP),
--
--	TP_STRUCT__entry(
--		__field(size_t,		nbytes			)
--		__field(unsigned long,	IP			)
--	),
--
--	TP_fast_assign(
--		__entry->nbytes		= nbytes;
--		__entry->IP		= IP;
--	),
--
--	TP_printk("nbytes %zu caller %pS", __entry->nbytes, (void *)__entry->IP)
--);
--
--DEFINE_EVENT(random__get_random_bytes, get_random_bytes,
--	TP_PROTO(size_t nbytes, unsigned long IP),
--
--	TP_ARGS(nbytes, IP)
--);
--
--DEFINE_EVENT(random__get_random_bytes, get_random_bytes_arch,
--	TP_PROTO(size_t nbytes, unsigned long IP),
--
--	TP_ARGS(nbytes, IP)
--);
--
--DECLARE_EVENT_CLASS(random__extract_entropy,
--	TP_PROTO(size_t nbytes, size_t entropy_count),
--
--	TP_ARGS(nbytes, entropy_count),
--
--	TP_STRUCT__entry(
--		__field(  size_t,	nbytes			)
--		__field(  size_t,	entropy_count		)
--	),
--
--	TP_fast_assign(
--		__entry->nbytes		= nbytes;
--		__entry->entropy_count	= entropy_count;
--	),
--
--	TP_printk("input pool: nbytes %zu entropy_count %zu",
--		  __entry->nbytes, __entry->entropy_count)
--);
--
--
--DEFINE_EVENT(random__extract_entropy, extract_entropy,
--	TP_PROTO(size_t nbytes, size_t entropy_count),
--
--	TP_ARGS(nbytes, entropy_count)
--);
--
--TRACE_EVENT(urandom_read,
--	TP_PROTO(size_t nbytes, size_t entropy_count),
--
--	TP_ARGS(nbytes, entropy_count),
--
--	TP_STRUCT__entry(
--		__field( size_t,	nbytes		)
--		__field( size_t,	entropy_count	)
--	),
--
--	TP_fast_assign(
--		__entry->nbytes		= nbytes;
--		__entry->entropy_count	= entropy_count;
--	),
--
--	TP_printk("reading: nbytes %zu entropy_count %zu",
--		  __entry->nbytes, __entry->entropy_count)
--);
--
--TRACE_EVENT(prandom_u32,
--
--	TP_PROTO(unsigned int ret),
--
--	TP_ARGS(ret),
--
--	TP_STRUCT__entry(
--		__field(   unsigned int, ret)
--	),
--
--	TP_fast_assign(
--		__entry->ret = ret;
--	),
--
--	TP_printk("ret=%u" , __entry->ret)
--);
--
--#endif /* _TRACE_RANDOM_H */
--
--/* This part must be outside protection */
--#include <trace/define_trace.h>
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -41,7 +41,6 @@
- #include <linux/bitops.h>
- #include <linux/slab.h>
- #include <asm/unaligned.h>
--#include <trace/events/random.h>
- 
- /**
-  *	prandom_u32_state - seeded pseudo-random number generator.
-@@ -387,7 +386,6 @@ u32 prandom_u32(void)
- 	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
- 	u32 res = siprand_u32(state);
- 
--	trace_prandom_u32(res);
- 	put_cpu_ptr(&net_rand_state);
- 	return res;
- }
+ static int sysctl_poolsize = POOL_BITS;
+ extern struct ctl_table random_table[];
+ struct ctl_table random_table[] = {
+@@ -1763,10 +1689,10 @@ struct ctl_table random_table[] = {
+ 	},
+ 	{
+ 		.procname	= "entropy_avail",
++		.data		= &input_pool.entropy_count,
+ 		.maxlen		= sizeof(int),
+ 		.mode		= 0444,
+-		.proc_handler	= proc_do_entropy,
+-		.data		= &input_pool.entropy_count,
++		.proc_handler	= proc_dointvec,
+ 	},
+ 	{
+ 		.procname	= "write_wakeup_threshold",
+@@ -1962,7 +1888,7 @@ void add_hwgenerator_randomness(const ch
+ 	 */
+ 	wait_event_interruptible_timeout(random_write_wait,
+ 			!system_wq || kthread_should_stop() ||
+-			POOL_ENTROPY_BITS() <= random_write_wakeup_bits,
++			input_pool.entropy_count <= random_write_wakeup_bits,
+ 			CRNG_RESEED_INTERVAL);
+ 	mix_pool_bytes(buffer, count);
+ 	credit_entropy_bits(entropy);
 
 
