@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F91E5360A6
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6EF5360BD
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352136AbiE0Lwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:52:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
+        id S1344637AbiE0LwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352909AbiE0LvA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137BC1260C;
-        Fri, 27 May 2022 04:46:24 -0700 (PDT)
+        with ESMTP id S1352822AbiE0Luy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04DDA12E315;
+        Fri, 27 May 2022 04:45:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6CC6B824D7;
-        Fri, 27 May 2022 11:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAFDC385A9;
-        Fri, 27 May 2022 11:46:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9127B61D19;
+        Fri, 27 May 2022 11:45:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E62EC385A9;
+        Fri, 27 May 2022 11:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651981;
-        bh=mqr+CmKBFFHkb8QDzclxqHbsHvaX+z4Z1RjSRFRczNg=;
+        s=korg; t=1653651937;
+        bh=HQRLgKRyRSQC8LMC/Ac6yzyMh6PiUC8L4qllERK7JFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwGc2JK80H+EtwCd48u/DvvJzOrjG69OAWL33/UzZ5R1gZtji/lMaYyp0GqIvwOyW
-         wc2nlCPKFoZlmYo+bky/KYvKmo1b0YuDkLtICoQNnZGWQ4rJQnZzDJQaqj83gOXhRM
-         sJg35rUhLYFakUkUbrrmKi6z3HNPNdn3MZMhAgkg=
+        b=tj/lyVJo/YVqGr/26Mfo2OZmvGHHfDPP1kKllAAThsWP1CPU2R3//MAByT9YA8N86
+         /eysUBIqe4ONH1P/aMfTdKLcr3uG/IA4IoJdPzlj3rLdjdurhi1qK6qI81VQngHMdg
+         zwNFVUxMBi7GyZwg04ymhtHTsprrCTYK0BT1PHH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@google.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 080/163] random: deobfuscate irq u32/u64 contributions
+Subject: [PATCH 5.15 059/145] random: remove ifdefd out interrupt bench
 Date:   Fri, 27 May 2022 10:49:20 +0200
-Message-Id: <20220527084839.070610200@linuxfoundation.org>
+Message-Id: <20220527084857.795723883@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,121 +57,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b2f408fe403800c91a49f6589d95b6759ce1b30b upstream.
+commit 95e6060c20a7f5db60163274c5222a725ac118f9 upstream.
 
-In the irq handler, we fill out 16 bytes differently on 32-bit and
-64-bit platforms, and for 32-bit vs 64-bit cycle counters, which doesn't
-always correspond with the bitness of the platform. Whether or not you
-like this strangeness, it is a matter of fact.  But it might not be a
-fact you well realized until now, because the code that loaded the irq
-info into 4 32-bit words was quite confusing.  Instead, this commit
-makes everything explicit by having separate (compile-time) branches for
-32-bit and 64-bit types.
+With tools like kbench9000 giving more finegrained responses, and this
+basically never having been used ever since it was initially added,
+let's just get rid of this. There *is* still work to be done on the
+interrupt handler, but this really isn't the way it's being developed.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   49 ++++++++++++++++++++++++++++---------------------
- 1 file changed, 28 insertions(+), 21 deletions(-)
+ Documentation/admin-guide/sysctl/kernel.rst |    9 ------
+ drivers/char/random.c                       |   40 ----------------------------
+ 2 files changed, 49 deletions(-)
 
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -1031,15 +1031,6 @@ This is a directory, with the following
+   are woken up. This file is writable for compatibility purposes, but
+   writing to it has no effect on any RNG behavior.
+ 
+-If ``drivers/char/random.c`` is built with ``ADD_INTERRUPT_BENCH``
+-defined, these additional entries are present:
+-
+-* ``add_interrupt_avg_cycles``: the average number of cycles between
+-  interrupts used to feed the pool;
+-
+-* ``add_interrupt_avg_deviation``: the standard deviation seen on the
+-  number of cycles between interrupts used to feed the pool.
+-
+ 
+ randomize_va_space
+ ==================
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -283,7 +283,10 @@ static void mix_pool_bytes(const void *i
- }
+@@ -240,8 +240,6 @@
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/random.h>
  
- struct fast_pool {
--	u32 pool[4];
-+	union {
-+		u32 pool32[4];
-+		u64 pool64[2];
-+	};
- 	unsigned long last;
- 	u16 reg_idx;
- 	u8 count;
-@@ -294,10 +297,10 @@ struct fast_pool {
-  * collector.  It's hardcoded for an 128 bit pool and assumes that any
-  * locks that might be needed are taken by the caller.
-  */
--static void fast_mix(struct fast_pool *f)
-+static void fast_mix(u32 pool[4])
+-/* #define ADD_INTERRUPT_BENCH */
+-
+ enum {
+ 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
+ 	POOL_MIN_BITS = POOL_BITS /* No point in settling for less. */
+@@ -808,27 +806,6 @@ EXPORT_SYMBOL_GPL(add_input_randomness);
+ 
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
+ 
+-#ifdef ADD_INTERRUPT_BENCH
+-static unsigned long avg_cycles, avg_deviation;
+-
+-#define AVG_SHIFT 8 /* Exponential average factor k=1/256 */
+-#define FIXED_1_2 (1 << (AVG_SHIFT - 1))
+-
+-static void add_interrupt_bench(cycles_t start)
+-{
+-	long delta = random_get_entropy() - start;
+-
+-	/* Use a weighted moving average */
+-	delta = delta - ((avg_cycles + FIXED_1_2) >> AVG_SHIFT);
+-	avg_cycles += delta;
+-	/* And average deviation */
+-	delta = abs(delta) - ((avg_deviation + FIXED_1_2) >> AVG_SHIFT);
+-	avg_deviation += delta;
+-}
+-#else
+-#define add_interrupt_bench(x)
+-#endif
+-
+ static u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
  {
--	u32 a = f->pool[0],	b = f->pool[1];
--	u32 c = f->pool[2],	d = f->pool[3];
-+	u32 a = pool[0],	b = pool[1];
-+	u32 c = pool[2],	d = pool[3];
+ 	u32 *ptr = (u32 *)regs;
+@@ -865,7 +842,6 @@ void add_interrupt_randomness(int irq)
+ 		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
  
- 	a += b;			c += d;
- 	b = rol32(b, 6);	d = rol32(d, 27);
-@@ -315,9 +318,8 @@ static void fast_mix(struct fast_pool *f
- 	b = rol32(b, 16);	d = rol32(d, 14);
- 	d ^= a;			b ^= c;
- 
--	f->pool[0] = a;  f->pool[1] = b;
--	f->pool[2] = c;  f->pool[3] = d;
--	f->count++;
-+	pool[0] = a;  pool[1] = b;
-+	pool[2] = c;  pool[3] = d;
- }
- 
- static void process_random_ready_list(void)
-@@ -784,29 +786,34 @@ void add_interrupt_randomness(int irq)
- 	struct pt_regs *regs = get_irq_regs();
- 	unsigned long now = jiffies;
- 	cycles_t cycles = random_get_entropy();
--	u32 c_high, j_high;
--	u64 ip;
- 
- 	if (cycles == 0)
- 		cycles = get_reg(fast_pool, regs);
--	c_high = (sizeof(cycles) > 4) ? cycles >> 32 : 0;
--	j_high = (sizeof(now) > 4) ? now >> 32 : 0;
--	fast_pool->pool[0] ^= cycles ^ j_high ^ irq;
--	fast_pool->pool[1] ^= now ^ c_high;
--	ip = regs ? instruction_pointer(regs) : _RET_IP_;
--	fast_pool->pool[2] ^= ip;
--	fast_pool->pool[3] ^=
--		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
- 
--	fast_mix(fast_pool);
-+	if (sizeof(cycles) == 8)
-+		fast_pool->pool64[0] ^= cycles ^ rol64(now, 32) ^ irq;
-+	else {
-+		fast_pool->pool32[0] ^= cycles ^ irq;
-+		fast_pool->pool32[1] ^= now;
-+	}
-+
-+	if (sizeof(unsigned long) == 8)
-+		fast_pool->pool64[1] ^= regs ? instruction_pointer(regs) : _RET_IP_;
-+	else {
-+		fast_pool->pool32[2] ^= regs ? instruction_pointer(regs) : _RET_IP_;
-+		fast_pool->pool32[3] ^= get_reg(fast_pool, regs);
-+	}
-+
-+	fast_mix(fast_pool->pool32);
-+	++fast_pool->count;
+ 	fast_mix(fast_pool);
+-	add_interrupt_bench(cycles);
  
  	if (unlikely(crng_init == 0)) {
  		if (fast_pool->count >= 64 &&
--		    crng_fast_load(fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
-+		    crng_fast_load(fast_pool->pool32, sizeof(fast_pool->pool32)) > 0) {
- 			fast_pool->count = 0;
- 			fast_pool->last = now;
- 			if (spin_trylock(&input_pool.lock)) {
--				_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
- 				spin_unlock(&input_pool.lock);
- 			}
- 		}
-@@ -820,7 +827,7 @@ void add_interrupt_randomness(int irq)
- 		return;
- 
- 	fast_pool->last = now;
--	_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
-+	_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
- 	spin_unlock(&input_pool.lock);
- 
- 	fast_pool->count = 0;
+@@ -1575,22 +1551,6 @@ struct ctl_table random_table[] = {
+ 		.mode		= 0444,
+ 		.proc_handler	= proc_do_uuid,
+ 	},
+-#ifdef ADD_INTERRUPT_BENCH
+-	{
+-		.procname	= "add_interrupt_avg_cycles",
+-		.data		= &avg_cycles,
+-		.maxlen		= sizeof(avg_cycles),
+-		.mode		= 0444,
+-		.proc_handler	= proc_doulongvec_minmax,
+-	},
+-	{
+-		.procname	= "add_interrupt_avg_deviation",
+-		.data		= &avg_deviation,
+-		.maxlen		= sizeof(avg_deviation),
+-		.mode		= 0444,
+-		.proc_handler	= proc_doulongvec_minmax,
+-	},
+-#endif
+ 	{ }
+ };
+ #endif	/* CONFIG_SYSCTL */
 
 
