@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 137AA53601C
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34897535CCC
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351817AbiE0Lqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57050 "EHLO
+        id S241938AbiE0JBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:01:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352552AbiE0LqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:46:06 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A94E134E3E;
-        Fri, 27 May 2022 04:42:51 -0700 (PDT)
+        with ESMTP id S1350300AbiE0I6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:58:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 712F7123884;
+        Fri, 27 May 2022 01:55:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8CFA61C3F;
-        Fri, 27 May 2022 11:42:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8A55C385A9;
-        Fri, 27 May 2022 11:42:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 029CEB823DD;
+        Fri, 27 May 2022 08:55:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B078C385A9;
+        Fri, 27 May 2022 08:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651770;
-        bh=ZDfu5CQCYc0Tiz0YhFCXWlPQPKh8EEqa7qJFhykOJGs=;
+        s=korg; t=1653641703;
+        bh=0ycG1C8R9RfHAaw3cLJ3/vzUv+464neREcYcVWVG6kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kGY71441jvQqNcyZxZL42ehEY0XNNqHYCaSO6M2OhiuolVNx7pPR7KzG7Ate0I53u
-         7HT46K8OWYT01vXZWjknJpxq9oDvGGg5APyxhiUMqoU1OyuEXvhvXb2vBMLxCiPPi9
-         M5gEQNauv6Q9jef64Skc49Uqf/11cUxneT8av2+I=
+        b=JPONJSJ9ZVopTqZ/QzVYyk+bCTd3kIPiDGnYdF/3s34v28gii25ivJ0TigzX/MaVB
+         EWqOoH+4xPADhJv1WPdfUkZOsi5T+TtyNqg+QyqPu9ZUWARZpPviaK0nS06APoHAUO
+         bgWuAwfW9sMPiQhFWkOBrmzcfP2jVacIhvGhCjaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Jann Horn <jannh@google.com>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 032/145] random: access input_pool_data directly rather than through pointer
+Subject: [PATCH 5.17 021/111] random: zero buffer after reading entropy from userspace
 Date:   Fri, 27 May 2022 10:48:53 +0200
-Message-Id: <20220527084854.719208300@linuxfoundation.org>
+Message-Id: <20220527084822.362277500@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +58,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 6c0eace6e1499712583b6ee62d95161e8b3449f5 upstream.
+commit 7b5164fb1279bf0251371848e40bae646b59b3a8 upstream.
 
-This gets rid of another abstraction we no longer need. It would be nice
-if we could instead make pool an array rather than a pointer, but the
-latent entropy plugin won't be able to do its magic in that case. So
-instead we put all accesses to the input pool's actual data through the
-input_pool_data array directly.
+This buffer may contain entropic data that shouldn't stick around longer
+than needed, so zero out the temporary buffer at the end of write_pool().
 
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Jann Horn <jannh@google.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ drivers/char/random.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -496,17 +496,12 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
- static u32 input_pool_data[POOL_WORDS] __latent_entropy;
+@@ -1336,19 +1336,24 @@ static __poll_t random_poll(struct file
+ static int write_pool(const char __user *ubuf, size_t count)
+ {
+ 	size_t len;
++	int ret = 0;
+ 	u8 block[BLAKE2S_BLOCK_SIZE];
  
- static struct {
--	/* read-only data: */
--	u32 *pool;
--
--	/* read-write data: */
- 	spinlock_t lock;
- 	u16 add_ptr;
- 	u16 input_rotate;
- 	int entropy_count;
- } input_pool = {
- 	.lock = __SPIN_LOCK_UNLOCKED(input_pool.lock),
--	.pool = input_pool_data
- };
+ 	while (count) {
+ 		len = min(count, sizeof(block));
+-		if (copy_from_user(block, ubuf, len))
+-			return -EFAULT;
++		if (copy_from_user(block, ubuf, len)) {
++			ret = -EFAULT;
++			goto out;
++		}
+ 		count -= len;
+ 		ubuf += len;
+ 		mix_pool_bytes(block, len);
+ 		cond_resched();
+ 	}
  
- static ssize_t extract_entropy(void *buf, size_t nbytes, int min);
-@@ -544,15 +539,15 @@ static void _mix_pool_bytes(const void *
- 		i = (i - 1) & POOL_WORDMASK;
+-	return 0;
++out:
++	memzero_explicit(block, sizeof(block));
++	return ret;
+ }
  
- 		/* XOR in the various taps */
--		w ^= input_pool.pool[i];
--		w ^= input_pool.pool[(i + POOL_TAP1) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP2) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP3) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP4) & POOL_WORDMASK];
--		w ^= input_pool.pool[(i + POOL_TAP5) & POOL_WORDMASK];
-+		w ^= input_pool_data[i];
-+		w ^= input_pool_data[(i + POOL_TAP1) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP2) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP3) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP4) & POOL_WORDMASK];
-+		w ^= input_pool_data[(i + POOL_TAP5) & POOL_WORDMASK];
- 
- 		/* Mix the result back in with a twist */
--		input_pool.pool[i] = (w >> 3) ^ twist_table[w & 7];
-+		input_pool_data[i] = (w >> 3) ^ twist_table[w & 7];
- 
- 		/*
- 		 * Normally, we add 7 bits of rotation to the pool.
-@@ -1369,7 +1364,7 @@ static void extract_buf(u8 *out)
- 
- 	/* Generate a hash across the pool */
- 	spin_lock_irqsave(&input_pool.lock, flags);
--	blake2s_update(&state, (const u8 *)input_pool.pool, POOL_BYTES);
-+	blake2s_update(&state, (const u8 *)input_pool_data, POOL_BYTES);
- 	blake2s_final(&state, hash); /* final zeros out state */
- 
- 	/*
+ static ssize_t random_write(struct file *file, const char __user *buffer,
 
 
