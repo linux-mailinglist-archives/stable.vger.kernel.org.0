@@ -2,55 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 556A3536158
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 532BB535D02
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348432AbiE0L6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54612 "EHLO
+        id S1350131AbiE0Iym (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:54:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353433AbiE0L4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99DA3889;
-        Fri, 27 May 2022 04:51:51 -0700 (PDT)
+        with ESMTP id S1350189AbiE0IyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:54:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44F08544F6;
+        Fri, 27 May 2022 01:52:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C57CB824CA;
-        Fri, 27 May 2022 11:51:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC40BC385A9;
-        Fri, 27 May 2022 11:51:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05FD161D3B;
+        Fri, 27 May 2022 08:52:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB374C36AE7;
+        Fri, 27 May 2022 08:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652309;
-        bh=N4I2vRnlz5HhcFVb3tpYEZeesn0q49B0+WAvsvwec5E=;
+        s=korg; t=1653641578;
+        bh=yLXlgNDwc3M6yVpHiI52bGwxKJCHaWRA55AS1O+jWyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iYb1SSuW8s8o5r4sbk3v4hAxZuN2lE38M/sd/2ukD1v0dgkf2ep7PBC1q4XpJXM2S
-         I3Ce9LcyAEQzOXB3tDS9NuJXFc+HyzeE9Belc+Nvig+t/E4pHKOVRpmkBuQ3jRcMUo
-         xJZAtnrsfOh0Ubbt1gjcgFaGFbg4cDvfB/Pe6xY8=
+        b=n1tLtarbEIg94fDtNH02PVVMvdQaSzezrh+yKMJSPIH5GHTshYwBZzPzGwo9fwBiw
+         gO3dSljv8MIJ9V1vXP0EYXP/TMUnDxaIgALHVAjnAm//ceA7/QqpSdWUdK/3/9yn6z
+         agoeaesTvytaLlUTt2JUj5/tckGhY2738Nvu533s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@ozlabs.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 108/145] powerpc: define get_cycles macro for arch-override
-Date:   Fri, 27 May 2022 10:50:09 +0200
-Message-Id: <20220527084903.663694172@linuxfoundation.org>
+Subject: [PATCH 5.18 30/47] random: move initialization out of reseeding hot path
+Date:   Fri, 27 May 2022 10:50:10 +0200
+Message-Id: <20220527084806.466052475@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+References: <20220527084801.223648383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,35 +56,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 408835832158df0357e18e96da7f2d1ed6b80e7f upstream.
+commit 68c9c8b192c6dae9be6278e98ee44029d5da2d31 upstream.
 
-PowerPC defines a get_cycles() function, but it does not do the usual
-`#define get_cycles get_cycles` dance, making it impossible for generic
-code to see if an arch-specific function was defined. While the
-get_cycles() ifdef is not currently used, the following timekeeping
-patch in this series will depend on the macro existing (or not existing)
-when defining random_get_entropy().
+Initialization happens once -- by way of credit_init_bits() -- and then
+it never happens again. Therefore, it doesn't need to be in
+crng_reseed(), which is a hot path that is called multiple times. It
+also doesn't make sense to have there, as initialization activity is
+better associated with initialization routines.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@ozlabs.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
+After the prior commit, crng_reseed() now won't be called by multiple
+concurrent callers, which means that we can safely move the
+"finialize_init" logic into crng_init_bits() unconditionally.
+
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |   42 +++++++++++++++++++-----------------------
+ 1 file changed, 19 insertions(+), 23 deletions(-)
 
---- a/arch/powerpc/include/asm/timex.h
-+++ b/arch/powerpc/include/asm/timex.h
-@@ -19,6 +19,7 @@ static inline cycles_t get_cycles(void)
- {
- 	return mftb();
- }
-+#define get_cycles get_cycles
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -264,7 +264,6 @@ static void crng_reseed(void)
+ 	unsigned long flags;
+ 	unsigned long next_gen;
+ 	u8 key[CHACHA_KEY_SIZE];
+-	bool finalize_init = false;
  
- #endif	/* __KERNEL__ */
- #endif	/* _ASM_POWERPC_TIMEX_H */
+ 	extract_entropy(key, sizeof(key));
+ 
+@@ -281,28 +280,10 @@ static void crng_reseed(void)
+ 		++next_gen;
+ 	WRITE_ONCE(base_crng.generation, next_gen);
+ 	WRITE_ONCE(base_crng.birth, jiffies);
+-	if (!crng_ready()) {
++	if (!crng_ready())
+ 		crng_init = CRNG_READY;
+-		finalize_init = true;
+-	}
+ 	spin_unlock_irqrestore(&base_crng.lock, flags);
+ 	memzero_explicit(key, sizeof(key));
+-	if (finalize_init) {
+-		process_random_ready_list();
+-		wake_up_interruptible(&crng_init_wait);
+-		kill_fasync(&fasync, SIGIO, POLL_IN);
+-		pr_notice("crng init done\n");
+-		if (unseeded_warning.missed) {
+-			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+-				  unseeded_warning.missed);
+-			unseeded_warning.missed = 0;
+-		}
+-		if (urandom_warning.missed) {
+-			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+-				  urandom_warning.missed);
+-			urandom_warning.missed = 0;
+-		}
+-	}
+ }
+ 
+ /*
+@@ -834,10 +815,25 @@ static void credit_init_bits(size_t nbit
+ 		new = min_t(unsigned int, POOL_BITS, orig + add);
+ 	} while (cmpxchg(&input_pool.init_bits, orig, new) != orig);
+ 
+-	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS)
+-		crng_reseed();
+-	else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
++	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
++		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
++		process_random_ready_list();
++		wake_up_interruptible(&crng_init_wait);
++		kill_fasync(&fasync, SIGIO, POLL_IN);
++		pr_notice("crng init done\n");
++		if (unseeded_warning.missed) {
++			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
++				  unseeded_warning.missed);
++			unseeded_warning.missed = 0;
++		}
++		if (urandom_warning.missed) {
++			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
++				  urandom_warning.missed);
++			urandom_warning.missed = 0;
++		}
++	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
+ 		spin_lock_irqsave(&base_crng.lock, flags);
++		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
+ 		if (crng_init == CRNG_EMPTY) {
+ 			extract_entropy(base_crng.key, sizeof(base_crng.key));
+ 			crng_init = CRNG_EARLY;
 
 
