@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C5C536028
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82522536017
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351828AbiE0LrA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:47:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56322 "EHLO
+        id S1351773AbiE0Lqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:46:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352038AbiE0LpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:17 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20E2413FD72;
-        Fri, 27 May 2022 04:41:48 -0700 (PDT)
+        with ESMTP id S1352143AbiE0Lp3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:29 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E3EC132A2E;
+        Fri, 27 May 2022 04:42:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 408E7B824D8;
-        Fri, 27 May 2022 11:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FEB4C385A9;
-        Fri, 27 May 2022 11:41:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39CAB61D53;
+        Fri, 27 May 2022 11:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43DC2C385A9;
+        Fri, 27 May 2022 11:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651705;
-        bh=1gYXjOiQ/z90nRzb8U321OxJ4EeK2vYVDyO9CPVnJcY=;
+        s=korg; t=1653651722;
+        bh=RG6VjW3XhSd7agEEKPH/P8cAoVf6or+rlbFXWJgkVVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UlUf2fYsROZXikyjxEsaUndw/nCbTy5JdQz4emaM/MA2dl+EKIyMlOOv3gi1DJ3Sy
-         wRcOIJW74D3cDhWs2ag0KcDlGI0GWdlEopzj1SgV7K1z3t5f/RO4PXjSxQ9Hcv/9wa
-         kVIQIliEGZJadH4omyaHskquXJc8W4cOJNAnZpkw=
+        b=s5rsRHQ5LnTb9kKfhdBjpIyUD1a2J8DagqOanwrwjteKljiiH4BkRrXgo211sOgk6
+         81omEzMCWH5cewV5VCReHaqk8bw9kdWznp6Lnx8aCuk1IvWIV2aZe0HBsiLUel+vtS
+         FnyCZHtIb2JzaE6MH+I7llQCjeuBonnaSGKLEA9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 031/145] random: cleanup fractional entropy shift constants
+Subject: [PATCH 5.10 052/163] random: simplify arithmetic function flow in account()
 Date:   Fri, 27 May 2022 10:48:52 +0200
-Message-Id: <20220527084854.599461457@linuxfoundation.org>
+Message-Id: <20220527084835.269206185@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,82 +56,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 18263c4e8e62f7329f38f5eadc568751242ca89c upstream.
+commit a254a0e4093fce8c832414a83940736067eed515 upstream.
 
-The entropy estimator is calculated in terms of 1/8 bits, which means
-there are various constants where things are shifted by 3. Move these
-into our pool info enum with the other relevant constants. While we're
-at it, move an English assertion about sizes into a proper BUILD_BUG_ON
-so that the compiler can ensure this invariant.
+Now that have_bytes is never modified, we can simplify this function.
+First, we move the check for negative entropy_count to be first. That
+ensures that subsequent reads of this will be non-negative. Then,
+have_bytes and ibytes can be folded into their one use site in the
+min_t() function.
 
+Suggested-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   28 +++++++++++++---------------
- 1 file changed, 13 insertions(+), 15 deletions(-)
+ drivers/char/random.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -359,16 +359,6 @@
- /* #define ADD_INTERRUPT_BENCH */
+@@ -1293,7 +1293,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
+  */
+ static size_t account(size_t nbytes, int min)
+ {
+-	int entropy_count, orig, have_bytes;
++	int entropy_count, orig;
+ 	size_t ibytes, nfrac;
  
- /*
-- * To allow fractional bits to be tracked, the entropy_count field is
-- * denominated in units of 1/8th bits.
-- *
-- * 2*(POOL_ENTROPY_SHIFT + poolbitshift) must <= 31, or the multiply in
-- * credit_entropy_bits() needs to be 64 bits wide.
-- */
--#define POOL_ENTROPY_SHIFT 3
--#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
+ 	BUG_ON(input_pool.entropy_count > POOL_FRACBITS);
+@@ -1301,20 +1301,15 @@ static size_t account(size_t nbytes, int
+ 	/* Can we pull enough? */
+ retry:
+ 	entropy_count = orig = READ_ONCE(input_pool.entropy_count);
+-	ibytes = nbytes;
+-	/* never pull more than available */
+-	have_bytes = entropy_count >> (POOL_ENTROPY_SHIFT + 3);
 -
--/*
-  * If the entropy count falls under this number of bits, then we
-  * should wake up processes which are selecting or polling on write
-  * access to /dev/random.
-@@ -425,8 +415,13 @@ enum poolinfo {
- 	POOL_WORDMASK = POOL_WORDS - 1,
- 	POOL_BYTES = POOL_WORDS * sizeof(u32),
- 	POOL_BITS = POOL_BYTES * 8,
--	POOL_BITSHIFT = ilog2(POOL_WORDS) + 5,
--	POOL_FRACBITS = POOL_WORDS << (POOL_ENTROPY_SHIFT + 5),
-+	POOL_BITSHIFT = ilog2(POOL_BITS),
-+
-+	/* To allow fractional bits to be tracked, the entropy_count field is
-+	 * denominated in units of 1/8th bits. */
-+	POOL_ENTROPY_SHIFT = 3,
-+#define POOL_ENTROPY_BITS() (input_pool.entropy_count >> POOL_ENTROPY_SHIFT)
-+	POOL_FRACBITS = POOL_BITS << POOL_ENTROPY_SHIFT,
- 
- 	/* x^128 + x^104 + x^76 + x^51 +x^25 + x + 1 */
- 	POOL_TAP1 = 104,
-@@ -652,6 +647,9 @@ static void credit_entropy_bits(int nbit
- 	int entropy_count, entropy_bits, orig;
- 	int nfrac = nbits << POOL_ENTROPY_SHIFT;
- 
-+	/* Ensure that the multiplication can avoid being 64 bits wide. */
-+	BUILD_BUG_ON(2 * (POOL_ENTROPY_SHIFT + POOL_BITSHIFT) > 31);
-+
- 	if (!nbits)
- 		return;
- 
-@@ -687,13 +685,13 @@ retry:
- 		/* The +2 corresponds to the /4 in the denominator */
- 
- 		do {
--			unsigned int anfrac = min(pnfrac, POOL_FRACBITS/2);
-+			unsigned int anfrac = min(pnfrac, POOL_FRACBITS / 2);
- 			unsigned int add =
--				((POOL_FRACBITS - entropy_count)*anfrac*3) >> s;
-+				((POOL_FRACBITS - entropy_count) * anfrac * 3) >> s;
- 
- 			entropy_count += add;
- 			pnfrac -= anfrac;
--		} while (unlikely(entropy_count < POOL_FRACBITS-2 && pnfrac));
-+		} while (unlikely(entropy_count < POOL_FRACBITS - 2 && pnfrac));
- 	}
- 
+-	if (have_bytes < 0)
+-		have_bytes = 0;
+-	ibytes = min_t(size_t, ibytes, have_bytes);
+-	if (ibytes < min)
+-		ibytes = 0;
+-
  	if (WARN_ON(entropy_count < 0)) {
+ 		pr_warn("negative entropy count: count %d\n", entropy_count);
+ 		entropy_count = 0;
+ 	}
++
++	/* never pull more than available */
++	ibytes = min_t(size_t, nbytes, entropy_count >> (POOL_ENTROPY_SHIFT + 3));
++	if (ibytes < min)
++		ibytes = 0;
+ 	nfrac = ibytes << (POOL_ENTROPY_SHIFT + 3);
+ 	if ((size_t)entropy_count > nfrac)
+ 		entropy_count -= nfrac;
 
 
