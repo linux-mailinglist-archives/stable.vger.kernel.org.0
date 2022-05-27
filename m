@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07404536021
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B911353611A
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234621AbiE0Lqx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
+        id S1352291AbiE0L7f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:59:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351935AbiE0LpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:09 -0400
+        with ESMTP id S1352292AbiE0LzQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CA2413C351;
-        Fri, 27 May 2022 04:41:31 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AADE14AF63;
+        Fri, 27 May 2022 04:48:09 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD52461C3F;
-        Fri, 27 May 2022 11:41:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C766FC385A9;
-        Fri, 27 May 2022 11:41:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D880E61D92;
+        Fri, 27 May 2022 11:48:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C99C385A9;
+        Fri, 27 May 2022 11:48:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651690;
-        bh=5Qvl9MRNPbfZ5zmGTUMKK2Aok2MPBZGiLGgl4WAat1s=;
+        s=korg; t=1653652088;
+        bh=16LFNup+v25/VvNo3CxgLkxi4CTpG2cxX/qybxkt+Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYwx4WEvQ1SNgCUPKmPlqp283w+Z+TdbnJXAsOeZfxvvRtoncvKizDdFf9ENfhsCr
-         HUsiNZovbwAGvHpv7EGiKgl/PgZWjTEnFfobjhc0z78T37aT4x3hruDaGkEmC0TeHB
-         zoD+Gt0K7LtLxmsdp0HtQlfKnnLEXu1J6xHLuc9o=
+        b=I2dbHlkeZRUJbBO7P3S3eHye4K0jGTecIK6KFshwVeMF5m2U7P0rwavOutn/01pLl
+         wkIyppAsCwDn+XbfFSttV0Mz+ErKGxLSsYW6XYqPx5SH3duM07UQ3MARN6/2Y/WUag
+         J1hHMrnFZmY4rQX+LMM5EY0vYJ8+iyVxbSGdwLiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
         Theodore Tso <tytso@mit.edu>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Eric Biggers <ebiggers@google.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 063/111] random: check for signals every PAGE_SIZE chunk of /dev/[u]random
+Subject: [PATCH 5.10 095/163] random: pull add_hwgenerator_randomness() declaration into random.h
 Date:   Fri, 27 May 2022 10:49:35 +0200
-Message-Id: <20220527084828.462781628@linuxfoundation.org>
+Message-Id: <20220527084841.218676971@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,107 +59,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit e3c1c4fd9e6d14059ed93ebfe15e1c57793b1a05 upstream.
+commit b777c38239fec5a528e59f55b379e31b1a187524 upstream.
 
-In 1448769c9cdb ("random: check for signal_pending() outside of
-need_resched() check"), Jann pointed out that we previously were only
-checking the TIF_NOTIFY_SIGNAL and TIF_SIGPENDING flags if the process
-had TIF_NEED_RESCHED set, which meant in practice, super long reads to
-/dev/[u]random would delay signal handling by a long time. I tried this
-using the below program, and indeed I wasn't able to interrupt a
-/dev/urandom read until after several megabytes had been read. The bug
-he fixed has always been there, and so code that reads from /dev/urandom
-without checking the return value of read() has mostly worked for a long
-time, for most sizes, not just for <= 256.
+add_hwgenerator_randomness() is a function implemented and documented
+inside of random.c. It is the way that hardware RNGs push data into it.
+Therefore, it should be declared in random.h. Otherwise sparse complains
+with:
 
-Maybe it makes sense to keep that code working. The reason it was so
-small prior, ignoring the fact that it didn't work anyway, was likely
-because /dev/random used to block, and that could happen for pretty
-large lengths of time while entropy was gathered. But now, it's just a
-chacha20 call, which is extremely fast and is just operating on pure
-data, without having to wait for some external event. In that sense,
-/dev/[u]random is a lot more like /dev/zero.
+random.c:1137:6: warning: symbol 'add_hwgenerator_randomness' was not declared. Should it be static?
 
-Taking a page out of /dev/zero's read_zero() function, it always returns
-at least one chunk, and then checks for signals after each chunk. Chunk
-sizes there are of length PAGE_SIZE. Let's just copy the same thing for
-/dev/[u]random, and check for signals and cond_resched() for every
-PAGE_SIZE amount of data. This makes the behavior more consistent with
-expectations, and should mitigate the impact of Jann's fix for the
-age-old signal check bug.
+The alternative would be to include hw_random.h into random.c, but that
+wouldn't really be good for anything except slowing down compile time.
 
----- test program ----
-
-  #include <unistd.h>
-  #include <signal.h>
-  #include <stdio.h>
-  #include <sys/random.h>
-
-  static unsigned char x[~0U];
-
-  static void handle(int) { }
-
-  int main(int argc, char *argv[])
-  {
-    pid_t pid = getpid(), child;
-    signal(SIGUSR1, handle);
-    if (!(child = fork())) {
-      for (;;)
-        kill(pid, SIGUSR1);
-    }
-    pause();
-    printf("interrupted after reading %zd bytes\n", getrandom(x, sizeof(x), 0));
-    kill(child, SIGTERM);
-    return 0;
-  }
-
-Cc: Jann Horn <jannh@google.com>
+Cc: Matt Mackall <mpm@selenic.com>
 Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/char/hw_random/core.c |    1 +
+ include/linux/hw_random.h     |    2 --
+ include/linux/random.h        |    2 ++
+ 3 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -523,7 +523,6 @@ EXPORT_SYMBOL(get_random_bytes);
+--- a/drivers/char/hw_random/core.c
++++ b/drivers/char/hw_random/core.c
+@@ -15,6 +15,7 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ #include <linux/hw_random.h>
++#include <linux/random.h>
+ #include <linux/kernel.h>
+ #include <linux/kthread.h>
+ #include <linux/sched/signal.h>
+--- a/include/linux/hw_random.h
++++ b/include/linux/hw_random.h
+@@ -60,7 +60,5 @@ extern int devm_hwrng_register(struct de
+ /** Unregister a Hardware Random Number Generator driver. */
+ extern void hwrng_unregister(struct hwrng *rng);
+ extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
+-/** Feed random bits into the pool. */
+-extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
  
- static ssize_t get_random_bytes_user(void __user *buf, size_t nbytes)
- {
--	bool large_request = nbytes > 256;
- 	ssize_t ret = 0;
- 	size_t len;
- 	u32 chacha_state[CHACHA_STATE_WORDS];
-@@ -549,15 +548,6 @@ static ssize_t get_random_bytes_user(voi
- 	}
+ #endif /* LINUX_HWRANDOM_H_ */
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -32,6 +32,8 @@ static inline void add_latent_entropy(vo
+ extern void add_input_randomness(unsigned int type, unsigned int code,
+ 				 unsigned int value) __latent_entropy;
+ extern void add_interrupt_randomness(int irq) __latent_entropy;
++extern void add_hwgenerator_randomness(const void *buffer, size_t count,
++				       size_t entropy);
  
- 	do {
--		if (large_request) {
--			if (signal_pending(current)) {
--				if (!ret)
--					ret = -ERESTARTSYS;
--				break;
--			}
--			cond_resched();
--		}
--
- 		chacha20_block(chacha_state, output);
- 		if (unlikely(chacha_state[12] == 0))
- 			++chacha_state[13];
-@@ -571,6 +561,13 @@ static ssize_t get_random_bytes_user(voi
- 		nbytes -= len;
- 		buf += len;
- 		ret += len;
-+
-+		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
-+		if (!(ret % PAGE_SIZE) && nbytes) {
-+			if (signal_pending(current))
-+				break;
-+			cond_resched();
-+		}
- 	} while (nbytes);
- 
- 	memzero_explicit(output, sizeof(output));
+ extern void get_random_bytes(void *buf, size_t nbytes);
+ extern int wait_for_random_bytes(void);
 
 
