@@ -2,240 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25294536613
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 18:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA40053663B
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 18:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345101AbiE0Qjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 12:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57298 "EHLO
+        id S231978AbiE0Q7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 12:59:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353977AbiE0Qjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 12:39:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12F2C5DB6;
-        Fri, 27 May 2022 09:39:32 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2680A61DFD;
-        Fri, 27 May 2022 16:39:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CEAEC385B8;
-        Fri, 27 May 2022 16:39:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1653669571;
-        bh=EPJ6GgdKvvTTzpkQb91Vq58296dVXW14JjlSK1mMYRE=;
-        h=Date:To:From:Subject:From;
-        b=pGvDF4Tldfbwj4fh+ni3w6FwxD6ATizhkduOFh70N0hp6qOL95sCieMKhq8dYtDDn
-         nHyCGUmgYb8SAvMgupjf6hStu7vdmRcpSkdR0uTNehZ5WLNSbuLHNe8m3JtCY12CDF
-         Ou5pe3eJLb24ST7Dqy0Ecz4W9BLhcYfMSIB9ZYwo=
-Date:   Fri, 27 May 2022 09:39:30 -0700
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        mpe@ellerman.id.au, ebiederm@xmission.com,
-        naveen.n.rao@linux.vnet.ibm.com, akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations.patch removed from -mm tree
-Message-Id: <20220527163931.7CEAEC385B8@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
-        version=3.4.6
+        with ESMTP id S240866AbiE0Q7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 12:59:06 -0400
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE46122B57
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 09:59:01 -0700 (PDT)
+Received: by mail-pj1-x1031.google.com with SMTP id z11so5093274pjc.3
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 09:59:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pK5TM0c2WbTH5KEJGS+Jv/6pDCtH7/SHfLjAhOLp08U=;
+        b=MRYQ8yvC0df9isixYTW7an0asGj6354lTTlcODbXob3I8+7pZR8XMrHLVKcXp1kyH5
+         CktYzIVtrRVzeObD7iFLsaGyNgHbrFoYym/809wq4CXMyZ6l3ZA0aHpQfjVEm5lBmhlF
+         rIWrfCjTdwlWmtf1txygZIfsex8M/Xd6wtgw2ZTlrq24g0UqakgQFc3xaf193zk3AbUY
+         iBCKCj+lmIVi0XY945rAKXr3v/77rx9nWCepc2cL8SWp2Xf9QRR2TFE8ymIfUlXMFhlz
+         cUFHTKfVRlP4b85lXHB7AiyYo0MlrISRBCI5LDn3qBV+cMIePuBS1rDcPn3L7x2qRM7Q
+         d+wA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pK5TM0c2WbTH5KEJGS+Jv/6pDCtH7/SHfLjAhOLp08U=;
+        b=M+dJPBPm5p5dh8d4a14K/QqPEDC8qdBa4R2nlQJNVUini6jjh0sVGAh1ysANjTO4Bv
+         Piz1p+9AKlMNumIcd4yy6k3eku6ZVY6YOS319/6ptTaIr9sAEvx/VvinaZqmSh7x/M3E
+         yfesqAlxcl7udmAdRIK9L9Aj8NSEJVnZeV4Yv/vyyd4Tnx5PwwvRWP8MUrOx/OSGZ8No
+         dBfFYr8RHxDxbUgTfoCgg2nGVLngRz70tPznSgxHFaCwuQG/nYxR7vxB6psgTi4puIws
+         VPvyX+xmPPvGBRnwxswPzbgv8mXq+2BFKLRoiW/IiCQQ5ogTPAjB/BeQcT+XkE8yZPtv
+         39Jw==
+X-Gm-Message-State: AOAM532Jp2DTc40m5Ra1qZqGA6FemvUCIATWwa/5ujJQ1WazDgpREXWw
+        8m2UCRjF1f+vfaxQWhDsFO0l1LCQ2xwi1x76tVE=
+X-Google-Smtp-Source: ABdhPJzslugWYhAADY7dxxjjm0vuVk8nVWLsKWncI5T7+KPg9PENwfP5ElPA6ssOWvuQZ+jm96fgMg==
+X-Received: by 2002:a17:902:ef48:b0:159:51d:f725 with SMTP id e8-20020a170902ef4800b00159051df725mr45114137plx.47.1653670741323;
+        Fri, 27 May 2022 09:59:01 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p12-20020a17090a748c00b001d840f4eee0sm1869779pjk.20.2022.05.27.09.59.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 May 2022 09:59:00 -0700 (PDT)
+Message-ID: <62910354.1c69fb81.25515.427e@mx.google.com>
+Date:   Fri, 27 May 2022 09:59:00 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.17.11-112-g118948632858
+X-Kernelci-Branch: linux-5.17.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.17.y baseline: 48 runs,
+ 1 regressions (v5.17.11-112-g118948632858)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,TVD_SPACE_RATIO,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.17.y baseline: 48 runs, 1 regressions (v5.17.11-112-g1189=
+48632858)
 
-The quilt patch titled
-     Subject: kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
-has been removed from the -mm tree.  Its filename was
-     kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations.patch
+Regressions Summary
+-------------------
 
-This patch was dropped because it was merged into the mm-hotfixes-stable branch
-of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-------------------------------------------------------
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
-Subject: kexec_file: drop weak attribute from arch_kexec_apply_relocations[_add]
-Date: Thu, 19 May 2022 14:42:37 +0530
-
-Since commit d1bcae833b32f1 ("ELF: Don't generate unused section
-symbols") [1], binutils (v2.36+) started dropping section symbols that
-it thought were unused.  This isn't an issue in general, but with
-kexec_file.c, gcc is placing kexec_arch_apply_relocations[_add] into a
-separate .text.unlikely section and the section symbol ".text.unlikely"
-is being dropped. Due to this, recordmcount is unable to find a non-weak
-symbol in .text.unlikely to generate a relocation record against.
-
-Address this by dropping the weak attribute from these functions.
-Instead, follow the existing pattern of having architectures #define the
-name of the function they want to override in their headers.
-
-[1] https://sourceware.org/git/?p=binutils-gdb.git;a=commit;h=d1bcae833b32f1
-
-[akpm@linux-foundation.org: arch/s390/include/asm/kexec.h needs linux/module.h]
-Link: https://lkml.kernel.org/r/20220519091237.676736-1-naveen.n.rao@linux.vnet.ibm.com
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- arch/s390/include/asm/kexec.h |   10 ++++++
- arch/x86/include/asm/kexec.h  |    8 +++++
- include/linux/kexec.h         |   46 ++++++++++++++++++++++++++------
- kernel/kexec_file.c           |   34 -----------------------
- 4 files changed, 56 insertions(+), 42 deletions(-)
-
---- a/arch/s390/include/asm/kexec.h~kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations
-+++ a/arch/s390/include/asm/kexec.h
-@@ -9,6 +9,8 @@
- #ifndef _S390_KEXEC_H
- #define _S390_KEXEC_H
- 
-+#include <linux/module.h>
-+
- #include <asm/processor.h>
- #include <asm/page.h>
- #include <asm/setup.h>
-@@ -83,4 +85,12 @@ struct kimage_arch {
- extern const struct kexec_file_ops s390_kexec_image_ops;
- extern const struct kexec_file_ops s390_kexec_elf_ops;
- 
-+#ifdef CONFIG_KEXEC_FILE
-+struct purgatory_info;
-+int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+				     Elf_Shdr *section,
-+				     const Elf_Shdr *relsec,
-+				     const Elf_Shdr *symtab);
-+#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
-+#endif
- #endif /*_S390_KEXEC_H */
---- a/arch/x86/include/asm/kexec.h~kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations
-+++ a/arch/x86/include/asm/kexec.h
-@@ -186,6 +186,14 @@ extern int arch_kexec_post_alloc_pages(v
- extern void arch_kexec_pre_free_pages(void *vaddr, unsigned int pages);
- #define arch_kexec_pre_free_pages arch_kexec_pre_free_pages
- 
-+#ifdef CONFIG_KEXEC_FILE
-+struct purgatory_info;
-+int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
-+				     Elf_Shdr *section,
-+				     const Elf_Shdr *relsec,
-+				     const Elf_Shdr *symtab);
-+#define arch_kexec_apply_relocations_add arch_kexec_apply_relocations_add
-+#endif
- #endif
- 
- typedef void crash_vmclear_fn(void);
---- a/include/linux/kexec.h~kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations
-+++ a/include/linux/kexec.h
-@@ -193,14 +193,6 @@ void *kexec_purgatory_get_symbol_addr(st
- int arch_kexec_kernel_image_probe(struct kimage *image, void *buf,
- 				  unsigned long buf_len);
- void *arch_kexec_kernel_image_load(struct kimage *image);
--int arch_kexec_apply_relocations_add(struct purgatory_info *pi,
--				     Elf_Shdr *section,
--				     const Elf_Shdr *relsec,
--				     const Elf_Shdr *symtab);
--int arch_kexec_apply_relocations(struct purgatory_info *pi,
--				 Elf_Shdr *section,
--				 const Elf_Shdr *relsec,
--				 const Elf_Shdr *symtab);
- int arch_kimage_file_post_load_cleanup(struct kimage *image);
- #ifdef CONFIG_KEXEC_SIG
- int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
-@@ -229,6 +221,44 @@ extern int crash_exclude_mem_range(struc
- 				   unsigned long long mend);
- extern int crash_prepare_elf64_headers(struct crash_mem *mem, int kernel_map,
- 				       void **addr, unsigned long *sz);
-+
-+#ifndef arch_kexec_apply_relocations_add
-+/*
-+ * arch_kexec_apply_relocations_add - apply relocations of type RELA
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELAs.
-+ * @symtab:	Corresponding symtab.
-+ *
-+ * Return: 0 on success, negative errno on error.
-+ */
-+static inline int
-+arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
-+				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
-+{
-+	pr_err("RELA relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
-+
-+#ifndef arch_kexec_apply_relocations
-+/*
-+ * arch_kexec_apply_relocations - apply relocations of type REL
-+ * @pi:		Purgatory to be relocated.
-+ * @section:	Section relocations applying to.
-+ * @relsec:	Section containing RELs.
-+ * @symtab:	Corresponding symtab.
-+ *
-+ * Return: 0 on success, negative errno on error.
-+ */
-+static inline int
-+arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
-+			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
-+{
-+	pr_err("REL relocation unsupported.\n");
-+	return -ENOEXEC;
-+}
-+#endif
- #endif /* CONFIG_KEXEC_FILE */
- 
- #ifdef CONFIG_KEXEC_ELF
---- a/kernel/kexec_file.c~kexec_file-drop-weak-attribute-from-arch_kexec_apply_relocations
-+++ a/kernel/kexec_file.c
-@@ -109,40 +109,6 @@ int __weak arch_kexec_kernel_verify_sig(
- #endif
- 
- /*
-- * arch_kexec_apply_relocations_add - apply relocations of type RELA
-- * @pi:		Purgatory to be relocated.
-- * @section:	Section relocations applying to.
-- * @relsec:	Section containing RELAs.
-- * @symtab:	Corresponding symtab.
-- *
-- * Return: 0 on success, negative errno on error.
-- */
--int __weak
--arch_kexec_apply_relocations_add(struct purgatory_info *pi, Elf_Shdr *section,
--				 const Elf_Shdr *relsec, const Elf_Shdr *symtab)
--{
--	pr_err("RELA relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/*
-- * arch_kexec_apply_relocations - apply relocations of type REL
-- * @pi:		Purgatory to be relocated.
-- * @section:	Section relocations applying to.
-- * @relsec:	Section containing RELs.
-- * @symtab:	Corresponding symtab.
-- *
-- * Return: 0 on success, negative errno on error.
-- */
--int __weak
--arch_kexec_apply_relocations(struct purgatory_info *pi, Elf_Shdr *section,
--			     const Elf_Shdr *relsec, const Elf_Shdr *symtab)
--{
--	pr_err("REL relocation unsupported.\n");
--	return -ENOEXEC;
--}
--
--/*
-  * Free up memory used by kernel, initrd, and command line. This is temporary
-  * memory allocation which is not needed any more after these buffers have
-  * been loaded into separate segments and have been copied elsewhere.
-_
-
-Patches currently in -mm which might be from naveen.n.rao@linux.vnet.ibm.com are
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.17.y/ker=
+nel/v5.17.11-112-g118948632858/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.17.y
+  Describe: v5.17.11-112-g118948632858
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      118948632858649db5531086bb74e586db579fbf =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+                  | regressions
+-----------------------------+-------+---------------+----------+----------=
+------------------+------------
+mt8183-kukui-...uniper-sku16 | arm64 | lab-collabora | gcc-10   | defconfig=
++arm64-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6290c9dafc6c44bd9fa39c0e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig+arm64-chromebook
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+1-112-g118948632858/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-mt8183-kukui-jacuzzi-juniper-sku16.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.17.y/v5.17.1=
+1-112-g118948632858/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/b=
+aseline-mt8183-kukui-jacuzzi-juniper-sku16.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/6290c9dafc6c44bd9fa39=
+c0f
+        new failure (last pass: v5.17.11-112-g539bc20dce9f) =
+
+ =20
