@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59842535C46
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FA953606F
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233778AbiE0JBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 05:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52726 "EHLO
+        id S1351946AbiE0Lvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:51:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350780AbiE0JAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 05:00:40 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32E328A31B;
-        Fri, 27 May 2022 01:57:01 -0700 (PDT)
+        with ESMTP id S1352164AbiE0LuK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:10 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A59514CA1F;
+        Fri, 27 May 2022 04:44:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 82D5E61D7F;
-        Fri, 27 May 2022 08:57:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47272C385B8;
-        Fri, 27 May 2022 08:56:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5B5BB824D7;
+        Fri, 27 May 2022 11:44:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D724C385A9;
+        Fri, 27 May 2022 11:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641819;
-        bh=vtFNrDwG4XkEmWxVaHM5wkzf3qnqfc1b2p90edXAux0=;
+        s=korg; t=1653651850;
+        bh=hwxcHasEV/bb2nOwjqLI3dCmvo+Iqwr+zYuY74pKObQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYaK13xWu+GsSRzJW5mqxUmuzlBjX662+/c5nYZnR8gRTBGuscPWh7vHBZcgkE+Eu
-         vWAkA40+70PbQUrdGkx7KRZ7LEVH6uff1RM3bl61awqpwu8/0qEeapzWPZ73Aioxte
-         1hSd5aZEm21lRjajVmxs6N1Y+QztmuooQ1n+aJjY=
+        b=njdPXKN95iv+lWpC4613DqxpdRgrWyRUQtTqu4T8iYCC9v7WVcq23shmYU0LyiPtc
+         I9CeMrh5JMkaWdXhn3X6BOwG2ho46ae4QiaTeDRcuCfqqg9nGxQRxfOMh2fQx/N3tu
+         z5/oEjnkVRMRve7fkJguT1N7N3nQGIWwTvbo6uSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 039/111] random: do not take pool spinlock at boot
+Subject: [PATCH 5.15 050/145] random: do not xor RDRAND when writing into /dev/random
 Date:   Fri, 27 May 2022 10:49:11 +0200
-Message-Id: <20220527084825.017037657@linuxfoundation.org>
+Message-Id: <20220527084856.832414757@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,35 +57,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit afba0b80b977b2a8f16234f2acd982f82710ba33 upstream.
+commit 91c2afca290ed3034841c8c8532e69ed9e16cf34 upstream.
 
-Since rand_initialize() is run while interrupts are still off and
-nothing else is running, we don't need to repeatedly take and release
-the pool spinlock, especially in the RDSEED loop.
+Continuing the reasoning of "random: ensure early RDSEED goes through
+mixer on init", we don't want RDRAND interacting with anything without
+going through the mixer function, as a backdoored CPU could presumably
+cancel out data during an xor, which it'd have a harder time doing when
+being forced through a cryptographic hash function. There's actually no
+need at all to be calling RDRAND in write_pool(), because before we
+extract from the pool, we always do so with 32 bytes of RDSEED hashed in
+at that stage. Xoring at this stage is needless and introduces a minor
+liability.
 
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/char/random.c |   14 ++------------
+ 1 file changed, 2 insertions(+), 12 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -978,10 +978,10 @@ int __init rand_initialize(void)
- 			rv = random_get_entropy();
- 			arch_init = false;
- 		}
--		mix_pool_bytes(&rv, sizeof(rv));
-+		_mix_pool_bytes(&rv, sizeof(rv));
- 	}
--	mix_pool_bytes(&now, sizeof(now));
--	mix_pool_bytes(utsname(), sizeof(*(utsname())));
-+	_mix_pool_bytes(&now, sizeof(now));
-+	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
+@@ -1305,25 +1305,15 @@ static __poll_t random_poll(struct file
+ static int write_pool(const char __user *buffer, size_t count)
+ {
+ 	size_t bytes;
+-	u32 t, buf[16];
++	u8 buf[BLAKE2S_BLOCK_SIZE];
+ 	const char __user *p = buffer;
  
- 	extract_entropy(base_crng.key, sizeof(base_crng.key));
- 	++base_crng.generation;
+ 	while (count > 0) {
+-		int b, i = 0;
+-
+ 		bytes = min(count, sizeof(buf));
+-		if (copy_from_user(&buf, p, bytes))
++		if (copy_from_user(buf, p, bytes))
+ 			return -EFAULT;
+-
+-		for (b = bytes; b > 0; b -= sizeof(u32), i++) {
+-			if (!arch_get_random_int(&t))
+-				break;
+-			buf[i] ^= t;
+-		}
+-
+ 		count -= bytes;
+ 		p += bytes;
+-
+ 		mix_pool_bytes(buf, bytes);
+ 		cond_resched();
+ 	}
 
 
