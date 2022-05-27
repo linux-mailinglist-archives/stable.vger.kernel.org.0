@@ -2,53 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B16D5535FC8
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:43:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E74DD535C27
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351651AbiE0LmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:42:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
+        id S1349721AbiE0IvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351638AbiE0Llf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:41:35 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E34B12FED3;
-        Fri, 27 May 2022 04:40:05 -0700 (PDT)
+        with ESMTP id S1347393AbiE0IvB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:51:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBAFAED72E;
+        Fri, 27 May 2022 01:50:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02BA361CDB;
-        Fri, 27 May 2022 11:40:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61B3C385A9;
-        Fri, 27 May 2022 11:40:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45B1B61D2B;
+        Fri, 27 May 2022 08:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0730C385A9;
+        Fri, 27 May 2022 08:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651604;
-        bh=vqN2eMjhj6uOQA/ttVCAWTc2ORVevz+T8SOOvQJbY6I=;
+        s=korg; t=1653641458;
+        bh=fBTeEa0/kpFdvrd4LOk+5yeDMtLDjIZNh892u5cdTQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ggLmgIkTIhvGbl23EhtMufP9WoJUIyFM9ygtPnJbtuh9su8ZsMNF6mzGQO1pIMk38
-         mIsGac6T19LO7ClQh1AgQQrVRZq2a2Ajqad3BQhO7Zulyx9B360wMqPDm5A/hTnWzH
-         XtdKPqpBi/1S9OrDegYkAj1isoDea5cSwQA14zvU=
+        b=wyNHhROHOzrwX3MejOMIVtTwm96IMrz+AWcr4s9UkX5zjkHBhjm1EyojBJfg2TkCp
+         Qow5TZn4nYqGspIcv7TytiSMo3nFG4WNh7btRl/hM0j30nw2ikvGaHIt5TFdbtWxzf
+         +znw7VGSBUO9TTzt6MyuDFxvbeq16Ulgf/Ao12ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dexuan Cui <decui@microsoft.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Stephen Hemminger <sthemmin@microsoft.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org,
-        x86@kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 012/145] random: remove unused irq_flags argument from add_interrupt_randomness()
-Date:   Fri, 27 May 2022 10:48:33 +0200
-Message-Id: <20220527084852.448750357@linuxfoundation.org>
+        stable@vger.kernel.org, Yongkang Jia <kangel@zju.edu.cn>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vegard Nossum <vegard.nossum@oracle.com>
+Subject: [PATCH 5.17 002/111] KVM: x86/mmu: fix NULL pointer dereference on guest INVPCID
+Date:   Fri, 27 May 2022 10:48:34 +0200
+Message-Id: <20220527084819.475104331@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,104 +54,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 703f7066f40599c290babdb79dd61319264987e9 upstream.
+commit 9f46c187e2e680ecd9de7983e4d081c3391acc76 upstream.
 
-Since commit
-   ee3e00e9e7101 ("random: use registers from interrupted code for CPU's w/o a cycle counter")
+With shadow paging enabled, the INVPCID instruction results in a call
+to kvm_mmu_invpcid_gva.  If INVPCID is executed with CR0.PG=0, the
+invlpg callback is not set and the result is a NULL pointer dereference.
+Fix it trivially by checking for mmu->invlpg before every call.
 
-the irq_flags argument is no longer used.
+There are other possibilities:
 
-Remove unused irq_flags.
+- check for CR0.PG, because KVM (like all Intel processors after P5)
+  flushes guest TLB on CR0.PG changes so that INVPCID/INVLPG are a
+  nop with paging disabled
 
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dexuan Cui <decui@microsoft.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Haiyang Zhang <haiyangz@microsoft.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: K. Y. Srinivasan <kys@microsoft.com>
-Cc: Stephen Hemminger <sthemmin@microsoft.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wei Liu <wei.liu@kernel.org>
-Cc: linux-hyperv@vger.kernel.org
-Cc: x86@kernel.org
-Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Acked-by: Wei Liu <wei.liu@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+- check for EFER.LMA, because KVM syncs and flushes when switching
+  MMU contexts outside of 64-bit mode
+
+All of these are tricky, go for the simple solution.  This is CVE-2022-1789.
+
+Reported-by: Yongkang Jia <kangel@zju.edu.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[fix conflict due to missing b9e5603c2a3accbadfec570ac501a54431a6bdba]
+Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/cpu/mshyperv.c |    2 +-
- drivers/char/random.c          |    4 ++--
- drivers/hv/vmbus_drv.c         |    2 +-
- include/linux/random.h         |    2 +-
- kernel/irq/handle.c            |    2 +-
- 5 files changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kvm/mmu/mmu.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/cpu/mshyperv.c
-+++ b/arch/x86/kernel/cpu/mshyperv.c
-@@ -79,7 +79,7 @@ DEFINE_IDTENTRY_SYSVEC(sysvec_hyperv_sti
- 	inc_irq_stat(hyperv_stimer0_count);
- 	if (hv_stimer0_handler)
- 		hv_stimer0_handler();
--	add_interrupt_randomness(HYPERV_STIMER0_VECTOR, 0);
-+	add_interrupt_randomness(HYPERV_STIMER0_VECTOR);
- 	ack_APIC_irq();
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -5416,14 +5416,16 @@ void kvm_mmu_invpcid_gva(struct kvm_vcpu
+ 	uint i;
  
- 	set_irq_regs(old_regs);
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -200,7 +200,7 @@
-  *	void add_device_randomness(const void *buf, unsigned int size);
-  * 	void add_input_randomness(unsigned int type, unsigned int code,
-  *                                unsigned int value);
-- *	void add_interrupt_randomness(int irq, int irq_flags);
-+ *	void add_interrupt_randomness(int irq);
-  * 	void add_disk_randomness(struct gendisk *disk);
-  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
-  *					size_t entropy);
-@@ -1273,7 +1273,7 @@ static __u32 get_reg(struct fast_pool *f
- 	return *ptr;
- }
- 
--void add_interrupt_randomness(int irq, int irq_flags)
-+void add_interrupt_randomness(int irq)
- {
- 	struct entropy_store	*r;
- 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
---- a/drivers/hv/vmbus_drv.c
-+++ b/drivers/hv/vmbus_drv.c
-@@ -1381,7 +1381,7 @@ static void vmbus_isr(void)
- 			tasklet_schedule(&hv_cpu->msg_dpc);
+ 	if (pcid == kvm_get_active_pcid(vcpu)) {
+-		mmu->invlpg(vcpu, gva, mmu->root_hpa);
++		if (mmu->invlpg)
++			mmu->invlpg(vcpu, gva, mmu->root_hpa);
+ 		tlb_flush = true;
  	}
  
--	add_interrupt_randomness(vmbus_interrupt, 0);
-+	add_interrupt_randomness(vmbus_interrupt);
- }
- 
- static irqreturn_t vmbus_percpu_isr(int irq, void *dev_id)
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -35,7 +35,7 @@ static inline void add_latent_entropy(vo
- 
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value) __latent_entropy;
--extern void add_interrupt_randomness(int irq, int irq_flags) __latent_entropy;
-+extern void add_interrupt_randomness(int irq) __latent_entropy;
- 
- extern void get_random_bytes(void *buf, int nbytes);
- extern int wait_for_random_bytes(void);
---- a/kernel/irq/handle.c
-+++ b/kernel/irq/handle.c
-@@ -195,7 +195,7 @@ irqreturn_t handle_irq_event_percpu(stru
- 
- 	retval = __handle_irq_event_percpu(desc, &flags);
- 
--	add_interrupt_randomness(desc->irq_data.irq, flags);
-+	add_interrupt_randomness(desc->irq_data.irq);
- 
- 	if (!irq_settings_no_debug(desc))
- 		note_interrupt(desc, retval);
+ 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
+ 		if (VALID_PAGE(mmu->prev_roots[i].hpa) &&
+ 		    pcid == kvm_get_pcid(vcpu, mmu->prev_roots[i].pgd)) {
+-			mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
++			if (mmu->invlpg)
++				mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
+ 			tlb_flush = true;
+ 		}
+ 	}
 
 
