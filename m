@@ -2,141 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAA7536077
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D811536103
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233055AbiE0LxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:53:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
+        id S1349653AbiE0MBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:01:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353171AbiE0LvX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:23 -0400
+        with ESMTP id S1352712AbiE0MAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:50 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8EC3146763;
-        Fri, 27 May 2022 04:46:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D55238BC7;
+        Fri, 27 May 2022 04:52:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCDC161D19;
-        Fri, 27 May 2022 11:46:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBDBC385A9;
-        Fri, 27 May 2022 11:46:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E780A61D9F;
+        Fri, 27 May 2022 11:52:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0FBFC385A9;
+        Fri, 27 May 2022 11:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652017;
-        bh=Yy5gQPcfw9NC/kuApdrxoyH05hh4EnBXxxCCeB24uyw=;
+        s=korg; t=1653652365;
+        bh=ttMzrB/0rNkJjH7iM1jtjNb98Lhq7MGGZDMluDL9J0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqh8z+m+v3QW8DDUkhKwzymCHNTBC3CHngPQQ5sR5tyNGJbIz2BzqnmNLc5ftMpGk
-         HoOYnvsX3tTrodci24pdk+G7DvCKoDASQ0Hamfj3xmXU2fIDyvBT9ispXm3/tsOf7Y
-         DVtjnYwu/gfa7FgjtfmUtO2fxAqa0aMzc1NT9TMk=
+        b=pb2s6Y6MdLGJ+Qrv95aTSY25ooqmJcDnUJnEX7ednQ4yjwjs+3af9NCuMaQhhOXp7
+         4zWhMhIvG6NSYtypsfFLKffOoefLrCyF4vxnO70OxYXfzRhkB5vRUsg2tkq7ukIHm9
+         p6pvitbZHgj+YSJHuRLzwfFzYGiMJYLVnpIbdIBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Veronika Kabatova <vkabatov@redhat.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        dann frazier <dann.frazier@canonical.com>
-Subject: [PATCH 5.17 110/111] ACPI: sysfs: Fix BERT error region memory mapping
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Filipe Manana <fdmanana@suse.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>, Theodore Tso <tytso@mit.edu>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 142/163] random: do not use input pool from hard IRQs
 Date:   Fri, 27 May 2022 10:50:22 +0200
-Message-Id: <20220527084834.798679404@linuxfoundation.org>
+Message-Id: <20220527084848.047372120@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1bbc21785b7336619fb6a67f1fff5afdaf229acc upstream.
+commit e3e33fc2ea7fcefd0d761db9d6219f83b4248f5c upstream.
 
-Currently the sysfs interface maps the BERT error region as "memory"
-(through acpi_os_map_memory()) in order to copy the error records into
-memory buffers through memory operations (eg memory_read_from_buffer()).
+Years ago, a separate fast pool was added for interrupts, so that the
+cost associated with taking the input pool spinlocks and mixing into it
+would be avoided in places where latency is critical. However, one
+oversight was that add_input_randomness() and add_disk_randomness()
+still sometimes are called directly from the interrupt handler, rather
+than being deferred to a thread. This means that some unlucky interrupts
+will be caught doing a blake2s_compress() call and potentially spinning
+on input_pool.lock, which can also be taken by unprivileged users by
+writing into /dev/urandom.
 
-The OS system cannot detect whether the BERT error region is part of
-system RAM or it is "device memory" (eg BMC memory) and therefore it
-cannot detect which memory attributes the bus to memory support (and
-corresponding kernel mapping, unless firmware provides the required
-information).
+In order to fix this, add_timer_randomness() now checks whether it is
+being called from a hard IRQ and if so, just mixes into the per-cpu IRQ
+fast pool using fast_mix(), which is much faster and can be done
+lock-free. A nice consequence of this, as well, is that it means hard
+IRQ context FPU support is likely no longer useful.
 
-The acpi_os_map_memory() arch backend implementation determines the
-mapping attributes. On arm64, if the BERT error region is not present in
-the EFI memory map, the error region is mapped as device-nGnRnE; this
-triggers alignment faults since memcpy unaligned accesses are not
-allowed in device-nGnRnE regions.
+The entropy estimation algorithm used by add_timer_randomness() is also
+somewhat different than the one used for add_interrupt_randomness(). The
+former looks at deltas of deltas of deltas, while the latter just waits
+for 64 interrupts for one bit or for one second since the last bit. In
+order to bridge these, and since add_interrupt_randomness() runs after
+an add_timer_randomness() that's called from hard IRQ, we add to the
+fast pool credit the related amount, and then subtract one to account
+for add_interrupt_randomness()'s contribution.
 
-The ACPI sysfs code cannot therefore map by default the BERT error
-region with memory semantics but should use a safer default.
+A downside of this, however, is that the num argument is potentially
+attacker controlled, which puts a bit more pressure on the fast_mix()
+sponge to do more than it's really intended to do. As a mitigating
+factor, the first 96 bits of input aren't attacker controlled (a cycle
+counter followed by zeros), which means it's essentially two rounds of
+siphash rather than one, which is somewhat better. It's also not that
+much different from add_interrupt_randomness()'s use of the irq stack
+instruction pointer register.
 
-Change the sysfs code to map the BERT error region as MMIO (through
-acpi_os_map_iomem()) and use the memcpy_fromio() interface to read the
-error region into the kernel buffer.
-
-Link: https://lore.kernel.org/linux-arm-kernel/31ffe8fc-f5ee-2858-26c5-0fd8bdd68702@arm.com
-Link: https://lore.kernel.org/linux-acpi/CAJZ5v0g+OVbhuUUDrLUCfX_mVqY_e8ubgLTU98=jfjTeb4t+Pw@mail.gmail.com
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Tested-by: Veronika Kabatova <vkabatov@redhat.com>
-Tested-by: Aristeu Rozanski <aris@redhat.com>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: dann frazier <dann.frazier@canonical.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Filipe Manana <fdmanana@suse.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/sysfs.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/char/random.c |   51 +++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 36 insertions(+), 15 deletions(-)
 
---- a/drivers/acpi/sysfs.c
-+++ b/drivers/acpi/sysfs.c
-@@ -415,19 +415,30 @@ static ssize_t acpi_data_show(struct fil
- 			      loff_t offset, size_t count)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -1086,6 +1086,7 @@ static void mix_interrupt_randomness(str
+ 	 * we don't wind up "losing" some.
+ 	 */
+ 	unsigned long pool[2];
++	unsigned int count;
+ 
+ 	/* Check to see if we're running on the wrong CPU due to hotplug. */
+ 	local_irq_disable();
+@@ -1099,12 +1100,13 @@ static void mix_interrupt_randomness(str
+ 	 * consistent view, before we reenable irqs again.
+ 	 */
+ 	memcpy(pool, fast_pool->pool, sizeof(pool));
++	count = fast_pool->count;
+ 	fast_pool->count = 0;
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+ 
+ 	mix_pool_bytes(pool, sizeof(pool));
+-	credit_init_bits(1);
++	credit_init_bits(max(1u, (count & U16_MAX) / 64));
+ 
+ 	memzero_explicit(pool, sizeof(pool));
+ }
+@@ -1144,22 +1146,30 @@ struct timer_rand_state {
+ 
+ /*
+  * This function adds entropy to the entropy "pool" by using timing
+- * delays.  It uses the timer_rand_state structure to make an estimate
+- * of how many bits of entropy this call has added to the pool.
+- *
+- * The number "num" is also added to the pool - it should somehow describe
+- * the type of event which just happened.  This is currently 0-255 for
+- * keyboard scan codes, and 256 upwards for interrupts.
++ * delays. It uses the timer_rand_state structure to make an estimate
++ * of how many bits of entropy this call has added to the pool. The
++ * value "num" is also added to the pool; it should somehow describe
++ * the type of event that just happened.
+  */
+ static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
  {
- 	struct acpi_data_attr *data_attr;
--	void *base;
--	ssize_t rc;
-+	void __iomem *base;
-+	ssize_t size;
+ 	unsigned long entropy = random_get_entropy(), now = jiffies, flags;
+ 	long delta, delta2, delta3;
++	unsigned int bits;
  
- 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
-+	size = data_attr->attr.size;
+-	spin_lock_irqsave(&input_pool.lock, flags);
+-	_mix_pool_bytes(&entropy, sizeof(entropy));
+-	_mix_pool_bytes(&num, sizeof(num));
+-	spin_unlock_irqrestore(&input_pool.lock, flags);
++	/*
++	 * If we're in a hard IRQ, add_interrupt_randomness() will be called
++	 * sometime after, so mix into the fast pool.
++	 */
++	if (in_irq()) {
++		fast_mix(this_cpu_ptr(&irq_randomness)->pool,
++			 (unsigned long[2]){ entropy, num });
++	} else {
++		spin_lock_irqsave(&input_pool.lock, flags);
++		_mix_pool_bytes(&entropy, sizeof(entropy));
++		_mix_pool_bytes(&num, sizeof(num));
++		spin_unlock_irqrestore(&input_pool.lock, flags);
++	}
  
--	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
-+	if (offset < 0)
-+		return -EINVAL;
-+
-+	if (offset >= size)
-+		return 0;
-+
-+	if (count > size - offset)
-+		count = size - offset;
-+
-+	base = acpi_os_map_iomem(data_attr->addr, size);
- 	if (!base)
- 		return -ENOMEM;
--	rc = memory_read_from_buffer(buf, count, &offset, base,
--				     data_attr->attr.size);
--	acpi_os_unmap_memory(base, data_attr->attr.size);
+ 	if (crng_ready())
+ 		return;
+@@ -1190,11 +1200,22 @@ static void add_timer_randomness(struct
+ 		delta = delta3;
  
--	return rc;
-+	memcpy_fromio(buf, base + offset, count);
+ 	/*
+-	 * delta is now minimum absolute delta.
+-	 * Round down by 1 bit on general principles,
+-	 * and limit entropy estimate to 12 bits.
++	 * delta is now minimum absolute delta. Round down by 1 bit
++	 * on general principles, and limit entropy estimate to 11 bits.
++	 */
++	bits = min(fls(delta >> 1), 11);
 +
-+	acpi_os_unmap_iomem(base, size);
-+
-+	return count;
++	/*
++	 * As mentioned above, if we're in a hard IRQ, add_interrupt_randomness()
++	 * will run after this, which uses a different crediting scheme of 1 bit
++	 * per every 64 interrupts. In order to let that function do accounting
++	 * close to the one in this function, we credit a full 64/64 bit per bit,
++	 * and then subtract one to account for the extra one added.
+ 	 */
+-	credit_init_bits(min_t(unsigned int, fls(delta >> 1), 11));
++	if (in_irq())
++		this_cpu_ptr(&irq_randomness)->count += max(1u, bits * 64) - 1;
++	else
++		credit_init_bits(bits);
  }
  
- static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
+ void add_input_randomness(unsigned int type, unsigned int code,
 
 
