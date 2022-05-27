@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03308535C07
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE249535F68
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349221AbiE0IwS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:52:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33046 "EHLO
+        id S1351404AbiE0LiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:38:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350055AbiE0IwB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:52:01 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBFD652B27;
-        Fri, 27 May 2022 01:51:37 -0700 (PDT)
+        with ESMTP id S1351378AbiE0Lhu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:37:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373CB7090F;
+        Fri, 27 May 2022 04:37:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 53F8B61D40;
-        Fri, 27 May 2022 08:51:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33940C385A9;
-        Fri, 27 May 2022 08:51:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8396E61CE4;
+        Fri, 27 May 2022 11:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88C90C385A9;
+        Fri, 27 May 2022 11:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641496;
-        bh=XCrtEF3XRbslBZMheQMMnxmSBvlwmKgfm/xo8l2mbcc=;
+        s=korg; t=1653651465;
+        bh=CdqK0PbI7muPYvM317tvTG8fKcq7eG5iKABmhbF7GFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=emgwb7V5NU6dEoRNCJlFMTwvW1Csr9Pii5WjuaiCEeVsDUK3mu2wr6du0fqZa883v
-         v+IiT6OqwNXS1rrNAkRPZnj8vTlIssAkMnAgZ3EgpvMqVdEgJ32bbKgSHeqiwG3JML
-         IOtQ7hLmLEJPX9ZpmBT9HL3/8ep1DEP0UM3D7yDY=
+        b=AhNBaEqqshEZ9f1abCSt8wa4rfRm2joDaASD86iVNNbVazKlZkiX3WfAkfYJi6U29
+         gstjO/xMEADPymTQyCGfs6kC+c731FpvPBnmXiLmJ+3lsEIhSB1hrgCLQM7tq8m/Me
+         3Mv5xpRJT8E/jlRk+o9KS7otOU+TABeIdsR8AvwE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yongkang Jia <kangel@zju.edu.cn>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Vegard Nossum <vegard.nossum@oracle.com>
-Subject: [PATCH 5.15 002/145] KVM: x86/mmu: fix NULL pointer dereference on guest INVPCID
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 023/163] crypto: blake2s - adjust include guard naming
 Date:   Fri, 27 May 2022 10:48:23 +0200
-Message-Id: <20220527084850.757334839@linuxfoundation.org>
+Message-Id: <20220527084831.434749439@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,56 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 9f46c187e2e680ecd9de7983e4d081c3391acc76 upstream.
+commit 8786841bc2020f7f2513a6c74e64912f07b9c0dc upstream.
 
-With shadow paging enabled, the INVPCID instruction results in a call
-to kvm_mmu_invpcid_gva.  If INVPCID is executed with CR0.PG=0, the
-invlpg callback is not set and the result is a NULL pointer dereference.
-Fix it trivially by checking for mmu->invlpg before every call.
+Use the full path in the include guards for the BLAKE2s headers to avoid
+ambiguity and to match the convention for most files in include/crypto/.
 
-There are other possibilities:
-
-- check for CR0.PG, because KVM (like all Intel processors after P5)
-  flushes guest TLB on CR0.PG changes so that INVPCID/INVLPG are a
-  nop with paging disabled
-
-- check for EFER.LMA, because KVM syncs and flushes when switching
-  MMU contexts outside of 64-bit mode
-
-All of these are tricky, go for the simple solution.  This is CVE-2022-1789.
-
-Reported-by: Yongkang Jia <kangel@zju.edu.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[fix conflict due to missing b9e5603c2a3accbadfec570ac501a54431a6bdba]
-Signed-off-by: Vegard Nossum <vegard.nossum@oracle.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/mmu.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ include/crypto/blake2s.h          |    6 +++---
+ include/crypto/internal/blake2s.h |    6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5396,14 +5396,16 @@ void kvm_mmu_invpcid_gva(struct kvm_vcpu
- 	uint i;
+--- a/include/crypto/blake2s.h
++++ b/include/crypto/blake2s.h
+@@ -3,8 +3,8 @@
+  * Copyright (C) 2015-2019 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
+  */
  
- 	if (pcid == kvm_get_active_pcid(vcpu)) {
--		mmu->invlpg(vcpu, gva, mmu->root_hpa);
-+		if (mmu->invlpg)
-+			mmu->invlpg(vcpu, gva, mmu->root_hpa);
- 		tlb_flush = true;
- 	}
+-#ifndef BLAKE2S_H
+-#define BLAKE2S_H
++#ifndef _CRYPTO_BLAKE2S_H
++#define _CRYPTO_BLAKE2S_H
  
- 	for (i = 0; i < KVM_MMU_NUM_PREV_ROOTS; i++) {
- 		if (VALID_PAGE(mmu->prev_roots[i].hpa) &&
- 		    pcid == kvm_get_pcid(vcpu, mmu->prev_roots[i].pgd)) {
--			mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
-+			if (mmu->invlpg)
-+				mmu->invlpg(vcpu, gva, mmu->prev_roots[i].hpa);
- 			tlb_flush = true;
- 		}
- 	}
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+@@ -105,4 +105,4 @@ static inline void blake2s(u8 *out, cons
+ void blake2s256_hmac(u8 *out, const u8 *in, const u8 *key, const size_t inlen,
+ 		     const size_t keylen);
+ 
+-#endif /* BLAKE2S_H */
++#endif /* _CRYPTO_BLAKE2S_H */
+--- a/include/crypto/internal/blake2s.h
++++ b/include/crypto/internal/blake2s.h
+@@ -4,8 +4,8 @@
+  * Keep this in sync with the corresponding BLAKE2b header.
+  */
+ 
+-#ifndef BLAKE2S_INTERNAL_H
+-#define BLAKE2S_INTERNAL_H
++#ifndef _CRYPTO_INTERNAL_BLAKE2S_H
++#define _CRYPTO_INTERNAL_BLAKE2S_H
+ 
+ #include <crypto/blake2s.h>
+ #include <crypto/internal/hash.h>
+@@ -116,4 +116,4 @@ static inline int crypto_blake2s_final(s
+ 	return 0;
+ }
+ 
+-#endif /* BLAKE2S_INTERNAL_H */
++#endif /* _CRYPTO_INTERNAL_BLAKE2S_H */
 
 
