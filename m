@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92318535CD0
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E79535C47
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232997AbiE0JDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 05:03:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52728 "EHLO
+        id S1351276AbiE0JBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350314AbiE0I7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:02 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E80579B3;
-        Fri, 27 May 2022 01:55:26 -0700 (PDT)
+        with ESMTP id S1350320AbiE0I7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:03 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D634B59091;
+        Fri, 27 May 2022 01:55:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7A5D1CE237A;
-        Fri, 27 May 2022 08:55:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83D59C34100;
-        Fri, 27 May 2022 08:55:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 21CF9CE237A;
+        Fri, 27 May 2022 08:55:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23808C385A9;
+        Fri, 27 May 2022 08:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641722;
-        bh=m1t48f8J1t5GlS2HZ+kgwhOatWjtlZrYDKKdcmlt4Co=;
+        s=korg; t=1653641726;
+        bh=mqr+CmKBFFHkb8QDzclxqHbsHvaX+z4Z1RjSRFRczNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yo65ibpVD1mcKbt+cWT5Dr/0gbtYpiPtYVi3trLhuwM193y4deJ62PlMbP9ihrPGa
-         YSaX+3B6nYCF0lql0mmdtGjayRTqpEm04Mto0cj9BQnFyRU4wfyg/EOlSGgUckIIc1
-         bsNi+sMNfEZOl/7d9D76Fy5NRA0gFTF0PhBl19p8=
+        b=mJhz5S5hFWoq/eZf004BVGtij3bVkJ6iMA9p0OLyRmCb+OA3tOdtE9+A8B7wwjiDx
+         nrB+S7FrTYGid4Sue0x6hrbBOsMpcSpdl6yY8zD3P1gr6RWLqCZ5Ej7E5/KYAkbYp3
+         0ODRzaAQoI0IzxHcnC5ZYaarVy259P2nU++Zq2UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 026/111] random: add proper SPDX header
-Date:   Fri, 27 May 2022 10:48:58 +0200
-Message-Id: <20220527084823.206306225@linuxfoundation.org>
+Subject: [PATCH 5.17 027/111] random: deobfuscate irq u32/u64 contributions
+Date:   Fri, 27 May 2022 10:48:59 +0200
+Message-Id: <20220527084823.344476921@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
 References: <20220527084819.133490171@linuxfoundation.org>
@@ -57,72 +56,121 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a07fdae346c35c6ba286af1c88e0effcfa330bf9 upstream.
+commit b2f408fe403800c91a49f6589d95b6759ce1b30b upstream.
 
-Convert the current license into the SPDX notation of "(GPL-2.0 OR
-BSD-3-Clause)". This infers GPL-2.0 from the text "ALTERNATIVELY, this
-product may be distributed under the terms of the GNU General Public
-License, in which case the provisions of the GPL are required INSTEAD OF
-the above restrictions" and it infers BSD-3-Clause from the verbatim
-BSD 3 clause license in the file.
+In the irq handler, we fill out 16 bytes differently on 32-bit and
+64-bit platforms, and for 32-bit vs 64-bit cycle counters, which doesn't
+always correspond with the bitness of the platform. Whether or not you
+like this strangeness, it is a matter of fact.  But it might not be a
+fact you well realized until now, because the code that loaded the irq
+info into 4 32-bit words was quite confusing.  Instead, this commit
+makes everything explicit by having separate (compile-time) branches for
+32-bit and 64-bit types.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   37 +------------------------------------
- 1 file changed, 1 insertion(+), 36 deletions(-)
+ drivers/char/random.c |   49 ++++++++++++++++++++++++++++---------------------
+ 1 file changed, 28 insertions(+), 21 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1,44 +1,9 @@
-+// SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause)
- /*
-- * random.c -- A strong random number generator
-- *
-  * Copyright (C) 2017-2022 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-- *
-  * Copyright Matt Mackall <mpm@selenic.com>, 2003, 2004, 2005
-- *
-  * Copyright Theodore Ts'o, 1994, 1995, 1996, 1997, 1998, 1999.  All
-  * rights reserved.
-- *
-- * Redistribution and use in source and binary forms, with or without
-- * modification, are permitted provided that the following conditions
-- * are met:
-- * 1. Redistributions of source code must retain the above copyright
-- *    notice, and the entire permission notice in its entirety,
-- *    including the disclaimer of warranties.
-- * 2. Redistributions in binary form must reproduce the above copyright
-- *    notice, this list of conditions and the following disclaimer in the
-- *    documentation and/or other materials provided with the distribution.
-- * 3. The name of the author may not be used to endorse or promote
-- *    products derived from this software without specific prior
-- *    written permission.
-- *
-- * ALTERNATIVELY, this product may be distributed under the terms of
-- * the GNU General Public License, in which case the provisions of the GPL are
-- * required INSTEAD OF the above restrictions.  (This clause is
-- * necessary due to a potential bad interaction between the GPL and
-- * the restrictions contained in a BSD-style copyright.)
-- *
-- * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESS OR IMPLIED
-- * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
-- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE, ALL OF
-- * WHICH ARE HEREBY DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR BE
-- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
-- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT
-- * OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
-- * BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-- * USE OF THIS SOFTWARE, EVEN IF NOT ADVISED OF THE POSSIBILITY OF SUCH
-- * DAMAGE.
-  */
+@@ -283,7 +283,10 @@ static void mix_pool_bytes(const void *i
+ }
  
- /*
+ struct fast_pool {
+-	u32 pool[4];
++	union {
++		u32 pool32[4];
++		u64 pool64[2];
++	};
+ 	unsigned long last;
+ 	u16 reg_idx;
+ 	u8 count;
+@@ -294,10 +297,10 @@ struct fast_pool {
+  * collector.  It's hardcoded for an 128 bit pool and assumes that any
+  * locks that might be needed are taken by the caller.
+  */
+-static void fast_mix(struct fast_pool *f)
++static void fast_mix(u32 pool[4])
+ {
+-	u32 a = f->pool[0],	b = f->pool[1];
+-	u32 c = f->pool[2],	d = f->pool[3];
++	u32 a = pool[0],	b = pool[1];
++	u32 c = pool[2],	d = pool[3];
+ 
+ 	a += b;			c += d;
+ 	b = rol32(b, 6);	d = rol32(d, 27);
+@@ -315,9 +318,8 @@ static void fast_mix(struct fast_pool *f
+ 	b = rol32(b, 16);	d = rol32(d, 14);
+ 	d ^= a;			b ^= c;
+ 
+-	f->pool[0] = a;  f->pool[1] = b;
+-	f->pool[2] = c;  f->pool[3] = d;
+-	f->count++;
++	pool[0] = a;  pool[1] = b;
++	pool[2] = c;  pool[3] = d;
+ }
+ 
+ static void process_random_ready_list(void)
+@@ -784,29 +786,34 @@ void add_interrupt_randomness(int irq)
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned long now = jiffies;
+ 	cycles_t cycles = random_get_entropy();
+-	u32 c_high, j_high;
+-	u64 ip;
+ 
+ 	if (cycles == 0)
+ 		cycles = get_reg(fast_pool, regs);
+-	c_high = (sizeof(cycles) > 4) ? cycles >> 32 : 0;
+-	j_high = (sizeof(now) > 4) ? now >> 32 : 0;
+-	fast_pool->pool[0] ^= cycles ^ j_high ^ irq;
+-	fast_pool->pool[1] ^= now ^ c_high;
+-	ip = regs ? instruction_pointer(regs) : _RET_IP_;
+-	fast_pool->pool[2] ^= ip;
+-	fast_pool->pool[3] ^=
+-		(sizeof(ip) > 4) ? ip >> 32 : get_reg(fast_pool, regs);
+ 
+-	fast_mix(fast_pool);
++	if (sizeof(cycles) == 8)
++		fast_pool->pool64[0] ^= cycles ^ rol64(now, 32) ^ irq;
++	else {
++		fast_pool->pool32[0] ^= cycles ^ irq;
++		fast_pool->pool32[1] ^= now;
++	}
++
++	if (sizeof(unsigned long) == 8)
++		fast_pool->pool64[1] ^= regs ? instruction_pointer(regs) : _RET_IP_;
++	else {
++		fast_pool->pool32[2] ^= regs ? instruction_pointer(regs) : _RET_IP_;
++		fast_pool->pool32[3] ^= get_reg(fast_pool, regs);
++	}
++
++	fast_mix(fast_pool->pool32);
++	++fast_pool->count;
+ 
+ 	if (unlikely(crng_init == 0)) {
+ 		if (fast_pool->count >= 64 &&
+-		    crng_fast_load(fast_pool->pool, sizeof(fast_pool->pool)) > 0) {
++		    crng_fast_load(fast_pool->pool32, sizeof(fast_pool->pool32)) > 0) {
+ 			fast_pool->count = 0;
+ 			fast_pool->last = now;
+ 			if (spin_trylock(&input_pool.lock)) {
+-				_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
++				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+ 				spin_unlock(&input_pool.lock);
+ 			}
+ 		}
+@@ -820,7 +827,7 @@ void add_interrupt_randomness(int irq)
+ 		return;
+ 
+ 	fast_pool->last = now;
+-	_mix_pool_bytes(&fast_pool->pool, sizeof(fast_pool->pool));
++	_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+ 	spin_unlock(&input_pool.lock);
+ 
+ 	fast_pool->count = 0;
 
 
