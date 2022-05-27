@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35CAC535C0F
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F959536023
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349974AbiE0Ix0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:53:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58656 "EHLO
+        id S233875AbiE0Lqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231481AbiE0Iw4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:52:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7B795C369;
-        Fri, 27 May 2022 01:52:34 -0700 (PDT)
+        with ESMTP id S1351895AbiE0LpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8664A12FEF1;
+        Fri, 27 May 2022 04:41:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9216461D3B;
-        Fri, 27 May 2022 08:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F674C385B8;
-        Fri, 27 May 2022 08:52:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E688761CB7;
+        Fri, 27 May 2022 11:41:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01207C385A9;
+        Fri, 27 May 2022 11:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641552;
-        bh=xjDHzzlguLEnJ48Rbjf+a2vMYgut3MAzp2Zsp5YKUBg=;
+        s=korg; t=1653651681;
+        bh=S0GE2QBe3vQH8SstAe6gAuiluPqa7/LtbKcsMUsmrik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tU271p//7WjdkYPpBdxaUZ612wz+YIcljzXcBianzxlnqLiNXj4eMFzgv4SJikptw
-         VUW2ItDl3tObyF2ftCVQV0fahb7VMzpl7IHWsArhoHXc5JkZSrWnfHoDyzKTagsSxU
-         y3tHekJHpqzpBUcL6CZJmt9CZV6wyf9xPBohI9ow=
+        b=mrJhyAqqbHcxsgY8nfx5mdqciGBrDuuP+26bG7sABZobqCs3GPkQdksVsWsuwsroR
+         6sURFgeoba76yHZfMsf/eTyAFtqMU1PronOsaOmqlxF/XyK+KbgS5fKdrJ7Y8V0gXH
+         zf3PSjlT5GIECwGaO6q6l/FGSBwUWGORGWn/CX7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 03/47] random: fix sysctl documentation nits
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Helge Deller <deller@gmx.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.17 071/111] parisc: define get_cycles macro for arch-override
 Date:   Fri, 27 May 2022 10:49:43 +0200
-Message-Id: <20220527084801.684978297@linuxfoundation.org>
+Message-Id: <20220527084829.568165652@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
-References: <20220527084801.223648383@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +56,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 069c4ea6871c18bd368f27756e0f91ffb524a788 upstream.
+commit 8865bbe6ba1120e67f72201b7003a16202cd42be upstream.
 
-A semicolon was missing, and the almost-alphabetical-but-not ordering
-was confusing, so regroup these by category instead.
+PA-RISC defines a get_cycles() function, but it does not do the usual
+`#define get_cycles get_cycles` dance, making it impossible for generic
+code to see if an arch-specific function was defined. While the
+get_cycles() ifdef is not currently used, the following timekeeping
+patch in this series will depend on the macro existing (or not existing)
+when defining random_get_entropy().
 
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/parisc/include/asm/timex.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -994,6 +994,9 @@ This is a directory, with the following
- * ``boot_id``: a UUID generated the first time this is retrieved, and
-   unvarying after that;
+--- a/arch/parisc/include/asm/timex.h
++++ b/arch/parisc/include/asm/timex.h
+@@ -13,9 +13,10 @@
  
-+* ``uuid``: a UUID generated every time this is retrieved (this can
-+  thus be used to generate UUIDs at will);
-+
- * ``entropy_avail``: the pool's entropy count, in bits;
+ typedef unsigned long cycles_t;
  
- * ``poolsize``: the entropy pool size, in bits;
-@@ -1001,10 +1004,7 @@ This is a directory, with the following
- * ``urandom_min_reseed_secs``: obsolete (used to determine the minimum
-   number of seconds between urandom pool reseeding). This file is
-   writable for compatibility purposes, but writing to it has no effect
--  on any RNG behavior.
--
--* ``uuid``: a UUID generated every time this is retrieved (this can
--  thus be used to generate UUIDs at will);
-+  on any RNG behavior;
+-static inline cycles_t get_cycles (void)
++static inline cycles_t get_cycles(void)
+ {
+ 	return mfctl(16);
+ }
++#define get_cycles get_cycles
  
- * ``write_wakeup_threshold``: when the entropy count drops below this
-   (as a number of bits), processes waiting to write to ``/dev/random``
+ #endif
 
 
