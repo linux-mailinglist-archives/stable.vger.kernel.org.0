@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 352F5535C76
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D532536181
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350235AbiE0I6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:58:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
+        id S1352088AbiE0L6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:58:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350242AbiE0I5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:57:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCD9111BB0;
-        Fri, 27 May 2022 01:54:40 -0700 (PDT)
+        with ESMTP id S1351602AbiE0L4v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40D845FAE;
+        Fri, 27 May 2022 04:51:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79ABA61CB7;
-        Fri, 27 May 2022 08:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AF56C385A9;
-        Fri, 27 May 2022 08:54:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DA90B824D2;
+        Fri, 27 May 2022 11:51:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA65FC34100;
+        Fri, 27 May 2022 11:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641678;
-        bh=u1UqmCTFtjAEx/jrfzp+B7WVcH5ZjcmJTpDVL3lfdJw=;
+        s=korg; t=1653652315;
+        bh=AkmbyX7kj5nPzG+eUDjqwRv35ba6cPqLkRss36eEYDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aoa5rqJogxNfERAUIL77HqqLA6Q13Fz2V06N0tiMZR2rX7YjVLfdgPiZ8fAKgJ92y
-         SNOgrkwwSe4jLDJMVrHetCFh1qLvDdF4voQ9eckXcAx6wVAsjLUbg1IPYTdwU3rxmy
-         CFrK8FGiaq6vCOewq8pRX83cibZeu9h7FGq0fQ7Q=
+        b=yGm4FLrnOuj1ONq1I27bNK62ZSbrR4YVt3seJ0UqGp3HnX//8lOzGh7V9fTu9Wl8Q
+         3x5cBfEZdBsjrle5CTL4cKZqVQQpKlvszMY0E6oMzz8IyrBkTyryHX8OTuVhqcuMtI
+         swlOZXM5nH4r3Rw7hpBUxasMDHa2mvtvy5UUlUCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.18 33/47] random: handle latent entropy and command line from random_init()
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org
+Subject: [PATCH 5.10 133/163] x86/tsc: Use fallback for random_get_entropy() instead of zero
 Date:   Fri, 27 May 2022 10:50:13 +0200
-Message-Id: <20220527084806.884481906@linuxfoundation.org>
+Message-Id: <20220527084846.711636071@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
-References: <20220527084801.223648383@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -56,130 +57,71 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 2f14062bb14b0fcfcc21e6dc7d5b5c0d25966164 upstream.
+commit 3bd4abc07a267e6a8b33d7f8717136e18f921c53 upstream.
 
-Currently, start_kernel() adds latent entropy and the command line to
-the entropy bool *after* the RNG has been initialized, deferring when
-it's actually used by things like stack canaries until the next time
-the pool is seeded. This surely is not intended.
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is suboptimal. Instead, fallback
+to calling random_get_entropy_fallback(), which isn't extremely high
+precision or guaranteed to be entropic, but is certainly better than
+returning zero all the time.
 
-Rather than splitting up which entropy gets added where and when between
-start_kernel() and random_init(), just do everything in random_init(),
-which should eliminate these kinds of bugs in the future.
+If CONFIG_X86_TSC=n, then it's possible for the kernel to run on systems
+without RDTSC, such as 486 and certain 586, so the fallback code is only
+required for that case.
 
-While we're at it, rename the awkwardly titled "rand_initialize()" to
-the more standard "random_init()" nomenclature.
+As well, fix up both the new function and the get_cycles() function from
+which it was derived to use cpu_feature_enabled() rather than
+boot_cpu_has(), and use !IS_ENABLED() instead of #ifndef.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c  |   17 ++++++++++-------
- include/linux/random.h |   15 +++++++--------
- init/main.c            |   10 +++-------
- 3 files changed, 20 insertions(+), 22 deletions(-)
+ arch/x86/include/asm/timex.h |    9 +++++++++
+ arch/x86/include/asm/tsc.h   |    7 +++----
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -891,12 +891,13 @@ early_param("random.trust_bootloader", p
+--- a/arch/x86/include/asm/timex.h
++++ b/arch/x86/include/asm/timex.h
+@@ -5,6 +5,15 @@
+ #include <asm/processor.h>
+ #include <asm/tsc.h>
  
- /*
-  * The first collection of entropy occurs at system boot while interrupts
-- * are still turned off. Here we push in RDSEED, a timestamp, and utsname().
-- * Depending on the above configuration knob, RDSEED may be considered
-- * sufficient for initialization. Note that much earlier setup may already
-- * have pushed entropy into the input pool by the time we get here.
-+ * are still turned off. Here we push in latent entropy, RDSEED, a timestamp,
-+ * utsname(), and the command line. Depending on the above configuration knob,
-+ * RDSEED may be considered sufficient for initialization. Note that much
-+ * earlier setup may already have pushed entropy into the input pool by the
-+ * time we get here.
-  */
--int __init rand_initialize(void)
-+int __init random_init(const char *command_line)
++static inline unsigned long random_get_entropy(void)
++{
++	if (!IS_ENABLED(CONFIG_X86_TSC) &&
++	    !cpu_feature_enabled(X86_FEATURE_TSC))
++		return random_get_entropy_fallback();
++	return rdtsc();
++}
++#define random_get_entropy random_get_entropy
++
+ /* Assume we use the PIT time source for the clock tick */
+ #define CLOCK_TICK_RATE		PIT_TICK_RATE
+ 
+--- a/arch/x86/include/asm/tsc.h
++++ b/arch/x86/include/asm/tsc.h
+@@ -20,13 +20,12 @@ extern void disable_TSC(void);
+ 
+ static inline cycles_t get_cycles(void)
  {
- 	size_t i;
- 	ktime_t now = ktime_get_real();
-@@ -918,6 +919,8 @@ int __init rand_initialize(void)
- 	}
- 	_mix_pool_bytes(&now, sizeof(now));
- 	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
-+	_mix_pool_bytes(command_line, strlen(command_line));
-+	add_latent_entropy();
- 
- 	if (crng_ready())
- 		crng_reseed();
-@@ -1637,8 +1640,8 @@ static struct ctl_table random_table[] =
- };
- 
- /*
-- * rand_initialize() is called before sysctl_init(),
-- * so we cannot call register_sysctl_init() in rand_initialize()
-+ * random_init() is called before sysctl_init(),
-+ * so we cannot call register_sysctl_init() in random_init()
-  */
- static int __init random_sysctls_init(void)
- {
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -14,22 +14,21 @@ struct notifier_block;
- 
- extern void add_device_randomness(const void *, size_t);
- extern void add_bootloader_randomness(const void *, size_t);
-+extern void add_input_randomness(unsigned int type, unsigned int code,
-+				 unsigned int value) __latent_entropy;
-+extern void add_interrupt_randomness(int irq) __latent_entropy;
-+extern void add_hwgenerator_randomness(const void *buffer, size_t count,
-+				       size_t entropy);
- 
- #if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
- static inline void add_latent_entropy(void)
- {
--	add_device_randomness((const void *)&latent_entropy,
--			      sizeof(latent_entropy));
-+	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+-#ifndef CONFIG_X86_TSC
+-	if (!boot_cpu_has(X86_FEATURE_TSC))
++	if (!IS_ENABLED(CONFIG_X86_TSC) &&
++	    !cpu_feature_enabled(X86_FEATURE_TSC))
+ 		return 0;
+-#endif
+-
+ 	return rdtsc();
  }
- #else
- static inline void add_latent_entropy(void) {}
- #endif
++#define get_cycles get_cycles
  
--extern void add_input_randomness(unsigned int type, unsigned int code,
--				 unsigned int value) __latent_entropy;
--extern void add_interrupt_randomness(int irq) __latent_entropy;
--extern void add_hwgenerator_randomness(const void *buffer, size_t count,
--				       size_t entropy);
- #if IS_ENABLED(CONFIG_VMGENID)
- extern void add_vmfork_randomness(const void *unique_vm_id, size_t size);
- extern int register_random_vmfork_notifier(struct notifier_block *nb);
-@@ -41,7 +40,7 @@ static inline int unregister_random_vmfo
- 
- extern void get_random_bytes(void *buf, size_t nbytes);
- extern int wait_for_random_bytes(void);
--extern int __init rand_initialize(void);
-+extern int __init random_init(const char *command_line);
- extern bool rng_is_initialized(void);
- extern int register_random_ready_notifier(struct notifier_block *nb);
- extern int unregister_random_ready_notifier(struct notifier_block *nb);
---- a/init/main.c
-+++ b/init/main.c
-@@ -1040,15 +1040,11 @@ asmlinkage __visible void __init __no_sa
- 	/*
- 	 * For best initial stack canary entropy, prepare it after:
- 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
--	 * - timekeeping_init() for ktime entropy used in rand_initialize()
-+	 * - timekeeping_init() for ktime entropy used in random_init()
- 	 * - time_init() for making random_get_entropy() work on some platforms
--	 * - rand_initialize() to get any arch-specific entropy like RDRAND
--	 * - add_latent_entropy() to get any latent entropy
--	 * - adding command line entropy
-+	 * - random_init() to initialize the RNG from from early entropy sources
- 	 */
--	rand_initialize();
--	add_latent_entropy();
--	add_device_randomness(command_line, strlen(command_line));
-+	random_init(command_line);
- 	boot_init_stack_canary();
- 
- 	perf_event_init();
+ extern struct system_counterval_t convert_art_to_tsc(u64 art);
+ extern struct system_counterval_t convert_art_ns_to_tsc(u64 art_ns);
 
 
