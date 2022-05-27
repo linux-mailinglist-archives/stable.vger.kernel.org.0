@@ -2,105 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FDA53650F
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 17:55:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C03536522
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 17:56:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348574AbiE0Pzs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 11:55:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42188 "EHLO
+        id S1353782AbiE0P4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 11:56:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345868AbiE0Pzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 11:55:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FEC713F420;
-        Fri, 27 May 2022 08:55:47 -0700 (PDT)
+        with ESMTP id S1353755AbiE0P4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 11:56:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A1B11B;
+        Fri, 27 May 2022 08:56:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A6CE5CE259F;
-        Fri, 27 May 2022 15:55:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C648AC385A9;
-        Fri, 27 May 2022 15:55:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653666943;
-        bh=cCOkIPySWpvVdaAN06SdyUyZG3iiUBVWghvfYHnbzYk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gsAvd6roIaIqzKsnQUK5DspCDPDDGAQJXkPtmL1depNCcT4JpOnPu0V0J752DWZl+
-         4udQcnsOftggPJYYy7C7XYP56rFgNMesvlXZyOBmt5BBYgUQiz8jVobYlLI+XaRcen
-         4YHielmJTa/YwQtL4tzyhq9r0q9aQyS5FGcQsGG/kpLQrS3tsqXUAHETCTT12Oflv+
-         HLfj+9FX+bmJFwyra1PaeHel/GGjyn60TiQNok/9nqvPf+4xGN3EgkpLr4xuVoxQHj
-         rRAHZzTsin6DPOr/ZL4/8zneeY+Y/aeTUKVE+89r5/ZYvSdG+2kbqXCn3l1vAoas0l
-         A9+BQVv7/tceA==
-From:   "Masami Hiramatsu (Google)" <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, Yonghong Song <yhs@fb.com>,
-        bpf <bpf@vger.kernel.org>, Kernel Team <kernel-team@fb.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] tracing/kprobes: Check whether get_kretprobe() returns NULL in kretprobe_dispatcher()
-Date:   Sat, 28 May 2022 00:55:39 +0900
-Message-Id: <165366693881.797669.16926184644089588731.stgit@devnote2>
-X-Mailer: git-send-email 2.25.1
-User-Agent: StGit/0.19
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DE39B82173;
+        Fri, 27 May 2022 15:56:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16283C385B8;
+        Fri, 27 May 2022 15:56:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1653666969;
+        bh=mppR6qT+wjJGVusKRLl56HHyBQ/A7Hq9nGbrRLGyZw8=;
+        h=Date:To:From:Subject:From;
+        b=BT4nPiX8WyZ8Xxg5PUzJTmORVcZDS9qlAUKkBlOurXDDKPKuXTi4kAwHL9eHlZLt9
+         zFcGfVNzn/yAbSNVWcPYdd8n8TlWxiUGquQU1p2OvLT+rtPBr7U+89QDBwRllP/Pux
+         oRevYfh5h64NpDd1GZ2TlHzEoX5F9jD9jn3gT5/g=
+Date:   Fri, 27 May 2022 08:56:08 -0700
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        songmuchun@bytedance.com, mike.kravetz@oracle.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] hugetlb-fix-huge_pmd_unshare-address-update.patch removed from -mm tree
+Message-Id: <20220527155609.16283C385B8@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 
-There is a small chance that get_kretprobe(ri) returns NULL in
-kretprobe_dispatcher() when another CPU unregisters the kretprobe
-right after __kretprobe_trampoline_handler().
+The quilt patch titled
+     Subject: hugetlb: fix huge_pmd_unshare address update
+has been removed from the -mm tree.  Its filename was
+     hugetlb-fix-huge_pmd_unshare-address-update.patch
 
-To avoid this issue, kretprobe_dispatcher() checks the get_kretprobe()
-return value again. And if it is NULL, it returns soon because that
-kretprobe is under unregistering process.
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-This issue has been introduced when the kretprobe is decoupled
-from the struct kretprobe_instance by commit d741bf41d7c7
-("kprobes: Remove kretprobe hash"). Before that commit, the
-struct kretprob_instance::rp directly points the kretprobe
-and it is never be NULL.
+------------------------------------------------------
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: hugetlb: fix huge_pmd_unshare address update
+Date: Tue, 24 May 2022 13:50:03 -0700
 
-Reported-by: Yonghong Song <yhs@fb.com>
-Fixes: d741bf41d7c7 ("kprobes: Remove kretprobe hash")
-Cc: stable@vger.kernel.org
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+The routine huge_pmd_unshare() is passed a pointer to an address
+associated with an area which may be unshared.  If unshare is successful
+this address is updated to 'optimize' callers iterating over huge page
+addresses.  For the optimization to work correctly, address should be
+updated to the last huge page in the unmapped/unshared area.  However, in
+the common case where the passed address is PUD_SIZE aligned, the address
+is incorrectly updated to the address of the preceding huge page.  That
+wastes CPU cycles as the unmapped/unshared range is scanned twice.
+
+Link: https://lkml.kernel.org/r/20220524205003.126184-1-mike.kravetz@oracle.com
+Fixes: 39dde65c9940 ("shared page table for hugetlb page")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- kernel/trace/trace_kprobe.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
-index 93507330462c..a245ea673715 100644
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -1718,8 +1718,17 @@ static int
- kretprobe_dispatcher(struct kretprobe_instance *ri, struct pt_regs *regs)
- {
- 	struct kretprobe *rp = get_kretprobe(ri);
--	struct trace_kprobe *tk = container_of(rp, struct trace_kprobe, rp);
-+	struct trace_kprobe *tk;
-+
+ mm/hugetlb.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+--- a/mm/hugetlb.c~hugetlb-fix-huge_pmd_unshare-address-update
++++ a/mm/hugetlb.c
+@@ -6562,7 +6562,14 @@ int huge_pmd_unshare(struct mm_struct *m
+ 	pud_clear(pud);
+ 	put_page(virt_to_page(ptep));
+ 	mm_dec_nr_pmds(mm);
+-	*addr = ALIGN(*addr, HPAGE_SIZE * PTRS_PER_PTE) - HPAGE_SIZE;
 +	/*
-+	 * There is a small chance that get_kretprobe(ri) returns NULL when
-+	 * the kretprobe is unregister on another CPU between kretprobe's
-+	 * trampoline_handler and this function.
++	 * This update of passed address optimizes loops sequentially
++	 * processing addresses in increments of huge page size (PMD_SIZE
++	 * in this case).  By clearing the pud, a PUD_SIZE area is unmapped.
++	 * Update address to the 'last page' in the cleared area so that
++	 * calling loop can move to first page past this area.
 +	 */
-+	if (unlikely(!rp))
-+		return 0;
++	*addr |= PUD_SIZE - PMD_SIZE;
+ 	return 1;
+ }
  
-+	tk = container_of(rp, struct trace_kprobe, rp);
- 	raw_cpu_inc(*tk->nhit);
- 
- 	if (trace_probe_test_flag(&tk->tp, TP_FLAG_TRACE))
+_
+
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
+
 
