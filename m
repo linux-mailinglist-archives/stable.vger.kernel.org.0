@@ -2,138 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D405360E7
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2C4453611E
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350586AbiE0L5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:57:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44310 "EHLO
+        id S1343663AbiE0L46 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:56:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353310AbiE0L4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:23 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C81E8D8B;
-        Fri, 27 May 2022 04:50:59 -0700 (PDT)
+        with ESMTP id S1352907AbiE0Lzp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:45 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BA1715D336;
+        Fri, 27 May 2022 04:49:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BA3261DB1;
-        Fri, 27 May 2022 11:50:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59639C385A9;
-        Fri, 27 May 2022 11:50:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E806E61DD1;
+        Fri, 27 May 2022 11:49:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB6EC34100;
+        Fri, 27 May 2022 11:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652258;
-        bh=Ll8VB7zcS546EdeqPpDbCytInxlMVmtoBs8Refp006I=;
+        s=korg; t=1653652154;
+        bh=MJ3ioA9L3duUCEK+ANNZZFEjSPbY9PI+/BmLpwwTanA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kn2zd85G04BQn8pFiPduwIncW4RVC0J5cKhJ0PpmNMBxI/nikk3UTEr41GvW0jxiA
-         MPlhDMjNN82ROLAwo4rG2f+gTCubkJVFCChJf1hyYFs/E+A8nzynvx5939J+UJwzNe
-         vy6G5+bcsAfPqzueSEWZ8wWlDdZsi0FPB+IvWzsM=
+        b=fD5u0zPH2LIdkG79/+7JYC2/KCBDVqleddAqjMDAbR1EcdwByP73M/WEPTnFXui//
+         6EwZYe3rTGz2vbXYh4mc4WTAh8kpNJKk6nKQGi26eJu1rfik07q/JaEC7RhlyQw8Se
+         DCm/npWZ9f/mAtzXgQe8u5WUUecyhHfGdSs7dYQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Varho <jan.varho@gmail.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Graham Christensen <graham@grahamc.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 113/163] random: do not split fast init input in add_hwgenerator_randomness()
+Subject: [PATCH 5.15 092/145] random: treat bootloader trust toggle the same way as cpu trust toggle
 Date:   Fri, 27 May 2022 10:49:53 +0200
-Message-Id: <20220527084843.859679008@linuxfoundation.org>
+Message-Id: <20220527084901.776147540@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Varho <jan.varho@gmail.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 527a9867af29ff89f278d037db704e0ed50fb666 upstream.
+commit d97c68d178fbf8aaaf21b69b446f2dfb13909316 upstream.
 
-add_hwgenerator_randomness() tries to only use the required amount of input
-for fast init, but credits all the entropy, rather than a fraction of
-it. Since it's hard to determine how much entropy is left over out of a
-non-unformly random sample, either give it all to fast init or credit
-it, but don't attempt to do both. In the process, we can clean up the
-injection code to no longer need to return a value.
+If CONFIG_RANDOM_TRUST_CPU is set, the RNG initializes using RDRAND.
+But, the user can disable (or enable) this behavior by setting
+`random.trust_cpu=0/1` on the kernel command line. This allows system
+builders to do reasonable things while avoiding howls from tinfoil
+hatters. (Or vice versa.)
 
-Signed-off-by: Jan Varho <jan.varho@gmail.com>
-[Jason: expanded commit message]
-Fixes: 73c7733f122e ("random: do not throw away excess input to crng_fast_load")
-Cc: stable@vger.kernel.org # 5.17+, requires af704c856e88
+CONFIG_RANDOM_TRUST_BOOTLOADER is basically the same thing, but regards
+the seed passed via EFI or device tree, which might come from RDRAND or
+a TPM or somewhere else. In order to allow distros to more easily enable
+this while avoiding those same howls (or vice versa), this commit adds
+the corresponding `random.trust_bootloader=0/1` toggle.
+
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Graham Christensen <graham@grahamc.com>
+Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Link: https://github.com/NixOS/nixpkgs/pull/165355
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ Documentation/admin-guide/kernel-parameters.txt |    6 ++++++
+ drivers/char/Kconfig                            |    3 ++-
+ drivers/char/random.c                           |    8 +++++++-
+ 3 files changed, 15 insertions(+), 2 deletions(-)
 
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -4307,6 +4307,12 @@
+ 			fully seed the kernel's CRNG. Default is controlled
+ 			by CONFIG_RANDOM_TRUST_CPU.
+ 
++	random.trust_bootloader={on,off}
++			[KNL] Enable or disable trusting the use of a
++			seed passed by the bootloader (if available) to
++			fully seed the kernel's CRNG. Default is controlled
++			by CONFIG_RANDOM_TRUST_BOOTLOADER.
++
+ 	randomize_kstack_offset=
+ 			[KNL] Enable or disable kernel stack offset
+ 			randomization, which provides roughly 5 bits of
+--- a/drivers/char/Kconfig
++++ b/drivers/char/Kconfig
+@@ -449,6 +449,7 @@ config RANDOM_TRUST_BOOTLOADER
+ 	device randomness. Say Y here to assume the entropy provided by the
+ 	booloader is trustworthy so it will be added to the kernel's entropy
+ 	pool. Otherwise, say N here so it will be regarded as device input that
+-	only mixes the entropy pool.
++	only mixes the entropy pool. This can also be configured at boot with
++	"random.trust_bootloader=on/off".
+ 
+ endmenu
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -439,11 +439,8 @@ static void crng_make_state(u32 chacha_s
-  * This shouldn't be set by functions like add_device_randomness(),
-  * where we can't trust the buffer passed to it is guaranteed to be
-  * unpredictable (so it might not have any entropy at all).
-- *
-- * Returns the number of bytes processed from input, which is bounded
-- * by CRNG_INIT_CNT_THRESH if account is true.
-  */
--static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
-+static void crng_pre_init_inject(const void *input, size_t len, bool account)
+@@ -945,11 +945,17 @@ static bool drain_entropy(void *buf, siz
+  **********************************************************************/
+ 
+ static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
++static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
+ static int __init parse_trust_cpu(char *arg)
  {
- 	static int crng_init_cnt = 0;
- 	struct blake2s_state hash;
-@@ -454,18 +451,15 @@ static size_t crng_pre_init_inject(const
- 	spin_lock_irqsave(&base_crng.lock, flags);
- 	if (crng_init != 0) {
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
--		return 0;
-+		return;
- 	}
- 
--	if (account)
--		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
--
- 	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
- 	blake2s_update(&hash, input, len);
- 	blake2s_final(&hash, base_crng.key);
- 
- 	if (account) {
--		crng_init_cnt += len;
-+		crng_init_cnt += min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
- 		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
- 			++base_crng.generation;
- 			crng_init = 1;
-@@ -476,8 +470,6 @@ static size_t crng_pre_init_inject(const
- 
- 	if (crng_init == 1)
- 		pr_notice("fast init done\n");
--
--	return len;
+ 	return kstrtobool(arg, &trust_cpu);
  }
++static int __init parse_trust_bootloader(char *arg)
++{
++	return kstrtobool(arg, &trust_bootloader);
++}
+ early_param("random.trust_cpu", parse_trust_cpu);
++early_param("random.trust_bootloader", parse_trust_bootloader);
  
- static void _get_random_bytes(void *buf, size_t nbytes)
-@@ -1138,12 +1130,9 @@ void add_hwgenerator_randomness(const vo
- 				size_t entropy)
+ /*
+  * The first collection of entropy occurs at system boot while interrupts
+@@ -1157,7 +1163,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
+  */
+ void add_bootloader_randomness(const void *buf, size_t size)
  {
- 	if (unlikely(crng_init == 0 && entropy < POOL_MIN_BITS)) {
--		size_t ret = crng_pre_init_inject(buffer, count, true);
--		mix_pool_bytes(buffer, ret);
--		count -= ret;
--		buffer += ret;
--		if (!count || crng_init == 0)
--			return;
-+		crng_pre_init_inject(buffer, count, true);
-+		mix_pool_bytes(buffer, count);
-+		return;
- 	}
- 
- 	/*
+-	if (IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER))
++	if (trust_bootloader)
+ 		add_hwgenerator_randomness(buf, size, size * 8);
+ 	else
+ 		add_device_randomness(buf, size);
 
 
