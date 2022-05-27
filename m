@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 032CC53610C
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E52055361D4
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348497AbiE0MBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:01:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34988 "EHLO
+        id S1352336AbiE0MIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:08:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352699AbiE0MAt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DEA1369ED;
-        Fri, 27 May 2022 04:52:43 -0700 (PDT)
+        with ESMTP id S1353244AbiE0MFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58607163F67;
+        Fri, 27 May 2022 04:54:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F26AE61D56;
-        Fri, 27 May 2022 11:52:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C8E9C385A9;
-        Fri, 27 May 2022 11:52:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5C2E61E0C;
+        Fri, 27 May 2022 11:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2606C385A9;
+        Fri, 27 May 2022 11:54:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652362;
-        bh=Bgq96buTz5rETWd9P8O3BfsoPgQe4hA8XmQmT3t1ol4=;
+        s=korg; t=1653652459;
+        bh=EdvDb6S1nAsYSuEuAgFLSFEXfil7BR7zKQAkFZL/bng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D2CVTgRxjmWcfmh01tiCMDHHR6UDDSIDa2owInzWaTsALpAo/iI3myG5p/SyoCbkb
-         o4ci0m4QjCJuWVHzqI5OaAvT8puOeBhPdLDWiu4wcb+IJ6eh0hEgvbsH6OSy5cvFMc
-         dwBIfGCAM7wYLFmyy1LJiQ9PsqoKMX1rA4LBo8Cg=
+        b=FPM0Wzn3uHAcI4D9eZZn3fM6dMRjcsNXlAuMcGSHenV9aHcdySPvCFmwImxCH8nYu
+         gT+JB8fXy+zkRAJZFDSiBaa7JL/L1hrOR/GyCQb18IN1cZ83yaVsHagzjYVQuZDenW
+         NnFdjOOtW+Gq1azlBVGuQL5B17uR2wuoTAYRrr4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 126/145] siphash: use one source of truth for siphash permutations
-Date:   Fri, 27 May 2022 10:50:27 +0200
-Message-Id: <20220527084905.823136968@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 148/163] random: remove ratelimiting for in-kernel unseeded randomness
+Date:   Fri, 27 May 2022 10:50:28 +0200
+Message-Id: <20220527084848.936012635@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,221 +56,198 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit e73aaae2fa9024832e1f42e30c787c7baf61d014 upstream.
+commit cc1e127bfa95b5fb2f9307e7168bf8b2b45b4c5e upstream.
 
-The SipHash family of permutations is currently used in three places:
+The CONFIG_WARN_ALL_UNSEEDED_RANDOM debug option controls whether the
+kernel warns about all unseeded randomness or just the first instance.
+There's some complicated rate limiting and comparison to the previous
+caller, such that even with CONFIG_WARN_ALL_UNSEEDED_RANDOM enabled,
+developers still don't see all the messages or even an accurate count of
+how many were missed. This is the result of basically parallel
+mechanisms aimed at accomplishing more or less the same thing, added at
+different points in random.c history, which sort of compete with the
+first-instance-only limiting we have now.
 
-- siphash.c itself, used in the ordinary way it was intended.
-- random32.c, in a construction from an anonymous contributor.
-- random.c, as part of its fast_mix function.
+It turns out, however, that nobody cares about the first unseeded
+randomness instance of in-kernel users. The same first user has been
+there for ages now, and nobody is doing anything about it. It isn't even
+clear that anybody _can_ do anything about it. Most places that can do
+something about it have switched over to using get_random_bytes_wait()
+or wait_for_random_bytes(), which is the right thing to do, but there is
+still much code that needs randomness sometimes during init, and as a
+geeneral rule, if you're not using one of the _wait functions or the
+readiness notifier callback, you're bound to be doing it wrong just
+based on that fact alone.
 
-Each one of these places reinvents the wheel with the same C code, same
-rotation constants, and same symmetry-breaking constants.
+So warning about this same first user that can't easily change is simply
+not an effective mechanism for anything at all. Users can't do anything
+about it, as the Kconfig text points out -- the problem isn't in
+userspace code -- and kernel developers don't or more often can't react
+to it.
 
-This commit tidies things up a bit by placing macros for the
-permutations and constants into siphash.h, where each of the three .c
-users can access them. It also leaves a note dissuading more users of
-them from emerging.
+Instead, show the warning for all instances when CONFIG_WARN_ALL_UNSEEDED_RANDOM
+is set, so that developers can debug things need be, or if it isn't set,
+don't show a warning at all.
 
+At the same time, CONFIG_WARN_ALL_UNSEEDED_RANDOM now implies setting
+random.ratelimit_disable=1 on by default, since if you care about one
+you probably care about the other too. And we can clean up usage around
+the related urandom_warning ratelimiter as well (whose behavior isn't
+changing), so that it properly counts missed messages after the 10
+message threshold is reached.
+
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c   |   30 +++++++-----------------------
- include/linux/prandom.h |   23 +++++++----------------
- include/linux/siphash.h |   28 ++++++++++++++++++++++++++++
- lib/siphash.c           |   32 ++++++++++----------------------
- 4 files changed, 52 insertions(+), 61 deletions(-)
+ drivers/char/random.c |   61 ++++++++++++++------------------------------------
+ lib/Kconfig.debug     |    3 --
+ 2 files changed, 19 insertions(+), 45 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -51,6 +51,7 @@
- #include <linux/completion.h>
- #include <linux/uuid.h>
- #include <linux/uaccess.h>
-+#include <linux/siphash.h>
- #include <crypto/chacha.h>
- #include <crypto/blake2s.h>
- #include <asm/processor.h>
-@@ -1016,12 +1017,11 @@ struct fast_pool {
+@@ -86,11 +86,10 @@ static DEFINE_SPINLOCK(random_ready_chai
+ static RAW_NOTIFIER_HEAD(random_ready_chain);
  
- static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
- #ifdef CONFIG_64BIT
--	/* SipHash constants */
--	.pool = { 0x736f6d6570736575UL, 0x646f72616e646f6dUL,
--		  0x6c7967656e657261UL, 0x7465646279746573UL }
-+#define FASTMIX_PERM SIPHASH_PERMUTATION
-+	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
- #else
--	/* HalfSipHash constants */
--	.pool = { 0, 0, 0x6c796765U, 0x74656462U }
-+#define FASTMIX_PERM HSIPHASH_PERMUTATION
-+	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 }
- #endif
- };
+ /* Control how we warn userspace. */
+-static struct ratelimit_state unseeded_warning =
+-	RATELIMIT_STATE_INIT("warn_unseeded_randomness", HZ, 3);
+ static struct ratelimit_state urandom_warning =
+ 	RATELIMIT_STATE_INIT("warn_urandom_randomness", HZ, 3);
+-static int ratelimit_disable __read_mostly;
++static int ratelimit_disable __read_mostly =
++	IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM);
+ module_param_named(ratelimit_disable, ratelimit_disable, int, 0644);
+ MODULE_PARM_DESC(ratelimit_disable, "Disable random ratelimit suppression");
  
-@@ -1033,27 +1033,11 @@ static DEFINE_PER_CPU(struct fast_pool,
-  */
- static void fast_mix(unsigned long s[4], unsigned long v1, unsigned long v2)
+@@ -183,27 +182,15 @@ static void process_random_ready_list(vo
+ 	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
+ }
+ 
+-#define warn_unseeded_randomness(previous) \
+-	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
++#define warn_unseeded_randomness() \
++	_warn_unseeded_randomness(__func__, (void *)_RET_IP_)
+ 
+-static void _warn_unseeded_randomness(const char *func_name, void *caller, void **previous)
++static void _warn_unseeded_randomness(const char *func_name, void *caller)
  {
--#ifdef CONFIG_64BIT
--#define PERM() do { \
--	s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32); \
--	s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2]; \
--	s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0]; \
--	s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32); \
--} while (0)
+-#ifdef CONFIG_WARN_ALL_UNSEEDED_RANDOM
+-	const bool print_once = false;
 -#else
--#define PERM() do { \
--	s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16); \
--	s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2]; \
--	s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0]; \
--	s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16); \
--} while (0)
+-	static bool print_once __read_mostly;
 -#endif
 -
- 	s[3] ^= v1;
--	PERM();
-+	FASTMIX_PERM(s[0], s[1], s[2], s[3]);
- 	s[0] ^= v1;
- 	s[3] ^= v2;
--	PERM();
-+	FASTMIX_PERM(s[0], s[1], s[2], s[3]);
- 	s[0] ^= v2;
+-	if (print_once || crng_ready() ||
+-	    (previous && (caller == READ_ONCE(*previous))))
++	if (!IS_ENABLED(CONFIG_WARN_ALL_UNSEEDED_RANDOM) || crng_ready())
+ 		return;
+-	WRITE_ONCE(*previous, caller);
+-#ifndef CONFIG_WARN_ALL_UNSEEDED_RANDOM
+-	print_once = true;
+-#endif
+-	if (__ratelimit(&unseeded_warning))
+-		printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
+-				func_name, caller, crng_init);
++	printk_deferred(KERN_NOTICE "random: %s called from %pS with crng_init=%d\n",
++			func_name, caller, crng_init);
  }
  
---- a/include/linux/prandom.h
-+++ b/include/linux/prandom.h
-@@ -10,6 +10,7 @@
  
- #include <linux/types.h>
- #include <linux/percpu.h>
-+#include <linux/siphash.h>
- 
- u32 prandom_u32(void);
- void prandom_bytes(void *buf, size_t nbytes);
-@@ -27,15 +28,10 @@ DECLARE_PER_CPU(unsigned long, net_rand_
-  * The core SipHash round function.  Each line can be executed in
-  * parallel given enough CPU resources.
+@@ -456,9 +443,7 @@ static void _get_random_bytes(void *buf,
   */
--#define PRND_SIPROUND(v0, v1, v2, v3) ( \
--	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
--	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
--	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
--	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
--)
-+#define PRND_SIPROUND(v0, v1, v2, v3) SIPHASH_PERMUTATION(v0, v1, v2, v3)
+ void get_random_bytes(void *buf, size_t nbytes)
+ {
+-	static void *previous;
+-
+-	warn_unseeded_randomness(&previous);
++	warn_unseeded_randomness();
+ 	_get_random_bytes(buf, nbytes);
+ }
+ EXPORT_SYMBOL(get_random_bytes);
+@@ -554,10 +539,9 @@ u64 get_random_u64(void)
+ 	u64 ret;
+ 	unsigned long flags;
+ 	struct batched_entropy *batch;
+-	static void *previous;
+ 	unsigned long next_gen;
  
--#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
--#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
-+#define PRND_K0 (SIPHASH_CONST_0 ^ SIPHASH_CONST_2)
-+#define PRND_K1 (SIPHASH_CONST_1 ^ SIPHASH_CONST_3)
+-	warn_unseeded_randomness(&previous);
++	warn_unseeded_randomness();
  
- #elif BITS_PER_LONG == 32
- /*
-@@ -43,14 +39,9 @@ DECLARE_PER_CPU(unsigned long, net_rand_
-  * This is weaker, but 32-bit machines are not used for high-traffic
-  * applications, so there is less output for an attacker to analyze.
-  */
--#define PRND_SIPROUND(v0, v1, v2, v3) ( \
--	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
--	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
--	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
--	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
--)
--#define PRND_K0 0x6c796765
--#define PRND_K1 0x74656462
-+#define PRND_SIPROUND(v0, v1, v2, v3) HSIPHASH_PERMUTATION(v0, v1, v2, v3)
-+#define PRND_K0 (HSIPHASH_CONST_0 ^ HSIPHASH_CONST_2)
-+#define PRND_K1 (HSIPHASH_CONST_1 ^ HSIPHASH_CONST_3)
+ 	if  (!crng_ready()) {
+ 		_get_random_bytes(&ret, sizeof(ret));
+@@ -593,10 +577,9 @@ u32 get_random_u32(void)
+ 	u32 ret;
+ 	unsigned long flags;
+ 	struct batched_entropy *batch;
+-	static void *previous;
+ 	unsigned long next_gen;
  
- #else
- #error Unsupported BITS_PER_LONG
---- a/include/linux/siphash.h
-+++ b/include/linux/siphash.h
-@@ -136,4 +136,32 @@ static inline u32 hsiphash(const void *d
- 	return ___hsiphash_aligned(data, len, key);
+-	warn_unseeded_randomness(&previous);
++	warn_unseeded_randomness();
+ 
+ 	if  (!crng_ready()) {
+ 		_get_random_bytes(&ret, sizeof(ret));
+@@ -823,16 +806,9 @@ static void credit_init_bits(size_t nbit
+ 		wake_up_interruptible(&crng_init_wait);
+ 		kill_fasync(&fasync, SIGIO, POLL_IN);
+ 		pr_notice("crng init done\n");
+-		if (unseeded_warning.missed) {
+-			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
+-				  unseeded_warning.missed);
+-			unseeded_warning.missed = 0;
+-		}
+-		if (urandom_warning.missed) {
++		if (urandom_warning.missed)
+ 			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
+ 				  urandom_warning.missed);
+-			urandom_warning.missed = 0;
+-		}
+ 	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
+ 		spin_lock_irqsave(&base_crng.lock, flags);
+ 		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
+@@ -945,10 +921,6 @@ int __init rand_initialize(void)
+ 	else if (arch_init && trust_cpu)
+ 		credit_init_bits(BLAKE2S_BLOCK_SIZE * 8);
+ 
+-	if (ratelimit_disable) {
+-		urandom_warning.interval = 0;
+-		unseeded_warning.interval = 0;
+-	}
+ 	return 0;
  }
  
-+/*
-+ * These macros expose the raw SipHash and HalfSipHash permutations.
-+ * Do not use them directly! If you think you have a use for them,
-+ * be sure to CC the maintainer of this file explaining why.
-+ */
-+
-+#define SIPHASH_PERMUTATION(a, b, c, d) ( \
-+	(a) += (b), (b) = rol64((b), 13), (b) ^= (a), (a) = rol64((a), 32), \
-+	(c) += (d), (d) = rol64((d), 16), (d) ^= (c), \
-+	(a) += (d), (d) = rol64((d), 21), (d) ^= (a), \
-+	(c) += (b), (b) = rol64((b), 17), (b) ^= (c), (c) = rol64((c), 32))
-+
-+#define SIPHASH_CONST_0 0x736f6d6570736575ULL
-+#define SIPHASH_CONST_1 0x646f72616e646f6dULL
-+#define SIPHASH_CONST_2 0x6c7967656e657261ULL
-+#define SIPHASH_CONST_3 0x7465646279746573ULL
-+
-+#define HSIPHASH_PERMUTATION(a, b, c, d) ( \
-+	(a) += (b), (b) = rol32((b), 5), (b) ^= (a), (a) = rol32((a), 16), \
-+	(c) += (d), (d) = rol32((d), 8), (d) ^= (c), \
-+	(a) += (d), (d) = rol32((d), 7), (d) ^= (a), \
-+	(c) += (b), (b) = rol32((b), 13), (b) ^= (c), (c) = rol32((c), 16))
-+
-+#define HSIPHASH_CONST_0 0U
-+#define HSIPHASH_CONST_1 0U
-+#define HSIPHASH_CONST_2 0x6c796765U
-+#define HSIPHASH_CONST_3 0x74656462U
-+
- #endif /* _LINUX_SIPHASH_H */
---- a/lib/siphash.c
-+++ b/lib/siphash.c
-@@ -18,19 +18,13 @@
- #include <asm/word-at-a-time.h>
- #endif
+@@ -1394,11 +1366,14 @@ static ssize_t urandom_read(struct file
+ {
+ 	static int maxwarn = 10;
  
--#define SIPROUND \
--	do { \
--	v0 += v1; v1 = rol64(v1, 13); v1 ^= v0; v0 = rol64(v0, 32); \
--	v2 += v3; v3 = rol64(v3, 16); v3 ^= v2; \
--	v0 += v3; v3 = rol64(v3, 21); v3 ^= v0; \
--	v2 += v1; v1 = rol64(v1, 17); v1 ^= v2; v2 = rol64(v2, 32); \
--	} while (0)
-+#define SIPROUND SIPHASH_PERMUTATION(v0, v1, v2, v3)
+-	if (!crng_ready() && maxwarn > 0) {
+-		maxwarn--;
+-		if (__ratelimit(&urandom_warning))
++	if (!crng_ready()) {
++		if (!ratelimit_disable && maxwarn <= 0)
++			++urandom_warning.missed;
++		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
++			--maxwarn;
+ 			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
+ 				  current->comm, nbytes);
++		}
+ 	}
  
- #define PREAMBLE(len) \
--	u64 v0 = 0x736f6d6570736575ULL; \
--	u64 v1 = 0x646f72616e646f6dULL; \
--	u64 v2 = 0x6c7967656e657261ULL; \
--	u64 v3 = 0x7465646279746573ULL; \
-+	u64 v0 = SIPHASH_CONST_0; \
-+	u64 v1 = SIPHASH_CONST_1; \
-+	u64 v2 = SIPHASH_CONST_2; \
-+	u64 v3 = SIPHASH_CONST_3; \
- 	u64 b = ((u64)(len)) << 56; \
- 	v3 ^= key->key[1]; \
- 	v2 ^= key->key[0]; \
-@@ -389,19 +383,13 @@ u32 hsiphash_4u32(const u32 first, const
- }
- EXPORT_SYMBOL(hsiphash_4u32);
- #else
--#define HSIPROUND \
--	do { \
--	v0 += v1; v1 = rol32(v1, 5); v1 ^= v0; v0 = rol32(v0, 16); \
--	v2 += v3; v3 = rol32(v3, 8); v3 ^= v2; \
--	v0 += v3; v3 = rol32(v3, 7); v3 ^= v0; \
--	v2 += v1; v1 = rol32(v1, 13); v1 ^= v2; v2 = rol32(v2, 16); \
--	} while (0)
-+#define HSIPROUND HSIPHASH_PERMUTATION(v0, v1, v2, v3)
+ 	return get_random_bytes_user(buf, nbytes);
+--- a/lib/Kconfig.debug
++++ b/lib/Kconfig.debug
+@@ -1426,8 +1426,7 @@ config WARN_ALL_UNSEEDED_RANDOM
+ 	  so architecture maintainers really need to do what they can
+ 	  to get the CRNG seeded sooner after the system is booted.
+ 	  However, since users cannot do anything actionable to
+-	  address this, by default the kernel will issue only a single
+-	  warning for the first use of unseeded randomness.
++	  address this, by default this option is disabled.
  
- #define HPREAMBLE(len) \
--	u32 v0 = 0; \
--	u32 v1 = 0; \
--	u32 v2 = 0x6c796765U; \
--	u32 v3 = 0x74656462U; \
-+	u32 v0 = HSIPHASH_CONST_0; \
-+	u32 v1 = HSIPHASH_CONST_1; \
-+	u32 v2 = HSIPHASH_CONST_2; \
-+	u32 v3 = HSIPHASH_CONST_3; \
- 	u32 b = ((u32)(len)) << 24; \
- 	v3 ^= key->key[1]; \
- 	v2 ^= key->key[0]; \
+ 	  Say Y here if you want to receive warnings for all uses of
+ 	  unseeded randomness.  This will be of use primarily for
 
 
