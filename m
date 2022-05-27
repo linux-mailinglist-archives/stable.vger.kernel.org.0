@@ -2,143 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 644A4536443
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 16:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445A1536498
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 17:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245320AbiE0Ofs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 10:35:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44098 "EHLO
+        id S238730AbiE0PUL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 11:20:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235254AbiE0Ofr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 10:35:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 844603701A;
-        Fri, 27 May 2022 07:35:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35AF5B8252A;
-        Fri, 27 May 2022 14:35:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1E58C34100;
-        Fri, 27 May 2022 14:35:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653662143;
-        bh=cYPrafUlXVQNBb3sN7LraPZL4NtMQ7Z/TH3LC/ErqyU=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=Dl3EZvrIwQGY2kIbUfZa5w98XqH90bsc2cXnkgL2UC2Akdk8IzH/KboFrUjMdGET0
-         bHqFLXIBsR9E11nY6pa72axBX9D6GVbe93nQels2Zu4Yp+5pAtTrjBQiTgV5GluhXY
-         yd6HPAsaHfMFLhD9ghH9PGjK/EH7pZLU/6gEDNkL1pmHBJYZJo5rCzxmDg4IFbvWxj
-         E5h7C78ETFS12aD/RMqTBPol5wczeIsgnuF3ds/lI5qomruRsOcE/WxIG46ItP2J61
-         IFtbL9hf1dQCA/5+b110cD4PdBy1KIoomm/pjLc19ms7z4lrgt3nud4SAbWWyYeMQ3
-         RZjCKYUpm4rKg==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id 640F15C017C; Fri, 27 May 2022 07:35:43 -0700 (PDT)
-Date:   Fri, 27 May 2022 07:35:43 -0700
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Chen Zhongjin <chenzhongjin@huawei.com>
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-arch@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org, peterz@infradead.org, tglx@linutronix.de,
-        namit@vmware.com, gor@linux.ibm.com, rdunlap@infradead.org,
-        mingo@kernel.org, jgross@suse.com, gregkh@linuxfoundation.org,
-        mpe@ellerman.id.au
-Subject: Re: [PATCH v4] locking/csd_lock: change csdlock_debug from
- early_param to __setup
-Message-ID: <20220527143543.GP1790663@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <20220510094639.106661-1-chenzhongjin@huawei.com>
- <9b3e61b8-ecab-08ff-a3b6-83d6862ead77@huawei.com>
- <20220518011101.GK1790663@paulmck-ThinkPad-P17-Gen-1>
- <fd69f464-4cc9-859e-d38d-bda85e6b33a6@huawei.com>
+        with ESMTP id S1352407AbiE0PUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 11:20:07 -0400
+Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD97934656
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 08:20:06 -0700 (PDT)
+Received: by mail-pl1-x634.google.com with SMTP id m1so4418544plx.3
+        for <stable@vger.kernel.org>; Fri, 27 May 2022 08:20:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NlBqOayUuPbtKu++rJLyPai0QUZs7e12fQ+/8q4YEqY=;
+        b=7F3CVoT/FJcHQedHeRHiWvpHjAkKRgWG6cI9opi4f6Fpb2gsAyRHjIRb3yI/EzM1Ct
+         bwXK7sazb6FY91Srtb6dmxFyGnccx+WV8j2EruOwkcFbBocXKVw/Xzo9D1qUjUv3+NRK
+         mTRxl6YkZl99r//I4GrpnNBuDLm37R6X5yg9SsM4TmtALfTsRx1lBARhL/Jkk5Sw53wp
+         uD6MHob9a47hH2nhke/gC+WPrsFy7WUFOnU8A/vFtiHD9xlnxpB4/Q0FGOXjjBxpr9yb
+         AZQGQgRLiw5GLXrXBnnLhcvYwz7FaWUZaPms+kMYWmIALunse2nd8dzufb5GvnGcpro5
+         4dGQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NlBqOayUuPbtKu++rJLyPai0QUZs7e12fQ+/8q4YEqY=;
+        b=AiN+lLuh+F0NadoSQAaHNAc8j539l6mlliHZOL41fNI4WLVLmlyZjhhXLWVfvecFMG
+         wMHjvT1/GFFksxovUKFl3PhqQGwwI6DXLQJXyhQsF6Pfcqr0FrRpOqOPtIULNTbM/1kI
+         5jgz+oev8tAEzfZ/qJUilwhBPHdfyZoTCvF1F4+kJKW5fBNCy9qeli6QsAhCj7h4KRms
+         2ScbZCLrvotktWQWndxZpSot43L3BadEdL+0YWXOkb6cwTrqeVc8xtXr8Tup3DB0PTal
+         PERXKLgx27I2Bi5G3ShYgoOa+n7W2FbXuX9UKRhX+Z2VGlIIH2OTNrIAAOJNtcymu7cS
+         DXWw==
+X-Gm-Message-State: AOAM530h+uHQqFT/PUgDcKVfO0S24lEtuAsoJeEdZ9oPx16U94E0T8Do
+        yS9kvzGTF9dZtHAzoHvsC+u58uVrirhk7b9ceFQ=
+X-Google-Smtp-Source: ABdhPJzVwaJ+Yx/2uTBtRLuK37qhgFWEeX8fYfmDEv/BZ6uAlVxHc8Tpro8nga4S+GHqOGcvgd9Dlw==
+X-Received: by 2002:a17:90b:17c5:b0:1dc:e0a6:340b with SMTP id me5-20020a17090b17c500b001dce0a6340bmr9019557pjb.34.1653664806133;
+        Fri, 27 May 2022 08:20:06 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u185-20020a6279c2000000b00518b4cfbbe0sm3643962pfc.203.2022.05.27.08.20.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 May 2022 08:20:05 -0700 (PDT)
+Message-ID: <6290ec25.1c69fb81.57b1.845f@mx.google.com>
+Date:   Fri, 27 May 2022 08:20:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fd69f464-4cc9-859e-d38d-bda85e6b33a6@huawei.com>
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.15.43-145-g2d6e3434d25f
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/queue/5.15 baseline: 106 runs,
+ 1 regressions (v5.15.43-145-g2d6e3434d25f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 27, 2022 at 02:49:03PM +0800, Chen Zhongjin wrote:
-> Hi,
-> 
-> On 2022/5/18 9:11, Paul E. McKenney wrote:
-> > On Tue, May 17, 2022 at 11:22:04AM +0800, Chen Zhongjin wrote:
-> >> On 2022/5/10 17:46, Chen Zhongjin wrote:
-> >>> csdlock_debug uses early_param and static_branch_enable() to enable
-> >>> csd_lock_wait feature, which triggers a panic on arm64 with config:
-> >>> CONFIG_SPARSEMEM=y
-> >>> CONFIG_SPARSEMEM_VMEMMAP=n
-> >>>
-> >>> With CONFIG_SPARSEMEM_VMEMMAP=n, __nr_to_section is called in
-> >>> static_key_enable() and returns NULL which makes NULL dereference
-> >>> because mem_section is initialized in sparse_init() which is later
-> >>> than parse_early_param() stage.
-> >>>
-> >>> For powerpc this is also broken, because early_param stage is
-> >>> earlier than jump_label_init() so static_key_enable won't work.
-> >>> powerpc throws an warning: "static key 'xxx' used before call
-> >>> to jump_label_init()".
-> >>>
-> >>> Thus, early_param is too early for csd_lock_wait to run
-> >>> static_branch_enable(), so changes it to __setup to fix these.
-> >>>
-> >>> Fixes: 8d0968cc6b8f ("locking/csd_lock: Add boot parameter for controlling CSD lock debugging")
-> >>> Cc: stable@vger.kernel.org
-> >>> Reported-by: Chen jingwen <chenjingwen6@huawei.com>
-> >>> Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-> >>> ---
-> >>> Change v3 -> v4:
-> >>> Fix title and description because this fix is also applied
-> >>> to powerpc.
-> >>> For more detailed arm64 bug report see:
-> >>> https://lore.kernel.org/linux-arm-kernel/e8715911-f835-059d-27f8-cc5f5ad30a07@huawei.com/t/
-> >>>
-> >>> Change v2 -> v3:
-> >>> Add module name in title
-> >>>
-> >>> Change v1 -> v2:
-> >>> Fix return 1 for __setup
-> >>> ---
-> >>>  kernel/smp.c | 4 ++--
-> >>>  1 file changed, 2 insertions(+), 2 deletions(-)
-> >>>
-> >>> diff --git a/kernel/smp.c b/kernel/smp.c
-> >>> index 65a630f62363..381eb15cd28f 100644
-> >>> --- a/kernel/smp.c
-> >>> +++ b/kernel/smp.c
-> >>> @@ -174,9 +174,9 @@ static int __init csdlock_debug(char *str)
-> >>>  	if (val)
-> >>>  		static_branch_enable(&csdlock_debug_enabled);
-> >>>  
-> >>> -	return 0;
-> >>> +	return 1;
-> >>>  }
-> >>> -early_param("csdlock_debug", csdlock_debug);
-> >>> +__setup("csdlock_debug=", csdlock_debug);
-> >>>  
-> >>>  static DEFINE_PER_CPU(call_single_data_t *, cur_csd);
-> >>>  static DEFINE_PER_CPU(smp_call_func_t, cur_csd_func);
-> >>
-> >> Ping for review. Thanks！
-> > 
-> > I have pulled it into -rcu for testing and further review.  It might
-> > well need to go through some other path, though.
-> >> 								Thanx, Paul
-> > .
-> 
-> So did it have any result? Do we have any idea to fix that except delaying the
-> set timing? I guess that maybe not using static_branch can work for this, but it
-> still needs to be evaluated for performance influence of not enabled situation.
+stable-rc/queue/5.15 baseline: 106 runs, 1 regressions (v5.15.43-145-g2d6e3=
+434d25f)
 
-It was in -next for a short time without complaints.  It will go back
-into -next after the merge window closes.  If there are no objections,
-I would include it in my pull request for the next merge window (v5.20).
+Regressions Summary
+-------------------
 
-							Thanx, Paul
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.43-145-g2d6e3434d25f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.43-145-g2d6e3434d25f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      2d6e3434d25f7cb7f7a805f1adcfae48225a5203 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch   | lab           | compiler | defconfig         =
+           | regressions
+-------------------+--------+---------------+----------+-------------------=
+-----------+------------
+hp-11A-G6-EE-grunt | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-=
+chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/6290b4f3cd2dc0710ba39bdf
+
+  Results:     18 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.43-=
+145-g2d6e3434d25f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
+ra/baseline-hp-11A-G6-EE-grunt.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.43-=
+145-g2d6e3434d25f/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabo=
+ra/baseline-hp-11A-G6-EE-grunt.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.tpm-chip-is-online: https://kernelci.org/test/case/id/6=
+290b4f4cd2dc0710ba39bf2
+        new failure (last pass: v5.15.43-144-g375b1504fe930)
+
+    2022-05-27T11:24:03.160093  /usr/bin/tpm2_getcap
+    2022-05-27T11:24:03.187484  ERROR:tcti:src/tss2-tcti/tcti-device.c:286:=
+tcti_device_receive() Failed to read response from fd 3, got errno 14: Bad =
+address =
+
+    2022-05-27T11:24:03.193656  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
+lity.c:307:Esys_GetCapability_Finish() Received a non-TPM Error =
+
+    2022-05-27T11:24:03.203515  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
+lity.c:107:Esys_GetCapability() Esys Finish ErrorCode (0x000a000a) =
+
+    2022-05-27T11:24:03.209463  ERROR: Esys_GetCapability(0xA000A) - tcti:I=
+O failure
+    2022-05-27T11:24:03.210261  ERROR: Unable to run tpm2_getcap
+    2022-05-27T11:24:04.205200  ERROR:tcti:src/tss2-tcti/tcti-device.c:286:=
+tcti_device_receive() Failed to read response from fd 3, got errno 14: Bad =
+address =
+
+    2022-05-27T11:24:04.215182  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
+lity.c:307:Esys_GetCapability_Finish() Received a non-TPM Error =
+
+    2022-05-27T11:24:04.225492  ERROR:esys:src/tss2-esys/api/Esys_GetCapabi=
+lity.c:107:Esys_GetCapability() Esys Finish ErrorCode (0x000a000a) =
+
+    2022-05-27T11:24:04.228360  ERROR: Esys_GetCapability(0xA000A) - tcti:I=
+O failure =
+
+    ... (43 line(s) more)  =
+
+ =20
