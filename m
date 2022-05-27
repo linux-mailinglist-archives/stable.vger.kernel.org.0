@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A485536182
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 224E4535C79
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345109AbiE0MB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:01:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
+        id S1350483AbiE0JBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:01:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352633AbiE0MAq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB22340CA;
-        Fri, 27 May 2022 04:52:38 -0700 (PDT)
+        with ESMTP id S1350406AbiE0I7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:59:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045345DD01;
+        Fri, 27 May 2022 01:55:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B1A461DDC;
-        Fri, 27 May 2022 11:52:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28CCDC385A9;
-        Fri, 27 May 2022 11:52:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25E7561CB7;
+        Fri, 27 May 2022 08:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E9CC385A9;
+        Fri, 27 May 2022 08:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652350;
-        bh=HS971HoP6p6c5PhNy4M2ytGK3RX53N6bMTYD/9jihZE=;
+        s=korg; t=1653641745;
+        bh=6kI8yzffPb1Y2zoMAnVPuSD3+gXWH64NJ8kHrC8DPZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u0M+67bKJoDbE9n6Ua9C7NkBJsFMmF94Hx4tiBzrpui75YliWoewpjl80SNdBaNVf
-         i+3CaGrKMv8pI3KWV/wkCwE1xIhWxTSYP/wTsCfI8Q0LCDmbQKw8PvLp16ccl4rBH9
-         KIEPr1kkUGAzdT0XcGzfS0lE/ZIgp9XT5mwmNTYk=
+        b=DflxiKYannHnDCv4N8CpqTGAUTqzhLbqw5nFxpQ8axWFsWbQW8npUtkP1ky4ZfvUr
+         qoRpOAF1C39JtjLNOATyuHdd6ZFENQsvGJMAtWHcC85fAiBUIMcWSeNANn7EkDmiiz
+         X3CBACQtHvqaAJK1zlHEeccteTs3pwc3uTtZQvqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Filipe Manana <fdmanana@suse.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 124/145] random: do not use input pool from hard IRQs
+Subject: [PATCH 5.18 45/47] random: check for signals after page of pool writes
 Date:   Fri, 27 May 2022 10:50:25 +0200
-Message-Id: <20220527084905.623242830@linuxfoundation.org>
+Message-Id: <20220527084808.686141336@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+References: <20220527084801.223648383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -58,145 +56,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit e3e33fc2ea7fcefd0d761db9d6219f83b4248f5c upstream.
+commit 1ce6c8d68f8ac587f54d0a271ac594d3d51f3efb upstream.
 
-Years ago, a separate fast pool was added for interrupts, so that the
-cost associated with taking the input pool spinlocks and mixing into it
-would be avoided in places where latency is critical. However, one
-oversight was that add_input_randomness() and add_disk_randomness()
-still sometimes are called directly from the interrupt handler, rather
-than being deferred to a thread. This means that some unlucky interrupts
-will be caught doing a blake2s_compress() call and potentially spinning
-on input_pool.lock, which can also be taken by unprivileged users by
-writing into /dev/urandom.
+get_random_bytes_user() checks for signals after producing a PAGE_SIZE
+worth of output, just like /dev/zero does. write_pool() is doing
+basically the same work (actually, slightly more expensive), and so
+should stop to check for signals in the same way. Let's also name it
+write_pool_user() to match get_random_bytes_user(), so this won't be
+misused in the future.
 
-In order to fix this, add_timer_randomness() now checks whether it is
-being called from a hard IRQ and if so, just mixes into the per-cpu IRQ
-fast pool using fast_mix(), which is much faster and can be done
-lock-free. A nice consequence of this, as well, is that it means hard
-IRQ context FPU support is likely no longer useful.
+Before this patch, massive writes to /dev/urandom would tie up the
+process for an extremely long time and make it unterminatable. After, it
+can be successfully interrupted. The following test program can be used
+to see this works as intended:
 
-The entropy estimation algorithm used by add_timer_randomness() is also
-somewhat different than the one used for add_interrupt_randomness(). The
-former looks at deltas of deltas of deltas, while the latter just waits
-for 64 interrupts for one bit or for one second since the last bit. In
-order to bridge these, and since add_interrupt_randomness() runs after
-an add_timer_randomness() that's called from hard IRQ, we add to the
-fast pool credit the related amount, and then subtract one to account
-for add_interrupt_randomness()'s contribution.
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <signal.h>
+  #include <stdio.h>
 
-A downside of this, however, is that the num argument is potentially
-attacker controlled, which puts a bit more pressure on the fast_mix()
-sponge to do more than it's really intended to do. As a mitigating
-factor, the first 96 bits of input aren't attacker controlled (a cycle
-counter followed by zeros), which means it's essentially two rounds of
-siphash rather than one, which is somewhat better. It's also not that
-much different from add_interrupt_randomness()'s use of the irq stack
-instruction pointer register.
+  static unsigned char x[~0U];
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Filipe Manana <fdmanana@suse.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Theodore Ts'o <tytso@mit.edu>
+  static void handle(int) { }
+
+  int main(int argc, char *argv[])
+  {
+    pid_t pid = getpid(), child;
+    int fd;
+    signal(SIGUSR1, handle);
+    if (!(child = fork())) {
+      for (;;)
+        kill(pid, SIGUSR1);
+    }
+    fd = open("/dev/urandom", O_WRONLY);
+    pause();
+    printf("interrupted after writing %zd bytes\n", write(fd, x, sizeof(x)));
+    close(fd);
+    kill(child, SIGTERM);
+    return 0;
+  }
+
+Result before: "interrupted after writing 2147479552 bytes"
+Result after: "interrupted after writing 4096 bytes"
+
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   51 +++++++++++++++++++++++++++++++++++---------------
- 1 file changed, 36 insertions(+), 15 deletions(-)
+ drivers/char/random.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1086,6 +1086,7 @@ static void mix_interrupt_randomness(str
- 	 * we don't wind up "losing" some.
- 	 */
- 	unsigned long pool[2];
-+	unsigned int count;
- 
- 	/* Check to see if we're running on the wrong CPU due to hotplug. */
- 	local_irq_disable();
-@@ -1099,12 +1100,13 @@ static void mix_interrupt_randomness(str
- 	 * consistent view, before we reenable irqs again.
- 	 */
- 	memcpy(pool, fast_pool->pool, sizeof(pool));
-+	count = fast_pool->count;
- 	fast_pool->count = 0;
- 	fast_pool->last = jiffies;
- 	local_irq_enable();
- 
- 	mix_pool_bytes(pool, sizeof(pool));
--	credit_init_bits(1);
-+	credit_init_bits(max(1u, (count & U16_MAX) / 64));
- 
- 	memzero_explicit(pool, sizeof(pool));
+@@ -1291,7 +1291,7 @@ static __poll_t random_poll(struct file
+ 	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
  }
-@@ -1144,22 +1146,30 @@ struct timer_rand_state {
  
- /*
-  * This function adds entropy to the entropy "pool" by using timing
-- * delays.  It uses the timer_rand_state structure to make an estimate
-- * of how many bits of entropy this call has added to the pool.
-- *
-- * The number "num" is also added to the pool - it should somehow describe
-- * the type of event which just happened.  This is currently 0-255 for
-- * keyboard scan codes, and 256 upwards for interrupts.
-+ * delays. It uses the timer_rand_state structure to make an estimate
-+ * of how many bits of entropy this call has added to the pool. The
-+ * value "num" is also added to the pool; it should somehow describe
-+ * the type of event that just happened.
-  */
- static void add_timer_randomness(struct timer_rand_state *state, unsigned int num)
+-static ssize_t write_pool(struct iov_iter *iter)
++static ssize_t write_pool_user(struct iov_iter *iter)
  {
- 	unsigned long entropy = random_get_entropy(), now = jiffies, flags;
- 	long delta, delta2, delta3;
-+	unsigned int bits;
- 
--	spin_lock_irqsave(&input_pool.lock, flags);
--	_mix_pool_bytes(&entropy, sizeof(entropy));
--	_mix_pool_bytes(&num, sizeof(num));
--	spin_unlock_irqrestore(&input_pool.lock, flags);
-+	/*
-+	 * If we're in a hard IRQ, add_interrupt_randomness() will be called
-+	 * sometime after, so mix into the fast pool.
-+	 */
-+	if (in_hardirq()) {
-+		fast_mix(this_cpu_ptr(&irq_randomness)->pool,
-+			 (unsigned long[2]){ entropy, num });
-+	} else {
-+		spin_lock_irqsave(&input_pool.lock, flags);
-+		_mix_pool_bytes(&entropy, sizeof(entropy));
-+		_mix_pool_bytes(&num, sizeof(num));
-+		spin_unlock_irqrestore(&input_pool.lock, flags);
-+	}
- 
- 	if (crng_ready())
- 		return;
-@@ -1190,11 +1200,22 @@ static void add_timer_randomness(struct
- 		delta = delta3;
- 
- 	/*
--	 * delta is now minimum absolute delta.
--	 * Round down by 1 bit on general principles,
--	 * and limit entropy estimate to 12 bits.
-+	 * delta is now minimum absolute delta. Round down by 1 bit
-+	 * on general principles, and limit entropy estimate to 11 bits.
-+	 */
-+	bits = min(fls(delta >> 1), 11);
+ 	u8 block[BLAKE2S_BLOCK_SIZE];
+ 	ssize_t ret = 0;
+@@ -1306,7 +1306,13 @@ static ssize_t write_pool(struct iov_ite
+ 		mix_pool_bytes(block, copied);
+ 		if (!iov_iter_count(iter) || copied != sizeof(block))
+ 			break;
+-		cond_resched();
 +
-+	/*
-+	 * As mentioned above, if we're in a hard IRQ, add_interrupt_randomness()
-+	 * will run after this, which uses a different crediting scheme of 1 bit
-+	 * per every 64 interrupts. In order to let that function do accounting
-+	 * close to the one in this function, we credit a full 64/64 bit per bit,
-+	 * and then subtract one to account for the extra one added.
- 	 */
--	credit_init_bits(min_t(unsigned int, fls(delta >> 1), 11));
-+	if (in_hardirq())
-+		this_cpu_ptr(&irq_randomness)->count += max(1u, bits * 64) - 1;
-+	else
-+		credit_init_bits(bits);
++		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
++		if (ret % PAGE_SIZE == 0) {
++			if (signal_pending(current))
++				break;
++			cond_resched();
++		}
+ 	}
+ 
+ 	memzero_explicit(block, sizeof(block));
+@@ -1315,7 +1321,7 @@ static ssize_t write_pool(struct iov_ite
+ 
+ static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+-	return write_pool(iter);
++	return write_pool_user(iter);
  }
  
- void add_input_randomness(unsigned int type, unsigned int code,
+ static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+@@ -1389,7 +1395,7 @@ static long random_ioctl(struct file *f,
+ 		ret = import_single_range(WRITE, p, len, &iov, &iter);
+ 		if (unlikely(ret))
+ 			return ret;
+-		ret = write_pool(&iter);
++		ret = write_pool_user(&iter);
+ 		if (unlikely(ret < 0))
+ 			return ret;
+ 		/* Since we're crediting, enforce that it was all written into the pool. */
 
 
