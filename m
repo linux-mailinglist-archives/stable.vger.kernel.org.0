@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5785361B3
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 506EF5361A8
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352608AbiE0MHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:07:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49964 "EHLO
+        id S1352455AbiE0MIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:08:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352665AbiE0ME0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:04:26 -0400
+        with ESMTP id S1353155AbiE0MFj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:39 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC16E14CDCB;
-        Fri, 27 May 2022 04:53:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A43661632AA;
+        Fri, 27 May 2022 04:54:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E8F2B824DB;
-        Fri, 27 May 2022 11:53:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93359C34113;
-        Fri, 27 May 2022 11:53:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D13A9B824D7;
+        Fri, 27 May 2022 11:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D1B1C385A9;
+        Fri, 27 May 2022 11:54:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652421;
-        bh=Z+euVyAmEA5KJhzZGZD702OrTY20IlToj7cTxysyVXc=;
+        s=korg; t=1653652447;
+        bh=asCAlOuEK1RGf86VcQB5YjvW0gfxMhBtWjREunBwvS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EdcdvFCE1A+UgIq2HxI8ti4CghqWYcnLhxz37TetTkKOvTpnnaVwXDzlJ1wlnQRfS
-         +ipXmoobRQx4DTAHnpeocL9BwwLzIWIi8+4sPnJ+SCkbGIMKz7HxO9n9YlXpMETinY
-         RzQJ0H4vfQF/QjyLzH/v6J9F4aYWB+3bPGdFtVss=
+        b=bwe0+Vlgp7H1QVYqY8MkA2O3DGtYMOmRbl6Yb6ZMfmFSmncgO5e7I0674pkTi0inK
+         3rmfk9DfYaCvrpp8BWVP+nsWl6UUJmTKQ2ihxJR1i3Rc/dN1J9BEYoEeOUzKrJgafH
+         t61i9ZWumXt9+ceBDacnJwpHXjjg103BRfUfSitQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Sultan Alsawaf <sultan@kerneltoast.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 152/163] random: use static branch for crng_ready()
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 131/145] random: use proper jiffies comparison macro
 Date:   Fri, 27 May 2022 10:50:32 +0200
-Message-Id: <20220527084849.444293491@linuxfoundation.org>
+Message-Id: <20220527084906.399720668@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,95 +54,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit f5bda35fba615ace70a656d4700423fa6c9bebee upstream.
+commit 8a5b8a4a4ceb353b4dd5bafd09e2b15751bcdb51 upstream.
 
-Since crng_ready() is only false briefly during initialization and then
-forever after becomes true, we don't need to evaluate it after, making
-it a prime candidate for a static branch.
+This expands to exactly the same code that it replaces, but makes things
+consistent by using the same macro for jiffy comparisons throughout.
 
-One complication, however, is that it changes state in a particular call
-to credit_init_bits(), which might be made from atomic context, which
-means we must kick off a workqueue to change the static key. Further
-complicating things, credit_init_bits() may be called sufficiently early
-on in system initialization such that system_wq is NULL.
-
-Fortunately, there exists the nice function execute_in_process_context(),
-which will immediately execute the function if !in_interrupt(), and
-otherwise defer it to a workqueue. During early init, before workqueues
-are available, in_interrupt() is always false, because interrupts
-haven't even been enabled yet, which means the function in that case
-executes immediately. Later on, after workqueues are available,
-in_interrupt() might be true, but in that case, the work is queued in
-system_wq and all goes well.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Sultan Alsawaf <sultan@kerneltoast.com>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -77,8 +77,9 @@ static enum {
- 	CRNG_EMPTY = 0, /* Little to no entropy collected */
- 	CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
- 	CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
--} crng_init = CRNG_EMPTY;
--#define crng_ready() (likely(crng_init >= CRNG_READY))
-+} crng_init __read_mostly = CRNG_EMPTY;
-+static DEFINE_STATIC_KEY_FALSE(crng_is_ready);
-+#define crng_ready() (static_branch_likely(&crng_is_ready) || crng_init >= CRNG_READY)
- /* Various types of waiters for crng_init->CRNG_READY transition. */
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- static struct fasync_struct *fasync;
-@@ -108,6 +109,11 @@ bool rng_is_initialized(void)
+@@ -326,7 +326,7 @@ static bool crng_has_old_seed(void)
+ 			interval = max_t(unsigned int, CRNG_RESEED_START_INTERVAL,
+ 					 (unsigned int)uptime / 2 * HZ);
+ 	}
+-	return time_after(jiffies, READ_ONCE(base_crng.birth) + interval);
++	return time_is_before_jiffies(READ_ONCE(base_crng.birth) + interval);
  }
- EXPORT_SYMBOL(rng_is_initialized);
  
-+static void crng_set_ready(struct work_struct *work)
-+{
-+	static_branch_enable(&crng_is_ready);
-+}
-+
- /* Used by wait_for_random_bytes(), and considered an entropy collector, below. */
- static void try_to_generate_entropy(void);
- 
-@@ -269,7 +275,7 @@ static void crng_reseed(void)
- 		++next_gen;
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
--	if (!crng_ready())
-+	if (!static_branch_likely(&crng_is_ready))
- 		crng_init = CRNG_READY;
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
- 	memzero_explicit(key, sizeof(key));
-@@ -787,6 +793,7 @@ static void extract_entropy(void *buf, s
- 
- static void credit_init_bits(size_t nbits)
- {
-+	static struct execute_work set_ready;
- 	unsigned int new, orig, add;
- 	unsigned long flags;
- 
-@@ -802,6 +809,7 @@ static void credit_init_bits(size_t nbit
- 
- 	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
- 		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
-+		execute_in_process_context(crng_set_ready, &set_ready);
- 		process_random_ready_list();
- 		wake_up_interruptible(&crng_init_wait);
- 		kill_fasync(&fasync, SIGIO, POLL_IN);
-@@ -1311,7 +1319,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 	if (count > INT_MAX)
- 		count = INT_MAX;
- 
--	if (!(flags & GRND_INSECURE) && !crng_ready()) {
-+	if (!crng_ready() && !(flags & GRND_INSECURE)) {
- 		int ret;
- 
- 		if (flags & GRND_NONBLOCK)
+ /*
 
 
