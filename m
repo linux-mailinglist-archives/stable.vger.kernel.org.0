@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5428753612B
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29AF8535FD9
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235867AbiE0L66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57770 "EHLO
+        id S1351744AbiE0Ln2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:43:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352635AbiE0Lzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D43415BAC0;
-        Fri, 27 May 2022 04:48:53 -0700 (PDT)
+        with ESMTP id S1351773AbiE0Lms (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:42:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 871ED13C378;
+        Fri, 27 May 2022 04:40:31 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B64FB824CA;
-        Fri, 27 May 2022 11:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF0EC385A9;
-        Fri, 27 May 2022 11:48:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 23EDF61CC4;
+        Fri, 27 May 2022 11:40:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30F62C385A9;
+        Fri, 27 May 2022 11:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652130;
-        bh=16LFNup+v25/VvNo3CxgLkxi4CTpG2cxX/qybxkt+Iw=;
+        s=korg; t=1653651630;
+        bh=lAC8Rg8DGs9N/DHOReGQjRb/mAJJ4BlH1Icf3YpCBYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uh1rhedXKaYZCrpbggkklhtA6ryfuRVYpytuuh5o0ne+rotQCfTxxAVtulG2UH8X8
-         wG+yZOuvfpYj0IOLjTyeuzAkNhWKO5ECly3OBNIWn4r7+ARNbcvxhQ+5PoBqovwmDX
-         3jbZDbrdIUoMQesqZHaMp7j02ksHpw7UWeFs/UTs=
+        b=XOgsfVs9oWp/5OKRefXqJGSOPUz4icYuxeenO1MhZTpozH3Sjw6Ml0iKhyaAtsQTc
+         L71w3NIebOUBWgxWLZwx01zGKkiAbGJk+jYQ1TzWWP4UmVPeD98fC+JiJlIb+Nd89w
+         mc2y4s59tBFFPzOwRCAARg6pgaBckLliDJfMDtSE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@kernel.org>,
         Eric Biggers <ebiggers@google.com>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 077/145] random: pull add_hwgenerator_randomness() declaration into random.h
+Subject: [PATCH 5.17 066/111] random: document crng_fast_key_erasure() destination possibility
 Date:   Fri, 27 May 2022 10:49:38 +0200
-Message-Id: <20220527084859.986748620@linuxfoundation.org>
+Message-Id: <20220527084828.878348557@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,61 +56,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b777c38239fec5a528e59f55b379e31b1a187524 upstream.
+commit 8717627d6ac53251ee012c3c7aca392f29f38a42 upstream.
 
-add_hwgenerator_randomness() is a function implemented and documented
-inside of random.c. It is the way that hardware RNGs push data into it.
-Therefore, it should be declared in random.h. Otherwise sparse complains
-with:
+This reverts 35a33ff3807d ("random: use memmove instead of memcpy for
+remaining 32 bytes"), which was made on a totally bogus basis. The thing
+it was worried about overlapping came from the stack, not from one of
+its arguments, as Eric pointed out.
 
-random.c:1137:6: warning: symbol 'add_hwgenerator_randomness' was not declared. Should it be static?
+But the fact that this confusion even happened draws attention to the
+fact that it's a bit non-obvious that the random_data parameter can
+alias chacha_state, and in fact should do so when the caller can't rely
+on the stack being cleared in a timely manner. So this commit documents
+that.
 
-The alternative would be to include hw_random.h into random.c, but that
-wouldn't really be good for anything except slowing down compile time.
-
-Cc: Matt Mackall <mpm@selenic.com>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Reported-by: Eric Biggers <ebiggers@kernel.org>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/hw_random/core.c |    1 +
- include/linux/hw_random.h     |    2 --
- include/linux/random.h        |    2 ++
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -15,6 +15,7 @@
- #include <linux/err.h>
- #include <linux/fs.h>
- #include <linux/hw_random.h>
-+#include <linux/random.h>
- #include <linux/kernel.h>
- #include <linux/kthread.h>
- #include <linux/sched/signal.h>
---- a/include/linux/hw_random.h
-+++ b/include/linux/hw_random.h
-@@ -60,7 +60,5 @@ extern int devm_hwrng_register(struct de
- /** Unregister a Hardware Random Number Generator driver. */
- extern void hwrng_unregister(struct hwrng *rng);
- extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
--/** Feed random bits into the pool. */
--extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
- 
- #endif /* LINUX_HWRANDOM_H_ */
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -32,6 +32,8 @@ static inline void add_latent_entropy(vo
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value) __latent_entropy;
- extern void add_interrupt_randomness(int irq) __latent_entropy;
-+extern void add_hwgenerator_randomness(const void *buffer, size_t count,
-+				       size_t entropy);
- 
- extern void get_random_bytes(void *buf, size_t nbytes);
- extern int wait_for_random_bytes(void);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -318,6 +318,13 @@ static void crng_reseed(void)
+  * the resultant ChaCha state to the user, along with the second
+  * half of the block containing 32 bytes of random data that may
+  * be used; random_data_len may not be greater than 32.
++ *
++ * The returned ChaCha state contains within it a copy of the old
++ * key value, at index 4, so the state should always be zeroed out
++ * immediately after using in order to maintain forward secrecy.
++ * If the state cannot be erased in a timely manner, then it is
++ * safer to set the random_data parameter to &chacha_state[4] so
++ * that this function overwrites it before returning.
+  */
+ static void crng_fast_key_erasure(u8 key[CHACHA_KEY_SIZE],
+ 				  u32 chacha_state[CHACHA_STATE_WORDS],
 
 
