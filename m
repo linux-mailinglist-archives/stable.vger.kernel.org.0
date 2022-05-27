@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F12765360E1
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD05535FFC
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345935AbiE0L7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:59:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57388 "EHLO
+        id S1347873AbiE0Lo1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351994AbiE0LzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4533314ACB2;
-        Fri, 27 May 2022 04:48:06 -0700 (PDT)
+        with ESMTP id S1351837AbiE0LoB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:44:01 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 710B013F43C;
+        Fri, 27 May 2022 04:41:01 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D695F61D19;
-        Fri, 27 May 2022 11:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E658CC385A9;
-        Fri, 27 May 2022 11:48:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D6C361D22;
+        Fri, 27 May 2022 11:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12165C385A9;
+        Fri, 27 May 2022 11:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652085;
-        bh=lnFjtwLUDdubcl79VcwkRkWPLGZJDO44WzGc606Jztc=;
+        s=korg; t=1653651660;
+        bh=IPrm7l7Y4DEnj3K/unR0h1dsLN/bo46PUM9Qs6lbRoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1OoDDcuPbcJg0cs5EcWvRk9cQUhfo9zMZNWtf6Zf2OlqmUWEQqu5wDkHCRdPs+H+
-         uPKCTtfgalAMxKDzC59UmFu0yFaFJuR0yNq2yZFsR4H2zgF/nxYRIHMyTuTnnFe1z7
-         q2f1yYCCswZ/xnTZpYUHTPLqQrro6ehjg1qeP6E4=
+        b=FDuELd8XK78idI6nsi4egY0lO/SZJmv72FcNmInNAna4dgc3zpjVzk7091MlJlOC8
+         +HnunhdRAq+ZyNmh+52ZKBTIDWdcP5ogxBfD6H1tcexGKMcZq8KiFNaWA4UIztgp3b
+         FFZvS3Ze/Pn47WfUxaxHeZp3xMWH+xRlywjpWf3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 080/145] random: only wake up writers after zap if threshold was passed
+Subject: [PATCH 5.17 069/111] ia64: define get_cycles macro for arch-override
 Date:   Fri, 27 May 2022 10:49:41 +0200
-Message-Id: <20220527084900.331420014@linuxfoundation.org>
+Message-Id: <20220527084829.303759570@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,32 +56,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a3f9e8910e1584d7725ef7d5ac870920d42d0bb4 upstream.
+commit 57c0900b91d8891ab43f0e6b464d059fda51d102 upstream.
 
-The only time that we need to wake up /dev/random writers on
-RNDCLEARPOOL/RNDZAPPOOL is when we're changing from a value that is
-greater than or equal to POOL_MIN_BITS to zero, because if we're
-changing from below POOL_MIN_BITS to zero, the writers are already
-unblocked.
+Itanium defines a get_cycles() function, but it does not do the usual
+`#define get_cycles get_cycles` dance, making it impossible for generic
+code to see if an arch-specific function was defined. While the
+get_cycles() ifdef is not currently used, the following timekeeping
+patch in this series will depend on the macro existing (or not existing)
+when defining random_get_entropy().
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/ia64/include/asm/timex.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1582,7 +1582,7 @@ static long random_ioctl(struct file *f,
- 		 */
- 		if (!capable(CAP_SYS_ADMIN))
- 			return -EPERM;
--		if (xchg(&input_pool.entropy_count, 0)) {
-+		if (xchg(&input_pool.entropy_count, 0) >= POOL_MIN_BITS) {
- 			wake_up_interruptible(&random_write_wait);
- 			kill_fasync(&fasync, SIGIO, POLL_OUT);
- 		}
+--- a/arch/ia64/include/asm/timex.h
++++ b/arch/ia64/include/asm/timex.h
+@@ -39,6 +39,7 @@ get_cycles (void)
+ 	ret = ia64_getreg(_IA64_REG_AR_ITC);
+ 	return ret;
+ }
++#define get_cycles get_cycles
+ 
+ extern void ia64_cpu_local_tick (void);
+ extern unsigned long long ia64_native_sched_clock (void);
 
 
