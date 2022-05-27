@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4731C5360A0
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFDF0535F6D
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:39:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350235AbiE0Lwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:52:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41072 "EHLO
+        id S1351488AbiE0LiY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:38:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352977AbiE0LvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:04 -0400
+        with ESMTP id S1351486AbiE0LiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:38:16 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BEE66AD5;
-        Fri, 27 May 2022 04:46:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1961E1269A1;
+        Fri, 27 May 2022 04:38:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CA2E61D94;
-        Fri, 27 May 2022 11:46:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22ECAC385A9;
-        Fri, 27 May 2022 11:46:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7516461C3F;
+        Fri, 27 May 2022 11:38:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8186CC385A9;
+        Fri, 27 May 2022 11:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651990;
-        bh=ZdWzXFsXEYwjkTdi4Ho7WDOoLXL0Z7KWiEWGYTe0WUI=;
+        s=korg; t=1653651482;
+        bh=7HTA8dBismSNtEddUBqn+LQFyLT1UhrR03jQn5QntLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VawjEX01s5JnyOUnab+/2YMzBxTw7/feKIZQu5xzzYJHW7vEO5+ZAU605Ubsb/XNk
-         Q8J3HF8M8vlI6FSVqTra4wvwFAwsXDOx+gIwi6LpWeuSCqLOCABizWDp04gG4+WK/e
-         KiN936FW2jNPiJ4sJfWHAKf8zOu5oGBaJp6M7JQY=
+        b=VAGWAqzwfoo2w7Q6zC4AN5ae45uZ4n8EuUPPn9mAP2OopNVq51LCsHWHgGVShfoIK
+         3pM5y2Uyj9U8aTQIgxyDCQ19JNONTS2KRVJNMB/FEGbB3OwzD1H6tzv9aD9s66Yq6m
+         ABMZZscVNDgzzFSTjYcsNQUdPSBuaUSL4CrZpDls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 081/163] random: introduce drain_entropy() helper to declutter crng_reseed()
+Subject: [PATCH 5.17 049/111] random: give sysctl_random_min_urandom_seed a more sensible value
 Date:   Fri, 27 May 2022 10:49:21 +0200
-Message-Id: <20220527084839.186766373@linuxfoundation.org>
+Message-Id: <20220527084826.370322288@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,84 +56,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 246c03dd899164d0186b6d685d6387f228c28d93 upstream.
+commit d0efdf35a6a71d307a250199af6fce122a7c7e11 upstream.
 
-In preparation for separating responsibilities, break out the entropy
-count management part of crng_reseed() into its own function.
-
-No functional changes.
+This isn't used by anything or anywhere, but we can't delete it due to
+compatibility. So at least give it the correct value of what it's
+supposed to be instead of a garbage one.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ drivers/char/random.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -260,6 +260,7 @@ static struct {
- };
+@@ -1619,7 +1619,7 @@ const struct file_operations urandom_fop
+  *   to avoid breaking old userspaces, but writing to it does not
+  *   change any behavior of the RNG.
+  *
+- * - urandom_min_reseed_secs - fixed to the meaningless value "60".
++ * - urandom_min_reseed_secs - fixed to the value CRNG_RESEED_INTERVAL.
+  *   It is writable to avoid breaking old userspaces, but writing
+  *   to it does not change any behavior of the RNG.
+  *
+@@ -1629,7 +1629,7 @@ const struct file_operations urandom_fop
  
- static void extract_entropy(void *buf, size_t nbytes);
-+static bool drain_entropy(void *buf, size_t nbytes);
+ #include <linux/sysctl.h>
  
- static void crng_reseed(void);
- 
-@@ -456,23 +457,13 @@ static void crng_slow_load(const void *c
- static void crng_reseed(void)
- {
- 	unsigned long flags;
--	int entropy_count;
- 	unsigned long next_gen;
- 	u8 key[CHACHA_KEY_SIZE];
- 	bool finalize_init = false;
- 
--	/*
--	 * First we make sure we have POOL_MIN_BITS of entropy in the pool,
--	 * and then we drain all of it. Only then can we extract a new key.
--	 */
--	do {
--		entropy_count = READ_ONCE(input_pool.entropy_count);
--		if (entropy_count < POOL_MIN_BITS)
--			return;
--	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
--	extract_entropy(key, sizeof(key));
--	wake_up_interruptible(&random_write_wait);
--	kill_fasync(&fasync, SIGIO, POLL_OUT);
-+	/* Only reseed if we can, to prevent brute forcing a small amount of new bits. */
-+	if (!drain_entropy(key, sizeof(key)))
-+		return;
- 
- 	/*
- 	 * We copy the new key into the base_crng, overwriting the old one,
-@@ -900,6 +891,25 @@ static void extract_entropy(void *buf, s
- 	memzero_explicit(&block, sizeof(block));
- }
- 
-+/*
-+ * First we make sure we have POOL_MIN_BITS of entropy in the pool, and then we
-+ * set the entropy count to zero (but don't actually touch any data). Only then
-+ * can we extract a new key with extract_entropy().
-+ */
-+static bool drain_entropy(void *buf, size_t nbytes)
-+{
-+	unsigned int entropy_count;
-+	do {
-+		entropy_count = READ_ONCE(input_pool.entropy_count);
-+		if (entropy_count < POOL_MIN_BITS)
-+			return false;
-+	} while (cmpxchg(&input_pool.entropy_count, entropy_count, 0) != entropy_count);
-+	extract_entropy(buf, nbytes);
-+	wake_up_interruptible(&random_write_wait);
-+	kill_fasync(&fasync, SIGIO, POLL_OUT);
-+	return true;
-+}
-+
- #define warn_unseeded_randomness(previous) \
- 	_warn_unseeded_randomness(__func__, (void *)_RET_IP_, (previous))
- 
+-static int sysctl_random_min_urandom_seed = 60;
++static int sysctl_random_min_urandom_seed = CRNG_RESEED_INTERVAL / HZ;
+ static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
+ static int sysctl_poolsize = POOL_BITS;
+ static u8 sysctl_bootid[UUID_SIZE];
 
 
