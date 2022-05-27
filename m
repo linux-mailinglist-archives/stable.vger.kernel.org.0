@@ -2,273 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A12535C21
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B8F5360EE
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349975AbiE0Iv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:51:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
+        id S1352000AbiE0L5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349987AbiE0IvV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:51:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D22452AC53;
-        Fri, 27 May 2022 01:51:17 -0700 (PDT)
+        with ESMTP id S1353173AbiE0L4P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:15 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0061E15EA58;
+        Fri, 27 May 2022 04:49:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8D87CCE234D;
-        Fri, 27 May 2022 08:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38FB6C385A9;
-        Fri, 27 May 2022 08:51:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A07CCB824CA;
+        Fri, 27 May 2022 11:49:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F293C385A9;
+        Fri, 27 May 2022 11:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641474;
-        bh=IGOsXSlnt3oTDeRyqlMES/yY6b1S4ruEp2zGgq9n+5Q=;
-        h=From:To:Cc:Subject:Date:From;
-        b=OimFunxxkQm0fLeLFAsRw86vPPDm7sQLd5Un48LXmCVYOT4rsR0db0nes3WHfjKfH
-         exT9O76GCbDT7lvhPkyQRFo+M59jCSpXZEZptOLgayk+AF7TTf3HeHwU8IZutqu28p
-         h1zYoKQUz1Oz7Pi7f/GNcMr070xTG2zxLaojyP/g=
+        s=korg; t=1653652193;
+        bh=ucDUMGX37eDIy4saYwPoYkShV8xHADijJcGiVrrzHbs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=C+Rm/I0VcRYXwDsbNDqaq9mEG4sZnyh21KUvYWZqWXqwkL/0wbzvABqiMZad5L8th
+         8YuSQT0I2ehq5dswp34ai+lwOGsu9agISgg4/5p3sqlXezTCFZtnA3mbtoCxUgnH3I
+         ac+/51U2P/T0SJKjTI8A0rgAef4WWQkHrxSJBvMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, slade@sladewatkins.com
-Subject: [PATCH 5.18 00/47] 5.18.1-rc1 review
-Date:   Fri, 27 May 2022 10:49:40 +0200
-Message-Id: <20220527084801.223648383@linuxfoundation.org>
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 101/163] random: do crng pre-init loading in worker rather than irq
+Date:   Fri, 27 May 2022 10:49:41 +0200
+Message-Id: <20220527084841.979319902@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-MIME-Version: 1.0
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.18.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.18.1-rc1
-X-KernelTest-Deadline: 2022-05-29T08:48+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
+        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.18.1 release.
-There are 47 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-Responses should be made by Sun, 29 May 2022 08:46:45 +0000.
-Anything received after that time might be too late.
+commit c2a7de4feb6e09f23af7accc0f882a8fa92e7ae5 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.18.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.18.y
-and the diffstat can be found below.
+Taking spinlocks from IRQ context is generally problematic for
+PREEMPT_RT. That is, in part, why we take trylocks instead. However, a
+spin_try_lock() is also problematic since another spin_lock() invocation
+can potentially PI-boost the wrong task, as the spin_try_lock() is
+invoked from an IRQ-context, so the task on CPU (random task or idle) is
+not the actual owner.
 
-thanks,
+Additionally, by deferring the crng pre-init loading to the worker, we
+can use the cryptographic hash function rather than xor, which is
+perhaps a meaningful difference when considering this data has only been
+through the relatively weak fast_mix() function.
 
-greg k-h
+The biggest downside of this approach is that the pre-init loading is
+now deferred until later, which means things that need random numbers
+after interrupts are enabled, but before workqueues are running -- or
+before this particular worker manages to run -- are going to get into
+trouble. Hopefully in the real world, this window is rather small,
+especially since this code won't run until 64 interrupts had occurred.
 
--------------
-Pseudo-Shortlog of commits:
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/char/random.c |   65 ++++++++++++++------------------------------------
+ 1 file changed, 19 insertions(+), 46 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.18.1-rc1
-
-Edward Matijevic <motolav@gmail.com>
-    ALSA: ctxfi: Add SB046x PCI ID
-
-Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-    ACPI: sysfs: Fix BERT error region memory mapping
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: check for signals after page of pool writes
-
-Jens Axboe <axboe@kernel.dk>
-    random: wire up fops->splice_{read,write}_iter()
-
-Jens Axboe <axboe@kernel.dk>
-    random: convert to using fops->write_iter()
-
-Jens Axboe <axboe@kernel.dk>
-    random: convert to using fops->read_iter()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: unify batched entropy implementations
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: move randomize_page() into mm where it belongs
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: move initialization functions out of hot pages
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: make consistent use of buf and len
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use proper return types on get_random_{int,long}_wait()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: remove extern from functions in header
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use static branch for crng_ready()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: credit architectural init the exact amount
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: handle latent entropy and command line from random_init()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use proper jiffies comparison macro
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: remove ratelimiting for in-kernel unseeded randomness
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: move initialization out of reseeding hot path
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: avoid initializing twice in credit race
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use symbolic constants for crng_init states
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    siphash: use one source of truth for siphash permutations
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: help compiler out with fast_mix() by using simpler arguments
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: do not use input pool from hard IRQs
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: order timer entropy functions below interrupt functions
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: do not pretend to handle premature next security model
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: use first 128 bits of input as fast init
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: do not use batches when !crng_ready()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: insist on random_get_entropy() existing in order to simplify
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    xtensa: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    sparc: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    um: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    x86/tsc: Use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    nios2: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    arm: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    mips: use fallback for random_get_entropy() instead of just c0 random
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    riscv: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    m68k: use fallback for random_get_entropy() instead of zero
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    timekeeping: Add raw clock fallback for random_get_entropy()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    powerpc: define get_cycles macro for arch-override
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    alpha: define get_cycles macro for arch-override
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    parisc: define get_cycles macro for arch-override
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    s390: define get_cycles macro for arch-override
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    ia64: define get_cycles macro for arch-override
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    init: call time_init() before rand_initialize()
-
-Jason A. Donenfeld <Jason@zx2c4.com>
-    random: fix sysctl documentation nits
-
-Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-    HID: amd_sfh: Add support for sensor discovery
-
-Daniel Thompson <daniel.thompson@linaro.org>
-    lockdown: also lock down previous kgdb use
-
-
--------------
-
-Diffstat:
-
- Documentation/admin-guide/sysctl/kernel.rst |    8 +-
- Makefile                                    |    4 +-
- arch/alpha/include/asm/timex.h              |    1 +
- arch/arm/include/asm/timex.h                |    1 +
- arch/ia64/include/asm/timex.h               |    1 +
- arch/m68k/include/asm/timex.h               |    2 +-
- arch/mips/include/asm/timex.h               |   17 +-
- arch/nios2/include/asm/timex.h              |    3 +
- arch/parisc/include/asm/timex.h             |    3 +-
- arch/powerpc/include/asm/timex.h            |    1 +
- arch/riscv/include/asm/timex.h              |    2 +-
- arch/s390/include/asm/timex.h               |    1 +
- arch/sparc/include/asm/timex_32.h           |    4 +-
- arch/um/include/asm/timex.h                 |    9 +-
- arch/x86/include/asm/timex.h                |    9 +
- arch/x86/include/asm/tsc.h                  |    7 +-
- arch/xtensa/include/asm/timex.h             |    6 +-
- drivers/acpi/sysfs.c                        |   25 +-
- drivers/char/random.c                       | 1213 +++++++++++----------------
- drivers/hid/amd-sfh-hid/amd_sfh_client.c    |   11 +
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c      |    7 +
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.h      |    4 +
- include/linux/mm.h                          |    1 +
- include/linux/prandom.h                     |   23 +-
- include/linux/random.h                      |   92 +-
- include/linux/security.h                    |    2 +
- include/linux/siphash.h                     |   28 +
- include/linux/timex.h                       |    8 +
- init/main.c                                 |   13 +-
- kernel/debug/debug_core.c                   |   24 +
- kernel/debug/kdb/kdb_main.c                 |   62 +-
- kernel/time/timekeeping.c                   |   15 +
- lib/Kconfig.debug                           |    3 +-
- lib/siphash.c                               |   32 +-
- mm/util.c                                   |   32 +
- security/security.c                         |    2 +
- sound/pci/ctxfi/ctatc.c                     |    2 +
- sound/pci/ctxfi/cthardware.h                |    3 +-
- 38 files changed, 821 insertions(+), 860 deletions(-)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -443,10 +443,6 @@ static void crng_make_state(u32 chacha_s
+  * boot time when it's better to have something there rather than
+  * nothing.
+  *
+- * There are two paths, a slow one and a fast one. The slow one
+- * hashes the input along with the current key. The fast one simply
+- * xors it in, and should only be used from interrupt context.
+- *
+  * If account is set, then the crng_init_cnt counter is incremented.
+  * This shouldn't be set by functions like add_device_randomness(),
+  * where we can't trust the buffer passed to it is guaranteed to be
+@@ -455,19 +451,15 @@ static void crng_make_state(u32 chacha_s
+  * Returns the number of bytes processed from input, which is bounded
+  * by CRNG_INIT_CNT_THRESH if account is true.
+  */
+-static size_t crng_pre_init_inject(const void *input, size_t len,
+-				   bool fast, bool account)
++static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
+ {
+ 	static int crng_init_cnt = 0;
++	struct blake2s_state hash;
+ 	unsigned long flags;
+ 
+-	if (fast) {
+-		if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-			return 0;
+-	} else {
+-		spin_lock_irqsave(&base_crng.lock, flags);
+-	}
++	blake2s_init(&hash, sizeof(base_crng.key));
+ 
++	spin_lock_irqsave(&base_crng.lock, flags);
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 		return 0;
+@@ -476,21 +468,9 @@ static size_t crng_pre_init_inject(const
+ 	if (account)
+ 		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
+ 
+-	if (fast) {
+-		const u8 *src = input;
+-		size_t i;
+-
+-		for (i = 0; i < len; ++i)
+-			base_crng.key[(crng_init_cnt + i) %
+-				      sizeof(base_crng.key)] ^= src[i];
+-	} else {
+-		struct blake2s_state hash;
+-
+-		blake2s_init(&hash, sizeof(base_crng.key));
+-		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+-		blake2s_update(&hash, input, len);
+-		blake2s_final(&hash, base_crng.key);
+-	}
++	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++	blake2s_update(&hash, input, len);
++	blake2s_final(&hash, base_crng.key);
+ 
+ 	if (account) {
+ 		crng_init_cnt += len;
+@@ -1034,7 +1014,7 @@ void add_device_randomness(const void *b
+ 	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+-		crng_pre_init_inject(buf, size, false, false);
++		crng_pre_init_inject(buf, size, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(&cycles, sizeof(cycles));
+@@ -1155,7 +1135,7 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0)) {
+-		size_t ret = crng_pre_init_inject(buffer, count, false, true);
++		size_t ret = crng_pre_init_inject(buffer, count, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+@@ -1295,8 +1275,14 @@ static void mix_interrupt_randomness(str
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+ 
+-	mix_pool_bytes(pool, sizeof(pool));
+-	credit_entropy_bits(1);
++	if (unlikely(crng_init == 0)) {
++		crng_pre_init_inject(pool, sizeof(pool), true);
++		mix_pool_bytes(pool, sizeof(pool));
++	} else {
++		mix_pool_bytes(pool, sizeof(pool));
++		credit_entropy_bits(1);
++	}
++
+ 	memzero_explicit(pool, sizeof(pool));
+ }
+ 
+@@ -1329,24 +1315,11 @@ void add_interrupt_randomness(int irq)
+ 	fast_mix(fast_pool->pool32);
+ 	new_count = ++fast_pool->count;
+ 
+-	if (unlikely(crng_init == 0)) {
+-		if (new_count >= 64 &&
+-		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+-					 true, true) > 0) {
+-			fast_pool->count = 0;
+-			fast_pool->last = now;
+-			if (spin_trylock(&input_pool.lock)) {
+-				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+-				spin_unlock(&input_pool.lock);
+-			}
+-		}
+-		return;
+-	}
+-
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
+ 
+-	if (new_count < 64 && !time_after(now, fast_pool->last + HZ))
++	if (new_count < 64 && (!time_after(now, fast_pool->last + HZ) ||
++			       unlikely(crng_init == 0)))
+ 		return;
+ 
+ 	if (unlikely(!fast_pool->mix.func))
 
 
