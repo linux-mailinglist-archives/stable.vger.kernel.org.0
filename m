@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2D0535FF4
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD835536003
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351643AbiE0LoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:44:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57136 "EHLO
+        id S1351839AbiE0Lqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:46:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351779AbiE0Ln2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:43:28 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B46E13F1F4;
-        Fri, 27 May 2022 04:40:45 -0700 (PDT)
+        with ESMTP id S1352252AbiE0Lph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:37 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0651914086D;
+        Fri, 27 May 2022 04:42:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 08F65CE250E;
-        Fri, 27 May 2022 11:40:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E064C385A9;
-        Fri, 27 May 2022 11:40:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 047BF61D19;
+        Fri, 27 May 2022 11:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 119BBC34100;
+        Fri, 27 May 2022 11:42:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651642;
-        bh=aOprigIcG/hpSAFQqHtR2NrqFIOQ6+qE+2D3VkQdaoU=;
+        s=korg; t=1653651737;
+        bh=EPU17ywD4YYi95dXlLRsZHFwvqTuyb00v/jR+ACZSjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pu7RJYtUgETE+WK4An07YY+nQneecxBKYLaYvxlUGYGaIydc2+gfmsJrfjX6pKC4u
-         9zku/2PtPeUbeo+mxitvMRdvYvXEayiEl8Dlvs/0oQrEHpn1njjitPsExLsXiNmyU9
-         CURokARFPnu+7nh4SnLBf5AUHx6Ogcw2UY2ZR/ak=
+        b=QxaXq+E5Yt5QScK0FgLE0yFxp+5SKEqguT1R8eOE6EVae8oAf8y4ZMfRnFJTQqUd+
+         S+UTwvxRKqJh3LIjgr1GSwMf3v2h0d/EfOnfJdSKhkIEmWRYPopZhqYZ/9S5lxfh+x
+         K+2zq9Hsnt7dQfyt2m81oZJ+8TCsglliFUpD9aHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 026/145] random: remove unused extract_entropy() reserved argument
+Subject: [PATCH 5.10 047/163] random: de-duplicate INPUT_POOL constants
 Date:   Fri, 27 May 2022 10:48:47 +0200
-Message-Id: <20220527084854.050963390@linuxfoundation.org>
+Message-Id: <20220527084834.576568021@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,76 +56,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 8b2d953b91e7f60200c24067ab17b77cc7bfd0d4 upstream.
+commit 5b87adf30f1464477169a1d653e9baf8c012bbfe upstream.
 
-This argument is always set to zero, as a result of us not caring about
-keeping a certain amount reserved in the pool these days. So just remove
-it and cleanup the function signatures.
+We already had the POOL_* constants, so deduplicate the older INPUT_POOL
+ones. As well, fold EXTRACT_SIZE into the poolinfo enum, since it's
+related.
 
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ drivers/char/random.c |   17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -519,7 +519,7 @@ struct entropy_store {
+@@ -359,13 +359,6 @@
+ /* #define ADD_INTERRUPT_BENCH */
+ 
+ /*
+- * Configuration information
+- */
+-#define INPUT_POOL_SHIFT	12
+-#define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
+-#define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
+-
+-/*
+  * To allow fractional bits to be tracked, the entropy_count field is
+  * denominated in units of 1/8th bits.
+  *
+@@ -440,7 +433,9 @@ enum poolinfo {
+ 	POOL_TAP2 = 76,
+ 	POOL_TAP3 = 51,
+ 	POOL_TAP4 = 25,
+-	POOL_TAP5 = 1
++	POOL_TAP5 = 1,
++
++	EXTRACT_SIZE = BLAKE2S_HASH_SIZE / 2
  };
  
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--			       size_t nbytes, int min, int rsvd);
-+			       size_t nbytes, int min);
- static ssize_t _extract_entropy(struct entropy_store *r, void *buf,
- 				size_t nbytes);
- 
-@@ -989,7 +989,7 @@ static void crng_reseed(struct crng_stat
- 	} buf;
- 
- 	if (r) {
--		num = extract_entropy(r, &buf, 32, 16, 0);
-+		num = extract_entropy(r, &buf, 32, 16);
- 		if (num == 0)
- 			return;
- 	} else {
-@@ -1327,8 +1327,7 @@ EXPORT_SYMBOL_GPL(add_disk_randomness);
-  * This function decides how many bytes to actually take from the
-  * given pool, and also debits the entropy count accordingly.
-  */
--static size_t account(struct entropy_store *r, size_t nbytes, int min,
--		      int reserved)
-+static size_t account(struct entropy_store *r, size_t nbytes, int min)
- {
- 	int entropy_count, orig, have_bytes;
- 	size_t ibytes, nfrac;
-@@ -1342,7 +1341,7 @@ retry:
- 	/* never pull more than available */
- 	have_bytes = entropy_count >> (ENTROPY_SHIFT + 3);
- 
--	if ((have_bytes -= reserved) < 0)
-+	if (have_bytes < 0)
- 		have_bytes = 0;
- 	ibytes = min_t(size_t, ibytes, have_bytes);
- 	if (ibytes < min)
-@@ -1448,15 +1447,13 @@ static ssize_t _extract_entropy(struct e
-  * returns it in a buffer.
+ /*
+@@ -503,7 +498,7 @@ MODULE_PARM_DESC(ratelimit_disable, "Dis
   *
-  * The min parameter specifies the minimum amount we can pull before
-- * failing to avoid races that defeat catastrophic reseeding while the
-- * reserved parameter indicates how much entropy we must leave in the
-- * pool after each pull to avoid starving other readers.
-+ * failing to avoid races that defeat catastrophic reseeding.
-  */
- static ssize_t extract_entropy(struct entropy_store *r, void *buf,
--				 size_t nbytes, int min, int reserved)
-+				 size_t nbytes, int min)
- {
- 	trace_extract_entropy(r->name, nbytes, ENTROPY_BITS(r), _RET_IP_);
--	nbytes = account(r, nbytes, min, reserved);
-+	nbytes = account(r, nbytes, min);
- 	return _extract_entropy(r, buf, nbytes);
+  **********************************************************************/
+ 
+-static u32 input_pool_data[INPUT_POOL_WORDS] __latent_entropy;
++static u32 input_pool_data[POOL_WORDS] __latent_entropy;
+ 
+ static struct {
+ 	/* read-only data: */
+@@ -1964,7 +1959,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
+ #include <linux/sysctl.h>
+ 
+ static int min_write_thresh;
+-static int max_write_thresh = INPUT_POOL_WORDS * 32;
++static int max_write_thresh = POOL_BITS;
+ static int random_min_urandom_seed = 60;
+ static char sysctl_bootid[16];
+ 
+@@ -2021,7 +2016,7 @@ static int proc_do_entropy(struct ctl_ta
+ 	return proc_dointvec(&fake_table, write, buffer, lenp, ppos);
  }
  
+-static int sysctl_poolsize = INPUT_POOL_WORDS * 32;
++static int sysctl_poolsize = POOL_BITS;
+ extern struct ctl_table random_table[];
+ struct ctl_table random_table[] = {
+ 	{
 
 
