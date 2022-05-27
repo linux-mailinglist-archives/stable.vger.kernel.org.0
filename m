@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E50536000
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD48D535CD1
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240545AbiE0LqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58478 "EHLO
+        id S1350204AbiE0Iz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:55:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351721AbiE0Lo2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:44:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8132B9D065;
-        Fri, 27 May 2022 04:41:16 -0700 (PDT)
+        with ESMTP id S1350572AbiE0Iza (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:55:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B8247056;
+        Fri, 27 May 2022 01:54:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F110A61C3F;
-        Fri, 27 May 2022 11:41:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D518C385A9;
-        Fri, 27 May 2022 11:41:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBCAB61C01;
+        Fri, 27 May 2022 08:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9333BC34100;
+        Fri, 27 May 2022 08:54:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651675;
-        bh=J5xJYi+i64ykzs9x/0F9qkD+abvNKXxxEEBjmLewFAs=;
+        s=korg; t=1653641656;
+        bh=XxK0OtvwNhgUMCOyhriJ/+qNy/K+HjGgOW3wfyCgR3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QBzSJUvDkw2y3TZNbClogfdQjlLOREb+p23ADj0yWEUCyEo2ACRcNg+m/8HpIdG32
-         PQOt3bfIlxlrPDi9YQh1FvDW3vQ4zKDughQBtn8vkkIutGdawhdRF2SYvFwLsObVw4
-         wMH24wjTzfkC1EAvsuB9JB0hKHeZcRMA/ltv25LU=
+        b=FKLC0RGwjyIDUPWq6JW3GtqjKMKHcfmv7J7OwODRZZCahtj78y8+tHgN87zVpmgso
+         +LAgA4kTJA1xnXV7FygevDefFKFww4yBMOoY1Ykt5BfLpW67shetLXpm73Hp5kXxxF
+         ltkoVTsVVZ8hcMNXUZ9u2sXDUjVgV4dUQ84RiSi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 046/163] random: remove unused OUTPUT_POOL constants
+Subject: [PATCH 5.17 014/111] random: ensure early RDSEED goes through mixer on init
 Date:   Fri, 27 May 2022 10:48:46 +0200
-Message-Id: <20220527084834.448254110@linuxfoundation.org>
+Message-Id: <20220527084821.184949574@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,42 +57,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 0f63702718c91d89c922081ac1e6baeddc2d8b1a upstream.
+commit a02cf3d0dd77244fd5333ac48d78871de459ae6d upstream.
 
-We no longer have an output pool. Rather, we have just a wakeup bits
-threshold for /dev/random reads, presumably so that processes don't
-hang. This value, random_write_wakeup_bits, is configurable anyway. So
-all the no longer usefully named OUTPUT_POOL constants were doing was
-setting a reasonable default for random_write_wakeup_bits. This commit
-gets rid of the constants and just puts it all in the default value of
-random_write_wakeup_bits.
+Continuing the reasoning of "random: use RDSEED instead of RDRAND in
+entropy extraction" from this series, at init time we also don't want to
+be xoring RDSEED directly into the crng. Instead it's safer to put it
+into our entropy collector and then re-extract it, so that it goes
+through a hash function with preimage resistance. As a matter of hygiene,
+we also order these now so that the RDSEED byte are hashed in first,
+followed by the bytes that are likely more predictable (e.g. utsname()).
 
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/char/random.c |   16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -363,8 +363,6 @@
-  */
- #define INPUT_POOL_SHIFT	12
- #define INPUT_POOL_WORDS	(1 << (INPUT_POOL_SHIFT-5))
--#define OUTPUT_POOL_SHIFT	10
--#define OUTPUT_POOL_WORDS	(1 << (OUTPUT_POOL_SHIFT-5))
- #define EXTRACT_SIZE		(BLAKE2S_HASH_SIZE / 2)
+@@ -1208,24 +1208,18 @@ int __init rand_initialize(void)
+ 	bool arch_init = true;
+ 	unsigned long rv;
  
- /*
-@@ -382,7 +380,7 @@
-  * should wake up processes which are selecting or polling on write
-  * access to /dev/random.
-  */
--static int random_write_wakeup_bits = 28 * OUTPUT_POOL_WORDS;
-+static int random_write_wakeup_bits = 28 * (1 << 5);
- 
- /*
-  * Originally, we used a primitive polynomial of degree .poolwords
+-	mix_pool_bytes(&now, sizeof(now));
+ 	for (i = BLAKE2S_BLOCK_SIZE; i > 0; i -= sizeof(rv)) {
+-		if (!arch_get_random_seed_long(&rv) &&
+-		    !arch_get_random_long(&rv))
+-			rv = random_get_entropy();
+-		mix_pool_bytes(&rv, sizeof(rv));
+-	}
+-	mix_pool_bytes(utsname(), sizeof(*(utsname())));
+-
+-	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
+-	for (i = 4; i < 16; i++) {
+ 		if (!arch_get_random_seed_long_early(&rv) &&
+ 		    !arch_get_random_long_early(&rv)) {
+ 			rv = random_get_entropy();
+ 			arch_init = false;
+ 		}
+-		primary_crng.state[i] ^= rv;
++		mix_pool_bytes(&rv, sizeof(rv));
+ 	}
++	mix_pool_bytes(&now, sizeof(now));
++	mix_pool_bytes(utsname(), sizeof(*(utsname())));
++
++	extract_entropy(&primary_crng.state[4], sizeof(u32) * 12);
+ 	if (arch_init && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+ 		crng_init = 2;
 
 
