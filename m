@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E03B7535CDE
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE951535CA2
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350458AbiE0JBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 05:01:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52158 "EHLO
+        id S1349850AbiE0JBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 05:01:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350821AbiE0JAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 05:00:43 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A237E27A8;
-        Fri, 27 May 2022 01:57:10 -0700 (PDT)
+        with ESMTP id S1350851AbiE0JAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 05:00:46 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4432F1078B2;
+        Fri, 27 May 2022 01:57:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 97B2BCE237A;
-        Fri, 27 May 2022 08:57:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76052C385A9;
-        Fri, 27 May 2022 08:57:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C80961DA4;
+        Fri, 27 May 2022 08:57:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35C4DC34100;
+        Fri, 27 May 2022 08:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641827;
-        bh=KPMtOdd2C6uBfif5cO5e6762ZC39N4t+Yxbl4AQveZU=;
+        s=korg; t=1653641834;
+        bh=NatoMCFLDoqs2tCAyid/EccYcE29QtWy5guBAtHLCIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ytBJJMBpTYdU3qAGo9i8/hmMalnvwe9klVsZ44ErsF8On+gzjfrh0t0gOuISJYX5t
-         FAprKoBvZF1/EwKlYddaKuvgX9ULDCa98KX8ajzncoY9PnFyce6R7W9B4XS5X2F0MW
-         QFSR/hmboBxB1NjqXgS/H2+ZP1EGUymRtD2eFPs0=
+        b=IXGmiBvor2Qxaq/yKvVpAaI3fz/AvH4FVYxJWBTTn6og/sWjUmeKeACunMtKcBcXI
+         A62KENCTiQ6wiSymWORD0vYbjoLEDLSGO7ydML2A0PjjxOR2jYkY0NbBW8E3pdht1G
+         M5TzXWG3RYsUCD2rBsrKS6KB3xRtlrjbnTGBFmcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Dworken <ddworken@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Moshe Kol <moshe.kol@mail.huji.ac.il>,
+        Yossi Gilad <yossi.gilad@mail.huji.ac.il>,
+        Amit Klein <aksecurity@gmail.com>,
+        Eric Dumazet <edumazet@google.com>, Willy Tarreau <w@1wt.eu>,
+        Jakub Kicinski <kuba@kernel.org>,
         Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.10 005/163] tcp: change source port randomizarion at connect() time
-Date:   Fri, 27 May 2022 10:48:05 +0200
-Message-Id: <20220527084828.937394121@linuxfoundation.org>
+Subject: [PATCH 5.10 006/163] secure_seq: use the 64 bits of the siphash for port offset calculation
+Date:   Fri, 27 May 2022 10:48:06 +0200
+Message-Id: <20220527084829.061384848@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
 References: <20220527084828.156494029@linuxfoundation.org>
@@ -56,98 +58,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Willy Tarreau <w@1wt.eu>
 
-commit 190cc82489f46f9d88e73c81a47e14f80a791e1a upstream.
+commit b2d057560b8107c633b39aabe517ff9d93f285e3 upstream.
 
-RFC 6056 (Recommendations for Transport-Protocol Port Randomization)
-provides good summary of why source selection needs extra care.
+SipHash replaced MD5 in secure_ipv{4,6}_port_ephemeral() via commit
+7cd23e5300c1 ("secure_seq: use SipHash in place of MD5"), but the output
+remained truncated to 32-bit only. In order to exploit more bits from the
+hash, let's make the functions return the full 64-bit of siphash_3u32().
+We also make sure the port offset calculation in __inet_hash_connect()
+remains done on 32-bit to avoid the need for div_u64_rem() and an extra
+cost on 32-bit systems.
 
-David Dworken reminded us that linux implements Algorithm 3
-as described in RFC 6056 3.3.3
-
-Quoting David :
-   In the context of the web, this creates an interesting info leak where
-   websites can count how many TCP connections a user's computer is
-   establishing over time. For example, this allows a website to count
-   exactly how many subresources a third party website loaded.
-   This also allows:
-   - Distinguishing between different users behind a VPN based on
-       distinct source port ranges.
-   - Tracking users over time across multiple networks.
-   - Covert communication channels between different browsers/browser
-       profiles running on the same computer
-   - Tracking what applications are running on a computer based on
-       the pattern of how fast source ports are getting incremented.
-
-Section 3.3.4 describes an enhancement, that reduces
-attackers ability to use the basic information currently
-stored into the shared 'u32 hint'.
-
-This change also decreases collision rate when
-multiple applications need to connect() to
-different destinations.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: David Dworken <ddworken@google.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Jason A. Donenfeld <Jason@zx2c4.com>
+Cc: Moshe Kol <moshe.kol@mail.huji.ac.il>
+Cc: Yossi Gilad <yossi.gilad@mail.huji.ac.il>
+Cc: Amit Klein <aksecurity@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[SG: Adjusted context]
 Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/inet_hashtables.c |   20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ include/net/inet_hashtables.h |    2 +-
+ include/net/secure_seq.h      |    4 ++--
+ net/core/secure_seq.c         |    4 ++--
+ net/ipv4/inet_hashtables.c    |   10 ++++++----
+ net/ipv6/inet6_hashtables.c   |    4 ++--
+ 5 files changed, 13 insertions(+), 11 deletions(-)
 
+--- a/include/net/inet_hashtables.h
++++ b/include/net/inet_hashtables.h
+@@ -419,7 +419,7 @@ static inline void sk_rcv_saddr_set(stru
+ }
+ 
+ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+-			struct sock *sk, u32 port_offset,
++			struct sock *sk, u64 port_offset,
+ 			int (*check_established)(struct inet_timewait_death_row *,
+ 						 struct sock *, __u16,
+ 						 struct inet_timewait_sock **));
+--- a/include/net/secure_seq.h
++++ b/include/net/secure_seq.h
+@@ -4,8 +4,8 @@
+ 
+ #include <linux/types.h>
+ 
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport);
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport);
+ u32 secure_tcp_seq(__be32 saddr, __be32 daddr,
+ 		   __be16 sport, __be16 dport);
+--- a/net/core/secure_seq.c
++++ b/net/core/secure_seq.c
+@@ -96,7 +96,7 @@ u32 secure_tcpv6_seq(const __be32 *saddr
+ }
+ EXPORT_SYMBOL(secure_tcpv6_seq);
+ 
+-u32 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
++u64 secure_ipv6_port_ephemeral(const __be32 *saddr, const __be32 *daddr,
+ 			       __be16 dport)
+ {
+ 	const struct {
+@@ -146,7 +146,7 @@ u32 secure_tcp_seq(__be32 saddr, __be32
+ }
+ EXPORT_SYMBOL_GPL(secure_tcp_seq);
+ 
+-u32 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
++u64 secure_ipv4_port_ephemeral(__be32 saddr, __be32 daddr, __be16 dport)
+ {
+ 	net_secret_init();
+ 	return siphash_4u32((__force u32)saddr, (__force u32)daddr,
 --- a/net/ipv4/inet_hashtables.c
 +++ b/net/ipv4/inet_hashtables.c
-@@ -722,6 +722,17 @@ void inet_unhash(struct sock *sk)
+@@ -504,7 +504,7 @@ not_unique:
+ 	return -EADDRNOTAVAIL;
  }
- EXPORT_SYMBOL_GPL(inet_unhash);
  
-+/* RFC 6056 3.3.4.  Algorithm 4: Double-Hash Port Selection Algorithm
-+ * Note that we use 32bit integers (vs RFC 'short integers')
-+ * because 2^16 is not a multiple of num_ephemeral and this
-+ * property might be used by clever attacker.
-+ * RFC claims using TABLE_LENGTH=10 buckets gives an improvement,
-+ * we use 256 instead to really give more isolation and
-+ * privacy, this only consumes 1 KB of kernel memory.
-+ */
-+#define INET_TABLE_PERTURB_SHIFT 8
-+static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
-+
+-static u32 inet_sk_port_offset(const struct sock *sk)
++static u64 inet_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
+ 
+@@ -734,7 +734,7 @@ EXPORT_SYMBOL_GPL(inet_unhash);
+ static u32 table_perturb[1 << INET_TABLE_PERTURB_SHIFT];
+ 
  int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 		struct sock *sk, u32 port_offset,
+-		struct sock *sk, u32 port_offset,
++		struct sock *sk, u64 port_offset,
  		int (*check_established)(struct inet_timewait_death_row *,
-@@ -735,8 +746,8 @@ int __inet_hash_connect(struct inet_time
- 	struct inet_bind_bucket *tb;
- 	u32 remaining, offset;
- 	int ret, i, low, high;
--	static u32 hint;
- 	int l3mdev;
-+	u32 index;
+ 			struct sock *, __u16, struct inet_timewait_sock **))
+ {
+@@ -777,7 +777,9 @@ int __inet_hash_connect(struct inet_time
+ 	net_get_random_once(table_perturb, sizeof(table_perturb));
+ 	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
  
- 	if (port) {
- 		head = &hinfo->bhash[inet_bhashfn(net, port,
-@@ -763,7 +774,10 @@ int __inet_hash_connect(struct inet_time
- 	if (likely(remaining > 1))
- 		remaining &= ~1U;
- 
--	offset = (hint + port_offset) % remaining;
-+	net_get_random_once(table_perturb, sizeof(table_perturb));
-+	index = hash_32(port_offset, INET_TABLE_PERTURB_SHIFT);
+-	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
++	offset = READ_ONCE(table_perturb[index]) + port_offset;
++	offset %= remaining;
 +
-+	offset = (READ_ONCE(table_perturb[index]) + port_offset) % remaining;
  	/* In first pass we try ports of @low parity.
  	 * inet_csk_get_port() does the opposite choice.
  	 */
-@@ -817,7 +831,7 @@ next_port:
+@@ -854,7 +856,7 @@ ok:
+ int inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 		      struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet_sk_port_offset(sk);
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -308,7 +308,7 @@ not_unique:
  	return -EADDRNOTAVAIL;
+ }
  
- ok:
--	hint += i + 2;
-+	WRITE_ONCE(table_perturb[index], READ_ONCE(table_perturb[index]) + i + 2);
+-static u32 inet6_sk_port_offset(const struct sock *sk)
++static u64 inet6_sk_port_offset(const struct sock *sk)
+ {
+ 	const struct inet_sock *inet = inet_sk(sk);
  
- 	/* Head lock still held and bh's disabled */
- 	inet_bind_hash(sk, tb, port);
+@@ -320,7 +320,7 @@ static u32 inet6_sk_port_offset(const st
+ int inet6_hash_connect(struct inet_timewait_death_row *death_row,
+ 		       struct sock *sk)
+ {
+-	u32 port_offset = 0;
++	u64 port_offset = 0;
+ 
+ 	if (!inet_sk(sk)->inet_num)
+ 		port_offset = inet6_sk_port_offset(sk);
 
 
