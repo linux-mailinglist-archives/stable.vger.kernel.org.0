@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B78535CA1
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:09:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F24BF535FB8
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:43:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350299AbiE0I6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:58:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52610 "EHLO
+        id S1351585AbiE0Llq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:41:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350321AbiE0I6d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:58:33 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCC611CA3C;
-        Fri, 27 May 2022 01:54:50 -0700 (PDT)
+        with ESMTP id S1351682AbiE0LlX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:41:23 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9814F13C36A;
+        Fri, 27 May 2022 04:39:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 323A761C01;
-        Fri, 27 May 2022 08:54:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05770C385A9;
-        Fri, 27 May 2022 08:54:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A243B824DA;
+        Fri, 27 May 2022 11:39:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8235CC385A9;
+        Fri, 27 May 2022 11:39:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641689;
-        bh=Wf5YjyGS/Miwbxm5fWl0FgB1C4SqltlK0Q2dh7YVefI=;
+        s=korg; t=1653651583;
+        bh=kVj1uQ8j1LBI6A7xCBQ/58jeMjipFUDYx3+qpPNc57o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MAuPNhCXl4nWxZs3NpdzMB4qZOizsmUQgvEa44bAEIiQN9CNydd+rwNxGyoB57ryF
-         FHnoDTvDffpCjAyJdXgp3bJtTTuwP67/PIJSHZjTn0JxqvWtYd5i0D9EV0Woz2QTJ6
-         pPO5IHzTBtnOinUlUP6ukp/G0CEIB6jJWMFa+nKg=
+        b=MEL6o+Xdb26n5uFyHYYAoTTMGXwgRrMOktQ/Mi4J7mr+iikIxK6ozW7xWZomNr0gZ
+         ladhrc8nCOjnz+ut92UpNfGdtRmLc2XhsvbahvKkBk2WTxR1IpgJyQZRO3L1meYXnq
+         yISsJvXbIHTkWdYJO1ApeZFTpWjmHMgmukbN/ark=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 008/111] random: remove use_input_pool parameter from crng_reseed()
+Subject: [PATCH 5.15 019/145] random: early initialization of ChaCha constants
 Date:   Fri, 27 May 2022 10:48:40 +0200
-Message-Id: <20220527084820.288878202@linuxfoundation.org>
+Message-Id: <20220527084853.269699008@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,77 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-commit 5d58ea3a31cc98b9fa563f6921d3d043bf0103d1 upstream.
+commit 96562f286884e2db89c74215b199a1084b5fb7f7 upstream.
 
-The primary_crng is always reseeded from the input_pool, while the NUMA
-crngs are always reseeded from the primary_crng.  Remove the redundant
-'use_input_pool' parameter from crng_reseed() and just directly check
-whether the crng is the primary_crng.
+Previously, the ChaCha constants for the primary pool were only
+initialized in crng_initialize_primary(), called by rand_initialize().
+However, some randomness is actually extracted from the primary pool
+beforehand, e.g. by kmem_cache_create(). Therefore, statically
+initialize the ChaCha constants for the primary pool.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: <linux-crypto@vger.kernel.org>
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/char/random.c   |    5 ++++-
+ include/crypto/chacha.h |   15 +++++++++++----
+ 2 files changed, 15 insertions(+), 5 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -365,7 +365,7 @@ static struct {
+@@ -457,6 +457,10 @@ struct crng_state {
  
- static void extract_entropy(void *buf, size_t nbytes);
- 
--static void crng_reseed(struct crng_state *crng, bool use_input_pool);
-+static void crng_reseed(struct crng_state *crng);
+ static struct crng_state primary_crng = {
+ 	.lock = __SPIN_LOCK_UNLOCKED(primary_crng.lock),
++	.state[0] = CHACHA_CONSTANT_EXPA,
++	.state[1] = CHACHA_CONSTANT_ND_3,
++	.state[2] = CHACHA_CONSTANT_2_BY,
++	.state[3] = CHACHA_CONSTANT_TE_K,
+ };
  
  /*
-  * This function adds bytes into the entropy "pool".  It does not
-@@ -464,7 +464,7 @@ static void credit_entropy_bits(int nbit
- 	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
+@@ -823,7 +827,6 @@ static void crng_initialize_secondary(st
  
- 	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
--		crng_reseed(&primary_crng, true);
-+		crng_reseed(&primary_crng);
- }
- 
- /*********************************************************************
-@@ -701,7 +701,7 @@ static int crng_slow_load(const u8 *cp,
- 	return 1;
- }
- 
--static void crng_reseed(struct crng_state *crng, bool use_input_pool)
-+static void crng_reseed(struct crng_state *crng)
+ static void __init crng_initialize_primary(struct crng_state *crng)
  {
- 	unsigned long flags;
- 	int i;
-@@ -710,7 +710,7 @@ static void crng_reseed(struct crng_stat
- 		u32 key[8];
- 	} buf;
+-	chacha_init_consts(crng->state);
+ 	_extract_entropy(&input_pool, &crng->state[4], sizeof(__u32) * 12, 0);
+ 	if (crng_init_try_arch_early(crng) && trust_cpu && crng_init < 2) {
+ 		invalidate_batched_entropy();
+--- a/include/crypto/chacha.h
++++ b/include/crypto/chacha.h
+@@ -47,12 +47,19 @@ static inline void hchacha_block(const u
+ 		hchacha_block_generic(state, out, nrounds);
+ }
  
--	if (use_input_pool) {
-+	if (crng == &primary_crng) {
- 		int entropy_count;
- 		do {
- 			entropy_count = READ_ONCE(input_pool.entropy_count);
-@@ -748,7 +748,7 @@ static void _extract_crng(struct crng_st
- 		init_time = READ_ONCE(crng->init_time);
- 		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
- 		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
--			crng_reseed(crng, crng == &primary_crng);
-+			crng_reseed(crng);
- 	}
- 	spin_lock_irqsave(&crng->lock, flags);
- 	chacha20_block(&crng->state[0], out);
-@@ -1547,7 +1547,7 @@ static long random_ioctl(struct file *f,
- 			return -EPERM;
- 		if (crng_init < 2)
- 			return -ENODATA;
--		crng_reseed(&primary_crng, true);
-+		crng_reseed(&primary_crng);
- 		WRITE_ONCE(crng_global_init_time, jiffies - 1);
- 		return 0;
- 	default:
++enum chacha_constants { /* expand 32-byte k */
++	CHACHA_CONSTANT_EXPA = 0x61707865U,
++	CHACHA_CONSTANT_ND_3 = 0x3320646eU,
++	CHACHA_CONSTANT_2_BY = 0x79622d32U,
++	CHACHA_CONSTANT_TE_K = 0x6b206574U
++};
++
+ static inline void chacha_init_consts(u32 *state)
+ {
+-	state[0]  = 0x61707865; /* "expa" */
+-	state[1]  = 0x3320646e; /* "nd 3" */
+-	state[2]  = 0x79622d32; /* "2-by" */
+-	state[3]  = 0x6b206574; /* "te k" */
++	state[0]  = CHACHA_CONSTANT_EXPA;
++	state[1]  = CHACHA_CONSTANT_ND_3;
++	state[2]  = CHACHA_CONSTANT_2_BY;
++	state[3]  = CHACHA_CONSTANT_TE_K;
+ }
+ 
+ void chacha_init_arch(u32 *state, const u32 *key, const u8 *iv);
 
 
