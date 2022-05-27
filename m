@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26AE1536024
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03350536185
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239356AbiE0Lq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58508 "EHLO
+        id S1351678AbiE0L7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:59:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351610AbiE0Lon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:44:43 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69826AF1D9;
-        Fri, 27 May 2022 04:41:19 -0700 (PDT)
+        with ESMTP id S1352067AbiE0Lyf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:54:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B64414AF53;
+        Fri, 27 May 2022 04:48:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0478C61CB7;
-        Fri, 27 May 2022 11:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F147C385A9;
-        Fri, 27 May 2022 11:41:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E44C661D9F;
+        Fri, 27 May 2022 11:48:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1BD4C34100;
+        Fri, 27 May 2022 11:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651678;
-        bh=OpoznZMK1Ok1ZJg+f5Ff1jh+Gv+HjqOFJILFgEo6XZU=;
+        s=korg; t=1653652082;
+        bh=0MYS7OwGSsxOj9r4dJeXvJnS30+TdN5SqX5eby8CsFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esRQmetImWxIdQyn6v1tey2w0+ogxUo4I36yzJNMmHVU3mibhsaQWz3WlCwPVSoyN
-         aECkt8bynqE/VVNKwDU5086M06FklIjGAZijMGKQs1P/8uUoNhgdWRYpNjLADBwAIx
-         PxJHLlSdtF/R03aHcjHdm14H/Zqn3JAhWmCxwbNI=
+        b=gSoUUWDxV6qWHnm/0Cr6jZ0T/LiF9EDf9O+mjpgMTaLnXm5PGAfkAUjhM9N9DU0D0
+         1Em/cWemkjV7/95I1UZluxP2Iylh57X1UIUeIPpivTnA0bbcBBEoMr5OCvX+bHnDx6
+         N+ue5ChCStFerzR4hElSi7WB+AOdKIxyIEjCd7uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 062/111] random: check for signal_pending() outside of need_resched() check
+Subject: [PATCH 5.10 094/163] random: check for crng_init == 0 in add_device_randomness()
 Date:   Fri, 27 May 2022 10:49:34 +0200
-Message-Id: <20220527084828.307791407@linuxfoundation.org>
+Message-Id: <20220527084841.096863966@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,46 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jann Horn <jannh@google.com>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1448769c9cdb69ad65287f4f7ab58bc5f2f5d7ba upstream.
+commit 1daf2f387652bf3a7044aea042f5023b3f6b189b upstream.
 
-signal_pending() checks TIF_NOTIFY_SIGNAL and TIF_SIGPENDING, which
-signal that the task should bail out of the syscall when possible. This
-is a separate concept from need_resched(), which checks
-TIF_NEED_RESCHED, signaling that the task should preempt.
+This has no real functional change, as crng_pre_init_inject() (and
+before that, crng_slow_init()) always checks for == 0, not >= 2. So
+correct the outer unlocked change to reflect that. Before this used
+crng_ready(), which was not correct.
 
-In particular, with the current code, the signal_pending() bailout
-probably won't work reliably.
-
-Change this to look like other functions that read lots of data, such as
-read_zero().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Jann Horn <jannh@google.com>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -549,13 +549,13 @@ static ssize_t get_random_bytes_user(voi
- 	}
+@@ -1020,7 +1020,7 @@ void add_device_randomness(const void *b
+ 	unsigned long time = random_get_entropy() ^ jiffies;
+ 	unsigned long flags;
  
- 	do {
--		if (large_request && need_resched()) {
-+		if (large_request) {
- 			if (signal_pending(current)) {
- 				if (!ret)
- 					ret = -ERESTARTSYS;
- 				break;
- 			}
--			schedule();
-+			cond_resched();
- 		}
+-	if (!crng_ready() && size)
++	if (crng_init == 0 && size)
+ 		crng_pre_init_inject(buf, size, false, false);
  
- 		chacha20_block(chacha_state, output);
+ 	spin_lock_irqsave(&input_pool.lock, flags);
 
 
