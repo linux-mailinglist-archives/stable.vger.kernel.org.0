@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B26C853619B
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:03:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31A7F536164
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344170AbiE0MC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:02:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45102 "EHLO
+        id S1346738AbiE0MBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:01:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244780AbiE0MBY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:01:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3DB4A3DF;
-        Fri, 27 May 2022 04:53:13 -0700 (PDT)
+        with ESMTP id S1352649AbiE0MAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:46 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C9A34647;
+        Fri, 27 May 2022 04:52:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 584DA61DB1;
-        Fri, 27 May 2022 11:53:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E3FC385A9;
-        Fri, 27 May 2022 11:53:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF1A2B824D6;
+        Fri, 27 May 2022 11:52:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C283C385A9;
+        Fri, 27 May 2022 11:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652385;
-        bh=6szvqkdjoU+O8bp4LyOclQVEm9CULO8mYqsEvKUxCeE=;
+        s=korg; t=1653652356;
+        bh=l+7bztEPpbz6KM86XanhYsrFT42I640PSPvAsSLajYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cOiwkOrHBDqmoTdSDqEKzKFMUwF7ASi+FqgK7AUlpZkgfS5HUtqqUCZcO1xIcAJ6F
-         egaEPRoCp8N11cGttNNydvQDQ2O5hhaxxomzJcHFitbzszKKhcW8RMOrlD82UNa4U7
-         QZELce4i/L4QkRuRdrXx52zqdd1bb0Yp3EZi3o8g=
+        b=hnaeOuS+r0kinORtf960Rsfk8YxY6ANBOorwSZ2+emK6p7PK58GUmq8rxMSH57tpW
+         Oi4HUudKXmJRQsjBk7w6NHuGnC/98d6+dN3X2Kdl0P3/aukYZUHtTNFvVNpcZi2dxm
+         5dJR9BU475F4C/gTXN6Bd6TtlglFWpcXVRynMssg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Joe Perches <joe@perches.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 145/163] random: use symbolic constants for crng_init states
-Date:   Fri, 27 May 2022 10:50:25 +0200
-Message-Id: <20220527084848.554998845@linuxfoundation.org>
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 125/145] random: help compiler out with fast_mix() by using simpler arguments
+Date:   Fri, 27 May 2022 10:50:26 +0200
+Message-Id: <20220527084905.724178098@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,123 +54,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit e3d2c5e79a999aa4e7d6f0127e16d3da5a4ff70d upstream.
+commit 791332b3cbb080510954a4c152ce02af8832eac9 upstream.
 
-crng_init represents a state machine, with three states, and various
-rules for transitions. For the longest time, we've been managing these
-with "0", "1", and "2", and expecting people to figure it out. To make
-the code more obvious, replace these with proper enum values
-representing the transition, and then redocument what each of these
-states mean.
+Now that fast_mix() has more than one caller, gcc no longer inlines it.
+That's fine. But it also doesn't handle the compound literal argument we
+pass it very efficiently, nor does it handle the loop as well as it
+could. So just expand the code to spell out this function so that it
+generates the same code as it did before. Performance-wise, this now
+behaves as it did before the last commit. The difference in actual code
+size on x86 is 45 bytes, which is less than a cache line.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: Joe Perches <joe@perches.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ drivers/char/random.c |   44 +++++++++++++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 21 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -70,16 +70,16 @@
-  *********************************************************************/
- 
- /*
-- * crng_init =  0 --> Uninitialized
-- *		1 --> Initialized
-- *		2 --> Initialized from input_pool
-- *
-  * crng_init is protected by base_crng->lock, and only increases
-- * its value (from 0->1->2).
-+ * its value (from empty->early->ready).
+@@ -1031,25 +1031,30 @@ static DEFINE_PER_CPU(struct fast_pool,
+  * and therefore this has no security on its own. s represents the
+  * four-word SipHash state, while v represents a two-word input.
   */
--static int crng_init = 0;
--#define crng_ready() (likely(crng_init > 1))
--/* Various types of waiters for crng_init->2 transition. */
-+static enum {
-+	CRNG_EMPTY = 0, /* Little to no entropy collected */
-+	CRNG_EARLY = 1, /* At least POOL_EARLY_BITS collected */
-+	CRNG_READY = 2  /* Fully initialized with POOL_READY_BITS collected */
-+} crng_init = CRNG_EMPTY;
-+#define crng_ready() (likely(crng_init >= CRNG_READY))
-+/* Various types of waiters for crng_init->CRNG_READY transition. */
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- static struct fasync_struct *fasync;
- static DEFINE_SPINLOCK(random_ready_chain_lock);
-@@ -284,7 +284,7 @@ static void crng_reseed(void)
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
- 	if (!crng_ready()) {
--		crng_init = 2;
-+		crng_init = CRNG_READY;
- 		finalize_init = true;
- 	}
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
-@@ -378,7 +378,7 @@ static void crng_make_state(u32 chacha_s
- 	 * For the fast path, we check whether we're ready, unlocked first, and
- 	 * then re-check once locked later. In the case where we're really not
- 	 * ready, we do fast key erasure with the base_crng directly, extracting
--	 * when crng_init==0.
-+	 * when crng_init is CRNG_EMPTY.
+-static void fast_mix(unsigned long s[4], const unsigned long v[2])
++static void fast_mix(unsigned long s[4], unsigned long v1, unsigned long v2)
+ {
+-	size_t i;
+-
+-	for (i = 0; i < 2; ++i) {
+-		s[3] ^= v[i];
+ #ifdef CONFIG_64BIT
+-		s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32);
+-		s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2];
+-		s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0];
+-		s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32);
++#define PERM() do { \
++	s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32); \
++	s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2]; \
++	s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0]; \
++	s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32); \
++} while (0)
+ #else
+-		s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16);
+-		s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2];
+-		s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0];
+-		s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16);
++#define PERM() do { \
++	s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16); \
++	s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2]; \
++	s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0]; \
++	s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16); \
++} while (0)
+ #endif
+-		s[0] ^= v[i];
+-	}
++
++	s[3] ^= v1;
++	PERM();
++	s[0] ^= v1;
++	s[3] ^= v2;
++	PERM();
++	s[0] ^= v2;
+ }
+ 
+ #ifdef CONFIG_SMP
+@@ -1119,10 +1124,8 @@ void add_interrupt_randomness(int irq)
+ 	struct pt_regs *regs = get_irq_regs();
+ 	unsigned int new_count;
+ 
+-	fast_mix(fast_pool->pool, (unsigned long[2]){
+-		entropy,
+-		(regs ? instruction_pointer(regs) : _RET_IP_) ^ swab(irq)
+-	});
++	fast_mix(fast_pool->pool, entropy,
++		 (regs ? instruction_pointer(regs) : _RET_IP_) ^ swab(irq));
+ 	new_count = ++fast_pool->count;
+ 
+ 	if (new_count & MIX_INFLIGHT)
+@@ -1162,8 +1165,7 @@ static void add_timer_randomness(struct
+ 	 * sometime after, so mix into the fast pool.
  	 */
- 	if (!crng_ready()) {
- 		bool ready;
-@@ -386,7 +386,7 @@ static void crng_make_state(u32 chacha_s
- 		spin_lock_irqsave(&base_crng.lock, flags);
- 		ready = crng_ready();
- 		if (!ready) {
--			if (crng_init == 0)
-+			if (crng_init == CRNG_EMPTY)
- 				extract_entropy(base_crng.key, sizeof(base_crng.key));
- 			crng_fast_key_erasure(base_crng.key, chacha_state,
- 					      random_data, random_data_len);
-@@ -740,8 +740,8 @@ EXPORT_SYMBOL(get_random_bytes_arch);
- 
- enum {
- 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
--	POOL_INIT_BITS = POOL_BITS, /* No point in settling for less. */
--	POOL_FAST_INIT_BITS = POOL_INIT_BITS / 2
-+	POOL_READY_BITS = POOL_BITS, /* When crng_init->CRNG_READY */
-+	POOL_EARLY_BITS = POOL_READY_BITS / 2 /* When crng_init->CRNG_EARLY */
- };
- 
- static struct {
-@@ -836,13 +836,13 @@ static void credit_init_bits(size_t nbit
- 		init_bits = min_t(unsigned int, POOL_BITS, orig + add);
- 	} while (cmpxchg(&input_pool.init_bits, orig, init_bits) != orig);
- 
--	if (!crng_ready() && init_bits >= POOL_INIT_BITS)
-+	if (!crng_ready() && init_bits >= POOL_READY_BITS)
- 		crng_reseed();
--	else if (unlikely(crng_init == 0 && init_bits >= POOL_FAST_INIT_BITS)) {
-+	else if (unlikely(crng_init == CRNG_EMPTY && init_bits >= POOL_EARLY_BITS)) {
- 		spin_lock_irqsave(&base_crng.lock, flags);
--		if (crng_init == 0) {
-+		if (crng_init == CRNG_EMPTY) {
- 			extract_entropy(base_crng.key, sizeof(base_crng.key));
--			crng_init = 1;
-+			crng_init = CRNG_EARLY;
- 		}
- 		spin_unlock_irqrestore(&base_crng.lock, flags);
- 	}
-@@ -1517,7 +1517,7 @@ const struct file_operations urandom_fop
-  *
-  * - write_wakeup_threshold - the amount of entropy in the input pool
-  *   below which write polls to /dev/random will unblock, requesting
-- *   more entropy, tied to the POOL_INIT_BITS constant. It is writable
-+ *   more entropy, tied to the POOL_READY_BITS constant. It is writable
-  *   to avoid breaking old userspaces, but writing to it does not
-  *   change any behavior of the RNG.
-  *
-@@ -1532,7 +1532,7 @@ const struct file_operations urandom_fop
- #include <linux/sysctl.h>
- 
- static int sysctl_random_min_urandom_seed = CRNG_RESEED_INTERVAL / HZ;
--static int sysctl_random_write_wakeup_bits = POOL_INIT_BITS;
-+static int sysctl_random_write_wakeup_bits = POOL_READY_BITS;
- static int sysctl_poolsize = POOL_BITS;
- static u8 sysctl_bootid[UUID_SIZE];
- 
+ 	if (in_hardirq()) {
+-		fast_mix(this_cpu_ptr(&irq_randomness)->pool,
+-			 (unsigned long[2]){ entropy, num });
++		fast_mix(this_cpu_ptr(&irq_randomness)->pool, entropy, num);
+ 	} else {
+ 		spin_lock_irqsave(&input_pool.lock, flags);
+ 		_mix_pool_bytes(&entropy, sizeof(entropy));
 
 
