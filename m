@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78F8353613E
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D30536025
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352032AbiE0L4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:56:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44306 "EHLO
+        id S244236AbiE0Lq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:46:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352677AbiE0Lzf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:35 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C713C15BAED;
-        Fri, 27 May 2022 04:48:58 -0700 (PDT)
+        with ESMTP id S1352095AbiE0LpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:22 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3CCF140868;
+        Fri, 27 May 2022 04:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60814B824D7;
-        Fri, 27 May 2022 11:48:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB3C9C385A9;
-        Fri, 27 May 2022 11:48:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E0DD61D46;
+        Fri, 27 May 2022 11:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEC0C385A9;
+        Fri, 27 May 2022 11:41:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652136;
-        bh=112rpqfBHZG5Knz4Q5D4qmKKkDWxTkkyP+SwPAWWXkY=;
+        s=korg; t=1653651716;
+        bh=YVFCm9IvwmgkDNWZPZYSkH8bYCAZpNilJPeiWNu6Xuk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KiI4ZmXbV6FbHvkWyFKCOFa8Jhp3wbszeWdcjIfbOLy4Qk5lk6Bd8uhSC86HwEU1b
-         L7tWz3guqGDXwgriSPXZt0U4mLwn3WdnH2PCucVyoNW8YONw8vfy+5yIqkRqpKSZqv
-         ZEDtLTcd6W9idCam1mELkPJVrqJDWdB3nZnca4Uo=
+        b=tJa0bnddslGgrff/oR3XdFvx18vcwFhEHGEjrGcL3j9vikd7djdrXtCHhoLu4R+YO
+         vFvET2O+j0tldo+yu1VsqZRnRAcIFPKBdP1P9zyXXOba1aR8Bsph8rJKtV+9RaMSns
+         ZSd3m50ompDFxeVjMAAPlwSztBrR9rbVKwwHO5q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 085/145] random: dont let 644 read-only sysctls be written to
-Date:   Fri, 27 May 2022 10:49:46 +0200
-Message-Id: <20220527084900.929777265@linuxfoundation.org>
+Subject: [PATCH 5.17 075/111] m68k: use fallback for random_get_entropy() instead of zero
+Date:   Fri, 27 May 2022 10:49:47 +0200
+Message-Id: <20220527084830.091696429@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,54 +57,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 77553cf8f44863b31da242cf24671d76ddb61597 upstream.
+commit 0f392c95391f2d708b12971a07edaa7973f9eece upstream.
 
-We leave around these old sysctls for compatibility, and we keep them
-"writable" for compatibility, but even after writing, we should keep
-reporting the same value. This is consistent with how userspaces tend to
-use sysctl_random_write_wakeup_bits, writing to it, and then later
-reading from it and using the value.
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/m68k/include/asm/timex.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1669,6 +1669,13 @@ static int proc_do_uuid(struct ctl_table
- 	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+--- a/arch/m68k/include/asm/timex.h
++++ b/arch/m68k/include/asm/timex.h
+@@ -35,7 +35,7 @@ static inline unsigned long random_get_e
+ {
+ 	if (mach_random_get_entropy)
+ 		return mach_random_get_entropy();
+-	return 0;
++	return random_get_entropy_fallback();
  }
+ #define random_get_entropy	random_get_entropy
  
-+/* The same as proc_dointvec, but writes don't change anything. */
-+static int proc_do_rointvec(struct ctl_table *table, int write, void *buffer,
-+			    size_t *lenp, loff_t *ppos)
-+{
-+	return write ? 0 : proc_dointvec(table, 0, buffer, lenp, ppos);
-+}
-+
- extern struct ctl_table random_table[];
- struct ctl_table random_table[] = {
- 	{
-@@ -1690,14 +1697,14 @@ struct ctl_table random_table[] = {
- 		.data		= &sysctl_random_write_wakeup_bits,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_do_rointvec,
- 	},
- 	{
- 		.procname	= "urandom_min_reseed_secs",
- 		.data		= &sysctl_random_min_urandom_seed,
- 		.maxlen		= sizeof(int),
- 		.mode		= 0644,
--		.proc_handler	= proc_dointvec,
-+		.proc_handler	= proc_do_rointvec,
- 	},
- 	{
- 		.procname	= "boot_id",
 
 
