@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B911353611A
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF08353614B
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352291AbiE0L7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:59:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57522 "EHLO
+        id S1351659AbiE0L4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:56:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352292AbiE0LzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:16 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AADE14AF63;
-        Fri, 27 May 2022 04:48:09 -0700 (PDT)
+        with ESMTP id S1352481AbiE0LzY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103FF14AF73;
+        Fri, 27 May 2022 04:48:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D880E61D92;
-        Fri, 27 May 2022 11:48:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6C99C385A9;
-        Fri, 27 May 2022 11:48:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74CB5B824D6;
+        Fri, 27 May 2022 11:48:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB607C34100;
+        Fri, 27 May 2022 11:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652088;
-        bh=16LFNup+v25/VvNo3CxgLkxi4CTpG2cxX/qybxkt+Iw=;
+        s=korg; t=1653652112;
+        bh=vtFNrDwG4XkEmWxVaHM5wkzf3qnqfc1b2p90edXAux0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I2dbHlkeZRUJbBO7P3S3eHye4K0jGTecIK6KFshwVeMF5m2U7P0rwavOutn/01pLl
-         wkIyppAsCwDn+XbfFSttV0Mz+ErKGxLSsYW6XYqPx5SH3duM07UQ3MARN6/2Y/WUag
-         J1hHMrnFZmY4rQX+LMM5EY0vYJ8+iyVxbSGdwLiA=
+        b=PLoL+GbSBJfvSZ6lTsl3XFrkWiFGkkjyFTeAYr30a8KUSBcSjlv2mrGR9pdE2gGe4
+         3Uu3Iv8yB4UDvHZHBkzzGjIWuE2V3eOi2js1pJg7QWUySgy8OlWjeyPtVrDgzNTT9H
+         hST2mT1FMGhbOLuhEDmRjiQ43rbkHV8kIvyCWMKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matt Mackall <mpm@selenic.com>,
-        Theodore Tso <tytso@mit.edu>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 095/163] random: pull add_hwgenerator_randomness() declaration into random.h
+Subject: [PATCH 5.15 074/145] random: do not take pool spinlock at boot
 Date:   Fri, 27 May 2022 10:49:35 +0200
-Message-Id: <20220527084841.218676971@linuxfoundation.org>
+Message-Id: <20220527084859.513239128@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,61 +56,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit b777c38239fec5a528e59f55b379e31b1a187524 upstream.
+commit afba0b80b977b2a8f16234f2acd982f82710ba33 upstream.
 
-add_hwgenerator_randomness() is a function implemented and documented
-inside of random.c. It is the way that hardware RNGs push data into it.
-Therefore, it should be declared in random.h. Otherwise sparse complains
-with:
+Since rand_initialize() is run while interrupts are still off and
+nothing else is running, we don't need to repeatedly take and release
+the pool spinlock, especially in the RDSEED loop.
 
-random.c:1137:6: warning: symbol 'add_hwgenerator_randomness' was not declared. Should it be static?
-
-The alternative would be to include hw_random.h into random.c, but that
-wouldn't really be good for anything except slowing down compile time.
-
-Cc: Matt Mackall <mpm@selenic.com>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Reviewed-by: Eric Biggers <ebiggers@google.com>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/hw_random/core.c |    1 +
- include/linux/hw_random.h     |    2 --
- include/linux/random.h        |    2 ++
- 3 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/char/random.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/char/hw_random/core.c
-+++ b/drivers/char/hw_random/core.c
-@@ -15,6 +15,7 @@
- #include <linux/err.h>
- #include <linux/fs.h>
- #include <linux/hw_random.h>
-+#include <linux/random.h>
- #include <linux/kernel.h>
- #include <linux/kthread.h>
- #include <linux/sched/signal.h>
---- a/include/linux/hw_random.h
-+++ b/include/linux/hw_random.h
-@@ -60,7 +60,5 @@ extern int devm_hwrng_register(struct de
- /** Unregister a Hardware Random Number Generator driver. */
- extern void hwrng_unregister(struct hwrng *rng);
- extern void devm_hwrng_unregister(struct device *dve, struct hwrng *rng);
--/** Feed random bits into the pool. */
--extern void add_hwgenerator_randomness(const void *buffer, size_t count, size_t entropy);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -978,10 +978,10 @@ int __init rand_initialize(void)
+ 			rv = random_get_entropy();
+ 			arch_init = false;
+ 		}
+-		mix_pool_bytes(&rv, sizeof(rv));
++		_mix_pool_bytes(&rv, sizeof(rv));
+ 	}
+-	mix_pool_bytes(&now, sizeof(now));
+-	mix_pool_bytes(utsname(), sizeof(*(utsname())));
++	_mix_pool_bytes(&now, sizeof(now));
++	_mix_pool_bytes(utsname(), sizeof(*(utsname())));
  
- #endif /* LINUX_HWRANDOM_H_ */
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -32,6 +32,8 @@ static inline void add_latent_entropy(vo
- extern void add_input_randomness(unsigned int type, unsigned int code,
- 				 unsigned int value) __latent_entropy;
- extern void add_interrupt_randomness(int irq) __latent_entropy;
-+extern void add_hwgenerator_randomness(const void *buffer, size_t count,
-+				       size_t entropy);
- 
- extern void get_random_bytes(void *buf, size_t nbytes);
- extern int wait_for_random_bytes(void);
+ 	extract_entropy(base_crng.key, sizeof(base_crng.key));
+ 	++base_crng.generation;
 
 
