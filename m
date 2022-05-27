@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4314853602B
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 286F953615A
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351865AbiE0LrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:47:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56840 "EHLO
+        id S1345655AbiE0L4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:56:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352342AbiE0Lpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:52 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF95314677D;
-        Fri, 27 May 2022 04:42:27 -0700 (PDT)
+        with ESMTP id S1352781AbiE0Lzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E409115D311;
+        Fri, 27 May 2022 04:49:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F178F61D19;
-        Fri, 27 May 2022 11:42:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09AACC385A9;
-        Fri, 27 May 2022 11:42:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58DA0B824CA;
+        Fri, 27 May 2022 11:49:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B412FC34100;
+        Fri, 27 May 2022 11:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651746;
-        bh=YAaAnfdN5DGX6izEPZPLbxRmKyDvGykDk8xyS2lO+OE=;
+        s=korg; t=1653652142;
+        bh=KTs+xomYX51L3KBxgiY1mlchgYaaGZ2z5mj5sA2Wqxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bANu/a6KxG0XE7w7jHxMKV/PKmnFg5azMUd7VatrJIyJtz4EgGC0/a2uiEWZ4sKJd
-         PydBRoUZ8/JVdF+PfO/BujyANPKgH6fruCysQgThizwURKzC9wb0guzr3kkaGr+6JQ
-         DWJcgHc/xwBcp75MhKV+HzrVrtTJAROqbIrooTQU=
+        b=vw7M+3hjxrzKdspFCetmSSi12wdwT4livKm+GirbB695dVFJGu5u21vwkEulrQTro
+         uqdU8EeYDtkiFb7zvCrC8FmgRy9PexCNmQkbQFOGqr6lKCIpeml5tEOkAj+57F07x9
+         5sZ4Hl5Ff1KJP8v7XuYetovdhqQs8YDlOoptEYA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 078/111] arm: use fallback for random_get_entropy() instead of zero
-Date:   Fri, 27 May 2022 10:49:50 +0200
-Message-Id: <20220527084830.509591474@linuxfoundation.org>
+Subject: [PATCH 5.15 090/145] random: check for signal and try earlier when generating entropy
+Date:   Fri, 27 May 2022 10:49:51 +0200
+Message-Id: <20220527084901.573803487@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,34 +56,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit ff8a8f59c99f6a7c656387addc4d9f2247d75077 upstream.
+commit 3e504d2026eb6c8762cd6040ae57db166516824a upstream.
 
-In the event that random_get_entropy() can't access a cycle counter or
-similar, falling back to returning 0 is really not the best we can do.
-Instead, at least calling random_get_entropy_fallback() would be
-preferable, because that always needs to return _something_, even
-falling back to jiffies eventually. It's not as though
-random_get_entropy_fallback() is super high precision or guaranteed to
-be entropic, but basically anything that's not zero all the time is
-better than returning zero all the time.
+Rather than waiting a full second in an interruptable waiter before
+trying to generate entropy, try to generate entropy first and wait
+second. While waiting one second might give an extra second for getting
+entropy from elsewhere, we're already pretty late in the init process
+here, and whatever else is generating entropy will still continue to
+contribute. This has implications on signal handling: we call
+try_to_generate_entropy() from wait_for_random_bytes(), and
+wait_for_random_bytes() always uses wait_event_interruptible_timeout()
+when waiting, since it's called by userspace code in restartable
+contexts, where signals can pend. Since try_to_generate_entropy() now
+runs first, if a signal is pending, it's necessary for
+try_to_generate_entropy() to check for signals, since it won't hit the
+wait until after try_to_generate_entropy() has returned. And even before
+this change, when entering a busy loop in try_to_generate_entropy(), we
+should have been checking to see if any signals are pending, so that a
+process doesn't get stuck in that loop longer than expected.
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/timex.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/random.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/arm/include/asm/timex.h
-+++ b/arch/arm/include/asm/timex.h
-@@ -11,5 +11,6 @@
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -127,10 +127,11 @@ int wait_for_random_bytes(void)
+ {
+ 	while (!crng_ready()) {
+ 		int ret;
++
++		try_to_generate_entropy();
+ 		ret = wait_event_interruptible_timeout(crng_init_wait, crng_ready(), HZ);
+ 		if (ret)
+ 			return ret > 0 ? 0 : ret;
+-		try_to_generate_entropy();
+ 	}
+ 	return 0;
+ }
+@@ -1371,7 +1372,7 @@ static void try_to_generate_entropy(void
+ 		return;
  
- typedef unsigned long cycles_t;
- #define get_cycles()	({ cycles_t c; read_current_timer(&c) ? 0 : c; })
-+#define random_get_entropy() (((unsigned long)get_cycles()) ?: random_get_entropy_fallback())
- 
- #endif
+ 	timer_setup_on_stack(&stack.timer, entropy_timer, 0);
+-	while (!crng_ready()) {
++	while (!crng_ready() && !signal_pending(current)) {
+ 		if (!timer_pending(&stack.timer))
+ 			mod_timer(&stack.timer, jiffies + 1);
+ 		mix_pool_bytes(&stack.cycles, sizeof(stack.cycles));
 
 
