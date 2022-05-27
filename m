@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C4453611E
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17D8536089
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343663AbiE0L46 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
+        id S1349850AbiE0Lvx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:51:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352907AbiE0Lzp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BA1715D336;
-        Fri, 27 May 2022 04:49:15 -0700 (PDT)
+        with ESMTP id S1352519AbiE0Luc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:32 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF05313F913;
+        Fri, 27 May 2022 04:44:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E806E61DD1;
-        Fri, 27 May 2022 11:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDB6EC34100;
-        Fri, 27 May 2022 11:49:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6618BB8091D;
+        Fri, 27 May 2022 11:44:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CECF8C385A9;
+        Fri, 27 May 2022 11:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652154;
-        bh=MJ3ioA9L3duUCEK+ANNZZFEjSPbY9PI+/BmLpwwTanA=;
+        s=korg; t=1653651883;
+        bh=Trgz+USAQPCv1R/UHnPbOXYDe7Kd+M22X+yARLpqOVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fD5u0zPH2LIdkG79/+7JYC2/KCBDVqleddAqjMDAbR1EcdwByP73M/WEPTnFXui//
-         6EwZYe3rTGz2vbXYh4mc4WTAh8kpNJKk6nKQGi26eJu1rfik07q/JaEC7RhlyQw8Se
-         DCm/npWZ9f/mAtzXgQe8u5WUUecyhHfGdSs7dYQc=
+        b=j3bNJrTh1ef/dncMHHVLBYvvmcy0JN0RvTck0O3whC3cIir3d/RTfVfPprcSEboNP
+         wAXZzzuDtYay5XlQWcROYMAl462r5q1ZBPb8nPBKeUHFmCChxHb5gQ7cjHvOu3as1R
+         XAfpWz5SVkueftF+xWDKuv2xqtp3p66Nil4l/wWs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Graham Christensen <graham@grahamc.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 092/145] random: treat bootloader trust toggle the same way as cpu trust toggle
+Subject: [PATCH 5.17 081/111] um: use fallback for random_get_entropy() instead of zero
 Date:   Fri, 27 May 2022 10:49:53 +0200
-Message-Id: <20220527084901.776147540@linuxfoundation.org>
+Message-Id: <20220527084830.934991691@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,87 +59,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit d97c68d178fbf8aaaf21b69b446f2dfb13909316 upstream.
+commit 9f13fb0cd11ed2327abff69f6501a2c124c88b5a upstream.
 
-If CONFIG_RANDOM_TRUST_CPU is set, the RNG initializes using RDRAND.
-But, the user can disable (or enable) this behavior by setting
-`random.trust_cpu=0/1` on the kernel command line. This allows system
-builders to do reasonable things while avoiding howls from tinfoil
-hatters. (Or vice versa.)
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
 
-CONFIG_RANDOM_TRUST_BOOTLOADER is basically the same thing, but regards
-the seed passed via EFI or device tree, which might come from RDRAND or
-a TPM or somewhere else. In order to allow distros to more easily enable
-this while avoiding those same howls (or vice versa), this commit adds
-the corresponding `random.trust_bootloader=0/1` toggle.
+This is accomplished by just including the asm-generic code like on
+other architectures, which means we can get rid of the empty stub
+function here.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Graham Christensen <graham@grahamc.com>
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Link: https://github.com/NixOS/nixpkgs/pull/165355
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/admin-guide/kernel-parameters.txt |    6 ++++++
- drivers/char/Kconfig                            |    3 ++-
- drivers/char/random.c                           |    8 +++++++-
- 3 files changed, 15 insertions(+), 2 deletions(-)
+ arch/um/include/asm/timex.h |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4307,6 +4307,12 @@
- 			fully seed the kernel's CRNG. Default is controlled
- 			by CONFIG_RANDOM_TRUST_CPU.
+--- a/arch/um/include/asm/timex.h
++++ b/arch/um/include/asm/timex.h
+@@ -2,13 +2,8 @@
+ #ifndef __UM_TIMEX_H
+ #define __UM_TIMEX_H
  
-+	random.trust_bootloader={on,off}
-+			[KNL] Enable or disable trusting the use of a
-+			seed passed by the bootloader (if available) to
-+			fully seed the kernel's CRNG. Default is controlled
-+			by CONFIG_RANDOM_TRUST_BOOTLOADER.
+-typedef unsigned long cycles_t;
+-
+-static inline cycles_t get_cycles (void)
+-{
+-	return 0;
+-}
+-
+ #define CLOCK_TICK_RATE (HZ)
+ 
++#include <asm-generic/timex.h>
 +
- 	randomize_kstack_offset=
- 			[KNL] Enable or disable kernel stack offset
- 			randomization, which provides roughly 5 bits of
---- a/drivers/char/Kconfig
-+++ b/drivers/char/Kconfig
-@@ -449,6 +449,7 @@ config RANDOM_TRUST_BOOTLOADER
- 	device randomness. Say Y here to assume the entropy provided by the
- 	booloader is trustworthy so it will be added to the kernel's entropy
- 	pool. Otherwise, say N here so it will be regarded as device input that
--	only mixes the entropy pool.
-+	only mixes the entropy pool. This can also be configured at boot with
-+	"random.trust_bootloader=on/off".
- 
- endmenu
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -945,11 +945,17 @@ static bool drain_entropy(void *buf, siz
-  **********************************************************************/
- 
- static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
-+static bool trust_bootloader __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER);
- static int __init parse_trust_cpu(char *arg)
- {
- 	return kstrtobool(arg, &trust_cpu);
- }
-+static int __init parse_trust_bootloader(char *arg)
-+{
-+	return kstrtobool(arg, &trust_bootloader);
-+}
- early_param("random.trust_cpu", parse_trust_cpu);
-+early_param("random.trust_bootloader", parse_trust_bootloader);
- 
- /*
-  * The first collection of entropy occurs at system boot while interrupts
-@@ -1157,7 +1163,7 @@ EXPORT_SYMBOL_GPL(add_hwgenerator_random
-  */
- void add_bootloader_randomness(const void *buf, size_t size)
- {
--	if (IS_ENABLED(CONFIG_RANDOM_TRUST_BOOTLOADER))
-+	if (trust_bootloader)
- 		add_hwgenerator_randomness(buf, size, size * 8);
- 	else
- 		add_device_randomness(buf, size);
+ #endif
 
 
