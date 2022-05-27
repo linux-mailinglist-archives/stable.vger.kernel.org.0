@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEFA536074
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EAA7536077
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352075AbiE0Lwi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:52:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40124 "EHLO
+        id S233055AbiE0LxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:53:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353110AbiE0LvT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:19 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB470140401;
-        Fri, 27 May 2022 04:46:48 -0700 (PDT)
+        with ESMTP id S1353171AbiE0LvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8EC3146763;
+        Fri, 27 May 2022 04:46:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 29D78CE2511;
-        Fri, 27 May 2022 11:46:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29971C34100;
-        Fri, 27 May 2022 11:46:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCDC161D19;
+        Fri, 27 May 2022 11:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBDBC385A9;
+        Fri, 27 May 2022 11:46:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652005;
-        bh=trZ59+XpiQPUmzkHj3yrl4lopt/Bhj9dNgOw0Ox5BlY=;
+        s=korg; t=1653652017;
+        bh=Yy5gQPcfw9NC/kuApdrxoyH05hh4EnBXxxCCeB24uyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4Sqq8v4T5K79MI8MRzpdbevGqofgxq5pR0qqkIFzh558NI+dMaWL2YjzFH5uYb8Q
-         Aa5KfwfoYvnsf5v/QpeTyJnYD+/Gbx9zANKc0A1av84ocbCwdSqzDSWHq5M70CINQ+
-         7hEUjZNgiPTrw+BUAwQWYV7gP2ZHE24iX2E62cMc=
+        b=pqh8z+m+v3QW8DDUkhKwzymCHNTBC3CHngPQQ5sR5tyNGJbIz2BzqnmNLc5ftMpGk
+         HoOYnvsX3tTrodci24pdk+G7DvCKoDASQ0Hamfj3xmXU2fIDyvBT9ispXm3/tsOf7Y
+         DVtjnYwu/gfa7FgjtfmUtO2fxAqa0aMzc1NT9TMk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 109/111] random: check for signals after page of pool writes
-Date:   Fri, 27 May 2022 10:50:21 +0200
-Message-Id: <20220527084834.659525831@linuxfoundation.org>
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Veronika Kabatova <vkabatov@redhat.com>,
+        Aristeu Rozanski <aris@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        dann frazier <dann.frazier@canonical.com>
+Subject: [PATCH 5.17 110/111] ACPI: sysfs: Fix BERT error region memory mapping
+Date:   Fri, 27 May 2022 10:50:22 +0200
+Message-Id: <20220527084834.798679404@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
 In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
 References: <20220527084819.133490171@linuxfoundation.org>
@@ -54,101 +58,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Jason A. Donenfeld" <Jason@zx2c4.com>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 
-commit 1ce6c8d68f8ac587f54d0a271ac594d3d51f3efb upstream.
+commit 1bbc21785b7336619fb6a67f1fff5afdaf229acc upstream.
 
-get_random_bytes_user() checks for signals after producing a PAGE_SIZE
-worth of output, just like /dev/zero does. write_pool() is doing
-basically the same work (actually, slightly more expensive), and so
-should stop to check for signals in the same way. Let's also name it
-write_pool_user() to match get_random_bytes_user(), so this won't be
-misused in the future.
+Currently the sysfs interface maps the BERT error region as "memory"
+(through acpi_os_map_memory()) in order to copy the error records into
+memory buffers through memory operations (eg memory_read_from_buffer()).
 
-Before this patch, massive writes to /dev/urandom would tie up the
-process for an extremely long time and make it unterminatable. After, it
-can be successfully interrupted. The following test program can be used
-to see this works as intended:
+The OS system cannot detect whether the BERT error region is part of
+system RAM or it is "device memory" (eg BMC memory) and therefore it
+cannot detect which memory attributes the bus to memory support (and
+corresponding kernel mapping, unless firmware provides the required
+information).
 
-  #include <unistd.h>
-  #include <fcntl.h>
-  #include <signal.h>
-  #include <stdio.h>
+The acpi_os_map_memory() arch backend implementation determines the
+mapping attributes. On arm64, if the BERT error region is not present in
+the EFI memory map, the error region is mapped as device-nGnRnE; this
+triggers alignment faults since memcpy unaligned accesses are not
+allowed in device-nGnRnE regions.
 
-  static unsigned char x[~0U];
+The ACPI sysfs code cannot therefore map by default the BERT error
+region with memory semantics but should use a safer default.
 
-  static void handle(int) { }
+Change the sysfs code to map the BERT error region as MMIO (through
+acpi_os_map_iomem()) and use the memcpy_fromio() interface to read the
+error region into the kernel buffer.
 
-  int main(int argc, char *argv[])
-  {
-    pid_t pid = getpid(), child;
-    int fd;
-    signal(SIGUSR1, handle);
-    if (!(child = fork())) {
-      for (;;)
-        kill(pid, SIGUSR1);
-    }
-    fd = open("/dev/urandom", O_WRONLY);
-    pause();
-    printf("interrupted after writing %zd bytes\n", write(fd, x, sizeof(x)));
-    close(fd);
-    kill(child, SIGTERM);
-    return 0;
-  }
-
-Result before: "interrupted after writing 2147479552 bytes"
-Result after: "interrupted after writing 4096 bytes"
-
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/linux-arm-kernel/31ffe8fc-f5ee-2858-26c5-0fd8bdd68702@arm.com
+Link: https://lore.kernel.org/linux-acpi/CAJZ5v0g+OVbhuUUDrLUCfX_mVqY_e8ubgLTU98=jfjTeb4t+Pw@mail.gmail.com
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Tested-by: Veronika Kabatova <vkabatov@redhat.com>
+Tested-by: Aristeu Rozanski <aris@redhat.com>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: dann frazier <dann.frazier@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/acpi/sysfs.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -1253,7 +1253,7 @@ static __poll_t random_poll(struct file
- 	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
- }
- 
--static ssize_t write_pool(struct iov_iter *iter)
-+static ssize_t write_pool_user(struct iov_iter *iter)
+--- a/drivers/acpi/sysfs.c
++++ b/drivers/acpi/sysfs.c
+@@ -415,19 +415,30 @@ static ssize_t acpi_data_show(struct fil
+ 			      loff_t offset, size_t count)
  {
- 	u8 block[BLAKE2S_BLOCK_SIZE];
- 	ssize_t ret = 0;
-@@ -1268,7 +1268,13 @@ static ssize_t write_pool(struct iov_ite
- 		mix_pool_bytes(block, copied);
- 		if (!iov_iter_count(iter) || copied != sizeof(block))
- 			break;
--		cond_resched();
+ 	struct acpi_data_attr *data_attr;
+-	void *base;
+-	ssize_t rc;
++	void __iomem *base;
++	ssize_t size;
+ 
+ 	data_attr = container_of(bin_attr, struct acpi_data_attr, attr);
++	size = data_attr->attr.size;
+ 
+-	base = acpi_os_map_memory(data_attr->addr, data_attr->attr.size);
++	if (offset < 0)
++		return -EINVAL;
 +
-+		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
-+		if (ret % PAGE_SIZE == 0) {
-+			if (signal_pending(current))
-+				break;
-+			cond_resched();
-+		}
- 	}
++	if (offset >= size)
++		return 0;
++
++	if (count > size - offset)
++		count = size - offset;
++
++	base = acpi_os_map_iomem(data_attr->addr, size);
+ 	if (!base)
+ 		return -ENOMEM;
+-	rc = memory_read_from_buffer(buf, count, &offset, base,
+-				     data_attr->attr.size);
+-	acpi_os_unmap_memory(base, data_attr->attr.size);
  
- 	memzero_explicit(block, sizeof(block));
-@@ -1277,7 +1283,7 @@ static ssize_t write_pool(struct iov_ite
- 
- static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
- {
--	return write_pool(iter);
-+	return write_pool_user(iter);
+-	return rc;
++	memcpy_fromio(buf, base + offset, count);
++
++	acpi_os_unmap_iomem(base, size);
++
++	return count;
  }
  
- static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
-@@ -1344,7 +1350,7 @@ static long random_ioctl(struct file *f,
- 		ret = import_single_range(WRITE, p, len, &iov, &iter);
- 		if (unlikely(ret))
- 			return ret;
--		ret = write_pool(&iter);
-+		ret = write_pool_user(&iter);
- 		if (unlikely(ret < 0))
- 			return ret;
- 		/* Since we're crediting, enforce that it was all written into the pool. */
+ static int acpi_bert_data_init(void *th, struct acpi_data_attr *data_attr)
 
 
