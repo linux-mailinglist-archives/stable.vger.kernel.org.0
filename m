@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED5EB53607C
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9803F535C1D
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236373AbiE0Lvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:51:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41104 "EHLO
+        id S1350051AbiE0Ixj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352482AbiE0Lua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:50:30 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD6013F929;
-        Fri, 27 May 2022 04:44:42 -0700 (PDT)
+        with ESMTP id S1350065AbiE0IxK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:53:10 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA1F5C74A;
+        Fri, 27 May 2022 01:52:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64838B824D2;
-        Fri, 27 May 2022 11:44:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE006C385A9;
-        Fri, 27 May 2022 11:44:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15E5561D3D;
+        Fri, 27 May 2022 08:52:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69D4C34100;
+        Fri, 27 May 2022 08:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651880;
-        bh=F6HYdTu8y5D04U97NP8ICb8h5IlyZ/Zzy3gf8MAugFE=;
+        s=korg; t=1653641556;
+        bh=Trgz+USAQPCv1R/UHnPbOXYDe7Kd+M22X+yARLpqOVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPc6XXyHGlL/IfGYYcTmgyq9RkoxACUvpmidgNE2trGTiYenAaW+ZwLjyUPVxRY/g
-         52G7VfQdAP1xokfNrIKV42guvYZlbms79WbD/4+1EEyEBHIBKTM8ktV/4vz56AH0Fg
-         IbIj9odeS52XIXCT8Db2Aa11pgP7vIh0BIpfY/Ek=
+        b=w7tDwd2tUwyQZQnW2Rml27p+hsB8vwgs5eIDJXTDb03trH6zO4NTq9IyAvAhGuRES
+         AtvnqjuR4LbaJN38J3nJQk9UYhj8YWrIfTmGJUG/aS6ZZcG22YG5JpgsjJI/bN+Z5O
+         Z99qC9SbGGxAejAZxeSTeNw31LUOY48OSciehhzc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Johannes Berg <johannes@sipsolutions.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 085/111] random: do not use batches when !crng_ready()
+Subject: [PATCH 5.18 17/47] um: use fallback for random_get_entropy() instead of zero
 Date:   Fri, 27 May 2022 10:49:57 +0200
-Message-Id: <20220527084831.533585046@linuxfoundation.org>
+Message-Id: <20220527084804.121132542@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+References: <20220527084801.223648383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,59 +59,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit cbe89e5a375a51bbb952929b93fa973416fea74e upstream.
+commit 9f13fb0cd11ed2327abff69f6501a2c124c88b5a upstream.
 
-It's too hard to keep the batches synchronized, and pointless anyway,
-since in !crng_ready(), we're updating the base_crng key really often,
-where batching only hurts. So instead, if the crng isn't ready, just
-call into get_random_bytes(). At this stage nothing is performance
-critical anyhow.
+In the event that random_get_entropy() can't access a cycle counter or
+similar, falling back to returning 0 is really not the best we can do.
+Instead, at least calling random_get_entropy_fallback() would be
+preferable, because that always needs to return _something_, even
+falling back to jiffies eventually. It's not as though
+random_get_entropy_fallback() is super high precision or guaranteed to
+be entropic, but basically anything that's not zero all the time is
+better than returning zero all the time.
 
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+This is accomplished by just including the asm-generic code like on
+other architectures, which means we can get rid of the empty stub
+function here.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Acked-by: Johannes Berg <johannes@sipsolutions.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ arch/um/include/asm/timex.h |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -465,10 +465,8 @@ static void crng_pre_init_inject(const v
+--- a/arch/um/include/asm/timex.h
++++ b/arch/um/include/asm/timex.h
+@@ -2,13 +2,8 @@
+ #ifndef __UM_TIMEX_H
+ #define __UM_TIMEX_H
  
- 	if (account) {
- 		crng_init_cnt += min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
--		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
--			++base_crng.generation;
-+		if (crng_init_cnt >= CRNG_INIT_CNT_THRESH)
- 			crng_init = 1;
--		}
- 	}
+-typedef unsigned long cycles_t;
+-
+-static inline cycles_t get_cycles (void)
+-{
+-	return 0;
+-}
+-
+ #define CLOCK_TICK_RATE (HZ)
  
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
-@@ -624,6 +622,11 @@ u64 get_random_u64(void)
- 
- 	warn_unseeded_randomness(&previous);
- 
-+	if  (!crng_ready()) {
-+		_get_random_bytes(&ret, sizeof(ret));
-+		return ret;
-+	}
++#include <asm-generic/timex.h>
 +
- 	local_lock_irqsave(&batched_entropy_u64.lock, flags);
- 	batch = raw_cpu_ptr(&batched_entropy_u64);
- 
-@@ -658,6 +661,11 @@ u32 get_random_u32(void)
- 
- 	warn_unseeded_randomness(&previous);
- 
-+	if  (!crng_ready()) {
-+		_get_random_bytes(&ret, sizeof(ret));
-+		return ret;
-+	}
-+
- 	local_lock_irqsave(&batched_entropy_u32.lock, flags);
- 	batch = raw_cpu_ptr(&batched_entropy_u32);
- 
+ #endif
 
 
