@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CF64536140
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1240536176
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352144AbiE0L6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44308 "EHLO
+        id S235838AbiE0L4s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:56:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352809AbiE0Lzl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:41 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58A0814C756;
-        Fri, 27 May 2022 04:49:06 -0700 (PDT)
+        with ESMTP id S1352449AbiE0LzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27E9A15AB09;
+        Fri, 27 May 2022 04:48:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8F4261DCD;
-        Fri, 27 May 2022 11:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1ACDC385A9;
-        Fri, 27 May 2022 11:49:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 949F6B824D8;
+        Fri, 27 May 2022 11:48:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8A7EC385A9;
+        Fri, 27 May 2022 11:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652145;
-        bh=+yXCN6LsLZw4ymaLYj7OAp5qq05YuXM3U0IUlnpGKlo=;
+        s=korg; t=1653652106;
+        bh=ucDUMGX37eDIy4saYwPoYkShV8xHADijJcGiVrrzHbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XTrOlQD3eR5NbtlDgcVd8z2gx7+NUG3DKQn6MqqfWb6eSZAZOy7exisSEQOx5pCJx
-         Ge/ttj4ged19p4T0conUo/VVzH5pyBTdKYaVkS8DUc2STSkYH57gjaCJB75EDukbOQ
-         NqjgCeVo6WgsltqVa083koqW58rPx7v0YxfBejcI=
+        b=Vf27RQhx1CqPkrvhYVGuQJ8nVJGW6VxEIgou2T86uIKO9PTAfP8lveqagHOG+6dS+
+         rjchnNBaWVu5Rjda7SQkDRYhnsaQJ1+MO15XmVkNvA5UM4ldw4f96ePBIjM+4s0CTY
+         XWArr+79hysOyqU3uFPqbBAfeDsyU2VSeLeqhP3I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Sultan Alsawaf <sultan@kerneltoast.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 104/163] random: replace custom notifier chain with standard one
+Subject: [PATCH 5.15 083/145] random: do crng pre-init loading in worker rather than irq
 Date:   Fri, 27 May 2022 10:49:44 +0200
-Message-Id: <20220527084842.524084759@linuxfoundation.org>
+Message-Id: <20220527084900.691053723@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,297 +61,163 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 5acd35487dc911541672b3ffc322851769c32a56 upstream.
+commit c2a7de4feb6e09f23af7accc0f882a8fa92e7ae5 upstream.
 
-We previously rolled our own randomness readiness notifier, which only
-has two users in the whole kernel. Replace this with a more standard
-atomic notifier block that serves the same purpose with less code. Also
-unexport the symbols, because no modules use it, only unconditional
-builtins. The only drawback is that it's possible for a notification
-handler returning the "stop" code to prevent further processing, but
-given that there are only two users, and that we're unexporting this
-anyway, that doesn't seem like a significant drawback for the
-simplification we receive here.
+Taking spinlocks from IRQ context is generally problematic for
+PREEMPT_RT. That is, in part, why we take trylocks instead. However, a
+spin_try_lock() is also problematic since another spin_lock() invocation
+can potentially PI-boost the wrong task, as the spin_try_lock() is
+invoked from an IRQ-context, so the task on CPU (random task or idle) is
+not the actual owner.
 
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Additionally, by deferring the crng pre-init loading to the worker, we
+can use the cryptographic hash function rather than xor, which is
+perhaps a meaningful difference when considering this data has only been
+through the relatively weak fast_mix() function.
+
+The biggest downside of this approach is that the pre-init loading is
+now deferred until later, which means things that need random numbers
+after interrupts are enabled, but before workqueues are running -- or
+before this particular worker manages to run -- are going to get into
+trouble. Hopefully in the real world, this window is rather small,
+especially since this code won't run until 64 interrupts had occurred.
+
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Eric Biggers <ebiggers@kernel.org>
 Cc: Theodore Ts'o <tytso@mit.edu>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-[Jason: for stable, also backported to crypto/drbg.c, not unexporting.]
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- crypto/drbg.c          |   17 +++++-------
- drivers/char/random.c  |   69 ++++++++++++++-----------------------------------
- include/crypto/drbg.h  |    2 -
- include/linux/random.h |   10 ++-----
- lib/random32.c         |   13 +++++----
- lib/vsprintf.c         |   10 ++++---
- 6 files changed, 47 insertions(+), 74 deletions(-)
+ drivers/char/random.c |   65 ++++++++++++++------------------------------------
+ 1 file changed, 19 insertions(+), 46 deletions(-)
 
---- a/crypto/drbg.c
-+++ b/crypto/drbg.c
-@@ -1490,12 +1490,13 @@ static int drbg_generate_long(struct drb
- 	return 0;
- }
- 
--static void drbg_schedule_async_seed(struct random_ready_callback *rdy)
-+static int drbg_schedule_async_seed(struct notifier_block *nb, unsigned long action, void *data)
- {
--	struct drbg_state *drbg = container_of(rdy, struct drbg_state,
-+	struct drbg_state *drbg = container_of(nb, struct drbg_state,
- 					       random_ready);
- 
- 	schedule_work(&drbg->seed_work);
-+	return 0;
- }
- 
- static int drbg_prepare_hrng(struct drbg_state *drbg)
-@@ -1510,10 +1511,8 @@ static int drbg_prepare_hrng(struct drbg
- 
- 	INIT_WORK(&drbg->seed_work, drbg_async_seed);
- 
--	drbg->random_ready.owner = THIS_MODULE;
--	drbg->random_ready.func = drbg_schedule_async_seed;
--
--	err = add_random_ready_callback(&drbg->random_ready);
-+	drbg->random_ready.notifier_call = drbg_schedule_async_seed;
-+	err = register_random_ready_notifier(&drbg->random_ready);
- 
- 	switch (err) {
- 	case 0:
-@@ -1524,7 +1523,7 @@ static int drbg_prepare_hrng(struct drbg
- 		fallthrough;
- 
- 	default:
--		drbg->random_ready.func = NULL;
-+		drbg->random_ready.notifier_call = NULL;
- 		return err;
- 	}
- 
-@@ -1628,8 +1627,8 @@ free_everything:
-  */
- static int drbg_uninstantiate(struct drbg_state *drbg)
- {
--	if (drbg->random_ready.func) {
--		del_random_ready_callback(&drbg->random_ready);
-+	if (drbg->random_ready.notifier_call) {
-+		unregister_random_ready_notifier(&drbg->random_ready);
- 		cancel_work_sync(&drbg->seed_work);
- 	}
- 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -83,8 +83,8 @@ static int crng_init = 0;
- /* Various types of waiters for crng_init->2 transition. */
- static DECLARE_WAIT_QUEUE_HEAD(crng_init_wait);
- static struct fasync_struct *fasync;
--static DEFINE_SPINLOCK(random_ready_list_lock);
--static LIST_HEAD(random_ready_list);
-+static DEFINE_SPINLOCK(random_ready_chain_lock);
-+static RAW_NOTIFIER_HEAD(random_ready_chain);
- 
- /* Control how we warn userspace. */
- static struct ratelimit_state unseeded_warning =
-@@ -147,72 +147,45 @@ EXPORT_SYMBOL(wait_for_random_bytes);
+@@ -443,10 +443,6 @@ static void crng_make_state(u32 chacha_s
+  * boot time when it's better to have something there rather than
+  * nothing.
   *
-  * returns: 0 if callback is successfully added
-  *	    -EALREADY if pool is already initialised (callback not called)
-- *	    -ENOENT if module for callback is not alive
+- * There are two paths, a slow one and a fast one. The slow one
+- * hashes the input along with the current key. The fast one simply
+- * xors it in, and should only be used from interrupt context.
+- *
+  * If account is set, then the crng_init_cnt counter is incremented.
+  * This shouldn't be set by functions like add_device_randomness(),
+  * where we can't trust the buffer passed to it is guaranteed to be
+@@ -455,19 +451,15 @@ static void crng_make_state(u32 chacha_s
+  * Returns the number of bytes processed from input, which is bounded
+  * by CRNG_INIT_CNT_THRESH if account is true.
   */
--int add_random_ready_callback(struct random_ready_callback *rdy)
-+int register_random_ready_notifier(struct notifier_block *nb)
+-static size_t crng_pre_init_inject(const void *input, size_t len,
+-				   bool fast, bool account)
++static size_t crng_pre_init_inject(const void *input, size_t len, bool account)
  {
--	struct module *owner;
+ 	static int crng_init_cnt = 0;
++	struct blake2s_state hash;
  	unsigned long flags;
--	int err = -EALREADY;
-+	int ret = -EALREADY;
  
- 	if (crng_ready())
--		return err;
-+		return ret;
- 
--	owner = rdy->owner;
--	if (!try_module_get(owner))
--		return -ENOENT;
--
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	if (crng_ready())
--		goto out;
--
--	owner = NULL;
--
--	list_add(&rdy->list, &random_ready_list);
--	err = 0;
--
--out:
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
--
--	module_put(owner);
--
--	return err;
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	if (!crng_ready())
-+		ret = raw_notifier_chain_register(&random_ready_chain, nb);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
-+	return ret;
- }
--EXPORT_SYMBOL(add_random_ready_callback);
-+EXPORT_SYMBOL(register_random_ready_notifier);
- 
- /*
-  * Delete a previously registered readiness callback function.
-  */
--void del_random_ready_callback(struct random_ready_callback *rdy)
-+int unregister_random_ready_notifier(struct notifier_block *nb)
- {
- 	unsigned long flags;
--	struct module *owner = NULL;
--
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	if (!list_empty(&rdy->list)) {
--		list_del_init(&rdy->list);
--		owner = rdy->owner;
+-	if (fast) {
+-		if (!spin_trylock_irqsave(&base_crng.lock, flags))
+-			return 0;
+-	} else {
+-		spin_lock_irqsave(&base_crng.lock, flags);
 -	}
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
-+	int ret;
++	blake2s_init(&hash, sizeof(base_crng.key));
  
--	module_put(owner);
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	ret = raw_notifier_chain_unregister(&random_ready_chain, nb);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
-+	return ret;
- }
--EXPORT_SYMBOL(del_random_ready_callback);
-+EXPORT_SYMBOL(unregister_random_ready_notifier);
++	spin_lock_irqsave(&base_crng.lock, flags);
+ 	if (crng_init != 0) {
+ 		spin_unlock_irqrestore(&base_crng.lock, flags);
+ 		return 0;
+@@ -476,21 +468,9 @@ static size_t crng_pre_init_inject(const
+ 	if (account)
+ 		len = min_t(size_t, len, CRNG_INIT_CNT_THRESH - crng_init_cnt);
  
- static void process_random_ready_list(void)
- {
- 	unsigned long flags;
--	struct random_ready_callback *rdy, *tmp;
- 
--	spin_lock_irqsave(&random_ready_list_lock, flags);
--	list_for_each_entry_safe(rdy, tmp, &random_ready_list, list) {
--		struct module *owner = rdy->owner;
+-	if (fast) {
+-		const u8 *src = input;
+-		size_t i;
 -
--		list_del_init(&rdy->list);
--		rdy->func(rdy);
--		module_put(owner);
+-		for (i = 0; i < len; ++i)
+-			base_crng.key[(crng_init_cnt + i) %
+-				      sizeof(base_crng.key)] ^= src[i];
+-	} else {
+-		struct blake2s_state hash;
+-
+-		blake2s_init(&hash, sizeof(base_crng.key));
+-		blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
+-		blake2s_update(&hash, input, len);
+-		blake2s_final(&hash, base_crng.key);
 -	}
--	spin_unlock_irqrestore(&random_ready_list_lock, flags);
-+	spin_lock_irqsave(&random_ready_chain_lock, flags);
-+	raw_notifier_call_chain(&random_ready_chain, 0, NULL);
-+	spin_unlock_irqrestore(&random_ready_chain_lock, flags);
++	blake2s_update(&hash, base_crng.key, sizeof(base_crng.key));
++	blake2s_update(&hash, input, len);
++	blake2s_final(&hash, base_crng.key);
+ 
+ 	if (account) {
+ 		crng_init_cnt += len;
+@@ -1034,7 +1014,7 @@ void add_device_randomness(const void *b
+ 	unsigned long flags, now = jiffies;
+ 
+ 	if (crng_init == 0 && size)
+-		crng_pre_init_inject(buf, size, false, false);
++		crng_pre_init_inject(buf, size, false);
+ 
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(&cycles, sizeof(cycles));
+@@ -1155,7 +1135,7 @@ void add_hwgenerator_randomness(const vo
+ 				size_t entropy)
+ {
+ 	if (unlikely(crng_init == 0)) {
+-		size_t ret = crng_pre_init_inject(buffer, count, false, true);
++		size_t ret = crng_pre_init_inject(buffer, count, true);
+ 		mix_pool_bytes(buffer, ret);
+ 		count -= ret;
+ 		buffer += ret;
+@@ -1295,8 +1275,14 @@ static void mix_interrupt_randomness(str
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
+ 
+-	mix_pool_bytes(pool, sizeof(pool));
+-	credit_entropy_bits(1);
++	if (unlikely(crng_init == 0)) {
++		crng_pre_init_inject(pool, sizeof(pool), true);
++		mix_pool_bytes(pool, sizeof(pool));
++	} else {
++		mix_pool_bytes(pool, sizeof(pool));
++		credit_entropy_bits(1);
++	}
++
+ 	memzero_explicit(pool, sizeof(pool));
  }
  
- #define warn_unseeded_randomness(previous) \
---- a/include/crypto/drbg.h
-+++ b/include/crypto/drbg.h
-@@ -136,7 +136,7 @@ struct drbg_state {
- 	const struct drbg_state_ops *d_ops;
- 	const struct drbg_core *core;
- 	struct drbg_string test_data;
--	struct random_ready_callback random_ready;
-+	struct notifier_block random_ready;
- };
+@@ -1329,24 +1315,11 @@ void add_interrupt_randomness(int irq)
+ 	fast_mix(fast_pool->pool32);
+ 	new_count = ++fast_pool->count;
  
- static inline __u8 drbg_statelen(struct drbg_state *drbg)
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -10,11 +10,7 @@
+-	if (unlikely(crng_init == 0)) {
+-		if (new_count >= 64 &&
+-		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+-					 true, true) > 0) {
+-			fast_pool->count = 0;
+-			fast_pool->last = now;
+-			if (spin_trylock(&input_pool.lock)) {
+-				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+-				spin_unlock(&input_pool.lock);
+-			}
+-		}
+-		return;
+-	}
+-
+ 	if (new_count & MIX_INFLIGHT)
+ 		return;
  
- #include <uapi/linux/random.h>
+-	if (new_count < 64 && !time_after(now, fast_pool->last + HZ))
++	if (new_count < 64 && (!time_after(now, fast_pool->last + HZ) ||
++			       unlikely(crng_init == 0)))
+ 		return;
  
--struct random_ready_callback {
--	struct list_head list;
--	void (*func)(struct random_ready_callback *rdy);
--	struct module *owner;
--};
-+struct notifier_block;
- 
- extern void add_device_randomness(const void *, size_t);
- extern void add_bootloader_randomness(const void *, size_t);
-@@ -39,8 +35,8 @@ extern void get_random_bytes(void *buf,
- extern int wait_for_random_bytes(void);
- extern int __init rand_initialize(void);
- extern bool rng_is_initialized(void);
--extern int add_random_ready_callback(struct random_ready_callback *rdy);
--extern void del_random_ready_callback(struct random_ready_callback *rdy);
-+extern int register_random_ready_notifier(struct notifier_block *nb);
-+extern int unregister_random_ready_notifier(struct notifier_block *nb);
- extern size_t __must_check get_random_bytes_arch(void *buf, size_t nbytes);
- 
- #ifndef MODULE
---- a/lib/random32.c
-+++ b/lib/random32.c
-@@ -40,6 +40,7 @@
- #include <linux/sched.h>
- #include <linux/bitops.h>
- #include <linux/slab.h>
-+#include <linux/notifier.h>
- #include <asm/unaligned.h>
- 
- /**
-@@ -551,9 +552,11 @@ static void prandom_reseed(struct timer_
-  * To avoid worrying about whether it's safe to delay that interrupt
-  * long enough to seed all CPUs, just schedule an immediate timer event.
-  */
--static void prandom_timer_start(struct random_ready_callback *unused)
-+static int prandom_timer_start(struct notifier_block *nb,
-+			       unsigned long action, void *data)
- {
- 	mod_timer(&seed_timer, jiffies);
-+	return 0;
- }
- 
- #ifdef CONFIG_RANDOM32_SELFTEST
-@@ -617,13 +620,13 @@ core_initcall(prandom32_state_selftest);
-  */
- static int __init prandom_init_late(void)
- {
--	static struct random_ready_callback random_ready = {
--		.func = prandom_timer_start
-+	static struct notifier_block random_ready = {
-+		.notifier_call = prandom_timer_start
- 	};
--	int ret = add_random_ready_callback(&random_ready);
-+	int ret = register_random_ready_notifier(&random_ready);
- 
- 	if (ret == -EALREADY) {
--		prandom_timer_start(&random_ready);
-+		prandom_timer_start(&random_ready, 0, NULL);
- 		ret = 0;
- 	}
- 	return ret;
---- a/lib/vsprintf.c
-+++ b/lib/vsprintf.c
-@@ -756,14 +756,16 @@ static void enable_ptr_key_workfn(struct
- 
- static DECLARE_WORK(enable_ptr_key_work, enable_ptr_key_workfn);
- 
--static void fill_random_ptr_key(struct random_ready_callback *unused)
-+static int fill_random_ptr_key(struct notifier_block *nb,
-+			       unsigned long action, void *data)
- {
- 	/* This may be in an interrupt handler. */
- 	queue_work(system_unbound_wq, &enable_ptr_key_work);
-+	return 0;
- }
- 
--static struct random_ready_callback random_ready = {
--	.func = fill_random_ptr_key
-+static struct notifier_block random_ready = {
-+	.notifier_call = fill_random_ptr_key
- };
- 
- static int __init initialize_ptr_random(void)
-@@ -777,7 +779,7 @@ static int __init initialize_ptr_random(
- 		return 0;
- 	}
- 
--	ret = add_random_ready_callback(&random_ready);
-+	ret = register_random_ready_notifier(&random_ready);
- 	if (!ret) {
- 		return 0;
- 	} else if (ret == -EALREADY) {
+ 	if (unlikely(!fast_pool->mix.func))
 
 
