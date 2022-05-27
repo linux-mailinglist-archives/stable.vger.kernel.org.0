@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78B0E5360F1
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3A0535C93
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 11:08:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352023AbiE0L6f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:58:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
+        id S1350212AbiE0I4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 04:56:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353396AbiE0L41 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:56:27 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2907325F0;
-        Fri, 27 May 2022 04:51:44 -0700 (PDT)
+        with ESMTP id S1350397AbiE0IzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:55:20 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA6C10788C;
+        Fri, 27 May 2022 01:53:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D31EC61DD0;
-        Fri, 27 May 2022 11:51:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC964C34100;
-        Fri, 27 May 2022 11:51:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E84CAB823DE;
+        Fri, 27 May 2022 08:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B1A9C385B8;
+        Fri, 27 May 2022 08:53:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652303;
-        bh=Trgz+USAQPCv1R/UHnPbOXYDe7Kd+M22X+yARLpqOVw=;
+        s=korg; t=1653641626;
+        bh=Pu004UeJieE94Qq4MdYdoSkCJ8QNo7YEbeiPXnVO3xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbKuxwP7lJ8nLu9afhLF6Ww0tKr5uEjj7RXJeUuF6hXwsCSJLuBcEjqtKRwSItLh+
-         TIJcQVeD5OkhEFGdUXA3As7M0xqXl17YE+V5wiJI/TWCRW5HZw3Qr/Eqx2bRfgnaC4
-         7WZisMvJCvtgMYZxtnbb/YNiJihAXwY/5Mz3PKk8=
+        b=ZEdCjGJdeGxqRodZtnydGfMxN+RoVbdsC55eE1XRbDzCA6G3e0VEViEur2EHaQtSr
+         TwNPeek3U8QDXQAb9ME2McsYKiKWQ7mO73NI8ox1+4cAp0MJeKR1hGO+dtss3DY/NH
+         IwYQ/k5AgGK0j92PmlMXZTIRnyQQWt3O3JKeKV9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 116/145] um: use fallback for random_get_entropy() instead of zero
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.18 37/47] random: use proper return types on get_random_{int,long}_wait()
 Date:   Fri, 27 May 2022 10:50:17 +0200
-Message-Id: <20220527084904.555889326@linuxfoundation.org>
+Message-Id: <20220527084807.437298401@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+References: <20220527084801.223648383@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-6.3 required=5.0 tests=BAYES_00,DATE_IN_PAST_03_06,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,49 +54,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 9f13fb0cd11ed2327abff69f6501a2c124c88b5a upstream.
+commit 7c3a8a1db5e03d02cc0abb3357a84b8b326dfac3 upstream.
 
-In the event that random_get_entropy() can't access a cycle counter or
-similar, falling back to returning 0 is really not the best we can do.
-Instead, at least calling random_get_entropy_fallback() would be
-preferable, because that always needs to return _something_, even
-falling back to jiffies eventually. It's not as though
-random_get_entropy_fallback() is super high precision or guaranteed to
-be entropic, but basically anything that's not zero all the time is
-better than returning zero all the time.
+Before these were returning signed values, but the API is intended to be
+used with unsigned values.
 
-This is accomplished by just including the asm-generic code like on
-other architectures, which means we can get rid of the empty stub
-function here.
-
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Acked-by: Johannes Berg <johannes@sipsolutions.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/asm/timex.h |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ include/linux/random.h |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/um/include/asm/timex.h
-+++ b/arch/um/include/asm/timex.h
-@@ -2,13 +2,8 @@
- #ifndef __UM_TIMEX_H
- #define __UM_TIMEX_H
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -90,18 +90,18 @@ static inline int get_random_bytes_wait(
+ 	return ret;
+ }
  
--typedef unsigned long cycles_t;
--
--static inline cycles_t get_cycles (void)
--{
--	return 0;
--}
--
- #define CLOCK_TICK_RATE (HZ)
+-#define declare_get_random_var_wait(var) \
+-	static inline int get_random_ ## var ## _wait(var *out) { \
++#define declare_get_random_var_wait(name, ret_type) \
++	static inline int get_random_ ## name ## _wait(ret_type *out) { \
+ 		int ret = wait_for_random_bytes(); \
+ 		if (unlikely(ret)) \
+ 			return ret; \
+-		*out = get_random_ ## var(); \
++		*out = get_random_ ## name(); \
+ 		return 0; \
+ 	}
+-declare_get_random_var_wait(u32)
+-declare_get_random_var_wait(u64)
+-declare_get_random_var_wait(int)
+-declare_get_random_var_wait(long)
++declare_get_random_var_wait(u32, u32)
++declare_get_random_var_wait(u64, u32)
++declare_get_random_var_wait(int, unsigned int)
++declare_get_random_var_wait(long, unsigned long)
+ #undef declare_get_random_var
  
-+#include <asm-generic/timex.h>
-+
- #endif
+ /*
 
 
