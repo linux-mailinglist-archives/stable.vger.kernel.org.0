@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A72553631C
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 15:02:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C1DE53631E
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 15:02:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351635AbiE0NCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238766AbiE0NCt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 27 May 2022 09:02:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238766AbiE0NCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 09:02:48 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0CFB3BBF6;
-        Fri, 27 May 2022 06:02:45 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id e2so5829558wrc.1;
-        Fri, 27 May 2022 06:02:45 -0700 (PDT)
+        with ESMTP id S1351708AbiE0NCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 09:02:49 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D10BA3D1CA;
+        Fri, 27 May 2022 06:02:47 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id t13so5782271wrg.9;
+        Fri, 27 May 2022 06:02:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=GX4MGgyF/rjjoLGNo+9vAqeePSGvpBNozK+r4g9/A+k=;
-        b=WF5HqPxbrl/Q0v5xS46WO1rdGfy3EU8Ofaho5g9NSk0r5JGrIU41JYpKF3I4HTr8HD
-         Yj+JGTfZeNs7XnviBu8b6O4DK6MvNBQepI8Ul1QIfni/dkmL1lT42rWxcrPpLJ6SiQau
-         6NHbwO/BYVcG5249uVPL/iFmNMP6QfGeVaBDmx3zXBLiPDQxU1oRAfldywMe+YOMACNU
-         unfMV5VpqgFsGNT8s8FyXBlRGMW6jPk2Pe3rRkvZ4LOGq1cj6MnQsW6bMK88SZpdPF2f
-         tArFk3Uhqr1vbZj6sH2aWpJbV4uxSH+nonJS4AVzJG0b3K2T2DfZv1FyCgk7tHMMgFPL
-         V4rA==
+        bh=JLC0ja767iUSkq7vhFyAS50rOOoNLE8fxflV1RxjsDw=;
+        b=Ce6wcdcXt1TAE8vflH0kt2qVCXUEDquQRzoIk1QsLPSGKJrxv3/TWyDqkldiZiWz0i
+         k8BmU2cHFMYpYIz7l/TmmHqM4jECDfOmJDkNpEnSV1UYyVN1PwGyjkOT1sFLztdxuf7j
+         03V0sclyQft903HsVmOJyNBGyJkQM0BQ14QvteT6NOt384n6wmrEAFffIkYzFpiIBADj
+         VbIWdsAnwG+4FO8kXzCPL/xz9Eb0/wvN9KzgOtWNWbRmy9qwdujT4zn5Cqcy6qEhHy3g
+         4+5AgZiSQwx0RQSCSK635GjjPyUPTpUjkH66gAVXE/iAC+1EsH7aVDhVhJdROlx8mR+/
+         zfsw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=GX4MGgyF/rjjoLGNo+9vAqeePSGvpBNozK+r4g9/A+k=;
-        b=OioIdla4XHvyfsKgOBhgBrj+eScesWMKrtmxi+yakK8ROBOfte07i4YQ+CvPqI0PGV
-         hGwAqI1PvmuJfabV9BUo5gXWbJQUlCsWGADOS+P8aU/vdziC2GmfP4IOinFC2c4IC+Gk
-         iHylbOQu5WXMeb7FuRjyyuZxY0os9qpSozeKUbuRsdHq+VMM3GqE6tR7+8nZL+lQuXmY
-         ykeyKG00NG2zWxim9aVHqHxzeBOGsLVrztLcmcztF5LYv3IKbdg5N+4XWVJyB4pG40fL
-         1ivzoH4etnQmjaFrdNDk3RXNiE7d6EF1dsRpPJNFrq1c334mtgUy6P+liulONSqCXsiS
-         dDtg==
-X-Gm-Message-State: AOAM530xfpFn98JslyPykhyTF9S1Yc/MwD82sUZ0rhaBjM0/kLfxd/kc
-        7XBURuqPatchCySA2i0OcU0=
-X-Google-Smtp-Source: ABdhPJy1q3PRNZwMMAFcy5ZRipoCnbeFWrR/Mu0fze51q6kG+gtQQO4yW+vNSHIcK0KgSJt1oBFUDg==
-X-Received: by 2002:adf:f145:0:b0:210:598:4042 with SMTP id y5-20020adff145000000b0021005984042mr7755494wro.139.1653656563929;
-        Fri, 27 May 2022 06:02:43 -0700 (PDT)
+        bh=JLC0ja767iUSkq7vhFyAS50rOOoNLE8fxflV1RxjsDw=;
+        b=45gzbWS2yG3VVVCbA8F2IhVnbxtgS+6hupEzX/rhOKG5lelpuz+4vg9U8R0+S2b266
+         GK4uQZgHagtj/JH6xxbPX+DnPfzlYczkBdSqb4azmww7x8QLlFIOKDrarh9nYERu18kS
+         MADukhc9+zpRdTC9JBJg+NeuItvydJzpVI3Lbp4SB/xNK+Q8Qjyuo8LhYlK0YOVDmN0V
+         0jF6HjUvZsQGbPYhnV7U5/p/I1GktCA0vMd2Oie0ZERZDlMb/eJUbnmgYA5bWadRhXsv
+         8GBNJkc0DKyVxpTuSn8BEWVD2Q4H7XZEXObIw7Os8XpNpO4kiPo0D5S/eUWBGROB94UV
+         ylXw==
+X-Gm-Message-State: AOAM530Wje47LQprJmMgsdrqGHTfzPn2iaEO++/ikdRq0rCsS+5st0s7
+        dTbs3ZqhPM+C4AAfcJ34DfA=
+X-Google-Smtp-Source: ABdhPJyGfv0GNalT3vaY58hB+nHmb/F/PaoEmeY5GqBbuarpYL5V3V1J4FYuHWh3NQwVeXwyIPLoSA==
+X-Received: by 2002:a05:6000:791:b0:20e:615c:aae4 with SMTP id bu17-20020a056000079100b0020e615caae4mr35246264wrb.206.1653656566234;
+        Fri, 27 May 2022 06:02:46 -0700 (PDT)
 Received: from amir-ThinkPad-T480.lan ([77.137.79.96])
-        by smtp.gmail.com with ESMTPSA id l36-20020a05600c08a400b003942a244f48sm1932569wmp.33.2022.05.27.06.02.41
+        by smtp.gmail.com with ESMTPSA id l36-20020a05600c08a400b003942a244f48sm1932569wmp.33.2022.05.27.06.02.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 May 2022 06:02:43 -0700 (PDT)
+        Fri, 27 May 2022 06:02:45 -0700 (PDT)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -60,10 +60,11 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Adam Manzanares <a.manzanares@samsung.com>,
         Tyler Hicks <code@tyhicks.com>, Jan Kara <jack@suse.cz>,
         linux-xfs@vger.kernel.org, stable@vger.kernel.org,
-        zlang@redhat.com, Dave Chinner <dchinner@redhat.com>
-Subject: [PATCH 5.10 v2 3/5] xfs: fix the forward progress assertion in xfs_iwalk_run_callbacks
-Date:   Fri, 27 May 2022 16:02:17 +0300
-Message-Id: <20220527130219.3110260-4-amir73il@gmail.com>
+        wenli xie <wlxie7296@gmail.com>,
+        Brian Foster <bfoster@redhat.com>
+Subject: [PATCH 5.10 v2 4/5] xfs: fix an ABBA deadlock in xfs_rename
+Date:   Fri, 27 May 2022 16:02:18 +0300
+Message-Id: <20220527130219.3110260-5-amir73il@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220527130219.3110260-1-amir73il@gmail.com>
 References: <20220527130219.3110260-1-amir73il@gmail.com>
@@ -81,39 +82,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit a5336d6bb2d02d0e9d4d3c8be04b80b8b68d56c8 upstream.
+commit 6da1b4b1ab36d80a3994fd4811c8381de10af604 upstream.
 
-In commit 27c14b5daa82 we started tracking the last inode seen during an
-inode walk to avoid infinite loops if a corrupt inobt record happens to
-have a lower ir_startino than the record preceeding it.  Unfortunately,
-the assertion trips over the case where there are completely empty inobt
-records (which can happen quite easily on 64k page filesystems) because
-we advance the tracking cursor without actually putting the empty record
-into the processing buffer.  Fix the assert to allow for this case.
+When overlayfs is running on top of xfs and the user unlinks a file in
+the overlay, overlayfs will create a whiteout inode and ask xfs to
+"rename" the whiteout file atop the one being unlinked.  If the file
+being unlinked loses its one nlink, we then have to put the inode on the
+unlinked list.
 
-Reported-by: zlang@redhat.com
-Fixes: 27c14b5daa82 ("xfs: ensure inobt record walks always make forward progress")
+This requires us to grab the AGI buffer of the whiteout inode to take it
+off the unlinked list (which is where whiteouts are created) and to grab
+the AGI buffer of the file being deleted.  If the whiteout was created
+in a higher numbered AG than the file being deleted, we'll lock the AGIs
+in the wrong order and deadlock.
+
+Therefore, grab all the AGI locks we think we'll need ahead of time, and
+in order of increasing AG number per the locking rules.
+
+Reported-by: wenli xie <wlxie7296@gmail.com>
+Fixes: 93597ae8dac0 ("xfs: Fix deadlock between AGI and AGF when target_ip exists in xfs_rename()")
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Zorro Lang <zlang@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Brian Foster <bfoster@redhat.com>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- fs/xfs/xfs_iwalk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_dir2.h    |  2 --
+ fs/xfs/libxfs/xfs_dir2_sf.c |  2 +-
+ fs/xfs/xfs_inode.c          | 42 ++++++++++++++++++++++---------------
+ 3 files changed, 26 insertions(+), 20 deletions(-)
 
-diff --git a/fs/xfs/xfs_iwalk.c b/fs/xfs/xfs_iwalk.c
-index 2a45138831e3..eae3aff9bc97 100644
---- a/fs/xfs/xfs_iwalk.c
-+++ b/fs/xfs/xfs_iwalk.c
-@@ -363,7 +363,7 @@ xfs_iwalk_run_callbacks(
- 	/* Delete cursor but remember the last record we cached... */
- 	xfs_iwalk_del_inobt(tp, curpp, agi_bpp, 0);
- 	irec = &iwag->recs[iwag->nr_recs - 1];
--	ASSERT(next_agino == irec->ir_startino + XFS_INODES_PER_CHUNK);
-+	ASSERT(next_agino >= irec->ir_startino + XFS_INODES_PER_CHUNK);
+diff --git a/fs/xfs/libxfs/xfs_dir2.h b/fs/xfs/libxfs/xfs_dir2.h
+index e55378640b05..d03e6098ded9 100644
+--- a/fs/xfs/libxfs/xfs_dir2.h
++++ b/fs/xfs/libxfs/xfs_dir2.h
+@@ -47,8 +47,6 @@ extern int xfs_dir_lookup(struct xfs_trans *tp, struct xfs_inode *dp,
+ extern int xfs_dir_removename(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t ino,
+ 				xfs_extlen_t tot);
+-extern bool xfs_dir2_sf_replace_needblock(struct xfs_inode *dp,
+-				xfs_ino_t inum);
+ extern int xfs_dir_replace(struct xfs_trans *tp, struct xfs_inode *dp,
+ 				struct xfs_name *name, xfs_ino_t inum,
+ 				xfs_extlen_t tot);
+diff --git a/fs/xfs/libxfs/xfs_dir2_sf.c b/fs/xfs/libxfs/xfs_dir2_sf.c
+index 2463b5d73447..8c4f76bba88b 100644
+--- a/fs/xfs/libxfs/xfs_dir2_sf.c
++++ b/fs/xfs/libxfs/xfs_dir2_sf.c
+@@ -1018,7 +1018,7 @@ xfs_dir2_sf_removename(
+ /*
+  * Check whether the sf dir replace operation need more blocks.
+  */
+-bool
++static bool
+ xfs_dir2_sf_replace_needblock(
+ 	struct xfs_inode	*dp,
+ 	xfs_ino_t		inum)
+diff --git a/fs/xfs/xfs_inode.c b/fs/xfs/xfs_inode.c
+index 2bfbcf28b1bd..e958b1c74561 100644
+--- a/fs/xfs/xfs_inode.c
++++ b/fs/xfs/xfs_inode.c
+@@ -3152,7 +3152,7 @@ xfs_rename(
+ 	struct xfs_trans	*tp;
+ 	struct xfs_inode	*wip = NULL;		/* whiteout inode */
+ 	struct xfs_inode	*inodes[__XFS_SORT_INODES];
+-	struct xfs_buf		*agibp;
++	int			i;
+ 	int			num_inodes = __XFS_SORT_INODES;
+ 	bool			new_parent = (src_dp != target_dp);
+ 	bool			src_is_directory = S_ISDIR(VFS_I(src_ip)->i_mode);
+@@ -3265,6 +3265,30 @@ xfs_rename(
+ 		}
+ 	}
  
- 	error = xfs_iwalk_ag_recs(iwag);
- 	if (error)
++	/*
++	 * Lock the AGI buffers we need to handle bumping the nlink of the
++	 * whiteout inode off the unlinked list and to handle dropping the
++	 * nlink of the target inode.  Per locking order rules, do this in
++	 * increasing AG order and before directory block allocation tries to
++	 * grab AGFs because we grab AGIs before AGFs.
++	 *
++	 * The (vfs) caller must ensure that if src is a directory then
++	 * target_ip is either null or an empty directory.
++	 */
++	for (i = 0; i < num_inodes && inodes[i] != NULL; i++) {
++		if (inodes[i] == wip ||
++		    (inodes[i] == target_ip &&
++		     (VFS_I(target_ip)->i_nlink == 1 || src_is_directory))) {
++			struct xfs_buf	*bp;
++			xfs_agnumber_t	agno;
++
++			agno = XFS_INO_TO_AGNO(mp, inodes[i]->i_ino);
++			error = xfs_read_agi(mp, tp, agno, &bp);
++			if (error)
++				goto out_trans_cancel;
++		}
++	}
++
+ 	/*
+ 	 * Directory entry creation below may acquire the AGF. Remove
+ 	 * the whiteout from the unlinked list first to preserve correct
+@@ -3317,22 +3341,6 @@ xfs_rename(
+ 		 * In case there is already an entry with the same
+ 		 * name at the destination directory, remove it first.
+ 		 */
+-
+-		/*
+-		 * Check whether the replace operation will need to allocate
+-		 * blocks.  This happens when the shortform directory lacks
+-		 * space and we have to convert it to a block format directory.
+-		 * When more blocks are necessary, we must lock the AGI first
+-		 * to preserve locking order (AGI -> AGF).
+-		 */
+-		if (xfs_dir2_sf_replace_needblock(target_dp, src_ip->i_ino)) {
+-			error = xfs_read_agi(mp, tp,
+-					XFS_INO_TO_AGNO(mp, target_ip->i_ino),
+-					&agibp);
+-			if (error)
+-				goto out_trans_cancel;
+-		}
+-
+ 		error = xfs_dir_replace(tp, target_dp, target_name,
+ 					src_ip->i_ino, spaceres);
+ 		if (error)
 -- 
 2.25.1
 
