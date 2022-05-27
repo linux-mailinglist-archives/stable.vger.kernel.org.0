@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5F0535F70
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:39:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE0E05360CD
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346408AbiE0Lhn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:37:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44186 "EHLO
+        id S240740AbiE0Lxw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:53:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345594AbiE0Lhm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:37:42 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738066540C;
-        Fri, 27 May 2022 04:37:33 -0700 (PDT)
+        with ESMTP id S1345575AbiE0Lvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:49 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D742134E1B;
+        Fri, 27 May 2022 04:47:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC9D761CE2;
-        Fri, 27 May 2022 11:37:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0485DC34113;
-        Fri, 27 May 2022 11:37:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 9A13CCE2515;
+        Fri, 27 May 2022 11:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABE6BC385A9;
+        Fri, 27 May 2022 11:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651452;
-        bh=amemK8Q9YbQzV/hIYUpP+5+ychYfZ9KcS9kDPk/te5c=;
+        s=korg; t=1653652047;
+        bh=UM/ee3qFUonfM6Cot0sZOaTo8Yren/MzTWeVlPA2Yxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIuoGKPcsD4I0+vMHmg/YpdHDERhXAFnOxsdkwULULHPCNVCbHHdDEMS2wsldx311
-         iTVWwljACoWNI2JC8Kwt5OMvNcpzJ31WgHPktDXNxWp/iLIOFCi9PnpqKk8RqOptqK
-         NAGtTAlZmgSJGMuA09uZNtGg8EnGx3OR6NXbYADo=
+        b=SyM2JUKY/eDeHZ5ZixC6K7zkpxC6b3sIpZ1YUWHJuDEXGRG5aAIGSeyRg4yLLEQ/e
+         69Veiqb8NBHlxCBCl4xn7/M/dd1wewYXw8uE7fkrxk2I5GsyfApi8AmK/YWpSjYGS3
+         hpu652DlI/f7uM/niYRc0ohf6VUah3q05EWq+RYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 046/111] random: cleanup UUID handling
+Subject: [PATCH 5.10 078/163] random: remove unused tracepoints
 Date:   Fri, 27 May 2022 10:49:18 +0200
-Message-Id: <20220527084825.965332823@linuxfoundation.org>
+Message-Id: <20220527084838.812825297@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,91 +57,382 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 64276a9939ff414f2f0db38036cf4e1a0a703394 upstream.
+commit 14c174633f349cb41ea90c2c0aaddac157012f74 upstream.
 
-Rather than hard coding various lengths, we can use the right constants.
-Strings should be `char *` while buffers should be `u8 *`. Rather than
-have a nonsensical and unused maxlength, just remove it. Finally, use
-snprintf instead of sprintf, just out of good hygiene.
+These explicit tracepoints aren't really used and show sign of aging.
+It's work to keep these up to date, and before I attempted to keep them
+up to date, they weren't up to date, which indicates that they're not
+really used. These days there are better ways of introspecting anyway.
 
-As well, remove the old comment about returning a binary UUID via the
-binary sysctl syscall. That syscall was removed from the kernel in 5.5,
-and actually, the "uuid_strategy" function and related infrastructure
-for even serving it via the binary sysctl syscall was removed with
-894d2491153a ("sysctl drivers: Remove dead binary sysctl support") back
-in 2.6.33.
-
+Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   29 +++++++++++++----------------
- 1 file changed, 13 insertions(+), 16 deletions(-)
+ drivers/char/random.c         |   30 -----
+ include/trace/events/random.h |  212 ------------------------------------------
+ lib/random32.c                |    3 
+ 3 files changed, 4 insertions(+), 241 deletions(-)
+ delete mode 100644 include/trace/events/random.h
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1661,22 +1661,25 @@ const struct file_operations urandom_fop
- static int sysctl_random_min_urandom_seed = 60;
- static int sysctl_random_write_wakeup_bits = POOL_MIN_BITS;
- static int sysctl_poolsize = POOL_BITS;
--static char sysctl_bootid[16];
-+static u8 sysctl_bootid[UUID_SIZE];
+@@ -237,9 +237,6 @@
+ #include <asm/irq_regs.h>
+ #include <asm/io.h>
  
- /*
-  * This function is used to return both the bootid UUID, and random
-- * UUID.  The difference is in whether table->data is NULL; if it is,
-+ * UUID. The difference is in whether table->data is NULL; if it is,
-  * then a new UUID is generated and returned to the user.
-- *
-- * If the user accesses this via the proc interface, the UUID will be
-- * returned as an ASCII string in the standard UUID format; if via the
-- * sysctl system call, as 16 bytes of binary data.
-  */
- static int proc_do_uuid(struct ctl_table *table, int write, void *buffer,
- 			size_t *lenp, loff_t *ppos)
+-#define CREATE_TRACE_POINTS
+-#include <trace/events/random.h>
+-
+ enum {
+ 	POOL_BITS = BLAKE2S_HASH_SIZE * 8,
+ 	POOL_MIN_BITS = POOL_BITS /* No point in settling for less. */
+@@ -315,7 +312,6 @@ static void mix_pool_bytes(const void *i
  {
--	struct ctl_table fake_table;
--	unsigned char buf[64], tmp_uuid[16], *uuid;
-+	u8 tmp_uuid[UUID_SIZE], *uuid;
-+	char uuid_string[UUID_STRING_LEN + 1];
-+	struct ctl_table fake_table = {
-+		.data = uuid_string,
-+		.maxlen = UUID_STRING_LEN
-+	};
-+
-+	if (write)
-+		return -EPERM;
+ 	unsigned long flags;
  
- 	uuid = table->data;
- 	if (!uuid) {
-@@ -1691,12 +1694,8 @@ static int proc_do_uuid(struct ctl_table
- 		spin_unlock(&bootid_spinlock);
+-	trace_mix_pool_bytes(nbytes, _RET_IP_);
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(in, nbytes);
+ 	spin_unlock_irqrestore(&input_pool.lock, flags);
+@@ -389,8 +385,6 @@ static void credit_entropy_bits(size_t n
+ 		entropy_count = min_t(unsigned int, POOL_BITS, orig + add);
+ 	} while (cmpxchg(&input_pool.entropy_count, orig, entropy_count) != orig);
+ 
+-	trace_credit_entropy_bits(nbits, entropy_count, _RET_IP_);
+-
+ 	if (crng_init < 2 && entropy_count >= POOL_MIN_BITS)
+ 		crng_reseed();
+ }
+@@ -721,7 +715,6 @@ void add_device_randomness(const void *b
+ 	if (!crng_ready() && size)
+ 		crng_slow_load(buf, size);
+ 
+-	trace_add_device_randomness(size, _RET_IP_);
+ 	spin_lock_irqsave(&input_pool.lock, flags);
+ 	_mix_pool_bytes(buf, size);
+ 	_mix_pool_bytes(&time, sizeof(time));
+@@ -800,7 +793,6 @@ void add_input_randomness(unsigned int t
+ 	last_value = value;
+ 	add_timer_randomness(&input_timer_state,
+ 			     (type << 4) ^ code ^ (code >> 4) ^ value);
+-	trace_add_input_randomness(input_pool.entropy_count);
+ }
+ EXPORT_SYMBOL_GPL(add_input_randomness);
+ 
+@@ -880,7 +872,6 @@ void add_disk_randomness(struct gendisk
+ 		return;
+ 	/* first major is 1, so we get >= 0x200 here */
+ 	add_timer_randomness(disk->random, 0x100 + disk_devt(disk));
+-	trace_add_disk_randomness(disk_devt(disk), input_pool.entropy_count);
+ }
+ EXPORT_SYMBOL_GPL(add_disk_randomness);
+ #endif
+@@ -905,8 +896,6 @@ static void extract_entropy(void *buf, s
+ 	} block;
+ 	size_t i;
+ 
+-	trace_extract_entropy(nbytes, input_pool.entropy_count);
+-
+ 	for (i = 0; i < ARRAY_SIZE(block.rdseed); ++i) {
+ 		if (!arch_get_random_seed_long(&block.rdseed[i]) &&
+ 		    !arch_get_random_long(&block.rdseed[i]))
+@@ -978,8 +967,6 @@ static void _get_random_bytes(void *buf,
+ 	u8 tmp[CHACHA_BLOCK_SIZE];
+ 	size_t len;
+ 
+-	trace_get_random_bytes(nbytes, _RET_IP_);
+-
+ 	if (!nbytes)
+ 		return;
+ 
+@@ -1176,7 +1163,6 @@ size_t __must_check get_random_bytes_arc
+ 	size_t left = nbytes;
+ 	u8 *p = buf;
+ 
+-	trace_get_random_bytes_arch(left, _RET_IP_);
+ 	while (left) {
+ 		unsigned long v;
+ 		size_t chunk = min_t(size_t, left, sizeof(unsigned long));
+@@ -1260,16 +1246,6 @@ void rand_initialize_disk(struct gendisk
+ }
+ #endif
+ 
+-static ssize_t urandom_read_nowarn(struct file *file, char __user *buf,
+-				   size_t nbytes, loff_t *ppos)
+-{
+-	ssize_t ret;
+-
+-	ret = get_random_bytes_user(buf, nbytes);
+-	trace_urandom_read(nbytes, input_pool.entropy_count);
+-	return ret;
+-}
+-
+ static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
+ 			    loff_t *ppos)
+ {
+@@ -1282,7 +1258,7 @@ static ssize_t urandom_read(struct file
+ 				  current->comm, nbytes);
  	}
  
--	sprintf(buf, "%pU", uuid);
--
--	fake_table.data = buf;
--	fake_table.maxlen = sizeof(buf);
--
--	return proc_dostring(&fake_table, write, buffer, lenp, ppos);
-+	snprintf(uuid_string, sizeof(uuid_string), "%pU", uuid);
-+	return proc_dostring(&fake_table, 0, buffer, lenp, ppos);
+-	return urandom_read_nowarn(file, buf, nbytes, ppos);
++	return get_random_bytes_user(buf, nbytes);
  }
  
- static struct ctl_table random_table[] = {
-@@ -1731,13 +1730,11 @@ static struct ctl_table random_table[] =
- 	{
- 		.procname	= "boot_id",
- 		.data		= &sysctl_bootid,
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
- 	{
- 		.procname	= "uuid",
--		.maxlen		= 16,
- 		.mode		= 0444,
- 		.proc_handler	= proc_do_uuid,
- 	},
+ static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
+@@ -1293,7 +1269,7 @@ static ssize_t random_read(struct file *
+ 	ret = wait_for_random_bytes();
+ 	if (ret != 0)
+ 		return ret;
+-	return urandom_read_nowarn(file, buf, nbytes, ppos);
++	return get_random_bytes_user(buf, nbytes);
+ }
+ 
+ static __poll_t random_poll(struct file *file, poll_table *wait)
+@@ -1454,7 +1430,7 @@ SYSCALL_DEFINE3(getrandom, char __user *
+ 		if (unlikely(ret))
+ 			return ret;
+ 	}
+-	return urandom_read_nowarn(NULL, buf, count, NULL);
++	return get_random_bytes_user(buf, count);
+ }
+ 
+ /********************************************************************
+--- a/include/trace/events/random.h
++++ /dev/null
+@@ -1,212 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-#undef TRACE_SYSTEM
+-#define TRACE_SYSTEM random
+-
+-#if !defined(_TRACE_RANDOM_H) || defined(TRACE_HEADER_MULTI_READ)
+-#define _TRACE_RANDOM_H
+-
+-#include <linux/writeback.h>
+-#include <linux/tracepoint.h>
+-
+-TRACE_EVENT(add_device_randomness,
+-	TP_PROTO(size_t bytes, unsigned long IP),
+-
+-	TP_ARGS(bytes, IP),
+-
+-	TP_STRUCT__entry(
+-		__field(size_t,		bytes	)
+-		__field(unsigned long,	IP	)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->bytes		= bytes;
+-		__entry->IP		= IP;
+-	),
+-
+-	TP_printk("bytes %zu caller %pS",
+-		__entry->bytes, (void *)__entry->IP)
+-);
+-
+-DECLARE_EVENT_CLASS(random__mix_pool_bytes,
+-	TP_PROTO(size_t bytes, unsigned long IP),
+-
+-	TP_ARGS(bytes, IP),
+-
+-	TP_STRUCT__entry(
+-		__field(size_t,		bytes	)
+-		__field(unsigned long,	IP	)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->bytes		= bytes;
+-		__entry->IP		= IP;
+-	),
+-
+-	TP_printk("input pool: bytes %zu caller %pS",
+-		  __entry->bytes, (void *)__entry->IP)
+-);
+-
+-DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes,
+-	TP_PROTO(size_t bytes, unsigned long IP),
+-
+-	TP_ARGS(bytes, IP)
+-);
+-
+-DEFINE_EVENT(random__mix_pool_bytes, mix_pool_bytes_nolock,
+-	TP_PROTO(int bytes, unsigned long IP),
+-
+-	TP_ARGS(bytes, IP)
+-);
+-
+-TRACE_EVENT(credit_entropy_bits,
+-	TP_PROTO(size_t bits, size_t entropy_count, unsigned long IP),
+-
+-	TP_ARGS(bits, entropy_count, IP),
+-
+-	TP_STRUCT__entry(
+-		__field(size_t,		bits			)
+-		__field(size_t,		entropy_count		)
+-		__field(unsigned long,	IP			)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->bits		= bits;
+-		__entry->entropy_count	= entropy_count;
+-		__entry->IP		= IP;
+-	),
+-
+-	TP_printk("input pool: bits %zu entropy_count %zu caller %pS",
+-		  __entry->bits, __entry->entropy_count, (void *)__entry->IP)
+-);
+-
+-TRACE_EVENT(add_input_randomness,
+-	TP_PROTO(size_t input_bits),
+-
+-	TP_ARGS(input_bits),
+-
+-	TP_STRUCT__entry(
+-		__field(size_t,	input_bits		)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->input_bits	= input_bits;
+-	),
+-
+-	TP_printk("input_pool_bits %zu", __entry->input_bits)
+-);
+-
+-TRACE_EVENT(add_disk_randomness,
+-	TP_PROTO(dev_t dev, size_t input_bits),
+-
+-	TP_ARGS(dev, input_bits),
+-
+-	TP_STRUCT__entry(
+-		__field(dev_t,		dev			)
+-		__field(size_t,		input_bits		)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->dev		= dev;
+-		__entry->input_bits	= input_bits;
+-	),
+-
+-	TP_printk("dev %d,%d input_pool_bits %zu", MAJOR(__entry->dev),
+-		  MINOR(__entry->dev), __entry->input_bits)
+-);
+-
+-DECLARE_EVENT_CLASS(random__get_random_bytes,
+-	TP_PROTO(size_t nbytes, unsigned long IP),
+-
+-	TP_ARGS(nbytes, IP),
+-
+-	TP_STRUCT__entry(
+-		__field(size_t,		nbytes			)
+-		__field(unsigned long,	IP			)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->nbytes		= nbytes;
+-		__entry->IP		= IP;
+-	),
+-
+-	TP_printk("nbytes %zu caller %pS", __entry->nbytes, (void *)__entry->IP)
+-);
+-
+-DEFINE_EVENT(random__get_random_bytes, get_random_bytes,
+-	TP_PROTO(size_t nbytes, unsigned long IP),
+-
+-	TP_ARGS(nbytes, IP)
+-);
+-
+-DEFINE_EVENT(random__get_random_bytes, get_random_bytes_arch,
+-	TP_PROTO(size_t nbytes, unsigned long IP),
+-
+-	TP_ARGS(nbytes, IP)
+-);
+-
+-DECLARE_EVENT_CLASS(random__extract_entropy,
+-	TP_PROTO(size_t nbytes, size_t entropy_count),
+-
+-	TP_ARGS(nbytes, entropy_count),
+-
+-	TP_STRUCT__entry(
+-		__field(  size_t,	nbytes			)
+-		__field(  size_t,	entropy_count		)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->nbytes		= nbytes;
+-		__entry->entropy_count	= entropy_count;
+-	),
+-
+-	TP_printk("input pool: nbytes %zu entropy_count %zu",
+-		  __entry->nbytes, __entry->entropy_count)
+-);
+-
+-
+-DEFINE_EVENT(random__extract_entropy, extract_entropy,
+-	TP_PROTO(size_t nbytes, size_t entropy_count),
+-
+-	TP_ARGS(nbytes, entropy_count)
+-);
+-
+-TRACE_EVENT(urandom_read,
+-	TP_PROTO(size_t nbytes, size_t entropy_count),
+-
+-	TP_ARGS(nbytes, entropy_count),
+-
+-	TP_STRUCT__entry(
+-		__field( size_t,	nbytes		)
+-		__field( size_t,	entropy_count	)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->nbytes		= nbytes;
+-		__entry->entropy_count	= entropy_count;
+-	),
+-
+-	TP_printk("reading: nbytes %zu entropy_count %zu",
+-		  __entry->nbytes, __entry->entropy_count)
+-);
+-
+-TRACE_EVENT(prandom_u32,
+-
+-	TP_PROTO(unsigned int ret),
+-
+-	TP_ARGS(ret),
+-
+-	TP_STRUCT__entry(
+-		__field(   unsigned int, ret)
+-	),
+-
+-	TP_fast_assign(
+-		__entry->ret = ret;
+-	),
+-
+-	TP_printk("ret=%u" , __entry->ret)
+-);
+-
+-#endif /* _TRACE_RANDOM_H */
+-
+-/* This part must be outside protection */
+-#include <trace/define_trace.h>
+--- a/lib/random32.c
++++ b/lib/random32.c
+@@ -39,8 +39,8 @@
+ #include <linux/random.h>
+ #include <linux/sched.h>
+ #include <linux/bitops.h>
++#include <linux/slab.h>
+ #include <asm/unaligned.h>
+-#include <trace/events/random.h>
+ 
+ /**
+  *	prandom_u32_state - seeded pseudo-random number generator.
+@@ -386,7 +386,6 @@ u32 prandom_u32(void)
+ 	struct siprand_state *state = get_cpu_ptr(&net_rand_state);
+ 	u32 res = siprand_u32(state);
+ 
+-	trace_prandom_u32(res);
+ 	put_cpu_ptr(&net_rand_state);
+ 	return res;
+ }
 
 
