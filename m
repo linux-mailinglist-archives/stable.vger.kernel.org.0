@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C556A535FFB
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FF165360FD
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351138AbiE0Lq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55476 "EHLO
+        id S1346230AbiE0L73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:59:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351989AbiE0LpN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:45:13 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F61713C361;
-        Fri, 27 May 2022 04:41:40 -0700 (PDT)
+        with ESMTP id S1352357AbiE0LzS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:18 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C48B15A74B;
+        Fri, 27 May 2022 04:48:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BCAD61CE7;
-        Fri, 27 May 2022 11:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9E41C34113;
-        Fri, 27 May 2022 11:41:38 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DDD1ECE2511;
+        Fri, 27 May 2022 11:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6041C34100;
+        Fri, 27 May 2022 11:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653651699;
-        bh=hZxyEAMbBobh8dF4JKUDHBDC9LPGBRyQuIRVk05DggI=;
+        s=korg; t=1653652094;
+        bh=sQ5dMgapiKotQlaqFpsAdmofljqqokrBo3KQVeEm1Vw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dbs5vTX4+ch1f9o93wCcZCCxVn4+1ne+iUGeXALGO8yJnCcsuQqIqGTqNbhp//A//
-         zhYxI7LII9at5XZ4hJcx6cxQAizOgwDRVqxdbZHYizJ/fNKalX78ZywEM/5Kx9ibp8
-         9NhwMd+KwM+0Ktcu0/XinvlfKS/kU7VOw905lGws=
+        b=iaCaPlekK27+fghz/3vK0rUiXM5y5bz306sOi0w/1eGziVynRfx+LTh4Gpzf9xJTD
+         D4WMpfY7Y/Um5iucs7uY2zcS6znllsVpjuZvr9fXNEN/zzohx4Meochl6/S6tQMykC
+         UB4nBQMmusFjyfCpolITB4eR9mzHVqp2+0y/tJv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jann Horn <jannh@google.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Theodore Tso <tytso@mit.edu>,
+        Sultan Alsawaf <sultan@kerneltoast.com>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.17 064/111] random: allow partial reads if later user copies fail
+Subject: [PATCH 5.10 096/163] random: clear fast pool, crng, and batches in cpuhp bring up
 Date:   Fri, 27 May 2022 10:49:36 +0200
-Message-Id: <20220527084828.597913681@linuxfoundation.org>
+Message-Id: <20220527084841.332830779@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,98 +60,215 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 5209aed5137880fa229746cb521f715e55596460 upstream.
+commit 3191dd5a1179ef0fad5a050a1702ae98b6251e8f upstream.
 
-Rather than failing entirely if a copy_to_user() fails at some point,
-instead we should return a partial read for the amount that succeeded
-prior, unless none succeeded at all, in which case we return -EFAULT as
-before.
+For the irq randomness fast pool, rather than having to use expensive
+atomics, which were visibly the most expensive thing in the entire irq
+handler, simply take care of the extreme edge case of resetting count to
+zero in the cpuhp online handler, just after workqueues have been
+reenabled. This simplifies the code a bit and lets us use vanilla
+variables rather than atomics, and performance should be improved.
 
-This makes it consistent with other reader interfaces. For example, the
-following snippet for /dev/zero outputs "4" followed by "1":
+As well, very early on when the CPU comes up, while interrupts are still
+disabled, we clear out the per-cpu crng and its batches, so that it
+always starts with fresh randomness.
 
-  int fd;
-  void *x = mmap(NULL, 4096, PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-  assert(x != MAP_FAILED);
-  fd = open("/dev/zero", O_RDONLY);
-  assert(fd >= 0);
-  printf("%zd\n", read(fd, x, 4));
-  printf("%zd\n", read(fd, x + 4095, 4));
-  close(fd);
-
-This brings that same standard behavior to the various RNG reader
-interfaces.
-
-While we're at it, we can streamline the loop logic a little bit.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Jann Horn <jannh@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Sultan Alsawaf <sultan@kerneltoast.com>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Acked-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/char/random.c      |   62 ++++++++++++++++++++++++++++++++++-----------
+ include/linux/cpuhotplug.h |    2 +
+ include/linux/random.h     |    5 +++
+ kernel/cpu.c               |   11 +++++++
+ 4 files changed, 65 insertions(+), 15 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -523,8 +523,7 @@ EXPORT_SYMBOL(get_random_bytes);
+@@ -698,6 +698,25 @@ u32 get_random_u32(void)
+ }
+ EXPORT_SYMBOL(get_random_u32);
  
- static ssize_t get_random_bytes_user(void __user *buf, size_t nbytes)
++#ifdef CONFIG_SMP
++/*
++ * This function is called when the CPU is coming up, with entry
++ * CPUHP_RANDOM_PREPARE, which comes before CPUHP_WORKQUEUE_PREP.
++ */
++int random_prepare_cpu(unsigned int cpu)
++{
++	/*
++	 * When the cpu comes back online, immediately invalidate both
++	 * the per-cpu crng and all batches, so that we serve fresh
++	 * randomness.
++	 */
++	per_cpu_ptr(&crngs, cpu)->generation = ULONG_MAX;
++	per_cpu_ptr(&batched_entropy_u32, cpu)->position = UINT_MAX;
++	per_cpu_ptr(&batched_entropy_u64, cpu)->position = UINT_MAX;
++	return 0;
++}
++#endif
++
+ /**
+  * randomize_page - Generate a random, page aligned address
+  * @start:	The smallest acceptable address the caller will take.
+@@ -1183,7 +1202,7 @@ struct fast_pool {
+ 	};
+ 	struct work_struct mix;
+ 	unsigned long last;
+-	atomic_t count;
++	unsigned int count;
+ 	u16 reg_idx;
+ };
+ 
+@@ -1219,6 +1238,29 @@ static void fast_mix(u32 pool[4])
+ 
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness);
+ 
++#ifdef CONFIG_SMP
++/*
++ * This function is called when the CPU has just come online, with
++ * entry CPUHP_AP_RANDOM_ONLINE, just after CPUHP_AP_WORKQUEUE_ONLINE.
++ */
++int random_online_cpu(unsigned int cpu)
++{
++	/*
++	 * During CPU shutdown and before CPU onlining, add_interrupt_
++	 * randomness() may schedule mix_interrupt_randomness(), and
++	 * set the MIX_INFLIGHT flag. However, because the worker can
++	 * be scheduled on a different CPU during this period, that
++	 * flag will never be cleared. For that reason, we zero out
++	 * the flag here, which runs just after workqueues are onlined
++	 * for the CPU again. This also has the effect of setting the
++	 * irq randomness count to zero so that new accumulated irqs
++	 * are fresh.
++	 */
++	per_cpu_ptr(&irq_randomness, cpu)->count = 0;
++	return 0;
++}
++#endif
++
+ static u32 get_reg(struct fast_pool *f, struct pt_regs *regs)
  {
--	ssize_t ret = 0;
--	size_t len;
-+	size_t len, left, ret = 0;
- 	u32 chacha_state[CHACHA_STATE_WORDS];
- 	u8 output[CHACHA_BLOCK_SIZE];
- 
-@@ -543,37 +542,40 @@ static ssize_t get_random_bytes_user(voi
- 	 * the user directly.
- 	 */
- 	if (nbytes <= CHACHA_KEY_SIZE) {
--		ret = copy_to_user(buf, &chacha_state[4], nbytes) ? -EFAULT : nbytes;
-+		ret = nbytes - copy_to_user(buf, &chacha_state[4], nbytes);
- 		goto out_zero_chacha;
+ 	u32 *ptr = (u32 *)regs;
+@@ -1243,15 +1285,6 @@ static void mix_interrupt_randomness(str
+ 	local_irq_disable();
+ 	if (fast_pool != this_cpu_ptr(&irq_randomness)) {
+ 		local_irq_enable();
+-		/*
+-		 * If we are unlucky enough to have been moved to another CPU,
+-		 * during CPU hotplug while the CPU was shutdown then we set
+-		 * our count to zero atomically so that when the CPU comes
+-		 * back online, it can enqueue work again. The _release here
+-		 * pairs with the atomic_inc_return_acquire in
+-		 * add_interrupt_randomness().
+-		 */
+-		atomic_set_release(&fast_pool->count, 0);
+ 		return;
  	}
  
--	do {
-+	for (;;) {
- 		chacha20_block(chacha_state, output);
- 		if (unlikely(chacha_state[12] == 0))
- 			++chacha_state[13];
+@@ -1260,7 +1293,7 @@ static void mix_interrupt_randomness(str
+ 	 * consistent view, before we reenable irqs again.
+ 	 */
+ 	memcpy(pool, fast_pool->pool32, sizeof(pool));
+-	atomic_set(&fast_pool->count, 0);
++	fast_pool->count = 0;
+ 	fast_pool->last = jiffies;
+ 	local_irq_enable();
  
- 		len = min_t(size_t, nbytes, CHACHA_BLOCK_SIZE);
--		if (copy_to_user(buf, output, len)) {
--			ret = -EFAULT;
-+		left = copy_to_user(buf, output, len);
-+		if (left) {
-+			ret += len - left;
- 			break;
- 		}
+@@ -1296,14 +1329,13 @@ void add_interrupt_randomness(int irq)
+ 	}
  
--		nbytes -= len;
- 		buf += len;
- 		ret += len;
-+		nbytes -= len;
-+		if (!nbytes)
-+			break;
+ 	fast_mix(fast_pool->pool32);
+-	/* The _acquire here pairs with the atomic_set_release in mix_interrupt_randomness(). */
+-	new_count = (unsigned int)atomic_inc_return_acquire(&fast_pool->count);
++	new_count = ++fast_pool->count;
  
- 		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
--		if (!(ret % PAGE_SIZE) && nbytes) {
-+		if (ret % PAGE_SIZE == 0) {
- 			if (signal_pending(current))
- 				break;
- 			cond_resched();
- 		}
--	} while (nbytes);
-+	}
+ 	if (unlikely(crng_init == 0)) {
+ 		if (new_count >= 64 &&
+ 		    crng_pre_init_inject(fast_pool->pool32, sizeof(fast_pool->pool32),
+ 					 true, true) > 0) {
+-			atomic_set(&fast_pool->count, 0);
++			fast_pool->count = 0;
+ 			fast_pool->last = now;
+ 			if (spin_trylock(&input_pool.lock)) {
+ 				_mix_pool_bytes(&fast_pool->pool32, sizeof(fast_pool->pool32));
+@@ -1321,7 +1353,7 @@ void add_interrupt_randomness(int irq)
  
- 	memzero_explicit(output, sizeof(output));
- out_zero_chacha:
- 	memzero_explicit(chacha_state, sizeof(chacha_state));
--	return ret;
-+	return ret ? ret : -EFAULT;
+ 	if (unlikely(!fast_pool->mix.func))
+ 		INIT_WORK(&fast_pool->mix, mix_interrupt_randomness);
+-	atomic_or(MIX_INFLIGHT, &fast_pool->count);
++	fast_pool->count |= MIX_INFLIGHT;
+ 	queue_work_on(raw_smp_processor_id(), system_highpri_wq, &fast_pool->mix);
  }
+ EXPORT_SYMBOL_GPL(add_interrupt_randomness);
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -61,6 +61,7 @@ enum cpuhp_state {
+ 	CPUHP_LUSTRE_CFS_DEAD,
+ 	CPUHP_AP_ARM_CACHE_B15_RAC_DEAD,
+ 	CPUHP_PADATA_DEAD,
++	CPUHP_RANDOM_PREPARE,
+ 	CPUHP_WORKQUEUE_PREP,
+ 	CPUHP_POWER_NUMA_PREPARE,
+ 	CPUHP_HRTIMERS_PREPARE,
+@@ -187,6 +188,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_PERF_POWERPC_HV_GPCI_ONLINE,
+ 	CPUHP_AP_WATCHDOG_ONLINE,
+ 	CPUHP_AP_WORKQUEUE_ONLINE,
++	CPUHP_AP_RANDOM_ONLINE,
+ 	CPUHP_AP_RCUTREE_ONLINE,
+ 	CPUHP_AP_BASE_CACHEINFO_ONLINE,
+ 	CPUHP_AP_ONLINE_DYN,
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -156,4 +156,9 @@ static inline bool __init arch_get_rando
+ }
+ #endif
  
- /*
++#ifdef CONFIG_SMP
++extern int random_prepare_cpu(unsigned int cpu);
++extern int random_online_cpu(unsigned int cpu);
++#endif
++
+ #endif /* _LINUX_RANDOM_H */
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -34,6 +34,7 @@
+ #include <linux/scs.h>
+ #include <linux/percpu-rwsem.h>
+ #include <linux/cpuset.h>
++#include <linux/random.h>
+ 
+ #include <trace/events/power.h>
+ #define CREATE_TRACE_POINTS
+@@ -1581,6 +1582,11 @@ static struct cpuhp_step cpuhp_hp_states
+ 		.startup.single		= perf_event_init_cpu,
+ 		.teardown.single	= perf_event_exit_cpu,
+ 	},
++	[CPUHP_RANDOM_PREPARE] = {
++		.name			= "random:prepare",
++		.startup.single		= random_prepare_cpu,
++		.teardown.single	= NULL,
++	},
+ 	[CPUHP_WORKQUEUE_PREP] = {
+ 		.name			= "workqueue:prepare",
+ 		.startup.single		= workqueue_prepare_cpu,
+@@ -1697,6 +1703,11 @@ static struct cpuhp_step cpuhp_hp_states
+ 		.startup.single		= workqueue_online_cpu,
+ 		.teardown.single	= workqueue_offline_cpu,
+ 	},
++	[CPUHP_AP_RANDOM_ONLINE] = {
++		.name			= "random:online",
++		.startup.single		= random_online_cpu,
++		.teardown.single	= NULL,
++	},
+ 	[CPUHP_AP_RCUTREE_ONLINE] = {
+ 		.name			= "RCU/tree:online",
+ 		.startup.single		= rcutree_online_cpu,
 
 
