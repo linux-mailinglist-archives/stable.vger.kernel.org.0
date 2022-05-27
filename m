@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5CD5361A6
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 032CC53610C
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352519AbiE0MHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:07:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40586 "EHLO
+        id S1348497AbiE0MBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:01:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352281AbiE0MEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:04:15 -0400
+        with ESMTP id S1352699AbiE0MAt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:00:49 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2996F1498E6;
-        Fri, 27 May 2022 04:53:36 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DEA1369ED;
+        Fri, 27 May 2022 04:52:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6A3D61DCA;
-        Fri, 27 May 2022 11:53:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3592C385A9;
-        Fri, 27 May 2022 11:53:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F26AE61D56;
+        Fri, 27 May 2022 11:52:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C8E9C385A9;
+        Fri, 27 May 2022 11:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652415;
-        bh=fK+EYPrd5lQ9qg+4y8Rv8XqXi3DjkYgu9k/7iGQiEjU=;
+        s=korg; t=1653652362;
+        bh=Bgq96buTz5rETWd9P8O3BfsoPgQe4hA8XmQmT3t1ol4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0JSQiA1lZl8QItm8T4lg9xrL+hX+TemE9vjuzYKrKwBuUyWpZj2EXtBZnMO23yXR
-         zzNOwmfX7XdkvmdvhTtsNQJDmr9pLbkMRtKm3DeCsy7c+uH1kW6m/+l7WutxezJqN8
-         sGZtft19OO5YO5XUxu4VgYkeTM+rvlihx0g7zxMQ=
+        b=D2CVTgRxjmWcfmh01tiCMDHHR6UDDSIDa2owInzWaTsALpAo/iI3myG5p/SyoCbkb
+         o4ci0m4QjCJuWVHzqI5OaAvT8puOeBhPdLDWiu4wcb+IJ6eh0hEgvbsH6OSy5cvFMc
+         dwBIfGCAM7wYLFmyy1LJiQ9PsqoKMX1rA4LBo8Cg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.10 147/163] random: move initialization out of reseeding hot path
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 126/145] siphash: use one source of truth for siphash permutations
 Date:   Fri, 27 May 2022 10:50:27 +0200
-Message-Id: <20220527084848.813886467@linuxfoundation.org>
+Message-Id: <20220527084905.823136968@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
-References: <20220527084828.156494029@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,93 +54,221 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 68c9c8b192c6dae9be6278e98ee44029d5da2d31 upstream.
+commit e73aaae2fa9024832e1f42e30c787c7baf61d014 upstream.
 
-Initialization happens once -- by way of credit_init_bits() -- and then
-it never happens again. Therefore, it doesn't need to be in
-crng_reseed(), which is a hot path that is called multiple times. It
-also doesn't make sense to have there, as initialization activity is
-better associated with initialization routines.
+The SipHash family of permutations is currently used in three places:
 
-After the prior commit, crng_reseed() now won't be called by multiple
-concurrent callers, which means that we can safely move the
-"finialize_init" logic into crng_init_bits() unconditionally.
+- siphash.c itself, used in the ordinary way it was intended.
+- random32.c, in a construction from an anonymous contributor.
+- random.c, as part of its fast_mix function.
 
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Each one of these places reinvents the wheel with the same C code, same
+rotation constants, and same symmetry-breaking constants.
+
+This commit tidies things up a bit by placing macros for the
+permutations and constants into siphash.h, where each of the three .c
+users can access them. It also leaves a note dissuading more users of
+them from emerging.
+
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   42 +++++++++++++++++++-----------------------
- 1 file changed, 19 insertions(+), 23 deletions(-)
+ drivers/char/random.c   |   30 +++++++-----------------------
+ include/linux/prandom.h |   23 +++++++----------------
+ include/linux/siphash.h |   28 ++++++++++++++++++++++++++++
+ lib/siphash.c           |   32 ++++++++++----------------------
+ 4 files changed, 52 insertions(+), 61 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -266,7 +266,6 @@ static void crng_reseed(void)
- 	unsigned long flags;
- 	unsigned long next_gen;
- 	u8 key[CHACHA_KEY_SIZE];
--	bool finalize_init = false;
+@@ -51,6 +51,7 @@
+ #include <linux/completion.h>
+ #include <linux/uuid.h>
+ #include <linux/uaccess.h>
++#include <linux/siphash.h>
+ #include <crypto/chacha.h>
+ #include <crypto/blake2s.h>
+ #include <asm/processor.h>
+@@ -1016,12 +1017,11 @@ struct fast_pool {
  
- 	extract_entropy(key, sizeof(key));
+ static DEFINE_PER_CPU(struct fast_pool, irq_randomness) = {
+ #ifdef CONFIG_64BIT
+-	/* SipHash constants */
+-	.pool = { 0x736f6d6570736575UL, 0x646f72616e646f6dUL,
+-		  0x6c7967656e657261UL, 0x7465646279746573UL }
++#define FASTMIX_PERM SIPHASH_PERMUTATION
++	.pool = { SIPHASH_CONST_0, SIPHASH_CONST_1, SIPHASH_CONST_2, SIPHASH_CONST_3 }
+ #else
+-	/* HalfSipHash constants */
+-	.pool = { 0, 0, 0x6c796765U, 0x74656462U }
++#define FASTMIX_PERM HSIPHASH_PERMUTATION
++	.pool = { HSIPHASH_CONST_0, HSIPHASH_CONST_1, HSIPHASH_CONST_2, HSIPHASH_CONST_3 }
+ #endif
+ };
  
-@@ -283,28 +282,10 @@ static void crng_reseed(void)
- 		++next_gen;
- 	WRITE_ONCE(base_crng.generation, next_gen);
- 	WRITE_ONCE(base_crng.birth, jiffies);
--	if (!crng_ready()) {
-+	if (!crng_ready())
- 		crng_init = CRNG_READY;
--		finalize_init = true;
--	}
- 	spin_unlock_irqrestore(&base_crng.lock, flags);
- 	memzero_explicit(key, sizeof(key));
--	if (finalize_init) {
--		process_random_ready_list();
--		wake_up_interruptible(&crng_init_wait);
--		kill_fasync(&fasync, SIGIO, POLL_IN);
--		pr_notice("crng init done\n");
--		if (unseeded_warning.missed) {
--			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
--				  unseeded_warning.missed);
--			unseeded_warning.missed = 0;
--		}
--		if (urandom_warning.missed) {
--			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
--				  urandom_warning.missed);
--			urandom_warning.missed = 0;
--		}
--	}
+@@ -1033,27 +1033,11 @@ static DEFINE_PER_CPU(struct fast_pool,
+  */
+ static void fast_mix(unsigned long s[4], unsigned long v1, unsigned long v2)
+ {
+-#ifdef CONFIG_64BIT
+-#define PERM() do { \
+-	s[0] += s[1]; s[1] = rol64(s[1], 13); s[1] ^= s[0]; s[0] = rol64(s[0], 32); \
+-	s[2] += s[3]; s[3] = rol64(s[3], 16); s[3] ^= s[2]; \
+-	s[0] += s[3]; s[3] = rol64(s[3], 21); s[3] ^= s[0]; \
+-	s[2] += s[1]; s[1] = rol64(s[1], 17); s[1] ^= s[2]; s[2] = rol64(s[2], 32); \
+-} while (0)
+-#else
+-#define PERM() do { \
+-	s[0] += s[1]; s[1] = rol32(s[1],  5); s[1] ^= s[0]; s[0] = rol32(s[0], 16); \
+-	s[2] += s[3]; s[3] = rol32(s[3],  8); s[3] ^= s[2]; \
+-	s[0] += s[3]; s[3] = rol32(s[3],  7); s[3] ^= s[0]; \
+-	s[2] += s[1]; s[1] = rol32(s[1], 13); s[1] ^= s[2]; s[2] = rol32(s[2], 16); \
+-} while (0)
+-#endif
+-
+ 	s[3] ^= v1;
+-	PERM();
++	FASTMIX_PERM(s[0], s[1], s[2], s[3]);
+ 	s[0] ^= v1;
+ 	s[3] ^= v2;
+-	PERM();
++	FASTMIX_PERM(s[0], s[1], s[2], s[3]);
+ 	s[0] ^= v2;
  }
  
- /*
-@@ -836,10 +817,25 @@ static void credit_init_bits(size_t nbit
- 		new = min_t(unsigned int, POOL_BITS, orig + add);
- 	} while (cmpxchg(&input_pool.init_bits, orig, new) != orig);
+--- a/include/linux/prandom.h
++++ b/include/linux/prandom.h
+@@ -10,6 +10,7 @@
  
--	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS)
--		crng_reseed();
--	else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
-+	if (orig < POOL_READY_BITS && new >= POOL_READY_BITS) {
-+		crng_reseed(); /* Sets crng_init to CRNG_READY under base_crng.lock. */
-+		process_random_ready_list();
-+		wake_up_interruptible(&crng_init_wait);
-+		kill_fasync(&fasync, SIGIO, POLL_IN);
-+		pr_notice("crng init done\n");
-+		if (unseeded_warning.missed) {
-+			pr_notice("%d get_random_xx warning(s) missed due to ratelimiting\n",
-+				  unseeded_warning.missed);
-+			unseeded_warning.missed = 0;
-+		}
-+		if (urandom_warning.missed) {
-+			pr_notice("%d urandom warning(s) missed due to ratelimiting\n",
-+				  urandom_warning.missed);
-+			urandom_warning.missed = 0;
-+		}
-+	} else if (orig < POOL_EARLY_BITS && new >= POOL_EARLY_BITS) {
- 		spin_lock_irqsave(&base_crng.lock, flags);
-+		/* Check if crng_init is CRNG_EMPTY, to avoid race with crng_reseed(). */
- 		if (crng_init == CRNG_EMPTY) {
- 			extract_entropy(base_crng.key, sizeof(base_crng.key));
- 			crng_init = CRNG_EARLY;
+ #include <linux/types.h>
+ #include <linux/percpu.h>
++#include <linux/siphash.h>
+ 
+ u32 prandom_u32(void);
+ void prandom_bytes(void *buf, size_t nbytes);
+@@ -27,15 +28,10 @@ DECLARE_PER_CPU(unsigned long, net_rand_
+  * The core SipHash round function.  Each line can be executed in
+  * parallel given enough CPU resources.
+  */
+-#define PRND_SIPROUND(v0, v1, v2, v3) ( \
+-	v0 += v1, v1 = rol64(v1, 13),  v2 += v3, v3 = rol64(v3, 16), \
+-	v1 ^= v0, v0 = rol64(v0, 32),  v3 ^= v2,                     \
+-	v0 += v3, v3 = rol64(v3, 21),  v2 += v1, v1 = rol64(v1, 17), \
+-	v3 ^= v0,                      v1 ^= v2, v2 = rol64(v2, 32)  \
+-)
++#define PRND_SIPROUND(v0, v1, v2, v3) SIPHASH_PERMUTATION(v0, v1, v2, v3)
+ 
+-#define PRND_K0 (0x736f6d6570736575 ^ 0x6c7967656e657261)
+-#define PRND_K1 (0x646f72616e646f6d ^ 0x7465646279746573)
++#define PRND_K0 (SIPHASH_CONST_0 ^ SIPHASH_CONST_2)
++#define PRND_K1 (SIPHASH_CONST_1 ^ SIPHASH_CONST_3)
+ 
+ #elif BITS_PER_LONG == 32
+ /*
+@@ -43,14 +39,9 @@ DECLARE_PER_CPU(unsigned long, net_rand_
+  * This is weaker, but 32-bit machines are not used for high-traffic
+  * applications, so there is less output for an attacker to analyze.
+  */
+-#define PRND_SIPROUND(v0, v1, v2, v3) ( \
+-	v0 += v1, v1 = rol32(v1,  5),  v2 += v3, v3 = rol32(v3,  8), \
+-	v1 ^= v0, v0 = rol32(v0, 16),  v3 ^= v2,                     \
+-	v0 += v3, v3 = rol32(v3,  7),  v2 += v1, v1 = rol32(v1, 13), \
+-	v3 ^= v0,                      v1 ^= v2, v2 = rol32(v2, 16)  \
+-)
+-#define PRND_K0 0x6c796765
+-#define PRND_K1 0x74656462
++#define PRND_SIPROUND(v0, v1, v2, v3) HSIPHASH_PERMUTATION(v0, v1, v2, v3)
++#define PRND_K0 (HSIPHASH_CONST_0 ^ HSIPHASH_CONST_2)
++#define PRND_K1 (HSIPHASH_CONST_1 ^ HSIPHASH_CONST_3)
+ 
+ #else
+ #error Unsupported BITS_PER_LONG
+--- a/include/linux/siphash.h
++++ b/include/linux/siphash.h
+@@ -136,4 +136,32 @@ static inline u32 hsiphash(const void *d
+ 	return ___hsiphash_aligned(data, len, key);
+ }
+ 
++/*
++ * These macros expose the raw SipHash and HalfSipHash permutations.
++ * Do not use them directly! If you think you have a use for them,
++ * be sure to CC the maintainer of this file explaining why.
++ */
++
++#define SIPHASH_PERMUTATION(a, b, c, d) ( \
++	(a) += (b), (b) = rol64((b), 13), (b) ^= (a), (a) = rol64((a), 32), \
++	(c) += (d), (d) = rol64((d), 16), (d) ^= (c), \
++	(a) += (d), (d) = rol64((d), 21), (d) ^= (a), \
++	(c) += (b), (b) = rol64((b), 17), (b) ^= (c), (c) = rol64((c), 32))
++
++#define SIPHASH_CONST_0 0x736f6d6570736575ULL
++#define SIPHASH_CONST_1 0x646f72616e646f6dULL
++#define SIPHASH_CONST_2 0x6c7967656e657261ULL
++#define SIPHASH_CONST_3 0x7465646279746573ULL
++
++#define HSIPHASH_PERMUTATION(a, b, c, d) ( \
++	(a) += (b), (b) = rol32((b), 5), (b) ^= (a), (a) = rol32((a), 16), \
++	(c) += (d), (d) = rol32((d), 8), (d) ^= (c), \
++	(a) += (d), (d) = rol32((d), 7), (d) ^= (a), \
++	(c) += (b), (b) = rol32((b), 13), (b) ^= (c), (c) = rol32((c), 16))
++
++#define HSIPHASH_CONST_0 0U
++#define HSIPHASH_CONST_1 0U
++#define HSIPHASH_CONST_2 0x6c796765U
++#define HSIPHASH_CONST_3 0x74656462U
++
+ #endif /* _LINUX_SIPHASH_H */
+--- a/lib/siphash.c
++++ b/lib/siphash.c
+@@ -18,19 +18,13 @@
+ #include <asm/word-at-a-time.h>
+ #endif
+ 
+-#define SIPROUND \
+-	do { \
+-	v0 += v1; v1 = rol64(v1, 13); v1 ^= v0; v0 = rol64(v0, 32); \
+-	v2 += v3; v3 = rol64(v3, 16); v3 ^= v2; \
+-	v0 += v3; v3 = rol64(v3, 21); v3 ^= v0; \
+-	v2 += v1; v1 = rol64(v1, 17); v1 ^= v2; v2 = rol64(v2, 32); \
+-	} while (0)
++#define SIPROUND SIPHASH_PERMUTATION(v0, v1, v2, v3)
+ 
+ #define PREAMBLE(len) \
+-	u64 v0 = 0x736f6d6570736575ULL; \
+-	u64 v1 = 0x646f72616e646f6dULL; \
+-	u64 v2 = 0x6c7967656e657261ULL; \
+-	u64 v3 = 0x7465646279746573ULL; \
++	u64 v0 = SIPHASH_CONST_0; \
++	u64 v1 = SIPHASH_CONST_1; \
++	u64 v2 = SIPHASH_CONST_2; \
++	u64 v3 = SIPHASH_CONST_3; \
+ 	u64 b = ((u64)(len)) << 56; \
+ 	v3 ^= key->key[1]; \
+ 	v2 ^= key->key[0]; \
+@@ -389,19 +383,13 @@ u32 hsiphash_4u32(const u32 first, const
+ }
+ EXPORT_SYMBOL(hsiphash_4u32);
+ #else
+-#define HSIPROUND \
+-	do { \
+-	v0 += v1; v1 = rol32(v1, 5); v1 ^= v0; v0 = rol32(v0, 16); \
+-	v2 += v3; v3 = rol32(v3, 8); v3 ^= v2; \
+-	v0 += v3; v3 = rol32(v3, 7); v3 ^= v0; \
+-	v2 += v1; v1 = rol32(v1, 13); v1 ^= v2; v2 = rol32(v2, 16); \
+-	} while (0)
++#define HSIPROUND HSIPHASH_PERMUTATION(v0, v1, v2, v3)
+ 
+ #define HPREAMBLE(len) \
+-	u32 v0 = 0; \
+-	u32 v1 = 0; \
+-	u32 v2 = 0x6c796765U; \
+-	u32 v3 = 0x74656462U; \
++	u32 v0 = HSIPHASH_CONST_0; \
++	u32 v1 = HSIPHASH_CONST_1; \
++	u32 v2 = HSIPHASH_CONST_2; \
++	u32 v3 = HSIPHASH_CONST_3; \
+ 	u32 b = ((u32)(len)) << 24; \
+ 	v3 ^= key->key[1]; \
+ 	v2 ^= key->key[0]; \
 
 
