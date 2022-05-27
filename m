@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1067853615F
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBFD536162
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:02:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352185AbiE0L7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57524 "EHLO
+        id S242168AbiE0L4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:56:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352581AbiE0Lz1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:27 -0400
+        with ESMTP id S1352450AbiE0LzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:55:22 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2D715AB2D;
-        Fri, 27 May 2022 04:48:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1B715AB16;
+        Fri, 27 May 2022 04:48:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D3ABA61D56;
-        Fri, 27 May 2022 11:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD4CC385A9;
-        Fri, 27 May 2022 11:48:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C883961D9F;
+        Fri, 27 May 2022 11:48:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2EC1C34113;
+        Fri, 27 May 2022 11:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652124;
-        bh=0MYS7OwGSsxOj9r4dJeXvJnS30+TdN5SqX5eby8CsFw=;
+        s=korg; t=1653652109;
+        bh=lnFjtwLUDdubcl79VcwkRkWPLGZJDO44WzGc606Jztc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZVpVGZdvcaVPfZyWMPf3Db5IDPCU4PQTyqvSt4A/6NBrdCUuym7/54J/9fgmnCYt
-         k1J7SBVI3DOC+uqhXDV7Bekot4HLJGvUgDprHOFGGS0llEvEczow0bGd7n3FSKgeFO
-         MlGwO8TGqNvmSF28lfPw2yUuOjjpWm3pzookXjlk=
+        b=WBIekkopKjRYQTq3S6IZD8EMvVfNXooJ6IgRXrmpH1mehCRJLeaIqGii4gbN7f8zM
+         wCxsJ7rw/LXGNmYC8Fh/PqO9QZBt6U6tMx9OW6DP+0RLbmB1+TOu7vM3Q4EQnSmLrI
+         Zu1X63cdd7Hp8YQmFoWU2JVkcPLsZWLN6Oa/okW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
-        Eric Biggers <ebiggers@google.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 076/145] random: check for crng_init == 0 in add_device_randomness()
-Date:   Fri, 27 May 2022 10:49:37 +0200
-Message-Id: <20220527084859.878541829@linuxfoundation.org>
+Subject: [PATCH 5.10 098/163] random: only wake up writers after zap if threshold was passed
+Date:   Fri, 27 May 2022 10:49:38 +0200
+Message-Id: <20220527084841.587135020@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,16 +56,16 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 1daf2f387652bf3a7044aea042f5023b3f6b189b upstream.
+commit a3f9e8910e1584d7725ef7d5ac870920d42d0bb4 upstream.
 
-This has no real functional change, as crng_pre_init_inject() (and
-before that, crng_slow_init()) always checks for == 0, not >= 2. So
-correct the outer unlocked change to reflect that. Before this used
-crng_ready(), which was not correct.
+The only time that we need to wake up /dev/random writers on
+RNDCLEARPOOL/RNDZAPPOOL is when we're changing from a value that is
+greater than or equal to POOL_MIN_BITS to zero, because if we're
+changing from below POOL_MIN_BITS to zero, the writers are already
+unblocked.
 
 Cc: Theodore Ts'o <tytso@mit.edu>
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -75,14 +74,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1020,7 +1020,7 @@ void add_device_randomness(const void *b
- 	unsigned long time = random_get_entropy() ^ jiffies;
- 	unsigned long flags;
- 
--	if (!crng_ready() && size)
-+	if (crng_init == 0 && size)
- 		crng_pre_init_inject(buf, size, false, false);
- 
- 	spin_lock_irqsave(&input_pool.lock, flags);
+@@ -1582,7 +1582,7 @@ static long random_ioctl(struct file *f,
+ 		 */
+ 		if (!capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+-		if (xchg(&input_pool.entropy_count, 0)) {
++		if (xchg(&input_pool.entropy_count, 0) >= POOL_MIN_BITS) {
+ 			wake_up_interruptible(&random_write_wait);
+ 			kill_fasync(&fasync, SIGIO, POLL_OUT);
+ 		}
 
 
