@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0AD5361BB
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BA035361A9
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236117AbiE0MHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:07:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
+        id S1350087AbiE0MHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:07:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353191AbiE0MFp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:45 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1F431632B0;
-        Fri, 27 May 2022 04:54:11 -0700 (PDT)
+        with ESMTP id S1353648AbiE0MGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:06:08 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1538D1666B5;
+        Fri, 27 May 2022 04:55:06 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ACCD61D9F;
-        Fri, 27 May 2022 11:54:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D10C385A9;
-        Fri, 27 May 2022 11:54:09 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 50700CE251D;
+        Fri, 27 May 2022 11:55:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52713C385A9;
+        Fri, 27 May 2022 11:55:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652450;
-        bh=a1325iiTRt3uoSvhs7UFiDu+NUMt3odXV5Q1QN3rOtI=;
+        s=korg; t=1653652503;
+        bh=bosGeQX7eVZuVUwD8SGaD3sYSzWZCOulil/ea+NDSMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wkS8yzzjDfczvZxPYUENMfaP815P/LQeEiBTia3Hb3jqa3VWf87zvR4zN78ux4/4H
-         SDhr7mGOhPu88keOhLzOdXW3XBa2P2gjTm8z3y+b6KToMfoGnLsHn5PR10eGv7MnfJ
-         rADY2LcEB7oTnzpG+BYwchEaqT5Y4xAkdopDiN4Q=
+        b=0Zt6j/UFzGIuvkzEIOaHVNx9zuM0EIwxrGW5iutUPy5h7Th6BuHwWF0VyBWAYAuda
+         G7IVNAo9y4HbPCIdIvOXwuI/uaue/Rd3YUuCOiMjc6fHUlcI/04/x0Ykv1VgnP82rp
+         F2q3aal8EDLIO+XsaZST267Cc4G8nbKea+COzPBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 140/145] random: unify batched entropy implementations
-Date:   Fri, 27 May 2022 10:50:41 +0200
-Message-Id: <20220527084907.443561946@linuxfoundation.org>
+Subject: [PATCH 5.10 162/163] random: check for signals after page of pool writes
+Date:   Fri, 27 May 2022 10:50:42 +0200
+Message-Id: <20220527084850.783635348@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,188 +56,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit 3092adcef3ffd2ef59634998297ca8358461ebce upstream.
+commit 1ce6c8d68f8ac587f54d0a271ac594d3d51f3efb upstream.
 
-There are currently two separate batched entropy implementations, for
-u32 and u64, with nearly identical code, with the goal of avoiding
-unaligned memory accesses and letting the buffers be used more
-efficiently. Having to maintain these two functions independently is a
-bit of a hassle though, considering that they always need to be kept in
-sync.
+get_random_bytes_user() checks for signals after producing a PAGE_SIZE
+worth of output, just like /dev/zero does. write_pool() is doing
+basically the same work (actually, slightly more expensive), and so
+should stop to check for signals in the same way. Let's also name it
+write_pool_user() to match get_random_bytes_user(), so this won't be
+misused in the future.
 
-This commit factors them out into a type-generic macro, so that the
-expansion produces the same code as before, such that diffing the
-assembly shows no differences. This will also make it easier in the
-future to add u16 and u8 batches.
+Before this patch, massive writes to /dev/urandom would tie up the
+process for an extremely long time and make it unterminatable. After, it
+can be successfully interrupted. The following test program can be used
+to see this works as intended:
 
-This was initially tested using an always_inline function and letting
-gcc constant fold the type size in, but the code gen was less efficient,
-and in general it was more verbose and harder to follow. So this patch
-goes with the boring macro solution, similar to what's already done for
-the _wait functions in random.h.
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <signal.h>
+  #include <stdio.h>
+
+  static unsigned char x[~0U];
+
+  static void handle(int) { }
+
+  int main(int argc, char *argv[])
+  {
+    pid_t pid = getpid(), child;
+    int fd;
+    signal(SIGUSR1, handle);
+    if (!(child = fork())) {
+      for (;;)
+        kill(pid, SIGUSR1);
+    }
+    fd = open("/dev/urandom", O_WRONLY);
+    pause();
+    printf("interrupted after writing %zd bytes\n", write(fd, x, sizeof(x)));
+    close(fd);
+    kill(child, SIGTERM);
+    return 0;
+  }
+
+Result before: "interrupted after writing 2147479552 bytes"
+Result after: "interrupted after writing 4096 bytes"
 
 Cc: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |  145 ++++++++++++++++++--------------------------------
- 1 file changed, 54 insertions(+), 91 deletions(-)
+ drivers/char/random.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -511,99 +511,62 @@ out_zero_chacha:
-  * provided by this function is okay, the function wait_for_random_bytes()
-  * should be called and return 0 at least once at any point prior.
-  */
--struct batched_entropy {
--	union {
--		/*
--		 * We make this 1.5x a ChaCha block, so that we get the
--		 * remaining 32 bytes from fast key erasure, plus one full
--		 * block from the detached ChaCha state. We can increase
--		 * the size of this later if needed so long as we keep the
--		 * formula of (integer_blocks + 0.5) * CHACHA_BLOCK_SIZE.
--		 */
--		u64 entropy_u64[CHACHA_BLOCK_SIZE * 3 / (2 * sizeof(u64))];
--		u32 entropy_u32[CHACHA_BLOCK_SIZE * 3 / (2 * sizeof(u32))];
--	};
--	local_lock_t lock;
--	unsigned long generation;
--	unsigned int position;
--};
+@@ -1255,7 +1255,7 @@ static __poll_t random_poll(struct file
+ 	return crng_ready() ? EPOLLIN | EPOLLRDNORM : EPOLLOUT | EPOLLWRNORM;
+ }
  
-+#define DEFINE_BATCHED_ENTROPY(type)						\
-+struct batch_ ##type {								\
-+	/*									\
-+	 * We make this 1.5x a ChaCha block, so that we get the			\
-+	 * remaining 32 bytes from fast key erasure, plus one full		\
-+	 * block from the detached ChaCha state. We can increase		\
-+	 * the size of this later if needed so long as we keep the		\
-+	 * formula of (integer_blocks + 0.5) * CHACHA_BLOCK_SIZE.		\
-+	 */									\
-+	type entropy[CHACHA_BLOCK_SIZE * 3 / (2 * sizeof(type))];		\
-+	local_lock_t lock;							\
-+	unsigned long generation;						\
-+	unsigned int position;							\
-+};										\
-+										\
-+static DEFINE_PER_CPU(struct batch_ ##type, batched_entropy_ ##type) = {	\
-+	.lock = INIT_LOCAL_LOCK(batched_entropy_ ##type.lock),			\
-+	.position = UINT_MAX							\
-+};										\
-+										\
-+type get_random_ ##type(void)							\
-+{										\
-+	type ret;								\
-+	unsigned long flags;							\
-+	struct batch_ ##type *batch;						\
-+	unsigned long next_gen;							\
-+										\
-+	warn_unseeded_randomness();						\
-+										\
-+	if  (!crng_ready()) {							\
-+		_get_random_bytes(&ret, sizeof(ret));				\
-+		return ret;							\
-+	}									\
-+										\
-+	local_lock_irqsave(&batched_entropy_ ##type.lock, flags);		\
-+	batch = raw_cpu_ptr(&batched_entropy_##type);				\
-+										\
-+	next_gen = READ_ONCE(base_crng.generation);				\
-+	if (batch->position >= ARRAY_SIZE(batch->entropy) ||			\
-+	    next_gen != batch->generation) {					\
-+		_get_random_bytes(batch->entropy, sizeof(batch->entropy));	\
-+		batch->position = 0;						\
-+		batch->generation = next_gen;					\
-+	}									\
-+										\
-+	ret = batch->entropy[batch->position];					\
-+	batch->entropy[batch->position] = 0;					\
-+	++batch->position;							\
-+	local_unlock_irqrestore(&batched_entropy_ ##type.lock, flags);		\
-+	return ret;								\
-+}										\
-+EXPORT_SYMBOL(get_random_ ##type);
+-static ssize_t write_pool(struct iov_iter *iter)
++static ssize_t write_pool_user(struct iov_iter *iter)
+ {
+ 	u8 block[BLAKE2S_BLOCK_SIZE];
+ 	ssize_t ret = 0;
+@@ -1270,7 +1270,13 @@ static ssize_t write_pool(struct iov_ite
+ 		mix_pool_bytes(block, copied);
+ 		if (!iov_iter_count(iter) || copied != sizeof(block))
+ 			break;
+-		cond_resched();
++
++		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
++		if (ret % PAGE_SIZE == 0) {
++			if (signal_pending(current))
++				break;
++			cond_resched();
++		}
+ 	}
  
--static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u64) = {
--	.lock = INIT_LOCAL_LOCK(batched_entropy_u64.lock),
--	.position = UINT_MAX
--};
--
--u64 get_random_u64(void)
--{
--	u64 ret;
--	unsigned long flags;
--	struct batched_entropy *batch;
--	unsigned long next_gen;
--
--	warn_unseeded_randomness();
--
--	if  (!crng_ready()) {
--		_get_random_bytes(&ret, sizeof(ret));
--		return ret;
--	}
--
--	local_lock_irqsave(&batched_entropy_u64.lock, flags);
--	batch = raw_cpu_ptr(&batched_entropy_u64);
--
--	next_gen = READ_ONCE(base_crng.generation);
--	if (batch->position >= ARRAY_SIZE(batch->entropy_u64) ||
--	    next_gen != batch->generation) {
--		_get_random_bytes(batch->entropy_u64, sizeof(batch->entropy_u64));
--		batch->position = 0;
--		batch->generation = next_gen;
--	}
--
--	ret = batch->entropy_u64[batch->position];
--	batch->entropy_u64[batch->position] = 0;
--	++batch->position;
--	local_unlock_irqrestore(&batched_entropy_u64.lock, flags);
--	return ret;
--}
--EXPORT_SYMBOL(get_random_u64);
--
--static DEFINE_PER_CPU(struct batched_entropy, batched_entropy_u32) = {
--	.lock = INIT_LOCAL_LOCK(batched_entropy_u32.lock),
--	.position = UINT_MAX
--};
--
--u32 get_random_u32(void)
--{
--	u32 ret;
--	unsigned long flags;
--	struct batched_entropy *batch;
--	unsigned long next_gen;
--
--	warn_unseeded_randomness();
--
--	if  (!crng_ready()) {
--		_get_random_bytes(&ret, sizeof(ret));
--		return ret;
--	}
--
--	local_lock_irqsave(&batched_entropy_u32.lock, flags);
--	batch = raw_cpu_ptr(&batched_entropy_u32);
--
--	next_gen = READ_ONCE(base_crng.generation);
--	if (batch->position >= ARRAY_SIZE(batch->entropy_u32) ||
--	    next_gen != batch->generation) {
--		_get_random_bytes(batch->entropy_u32, sizeof(batch->entropy_u32));
--		batch->position = 0;
--		batch->generation = next_gen;
--	}
--
--	ret = batch->entropy_u32[batch->position];
--	batch->entropy_u32[batch->position] = 0;
--	++batch->position;
--	local_unlock_irqrestore(&batched_entropy_u32.lock, flags);
--	return ret;
--}
--EXPORT_SYMBOL(get_random_u32);
-+DEFINE_BATCHED_ENTROPY(u64)
-+DEFINE_BATCHED_ENTROPY(u32)
+ 	memzero_explicit(block, sizeof(block));
+@@ -1279,7 +1285,7 @@ static ssize_t write_pool(struct iov_ite
  
- #ifdef CONFIG_SMP
- /*
+ static ssize_t random_write_iter(struct kiocb *kiocb, struct iov_iter *iter)
+ {
+-	return write_pool(iter);
++	return write_pool_user(iter);
+ }
+ 
+ static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
+@@ -1346,7 +1352,7 @@ static long random_ioctl(struct file *f,
+ 		ret = import_single_range(WRITE, p, len, &iov, &iter);
+ 		if (unlikely(ret))
+ 			return ret;
+-		ret = write_pool(&iter);
++		ret = write_pool_user(&iter);
+ 		if (unlikely(ret < 0))
+ 			return ret;
+ 		/* Since we're crediting, enforce that it was all written into the pool. */
 
 
