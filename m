@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A3F5361FD
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70FD85361CE
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 14:12:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352412AbiE0MIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 08:08:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42488 "EHLO
+        id S240528AbiE0MH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 08:07:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353233AbiE0MFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:05:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE5B163F5E;
-        Fri, 27 May 2022 04:54:17 -0700 (PDT)
+        with ESMTP id S1353649AbiE0MGI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 08:06:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3581666BE;
+        Fri, 27 May 2022 04:55:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDA0961E09;
-        Fri, 27 May 2022 11:54:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02183C385A9;
-        Fri, 27 May 2022 11:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C21861CD6;
+        Fri, 27 May 2022 11:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4988BC385A9;
+        Fri, 27 May 2022 11:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652456;
-        bh=76oionJbUWHK6noOc6OvKBCGTvYI7yBCZX+ppwL95F8=;
+        s=korg; t=1653652506;
+        bh=RUEsyhJFnaOVYv98/ybfm3mKHtkusHDBD7ScaWxPpOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NGAZP0ynaNbWCiAkp4sK2JHXuE6qBzZMQNyVOKVKCYlADPZyx6ticEBzoQXyaQbdc
-         C8c2/Iol7fv942VuJonvrWhZUJWyS4UY1fJXC5HUFi5eeTb0XJCgAlDF9v0+6EnQFw
-         is6O/Va0DgqJM31eh8OBWH0dMqmEj7fkBuRJ62hw=
+        b=QptRGjrppCetVetN43rf6sotoIFqxWkmxqAl29ojQEEJu7JB3fR0M2B8Wwa1QT7Xe
+         K4hZ9YWCVdbefGRufXcM1lOPHEz0emQvoAzb0qQgZt6GJtRyAsPnb2EFM6ehe8qO7L
+         NdGv/hg0/vVV3SvoBIp6HSEuzLsStSlpWD4SbU44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 141/145] random: convert to using fops->read_iter()
-Date:   Fri, 27 May 2022 10:50:42 +0200
-Message-Id: <20220527084907.568432116@linuxfoundation.org>
+        stable@vger.kernel.org, Edward Matijevic <motolav@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 163/163] ALSA: ctxfi: Add SB046x PCI ID
+Date:   Fri, 27 May 2022 10:50:43 +0200
+Message-Id: <20220527084850.931243828@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084828.156494029@linuxfoundation.org>
+References: <20220527084828.156494029@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,191 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Edward Matijevic <motolav@gmail.com>
 
-commit 1b388e7765f2eaa137cf5d92b47ef5925ad83ced upstream.
+commit 1b073ebb174d0c7109b438e0a5eb4495137803ec upstream.
 
-This is a pre-requisite to wiring up splice() again for the random
-and urandom drivers. It also allows us to remove the INT_MAX check in
-getrandom(), because import_single_range() applies capping internally.
+Adds the PCI ID for X-Fi cards sold under the Platnum and XtremeMusic names
 
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-[Jason: rewrote get_random_bytes_user() to simplify and also incorporate
- additional suggestions from Al.]
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Before: snd_ctxfi 0000:05:05.0: chip 20K1 model Unknown (1102:0021) is found
+After: snd_ctxfi 0000:05:05.0: chip 20K1 model SB046x (1102:0021) is found
+
+[ This is only about defining the model name string, and the rest is
+  handled just like before, as a default unknown device.
+  Edward confirmed that the stuff has been working fine -- tiwai ]
+
+Signed-off-by: Edward Matijevic <motolav@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/cae7d1a4-8bd9-7dfe-7427-db7e766f7272@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   66 ++++++++++++++++++++++----------------------------
- 1 file changed, 30 insertions(+), 36 deletions(-)
+ sound/pci/ctxfi/ctatc.c      |    2 ++
+ sound/pci/ctxfi/cthardware.h |    3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -52,6 +52,7 @@
- #include <linux/uuid.h>
- #include <linux/uaccess.h>
- #include <linux/siphash.h>
-+#include <linux/uio.h>
- #include <crypto/chacha.h>
- #include <crypto/blake2s.h>
- #include <asm/processor.h>
-@@ -448,13 +449,13 @@ void get_random_bytes(void *buf, size_t
- }
- EXPORT_SYMBOL(get_random_bytes);
+--- a/sound/pci/ctxfi/ctatc.c
++++ b/sound/pci/ctxfi/ctatc.c
+@@ -36,6 +36,7 @@
+ 			    | ((IEC958_AES3_CON_FS_48000) << 24))
  
--static ssize_t get_random_bytes_user(void __user *ubuf, size_t len)
-+static ssize_t get_random_bytes_user(struct iov_iter *iter)
- {
--	size_t block_len, left, ret = 0;
- 	u32 chacha_state[CHACHA_STATE_WORDS];
--	u8 output[CHACHA_BLOCK_SIZE];
-+	u8 block[CHACHA_BLOCK_SIZE];
-+	size_t ret = 0, copied;
+ static const struct snd_pci_quirk subsys_20k1_list[] = {
++	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x0021, "SB046x", CTSB046X),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x0022, "SB055x", CTSB055X),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x002f, "SB055x", CTSB055X),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_CREATIVE, 0x0029, "SB073x", CTSB073X),
+@@ -64,6 +65,7 @@ static const struct snd_pci_quirk subsys
  
--	if (!len)
-+	if (unlikely(!iov_iter_count(iter)))
- 		return 0;
+ static const char *ct_subsys_name[NUM_CTCARDS] = {
+ 	/* 20k1 models */
++	[CTSB046X]	= "SB046x",
+ 	[CTSB055X]	= "SB055x",
+ 	[CTSB073X]	= "SB073x",
+ 	[CTUAA]		= "UAA",
+--- a/sound/pci/ctxfi/cthardware.h
++++ b/sound/pci/ctxfi/cthardware.h
+@@ -26,8 +26,9 @@ enum CHIPTYP {
  
- 	/*
-@@ -468,30 +469,22 @@ static ssize_t get_random_bytes_user(voi
- 	 * use chacha_state after, so we can simply return those bytes to
- 	 * the user directly.
- 	 */
--	if (len <= CHACHA_KEY_SIZE) {
--		ret = len - copy_to_user(ubuf, &chacha_state[4], len);
-+	if (iov_iter_count(iter) <= CHACHA_KEY_SIZE) {
-+		ret = copy_to_iter(&chacha_state[4], CHACHA_KEY_SIZE, iter);
- 		goto out_zero_chacha;
- 	}
- 
- 	for (;;) {
--		chacha20_block(chacha_state, output);
-+		chacha20_block(chacha_state, block);
- 		if (unlikely(chacha_state[12] == 0))
- 			++chacha_state[13];
- 
--		block_len = min_t(size_t, len, CHACHA_BLOCK_SIZE);
--		left = copy_to_user(ubuf, output, block_len);
--		if (left) {
--			ret += block_len - left;
--			break;
--		}
--
--		ubuf += block_len;
--		ret += block_len;
--		len -= block_len;
--		if (!len)
-+		copied = copy_to_iter(block, sizeof(block), iter);
-+		ret += copied;
-+		if (!iov_iter_count(iter) || copied != sizeof(block))
- 			break;
- 
--		BUILD_BUG_ON(PAGE_SIZE % CHACHA_BLOCK_SIZE != 0);
-+		BUILD_BUG_ON(PAGE_SIZE % sizeof(block) != 0);
- 		if (ret % PAGE_SIZE == 0) {
- 			if (signal_pending(current))
- 				break;
-@@ -499,7 +492,7 @@ static ssize_t get_random_bytes_user(voi
- 		}
- 	}
- 
--	memzero_explicit(output, sizeof(output));
-+	memzero_explicit(block, sizeof(block));
- out_zero_chacha:
- 	memzero_explicit(chacha_state, sizeof(chacha_state));
- 	return ret ? ret : -EFAULT;
-@@ -1228,6 +1221,10 @@ static void __cold try_to_generate_entro
- 
- SYSCALL_DEFINE3(getrandom, char __user *, ubuf, size_t, len, unsigned int, flags)
- {
-+	struct iov_iter iter;
-+	struct iovec iov;
-+	int ret;
-+
- 	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
- 		return -EINVAL;
- 
-@@ -1238,19 +1235,18 @@ SYSCALL_DEFINE3(getrandom, char __user *
- 	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
- 		return -EINVAL;
- 
--	if (len > INT_MAX)
--		len = INT_MAX;
--
- 	if (!crng_ready() && !(flags & GRND_INSECURE)) {
--		int ret;
--
- 		if (flags & GRND_NONBLOCK)
- 			return -EAGAIN;
- 		ret = wait_for_random_bytes();
- 		if (unlikely(ret))
- 			return ret;
- 	}
--	return get_random_bytes_user(ubuf, len);
-+
-+	ret = import_single_range(READ, ubuf, len, &iov, &iter);
-+	if (unlikely(ret))
-+		return ret;
-+	return get_random_bytes_user(&iter);
- }
- 
- static __poll_t random_poll(struct file *file, poll_table *wait)
-@@ -1294,8 +1290,7 @@ static ssize_t random_write(struct file
- 	return (ssize_t)len;
- }
- 
--static ssize_t urandom_read(struct file *file, char __user *ubuf,
--			    size_t len, loff_t *ppos)
-+static ssize_t urandom_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
- {
- 	static int maxwarn = 10;
- 
-@@ -1304,23 +1299,22 @@ static ssize_t urandom_read(struct file
- 			++urandom_warning.missed;
- 		else if (ratelimit_disable || __ratelimit(&urandom_warning)) {
- 			--maxwarn;
--			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
--				  current->comm, len);
-+			pr_notice("%s: uninitialized urandom read (%zu bytes read)\n",
-+				  current->comm, iov_iter_count(iter));
- 		}
- 	}
- 
--	return get_random_bytes_user(ubuf, len);
-+	return get_random_bytes_user(iter);
- }
- 
--static ssize_t random_read(struct file *file, char __user *ubuf,
--			   size_t len, loff_t *ppos)
-+static ssize_t random_read_iter(struct kiocb *kiocb, struct iov_iter *iter)
- {
- 	int ret;
- 
- 	ret = wait_for_random_bytes();
- 	if (ret != 0)
- 		return ret;
--	return get_random_bytes_user(ubuf, len);
-+	return get_random_bytes_user(iter);
- }
- 
- static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
-@@ -1382,7 +1376,7 @@ static int random_fasync(int fd, struct
- }
- 
- const struct file_operations random_fops = {
--	.read = random_read,
-+	.read_iter = random_read_iter,
- 	.write = random_write,
- 	.poll = random_poll,
- 	.unlocked_ioctl = random_ioctl,
-@@ -1392,7 +1386,7 @@ const struct file_operations random_fops
- };
- 
- const struct file_operations urandom_fops = {
--	.read = urandom_read,
-+	.read_iter = urandom_read_iter,
- 	.write = random_write,
- 	.unlocked_ioctl = random_ioctl,
- 	.compat_ioctl = compat_ptr_ioctl,
+ enum CTCARDS {
+ 	/* 20k1 models */
++	CTSB046X,
++	CT20K1_MODEL_FIRST = CTSB046X,
+ 	CTSB055X,
+-	CT20K1_MODEL_FIRST = CTSB055X,
+ 	CTSB073X,
+ 	CTUAA,
+ 	CT20K1_UNKNOWN,
 
 
