@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14EBA535C1E
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 10:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B16D5535FC8
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:43:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349954AbiE0IvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 04:51:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57068 "EHLO
+        id S1351651AbiE0LmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:42:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349944AbiE0IvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 04:51:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5507EF136B;
-        Fri, 27 May 2022 01:51:03 -0700 (PDT)
+        with ESMTP id S1351638AbiE0Llf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:41:35 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E34B12FED3;
+        Fri, 27 May 2022 04:40:05 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D75FC61D2B;
-        Fri, 27 May 2022 08:51:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B567CC385B8;
-        Fri, 27 May 2022 08:51:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02BA361CDB;
+        Fri, 27 May 2022 11:40:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D61B3C385A9;
+        Fri, 27 May 2022 11:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653641462;
-        bh=BghL1surAkgirDQEAlsYzgJhE3Bu1nCy2mEUcXP8XK4=;
+        s=korg; t=1653651604;
+        bh=vqN2eMjhj6uOQA/ttVCAWTc2ORVevz+T8SOOvQJbY6I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apqf/ZDgxnW5JAohxoYcEUjkrOpWMmjmAINsWPk4vhlRtbfghtOZnXBAg/K3OrysG
-         gsAc2NToasv6yZzpu2ijlkI/I/mq5AyNOtV/np/xrZ+GwzK6VC6PSgpyaheZAEOXe+
-         Db0OUipnRxkPkL04jAGSg91DPL5BUjyDdAcYoWXI=
+        b=ggLmgIkTIhvGbl23EhtMufP9WoJUIyFM9ygtPnJbtuh9su8ZsMNF6mzGQO1pIMk38
+         mIsGac6T19LO7ClQh1AgQQrVRZq2a2Ajqad3BQhO7Zulyx9B360wMqPDm5A/hTnWzH
+         XtdKPqpBi/1S9OrDegYkAj1isoDea5cSwQA14zvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.17 001/111] HID: amd_sfh: Add support for sensor discovery
+        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dexuan Cui <decui@microsoft.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wei Liu <wei.liu@kernel.org>, linux-hyperv@vger.kernel.org,
+        x86@kernel.org, Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.15 012/145] random: remove unused irq_flags argument from add_interrupt_randomness()
 Date:   Fri, 27 May 2022 10:48:33 +0200
-Message-Id: <20220527084819.348712980@linuxfoundation.org>
+Message-Id: <20220527084852.448750357@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
-References: <20220527084819.133490171@linuxfoundation.org>
+In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
+References: <20220527084850.364560116@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,86 +63,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 
-commit b5d7f43e97dabfa04a4be5ff027ce7da119332be upstream.
+commit 703f7066f40599c290babdb79dd61319264987e9 upstream.
 
-Sensor discovery status fails in case of broken sensors or
-platform not supported. Hence disable driver on failure
-of sensor discovery.
+Since commit
+   ee3e00e9e7101 ("random: use registers from interrupted code for CPU's w/o a cycle counter")
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Cc: Mario Limonciello <Mario.Limonciello@amd.com>
+the irq_flags argument is no longer used.
+
+Remove unused irq_flags.
+
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Dexuan Cui <decui@microsoft.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: K. Y. Srinivasan <kys@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: linux-hyperv@vger.kernel.org
+Cc: x86@kernel.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_client.c |   11 +++++++++++
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   |    7 +++++++
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.h   |    4 ++++
- 3 files changed, 22 insertions(+)
+ arch/x86/kernel/cpu/mshyperv.c |    2 +-
+ drivers/char/random.c          |    4 ++--
+ drivers/hv/vmbus_drv.c         |    2 +-
+ include/linux/random.h         |    2 +-
+ kernel/irq/handle.c            |    2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -227,6 +227,17 @@ int amd_sfh_hid_client_init(struct amd_m
- 		dev_dbg(dev, "sid 0x%x status 0x%x\n",
- 			cl_data->sensor_idx[i], cl_data->sensor_sts[i]);
- 	}
-+	if (privdata->mp2_ops->discovery_status &&
-+	    privdata->mp2_ops->discovery_status(privdata) == 0) {
-+		amd_sfh_hid_client_deinit(privdata);
-+		for (i = 0; i < cl_data->num_hid_devices; i++) {
-+			devm_kfree(dev, cl_data->feature_report[i]);
-+			devm_kfree(dev, in_data->input_report[i]);
-+			devm_kfree(dev, cl_data->report_descr[i]);
-+		}
-+		dev_warn(dev, "Failed to discover, sensors not enabled\n");
-+		return -EOPNOTSUPP;
-+	}
- 	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
- 	return 0;
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -79,7 +79,7 @@ DEFINE_IDTENTRY_SYSVEC(sysvec_hyperv_sti
+ 	inc_irq_stat(hyperv_stimer0_count);
+ 	if (hv_stimer0_handler)
+ 		hv_stimer0_handler();
+-	add_interrupt_randomness(HYPERV_STIMER0_VECTOR, 0);
++	add_interrupt_randomness(HYPERV_STIMER0_VECTOR);
+ 	ack_APIC_irq();
  
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -130,6 +130,12 @@ static int amd_sfh_irq_init_v2(struct am
- 	return 0;
+ 	set_irq_regs(old_regs);
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -200,7 +200,7 @@
+  *	void add_device_randomness(const void *buf, unsigned int size);
+  * 	void add_input_randomness(unsigned int type, unsigned int code,
+  *                                unsigned int value);
+- *	void add_interrupt_randomness(int irq, int irq_flags);
++ *	void add_interrupt_randomness(int irq);
+  * 	void add_disk_randomness(struct gendisk *disk);
+  *	void add_hwgenerator_randomness(const char *buffer, size_t count,
+  *					size_t entropy);
+@@ -1273,7 +1273,7 @@ static __u32 get_reg(struct fast_pool *f
+ 	return *ptr;
  }
  
-+static int amd_sfh_dis_sts_v2(struct amd_mp2_dev *privdata)
-+{
-+	return (readl(privdata->mmio + AMD_P2C_MSG(1)) &
-+		      SENSOR_DISCOVERY_STATUS_MASK) >> SENSOR_DISCOVERY_STATUS_SHIFT;
-+}
-+
- void amd_start_sensor(struct amd_mp2_dev *privdata, struct amd_mp2_sensor_info info)
+-void add_interrupt_randomness(int irq, int irq_flags)
++void add_interrupt_randomness(int irq)
  {
- 	union sfh_cmd_param cmd_param;
-@@ -245,6 +251,7 @@ static const struct amd_mp2_ops amd_sfh_
- 	.response = amd_sfh_wait_response_v2,
- 	.clear_intr = amd_sfh_clear_intr_v2,
- 	.init_intr = amd_sfh_irq_init_v2,
-+	.discovery_status = amd_sfh_dis_sts_v2,
- };
+ 	struct entropy_store	*r;
+ 	struct fast_pool	*fast_pool = this_cpu_ptr(&irq_randomness);
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -1381,7 +1381,7 @@ static void vmbus_isr(void)
+ 			tasklet_schedule(&hv_cpu->msg_dpc);
+ 	}
  
- static const struct amd_mp2_ops amd_sfh_ops = {
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-@@ -39,6 +39,9 @@
+-	add_interrupt_randomness(vmbus_interrupt, 0);
++	add_interrupt_randomness(vmbus_interrupt);
+ }
  
- #define AMD_SFH_IDLE_LOOP	200
+ static irqreturn_t vmbus_percpu_isr(int irq, void *dev_id)
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -35,7 +35,7 @@ static inline void add_latent_entropy(vo
  
-+#define SENSOR_DISCOVERY_STATUS_MASK		GENMASK(5, 3)
-+#define SENSOR_DISCOVERY_STATUS_SHIFT		3
-+
- /* SFH Command register */
- union sfh_cmd_base {
- 	u32 ul;
-@@ -143,5 +146,6 @@ struct amd_mp2_ops {
- 	 int (*response)(struct amd_mp2_dev *mp2, u8 sid, u32 sensor_sts);
- 	 void (*clear_intr)(struct amd_mp2_dev *privdata);
- 	 int (*init_intr)(struct amd_mp2_dev *privdata);
-+	 int (*discovery_status)(struct amd_mp2_dev *privdata);
- };
- #endif
+ extern void add_input_randomness(unsigned int type, unsigned int code,
+ 				 unsigned int value) __latent_entropy;
+-extern void add_interrupt_randomness(int irq, int irq_flags) __latent_entropy;
++extern void add_interrupt_randomness(int irq) __latent_entropy;
+ 
+ extern void get_random_bytes(void *buf, int nbytes);
+ extern int wait_for_random_bytes(void);
+--- a/kernel/irq/handle.c
++++ b/kernel/irq/handle.c
+@@ -195,7 +195,7 @@ irqreturn_t handle_irq_event_percpu(stru
+ 
+ 	retval = __handle_irq_event_percpu(desc, &flags);
+ 
+-	add_interrupt_randomness(desc->irq_data.irq, flags);
++	add_interrupt_randomness(desc->irq_data.irq);
+ 
+ 	if (!irq_settings_no_debug(desc))
+ 		note_interrupt(desc, retval);
 
 
