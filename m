@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D57025360A5
-	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6CA3535FAF
+	for <lists+stable@lfdr.de>; Fri, 27 May 2022 13:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352216AbiE0Lw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 07:52:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40268 "EHLO
+        id S240079AbiE0LlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 07:41:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45446 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353296AbiE0Lvc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:51:32 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24AA1498F9;
-        Fri, 27 May 2022 04:47:14 -0700 (PDT)
+        with ESMTP id S1351574AbiE0Lkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 07:40:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F55913C1F4;
+        Fri, 27 May 2022 04:39:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A63BB824D8;
-        Fri, 27 May 2022 11:47:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFC32C34113;
-        Fri, 27 May 2022 11:47:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9DB461CC4;
+        Fri, 27 May 2022 11:39:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3772C385A9;
+        Fri, 27 May 2022 11:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653652032;
-        bh=eTiNwnTuZEIS520BxGxeULXm+yAoNMpLHA1evdbh5pc=;
+        s=korg; t=1653651569;
+        bh=hnMVFKzJakkFudy48mRUI+VFFoGuT+sdo+aAIP6T100=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGXpRQtABIBiFni0a+2ZnWQ3WYX2aaKXGFVDRJg15IoiNHqiHb+85dapTMJ0yAj6j
-         zHKa6tw0FOnOUwBxXKEMeA5d7ZEa1d/HsOqA34+E2zYKiq590k1SD1hTljnO/QfZU8
-         cr3XXkOJJFUQptdbRQ3sZh7UxdYWWGrqXR/sr378=
+        b=jsfso5SSCF12QNUW1Sa2P1qYKa3xf/FKQEUq81nEkiuWkHnoRTUr5pqIHvpmywwwI
+         a+SN+ta2zydQv0ROSbcvPcUoSjEvIh9vVn8D+63BX9nb4Rd8qxogDJaD288BfFJk4o
+         i+9taOR7I4gW55rQb/BhNJUGrXfSvGMrxhhx6CSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org,
         Dominik Brodowski <linux@dominikbrodowski.net>,
+        Theodore Tso <tytso@mit.edu>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 070/145] random: group userspace read/write functions
+Subject: [PATCH 5.17 059/111] random: mix build-time latent entropy into pool at init
 Date:   Fri, 27 May 2022 10:49:31 +0200
-Message-Id: <20220527084858.959447964@linuxfoundation.org>
+Message-Id: <20220527084827.872544791@linuxfoundation.org>
 X-Mailer: git-send-email 2.36.1
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-References: <20220527084850.364560116@linuxfoundation.org>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+References: <20220527084819.133490171@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,181 +57,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-commit a6adf8e7a605250b911e94793fd077933709ff9e upstream.
+commit 1754abb3e7583c570666fa1e1ee5b317e88c89a0 upstream.
 
-This pulls all of the userspace read/write-focused functions into the
-fifth labeled section.
+Prior, the "input_pool_data" array needed no real initialization, and so
+it was easy to mark it with __latent_entropy to populate it during
+compile-time. In switching to using a hash function, this required us to
+specifically initialize it to some specific state, which means we
+dropped the __latent_entropy attribute. An unfortunate side effect was
+this meant the pool was no longer seeded using compile-time random data.
+In order to bring this back, we declare an array in rand_initialize()
+with __latent_entropy and call mix_pool_bytes() on that at init, which
+accomplishes the same thing as before. We make this __initconst, so that
+it doesn't take up space at runtime after init.
 
-No functional changes.
-
-Cc: Theodore Ts'o <tytso@mit.edu>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
+Fixes: 6e8ec2552c7d ("random: use computational hash for entropy extraction")
 Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |  125 ++++++++++++++++++++++++++++++--------------------
- 1 file changed, 77 insertions(+), 48 deletions(-)
+ drivers/char/random.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
 --- a/drivers/char/random.c
 +++ b/drivers/char/random.c
-@@ -1477,30 +1477,61 @@ static void try_to_generate_entropy(void
- 	mix_pool_bytes(&stack.now, sizeof(stack.now));
- }
+@@ -970,6 +970,11 @@ int __init rand_initialize(void)
+ 	bool arch_init = true;
+ 	unsigned long rv;
  
--static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
--			    loff_t *ppos)
++#if defined(LATENT_ENTROPY_PLUGIN)
++	static const u8 compiletime_seed[BLAKE2S_BLOCK_SIZE] __initconst __latent_entropy;
++	_mix_pool_bytes(compiletime_seed, sizeof(compiletime_seed));
++#endif
 +
-+/**********************************************************************
-+ *
-+ * Userspace reader/writer interfaces.
-+ *
-+ * getrandom(2) is the primary modern interface into the RNG and should
-+ * be used in preference to anything else.
-+ *
-+ * Reading from /dev/random has the same functionality as calling
-+ * getrandom(2) with flags=0. In earlier versions, however, it had
-+ * vastly different semantics and should therefore be avoided, to
-+ * prevent backwards compatibility issues.
-+ *
-+ * Reading from /dev/urandom has the same functionality as calling
-+ * getrandom(2) with flags=GRND_INSECURE. Because it does not block
-+ * waiting for the RNG to be ready, it should not be used.
-+ *
-+ * Writing to either /dev/random or /dev/urandom adds entropy to
-+ * the input pool but does not credit it.
-+ *
-+ * Polling on /dev/random indicates when the RNG is initialized, on
-+ * the read side, and when it wants new entropy, on the write side.
-+ *
-+ * Both /dev/random and /dev/urandom have the same set of ioctls for
-+ * adding entropy, getting the entropy count, zeroing the count, and
-+ * reseeding the crng.
-+ *
-+ **********************************************************************/
-+
-+SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
-+		flags)
- {
--	static int maxwarn = 10;
-+	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
-+		return -EINVAL;
- 
--	if (!crng_ready() && maxwarn > 0) {
--		maxwarn--;
--		if (__ratelimit(&urandom_warning))
--			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
--				  current->comm, nbytes);
--	}
-+	/*
-+	 * Requesting insecure and blocking randomness at the same time makes
-+	 * no sense.
-+	 */
-+	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
-+		return -EINVAL;
- 
--	return get_random_bytes_user(buf, nbytes);
--}
-+	if (count > INT_MAX)
-+		count = INT_MAX;
- 
--static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
--			   loff_t *ppos)
--{
--	int ret;
-+	if (!(flags & GRND_INSECURE) && !crng_ready()) {
-+		int ret;
- 
--	ret = wait_for_random_bytes();
--	if (ret != 0)
--		return ret;
--	return get_random_bytes_user(buf, nbytes);
-+		if (flags & GRND_NONBLOCK)
-+			return -EAGAIN;
-+		ret = wait_for_random_bytes();
-+		if (unlikely(ret))
-+			return ret;
-+	}
-+	return get_random_bytes_user(buf, count);
- }
- 
- static __poll_t random_poll(struct file *file, poll_table *wait)
-@@ -1552,6 +1583,32 @@ static ssize_t random_write(struct file
- 	return (ssize_t)count;
- }
- 
-+static ssize_t urandom_read(struct file *file, char __user *buf, size_t nbytes,
-+			    loff_t *ppos)
-+{
-+	static int maxwarn = 10;
-+
-+	if (!crng_ready() && maxwarn > 0) {
-+		maxwarn--;
-+		if (__ratelimit(&urandom_warning))
-+			pr_notice("%s: uninitialized urandom read (%zd bytes read)\n",
-+				  current->comm, nbytes);
-+	}
-+
-+	return get_random_bytes_user(buf, nbytes);
-+}
-+
-+static ssize_t random_read(struct file *file, char __user *buf, size_t nbytes,
-+			   loff_t *ppos)
-+{
-+	int ret;
-+
-+	ret = wait_for_random_bytes();
-+	if (ret != 0)
-+		return ret;
-+	return get_random_bytes_user(buf, nbytes);
-+}
-+
- static long random_ioctl(struct file *f, unsigned int cmd, unsigned long arg)
- {
- 	int size, ent_count;
-@@ -1560,7 +1617,7 @@ static long random_ioctl(struct file *f,
- 
- 	switch (cmd) {
- 	case RNDGETENTCNT:
--		/* inherently racy, no point locking */
-+		/* Inherently racy, no point locking. */
- 		if (put_user(input_pool.entropy_count, p))
- 			return -EFAULT;
- 		return 0;
-@@ -1636,34 +1693,6 @@ const struct file_operations urandom_fop
- 	.llseek = noop_llseek,
- };
- 
--SYSCALL_DEFINE3(getrandom, char __user *, buf, size_t, count, unsigned int,
--		flags)
--{
--	if (flags & ~(GRND_NONBLOCK | GRND_RANDOM | GRND_INSECURE))
--		return -EINVAL;
--
--	/*
--	 * Requesting insecure and blocking randomness at the same time makes
--	 * no sense.
--	 */
--	if ((flags & (GRND_INSECURE | GRND_RANDOM)) == (GRND_INSECURE | GRND_RANDOM))
--		return -EINVAL;
--
--	if (count > INT_MAX)
--		count = INT_MAX;
--
--	if (!(flags & GRND_INSECURE) && !crng_ready()) {
--		int ret;
--
--		if (flags & GRND_NONBLOCK)
--			return -EAGAIN;
--		ret = wait_for_random_bytes();
--		if (unlikely(ret))
--			return ret;
--	}
--	return get_random_bytes_user(buf, count);
--}
--
- /********************************************************************
-  *
-  * Sysctl interface
+ 	for (i = 0; i < BLAKE2S_BLOCK_SIZE; i += sizeof(rv)) {
+ 		if (!arch_get_random_seed_long_early(&rv) &&
+ 		    !arch_get_random_long_early(&rv)) {
 
 
