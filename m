@@ -2,149 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92610536A52
-	for <lists+stable@lfdr.de>; Sat, 28 May 2022 04:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E968536A7D
+	for <lists+stable@lfdr.de>; Sat, 28 May 2022 05:59:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355623AbiE1CxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 May 2022 22:53:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35896 "EHLO
+        id S1354947AbiE1D7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 May 2022 23:59:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355611AbiE1Cw6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 22:52:58 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D11212E30F;
-        Fri, 27 May 2022 19:52:56 -0700 (PDT)
+        with ESMTP id S229683AbiE1D7d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 May 2022 23:59:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0629C62BEF;
+        Fri, 27 May 2022 20:59:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66F8FB8269A;
-        Sat, 28 May 2022 02:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21DAFC3411C;
-        Sat, 28 May 2022 02:52:53 +0000 (UTC)
-Received: from rostedt by gandalf.local.home with local (Exim 4.95)
-        (envelope-from <rostedt@goodmis.org>)
-        id 1numZQ-000LUX-90;
-        Fri, 27 May 2022 22:52:52 -0400
-Message-ID: <20220528025252.116449583@goodmis.org>
-User-Agent: quilt/0.66
-Date:   Fri, 27 May 2022 22:50:47 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org, Song Liu <song@kernel.org>
-Subject: [for-next][PATCH 19/23] ftrace: Clean up hash direct_functions on register failures
-References: <20220528025028.850906216@goodmis.org>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 971DD61C19;
+        Sat, 28 May 2022 03:59:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADED1C34100;
+        Sat, 28 May 2022 03:59:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653710372;
+        bh=hzVHSh4zr2vcIAinWH7zTymLIFQZIDTSRvcZXhAJ7Fo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=sOlksaREXBsfBPvs4hqb11pZ8Um6NmMrLFPvrzu3BYFO8jXRWYiQH5QpAMBayUbt2
+         j3fTCF//XRZeQ5OZp6wMUuNSfRxavj4Db8dOrwmBVasa7+eoWdVcSWLudkXlYTtKbu
+         5evGnCX6n3p3bZhw5m+8V+icPgVmmnxgNJyaQPKkEzc+CSqBZa/Mw6ZXcX8C8amxcB
+         iEsPRo8sYLB3vg9SWTEu8s4PNIgttSwJDfrEfXupl5YC7EKsd0tucsuRQxkSG51IIE
+         +WRFhzHCdjEbZbCvNqT28wi1ASbrBfAhQvT+sNBkWOO07wBB0fl4hco7zMFYaGrRe9
+         m/SuOQB7NO9Tg==
+Date:   Fri, 27 May 2022 20:59:29 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+        herbert@gondor.apana.org.au, gaochao <gaochao49@huawei.com>,
+        Ard Biesheuvel <ardb@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH crypto v2] crypto: blake2s - remove shash module
+Message-ID: <YpGeIT1KHv9QwF4X@sol.localdomain>
+References: <YpCGQvpirQWaAiRF@zx2c4.com>
+ <20220527081106.63227-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220527081106.63227-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-7.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <song@kernel.org>
+On Fri, May 27, 2022 at 10:11:06AM +0200, Jason A. Donenfeld wrote:
+> BLAKE2s has no use as an shash, with no users of it.
 
-We see the following GPF when register_ftrace_direct fails:
+"no use" => "no known current use".
 
-[ ] general protection fault, probably for non-canonical address \
-  0x200000000000010: 0000 [#1] PREEMPT SMP DEBUG_PAGEALLOC PTI
-[...]
-[ ] RIP: 0010:ftrace_find_rec_direct+0x53/0x70
-[ ] Code: 48 c1 e0 03 48 03 42 08 48 8b 10 31 c0 48 85 d2 74 [...]
-[ ] RSP: 0018:ffffc9000138bc10 EFLAGS: 00010206
-[ ] RAX: 0000000000000000 RBX: ffffffff813e0df0 RCX: 000000000000003b
-[ ] RDX: 0200000000000000 RSI: 000000000000000c RDI: ffffffff813e0df0
-[ ] RBP: ffffffffa00a3000 R08: ffffffff81180ce0 R09: 0000000000000001
-[ ] R10: ffffc9000138bc18 R11: 0000000000000001 R12: ffffffff813e0df0
-[ ] R13: ffffffff813e0df0 R14: ffff888171b56400 R15: 0000000000000000
-[ ] FS:  00007fa9420c7780(0000) GS:ffff888ff6a00000(0000) knlGS:000000000
-[ ] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[ ] CR2: 000000000770d000 CR3: 0000000107d50003 CR4: 0000000000370ee0
-[ ] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[ ] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[ ] Call Trace:
-[ ]  <TASK>
-[ ]  register_ftrace_direct+0x54/0x290
-[ ]  ? render_sigset_t+0xa0/0xa0
-[ ]  bpf_trampoline_update+0x3f5/0x4a0
-[ ]  ? 0xffffffffa00a3000
-[ ]  bpf_trampoline_link_prog+0xa9/0x140
-[ ]  bpf_tracing_prog_attach+0x1dc/0x450
-[ ]  bpf_raw_tracepoint_open+0x9a/0x1e0
-[ ]  ? find_held_lock+0x2d/0x90
-[ ]  ? lock_release+0x150/0x430
-[ ]  __sys_bpf+0xbd6/0x2700
-[ ]  ? lock_is_held_type+0xd8/0x130
-[ ]  __x64_sys_bpf+0x1c/0x20
-[ ]  do_syscall_64+0x3a/0x80
-[ ]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ ] RIP: 0033:0x7fa9421defa9
-[ ] Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 9 f8 [...]
-[ ] RSP: 002b:00007ffed743bd78 EFLAGS: 00000246 ORIG_RAX: 0000000000000141
-[ ] RAX: ffffffffffffffda RBX: 00000000069d2480 RCX: 00007fa9421defa9
-[ ] RDX: 0000000000000078 RSI: 00007ffed743bd80 RDI: 0000000000000011
-[ ] RBP: 00007ffed743be00 R08: 0000000000bb7270 R09: 0000000000000000
-[ ] R10: 00000000069da210 R11: 0000000000000246 R12: 0000000000000001
-[ ] R13: 00007ffed743c4b0 R14: 00000000069d2480 R15: 0000000000000001
-[ ]  </TASK>
-[ ] Modules linked in: klp_vm(OK)
-[ ] ---[ end trace 0000000000000000 ]---
+> diff --git a/lib/crypto/blake2s-selftest.c b/lib/crypto/blake2s-selftest.c
+> index 409e4b728770..38996ee73a64 100644
+> --- a/lib/crypto/blake2s-selftest.c
+> +++ b/lib/crypto/blake2s-selftest.c
+> @@ -4,6 +4,8 @@
+>   */
+>  
+>  #include <crypto/internal/blake2s.h>
+> +#include <linux/kernel.h>
+> +#include <linux/random.h>
+>  #include <linux/string.h>
+>  
+>  /*
+> @@ -548,7 +550,8 @@ bool __init blake2s_selftest(void)
+>  	u8 key[BLAKE2S_KEY_SIZE];
+>  	u8 buf[ARRAY_SIZE(blake2s_testvecs)];
+>  	u8 hash[BLAKE2S_HASH_SIZE];
+> -	struct blake2s_state state;
+> +	u8 blocks[BLAKE2S_BLOCK_SIZE * 4];
+> +	struct blake2s_state state, state1, state2;
+>  	bool success = true;
+>  	int i, l;
+>  
+> @@ -587,5 +590,32 @@ bool __init blake2s_selftest(void)
+>  		}
+>  	}
+>  
+> +	for (i = 0; i < 2048; ++i) {
+> +		get_random_bytes(blocks, sizeof(blocks));
+> +		get_random_bytes(&state, sizeof(state));
+> +
+> +		memcpy(&state1, &state, sizeof(state1));
+> +		memcpy(&state2, &state, sizeof(state2));
+> +		blake2s_compress(&state1, blocks, 4, sizeof(blocks));
+> +		blake2s_compress_generic(&state2, blocks, 4, sizeof(blocks));
+> +		if (memcmp(&state1, &state2, sizeof(state1))) {
+> +			pr_err("blake2s random compress self-test %d: FAIL\n",
+> +			       i + 1);
+> +			success = false;
+> +		}
+> +
+> +		for (l = 1; l < 8; ++l) {
+> +			memcpy(&state1, &state, sizeof(state1));
+> +			memcpy(&state2, &state, sizeof(state2));
+> +			blake2s_compress(&state1, blocks + l, 3, sizeof(blocks) - BLAKE2S_BLOCK_SIZE);
+> +			blake2s_compress_generic(&state2, blocks + l, 3, sizeof(blocks) - BLAKE2S_BLOCK_SIZE);
+> +			if (memcmp(&state1, &state2, sizeof(state1))) {
+> +				pr_err("blake2s random compress align %d self-test %d: FAIL\n",
+> +				       l, i + 1);
+> +				success = false;
+> +			}
+> +		}
+> +	}
 
-One way to trigger this is:
-  1. load a livepatch that patches kernel function xxx;
-  2. run bpftrace -e 'kfunc:xxx {}', this will fail (expected for now);
-  3. repeat #2 => gpf.
+This doesn't compile on arm, since blake2s_compress_generic() isn't defined.
 
-This is because the entry is added to direct_functions, but not removed.
-Fix this by remove the entry from direct_functions when
-register_ftrace_direct fails.
+Also, the wrong value is being passed for the 'inc' argument.
 
-Also remove the last trailing space from ftrace.c, so we don't have to
-worry about it anymore.
+2048 iterations is also a lot.  Doing a lot of iterations here doesn't
+meaningfully increase the test coverage.
 
-Link: https://lkml.kernel.org/r/20220524170839.900849-1-song@kernel.org
+And please run checkpatch; those are some very long lines :-(
 
-Cc: stable@vger.kernel.org
-Fixes: 763e34e74bb7 ("ftrace: Add register_ftrace_direct()")
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
----
- kernel/trace/ftrace.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/kernel/trace/ftrace.c b/kernel/trace/ftrace.c
-index fb8f08b4bd41..d653ef4febc5 100644
---- a/kernel/trace/ftrace.c
-+++ b/kernel/trace/ftrace.c
-@@ -4454,7 +4454,7 @@ int ftrace_func_mapper_add_ip(struct ftrace_func_mapper *mapper,
-  * @ip: The instruction pointer address to remove the data from
-  *
-  * Returns the data if it is found, otherwise NULL.
-- * Note, if the data pointer is used as the data itself, (see 
-+ * Note, if the data pointer is used as the data itself, (see
-  * ftrace_func_mapper_find_ip(), then the return value may be meaningless,
-  * if the data pointer was set to zero.
-  */
-@@ -5188,8 +5188,6 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
- 		goto out_unlock;
- 
- 	ret = ftrace_set_filter_ip(&direct_ops, ip, 0, 0);
--	if (ret)
--		remove_hash_entry(direct_functions, entry);
- 
- 	if (!ret && !(direct_ops.flags & FTRACE_OPS_FL_ENABLED)) {
- 		ret = register_ftrace_function(&direct_ops);
-@@ -5198,6 +5196,7 @@ int register_ftrace_direct(unsigned long ip, unsigned long addr)
- 	}
- 
- 	if (ret) {
-+		remove_hash_entry(direct_functions, entry);
- 		kfree(entry);
- 		if (!direct->count) {
- 			list_del_rcu(&direct->next);
--- 
-2.35.1
+- Eric
