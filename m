@@ -2,119 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87D9F536D3E
-	for <lists+stable@lfdr.de>; Sat, 28 May 2022 16:05:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7557B536D67
+	for <lists+stable@lfdr.de>; Sat, 28 May 2022 17:02:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236222AbiE1OF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 May 2022 10:05:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58572 "EHLO
+        id S236977AbiE1PBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 May 2022 11:01:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234895AbiE1OF0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 10:05:26 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D58E2B0
-        for <stable@vger.kernel.org>; Sat, 28 May 2022 07:05:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6EC81CE0A36
-        for <stable@vger.kernel.org>; Sat, 28 May 2022 14:05:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B96EC34100;
-        Sat, 28 May 2022 14:05:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1653746719;
-        bh=grLlpxF1ggVDJd7KwlwC0UQKliaEP3mwhaWE6d3MK6A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RDZjjwf71AhzmjJ0euB2liEEAwEBRFF2bRmXpdGDGlC/hAi9pgluj568OhtTywOd/
-         uCS8O+PXKhjWf33mkbVb97YbE27ZB7KaTlxDKkJW8Z9T6md20xPQP3Y9tvoG1B8cIm
-         BWkTe5/jR6h+U76/uu6TzGRDOK+ozvs+APw6wdEg=
-Date:   Sat, 28 May 2022 16:05:16 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Schroeder, Julian" <jumaco@amazon.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] nfsd: destroy percpu stats counters after reply cache
- #5.11.0-rc5
-Message-ID: <YpIsHLKZbeSENvaZ@kroah.com>
-References: <20220523211152.GB23843@dev-dsk-jumaco-1e-78723413.us-east-1.amazon.com>
- <Yo9t7Whg/XGa/jmb@kroah.com>
- <15AC3FF9-F74D-4C08-ADF4-8A1E14BE811F@amazon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <15AC3FF9-F74D-4C08-ADF4-8A1E14BE811F@amazon.com>
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S232045AbiE1PBv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 11:01:51 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD1912AB3;
+        Sat, 28 May 2022 08:01:49 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id 202so6819156pfu.0;
+        Sat, 28 May 2022 08:01:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=kbccSHC0Bz/zz14Ij+BsWRT7sFSsXKkJCnFC8b46qks=;
+        b=LUjnCZEQiN21JnyfpU4xbp+rF2vlBVByaGr9AlOxO7gcVgzg28NMpMHmlX4evIofGG
+         ebImdh4ZLHySnhjp51OVduv2uGaWVd+sUADb1D+SFiVB456qYXZNpsc63P+MEYjIq/UD
+         K7VXs4V5ZvFPdsSPFA6CG/vCKqFMAKYPSZzCShOpIip1dT7DOKe0qIAoMd0+8Gq2SCNu
+         p+omw1bTiF0P3CF/DuaGEHTxM2vQJ5J4w0v476f3szPdPMn9na1mb9FAYxeoqnmBbPgy
+         rRbTgqBLLuoSEcBviRvBmBCw6rvk5jK8BnpTflEQ91n/u+l8pbR/kOSFtZ07vMjpnBQ2
+         VEDw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=kbccSHC0Bz/zz14Ij+BsWRT7sFSsXKkJCnFC8b46qks=;
+        b=OtaBQqs+ApJojc1h8AnnhWtv4XMeGvia8JpJ9zoeT35+qZtZqOTLkUSsfAb2/JNN/u
+         GuriD1xTxbKURNCX4KPIwYVt/J1Io3tLEK8TKD/fTVOUTPmDYTJONWktic/YapWv9aDE
+         pnfkfE58hLfBn6k4lIcAudXVeDLft40fxfSD8sNHkFGKfIAqQCB5cE+cAwTmkrOG6HW5
+         ZphbjdNRjbgy2FrXOALU5djCdG5Y40E7DzGo5KepP7Jwz4n6gdOjyN+80Gq6YW/d+OPh
+         JJ3WfMk+pynUy0Qap4rGUcd4WvXEZIgma/6UxUGmdZFcS1hjmpo4HwEK8dOkeQVzLkJ0
+         D50g==
+X-Gm-Message-State: AOAM531g7xcdeUTB7A5x8vFeuN/UQ9eTwQfBhIq4XLJ9mPEw5wX95jge
+        SAKHT5ITVOp1wgGrK7IE8ImRncVgS02jlGZA
+X-Google-Smtp-Source: ABdhPJzVtWW0xcN+lzzxDcenVYIBbdoyxAyZ6Ex2tBS0uAlmSfufC4YxNJkS9YAjFKTybHmHGPXZRw==
+X-Received: by 2002:a63:28c:0:b0:3c1:6f72:7288 with SMTP id 134-20020a63028c000000b003c16f727288mr41049865pgc.564.1653750108736;
+        Sat, 28 May 2022 08:01:48 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [71.19.144.195])
+        by smtp.gmail.com with ESMTPSA id b14-20020aa7870e000000b0050dc762812csm5491623pfo.6.2022.05.28.08.01.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 May 2022 08:01:48 -0700 (PDT)
+Message-ID: <6292395c.1c69fb81.6860.c34a@mx.google.com>
+Date:   Sat, 28 May 2022 08:01:48 -0700 (PDT)
+X-Google-Original-Date: Sat, 28 May 2022 15:01:41 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20220527084819.133490171@linuxfoundation.org>
+Subject: RE: [PATCH 5.17 000/111] 5.17.12-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, slade@sladewatkins.com,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 28, 2022 at 01:41:51PM +0000, Schroeder, Julian wrote:
-> >> From: Julian Schroeder <jumaco@amazon.com>
-> >> Date: Fri, 20 May 2022 18:33:27 +0000
-> >> Subject: [PATCH] nfsd: destroy percpu stats counters after reply cache
-> >>  shutdown
-> >> MIME-Version: 1.0
-> >> Content-Type: text/plain; charset=UTF-8
-> >> Content-Transfer-Encoding: 8bit
-> >> Upon nfsd shutdown any pending DRC cache is freed. DRC cache use is
-> >> tracked via a percpu counter. In the current code the percpu counter
-> >> is destroyed before. If any pending cache is still present,
-> >> percpu_counter_add is called with a percpu counter==NULL. This causes
-> >> a kernel crash.
-> >> The solution is to destroy the percpu counter after the cache is freed.
-> >> Fixes: e567b98ce9a4b (âEURoenfsd: protect concurrent access to nfsd stats countersâEUR)
-> >> Signed-off-by: Julian Schroeder <jumaco@amazon.com>
-> >> ---
-> >>  fs/nfsd/nfscache.c | 2 +-
-> >>  1 file changed, 1 insertion(+), 1 deletion(-)
-> >> diff --git a/fs/nfsd/nfscache.c b/fs/nfsd/nfscache.c
-> >> index 0b3f12aa37ff..7da88bdc0d6c 100644
-> >> --- a/fs/nfsd/nfscache.c
-> >> +++ b/fs/nfsd/nfscache.c
-> >> @@ -206,7 +206,6 @@ void nfsd_reply_cache_shutdown(struct nfsd_net *nn)
-> >>         struct svc_cacherep     *rp;
-> >>         unsigned int i;
-> >>
-> >> -       nfsd_reply_cache_stats_destroy(nn);
-> >>         unregister_shrinker(&nn->nfsd_reply_cache_shrinker);
-> >>
-> >>         for (i = 0; i < nn->drc_hashsize; i++) {
-> >> @@ -217,6 +216,7 @@ void nfsd_reply_cache_shutdown(struct nfsd_net *nn)
-> >>                                                                         rp, nn);
-> >>                 }
-> >>         }
-> >> +       nfsd_reply_cache_stats_destroy(nn);
-> >>
-> >>         kvfree(nn->drc_hashtbl);
-> >>         nn->drc_hashtbl = NULL;
-> >> --
-> >> 2.32.0
-> >>
+On Fri, 27 May 2022 10:48:32 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.17.12 release.
+> There are 111 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> >What is the git commit id of this in Linus's tree?
+> Responses should be made by Sun, 29 May 2022 08:46:36 +0000.
+> Anything received after that time might be too late.
 > 
-> >And this patch is totally damaged with whitespace and can not be applied
-> >at all :(
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.17.12-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.17.y
+> and the diffstat can be found below.
 > 
-> >Please fix it up and submit it again.
+> thanks,
 > 
-> >thanks,
+> greg k-h
 > 
-> >greg k-h
-> 
-> The patch made it into linux next. commit fd5e363eac77e.
-> I sent the patch to stable again via git send-email (https://www.spinics.net/lists/stable/msg560818.html)
 
-<formletter>
+5.17.12-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
-This is not the correct way to submit patches for inclusion in the
-stable kernel tree.  Please read:
-    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-for how to do this properly.
-
-</formletter>
