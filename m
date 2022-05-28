@@ -2,65 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FD06536C8A
-	for <lists+stable@lfdr.de>; Sat, 28 May 2022 13:38:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D4B536D23
+	for <lists+stable@lfdr.de>; Sat, 28 May 2022 15:40:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234739AbiE1Lik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 May 2022 07:38:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53212 "EHLO
+        id S235963AbiE1NkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 May 2022 09:40:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234701AbiE1Lij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 07:38:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A113167DF;
-        Sat, 28 May 2022 04:38:37 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9851F60E75;
-        Sat, 28 May 2022 11:38:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA91DC34119;
-        Sat, 28 May 2022 11:38:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653737916;
-        bh=kXKKxImpCbgciZyHH2R0XiBp9gJjnAYWLI6di9ntV/g=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXgOJbDRgow1757V/kGoLloDZOE3YnSoqmMghd58TUaRRKKKq8Y6mcQvZpYIo/TMu
-         VWyTUdRjERQGnXN7k5Dzlb5V6+Q4JZjP8nK58tXM/0zmLAE3dCMtZO3QIpw9miCBCg
-         XMP3uP2EFAfe/i0jEgKPM56fiK+PQWEGWhwqWQmN+GTT/UIaUObtBeASFZ7t1xzt47
-         9DLeXmlkeNa/8Ktreckd8glfiMq/499RCISZcVAYwui9u5zYL5M6cNkqHCf3tWxC2t
-         SY0uyHsScfRFGxktZHQf/6m1TnP7+uuvi/kWKpTjQN0Spw7bztH/WYNZIlUSQZN/9t
-         5Sto92NSm1avA==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1nuum9-00EEGh-KR; Sat, 28 May 2022 12:38:33 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Oliver Upton <oupton@google.com>,
-        Will Deacon <will@kernel.org>, Fuad Tabba <tabba@google.com>,
-        Quentin Perret <qperret@google.com>,
-        Mark Brown <broonie@kernel.org>, kernel-team@android.com,
-        stable@vger.kernel.org
-Subject: [PATCH 01/18] KVM: arm64: Always start with clearing SVE flag on load
-Date:   Sat, 28 May 2022 12:38:11 +0100
-Message-Id: <20220528113829.1043361-2-maz@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220528113829.1043361-1-maz@kernel.org>
-References: <20220528113829.1043361-1-maz@kernel.org>
+        with ESMTP id S235958AbiE1NkO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 09:40:14 -0400
+Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95FA81B7B3
+        for <stable@vger.kernel.org>; Sat, 28 May 2022 06:40:11 -0700 (PDT)
+Received: by mail-pf1-x434.google.com with SMTP id y199so6645801pfb.9
+        for <stable@vger.kernel.org>; Sat, 28 May 2022 06:40:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=heitbaum.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Z2I36pyp++iUoQJD2HpewB2s7uOVl72Sx1DqRb0ncTk=;
+        b=OfseZkluPcyA+BVHqm0h4MzykAffJQ4o7ZPKfc/Vvo9CKo3b/3WnL72fHpFYRR+zPW
+         DT5h9w3RQ3AFY1t0svQuat9CGpTEjt1W+lKMUzv2gqcaJ9sieibyDf16f/+cjSiFAehF
+         gLarLObBGvfCqscA/MmaljiKS3Ebo1ApaHxBQ=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Z2I36pyp++iUoQJD2HpewB2s7uOVl72Sx1DqRb0ncTk=;
+        b=bvJKUeUZVeF6hBQJBofALNJsAHXxU78Jv/dhdJVMbcanrjHAp2/dpmwMpiTx1lP83g
+         /mG2mj90Pm5VZYs22pQinNsjurLA1HYT4oIYnY6c7RWRNWmqH0SoxECvimEn3ev06mG8
+         WeVmPpYqBLOag4SnGBTLng+E7Vmn2EnDTfDvLXC9TjWOAqQ10rHJNJn/dIEtCOEXmKSB
+         EkJ2EnKMT93Jdnt0hY9h1ZF9kAwx1q+PFaHmAYc4ow3pqORbc/vd3UHyqNTQHQA2FL8I
+         ilmdy3rKE5pjW56+6HOdXnZIflmW/btva5nT/u96MuIbDf7IckMyHg56q7nkMRtIvr7K
+         VAOw==
+X-Gm-Message-State: AOAM531mDI73hPmNyUFq3ooyDiCwX+2GYo1tLERqMTJCqgOxiN9vOG/C
+        oHi1qti36BcwADTvAg8+Rcx3lr7pmu8dXQX8+m0=
+X-Google-Smtp-Source: ABdhPJxT71J2Zq5JEU7xtqhuQgLhJHZr6ylalmDn9SoR75LV5hcc4qNsuxWYHyRRggdyH/HM37FP1Q==
+X-Received: by 2002:a62:8184:0:b0:519:b75:acfc with SMTP id t126-20020a628184000000b005190b75acfcmr14727422pfd.37.1653745211059;
+        Sat, 28 May 2022 06:40:11 -0700 (PDT)
+Received: from 6441609f1b18 (194-193-162-175.tpgi.com.au. [194.193.162.175])
+        by smtp.gmail.com with ESMTPSA id z1-20020aa79481000000b0051812f8faa3sm5381351pfk.184.2022.05.28.06.40.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 May 2022 06:40:10 -0700 (PDT)
+Date:   Sat, 28 May 2022 13:39:59 +0000
+From:   Rudi Heitbaum <rudi@heitbaum.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        slade@sladewatkins.com
+Subject: Re: [PATCH 5.18 00/47] 5.18.1-rc1 review
+Message-ID: <20220528133958.GA8@6441609f1b18>
+References: <20220527084801.223648383@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, james.morse@arm.com, suzuki.poulose@arm.com, alexandru.elisei@arm.com, oupton@google.com, will@kernel.org, tabba@google.com, qperret@google.com, broonie@kernel.org, kernel-team@android.com, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-7.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220527084801.223648383@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -69,37 +70,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On each vcpu load, we set the KVM_ARM64_HOST_SVE_ENABLED
-flag if SVE is enabled for EL0 on the host. This is used to restore
-the correct state on vpcu put.
+On Fri, May 27, 2022 at 10:49:40AM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.18.1 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-However, it appears that nothing ever clears this flag. Once
-set, it will stick until the vcpu is destroyed, which has the
-potential to spuriously enable SVE for userspace.
+Hi Greg,
 
-We probably never saw the issue because no VMM uses SVE, but
-that's still pretty bad. Unconditionally clearing the flag
-on vcpu load addresses the issue.
+5.18.1-rc1 tested.
 
-Fixes: 8383741ab2e7 ("KVM: arm64: Get rid of host SVE tracking/saving")
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
----
- arch/arm64/kvm/fpsimd.c | 1 +
- 1 file changed, 1 insertion(+)
+Run tested on:
+- Allwinner H6 (Tanix TX6)
+- Intel Tiger Lake x86_64 (nuc11 i7-1165G7)
 
-diff --git a/arch/arm64/kvm/fpsimd.c b/arch/arm64/kvm/fpsimd.c
-index 441edb9c398c..3c2cfc3adc51 100644
---- a/arch/arm64/kvm/fpsimd.c
-+++ b/arch/arm64/kvm/fpsimd.c
-@@ -80,6 +80,7 @@ void kvm_arch_vcpu_load_fp(struct kvm_vcpu *vcpu)
- 	vcpu->arch.flags &= ~KVM_ARM64_FP_ENABLED;
- 	vcpu->arch.flags |= KVM_ARM64_FP_HOST;
- 
-+	vcpu->arch.flags &= ~KVM_ARM64_HOST_SVE_ENABLED;
- 	if (read_sysreg(cpacr_el1) & CPACR_EL1_ZEN_EL0EN)
- 		vcpu->arch.flags |= KVM_ARM64_HOST_SVE_ENABLED;
- 
--- 
-2.34.1
+In addition - build tested for:
+- Allwinner A64
+- Allwinner H3
+- Allwinner H5
+- NXP iMX6
+- NXP iMX8
+- Qualcomm Dragonboard
+- Rockchip RK3288
+- Rockchip RK3328
+- Rockchip RK3399pro
+- Samsung Exynos
 
+Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
+--
+Rudi
