@@ -2,87 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77A5B536B1B
-	for <lists+stable@lfdr.de>; Sat, 28 May 2022 08:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83864536BE8
+	for <lists+stable@lfdr.de>; Sat, 28 May 2022 11:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351187AbiE1G31 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 May 2022 02:29:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42290 "EHLO
+        id S232716AbiE1J0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 May 2022 05:26:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238302AbiE1G30 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 02:29:26 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124CF30F65;
-        Fri, 27 May 2022 23:29:25 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id y1so6095939pfr.6;
-        Fri, 27 May 2022 23:29:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=1r23yEDBEItMDeALyNnUeZNQDnTUxxOQR4RqwVc2CrM=;
-        b=B0FC4dIwFHzozZvBrx4RAvX0BOV6dgKfm/EL58CjmFlRZ9fLzgOtSnls3+Qj+Q52+F
-         y0yBiiXn4an+PGD5U36HRmdQu0p5ImHLCQpp8OqudpUgoCNYg0Vi4NAg5tnFGto90phY
-         jtGqUazRjkvNEn3D3YZ7fbPAnZt5EhzKbqtwG0tqPneq10/apKxhjuBEQwDpn7FGlbd5
-         41G/SgDyuKEXZdOmS6LOUhq4wt5i94FQfpF1ej3NRae6VJYNvTsHtr1vkJPJRQO7JISA
-         oJpjUCYsUyPglcAFTWHFTpNmt7sH+7mNLswVtwrwl34hQr+eaRTgnaR6RKMKH8z+1kKX
-         NFag==
+        with ESMTP id S232759AbiE1J0h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 May 2022 05:26:37 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9A36422
+        for <stable@vger.kernel.org>; Sat, 28 May 2022 02:26:33 -0700 (PDT)
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com [209.85.218.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id C6FA13FBF4
+        for <stable@vger.kernel.org>; Sat, 28 May 2022 09:26:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1653729991;
+        bh=51HZ/ZF/DBZUi+hYAZR96Rw1JBH9NEA5/WPL/bsRkcs=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=PjRpaU37gizYPwysg6ZSC1IqCUDHQYN0F2kj6DgY+j73+SaykqM6mgVCdWuByQs+5
+         ptFYa1JPHQbvy+v+PvGJT3w/AbJOzjxALha+WHtdwjY8wkXqnv/++oKIY/xLA2Sawk
+         ma7kPiHQLAzstktNCuzPQwivLGL3x0q3WM3wC53za1p7fhjXQteSjSM97gvVP15LUz
+         3/LE+JgoyeFrrZt5HYbbbCf1Jhmd6sw+qTLe/M23u1PJwTssJdcE+1LpusbRul/Mon
+         gzkyGyXZyp2RCmZ3DJSHn0VuAb2YNzwQ7hWQk6FEaj0av8zLI13Vg537oqtWR6XiJ1
+         zQLqc/Q4cDfOQ==
+Received: by mail-ej1-f72.google.com with SMTP id gh15-20020a170906e08f00b006fea2a22319so3101757ejb.20
+        for <stable@vger.kernel.org>; Sat, 28 May 2022 02:26:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=1r23yEDBEItMDeALyNnUeZNQDnTUxxOQR4RqwVc2CrM=;
-        b=IXusNAlSi611h7fTqImIasIG8QDy7z9GhutIIk98xyLGbASkZREyP6z3V+xG4KPI9p
-         7/bE8UbvJCKT9u/cPndmhLu2WumywQgP3eidbaLX+4tJL32J9T175L3SWLQGEP7ILD8X
-         ytqaDZEXa4fr/htHHp9i9THTlwA/q4GinDSJj+ANUnODg7VxY06U1rzSYloAWoqC+K16
-         BZWWTIhGvuwcbr20HFG1QXoAKWgzjyPcizeX5kBLmW+n9RobnRbxGOZOA0Bnqxxc8ZRc
-         dFSYB19sNcF65fBVRI65Lf9tO/vps/gBi0JVKmQ/EtD7QvNyvK6VvBChmtNihhDIjvzd
-         cMcg==
-X-Gm-Message-State: AOAM533QhHESn53MvbiUdDQSI6XICcPAgoi7ThnZrZ7Ow+imPF16usid
-        5iaFbu1TRvSOtzOrfGX+mEE=
-X-Google-Smtp-Source: ABdhPJxp1JobKgrBuBQP90h3c7q7+k7/RAHzzE6fP8gFPsj9Dd00KdN8KDjygcP0O1JnTAl15TR7rQ==
-X-Received: by 2002:a05:6a00:1acb:b0:518:986c:a7c4 with SMTP id f11-20020a056a001acb00b00518986ca7c4mr30163517pfv.2.1653719364510;
-        Fri, 27 May 2022 23:29:24 -0700 (PDT)
-Received: from localhost (subs02-180-214-232-4.three.co.id. [180.214.232.4])
-        by smtp.gmail.com with ESMTPSA id q12-20020a170902eb8c00b0015e8d4eb1d7sm4631588plg.33.2022.05.27.23.29.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 May 2022 23:29:23 -0700 (PDT)
-Date:   Sat, 28 May 2022 13:29:20 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        slade@sladewatkins.com
-Subject: Re: [PATCH 5.15 000/145] 5.15.44-rc1 review
-Message-ID: <YpHBQHIDpIRbGTtt@debian.me>
-References: <20220527084850.364560116@linuxfoundation.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=51HZ/ZF/DBZUi+hYAZR96Rw1JBH9NEA5/WPL/bsRkcs=;
+        b=MEoO8PoR54haTR/EI9SwDXdaExaDjDvHXkoUJ0kQ4ouhbBJrkovw1gK3x0cUVnN2+4
+         zZykDWbVL79An47kIDCX0Qj4ROU7ijjr053QcR4du+g7plN5LiVWg6b/H4iegNmKlOtd
+         IjbZfUHzZjEuxix89hGDVaCNeQUkmqPCqLyvqdJPw5AOI/CGRdgaJF0J0fEy3/kq2D5+
+         Strzj+5yKjSnAnqTh9rq+kKeGYKjlbAg14UCrEJhrZrCLRyCRWFKniIYHsgtmH87M6nG
+         fL5rHYkT03Mp+POa5PINlug14PZzs32g3MfCtl43KitLBpAj3OXLqYhFqIhX0qs5WoBq
+         xzcA==
+X-Gm-Message-State: AOAM5313funph+jRcUFpHL9DQ3MYFBr/MrSPL1OvlLLLEgdCoY5im2W/
+        idBYfJOJfmhcM74gXMh1KaRuhCrPIwhAwcV7iPcvUFTl88rf7wModpjbkiL5vQiG6qF3+bn4uGr
+        /xIeS8P5wu13i4UfGUU3Lt7Q3JNXRvGwhlw==
+X-Received: by 2002:a17:907:6e12:b0:6fe:c2fd:89b7 with SMTP id sd18-20020a1709076e1200b006fec2fd89b7mr28883564ejc.581.1653729991234;
+        Sat, 28 May 2022 02:26:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyTIoHfWrOT9U2e85CFhK4imRJ1Ycox2VrkT/sTmCYMzAKvkrW+16CaVVHurj+g2SGaWKw6qQ==
+X-Received: by 2002:a17:907:6e12:b0:6fe:c2fd:89b7 with SMTP id sd18-20020a1709076e1200b006fec2fd89b7mr28883553ejc.581.1653729990956;
+        Sat, 28 May 2022 02:26:30 -0700 (PDT)
+Received: from [192.168.123.94] (ip-062-143-094-109.um16.pools.vodafone-ip.de. [62.143.94.109])
+        by smtp.gmail.com with ESMTPSA id w24-20020a50d798000000b0042db87b5ff4sm607240edi.88.2022.05.28.02.26.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 28 May 2022 02:26:30 -0700 (PDT)
+Message-ID: <7b93efe6-fb54-d6f8-dd3b-3fb260652f15@canonical.com>
+Date:   Sat, 28 May 2022 11:26:28 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20220527084850.364560116@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS,
-        T_SCC_BODY_TEXT_LINE autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.0
+Subject: Re: [PATCH] riscv: read-only pages should not be writable
+Content-Language: en-US
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+References: <20220528014132.91052-1-heinrich.schuchardt@canonical.com>
+ <CAMj1kXGmwwD==yOnzfYgPg8Bpz1POK7aPBULcuMdgS-E1G2EAw@mail.gmail.com>
+From:   Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+In-Reply-To: <CAMj1kXGmwwD==yOnzfYgPg8Bpz1POK7aPBULcuMdgS-E1G2EAw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 27, 2022 at 10:48:21AM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.44 release.
-> There are 145 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+
+
+On 5/28/22 11:13, Ard Biesheuvel wrote:
+> On Sat, 28 May 2022 at 03:41, Heinrich Schuchardt
+> <heinrich.schuchardt@canonical.com> wrote:
+>>
+>> If EFI pages are marked as read-only,
+>> we should remove the _PAGE_WRITE flag.
+>>
+>> The current code overwrites an unused value.
+>>
+>> Fixes: b91540d52a08b ("RISC-V: Add EFI runtime services")
+>> Signed-off-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+>> ---
+>>   arch/riscv/kernel/efi.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/arch/riscv/kernel/efi.c b/arch/riscv/kernel/efi.c
+>> index 024159298231..1aa540350abd 100644
+>> --- a/arch/riscv/kernel/efi.c
+>> +++ b/arch/riscv/kernel/efi.c
+>> @@ -65,7 +65,7 @@ static int __init set_permissions(pte_t *ptep, unsigned long addr, void *data)
+>>
+>>          if (md->attribute & EFI_MEMORY_RO) {
+>>                  val = pte_val(pte) & ~_PAGE_WRITE;
+>> -               val = pte_val(pte) | _PAGE_READ;
+>> +               val |= _PAGE_READ;
+>>                  pte = __pte(val);
+>>          }
+>>          if (md->attribute & EFI_MEMORY_XP) {
+>> --
+>> 2.36.1
+>>
 > 
+> Thanks Heinrich
+> 
+> Queued in efi/urgent.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 12.1.0).
+I guess this should also be down-ported to 5.15 and 5.10.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Best regards
 
--- 
-An old man doll... just what I always wanted! - Clara
+Heinrich
