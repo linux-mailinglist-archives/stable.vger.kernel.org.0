@@ -2,77 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA04E53715D
-	for <lists+stable@lfdr.de>; Sun, 29 May 2022 16:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B24653717E
+	for <lists+stable@lfdr.de>; Sun, 29 May 2022 17:19:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229923AbiE2OeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 May 2022 10:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34180 "EHLO
+        id S231128AbiE2PTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 May 2022 11:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229934AbiE2OeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 May 2022 10:34:01 -0400
-Received: from mail-vs1-xe30.google.com (mail-vs1-xe30.google.com [IPv6:2607:f8b0:4864:20::e30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02C5E6A02A
-        for <stable@vger.kernel.org>; Sun, 29 May 2022 07:33:57 -0700 (PDT)
-Received: by mail-vs1-xe30.google.com with SMTP id w10so8550738vsa.4
-        for <stable@vger.kernel.org>; Sun, 29 May 2022 07:33:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=Cv3gl7MEYJWEadacC8fV/gZvbOujcUVg8iqWdplRPCU=;
-        b=nzDIFAYO3CGRugpaCTaqW+LdhOH84YbOEwJhBbnDfei58Hcsg0SovSo2cEw2oOpwmh
-         vMXDj7WiogpkJXJ9Ui0rRtSvpoUJj1O6B6NyIaJqFl4wJgNQk159VgyLQsG5jiei/5br
-         jFr4eREHxyg8IphePSMDMlFWfUqX6QhmDmaS9ruAZ2/XudHesxFg8u624HDsRQNUa6g3
-         3Qcd23/ZxFaco+3+BmJnvs+JNoDNFi8TlO5gOTXyhyF5EZks2P3b83R0rWCF2KZC6M6d
-         jJVqkacQV5U0XjCbvUukUhk0olgmBDLYNeDaBNLDV24kI71ZWAIM6LdZmoL/FxrlMd0c
-         Eguw==
+        with ESMTP id S230523AbiE2PTM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 May 2022 11:19:12 -0400
+Received: from mail-il1-f200.google.com (mail-il1-f200.google.com [209.85.166.200])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4243D37A9A
+        for <stable@vger.kernel.org>; Sun, 29 May 2022 08:19:11 -0700 (PDT)
+Received: by mail-il1-f200.google.com with SMTP id a3-20020a924443000000b002d1bc79da14so6671039ilm.15
+        for <stable@vger.kernel.org>; Sun, 29 May 2022 08:19:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=Cv3gl7MEYJWEadacC8fV/gZvbOujcUVg8iqWdplRPCU=;
-        b=mfWe38F6dKx19eSipZ/nMW4rU1F80BPivco2VN/YVhFgZ6PpgAkE0QxrU9JY2gJ3WH
-         C8aioTz68O3c2UcB6V8TFAGfjIrCHeBW7b8Qin+rfrLXcoTsFfdY1ON9mSm7dnRQSgUK
-         it09/raaHHRQUp/ZFwkzdD6cCk0RulAp2iBdEFdyHqdJ8/iUDN35OiZQedBb0+fiog0B
-         tqB8dlPrOb7uVrkbWU28oTJd12yZJMrrIzLOysU/8brMW0EGx2TUaKQ4Ste6dOqq0Lsp
-         kYbcTelPiNjEVGeq5qRE+4y3BWvwm0tonaj16XNL4S6bPw4wkA+CH4KGLOJl5bJJVj9r
-         13PQ==
-X-Gm-Message-State: AOAM530i8d/F9SEXgifGCdI55TbKHUn2W+Jm4L4YmOSGgH+JMMMrsS50
-        RVPLp1aWgxlOCGkZ+g9A+MKnTrdPcExRxmFmgxY=
-X-Google-Smtp-Source: ABdhPJxvH3gJ8yfpebtKGAeuvNfYSGmawcZVvz/ui7LjO7qIj0oPKoJCPlREkjZkWrpkfMkdDmoIIV6AljCQrK/cGTI=
-X-Received: by 2002:a67:d58b:0:b0:338:705:bfc2 with SMTP id
- m11-20020a67d58b000000b003380705bfc2mr8915989vsj.66.1653834836902; Sun, 29
- May 2022 07:33:56 -0700 (PDT)
+        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
+         :from:to;
+        bh=SZmS5uKU15BCKA3xunshV88b8on4gSZULFNjwvNdemI=;
+        b=D6IiFYDaHEtTF8Q9zMx6OHq5stYepVGeTk5ukl4k4LRu+z70gUT4fFb/YPsbY4aban
+         4rr41Macop5OR2WzXsUaHFskkln4MK9HU8hirxoaYLMga4mVnznBi2Zbp4yKaa+xw0HN
+         C63OtnCz609BwrHO1CBf/f6pMl1d2KBPSDuurtwo0mYZ6tuQDxi5GOnsIJO7+jrA7ryb
+         WAOPKt0/ImM3BM0xiFjWbQER8IEDrQlVj2uy5eX0vxqjBbFUAXKqj00Dudh/HuE1OPss
+         yquTuo8tXdQigFcGOHL3G7sKMvT+wfK/89hk0rrO2KThgnx5Cn4AzVP18AeClnLNqVaV
+         /caw==
+X-Gm-Message-State: AOAM530hOKjFzpaEDMGV2hQTS5JrE1Mo1aYSXJX3Oo6nTXWvZdqgDOEq
+        YCd7SCjLFtIKCjLBwukCDVGZXLpc1sb5hzQSdIIk2NFfGDIb
+X-Google-Smtp-Source: ABdhPJwlYN42ZL1pvPqEpBU1WbtFr0aNM3OMOKhi8hrqi7/cZGR/Q651zjP/5LyvBJoFvErgOOfHFuHrw0gzkMgRGqoIO3OJAl9G
 MIME-Version: 1.0
-Received: by 2002:a9f:2e14:0:0:0:0:0 with HTTP; Sun, 29 May 2022 07:33:56
- -0700 (PDT)
-Reply-To: wijh555@gmail.com
-From:   "Mrs. Mimi Aminu" <mimiaminu319@gmail.com>
-Date:   Sun, 29 May 2022 07:33:56 -0700
-Message-ID: <CAD-C4f7iDg4vaFVFPWMXkQ5TBUBRtpyAn2GGxNv=UbL0Re0HQA@mail.gmail.com>
-Subject: Greetings,
-To:     undisclosed-recipients:;
+X-Received: by 2002:a05:6638:24cf:b0:32e:d03e:3185 with SMTP id
+ y15-20020a05663824cf00b0032ed03e3185mr17548073jat.99.1653837549180; Sun, 29
+ May 2022 08:19:09 -0700 (PDT)
+Date:   Sun, 29 May 2022 08:19:09 -0700
+In-Reply-To: <YpNrSABPtB5eDC+m@rowland.harvard.edu>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000a29e3905e0280faa@google.com>
+Subject: Re: [syzbot] KASAN: use-after-free Read in driver_register
+From:   syzbot <syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com>
+To:     Julia.Lawall@inria.fr, andreyknvl@gmail.com, balbi@kernel.org,
+        gregkh@linuxfoundation.org, jannh@google.com,
+        jj251510319013@gmail.com, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, rafael@kernel.org, sashal@kernel.org,
+        schspa@gmail.com, stable@vger.kernel.org,
+        stern@rowland.harvard.edu, syzkaller-bugs@googlegroups.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        T_SCC_BODY_TEXT_LINE,UNDISC_FREEM autolearn=no autolearn_force=no
-        version=3.4.6
-X-Spam-Level: ****
+X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-I'm Mrs. Mimi Aminu, how are you doing hope you are in good health,
-the Board director
-try to reach you on phone several times Meanwhile, your number was not
-connecting. before he ask me to send you an email to hear from you if
-you are fine. hope to hear you are in good Health.
+Hello,
 
-Thanks,
-Mrs. Mimi Aminu.
+syzbot has tested the proposed patch and the reproducer did not trigger any issue:
+
+Reported-and-tested-by: syzbot+dc7c3ca638e773db07f6@syzkaller.appspotmail.com
+
+Tested on:
+
+commit:         97fa5887 USB: new quirk for Dell Gen 2 devices
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5a0efc262ca60947
+dashboard link: https://syzkaller.appspot.com/bug?extid=dc7c3ca638e773db07f6
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=1224de7bf00000
+
+Note: testing is done by a robot and is best-effort only.
