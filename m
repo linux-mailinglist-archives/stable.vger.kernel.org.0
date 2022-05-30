@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A190538202
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5714538155
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241306AbiE3OVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:21:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40296 "EHLO
+        id S237263AbiE3OTZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:19:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241409AbiE3ORe (ORCPT
+        with ESMTP id S241413AbiE3ORe (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D59DCEF;
-        Mon, 30 May 2022 06:46:37 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6CD559B;
+        Mon, 30 May 2022 06:46:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38A1C60F22;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4ABC960FD4;
+        Mon, 30 May 2022 13:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FEB7C3411F;
         Mon, 30 May 2022 13:46:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3D85C385B8;
-        Mon, 30 May 2022 13:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918396;
-        bh=7XsYRlWM8qmHI/XkqixZ5LiDMS9nt6vg5uZEvzT5rvc=;
+        s=k20201202; t=1653918398;
+        bh=4FSrYTcjJKXPVdDoyaJUWxXh5uWevkD+L6Qli9rjWgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m++qONB0A/AEQB+Kf9jv0crPtZJHsXbwmvfEK3ViaSzrubNP1mDzECqNc0VbLVcuQ
-         +e63QmtOkW56Mcdtnb1u/TU0dUkLivk5IkDH4I2Q+OvW/fP3Z51HP1jU6q1UMjR62E
-         jbn6JllqdfiftYFiy2IIo9bX7ivBzouiax3N4auSNZRAdpntSnS90gkAxQ2Z0B5n5N
-         DAZ1WO7ilz1Xv8mO0V5WkLD0eGsOfDMABN87nk7cT6PzLAV5DBhDtxSP19hR7jx5gs
-         N9BlK310nAQtsjn1zpoQEAyhJECe9W1R+ua4dIr3uxQ3mUpjmqzloJdW5rs26k36GK
-         yGWqTbNIOWVEg==
+        b=UrjrfzxjFNl5zwZbxgg/sUuemVB7evbnl9GRKOUxpibKtfXeWq8xKjOZJmPKW2N+k
+         1PzALp4KErEHkw0e0Z4glyboJMsoZnP/H5AHPYwB8wOknbFH+snxHs1vQiBSPl2juB
+         uOM8ASIcRk5UKoYaqQV8+taP/PLumT/MrK9Ezzn0YpEUW9TnR0KS0hSm710Rncf3Ub
+         Bd2ZOUyKVUP4I31dRAmXxp5ylfbdUxZBbHQyfpKXSJDL9d085j0MzRPJElT+xx2zrS
+         Id/QlIb4vtc5SGP8mepuNJgLnIdFU2Ge90DKBp8tfQdsZk+YCKsYZRaLtiGfhXwpEg
+         LuzamxuTxnbWg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        kernel test robot <yujie.liu@intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, srinivas.kandagatla@linaro.org,
-        ckeepax@opensource.cirrus.com, tanureal@opensource.cirrus.com,
-        james.schulman@cirrus.com, cy_huang@richtek.com,
-        pbrobinson@gmail.com, hdegoede@redhat.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 66/76] ASoC: rt1015p: remove dependency on GPIOLIB
-Date:   Mon, 30 May 2022 09:43:56 -0400
-Message-Id: <20220530134406.1934928-66-sashal@kernel.org>
+Cc:     Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
+        kernel test robot <lkp@intel.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>, wg@grandegger.com,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, ndesaulniers@google.com,
+        linux-can@vger.kernel.org, netdev@vger.kernel.org,
+        llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.10 67/76] can: mcp251xfd: silence clang's -Wunaligned-access warning
+Date:   Mon, 30 May 2022 09:43:57 -0400
+Message-Id: <20220530134406.1934928-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -64,54 +62,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
 
-[ Upstream commit b390c25c6757b9d56cecdfbf6d55f15fc89a6386 ]
+[ Upstream commit 1a6dd9996699889313327be03981716a8337656b ]
 
-commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
-series of unnecessary dependencies on GPIOLIB when the gpio was
-optional.
+clang emits a -Wunaligned-access warning on union
+mcp251xfd_tx_ojb_load_buf.
 
-A similar simplification seems valid for rt1015p, so remove the
-dependency as well. This will avoid the following warning
+The reason is that field hw_tx_obj (not declared as packed) is being
+packed right after a 16 bits field inside a packed struct:
 
-  WARNING: unmet direct dependencies detected for SND_SOC_RT1015P
+| union mcp251xfd_tx_obj_load_buf {
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd cmd;
+| 		  /* ^ 16 bits fields */
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		  /* ^ not declared as packed */
+| 	} nocrc;
+| 	struct __packed {
+| 		struct mcp251xfd_buf_cmd_crc cmd;
+| 		struct mcp251xfd_hw_tx_obj_raw hw_tx_obj;
+| 		__be16 crc;
+| 	} crc;
+| } ____cacheline_aligned;
 
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] &&
-     GPIOLIB [=n]
+Starting from LLVM 14, having an unpacked struct nested in a packed
+struct triggers a warning. c.f. [1].
 
-     Selected by [y]:
+This is a false positive because the field is always being accessed
+with the relevant put_unaligned_*() function. Adding __packed to the
+structure declaration silences the warning.
 
-     - SND_SOC_INTEL_SOF_RT5682_MACH [=y] && SOUND [=y] && !UML && SND
-       [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
-       (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && (SND_HDA_CODEC_HDMI [=y] &&
-       SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=y]) || SND_SOC_SOF_BAYTRAIL [=n] &&
-       (X86_INTEL_LPSS [=n] || COMPILE_TEST [=y]))
+[1] https://github.com/llvm/llvm-project/issues/55520
 
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/all/20220518114357.55452-1-mailhol.vincent@wanadoo.fr
+Signed-off-by: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
+Reported-by: kernel test robot <lkp@intel.com>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 612fd7516666..25f331551f68 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -1098,7 +1098,6 @@ config SND_SOC_RT1015
- 
- config SND_SOC_RT1015P
- 	tristate
--	depends on GPIOLIB
- 
- config SND_SOC_RT1305
- 	tristate
+diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+index fa1246e39980..766dbd19bba6 100644
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd.h
+@@ -426,7 +426,7 @@ struct mcp251xfd_hw_tef_obj {
+ /* The tx_obj_raw version is used in spi async, i.e. without
+  * regmap. We have to take care of endianness ourselves.
+  */
+-struct mcp251xfd_hw_tx_obj_raw {
++struct __packed mcp251xfd_hw_tx_obj_raw {
+ 	__le32 id;
+ 	__le32 flags;
+ 	u8 data[sizeof_field(struct canfd_frame, data)];
 -- 
 2.35.1
 
