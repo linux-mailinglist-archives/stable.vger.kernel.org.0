@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 057CF538222
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0951E538288
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237325AbiE3OWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40296 "EHLO
+        id S238835AbiE3OYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:24:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242029AbiE3OST (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:19 -0400
+        with ESMTP id S242231AbiE3OSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897A39EB46;
-        Mon, 30 May 2022 06:48:59 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0438611CB79;
+        Mon, 30 May 2022 06:49:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E557B60FEC;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79F6760F24;
+        Mon, 30 May 2022 13:49:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF80FC3411C;
         Mon, 30 May 2022 13:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2507DC3411E;
-        Mon, 30 May 2022 13:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918538;
-        bh=9PJD3Qn9tZV44T/FEmmw6UElYs3+9edj15+ybckTrGQ=;
+        s=k20201202; t=1653918539;
+        bh=Tda2yIK/e/Kan92RH1YHYbg3Uneascketgw7j/W6VgU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K0EdQNDjdOeJb9Ku00XWPtpYqCJJKxUEv8DoYs4KI7COpnsC23inMEh5Z1r0wYWN8
-         ts23sI/hitzxDfk4zGS76Cu5YQyPLPslQbkJ1UcwRoonfJEIiWxB0UWVjsrwEM3L+Z
-         1V94yDUZMDYuW7ktWOHR/PKBv/LCt6BafY+vP0WO6JAcEXeLUec6c472EzUZKqX5sv
-         Xf+uAtodvj3NXaovnOGZTxrpmwWptW52zP57dXKnbMpevSASQMv4QFNgZjZRwPTCWh
-         n5ryZ1KT/uaATPx1tCkOwMqYKS/soEBqb1W77aeMOBteOf+NtWV73avTLoTzukp77l
-         WNrctI8Xe7xng==
+        b=MX0euYwhwkShw3pc0PsOJz6iJlghB8gfNZgIGvHsyRtWGgVJxSS1xX7AVsnGi9E9i
+         mMi1gGgQ1Ekr2S0hobeM6C7GvUG05vPLy81GbHLIwz9w1KiLSUI6ptQgkPzbn1XMZG
+         99vZNquxTLQRTTWjz2XWq0MTLA2FjDDt597BmNZTBoRJINWAq9elptNNtmTjKbiEv6
+         NkqOFWAWLynN7OUMvHUTEdk7v6jgQYa6ARLBFC676VipZ5Bus8Nt+B9VezQjaKtXmy
+         YPCvT84ttk/IGO6bQc0ZP8ThLGfXNVz4yG5AnvXynjFoSKYzv6yV1GwNw0EcT6aveN
+         EkMR7u34Fku8A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Ma <linma@zju.edu.cn>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, oder_chiou@realtek.com,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.4 46/55] ASoC: rt5645: Fix errorenous cleanup order
-Date:   Mon, 30 May 2022 09:46:52 -0400
-Message-Id: <20220530134701.1935933-46-sashal@kernel.org>
+Cc:     Xie Yongji <xieyongji@bytedance.com>,
+        Xu Jianhai <zero.xu@bytedance.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org, nbd@other.debian.org
+Subject: [PATCH AUTOSEL 5.4 47/55] nbd: Fix hung on disconnect request if socket is closed before
+Date:   Mon, 30 May 2022 09:46:53 -0400
+Message-Id: <20220530134701.1935933-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -57,51 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 2def44d3aec59e38d2701c568d65540783f90f2f ]
+[ Upstream commit 491bf8f236fdeec698fa6744993f1ecf3fafd1a5 ]
 
-There is a logic error when removing rt5645 device as the function
-rt5645_i2c_remove() first cancel the &rt5645->jack_detect_work and
-delete the &rt5645->btn_check_timer latter. However, since the timer
-handler rt5645_btn_check_callback() will re-queue the jack_detect_work,
-this cleanup order is buggy.
+When userspace closes the socket before sending a disconnect
+request, the following I/O requests will be blocked in
+wait_for_reconnect() until dead timeout. This will cause the
+following disconnect request also hung on blk_mq_quiesce_queue().
+That means we have no way to disconnect a nbd device if there
+are some I/O requests waiting for reconnecting until dead timeout.
+It's not expected. So let's wake up the thread waiting for
+reconnecting directly when a disconnect request is sent.
 
-That is, once the del_timer_sync in rt5645_i2c_remove is concurrently
-run with the rt5645_btn_check_callback, the canceled jack_detect_work
-will be rescheduled again, leading to possible use-after-free.
-
-This patch fix the issue by placing the del_timer_sync function before
-the cancel_delayed_work_sync.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Link: https://lore.kernel.org/r/20220516092035.28283-1-linma@zju.edu.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Xu Jianhai <zero.xu@bytedance.com>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20220322080639.142-1-xieyongji@bytedance.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5645.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/block/nbd.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index c83f7f5da96b..a66e93a3af74 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -4074,9 +4074,14 @@ static int rt5645_i2c_remove(struct i2c_client *i2c)
- 	if (i2c->irq)
- 		free_irq(i2c->irq, rt5645);
- 
-+	/*
-+	 * Since the rt5645_btn_check_callback() can queue jack_detect_work,
-+	 * the timer need to be delted first
-+	 */
-+	del_timer_sync(&rt5645->btn_check_timer);
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 25e81b1a59a5..510e75435c43 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -865,11 +865,15 @@ static int wait_for_reconnect(struct nbd_device *nbd)
+ 	struct nbd_config *config = nbd->config;
+ 	if (!config->dead_conn_timeout)
+ 		return 0;
+-	if (test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags))
 +
- 	cancel_delayed_work_sync(&rt5645->jack_detect_work);
- 	cancel_delayed_work_sync(&rt5645->rcclock_work);
--	del_timer_sync(&rt5645->btn_check_timer);
++	if (!wait_event_timeout(config->conn_wait,
++				test_bit(NBD_RT_DISCONNECTED,
++					 &config->runtime_flags) ||
++				atomic_read(&config->live_connections) > 0,
++				config->dead_conn_timeout))
+ 		return 0;
+-	return wait_event_timeout(config->conn_wait,
+-				  atomic_read(&config->live_connections) > 0,
+-				  config->dead_conn_timeout) > 0;
++
++	return !test_bit(NBD_RT_DISCONNECTED, &config->runtime_flags);
+ }
  
- 	regulator_bulk_disable(ARRAY_SIZE(rt5645->supplies), rt5645->supplies);
- 
+ static int nbd_handle_cmd(struct nbd_cmd *cmd, int index)
+@@ -2014,6 +2018,7 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
+ 	mutex_lock(&nbd->config_lock);
+ 	nbd_disconnect(nbd);
+ 	sock_shutdown(nbd);
++	wake_up(&nbd->config->conn_wait);
+ 	/*
+ 	 * Make sure recv thread has finished, so it does not drop the last
+ 	 * config ref and try to destroy the workqueue from inside the work
 -- 
 2.35.1
 
