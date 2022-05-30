@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BA9537E87
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:13:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 246A2537E95
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238173AbiE3NsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:48:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39668 "EHLO
+        id S237372AbiE3Nrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:47:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238334AbiE3NpS (ORCPT
+        with ESMTP id S238333AbiE3NpS (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:45:18 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7367D8FD4C;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7354D8FD4B;
         Mon, 30 May 2022 06:32:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11D8BB80DBB;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC67B60F37;
         Mon, 30 May 2022 13:32:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BE4AC36AE5;
-        Mon, 30 May 2022 13:32:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51DA3C36AEB;
+        Mon, 30 May 2022 13:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917563;
-        bh=luIxqVVGy6lWaKnmOLArsz/o5m0B6J0ryt0y5w3fJJ0=;
+        s=k20201202; t=1653917565;
+        bh=MBi8JzpAoUKy5cp3Ar4hTl0Sf7G2CWS3MZih0JaaO5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oTTaeoVOTSTmVOkfHYyeSNMxFO938krLushZ10aMWYaPgtg+5djpDXkZ3EZ3gDTYo
-         lWUa1xPxH7AAfT1p4Y8Q6p7UGvSajpLHSHhEdkBazhi/4Z+F1CV4MFYMa6GfbNrNgg
-         AHFz59Zvh/7QlxTfy7TvqUyAMsRf6AVTWUgOplmfUN6n8pvpHhKKF05jqSeARFrYwp
-         RmEcGg40KDsw0mprEql9ET518oBBnp0LQ7I6t/G+YHqISGFWc7XeIOqY4/TrwITX0+
-         CjwYVXnVMkHS2f8a+2q+sYf3Ic6FBTPRQ2Z4rENVL+0oNqluYo/6zZQRpZwEbkaGBt
-         eY0tUIpTwXiQg==
+        b=WRd6lIso666MzjTJ5p8VlCNYAChyy3rkcdN3/SOjGOgtq3In3hrLjerRKzYNhEevf
+         4fuLDf3cZFirm5DI0uVXdvZQnsqaU4cTVbQlM1em+xXWxtde7+tBjCQ5lH2jTaZVmh
+         whL3tIMe6qmwlkahEa6v4yDU0RBX5/nH0FBHn9OR4pQ3EMypeKWrquetmNEHhdizcU
+         OzMElsTmT+uub3sQjPr9b2dDOc61jPixk4EHXqmfWQPHy8PgjbUzIPKEZZ08Dawyek
+         Iz4OULR75fz71DsWIl+iEeOMmKPkIdxwErdnTA3F/HkZ8cf/IFsd5czDUoPGBGQPJF
+         PfuqVwo3jhbig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Po-Hao Huang <phhuang@realtek.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        tony0620emma@gmail.com, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 026/135] rtw88: 8821c: fix debugfs rssi value
-Date:   Mon, 30 May 2022 09:29:44 -0400
-Message-Id: <20220530133133.1931716-26-sashal@kernel.org>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Vinod Koul <vkoul@kernel.org>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 027/135] spi: spi-rspi: Remove setting {src,dst}_{addr,addr_width} based on DMA direction
+Date:   Mon, 30 May 2022 09:29:45 -0400
+Message-Id: <20220530133133.1931716-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -59,58 +58,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hao Huang <phhuang@realtek.com>
+From: Biju Das <biju.das.jz@bp.renesas.com>
 
-[ Upstream commit ece31c93d4d68f7eb8eea4431b052aacdb678de2 ]
+[ Upstream commit 6f381481a5b236cb53d6de2c49c6ef83a4d0f432 ]
 
-RSSI value per frame is reported to mac80211 but not maintained in
-our own statistics, add it back to help us debug.
+The direction field in the DMA config is deprecated. The rspi driver
+sets {src,dst}_{addr,addr_width} based on the DMA direction and
+it results in dmaengine_slave_config() failure as RZ DMAC driver
+validates {src,dst}_addr_width values independent of DMA direction.
 
-Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20220407095858.46807-7-pkshih@realtek.com
+This patch fixes the issue by passing both {src,dst}_{addr,addr_width}
+values independent of DMA direction.
+
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Suggested-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Vinod Koul <vkoul@kernel.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220411173115.6619-1-biju.das.jz@bp.renesas.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/rtw8821c.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/spi/spi-rspi.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/rtw8821c.c b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-index 80d4761796b1..0f16f649e03f 100644
---- a/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-+++ b/drivers/net/wireless/realtek/rtw88/rtw8821c.c
-@@ -512,6 +512,7 @@ static s8 get_cck_rx_pwr(struct rtw_dev *rtwdev, u8 lna_idx, u8 vga_idx)
- static void query_phy_status_page0(struct rtw_dev *rtwdev, u8 *phy_status,
- 				   struct rtw_rx_pkt_stat *pkt_stat)
- {
-+	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
- 	s8 rx_power;
- 	u8 lna_idx = 0;
- 	u8 vga_idx = 0;
-@@ -523,6 +524,7 @@ static void query_phy_status_page0(struct rtw_dev *rtwdev, u8 *phy_status,
+diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
+index bd5708d7e5a1..7a014eeec2d0 100644
+--- a/drivers/spi/spi-rspi.c
++++ b/drivers/spi/spi-rspi.c
+@@ -1108,14 +1108,11 @@ static struct dma_chan *rspi_request_dma_chan(struct device *dev,
+ 	}
  
- 	pkt_stat->rx_power[RF_PATH_A] = rx_power;
- 	pkt_stat->rssi = rtw_phy_rf_power_2_rssi(pkt_stat->rx_power, 1);
-+	dm_info->rssi[RF_PATH_A] = pkt_stat->rssi;
- 	pkt_stat->bw = RTW_CHANNEL_WIDTH_20;
- 	pkt_stat->signal_power = rx_power;
- }
-@@ -530,6 +532,7 @@ static void query_phy_status_page0(struct rtw_dev *rtwdev, u8 *phy_status,
- static void query_phy_status_page1(struct rtw_dev *rtwdev, u8 *phy_status,
- 				   struct rtw_rx_pkt_stat *pkt_stat)
- {
-+	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
- 	u8 rxsc, bw;
- 	s8 min_rx_power = -120;
+ 	memset(&cfg, 0, sizeof(cfg));
++	cfg.dst_addr = port_addr + RSPI_SPDR;
++	cfg.src_addr = port_addr + RSPI_SPDR;
++	cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
++	cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+ 	cfg.direction = dir;
+-	if (dir == DMA_MEM_TO_DEV) {
+-		cfg.dst_addr = port_addr;
+-		cfg.dst_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+-	} else {
+-		cfg.src_addr = port_addr;
+-		cfg.src_addr_width = DMA_SLAVE_BUSWIDTH_1_BYTE;
+-	}
  
-@@ -549,6 +552,7 @@ static void query_phy_status_page1(struct rtw_dev *rtwdev, u8 *phy_status,
+ 	ret = dmaengine_slave_config(chan, &cfg);
+ 	if (ret) {
+@@ -1146,12 +1143,12 @@ static int rspi_request_dma(struct device *dev, struct spi_controller *ctlr,
+ 	}
  
- 	pkt_stat->rx_power[RF_PATH_A] = GET_PHY_STAT_P1_PWDB_A(phy_status) - 110;
- 	pkt_stat->rssi = rtw_phy_rf_power_2_rssi(pkt_stat->rx_power, 1);
-+	dm_info->rssi[RF_PATH_A] = pkt_stat->rssi;
- 	pkt_stat->bw = bw;
- 	pkt_stat->signal_power = max(pkt_stat->rx_power[RF_PATH_A],
- 				     min_rx_power);
+ 	ctlr->dma_tx = rspi_request_dma_chan(dev, DMA_MEM_TO_DEV, dma_tx_id,
+-					     res->start + RSPI_SPDR);
++					     res->start);
+ 	if (!ctlr->dma_tx)
+ 		return -ENODEV;
+ 
+ 	ctlr->dma_rx = rspi_request_dma_chan(dev, DMA_DEV_TO_MEM, dma_rx_id,
+-					     res->start + RSPI_SPDR);
++					     res->start);
+ 	if (!ctlr->dma_rx) {
+ 		dma_release_channel(ctlr->dma_tx);
+ 		ctlr->dma_tx = NULL;
 -- 
 2.35.1
 
