@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E9674538248
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DCFA538153
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:29:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241349AbiE3OWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40188 "EHLO
+        id S239720AbiE3OTU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:19:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241920AbiE3OSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:11 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2D449CCBB;
-        Mon, 30 May 2022 06:48:33 -0700 (PDT)
+        with ESMTP id S241871AbiE3OSI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:08 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92787CDF3;
+        Mon, 30 May 2022 06:48:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4852861024;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF8186102C;
+        Mon, 30 May 2022 13:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380C9C3411C;
         Mon, 30 May 2022 13:48:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54AB6C36AEA;
-        Mon, 30 May 2022 13:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918496;
-        bh=Gr+Vw9+XXHKPKIAm54nUK/J4qufutb1HXkatbHy3PKE=;
+        s=k20201202; t=1653918498;
+        bh=DmZCobw+15ODyPNSkluZj9y7/xr/Xa4MTTMVgFboyw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7tOju2OJq2c5lCWGO+m1B0YN/S6gujOxlAUrKualLw3FDGPTL7OeYa5gIbzLv0W1
-         aHh44d4pUTRcQvpzKjrQYVOzilUI5fbu74z5YjmYXex57g5CICVhpbyL/QBdzygabg
-         8ULcpknW64QCyul7tpIeHrL8vzJ7ndroemqNRr6eBSGmdWF9vE4dGJ26gxsV39RwKz
-         T8Uqpkvb2wpJdF7uR+DzEx6/TuNw1XIUrIYwvujGVIv3YFGYx/r91fzjbbUQW+4OcR
-         JzbxskWyM66Kpb/L4pnLi2C9IcQBkUBqgkLleNuJYuuHZR0tA1NFE5ocvfQgZwEuxh
-         duAeVuCBsU5ag==
+        b=tHU2/uTdMlG1t4IcggjP3L8JHzC6wh/oqMLYzt+ioISpAy7mtXOwl2M9C6BPh/llQ
+         iz226yKs3QXY506I+x8hKUTDw/L0gKTjylJuqkKeCJFGUryzYc2R10tQl/mi3M8qA3
+         V9tcfAEavKEz3he+Kc/THuUUQyH58usfuACJgIVVuyfPkJzRYzINdpYvzRjyrEpUZ1
+         ONnjsm0u8iVmyZlnZuxUEAu1zMHYv+sDBoHybvfLMCrDulT5IBnGnj3S1Sk2T9ADq6
+         uOPy/IwLuDUOES69aFczx+g+afIu50SI3xfuOEYM7D6NS/uLQxDGLAKtJGNSsG34xj
+         QoCpnkhXORQ2A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Bloch <mbloch@nvidia.com>, Maor Gottlieb <maorg@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 28/55] net/mlx5: fs, delete the FTE when there are no rules attached to it
-Date:   Mon, 30 May 2022 09:46:34 -0400
-Message-Id: <20220530134701.1935933-28-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 29/55] ASoC: dapm: Don't fold register value changes into notifications
+Date:   Mon, 30 May 2022 09:46:35 -0400
+Message-Id: <20220530134701.1935933-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -58,50 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bloch <mbloch@nvidia.com>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 7b0c6338597613f465d131bd939a51844a00455a ]
+[ Upstream commit ad685980469b9f9b99d4d6ea05f4cb8f57cb2234 ]
 
-When an FTE has no children is means all the rules where removed
-and the FTE can be deleted regardless of the dests_size value.
-While dests_size should be 0 when there are no children
-be extra careful not to leak memory or get firmware syndrome
-if the proper bookkeeping of dests_size wasn't done.
+DAPM tracks and reports the value presented to the user from DAPM controls
+separately to the register value, these may diverge during initialisation
+or when an autodisable control is in use.
 
-Signed-off-by: Mark Bloch <mbloch@nvidia.com>
-Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+When writing DAPM controls we currently report that a change has occurred
+if either the DAPM value or the value stored in the register has changed,
+meaning that if the two are out of sync we may appear to report a spurious
+event to userspace. Since we use this folded in value for nothing other
+than the value reported to userspace simply drop the folding in of the
+register change.
+
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20220428161833.3690050-1-broonie@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/fs_core.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/soc-dapm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-index 5baf2c666d29..8c8b68e7abb4 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
-@@ -1937,16 +1937,16 @@ void mlx5_del_flow_rules(struct mlx5_flow_handle *handle)
- 	down_write_ref_node(&fte->node, false);
- 	for (i = handle->num_rules - 1; i >= 0; i--)
- 		tree_remove_node(&handle->rule[i]->node, true);
--	if (fte->dests_size) {
--		if (fte->modify_mask)
--			modify_fte(fte);
--		up_write_ref_node(&fte->node, false);
--	} else if (list_empty(&fte->node.children)) {
-+	if (list_empty(&fte->node.children)) {
- 		del_hw_fte(&fte->node);
- 		/* Avoid double call to del_hw_fte */
- 		fte->node.del_hw_func = NULL;
- 		up_write_ref_node(&fte->node, false);
- 		tree_put_node(&fte->node, false);
-+	} else if (fte->dests_size) {
-+		if (fte->modify_mask)
-+			modify_fte(fte);
-+		up_write_ref_node(&fte->node, false);
- 	} else {
- 		up_write_ref_node(&fte->node, false);
- 	}
+diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
+index 1c09dfb0c0f0..56c9c4189f26 100644
+--- a/sound/soc/soc-dapm.c
++++ b/sound/soc/soc-dapm.c
+@@ -3421,7 +3421,6 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
+ 
+ 		ret = soc_dapm_mixer_update_power(card, kcontrol, connect,
+ 						  rconnect);
+@@ -3527,7 +3526,6 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
+ 			update.val = val;
+ 			card->update = &update;
+ 		}
+-		change |= reg_change;
+ 
+ 		ret = soc_dapm_mux_update_power(card, kcontrol, item[0], e);
+ 
 -- 
 2.35.1
 
