@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDDE537F58
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DB39537F6B
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238435AbiE3NwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:52:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
+        id S238440AbiE3NwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:52:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239070AbiE3NvD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:03 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF5DEB82E4;
-        Mon, 30 May 2022 06:35:20 -0700 (PDT)
+        with ESMTP id S238903AbiE3Nu4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:50:56 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7188EB0D00;
+        Mon, 30 May 2022 06:35:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C92CB80DBE;
-        Mon, 30 May 2022 13:35:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DD8FC341C6;
-        Mon, 30 May 2022 13:35:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF85660E9B;
+        Mon, 30 May 2022 13:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5301C341C8;
+        Mon, 30 May 2022 13:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917708;
-        bh=7jqS2tTlnNZbrQ98eK9OJ7pRMtBHKuwDuhlgk5Xc4Sk=;
+        s=k20201202; t=1653917710;
+        bh=ZN6hC2vdwKmBY0Swi3pq5qptEuPjZ0EGRv0BuujKnUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bk5Cv+uBJVmmzJjN4C+OhXLe40dTWCnjXSIT3fh/FpldhBgRp1+3tSfuq2DFKcnyA
-         Y1cs89Ds0YdSklSVih1gwNspd1h2LKa9Hm7AjYOgjNJP5QyGhP6J1HH5kCee2JGLqZ
-         KIFCfluTUQawF5ThI1H9ZfvXKL5cIZp/ScZerll+qVtdFgwvSOeD9pmrVj/wge3geW
-         kx8MyHwJgIqO35SulCA+oax9a/OLPxvyd9dlH+IloS+oFTiU4tu7eYGCdHYjjaxns0
-         jYyEQxWbrCxNldTKl+h0FeOOABlSq9FMyu9sbB8AGVRMUmQ10jl8w7A3raSYGaCRU4
-         CsJPnstjkanfQ==
+        b=E9aVZQB4dvAOxcJ2JcWxyk4nVcvQaMaKBRxGHRK01R39X50dV3MkdBjwfcgFviqgu
+         VHY9Tn5HJivF8DOnuMQMikSRzMjEXP1h7TG5vQyNUPyXiQ0NeMfV9CpwKgPmHuRihL
+         JYXnDhgt5IJ2CDwA57RNeWmjr18w69ArO08O2kT6rIws1ON3j+QVa5gjJo+tnd/W7H
+         0GfzTOogpc8PR8V4r58O0tfVPcvAB5ML5y83qX2e1E4Ab8xicnotfoVwpZiCel62qr
+         /7yeCYpPhI0XZ3RafRDK48xhZzVJYLIdrHepqGeZ6wYW5rsDtGtiR7ptpw1VQRSnMh
+         sX/HxxJBXypJA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 071/135] HID: bigben: fix slab-out-of-bounds Write in bigben_probe
-Date:   Mon, 30 May 2022 09:30:29 -0400
-Message-Id: <20220530133133.1931716-71-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, thierry.reding@gmail.com,
+        airlied@linux.ie, daniel@ffwll.ch, jonathanh@nvidia.com,
+        dri-devel@lists.freedesktop.org, linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 072/135] drm/tegra: gem: Do not try to dereference ERR_PTR()
+Date:   Mon, 30 May 2022 09:30:30 -0400
+Message-Id: <20220530133133.1931716-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -58,40 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit fc4ef9d5724973193bfa5ebed181dba6de3a56db ]
+[ Upstream commit cb7e1abc2c73633e1eefa168ab2dad6e838899c9 ]
 
-There is a slab-out-of-bounds Write bug in hid-bigbenff driver.
-The problem is the driver assumes the device must have an input but
-some malicious devices violate this assumption.
+When mapping the DMA-BUF attachment fails, map->sgt will be an ERR_PTR-
+encoded error code and the cleanup code would try to free that memory,
+which obviously would fail.
 
-Fix this by checking hid_device's input is non-empty before its usage.
+Zero out that pointer after extracting the error code when this happens
+so that kfree() can do the right thing.
 
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-bigbenff.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/tegra/gem.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index 74ad8bf98bfd..e8c5e3ac9fff 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -347,6 +347,12 @@ static int bigben_probe(struct hid_device *hid,
- 	bigben->report = list_entry(report_list->next,
- 		struct hid_report, list);
- 
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		error = -ENODEV;
-+		goto error_hw_stop;
-+	}
-+
- 	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
- 	set_bit(FF_RUMBLE, hidinput->input->ffbit);
+diff --git a/drivers/gpu/drm/tegra/gem.c b/drivers/gpu/drm/tegra/gem.c
+index fce0e52973c2..9810b3bdd342 100644
+--- a/drivers/gpu/drm/tegra/gem.c
++++ b/drivers/gpu/drm/tegra/gem.c
+@@ -88,6 +88,7 @@ static struct host1x_bo_mapping *tegra_bo_pin(struct device *dev, struct host1x_
+ 		if (IS_ERR(map->sgt)) {
+ 			dma_buf_detach(buf, map->attach);
+ 			err = PTR_ERR(map->sgt);
++			map->sgt = NULL;
+ 			goto free;
+ 		}
  
 -- 
 2.35.1
