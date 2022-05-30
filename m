@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD442537C42
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:32:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24DE1537C43
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:32:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237039AbiE3NbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
+        id S236851AbiE3NbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:31:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237309AbiE3NaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:30:20 -0400
+        with ESMTP id S237357AbiE3NaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:30:23 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64DE88B0BC;
-        Mon, 30 May 2022 06:27:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CD298BD31;
+        Mon, 30 May 2022 06:27:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6F9BB80D84;
-        Mon, 30 May 2022 13:27:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A9FC3411A;
-        Mon, 30 May 2022 13:27:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 58695B80D89;
+        Mon, 30 May 2022 13:27:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C671C36AE3;
+        Mon, 30 May 2022 13:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917227;
-        bh=8RMiVVctj3sV0L6ZoUUur3BAGcCQ+VEqyIgyBivg9YM=;
+        s=k20201202; t=1653917231;
+        bh=lYHN3M9R/cWlaC8P7t69WHiCUtqTwEPDM2IyLMD+e50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/DG/UZgDYlYks7dEwKqDo91ZK/dr2ImlOqmtFiwDe0Q/bBksZzTgcJXhWCdq0os5
-         m4iACe6lC8T4B2NKNFVcszbVz42WLAf60dQ8jl0G0XTnHx+B9EWEG9v7dLcg1zaRNM
-         eLWfI1SaupRdG09wW24E/XfYtk4MCYn5lGixO7TRCCnRldfa4JbCy8Y8WWQrEA825m
-         ay8qrQHNAMbfWtd5QkDOEiM2ZrRwk2sZMxpHSgFgVPxUHfSaRYmWcqW1C1bD+9Otys
-         MyFoC1DoC2/6lkdN2XlBlFuhZR9zmZf/AvAmrmEBY0cZ96kyauLaIPHRnIwbgDZNfQ
-         ep1wM/QTcoELw==
+        b=IaaSqpowAjRUYcKt+LL2VT34HU/uXqNEWJVXL1WP8V3uth690uVx62QCICLkojkZZ
+         WVFMzjmvlQCnEJQ82YKaN5yADT3fbxC19O20D19EmhwFd0sljuG82sATNWBIgjd5DW
+         O+93XWSqtNjPvBqBX0oFBWqvboVyWbGGUugJJXtp24igvDpGPFElmaRGQnnFFcOZGm
+         x+Zch73KFX+fKosa/9W90TZUeQwcHk+UHwAr+m/u5hoZJ5bFk22TUhdbaR8KL4kpHY
+         slwlT6krBWzQPRJzj3vPGiYL6Adaf8NItKGitkPM/AdndY1joqz5le3bzi4Q4qKHUQ
+         VwCksP5kA/G2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>, will@kernel.org,
-        maz@kernel.org, mark.rutland@arm.com, vladimir.murzin@arm.com,
-        joey.gouly@arm.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 063/159] arm64/sme: Add ID_AA64SMFR0_EL1 to __read_sysreg_by_encoding()
-Date:   Mon, 30 May 2022 09:22:48 -0400
-Message-Id: <20220530132425.1929512-63-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
+        perex@perex.cz, tiwai@suse.com, andriy.shevchenko@linux.intel.com,
+        peter.ujfalusi@linux.intel.com, akihiko.odaki@gmail.com,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 064/159] ASoC: Intel: bytcr_rt5640: Add quirk for the HP Pro Tablet 408
+Date:   Mon, 30 May 2022 09:22:49 -0400
+Message-Id: <20220530132425.1929512-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -59,37 +61,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8a58bcd00e2e8d46afce468adc09fcd7968f514c ]
+[ Upstream commit ce216cfa84a4e1c23b105e652c550bdeaac9e922 ]
 
-We need to explicitly enumerate all the ID registers which we rely on
-for CPU capabilities in __read_sysreg_by_encoding(), ID_AA64SMFR0_EL1 was
-missed from this list so we trip a BUG() in paths which rely on that
-function such as CPU hotplug. Add the register.
+Add a quirk for the HP Pro Tablet 408, this BYTCR tablet has no CHAN
+package in its ACPI tables and uses SSP0-AIF1 rather then SSP0-AIF2 which
+is the default for BYTCR devices.
 
-Reported-by: Marek Szyprowski <m.szyprowski@samsung.com>
+It also uses DMIC1 for the internal mic rather then the default IN3
+and it uses JD2 rather then the default JD1 for jack-detect.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=211485
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220427134918.527381-1-hdegoede@redhat.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
-Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Link: https://lore.kernel.org/r/20220427130828.162615-1-broonie@kernel.org
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/intel/boards/bytcr_rt5640.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 2cb9cc9e0eff..0182da409ec9 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -1287,6 +1287,7 @@ u64 __read_sysreg_by_encoding(u32 sys_id)
- 	read_sysreg_case(SYS_ID_AA64PFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64PFR1_EL1);
- 	read_sysreg_case(SYS_ID_AA64ZFR0_EL1);
-+	read_sysreg_case(SYS_ID_AA64SMFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64DFR0_EL1);
- 	read_sysreg_case(SYS_ID_AA64DFR1_EL1);
- 	read_sysreg_case(SYS_ID_AA64MMFR0_EL1);
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index d76a505052fb..f81ae742faa7 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -773,6 +773,18 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_OVCD_SF_0P75 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* HP Pro Tablet 408 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pro Tablet 408"),
++		},
++		.driver_data = (void *)(BYT_RT5640_DMIC1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_1500UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{	/* HP Stream 7 */
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 -- 
 2.35.1
 
