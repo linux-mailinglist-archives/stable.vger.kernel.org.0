@@ -2,56 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7025D537D4D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F106537D45
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237647AbiE3Ngy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:36:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47616 "EHLO
+        id S237613AbiE3Ngz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:36:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238000AbiE3Nf7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:59 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD37F84A3C;
-        Mon, 30 May 2022 06:29:36 -0700 (PDT)
+        with ESMTP id S238018AbiE3NgA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:00 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6329898088;
+        Mon, 30 May 2022 06:29:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DCC260DD5;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B2D34B80D89;
+        Mon, 30 May 2022 13:29:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B5BEC3411C;
         Mon, 30 May 2022 13:29:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52635C3411E;
-        Mon, 30 May 2022 13:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917375;
-        bh=edmrEx74CLJEL2ZSmVTR+lC6JWHI26Po+D1lAUpwoPY=;
+        s=k20201202; t=1653917377;
+        bh=phB7LXbMznbVSVQXBgVCBso+VRteL7PNg//ZRtMP2a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zgzo1WofPfTyFeBS/NCG0AC3fF6M994h9NkKQyii/L8bUtUH8W8XrtH83Fhx8obaP
-         9JJS/+oFWGA3AjMMJ8I3+FK/urWxi3yryBcLXd4w7Nq06HYpVGngZmWWZ270JqfIEK
-         eK/eD4Ihe4Dnu5Nr8ViMytawdp3+0SKBA1nctU5ydabO8poMsPHQpbo7YIx9AXC7vG
-         p6vxCd+r+CLF97JhN9eTYFDa+Phb2VAetE58Peghi0eb+aTUTYWadfRnYtoUEfffeQ
-         XP60S4IObuZUg1vPOX6PVcR3b/Hxi0oRExbYSUwersRamOO2mRa0XX7vnEFyvCQf69
-         eOLCaTQM4OtVw==
+        b=Vr79skjFFK/kJnhqLUgBGm9AwBPwuKxAjcw8wDBCnBtLtT/vGto/4RxVsLq2Nqa1R
+         xHe3ZkH/qFKLl0OcEFjyqgmKpO5QsodlpxII/WYSk2PXzlr8n6FRVBA0bUawHLo44X
+         IfSVv3/tNaEAZ9SAwrmCcWjqZ9hlb4gs6biO4XWEJnZpdSSQjjRoJ9IukAVKM7ql0Q
+         aRlFxzyRtLFQPQp43cyufveRnEkMW+XorPA+YYgod6IoPeddbWFS3ERVz4YpyObv0h
+         POTXoPUrkmKuqJej5ZcWj+vlCityAQhvTibMe5JLUMbb2D7x6KlptynVtVHdZhhoOx
+         Jr1/Fs3BLi29A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
-        Sasha Levin <sashal@kernel.org>, lorenzo@kernel.org,
-        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        matthias.bgg@gmail.com, Bo.Jiao@mediatek.com,
-        sujuan.chen@mediatek.com, greearb@candelatech.com,
-        sean.wang@mediatek.com, deren.wu@mediatek.com,
-        xing.song@mediatek.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.18 111/159] mt76: fix encap offload ethernet type check
-Date:   Mon, 30 May 2022 09:23:36 -0400
-Message-Id: <20220530132425.1929512-111-sashal@kernel.org>
+Cc:     Hangyu Hua <hbh25y@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, jacob-chen@iotwrt.com,
+        ezequiel@vanguardiasur.com.ar, heiko@sntech.de,
+        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 112/159] media: rga: fix possible memory leak in rga_probe
+Date:   Mon, 30 May 2022 09:23:37 -0400
+Message-Id: <20220530132425.1929512-112-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -65,67 +60,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-[ Upstream commit bc98e7fdd80d215b4b55eea001023231eb8ce12e ]
+[ Upstream commit a71eb6025305192e646040cd76ccacb5bd48a1b5 ]
 
-The driver needs to check if the format is 802.2 vs 802.3 in order to set
-a tx descriptor flag. skb->protocol can't be used, since it may not be properly
-initialized for packets coming in from a packet socket.
-Fix misdetection by checking the ethertype from the skb data instead
+rga->m2m_dev needs to be freed when rga_probe fails.
 
-Reported-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 4 +++-
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 4 +++-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/platform/rockchip/rga/rga.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index a8df65cc115f..eaa31f5e0b00 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -1017,6 +1017,7 @@ mt7915_mac_write_txwi_8023(struct mt7915_dev *dev, __le32 *txwi,
+diff --git a/drivers/media/platform/rockchip/rga/rga.c b/drivers/media/platform/rockchip/rga/rga.c
+index 3d3d1062e212..2f8df74ad0fd 100644
+--- a/drivers/media/platform/rockchip/rga/rga.c
++++ b/drivers/media/platform/rockchip/rga/rga.c
+@@ -865,7 +865,7 @@ static int rga_probe(struct platform_device *pdev)
  
- 	u8 tid = skb->priority & IEEE80211_QOS_CTL_TID_MASK;
- 	u8 fc_type, fc_stype;
-+	u16 ethertype;
- 	bool wmm = false;
- 	u32 val;
+ 	ret = pm_runtime_resume_and_get(rga->dev);
+ 	if (ret < 0)
+-		goto rel_vdev;
++		goto rel_m2m;
  
-@@ -1030,7 +1031,8 @@ mt7915_mac_write_txwi_8023(struct mt7915_dev *dev, __le32 *txwi,
- 	val = FIELD_PREP(MT_TXD1_HDR_FORMAT, MT_HDR_FORMAT_802_3) |
- 	      FIELD_PREP(MT_TXD1_TID, tid);
+ 	rga->version.major = (rga_read(rga, RGA_VERSION_INFO) >> 24) & 0xFF;
+ 	rga->version.minor = (rga_read(rga, RGA_VERSION_INFO) >> 20) & 0x0F;
+@@ -881,7 +881,7 @@ static int rga_probe(struct platform_device *pdev)
+ 					   DMA_ATTR_WRITE_COMBINE);
+ 	if (!rga->cmdbuf_virt) {
+ 		ret = -ENOMEM;
+-		goto rel_vdev;
++		goto rel_m2m;
+ 	}
  
--	if (be16_to_cpu(skb->protocol) >= ETH_P_802_3_MIN)
-+	ethertype = get_unaligned_be16(&skb->data[12]);
-+	if (ethertype >= ETH_P_802_3_MIN)
- 		val |= MT_TXD1_ETH_802_3;
- 
- 	txwi[1] |= cpu_to_le32(val);
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index f34070ca7bbe..c5350e7a11e6 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -814,6 +814,7 @@ mt7921_mac_write_txwi_8023(struct mt7921_dev *dev, __le32 *txwi,
- {
- 	u8 tid = skb->priority & IEEE80211_QOS_CTL_TID_MASK;
- 	u8 fc_type, fc_stype;
-+	u16 ethertype;
- 	bool wmm = false;
- 	u32 val;
- 
-@@ -827,7 +828,8 @@ mt7921_mac_write_txwi_8023(struct mt7921_dev *dev, __le32 *txwi,
- 	val = FIELD_PREP(MT_TXD1_HDR_FORMAT, MT_HDR_FORMAT_802_3) |
- 	      FIELD_PREP(MT_TXD1_TID, tid);
- 
--	if (be16_to_cpu(skb->protocol) >= ETH_P_802_3_MIN)
-+	ethertype = get_unaligned_be16(&skb->data[12]);
-+	if (ethertype >= ETH_P_802_3_MIN)
- 		val |= MT_TXD1_ETH_802_3;
- 
- 	txwi[1] |= cpu_to_le32(val);
+ 	rga->src_mmu_pages =
+@@ -918,6 +918,8 @@ static int rga_probe(struct platform_device *pdev)
+ free_dma:
+ 	dma_free_attrs(rga->dev, RGA_CMDBUF_SIZE, rga->cmdbuf_virt,
+ 		       rga->cmdbuf_phy, DMA_ATTR_WRITE_COMBINE);
++rel_m2m:
++	v4l2_m2m_release(rga->m2m_dev);
+ rel_vdev:
+ 	video_device_release(vfd);
+ unreg_v4l2_dev:
 -- 
 2.35.1
 
