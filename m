@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80672537F4A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF52537EA8
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239505AbiE3OJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:09:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59904 "EHLO
+        id S240052AbiE3OK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:10:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237214AbiE3OD0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:03:26 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8CD78BD19;
-        Mon, 30 May 2022 06:40:10 -0700 (PDT)
+        with ESMTP id S236885AbiE3OD4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:03:56 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5274598590;
+        Mon, 30 May 2022 06:40:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4487D60F78;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11711B80DA9;
+        Mon, 30 May 2022 13:40:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F35EC3411E;
         Mon, 30 May 2022 13:40:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171C4C3411A;
-        Mon, 30 May 2022 13:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918009;
-        bh=z4wDMbAV2RS1G7aP/5ULZccvzCp/6WBnP3rMRzqLcME=;
+        s=k20201202; t=1653918011;
+        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNV2g7UOgjFjDTTdmjeqoktnyl2WfHIL2NjxdHS5xJKfFfRXvy98ijkK7ajooK52T
-         CMe/xS2yvZ5zqy4nK9kv2xBXQNK8y9aVV8ZJAr4ewuuu6cepM3YQPFR3fs9NMsSbN6
-         xWWjYGAGOlQEGJ8c8AN3dJ4Gg0obcZj/D2UlvB/C/+Rw/eJTZHlpdwM4/USdiiDr9D
-         7rH7xTMcRDbodDnfDqAQV59POEcZveHtc8BxWO4kKqOne6f6GdxHHmT1rj475TvF06
-         xBVyGjSgYfoRg4ZHvOqnhBw3hehXkL4sYSxqI9CFnL8LLaGM21Vx0GgzWq6rhoL13x
-         iymwVS/9RR0BQ==
+        b=LitFFkhZCO3wVKbDNdI7dk9on9mC5zFp+9ge9WcfS1s61G1qGx0ZJmZaDYVo1WVpZ
+         caytGENi0T2hehBuQtQmWXOELFL7aLV+jlN8wSK/G6AXvf39N9QuuVGthBi5e5HrNS
+         yizMre+2z+ljIDb35OZiCHQK3fYUyEvZKXWoKa8fd/Q2oHwUaRTe4q5RVj1+D6CA2U
+         58+jMXkaHG+PNFPCC2gSMhU6tOav6TNN8xbTPMk6UItKVHY3gY1WiFg5zVWWNkFMH0
+         yXBZZVWn1hbsJgfftq38b5zHE11AyrsatRO1YOBuISSJJ8ua6Cip/D8WwfJlX5hNdl
+         X5id3rfpkP4sA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, christophe.jaillet@wanadoo.fr,
-        wsa+renesas@sang-engineering.com, colin.king@intel.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 030/109] ASoC: rsnd: care return value from rsnd_node_fixed_index()
-Date:   Mon, 30 May 2022 09:37:06 -0400
-Message-Id: <20220530133825.1933431-30-sashal@kernel.org>
+Cc:     =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
+        Felix Fietkau <nbd@nbd.name>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 031/109] ath9k: fix QCA9561 PA bias level
+Date:   Mon, 30 May 2022 09:37:07 -0400
+Message-Id: <20220530133825.1933431-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -61,209 +62,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
 
-[ Upstream commit d09a7db431c65aaa8303eb456439d1831ca2e6b4 ]
+[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
 
-Renesas Sound is very complex, and thus it needs to use
-rsnd_node_fixed_index() to know enabled pin index.
+This patch fixes an invalid TX PA DC bias level on QCA9561, which
+results in a very low output power and very low throughput as devices
+are further away from the AP (compared to other 2.4GHz APs).
 
-It returns error if strange pin was selected,
-but some codes didn't check it.
+This patch was suggested by Felix Fietkau, who noted[1]:
+"The value written to that register is wrong, because while the mask
+definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
+shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
+wrong for 9561."
 
-This patch 1) indicates error message, 2) check return
-value.
+In real life testing, without this patch the 2.4GHz throughput on
+Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
+practical maximum with the patch applied.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/87pmlbgn5t.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
+
+Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+Acked-by: Felix Fietkau <nbd@nbd.name>
+Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sh/rcar/core.c | 15 ++++++++++-----
- sound/soc/sh/rcar/dma.c  |  9 ++++++++-
- sound/soc/sh/rcar/rsnd.h |  2 +-
- sound/soc/sh/rcar/src.c  |  7 ++++++-
- sound/soc/sh/rcar/ssi.c  | 14 ++++++++++++--
- sound/soc/sh/rcar/ssiu.c |  7 ++++++-
- 6 files changed, 43 insertions(+), 11 deletions(-)
+ drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sh/rcar/core.c b/sound/soc/sh/rcar/core.c
-index 6a8fe0da7670..af8ef2a27d34 100644
---- a/sound/soc/sh/rcar/core.c
-+++ b/sound/soc/sh/rcar/core.c
-@@ -1159,6 +1159,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 		struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *np;
- 	int i;
+diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+index a171dbb29fbb..ad949eb02f3d 100644
+--- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
++++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
+@@ -720,7 +720,7 @@
+ #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
+ 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
+ #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
+-#define AR_CH0_TOP2_XPABIASLVL_S	12
++#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
  
-@@ -1169,7 +1170,11 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 	for_each_child_of_node(node, np) {
- 		struct rsnd_mod *mod;
- 
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
-+		if (i < 0) {
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		mod = mod_get(priv, i);
- 
-@@ -1183,7 +1188,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 	of_node_put(node);
- }
- 
--int rsnd_node_fixed_index(struct device_node *node, char *name, int idx)
-+int rsnd_node_fixed_index(struct device *dev, struct device_node *node, char *name, int idx)
- {
- 	char node_name[16];
- 
-@@ -1210,6 +1215,8 @@ int rsnd_node_fixed_index(struct device_node *node, char *name, int idx)
- 			return idx;
- 	}
- 
-+	dev_err(dev, "strange node numbering (%s)",
-+		of_node_full_name(node));
- 	return -EINVAL;
- }
- 
-@@ -1221,10 +1228,8 @@ int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name
- 
- 	i = 0;
- 	for_each_child_of_node(node, np) {
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
- 		if (i < 0) {
--			dev_err(dev, "strange node numbering (%s)",
--				of_node_full_name(node));
- 			of_node_put(np);
- 			return 0;
- 		}
-diff --git a/sound/soc/sh/rcar/dma.c b/sound/soc/sh/rcar/dma.c
-index 03e0d4eca781..463ab237d7bd 100644
---- a/sound/soc/sh/rcar/dma.c
-+++ b/sound/soc/sh/rcar/dma.c
-@@ -240,12 +240,19 @@ static int rsnd_dmaen_start(struct rsnd_mod *mod,
- struct dma_chan *rsnd_dma_request_channel(struct device_node *of_node, char *name,
- 					  struct rsnd_mod *mod, char *x)
- {
-+	struct rsnd_priv *priv = rsnd_mod_to_priv(mod);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct dma_chan *chan = NULL;
- 	struct device_node *np;
- 	int i = 0;
- 
- 	for_each_child_of_node(of_node, np) {
--		i = rsnd_node_fixed_index(np, name, i);
-+		i = rsnd_node_fixed_index(dev, np, name, i);
-+		if (i < 0) {
-+			chan = NULL;
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		if (i == rsnd_mod_id_raw(mod) && (!chan))
- 			chan = of_dma_request_slave_channel(np, x);
-diff --git a/sound/soc/sh/rcar/rsnd.h b/sound/soc/sh/rcar/rsnd.h
-index 6580bab0e229..d9cd190d7e19 100644
---- a/sound/soc/sh/rcar/rsnd.h
-+++ b/sound/soc/sh/rcar/rsnd.h
-@@ -460,7 +460,7 @@ void rsnd_parse_connect_common(struct rsnd_dai *rdai, char *name,
- 		struct device_node *playback,
- 		struct device_node *capture);
- int rsnd_node_count(struct rsnd_priv *priv, struct device_node *node, char *name);
--int rsnd_node_fixed_index(struct device_node *node, char *name, int idx);
-+int rsnd_node_fixed_index(struct device *dev, struct device_node *node, char *name, int idx);
- 
- int rsnd_channel_normalization(int chan);
- #define rsnd_runtime_channel_original(io) \
-diff --git a/sound/soc/sh/rcar/src.c b/sound/soc/sh/rcar/src.c
-index 42a100c6303d..0ea84ae57c6a 100644
---- a/sound/soc/sh/rcar/src.c
-+++ b/sound/soc/sh/rcar/src.c
-@@ -676,7 +676,12 @@ int rsnd_src_probe(struct rsnd_priv *priv)
- 		if (!of_device_is_available(np))
- 			goto skip;
- 
--		i = rsnd_node_fixed_index(np, SRC_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SRC_NAME, i);
-+		if (i < 0) {
-+			ret = -EINVAL;
-+			of_node_put(np);
-+			goto rsnd_src_probe_done;
-+		}
- 
- 		src = rsnd_src_get(priv, i);
- 
-diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
-index 87e606f688d3..43c5e27dc5c8 100644
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -1105,6 +1105,7 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
- 			    struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *node;
- 	struct device_node *np;
- 	int i;
-@@ -1117,7 +1118,11 @@ void rsnd_parse_connect_ssi(struct rsnd_dai *rdai,
- 	for_each_child_of_node(node, np) {
- 		struct rsnd_mod *mod;
- 
--		i = rsnd_node_fixed_index(np, SSI_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SSI_NAME, i);
-+		if (i < 0) {
-+			of_node_put(np);
-+			break;
-+		}
- 
- 		mod = rsnd_ssi_mod_get(priv, i);
- 
-@@ -1182,7 +1187,12 @@ int rsnd_ssi_probe(struct rsnd_priv *priv)
- 		if (!of_device_is_available(np))
- 			goto skip;
- 
--		i = rsnd_node_fixed_index(np, SSI_NAME, i);
-+		i = rsnd_node_fixed_index(dev, np, SSI_NAME, i);
-+		if (i < 0) {
-+			ret = -EINVAL;
-+			of_node_put(np);
-+			goto rsnd_ssi_probe_done;
-+		}
- 
- 		ssi = rsnd_ssi_get(priv, i);
- 
-diff --git a/sound/soc/sh/rcar/ssiu.c b/sound/soc/sh/rcar/ssiu.c
-index 138f95dd9f4a..4b8a63e336c7 100644
---- a/sound/soc/sh/rcar/ssiu.c
-+++ b/sound/soc/sh/rcar/ssiu.c
-@@ -462,6 +462,7 @@ void rsnd_parse_connect_ssiu(struct rsnd_dai *rdai,
- 			     struct device_node *capture)
- {
- 	struct rsnd_priv *priv = rsnd_rdai_to_priv(rdai);
-+	struct device *dev = rsnd_priv_to_dev(priv);
- 	struct device_node *node = rsnd_ssiu_of_node(priv);
- 	struct rsnd_dai_stream *io_p = &rdai->playback;
- 	struct rsnd_dai_stream *io_c = &rdai->capture;
-@@ -474,7 +475,11 @@ void rsnd_parse_connect_ssiu(struct rsnd_dai *rdai,
- 		for_each_child_of_node(node, np) {
- 			struct rsnd_mod *mod;
- 
--			i = rsnd_node_fixed_index(np, SSIU_NAME, i);
-+			i = rsnd_node_fixed_index(dev, np, SSIU_NAME, i);
-+			if (i < 0) {
-+				of_node_put(np);
-+				break;
-+			}
- 
- 			mod = rsnd_ssiu_mod_get(priv, i);
- 
+ #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
+ 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
 -- 
 2.35.1
 
