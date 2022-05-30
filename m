@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FAB7538081
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56798538070
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:23:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238326AbiE3Nsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:48:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39574 "EHLO
+        id S238219AbiE3Nsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:48:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238038AbiE3Nns (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:43:48 -0400
+        with ESMTP id S238065AbiE3NoD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:44:03 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2913C9B181;
-        Mon, 30 May 2022 06:32:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F102C9B1AA;
+        Mon, 30 May 2022 06:32:18 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65A7AB80DB4;
-        Mon, 30 May 2022 13:32:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9339C385B8;
-        Mon, 30 May 2022 13:32:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E243B80DAE;
+        Mon, 30 May 2022 13:32:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22893C385B8;
+        Mon, 30 May 2022 13:32:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917533;
-        bh=FQ0KiZojiiCMdSntTJQX+VlNmgl4iS0gWsxYxk6CTm8=;
+        s=k20201202; t=1653917536;
+        bh=x8Opey4gPhl/T9ZY27fZLs+uA+C7ZsiJ2XZJphbacJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xt/PdVDXrqYT8l7Ro0diMXWUmONJl5qGpIWS/KY4yGjwuExAwXx6M94Y9lGXag79i
-         SZW2Z642iRP+DJor9DAQ1gVjeOXtmloPWoY9mb5FVyljk3vRyuIzbEW/bc4xTNIFVL
-         8+/o2J7jqVSmfsEy4hK0wYcf6mH7I2x4sWfiqlo8CN/h6AjG3JRSjrXHBiPNb9sZKP
-         5SLvttdh5oA8vWAFnJ6n/FEuKhslj6hVteZclVB0fSrmqWsiW0o4H3eXH1Oy73FFTd
-         miuKeEcGQArU87xRKqTlsRmP9N2ut+klrKK5cCo8bI3B6WuTeiMquyHD4gtZvEuuRc
-         tyxV0i3cViMIQ==
+        b=Di8oQTmI4h+zmW81k4DoWCw/au7tQoF2QqgTPGrDOc3WQan/P/lXOofY5r+Ki2UfE
+         x9cOynTZc5qHO8MVlHei5Prg/854xpwApU7dxJ1O/swpyYrgkSLu/ycdWphh0gOs1/
+         /qvWstBhh/iO48oR9jB/souwNtS7AYb02KlOuLGxv/teNn/SJDKLp+M2H3oejRzPHa
+         GOdGYg/NdT6mRCsEUCCoG/HtxTXvU1pscQ4t4cXOwOZfvuxcf5UNYD0gkHRK5d4wlj
+         o5RqFXFrnfO0jCOSZKKwWJz6DCAXTg4EbcSerf+wmBQpUYYPr+x3AQEyfSG058xv+i
+         SZdz5ILQ+q4EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Travis <mike.travis@hpe.com>, Steve Wahl <steve.wahl@hpe.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dimitri Sivanich <dimitri.sivanich@hpe.com>,
+Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org
-Subject: [PATCH AUTOSEL 5.17 014/135] x86/platform/uv: Update TSC sync state for UV5
-Date:   Mon, 30 May 2022 09:29:32 -0400
-Message-Id: <20220530133133.1931716-14-sashal@kernel.org>
+        bp@alien8.de, x86@kernel.org
+Subject: [PATCH AUTOSEL 5.17 015/135] ACPICA: Avoid cache flush inside virtual machines
+Date:   Mon, 30 May 2022 09:29:33 -0400
+Message-Id: <20220530133133.1931716-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -59,46 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Travis <mike.travis@hpe.com>
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 
-[ Upstream commit bb3ab81bdbd53f88f26ffabc9fb15bd8466486ec ]
+[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
 
-The UV5 platform synchronizes the TSCs among all chassis, and will not
-proceed to OS boot without achieving synchronization.  Previous UV
-platforms provided a register indicating successful synchronization.
-This is no longer available on UV5.  On this platform TSC_ADJUST
-should not be reset by the kernel.
+While running inside virtual machine, the kernel can bypass cache
+flushing. Changing sleep state in a virtual machine doesn't affect the
+host system sleep state and cannot lead to data loss.
 
-Signed-off-by: Mike Travis <mike.travis@hpe.com>
-Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Dimitri Sivanich <dimitri.sivanich@hpe.com>
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lore.kernel.org/r/20220406195149.228164-3-steve.wahl@hpe.com
+Before entering sleep states, the ACPI code flushes caches to prevent
+data loss using the WBINVD instruction.  This mechanism is required on
+bare metal.
+
+But, any use WBINVD inside of a guest is worthless.  Changing sleep
+state in a virtual machine doesn't affect the host system sleep state
+and cannot lead to data loss, so most hypervisors simply ignore it.
+Despite this, the ACPI code calls WBINVD unconditionally anyway.
+It's useless, but also normally harmless.
+
+In TDX guests, though, WBINVD stops being harmless; it triggers a
+virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
+were left in place, TDX guests would need handling to recover from
+the exception.
+
+Avoid using WBINVD whenever running under a hypervisor.  This both
+removes the useless WBINVDs and saves TDX from implementing WBINVD
+handling.
+
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/x2apic_uv_x.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/acenv.h | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/apic/x2apic_uv_x.c b/arch/x86/kernel/apic/x2apic_uv_x.c
-index f5a48e66e4f5..a6e9c2794ef5 100644
---- a/arch/x86/kernel/apic/x2apic_uv_x.c
-+++ b/arch/x86/kernel/apic/x2apic_uv_x.c
-@@ -199,7 +199,13 @@ static void __init uv_tsc_check_sync(void)
- 	int mmr_shift;
- 	char *state;
+diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
+index 9aff97f0de7f..d937c55e717e 100644
+--- a/arch/x86/include/asm/acenv.h
++++ b/arch/x86/include/asm/acenv.h
+@@ -13,7 +13,19 @@
  
--	/* Different returns from different UV BIOS versions */
-+	/* UV5 guarantees synced TSCs; do not zero TSC_ADJUST */
-+	if (!is_uv(UV2|UV3|UV4)) {
-+		mark_tsc_async_resets("UV5+");
-+		return;
-+	}
-+
-+	/* UV2,3,4, UV BIOS TSC sync state available */
- 	mmr = uv_early_read_mmr(UVH_TSC_SYNC_MMR);
- 	mmr_shift =
- 		is_uv2_hub() ? UVH_TSC_SYNC_SHIFT_UV2K : UVH_TSC_SYNC_SHIFT;
+ /* Asm macros */
+ 
+-#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
++/*
++ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
++ * It is required to prevent data loss.
++ *
++ * While running inside virtual machine, the kernel can bypass cache flushing.
++ * Changing sleep state in a virtual machine doesn't affect the host system
++ * sleep state and cannot lead to data loss.
++ */
++#define ACPI_FLUSH_CPU_CACHE()					\
++do {								\
++	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
++		wbinvd();					\
++} while (0)
+ 
+ int __acpi_acquire_global_lock(unsigned int *lock);
+ int __acpi_release_global_lock(unsigned int *lock);
 -- 
 2.35.1
 
