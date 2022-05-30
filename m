@@ -2,66 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 762915386DA
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 19:38:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1715386E4
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 19:50:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240178AbiE3RiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 13:38:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46316 "EHLO
+        id S232989AbiE3Ru0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 13:50:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234205AbiE3RiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 13:38:20 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F4FC50B30
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 10:38:19 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id b135so11058970pfb.12
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 10:38:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1zJVpJXLubmFnDqR7DXy9IFSrkEwhviCpanKbRm/5mA=;
-        b=wDo/7S3whCo3Y8B1aRfIviBvXtzLaz+Y18XupqujNqcuU07S0Pjnbypu7ckGYwVHQK
-         Mlgz2gr72KbwUtPJvB0TyFfKbJAAF/XEeB88TTvwvRjZRiSlCmyYmxU0h/rdZY4rUzMb
-         w51MHpnLFebMY7Mbpkk1kUwGyBbXq0GS2iubdZLlhnOl/Q73eBBDkmAddOsGrFsWW6oI
-         qxNav2ozGeijrGD1zx1dIX7bg723Da91Ud0sU8UJ6BAA1fkRFHypE0OBiIKZZ386l0Rh
-         4MxYQh3MEf0qEJv0YDvnu+re03b5dMrxnplGJHAeyDP2kp1zfp3MMTQRjRf1KPMUQnFz
-         047g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1zJVpJXLubmFnDqR7DXy9IFSrkEwhviCpanKbRm/5mA=;
-        b=2fLc+rQnWWyrI4u1WRnWq9fNrYFKKBqjFBaX1+tLdcNnNrmUGp1HT+mvTtgQuu+VQS
-         jgU4iLJf65d4hNHouuvxhXDZ6UV6goVYkQYzN4vFoIcGmUNNI8O8WuT17UqU60NUxULR
-         JW0C2z25uAJXulkXvu9iTvavCS7EjZwfVDDVTJ/roZt367lzgP8L5LqsRwkEjcAusodR
-         FHPW8MN2za8NmOTcDVkSI2EvycTYU+kKXZWNrKsJwpCIbeFxI0yGnlR9FwhISSPRqv1H
-         L0EkTyvOayVPoHxm+494DZbdJ0TteaXiThBFS+XdWZ5XMHzTiMdtjPQby9HAR6C1h9Rv
-         gn3Q==
-X-Gm-Message-State: AOAM532nMPZtRGA7yTxB2Iss3LG0Uuck0HjclEqxDO+pTEllQ8AiyHLp
-        uvoIq36Lx41WRkOxtkXymgQuC+WNox8eTWjrjlY=
-X-Google-Smtp-Source: ABdhPJxiwYgOxiraJczImJ6vRfeRF2nFHXdr+NUU4wnRGb0Eb3Grf8EShviN3ALBRKOqJ0v0JhhUlg==
-X-Received: by 2002:a65:6cc3:0:b0:3f6:26e9:5c1 with SMTP id g3-20020a656cc3000000b003f626e905c1mr48415011pgw.28.1653932298574;
-        Mon, 30 May 2022 10:38:18 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v187-20020a6261c4000000b0051853e6617fsm9092440pfb.89.2022.05.30.10.38.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 May 2022 10:38:18 -0700 (PDT)
-Message-ID: <6295010a.1c69fb81.64623.4252@mx.google.com>
-Date:   Mon, 30 May 2022 10:38:18 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231549AbiE3RuZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 13:50:25 -0400
+Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F009532FB;
+        Mon, 30 May 2022 10:50:24 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 94CB55C0076;
+        Mon, 30 May 2022 13:50:23 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Mon, 30 May 2022 13:50:23 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        invisiblethingslab.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm1; t=1653933023; x=
+        1654019423; bh=HYNcAzcvwA3jPOCMpvHYfWi0Skxi5GTfqaUV0qrK9gg=; b=S
+        pth8jQdSuwO44sgJMv3Y/gIHQTpHZs7u2XzstVORSqkekW5iLTQthWKeXk4kdDGs
+        mzhaH4W/e6bDoH9yiD3hQiUzRhquJZXpWXJYU9jdwWJgUykV7GJg/rbfB1pTKVC0
+        4pXA4P50DLAHQX35VMnzfZn+4RNmTZ7fXz6EqM6AMl8e+EJ+e/Pr3JbPfivGwVc9
+        AesmDKjQw+gSd9z4g60SEyyoSD6eeoS+UWFTwF3rnsnlLJMt7Wpti04xq9X6eRCD
+        XH2XuDRuPeUtBMT0LhiX1zPNVPwMl6Bbvw2mNo9KAHB/610qmgwLenAAocAMmy84
+        UqFyzSzZaViuKAG/FNQxw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1653933023; x=1654019423; bh=HYNcAzcvwA3jPOCMpvHYfWi0Skxi
+        5GTfqaUV0qrK9gg=; b=motbhBUaedsrcp8VBHcEXOM7zJtYgWkWTCLIGce60Pex
+        NgePkc1lkZcnd8qB6TuXgfKQ5CabyBuilZzHTNKlIq1QLOhw7ORU3dufS8wBOlhr
+        BI37skxdCWZ9uBQ/gRoJ7w+TbWm40CZur8ERsdUwVY1tpTpDJbKpbuan7y2f9FpL
+        ireLzXAOVOsQf2WTIRxEhimz0lce8mUy31JZsi70fjXJ+oYmkXKR2Xontut+FvZq
+        tSz+SQKT6TVHhAdRKAfkIq22eqHXJ8wS7MNip4IehFsMdCeW+yHv4CZ+zDUUEdB3
+        +vF4YhbvgMOIRhaicG61Myv3HXcMgnl8wyaorZ3eCg==
+X-ME-Sender: <xms:3gOVYjlzBz9YZzJlJESVixC8NY-hyK3T07xFExjhQImxsTTMzhEfhw>
+    <xme:3gOVYm1hM3aNtnOmeTx3Ci_YsQBaJxlFYJcqQ68wfslKIHIKv418-N0-uxud69jc7
+    L5hOPWxrSDuHeA>
+X-ME-Received: <xmr:3gOVYprBRMtMGMtQMgnDi_pasorwka3jsQij_cU-jQPdI6gs1IYzis_PfyY1>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrkeeigdduudefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvfevuffkfhggtggujgesghdtreertddtjeenucfhrhhomhepffgvmhhi
+    ucforghrihgvucfqsggvnhhouhhruceouggvmhhisehinhhvihhsihgslhgvthhhihhngh
+    hslhgrsgdrtghomheqnecuggftrfgrthhtvghrnhepuedthefhtddvffefjeejvdehvdej
+    ieehffehkeekheegleeuleevleduteehteetnecuffhomhgrihhnpehgihhthhhusgdrtg
+    homhenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegu
+    vghmihesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhm
+X-ME-Proxy: <xmx:3gOVYrk2Ep01XP_9ABWxv3Ys7wNAAkhn6JbFi1O6Bvtz26sjqu4UCw>
+    <xmx:3gOVYh1Hu1pt2OH1pYuVL53UyLLlsc-SZxoxz2uzgzXjy6HdMfFt8w>
+    <xmx:3gOVYqvxQxktpotj1P-djgSAvb5yVaVSw4C99Dh_SQsiDTPQlF1xQQ>
+    <xmx:3wOVYp86AkeK_yh4n0H2p9_8v2Xh4hwLML3ofnlECYn-9y3pY2BwcA>
+Feedback-ID: iac594737:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 30 May 2022 13:50:22 -0400 (EDT)
+Date:   Mon, 30 May 2022 13:50:18 -0400
+From:   Demi Marie Obenour <demi@invisiblethingslab.com>
+To:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Jennifer Herbert <jennifer.herbert@citrix.com>,
+        Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= 
+        <marmarek@invisiblethingslab.com>
+Cc:     xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] xen/gntdev: Avoid blocking in unmap_grant_pages()
+Message-ID: <YpUD3PnPoGj84jMq@itl-email>
+References: <20220525184153.6059-1-demi@invisiblethingslab.com>
+ <00c0b10c-a35d-6729-5b4f-424febd9d5a3@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.10.119
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.10.y baseline: 114 runs, 9 regressions (v5.10.119)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="+4H1oyCNBJ2i7PTh"
+Content-Disposition: inline
+In-Reply-To: <00c0b10c-a35d-6729-5b4f-424febd9d5a3@suse.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_NONE,
         T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,334 +91,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 114 runs, 9 regressions (v5.10.119)
 
-Regressions Summary
--------------------
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | tegra_defcon=
-fig | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.119/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.119
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      56c31ac1d8aadb706ea977c097c714762b3fcfdd =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-jetson-tk1                 | arm   | lab-baylibre | gcc-10   | tegra_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d9bcb3ec4d2521a39bd3
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d9bcb3ec4d2521a39=
-bd4
-        new failure (last pass: v5.10.118) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294cf746fc5a27aa8a39bf6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294cf746fc5a27aa8a39=
-bf7
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d1658d3ddb4fb5a39bfa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d1658d3ddb4fb5a39=
-bfb
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294cfdc777247b2caa39beb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294cfdc777247b2caa39=
-bec
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d1cae207e5c9d3a39bef
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d1cae207e5c9d3a39=
-bf0
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294cf756fc5a27aa8a39bf9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294cf756fc5a27aa8a39=
-bfa
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d1a16541bdbce3a39bda
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d1a16541bdbce3a39=
-bdb
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294cfb09ce51b3f03a39bdd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294cfb09ce51b3f03a39=
-bde
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =
-
-
-
-platform                   | arch  | lab          | compiler | defconfig   =
-    | regressions
----------------------------+-------+--------------+----------+-------------=
-----+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie  | gcc-10   | defconfig   =
-    | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d1b5faaa091ba5a39bf8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.119/=
-arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d1b5faaa091ba5a39=
-bf9
-        failing since 20 days (last pass: v5.10.112, first fail: v5.10.114) =
-
- =20
+--+4H1oyCNBJ2i7PTh
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Date: Mon, 30 May 2022 13:50:18 -0400
+From: Demi Marie Obenour <demi@invisiblethingslab.com>
+To: Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Jennifer Herbert <jennifer.herbert@citrix.com>,
+	Marek =?utf-8?Q?Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>
+Cc: xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH v2] xen/gntdev: Avoid blocking in unmap_grant_pages()
+
+On Mon, May 30, 2022 at 08:41:20AM +0200, Juergen Gross wrote:
+> On 25.05.22 20:41, Demi Marie Obenour wrote:
+> > unmap_grant_pages() currently waits for the pages to no longer be used.
+> > In https://github.com/QubesOS/qubes-issues/issues/7481, this lead to a
+> > deadlock against i915: i915 was waiting for gntdev's MMU notifier to
+> > finish, while gntdev was waiting for i915 to free its pages.  I also
+> > believe this is responsible for various deadlocks I have experienced in
+> > the past.
+> >=20
+> > Avoid these problems by making unmap_grant_pages async.  This requires
+> > making it return void, as any errors will not be available when the
+> > function returns.  Fortunately, the only use of the return value is a
+> > WARN_ON(), which can be replaced by a WARN_ON when the error is
+> > detected.  Additionally, a failed call will not prevent further calls
+> > from being made, but this is harmless.
+> >=20
+> > Because unmap_grant_pages is now async, the grant handle will be sent to
+> > INVALID_GRANT_HANDLE too late to prevent multiple unmaps of the same
+> > handle.  Instead, a separate bool array is allocated for this purpose.
+> > This wastes memory, but stuffing this information in padding bytes is
+> > too fragile.  Furthermore, it is necessary to grab a reference to the
+> > map before making the asynchronous call, and release the reference when
+> > the call returns.
+>=20
+> I think there is even more syncing needed:
+>=20
+> - In the error path of gntdev_mmap() unmap_grant_pages() is being called =
+and
+>   it is assumed, map is available afterwards again. This should be rather=
+ easy
+>   to avoid by adding a counter of active mappings to struct gntdev_grant_=
+map
+>   (number of pages not being unmapped yet). In case this counter is not z=
+ero
+>   gntdev_mmap() should bail out early.
+
+Is it possible to just unmap the pages directly here?  I don=E2=80=99t think
+there can be any other users of these pages yet.  Userspace could race
+against the unmap and cause a page fault, but that should just cause
+userspace to get SIGSEGV or SIGBUS.  In any case this code can use the
+sync version; if it gets blocked that=E2=80=99s userspace=E2=80=99s problem.
+
+> - gntdev_put_map() is calling unmap_grant_pages() in case the refcount has
+>   dropped to zero. This call can set the refcount to 1 again, so there is
+>   another delay needed before freeing map. I think unmap_grant_pages() sh=
+ould
+>   return in case the count of mapped pages is zero (see above), thus avoi=
+ding
+>   to increment the refcount of map if nothing is to be done. This would e=
+nable
+>   gntdev_put_map() to just return after the call of unmap_grant_pages() i=
+n case
+>   the refcount has been incremented again.
+
+I will change this in v3, but I do wonder if gntdev is using the wrong
+MMU notifier callback.  It seems that the appropriate callback is
+actually release(): if I understand correctly, release() is called
+precisely when the refcount on the physical page is about to drop to 0,
+and that is what we want.
+--=20
+Sincerely,
+Demi Marie Obenour (she/her/hers)
+Invisible Things Lab
+
+--+4H1oyCNBJ2i7PTh
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEdodNnxM2uiJZBxxxsoi1X/+cIsEFAmKVA9wACgkQsoi1X/+c
+IsF9ZBAAikctLY/AMtbOiBJtLzm10XD7eKKXsULHrVKCvoqXCVKzLGw58uboGyGB
+hrLD5nM0b5fkiOdvsHuau4hm72mJIX7m/WBrtpUStMeipOUl5dZWNuz5NENNGnsx
+y5zafYGmc3VSx+bAv7+K8xb8GNJCX9HkNXT4frPrnYPSC4b/SzFpdxQyCQhreyyx
+4w8FYVcSC0piMYJ5qY1JfZUIukFLGoCP0ckmn/lsjeYkTCG1FdxMYUdgkD7bLowr
+a34wI8z5a38UKADYZMdCdKuDR7zVvdj3hMrmuRsQygRhnYkzTCpWT8/3tkM8+cxP
+VnriSTIWNI8mnfbub1po8OmQJ3A1oIEYItiONFxhHXUmRxNwPkNwWpT3KdX6vk63
+xmA1rUvuBfmVFlBQ3Oa2WJWUhknSxfcHA+g5/MDqKzoA5gv7h//O1lIAEwmgLXkb
+EHXPzI5KJmA/MyuMaILpCmJP6dI2OoWHv9fn+b+piG0Jlc+VUOBAB/yyXK3hKjLp
+C0sIJ4LIdrCTDnCr9enl69IuVH+yoIicflGuXmB7lWn5VO8rTgRz/RVpzdWNvVdM
+YJp5gvWl6JM/fwFcPBGVZmQArGubWKEaQ3LO1YOadIcOBuogOpCipsOBaYUPQ/Yc
+9yI54267qpe32hXoC5kiVVUSassMgvi70p142cl7csLbhNRbJ8A=
+=PRoO
+-----END PGP SIGNATURE-----
+
+--+4H1oyCNBJ2i7PTh--
