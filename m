@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 094225380C3
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B8853801F
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238089AbiE3NsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:48:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42650 "EHLO
+        id S238195AbiE3Ns0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:48:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238937AbiE3NqI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:46:08 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BE608FD6A;
-        Mon, 30 May 2022 06:33:51 -0700 (PDT)
+        with ESMTP id S239013AbiE3NqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:46:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0375A308B;
+        Mon, 30 May 2022 06:34:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 488A460F27;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 423DA60F49;
+        Mon, 30 May 2022 13:33:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42C20C341C0;
         Mon, 30 May 2022 13:33:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 291F1C36AE7;
-        Mon, 30 May 2022 13:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917627;
-        bh=Zcm9ySkbT/G7Q4BJQf5Zw5SrfV4XpqujHIMn+NmqG/M=;
+        s=k20201202; t=1653917629;
+        bh=djSQlG+ixpoetmhf74mZRZXaD88al5b7zrERb5ILAOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sttezF5sPcUgi0TczNTyQov56LLcdkmdPWKmd9acBoMLMKBQgTZFNhD4Riq2mmf9g
-         RX+4ZNAUn6ARa+3L2xBDqbH0LYx2qmeJyyLGgFtpS6fYVNEeuQ3EU8W5q6FrnwpIX4
-         m8AAV8Dg6ImJT0cSD/NSfRjYpckgN4Xhf4wqzxlKo6q4OEOV0Fm0Wt8vv/AQkMZI2d
-         yG1fXSYAY/W5I/hTSbMFCI1E8hPF++KQhA1FE50rb1bwomNiQUXqDrjCBeOvCIW4SC
-         +1RobAWcHVuU3xVo6GWGFSNF6FpH4WlNgIp4NIVqqmZuv7sKJeBKvSbTV8jMJtiIoH
-         U8xbcovGoOOxA==
+        b=mYesmVkIwTf72DhluKByVBB893x9uuUfRD9vspv13BG/S8h3dftY39GoJU0DCbOXf
+         6d8zPvR4Ey8X8JJl6zT3BQoNrfwk1IR5GDvNILFvkiNW1OkuFRVFLVqFHnynLvzo8B
+         zHQYKnmh+SGOlAB8NpBE6ehsUjGHeBOvauc1tjmj7sG7+gfqD02UQBja7dyz6kwYdc
+         yedAfKuxoLTgFpeLycs5ypsiSCbi4PdXvs6TDD7Mt/iuh4bc6THwuB24/TbvIlWjXK
+         t+ZiQrElFKr1e4oxYFiAGO4pi4bva0CiZgsff5YO1+Ux1dirO+/9umbis97N1kLi0p
+         7upo/jnU334IQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Maxime Ripard <maxime@cerno.tech>,
-        Sasha Levin <sashal@kernel.org>, mripard@kernel.org,
-        wens@csie.org, airlied@linux.ie, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.17 047/135] drm/sun4i: Add support for D1 TCONs
-Date:   Mon, 30 May 2022 09:30:05 -0400
-Message-Id: <20220530133133.1931716-47-sashal@kernel.org>
+Cc:     Lv Ruyi <lv.ruyi@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, kashyap.desai@broadcom.com,
+        sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+        jejb@linux.ibm.com, megaraidlinux.pdl@broadcom.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 048/135] scsi: megaraid: Fix error check return value of register_chrdev()
+Date:   Mon, 30 May 2022 09:30:06 -0400
+Message-Id: <20220530133133.1931716-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -60,55 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Lv Ruyi <lv.ruyi@zte.com.cn>
 
-[ Upstream commit b9b52d2f4aafa2bd637ace0f24615bdad8e49f01 ]
+[ Upstream commit c5acd61dbb32b6bda0f3a354108f2b8dcb788985 ]
 
-D1 has a TCON TOP, so its quirks are similar to those for the R40 TCONs.
-While there are some register changes, the part of the TCON TV supported
-by the driver matches the R40 quirks, so that quirks structure can be
-reused. D1 has the first supported TCON LCD with a TCON TOP, so the TCON
-LCD needs a new quirks structure.
+If major equals 0, register_chrdev() returns an error code when it fails.
+This function dynamically allocates a major and returns its number on
+success, so we should use "< 0" to check it instead of "!".
 
-D1's TCON LCD hardware supports LVDS; in fact it provides dual-link LVDS
-from a single TCON. However, it comes with a brand new LVDS PHY. Since
-this PHY has not been tested, leave out LVDS driver support for now.
-
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220424162633.12369-14-samuel@sholland.org
+Link: https://lore.kernel.org/r/20220418105755.2558828-1-lv.ruyi@zte.com.cn
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun4i_tcon.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/scsi/megaraid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun4i_tcon.c b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-index 88db2d2a9336..2ee158aaeb9e 100644
---- a/drivers/gpu/drm/sun4i/sun4i_tcon.c
-+++ b/drivers/gpu/drm/sun4i/sun4i_tcon.c
-@@ -1542,6 +1542,12 @@ static const struct sun4i_tcon_quirks sun9i_a80_tcon_tv_quirks = {
- 	.needs_edp_reset = true,
- };
- 
-+static const struct sun4i_tcon_quirks sun20i_d1_lcd_quirks = {
-+	.has_channel_0		= true,
-+	.dclk_min_div		= 1,
-+	.set_mux		= sun8i_r40_tcon_tv_set_mux,
-+};
-+
- /* sun4i_drv uses this list to check if a device node is a TCON */
- const struct of_device_id sun4i_tcon_of_table[] = {
- 	{ .compatible = "allwinner,sun4i-a10-tcon", .data = &sun4i_a10_quirks },
-@@ -1559,6 +1565,8 @@ const struct of_device_id sun4i_tcon_of_table[] = {
- 	{ .compatible = "allwinner,sun8i-v3s-tcon", .data = &sun8i_v3s_quirks },
- 	{ .compatible = "allwinner,sun9i-a80-tcon-lcd", .data = &sun9i_a80_tcon_lcd_quirks },
- 	{ .compatible = "allwinner,sun9i-a80-tcon-tv", .data = &sun9i_a80_tcon_tv_quirks },
-+	{ .compatible = "allwinner,sun20i-d1-tcon-lcd", .data = &sun20i_d1_lcd_quirks },
-+	{ .compatible = "allwinner,sun20i-d1-tcon-tv", .data = &sun8i_r40_tv_quirks },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, sun4i_tcon_of_table);
+diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
+index bf987f3a7f3f..840175f34d1a 100644
+--- a/drivers/scsi/megaraid.c
++++ b/drivers/scsi/megaraid.c
+@@ -4608,7 +4608,7 @@ static int __init megaraid_init(void)
+ 	 * major number allocation.
+ 	 */
+ 	major = register_chrdev(0, "megadev_legacy", &megadev_fops);
+-	if (!major) {
++	if (major < 0) {
+ 		printk(KERN_WARNING
+ 				"megaraid: failed to register char device\n");
+ 	}
 -- 
 2.35.1
 
