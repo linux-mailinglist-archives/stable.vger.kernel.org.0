@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5AA253835A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01DF538368
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:40:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239921AbiE3Ocz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:32:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44692 "EHLO
+        id S240199AbiE3OdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:33:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242542AbiE3ObR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F82212C95A;
-        Mon, 30 May 2022 06:53:08 -0700 (PDT)
+        with ESMTP id S242538AbiE3ObQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3632212C94F;
+        Mon, 30 May 2022 06:53:07 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F15A160FA9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 860EB6102C;
+        Mon, 30 May 2022 13:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3FEC3411F;
         Mon, 30 May 2022 13:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A2BC3411A;
-        Mon, 30 May 2022 13:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918764;
-        bh=7FQ9dFAbfLF1xAX2WYU0zqhOLcJvn+BST6o5QtsQMfE=;
+        s=k20201202; t=1653918766;
+        bh=08NwnF+qXnGXX79nWA1cKEM+XSZ7RbJgnHlUqUkWFRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T9F7a+XhdWDzboEabe+tLstnrzPeyXJG/SugNYUzI9K363vBBjdzCLP088cFyRJt/
-         sbNevqPiOO4saxrZ9KDSC9xjJ+t8eq6K/KaX+VElEv9bipDO84qr3L66sKTu82t8D5
-         rWxCiQ0wRrqqPzB9NNhG9fNyJkX4OumyBcw6HY/3ackiwanCe5u69wQ1oVgZmFg307
-         Efo7hgmXaZ9dyPjKYAd4HhJS1AY17ytX5SF2OnB9J81bSd4Xm3Ap6Y0ubG0qsH7OiH
-         JLXFlCuUsBzIETX/PIbAt/JyMPP4MDhGZGou0mrxGjuRiDifdH7PLmWInw4JnXRC9B
-         qBdkNT6GQWEUw==
+        b=YuyVmikX7JI7X1wI+oM2oGgbsi7AImuFjVE4YKjYMlBn/nv30sFyf/MNnmWvLRYeG
+         NeAmLaMaqcQNH0XKufLu1cot+WZgLV8PP5DOk+orA9n9V9CISpHsQcoot+fyt28iJc
+         2TdOfj8waCVPv/oGa7qaorWSaGv+yWG4RqQ0AsTSMETShbfStKgEpbWCU1tJs4KHPu
+         aYemsgIkTRbW7Pw79/pdBbps0U5Yu53oUAfU4LPJns/DfKQ2nyOCdsc224UBIZGnIj
+         H0EoGTD39kHZoN8EOjEDhvjM+ii4N+ZJ64BYT1jPK+zOvWCIHGJy8IKvAMde4ZQgKy
+         gXdWj2iVlou/A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Evan Quan <evan.quan@amd.com>, kernel test robot <lkp@intel.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.9 12/24] drm/amd/pm: fix the compile warning
-Date:   Mon, 30 May 2022 09:51:59 -0400
-Message-Id: <20220530135211.1937674-12-sashal@kernel.org>
+Cc:     jianghaoran <jianghaoran@kylinos.cn>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        yoshfuji@linux-ipv6.org, dsahern@kernel.org, edumazet@google.com,
+        pabeni@redhat.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/24] ipv6: Don't send rs packets to the interface of ARPHRD_TUNNEL
+Date:   Mon, 30 May 2022 09:52:00 -0400
+Message-Id: <20220530135211.1937674-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135211.1937674-1-sashal@kernel.org>
 References: <20220530135211.1937674-1-sashal@kernel.org>
@@ -58,49 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Evan Quan <evan.quan@amd.com>
+From: jianghaoran <jianghaoran@kylinos.cn>
 
-[ Upstream commit 555238d92ac32dbad2d77ad2bafc48d17391990c ]
+[ Upstream commit b52e1cce31ca721e937d517411179f9196ee6135 ]
 
-Fix the compile warning below:
-drivers/gpu/drm/amd/amdgpu/../pm/legacy-dpm/kv_dpm.c:1641
-kv_get_acp_boot_level() warn: always true condition '(table->entries[i]->clk >= 0) => (0-u32max >= 0)'
+ARPHRD_TUNNEL interface can't process rs packets
+and will generate TX errors
 
-Reported-by: kernel test robot <lkp@intel.com>
-CC: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Evan Quan <evan.quan@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ex:
+ip tunnel add ethn mode ipip local 192.168.1.1 remote 192.168.1.2
+ifconfig ethn x.x.x.x
+
+ethn: flags=209<UP,POINTOPOINT,RUNNING,NOARP>  mtu 1480
+	inet x.x.x.x  netmask 255.255.255.255  destination x.x.x.x
+	inet6 fe80::5efe:ac1e:3cdb  prefixlen 64  scopeid 0x20<link>
+	tunnel   txqueuelen 1000  (IPIP Tunnel)
+	RX packets 0  bytes 0 (0.0 B)
+	RX errors 0  dropped 0  overruns 0  frame 0
+	TX packets 0  bytes 0 (0.0 B)
+	TX errors 3  dropped 0 overruns 0  carrier 0  collisions 0
+
+Signed-off-by: jianghaoran <jianghaoran@kylinos.cn>
+Link: https://lore.kernel.org/r/20220429053802.246681-1-jianghaoran@kylinos.cn
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/kv_dpm.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
+ net/ipv6/addrconf.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/kv_dpm.c b/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-index f61c489e5f6d..81f1591a9be9 100644
---- a/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/kv_dpm.c
-@@ -1617,19 +1617,7 @@ static int kv_update_samu_dpm(struct amdgpu_device *adev, bool gate)
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index 30ca73c78125..02f62253a835 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3993,7 +3993,8 @@ static void addrconf_dad_completed(struct inet6_ifaddr *ifp, bool bump_id)
+ 	send_rs = send_mld &&
+ 		  ipv6_accept_ra(ifp->idev) &&
+ 		  ifp->idev->cnf.rtr_solicits != 0 &&
+-		  (dev->flags&IFF_LOOPBACK) == 0;
++		  (dev->flags & IFF_LOOPBACK) == 0 &&
++		  (dev->type != ARPHRD_TUNNEL);
+ 	read_unlock_bh(&ifp->idev->lock);
  
- static u8 kv_get_acp_boot_level(struct amdgpu_device *adev)
- {
--	u8 i;
--	struct amdgpu_clock_voltage_dependency_table *table =
--		&adev->pm.dpm.dyn_state.acp_clock_voltage_dependency_table;
--
--	for (i = 0; i < table->count; i++) {
--		if (table->entries[i].clk >= 0) /* XXX */
--			break;
--	}
--
--	if (i >= table->count)
--		i = table->count - 1;
--
--	return i;
-+	return 0;
- }
- 
- static void kv_update_acp_boot_level(struct amdgpu_device *adev)
+ 	/* While dad is in progress mld report's source address is in6_addrany.
 -- 
 2.35.1
 
