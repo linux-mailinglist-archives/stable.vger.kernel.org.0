@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EFA15382F9
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58DE55382D0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240353AbiE3O3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:29:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42384 "EHLO
+        id S238274AbiE3O2c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:28:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241456AbiE3O0M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:26:12 -0400
+        with ESMTP id S241624AbiE3O0U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:26:20 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA1363FF;
-        Mon, 30 May 2022 06:51:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0BA3AF1E5;
+        Mon, 30 May 2022 06:51:12 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BA3B60FD4;
-        Mon, 30 May 2022 13:51:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDE62C3411F;
-        Mon, 30 May 2022 13:51:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1B7B60F22;
+        Mon, 30 May 2022 13:51:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136CAC385B8;
+        Mon, 30 May 2022 13:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918669;
-        bh=oPb496vJ6O8l9Viexv5dOp3zu04IOVFFRg10fGCG5Ig=;
+        s=k20201202; t=1653918672;
+        bh=L4wMv7eVCEcb+Dh8ypbivhOGsg3GXEYdwwoPqDs6iew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C54/yxhC9cTgwWM8AzQIssmeNp0XUtqleHWlzKl5FHo465Ou4LKDrGJnSXMtO2Rnp
-         qNqJnWw21BhrwRSjyJrfPUBpKXHuz24tgppdS5YOxY4kkR4VBjcQccEk7x/Wl+mI8G
-         CPsD9UBDs2VGRV67AVerfxaQEw3w5ofbWnYyngT3uIiVToAhLAeQIZb9NyPmbTzZwV
-         szr/wae4pcTq5EbR6UUsUIYtbMOa0919jzZub6IaI3c96ke0T+RxLBOHFsC8/OVYd1
-         gzvwMTx8jaNPXUYMpEm/QY12pIiRUK7oe9/FwjB5XtLnk5Avljm2kmD+qbCU6Z9lAo
-         /VAfp+qFZVSQw==
+        b=M0sfjiro7hWkYkV/KY1qKm/by3EchkrAwTdEU7iyJ1LPi/ZRqW1onH/1Aru7jX5jc
+         cVq5rDqoS7JGUEaUz7oYivSJK9H0kH4sIVkA2y+xgjzP/M2R5Sc0PQgcvJOzUCr1tl
+         W9bbHf4PqNJw35FpiB0t9vd+lLl48Ijxbmz/Den0U4S7R9JIJhNux+c0FEN1dxZlV/
+         YGHdeJHKI9/mC5NYGuiO9dhkIr/oTNKGhIqxn7koOxADpnOyCwGo+cLDrRQn6IGZ+D
+         v8LoXsrqqsP94Xx9hKF3CCG0AFZLE5lR09YmRa5uw8b3T1zx5yQiFXdtKIhw7lkBwr
+         9+BcuygNY/ctQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haowen Bai <baihaowen@meizu.com>, Kalle Valo <kvalo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, stas.yakovlev@gmail.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 05/29] ipw2x00: Fix potential NULL dereference in libipw_xmit()
-Date:   Mon, 30 May 2022 09:50:32 -0400
-Message-Id: <20220530135057.1937286-5-sashal@kernel.org>
+Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        bp@alien8.de, x86@kernel.org
+Subject: [PATCH AUTOSEL 4.14 06/29] ACPICA: Avoid cache flush inside virtual machines
+Date:   Mon, 30 May 2022 09:50:33 -0400
+Message-Id: <20220530135057.1937286-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135057.1937286-1-sashal@kernel.org>
 References: <20220530135057.1937286-1-sashal@kernel.org>
@@ -58,34 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haowen Bai <baihaowen@meizu.com>
+From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 
-[ Upstream commit e8366bbabe1d207cf7c5b11ae50e223ae6fc278b ]
+[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
 
-crypt and crypt->ops could be null, so we need to checking null
-before dereference
+While running inside virtual machine, the kernel can bypass cache
+flushing. Changing sleep state in a virtual machine doesn't affect the
+host system sleep state and cannot lead to data loss.
 
-Signed-off-by: Haowen Bai <baihaowen@meizu.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/1648797055-25730-1-git-send-email-baihaowen@meizu.com
+Before entering sleep states, the ACPI code flushes caches to prevent
+data loss using the WBINVD instruction.  This mechanism is required on
+bare metal.
+
+But, any use WBINVD inside of a guest is worthless.  Changing sleep
+state in a virtual machine doesn't affect the host system sleep state
+and cannot lead to data loss, so most hypervisors simply ignore it.
+Despite this, the ACPI code calls WBINVD unconditionally anyway.
+It's useless, but also normally harmless.
+
+In TDX guests, though, WBINVD stops being harmless; it triggers a
+virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
+were left in place, TDX guests would need handling to recover from
+the exception.
+
+Avoid using WBINVD whenever running under a hypervisor.  This both
+removes the useless WBINVDs and saves TDX from implementing WBINVD
+handling.
+
+Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/libipw_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/acenv.h | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-index 84205aa508df..daa4f9eb08ff 100644
---- a/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-+++ b/drivers/net/wireless/intel/ipw2x00/libipw_tx.c
-@@ -397,7 +397,7 @@ netdev_tx_t libipw_xmit(struct sk_buff *skb, struct net_device *dev)
+diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
+index 1b010a859b8b..6de59a4f723c 100644
+--- a/arch/x86/include/asm/acenv.h
++++ b/arch/x86/include/asm/acenv.h
+@@ -16,7 +16,19 @@
  
- 		/* Each fragment may need to have room for encryption
- 		 * pre/postfix */
--		if (host_encrypt)
-+		if (host_encrypt && crypt && crypt->ops)
- 			bytes_per_frag -= crypt->ops->extra_mpdu_prefix_len +
- 			    crypt->ops->extra_mpdu_postfix_len;
+ /* Asm macros */
  
+-#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
++/*
++ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
++ * It is required to prevent data loss.
++ *
++ * While running inside virtual machine, the kernel can bypass cache flushing.
++ * Changing sleep state in a virtual machine doesn't affect the host system
++ * sleep state and cannot lead to data loss.
++ */
++#define ACPI_FLUSH_CPU_CACHE()					\
++do {								\
++	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
++		wbinvd();					\
++} while (0)
+ 
+ int __acpi_acquire_global_lock(unsigned int *lock);
+ int __acpi_release_global_lock(unsigned int *lock);
 -- 
 2.35.1
 
