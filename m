@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1D55380D1
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D06D1537FBC
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238785AbiE3Nxq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:53:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55034 "EHLO
+        id S237557AbiE3NyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:54:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238424AbiE3NwT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:52:19 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A56512772;
-        Mon, 30 May 2022 06:37:23 -0700 (PDT)
+        with ESMTP id S238516AbiE3NwU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:52:20 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0293B12AC8;
+        Mon, 30 May 2022 06:37:26 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4D11B80AE8;
-        Mon, 30 May 2022 13:37:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5649FC3411A;
-        Mon, 30 May 2022 13:37:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 94F6660F9C;
+        Mon, 30 May 2022 13:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8D53C385B8;
+        Mon, 30 May 2022 13:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917840;
-        bh=OgUDXA45bwkJ5vJysgvw42AgkjEwX/rQiiRRrhcxWUo=;
+        s=k20201202; t=1653917845;
+        bh=CTn9HCUjXYHSwA99rQmy+i5tCftAg7PvxJaOxRnYJjo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TdRT7ZkwY4RaVxLhkDy1VH33PFQjdGSp1wANjSvPHwfmz1OImS6KBoug3UFHRnlnq
-         F3IwEknTt6vaJ/b0LormgOEKOyvpRxEImyKIwyqmn5TuArm+93wKTqrCemABQO5Od2
-         detGoNgSDRmfDb/dY9pDL+Kv9JsjpQNkve0vJd7fQSJbdPGSV7R/cnYbfrOiP0AhWl
-         nZRUOOiFf0pYF+/eaaSrxeq75Esb2h0sb/uILYuFE3bHl+ixyjL9qc/YSF/YYjR228
-         ET2ZiuiFr7LxZ2h8qFjZqeImaUgfz4eJgeV8bKKQXdbSgAneozvai6rayVsdrCDDot
-         iEDU+HQIYOrNg==
+        b=TLRK+UyMWXkZmpqp9dczvv/pK6aQemozcUuCWF8mQjXRoZ6p1Sc57ZYf8/lSB0uQZ
+         Bet3Xrke/LHY7q1jM8EJ4yEGtamgiKF/1i1EbkF0453cvRvcf1ZBkpFLbzvgUedWc4
+         jeQj5Ut1dWUp9ktd6IwUEzRWuyOR4+wSBUUnkW+uideIl7OTDdfQiJtCoPGElsquPU
+         tvc7iCTFCP14dAzgPxpKO2fLKLU3PlLLnLRKIPpV9GV4yJNBM3RZfMZ2pYY0xTE7jK
+         n+/P+efi61eMRElFn96EGyykkrYv/GbraOmY6SAmBQQ9p9i35hN5PzRLt2rwNBhRGx
+         Bl/otTGdcgGJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <festevam@denx.de>, Andrew Lunn <andrew@lunn.ch>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
-        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 112/135] net: phy: micrel: Allow probing without .driver_data
-Date:   Mon, 30 May 2022 09:31:10 -0400
-Message-Id: <20220530133133.1931716-112-sashal@kernel.org>
+Cc:     Kwanghoon Son <k.son@samsung.com>,
+        kernel test robot <lkp@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        krzysztof.kozlowski@linaro.org, linux-media@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 113/135] media: exynos4-is: Fix compile warning
+Date:   Mon, 30 May 2022 09:31:11 -0400
+Message-Id: <20220530133133.1931716-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -58,70 +61,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Kwanghoon Son <k.son@samsung.com>
 
-[ Upstream commit f2ef6f7539c68c6bd6c32323d8845ee102b7c450 ]
+[ Upstream commit e080f5c1f2b6d02c02ee5d674e0e392ccf63bbaf ]
 
-Currently, if the .probe element is present in the phy_driver structure
-and the .driver_data is not, a NULL pointer dereference happens.
+Declare static on function 'fimc_isp_video_device_unregister'.
 
-Allow passing .probe without .driver_data by inserting NULL checks
-for priv->type.
+When VIDEO_EXYNOS4_ISP_DMA_CAPTURE=n, compiler warns about
+warning: no previous prototype for function [-Wmissing-prototypes]
 
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220513114613.762810-1-festevam@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Kwanghoon Son <k.son@samsung.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/micrel.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/media/platform/exynos4-is/fimc-isp-video.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
-index cfb5378bbb39..f20d8c3e91bf 100644
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -348,7 +348,7 @@ static int kszphy_config_reset(struct phy_device *phydev)
- 		}
- 	}
- 
--	if (priv->led_mode >= 0)
-+	if (priv->type && priv->led_mode >= 0)
- 		kszphy_setup_led(phydev, priv->type->led_mode_reg, priv->led_mode);
- 
+diff --git a/drivers/media/platform/exynos4-is/fimc-isp-video.h b/drivers/media/platform/exynos4-is/fimc-isp-video.h
+index edcb3a5e3cb9..2dd4ddbc748a 100644
+--- a/drivers/media/platform/exynos4-is/fimc-isp-video.h
++++ b/drivers/media/platform/exynos4-is/fimc-isp-video.h
+@@ -32,7 +32,7 @@ static inline int fimc_isp_video_device_register(struct fimc_isp *isp,
  	return 0;
-@@ -364,10 +364,10 @@ static int kszphy_config_init(struct phy_device *phydev)
+ }
  
- 	type = priv->type;
- 
--	if (type->has_broadcast_disable)
-+	if (type && type->has_broadcast_disable)
- 		kszphy_broadcast_disable(phydev);
- 
--	if (type->has_nand_tree_disable)
-+	if (type && type->has_nand_tree_disable)
- 		kszphy_nand_tree_disable(phydev);
- 
- 	return kszphy_config_reset(phydev);
-@@ -1365,7 +1365,7 @@ static int kszphy_probe(struct phy_device *phydev)
- 
- 	priv->type = type;
- 
--	if (type->led_mode_reg) {
-+	if (type && type->led_mode_reg) {
- 		ret = of_property_read_u32(np, "micrel,led-mode",
- 				&priv->led_mode);
- 		if (ret)
-@@ -1386,7 +1386,8 @@ static int kszphy_probe(struct phy_device *phydev)
- 		unsigned long rate = clk_get_rate(clk);
- 		bool rmii_ref_clk_sel_25_mhz;
- 
--		priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
-+		if (type)
-+			priv->rmii_ref_clk_sel = type->has_rmii_ref_clk_sel;
- 		rmii_ref_clk_sel_25_mhz = of_property_read_bool(np,
- 				"micrel,rmii-reference-clock-select-25-mhz");
- 
+-void fimc_isp_video_device_unregister(struct fimc_isp *isp,
++static inline void fimc_isp_video_device_unregister(struct fimc_isp *isp,
+ 				enum v4l2_buf_type type)
+ {
+ }
 -- 
 2.35.1
 
