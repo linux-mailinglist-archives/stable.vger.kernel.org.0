@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4DA4538284
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A32A538289
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238190AbiE3OYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:24:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40312 "EHLO
+        id S238867AbiE3OYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242233AbiE3OSe (ORCPT
+        with ESMTP id S242230AbiE3OSe (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E31EF11CB67;
-        Mon, 30 May 2022 06:49:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50D38A3384;
+        Mon, 30 May 2022 06:49:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9902D60FEE;
-        Mon, 30 May 2022 13:49:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B2ABC385B8;
-        Mon, 30 May 2022 13:49:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6568961013;
+        Mon, 30 May 2022 13:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9D89C385B8;
+        Mon, 30 May 2022 13:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918564;
-        bh=KC745XvqyuuZYSvsSRRk9yKT/qjIcafkwRqQ36ofcRg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPx/ZUgCUH+B3zPCtxyIHp9XAS0BP+61XqwO9H6neaDzEVl+xFivrH2j+CLuH60E9
-         icEWiF1/AxujpZCWx9Ka8VC+RTlEhs+0/3f2JAWetWQaNiKsrayCKKLbrwz4URse6E
-         lEE0KywtvmesJtU5ChYfB/3d9CIFftWuZ6nYAm7B4IA+XnIr2n7z2Y2ArgNtniYMb2
-         91TciR+bYMfEoNnaU2zMgadRVpxdyezv0W4igK9wie3ErSA6UC4Wfy2ARXBEeM1ZAC
-         xj12lc1jYNKfoo80LJi1b4ZN08FQQk4iE9DUZONQxplVFx+e5Tvqtr+cnxsViTPU15
-         O+G9Yi4ZlQ4jg==
+        s=k20201202; t=1653918567;
+        bh=kvqrbJKmFfnxAX+OzuSYqbmtTFwFrYPjGCVXwam8KDA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=n9RrhDZr0RsY6qIMwygYNbIgKoRY2E4KdLE0M/quMGAkAAQKxaIWa8gy79i+OJWKR
+         BudJwETEJgagVUfSB5vRyFyeckGELc7/OcvC2qU53/vJ7t8EvLAp8dYQniUv1zR4+i
+         u1ClaUhIEJLrGiyV2xY8mDNZ33/KKmkv/gOHNxEkm6Mmp5HdJJgMdfR4YS4W5Y/sXD
+         Wu5iqfEw9+kCzBFJv9e4nPHbvAtdOOAt3AFwFX1HzNcKehcqpGd5QGSz8b500umjZi
+         NglARfIAk1Wycf8XPUdWLJ34fXWJIQ31vZsW7DNqAJl2fuygzDoRzQSrW8/OjWrudp
+         0nKEhAU1WZi7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonghong Song <yhs@fb.com>, Mykola Lysenko <mykolal@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        daniel@iogearbox.net, andrii@kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, sunyucong@gmail.com,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.4 55/55] selftests/bpf: fix btf_dump/btf_dump due to recent clang change
-Date:   Mon, 30 May 2022 09:47:01 -0400
-Message-Id: <20220530134701.1935933-55-sashal@kernel.org>
+Cc:     Liu Zixian <liuzixian4@huawei.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 01/38] drm/virtio: fix NULL pointer dereference in virtio_gpu_conn_get_modes
+Date:   Mon, 30 May 2022 09:48:47 -0400
+Message-Id: <20220530134924.1936816-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
-References: <20220530134701.1935933-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -60,87 +56,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Liu Zixian <liuzixian4@huawei.com>
 
-[ Upstream commit 4050764cbaa25760aab40857f723393c07898474 ]
+[ Upstream commit 194d250cdc4a40ccbd179afd522a9e9846957402 ]
 
-Latest llvm-project upstream had a change of behavior
-related to qualifiers on function return type ([1]).
-This caused selftests btf_dump/btf_dump failure.
-The following example shows what changed.
+drm_cvt_mode may return NULL and we should check it.
 
-  $ cat t.c
-  typedef const char * const (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-  struct t {
-    int a;
-    fn_ptr_arr2_t l;
-  };
-  int foo(struct t *arg) {
-    return arg->a;
-  }
+This bug is found by syzkaller:
 
-Compiled with latest upstream llvm15,
-  $ clang -O2 -g -target bpf -S -emit-llvm t.c
-The related generated debuginfo IR looks like:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !32)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !23, size: 64)
-  !23 = !DISubroutineType(types: !24)
-  !24 = !{!25, !28}
-  !25 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !26, size: 64)
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-You can see two intermediate const qualifier to pointer are dropped in debuginfo IR.
+FAULT_INJECTION stacktrace:
+[  168.567394] FAULT_INJECTION: forcing a failure.
+name failslab, interval 1, probability 0, space 0, times 1
+[  168.567403] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
+[  168.567406] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[  168.567408] Call trace:
+[  168.567414]  dump_backtrace+0x0/0x310
+[  168.567418]  show_stack+0x28/0x38
+[  168.567423]  dump_stack+0xec/0x15c
+[  168.567427]  should_fail+0x3ac/0x3d0
+[  168.567437]  __should_failslab+0xb8/0x120
+[  168.567441]  should_failslab+0x28/0xc0
+[  168.567445]  kmem_cache_alloc_trace+0x50/0x640
+[  168.567454]  drm_mode_create+0x40/0x90
+[  168.567458]  drm_cvt_mode+0x48/0xc78
+[  168.567477]  virtio_gpu_conn_get_modes+0xa8/0x140 [virtio_gpu]
+[  168.567485]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
+[  168.567492]  drm_mode_getconnector+0x2e0/0xa70
+[  168.567496]  drm_ioctl_kernel+0x11c/0x1d8
+[  168.567514]  drm_ioctl+0x558/0x6d0
+[  168.567522]  do_vfs_ioctl+0x160/0xf30
+[  168.567525]  ksys_ioctl+0x98/0xd8
+[  168.567530]  __arm64_sys_ioctl+0x50/0xc8
+[  168.567536]  el0_svc_common+0xc8/0x320
+[  168.567540]  el0_svc_handler+0xf8/0x160
+[  168.567544]  el0_svc+0x10/0x218
 
-With llvm14, we have following debuginfo IR:
-  !16 = !DIDerivedType(tag: DW_TAG_typedef, name: "fn_ptr_arr2_t", file: !1, line: 1, baseType: !17)
-  !17 = !DICompositeType(tag: DW_TAG_array_type, baseType: !18, size: 320, elements: !34)
-  !18 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !19)
-  !19 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !20, size: 64)
-  !20 = !DISubroutineType(types: !21)
-  !21 = !{!22, null}
-  !22 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !23)
-  !23 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !24, size: 64)
-  !24 = !DISubroutineType(types: !25)
-  !25 = !{!26, !30}
-  !26 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !27)
-  !27 = !DIDerivedType(tag: DW_TAG_pointer_type, baseType: !28, size: 64)
-  !28 = !DIDerivedType(tag: DW_TAG_const_type, baseType: !29)
-  !29 = !DIBasicType(name: "char", size: 8, encoding: DW_ATE_signed_char)
-All const qualifiers are preserved.
+KASAN stacktrace:
+[  168.567561] BUG: KASAN: null-ptr-deref in virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
+[  168.567565] Read of size 4 at addr 0000000000000054 by task syz/6425
+[  168.567566]
+[  168.567571] CPU: 1 PID: 6425 Comm: syz Kdump: loaded Not tainted 4.19.90-vhulk2201.1.0.h1035.kasan.eulerosv2r10.aarch64 #1
+[  168.567573] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+[  168.567575] Call trace:
+[  168.567578]  dump_backtrace+0x0/0x310
+[  168.567582]  show_stack+0x28/0x38
+[  168.567586]  dump_stack+0xec/0x15c
+[  168.567591]  kasan_report+0x244/0x2f0
+[  168.567594]  __asan_load4+0x58/0xb0
+[  168.567607]  virtio_gpu_conn_get_modes+0xb4/0x140 [virtio_gpu]
+[  168.567612]  drm_helper_probe_single_connector_modes+0x3a4/0xd80
+[  168.567617]  drm_mode_getconnector+0x2e0/0xa70
+[  168.567621]  drm_ioctl_kernel+0x11c/0x1d8
+[  168.567624]  drm_ioctl+0x558/0x6d0
+[  168.567628]  do_vfs_ioctl+0x160/0xf30
+[  168.567632]  ksys_ioctl+0x98/0xd8
+[  168.567636]  __arm64_sys_ioctl+0x50/0xc8
+[  168.567641]  el0_svc_common+0xc8/0x320
+[  168.567645]  el0_svc_handler+0xf8/0x160
+[  168.567649]  el0_svc+0x10/0x218
 
-To adapt the selftest to both old and new llvm, this patch removed
-the intermediate const qualifier in const-to-ptr types, to make the
-test succeed again.
-
-  [1] https://reviews.llvm.org/D125919
-
-Reported-by: Mykola Lysenko <mykolal@fb.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20220523152044.3905809-1-yhs@fb.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Liu Zixian <liuzixian4@huawei.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220322091730.1653-1-liuzixian4@huawei.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-index d4a02fe44a12..0620580a5c16 100644
---- a/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-+++ b/tools/testing/selftests/bpf/progs/btf_dump_test_case_syntax.c
-@@ -94,7 +94,7 @@ typedef void (* (*signal_t)(int, void (*)(int)))(int);
- 
- typedef char * (*fn_ptr_arr1_t[10])(int **);
- 
--typedef char * (* const (* const fn_ptr_arr2_t[5])())(char * (*)(int));
-+typedef char * (* (* const fn_ptr_arr2_t[5])())(char * (*)(int));
- 
- struct struct_w_typedefs {
- 	int_t a;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 25503b933599..7511f416eb67 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -180,6 +180,8 @@ static int virtio_gpu_conn_get_modes(struct drm_connector *connector)
+ 		DRM_DEBUG("add mode: %dx%d\n", width, height);
+ 		mode = drm_cvt_mode(connector->dev, width, height, 60,
+ 				    false, false, false);
++		if (!mode)
++			return count;
+ 		mode->type |= DRM_MODE_TYPE_PREFERRED;
+ 		drm_mode_probed_add(connector, mode);
+ 		count++;
 -- 
 2.35.1
 
