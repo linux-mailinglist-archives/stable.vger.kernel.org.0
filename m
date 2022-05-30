@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A36BB537C7A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD64537C81
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237279AbiE3Ncp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:32:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43646 "EHLO
+        id S237126AbiE3Ncu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:32:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237093AbiE3Nbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:31:32 -0400
+        with ESMTP id S237101AbiE3Nbd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:31:33 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 109CB8E1B0;
-        Mon, 30 May 2022 06:27:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076218FD56;
+        Mon, 30 May 2022 06:27:42 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D3C260EE0;
-        Mon, 30 May 2022 13:27:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499C2C36AE9;
-        Mon, 30 May 2022 13:27:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83B4A60EFE;
+        Mon, 30 May 2022 13:27:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16561C36AE7;
+        Mon, 30 May 2022 13:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917260;
-        bh=MQrjqXErBDcH5v3vhgMjiO1PsCtlzbFiX1PZbys4/vo=;
+        s=k20201202; t=1653917261;
+        bh=IOZQFxD3Ei8X9FXly0Xd6AHPYzqasxfP4I4dQecQaZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pY6i3qKzFO7g45zu2rWn1VBukt6piBW6Rr5tOhyZZWde4B7hUlPwo0OLlTo2D5x+P
-         zcqcDaGkhp9ndA1u8Aiuhz2P5IXgyqLks8cR3WCBTetgBBv8m5yBZvZ+2bUWtEIpY/
-         4vYFd4EF1/NO68WaPDZsZaZZ1iLqSDwa3u05yTOfNRVd5Vl/+WAQqiswjlYgTF+86R
-         bWvZRvdxcS9r5BFyLTNnqZ7+R2CQdw6kGiWuYdNZQMZhDpstH/mGCPkoFU7E5T5tSf
-         o0u5kwA7PsqsjSN/8+UnNRPfcdf5gBbxq5OiElV5QaZktYJd2BW6FnEAOdzsj1eJqc
-         2EaSpNAdYKz2A==
+        b=AdfgM1K6PzbNgUHAU5lRC0QcUJdQqlp4Ux18bO+AFa/5DrrRzk8i0skxH+nE4V1DV
+         CKkfagiSvu+/TgqHQ0hXi/dHPUK7bAxm/3UMsksbJ2lshrB6KkIsV2j+j3q+JbcAMR
+         6UfR5VXyHz16wd7rYV+IsW1I0G6g75apDwXe9dYD3Qz3zfqOrFKvVzPVLGSg2/5lj5
+         nwjpcc0EdBiExjv47wUDmRr7Hh5d732CDl69oj+iYgyCwfggfDP1SiY0HzF8K4KptR
+         KLx5VaElfyQTPPcnmDMn2+j6RuE26QcigOI/XJdaTb4heVnMWEHkxhniStr5Z1Ed3R
+         PPCikngsJp1OQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 073/159] ath11k: fix warning of not found station for bssid in message
-Date:   Mon, 30 May 2022 09:22:58 -0400
-Message-Id: <20220530132425.1929512-73-sashal@kernel.org>
+Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
+        Bodo Stroesser <bostroesser@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 074/159] scsi: target: tcmu: Fix possible data corruption
+Date:   Mon, 30 May 2022 09:22:59 -0400
+Message-Id: <20220530132425.1929512-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -59,98 +58,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
 
-[ Upstream commit 7330e1ec9748948177830c6e1a13379835d577f9 ]
+[ Upstream commit bb9b9eb0ae2e9d3f6036f0ad907c3a83dcd43485 ]
 
-When test connect/disconnect to an AP frequently with WCN6855, sometimes
-it show below log.
+When tcmu_vma_fault() gets a page successfully, before the current context
+completes page fault procedure, find_free_blocks() may run and call
+unmap_mapping_range() to unmap the page. Assume that when
+find_free_blocks() initially completes and the previous page fault
+procedure starts to run again and completes, then one truncated page has
+been mapped to userspace. But note that tcmu_vma_fault() has gotten a
+refcount for the page so any other subsystem won't be able to use the page
+unless the userspace address is unmapped later.
 
-[  277.040121] wls1: deauthenticating from 8c:21:0a:b3:5a:64 by local choice (Reason: 3=DEAUTH_LEAVING)
-[  277.050906] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
-[  277.050944] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
-[  277.050954] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
-[  277.050961] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
-[  277.050967] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
-[  277.050976] ath11k_pci 0000:05:00.0: wmi stats vdev id 0 mac 00:03:7f:29:61:11
-[  277.050983] ath11k_pci 0000:05:00.0: wmi stats bssid 8c:21:0a:b3:5a:64 vif         pK-error
-[  277.050989] ath11k_pci 0000:05:00.0: not found station for bssid 8c:21:0a:b3:5a:64
-[  277.050995] ath11k_pci 0000:05:00.0: failed to parse rssi chain -71
-[  277.051000] ath11k_pci 0000:05:00.0: failed to pull fw stats: -71
-[  278.064050] ath11k_pci 0000:05:00.0: failed to request fw stats: -110
+If another command subsequently runs and needs to extend dbi_thresh it may
+reuse the corresponding slot for the previous page in data_bitmap. Then
+though we'll allocate new page for this slot in data_area, no page fault
+will happen because we have a valid map and the real request's data will be
+lost.
 
-Reason is:
-When running disconnect operation, sta_info removed from local->sta_hash
-by __sta_info_destroy_part1() from __sta_info_flush(), after this,
-ieee80211_find_sta_by_ifaddr() which called by
-ath11k_wmi_tlv_fw_stats_data_parse() and ath11k_wmi_tlv_rssi_chain_parse()
-cannot find this station, then failed log printed.
+Filesystem implementations will also run into this issue but they usually
+lock the page when vm_operations_struct->fault gets a page and unlock the
+page after finish_fault() completes. For truncate filesystems lock pages in
+truncate_inode_pages() to protect against racing wrt. page faults.
 
-steps are like this:
-1. when disconnect from AP, __sta_info_destroy() called __sta_info_destroy_part1()
-and __sta_info_destroy_part2().
+To fix this possible data corruption scenario we can apply a method similar
+to the filesystems.  For pages that are to be freed, tcmu_blocks_release()
+locks and unlocks. Make tcmu_vma_fault() also lock found page under
+cmdr_lock. At the same time, since tcmu_vma_fault() gets an extra page
+refcount, tcmu_blocks_release() won't free pages if pages are in page fault
+procedure, which means it is safe to call tcmu_blocks_release() before
+unmap_mapping_range().
 
-2. in __sta_info_destroy_part1(),  it has "sta_info_hash_del(local, sta)"
-and "list_del_rcu(&sta->list)", it will remove the ieee80211_sta from the
-list of ieee80211_hw.
+With these changes tcmu_blocks_release() will wait for all page faults to
+be completed before calling unmap_mapping_range(). And later, if
+unmap_mapping_range() is called, it will ensure stale mappings are removed.
 
-3. in __sta_info_destroy_part2(), it called drv_sta_state()->ath11k_mac_op_sta_state(),
-then peer->sta is clear at this moment.
-
-4. in __sta_info_destroy_part2(), it then called sta_set_sinfo()->drv_sta_statistics()
-->ath11k_mac_op_sta_statistics(), then WMI_REQUEST_STATS_CMDID sent to firmware.
-
-5. WMI_UPDATE_STATS_EVENTID reported from firmware, at this moment, the
-ieee80211_sta can not be found again because it has remove from list in
-step2 and also peer->sta is clear in step3.
-
-6. in __sta_info_destroy_part2(), it then called cleanup_single_sta()->
-sta_info_free()->kfree(sta), at this moment, the ieee80211_sta is freed
-in memory, then the failed log will not happen because function
-ath11k_mac_op_sta_state() will not be called.
-
-Actually this print log is not a real error, it is only to skip parse the
-info, so change to skip print by default debug setting.
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
-
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220428022426.2927-1-quic_wgong@quicinc.com
+Link: https://lore.kernel.org/r/20220421023735.9018-1-xiaoguang.wang@linux.alibaba.com
+Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
+Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/target/target_core_user.c | 40 ++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 2751fe8814df..0900f75eef20 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -5789,9 +5789,9 @@ static int ath11k_wmi_tlv_rssi_chain_parse(struct ath11k_base *ab,
- 					   arvif->bssid,
- 					   NULL);
- 	if (!sta) {
--		ath11k_warn(ab, "not found station for bssid %pM\n",
--			    arvif->bssid);
--		ret = -EPROTO;
-+		ath11k_dbg(ab, ATH11K_DBG_WMI,
-+			   "not found station of bssid %pM for rssi chain\n",
-+			   arvif->bssid);
- 		goto exit;
+diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
+index fd7267baa707..b1fd06edea59 100644
+--- a/drivers/target/target_core_user.c
++++ b/drivers/target/target_core_user.c
+@@ -20,6 +20,7 @@
+ #include <linux/configfs.h>
+ #include <linux/mutex.h>
+ #include <linux/workqueue.h>
++#include <linux/pagemap.h>
+ #include <net/genetlink.h>
+ #include <scsi/scsi_common.h>
+ #include <scsi/scsi_proto.h>
+@@ -1667,6 +1668,26 @@ static u32 tcmu_blocks_release(struct tcmu_dev *udev, unsigned long first,
+ 	xas_lock(&xas);
+ 	xas_for_each(&xas, page, (last + 1) * udev->data_pages_per_blk - 1) {
+ 		xas_store(&xas, NULL);
++		/*
++		 * While reaching here there may be page faults occurring on
++		 * the to-be-released pages. A race condition may occur if
++		 * unmap_mapping_range() is called before page faults on these
++		 * pages have completed; a valid but stale map is created.
++		 *
++		 * If another command subsequently runs and needs to extend
++		 * dbi_thresh, it may reuse the slot corresponding to the
++		 * previous page in data_bitmap. Though we will allocate a new
++		 * page for the slot in data_area, no page fault will happen
++		 * because we have a valid map. Therefore the command's data
++		 * will be lost.
++		 *
++		 * We lock and unlock pages that are to be released to ensure
++		 * all page faults have completed. This way
++		 * unmap_mapping_range() can ensure stale maps are cleanly
++		 * removed.
++		 */
++		lock_page(page);
++		unlock_page(page);
+ 		__free_page(page);
+ 		pages_freed++;
+ 	}
+@@ -1822,6 +1843,7 @@ static struct page *tcmu_try_get_data_page(struct tcmu_dev *udev, uint32_t dpi)
+ 	page = xa_load(&udev->data_pages, dpi);
+ 	if (likely(page)) {
+ 		get_page(page);
++		lock_page(page);
+ 		mutex_unlock(&udev->cmdr_lock);
+ 		return page;
+ 	}
+@@ -1863,6 +1885,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 	struct page *page;
+ 	unsigned long offset;
+ 	void *addr;
++	vm_fault_t ret = 0;
+ 
+ 	int mi = tcmu_find_mem_index(vmf->vma);
+ 	if (mi < 0)
+@@ -1887,10 +1910,11 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
+ 		page = tcmu_try_get_data_page(udev, dpi);
+ 		if (!page)
+ 			return VM_FAULT_SIGBUS;
++		ret = VM_FAULT_LOCKED;
  	}
  
-@@ -5889,8 +5889,9 @@ static int ath11k_wmi_tlv_fw_stats_data_parse(struct ath11k_base *ab,
- 					   "wmi stats vdev id %d snr %d\n",
- 					   src->vdev_id, src->beacon_snr);
- 			} else {
--				ath11k_warn(ab, "not found station for bssid %pM\n",
--					    arvif->bssid);
-+				ath11k_dbg(ab, ATH11K_DBG_WMI,
-+					   "not found station of bssid %pM for vdev stat\n",
-+					   arvif->bssid);
- 			}
+ 	vmf->page = page;
+-	return 0;
++	return ret;
+ }
+ 
+ static const struct vm_operations_struct tcmu_vm_ops = {
+@@ -3205,12 +3229,22 @@ static void find_free_blocks(void)
+ 			udev->dbi_max = block;
  		}
  
++		/*
++		 * Release the block pages.
++		 *
++		 * Also note that since tcmu_vma_fault() gets an extra page
++		 * refcount, tcmu_blocks_release() won't free pages if pages
++		 * are mapped. This means it is safe to call
++		 * tcmu_blocks_release() before unmap_mapping_range() which
++		 * drops the refcount of any pages it unmaps and thus releases
++		 * them.
++		 */
++		pages_freed = tcmu_blocks_release(udev, start, end - 1);
++
+ 		/* Here will truncate the data area from off */
+ 		off = udev->data_off + (loff_t)start * udev->data_blk_size;
+ 		unmap_mapping_range(udev->inode->i_mapping, off, 0, 1);
+ 
+-		/* Release the block pages */
+-		pages_freed = tcmu_blocks_release(udev, start, end - 1);
+ 		mutex_unlock(&udev->cmdr_lock);
+ 
+ 		total_pages_freed += pages_freed;
 -- 
 2.35.1
 
