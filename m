@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92C3B53836D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4ACF5383A9
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:40:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239528AbiE3OdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:33:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44858 "EHLO
+        id S240351AbiE3OiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:38:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242707AbiE3Ob3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:29 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD5DB85ECA;
-        Mon, 30 May 2022 06:53:18 -0700 (PDT)
+        with ESMTP id S239893AbiE3Odw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:33:52 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 175A5138B7D;
+        Mon, 30 May 2022 06:53:38 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A180A61036;
-        Mon, 30 May 2022 13:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 148EEC36AEB;
-        Mon, 30 May 2022 13:53:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 234CDB80D86;
+        Mon, 30 May 2022 13:53:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA233C3411A;
+        Mon, 30 May 2022 13:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918790;
-        bh=Y95uwozMiasRFvhxXf2nNnDa5yGqC+rlAQxH7OwKqN8=;
+        s=k20201202; t=1653918814;
+        bh=MtIhFT5ZHHhwLa+dwBbUq3DA08khe1eza7At9UZ0zEg=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=G/I1BvxjIJNL5l5XSD1i06sB0VTZ4hiDWnlDz2QT88os6ckOPH+K+B/GLzR4nQBVi
-         O1RaV5gl/qoivUgTBS2RBghDeCpeLq/ejfTiLwd6Exm8YAWjTHGs0hrGZ7kvOQeziA
-         nudFe4LqcpvPbMVQVfWxjePpG0MpDYtImrl5FymQhRcI/ZL/pcDLsDSDgJnbAXea1I
-         aHYwr52uj42oTqQ0ZrA1U/VjhD4Hvup3idBhwxFC+Ak4v6ySqJdj7+FvaygNc046YE
-         Ql6FX/lAkauFVAC2SzLOQ1UK4CfgMm+v8iEUpOWNdf/7d99zQ5/Qafe5zC3dRa7XbO
-         AzV1hadzN/dRA==
-Received: by mail-ot1-f42.google.com with SMTP id c15-20020a9d684f000000b0060b097c71ecso7686291oto.10;
-        Mon, 30 May 2022 06:53:10 -0700 (PDT)
-X-Gm-Message-State: AOAM533n+Mn7XNokRhi+MzXq3V7E2qmI83j5ZnUZ5WEuIkCU7LnIIi4Y
-        EaPXwKJXSVNSrkp8VzWBOvljympAKHFldhA6kBU=
-X-Google-Smtp-Source: ABdhPJxPLLr1XoxeuO67R+Z55CuEL035Z/P4lQH8hSWDB5SwljRju1yg2WNI/wdi+r9DZDAx+qZm+isA15gpogCxYxI=
-X-Received: by 2002:a05:6830:9c2:b0:606:1e0a:cc8d with SMTP id
- y2-20020a05683009c200b006061e0acc8dmr20945598ott.265.1653918789233; Mon, 30
- May 2022 06:53:09 -0700 (PDT)
+        b=UgqFy/p7qym8AeMOK+dlQCnJnCIxMJL+WxW0VgpObAMk5Nbt1ZjA4i7o+U52hVZ1r
+         8H50oSnBao7UPCxc4wZP+9PuCqInTP1s1nGlKOfl7rcC2kPaGCjok3gdcg8AMchLFt
+         cyW4k3kAWm5fztq6J5VWpDdP1YQ9NUJnCKrf2EG1A0TrUt7rhrWlOv9lOPjzlKfFBf
+         xNxJHtW4hFVQ/y+ZYr/jJhq+zb/2HhNct7dOVrRjZ1XWmSfTI8r/G7b5CeCQShLz7u
+         YzHdGqjWi2pEB8ajFSY/dl3NGS1XfpQCPEzCV73Rwo/HEoC7BydHtH/DpwJPde/jgM
+         YHQbyAR8sXWRQ==
+Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-e5e433d66dso14407687fac.5;
+        Mon, 30 May 2022 06:53:34 -0700 (PDT)
+X-Gm-Message-State: AOAM533O0KNkrYj0TPBZww7DPghzE4hE6NThTg4Auv/14l44OPfoYC2w
+        zvGNsowPYc6M56aOvbqMnkUK3k69Md1yArkyvis=
+X-Google-Smtp-Source: ABdhPJzN6FQn/jf776QNAyxQvmOg1lo3ZTJ27ftsWqtSNDkCFHSuFlvaT1bOFCdUSSq2qmZ/XOaLcxqXigwpZU3OJu8=
+X-Received: by 2002:a05:6870:eaa5:b0:da:b3f:2b45 with SMTP id
+ s37-20020a056870eaa500b000da0b3f2b45mr10801142oap.228.1653918814167; Mon, 30
+ May 2022 06:53:34 -0700 (PDT)
 MIME-Version: 1.0
-References: <20220530134406.1934928-1-sashal@kernel.org> <20220530134406.1934928-69-sashal@kernel.org>
-In-Reply-To: <20220530134406.1934928-69-sashal@kernel.org>
+References: <20220530135211.1937674-1-sashal@kernel.org> <20220530135211.1937674-22-sashal@kernel.org>
+In-Reply-To: <20220530135211.1937674-22-sashal@kernel.org>
 From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 30 May 2022 15:52:58 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXECnbiLi1=L7PNhG1XC09izObq0QHXn=qK4ku1AbuEKug@mail.gmail.com>
-Message-ID: <CAMj1kXECnbiLi1=L7PNhG1XC09izObq0QHXn=qK4ku1AbuEKug@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.10 69/76] ARM: 9201/1: spectre-bhb: rely on
+Date:   Mon, 30 May 2022 15:53:23 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXE_VxdxJ8tNegwZ3AnZ_WRCqa7tC-_xzWJ-SyVHouJgHQ@mail.gmail.com>
+Message-ID: <CAMj1kXE_VxdxJ8tNegwZ3AnZ_WRCqa7tC-_xzWJ-SyVHouJgHQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.9 22/24] ARM: 9201/1: spectre-bhb: rely on
  linker to emit cross-section literal loads
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
@@ -55,6 +55,7 @@ Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Russell King <linux@armlinux.org.uk>,
         Linus Walleij <linus.walleij@linaro.org>,
         Nicolas Pitre <nico@fluxnic.net>,
+        Keith Packard <keithpac@amazon.com>,
         Arnd Bergmann <arnd@arndb.de>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,7 +71,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 AUTONAK
 
-On Mon, 30 May 2022 at 15:46, Sasha Levin <sashal@kernel.org> wrote:
+On Mon, 30 May 2022 at 15:53, Sasha Levin <sashal@kernel.org> wrote:
 >
 > From: Ard Biesheuvel <ardb@kernel.org>
 >
@@ -110,10 +111,10 @@ On Mon, 30 May 2022 at 15:46, Sasha Levin <sashal@kernel.org> wrote:
 >  1 file changed, 15 insertions(+), 7 deletions(-)
 >
 > diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-> index 030351d169aa..aad77ad97d5f 100644
+> index 247229e69322..9f9f79410cc0 100644
 > --- a/arch/arm/kernel/entry-armv.S
 > +++ b/arch/arm/kernel/entry-armv.S
-> @@ -1074,10 +1074,15 @@ ENDPROC(vector_bhb_bpiall_\name)
+> @@ -1105,10 +1105,15 @@ ENDPROC(vector_bhb_bpiall_\name)
 >         .endm
 >
 >         .section .stubs, "ax", %progbits
@@ -130,7 +131,7 @@ On Mon, 30 May 2022 at 15:46, Sasha Levin <sashal@kernel.org> wrote:
 >         .word   vector_bhb_bpiall_swi
 >  #endif
 >
-> @@ -1220,10 +1225,11 @@ vector_addrexcptn:
+> @@ -1251,10 +1256,11 @@ vector_addrexcptn:
 >         .globl  vector_fiq
 >
 >         .section .vectors, "ax", %progbits
@@ -144,7 +145,7 @@ On Mon, 30 May 2022 at 15:46, Sasha Levin <sashal@kernel.org> wrote:
 >         W(b)    vector_pabt
 >         W(b)    vector_dabt
 >         W(b)    vector_addrexcptn
-> @@ -1232,10 +1238,11 @@ vector_addrexcptn:
+> @@ -1263,10 +1269,11 @@ vector_addrexcptn:
 >
 >  #ifdef CONFIG_HARDEN_BRANCH_HISTORY
 >         .section .vectors.bhb.loop8, "ax", %progbits
@@ -158,7 +159,7 @@ On Mon, 30 May 2022 at 15:46, Sasha Levin <sashal@kernel.org> wrote:
 >         W(b)    vector_bhb_loop8_pabt
 >         W(b)    vector_bhb_loop8_dabt
 >         W(b)    vector_addrexcptn
-> @@ -1243,10 +1250,11 @@ vector_addrexcptn:
+> @@ -1274,10 +1281,11 @@ vector_addrexcptn:
 >         W(b)    vector_bhb_loop8_fiq
 >
 >         .section .vectors.bhb.bpiall, "ax", %progbits
