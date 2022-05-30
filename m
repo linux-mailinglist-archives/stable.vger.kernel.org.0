@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E1D95381BC
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48D1953817E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:31:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241091AbiE3OUz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:20:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34082 "EHLO
+        id S240681AbiE3OUK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:20:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241414AbiE3ORe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:34 -0400
+        with ESMTP id S241422AbiE3ORf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4B3C31537;
-        Mon, 30 May 2022 06:46:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B96B38BD0;
+        Mon, 30 May 2022 06:46:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B8A3B80D6B;
-        Mon, 30 May 2022 13:46:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6492FC385B8;
-        Mon, 30 May 2022 13:46:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA0F9B80DA8;
+        Mon, 30 May 2022 13:46:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA665C36AE5;
+        Mon, 30 May 2022 13:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918406;
-        bh=y268Ia38mDcy8oVClEGS/uTeQtbK8P1DKzIAcwjQsRk=;
+        s=k20201202; t=1653918407;
+        bh=oLpiVD5QlXHpBCy8GQH5FsSZ0I9H0WtcjClYoRAN5OE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWetuKyXsyKD7dScVLKxc3Mr/X/2yGgRJiWtK+qAW04KtBPl1iFxWfkCjoxz0pn0l
-         o0ouuImNJlIGH/CvE7bLk59UcIskrmfwqKYxhXEwsbM7dbz3DMqmeUx1Piog3dD5ZL
-         EBL/OMd6Wn0uuJuWo+OJuzZHMZs1ZRmGjDZJhyy3Qz88ofC4kig4sie7pydykIOgWO
-         E7Z+SOPA4c85J4/VcdQty+WoBL68WapfEtG5zvuzcggOhR2yFyJaNFlBrJ6zUjuxgv
-         Y3r5pDpqobgWwFctIUKZTFVN/L/8WUxD+IbHcnE6OZ9+G5FwNdCYi251rokUmNJde0
-         1ZVlcNPM0aFVw==
+        b=EhTOmedOpHqR6RwEYZCFk7ZSxM1XHFDn8ir+KXzEUVoG2xTBZ5VH+SWYNd1cjqSy+
+         XSe1NGlposCtrdTQeyF641984Gnkx0U6+Surkncxpph6WeFAUmhTaVoDB1VbVR1e1/
+         SVFb7Vbae9jyOM3KSwuDEO75QKTrxZMeQOwNUS7OPk3a06dvMbK/deAnk2dk0+ZhCu
+         1HIJtUuBydCmbKq1EvW5fPT8laXwcoJnWdt3ahDVDXp9kbwzthxzQM87dKLCekR6z1
+         +xEFcmnVI6a9LXCIgjpbyEH7xBz6lsDI0cyggJgWFen8ZUZU7MsvUB43dia0V0RlaB
+         7fG5cJtZMrzrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        kernel test robot <lkp@intel.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 5.10 70/76] m68k: atari: Make Atari ROM port I/O write macros return void
-Date:   Mon, 30 May 2022 09:44:00 -0400
-Message-Id: <20220530134406.1934928-70-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        corbet@lwn.net, linux-hwmon@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 71/76] hwmon: Make chip parameter for with_info API mandatory
+Date:   Mon, 30 May 2022 09:44:01 -0400
+Message-Id: <20220530134406.1934928-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -59,54 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 30b5e6ef4a32ea4985b99200e06d6660a69f9246 ]
+[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
 
-The macros implementing Atari ROM port I/O writes do not cast away their
-output, unlike similar implementations for other I/O buses.
-When they are combined using conditional expressions in the definitions of
-outb() and friends, this triggers sparse warnings like:
+Various attempts were made recently to "convert" the old
+hwmon_device_register() API to devm_hwmon_device_register_with_info()
+by just changing the function name without actually converting the
+driver. Prevent this from happening by making the 'chip' parameter of
+devm_hwmon_device_register_with_info() mandatory.
 
-    drivers/net/appletalk/cops.c:382:17: error: incompatible types in conditional expression (different base types):
-    drivers/net/appletalk/cops.c:382:17:    unsigned char
-    drivers/net/appletalk/cops.c:382:17:    void
-
-Fix this by adding casts to "void".
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-Link: https://lore.kernel.org/r/c15bedc83d90a14fffcd5b1b6bfb32b8a80282c5.1653057096.git.geert@linux-m68k.org
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/include/asm/raw_io.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/hwmon/hwmon-kernel-api.rst |  2 +-
+ drivers/hwmon/hwmon.c                    | 16 +++++++---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/arch/m68k/include/asm/raw_io.h b/arch/m68k/include/asm/raw_io.h
-index 80eb2396d01e..3ba40bc1dfaa 100644
---- a/arch/m68k/include/asm/raw_io.h
-+++ b/arch/m68k/include/asm/raw_io.h
-@@ -80,14 +80,14 @@
- 	({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v; })
+diff --git a/Documentation/hwmon/hwmon-kernel-api.rst b/Documentation/hwmon/hwmon-kernel-api.rst
+index c41eb6108103..23f27fe78e37 100644
+--- a/Documentation/hwmon/hwmon-kernel-api.rst
++++ b/Documentation/hwmon/hwmon-kernel-api.rst
+@@ -72,7 +72,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
+ to register a hardware monitoring device. It creates the standard sysfs
+ attributes in the hardware monitoring core, letting the driver focus on reading
+ from and writing to the chip instead of having to bother with sysfs attributes.
+-The parent device parameter cannot be NULL with non-NULL chip info. Its
++The parent device parameter as well as the chip parameter must not be NULL. Its
+ parameters are described in more detail below.
  
- #define rom_out_8(addr, b)	\
--	({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
-+	(void)({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u8 *)  ((_addr | 0x10000) + (__v<<1)))); })
- #define rom_out_be16(addr, w)	\
--	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
-+	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v & 0xFF)<<1)))); \
- 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v >> 8)<<1)))); })
- #define rom_out_le16(addr, w)	\
--	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
-+	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
- 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v >> 8)<<1)))); \
- 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v & 0xFF)<<1)))); })
+ devm_hwmon_device_register_with_info is similar to
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index d649fea82999..2c17407aadb7 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -818,11 +818,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
  
+ /**
+  * hwmon_device_register_with_info - register w/ hwmon
+- * @dev: the parent device
+- * @name: hwmon name attribute
+- * @drvdata: driver data to attach to created device
+- * @chip: pointer to hwmon chip information
++ * @dev: the parent device (mandatory)
++ * @name: hwmon name attribute (mandatory)
++ * @drvdata: driver data to attach to created device (optional)
++ * @chip: pointer to hwmon chip information (mandatory)
+  * @extra_groups: pointer to list of additional non-standard attribute groups
++ *	(optional)
+  *
+  * hwmon_device_unregister() must be called when the device is no
+  * longer needed.
+@@ -835,13 +836,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+ 				const struct hwmon_chip_info *chip,
+ 				const struct attribute_group **extra_groups)
+ {
+-	if (!name)
+-		return ERR_PTR(-EINVAL);
+-
+-	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
++	if (!dev || !name || !chip)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	if (chip && !dev)
++	if (!chip->ops || !chip->ops->is_visible || !chip->info)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
 -- 
 2.35.1
 
