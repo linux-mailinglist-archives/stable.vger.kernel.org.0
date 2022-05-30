@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5255381AD
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 438BC538147
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240953AbiE3OUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:20:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42798 "EHLO
+        id S239715AbiE3OTF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:19:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241365AbiE3ORc (ORCPT
+        with ESMTP id S241373AbiE3ORc (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E658FD54;
-        Mon, 30 May 2022 06:45:48 -0700 (PDT)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8B38FD7A;
+        Mon, 30 May 2022 06:45:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95E8160EC3;
-        Mon, 30 May 2022 13:45:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 037DFC36AE7;
-        Mon, 30 May 2022 13:45:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D12AB80D6B;
+        Mon, 30 May 2022 13:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC54C3411A;
+        Mon, 30 May 2022 13:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918347;
-        bh=eSwQJ4MdzEqPLyRF0dMCA29MT+ipw7FAuQyfMB7EKTo=;
+        s=k20201202; t=1653918351;
+        bh=4lNzNS2p7KxnpndFtuhi60Ak7ru+mfW1yQXaFo4Cags=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iIs6a9U5Px7psAqlMuQ6B6Bei6l/CVkwsGhWhXcTEBluLTtXqwCAgwbufHu7OaFlD
-         L6Cb/u5f9TRpIGp/szp9XFxV6LfPeDhiD5OBd859p8iYjs0gz0nWq45jeruvXMrgXc
-         DiRqBSmeux/y+K5SYODJ2wEY6bBu/W6HAnwl44pRkVxNT6VGXe4ziSVvFKwMATRsgX
-         vVrcJSbrhY7uhLOtkO3opK3w32GzSfAExKwyI7LP0hVj2y3fooq7IXGWmaKozjVn5H
-         5fzB58Ij7j0rsUJiq50j15XVWwqoyK75c23qG2SPYE8v5He6c1JEkmLlgcpEZZdZV+
-         aOpy344KjSzIw==
+        b=gPZ2vSC6yeThlldaRvAB4AIQS5c3MYU1TVk7h9CjwzV8PJDEg3IDcJ/L3MSxn7mgh
+         r9CI/rCLWPWViItMLZv7uVktkWtHzjXFElDS2iSlC0Y3p+OTxdGQRNwVtfVnCA4ZSD
+         61f27s9omlNBhiwDKX+skSnp1yyn+6FVDdyDftoPMrhLjAz3TyyVM6Xka4OLhFb42K
+         qi3WhLZVEmWmCusV2lS2w7CvJaJYGmge4ewte+rGDytXGXUfXbUbdcRLPBqn1ukGr1
+         t9nDxfsHZy+DqPvsCV2KzPqRp8mxyQoUkBSOzU3+1Z2XAW/1nE7J6OXZ+AIoMJjxQr
+         WlPKbPxczIJqg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        steven.eckhoff.opensource@gmail.com, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 45/76] ASoC: tscs454: Add endianness flag in snd_soc_component_driver
-Date:   Mon, 30 May 2022 09:43:35 -0400
-Message-Id: <20220530134406.1934928-45-sashal@kernel.org>
+Cc:     Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        pabeni@redhat.com, bigeasy@linutronix.de, imagedong@tencent.com,
+        petrm@nvidia.com, memxor@gmail.com, arnd@arndb.de,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 46/76] net: remove two BUG() from skb_checksum_help()
+Date:   Mon, 30 May 2022 09:43:36 -0400
+Message-Id: <20220530134406.1934928-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -58,66 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ff69ec96b87dccb3a29edef8cec5d4fefbbc2055 ]
+[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
 
-The endianness flag is used on the CODEC side to specify an
-ambivalence to endian, typically because it is lost over the hardware
-link. This device receives audio over an I2S DAI and as such should
-have endianness applied.
+I have a syzbot report that managed to get a crash in skb_checksum_help()
 
-A fixup is also required to use the width directly rather than relying
-on the format in hw_params, now both little and big endian would be
-supported. It is worth noting this changes the behaviour of S24_LE to
-use a word length of 24 rather than 32. This would appear to be a
-correction since the fact S24_LE is stored as 32 bits should not be
-presented over the bus.
+If syzbot can trigger these BUG(), it makes sense to replace
+them with more friendly WARN_ON_ONCE() since skb_checksum_help()
+can instead return an error code.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/20220504170905.332415-26-ckeepax@opensource.cirrus.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Note that syzbot will still crash there, until real bug is fixed.
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/tscs454.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/core/dev.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/tscs454.c b/sound/soc/codecs/tscs454.c
-index d0af16b4db2f..a6f339bb4771 100644
---- a/sound/soc/codecs/tscs454.c
-+++ b/sound/soc/codecs/tscs454.c
-@@ -3115,18 +3115,17 @@ static int set_aif_sample_format(struct snd_soc_component *component,
- 	unsigned int width;
- 	int ret;
+diff --git a/net/core/dev.c b/net/core/dev.c
+index 0bab2aca07fd..af52050b0f38 100644
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -3241,11 +3241,15 @@ int skb_checksum_help(struct sk_buff *skb)
+ 	}
  
--	switch (format) {
--	case SNDRV_PCM_FORMAT_S16_LE:
-+	switch (snd_pcm_format_width(format)) {
-+	case 16:
- 		width = FV_WL_16;
- 		break;
--	case SNDRV_PCM_FORMAT_S20_3LE:
-+	case 20:
- 		width = FV_WL_20;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_3LE:
-+	case 24:
- 		width = FV_WL_24;
- 		break;
--	case SNDRV_PCM_FORMAT_S24_LE:
--	case SNDRV_PCM_FORMAT_S32_LE:
-+	case 32:
- 		width = FV_WL_32;
- 		break;
- 	default:
-@@ -3321,6 +3320,7 @@ static const struct snd_soc_component_driver soc_component_dev_tscs454 = {
- 	.num_dapm_routes = ARRAY_SIZE(tscs454_intercon),
- 	.controls =	tscs454_snd_controls,
- 	.num_controls = ARRAY_SIZE(tscs454_snd_controls),
-+	.endianness = 1,
- };
+ 	offset = skb_checksum_start_offset(skb);
+-	BUG_ON(offset >= skb_headlen(skb));
++	ret = -EINVAL;
++	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
++		goto out;
++
+ 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
  
- #define TSCS454_RATES SNDRV_PCM_RATE_8000_96000
+ 	offset += skb->csum_offset;
+-	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
++	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
++		goto out;
+ 
+ 	ret = skb_ensure_writable(skb, offset + sizeof(__sum16));
+ 	if (ret)
 -- 
 2.35.1
 
