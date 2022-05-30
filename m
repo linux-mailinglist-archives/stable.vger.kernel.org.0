@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29FB153826B
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F2E53828A
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239015AbiE3OXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:23:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54176 "EHLO
+        id S239054AbiE3OYW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:24:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240596AbiE3OT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:19:56 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 527491248F1;
-        Mon, 30 May 2022 06:50:03 -0700 (PDT)
+        with ESMTP id S242194AbiE3OSa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:18:30 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CB5D91573;
+        Mon, 30 May 2022 06:49:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C60660FFA;
-        Mon, 30 May 2022 13:48:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E7BC341C0;
-        Mon, 30 May 2022 13:48:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2176060FE3;
+        Mon, 30 May 2022 13:48:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A29DC36AE3;
+        Mon, 30 May 2022 13:48:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918522;
-        bh=3wuBoO78M/jyBi9wiMoupv9Wxz2G3NRlkB+0uX6BVHo=;
+        s=k20201202; t=1653918524;
+        bh=hqCtAb/WgSm7rzufedKllC993dM4mSQ0Ss6AEyB21jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbIyUb2ktqXgQe5uU0i9KXW3Wrf0CuXwRNcGVKsftzfTunI/OrcwACjH9rz5+T9pr
-         zWta4/tzh/gfCmV+D1WqjUArTTftRja9I6dDyaivPThexVvKaNK670V+ZSE9JTQsYe
-         Dv68EglaZxgLHxXP/pWvCyfIAkNY0T5RMdA7BgY+FGvgMU1iTk9+U6D2mo/40CBAb6
-         cj+Y0IuwSX/awv3mZOMbyADSkU5OBdSocABsNU1B9iUqV4WCTcREkRGARsMIScLhQn
-         X2n/IzTYocAV3hSrX+tshyj6O2499B+xR2MiSSHG5qq0m8jiwb0srZGrKDVDEeJ7ri
-         2PFRTZE1wdtyA==
+        b=biJIFPlBEHiLGmsHm5yxhwSDNu+r6ev9N2je8L2R8FHm7RlxdLNBuXVS3WsJZ22zq
+         NspRNcms1wTy+pvNhKnkAfQ27OukFAZvm53tBtnn1dH3dyffzIcN6d5ghvnbkjEUAS
+         bFjSXc5EqvFJCdCxMp8Ttg0JDDC0cc3haRIdpbBpKg4fw8YdGqqKOytIMw4EQuVADP
+         lvned5DUt0sdccjGVd8fOsPcbIQntyq8ZOQVga/fyKBberBJAbzqDfogGY2FQ4+hX1
+         vNWD6u2cL8TaYi7psgIpagTC5rfOfAU1xOLPcFwI8ldpfLoRMVJuI4DQ23bgY/WTtl
+         OBEFzW7H+VTSQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Corey Minyard <cminyard@mvista.com>,
-        kernel test robot <lkp@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        openipmi-developer@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.4 40/55] ipmi: Fix pr_fmt to avoid compilation issues
-Date:   Mon, 30 May 2022 09:46:46 -0400
-Message-Id: <20220530134701.1935933-40-sashal@kernel.org>
+Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        pkshih@realtek.com, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 41/55] rtlwifi: Use pr_warn instead of WARN_ONCE
+Date:   Mon, 30 May 2022 09:46:47 -0400
+Message-Id: <20220530134701.1935933-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -57,35 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corey Minyard <cminyard@mvista.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 2ebaf18a0b7fb764bba6c806af99fe868cee93de ]
+[ Upstream commit ad732da434a2936128769216eddaece3b1af4588 ]
 
-The was it was wouldn't work in some situations, simplify it.  What was
-there was unnecessary complexity.
+This memory allocation failure can be triggered by fault injection or
+high pressure testing, resulting a WARN.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fix this by replacing WARN with pr_warn.
+
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20220511014453.1621366-1-dzm91@hust.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_msghandler.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/usb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/ipmi/ipmi_msghandler.c b/drivers/char/ipmi/ipmi_msghandler.c
-index ad2e6d55d4a5..736970312bbc 100644
---- a/drivers/char/ipmi/ipmi_msghandler.c
-+++ b/drivers/char/ipmi/ipmi_msghandler.c
-@@ -11,8 +11,8 @@
-  * Copyright 2002 MontaVista Software Inc.
-  */
- 
--#define pr_fmt(fmt) "%s" fmt, "IPMI message handler: "
--#define dev_fmt pr_fmt
-+#define pr_fmt(fmt) "IPMI message handler: " fmt
-+#define dev_fmt(fmt) pr_fmt(fmt)
- 
- #include <linux/module.h>
- #include <linux/errno.h>
+diff --git a/drivers/net/wireless/realtek/rtlwifi/usb.c b/drivers/net/wireless/realtek/rtlwifi/usb.c
+index bad06939a247..9bcb187d37dc 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/usb.c
++++ b/drivers/net/wireless/realtek/rtlwifi/usb.c
+@@ -1013,7 +1013,7 @@ int rtl_usb_probe(struct usb_interface *intf,
+ 	hw = ieee80211_alloc_hw(sizeof(struct rtl_priv) +
+ 				sizeof(struct rtl_usb_priv), &rtl_ops);
+ 	if (!hw) {
+-		WARN_ONCE(true, "rtl_usb: ieee80211 alloc failed\n");
++		pr_warn("rtl_usb: ieee80211 alloc failed\n");
+ 		return -ENOMEM;
+ 	}
+ 	rtlpriv = hw->priv;
 -- 
 2.35.1
 
