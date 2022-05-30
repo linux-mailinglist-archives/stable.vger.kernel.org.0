@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B50953806C
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:23:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425F5537FAF
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:21:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239661AbiE3OKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:10:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54724 "EHLO
+        id S239879AbiE3OKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:10:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240077AbiE3OG2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:06:28 -0400
+        with ESMTP id S240103AbiE3OGa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:06:30 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7AF35AAF;
-        Mon, 30 May 2022 06:41:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA41377E1;
+        Mon, 30 May 2022 06:41:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EF9BEB80D86;
-        Mon, 30 May 2022 13:41:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40590C3411C;
-        Mon, 30 May 2022 13:41:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E616B80DB0;
+        Mon, 30 May 2022 13:41:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2149CC3411A;
+        Mon, 30 May 2022 13:41:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918110;
-        bh=ENYoUzxPB664IG1sN5huDvIcLEy/V+cCgsIQBznRbKg=;
+        s=k20201202; t=1653918114;
+        bh=g7XB8B2hXhx0t6vm3lGhWMstRlw7oJH8/lHkhtWU6kk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOOUJnKoHXi1OODJji/4uozjCxJlDNPnvUqUvahcy13bJ2LFFEZerLGsLKhWpBXF6
-         nXe6YatXAfJniVqkzS8q4DP4lcx2Nfs6+iT3mBbXL43gukVWtZOFgseAAGGvMK1QrQ
-         HvyCJaLHX1MM/GhhN12VF/8+2MF7OCLTf2JCt92eCxKAGHBdZJ9mHJcJe9CNPRgSOw
-         bEGlBp5GZAQJUL//WQZq1dNZeEIAeycbdZGe9iH1Rg8pccRExyT58rH0uGequ2pyiO
-         t74eTKaRu456FRvVwDhpjh98SEX/o9Iyf8CUW0sp/ssbPkiNkZzPOmcaz64HVMaqPA
-         1BYNH7hMM7Vvw==
+        b=bT3/vRkH5cjhjDJUKXeQw4Nvbp6V7cjQNZ0IGFAMpnGBZPc6/GeBBwM07g8rhe4TT
+         llhlg511jIS7Z1VyF2nK230EvmTCDMLHUidG0fP+DGDRjTGg8LLMam9eVsqZRf/seT
+         D3Hw6RulehPxmtoxXWtuko9w11kbrSOsCl/FiHlMOT5BXpQwXjzW3BBeMvUgFE6w1T
+         RYQetXq3DvAuxToBRkVCfS2pvVWS05IeaWcCtQA8EmR/ux4WrcTzjSZjqWPmG7//+4
+         ITkszc7xrZud36SaCHauurL4Hcv1yiRGwMuQMSNsnnsUELpDdYxF4BDT93sjEikPcu
+         eoNOo6BG3S+QQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, bigeasy@linutronix.de, imagedong@tencent.com,
-        petrm@nvidia.com, memxor@gmail.com, arnd@arndb.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 064/109] net: remove two BUG() from skb_checksum_help()
-Date:   Mon, 30 May 2022 09:37:40 -0400
-Message-Id: <20220530133825.1933431-64-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Thomas Richter <tmricht@linux.ibm.com>,
+        Sven Schnelle <svens@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
+        agordeev@linux.ibm.com, vschneid@redhat.com,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 065/109] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
+Date:   Mon, 30 May 2022 09:37:41 -0400
+Message-Id: <20220530133825.1933431-65-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -59,47 +60,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
+[ Upstream commit 63678eecec57fc51b778be3da35a397931287170 ]
 
-I have a syzbot report that managed to get a crash in skb_checksum_help()
+gcc 12 does not (always) optimize away code that should only be generated
+if parameters are constant and within in a certain range. This depends on
+various obscure kernel config options, however in particular
+PROFILE_ALL_BRANCHES can trigger this compile error:
 
-If syzbot can trigger these BUG(), it makes sense to replace
-them with more friendly WARN_ON_ONCE() since skb_checksum_help()
-can instead return an error code.
+In function ‘__atomic_add_const’,
+    inlined from ‘__preempt_count_add.part.0’ at ./arch/s390/include/asm/preempt.h:50:3:
+./arch/s390/include/asm/atomic_ops.h:80:9: error: impossible constraint in ‘asm’
+   80 |         asm volatile(                                                   \
+      |         ^~~
 
-Note that syzbot will still crash there, until real bug is fixed.
+Workaround this by simply disabling the optimization for
+PROFILE_ALL_BRANCHES, since the kernel will be so slow, that this
+optimization won't matter at all.
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Thomas Richter <tmricht@linux.ibm.com>
+Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/s390/include/asm/preempt.h | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 5907212c00f3..b9731b267d07 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3233,11 +3233,15 @@ int skb_checksum_help(struct sk_buff *skb)
- 	}
+diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
+index d9d5350cc3ec..bf15da0fedbc 100644
+--- a/arch/s390/include/asm/preempt.h
++++ b/arch/s390/include/asm/preempt.h
+@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
  
- 	offset = skb_checksum_start_offset(skb);
--	BUG_ON(offset >= skb_headlen(skb));
-+	ret = -EINVAL;
-+	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
-+		goto out;
-+
- 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
+ static inline void __preempt_count_add(int val)
+ {
+-	if (__builtin_constant_p(val) && (val >= -128) && (val <= 127))
+-		__atomic_add_const(val, &S390_lowcore.preempt_count);
+-	else
+-		__atomic_add(val, &S390_lowcore.preempt_count);
++	/*
++	 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
++	 * enabled, gcc 12 fails to handle __builtin_constant_p().
++	 */
++	if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
++		if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
++			__atomic_add_const(val, &S390_lowcore.preempt_count);
++			return;
++		}
++	}
++	__atomic_add(val, &S390_lowcore.preempt_count);
+ }
  
- 	offset += skb->csum_offset;
--	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
-+	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
-+		goto out;
- 
- 	ret = skb_ensure_writable(skb, offset + sizeof(__sum16));
- 	if (ret)
+ static inline void __preempt_count_sub(int val)
 -- 
 2.35.1
 
