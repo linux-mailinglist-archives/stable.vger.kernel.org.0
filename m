@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA19F537BA5
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:27:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C31CB537BA7
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:28:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236858AbiE3N1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58348 "EHLO
+        id S236711AbiE3N1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:27:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236851AbiE3N0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:26:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53DF58217F;
-        Mon, 30 May 2022 06:25:36 -0700 (PDT)
+        with ESMTP id S236828AbiE3N1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:27:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB6C1880C2;
+        Mon, 30 May 2022 06:25:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C710DB80DAB;
-        Mon, 30 May 2022 13:25:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AD6DC36AEC;
-        Mon, 30 May 2022 13:25:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D5E560EC7;
+        Mon, 30 May 2022 13:25:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E39BCC3411A;
+        Mon, 30 May 2022 13:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917130;
-        bh=bTy7eSiSqDvutHsXgMZcx2/dEoVMvfG7QbEGLxajA5Y=;
+        s=k20201202; t=1653917132;
+        bh=pBcuqRJyXkrcTTWjrJgll4gSCsKtCBBitGAKZhcs2VI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joUIRrshK4hT5vfKUNob8joJvw4KzJqDH4PD5jyYw9BMPaW/kNg8HUN3+oxHkr4h1
-         nBsmSsnDKGdc7Y+eC5RH+OljU9RvF5y6PXZQoChZyjGRXx12KRkUi50QFNueUuAQws
-         RkrHYfArOO5PUCG06o7mH4DHkAO+KYv96dsHQqE8DscPJSU1Okpo7gDe3b8EV+N4mH
-         Ri46BfzaEQb40oEkQk75giFlyeRkosDPvLOV6C816PTaRBK2/bol98YjBLTsXdEQQU
-         qzA6NebG9yxvpq2bMp0o6cOz7Or/GzB8K8ux/D4WQix9ZWhSO0HroT0AN5ifY4Z/fX
-         rX4GPICJxR9ug==
+        b=BvJ4sCoxeh49ILCWTG7GyyXRVcboQHBaPX04Muf9MwKgLSFML2sWDlkvhg714CDpf
+         1LkZqr75VJZQLMShFnVAHfeiG2C/FCboRC1MZM/0C2/6t+q1wRYqYcGLDbPPCXTliv
+         cmUdNqJvezaQUJoZ5w909U+tBIkd4wWtXkVKviM42kY70CPPuCgY+p8pMm6Dyj8bKG
+         wzxJ+6lk7RmKuF95Prdz8KfN7mzIhi8xDCkchpwVWevQHqa9zyfI8a4RMvvPj/WMgt
+         ASnuxDl71yVQ8bfn9Dvk2bKkb5jKMQTrP0l+FeNywstq8+UIr3NI2N5bjS3mN39Gj9
+         idp8XSlIUXBlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 026/159] rcu: Make TASKS_RUDE_RCU select IRQ_WORK
-Date:   Mon, 30 May 2022 09:22:11 -0400
-Message-Id: <20220530132425.1929512-26-sashal@kernel.org>
+Cc:     Haowen Bai <baihaowen@meizu.com>,
+        Edward Cree <ecree.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, habetsm.xilinx@gmail.com,
+        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 027/159] sfc: ef10: Fix assigning negative value to unsigned variable
+Date:   Mon, 30 May 2022 09:22:12 -0400
+Message-Id: <20220530132425.1929512-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -58,33 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Haowen Bai <baihaowen@meizu.com>
 
-[ Upstream commit 46e861be589881e0905b9ade3d8439883858721c ]
+[ Upstream commit b8ff3395fbdf3b79a99d0ef410fc34c51044121e ]
 
-The TASKS_RUDE_RCU does not select IRQ_WORK, which can result in build
-failures for kernels that do not otherwise select IRQ_WORK.  This commit
-therefore causes the TASKS_RUDE_RCU Kconfig option to select IRQ_WORK.
+fix warning reported by smatch:
+251 drivers/net/ethernet/sfc/ef10.c:2259 efx_ef10_tx_tso_desc()
+warn: assigning (-208) to unsigned variable 'ip_tot_len'
 
-Reported-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Haowen Bai <baihaowen@meizu.com>
+Acked-by: Edward Cree <ecree.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/1649640757-30041-1-git-send-email-baihaowen@meizu.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/sfc/ef10.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/Kconfig b/kernel/rcu/Kconfig
-index bf8e341e75b4..f559870fbf8b 100644
---- a/kernel/rcu/Kconfig
-+++ b/kernel/rcu/Kconfig
-@@ -86,6 +86,7 @@ config TASKS_RCU
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index f8edb3f1b73a..186cb28c03bd 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -2256,7 +2256,7 @@ int efx_ef10_tx_tso_desc(struct efx_tx_queue *tx_queue, struct sk_buff *skb,
+ 	 * guaranteed to satisfy the second as we only attempt TSO if
+ 	 * inner_network_header <= 208.
+ 	 */
+-	ip_tot_len = -EFX_TSO2_MAX_HDRLEN;
++	ip_tot_len = 0x10000 - EFX_TSO2_MAX_HDRLEN;
+ 	EFX_WARN_ON_ONCE_PARANOID(mss + EFX_TSO2_MAX_HDRLEN +
+ 				  (tcp->doff << 2u) > ip_tot_len);
  
- config TASKS_RUDE_RCU
- 	def_bool 0
-+	select IRQ_WORK
- 	help
- 	  This option enables a task-based RCU implementation that uses
- 	  only context switch (including preemption) and user-mode
 -- 
 2.35.1
 
