@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECD65537DB4
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:43:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B937537D5B
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237527AbiE3Ngt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44736 "EHLO
+        id S237690AbiE3Ng4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:36:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237191AbiE3Nee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:34:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20212915B1;
-        Mon, 30 May 2022 06:28:13 -0700 (PDT)
+        with ESMTP id S237671AbiE3Nfj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:39 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 544E3939F3;
+        Mon, 30 May 2022 06:28:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47707B80DAE;
-        Mon, 30 May 2022 13:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88FBEC36AEB;
-        Mon, 30 May 2022 13:28:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 054C0B80DB2;
+        Mon, 30 May 2022 13:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86ED3C3411A;
+        Mon, 30 May 2022 13:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917288;
-        bh=mkOZcs9H0Fc6oEmSvunN1C04xzrsehRv9BhzW7OHhdE=;
+        s=k20201202; t=1653917289;
+        bh=cB/zmou4JNBatz0EsRvy0e6Im6lxkG/oKJCnqFwoMfc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VojYc2GhQRlvfNqN3l7lLVB59QxQBsS9tDUWYG9Dg/mxJcS8bYNkMmfhZd1+TbzXP
-         5wnlGbVh9bfkYPwQOOo1GhzLyG9jAeH1bRPFSW3mf77Ey0fPe1N4rYBX+meiCh8LLC
-         cZqEjYo8yI5oDkhkpyJBQYM/fvdxlgrjZwaBEAoET197YJn9Hs6XQugQh//+tFIjN0
-         WXeMNRlSFppS0e5RqH78xpJk+9zOHpAbH6sRspFDHiVjsYvXn3NqfxtvJXVjoRTo+y
-         Zl84bUqz3U+bufCQmOfSh4/SO/nIwWTfSEAJGucc2h6aYQht8K/QvRZHb+xB/3Er0A
-         ndcJHvwvIUZ9Q==
+        b=gnbF5e/5rKsOAwr29OGA6RwUygnlsinIFDdDhsfp2gKGdl10CuP+QDJNcMLZ4/Eg6
+         8paBM9OrKTMcHFjBRKQvStXE4feMBO1ZFJGKAmJ0TE655bY+m/gmgpCZRF3QL0gJ2R
+         0iA2sLtGFKCidb0hdbG+SvpvY1iA/9Uq3+K8dQuF9wzbeQ2MHZVmAn/R5GUGXasSLa
+         ydbBMd/rf//IYJ15ikbsZ+dRrttnymUmFlrHgD1cxHbCYBJSVl3qed3Uf8yIUDWIJb
+         BtJMzWy8q6soy26JVHts2sOP9P1mbdbVu2aEmKGYEO1TNRfkBGdppgFHBU6pnph4LA
+         mHCajZ8CNfXug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alice Wong <shiwei.wong@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, Likun.Gao@amd.com, john.clements@amd.com,
-        candice.li@amd.com, lang.yu@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 083/159] drm/amdgpu/ucode: Remove firmware load type check in amdgpu_ucode_free_bo
-Date:   Mon, 30 May 2022 09:23:08 -0400
-Message-Id: <20220530132425.1929512-83-sashal@kernel.org>
+Cc:     =?UTF-8?q?N=C3=ADcolas=20F=2E=20R=2E=20A=2E=20Prado?= 
+        <nfraprado@collabora.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        matthias.bgg@gmail.com, hsin-hsiung.wang@mediatek.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.18 084/159] regulator: mt6315: Enforce regulator-compatible, not name
+Date:   Mon, 30 May 2022 09:23:09 -0400
+Message-Id: <20220530132425.1929512-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,37 +61,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alice Wong <shiwei.wong@amd.com>
+From: Nícolas F. R. A. Prado <nfraprado@collabora.com>
 
-[ Upstream commit ab0cd4a9ae5b4679b714d8dbfedc0901fecdce9f ]
+[ Upstream commit 6d435a94ba5bb4f2ad381c0828fbae89c66b50fe ]
 
-When psp_hw_init failed, it will set the load_type to AMDGPU_FW_LOAD_DIRECT.
-During amdgpu_device_ip_fini, amdgpu_ucode_free_bo checks that load_type is
-AMDGPU_FW_LOAD_DIRECT and skips deallocating fw_buf causing memory leak.
-Remove load_type check in amdgpu_ucode_free_bo.
+The MT6315 PMIC dt-binding should enforce that one of the valid
+regulator-compatible is set in each regulator node. However it was
+mistakenly matching against regulator-name instead.
 
-Signed-off-by: Alice Wong <shiwei.wong@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fix the typo. This not only fixes the compatible verification, but also
+lifts the regulator-name restriction, so that more meaningful names can
+be set for each platform.
+
+Signed-off-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Link: https://lore.kernel.org/r/20220429201325.2205799-1-nfraprado@collabora.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../devicetree/bindings/regulator/mt6315-regulator.yaml         | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
-index ca3350502618..aebafbc327fb 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ucode.c
-@@ -714,8 +714,7 @@ int amdgpu_ucode_create_bo(struct amdgpu_device *adev)
+diff --git a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+index 61dd5af80db6..5d2d989de893 100644
+--- a/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
++++ b/Documentation/devicetree/bindings/regulator/mt6315-regulator.yaml
+@@ -31,7 +31,7 @@ properties:
+         $ref: "regulator.yaml#"
  
- void amdgpu_ucode_free_bo(struct amdgpu_device *adev)
- {
--	if (adev->firmware.load_type != AMDGPU_FW_LOAD_DIRECT)
--		amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
-+	amdgpu_bo_free_kernel(&adev->firmware.fw_buf,
- 		&adev->firmware.fw_buf_mc,
- 		&adev->firmware.fw_buf_ptr);
- }
+         properties:
+-          regulator-name:
++          regulator-compatible:
+             pattern: "^vbuck[1-4]$"
+ 
+     additionalProperties: false
 -- 
 2.35.1
 
