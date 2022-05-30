@@ -2,55 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 17C2353822A
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 862AC5381CD
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237788AbiE3OWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:22:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40114 "EHLO
+        id S240621AbiE3OT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:19:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240746AbiE3OQW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:16:22 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711479983E;
-        Mon, 30 May 2022 06:43:50 -0700 (PDT)
+        with ESMTP id S240471AbiE3OPy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:15:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566CAEC3FC;
+        Mon, 30 May 2022 06:43:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3875760F22;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E952B60F38;
+        Mon, 30 May 2022 13:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40142C3411F;
         Mon, 30 May 2022 13:43:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D81DC385B8;
-        Mon, 30 May 2022 13:43:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918209;
-        bh=lCKe4ucTRzZZVHOi/79ZSIpq7eiSisbTI1Mxo7eA1Xo=;
+        s=k20201202; t=1653918211;
+        bh=k0V0CGh24QZpI6yNSYhiwQtHgkrRzv0OACgWzWYIktE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uv7jecdjcjvjvAQmYvCM0U5NYss5erIY4aZGPqrs2f2zr7zHGPnHSsuHryTN1Y43O
-         W3YKb4du7bqSQdVxSCxkp8Ve5e9FFQI76GzgLHxTjfc/o3MxEk3gb+7RrPxl37v8B0
-         Qfv5G0q2TBs8nMQGqgHO4Sy09TRZbfI+zYSmIqxBfZudMZIjKGrOx39hFUdbsSC2mN
-         rIQz+HFxz3hGBRKP/ny9eelqKslOQ0qIcL8nMpz+tIweZ2jWezbBlY2gv2z813QbtY
-         iLytCjXKMsdavkFD/2B2HSgMgi/4yxbjExhV6o2PtqI/Eo8AYglstg1l1Yg7ZKRhX1
-         +HPx2lORmQqiQ==
+        b=Q157JKIWkKUZ3guDLN8oex1goi7YbW9bR5O6xphACwgCgkjH6ZAg8SwyOpyRsWJ3p
+         YK0crmvHGwsWTZfuKkDpFIrzXbtTonvRzM8KPB7XYdpmIq0zxlx0slTfWhydbaPmPY
+         NkSGEAQRJFn7VzeugLUNRKc3Pp5J2QejbvY93gZ7L7EciipQ9vLOKb1VtYJjENEnr8
+         rS1FTgRCnrQ1vQiaqQyIhzQcJdoWOmyWoRKi6cGaU+QGXiB/C4u0kjbhPoy2jXt9KW
+         qcP2NTE3O4M5ewxg6WBnVVDOZU82uB4OhWlWcVtkt9XBJzzj/B9+Ueoz6sdb4oYe+U
+         +5T67uyJsANiw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        kernel test robot <yujie.liu@intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        srinivas.kandagatla@linaro.org, tanureal@opensource.cirrus.com,
-        james.schulman@cirrus.com, cy_huang@richtek.com,
-        pbrobinson@gmail.com, hdegoede@redhat.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.15 094/109] ASoC: rt1015p: remove dependency on GPIOLIB
-Date:   Mon, 30 May 2022 09:38:10 -0400
-Message-Id: <20220530133825.1933431-94-sashal@kernel.org>
+Cc:     Pierre Gondois <Pierre.Gondois@arm.com>,
+        Pierre Gondois <pierre.gondois@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 095/109] ACPI: CPPC: Assume no transition latency if no PCCT
+Date:   Mon, 30 May 2022 09:38:11 -0400
+Message-Id: <20220530133825.1933431-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -64,54 +59,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Pierre Gondois <Pierre.Gondois@arm.com>
 
-[ Upstream commit b390c25c6757b9d56cecdfbf6d55f15fc89a6386 ]
+[ Upstream commit 6380b7b2b29da9d9c5ab2d4a265901cd93ba3696 ]
 
-commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
-series of unnecessary dependencies on GPIOLIB when the gpio was
-optional.
+The transition_delay_us (struct cpufreq_policy) is currently defined
+as:
+  Preferred average time interval between consecutive invocations of
+  the driver to set the frequency for this policy.  To be set by the
+  scaling driver (0, which is the default, means no preference).
+The transition_latency represents the amount of time necessary for a
+CPU to change its frequency.
 
-A similar simplification seems valid for rt1015p, so remove the
-dependency as well. This will avoid the following warning
+A PCCT table advertises mutliple values:
+- pcc_nominal: Expected latency to process a command, in microseconds
+- pcc_mpar: The maximum number of periodic requests that the subspace
+  channel can support, reported in commands per minute. 0 indicates no
+  limitation.
+- pcc_mrtt: The minimum amount of time that OSPM must wait after the
+  completion of a command before issuing the next command,
+  in microseconds.
+cppc_get_transition_latency() allows to get the max of them.
 
-  WARNING: unmet direct dependencies detected for SND_SOC_RT1015P
+commit d4f3388afd48 ("cpufreq / CPPC: Set platform specific
+transition_delay_us") allows to select transition_delay_us based on
+the platform, and fallbacks to cppc_get_transition_latency()
+otherwise.
 
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] &&
-     GPIOLIB [=n]
+If _CPC objects are not using PCC channels (no PPCT table), the
+transition_delay_us is set to CPUFREQ_ETERNAL, leading to really long
+periods between frequency updates (~4s).
 
-     Selected by [y]:
+If the desired_reg, where performance requests are written, is in
+SystemMemory or SystemIo ACPI address space, there is no delay
+in requests. So return 0 instead of CPUFREQ_ETERNAL, leading to
+transition_delay_us being set to LATENCY_MULTIPLIER us (1000 us).
 
-     - SND_SOC_INTEL_SOF_RT5682_MACH [=y] && SOUND [=y] && !UML && SND
-       [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
-       (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && (SND_HDA_CODEC_HDMI [=y] &&
-       SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=y]) || SND_SOC_SOF_BAYTRAIL [=n] &&
-       (X86_INTEL_LPSS [=n] || COMPILE_TEST [=y]))
+This patch also adds two macros to check the address spaces.
 
-Reported-by: kernel test robot <yujie.liu@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-3-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+Reviewed-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/acpi/cppc_acpi.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 2cbf4fc0f675..d59a7e99ce42 100644
---- a/sound/soc/codecs/Kconfig
-+++ b/sound/soc/codecs/Kconfig
-@@ -1148,7 +1148,6 @@ config SND_SOC_RT1015
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index 71b87c16f92d..ed1341030684 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -100,6 +100,16 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
+ 				(cpc)->cpc_entry.reg.space_id ==	\
+ 				ACPI_ADR_SPACE_PLATFORM_COMM)
  
- config SND_SOC_RT1015P
- 	tristate
--	depends on GPIOLIB
++/* Check if a CPC register is in SystemMemory */
++#define CPC_IN_SYSTEM_MEMORY(cpc) ((cpc)->type == ACPI_TYPE_BUFFER &&	\
++				(cpc)->cpc_entry.reg.space_id ==	\
++				ACPI_ADR_SPACE_SYSTEM_MEMORY)
++
++/* Check if a CPC register is in SystemIo */
++#define CPC_IN_SYSTEM_IO(cpc) ((cpc)->type == ACPI_TYPE_BUFFER &&	\
++				(cpc)->cpc_entry.reg.space_id ==	\
++				ACPI_ADR_SPACE_SYSTEM_IO)
++
+ /* Evaluates to True if reg is a NULL register descriptor */
+ #define IS_NULL_REG(reg) ((reg)->space_id ==  ACPI_ADR_SPACE_SYSTEM_MEMORY && \
+ 				(reg)->address == 0 &&			\
+@@ -1378,6 +1388,9 @@ EXPORT_SYMBOL_GPL(cppc_set_perf);
+  * transition latency for performance change requests. The closest we have
+  * is the timing information from the PCCT tables which provides the info
+  * on the number and frequency of PCC commands the platform can handle.
++ *
++ * If desired_reg is in the SystemMemory or SystemIo ACPI address space,
++ * then assume there is no latency.
+  */
+ unsigned int cppc_get_transition_latency(int cpu_num)
+ {
+@@ -1403,7 +1416,9 @@ unsigned int cppc_get_transition_latency(int cpu_num)
+ 		return CPUFREQ_ETERNAL;
  
- config SND_SOC_RT1019
- 	tristate
+ 	desired_reg = &cpc_desc->cpc_regs[DESIRED_PERF];
+-	if (!CPC_IN_PCC(desired_reg))
++	if (CPC_IN_SYSTEM_MEMORY(desired_reg) || CPC_IN_SYSTEM_IO(desired_reg))
++		return 0;
++	else if (!CPC_IN_PCC(desired_reg))
+ 		return CPUFREQ_ETERNAL;
+ 
+ 	if (pcc_ss_id < 0)
 -- 
 2.35.1
 
