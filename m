@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD1C538038
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF57537FA0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238487AbiE3NwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:52:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38132 "EHLO
+        id S238523AbiE3NwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:52:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239253AbiE3NvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A0A92D2B;
-        Mon, 30 May 2022 06:35:37 -0700 (PDT)
+        with ESMTP id S239262AbiE3NvZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:25 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC87C8214F;
+        Mon, 30 May 2022 06:35:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A684E60F27;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DB74B80DAD;
+        Mon, 30 May 2022 13:35:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEE20C3411C;
         Mon, 30 May 2022 13:35:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D603EC3411E;
-        Mon, 30 May 2022 13:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917736;
-        bh=g7XB8B2hXhx0t6vm3lGhWMstRlw7oJH8/lHkhtWU6kk=;
+        s=k20201202; t=1653917738;
+        bh=sbZJ/EgR/Q6h7bQ8bXYkdHk3sVPiz5d14IrGMh6M1ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcTUjfbrNK9PGGB6N+1VUv1HdondabMkgzzAkxaqM2PiZv4wfgl1MLuFqbdBBA2BK
-         9S1c8ZM3kYqAXq+5eO0GavyZxDdNiCGoKlOykeZWbyTT5y0muptTO9L9pcQ13mvUOx
-         XTPiuPGrvXiHNgbN8qjoVp5RpGr8MlARvFxs6HpGZPdhOoF6o8kCkJTYXCkTOkERH+
-         i21gTXVb4ZfyTNneuAKgj00XfuFhtObc6XdohWWaj10IoC4C9NIOXzea98bDj2wlNn
-         sypplksmOi1/Yfgn3OTyGCj9Huy/darqIcSwZ070ilPnOpiTZvRGo3og47ZaerfuEi
-         eooUgx94XfkSQ==
+        b=YPHQuukh3CcJ7/EF+LAtw64YoOqXZBodweexv9WU0N3JfHy3oZLavNo6dBdr+SBVU
+         Hjz/RV8gwiT25wRHFSlOCbYBzwyntVBBpqfsnyiVYAApliODcgGbTQ4qAuwl20ETkV
+         dKlU3tkK3s2Rt4uEA4nOQA9cY5QORQDtZx1ywOrV0xF//el8rl2A1Rpo3hFk6AQSvk
+         ihtdWWBmmlR8tUu3gzYdPalUCxhc44FWItfDH45EZeHbvXFUsqH5K36a5n69iyzJTc
+         mwd3kSHL3JS3kdBZMw0wGCp2XSHCKNsQVkjIN72SUFp5kWwN2yqvjyfiaThnVL/s4j
+         OkjLYXf8pmqbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Thomas Richter <tmricht@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, vschneid@redhat.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 079/135] s390/preempt: disable __preempt_count_add() optimization for PROFILE_ALL_BRANCHES
-Date:   Mon, 30 May 2022 09:30:37 -0400
-Message-Id: <20220530133133.1931716-79-sashal@kernel.org>
+Cc:     Ravi Bangoria <ravi.bangoria@amd.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        acme@kernel.org, tglx@linutronix.de, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 080/135] perf/amd/ibs: Cascade pmu init functions' return value
+Date:   Mon, 30 May 2022 09:30:38 -0400
+Message-Id: <20220530133133.1931716-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -60,59 +59,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Ravi Bangoria <ravi.bangoria@amd.com>
 
-[ Upstream commit 63678eecec57fc51b778be3da35a397931287170 ]
+[ Upstream commit 39b2ca75eec8a33e2ffdb8aa0c4840ec3e3b472c ]
 
-gcc 12 does not (always) optimize away code that should only be generated
-if parameters are constant and within in a certain range. This depends on
-various obscure kernel config options, however in particular
-PROFILE_ALL_BRANCHES can trigger this compile error:
+IBS pmu initialization code ignores return value provided by
+callee functions. Fix it.
 
-In function ‘__atomic_add_const’,
-    inlined from ‘__preempt_count_add.part.0’ at ./arch/s390/include/asm/preempt.h:50:3:
-./arch/s390/include/asm/atomic_ops.h:80:9: error: impossible constraint in ‘asm’
-   80 |         asm volatile(                                                   \
-      |         ^~~
-
-Workaround this by simply disabling the optimization for
-PROFILE_ALL_BRANCHES, since the kernel will be so slow, that this
-optimization won't matter at all.
-
-Reported-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Ravi Bangoria <ravi.bangoria@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lore.kernel.org/r/20220509044914.1473-2-ravi.bangoria@amd.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/preempt.h | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ arch/x86/events/amd/ibs.c | 37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-diff --git a/arch/s390/include/asm/preempt.h b/arch/s390/include/asm/preempt.h
-index d9d5350cc3ec..bf15da0fedbc 100644
---- a/arch/s390/include/asm/preempt.h
-+++ b/arch/s390/include/asm/preempt.h
-@@ -46,10 +46,17 @@ static inline bool test_preempt_need_resched(void)
- 
- static inline void __preempt_count_add(int val)
- {
--	if (__builtin_constant_p(val) && (val >= -128) && (val <= 127))
--		__atomic_add_const(val, &S390_lowcore.preempt_count);
--	else
--		__atomic_add(val, &S390_lowcore.preempt_count);
-+	/*
-+	 * With some obscure config options and CONFIG_PROFILE_ALL_BRANCHES
-+	 * enabled, gcc 12 fails to handle __builtin_constant_p().
-+	 */
-+	if (!IS_ENABLED(CONFIG_PROFILE_ALL_BRANCHES)) {
-+		if (__builtin_constant_p(val) && (val >= -128) && (val <= 127)) {
-+			__atomic_add_const(val, &S390_lowcore.preempt_count);
-+			return;
-+		}
-+	}
-+	__atomic_add(val, &S390_lowcore.preempt_count);
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 9739019d4b67..367ca899e6e8 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -759,9 +759,10 @@ static __init int perf_ibs_pmu_init(struct perf_ibs *perf_ibs, char *name)
+ 	return ret;
  }
  
- static inline void __preempt_count_sub(int val)
+-static __init void perf_event_ibs_init(void)
++static __init int perf_event_ibs_init(void)
+ {
+ 	struct attribute **attr = ibs_op_format_attrs;
++	int ret;
+ 
+ 	/*
+ 	 * Some chips fail to reset the fetch count when it is written; instead
+@@ -773,7 +774,9 @@ static __init void perf_event_ibs_init(void)
+ 	if (boot_cpu_data.x86 == 0x19 && boot_cpu_data.x86_model < 0x10)
+ 		perf_ibs_fetch.fetch_ignore_if_zero_rip = 1;
+ 
+-	perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	ret = perf_ibs_pmu_init(&perf_ibs_fetch, "ibs_fetch");
++	if (ret)
++		return ret;
+ 
+ 	if (ibs_caps & IBS_CAPS_OPCNT) {
+ 		perf_ibs_op.config_mask |= IBS_OP_CNT_CTL;
+@@ -786,15 +789,35 @@ static __init void perf_event_ibs_init(void)
+ 		perf_ibs_op.cnt_mask    |= IBS_OP_MAX_CNT_EXT_MASK;
+ 	}
+ 
+-	perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	ret = perf_ibs_pmu_init(&perf_ibs_op, "ibs_op");
++	if (ret)
++		goto err_op;
++
++	ret = register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
++	if (ret)
++		goto err_nmi;
+ 
+-	register_nmi_handler(NMI_LOCAL, perf_ibs_nmi_handler, 0, "perf_ibs");
+ 	pr_info("perf: AMD IBS detected (0x%08x)\n", ibs_caps);
++	return 0;
++
++err_nmi:
++	perf_pmu_unregister(&perf_ibs_op.pmu);
++	free_percpu(perf_ibs_op.pcpu);
++	perf_ibs_op.pcpu = NULL;
++err_op:
++	perf_pmu_unregister(&perf_ibs_fetch.pmu);
++	free_percpu(perf_ibs_fetch.pcpu);
++	perf_ibs_fetch.pcpu = NULL;
++
++	return ret;
+ }
+ 
+ #else /* defined(CONFIG_PERF_EVENTS) && defined(CONFIG_CPU_SUP_AMD) */
+ 
+-static __init void perf_event_ibs_init(void) { }
++static __init int perf_event_ibs_init(void)
++{
++	return 0;
++}
+ 
+ #endif
+ 
+@@ -1064,9 +1087,7 @@ static __init int amd_ibs_init(void)
+ 			  x86_pmu_amd_ibs_starting_cpu,
+ 			  x86_pmu_amd_ibs_dying_cpu);
+ 
+-	perf_event_ibs_init();
+-
+-	return 0;
++	return perf_event_ibs_init();
+ }
+ 
+ /* Since we need the pci subsystem to init ibs we can't do this earlier: */
 -- 
 2.35.1
 
