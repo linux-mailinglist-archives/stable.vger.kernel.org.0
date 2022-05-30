@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89BC2537DB7
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:43:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5E1537DB9
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:43:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237620AbiE3Nlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:41:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55866 "EHLO
+        id S237628AbiE3Nld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:41:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237626AbiE3NkF (ORCPT
+        with ESMTP id S237743AbiE3NkF (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:40:05 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B063D113;
-        Mon, 30 May 2022 06:31:31 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A97C2312;
+        Mon, 30 May 2022 06:31:32 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E862EB80DA8;
-        Mon, 30 May 2022 13:31:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78DBC341C4;
-        Mon, 30 May 2022 13:31:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3225760F38;
+        Mon, 30 May 2022 13:31:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5347C385B8;
+        Mon, 30 May 2022 13:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917488;
-        bh=HwjH44pS8984mw7Nh4lKusX1l8RJWXNJDc+xlPI7FLA=;
+        s=k20201202; t=1653917491;
+        bh=jAuNF6M+3PV9HonytzGTV1kYObV5ikBT2owp1pOQg1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9XlPGmoJbfkB6MtM6B/1FUIjICDgyS9AbhfLnlh0TAbozKpCeFr2DSe5eIHTE0K2
-         f0RdQfq2kJX8vcBiXZdtYc9rZdyKHH7HNmQvzXa15JHqQwF1CmFYsijdbR8m0Zeuin
-         px7UiIW5BLSwTMfp1DAU/xzGJfAmYrXcEufX3OHpFAvVXRoHNBEoZKJtC3GTX8bFUh
-         peit+jdTNLP6W8B1lXgGVXGLUy7msq2/kKmpr6cpZk8r35VQbq+WWnLiMR3DSmBfXh
-         kS5vDiO8Q4KyEqLZH9AyrckNBTIEB73K4FYCLMWON45LFpLBVcpuYOLyHg6moBKZwb
-         7FohltX+rkqhA==
+        b=WP++i7pt4OSU5WVvZmSIcwmke03bwa+ElZfq5iBkvXTrTILWoYZ4LB03q5EWGG8I+
+         mt7d9fslyZ1rI9k2/g4Zv6RJTaVLe78hNgf1FpfINEbYjedjBaRuSTaDuSrbiRqi+H
+         72IZVAX78D31a07XlfcnsZ4sxph26+178hiv791+gEwsUWdeAJTE5wI1qKeJoupnNb
+         dQr1ZIRqc42fVgvdD10PzrQFSogrmsvwwoLHK86++pxn+f9ArRvsYQnBMv3p6wXR5N
+         gGOImlaiQw48Im1yhZIPo7t0OGWvXTEpov7IOHpIRXQ54KGBrJclVbxhLetmopMY9K
+         Uo5bPzcbuJKGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.18 158/159] gfs2: use i_lock spin_lock for inode qadata
-Date:   Mon, 30 May 2022 09:24:23 -0400
-Message-Id: <20220530132425.1929512-158-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Bjorn Helgaas <helgaas@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
+        akpm@linux-foundation.org
+Subject: [PATCH AUTOSEL 5.18 159/159] linux/types.h: reinstate "__bitwise__" macro for user space use
+Date:   Mon, 30 May 2022 09:24:24 -0400
+Message-Id: <20220530132425.1929512-159-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -56,86 +58,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 5fcff61eea9efd1f4b60e89d2d686b5feaea100f ]
+[ Upstream commit caa28984163cb63ea0be4cb8dbf05defdc7303f9 ]
 
-Before this patch, functions gfs2_qa_get and _put used the i_rw_mutex to
-prevent simultaneous access to its i_qadata. But i_rw_mutex is now used
-for many other things, including iomap_begin and end, which causes a
-conflict according to lockdep. We cannot just remove the lock since
-simultaneous opens (gfs2_open -> gfs2_open_common -> gfs2_qa_get) can
-then stomp on each others values for i_qadata.
+Commit c724c866bb70 ("linux/types.h: remove unnecessary __bitwise__")
+was right that there are no users of __bitwise__ in the kernel, but it
+turns out there are user space users of it that do expect it.
 
-This patch solves the conflict by using the i_lock spin_lock in the inode
-to prevent simultaneous access.
+It is, after all, in the uapi directory, so user space usage is to be
+expected.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Instead of reverting the commit completely, let's just clarify the
+situation so that it doesn't happen again, and have some in-code
+explanations for why that "__bitwise__" still exists.
+
+Reported-by: Jiri Slaby <jirislaby@kernel.org>
+Cc: Bjorn Helgaas <helgaas@kernel.org>
+Link: https://lore.kernel.org/all/b5c0a68d-8387-4909-beea-f70ab9e6e3d5@kernel.org/
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/quota.c | 32 ++++++++++++++++++++------------
- 1 file changed, 20 insertions(+), 12 deletions(-)
+ include/uapi/linux/types.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/gfs2/quota.c b/fs/gfs2/quota.c
-index be0997e24d60..dc77080a82bb 100644
---- a/fs/gfs2/quota.c
-+++ b/fs/gfs2/quota.c
-@@ -531,34 +531,42 @@ static void qdsb_put(struct gfs2_quota_data *qd)
-  */
- int gfs2_qa_get(struct gfs2_inode *ip)
- {
--	int error = 0;
- 	struct gfs2_sbd *sdp = GFS2_SB(&ip->i_inode);
-+	struct inode *inode = &ip->i_inode;
+diff --git a/include/uapi/linux/types.h b/include/uapi/linux/types.h
+index c4dc597f3dcf..308433be33c2 100644
+--- a/include/uapi/linux/types.h
++++ b/include/uapi/linux/types.h
+@@ -26,6 +26,9 @@
+ #define __bitwise
+ #endif
  
- 	if (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF)
- 		return 0;
- 
--	down_write(&ip->i_rw_mutex);
-+	spin_lock(&inode->i_lock);
- 	if (ip->i_qadata == NULL) {
--		ip->i_qadata = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
--		if (!ip->i_qadata) {
--			error = -ENOMEM;
--			goto out;
--		}
-+		struct gfs2_qadata *tmp;
++/* The kernel doesn't use this legacy form, but user space does */
++#define __bitwise__ __bitwise
 +
-+		spin_unlock(&inode->i_lock);
-+		tmp = kmem_cache_zalloc(gfs2_qadata_cachep, GFP_NOFS);
-+		if (!tmp)
-+			return -ENOMEM;
-+
-+		spin_lock(&inode->i_lock);
-+		if (ip->i_qadata == NULL)
-+			ip->i_qadata = tmp;
-+		else
-+			kmem_cache_free(gfs2_qadata_cachep, tmp);
- 	}
- 	ip->i_qadata->qa_ref++;
--out:
--	up_write(&ip->i_rw_mutex);
--	return error;
-+	spin_unlock(&inode->i_lock);
-+	return 0;
- }
- 
- void gfs2_qa_put(struct gfs2_inode *ip)
- {
--	down_write(&ip->i_rw_mutex);
-+	struct inode *inode = &ip->i_inode;
-+
-+	spin_lock(&inode->i_lock);
- 	if (ip->i_qadata && --ip->i_qadata->qa_ref == 0) {
- 		kmem_cache_free(gfs2_qadata_cachep, ip->i_qadata);
- 		ip->i_qadata = NULL;
- 	}
--	up_write(&ip->i_rw_mutex);
-+	spin_unlock(&inode->i_lock);
- }
- 
- int gfs2_quota_hold(struct gfs2_inode *ip, kuid_t uid, kgid_t gid)
+ typedef __u16 __bitwise __le16;
+ typedef __u16 __bitwise __be16;
+ typedef __u32 __bitwise __le32;
 -- 
 2.35.1
 
