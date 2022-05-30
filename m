@@ -2,231 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C58BD5385A0
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:58:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6885385B8
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 18:01:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242316AbiE3P5j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 11:57:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51286 "EHLO
+        id S238733AbiE3QBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 12:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240072AbiE3P51 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:57:27 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FA371DB9;
-        Mon, 30 May 2022 08:47:15 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id t5so14085870edc.2;
-        Mon, 30 May 2022 08:47:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=i89MiZL7FoctGZprJstd/24FsFM1pBOpq1jT2psM2/w=;
-        b=Pmm6R7ODryNSQKhU+4ZGAn1mJ5EFoZcivG4zihjy/MrAg0/tKmpyJbEk9n5H+s3SHe
-         rjZjan0NLlitgoPBP7DcHkuYLmJ5Fi7n6Ap9eFuJR/iSkn0nILK10DElcyrV3TwOA3oa
-         16RTsZ3OjxQ79jnEjWo843Qr097RupRvU6dPxgefJzyfRCj9PXAg8REAY2vssjWtfDa4
-         Oj9sjEsGWSsqGCk4cbO8wpgB24FANIFEiQDt4l6eubYueR+MeKadjwvSWoXVVETvqfRG
-         +9+3XKYVka2VGAZS2K85AIb5XqWQWHZHKImY7HGuokWGpi3fS3ljK8IjAR0MoNlqQPi8
-         acRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=i89MiZL7FoctGZprJstd/24FsFM1pBOpq1jT2psM2/w=;
-        b=F0IiiWYOjTw4KxnmJVSMFJobGI0t+e2O4z3ED9bGR+ImLEDzVYnXW65S7Eac7EMnae
-         Ty+X5ib66ZnUFXaIWyRpqnWNMEyIONp2bc4BjlCb/zL2OQgGhzlD79AJ2Cl9rAAmBeIi
-         IV7J2zSX5+11OAXn03uR0h3EMHucK1wepSraLsesgzmstaW9in6er6ZY6fs8T7LpFHjV
-         5VDwjFd3eABOg8qhhxgf7D1hBxhaAKrNQlfvPj1p7RbKzVDApohZWCJuPnudJN7+wxRG
-         1q+2Wzo0e2V8LOvnE18+vprRbn6dqcUBT9mwIngupofeCyUjRFbOYKrDNd+3Bfnbkiud
-         hgLw==
-X-Gm-Message-State: AOAM533KAsibzjMPU71si6UI/jBvuv22zh3HcUwSCgmblJCO5AInPL1r
-        MGlC14HEovppcz/NKCTMeNLr4JVSGllGVw==
-X-Google-Smtp-Source: ABdhPJxEXlNrQ7YReCEUVjXaOToLbotp+0keekiWM9uAtwUQmOqsR3pScuMyzv0b8iWjSwaCg2e2iw==
-X-Received: by 2002:a05:6402:14c1:b0:42d:d6f1:ac3d with SMTP id f1-20020a05640214c100b0042dd6f1ac3dmr3289957edx.223.1653925634248;
-        Mon, 30 May 2022 08:47:14 -0700 (PDT)
-Received: from [192.168.178.40] (ipbcc1cfad.dynamic.kabel-deutschland.de. [188.193.207.173])
-        by smtp.gmail.com with ESMTPSA id b89-20020a509f62000000b0042dd7e13391sm913080edf.45.2022.05.30.08.47.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 May 2022 08:47:13 -0700 (PDT)
-Message-ID: <12bb8139-be66-4e08-47be-909b0042926c@gmail.com>
-Date:   Mon, 30 May 2022 17:47:12 +0200
+        with ESMTP id S243122AbiE3QAl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 12:00:41 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9959748E59;
+        Mon, 30 May 2022 08:56:24 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDFCB80E2E;
+        Mon, 30 May 2022 15:56:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19569C36AE7;
+        Mon, 30 May 2022 15:56:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653926182;
+        bh=oY2To6Dq8E4ZlSNzE9OvSOJ4Ec6SlQMPkQKRYIbD1j4=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=LAYG1a7rWuqBm9UiZAAn/vKEnZDJg/f4xBpHZZKdElqCHN070n/QJ3w70BKDdGFdZ
+         7szxQd3rnBJmIkjXnkTXxNchF3dQ1Nw+4Kyz2poAZrfu/OKNjCwqzNFU9xcie1Un57
+         PVnF99w8tArh1pbxOxGwtr1pkrlwAZ/VZ04ZLoeAlHejvJrwPp1leTzDt5TsRVOw8T
+         /uj8NtafELR0Sn/4EYy8GGZ6V9h+ahcR5JpRKeal1l1xLYXCahBr1wenBnx7Rx+nA1
+         VuIaJqM03bUvtOMIR7hUcGf5NSpvPLsIwkpbmKj/rD/LvTGGZgVCbol6f/mOEJRo3V
+         1IwW85crae4fw==
+Received: by mail-oi1-f178.google.com with SMTP id y131so6972376oia.6;
+        Mon, 30 May 2022 08:56:22 -0700 (PDT)
+X-Gm-Message-State: AOAM530cJFhvS+f2WprL+8x3daK6PiB6sFZp4Q8o+J7AhrU/dzp4qJKf
+        u8DiE7hoWUF5EPznEDjufxHMadPtwPR+HzLnwFo=
+X-Google-Smtp-Source: ABdhPJx1z4xy7gzvzyGPxKXo7f7InAUbUfc1mL0H8QmD86R83QH82XT9ytmiExoj5XZx70/VX0uvCQ6dvxRVUKn4xkw=
+X-Received: by 2002:a05:6808:f88:b0:32b:d10f:cc6b with SMTP id
+ o8-20020a0568080f8800b0032bd10fcc6bmr8351264oiw.228.1653926181276; Mon, 30
+ May 2022 08:56:21 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.1
-Subject: Re: [PATCH AUTOSEL 5.18 074/159] scsi: target: tcmu: Fix possible
- data corruption
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, target-devel@vger.kernel.org
-References: <20220530132425.1929512-1-sashal@kernel.org>
- <20220530132425.1929512-74-sashal@kernel.org>
-From:   Bodo Stroesser <bostroesser@gmail.com>
-In-Reply-To: <20220530132425.1929512-74-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20220530132425.1929512-1-sashal@kernel.org> <20220530132425.1929512-147-sashal@kernel.org>
+ <CAMj1kXGAuKTqV0S4jxticZJp7ChtqqeXjn7SV1E83p5yVE1pkw@mail.gmail.com> <YpTh9dan5lJgH2aL@kroah.com>
+In-Reply-To: <YpTh9dan5lJgH2aL@kroah.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Mon, 30 May 2022 17:56:09 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXGO-1ccxaK_GnE+d2yc0XkF5y9ZawXXC3ypeGAanv9VtA@mail.gmail.com>
+Message-ID: <CAMj1kXGO-1ccxaK_GnE+d2yc0XkF5y9ZawXXC3ypeGAanv9VtA@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.18 147/159] ARM: 9201/1: spectre-bhb: rely on
+ linker to emit cross-section literal loads
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Keith Packard <keithpac@amazon.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sasha,
+On Mon, 30 May 2022 at 17:25, Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, May 30, 2022 at 03:32:47PM +0200, Ard Biesheuvel wrote:
+> > AUTONAK
+> >
+> > As discussed before, please disregard all patches authored by me when
+> > running the bot.
+>
+> Ok, but why wasn't this spectre-bhb commit asked to be backported to
+> stable in the first place?
 
-the below patch introduces a new bug, which is fixed by commit
-   325d5c5fb216 ("scsi: target: tcmu: Avoid holding XArray lock when calling lock_page")
-Please consider adding this further fix.
+Because it doesn't belong in -stable. Hence the lack of cc:stable or
+fixes: tags.
 
-For my understanding: commit 325d5c5fb216 contains a "Fixes:"
-tag. So I'd expect it to be added automatically.
-Is there still something missing in the commit?
+> Do older kernels not need these types of
+> fixes?
+>
 
-Thank you,
-Bodo
+This commit was part of a series of six, two of which were bug fixes
+and had fixes: tags. They do not have cc:stable tags because the
+'fixed' patches had not been backported yet when they were sent out.
 
+So those are clear candidates for -stable, and as far as I can tell,
+they have already been backported.
 
-On 30.05.22 15:22, Sasha Levin wrote:
-> From: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-> 
-> [ Upstream commit bb9b9eb0ae2e9d3f6036f0ad907c3a83dcd43485 ]
-> 
-> When tcmu_vma_fault() gets a page successfully, before the current context
-> completes page fault procedure, find_free_blocks() may run and call
-> unmap_mapping_range() to unmap the page. Assume that when
-> find_free_blocks() initially completes and the previous page fault
-> procedure starts to run again and completes, then one truncated page has
-> been mapped to userspace. But note that tcmu_vma_fault() has gotten a
-> refcount for the page so any other subsystem won't be able to use the page
-> unless the userspace address is unmapped later.
-> 
-> If another command subsequently runs and needs to extend dbi_thresh it may
-> reuse the corresponding slot for the previous page in data_bitmap. Then
-> though we'll allocate new page for this slot in data_area, no page fault
-> will happen because we have a valid map and the real request's data will be
-> lost.
-> 
-> Filesystem implementations will also run into this issue but they usually
-> lock the page when vm_operations_struct->fault gets a page and unlock the
-> page after finish_fault() completes. For truncate filesystems lock pages in
-> truncate_inode_pages() to protect against racing wrt. page faults.
-> 
-> To fix this possible data corruption scenario we can apply a method similar
-> to the filesystems.  For pages that are to be freed, tcmu_blocks_release()
-> locks and unlocks. Make tcmu_vma_fault() also lock found page under
-> cmdr_lock. At the same time, since tcmu_vma_fault() gets an extra page
-> refcount, tcmu_blocks_release() won't free pages if pages are in page fault
-> procedure, which means it is safe to call tcmu_blocks_release() before
-> unmap_mapping_range().
-> 
-> With these changes tcmu_blocks_release() will wait for all page faults to
-> be completed before calling unmap_mapping_range(). And later, if
-> unmap_mapping_range() is called, it will ensure stale mappings are removed.
-> 
-> Link: https://lore.kernel.org/r/20220421023735.9018-1-xiaoguang.wang@linux.alibaba.com
-> Reviewed-by: Bodo Stroesser <bostroesser@gmail.com>
-> Signed-off-by: Xiaoguang Wang <xiaoguang.wang@linux.alibaba.com>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   drivers/target/target_core_user.c | 40 ++++++++++++++++++++++++++++---
->   1 file changed, 37 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-> index fd7267baa707..b1fd06edea59 100644
-> --- a/drivers/target/target_core_user.c
-> +++ b/drivers/target/target_core_user.c
-> @@ -20,6 +20,7 @@
->   #include <linux/configfs.h>
->   #include <linux/mutex.h>
->   #include <linux/workqueue.h>
-> +#include <linux/pagemap.h>
->   #include <net/genetlink.h>
->   #include <scsi/scsi_common.h>
->   #include <scsi/scsi_proto.h>
-> @@ -1667,6 +1668,26 @@ static u32 tcmu_blocks_release(struct tcmu_dev *udev, unsigned long first,
->   	xas_lock(&xas);
->   	xas_for_each(&xas, page, (last + 1) * udev->data_pages_per_blk - 1) {
->   		xas_store(&xas, NULL);
-> +		/*
-> +		 * While reaching here there may be page faults occurring on
-> +		 * the to-be-released pages. A race condition may occur if
-> +		 * unmap_mapping_range() is called before page faults on these
-> +		 * pages have completed; a valid but stale map is created.
-> +		 *
-> +		 * If another command subsequently runs and needs to extend
-> +		 * dbi_thresh, it may reuse the slot corresponding to the
-> +		 * previous page in data_bitmap. Though we will allocate a new
-> +		 * page for the slot in data_area, no page fault will happen
-> +		 * because we have a valid map. Therefore the command's data
-> +		 * will be lost.
-> +		 *
-> +		 * We lock and unlock pages that are to be released to ensure
-> +		 * all page faults have completed. This way
-> +		 * unmap_mapping_range() can ensure stale maps are cleanly
-> +		 * removed.
-> +		 */
-> +		lock_page(page);
-> +		unlock_page(page);
->   		__free_page(page);
->   		pages_freed++;
->   	}
-> @@ -1822,6 +1843,7 @@ static struct page *tcmu_try_get_data_page(struct tcmu_dev *udev, uint32_t dpi)
->   	page = xa_load(&udev->data_pages, dpi);
->   	if (likely(page)) {
->   		get_page(page);
-> +		lock_page(page);
->   		mutex_unlock(&udev->cmdr_lock);
->   		return page;
->   	}
-> @@ -1863,6 +1885,7 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
->   	struct page *page;
->   	unsigned long offset;
->   	void *addr;
-> +	vm_fault_t ret = 0;
->   
->   	int mi = tcmu_find_mem_index(vmf->vma);
->   	if (mi < 0)
-> @@ -1887,10 +1910,11 @@ static vm_fault_t tcmu_vma_fault(struct vm_fault *vmf)
->   		page = tcmu_try_get_data_page(udev, dpi);
->   		if (!page)
->   			return VM_FAULT_SIGBUS;
-> +		ret = VM_FAULT_LOCKED;
->   	}
->   
->   	vmf->page = page;
-> -	return 0;
-> +	return ret;
->   }
->   
->   static const struct vm_operations_struct tcmu_vm_ops = {
-> @@ -3205,12 +3229,22 @@ static void find_free_blocks(void)
->   			udev->dbi_max = block;
->   		}
->   
-> +		/*
-> +		 * Release the block pages.
-> +		 *
-> +		 * Also note that since tcmu_vma_fault() gets an extra page
-> +		 * refcount, tcmu_blocks_release() won't free pages if pages
-> +		 * are mapped. This means it is safe to call
-> +		 * tcmu_blocks_release() before unmap_mapping_range() which
-> +		 * drops the refcount of any pages it unmaps and thus releases
-> +		 * them.
-> +		 */
-> +		pages_freed = tcmu_blocks_release(udev, start, end - 1);
-> +
->   		/* Here will truncate the data area from off */
->   		off = udev->data_off + (loff_t)start * udev->data_blk_size;
->   		unmap_mapping_range(udev->inode->i_mapping, off, 0, 1);
->   
-> -		/* Release the block pages */
-> -		pages_freed = tcmu_blocks_release(udev, start, end - 1);
->   		mutex_unlock(&udev->cmdr_lock);
->   
->   		total_pages_freed += pages_freed;
+This patch does not fix a bug. It makes the asm code more resilient to
+potential bugs introduced inadvertently by future changes, which will
+be harder to detect now that we have three different versions of the
+exception vector table. (Any given system will only exercise one of
+the three, depending on whether and which Spectre-BHB workaround it
+requires)
+
+I build and boot test my patches carefully, and so I consciously
+decided that the regression risk of backporting this patch outweighs
+the benefits. This is why I did not add a cc:stable or fixes: tag. If
+a tag existed that said 'do not backport this unless explicitly
+requested', I would have added it.
+
+I would expect anyone that proposes this patch for -stable to be as
+diligent in ensuring that the patch is safe for backporting, which
+includes building the code with older GCC versions that those stable
+kernels still support, and boot testing the result on actual hardware.
+
+If this is part of the AUTOSEL workflow, then I stand corrected. But
+even then, this does not mean that the patch *belongs* in -stable. As
+you know, I enjoy throwing stable-kernel-rules.rst in your face, and I
+am pretty sure that using a bot to find patches that apply cleanly and
+happen not to cause build breakage is not covered by the criteria
+defined by that document by any stretch of the imagination.
+
+On top of that, I feel that 'saving' precious stable maintainer's time
+by using a bot to offload this burden to the community uninvited is
+really not ok. We work very hard to keep highly heterogeneous
+architectures such as ARM working across all supported platforms, and
+this is work enough as it is without all the bogus patches that
+AUTOSEL digs up without *any* justification beyond 'hey, it applies!'
