@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CDC1537D16
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36C39537CD1
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237740AbiE3Nh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:37:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56510 "EHLO
+        id S237552AbiE3NhN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:37:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237554AbiE3Nf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38334939A3;
-        Mon, 30 May 2022 06:28:34 -0700 (PDT)
+        with ESMTP id S237627AbiE3Nfd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:33 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC6F939EF;
+        Mon, 30 May 2022 06:28:40 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C6D7460DD4;
-        Mon, 30 May 2022 13:28:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC635C385B8;
-        Mon, 30 May 2022 13:28:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2486B80DA8;
+        Mon, 30 May 2022 13:28:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07F55C385B8;
+        Mon, 30 May 2022 13:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917308;
-        bh=HQF46pET341uvIM6dclJ+MRdmoa7RzWaMYRR/mwcVOs=;
+        s=k20201202; t=1653917317;
+        bh=yWcmRdVyi+FWys7GZ9HWj6oxRlxBcBG6kQKuSmRN7nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IqxGvW94lUrmk6erj8b1q6sR1tTKbhMxJitgLvVPUfkfiQg2dS2vwVsJEGtQCXmwQ
-         1C8txWGl1Ff9T+fFyqK9EW6BPCcGCNN0/0YQO2AYxC/R8sJAWIHO243m+O0xtFnmA8
-         xGM41Nk716ythmzVsMM7AzufIMSVrAPoU6B0JkXeBzpCjTeh8icwj0t9SGq0iTjWBL
-         xXNRVSA5xgl2vJAF4k/h6SJKM++xCGR/gUj6ghJbAcx1atpRm4uFZbtX4xBOFHnSeE
-         IMIgoZGwR+wl3Gn4mVZ4kcfV7KqmY2evr3lKMmORTUz87cN+IJ8R3ug5/nhc+W1Ffc
-         SnSWB1ifT68GA==
+        b=MbNB4qr/P6przBXEvy6yEWNy1KJI51RZMiPTZ7oqOlSN+NISgv1IoHAorhXld4YoB
+         G2mv5rj4BJXQKq/ZItAJU+ML/MTgrs1wqb/5ZOocpLXaQU4jOYJtO+O+IaFrfnYkQ2
+         J54ZNSI8BBM13mmESHP01L4uUgqyV3TnRLqffUIKnM9pBl7s64J8WLPpTSmErm0FZH
+         VdKd2u0JMAGnwR0gT93PMBhL4zaz/5tUYsciN6cCYXjyycTgaEulI9R6Cwhhhy0od8
+         ygRTasqqDhtOBB4unqwYkXNYSTas7SqDivs0N4zumyiY1JGmSLgcRipo3W/zgDXM8L
+         BGn27ldQbd2MA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Gavin Li <gavinl@nvidia.com>, Moshe Shemesh <moshe@nvidia.com>,
-        Shay Drory <shayd@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        amirtz@nvidia.com, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 090/159] net/mlx5: Increase FW pre-init timeout for health recovery
-Date:   Mon, 30 May 2022 09:23:15 -0400
-Message-Id: <20220530132425.1929512-90-sashal@kernel.org>
+Cc:     Brent Lu <brent.lu@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, cezary.rojewski@intel.com,
+        liam.r.girdwood@linux.intel.com, yang.jie@linux.intel.com,
+        perex@perex.cz, tiwai@suse.com, ranjani.sridharan@linux.intel.com,
+        akihiko.odaki@gmail.com, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 091/159] ASoC: Intel: sof_ssp_amp: fix no DMIC BE Link on Chromebooks
+Date:   Mon, 30 May 2022 09:23:16 -0400
+Message-Id: <20220530132425.1929512-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -60,195 +61,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gavin Li <gavinl@nvidia.com>
+From: Brent Lu <brent.lu@intel.com>
 
-[ Upstream commit 37ca95e62ee23fa6d2c2c64e3dc40b4a0c0146dc ]
+[ Upstream commit d1c808765deb2bcd35d827402ed4d75d068aae18 ]
 
-Currently, health recovery will reload driver to recover it from fatal
-errors. During the driver's load process, it would wait for FW to set the
-pre-init bit for up to 120 seconds, beyond this threshold it would abort
-the load process. In some cases, such as a FW upgrade on the DPU, this
-timeout period is insufficient, and the user has no way to recover the
-host device.
+The SOF topology supports 2 BE Links(dmic01 and dmic16k) and each
+link supports up to four DMICs. However, Chromebook does not implement
+ACPI NHLT table so the mach->mach_params.dmic_num is always zero. We
+add a quirk so machine driver knows it's running on a Chromebook and
+need to create BE Links for DMIC.
 
-To solve this issue, introduce a new FW pre-init timeout for health
-recovery, which is set to 2 hours.
-
-The timeout for devlink reload and probe will use the original one because
-they are user triggered flows, and therefore should not have a
-significantly long timeout, during which the user command would hang.
-
-Signed-off-by: Gavin Li <gavinl@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Brent Lu <brent.lu@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20220509170922.54868-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/devlink.c |  4 ++--
- .../ethernet/mellanox/mlx5/core/fw_reset.c    |  2 +-
- .../ethernet/mellanox/mlx5/core/lib/tout.c    |  1 +
- .../ethernet/mellanox/mlx5/core/lib/tout.h    |  1 +
- .../net/ethernet/mellanox/mlx5/core/main.c    | 23 +++++++++++--------
- .../ethernet/mellanox/mlx5/core/mlx5_core.h   |  2 +-
- 6 files changed, 20 insertions(+), 13 deletions(-)
+ sound/soc/intel/boards/sof_ssp_amp.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index 057dde6f4417..9401127fb0ec 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -178,13 +178,13 @@ static int mlx5_devlink_reload_up(struct devlink *devlink, enum devlink_reload_a
- 	*actions_performed = BIT(action);
- 	switch (action) {
- 	case DEVLINK_RELOAD_ACTION_DRIVER_REINIT:
--		return mlx5_load_one(dev);
-+		return mlx5_load_one(dev, false);
- 	case DEVLINK_RELOAD_ACTION_FW_ACTIVATE:
- 		if (limit == DEVLINK_RELOAD_LIMIT_NO_RESET)
- 			break;
- 		/* On fw_activate action, also driver is reloaded and reinit performed */
- 		*actions_performed |= BIT(DEVLINK_RELOAD_ACTION_DRIVER_REINIT);
--		return mlx5_load_one(dev);
-+		return mlx5_load_one(dev, false);
- 	default:
- 		/* Unsupported action should not get to this function */
- 		WARN_ON(1);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-index 81eb67fb95b0..052af4901c0b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/fw_reset.c
-@@ -149,7 +149,7 @@ static void mlx5_fw_reset_complete_reload(struct mlx5_core_dev *dev)
- 	if (test_bit(MLX5_FW_RESET_FLAGS_PENDING_COMP, &fw_reset->reset_flags)) {
- 		complete(&fw_reset->done);
- 	} else {
--		mlx5_load_one(dev);
-+		mlx5_load_one(dev, false);
- 		devlink_remote_reload_actions_performed(priv_to_devlink(dev), 0,
- 							BIT(DEVLINK_RELOAD_ACTION_DRIVER_REINIT) |
- 							BIT(DEVLINK_RELOAD_ACTION_FW_ACTIVATE));
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-index c1df0d3595d8..d758848d34d0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.c
-@@ -10,6 +10,7 @@ struct mlx5_timeouts {
+diff --git a/sound/soc/intel/boards/sof_ssp_amp.c b/sound/soc/intel/boards/sof_ssp_amp.c
+index 88530e9de543..ef70c6f27fe1 100644
+--- a/sound/soc/intel/boards/sof_ssp_amp.c
++++ b/sound/soc/intel/boards/sof_ssp_amp.c
+@@ -9,6 +9,7 @@
  
- static const u32 tout_def_sw_val[MAX_TIMEOUT_TYPES] = {
- 	[MLX5_TO_FW_PRE_INIT_TIMEOUT_MS] = 120000,
-+	[MLX5_TO_FW_PRE_INIT_ON_RECOVERY_TIMEOUT_MS] = 7200000,
- 	[MLX5_TO_FW_PRE_INIT_WARN_MESSAGE_INTERVAL_MS] = 20000,
- 	[MLX5_TO_FW_PRE_INIT_WAIT_MS] = 2,
- 	[MLX5_TO_FW_INIT_MS] = 2000,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-index 1c42ead782fa..257c03eeab36 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/tout.h
-@@ -7,6 +7,7 @@
- enum mlx5_timeouts_types {
- 	/* pre init timeouts (not read from FW) */
- 	MLX5_TO_FW_PRE_INIT_TIMEOUT_MS,
-+	MLX5_TO_FW_PRE_INIT_ON_RECOVERY_TIMEOUT_MS,
- 	MLX5_TO_FW_PRE_INIT_WARN_MESSAGE_INTERVAL_MS,
- 	MLX5_TO_FW_PRE_INIT_WAIT_MS,
+ #include <linux/acpi.h>
+ #include <linux/delay.h>
++#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <sound/core.h>
+@@ -78,6 +79,16 @@ struct sof_card_private {
+ 	bool idisp_codec;
+ };
  
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index ef196cb764e2..8b5263699994 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1014,7 +1014,7 @@ static void mlx5_cleanup_once(struct mlx5_core_dev *dev)
- 	mlx5_devcom_unregister_device(dev->priv.devcom);
- }
++static const struct dmi_system_id chromebook_platforms[] = {
++	{
++		.ident = "Google Chromebooks",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++		}
++	},
++	{},
++};
++
+ static const struct snd_soc_dapm_widget sof_ssp_amp_dapm_widgets[] = {
+ 	SND_SOC_DAPM_MIC("SoC DMIC", NULL),
+ };
+@@ -371,7 +382,7 @@ static int sof_ssp_amp_probe(struct platform_device *pdev)
+ 	struct snd_soc_dai_link *dai_links;
+ 	struct snd_soc_acpi_mach *mach;
+ 	struct sof_card_private *ctx;
+-	int dmic_be_num, hdmi_num = 0;
++	int dmic_be_num = 0, hdmi_num = 0;
+ 	int ret, ssp_codec;
  
--static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
-+static int mlx5_function_setup(struct mlx5_core_dev *dev, u64 timeout)
- {
- 	int err;
+ 	ctx = devm_kzalloc(&pdev->dev, sizeof(*ctx), GFP_KERNEL);
+@@ -383,7 +394,8 @@ static int sof_ssp_amp_probe(struct platform_device *pdev)
  
-@@ -1029,11 +1029,11 @@ static int mlx5_function_setup(struct mlx5_core_dev *dev, bool boot)
+ 	mach = pdev->dev.platform_data;
  
- 	/* wait for firmware to accept initialization segments configurations
- 	 */
--	err = wait_fw_init(dev, mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT),
-+	err = wait_fw_init(dev, timeout,
- 			   mlx5_tout_ms(dev, FW_PRE_INIT_WARN_MESSAGE_INTERVAL));
- 	if (err) {
- 		mlx5_core_err(dev, "Firmware over %llu MS in pre-initializing state, aborting\n",
--			      mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT));
-+			      timeout);
- 		return err;
- 	}
+-	dmic_be_num = mach->mach_params.dmic_num;
++	if (dmi_check_system(chromebook_platforms) || mach->mach_params.dmic_num > 0)
++		dmic_be_num = 2;
  
-@@ -1296,7 +1296,7 @@ int mlx5_init_one(struct mlx5_core_dev *dev)
- 	mutex_lock(&dev->intf_state_mutex);
- 	dev->state = MLX5_DEVICE_STATE_UP;
- 
--	err = mlx5_function_setup(dev, true);
-+	err = mlx5_function_setup(dev, mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT));
- 	if (err)
- 		goto err_function;
- 
-@@ -1360,9 +1360,10 @@ void mlx5_uninit_one(struct mlx5_core_dev *dev)
- 	mutex_unlock(&dev->intf_state_mutex);
- }
- 
--int mlx5_load_one(struct mlx5_core_dev *dev)
-+int mlx5_load_one(struct mlx5_core_dev *dev, bool recovery)
- {
- 	int err = 0;
-+	u64 timeout;
- 
- 	mutex_lock(&dev->intf_state_mutex);
- 	if (test_bit(MLX5_INTERFACE_STATE_UP, &dev->intf_state)) {
-@@ -1372,7 +1373,11 @@ int mlx5_load_one(struct mlx5_core_dev *dev)
- 	/* remove any previous indication of internal error */
- 	dev->state = MLX5_DEVICE_STATE_UP;
- 
--	err = mlx5_function_setup(dev, false);
-+	if (recovery)
-+		timeout = mlx5_tout_ms(dev, FW_PRE_INIT_ON_RECOVERY_TIMEOUT);
-+	else
-+		timeout = mlx5_tout_ms(dev, FW_PRE_INIT_TIMEOUT);
-+	err = mlx5_function_setup(dev, timeout);
- 	if (err)
- 		goto err_function;
- 
-@@ -1746,7 +1751,7 @@ static void mlx5_pci_resume(struct pci_dev *pdev)
- 
- 	mlx5_pci_trace(dev, "Enter, loading driver..\n");
- 
--	err = mlx5_load_one(dev);
-+	err = mlx5_load_one(dev, false);
- 
- 	mlx5_pci_trace(dev, "Done, err = %d, device %s\n", err,
- 		       !err ? "recovered" : "Failed");
-@@ -1833,7 +1838,7 @@ static int mlx5_resume(struct pci_dev *pdev)
- {
- 	struct mlx5_core_dev *dev = pci_get_drvdata(pdev);
- 
--	return mlx5_load_one(dev);
-+	return mlx5_load_one(dev, false);
- }
- 
- static const struct pci_device_id mlx5_core_pci_table[] = {
-@@ -1878,7 +1883,7 @@ int mlx5_recover_device(struct mlx5_core_dev *dev)
- 			return -EIO;
- 	}
- 
--	return mlx5_load_one(dev);
-+	return mlx5_load_one(dev, true);
- }
- 
- static struct pci_driver mlx5_core_driver = {
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-index a9b2d6ead542..9026be1d6223 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-@@ -290,7 +290,7 @@ void mlx5_mdev_uninit(struct mlx5_core_dev *dev);
- int mlx5_init_one(struct mlx5_core_dev *dev);
- void mlx5_uninit_one(struct mlx5_core_dev *dev);
- void mlx5_unload_one(struct mlx5_core_dev *dev);
--int mlx5_load_one(struct mlx5_core_dev *dev);
-+int mlx5_load_one(struct mlx5_core_dev *dev, bool recovery);
- 
- int mlx5_vport_get_other_func_cap(struct mlx5_core_dev *dev, u16 function_id, void *out);
+ 	ssp_codec = sof_ssp_amp_quirk & SOF_AMPLIFIER_SSP_MASK;
  
 -- 
 2.35.1
