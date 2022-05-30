@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AE21D538275
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E26A5382E0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237091AbiE3OYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:24:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56836 "EHLO
+        id S240132AbiE3O2n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:28:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237534AbiE3OVV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:21:21 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F147891572;
-        Mon, 30 May 2022 06:50:15 -0700 (PDT)
+        with ESMTP id S241176AbiE3OXh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:23:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B11F3A88AE;
+        Mon, 30 May 2022 06:50:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E938ECE1027;
-        Mon, 30 May 2022 13:50:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED89C385B8;
-        Mon, 30 May 2022 13:49:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4C27B80DC0;
+        Mon, 30 May 2022 13:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7782C385B8;
+        Mon, 30 May 2022 13:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918600;
-        bh=w9LKfzLwAKYB46T3ecIm/GsN+H5j9J7Oa1HOgAq0IV0=;
+        s=k20201202; t=1653918603;
+        bh=1ZG1JySuWceOc9T7kfMLbN7XXqvVOPvIff+FirOxY38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A+gJX+dR1Z1CkLeDn2heWqUxUir3pFn67FtLuAD0ila3HbOyhzH0F4OZNH1hD00Gq
-         mXMLCh1uhQ9GxdMc6hvk9aYwEE+PEZESQV3RO9QlKWVR4IKwIPObkUmcYFGKaRsDNO
-         U8ZcfpKoSKA3koTidcJUoddfjF0SWJVTDOvkLgpQxogZJMonrpgKo97r0Ujo/hhnLZ
-         xN7iSXtmIBX3HQEAywd0HerCvLX8YCLWYPTN9M5bcnFD+04JFOmhVsjfDXIuL6f0lf
-         O2BS4uH8BoKYxUtyIK4kay8tkOwel8R5kBKf7nTksfeV7CGzRs5VDO71nkQmyEkcbX
-         u0Jy5+O7DsrZQ==
+        b=dFRiW8sji7OhlAf6sj8Y+MEpiaZaTg4pPlPo8AJXiHAneJlc+rvxxqb1Biu6Hh9uK
+         ko6G6drq/+z4d3HC74Mng/8Nxim+jW3aQ5DZMgsCFiSa0c88DeYZW/Dw3Xz5YRekeN
+         Xlqf4uzfThYJkiNz2XRK1jcgkWbvTI9wQmasGS0moErCR5nPQ+6zTJYJgyxiSuZJM1
+         mip+ST2TPTaCCEpYMyUtxlOMBDMymbD1USarW3PHS/StxlTz6hTQQrUrteXdwIUNaY
+         kni9hnEcn0FO3pLyNNimC1t40Mqbz45XjFtMQaKRJJko7+fPXTYBfZyydpde7zhnR2
+         IQRUVcOgbxFEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Zheyu Ma <zheyuma97@gmail.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 13/38] media: pci: cx23885: Fix the error handling in cx23885_initdev()
-Date:   Mon, 30 May 2022 09:48:59 -0400
-Message-Id: <20220530134924.1936816-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 14/38] media: cx25821: Fix the warning when removing the module
+Date:   Mon, 30 May 2022 09:49:00 -0400
+Message-Id: <20220530134924.1936816-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134924.1936816-1-sashal@kernel.org>
 References: <20220530134924.1936816-1-sashal@kernel.org>
@@ -59,62 +59,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit e8123311cf06d7dae71e8c5fe78e0510d20cd30b ]
+[ Upstream commit 2203436a4d24302871617373a7eb21bc17e38762 ]
 
-When the driver fails to call the dma_set_mask(), the driver will get
-the following splat:
+When removing the module, we will get the following warning:
 
-[   55.853884] BUG: KASAN: use-after-free in __process_removed_driver+0x3c/0x240
-[   55.854486] Read of size 8 at addr ffff88810de60408 by task modprobe/590
-[   55.856822] Call Trace:
-[   55.860327]  __process_removed_driver+0x3c/0x240
-[   55.861347]  bus_for_each_dev+0x102/0x160
-[   55.861681]  i2c_del_driver+0x2f/0x50
+[   14.746697] remove_proc_entry: removing non-empty directory 'irq/21', leaking at least 'cx25821[1]'
+[   14.747449] WARNING: CPU: 4 PID: 368 at fs/proc/generic.c:717 remove_proc_entry+0x389/0x3f0
+[   14.751611] RIP: 0010:remove_proc_entry+0x389/0x3f0
+[   14.759589] Call Trace:
+[   14.759792]  <TASK>
+[   14.759975]  unregister_irq_proc+0x14c/0x170
+[   14.760340]  irq_free_descs+0x94/0xe0
+[   14.760640]  mp_unmap_irq+0xb6/0x100
+[   14.760937]  acpi_unregister_gsi_ioapic+0x27/0x40
+[   14.761334]  acpi_pci_irq_disable+0x1d3/0x320
+[   14.761688]  pci_disable_device+0x1ad/0x380
+[   14.762027]  ? _raw_spin_unlock_irqrestore+0x2d/0x60
+[   14.762442]  ? cx25821_shutdown+0x20/0x9f0 [cx25821]
+[   14.762848]  cx25821_finidev+0x48/0xc0 [cx25821]
+[   14.763242]  pci_device_remove+0x92/0x240
 
-This is because the driver has initialized the i2c related resources
-in cx23885_dev_setup() but not released them in error handling, fix this
-bug by modifying the error path that jumps after failing to call the
-dma_set_mask().
+Fix this by freeing the irq before call pci_disable_device().
 
 Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx23885/cx23885-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/pci/cx25821/cx25821-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/cx23885/cx23885-core.c b/drivers/media/pci/cx23885/cx23885-core.c
-index a1d738969d7b..06e4e1df125c 100644
---- a/drivers/media/pci/cx23885/cx23885-core.c
-+++ b/drivers/media/pci/cx23885/cx23885-core.c
-@@ -2164,7 +2164,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
- 	err = pci_set_dma_mask(pci_dev, 0xffffffff);
- 	if (err) {
- 		pr_err("%s/0: Oops: no 32bit PCI DMA ???\n", dev->name);
--		goto fail_ctrl;
-+		goto fail_dma_set_mask;
- 	}
+diff --git a/drivers/media/pci/cx25821/cx25821-core.c b/drivers/media/pci/cx25821/cx25821-core.c
+index e04fe9f17b7a..99359eaf8cdc 100644
+--- a/drivers/media/pci/cx25821/cx25821-core.c
++++ b/drivers/media/pci/cx25821/cx25821-core.c
+@@ -1350,11 +1350,11 @@ static void cx25821_finidev(struct pci_dev *pci_dev)
+ 	struct cx25821_dev *dev = get_cx25821(v4l2_dev);
  
- 	err = request_irq(pci_dev->irq, cx23885_irq,
-@@ -2172,7 +2172,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
- 	if (err < 0) {
- 		pr_err("%s: can't get IRQ %d\n",
- 		       dev->name, pci_dev->irq);
--		goto fail_irq;
-+		goto fail_dma_set_mask;
- 	}
+ 	cx25821_shutdown(dev);
+-	pci_disable_device(pci_dev);
  
- 	switch (dev->board) {
-@@ -2194,7 +2194,7 @@ static int cx23885_initdev(struct pci_dev *pci_dev,
+ 	/* unregister stuff */
+ 	if (pci_dev->irq)
+ 		free_irq(pci_dev->irq, dev);
++	pci_disable_device(pci_dev);
  
- 	return 0;
- 
--fail_irq:
-+fail_dma_set_mask:
- 	cx23885_dev_unregister(dev);
- fail_ctrl:
- 	v4l2_ctrl_handler_free(hdl);
+ 	cx25821_dev_unregister(dev);
+ 	v4l2_device_unregister(v4l2_dev);
 -- 
 2.35.1
 
