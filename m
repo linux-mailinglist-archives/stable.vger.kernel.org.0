@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5F4D538203
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A44D95381B9
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbiE3OVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:21:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42950 "EHLO
+        id S241081AbiE3OUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241460AbiE3ORh (ORCPT
+        with ESMTP id S241465AbiE3ORh (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A5C52B38;
-        Mon, 30 May 2022 06:47:25 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CDC252B35;
+        Mon, 30 May 2022 06:47:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 080BF60F24;
-        Mon, 30 May 2022 13:47:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DBD9C385B8;
-        Mon, 30 May 2022 13:47:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A034B60F47;
+        Mon, 30 May 2022 13:47:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB56DC341C0;
+        Mon, 30 May 2022 13:47:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918444;
-        bh=x8Opey4gPhl/T9ZY27fZLs+uA+C7ZsiJ2XZJphbacJQ=;
+        s=k20201202; t=1653918446;
+        bh=2LFwGuCsKCuYENEjOsRcLSDeb9bv9mIq1XjW2w4MUhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RUKIqiTiDwP/yX3NA60WoXfRI0pPRb9FosUUtEyUFDqOSfgjUp5CWWeYOz3JYGIFn
-         44EXVwKPoTqetnDxoNHJwxocuDh9Tr5gYqOk961pi0LZuA0WfdW04ezY/MX9sRN73I
-         /7nqvJY7txN3N1spLnFgeuSV8X1/uewvyQoijbiQPSw/bUQHYF0WuNt9L4PDn0WE76
-         i4xNFDf3fbyQpNJnMiVc7lKE3rFeVUIheawPpE0r1MlyjExfXJaeX1uqj6wmPAlQvg
-         0rXcHDh9EYRGYBzJ4Z7/CSENmEnzfFKKZcKp9J/TW6CKbkIQ7sO6dNjhxJ3+2FMjnF
-         BTSMs7JnNBesQ==
+        b=EYMvK4EDMMxf23l2zSA1Zf1xrgqnd8EN/G7c8WRZuTPLus9dA4pMtDFbsx6zsKS+K
+         038LCmXes4nxSQIoOuls9WsSiq0WMeNLANEioeUmI9sEsYUE7sA8MBV5eXhbn6/jOX
+         nb0p+aqdEJPd87I79FEZgxVPjgy0h740STqwZqulV8ZkM6ePOnRneXI/M71WNc+PbI
+         WpMGcZ4dsxTijiCjGX40/g706/Ol9kP63YGKp379VvsnxDdBrLVRYdrVpVT2lllkJX
+         WhBR7KZSpHZTgWKNvTYfXN32E26jS41u0p4SC1j0KwBO7AUJgC9gmXPgUQC/phN9Qx
+         yZTIXXUISdc3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
-        bp@alien8.de, x86@kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/55] ACPICA: Avoid cache flush inside virtual machines
-Date:   Mon, 30 May 2022 09:46:14 -0400
-Message-Id: <20220530134701.1935933-8-sashal@kernel.org>
+Cc:     Liviu Dudau <liviu.dudau@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Sasha Levin <sashal@kernel.org>, james.qian.wang@arm.com,
+        mihail.atanassov@arm.com, brian.starkey@arm.com, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 09/55] drm/komeda: return early if drm_universal_plane_init() fails.
+Date:   Mon, 30 May 2022 09:46:15 -0400
+Message-Id: <20220530134701.1935933-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
 References: <20220530134701.1935933-1-sashal@kernel.org>
@@ -59,69 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+From: Liviu Dudau <liviu.dudau@arm.com>
 
-[ Upstream commit e2efb6359e620521d1e13f69b2257de8ceaa9475 ]
+[ Upstream commit c8f76c37cc3668ee45e081e76a15f24a352ebbdd ]
 
-While running inside virtual machine, the kernel can bypass cache
-flushing. Changing sleep state in a virtual machine doesn't affect the
-host system sleep state and cannot lead to data loss.
+If drm_universal_plane_init() fails early we jump to the common cleanup code
+that calls komeda_plane_destroy() which in turn could access the uninitalised
+drm_plane and crash. Return early if an error is detected without going through
+the common code.
 
-Before entering sleep states, the ACPI code flushes caches to prevent
-data loss using the WBINVD instruction.  This mechanism is required on
-bare metal.
-
-But, any use WBINVD inside of a guest is worthless.  Changing sleep
-state in a virtual machine doesn't affect the host system sleep state
-and cannot lead to data loss, so most hypervisors simply ignore it.
-Despite this, the ACPI code calls WBINVD unconditionally anyway.
-It's useless, but also normally harmless.
-
-In TDX guests, though, WBINVD stops being harmless; it triggers a
-virtualization exception (#VE).  If the ACPI cache-flushing WBINVD
-were left in place, TDX guests would need handling to recover from
-the exception.
-
-Avoid using WBINVD whenever running under a hypervisor.  This both
-removes the useless WBINVDs and saves TDX from implementing WBINVD
-handling.
-
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20220405232939.73860-30-kirill.shutemov@linux.intel.com
+Reported-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Liviu Dudau <liviu.dudau@arm.com>
+Link: https://lore.kernel.org/dri-devel/20211203100946.2706922-1-liviu.dudau@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/acenv.h | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/acenv.h b/arch/x86/include/asm/acenv.h
-index 9aff97f0de7f..d937c55e717e 100644
---- a/arch/x86/include/asm/acenv.h
-+++ b/arch/x86/include/asm/acenv.h
-@@ -13,7 +13,19 @@
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
+index 98e915e325dd..a5f57b38d193 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
+@@ -274,8 +274,10 @@ static int komeda_plane_add(struct komeda_kms_dev *kms,
  
- /* Asm macros */
+ 	komeda_put_fourcc_list(formats);
  
--#define ACPI_FLUSH_CPU_CACHE()	wbinvd()
-+/*
-+ * ACPI_FLUSH_CPU_CACHE() flushes caches on entering sleep states.
-+ * It is required to prevent data loss.
-+ *
-+ * While running inside virtual machine, the kernel can bypass cache flushing.
-+ * Changing sleep state in a virtual machine doesn't affect the host system
-+ * sleep state and cannot lead to data loss.
-+ */
-+#define ACPI_FLUSH_CPU_CACHE()					\
-+do {								\
-+	if (!cpu_feature_enabled(X86_FEATURE_HYPERVISOR))	\
-+		wbinvd();					\
-+} while (0)
+-	if (err)
+-		goto cleanup;
++	if (err) {
++		kfree(kplane);
++		return err;
++	}
  
- int __acpi_acquire_global_lock(unsigned int *lock);
- int __acpi_release_global_lock(unsigned int *lock);
+ 	drm_plane_helper_add(plane, &komeda_plane_helper_funcs);
+ 
 -- 
 2.35.1
 
