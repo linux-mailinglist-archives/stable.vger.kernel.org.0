@@ -2,120 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D7653799F
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 13:16:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C23F537A26
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 13:50:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbiE3LQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 07:16:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
+        id S235662AbiE3Luf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 07:50:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235602AbiE3LQX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 07:16:23 -0400
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A695A79816
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 04:16:21 -0700 (PDT)
-Received: by mail-pl1-x62b.google.com with SMTP id c2so10060362plh.2
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 04:16:21 -0700 (PDT)
+        with ESMTP id S233512AbiE3Lue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 07:50:34 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66FCA69CF8
+        for <stable@vger.kernel.org>; Mon, 30 May 2022 04:50:33 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id j7so4928432pjn.4
+        for <stable@vger.kernel.org>; Mon, 30 May 2022 04:50:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=33Igllj9tfLyGSvJIhbu1oHlrScc1HW+kabxB9lZ0T0=;
-        b=LzqIOHialgEsH9Ix1F8iLmtEfyuzPluauxpS75uaeBjgfz9bZGJpu1iO/OC0jbZ52e
-         /6ai3gRbtA0rDWY8W3oehmqAqSHbbKv7q3jCo8tmsZBmsTgvgxTU1FFEwYxPKGcatop9
-         8S+j06vgJrittZvUJn6gm2HdSOO/Wso0n5QDO8LZlyg94jttK6DwxrgbtLlHbevf6Jh+
-         DvkU8smHAVrI0NbWzV1O0F/6k4BMiOqtz/iLSSCKkIotlRhY70NTZvB9M1tKEL+4iZz6
-         IEb11k0+ZTBYnl3bilMcOLesKsLQ7Sp0ni5Pm1GsKyJhjSwzzcY/l1aD6GcLCJ4RiSmJ
-         Ru3g==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=XJw3ow3AOymwlwG5p+Pge4MWrMGUTS/5RyhcHwjgAIc=;
+        b=FiVXKud4zeN3nwQnwZOp2dmxDwpZF1ZoFwcuibYamQDhsKZBM47SaHfmYc89nTQCsI
+         t3yDhYIvlevSSQqy8UY9Btd2m/+w/Dyn12Xp2v/zG/5jduEwuyBPb7kaZLMlmiHom1PD
+         2jIXipOYE3Pcd0/5S42kL5Fyys1UFsV3KdenMLrGBIftpvQbokYhdkhFb461vhGAfSIJ
+         p1cpbHXs/eONYDrUsLcAzTt7QRe1uU9NN2Fat2LwVt7aqOoHGSbJsFlHSVDay55hh1U8
+         SKZVUHoIzbvjonbYn1xnP56xGdokoeji1nhvwNAYVD93/aYlVrJGShpyW/ROavuxJoLk
+         YdfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=33Igllj9tfLyGSvJIhbu1oHlrScc1HW+kabxB9lZ0T0=;
-        b=j8XhzoEkJtOP1hz8QVAgK8TdXbSXv46Q61cpjRNyVodWvEnq0JCRcMaLwtjt9aLiic
-         4+0nznJygBDwcfOhmTXcnhQQsL/tvwwgqjiY1cyHKhSXB1ZXzDnZraOcDvUdhQHOhxas
-         m7qk7/e9Rf1nGyj0B64xuX9StEjsPCZQBaMY4UJuEQ45jTgbWlfx7JdGVqEO7ydHqTwM
-         ufkeetUeiq9mG+SNC1Hlw93F3fw7eJWFtCVRDgQ5OBo/MHKVYNDo4CZpwfFL2MdJYVv6
-         2gqsugQaHul30nJRkMcJL0dNgpSz8rKmM0mpRJdKSHug9VznttjQoBLVoPPgLB/sOGWQ
-         wThA==
-X-Gm-Message-State: AOAM531uGUR6WJP+LyqHp74GrAI36pqpfKNRQfP2rMKXI76OWwMUkpcN
-        R/XmuoAobr0wbtF6f6jXuF6MC3jC9G4K70NXNHU=
-X-Google-Smtp-Source: ABdhPJxB/pES8nTU/wbtU7fZCTywZqX/hQdCmKSCcBPeuATRJ0+gR5zXUXQM9PZq73eyn13m6+nyr7J6fAnLaWpR/dw=
-X-Received: by 2002:a17:902:8501:b0:15f:173:40e1 with SMTP id
- bj1-20020a170902850100b0015f017340e1mr55462101plb.74.1653909381223; Mon, 30
- May 2022 04:16:21 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=XJw3ow3AOymwlwG5p+Pge4MWrMGUTS/5RyhcHwjgAIc=;
+        b=Z+ov3tIjiH+s//aYOzEe4ot3Uw/S3wI7X1Uuwy82aU4Znf2HxiPbyuAeSdzvX0y7O3
+         k7I7Z/XxhG/4Dr0G1vRlbs2tthBk2OmFxzN8/Cs10ifULsNWLvV/5gvxRvX2n0QA13Xv
+         tyulwx8PBhkiu/n1AT1gJIWQW7YzGSacvP92TjhQkowf2/gL7MAH70SgsyluVW/XKf25
+         fLdduuYsXgcbwdCbCdGgZFYEn96sDdl8P57SFz5FYuyzz4/3rjacgCwh+bpD1zd61/mq
+         Io59R2ZJR/TygBExlefxzKDGFFftu2/zLVQcOjiP2LOrQ+tDVHLA5vVwWrzx9y3LrKT0
+         KLVQ==
+X-Gm-Message-State: AOAM533gqA1mGSU1v/vEeOffWOnm7k6YzeTYUvGuLS/h0cD9Gq0DCct6
+        hsRjRxp/Umrb7MRoaQPbaOnpBN9GPKbFA1vzt0Q=
+X-Google-Smtp-Source: ABdhPJywVpX6coRIO1FnsPTnjxDhpa6yW87T22/vJRK80JigABzReIfr6jKtBUD9g1yktn1ebKPL4w==
+X-Received: by 2002:a17:90b:3591:b0:1e3:25d3:e78e with SMTP id mm17-20020a17090b359100b001e325d3e78emr641516pjb.29.1653911432826;
+        Mon, 30 May 2022 04:50:32 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id u11-20020a170902e80b00b0015e8d4eb239sm4820499plg.131.2022.05.30.04.50.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 May 2022 04:50:32 -0700 (PDT)
+Message-ID: <6294af88.1c69fb81.40642.a228@mx.google.com>
+Date:   Mon, 30 May 2022 04:50:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:8f26:0:0:0:0 with HTTP; Mon, 30 May 2022 04:16:20
- -0700 (PDT)
-Reply-To: georgebrown0004@gmail.com
-From:   george brown <eddywilliam0002@gmail.com>
-Date:   Mon, 30 May 2022 13:16:20 +0200
-Message-ID: <CAP8JzxKU2YBu--tpiLkn_dgifnSeAnyzSSwR=_KfNEb9K0ZX_g@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: Yes, score=6.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS,T_SCC_BODY_TEXT_LINE,UNDISC_FREEM,UNDISC_MONEY autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5421]
-        * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:62b listed in]
-        [list.dnswl.org]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [eddywilliam0002[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [georgebrown0004[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [eddywilliam0002[at]gmail.com]
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.0 T_SCC_BODY_TEXT_LINE No description available.
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  2.7 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  2.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  0.0 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: ******
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.18.1
+X-Kernelci-Branch: linux-5.18.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.18.y baseline: 152 runs, 1 regressions (v5.18.1)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
+        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo
+stable/linux-5.18.y baseline: 152 runs, 1 regressions (v5.18.1)
 
-Mein Name ist George Brown. Ich bin von Beruf Rechtsanwalt. m=C3=B6chte ich
-Ihnen anbieten
-die n=C3=A4chsten Angeh=C3=B6rigen meines Mandanten. Sie werden die Summe v=
-on
-($8,5 Millionen) erben
-Dollar, die mein Mandant vor seinem Tod auf der Bank gelassen hat.
+Regressions Summary
+-------------------
 
-Mein Mandant ist ein B=C3=BCrger Ihres Landes, der mit seiner Frau bei
-einem Autounfall ums Leben kam
-und einziger Sohn. Ich habe Anspruch auf 50 % des Gesamtfonds, w=C3=A4hrend
-50 % Anspruch haben
-sein f=C3=BCr dich.
-Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere Details:
-georgebrown0004@gmail.com
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
 
-Vielen Dank im Voraus,
-Herr George Brown,
+
+  Details:  https://kernelci.org/test/job/stable/branch/linux-5.18.y/kernel=
+/v5.18.1/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable
+  Branch:   linux-5.18.y
+  Describe: v5.18.1
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able.git
+  SHA:      0047d57e6c91177bb731bed5ada6c211868bc27c =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig       | regressions
+-----------+------+--------------+----------+-----------------+------------
+jetson-tk1 | arm  | lab-baylibre | gcc-10   | tegra_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/629477d80e2e564d7ca39bcd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: tegra_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable/linux-5.18.y/v5.18.1/ar=
+m/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
+  HTML log:    https://storage.kernelci.org//stable/linux-5.18.y/v5.18.1/ar=
+m/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220513.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/629477d80e2e564d7ca39=
+bce
+        new failure (last pass: v5.18) =
+
+ =20
