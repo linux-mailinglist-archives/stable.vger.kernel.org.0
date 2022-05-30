@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5935B537EB6
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:14:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 347905380B8
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:24:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232828AbiE3Nxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
+        id S238349AbiE3Nxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:53:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239318AbiE3Nv1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:27 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58B0AF02;
-        Mon, 30 May 2022 06:36:31 -0700 (PDT)
+        with ESMTP id S239341AbiE3Nv2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:28 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 366B81FA69;
+        Mon, 30 May 2022 06:36:35 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 126C7B80D84;
-        Mon, 30 May 2022 13:36:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B1A3C385B8;
-        Mon, 30 May 2022 13:36:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C521260F7B;
+        Mon, 30 May 2022 13:36:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE8CEC385B8;
+        Mon, 30 May 2022 13:36:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917788;
-        bh=1QCkvUVKkSssoNrecKUlG97xKfGrKuMFunKfeuff/Ao=;
+        s=k20201202; t=1653917794;
+        bh=4kOCYh6aEID/+O+eKHAI2+opl1Varwr+QK9vIOeuhOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+2PkBXNaitvu8mfR5Bs0QKyWUot9c1bAFSVEx9XjpTHNDGcDSIQvCZixf89kl2rO
-         pnZ1BGusTH8DeDRqR9nDkC3J4uPUGy1hFGTIi6cFFkEiiX/SYPoWd9L2XpT+ctnfX+
-         xwTCKVGcuN92sSwX9LulPOKGNqZYRC7KIFWVUyudIvqTkTWCaJnzjKR2HfdZSclVCT
-         Ld39sNL4A8LIj+TwinzOeXBmmL3fHU/coqvAxlz+cr6pGD2DHaw7Yn0bDjmwQDPL7Q
-         TutAurpTWn4ND/wuj/dxX7z3yW/jtINKQNqMQZLlJfJrF+O+FSecHi5lj6fLG6u1e5
-         kqMRpVuXB9EPw==
+        b=SZRPJGlnUZP1Y/KzKgf8nW0lCENp4SwSSYYzJ92sf591isttP3UwlqX64l3r1klUf
+         Bu6tVyOTCzIm0mQmgj5TfgSMmNkyY/nSlA49y5Xo9RUj/xi9oD7Bsl/YVSUxn96fKQ
+         PGopkCwje8avpYfi1Tau/6rMOue8oXWXXsKHrqFWW3HLVrLtcg/yGTAsejmSEdVofy
+         g0QJXQTWycQf3ZfBKjvTUQB5sWjqTPLPHwuJzu6XuMg5sX5/eDEAwXrk7D3ofBzw1V
+         gdKADbX70KOBIi3cSdBxCfjiNrG4RybhcGXSwb3pPw8yraE9/RaIyV2pbn4DIfvFED
+         1M4W11XMpiv7Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.17 098/135] media: cec-adap.c: fix is_configuring state
-Date:   Mon, 30 May 2022 09:30:56 -0400
-Message-Id: <20220530133133.1931716-98-sashal@kernel.org>
+Cc:     Lukas Wunner <lukas@wunner.de>,
+        Oleksij Rempel <o.rempel@pengutronix.de>,
+        Ferry Toth <fntoth@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>,
+        Martyn Welch <martyn.welch@collabora.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, steve.glendinning@shawell.net,
+        UNGLinuxDriver@microchip.com, linux@rempel-privat.de,
+        colin.king@intel.com, paskripkin@gmail.com,
+        linux-usb@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 099/135] usbnet: Run unregister_netdev() before unbind() again
+Date:   Mon, 30 May 2022 09:30:57 -0400
+Message-Id: <20220530133133.1931716-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -56,69 +65,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 59267fc34f4900dcd2ec3295f6be04b79aee2186 ]
+[ Upstream commit d1408f6b4dd78fb1b9e26bcf64477984e5f85409 ]
 
-If an adapter is trying to claim a free logical address then it is
-in the 'is_configuring' state. If during that process the cable is
-disconnected (HPD goes low, which in turn invalidates the physical
-address), then cec_adap_unconfigure() is called, and that set the
-is_configuring boolean to false, even though the thread that's
-trying to claim an LA is still running.
+Commit 2c9d6c2b871d ("usbnet: run unbind() before unregister_netdev()")
+sought to fix a use-after-free on disconnect of USB Ethernet adapters.
 
-Don't touch the is_configuring bool in cec_adap_unconfigure(), it
-will eventually be cleared by the thread. By making that change
-the cec_config_log_addr() function also had to change: it was
-aborting if is_configuring became false (since that is what
-cec_adap_unconfigure() did), but that no longer works. Instead
-check if the physical address is invalid. That is a much
-more appropriate check anyway.
+It turns out that a different fix is necessary to address the issue:
+https://lore.kernel.org/netdev/18b3541e5372bc9b9fc733d422f4e698c089077c.1650177997.git.lukas@wunner.de/
 
-This fixes a bug where the the adapter could be disabled even
-though the device was still configuring. This could cause POLL
-transmits to time out.
+So the commit was not necessary.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+The commit made binding and unbinding of USB Ethernet asymmetrical:
+Before, usbnet_probe() first invoked the ->bind() callback and then
+register_netdev().  usbnet_disconnect() mirrored that by first invoking
+unregister_netdev() and then ->unbind().
+
+Since the commit, the order in usbnet_disconnect() is reversed and no
+longer mirrors usbnet_probe().
+
+One consequence is that a PHY disconnected (and stopped) in ->unbind()
+is afterwards stopped once more by unregister_netdev() as it closes the
+netdev before unregistering.  That necessitates a contortion in ->stop()
+because the PHY may only be stopped if it hasn't already been
+disconnected.
+
+Reverting the commit allows making the call to phy_stop() unconditional
+in ->stop().
+
+Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
+Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Cc: Martyn Welch <martyn.welch@collabora.com>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/core/cec-adap.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/usb/asix_devices.c | 6 +-----
+ drivers/net/usb/smsc95xx.c     | 3 +--
+ drivers/net/usb/usbnet.c       | 6 +++---
+ 3 files changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/cec/core/cec-adap.c b/drivers/media/cec/core/cec-adap.c
-index 2e12331c12a9..01766e744772 100644
---- a/drivers/media/cec/core/cec-adap.c
-+++ b/drivers/media/cec/core/cec-adap.c
-@@ -1278,7 +1278,7 @@ static int cec_config_log_addr(struct cec_adapter *adap,
- 		 * While trying to poll the physical address was reset
- 		 * and the adapter was unconfigured, so bail out.
- 		 */
--		if (!adap->is_configuring)
-+		if (adap->phys_addr == CEC_PHYS_ADDR_INVALID)
- 			return -EINTR;
+diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
+index 6b2fbdf4e0fd..34854ee537dc 100644
+--- a/drivers/net/usb/asix_devices.c
++++ b/drivers/net/usb/asix_devices.c
+@@ -799,11 +799,7 @@ static int ax88772_stop(struct usbnet *dev)
+ {
+ 	struct asix_common_private *priv = dev->driver_priv;
  
- 		if (err)
-@@ -1335,7 +1335,6 @@ static void cec_adap_unconfigure(struct cec_adapter *adap)
- 	    adap->phys_addr != CEC_PHYS_ADDR_INVALID)
- 		WARN_ON(adap->ops->adap_log_addr(adap, CEC_LOG_ADDR_INVALID));
- 	adap->log_addrs.log_addr_mask = 0;
--	adap->is_configuring = false;
- 	adap->is_configured = false;
- 	cec_flush(adap);
- 	wake_up_interruptible(&adap->kthread_waitq);
-@@ -1527,9 +1526,10 @@ static int cec_config_thread_func(void *arg)
- 	for (i = 0; i < las->num_log_addrs; i++)
- 		las->log_addr[i] = CEC_LOG_ADDR_INVALID;
- 	cec_adap_unconfigure(adap);
-+	adap->is_configuring = false;
- 	adap->kthread_config = NULL;
--	mutex_unlock(&adap->lock);
- 	complete(&adap->config_completion);
-+	mutex_unlock(&adap->lock);
+-	/* On unplugged USB, we will get MDIO communication errors and the
+-	 * PHY will be set in to PHY_HALTED state.
+-	 */
+-	if (priv->phydev->state != PHY_HALTED)
+-		phy_stop(priv->phydev);
++	phy_stop(priv->phydev);
+ 
  	return 0;
  }
+diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
+index a0f29482294d..d81485cd7e90 100644
+--- a/drivers/net/usb/smsc95xx.c
++++ b/drivers/net/usb/smsc95xx.c
+@@ -1218,8 +1218,7 @@ static int smsc95xx_start_phy(struct usbnet *dev)
  
+ static int smsc95xx_stop(struct usbnet *dev)
+ {
+-	if (dev->net->phydev)
+-		phy_stop(dev->net->phydev);
++	phy_stop(dev->net->phydev);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
+index 9a6450f796dc..36b24ec11650 100644
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -1616,9 +1616,6 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 		   xdev->bus->bus_name, xdev->devpath,
+ 		   dev->driver_info->description);
+ 
+-	if (dev->driver_info->unbind)
+-		dev->driver_info->unbind(dev, intf);
+-
+ 	net = dev->net;
+ 	unregister_netdev (net);
+ 
+@@ -1626,6 +1623,9 @@ void usbnet_disconnect (struct usb_interface *intf)
+ 
+ 	usb_scuttle_anchored_urbs(&dev->deferred);
+ 
++	if (dev->driver_info->unbind)
++		dev->driver_info->unbind(dev, intf);
++
+ 	usb_kill_urb(dev->interrupt);
+ 	usb_free_urb(dev->interrupt);
+ 	kfree(dev->padding_pkt);
 -- 
 2.35.1
 
