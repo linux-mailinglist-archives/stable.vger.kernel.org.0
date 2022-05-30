@@ -2,53 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4737538356
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46C19538358
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240831AbiE3Ocr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:32:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44832 "EHLO
+        id S240442AbiE3Ocv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242447AbiE3ObH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:07 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6F4974DE8;
-        Mon, 30 May 2022 06:52:59 -0700 (PDT)
+        with ESMTP id S242492AbiE3ObO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:14 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65A76106552;
+        Mon, 30 May 2022 06:53:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ED6761036;
-        Mon, 30 May 2022 13:52:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CAF9C36AE3;
-        Mon, 30 May 2022 13:52:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 47C32B80DBB;
+        Mon, 30 May 2022 13:52:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34895C36AE3;
+        Mon, 30 May 2022 13:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918755;
-        bh=6GPI7gYf07+zFN1Ol/tp6iH7PZSLrK3qLnRFMdReihY=;
+        s=k20201202; t=1653918759;
+        bh=Pc6AH3aNje77UUx9oth6RMHG9z01vE/DhvECuLUn6TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fjCKlOG3foCQcS9JIAywYFHoPv6KScHEVAAdx3eG2R0nEQRQc4+mJwmwo/+lGbwul
-         XncUW5yQ1eGS8V2HrKrpaNS8Vw2an4SW2KyrSpPAccnU0HTS1Mwo8Hmbn/BwlcZYQ5
-         FfrTGuVLhpS54V8Ntu28MLIeDvVq9lz9dd0gIO3pbS2iv4vqCcaEJt9c5+zMpEFVPT
-         zZZYgaOg0HKmdjBhkvtACQr6NUJlqMeAeNipdamLOFPb+e+cEILb3ZZQ2pqPBX1VHN
-         1azXvXgHla5VJ82K7JZrhIMN+m1WwDn/vAZS8aC763n10k85hxQP/ODfDh2JTnD3lp
-         LWDjCO47BKX4A==
+        b=N9DhURA6rgch2TVmXdlhwhqZ5JgR71x7fCoK5qI4Shz9gUqGOt9ypcwlVFr9zcqr0
+         kO5eBco+cTnhNRztU0BRaAM7abtot5YOHJsKVom95NN90bQVzsMDHJcjGEhgYfZRfT
+         XE3YuSA1cX2h0vbrk5BeSVDJvMU851BGe9ukGVXTBErVufzOgxsHXrNAnPmoqOUmU8
+         SwnUsHLyDrrMk3qpVEXwitmK33+kvbYHUVhITwqgwF3JRpXn/sBEbeAL8t1vVe0+HE
+         R1v54+uGdvs+ZV1qHLzc7reowOALP/YeRssT84kHAQrAZlBcEGngSZh+qsZyD8bDt+
+         m1vn0vMqG/Rog==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thibaut=20VAR=C3=88NE?= <hacks+kernel@slashdirt.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@toke.dk>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/24] ath9k: fix QCA9561 PA bias level
-Date:   Mon, 30 May 2022 09:51:56 -0400
-Message-Id: <20220530135211.1937674-9-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 10/24] media: cx25821: Fix the warning when removing the module
+Date:   Mon, 30 May 2022 09:51:57 -0400
+Message-Id: <20220530135211.1937674-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135211.1937674-1-sashal@kernel.org>
 References: <20220530135211.1937674-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -62,49 +57,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit e999a5da28a0e0f7de242d841ef7d5e48f4646ae ]
+[ Upstream commit 2203436a4d24302871617373a7eb21bc17e38762 ]
 
-This patch fixes an invalid TX PA DC bias level on QCA9561, which
-results in a very low output power and very low throughput as devices
-are further away from the AP (compared to other 2.4GHz APs).
+When removing the module, we will get the following warning:
 
-This patch was suggested by Felix Fietkau, who noted[1]:
-"The value written to that register is wrong, because while the mask
-definition AR_CH0_TOP2_XPABIASLVL uses a different value for 9561, the
-shift definition AR_CH0_TOP2_XPABIASLVL_S is hardcoded to 12, which is
-wrong for 9561."
+[   14.746697] remove_proc_entry: removing non-empty directory 'irq/21', leaking at least 'cx25821[1]'
+[   14.747449] WARNING: CPU: 4 PID: 368 at fs/proc/generic.c:717 remove_proc_entry+0x389/0x3f0
+[   14.751611] RIP: 0010:remove_proc_entry+0x389/0x3f0
+[   14.759589] Call Trace:
+[   14.759792]  <TASK>
+[   14.759975]  unregister_irq_proc+0x14c/0x170
+[   14.760340]  irq_free_descs+0x94/0xe0
+[   14.760640]  mp_unmap_irq+0xb6/0x100
+[   14.760937]  acpi_unregister_gsi_ioapic+0x27/0x40
+[   14.761334]  acpi_pci_irq_disable+0x1d3/0x320
+[   14.761688]  pci_disable_device+0x1ad/0x380
+[   14.762027]  ? _raw_spin_unlock_irqrestore+0x2d/0x60
+[   14.762442]  ? cx25821_shutdown+0x20/0x9f0 [cx25821]
+[   14.762848]  cx25821_finidev+0x48/0xc0 [cx25821]
+[   14.763242]  pci_device_remove+0x92/0x240
 
-In real life testing, without this patch the 2.4GHz throughput on
-Yuncore XD3200 is around 10Mbps sitting next to the AP, and closer to
-practical maximum with the patch applied.
+Fix this by freeing the irq before call pci_disable_device().
 
-[1] https://lore.kernel.org/all/91c58969-c60e-2f41-00ac-737786d435ae@nbd.name
-
-Signed-off-by: Thibaut VARÈNE <hacks+kernel@slashdirt.org>
-Acked-by: Felix Fietkau <nbd@nbd.name>
-Acked-by: Toke Høiland-Jørgensen <toke@toke.dk>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20220417145145.1847-1-hacks+kernel@slashdirt.org
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ar9003_phy.h | 2 +-
+ drivers/media/pci/cx25821/cx25821-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ar9003_phy.h b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-index a171dbb29fbb..ad949eb02f3d 100644
---- a/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-+++ b/drivers/net/wireless/ath/ath9k/ar9003_phy.h
-@@ -720,7 +720,7 @@
- #define AR_CH0_TOP2		(AR_SREV_9300(ah) ? 0x1628c : \
- 					(AR_SREV_9462(ah) ? 0x16290 : 0x16284))
- #define AR_CH0_TOP2_XPABIASLVL		(AR_SREV_9561(ah) ? 0x1e00 : 0xf000)
--#define AR_CH0_TOP2_XPABIASLVL_S	12
-+#define AR_CH0_TOP2_XPABIASLVL_S	(AR_SREV_9561(ah) ? 9 : 12)
+diff --git a/drivers/media/pci/cx25821/cx25821-core.c b/drivers/media/pci/cx25821/cx25821-core.c
+index d58c58e61bde..acd896ca1339 100644
+--- a/drivers/media/pci/cx25821/cx25821-core.c
++++ b/drivers/media/pci/cx25821/cx25821-core.c
+@@ -1354,11 +1354,11 @@ static void cx25821_finidev(struct pci_dev *pci_dev)
+ 	struct cx25821_dev *dev = get_cx25821(v4l2_dev);
  
- #define AR_CH0_XTAL		(AR_SREV_9300(ah) ? 0x16294 : \
- 				 ((AR_SREV_9462(ah) || AR_SREV_9565(ah)) ? 0x16298 : \
+ 	cx25821_shutdown(dev);
+-	pci_disable_device(pci_dev);
+ 
+ 	/* unregister stuff */
+ 	if (pci_dev->irq)
+ 		free_irq(pci_dev->irq, dev);
++	pci_disable_device(pci_dev);
+ 
+ 	cx25821_dev_unregister(dev);
+ 	v4l2_device_unregister(v4l2_dev);
 -- 
 2.35.1
 
