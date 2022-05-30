@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AE1B537DAA
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C896537D23
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237579AbiE3Nlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:41:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56544 "EHLO
+        id S237471AbiE3Nl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:41:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237762AbiE3NiF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:38:05 -0400
+        with ESMTP id S237774AbiE3NiI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:38:08 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 643638BD1F;
-        Mon, 30 May 2022 06:31:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 875688BD36;
+        Mon, 30 May 2022 06:31:16 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B78DB80D89;
-        Mon, 30 May 2022 13:31:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B67BC3411C;
-        Mon, 30 May 2022 13:31:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F062EB80DB1;
+        Mon, 30 May 2022 13:31:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D554FC341C4;
+        Mon, 30 May 2022 13:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917472;
-        bh=jwx+vf2s8FhK15e9dVjLvjTG6LGBGKIc0EVLYugk9P8=;
+        s=k20201202; t=1653917473;
+        bh=Bpw6Qm6IaCPjexmO1xXZD3Zk0B/+hGZOu1QhVZlvP9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SankRzmBI3yRujlBC+OilUXWysU2PIEXgZd8MBseGL5I6CHPG9y9T0AKKBiJtP2iv
-         noj/QTPSOpsFRYwI/+ol5WmN70Q58988gOlctJIscRo5cFfmsXf02AtFcmtNEt4kKA
-         nEQ16JVIsbjV75jMpQD1vCIn+oqz6fgQ6DFrRGALgmeWAXopKi80rxlwlb6b4Jl+Hq
-         RvKPyeeHo4Ps5sJnpy33hLHa8EFY7FeMMFXbmeDvkerys/LfuIP74iv0Pd81fQzUsu
-         vBMCSacsvEv5OiB5vxbxEmjR55A0U6l7qmlfiicF6SW4FQEj3BbZ/YUQs57FCZE4t6
-         fcc2qEPTP/f8g==
+        b=ncfKnxcTKN08/84iGMUeXxdaoljEHAV0GRhuvaz0q8gqDAaeZ0l5IaPGeWCr3EEZq
+         G7Nqc3iOIU4ixyZphWao87sX8d/wzuj6pZrsV009N75gcLxaP9uv/oChAL2ns5n7Yf
+         wPzpZck1eA9TlXNsgW0dhAvnDKUBtoiZi/POn/0pxuWBXiZKmZ/1l18t7Ukd4odPjQ
+         BWdONsMl06P1ohRPpQGI8AFNvOV6LB+0xRh8XvahG5lSv3nN2CgMk/LhBb5y8dueKK
+         pUcCEGDa6PFJMTVRWUzSg+7TdbG0G8MX0iuvRNVgE64MQkwR9Wjp8JvMVCFyknbQlK
+         HFcfx66SBlsyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?M=C3=A5rten=20Lindahl?= <marten.lindahl@axis.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+Cc:     Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
-        linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 150/159] hwmon: (pmbus) Add get_voltage/set_voltage ops
-Date:   Mon, 30 May 2022 09:24:15 -0400
-Message-Id: <20220530132425.1929512-150-sashal@kernel.org>
+        corbet@lwn.net, linux-hwmon@vger.kernel.org,
+        linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.18 151/159] hwmon: Make chip parameter for with_info API mandatory
+Date:   Mon, 30 May 2022 09:24:16 -0400
+Message-Id: <20220530132425.1929512-151-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,105 +57,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mårten Lindahl <marten.lindahl@axis.com>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 28bf22ef93eceb42c7583f0909bc9dedc07770e3 ]
+[ Upstream commit ddaefa209c4ac791c1262e97c9b2d0440c8ef1d5 ]
 
-The pmbus core does not have operations for getting or setting voltage.
-Add functions get/set voltage for the dynamic regulator framework.
+Various attempts were made recently to "convert" the old
+hwmon_device_register() API to devm_hwmon_device_register_with_info()
+by just changing the function name without actually converting the
+driver. Prevent this from happening by making the 'chip' parameter of
+devm_hwmon_device_register_with_info() mandatory.
 
-Signed-off-by: Mårten Lindahl <marten.lindahl@axis.com>
-Link: https://lore.kernel.org/r/20220503104631.3515715-5-marten.lindahl@axis.com
-[groeck: cosmetic alignment / empty line fixes]
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/pmbus_core.c | 67 ++++++++++++++++++++++++++++++++
- 1 file changed, 67 insertions(+)
+ Documentation/hwmon/hwmon-kernel-api.rst |  2 +-
+ drivers/hwmon/hwmon.c                    | 16 +++++++---------
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hwmon/pmbus/pmbus_core.c b/drivers/hwmon/pmbus/pmbus_core.c
-index d93574d6a1fb..5a1796650f5b 100644
---- a/drivers/hwmon/pmbus/pmbus_core.c
-+++ b/drivers/hwmon/pmbus/pmbus_core.c
-@@ -2548,11 +2548,78 @@ static int pmbus_regulator_get_error_flags(struct regulator_dev *rdev, unsigned
- 	return 0;
- }
+diff --git a/Documentation/hwmon/hwmon-kernel-api.rst b/Documentation/hwmon/hwmon-kernel-api.rst
+index c41eb6108103..23f27fe78e37 100644
+--- a/Documentation/hwmon/hwmon-kernel-api.rst
++++ b/Documentation/hwmon/hwmon-kernel-api.rst
+@@ -72,7 +72,7 @@ hwmon_device_register_with_info is the most comprehensive and preferred means
+ to register a hardware monitoring device. It creates the standard sysfs
+ attributes in the hardware monitoring core, letting the driver focus on reading
+ from and writing to the chip instead of having to bother with sysfs attributes.
+-The parent device parameter cannot be NULL with non-NULL chip info. Its
++The parent device parameter as well as the chip parameter must not be NULL. Its
+ parameters are described in more detail below.
  
-+static int pmbus_regulator_get_voltage(struct regulator_dev *rdev)
-+{
-+	struct device *dev = rdev_get_dev(rdev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
-+	struct pmbus_data *data = i2c_get_clientdata(client);
-+	struct pmbus_sensor s = {
-+		.page = rdev_get_id(rdev),
-+		.class = PSC_VOLTAGE_OUT,
-+		.convert = true,
-+	};
-+
-+	s.data = _pmbus_read_word_data(client, s.page, 0xff, PMBUS_READ_VOUT);
-+	if (s.data < 0)
-+		return s.data;
-+
-+	return (int)pmbus_reg2data(data, &s) * 1000; /* unit is uV */
-+}
-+
-+static int pmbus_regulator_set_voltage(struct regulator_dev *rdev, int min_uv,
-+				       int max_uv, unsigned int *selector)
-+{
-+	struct device *dev = rdev_get_dev(rdev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
-+	struct pmbus_data *data = i2c_get_clientdata(client);
-+	struct pmbus_sensor s = {
-+		.page = rdev_get_id(rdev),
-+		.class = PSC_VOLTAGE_OUT,
-+		.convert = true,
-+		.data = -1,
-+	};
-+	int val = DIV_ROUND_CLOSEST(min_uv, 1000); /* convert to mV */
-+	int low, high;
-+
-+	*selector = 0;
-+
-+	if (pmbus_check_word_register(client, s.page, PMBUS_MFR_VOUT_MIN))
-+		s.data = _pmbus_read_word_data(client, s.page, 0xff, PMBUS_MFR_VOUT_MIN);
-+	if (s.data < 0) {
-+		s.data = _pmbus_read_word_data(client, s.page, 0xff, PMBUS_VOUT_MARGIN_LOW);
-+		if (s.data < 0)
-+			return s.data;
-+	}
-+	low = pmbus_reg2data(data, &s);
-+
-+	s.data = -1;
-+	if (pmbus_check_word_register(client, s.page, PMBUS_MFR_VOUT_MAX))
-+		s.data = _pmbus_read_word_data(client, s.page, 0xff, PMBUS_MFR_VOUT_MAX);
-+	if (s.data < 0) {
-+		s.data = _pmbus_read_word_data(client, s.page, 0xff, PMBUS_VOUT_MARGIN_HIGH);
-+		if (s.data < 0)
-+			return s.data;
-+	}
-+	high = pmbus_reg2data(data, &s);
-+
-+	/* Make sure we are within margins */
-+	if (low > val)
-+		val = low;
-+	if (high < val)
-+		val = high;
-+
-+	val = pmbus_data2reg(data, &s, val);
-+
-+	return _pmbus_write_word_data(client, s.page, PMBUS_VOUT_COMMAND, (u16)val);
-+}
-+
- const struct regulator_ops pmbus_regulator_ops = {
- 	.enable = pmbus_regulator_enable,
- 	.disable = pmbus_regulator_disable,
- 	.is_enabled = pmbus_regulator_is_enabled,
- 	.get_error_flags = pmbus_regulator_get_error_flags,
-+	.get_voltage = pmbus_regulator_get_voltage,
-+	.set_voltage = pmbus_regulator_set_voltage,
- };
- EXPORT_SYMBOL_NS_GPL(pmbus_regulator_ops, PMBUS);
+ devm_hwmon_device_register_with_info is similar to
+diff --git a/drivers/hwmon/hwmon.c b/drivers/hwmon/hwmon.c
+index 989e2c8496dd..187212988b6c 100644
+--- a/drivers/hwmon/hwmon.c
++++ b/drivers/hwmon/hwmon.c
+@@ -886,11 +886,12 @@ EXPORT_SYMBOL_GPL(hwmon_device_register_with_groups);
  
+ /**
+  * hwmon_device_register_with_info - register w/ hwmon
+- * @dev: the parent device
+- * @name: hwmon name attribute
+- * @drvdata: driver data to attach to created device
+- * @chip: pointer to hwmon chip information
++ * @dev: the parent device (mandatory)
++ * @name: hwmon name attribute (mandatory)
++ * @drvdata: driver data to attach to created device (optional)
++ * @chip: pointer to hwmon chip information (mandatory)
+  * @extra_groups: pointer to list of additional non-standard attribute groups
++ *	(optional)
+  *
+  * hwmon_device_unregister() must be called when the device is no
+  * longer needed.
+@@ -903,13 +904,10 @@ hwmon_device_register_with_info(struct device *dev, const char *name,
+ 				const struct hwmon_chip_info *chip,
+ 				const struct attribute_group **extra_groups)
+ {
+-	if (!name)
+-		return ERR_PTR(-EINVAL);
+-
+-	if (chip && (!chip->ops || !chip->ops->is_visible || !chip->info))
++	if (!dev || !name || !chip)
+ 		return ERR_PTR(-EINVAL);
+ 
+-	if (chip && !dev)
++	if (!chip->ops || !chip->ops->is_visible || !chip->info)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	return __hwmon_device_register(dev, name, drvdata, chip, extra_groups);
 -- 
 2.35.1
 
