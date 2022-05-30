@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403EC5384C7
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1351E5384C9
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 17:24:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238201AbiE3PX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 11:23:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39202 "EHLO
+        id S239153AbiE3PYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 11:24:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238248AbiE3PXm (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 30 May 2022 11:23:42 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 062E11406CB
-        for <Stable@vger.kernel.org>; Mon, 30 May 2022 07:24:26 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id a10so11455965ioe.9
-        for <Stable@vger.kernel.org>; Mon, 30 May 2022 07:24:26 -0700 (PDT)
+        with ESMTP id S239254AbiE3PYP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 11:24:15 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D32816E6AA
+        for <stable@vger.kernel.org>; Mon, 30 May 2022 07:24:57 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id y8so11430865iof.10
+        for <stable@vger.kernel.org>; Mon, 30 May 2022 07:24:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=mime-version:reply-to:from:date:message-id:subject:to
          :content-transfer-encoding;
         bh=XJqXgw0Qi4Ge6Q57wB4GlvotoYnhUuSq68y9152a6AE=;
-        b=LVGtkaW0HGDkcFAbs1GdFvAiqvfLTx1bYwe9OYqpie0hnkrRG3ANYxPumKuZYk7JMA
-         AfITdn4F5UEIeokR125RIY7Q1ckTrFsya4ogv4jGBKCCAup79jetDFmsmII3tXW0NH9U
-         HmEtro8tuihDrKQfSM37+WAX2S6ccLGt/leKPBqVvVnXXzZUwGgCNWgxjRzx+ta8kb/N
-         kjp3vJtP4Wr0Z99l39qc43HumPvgMdcTmaO69S36D8nN5QUsfNvdQh/YlqsB5wr2kDuQ
-         A0nhfxSHPFeuwsEWpzg0d/VjIUjssp5aWeegsjCH7CSUHmX4+cmniMZIKUoaDKh7uonN
-         KAYw==
+        b=NbqxDIfbgJ3MqmIYsJC5mVjaDxSkTWvC3kPoDVHx4JzwZbpS9PNN5if7c29NSZ1sJB
+         f748WH2yAajK5ZcxxhXypaHitkort6LILed9cl4irwdGPwVFlpX9AkTr2Mja958VRSek
+         qJQ/S2UJ/mcH33fo7+iitzWEfRfsJLZOKNeCLEV5Ejg1TlbMSXMphHmvbctkGozedLMF
+         jgL5p2nws6aUnQQJIpMt+a5eemymIUXiMAge2uC569EQkBNKwj9hF5GPWTfL4FZABal5
+         bSX0/kJq7HKgVN9I+/juXlAdYtbdpienxpvSlxQG+6DpQindHNtjhL8DNUTmcvjGJvhV
+         /kNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:reply-to:from:date:message-id
          :subject:to:content-transfer-encoding;
         bh=XJqXgw0Qi4Ge6Q57wB4GlvotoYnhUuSq68y9152a6AE=;
-        b=uC2dbNQESKL13x2np50PWFC2ymiCTs2jOfBDVwO0oFoU4V11cCvoG7yAr6iFVLB9hq
-         VDlPWbc+xR6NwANJhcA5mn3XohfM6VT2XjbLPP2/cmMr/QVruY9rI1zipohrLpExXpEP
-         vWV3KssCxvheN5IofUlKkECFvQsktWzO3Xr4PmLVzn5upaOKQNKJqrxdWcCB9WudfOMs
-         Zx0wd87SyQfD3js4s84yLpkQ4nQ6DNwMwo+AsxMG3jYddttkrVTHRRGyFeqLJQIjqOV9
-         wcv0Kg/ST8gGsZNS7MbBRh3X5+6blN+TI7qEyFiNEwNzfe62//CAnAXgwmJW3RQBz7sw
-         3qMA==
-X-Gm-Message-State: AOAM531pEoR1Z/6hFFq589SGmjXojwENWfjh9numwB3F+8ojoPb2Ugwx
-        9Zw2U+23eOnZPl4DExizU2ZB2tE1lEBjijZVCCk=
-X-Google-Smtp-Source: ABdhPJzISoeKuHvleT2qC8m0US7O2OdfkIZVgxD6GvVL7FgBjA1K4iWV+Cy+Hb9xQJJxwRGXQNwhpr3idZ5yq0RJcI4=
-X-Received: by 2002:a05:6638:13cd:b0:330:bc2b:d8f0 with SMTP id
- i13-20020a05663813cd00b00330bc2bd8f0mr11889080jaj.41.1653920665532; Mon, 30
- May 2022 07:24:25 -0700 (PDT)
+        b=LNlHxRr+i6hRTfHnHT7D+DDjcF9Gg1e13jxvEwNLYFW4RRIyelx5Agfq/ynvJk0fxJ
+         esqJKHniB4+lhbsA1Zm305NC8A9QgW8vgtVx+ZSPhq8Y7pSLcmz+YLRFi+bCVGDc3XH7
+         BEypQOIKJ6+vGJj1yFwRe3BtmwBqOnhq8WxO7JWE9Lv/sCvOzEjbRl9VuavufwS6+6wu
+         nEEDhOdk7/j5p+ywd9TaXZLOlr4/EBGsCYrHRUMlsBngp6rPOe+6cfO/4fIMv49Wf0su
+         a66pMpMCve3DS5dxhxi5yrrPE2EsyZ4L7DnaGuf7nm7LSpdhfNqDhfZLMu6Ttl3qtT3W
+         N7yw==
+X-Gm-Message-State: AOAM530G8HxFp8vAbGg3mjrN0egFLoiNrFp8E2KiudMkkEf6fA/EAksJ
+        jmB3Jvm90Ha4aReQ5etvFDx3piGAJJtsDrZzgrI=
+X-Google-Smtp-Source: ABdhPJzg6KrabGVEkgnEr4HNvCPzSqI/oaNQTXsR1hl2LvfBX1gjy264CVcX8XoPW8bcnnZPEUFZqfffzIuL4LeOQFM=
+X-Received: by 2002:a05:6602:1646:b0:665:6f07:bd4a with SMTP id
+ y6-20020a056602164600b006656f07bd4amr15942297iow.111.1653920695415; Mon, 30
+ May 2022 07:24:55 -0700 (PDT)
 MIME-Version: 1.0
-Received: by 2002:a05:6622:f06:0:0:0:0 with HTTP; Mon, 30 May 2022 07:24:24
+Received: by 2002:a05:6622:f06:0:0:0:0 with HTTP; Mon, 30 May 2022 07:24:54
  -0700 (PDT)
 Reply-To: barristerbenjamin221@gmail.com
 From:   Attorney Amadou <koadaidrissa1@gmail.com>
-Date:   Mon, 30 May 2022 07:24:24 -0700
-Message-ID: <CAOh7+P9ggdh-bYDbwixYyVB38v5qx=PFTHiUOv+TH9fUGcn3NA@mail.gmail.com>
+Date:   Mon, 30 May 2022 07:24:54 -0700
+Message-ID: <CAOh7+P8pmKdAt7XCLDd5RHaMka48-aY9v72T94WC3g_QUan6Lg@mail.gmail.com>
 Subject: 
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
@@ -63,7 +63,7 @@ X-Spam-Status: Yes, score=7.7 required=5.0 tests=BAYES_99,BAYES_999,
         version=3.4.6
 X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
         *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:d42 listed in]
+        *      [2607:f8b0:4864:20:0:0:0:d43 listed in]
         [list.dnswl.org]
         *  0.2 BAYES_999 BODY: Bayes spam probability is 99.9 to 100%
         *      [score: 1.0000]
