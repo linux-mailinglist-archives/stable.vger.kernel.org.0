@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1565653835C
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A06B53835F
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:39:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241270AbiE3Oc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:32:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42892 "EHLO
+        id S241409AbiE3OdK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:33:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242602AbiE3ObV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:21 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1A1881997;
-        Mon, 30 May 2022 06:53:12 -0700 (PDT)
+        with ESMTP id S242639AbiE3ObY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:31:24 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0300512DBD0;
+        Mon, 30 May 2022 06:53:14 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74F80B80DE5;
-        Mon, 30 May 2022 13:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF4CEC36AE3;
-        Mon, 30 May 2022 13:52:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5991B80ABD;
+        Mon, 30 May 2022 13:52:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20A50C385B8;
+        Mon, 30 May 2022 13:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918771;
-        bh=xFZ/qA6yDXkSrcTFBTSW99brMlcXXlUY75Bdj3PbFFI=;
+        s=k20201202; t=1653918773;
+        bh=EOmJEH68TjxZdaiohHMuXN0fLS1RICZ/GU/FScIyQFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDVGgHdv51TR/F2n6byZD8U4Glz/SnMFzUW05i8eHBv8OMLAX9D5nsmRRdWj4dck+
-         YgUACvIcsCcVj79vH0A+38AsrC2Jd1ddo/b+z6TVHGzRUDqi52rwNoDRbl/Lu8/jQd
-         2UcDVM1CDq+Uw46ZFSUF3ufBZTZpr+dUjsieI05Cbzc9GyXukGnxvFMQnZkSc3/ye0
-         N67WIjeNwHWsMk26oeuZj2HOr7TOA23cnmDY2WZ9XTOTydomVfR2niiBSfAlNQIHBa
-         X9YzsvuMFwMWJaF1IucXqtC6+MBbwsJ926fuNV9aKImHxnVShntSArxukKNt+eGkC0
-         mbsCJMtq1VfQg==
+        b=Ygnu0vet0eWoFqSkRVdY3OmWRFgpxM9grLpRoCGxfSr1//iZVgHxAcbN/zEzSJIT1
+         hKR0MXzfm3Wxgd3l3hQhtOtdho/63Am4mAuKrjbgLx9K2yZZ5uDesiKj7rCvROLxXv
+         ttmLdpR4cpzFq7LlDR6g8pXppXP6xyqoI2R39YT4/BlCuLl1a6+vmtnCqxMLVnXph6
+         TwN4GJCgiDe0eyvNY/FBLYzujv3ah6qMEQfG6lFh1OyldMKmPPoWZUbftpfwuycc7E
+         XgIjbjRccUHQ2EKMI7qI6ZIrKUxEBg4tkF89768FZVzrrEWVfiybgkT8XIvij6RsxK
+         9BQTPKSJVmERA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        pabeni@redhat.com, bigeasy@linutronix.de, imagedong@tencent.com,
-        petrm@nvidia.com, memxor@gmail.com, arnd@arndb.de,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 15/24] net: remove two BUG() from skb_checksum_help()
-Date:   Mon, 30 May 2022 09:52:02 -0400
-Message-Id: <20220530135211.1937674-15-sashal@kernel.org>
+Cc:     Mikulas Patocka <mpatocka@redhat.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 16/24] dma-debug: change allocation mode from GFP_NOWAIT to GFP_ATIOMIC
+Date:   Mon, 30 May 2022 09:52:03 -0400
+Message-Id: <20220530135211.1937674-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530135211.1937674-1-sashal@kernel.org>
 References: <20220530135211.1937674-1-sashal@kernel.org>
@@ -59,47 +55,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit d7ea0d9df2a6265b2b180d17ebc64b38105968fc ]
+[ Upstream commit 84bc4f1dbbbb5f8aa68706a96711dccb28b518e5 ]
 
-I have a syzbot report that managed to get a crash in skb_checksum_help()
+We observed the error "cacheline tracking ENOMEM, dma-debug disabled"
+during a light system load (copying some files). The reason for this error
+is that the dma_active_cacheline radix tree uses GFP_NOWAIT allocation -
+so it can't access the emergency memory reserves and it fails as soon as
+anybody reaches the watermark.
 
-If syzbot can trigger these BUG(), it makes sense to replace
-them with more friendly WARN_ON_ONCE() since skb_checksum_help()
-can instead return an error code.
+This patch changes GFP_NOWAIT to GFP_ATOMIC, so that it can access the
+emergency memory reserves.
 
-Note that syzbot will still crash there, until real bug is fixed.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ lib/dma-debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 47468fc5d0c9..d725ca4d4455 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -2518,11 +2518,15 @@ int skb_checksum_help(struct sk_buff *skb)
- 	}
- 
- 	offset = skb_checksum_start_offset(skb);
--	BUG_ON(offset >= skb_headlen(skb));
-+	ret = -EINVAL;
-+	if (WARN_ON_ONCE(offset >= skb_headlen(skb)))
-+		goto out;
-+
- 	csum = skb_checksum(skb, offset, skb->len - offset, 0);
- 
- 	offset += skb->csum_offset;
--	BUG_ON(offset + sizeof(__sum16) > skb_headlen(skb));
-+	if (WARN_ON_ONCE(offset + sizeof(__sum16) > skb_headlen(skb)))
-+		goto out;
- 
- 	if (skb_cloned(skb) &&
- 	    !skb_clone_writable(skb, offset + sizeof(__sum16))) {
+diff --git a/lib/dma-debug.c b/lib/dma-debug.c
+index 4435bec55fb5..baafebabe3ac 100644
+--- a/lib/dma-debug.c
++++ b/lib/dma-debug.c
+@@ -463,7 +463,7 @@ EXPORT_SYMBOL(debug_dma_dump_mappings);
+  * At any time debug_dma_assert_idle() can be called to trigger a
+  * warning if any cachelines in the given page are in the active set.
+  */
+-static RADIX_TREE(dma_active_cacheline, GFP_NOWAIT);
++static RADIX_TREE(dma_active_cacheline, GFP_ATOMIC);
+ static DEFINE_SPINLOCK(radix_lock);
+ #define ACTIVE_CACHELINE_MAX_OVERLAP ((1 << RADIX_TREE_MAX_TAGS) - 1)
+ #define CACHELINE_PER_PAGE_SHIFT (PAGE_SHIFT - L1_CACHE_SHIFT)
 -- 
 2.35.1
 
