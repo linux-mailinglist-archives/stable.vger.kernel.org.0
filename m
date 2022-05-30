@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D51A5381B5
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A190538202
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:33:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241057AbiE3OUu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:20:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33932 "EHLO
+        id S241306AbiE3OVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241406AbiE3ORe (ORCPT
+        with ESMTP id S241409AbiE3ORe (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:17:34 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3464C180;
-        Mon, 30 May 2022 06:46:35 -0700 (PDT)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D59DCEF;
+        Mon, 30 May 2022 06:46:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DD4F9B80D6B;
-        Mon, 30 May 2022 13:46:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E441DC3411C;
-        Mon, 30 May 2022 13:46:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38A1C60F22;
+        Mon, 30 May 2022 13:46:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3D85C385B8;
+        Mon, 30 May 2022 13:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918392;
-        bh=T3K49EzgFQoroZgGLydsYozObStO/D4Gzmz7Ic0mvUo=;
+        s=k20201202; t=1653918396;
+        bh=7XsYRlWM8qmHI/XkqixZ5LiDMS9nt6vg5uZEvzT5rvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1TScBseZrd131Xdds0Kniiv/g621BAopM1IChCcxmzSdItLTU5mhcEq5OZg3XbDZ
-         ntq70mpKeabgM05bKQISaLMtrk8ufYN5VRx/GIh7kBwgEZ4Z0JOfR3QvPD3/zCr9GT
-         oGCX5DxRpQPgBLLqiWdw4Me2i4wP6P12lThIaLZmB/DOx8JxYvwjjmiOi48C5Yry6O
-         elhB9fgZSK4X7TS+B3JN6lB3nFnWJJCZsLQbO5U2QViBExwBW2ZI4MF857sAp34fkv
-         PhopRUPzTK74OCOaEKNOlH+2dv/5l4LiTPP4+KFmov362Qi5Lo3pI98ixH7XRjiAfO
-         8IPmAU5TVzCig==
+        b=m++qONB0A/AEQB+Kf9jv0crPtZJHsXbwmvfEK3ViaSzrubNP1mDzECqNc0VbLVcuQ
+         +e63QmtOkW56Mcdtnb1u/TU0dUkLivk5IkDH4I2Q+OvW/fP3Z51HP1jU6q1UMjR62E
+         jbn6JllqdfiftYFiy2IIo9bX7ivBzouiax3N4auSNZRAdpntSnS90gkAxQ2Z0B5n5N
+         DAZ1WO7ilz1Xv8mO0V5WkLD0eGsOfDMABN87nk7cT6PzLAV5DBhDtxSP19hR7jx5gs
+         N9BlK310nAQtsjn1zpoQEAyhJECe9W1R+ua4dIr3uxQ3mUpjmqzloJdW5rs26k36GK
+         yGWqTbNIOWVEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
@@ -41,11 +41,11 @@ Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         perex@perex.cz, tiwai@suse.com, srinivas.kandagatla@linaro.org,
         ckeepax@opensource.cirrus.com, tanureal@opensource.cirrus.com,
         james.schulman@cirrus.com, cy_huang@richtek.com,
-        hdegoede@redhat.com, pbrobinson@gmail.com,
+        pbrobinson@gmail.com, hdegoede@redhat.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 65/76] ASoC: max98357a: remove dependency on GPIOLIB
-Date:   Mon, 30 May 2022 09:43:55 -0400
-Message-Id: <20220530134406.1934928-65-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 66/76] ASoC: rt1015p: remove dependency on GPIOLIB
+Date:   Mon, 30 May 2022 09:43:56 -0400
+Message-Id: <20220530134406.1934928-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530134406.1934928-1-sashal@kernel.org>
 References: <20220530134406.1934928-1-sashal@kernel.org>
@@ -66,29 +66,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 21ca3274333f5c1cbbf9d91e5b33f4f2463859b2 ]
+[ Upstream commit b390c25c6757b9d56cecdfbf6d55f15fc89a6386 ]
 
 commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
 series of unnecessary dependencies on GPIOLIB when the gpio was
 optional.
 
-A similar simplification seems valid for max98357a, so remove the
+A similar simplification seems valid for rt1015p, so remove the
 dependency as well. This will avoid the following warning
 
-   WARNING: unmet direct dependencies detected for SND_SOC_MAX98357A
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
+  WARNING: unmet direct dependencies detected for SND_SOC_RT1015P
+
+     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] &&
+     GPIOLIB [=n]
+
      Selected by [y]:
-     - SND_SOC_INTEL_SOF_CS42L42_MACH [=y] && SOUND [=y] && !UML &&
-       SND [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
+
+     - SND_SOC_INTEL_SOF_RT5682_MACH [=y] && SOUND [=y] && !UML && SND
+       [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
        (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && SND_HDA_CODEC_HDMI [=y] &&
+       [=y] && ACPI [=y] && (SND_HDA_CODEC_HDMI [=y] &&
        SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=n])
+       COMPILE_TEST [=y]) || SND_SOC_SOF_BAYTRAIL [=n] &&
+       (X86_INTEL_LPSS [=n] || COMPILE_TEST [=y]))
 
 Reported-by: kernel test robot <yujie.liu@intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-2-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220517172647.468244-3-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -96,16 +101,16 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index 52c89a6f54e9..612fd7516666 100644
+index 612fd7516666..25f331551f68 100644
 --- a/sound/soc/codecs/Kconfig
 +++ b/sound/soc/codecs/Kconfig
-@@ -857,7 +857,6 @@ config SND_SOC_MAX98095
+@@ -1098,7 +1098,6 @@ config SND_SOC_RT1015
  
- config SND_SOC_MAX98357A
- 	tristate "Maxim MAX98357A CODEC"
+ config SND_SOC_RT1015P
+ 	tristate
 -	depends on GPIOLIB
  
- config SND_SOC_MAX98371
+ config SND_SOC_RT1305
  	tristate
 -- 
 2.35.1
