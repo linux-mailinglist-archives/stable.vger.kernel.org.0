@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 28996537F9D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6F25380E0
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238685AbiE3NxO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:53:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41426 "EHLO
+        id S238517AbiE3NxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239279AbiE3NvZ (ORCPT
+        with ESMTP id S239277AbiE3NvZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:51:25 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADB2182160;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF3D82150;
         Mon, 30 May 2022 06:35:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A3C9B80DB4;
-        Mon, 30 May 2022 13:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F6AFC3411A;
-        Mon, 30 May 2022 13:35:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4863B60F2A;
+        Mon, 30 May 2022 13:35:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE07FC3411C;
+        Mon, 30 May 2022 13:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917750;
-        bh=+u2Yt/xw2sPo6EAVrtuFDGeht+dJf7/yaSqLvJi8jeA=;
+        s=k20201202; t=1653917751;
+        bh=7sCeoZZwV5ejs/MqSjcIaa9b6s3lSn4F1fmw+Hfrqx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=paH+0t5OzOr9kuvXRaVwxHBvvA5XtZ8r2RuAwTD8Z4jMcJi1ql/jtZhaKAzVXXtfA
-         gtlFFp9SooEIYwZeIo+6WMeR4T4hLD/9sbMN3frbTwjYXw4vJMWjbFmU1gOcBajt4+
-         dQZrAaQjsajE9F2IhwHldE24WtLuWCbt5pq3J57UGw60zLNFzNdybJgQjworbOI/mu
-         7aeaMkk8lnuNfh/m/JikQ9X19oWqk100vvNRwkUEIohWNX7cdR1NA5I7EGMa24Huqy
-         Y3qI7gckBrCv1r7e3ve/jnTs93+d3YHoDSfOfYBeKqM4pNB7JCZ1SnvotmvuE9DLo/
-         afTKsaI4EU7KA==
+        b=rAY/m+zyap1qztQ6EbE6tbz3tFNkcjLP3Xx8C3TjuGZKD5jycfm+Bc2DHMxRJLUah
+         pa7PZTEd/2VtptfP5AAjAyONb9PzbCSDmEnSFICXDlclORjKmoCMZdi1uniRtah2zF
+         PEGsuHATDs+ph1pjmmrQ0ZZ6hjnmrMioVcGQfXchADfaooJoxEJ7lBr9Clv51wTqBK
+         Taxhltu82I0OVmelcMmIAeYzfFNsG3l/dx215MtDBPHcb1Pf+R0PI0j9eqC/YV1sYS
+         C5hjShT1zo4QaQjRrcRtx6OWRqTYUW92/abPEVRoIDpU1Pk1TJUMyOX33INgiyWei7
+         RRyKcybttKQZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Bin <zhengbin13@huawei.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        pierre-louis.bossart@linux.intel.com, lgirdwood@gmail.com,
-        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
-        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
-        yung-chuan.liao@linux.intel.com, rander.wang@intel.com,
-        peter.ujfalusi@linux.intel.com, AjitKumar.Pandey@amd.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.17 084/135] ASoC: SOF: amd: add missing platform_device_unregister in acp_pci_rn_probe
-Date:   Mon, 30 May 2022 09:30:42 -0400
-Message-Id: <20220530133133.1931716-84-sashal@kernel.org>
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Jian-Hong Pan <jhp@endlessos.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.17 085/135] ACPI: PM: Block ASUS B1400CEAE from suspend to idle by default
+Date:   Mon, 30 May 2022 09:30:43 -0400
+Message-Id: <20220530133133.1931716-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -61,32 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Bin <zhengbin13@huawei.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit cbcab8cd737c74c20195c31d647e19f7cb49c9b8 ]
+[ Upstream commit d52848620de00cde4a3a5df908e231b8c8868250 ]
 
-acp_pci_rn_probe misses a call platform_device_unregister in error path,
-this patch fixes that.
+ASUS B1400CEAE fails to resume from suspend to idle by default.  This was
+bisected back to commit df4f9bc4fb9c ("nvme-pci: add support for ACPI
+StorageD3Enable property") but this is a red herring to the problem.
 
-Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
-Link: https://lore.kernel.org/r/20220512013728.4128903-1-zhengbin13@huawei.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Before this commit the system wasn't getting into deepest sleep state.
+Presumably this commit is allowing entry into deepest sleep state as
+advertised by firmware, but there are some other problems related to
+the wakeup.
+
+As it is confirmed the system works properly with S3, set the default for
+this system to S3.
+
+Reported-by: Jian-Hong Pan <jhp@endlessos.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215742
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Tested-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/amd/pci-rn.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/acpi/sleep.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/sound/soc/sof/amd/pci-rn.c b/sound/soc/sof/amd/pci-rn.c
-index 392ffbdf6417..d809d151a38c 100644
---- a/sound/soc/sof/amd/pci-rn.c
-+++ b/sound/soc/sof/amd/pci-rn.c
-@@ -93,6 +93,7 @@ static int acp_pci_rn_probe(struct pci_dev *pci, const struct pci_device_id *pci
- 	res = devm_kzalloc(&pci->dev, sizeof(struct resource) * ARRAY_SIZE(renoir_res), GFP_KERNEL);
- 	if (!res) {
- 		sof_pci_remove(pci);
-+		platform_device_unregister(dmic_dev);
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/acpi/sleep.c b/drivers/acpi/sleep.c
+index d4fbea91ab6b..8a5cb115fea8 100644
+--- a/drivers/acpi/sleep.c
++++ b/drivers/acpi/sleep.c
+@@ -373,6 +373,18 @@ static const struct dmi_system_id acpisleep_dmi_table[] __initconst = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "20GGA00L00"),
+ 		},
+ 	},
++	/*
++	 * ASUS B1400CEAE hangs on resume from suspend (see
++	 * https://bugzilla.kernel.org/show_bug.cgi?id=215742).
++	 */
++	{
++	.callback = init_default_s3,
++	.ident = "ASUS B1400CEAE",
++	.matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
++		DMI_MATCH(DMI_PRODUCT_NAME, "ASUS EXPERTBOOK B1400CEAE"),
++		},
++	},
+ 	{},
+ };
  
 -- 
 2.35.1
