@@ -2,49 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 860FD53807E
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:23:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AA05380D2
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:25:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238438AbiE3NwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:52:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38188 "EHLO
+        id S237368AbiE3Nvz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:51:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237801AbiE3Nrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:47:49 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E70CA774A;
-        Mon, 30 May 2022 06:34:39 -0700 (PDT)
+        with ESMTP id S238774AbiE3Nuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:50:51 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 207A0AF305;
+        Mon, 30 May 2022 06:35:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2510960DD5;
-        Mon, 30 May 2022 13:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75561C3411A;
-        Mon, 30 May 2022 13:34:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48707B80DBB;
+        Mon, 30 May 2022 13:34:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0533C385B8;
+        Mon, 30 May 2022 13:34:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917676;
-        bh=4gfnBQ3XOz9VePixJCdNt32X4yT6vHAJVKBKYUU2f0w=;
+        s=k20201202; t=1653917681;
+        bh=crdPjxXsbeSThDJ71pyFQjdLwv3x7InzqF9AGJuyQbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmI3H31UTplcV2iWzP92w+JqEqnojGRWNrzL07Fh8g7zQzjW2tLEjVmoS+95LrXb4
-         vZJ3aCJiaWkzT/pIxIYc94UzP3HEBCSiKHenr7x03O8oRJpbK+oU3XLkGAv63U6scC
-         iKwZMY2EkbTn7hdZOOBt5Yv3XPPiqiwbmvlxu8Rv0nFpDWHaq9ts99m6kKLHFo7QGY
-         Qp7SXMOvavAdso9ryYB3RiaDviiA1W+MENreStdMj+GO540y5LpRIBPn81+SBpN6A8
-         5rOzwAxC5opkROXQP8UP1KAyUgN0m/801Vi1taDMxPBNLbU/bAF9bGXMZ8pIKyzgpW
-         QfOQp3q7UDumw==
+        b=cFCKmaFb+h7VpmWWDh7kfHuq5qT9zTOHeTrMr/+TRYr2LatVKtYpQM1wE8MhlJZT1
+         iULn4omZTrdjNCeBD6HSbNTlM4m5dDp7V2ogBvRtdQMu2kcftzLFJs+8YCSOAg/ubU
+         Ex3oTq/wGmdW318FxKOm4XOjwNP2wSPzlDcScUEZomoAGeCoh0v9kEEo5ud89CMV8t
+         leF0zyz+zSiVyGVNroF2VUFG8E6/M0/BgT6R1h5I2CNThbvpUhAJvylsumBnX7RCz4
+         VwY9avuBrD2U37VX7nxpLCyDrQWu7EaEs77KGhYe5vrLJkMIU3MNQ0og+fEjxKvGPK
+         aeG3UO5ZdMX1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jessica Zhang <quic_jesszhan@quicinc.com>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, robdclark@gmail.com,
-        quic_abhinavk@quicinc.com, airlied@linux.ie, daniel@ffwll.ch,
-        swboyd@chromium.org, nathan@kernel.org, yang.lee@linux.alibaba.com,
-        seanpaul@chromium.org, markyacoub@google.com,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.17 059/135] drm/msm/dpu: Clean up CRC debug logs
-Date:   Mon, 30 May 2022 09:30:17 -0400
-Message-Id: <20220530133133.1931716-59-sashal@kernel.org>
+Cc:     Max Filippov <jcmvbkbc@gmail.com>, Sasha Levin <sashal@kernel.org>,
+        chris@zankel.net, keescook@chromium.org, ebiederm@xmission.com,
+        yang.lee@linux.alibaba.com, linux-xtensa@linux-xtensa.org
+Subject: [PATCH AUTOSEL 5.17 060/135] xtensa: move trace_hardirqs_off call back to entry.S
+Date:   Mon, 30 May 2022 09:30:18 -0400
+Message-Id: <20220530133133.1931716-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133133.1931716-1-sashal@kernel.org>
 References: <20220530133133.1931716-1-sashal@kernel.org>
@@ -62,62 +56,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jessica Zhang <quic_jesszhan@quicinc.com>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-[ Upstream commit 3ce8bdca394fc606b55e7c5ed779d171aaae5d09 ]
+[ Upstream commit de4415d0bac91192ee9c74e849bc61429efa9b42 ]
 
-Currently, dpu_hw_lm_collect_misr returns EINVAL if CRC is disabled.
-This causes a lot of spam in the DRM debug logs as it's called for every
-vblank.
+Context tracking call must be done after hardirq tracking call,
+otherwise lockdep_assert_irqs_disabled called from rcu_eqs_exit gives
+a warning. To avoid context tracking logic duplication for IRQ/exception
+entry paths move trace_hardirqs_off call back to common entry code.
 
-Instead of returning EINVAL when CRC is disabled in
-dpu_hw_lm_collect_misr, let's return ENODATA and add an extra ENODATA check
-before the debug log in dpu_crtc_get_crc.
-
-Changes since V1:
-- Added reported-by and suggested-by tags
-
-Reported-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Suggested-by: Rob Clark <robdclark@chromium.org>
-Signed-off-by: Jessica Zhang <quic_jesszhan@quicinc.com>
-Tested-by: Jessica Zhang <quic_jesszhan@quicinc.com> # RB5  (qrb5165)
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Patchwork: https://patchwork.freedesktop.org/patch/484274/
-Link: https://lore.kernel.org/r/20220430005210.339-1-quic_jesszhan@quicinc.com
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c  | 3 ++-
- drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/xtensa/kernel/entry.S | 19 +++++++++++++------
+ arch/xtensa/kernel/traps.c | 11 ++---------
+ 2 files changed, 15 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-index e7c9fe1a250f..0a857f222982 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_crtc.c
-@@ -204,7 +204,8 @@ static int dpu_crtc_get_crc(struct drm_crtc *crtc)
- 		rc = m->hw_lm->ops.collect_misr(m->hw_lm, &crcs[i]);
+diff --git a/arch/xtensa/kernel/entry.S b/arch/xtensa/kernel/entry.S
+index a1029a5b6a1d..ee08238099f4 100644
+--- a/arch/xtensa/kernel/entry.S
++++ b/arch/xtensa/kernel/entry.S
+@@ -442,7 +442,6 @@ KABI_W	or	a3, a3, a0
+ 	moveqz	a3, a0, a2		# a3 = LOCKLEVEL iff interrupt
+ KABI_W	movi	a2, PS_WOE_MASK
+ KABI_W	or	a3, a3, a2
+-	rsr	a2, exccause
+ #endif
  
- 		if (rc) {
--			DRM_DEBUG_DRIVER("MISR read failed\n");
-+			if (rc != -ENODATA)
-+				DRM_DEBUG_DRIVER("MISR read failed\n");
- 			return rc;
- 		}
- 	}
-diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-index 86363c0ec834..462f5082099e 100644
---- a/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-+++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_hw_lm.c
-@@ -138,7 +138,7 @@ static int dpu_hw_lm_collect_misr(struct dpu_hw_mixer *ctx, u32 *misr_value)
- 	ctrl = DPU_REG_READ(c, LM_MISR_CTRL);
+ 	/* restore return address (or 0 if return to userspace) */
+@@ -469,19 +468,27 @@ KABI_W	or	a3, a3, a2
  
- 	if (!(ctrl & LM_MISR_CTRL_ENABLE))
--		return -EINVAL;
-+		return -ENODATA;
+ 	save_xtregs_opt a1 a3 a4 a5 a6 a7 PT_XTREGS_OPT
+ 	
++#ifdef CONFIG_TRACE_IRQFLAGS
++	rsr		abi_tmp0, ps
++	extui		abi_tmp0, abi_tmp0, PS_INTLEVEL_SHIFT, PS_INTLEVEL_WIDTH
++	beqz		abi_tmp0, 1f
++	abi_call	trace_hardirqs_off
++1:
++#endif
++
+ 	/* Go to second-level dispatcher. Set up parameters to pass to the
+ 	 * exception handler and call the exception handler.
+ 	 */
  
- 	if (!(ctrl & LM_MISR_CTRL_STATUS))
- 		return -EINVAL;
+-	rsr	a4, excsave1
+-	addx4	a4, a2, a4
+-	l32i	a4, a4, EXC_TABLE_DEFAULT		# load handler
+-	mov	abi_arg1, a2			# pass EXCCAUSE
++	l32i	abi_arg1, a1, PT_EXCCAUSE	# pass EXCCAUSE
++	rsr	abi_tmp0, excsave1
++	addx4	abi_tmp0, abi_arg1, abi_tmp0
++	l32i	abi_tmp0, abi_tmp0, EXC_TABLE_DEFAULT	# load handler
+ 	mov	abi_arg0, a1			# pass stack frame
+ 
+ 	/* Call the second-level handler */
+ 
+-	abi_callx	a4
++	abi_callx	abi_tmp0
+ 
+ 	/* Jump here for exception exit */
+ 	.global common_exception_return
+diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
+index 9345007d474d..5f86208c67c8 100644
+--- a/arch/xtensa/kernel/traps.c
++++ b/arch/xtensa/kernel/traps.c
+@@ -242,12 +242,8 @@ DEFINE_PER_CPU(unsigned long, nmi_count);
+ 
+ void do_nmi(struct pt_regs *regs)
+ {
+-	struct pt_regs *old_regs;
++	struct pt_regs *old_regs = set_irq_regs(regs);
+ 
+-	if ((regs->ps & PS_INTLEVEL_MASK) < LOCKLEVEL)
+-		trace_hardirqs_off();
+-
+-	old_regs = set_irq_regs(regs);
+ 	nmi_enter();
+ 	++*this_cpu_ptr(&nmi_count);
+ 	check_valid_nmi();
+@@ -269,12 +265,9 @@ void do_interrupt(struct pt_regs *regs)
+ 		XCHAL_INTLEVEL6_MASK,
+ 		XCHAL_INTLEVEL7_MASK,
+ 	};
+-	struct pt_regs *old_regs;
++	struct pt_regs *old_regs = set_irq_regs(regs);
+ 	unsigned unhandled = ~0u;
+ 
+-	trace_hardirqs_off();
+-
+-	old_regs = set_irq_regs(regs);
+ 	irq_enter();
+ 
+ 	for (;;) {
 -- 
 2.35.1
 
