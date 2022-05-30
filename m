@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A7B537D8D
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67E11537D5C
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237782AbiE3Nin (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:38:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56368 "EHLO
+        id S236078AbiE3Niq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:38:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237682AbiE3Ngz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E933012749;
-        Mon, 30 May 2022 06:30:49 -0700 (PDT)
+        with ESMTP id S237415AbiE3Ng6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:58 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A9F725C46;
+        Mon, 30 May 2022 06:30:52 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4600B80DA8;
-        Mon, 30 May 2022 13:30:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81856C3411C;
-        Mon, 30 May 2022 13:30:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D95AE60F17;
+        Mon, 30 May 2022 13:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77381C385B8;
+        Mon, 30 May 2022 13:30:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917447;
-        bh=h7W2RTM4iSYf5Vb34BpA5vqhUmN3Q4wahm5IZG81TM4=;
+        s=k20201202; t=1653917451;
+        bh=YUT/g2jwaEbyBeENevqDwxAfPQZzcjDa+B0CACpQ21Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SqHuSMjhLRqOiVwjuePZZYcTE824LjzmPHs2p6Rt0z/WhwUfCFTLJlCHb0CY4btAa
-         VNibzFFiaxKafhxBLQzjhtgNyuHgtc4sIQbKWcvxGC67lzHTwT9Nf2XZgldhjWwGjR
-         6SZiadEFaCnJ7+l+VzRjGLV/9gGeQNk5ztCEXKd/zTto+Ge7ylXCZdQNH0vsXNWso9
-         d1c6lblYHYGBa4A/o3Qk59zycw7Pa15/XqZPzC8tbb43s9K+B5tqhYpSzyLDfNvOL3
-         4Ad1Uqw1QvWktluWZe345gawAnZ/wDlM8vSrIinhFb1JJdXDbM/oPAfzZfqfS9uhJ7
-         5HQhSIqsUm/zw==
+        b=QMJeH91/jMb1UKyxHCItMlohChQVqr3BzJZez6U3mcyNQeGKh2ooapKhZVW17r1vg
+         uJaRqXLzZXMCzCT4ET/7i5UIGAx9toeDLW35GnBeA5AnkRmNRo4xJ3j17hpbpQGgsL
+         UuS9r9M3hn09Wb+o5pPFWXSaTPI5wyCN84cV4lY6UufiNFd4jDeeuFkq5b7vD+73sC
+         v2I+yXf2cbj2mlEsc9JRjC8lmE847/+gUPjtSWiUcgrkc+zBt39DVIWNp1iGnyhUII
+         xlXxzJy3Sg+9uMMnqEVD2B3Q36405r0hlkD9cyRsFGnfGynU09Y+DmwEtpAQrHuqOt
+         NVuLHlcA/VuXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
@@ -38,14 +38,14 @@ Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, ckeepax@opensource.cirrus.com,
-        srinivas.kandagatla@linaro.org, tanureal@opensource.cirrus.com,
+        perex@perex.cz, tiwai@suse.com, srinivas.kandagatla@linaro.org,
+        ckeepax@opensource.cirrus.com, tanureal@opensource.cirrus.com,
         james.schulman@cirrus.com, cy_huang@richtek.com,
         pbrobinson@gmail.com, hdegoede@redhat.com,
         alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.18 140/159] ASoC: max98357a: remove dependency on GPIOLIB
-Date:   Mon, 30 May 2022 09:24:05 -0400
-Message-Id: <20220530132425.1929512-140-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.18 141/159] ASoC: rt1015p: remove dependency on GPIOLIB
+Date:   Mon, 30 May 2022 09:24:06 -0400
+Message-Id: <20220530132425.1929512-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -66,29 +66,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 21ca3274333f5c1cbbf9d91e5b33f4f2463859b2 ]
+[ Upstream commit b390c25c6757b9d56cecdfbf6d55f15fc89a6386 ]
 
 commit dcc2c012c7691 ("ASoC: Fix gpiolib dependencies") removed a
 series of unnecessary dependencies on GPIOLIB when the gpio was
 optional.
 
-A similar simplification seems valid for max98357a, so remove the
+A similar simplification seems valid for rt1015p, so remove the
 dependency as well. This will avoid the following warning
 
-   WARNING: unmet direct dependencies detected for SND_SOC_MAX98357A
-     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && GPIOLIB [=n]
+  WARNING: unmet direct dependencies detected for SND_SOC_RT1015P
+
+     Depends on [n]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] &&
+     GPIOLIB [=n]
+
      Selected by [y]:
-     - SND_SOC_INTEL_SOF_CS42L42_MACH [=y] && SOUND [=y] && !UML &&
-       SND [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
+
+     - SND_SOC_INTEL_SOF_RT5682_MACH [=y] && SOUND [=y] && !UML && SND
+       [=y] && SND_SOC [=y] && SND_SOC_INTEL_MACH [=y] &&
        (SND_SOC_SOF_HDA_LINK [=y] || SND_SOC_SOF_BAYTRAIL [=n]) && I2C
-       [=y] && ACPI [=y] && SND_HDA_CODEC_HDMI [=y] &&
+       [=y] && ACPI [=y] && (SND_HDA_CODEC_HDMI [=y] &&
        SND_SOC_SOF_HDA_AUDIO_CODEC [=y] && (MFD_INTEL_LPSS [=y] ||
-       COMPILE_TEST [=n])
+       COMPILE_TEST [=y]) || SND_SOC_SOF_BAYTRAIL [=n] &&
+       (X86_INTEL_LPSS [=n] || COMPILE_TEST [=y]))
 
 Reported-by: kernel test robot <yujie.liu@intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20220517172647.468244-2-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20220517172647.468244-3-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -96,16 +101,16 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 deletion(-)
 
 diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
-index f46a22660103..156f2519459d 100644
+index 156f2519459d..3dea20b2c405 100644
 --- a/sound/soc/codecs/Kconfig
 +++ b/sound/soc/codecs/Kconfig
-@@ -953,7 +953,6 @@ config SND_SOC_MAX98095
+@@ -1212,7 +1212,6 @@ config SND_SOC_RT1015
  
- config SND_SOC_MAX98357A
- 	tristate "Maxim MAX98357A CODEC"
+ config SND_SOC_RT1015P
+ 	tristate
 -	depends on GPIOLIB
  
- config SND_SOC_MAX98371
+ config SND_SOC_RT1019
  	tristate
 -- 
 2.35.1
