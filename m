@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDB2538132
+	by mail.lfdr.de (Postfix) with ESMTP id C8E07538134
 	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239637AbiE3OO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:14:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39576 "EHLO
+        id S239654AbiE3OO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:14:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48344 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240581AbiE3OMX (ORCPT
+        with ESMTP id S240587AbiE3OMX (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:12:23 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B88C9E52A5;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEE35E52AE;
         Mon, 30 May 2022 06:43:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C6E9B80D83;
-        Mon, 30 May 2022 13:42:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22821C3411E;
-        Mon, 30 May 2022 13:42:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD4E560F47;
+        Mon, 30 May 2022 13:42:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C76CBC385B8;
+        Mon, 30 May 2022 13:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918162;
-        bh=x4B8zV580+azv9vAE3GUqPaunN3G/DT9gCW5iU7BFrQ=;
+        s=k20201202; t=1653918166;
+        bh=w5dg/U5vb/hD2+0q3mHAmMkfKnRvK4Av+DJhCi5973c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oM4olH1TiNqqzik2850SNFLatZbXcFlqLgbnCsxmwmLvC5zTezvC4hQH870yyGi+7
-         FFNifitfw78O0YZk4CnrWF4cwleRmDH9MT/yfy+bveoGDxz8VYsrnb90HODVAeyVig
-         4wMpr6iGobcHARW3lhYG03s1AeotWEgjYieRdNFpPzsNn1uZVOkupQE8baW0NgO4SI
-         m7BZaNUo29QnuPeV+uHbVmDkJ33XWNfiLkGZy0SXbJPLe9YhyL4vULxSvlxghk8BQx
-         SXpFVKvObAqUy0o7fLP224RgIKhrDjPgL7OIHLy7bEEPOwXN5w9a9rzlhTsfS4vtey
-         AZB6a29WRNb1A==
+        b=PKzxA7ZVQhX1OAQdA2jzgqPD7FSX3ZiaO4oNGrH2V66mUdTClPn0JnG/yYwJtUQ0A
+         PtGYX6/h//OoMNHAtXAjlj81mceR4lNrvee2NjM5GL7yUpc96MAzphv5Iv7Zbde4C4
+         3xZrGlE65lU2QR25QsFFfbZR2s33s2AftB29s0yvVBrzR2jmjqQx03OkVhK6iKhaib
+         A+323eiLdx9O2fDwlAuiHM4SdpQ2IcH8vj/e1sOK5IZl9EkYX+1okoKg0ILps/0IwR
+         3cxr+Mc3iwIhLAKWrXZF0M9/legZuIfSrPlN9A6O0v5ZuWIVdKTAT2i17ZbBBc7gLh
+         DojGTa+fYngAQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Wunner <lukas@wunner.de>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Ferry Toth <fntoth@gmail.com>,
-        Oliver Neukum <oneukum@suse.com>,
-        Martyn Welch <martyn.welch@collabora.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, steve.glendinning@shawell.net,
-        UNGLinuxDriver@microchip.com, linux@rempel-privat.de,
-        colin.king@intel.com, paskripkin@gmail.com,
-        linux-usb@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 082/109] usbnet: Run unregister_netdev() before unbind() again
-Date:   Mon, 30 May 2022 09:37:58 -0400
-Message-Id: <20220530133825.1933431-82-sashal@kernel.org>
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
+        mhiramat@kernel.org, vbabka@suse.cz, ahalaney@redhat.com,
+        mark-pk.tsai@mediatek.com, peterz@infradead.org
+Subject: [PATCH AUTOSEL 5.15 083/109] init: call time_init() before rand_initialize()
+Date:   Mon, 30 May 2022 09:37:59 -0400
+Message-Id: <20220530133825.1933431-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -65,104 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: "Jason A. Donenfeld" <Jason@zx2c4.com>
 
-[ Upstream commit d1408f6b4dd78fb1b9e26bcf64477984e5f85409 ]
+[ Upstream commit fe222a6ca2d53c38433cba5d3be62a39099e708e ]
 
-Commit 2c9d6c2b871d ("usbnet: run unbind() before unregister_netdev()")
-sought to fix a use-after-free on disconnect of USB Ethernet adapters.
+Currently time_init() is called after rand_initialize(), but
+rand_initialize() makes use of the timer on various platforms, and
+sometimes this timer needs to be initialized by time_init() first. In
+order for random_get_entropy() to not return zero during early boot when
+it's potentially used as an entropy source, reverse the order of these
+two calls. The block doing random initialization was right before
+time_init() before, so changing the order shouldn't have any complicated
+effects.
 
-It turns out that a different fix is necessary to address the issue:
-https://lore.kernel.org/netdev/18b3541e5372bc9b9fc733d422f4e698c089077c.1650177997.git.lukas@wunner.de/
-
-So the commit was not necessary.
-
-The commit made binding and unbinding of USB Ethernet asymmetrical:
-Before, usbnet_probe() first invoked the ->bind() callback and then
-register_netdev().  usbnet_disconnect() mirrored that by first invoking
-unregister_netdev() and then ->unbind().
-
-Since the commit, the order in usbnet_disconnect() is reversed and no
-longer mirrors usbnet_probe().
-
-One consequence is that a PHY disconnected (and stopped) in ->unbind()
-is afterwards stopped once more by unregister_netdev() as it closes the
-netdev before unregistering.  That necessitates a contortion in ->stop()
-because the PHY may only be stopped if it hasn't already been
-disconnected.
-
-Reverting the commit allows making the call to phy_stop() unconditional
-in ->stop().
-
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de> # LAN9514/9512/9500
-Tested-by: Ferry Toth <fntoth@gmail.com> # LAN9514
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Cc: Martyn Welch <martyn.welch@collabora.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Reviewed-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/asix_devices.c | 6 +-----
- drivers/net/usb/smsc95xx.c     | 3 +--
- drivers/net/usb/usbnet.c       | 6 +++---
- 3 files changed, 5 insertions(+), 10 deletions(-)
+ init/main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/asix_devices.c b/drivers/net/usb/asix_devices.c
-index bd8f8619ad6f..396505396a2e 100644
---- a/drivers/net/usb/asix_devices.c
-+++ b/drivers/net/usb/asix_devices.c
-@@ -799,11 +799,7 @@ static int ax88772_stop(struct usbnet *dev)
- {
- 	struct asix_common_private *priv = dev->driver_priv;
+diff --git a/init/main.c b/init/main.c
+index 06b98350ebd2..2b9ba7ea42ec 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1041,11 +1041,13 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
+ 	softirq_init();
+ 	timekeeping_init();
+ 	kfence_init();
++	time_init();
  
--	/* On unplugged USB, we will get MDIO communication errors and the
--	 * PHY will be set in to PHY_HALTED state.
--	 */
--	if (priv->phydev->state != PHY_HALTED)
--		phy_stop(priv->phydev);
-+	phy_stop(priv->phydev);
+ 	/*
+ 	 * For best initial stack canary entropy, prepare it after:
+ 	 * - setup_arch() for any UEFI RNG entropy and boot cmdline access
+ 	 * - timekeeping_init() for ktime entropy used in rand_initialize()
++	 * - time_init() for making random_get_entropy() work on some platforms
+ 	 * - rand_initialize() to get any arch-specific entropy like RDRAND
+ 	 * - add_latent_entropy() to get any latent entropy
+ 	 * - adding command line entropy
+@@ -1055,7 +1057,6 @@ asmlinkage __visible void __init __no_sanitize_address start_kernel(void)
+ 	add_device_randomness(command_line, strlen(command_line));
+ 	boot_init_stack_canary();
  
- 	return 0;
- }
-diff --git a/drivers/net/usb/smsc95xx.c b/drivers/net/usb/smsc95xx.c
-index eb0d325e92b7..4e39e4345084 100644
---- a/drivers/net/usb/smsc95xx.c
-+++ b/drivers/net/usb/smsc95xx.c
-@@ -1217,8 +1217,7 @@ static int smsc95xx_start_phy(struct usbnet *dev)
- 
- static int smsc95xx_stop(struct usbnet *dev)
- {
--	if (dev->net->phydev)
--		phy_stop(dev->net->phydev);
-+	phy_stop(dev->net->phydev);
- 
- 	return 0;
- }
-diff --git a/drivers/net/usb/usbnet.c b/drivers/net/usb/usbnet.c
-index a33d7fb82a00..af2bbaff2478 100644
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -1614,9 +1614,6 @@ void usbnet_disconnect (struct usb_interface *intf)
- 		   xdev->bus->bus_name, xdev->devpath,
- 		   dev->driver_info->description);
- 
--	if (dev->driver_info->unbind)
--		dev->driver_info->unbind(dev, intf);
--
- 	net = dev->net;
- 	unregister_netdev (net);
- 
-@@ -1624,6 +1621,9 @@ void usbnet_disconnect (struct usb_interface *intf)
- 
- 	usb_scuttle_anchored_urbs(&dev->deferred);
- 
-+	if (dev->driver_info->unbind)
-+		dev->driver_info->unbind(dev, intf);
-+
- 	usb_kill_urb(dev->interrupt);
- 	usb_free_urb(dev->interrupt);
- 	kfree(dev->padding_pkt);
+-	time_init();
+ 	perf_event_init();
+ 	profile_init();
+ 	call_function_init();
 -- 
 2.35.1
 
