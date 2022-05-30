@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EE5E538198
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:32:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E66B53824C
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240819AbiE3OUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:20:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48560 "EHLO
+        id S240501AbiE3OWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:22:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240733AbiE3OQW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:16:22 -0400
+        with ESMTP id S240787AbiE3OQ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:16:28 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2C58D695;
-        Mon, 30 May 2022 06:43:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79019F74AC;
+        Mon, 30 May 2022 06:43:57 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2D45B80AE8;
-        Mon, 30 May 2022 13:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52701C385B8;
-        Mon, 30 May 2022 13:43:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41055B80DB3;
+        Mon, 30 May 2022 13:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A88C385B8;
+        Mon, 30 May 2022 13:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918222;
-        bh=mkH+eDG1BW8aP4WRDNcQ5PhFkB9evQgyXJcnlgsnMxU=;
+        s=k20201202; t=1653918226;
+        bh=y268Ia38mDcy8oVClEGS/uTeQtbK8P1DKzIAcwjQsRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGCGnNIMJ4ny52+lERu/tcrYDmwrxD3BTlqtmRV6EA/AxF95INPS+Izf6boBuelEK
-         DO7yE1zl2ddmZEWjdy6YFbO4gSH3HUVdSoIrav/BpzYkR1QVJzjQ4JrQodAkbAGmLM
-         uYH8ZdeHwmX8lhXaxySKbJoKaOAVju26xtqtJDGhDh1dAhfW6a72NNBKawpLd3/eSC
-         4xSKRiOcGUoWS4Y2sb6HxHoEjIZY1StWo/TzhVw39A1Lt34OGTOiJYlpsS4kGeGUHW
-         EylRSIGNFSSBl3jpaBOJdJHJQufcUG02R4Xm5p2V1W5FimN0rlJbIxdO0yhQQkvQ7r
-         x4J43Bro0AZVw==
+        b=qnH4krE4P409q9CVZ0tRU/Kl07n7SrP8/jkBvkqiMzOlzEWDXKj8UYnBxxeoIGxi7
+         JZM2WEz4BnOe+5VybMAn4TYFE+9V1QErsRRVb7lmHXGzEw61xgV2tDEZKFWjLX+1tl
+         Awp2kST1izfR9rwL90Zu89ex3uWad54KXVSpUfPvSAHsPN2EMv+Eg3Ifz1phV2jooa
+         3ADOAHvCLehtgmotLee6tEmhjGHNdlzzOO7OisMmhOckfWU44SsGxJ1tK9m4kpXWAY
+         HxKnRX2dNZ8CRp0A/H+VKxy2gjqIr/Nap5gfl6MO/X+lDeOagUbabGo4pr0QnZbt6v
+         ebu9MgFKvY/IA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linus.walleij@linaro.org, nico@fluxnic.net, keithpac@amazon.com,
-        arnd@arndb.de, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 100/109] ARM: 9201/1: spectre-bhb: rely on linker to emit cross-section literal loads
-Date:   Mon, 30 May 2022 09:38:16 -0400
-Message-Id: <20220530133825.1933431-100-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        kernel test robot <lkp@intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Michael Schmitz <schmitzmic@gmail.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-m68k@lists.linux-m68k.org
+Subject: [PATCH AUTOSEL 5.15 101/109] m68k: atari: Make Atari ROM port I/O write macros return void
+Date:   Mon, 30 May 2022 09:38:17 -0400
+Message-Id: <20220530133825.1933431-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -58,106 +59,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit ad12c2f1587c6ec9b52ff226f438955bfae6ad89 ]
+[ Upstream commit 30b5e6ef4a32ea4985b99200e06d6660a69f9246 ]
 
-The assembler does not permit 'LDR PC, <sym>' when the symbol lives in a
-different section, which is why we have been relying on rather fragile
-open-coded arithmetic to load the address of the vector_swi routine into
-the program counter using a single LDR instruction in the SWI slot in
-the vector table. The literal was moved to a different section to in
-commit 19accfd373847 ("ARM: move vector stubs") to ensure that the
-vector stubs page does not need to be mapped readable for user space,
-which is the case for the vector page itself, as it carries the kuser
-helpers as well.
+The macros implementing Atari ROM port I/O writes do not cast away their
+output, unlike similar implementations for other I/O buses.
+When they are combined using conditional expressions in the definitions of
+outb() and friends, this triggers sparse warnings like:
 
-So the cross-section literal load is open-coded, and this relies on the
-address of vector_swi to be at the very start of the vector stubs page,
-and we won't notice if we got it wrong until booting the kernel and see
-it break. Fortunately, it was guaranteed to break, so this was fragile
-but not problematic.
+    drivers/net/appletalk/cops.c:382:17: error: incompatible types in conditional expression (different base types):
+    drivers/net/appletalk/cops.c:382:17:    unsigned char
+    drivers/net/appletalk/cops.c:382:17:    void
 
-Now that we have added two other variants of the vector table, we have 3
-occurrences of the same trick, and so the size of our ISA/compiler/CPU
-validation space has tripled, in a way that may cause regressions to only
-be observed once booting the image in question on a CPU that exercises a
-particular vector table.
+Fix this by adding casts to "void".
 
-So let's switch to true cross section references, and let the linker fix
-them up like it fixes up all the other cross section references in the
-vector page.
-
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
+Link: https://lore.kernel.org/r/c15bedc83d90a14fffcd5b1b6bfb32b8a80282c5.1653057096.git.geert@linux-m68k.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/entry-armv.S | 22 +++++++++++++++-------
- 1 file changed, 15 insertions(+), 7 deletions(-)
+ arch/m68k/include/asm/raw_io.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/kernel/entry-armv.S b/arch/arm/kernel/entry-armv.S
-index 68261a83b7ad..01c5b3aee22f 100644
---- a/arch/arm/kernel/entry-armv.S
-+++ b/arch/arm/kernel/entry-armv.S
-@@ -1069,10 +1069,15 @@ ENDPROC(vector_bhb_bpiall_\name)
- 	.endm
+diff --git a/arch/m68k/include/asm/raw_io.h b/arch/m68k/include/asm/raw_io.h
+index 80eb2396d01e..3ba40bc1dfaa 100644
+--- a/arch/m68k/include/asm/raw_io.h
++++ b/arch/m68k/include/asm/raw_io.h
+@@ -80,14 +80,14 @@
+ 	({ u16 __v = le16_to_cpu(*(__force volatile u16 *) (addr)); __v; })
  
- 	.section .stubs, "ax", %progbits
--	@ This must be the first word
-+	@ These need to remain at the start of the section so that
-+	@ they are in range of the 'SWI' entries in the vector tables
-+	@ located 4k down.
-+.L__vector_swi:
- 	.word	vector_swi
- #ifdef CONFIG_HARDEN_BRANCH_HISTORY
-+.L__vector_bhb_loop8_swi:
- 	.word	vector_bhb_loop8_swi
-+.L__vector_bhb_bpiall_swi:
- 	.word	vector_bhb_bpiall_swi
- #endif
+ #define rom_out_8(addr, b)	\
+-	({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
++	(void)({u8 __maybe_unused __w, __v = (b);  u32 _addr = ((u32) (addr)); \
+ 	__w = ((*(__force volatile u8 *)  ((_addr | 0x10000) + (__v<<1)))); })
+ #define rom_out_be16(addr, w)	\
+-	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
++	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
+ 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v & 0xFF)<<1)))); \
+ 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v >> 8)<<1)))); })
+ #define rom_out_le16(addr, w)	\
+-	({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
++	(void)({u16 __maybe_unused __w, __v = (w); u32 _addr = ((u32) (addr)); \
+ 	__w = ((*(__force volatile u16 *) ((_addr & 0xFFFF0000UL) + ((__v >> 8)<<1)))); \
+ 	__w = ((*(__force volatile u16 *) ((_addr | 0x10000) + ((__v & 0xFF)<<1)))); })
  
-@@ -1215,10 +1220,11 @@ vector_addrexcptn:
- 	.globl	vector_fiq
- 
- 	.section .vectors, "ax", %progbits
--.L__vectors_start:
- 	W(b)	vector_rst
- 	W(b)	vector_und
--	W(ldr)	pc, .L__vectors_start + 0x1000
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_swi		)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_swi		)
-+	W(ldr)	pc, .
- 	W(b)	vector_pabt
- 	W(b)	vector_dabt
- 	W(b)	vector_addrexcptn
-@@ -1227,10 +1233,11 @@ vector_addrexcptn:
- 
- #ifdef CONFIG_HARDEN_BRANCH_HISTORY
- 	.section .vectors.bhb.loop8, "ax", %progbits
--.L__vectors_bhb_loop8_start:
- 	W(b)	vector_rst
- 	W(b)	vector_bhb_loop8_und
--	W(ldr)	pc, .L__vectors_bhb_loop8_start + 0x1004
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_loop8_swi	)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_loop8_swi	)
-+	W(ldr)	pc, .
- 	W(b)	vector_bhb_loop8_pabt
- 	W(b)	vector_bhb_loop8_dabt
- 	W(b)	vector_addrexcptn
-@@ -1238,10 +1245,11 @@ vector_addrexcptn:
- 	W(b)	vector_bhb_loop8_fiq
- 
- 	.section .vectors.bhb.bpiall, "ax", %progbits
--.L__vectors_bhb_bpiall_start:
- 	W(b)	vector_rst
- 	W(b)	vector_bhb_bpiall_und
--	W(ldr)	pc, .L__vectors_bhb_bpiall_start + 0x1008
-+ARM(	.reloc	., R_ARM_LDR_PC_G0, .L__vector_bhb_bpiall_swi	)
-+THUMB(	.reloc	., R_ARM_THM_PC12, .L__vector_bhb_bpiall_swi	)
-+	W(ldr)	pc, .
- 	W(b)	vector_bhb_bpiall_pabt
- 	W(b)	vector_bhb_bpiall_dabt
- 	W(b)	vector_addrexcptn
 -- 
 2.35.1
 
