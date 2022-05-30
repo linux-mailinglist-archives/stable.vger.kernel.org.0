@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6AF9537CE9
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA1E537D2E
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237707AbiE3NiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:38:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57054 "EHLO
+        id S237775AbiE3NiL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:38:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237557AbiE3Ngv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:51 -0400
+        with ESMTP id S237572AbiE3Ngw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:52 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C816CB49A;
-        Mon, 30 May 2022 06:30:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 313ED12AB4;
+        Mon, 30 May 2022 06:30:30 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E52EB80DA9;
-        Mon, 30 May 2022 13:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 549CDC385B8;
-        Mon, 30 May 2022 13:30:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id ADA6FB80DA8;
+        Mon, 30 May 2022 13:30:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA59C385B8;
+        Mon, 30 May 2022 13:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917424;
-        bh=AXSUpGzFRrsZs0apkR/T9iXU45rGIqbP27cyfYEiBG8=;
+        s=k20201202; t=1653917428;
+        bh=hPUbUC3wFDCP8aithaZ5HvATm1athO3Gq5+G/6a2wHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lGt94bNRvaGKOr0mgcilbO0dUrzYHc/TnnddxReHuOHlrbnKtyLpJQzAbVtcyQnRs
-         AdbVCYJ4XmyAWFBs8dS9aPJ7DCHT/yVz9ZpWPzFLUB9sAIUObdnkV3QDS2mdi5MKgO
-         e18d/Ge3+Gjje9GRpeKb1ot9mY0gzwNQ3qGGIRFQ52cjFFQUgkt08ce+O0PWn4DUdW
-         Bt7BfU8S7iCp78DaYeb/jVu8MWIh9QGJ7gp4YrsOq6HQA9fgsE1AvnnMomx4xcJKzN
-         fmKo03DJwMXLzvnOCneMXN2jpp5zNiNPv2SlREzKywnO6CK49YhdQi7TO6QEMfU0pe
-         C3MutYenHwW5g==
+        b=PUn+qb925lrCw+BQTGsxEMQEe66h1V/7FnR/jyKP8m+Mm9ytSoM6E8ChHKUdDaZ0b
+         yQDMq9IjNaMLkLBPCqXv8S8L9KNG3h662gUCBQ/+8FpSdzWK2SUgkl7x3sN86PLWM8
+         aPK7wegWXa50xKwILHnfvl/6lmrmanMH9ZShD2h6modV2Rut0RSkyaYnNuf/xK6T5K
+         6xEcsWL1ipeIlOqsYqThqUU9DtubuUt1U39hRxKa6n0jfMEMOkenYv4VJYJAK/JoRS
+         BbpjjL7C+6l6YbWabkHqS4Fm8ivXnbEuwa/km49ihTWQeQPp4jCeWV+62QR6PJmKyg
+         BCeKsYEli4gUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sathishkumar S <sathishkumar.sundararaju@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, evan.quan@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, ray.huang@amd.com, Xiaomeng.Hou@amd.com,
-        aaron.liu@amd.com, kevin1.wang@amd.com, mario.limonciello@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.18 130/159] drm/amd/pm: update smartshift powerboost calc for smu13
-Date:   Mon, 30 May 2022 09:23:55 -0400
-Message-Id: <20220530132425.1929512-130-sashal@kernel.org>
+        daniel@ffwll.ch, lijo.lazar@amd.com, guchun.chen@amd.com,
+        Hawking.Zhang@amd.com, darren.powell@amd.com, aaron.liu@amd.com,
+        andrey.grodzovsky@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.18 131/159] drm/amdgpu: Move mutex_init(&smu->message_lock) to smu_early_init()
+Date:   Mon, 30 May 2022 09:23:56 -0400
+Message-Id: <20220530132425.1929512-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -61,113 +61,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathishkumar S <sathishkumar.sundararaju@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit cdf4c8ec39872a61a58d62f19b4db80f0f7bc586 ]
+[ Upstream commit 4b9caaa0281972ca5ea4e1cdac2e12b9df1ae00b ]
 
-smartshift apu and dgpu power boost are reported as percentage
-with respect to their power limits. adjust the units of power before
-calculating the percentage of boost.
+Lockdep complains about the smu->message_lock mutex being used before
+it is initialized through the following call path:
 
-Signed-off-by: Sathishkumar S <sathishkumar.sundararaju@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+amdgpu_device_init()
+ amdgpu_dpm_mode2_reset()
+  smu_mode2_reset()
+   smu_v12_0_mode2_reset()
+    smu_cmn_send_smc_msg_with_param()
+
+Move the mutex_init() call to smu_early_init() to fix the mutex being
+used before it is initialized.
+
+This fixes the following lockdep splat:
+
+[    3.867331] ------------[ cut here ]------------
+[    3.867335] fbcon: Taking over console
+[    3.867338] DEBUG_LOCKS_WARN_ON(lock->magic != lock)
+[    3.867340] WARNING: CPU: 14 PID: 491 at kernel/locking/mutex.c:579 __mutex_lock+0x44c/0x830
+[    3.867349] Modules linked in: amdgpu(+) crct10dif_pclmul drm_ttm_helper crc32_pclmul ttm crc32c_intel ghash_clmulni_intel hid_lg_g15 iommu_v2 sp5100_tco nvme gpu_sched drm_dp_helper nvme_core ccp wmi video hid_logitech_dj ip6_tables ip_tables ipmi_devintf ipmi_msghandler fuse i2c_dev
+[    3.867363] CPU: 14 PID: 491 Comm: systemd-udevd Tainted: G          I       5.18.0-rc5+ #33
+[    3.867366] Hardware name: Micro-Star International Co., Ltd. MS-7C95/B550M PRO-VDH WIFI (MS-7C95), BIOS 2.90 12/23/2021
+[    3.867369] RIP: 0010:__mutex_lock+0x44c/0x830
+[    3.867372] Code: ff 85 c0 0f 84 33 fc ff ff 8b 0d b7 50 25 01 85 c9 0f 85 25 fc ff ff 48 c7 c6 fb 41 82 99 48 c7 c7 6b 63 80 99 e8 88 2a f8 ff <0f> 0b e9 0b fc ff ff f6 83 b9 0c 00 00 01 0f 85 64 ff ff ff 4c 89
+[    3.867377] RSP: 0018:ffffaef8c0fc79f0 EFLAGS: 00010286
+[    3.867380] RAX: 0000000000000028 RBX: 0000000000000000 RCX: 0000000000000027
+[    3.867382] RDX: ffff9ccc0dda0928 RSI: 0000000000000001 RDI: ffff9ccc0dda0920
+[    3.867384] RBP: ffffaef8c0fc7a80 R08: 0000000000000000 R09: ffffaef8c0fc7820
+[    3.867386] R10: 0000000000000003 R11: ffff9ccc2a2fffe8 R12: 0000000000000002
+[    3.867388] R13: ffff9cc990808058 R14: 0000000000000000 R15: ffff9cc98bfc0000
+[    3.867390] FS:  00007fc4d830f580(0000) GS:ffff9ccc0dd80000(0000) knlGS:0000000000000000
+[    3.867394] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    3.867396] CR2: 0000560a77031410 CR3: 000000010f522000 CR4: 0000000000750ee0
+[    3.867398] PKRU: 55555554
+[    3.867399] Call Trace:
+[    3.867401]  <TASK>
+[    3.867403]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
+[    3.867533]  ? __mutex_lock+0x90/0x830
+[    3.867535]  ? amdgpu_dpm_mode2_reset+0x37/0x60 [amdgpu]
+[    3.867653]  ? smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
+[    3.867758]  smu_cmn_send_smc_msg_with_param+0x98/0x240 [amdgpu]
+[    3.867857]  smu_mode2_reset+0x2b/0x50 [amdgpu]
+[    3.867953]  amdgpu_dpm_mode2_reset+0x46/0x60 [amdgpu]
+[    3.868096]  amdgpu_device_init.cold+0x1069/0x1e78 [amdgpu]
+[    3.868219]  ? _raw_spin_unlock_irqrestore+0x30/0x50
+[    3.868222]  ? pci_conf1_read+0x9b/0xf0
+[    3.868226]  amdgpu_driver_load_kms+0x15/0x110 [amdgpu]
+[    3.868314]  amdgpu_pci_probe+0x1a9/0x3c0 [amdgpu]
+[    3.868398]  local_pci_probe+0x41/0x80
+[    3.868401]  pci_device_probe+0xab/0x200
+[    3.868404]  really_probe+0x1a1/0x370
+[    3.868407]  __driver_probe_device+0xfc/0x170
+[    3.868410]  driver_probe_device+0x1f/0x90
+[    3.868412]  __driver_attach+0xbf/0x1a0
+[    3.868414]  ? __device_attach_driver+0xe0/0xe0
+[    3.868416]  bus_for_each_dev+0x65/0x90
+[    3.868419]  bus_add_driver+0x151/0x1f0
+[    3.868421]  driver_register+0x89/0xd0
+[    3.868423]  ? 0xffffffffc0bd4000
+[    3.868425]  do_one_initcall+0x5d/0x300
+[    3.868428]  ? do_init_module+0x22/0x240
+[    3.868431]  ? rcu_read_lock_sched_held+0x3c/0x70
+[    3.868434]  ? trace_kmalloc+0x30/0xe0
+[    3.868437]  ? kmem_cache_alloc_trace+0x1e6/0x3a0
+[    3.868440]  do_init_module+0x4a/0x240
+[    3.868442]  __do_sys_finit_module+0x93/0xf0
+[    3.868446]  do_syscall_64+0x5b/0x80
+[    3.868449]  ? rcu_read_lock_sched_held+0x3c/0x70
+[    3.868451]  ? lockdep_hardirqs_on_prepare+0xd9/0x180
+[    3.868454]  ? do_syscall_64+0x67/0x80
+[    3.868456]  ? do_syscall_64+0x67/0x80
+[    3.868458]  ? do_syscall_64+0x67/0x80
+[    3.868460]  ? do_syscall_64+0x67/0x80
+[    3.868462]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+[    3.868465] RIP: 0033:0x7fc4d8ec1ced
+[    3.868467] Code: 5d c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d fb 70 0e 00 f7 d8 64 89 01 48
+[    3.868472] RSP: 002b:00007fff687ae6b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    3.868475] RAX: ffffffffffffffda RBX: 0000560a76fbca60 RCX: 00007fc4d8ec1ced
+[    3.868477] RDX: 0000000000000000 RSI: 00007fc4d902343c RDI: 0000000000000011
+[    3.868479] RBP: 00007fc4d902343c R08: 0000000000000000 R09: 0000560a76fb59c0
+[    3.868481] R10: 0000000000000011 R11: 0000000000000246 R12: 0000000000020000
+[    3.868484] R13: 0000560a76f8bfd0 R14: 0000000000000000 R15: 0000560a76fc2d10
+[    3.868487]  </TASK>
+[    3.868489] irq event stamp: 120617
+[    3.868490] hardirqs last  enabled at (120617): [<ffffffff9817169e>] __up_console_sem+0x5e/0x70
+[    3.868494] hardirqs last disabled at (120616): [<ffffffff98171683>] __up_console_sem+0x43/0x70
+[    3.868497] softirqs last  enabled at (119684): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
+[    3.868501] softirqs last disabled at (119679): [<ffffffff980ee83a>] __irq_exit_rcu+0xca/0x100
+[    3.868504] ---[ end trace 0000000000000000 ]---
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c  | 62 ++++++++++++++-----
- 1 file changed, 46 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-index e2d099409123..87257b1b028f 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/yellow_carp_ppt.c
-@@ -276,6 +276,42 @@ static int yellow_carp_mode2_reset(struct smu_context *smu)
- 	return yellow_carp_mode_reset(smu, SMU_RESET_MODE_2);
- }
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+index f10a0256413e..32cff21f261c 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/amdgpu_smu.c
+@@ -576,6 +576,8 @@ static int smu_early_init(void *handle)
+ 	smu->smu_baco.platform_support = false;
+ 	smu->user_dpm_profile.fan_mode = -1;
  
++	mutex_init(&smu->message_lock);
 +
-+static void yellow_carp_get_ss_power_percent(SmuMetrics_t *metrics,
-+					uint32_t *apu_percent, uint32_t *dgpu_percent)
-+{
-+	uint32_t apu_boost = 0;
-+	uint32_t dgpu_boost = 0;
-+	uint16_t apu_limit = 0;
-+	uint16_t dgpu_limit = 0;
-+	uint16_t apu_power = 0;
-+	uint16_t dgpu_power = 0;
-+
-+	/* APU and dGPU power values are reported in milli Watts
-+	 * and STAPM power limits are in Watts */
-+	apu_power = metrics->ApuPower/1000;
-+	apu_limit = metrics->StapmOpnLimit;
-+	if (apu_power > apu_limit && apu_limit != 0)
-+		apu_boost =  ((apu_power - apu_limit) * 100) / apu_limit;
-+	apu_boost = (apu_boost > 100) ? 100 : apu_boost;
-+
-+	dgpu_power = metrics->dGpuPower/1000;
-+	if (metrics->StapmCurrentLimit > metrics->StapmOpnLimit)
-+		dgpu_limit = metrics->StapmCurrentLimit - metrics->StapmOpnLimit;
-+	if (dgpu_power > dgpu_limit && dgpu_limit != 0)
-+		dgpu_boost = ((dgpu_power - dgpu_limit) * 100) / dgpu_limit;
-+	dgpu_boost = (dgpu_boost > 100) ? 100 : dgpu_boost;
-+
-+	if (dgpu_boost >= apu_boost)
-+		apu_boost = 0;
-+	else
-+		dgpu_boost = 0;
-+
-+	*apu_percent = apu_boost;
-+	*dgpu_percent = dgpu_boost;
-+
-+}
-+
- static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
- 							MetricsMember_t member,
- 							uint32_t *value)
-@@ -284,6 +320,8 @@ static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
+ 	adev->powerplay.pp_handle = smu;
+ 	adev->powerplay.pp_funcs = &swsmu_pm_funcs;
  
- 	SmuMetrics_t *metrics = (SmuMetrics_t *)smu_table->metrics_table;
- 	int ret = 0;
-+	uint32_t apu_percent = 0;
-+	uint32_t dgpu_percent = 0;
+@@ -975,8 +977,6 @@ static int smu_sw_init(void *handle)
+ 	bitmap_zero(smu->smu_feature.supported, SMU_FEATURE_MAX);
+ 	bitmap_zero(smu->smu_feature.allowed, SMU_FEATURE_MAX);
  
- 	ret = smu_cmn_get_metrics_table(smu, NULL, false);
- 	if (ret)
-@@ -332,26 +370,18 @@ static int yellow_carp_get_smu_metrics_data(struct smu_context *smu,
- 		*value = metrics->Voltage[1];
- 		break;
- 	case METRICS_SS_APU_SHARE:
--		/* return the percentage of APU power with respect to APU's power limit.
--		 * percentage is reported, this isn't boost value. Smartshift power
--		 * boost/shift is only when the percentage is more than 100.
-+		/* return the percentage of APU power boost
-+		 * with respect to APU's power limit.
- 		 */
--		if (metrics->StapmOpnLimit > 0)
--			*value =  (metrics->ApuPower * 100) / metrics->StapmOpnLimit;
--		else
--			*value = 0;
-+		yellow_carp_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
-+		*value = apu_percent;
- 		break;
- 	case METRICS_SS_DGPU_SHARE:
--		/* return the percentage of dGPU power with respect to dGPU's power limit.
--		 * percentage is reported, this isn't boost value. Smartshift power
--		 * boost/shift is only when the percentage is more than 100.
-+		/* return the percentage of dGPU power boost
-+		 * with respect to dGPU's power limit.
- 		 */
--		if ((metrics->dGpuPower > 0) &&
--		    (metrics->StapmCurrentLimit > metrics->StapmOpnLimit))
--			*value = (metrics->dGpuPower * 100) /
--				  (metrics->StapmCurrentLimit - metrics->StapmOpnLimit);
--		else
--			*value = 0;
-+		yellow_carp_get_ss_power_percent(metrics, &apu_percent, &dgpu_percent);
-+		*value = dgpu_percent;
- 		break;
- 	default:
- 		*value = UINT_MAX;
+-	mutex_init(&smu->message_lock);
+-
+ 	INIT_WORK(&smu->throttling_logging_work, smu_throttling_logging_work_fn);
+ 	INIT_WORK(&smu->interrupt_work, smu_interrupt_work_fn);
+ 	atomic64_set(&smu->throttle_int_counter, 0);
 -- 
 2.35.1
 
