@@ -2,203 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADD665386BD
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 19:25:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 824AC5386D2
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 19:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231679AbiE3RZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 13:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39666 "EHLO
+        id S236134AbiE3Rgc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 13:36:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230490AbiE3RZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 13:25:39 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 336C3793AD
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 10:25:38 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id f4so10639806pgf.4
-        for <stable@vger.kernel.org>; Mon, 30 May 2022 10:25:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=kW0zJyN49Mv1Mg603RRCHxYEzzfLVAButd2eSFD7YGw=;
-        b=Ak2fJCYFlLkOUKKKcPTMD/7/J1X1jCWbv29Pyy8/ssKVBYObi5XpSbdjtaV3Y+uhG+
-         2IIW9n7qQ2+rOszCuILiw74AcFnQQc/apRa+3mjMlh6vE28mbwPWt1hYZq5p1kvBjm07
-         WI6hFpm7dZx4aiyn8kssJgir9dTtmQ6ZLJnvMv7a64qj4FLrp0SQL9JuQR5Ayq3BUdO2
-         Tda4PE4UzKk0kvs63tSAdxLt99SSg0hVhFk5bs72bOBmsfVsrcZ3F7tP3fk2rCswVOPK
-         5lxnV+y/NkkRFMWgEmei7AXkuyYr1pVdZS6sGxZbq634RW+XrxXDLGkYW/sQ36DiV3ke
-         BaAw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=kW0zJyN49Mv1Mg603RRCHxYEzzfLVAButd2eSFD7YGw=;
-        b=fx/Ns5NnS/7HXdZ99xG257LDJVksrisxVWszarruVSTlRt9Kyz3IxvcaY2z1SgFAip
-         BbF0+In4usoW8rzg2SlK0u04JWF6zQZ0jgUtItE7pzodH7qmc5l0JmMuAWf1BcpF5174
-         m2BuUusvSrxiA4xzWEO2BXnjfkA+DSjuAuMqIYakPrcibhAMDoMEf3zYRuB4ep7zKC+P
-         k9wsz8oB4N3gYBlqhda4UwVNYMf9ydPo+bbaTdXUOPtbinxaJRaqyg3lKY/pkgU25O7h
-         JdIekJ1aaGYY0U/pqNx35dEjcgkqvRx5UASZuLoTVLmMfAwNfxUntM387BeWf5jTrhh6
-         RJ4w==
-X-Gm-Message-State: AOAM532eqnRU5SgQ+mfQQZdlXc8jnDdHiNdTaXt5Oqu8STyxNUqfNOFp
-        mv/EIJ7SeSKn1EkQPxBiH8eGpUXr1ZYo9Qw4BWw=
-X-Google-Smtp-Source: ABdhPJyLu6KQmMB1tpaTGbFAxUWmLlvZpiBsTO6rhOs2MWYcgAeGCxvTEewTVi85QI8e+4JKDY4p4g==
-X-Received: by 2002:a65:6d0d:0:b0:3fb:1477:5191 with SMTP id bf13-20020a656d0d000000b003fb14775191mr19069843pgb.541.1653931537550;
-        Mon, 30 May 2022 10:25:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x1-20020a633101000000b003f60a8d7dadsm8670742pgx.15.2022.05.30.10.25.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 30 May 2022 10:25:37 -0700 (PDT)
-Message-ID: <6294fe11.1c69fb81.f68ed.33eb@mx.google.com>
-Date:   Mon, 30 May 2022 10:25:37 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229790AbiE3Rgb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 13:36:31 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F07B6898D;
+        Mon, 30 May 2022 10:36:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 902A3B80DC0;
+        Mon, 30 May 2022 17:36:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF5DC385B8;
+        Mon, 30 May 2022 17:36:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1653932188;
+        bh=FoOGGS5HbF/zub9jWYSV2y47AxBkhodh4GDcvNJTV/E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=k9XidlBjS90S1D3ozRaqkXwNoMLtXaaUSzgtU8f/9GuNDlh7sC/92xLJXDU4IZN6C
+         Hh6rFuhGvl1O8YDK+6xu7FAL4BXeW7+CqWwh8vyrLY0hVM4nNEdd5/Qv90zTJ4gjhs
+         2hwy8RLr1rKQghxP6wKv1cSRK1mrQKJZ+PtTsIQ9t6IHG/mSKietwUakM8Btp0U1us
+         teAMQzQ3QHhDj+D9C/6xe6ZX/8XxXUtN0zlx7hM3ApDk2WtCuw6VwFQliMwbeEDTVn
+         ICejKzj4wdYHo5lhN2BYhDTqq49SsHp/xDYTSB7+DmswshdDFlT1d8S39UDUuFy7x8
+         I1Gq9SLH0VtLA==
+Date:   Mon, 30 May 2022 10:36:26 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Zheng Bin <zhengbin13@huawei.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH crypto] crypto: memneq - move into lib/
+Message-ID: <YpUAmiBSb6oEr1oc@sol.localdomain>
+References: <CAHmME9rWfUnUmHR5xo_+WdS0Wgv8yXQb+LqAo24XdoQQR4Wn8w@mail.gmail.com>
+ <20220528102429.189731-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.44
-X-Kernelci-Branch: linux-5.15.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-5.15.y baseline: 184 runs, 3 regressions (v5.15.44)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,
-        T_SCC_BODY_TEXT_LINE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220528102429.189731-1-Jason@zx2c4.com>
+X-Spam-Status: No, score=-7.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS,T_SCC_BODY_TEXT_LINE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.15.y baseline: 184 runs, 3 regressions (v5.15.44)
+On Sat, May 28, 2022 at 12:24:29PM +0200, Jason A. Donenfeld wrote:
+> This is used by code that doesn't need CONFIG_CRYPTO, so move this into
+> lib/ with a Kconfig option so that it can be selected by whatever needs
+> it.
+> 
+> This fixes a linker error Zheng pointed out when
+> CRYPTO_MANAGER_DISABLE_TESTS!=y and CRYPTO=m:
+> 
+>   lib/crypto/curve25519-selftest.o: In function `curve25519_selftest':
+>   curve25519-selftest.c:(.init.text+0x60): undefined reference to `__crypto_memneq'
+>   curve25519-selftest.c:(.init.text+0xec): undefined reference to `__crypto_memneq'
+>   curve25519-selftest.c:(.init.text+0x114): undefined reference to `__crypto_memneq'
+>   curve25519-selftest.c:(.init.text+0x154): undefined reference to `__crypto_memneq'
+> 
+> Reported-by: Zheng Bin <zhengbin13@huawei.com>
+> Cc: Eric Biggers <ebiggers@kernel.org>
+> Cc: stable@vger.kernel.org
+> Fixes: aa127963f1ca ("crypto: lib/curve25519 - re-add selftests")
+> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+> ---
+> I'm traveling over the next week, and there are a few ways to skin this
+> cat, so if somebody here sees issue, feel free to pick this v1 up and
+> fashion a v2 out of it.
+> 
+>  crypto/Kconfig           | 1 +
+>  crypto/Makefile          | 2 +-
+>  lib/Kconfig              | 3 +++
+>  lib/Makefile             | 1 +
+>  lib/crypto/Kconfig       | 1 +
+>  {crypto => lib}/memneq.c | 0
+>  6 files changed, 7 insertions(+), 1 deletion(-)
+>  rename {crypto => lib}/memneq.c (100%)
 
-Regressions Summary
--------------------
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig   =
-      | 1          =
-
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | tegra_defconfig      =
-      | 1          =
-
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
-/v5.15.44/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.15.y
-  Describe: v5.15.44
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      4e67be407725b1d8b829ed2075987037abec98ec =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | multi_v7_defconfig   =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294d816e9b10b8707a39c42
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294d816e9b10b8707a39=
-c43
-        failing since 5 days (last pass: v5.15.39, first fail: v5.15.42) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-jetson-tk1       | arm   | lab-baylibre  | gcc-10   | tegra_defconfig      =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294cab77c7794daf4a39bda
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: tegra_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm/tegra_defconfig/gcc-10/lab-baylibre/baseline-jetson-tk1.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/6294cab77c7794daf4a39=
-bdb
-        failing since 5 days (last pass: v5.15.39, first fail: v5.15.42) =
-
- =
-
-
-
-platform         | arch  | lab           | compiler | defconfig            =
-      | regressions
------------------+-------+---------------+----------+----------------------=
-------+------------
-rk3399-gru-kevin | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrom=
-ebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6294c95965eaa751b2a39bcd
-
-  Results:     88 PASS, 4 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.44/a=
-rm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/baseline-rk3399-gru-ke=
-vin.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220527.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.rockchip-i2s1-probed: https://kernelci.org/test/case/id=
-/6294c95965eaa751b2a39bef
-        failing since 82 days (last pass: v5.15.25, first fail: v5.15.27)
-
-    2022-05-30T13:40:27.550989  /lava-6502024/1/../bin/lava-test-case
-    2022-05-30T13:40:27.562365  <8>[   60.879485] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Drockchip-i2s1-probed RESULT=3Dfail>   =
-
- =20
+- Eric
