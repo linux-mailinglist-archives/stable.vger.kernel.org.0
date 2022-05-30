@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B67FF537D08
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C67AB537DAB
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237519AbiE3Ngt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:36:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44724 "EHLO
+        id S237684AbiE3NhX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:37:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237807AbiE3Nfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:46 -0400
+        with ESMTP id S237826AbiE3Nfr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:35:47 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B96F954A3;
-        Mon, 30 May 2022 06:28:58 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FCA954BE;
+        Mon, 30 May 2022 06:29:04 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00E3B60EE0;
-        Mon, 30 May 2022 13:28:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F02FC3411E;
-        Mon, 30 May 2022 13:28:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FF3160F14;
+        Mon, 30 May 2022 13:29:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D88F5C36AE3;
+        Mon, 30 May 2022 13:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917337;
-        bh=rtHzjj2GFfazvNSR27w6EM4Oeo2YGiREyRIw+vC3rmw=;
+        s=k20201202; t=1653917343;
+        bh=+u2Yt/xw2sPo6EAVrtuFDGeht+dJf7/yaSqLvJi8jeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfhHlIubqgFaQ26qsyBBX62m3uUuaZOte+nyDQrtvU0kR0r3p2I0BJciH3Ns0Qr5f
-         yK/wxJDDQv2V9UzkOx0cAD4sltESdVhYyPq+dxhYOhb9hLdfApa9YR8nKu1vVwHPz/
-         0xPub9zkzr4ZlY8sjZdhxdIrm0EDe43j81/eZQeDXSW9D0MKd3mVashrunh2ZFoeVd
-         VkdjfNCojlvxJs0Kb/3hyNQLoZQmNg/otb8a6TAgtGV8H/QzFeHj8DVP1MKp5OiuyQ
-         poJvranirpFe9McO15yC3QhtE47ly5kgW556iAyE+1Mv8DcgqLNtYClyiVdoMQg3Iz
-         twcy4lVXuinVQ==
+        b=AO/wEyi808gEYCmqtnYNeOxSK8//WZeOSquzCiZaj7ETF/F++sTlLvn179hVTWOyS
+         4kkq1SDPgJmiM9tluIm/D2pBUb3Y7jWUTA2zGIRzl2MllKjNyoy2NsLwx4cjzAl440
+         BTkg8yPJscoIadM18/+BbBUCsszONxZy81Z0M5lEkRKv4z3/OE22rgTmGCQ/zF1bpi
+         zW/ctjLlf+VnnHpryutVBA5XWtW3m9y8rF9omBXU3PSUD2YmI5bOxMXggh2f/FI43p
+         APpeLAqPMBWw+ZRAeH+hhTkxNAB0ehLWE0/+yttebx4JEe8O7NAahOgFGY4Yv9ZyCc
+         bq9jvwUdWISNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Seth Forshee <seth.forshee@digitalocean.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org,
-        Christian Brauner <brauner@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.18 101/159] fs: hold writers when changing mount's idmapping
-Date:   Mon, 30 May 2022 09:23:26 -0400
-Message-Id: <20220530132425.1929512-101-sashal@kernel.org>
+Cc:     Zheng Bin <zhengbin13@huawei.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        pierre-louis.bossart@linux.intel.com, lgirdwood@gmail.com,
+        ranjani.sridharan@linux.intel.com, kai.vehmanen@linux.intel.com,
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        yung-chuan.liao@linux.intel.com, peter.ujfalusi@linux.intel.com,
+        rander.wang@intel.com, AjitKumar.Pandey@amd.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.18 102/159] ASoC: SOF: amd: add missing platform_device_unregister in acp_pci_rn_probe
+Date:   Mon, 30 May 2022 09:23:27 -0400
+Message-Id: <20220530132425.1929512-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -60,65 +61,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Zheng Bin <zhengbin13@huawei.com>
 
-[ Upstream commit e1bbcd277a53e08d619ffeec56c5c9287f2bf42f ]
+[ Upstream commit cbcab8cd737c74c20195c31d647e19f7cb49c9b8 ]
 
-Hold writers when changing a mount's idmapping to make it more robust.
+acp_pci_rn_probe misses a call platform_device_unregister in error path,
+this patch fixes that.
 
-The vfs layer takes care to retrieve the idmapping of a mount once
-ensuring that the idmapping used for vfs permission checking is
-identical to the idmapping passed down to the filesystem.
-
-For ioctl codepaths the filesystem itself is responsible for taking the
-idmapping into account if they need to. While all filesystems with
-FS_ALLOW_IDMAP raised take the same precautions as the vfs we should
-enforce it explicitly by making sure there are no active writers on the
-relevant mount while changing the idmapping.
-
-This is similar to turning a mount ro with the difference that in
-contrast to turning a mount ro changing the idmapping can only ever be
-done once while a mount can transition between ro and rw as much as it
-wants.
-
-This is a minor user-visible change. But it is extremely unlikely to
-matter. The caller must've created a detached mount via OPEN_TREE_CLONE
-and then handed that O_PATH fd to another process or thread which then
-must've gotten a writable fd for that mount and started creating files
-in there while the caller is still changing mount properties. While not
-impossible it will be an extremely rare corner-case and should in
-general be considered a bug in the application. Consider making a mount
-MOUNT_ATTR_NOEXEC or MOUNT_ATTR_NODEV while allowing someone else to
-perform lookups or exec'ing in parallel by handing them a copy of the
-OPEN_TREE_CLONE fd or another fd beneath that mount.
-
-Link: https://lore.kernel.org/r/20220510095840.152264-1-brauner@kernel.org
-Cc: Seth Forshee <seth.forshee@digitalocean.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: linux-fsdevel@vger.kernel.org
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Signed-off-by: Zheng Bin <zhengbin13@huawei.com>
+Link: https://lore.kernel.org/r/20220512013728.4128903-1-zhengbin13@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/namespace.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ sound/soc/sof/amd/pci-rn.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/namespace.c b/fs/namespace.c
-index afe2b64b14f1..41461f55c039 100644
---- a/fs/namespace.c
-+++ b/fs/namespace.c
-@@ -4026,8 +4026,9 @@ static int can_idmap_mount(const struct mount_kattr *kattr, struct mount *mnt)
- static inline bool mnt_allow_writers(const struct mount_kattr *kattr,
- 				     const struct mount *mnt)
- {
--	return !(kattr->attr_set & MNT_READONLY) ||
--	       (mnt->mnt.mnt_flags & MNT_READONLY);
-+	return (!(kattr->attr_set & MNT_READONLY) ||
-+		(mnt->mnt.mnt_flags & MNT_READONLY)) &&
-+	       !kattr->mnt_userns;
- }
+diff --git a/sound/soc/sof/amd/pci-rn.c b/sound/soc/sof/amd/pci-rn.c
+index 392ffbdf6417..d809d151a38c 100644
+--- a/sound/soc/sof/amd/pci-rn.c
++++ b/sound/soc/sof/amd/pci-rn.c
+@@ -93,6 +93,7 @@ static int acp_pci_rn_probe(struct pci_dev *pci, const struct pci_device_id *pci
+ 	res = devm_kzalloc(&pci->dev, sizeof(struct resource) * ARRAY_SIZE(renoir_res), GFP_KERNEL);
+ 	if (!res) {
+ 		sof_pci_remove(pci);
++		platform_device_unregister(dmic_dev);
+ 		return -ENOMEM;
+ 	}
  
- static int mount_setattr_prepare(struct mount_kattr *kattr, struct mount *mnt)
 -- 
 2.35.1
 
