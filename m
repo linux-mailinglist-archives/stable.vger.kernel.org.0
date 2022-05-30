@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 35BE0537CDE
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E58BB537D18
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 15:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237544AbiE3Nik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 09:38:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56320 "EHLO
+        id S237504AbiE3Niv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 09:38:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237598AbiE3Ngz (ORCPT
+        with ESMTP id S237670AbiE3Ngz (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 09:36:55 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 798B86D396;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F01094D616;
         Mon, 30 May 2022 06:30:39 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26B60B80DAD;
-        Mon, 30 May 2022 13:30:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8099C3411C;
-        Mon, 30 May 2022 13:30:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5078D60EE0;
+        Mon, 30 May 2022 13:30:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E9CEC3411F;
+        Mon, 30 May 2022 13:30:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917436;
-        bh=p85B30dk9OhAgqXpoKQRxZZSIMPJk0LPPpMeE1vocXM=;
+        s=k20201202; t=1653917438;
+        bh=lyG/J14veE4PPv7P93S7wmHZ8PtfDwL4ePf9On8nxYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYixhiyn7uUOfBnaD3GRTlG6rt2pFXg4bRsH7NwVNKU1nzYZsFWuXOvZuca2aJWeT
-         SF22lyEIbf5UbVbfMijNXUiixEA7Etlzki9GFAE0zqBuuUmliaKw+ue7OZzPezWAWS
-         ea7uiteyJ+VH2ZmVEIZZONdzB2y/MT3PLR23wmnyIXOOfOx4tNUUEaVzPFs4HkAtwa
-         gI9fuhdud/he47zDCz48Lx08VCBoFMvCpYzbo7iPKtOL24EkOyXcyMf0werX947Y2P
-         Q3NtDU3pL2gw0HcpBjGER0/lxMeyepmqmuCbaLTHeYmHyJIz6gxAjHwkXDUCWDSi9V
-         wRy7QQjG/qjUA==
+        b=Nv0QKfKewf4GNfzwp7pZiQGi1c0bxjafh0/VS5PD1hgFzNKfpKqDvrqXfb9daSR+Y
+         zp1zPzwjXXUHwkh/h1LTfZ8c3cPdbFp1bwtlcMoasnrnPvm+2NLxZ2YrUR4ONdS+Xf
+         PthlVF/PnsnDd2Bmhhc7vQ9Eugoun0rqTTWXZJiQPC5P/Stp2BPYyXNKan38QbYcsD
+         gx7092OThgsE9tbU0uc74dy+rd7jJvOw4KpevoA/IhC3HcAD423vm7MO9bxc2Zghx7
+         6g6QgeCPKkSBEpE6zPXI1Pe/i0G9avxh05AN3roowJQICfIknOzENat0ABwNJsLZns
+         XpIkMrgfwZQow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kwanghoon Son <k.son@samsung.com>,
-        kernel test robot <lkp@intel.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+Cc:     Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+        Sebastian Fricke <sebastian.fricke@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, s.nawrocki@samsung.com,
-        krzysztof.kozlowski@linaro.org, linux-media@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.18 135/159] media: exynos4-is: Fix compile warning
-Date:   Mon, 30 May 2022 09:24:00 -0400
-Message-Id: <20220530132425.1929512-135-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ezequiel@vanguardiasur.com.ar,
+        p.zabel@pengutronix.de, gregkh@linuxfoundation.org,
+        linux-media@vger.kernel.org, linux-rockchip@lists.infradead.org,
+        linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.18 136/159] media: hantro: Stop using H.264 parameter pic_num
+Date:   Mon, 30 May 2022 09:24:01 -0400
+Message-Id: <20220530132425.1929512-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530132425.1929512-1-sashal@kernel.org>
 References: <20220530132425.1929512-1-sashal@kernel.org>
@@ -61,37 +61,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kwanghoon Son <k.son@samsung.com>
+From: Nicolas Dufresne <nicolas.dufresne@collabora.com>
 
-[ Upstream commit e080f5c1f2b6d02c02ee5d674e0e392ccf63bbaf ]
+[ Upstream commit 831410700909f4e29d5af1ef26b8c59fc2d1988e ]
 
-Declare static on function 'fimc_isp_video_device_unregister'.
+The hardware expects FrameNumWrap or long_term_frame_idx. Picture
+numbers are per field, and are mostly used during the memory
+management process, which is done in userland. This fixes two
+ITU conformance tests:
 
-When VIDEO_EXYNOS4_ISP_DMA_CAPTURE=n, compiler warns about
-warning: no previous prototype for function [-Wmissing-prototypes]
+  - MR6_BT_B
+  - MR8_BT_B
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Kwanghoon Son <k.son@samsung.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Nicolas Dufresne <nicolas.dufresne@collabora.com>
+Reviewed-by: Sebastian Fricke <sebastian.fricke@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/hantro/hantro_h264.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h b/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-index edcb3a5e3cb9..2dd4ddbc748a 100644
---- a/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-+++ b/drivers/media/platform/samsung/exynos4-is/fimc-isp-video.h
-@@ -32,7 +32,7 @@ static inline int fimc_isp_video_device_register(struct fimc_isp *isp,
- 	return 0;
+diff --git a/drivers/staging/media/hantro/hantro_h264.c b/drivers/staging/media/hantro/hantro_h264.c
+index 0b4d2491be3b..228629fb3cdf 100644
+--- a/drivers/staging/media/hantro/hantro_h264.c
++++ b/drivers/staging/media/hantro/hantro_h264.c
+@@ -354,8 +354,6 @@ u16 hantro_h264_get_ref_nbr(struct hantro_ctx *ctx, unsigned int dpb_idx)
+ 
+ 	if (!(dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_ACTIVE))
+ 		return 0;
+-	if (dpb->flags & V4L2_H264_DPB_ENTRY_FLAG_LONG_TERM)
+-		return dpb->pic_num;
+ 	return dpb->frame_num;
  }
  
--void fimc_isp_video_device_unregister(struct fimc_isp *isp,
-+static inline void fimc_isp_video_device_unregister(struct fimc_isp *isp,
- 				enum v4l2_buf_type type)
- {
- }
 -- 
 2.35.1
 
