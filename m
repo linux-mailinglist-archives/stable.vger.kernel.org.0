@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51313537F14
-	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 230E4537E71
+	for <lists+stable@lfdr.de>; Mon, 30 May 2022 16:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236007AbiE3OD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 May 2022 10:03:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
+        id S236807AbiE3ODt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 May 2022 10:03:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239048AbiE3OAM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:00:12 -0400
+        with ESMTP id S239200AbiE3OAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 May 2022 10:00:37 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A425BDA0E;
-        Mon, 30 May 2022 06:39:19 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5373DC03A9;
+        Mon, 30 May 2022 06:39:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83C7660F3B;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C47360F47;
+        Mon, 30 May 2022 13:39:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81C88C3411A;
         Mon, 30 May 2022 13:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1D1EC385B8;
-        Mon, 30 May 2022 13:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653917957;
-        bh=+e7jOA+nZdM0ztWhPDDfDZIxRWdZM8KO7MGg41thVdg=;
+        s=k20201202; t=1653917959;
+        bh=FQwziglgkBLVDlXYTVImRSZ6I3JMIlVZvuJ9ooDrL6c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOQW2RnYARIlisr0UCiosBKDUvkNUMrfB9JkImCXFCFxLkDYERYrebUSk0E263SAE
-         GyWv1qUIFlKBNtY2DUyFkzGbJUXhV3eh6Esz5BJWgzrczNUcyi8c3xkewMGqHE5gx4
-         qe7OzfXnRem3eV7pN0RN5T1qWLtz0vemm1nH7BY/qsK6bCqCZLHYFBjkB81vvM0rm4
-         7pkUyoqUaI2FXHGyP+mz2SNCwN1dblQ9OItIrDnMvIfzi5cHp4lYr0HQCyXkwjqc9g
-         /3Ww0JNGSLWBOcI2cXe6vXPKcMgvOZbNx6iTuxGkp5graHQI2rMbb36/tLqF+1hNW3
-         6as95bHPCNOvQ==
+        b=p3ws7ivg5yb8wwDxZauc/Cfm7CraOHGb3FLLhDCLqUXfz8aXV526DD57Ow8cUz4Ai
+         T9+VAcw231yhTmqq5pWpBSn7aMOY09Os0jU5XPtjcoNIOLu1NzUQeHLPKmSmiXTk9n
+         au/Oy8l1hG3jOAloxm1eJhsRTjGEit6qz41LO+RF0j+CHicK97KnpH+5Yx5W9gSosM
+         XlgWzGNlaqiK0qddznMqV2gilLlrbcVbjKhkrl30huUeTkzp4T0YiXhqkEBlkYZrVQ
+         livA/Du+4eKL1Q+CtF30xQHREeHjBMN2vNnOd2+fRBrVTzZaxIuVz9aPcGxhZzibdl
+         OEE0gV8AcFFQA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saaem Rizvi <syerizvi@amd.com>, Eric Yang <Eric.Yang2@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, nicholas.kazlauskas@amd.com,
-        michael.strauss@amd.com, Jerry.Zuo@amd.com, nikola.cornij@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 016/109] drm/amd/display: Disabling Z10 on DCN31
-Date:   Mon, 30 May 2022 09:36:52 -0400
-Message-Id: <20220530133825.1933431-16-sashal@kernel.org>
+Cc:     Padmanabha Srinivasaiah <treasure4paddy@gmail.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
+        quic_neeraju@quicinc.com, josh@joshtriplett.org,
+        rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 017/109] rcu-tasks: Fix race in schedule and flush work
+Date:   Mon, 30 May 2022 09:36:53 -0400
+Message-Id: <20220530133825.1933431-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
 References: <20220530133825.1933431-1-sashal@kernel.org>
@@ -62,37 +58,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saaem Rizvi <syerizvi@amd.com>
+From: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
 
-[ Upstream commit 5d5af34072c8b11f60960c3bea57ff9de5877791 ]
+[ Upstream commit f75fd4b9221d93177c50dcfde671b2e907f53e86 ]
 
-[WHY]
-Z10 is should not be enabled by default on DCN31.
+While booting secondary CPUs, cpus_read_[lock/unlock] is not keeping
+online cpumask stable. The transient online mask results in below
+calltrace.
 
-[HOW]
-Using DC debug flags to disable Z10 by default on DCN31.
+[    0.324121] CPU1: Booted secondary processor 0x0000000001 [0x410fd083]
+[    0.346652] Detected PIPT I-cache on CPU2
+[    0.347212] CPU2: Booted secondary processor 0x0000000002 [0x410fd083]
+[    0.377255] Detected PIPT I-cache on CPU3
+[    0.377823] CPU3: Booted secondary processor 0x0000000003 [0x410fd083]
+[    0.379040] ------------[ cut here ]------------
+[    0.383662] WARNING: CPU: 0 PID: 10 at kernel/workqueue.c:3084 __flush_work+0x12c/0x138
+[    0.384850] Modules linked in:
+[    0.385403] CPU: 0 PID: 10 Comm: rcu_tasks_rude_ Not tainted 5.17.0-rc3-v8+ #13
+[    0.386473] Hardware name: Raspberry Pi 4 Model B Rev 1.4 (DT)
+[    0.387289] pstate: 20000005 (nzCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[    0.388308] pc : __flush_work+0x12c/0x138
+[    0.388970] lr : __flush_work+0x80/0x138
+[    0.389620] sp : ffffffc00aaf3c60
+[    0.390139] x29: ffffffc00aaf3d20 x28: ffffffc009c16af0 x27: ffffff80f761df48
+[    0.391316] x26: 0000000000000004 x25: 0000000000000003 x24: 0000000000000100
+[    0.392493] x23: ffffffffffffffff x22: ffffffc009c16b10 x21: ffffffc009c16b28
+[    0.393668] x20: ffffffc009e53861 x19: ffffff80f77fbf40 x18: 00000000d744fcc9
+[    0.394842] x17: 000000000000000b x16: 00000000000001c2 x15: ffffffc009e57550
+[    0.396016] x14: 0000000000000000 x13: ffffffffffffffff x12: 0000000100000000
+[    0.397190] x11: 0000000000000462 x10: ffffff8040258008 x9 : 0000000100000000
+[    0.398364] x8 : 0000000000000000 x7 : ffffffc0093c8bf4 x6 : 0000000000000000
+[    0.399538] x5 : 0000000000000000 x4 : ffffffc00a976e40 x3 : ffffffc00810444c
+[    0.400711] x2 : 0000000000000004 x1 : 0000000000000000 x0 : 0000000000000000
+[    0.401886] Call trace:
+[    0.402309]  __flush_work+0x12c/0x138
+[    0.402941]  schedule_on_each_cpu+0x228/0x278
+[    0.403693]  rcu_tasks_rude_wait_gp+0x130/0x144
+[    0.404502]  rcu_tasks_kthread+0x220/0x254
+[    0.405264]  kthread+0x174/0x1ac
+[    0.405837]  ret_from_fork+0x10/0x20
+[    0.406456] irq event stamp: 102
+[    0.406966] hardirqs last  enabled at (101): [<ffffffc0093c8468>] _raw_spin_unlock_irq+0x78/0xb4
+[    0.408304] hardirqs last disabled at (102): [<ffffffc0093b8270>] el1_dbg+0x24/0x5c
+[    0.409410] softirqs last  enabled at (54): [<ffffffc0081b80c8>] local_bh_enable+0xc/0x2c
+[    0.410645] softirqs last disabled at (50): [<ffffffc0081b809c>] local_bh_disable+0xc/0x2c
+[    0.411890] ---[ end trace 0000000000000000 ]---
+[    0.413000] smp: Brought up 1 node, 4 CPUs
+[    0.413762] SMP: Total of 4 processors activated.
+[    0.414566] CPU features: detected: 32-bit EL0 Support
+[    0.415414] CPU features: detected: 32-bit EL1 Support
+[    0.416278] CPU features: detected: CRC32 instructions
+[    0.447021] Callback from call_rcu_tasks_rude() invoked.
+[    0.506693] Callback from call_rcu_tasks() invoked.
 
-Reviewed-by: Eric Yang <Eric.Yang2@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Saaem Rizvi <syerizvi@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+This commit therefore fixes this issue by applying a single-CPU
+optimization to the RCU Tasks Rude grace-period process.  The key point
+here is that the purpose of this RCU flavor is to force a schedule on
+each online CPU since some past event.  But the rcu_tasks_rude_wait_gp()
+function runs in the context of the RCU Tasks Rude's grace-period kthread,
+so there must already have been a context switch on the current CPU since
+the call to either synchronize_rcu_tasks_rude() or call_rcu_tasks_rude().
+So if there is only a single CPU online, RCU Tasks Rude's grace-period
+kthread does not need to anything at all.
+
+It turns out that the rcu_tasks_rude_wait_gp() function's call to
+schedule_on_each_cpu() causes problems during early boot.  During that
+time, there is only one online CPU, namely the boot CPU.  Therefore,
+applying this single-CPU optimization fixes early-boot instances of
+this problem.
+
+Link: https://lore.kernel.org/lkml/20220210184319.25009-1-treasure4paddy@gmail.com/T/
+Suggested-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Padmanabha Srinivasaiah <treasure4paddy@gmail.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/rcu/tasks.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-index a5ef9d5e7685..310ced5058c4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-@@ -957,6 +957,7 @@ static const struct dc_debug_options debug_defaults_drv = {
- 			.optc = false,
- 		}
- 	},
-+	.disable_z10 = true,
- 	.optimize_edp_link_rate = true,
- 	.enable_sw_cntl_psr = true,
- };
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 6591914af486..60c9eacac25b 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -660,6 +660,9 @@ static void rcu_tasks_be_rude(struct work_struct *work)
+ // Wait for one rude RCU-tasks grace period.
+ static void rcu_tasks_rude_wait_gp(struct rcu_tasks *rtp)
+ {
++	if (num_online_cpus() <= 1)
++		return;	// Fastpath for only one CPU.
++
+ 	rtp->n_ipis += cpumask_weight(cpu_online_mask);
+ 	schedule_on_each_cpu(rcu_tasks_be_rude);
+ }
 -- 
 2.35.1
 
